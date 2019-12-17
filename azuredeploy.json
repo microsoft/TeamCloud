@@ -12,8 +12,8 @@
     "variables": {
         "functionAppNameLower": "[toLower(parameters('functionAppName'))]",
         "cosmosDbName": "[concat('database', uniqueString(resourceGroup().id))]",
-        "webjobsStorageAccountName": "[concat('webjobsstorage', uniqueString(resourceGroup().id))]",
-        "taskhubStorageAccountName": "[concat('taskhubstorage', uniqueString(resourceGroup().id))]",
+        "webjobsStorageAccountName": "[concat('wjstorage', uniqueString(resourceGroup().id))]",
+        "taskhubStorageAccountName": "[concat('thstorage', uniqueString(resourceGroup().id))]",
         "keyVaultName": "[concat('keyvault', uniqueString(resourceGroup().id))]",
         "appConfiguraitonName": "[concat('config', uniqueString(resourceGroup().id))]",
         "identityResourceId": "[concat(resourceId('Microsoft.Web/sites', variables('functionAppNameLower')),'/providers/Microsoft.ManagedIdentity/Identities/default')]"
@@ -82,7 +82,7 @@
                     },
                     "dependsOn": [
                         "[resourceId('Microsoft.Web/sites', variables('functionAppNameLower'))]"
-                    ]                    
+                    ]
                 }
             ]
         },
