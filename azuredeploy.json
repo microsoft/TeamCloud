@@ -1,0 +1,198 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "functionAppName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the TeamCloud instance that you wish to create. This will also be used as the subdomain of your service endpoint (i.e. myteamcloud.azurewebsites.net)."
+            }
+        }
+    },
+    "variables": {
+        "functionAppNameLower": "[toLower(parameters('functionAppName'))]",
+        "cosmosDbName": "[concat('database', uniqueString(resourceGroup().id))]",
+        "webjobsStorageAccountName": "[concat('webjobsstorage', uniqueString(resourceGroup().id))]",
+        "taskhubStorageAccountName": "[concat('taskhubstorage', uniqueString(resourceGroup().id))]",
+        "keyVaultName": "[concat('keyvault', uniqueString(resourceGroup().id))]",
+        "appConfiguraitonName": "[concat('config', uniqueString(resourceGroup().id))]",
+        "identityResourceId": "[concat(resourceId('Microsoft.Web/sites', variables('functionAppNameLower')),'/providers/Microsoft.ManagedIdentity/Identities/default')]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Web/serverfarms",
+            "kind": "functionapp",
+            "name": "[variables('functionAppNameLower')]",
+            "apiVersion": "2018-02-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "name": "[variables('functionAppNameLower')]",
+                "computeMode": "Dynamic"
+            },
+            "sku": {
+                "name": "Y1",
+                "tier": "Dynamic"
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites",
+            "kind": "functionapp",
+            "name": "[variables('functionAppNameLower')]",
+            "apiVersion": "2018-02-01",
+            "location": "[resourceGroup().location]",
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "name": "[variables('functionAppNameLower')]",
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('functionAppNameLower'))]",
+                "siteConfig": {
+                    "phpVersion": "off",
+                    "clientAffinityEnabled": false
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', variables('functionAppNameLower'))]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('webjobsStorageAccountName'))]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('taskhubStorageAccountName'))]",
+                "[resourceId('Microsoft.DocumentDb/databaseAccounts', variables('cosmosDbName'))]",
+                "[resourceId('Microsoft.AppConfiguration/configurationStores', variables('appConfiguraitonName'))]"
+            ],
+            "resources": [
+                {
+                    "type": "config",
+                    "name": "appsettings",
+                    "apiVersion": "2018-02-01",
+                    "properties": {
+                        "FUNCTION_APP_EDIT_MODE": "readonly",
+                        "FUNCTIONS_EXTENSION_VERSION": "~3",
+                        "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('webjobsStorageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('webjobsStorageAccountName')), '2017-06-01').keys[0].value)]",
+                        "WEBSITE_CONTENTSHARE": "[variables('functionAppNameLower')]",
+                        "WEBSITE_NODE_DEFAULT_VERSION": "~12",
+                        "PROJECT": "src/TeamCloud",
+                        "AzureWebJobsStorage": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('webjobsStorageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('webjobsStorageAccountName')), '2017-06-01').keys[0].value)]",
+                        "DurableFunctionsHubStorage": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('taskhubStorageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('taskhubStorageAccountName')), '2017-06-01').keys[0].value)]",
+                        "AzureCosmosDBConnection": "[concat('AccountEndpoint=', reference(concat('Microsoft.DocumentDb/databaseAccounts/', variables('cosmosDbName'))).documentEndpoint, ';AccountKey=', listKeys(resourceId('Microsoft.DocumentDb/databaseAccounts', variables('cosmosDbName')), '2015-04-08').primaryMasterKey)]",
+                        "AppConfigurationConnectionString": "[listKeys(resourceId('Microsoft.AppConfiguration/configurationStores', variables('appConfiguraitonName')), '2019-10-01').value[0].connectionString]",
+                        "RemoteDocumentDbKey": "[listKeys(resourceId('Microsoft.DocumentDb/databaseAccounts', variables('cosmosDbName')), '2015-04-08').primaryMasterKey]",
+                        "RemoteDocumentDbUrl": "[reference(concat('Microsoft.DocumentDb/databaseAccounts/', variables('cosmosDbName'))).documentEndpoint]",
+                        "APPINSIGHTS_INSTRUMENTATIONKEY": "[reference(resourceId('Microsoft.Insights/components', variables('functionAppNameLower')), '2015-05-01').InstrumentationKey]",
+                        "AzureKeyVaultName": "[variables('keyVaultName')]",
+                        "AzureKeyVaultUrl": "[concat('https://', variables('keyVaultName'), '.vault.azure.net')]"
+                    },
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Web/sites', variables('functionAppNameLower'))]"
+                    ]                    
+                }
+            ]
+        },
+        {
+            "type": "Microsoft.KeyVault/vaults",
+            "name": "[variables('keyVaultName')]",
+            "apiVersion": "2015-06-01",
+            "location": "[resourceGroup().location]",
+            "tags": {},
+            "properties": {
+                "sku": {
+                    "family": "A",
+                    "name": "Standard"
+                },
+                "tenantId": "[reference(variables('identityResourceId'), '2015-08-31-PREVIEW').tenantId]",
+                "accessPolicies": [
+                    {
+                        "tenantId": "[reference(variables('identityResourceId'), '2015-08-31-PREVIEW').tenantId]",
+                        "objectId": "[reference(variables('identityResourceId'), '2015-08-31-PREVIEW').principalId]",
+                        "permissions": {
+                            "secrets": [
+                                "Get",
+                                "List",
+                                "Set",
+                                "Delete"
+                            ]
+                        }
+                    }
+                ],
+                "enabledForDeployment": false
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', variables('functionAppNameLower'))]",
+                "[resourceId('Microsoft.Web/serverfarms', variables('functionAppNameLower'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Insights/components",
+            "kind": "web",
+            "name": "[variables('functionAppNameLower')]",
+            "apiVersion": "2014-04-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "ApplicationId": "[variables('functionAppNameLower')]"
+            },
+            "tags": {
+                "[concat('hidden-link:', resourceId('Microsoft.Web/sites', variables('functionAppNameLower')))]": "Resource"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', variables('functionAppNameLower'))]",
+                "[resourceId('Microsoft.Web/serverfarms', variables('functionAppNameLower'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.DocumentDB/databaseAccounts",
+            "name": "[variables('cosmosDbName')]",
+            "apiVersion": "2015-04-08",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "defaultExperience": "DocumentDB"
+            },
+            "properties": {
+                "name": "[variables('cosmosDbName')]",
+                "databaseAccountOfferType": "Standard",
+                "locations": [
+                    {
+                        "locationName": "[resourceGroup().location]",
+                        "failoverPriority": 0
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "name": "[variables('webjobsStorageAccountName')]",
+            "apiVersion": "2019-04-01",
+            "kind": "Storage",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "Standard_GRS",
+                "tier": "Standard"
+            },
+            "properties": {
+                "name": "[variables('webjobsStorageAccountName')]"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "name": "[variables('taskhubStorageAccountName')]",
+            "apiVersion": "2019-04-01",
+            "kind": "Storage",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "Standard_GRS",
+                "tier": "Standard"
+            },
+            "properties": {
+                "name": "[variables('taskhubStorageAccountName')]"
+            }
+        },
+        {
+            "type": "Microsoft.AppConfiguration/configurationStores",
+            "apiVersion": "2019-02-01-preview",
+            "name": "[variables('appConfiguraitonName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "name": "[variables('appConfiguraitonName')]"
+            }
+        }
+    ],
+    "outputs": {
+    }
+}
