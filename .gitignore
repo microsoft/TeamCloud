@@ -332,3 +332,4 @@ ASALocalRun/
 local/
 docs/local/
 *.DS_Store
+src/TeamCloud/local.settings.json
