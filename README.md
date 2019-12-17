@@ -1,5 +1,14 @@
+# TeamCloud
 
-# Contributing
+TeamCloud is a tool that enables enterprise IT organizations to provide application development teams "self-serve" access to secure compliant cloud development environments.
+
+## About
+
+**This project is in active development and will change.**  As the tool becomes ready for use, it will be [versioned](https://semver.org/) and released.
+
+We will do our best to conduct all development openly by [documenting](https://github.com/microsoft/TeamCloud/tree/master/docs) features and requirements, and managing the project using [issues](https://github.com/microsoft/TeamCloud/issues), [milestones](https://github.com/microsoft/TeamCloud/milestones), and [projects](https://github.com/microsoft/TeamCloud/projects).
+
+## Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
