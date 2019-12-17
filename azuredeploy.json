@@ -1,11 +1,18 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json",
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
         "functionAppName": {
             "type": "string",
             "metadata": {
                 "description": "The name of the TeamCloud instance that you wish to create. This will also be used as the subdomain of your service endpoint (i.e. myteamcloud.azurewebsites.net)."
+            }
+        },
+        "deployTeamCloudSource": {
+            "type": "bool",
+            "defaultValue": true,
+            "metadata": {
+                "description": "Uncheck to deploy only the Azure Resources used by TeamCloud and not the source code from GitHub."
             }
         }
     },
@@ -16,7 +23,8 @@
         "taskhubStorageAccountName": "[concat('thstorage', uniqueString(resourceGroup().id))]",
         "keyVaultName": "[concat('keyvault', uniqueString(resourceGroup().id))]",
         "appConfiguraitonName": "[concat('config', uniqueString(resourceGroup().id))]",
-        "identityResourceId": "[concat(resourceId('Microsoft.Web/sites', variables('functionAppNameLower')),'/providers/Microsoft.ManagedIdentity/Identities/default')]"
+        "sourceRepoUrl": "https://github.com/microsoft/TeamCloud.git",
+        "sourceBranch": "master"
     },
     "resources": [
         {
@@ -83,31 +91,76 @@
                     "dependsOn": [
                         "[resourceId('Microsoft.Web/sites', variables('functionAppNameLower'))]"
                     ]
+                },
+                {
+                    "condition": "[parameters('deployTeamCloudSource')]",
+                    "type": "sourcecontrols",
+                    "name": "web",
+                    "apiVersion": "2019-08-01",
+                     "properties": {
+                        "repoUrl": "[variables('sourceRepoUrl')]",
+                        "branch": "[variables('sourceBranch')]",
+                        "isManualIntegration": true,
+                        "deploymentRollbackEnabled": false,
+                        "isMercurial": false
+                    },
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Web/sites', variables('functionAppNameLower'))]",
+                        "[resourceId('Microsoft.Web/sites/config', variables('functionAppNameLower'), 'appsettings')]"
+                    ]
                 }
             ]
         },
         {
             "type": "Microsoft.KeyVault/vaults",
             "name": "[variables('keyVaultName')]",
-            "apiVersion": "2015-06-01",
+            "apiVersion": "2016-10-01",
             "location": "[resourceGroup().location]",
-            "tags": {},
             "properties": {
                 "sku": {
                     "family": "A",
                     "name": "Standard"
                 },
-                "tenantId": "[reference(variables('identityResourceId'), '2015-08-31-PREVIEW').tenantId]",
+                "tenantId": "[reference(concat('Microsoft.Web/sites/', variables('functionAppNameLower')), '2018-02-01', 'Full').identity.tenantId]",
                 "accessPolicies": [
                     {
-                        "tenantId": "[reference(variables('identityResourceId'), '2015-08-31-PREVIEW').tenantId]",
-                        "objectId": "[reference(variables('identityResourceId'), '2015-08-31-PREVIEW').principalId]",
+                        "tenantId": "[reference(concat('Microsoft.Web/sites/', variables('functionAppNameLower')), '2018-02-01', 'Full').identity.tenantId]",
+                        "objectId": "[reference(concat('Microsoft.Web/sites/', variables('functionAppNameLower')), '2018-02-01', 'Full').identity.principalId]",
                         "permissions": {
+                            "keys": [
+                                "Get",
+                                "List",
+                                "Update",
+                                "Create",
+                                "Import",
+                                "Delete",
+                                "Recover",
+                                "Backup",
+                                "Restore"
+                            ],
                             "secrets": [
                                 "Get",
                                 "List",
                                 "Set",
-                                "Delete"
+                                "Delete",
+                                "Recover",
+                                "Backup",
+                                "Restore"
+                            ],
+                            "certificates": [
+                                "Get",
+                                "List",
+                                "Update",
+                                "Create",
+                                "Import",
+                                "Delete",
+                                "Recover",
+                                "ManageContacts",
+                                "ManageIssuers",
+                                "GetIssuers",
+                                "ListIssuers",
+                                "SetIssuers",
+                                "DeleteIssuers"
                             ]
                         }
                     }

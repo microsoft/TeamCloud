@@ -17,21 +17,6 @@ A TeamCloud instance is composed of two parts:
 
 Together, the TeamCloud instance and its registered Providers define a template for a policy-compliant, secure, cloud development environment, which software development teams can create on-demand.
 
-#### TeamCloud Azure Resources
-
-A TeamCloud instance is made up of the following Azure resources:
-
-- [App Configuration][app-configuration]
-- [Function Apps][function-apps]
-- [Storage Account][storage-account]
-- [Key Vault][key-vault]
-- [Event Grid][event-grid]
-- [Application Insights][application-insights]
-
-![Azure architecture diagram](docs/architecture/TeamCloud.png)
-
-These resources are deployed by an ARM template in this repo.  For deployment instructions, see the [deployment documentation](docs/Deploy.md).
-
 ### Projects
 
 A TeamCloud instance and its registered Providers define a template for a policy-compliant, secure, cloud development environment, which software development teams can create on-demand.  In the context of TeamCloud, these cloud development environments are called Projects.
@@ -42,19 +27,24 @@ A Provider is responsible for managing one or more resources for a Project.  For
 
 Providers are registered with a TeamCloud instance and invoked by the Orchestrator when a Project is created or changed.  Any service that implements [required REST endpoints](docs/Providers.md) can be [registered as a Provider](docs/TeamCloudYaml.md).
 
-## Use
+# Use
 
 There are a few steps steps required to get a TeamCloud instance configured and deployed:
 
-1. [Deploy TeamCloud to Azure](#deploy-teamcloud-to-azure)
-2. [Deploy Providers](#deploy-roviders)
-3. [Import TeamCloud Yaml Configuration](#teamcloud-yaml)
+## Deploy the Azure Resources
 
-### Deploy TeamCloud to Azure
+A TeamCloud instance is made up of the following Azure resources:
+
+- [App Configuration][app-configuration]
+- [Application Insights][application-insights]
+- [Event Grid][event-grid]
+- [Function Apps][function-apps]
+- [Key Vault][key-vault]
+- [Storage Account][storage-account]
 
 [![Deploy to Azure][azure-deploy-button]][azure-deploy]
 
-Deploying the Azure resources is as simple as clicking the link above and filling in a few fields.  Below is a brief explanation/guidance for filling in each field, please [file an issue](issues/new?labels=docs) if you have questions or require additional help.
+Deploying the Azure resources is as simple as clicking the _"Deploy to Azure"_ link above and filling in a few fields.Below is a brief explanation for filling in each field, please [file an issue](issues/new?labels=docs) if you have questions or require additional help.
 
 - **`Subscription`** Select which Azure subscription you want to use.  It's okay if you only have one choice, or you don't see this option at all.
 - **`Resource group`** Unless you have an existing Resource group that you know you want to use, select __Create new__ and provide a name for the new group.  _(a resource group is essentially a parent folder to deploy the resources that make up the TeamCloud instance).
@@ -62,7 +52,42 @@ Deploying the Azure resources is as simple as clicking the link above and fillin
 - **`Function App Name`** Provide a name for your app.  This can be the same name as your Resource group, and will be used as the subdomain for your service endpoint.  For example, if you used `superawesome`, your TeamCloud API would live at `superawesome.azurewebsites.net/api`.
 - **Agree & Purchase:** Read and agree to the _TERMS AND CONDITIONS_, then click _Purchase_.
 
-## About
+## Deploy the Code to Azure
+
+// TODO...
+
+## Build Locally
+
+***Note: [deploying the Azure resources](#deploy-the-azure-resources) is required even when building and running the source code locally.***
+
+### Development Environment
+
+TeamCloud is built on top of Azure Functions and targets [3.x runtime version][functions-runtime-versions].
+
+[Azure Functions Core Tools][functions-core-tools] **version 3+** is required to build and run the code locally.  Core Tools is already integrated into some development environments.  See the documentation [here][functions-local-development] for guidance on setting up your environment for local development with functions.
+
+### local.settings.json
+
+The [`local.settings.json`][functions-local-settings] file stores app settings, connection strings, and settings used by local development tools. Settings in the local.settings.json file are used only when you're running projects locally.
+
+This file contains keys and connection strings, so it is not committed to this public repo.  After cloning this repo, you'll need to create a new `local.settings.json` file in the `src` folder.  The file's contents should contain the following:
+
+```json
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureCosmosDBConnection": "<Your-CosmosDB-Connection-String>",
+    "AzureWebJobsStorage": "<Your-WebJobs-Storage-Account-Connection-String>",
+    "DurableFunctionsHubStorage": "<Your-TaskHub-Storage-Account-Connection-String>",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+    "AppConfigurationConnectionString": "Your-App-Configuration-Connection-String"
+  }
+}
+```
+
+Values for these settings can be [retrieved manually][functions-get-storage].  However, if you used the _"Deploy to Azure"_ button above, each of these settings was automatically added to your Functions App's Settings and can easily be retrieved using the [portal][functions-get-settings-portal] or [CLI][functions-get-settings-cli].
+
+# About
 
 **This project is in active development and will change.**  As the tool becomes ready for use, it will be [versioned](https://semver.org/) and released.
 
@@ -91,3 +116,11 @@ contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additio
 
 [azure-deploy]:https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fmicrosoft%2FTeamCloud%2Fmaster%2Fazuredeploy.json
 [azure-deploy-button]:https://azuredeploy.net/deploybutton.svg
+
+[functions-core-tools]:https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local
+[functions-runtime-versions]:https://docs.microsoft.com/en-us/azure/azure-functions/functions-versions
+[functions-local-development]:https://docs.microsoft.com/en-us/azure/azure-functions/functions-develop-local#local-development-environments
+[functions-local-settings]:https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local#local-settings-file
+[functions-get-storage]:https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local#get-your-storage-connection-strings
+[functions-get-settings-portal]:https://docs.microsoft.com/en-us/azure/azure-functions/functions-how-to-use-azure-function-app-settings#portal
+[functions-get-settings-cli]:https://docs.microsoft.com/en-us/azure/azure-functions/functions-how-to-use-azure-function-app-settings#azure-cli
