@@ -56,10 +56,10 @@ There are a few steps steps required to get a TeamCloud instance configured and 
 
 Deploying the Azure resources is as simple as clicking the link above and filling in a few fields.  Below is a brief explanation/guidance for filling in each field, please [file an issue](issues/new?labels=docs) if you have questions or require additional help.
 
-- **`Subscription:`** Select which Azure subscription you want to use.  It's okay if you only have one choice, or you don't see this option at all.
-- **`Resource group:`** Unless you have an existing Resource group that you know you want to use, select __Create new__ and provide a name for the new group.  _(a resource group is essentially a parent folder to deploy the resources that make up the TeamCloud instance).
-- **`Location:`** Select the region to deploy the new resources. You want to choose a region that best describes your location (or your users location).
-- **`Web Site Name:`** Provide a name for your app.  This can be the same name as your Resource group, and will be used as the subdomain for your service endpoint.  For example, if you used `superawesome`, your TeamCloud API would live at `superawesome.azurewebsites.net/api`.
+- **`Subscription`** Select which Azure subscription you want to use.  It's okay if you only have one choice, or you don't see this option at all.
+- **`Resource group`** Unless you have an existing Resource group that you know you want to use, select __Create new__ and provide a name for the new group.  _(a resource group is essentially a parent folder to deploy the resources that make up the TeamCloud instance).
+- **`Location`** Select the region to deploy the new resources. You want to choose a region that best describes your location (or your users location).
+- **`Function App Name`** Provide a name for your app.  This can be the same name as your Resource group, and will be used as the subdomain for your service endpoint.  For example, if you used `superawesome`, your TeamCloud API would live at `superawesome.azurewebsites.net/api`.
 - **Agree & Purchase:** Read and agree to the _TERMS AND CONDITIONS_, then click _Purchase_.
 
 ## About
