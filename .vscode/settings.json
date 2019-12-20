@@ -1,5 +1,5 @@
 {
-    "azureFunctions.deploySubpath": "src/TeamCloud/bin/Release/netcoreapp3.1/publish",
+    "azureFunctions.deploySubpath": "src/TeamCloud.Orchestrator/bin/Release/netcoreapp3.1/publish",
     "azureFunctions.projectLanguage": "C#",
     "azureFunctions.projectRuntime": "~3",
     "azureFunctions.preDeployTask": "publish",
@@ -9,7 +9,6 @@
     ],
     "spellright.documentTypes": [
         "markdown",
-        "latex",
-        "plaintext"
+        "latex"
     ]
 }

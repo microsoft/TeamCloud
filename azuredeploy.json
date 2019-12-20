@@ -12,7 +12,7 @@
             "type": "bool",
             "defaultValue": true,
             "metadata": {
-                "description": "Uncheck to deploy only the Azure Resources used by TeamCloud and not the source code from GitHub."
+                "description": "Select true to the Azure Resources and the TeamCloud source code from GitHub.  Select false to only deploy the Azure Resources."
             }
         }
     },
