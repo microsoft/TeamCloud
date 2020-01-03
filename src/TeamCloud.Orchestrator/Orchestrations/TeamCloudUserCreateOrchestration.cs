@@ -5,13 +5,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using TeamCloud.Model;
 using TeamCloud.Orchestrator.Activities;
 
@@ -24,19 +21,20 @@ namespace TeamCloud.Orchestrator.Orchestrations
             [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
             ILogger log)
         {
-            (OrchestratorContext orchestratorContext, TeamCloudUserDefinition userDefinition) input = functionContext.GetInput<(OrchestratorContext, TeamCloudUserDefinition)>();
+            (OrchestratorContext orchestratorContext, UserDefinition userDefinition) = functionContext.GetInput<(OrchestratorContext, UserDefinition)>();
 
-            var userId = Guid.NewGuid().ToString();  // Call Microsoft Graph and Get User's ID using the email address
+            var userId = Guid.NewGuid();  // Call Microsoft Graph and Get User's ID using the email address
 
-            var newUser = new TeamCloudUser {
+            var newUser = new User
+            {
                 Id = userId,
-                Role = input.userDefinition.Role,
-                Tags = input.userDefinition.Tags
+                Role = userDefinition.Role,
+                Tags = userDefinition.Tags
             };
 
-            var teamCloud = await functionContext.CallActivityAsync<TeamCloudInstance>(nameof(TeamCloudUserCreateActivity), (input.orchestratorContext.TeamCloud, newUser));
+            var teamCloud = await functionContext.CallActivityAsync<TeamCloudInstance>(nameof(TeamCloudUserCreateActivity), (orchestratorContext.TeamCloud, newUser));
 
-            if (newUser.Role == TeamCloudUserRole.Admin)
+            if (newUser.Role == UserRoles.TeamCloud.Admin)
             {
                 var projects = await functionContext.CallActivityAsync<List<Project>>(nameof(ProjectGetActivity), teamCloud);
 
@@ -44,7 +42,7 @@ namespace TeamCloud.Orchestrator.Orchestrations
 
                 foreach (var project in projects)
                 {
-                    var projectContext = new ProjectContext(teamCloud, project, input.orchestratorContext.User.Id);
+                    var projectContext = new ProjectContext(teamCloud, project, orchestratorContext.User.Id);
 
                     // TODO: call set users on all providers
                     // var tasks = input.teamCloud.Configuration.Providers.Select(p =>

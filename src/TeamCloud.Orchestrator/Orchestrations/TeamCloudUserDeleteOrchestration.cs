@@ -3,15 +3,11 @@
  *  Licensed under the MIT License.
  */
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using TeamCloud.Model;
 using TeamCloud.Orchestrator.Activities;
 
@@ -24,13 +20,13 @@ namespace TeamCloud.Orchestrator.Orchestrations
             [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
             ILogger log)
         {
-            (OrchestratorContext orchestratorContext, TeamCloudUser deleteUser) input = functionContext.GetInput<(OrchestratorContext, TeamCloudUser)>();
+            (OrchestratorContext orchestratorContext, User deleteUser) = functionContext.GetInput<(OrchestratorContext, User)>();
 
-            var teamCloud = await functionContext.CallActivityAsync<TeamCloudInstance>(nameof(TeamCloudUserDeleteActivity), (input.orchestratorContext.TeamCloud, input.deleteUser));
+            var teamCloud = await functionContext.CallActivityAsync<TeamCloudInstance>(nameof(TeamCloudUserDeleteActivity), (orchestratorContext.TeamCloud, deleteUser));
 
             // TODO: is this necessary?
 
-            if (input.deleteUser.Role == TeamCloudUserRole.Admin)
+            if (deleteUser.Role == UserRoles.TeamCloud.Admin)
             {
                 var projects = await functionContext.CallActivityAsync<List<Project>>(nameof(ProjectGetActivity), teamCloud);
 
@@ -38,7 +34,7 @@ namespace TeamCloud.Orchestrator.Orchestrations
 
                 foreach (var project in projects)
                 {
-                    var projectContext = new ProjectContext(teamCloud, project, input.orchestratorContext.User.Id);
+                    var projectContext = new ProjectContext(teamCloud, project, orchestratorContext.User.Id);
 
                     // TODO: call set users on all providers
                     // var tasks = input.teamCloud.Configuration.Providers.Select(p =>

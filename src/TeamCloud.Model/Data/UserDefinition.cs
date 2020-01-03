@@ -1,4 +1,4 @@
-/**
+﻿/**
  *  Copyright (c) Microsoft Corporation.
  *  Licensed under the MIT License.
  */
@@ -10,10 +10,12 @@ using Newtonsoft.Json.Serialization;
 namespace TeamCloud.Model
 {
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public class ProviderVariables
+    public class UserDefinition
     {
-        public string ProviderId { get; set; }
+        public string Email { get; set; }
 
-        public Dictionary<string,string> Variables { get; set; }
+        public string Role { get; set; }
+
+        public Dictionary<string, string> Tags { get; set; }
     }
 }

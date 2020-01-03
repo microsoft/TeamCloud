@@ -3,6 +3,7 @@
  *  Licensed under the MIT License.
  */
 
+using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -10,9 +11,11 @@ using Newtonsoft.Json.Serialization;
 namespace TeamCloud.Model
 {
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public class Project
+    public class Project : IContainerDocument
     {
-        public string Id { get; set; }
+        public string PartitionKey => TeamCloudId;
+
+        public Guid Id { get; set; }
 
         public string Name { get; set; }
 
@@ -24,20 +27,10 @@ namespace TeamCloud.Model
 
         public string TeamCloudApplicationInsightsKey { get; set; }
 
-        public List<ProjectUser> Users { get; set; }
+        public List<User> Users { get; set; } = new List<User>();
 
-        public Dictionary<string,string> Tags { get; set; }
+        public Dictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();
 
-        public Dictionary<string, Dictionary<string, string>> ProviderVariables { get; set; }
-    }
-
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public class ProjectDefinition
-    {
-        public string Name { get; set; }
-
-        public Dictionary<string,string> Tags { get; set; }
-
-        public List<ProjectUserDefinition> Users { get; set; }
+        public Dictionary<string, Dictionary<string, string>> ProviderVariables { get; set; } = new Dictionary<string, Dictionary<string, string>>();
     }
 }

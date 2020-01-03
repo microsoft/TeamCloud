@@ -16,10 +16,10 @@ namespace TeamCloud.Orchestrator.Activities
         [FunctionName(nameof(ProjectDeleteActivity))]
         public static async Task<TeamCloudInstance> RunActivity(
             [ActivityTrigger] Project project,
-            [CosmosDB(nameof(TeamCloud), nameof(TeamCloud), Id = nameof(TeamCloud), PartitionKey = nameof(TeamCloud), ConnectionStringSetting = "AzureCosmosDBConnection")] TeamCloudInstance teamCloud,
-            [CosmosDB(nameof(TeamCloud), "Projects", ConnectionStringSetting = "AzureCosmosDBConnection")] DocumentClient client)
+            [CosmosDB(Constants.CosmosDb.DatabaseName, nameof(TeamCloudInstance), Id = Constants.CosmosDb.TeamCloudInstanceId, PartitionKey = Constants.CosmosDb.TeamCloudInstanceId, ConnectionStringSetting = "AzureCosmosDBConnection")] TeamCloudInstance teamCloud,
+            [CosmosDB(Constants.CosmosDb.DatabaseName, nameof(Project), ConnectionStringSetting = "AzureCosmosDBConnection")] DocumentClient client)
         {
-            var projectUri = UriFactory.CreateDocumentUri(nameof(TeamCloud), "Projects", project.Id);
+            var projectUri = UriFactory.CreateDocumentUri(Constants.CosmosDb.DatabaseName, nameof(Project), project.Id.ToString());
 
             var deleteResponse = await client.DeleteDocumentAsync(projectUri);
 

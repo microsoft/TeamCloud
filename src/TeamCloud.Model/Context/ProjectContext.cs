@@ -3,6 +3,7 @@
  *  Licensed under the MIT License.
  */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
@@ -13,17 +14,17 @@ namespace TeamCloud.Model
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class ProjectContext
     {
-        public string UserId { get; set; }
+        public Guid UserId { get; set; }
 
-        public string ProjectId { get; set; }
+        public Guid ProjectId { get; set; }
 
         public string ProjectName { get; set; }
 
         public AzureResourceGroup ProjectResourceGroup { get; set; }
 
-        public List<ProjectUser> ProjectUsers { get; set; }
+        public List<User> ProjectUsers { get; set; }
 
-        public Dictionary<string,string> ProjectTags { get; set; }
+        public Dictionary<string, string> ProjectTags { get; set; }
 
         public Dictionary<string, Dictionary<string, string>> ProjectProviderVariables { get; set; } = new Dictionary<string, Dictionary<string, string>>();
 
@@ -31,15 +32,15 @@ namespace TeamCloud.Model
 
         public string TeamCloudApplicationInsightsKey { get; set; }
 
-        public List<TeamCloudUser> TeamCloudAdminUsers { get; set; }
+        public List<User> TeamCloudAdminUsers { get; set; }
 
-        public Dictionary<string,string> TeamCloudTags { get; set; }
+        public Dictionary<string, string> TeamCloudTags { get; set; }
 
         public Dictionary<string, string> TeamCloudVariables { get; set; }
 
         public Dictionary<string, Dictionary<string, string>> TeamCloudProviderVariables { get; set; } = new Dictionary<string, Dictionary<string, string>>();
 
-        public ProjectContext(TeamCloudInstance teamCloud, Project project, string userId)
+        public ProjectContext(TeamCloudInstance teamCloud, Project project, Guid userId)
         {
             UserId = userId;
             ProjectId = project.Id;
@@ -50,14 +51,14 @@ namespace TeamCloud.Model
 
             TeamCloudId = teamCloud.Id;
             TeamCloudApplicationInsightsKey = teamCloud.ApplicationInsightsKey;
-            TeamCloudAdminUsers = teamCloud.Users.Where(u => u.Role == TeamCloudUserRole.Admin).ToList();
+            TeamCloudAdminUsers = teamCloud.Users.Where(u => u.Role == UserRoles.TeamCloud.Admin).ToList();
             TeamCloudTags = teamCloud.Configuration.Tags;
             TeamCloudVariables = teamCloud.Configuration.Variables;
             TeamCloudProviderVariables = teamCloud.Configuration.Providers.Select(p => (p.Id, p.Variables)).ToDictionary(t => t.Id, t => t.Variables);
         }
 
         public ProjectContext(OrchestratorContext orchestratorContext)
-            : this (orchestratorContext.TeamCloud, orchestratorContext.Project, orchestratorContext.User.Id)
+            : this(orchestratorContext.TeamCloud, orchestratorContext.Project, orchestratorContext.User.Id)
         { }
     }
 }

@@ -14,13 +14,15 @@ namespace TeamCloud.Orchestrator.Activities
     {
         [FunctionName(nameof(TeamCloudUserDeleteActivity))]
         public static TeamCloudInstance RunActivity(
-            [ActivityTrigger] (TeamCloudInstance teamCloud, TeamCloudUser deleteUser) input,
-            [CosmosDB(nameof(TeamCloud), nameof(TeamCloud), Id = nameof(TeamCloud), PartitionKey = nameof(TeamCloud), ConnectionStringSetting = "AzureCosmosDBConnection")] TeamCloudInstance teamCloud)
+            [ActivityTrigger] (TeamCloudInstance teamCloud, User deleteUser) input,
+            [CosmosDB(Constants.CosmosDb.DatabaseName, nameof(TeamCloudInstance), Id = Constants.CosmosDb.TeamCloudInstanceId, PartitionKey = Constants.CosmosDb.TeamCloudInstanceId, ConnectionStringSetting = "AzureCosmosDBConnection")] TeamCloudInstance teamCloud)
         {
             var user = teamCloud.Users?.FirstOrDefault(u => u.Id == input.deleteUser.Id);
 
             if (user != null)
+            {
                 teamCloud.Users.Remove(user);
+            }
 
             return teamCloud;
         }

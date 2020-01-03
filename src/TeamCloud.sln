@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeamCloud.Model", "TeamClou
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeamCloud.Orchestrator", "TeamCloud.Orchestrator\TeamCloud.Orchestrator.csproj", "{833BEEE5-CC9E-4F1B-A9E7-55EAA5AD3273}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeamCloud.Data", "TeamCloud.Data\TeamCloud.Data.csproj", "{C89ECD4E-243F-48EB-A7F6-B5E7BBB71131}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,11 +29,20 @@ Global
 		{833BEEE5-CC9E-4F1B-A9E7-55EAA5AD3273}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{833BEEE5-CC9E-4F1B-A9E7-55EAA5AD3273}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{833BEEE5-CC9E-4F1B-A9E7-55EAA5AD3273}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C89ECD4E-243F-48EB-A7F6-B5E7BBB71131}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C89ECD4E-243F-48EB-A7F6-B5E7BBB71131}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C89ECD4E-243F-48EB-A7F6-B5E7BBB71131}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C89ECD4E-243F-48EB-A7F6-B5E7BBB71131}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E5BA7A63-87D1-481D-896E-2E9923B298B4}
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		Policies = $0
+		$0.StandardHeader = $1
+		$1.Text = FIXME Needs Header
 	EndGlobalSection
 EndGlobal

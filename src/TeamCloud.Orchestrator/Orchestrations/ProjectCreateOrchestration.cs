@@ -3,15 +3,12 @@
  *  Licensed under the MIT License.
  */
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using TeamCloud.Model;
 using TeamCloud.Orchestrator.Activities;
 
@@ -24,24 +21,22 @@ namespace TeamCloud.Orchestrator.Orchestrations
             [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
             ILogger log)
         {
-            (OrchestratorContext orchestratorContext, ProjectDefinition projectDefinition) input = functionContext.GetInput<(OrchestratorContext, ProjectDefinition)>();
+            (OrchestratorContext orchestratorContext, ProjectDefinition projectDefinition) = functionContext.GetInput<(OrchestratorContext, ProjectDefinition)>();
 
-            var user = input.orchestratorContext.User;
-            var teamCloud = input.orchestratorContext.TeamCloud;
-            var projectDefinition = input.projectDefinition;
+            var user = orchestratorContext.User;
+            var teamCloud = orchestratorContext.TeamCloud;
 
             functionContext.SetCustomStatus("Creating Project...");
 
-            var projectId = Guid.NewGuid().ToString();
-
-            var project = new Project {
-                Id = projectId,
+            var project = new Project
+            {
+                Id = projectDefinition.Id,
                 Name = projectDefinition.Name,
                 Identity = null,
                 TeamCloudId = teamCloud.Id,
                 TeamCloudApplicationInsightsKey = teamCloud.ApplicationInsightsKey,
                 // add project creator as project owner
-                Users = new List<ProjectUser> { new ProjectUser { Id = user.Id, Role = ProjectUserRole.Owner, Tags = user.Tags } },
+                Users = new List<User> { new User { Id = user.Id, Role = UserRoles.Project.Owner, Tags = user.Tags } },
                 Tags = projectDefinition.Tags,
                 ProviderVariables = teamCloud.Configuration.Providers.Select(p => (p.Id, p.Variables)).ToDictionary(t => t.Id, t => t.Variables)
             };
@@ -50,7 +45,8 @@ namespace TeamCloud.Orchestrator.Orchestrations
             project = await functionContext.CallActivityAsync<Project>(nameof(ProjectCreateActivity), project);
 
 
-            var resourceGroup = new AzureResourceGroup {
+            var resourceGroup = new AzureResourceGroup
+            {
                 SubscriptionId = "", // get sub ID
                 ResourceGroupName = $"{teamCloud.Configuration.Azure.ResourceGroupNamePrefix}{projectDefinition.Name}", // validate/clean
                 Region = teamCloud.Configuration.Azure.Region

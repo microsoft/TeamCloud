@@ -14,11 +14,13 @@ namespace TeamCloud.Orchestrator.Activities
     {
         [FunctionName(nameof(ProjectUserCreateActivity))]
         public static Project RunActivity(
-            [ActivityTrigger] (Project project, ProjectUser newUser) input,
-            [CosmosDB(nameof(TeamCloud), "Projects", Id = "{input.project.id}", PartitionKey = nameof(TeamCloud), ConnectionStringSetting = "AzureCosmosDBConnection")] Project project)
+            [ActivityTrigger] (Project project, User newUser) input,
+            [CosmosDB(Constants.CosmosDb.DatabaseName, nameof(Project), Id = "{input.project.id}", PartitionKey = Constants.CosmosDb.TeamCloudInstanceId, ConnectionStringSetting = "AzureCosmosDBConnection")] Project project)
         {
             if (project.Users == null)
-                project.Users = new List<ProjectUser>();
+            {
+                project.Users = new List<User>();
+            }
 
             project.Users.Add(input.newUser);
 

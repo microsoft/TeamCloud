@@ -15,9 +15,9 @@ namespace TeamCloud.Model
 
         public Project Project { get; set; }
 
-        public IUser User { get; set; }
+        public User User { get; set; }
 
-        public OrchestratorContext (TeamCloudInstance teamCloud, Project project = null, IUser user = null)
+        public OrchestratorContext(TeamCloudInstance teamCloud, Project project = null, User user = null)
         {
             TeamCloud = teamCloud;
             Project = project;

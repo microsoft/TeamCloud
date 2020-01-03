@@ -14,8 +14,8 @@ namespace TeamCloud.Orchestrator.Activities
         [FunctionName(nameof(ProjectCreateActivity))]
         public static Project RunActivity(
             [ActivityTrigger] Project newProject,
-            [CosmosDB(nameof(TeamCloud), nameof(TeamCloud), Id = nameof(TeamCloud), PartitionKey = nameof(TeamCloud), ConnectionStringSetting = "AzureCosmosDBConnection")] TeamCloudInstance teamCloud,
-            [CosmosDB(nameof(TeamCloud), "Projects", PartitionKey = nameof(TeamCloud), ConnectionStringSetting = "AzureCosmosDBConnection")] out Project project)
+            [CosmosDB(Constants.CosmosDb.DatabaseName, nameof(TeamCloudInstance), Id = Constants.CosmosDb.TeamCloudInstanceId, PartitionKey = Constants.CosmosDb.TeamCloudInstanceId, ConnectionStringSetting = "AzureCosmosDBConnection")] TeamCloudInstance teamCloud,
+            [CosmosDB(Constants.CosmosDb.DatabaseName, nameof(Project), PartitionKey = Constants.CosmosDb.TeamCloudInstanceId, ConnectionStringSetting = "AzureCosmosDBConnection")] out Project project)
         {
             project = newProject;
 

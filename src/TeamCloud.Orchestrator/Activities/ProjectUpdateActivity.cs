@@ -14,7 +14,7 @@ namespace TeamCloud.Orchestrator.Activities
         [FunctionName(nameof(ProjectUpdateActivity))]
         public static Project RunActivity(
             [ActivityTrigger] Project project,
-            [CosmosDB(nameof(TeamCloud), "Projects", Id = "{project.id}", PartitionKey = nameof(TeamCloud), ConnectionStringSetting = "AzureCosmosDBConnection")] Project dbProject)
+            [CosmosDB(Constants.CosmosDb.DatabaseName, nameof(Project), Id = "{project.id}", PartitionKey = Constants.CosmosDb.TeamCloudInstanceId, ConnectionStringSetting = "AzureCosmosDBConnection")] Project dbProject)
         {
             dbProject = project;
 

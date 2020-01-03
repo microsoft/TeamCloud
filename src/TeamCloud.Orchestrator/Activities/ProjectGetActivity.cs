@@ -16,7 +16,7 @@ namespace TeamCloud.Orchestrator.Activities
         [FunctionName(nameof(ProjectGetActivity))]
         public static List<Project> RunActivity(
             [ActivityTrigger] TeamCloudInstance teamCloud,
-            [CosmosDB(nameof(TeamCloud), "Projects", PartitionKey = nameof(TeamCloud), ConnectionStringSetting = "AzureCosmosDBConnection")] IEnumerable<Project> projects)
+            [CosmosDB(Constants.CosmosDb.DatabaseName, nameof(Project), PartitionKey = Constants.CosmosDb.TeamCloudInstanceId, ConnectionStringSetting = "AzureCosmosDBConnection")] IEnumerable<Project> projects)
         {
             return projects.ToList();
         }
