@@ -17,7 +17,7 @@ namespace TeamCloud.API
     {
         public string Url { get; set; }
 
-        public string Code { get; set; }
+        public string AuthCode { get; set; }
     }
 
     public class Orchestrator
@@ -50,7 +50,7 @@ namespace TeamCloud.API
         {
             var result = await options.Url
                 .AppendPathSegment($"api/orchestration/{correlationId}")
-                .WithHeader("x-functions-key", options.Code)
+                .WithHeader("x-functions-key", options.AuthCode)
                 .AllowHttpStatus(HttpStatusCode.NotFound)
                 .GetJsonAsync<ICommandResult>()
                 .ConfigureAwait(false);
@@ -65,7 +65,7 @@ namespace TeamCloud.API
         {
             var commandResponse = await options.Url
                 .AppendPathSegment("/api/command")
-                .WithHeader("x-functions-key", options.Code)
+                .WithHeader("x-functions-key", options.AuthCode)
                 .PostJsonAsync(command)
                 .ConfigureAwait(false);
 

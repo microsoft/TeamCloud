@@ -11,6 +11,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
@@ -39,6 +40,7 @@ namespace TeamCloud.API
                 .AddOptions(Assembly.GetExecutingAssembly());
 
             services
+                .AddSingleton<IHttpContextAccessor, HttpContextAccessor>()
                 .AddSingleton<IProjectsContainer, ProjectsContainer>()
                 .AddSingleton<ITeamCloudContainer, TeamCloudContainer>()
                 .AddSingleton<Orchestrator>();
