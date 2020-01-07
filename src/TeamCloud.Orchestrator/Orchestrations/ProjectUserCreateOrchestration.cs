@@ -35,6 +35,8 @@ namespace TeamCloud.Orchestrator.Orchestrations
 
             var projectContext = new ProjectContext(orchestratorContext.TeamCloud, project, orchestratorContext.User.Id);
 
+            //functionContext.WaitForExternalEvent()
+
             // TODO: call set users on all providers
             // var tasks = input.teamCloud.Configuration.Providers.Select(p =>
             //                 context.CallHttpAsync(HttpMethod.Post, p.Location, JsonConvert.SerializeObject(projectContext)));

@@ -21,34 +21,35 @@ namespace TeamCloud.Orchestrator.Orchestrations
             [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
             ILogger log)
         {
-            (OrchestratorContext orchestratorContext, ProjectDefinition projectDefinition) = functionContext.GetInput<(OrchestratorContext, ProjectDefinition)>();
+            (OrchestratorContext orchestratorContext, Project project) = functionContext.GetInput<(OrchestratorContext, Project)>();
 
             var user = orchestratorContext.User;
             var teamCloud = orchestratorContext.TeamCloud;
 
             functionContext.SetCustomStatus("Creating Project...");
 
-            var project = new Project
-            {
-                Id = projectDefinition.Id,
-                Name = projectDefinition.Name,
-                Identity = null,
-                TeamCloudId = teamCloud.Id,
-                TeamCloudApplicationInsightsKey = teamCloud.ApplicationInsightsKey,
-                // add project creator as project owner
-                Users = new List<User> { new User { Id = user.Id, Role = UserRoles.Project.Owner, Tags = user.Tags } },
-                Tags = projectDefinition.Tags,
-                ProviderVariables = teamCloud.Configuration.Providers.Select(p => (p.Id, p.Variables)).ToDictionary(t => t.Id, t => t.Variables)
-            };
+            project.TeamCloudId = teamCloud.Id;
+            project.TeamCloudApplicationInsightsKey = teamCloud.ApplicationInsightsKey;
+            project.ProviderVariables = teamCloud.Configuration.Providers.Select(p => (p.Id, p.Variables)).ToDictionary(t => t.Id, t => t.Variables);
 
             // add project to db and add new project to teamcloud in db
             project = await functionContext.CallActivityAsync<Project>(nameof(ProjectCreateActivity), project);
 
+            // TODO: Create identity (service principal) for Project
+
+            var projectIdentity = new AzureIdentity
+            {
+                Id = "",
+                AppId = "",
+                Secret = ""
+            };
+
+            project = await functionContext.CallActivityAsync<Project>(nameof(ProjectUpdateActivity), project);
 
             var resourceGroup = new AzureResourceGroup
             {
                 SubscriptionId = "", // get sub ID
-                ResourceGroupName = $"{teamCloud.Configuration.Azure.ResourceGroupNamePrefix}{projectDefinition.Name}", // validate/clean
+                ResourceGroupName = $"{teamCloud.Configuration.Azure.ResourceGroupNamePrefix}{project.Name}", // validate/clean
                 Region = teamCloud.Configuration.Azure.Region
             };
 

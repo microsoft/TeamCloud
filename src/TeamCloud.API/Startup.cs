@@ -18,7 +18,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json.Serialization;
 using TeamCloud.Data;
 using TeamCloud.Model;
 
@@ -44,10 +43,6 @@ namespace TeamCloud.API
                 .AddSingleton<IProjectsContainer, ProjectsContainer>()
                 .AddSingleton<ITeamCloudContainer, TeamCloudContainer>()
                 .AddSingleton<Orchestrator>();
-
-            //services
-            //    .AddAuthentication(AzureADDefaults.BearerAuthenticationScheme)
-            //    .AddAzureADBearer(options => Configuration.Bind("AzureAd", options));
 
             services
                 .AddMvc(options =>

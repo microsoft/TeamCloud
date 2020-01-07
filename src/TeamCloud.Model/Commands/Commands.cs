@@ -7,11 +7,11 @@ using System;
 
 namespace TeamCloud.Model
 {
-    public class ProjectCreateCommand : Command<ProjectDefinition, Project>
+    public class ProjectCreateCommand : Command<Project, Project>
     {
         public override Guid? ProjectId => Payload.Id;
 
-        public ProjectCreateCommand(ProjectDefinition projectDefinition) : base(projectDefinition)
+        public ProjectCreateCommand(Project project) : base(project)
         { }
     }
 

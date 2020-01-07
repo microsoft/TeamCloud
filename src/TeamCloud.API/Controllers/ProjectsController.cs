@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -60,7 +61,37 @@ namespace TeamCloud.API.Controllers
         {
             if (projectDefinition is null) return new BadRequestResult();
 
-            var command = new ProjectCreateCommand(projectDefinition);
+            // This is a TeamCloud User, the user that called this api
+            User user = null; // TODO: Get user from httpcontext?
+
+
+            // these are Project Users
+            List<User> users = new List<User>(); // TODO: projectDefinition.Users.Select(...)
+
+
+            var project = new Project
+            {
+                Id = projectDefinition.Id,
+                Name = projectDefinition.Name,
+                Users = users,
+                Tags = projectDefinition.Tags
+            };
+
+            var existingUser = project.Users.FirstOrDefault(u => u.Id == user.Id);
+
+            if (existingUser != null)
+            {
+                // ensure Role is Owner
+                // maybe merge tags
+                // project.Users.Add(new User { Id = user.Id, Role = UserRoles.Project.Owner, Tags = user.Tags });
+            }
+            else
+            {
+                // project.Users.Add(new User { Id = user.Id, Role = UserRoles.Project.Owner, Tags = user.Tags });
+            }
+
+
+            var command = new ProjectCreateCommand(project);
 
             var commandResult = await orchestrator
                 .InvokeAsync<Project>(command)
