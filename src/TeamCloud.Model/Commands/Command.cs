@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 
 namespace TeamCloud.Model
 {
+    [JsonConverter(typeof(CommandConverter))]
     public interface ICommand
     {
         Guid? ProjectId { get; }

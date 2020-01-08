@@ -35,11 +35,20 @@ namespace TeamCloud.Data
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
-            var response = await container
-                .ReadItemAsync<Project>(id.ToString(), new PartitionKey(Constants.CosmosDb.TeamCloudInstanceId))
-                .ConfigureAwait(false);
+            try
+            {
+                var response = await container
+                    .ReadItemAsync<Project>(id.ToString(), new PartitionKey(Constants.CosmosDb.TeamCloudInstanceId))
+                    .ConfigureAwait(false);
 
-            return response.Value;
+                return response.Value;
+            }
+            catch
+            {
+                //Console.WriteLine(ex);
+
+                return null;
+            }
         }
 
         public async IAsyncEnumerable<Project> ListAsync()

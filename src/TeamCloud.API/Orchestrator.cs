@@ -49,7 +49,7 @@ namespace TeamCloud.API
         public async Task<ICommandResult> QueryAsync(Guid correlationId, Guid? projectId)
         {
             var result = await options.Url
-                .AppendPathSegment($"api/orchestration/{correlationId}")
+                .AppendPathSegment($"api/orchestrator/{correlationId}")
                 .WithHeader("x-functions-key", options.AuthCode)
                 .AllowHttpStatus(HttpStatusCode.NotFound)
                 .GetJsonAsync<ICommandResult>()
@@ -64,7 +64,7 @@ namespace TeamCloud.API
             where TResult : new()
         {
             var commandResponse = await options.Url
-                .AppendPathSegment("/api/command")
+                .AppendPathSegment("/api/orchestrator")
                 .WithHeader("x-functions-key", options.AuthCode)
                 .PostJsonAsync(command)
                 .ConfigureAwait(false);

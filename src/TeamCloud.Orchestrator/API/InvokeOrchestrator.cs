@@ -9,10 +9,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Documents;
+using Microsoft.Azure.Documents.Client;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.Build.Framework;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using TeamCloud.Model;
 using TeamCloud.Orchestrator.Orchestrations;
@@ -25,7 +27,7 @@ namespace TeamCloud.Orchestrator
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = "orchestrator")] HttpRequest httpRequest,
             [CosmosDB(Constants.CosmosDb.DatabaseName, nameof(TeamCloudInstance), Id = Constants.CosmosDb.TeamCloudInstanceId, PartitionKey = Constants.CosmosDb.TeamCloudInstanceId, ConnectionStringSetting = "AzureCosmosDBConnection")] TeamCloudInstance teamCloud,
-            [CosmosDB(Constants.CosmosDb.DatabaseName, nameof(Project), Id = "{projectId}", PartitionKey = Constants.CosmosDb.TeamCloudInstanceId, ConnectionStringSetting = "AzureCosmosDBConnection")] Project project,
+            [CosmosDB(Constants.CosmosDb.DatabaseName, nameof(Project), ConnectionStringSetting = "AzureCosmosDBConnection")] DocumentClient documentClient,
             [DurableClient] IDurableClient durableClient,
             ILogger logger)
         {
@@ -33,7 +35,25 @@ namespace TeamCloud.Orchestrator
 
             var command = JsonConvert.DeserializeObject<ICommand>(requestBody);
 
-            var user = teamCloud.Users?.FirstOrDefault(u => u.Id == command.UserId) ?? project?.Users?.FirstOrDefault(u => u.Id == command.UserId);
+            Project project = null;
+
+            if (command.ProjectId.HasValue)
+            {
+                var projectUri = UriFactory.CreateDocumentUri(Constants.CosmosDb.DatabaseName, nameof(Project), command.ProjectId.Value.ToString());
+
+                try
+                {
+                    var projectResponse = await documentClient.ReadDocumentAsync<Project>(projectUri, new RequestOptions { PartitionKey = new PartitionKey(Constants.CosmosDb.TeamCloudInstanceId) });
+
+                    project = projectResponse.Document;
+                }
+                catch
+                {
+                    // TODO:
+                }
+            }
+
+            var user = teamCloud?.Users?.FirstOrDefault(u => u.Id == command.UserId) ?? project?.Users?.FirstOrDefault(u => u.Id == command.UserId);
 
             var orchestratorContext = new OrchestratorContext(teamCloud, project, user);
 
