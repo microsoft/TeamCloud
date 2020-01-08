@@ -60,7 +60,7 @@ namespace TeamCloud.API
             return result;
         }
 
-        public async Task<ICommandResult<TResult>> InvokeAsync<TResult>(ICommand command)
+        public async Task<CommandResult<TResult>> InvokeAsync<TResult>(ICommand command)
             where TResult : new()
         {
             var commandResponse = await options.Url
@@ -70,7 +70,8 @@ namespace TeamCloud.API
                 .ConfigureAwait(false);
 
             var commandResult = await commandResponse
-                .GetJsonAsync<ICommandResult<TResult>>()
+                .GetJsonAsync<CommandResult<TResult>>()
+                //.GetStringAsync()
                 .ConfigureAwait(false);
 
             SetResultLinks(commandResult, command.ProjectId);

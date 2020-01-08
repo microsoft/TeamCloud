@@ -3,6 +3,7 @@
  *  Licensed under the MIT License.
  */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -62,7 +63,7 @@ namespace TeamCloud.Orchestrator.Orchestrations
 
             project = await functionContext.CallActivityAsync<Project>(nameof(ProjectUpdateActivity), project);
 
-            var projectContext = new ProjectContext(teamCloud, project, user.Id);
+            var projectContext = new ProjectContext(teamCloud, project, user?.Id ?? Guid.Empty);
 
             functionContext.SetCustomStatus("Creating Project Resources...");
 
