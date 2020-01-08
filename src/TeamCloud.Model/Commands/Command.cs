@@ -13,6 +13,8 @@ namespace TeamCloud.Model
     {
         Guid? ProjectId { get; }
 
+        Guid CommandId { get; }
+
         Guid UserId { get; set; }
     }
 
@@ -40,5 +42,7 @@ namespace TeamCloud.Model
         public virtual Guid? ProjectId { get; set; }
 
         public Guid UserId { get; set; }
+
+        public Guid CommandId { get; set; } = Guid.NewGuid();
     }
 }
