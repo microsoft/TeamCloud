@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace TeamCloud.Model
+namespace TeamCloud.API
 {
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class UserDefinition

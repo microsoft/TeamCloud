@@ -23,7 +23,7 @@ namespace TeamCloud.Orchestrator.Orchestrations
         [FunctionName(nameof(ProjectDeleteOrchestration))]
         public static async Task<bool> RunOrchestration([OrchestrationTrigger] IDurableOrchestrationContext functionContext, ILogger log)
         {
-            OrchestratorContext orchestratorContext = functionContext.GetInput<OrchestratorContext>();
+            (OrchestratorContext orchestratorContext, ProjectDeleteCommand command) = functionContext.GetInput<(OrchestratorContext, ProjectDeleteCommand)>();
 
             var teamCloud = await functionContext.CallActivityAsync<TeamCloudInstance>(nameof(ProjectDeleteActivity), orchestratorContext.Project);
 

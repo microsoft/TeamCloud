@@ -3,7 +3,6 @@
  *  Licensed under the MIT License.
  */
 
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
@@ -21,20 +20,13 @@ namespace TeamCloud.Orchestrator.Orchestrations
             [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
             ILogger log)
         {
-            (OrchestratorContext orchestratorContext, UserDefinition userDefinition) = functionContext.GetInput<(OrchestratorContext, UserDefinition)>();
+            (OrchestratorContext orchestratorContext, TeamCloudUserCreateCommand command) = functionContext.GetInput<(OrchestratorContext, TeamCloudUserCreateCommand)>();
 
-            var userId = Guid.NewGuid();  // Call Microsoft Graph and Get User's ID using the email address
+            var user = command.Payload;
 
-            var newUser = new User
-            {
-                Id = userId,
-                Role = userDefinition.Role,
-                Tags = userDefinition.Tags
-            };
+            var teamCloud = await functionContext.CallActivityAsync<TeamCloudInstance>(nameof(TeamCloudUserCreateActivity), (orchestratorContext.TeamCloud, user));
 
-            var teamCloud = await functionContext.CallActivityAsync<TeamCloudInstance>(nameof(TeamCloudUserCreateActivity), (orchestratorContext.TeamCloud, newUser));
-
-            if (newUser.Role == UserRoles.TeamCloud.Admin)
+            if (user.Role == UserRoles.TeamCloud.Admin)
             {
                 var projects = await functionContext.CallActivityAsync<List<Project>>(nameof(ProjectGetActivity), teamCloud);
 
@@ -42,8 +34,6 @@ namespace TeamCloud.Orchestrator.Orchestrations
 
                 foreach (var project in projects)
                 {
-                    var projectContext = new ProjectContext(teamCloud, project, orchestratorContext.User.Id);
-
                     // TODO: call set users on all providers
                     // var tasks = input.teamCloud.Configuration.Providers.Select(p =>
                     //                 context.CallHttpAsync(HttpMethod.Post, p.Location, JsonConvert.SerializeObject(projectContext)));

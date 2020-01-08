@@ -20,20 +20,11 @@ namespace TeamCloud.Orchestrator.Orchestrations
             [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
             ILogger log)
         {
-            (OrchestratorContext orchestratorContext, UserDefinition userDefinition) = functionContext.GetInput<(OrchestratorContext, UserDefinition)>();
+            (OrchestratorContext orchestratorContext, ProjectUserCreateCommand command) = functionContext.GetInput<(OrchestratorContext, ProjectUserCreateCommand)>();
 
-            var userId = Guid.NewGuid();  // Call Microsoft Graph and Get User's ID using the email address
+            var user = command.Payload;
 
-            var newUser = new User
-            {
-                Id = userId,
-                Role = userDefinition.Role,
-                Tags = userDefinition.Tags
-            };
-
-            var project = await functionContext.CallActivityAsync<Project>(nameof(ProjectUserCreateActivity), (orchestratorContext.Project, newUser));
-
-            var projectContext = new ProjectContext(orchestratorContext.TeamCloud, project, orchestratorContext.User.Id);
+            var project = await functionContext.CallActivityAsync<Project>(nameof(ProjectUserCreateActivity), (orchestratorContext.Project, user));
 
             //functionContext.WaitForExternalEvent()
 

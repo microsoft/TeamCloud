@@ -3,8 +3,6 @@
  *  Licensed under the MIT License.
  */
 
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
@@ -18,13 +16,15 @@ namespace TeamCloud.Orchestrator.Orchestrations
     public static class ProjectCreateOrchestration
     {
         [FunctionName(nameof(ProjectCreateOrchestration))]
-        public static async Task<bool> RunOrchestration(
+        public static async Task RunOrchestration(
             [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
             ILogger log)
         {
-            (OrchestratorContext orchestratorContext, Project project) = functionContext.GetInput<(OrchestratorContext, Project)>();
+            (OrchestratorContext orchestratorContext, ProjectCreateCommand command) = functionContext.GetInput<(OrchestratorContext, ProjectCreateCommand)>();
 
-            var user = orchestratorContext.User;
+
+            var user = command.User;
+            var project = command.Payload;
             var teamCloud = orchestratorContext.TeamCloud;
 
             functionContext.SetCustomStatus("Creating Project...");
@@ -63,7 +63,7 @@ namespace TeamCloud.Orchestrator.Orchestrations
 
             project = await functionContext.CallActivityAsync<Project>(nameof(ProjectUpdateActivity), project);
 
-            var projectContext = new ProjectContext(teamCloud, project, user?.Id ?? Guid.Empty);
+            var projectContext = new ProjectContext(teamCloud, project, command.User);
 
             functionContext.SetCustomStatus("Creating Project Resources...");
 
@@ -81,7 +81,9 @@ namespace TeamCloud.Orchestrator.Orchestrations
 
             // await Task.WhenAll(tasks);
 
-            return true;
+            functionContext.SetOutput(project);
+
+            //return true;
         }
     }
 }

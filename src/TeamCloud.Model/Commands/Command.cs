@@ -11,9 +11,11 @@ namespace TeamCloud.Model
     [JsonConverter(typeof(CommandConverter))]
     public interface ICommand
     {
+        Guid CommandId { get; }
+
         Guid? ProjectId { get; }
 
-        Guid UserId { get; set; }
+        User User { get; set; }
     }
 
 
@@ -29,16 +31,19 @@ namespace TeamCloud.Model
         where TPayload : new()
         where TResult : new()
     {
-        public Command(TPayload payload)
-        {
-            Payload = payload;
-        }
-
-        public TPayload Payload { get; set; }
+        public Guid CommandId { get; set; } = Guid.NewGuid();
 
         [JsonIgnore]
         public virtual Guid? ProjectId { get; set; }
 
-        public Guid UserId { get; set; }
+        public User User { get; set; }
+
+        public TPayload Payload { get; set; }
+
+        public Command(User user, TPayload payload)
+        {
+            User = user;
+            Payload = payload;
+        }
     }
 }

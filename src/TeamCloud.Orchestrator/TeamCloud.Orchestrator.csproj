@@ -10,7 +10,9 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.AzureAppConfiguration" Version="3.0.0-preview-010550001-251" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\TeamCloud.Model\TeamCloud.Model.csproj" />
+    <ProjectReference Include="..\TeamCloud.Model\TeamCloud.Model.csproj">
+      <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
