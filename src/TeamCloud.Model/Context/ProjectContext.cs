@@ -14,7 +14,7 @@ namespace TeamCloud.Model
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class ProjectContext
     {
-        public Guid UserId { get; set; }
+        public User User { get; set; }
 
         public Guid ProjectId { get; set; }
 
@@ -40,9 +40,9 @@ namespace TeamCloud.Model
 
         public Dictionary<string, Dictionary<string, string>> TeamCloudProviderVariables { get; set; } = new Dictionary<string, Dictionary<string, string>>();
 
-        public ProjectContext(TeamCloudInstance teamCloud, Project project, Guid userId)
+        public ProjectContext(TeamCloudInstance teamCloud, Project project, User user)
         {
-            UserId = userId;
+            User = user;
             ProjectId = project.Id;
             ProjectName = project.Name;
             ProjectResourceGroup = project.ResourceGroup;
@@ -57,8 +57,8 @@ namespace TeamCloud.Model
             TeamCloudProviderVariables = teamCloud.Configuration.Providers.Select(p => (p.Id, p.Variables)).ToDictionary(t => t.Id, t => t.Variables);
         }
 
-        public ProjectContext(OrchestratorContext orchestratorContext)
-            : this(orchestratorContext.TeamCloud, orchestratorContext.Project, orchestratorContext.User.Id)
+        public ProjectContext(OrchestratorContext orchestratorContext, User user)
+            : this(orchestratorContext.TeamCloud, orchestratorContext.Project, user)
         { }
     }
 }

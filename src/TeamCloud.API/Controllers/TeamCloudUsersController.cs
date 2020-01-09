@@ -18,8 +18,15 @@ namespace TeamCloud.API
     [Authorize(Policy = "admin")]
     public class TeamCloudUsersController : ControllerBase
     {
+        // FIXME:
+        private User currentUser = new User
+        {
+            Id = Guid.Parse("bc8a62dc-c327-4418-a004-77c85c3fb488"),
+            Role = UserRoles.TeamCloud.Admin
+        };
+
         readonly Orchestrator orchestrator;
-        readonly ITeamCloudRepository teamCloudRepository;
+        readonly ITeamCloudContainer teamCloudContainer;
 
         public TeamCloudUsersController(Orchestrator orchestrator, ITeamCloudRepository teamCloudRepository)
         {
@@ -63,7 +70,14 @@ namespace TeamCloud.API
         {
             if (userDefinition is null) return new BadRequestResult();
 
-            var command = new TeamCloudUserCreateCommand(userDefinition);
+            var newUser = new User
+            {
+                Id = Guid.NewGuid(), // TODO: Get user id from graph using userDefinition.Email
+                Role = userDefinition.Role, // TODO: validate
+                Tags = userDefinition.Tags
+            };
+
+            var command = new TeamCloudUserCreateCommand(currentUser, newUser);
 
             var commandResult = await orchestrator
                 .InvokeAsync<User>(command)

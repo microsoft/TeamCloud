@@ -20,13 +20,13 @@ namespace TeamCloud.Orchestrator.Orchestrations
             [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
             ILogger log)
         {
-            (OrchestratorContext orchestratorContext, User deleteUser) = functionContext.GetInput<(OrchestratorContext, User)>();
+            (OrchestratorContext orchestratorContext, TeamCloudUserDeletCommand command) = functionContext.GetInput<(OrchestratorContext, TeamCloudUserDeletCommand)>();
 
-            var teamCloud = await functionContext.CallActivityAsync<TeamCloudInstance>(nameof(TeamCloudUserDeleteActivity), (orchestratorContext.TeamCloud, deleteUser));
+            var teamCloud = await functionContext.CallActivityAsync<TeamCloudInstance>(nameof(TeamCloudUserDeleteActivity), (orchestratorContext.TeamCloud, command.Payload));
 
             // TODO: is this necessary?
 
-            if (deleteUser.Role == UserRoles.TeamCloud.Admin)
+            if (command.Payload.Role == UserRoles.TeamCloud.Admin)
             {
                 var projects = await functionContext.CallActivityAsync<List<Project>>(nameof(ProjectGetActivity), teamCloud);
 
@@ -34,8 +34,6 @@ namespace TeamCloud.Orchestrator.Orchestrations
 
                 foreach (var project in projects)
                 {
-                    var projectContext = new ProjectContext(teamCloud, project, orchestratorContext.User.Id);
-
                     // TODO: call set users on all providers
                     // var tasks = input.teamCloud.Configuration.Providers.Select(p =>
                     //                 context.CallHttpAsync(HttpMethod.Post, p.Location, JsonConvert.SerializeObject(projectContext)));

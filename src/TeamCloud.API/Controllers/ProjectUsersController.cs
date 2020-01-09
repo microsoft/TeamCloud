@@ -18,6 +18,13 @@ namespace TeamCloud.API.Controllers
     [Route("api/projects/{projectId:guid}/users")]
     public class ProjectUsersController : ControllerBase
     {
+        // FIXME:
+        private User currentUser = new User
+        {
+            Id = Guid.Parse("bc8a62dc-c327-4418-a004-77c85c3fb488"),
+            Role = UserRoles.TeamCloud.Admin
+        };
+
         readonly Orchestrator orchestrator;
         readonly IProjectsRepository projectsRepository;
 
@@ -78,7 +85,14 @@ namespace TeamCloud.API.Controllers
 
             if (userDefinition is null) return new BadRequestResult();
 
-            var command = new ProjectUserCreateCommand(userDefinition, ProjectId.Value);
+            var newUser = new User
+            {
+                Id = Guid.NewGuid(), // TODO: Get user id from graph using userDefinition.Email
+                Role = userDefinition.Role, // TODO: validate
+                Tags = userDefinition.Tags
+            };
+
+            var command = new ProjectUserCreateCommand(currentUser, newUser, ProjectId.Value);
 
             var commandResult = await orchestrator
                 .InvokeAsync<User>(command)
@@ -129,7 +143,7 @@ namespace TeamCloud.API.Controllers
 
             if (user is null) return new NotFoundResult();
 
-            var command = new ProjectUserDeleteCommand(user, ProjectId.Value);
+            var command = new ProjectUserDeleteCommand(currentUser, user, ProjectId.Value);
 
             var commandResult = await orchestrator
                 .InvokeAsync<Project>(command)

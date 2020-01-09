@@ -17,14 +17,14 @@ namespace TeamCloud.Orchestrator
     {
         [FunctionName(nameof(QueryOrchestrator))]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "orchestrator/{instanceId:guid}")] HttpRequest httpRequest,
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "orchestrator/{commandId:guid}")] HttpRequest httpRequest,
             [DurableClient] IDurableClient durableClient,
-            string instanceId,
+            string commandId,
             ILogger logger)
         {
-            var status = await durableClient.GetStatusAsync(instanceId, showHistory: false, showHistoryOutput: false, showInput: false);
+            var status = await durableClient.GetStatusAsync(commandId, showHistory: false, showHistoryOutput: false, showInput: false);
 
-            return status is null ? (IActionResult)new NotFoundResult() : new OkObjectResult(status);
+            return status is null ? (IActionResult)new NotFoundResult() : new OkObjectResult(status.GetResult());
         }
     }
 }

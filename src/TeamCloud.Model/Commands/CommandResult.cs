@@ -12,7 +12,7 @@ namespace TeamCloud.Model
     [JsonConverter(typeof(CommandResultConverter))]
     public interface ICommandResult
     {
-        Guid InstanceId { get; }
+        Guid CommandId { get; }
 
         DateTime CreatedTime { get; set; }
 
@@ -22,7 +22,27 @@ namespace TeamCloud.Model
 
         string CustomStatus { get; set; }
 
-        IDictionary<string, string> Links { get; }
+        [JsonProperty(Order = int.MaxValue, PropertyName = "_links")]
+        Dictionary<string, string> Links { get; }
+    }
+
+
+    public class CommandResult : ICommandResult
+    {
+        public Guid CommandId { get; internal set; }
+
+        public DateTime CreatedTime { get; set; }
+
+        public DateTime LastUpdatedTime { get; set; }
+
+        public CommandRuntimeStatus RuntimeStatus { get; set; }
+
+        public string CustomStatus { get; set; }
+
+        [JsonProperty(Order = int.MaxValue, PropertyName = "_links")]
+        public Dictionary<string, string> Links { get; private set; } = new Dictionary<string, string>();
+
+        public CommandResult(Guid commandId) => CommandId = commandId;
     }
 
 
@@ -36,7 +56,7 @@ namespace TeamCloud.Model
     public class CommandResult<TResult> : ICommandResult<TResult>
         where TResult : new()
     {
-        public Guid InstanceId { get; internal set; }
+        public Guid CommandId { get; internal set; }
 
         public DateTime CreatedTime { get; set; }
 
@@ -49,11 +69,8 @@ namespace TeamCloud.Model
         public TResult Result { get; set; }
 
         [JsonProperty(Order = int.MaxValue, PropertyName = "_links")]
-        public IDictionary<string, string> Links { get; private set; } = new Dictionary<string, string>();
+        public Dictionary<string, string> Links { get; private set; } = new Dictionary<string, string>();
 
-        public CommandResult(Guid instanceId)
-        {
-            InstanceId = instanceId;
-        }
+        public CommandResult(Guid commandId) => CommandId = commandId;
     }
 }

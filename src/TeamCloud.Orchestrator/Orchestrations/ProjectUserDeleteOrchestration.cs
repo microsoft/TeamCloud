@@ -19,11 +19,11 @@ namespace TeamCloud.Orchestrator.Orchestrations
             [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
             ILogger log)
         {
-            (OrchestratorContext orchestratorContext, User deleteUser) = functionContext.GetInput<(OrchestratorContext, User)>();
+            (OrchestratorContext orchestratorContext, ProjectUserDeleteCommand command) = functionContext.GetInput<(OrchestratorContext, ProjectUserDeleteCommand)>();
 
-            var project = await functionContext.CallActivityAsync<Project>(nameof(ProjectUserDeleteActivity), (orchestratorContext.Project, deleteUser));
+            var project = await functionContext.CallActivityAsync<Project>(nameof(ProjectUserDeleteActivity), (orchestratorContext.Project, command.Payload));
 
-            var projectContext = new ProjectContext(orchestratorContext.TeamCloud, project, orchestratorContext.User.Id);
+            // var projectContext = new ProjectContext(orchestratorContext.TeamCloud, project, command.User.Id);
 
             // TODO: call set users on all providers
             // var tasks = input.teamCloud.Configuration.Providers.Select(p =>

@@ -34,11 +34,11 @@ namespace TeamCloud.API.Controllers
         }
 
         [Authorize(Policy = "projectRead")]
-        [HttpGet("api/projects/{projectId:guid}/status/{instanceId:guid}")]
-        public async Task<IActionResult> Get(Guid projectId, Guid instanceId)
+        [HttpGet("api/projects/{projectId:guid}/status/{commandId:guid}")]
+        public async Task<IActionResult> Get(Guid projectId, Guid commandId)
         {
             var result = await orchestrator
-                .QueryAsync(instanceId, projectId)
+                .QueryAsync(commandId, projectId)
                 .ConfigureAwait(false);
 
             if (result is null) return new NotFoundResult();

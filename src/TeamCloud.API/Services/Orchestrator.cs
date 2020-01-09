@@ -38,30 +38,32 @@ namespace TeamCloud.API
 
             if (projectId.HasValue && !projectId.Value.Equals(Guid.Empty))
             {
-                commandResult.Links.Add("status", new Uri(baseUrl, $"api/projects/{projectId}/status/{commandResult.InstanceId}").ToString());
+                commandResult.Links.Add("status", new Uri(baseUrl, $"api/projects/{projectId}/status/{commandResult.CommandId}").ToString());
                 commandResult.Links.Add("project", new Uri(baseUrl, $"api/projects/{projectId}").ToString());
             }
             else
             {
-                commandResult.Links.Add("status", new Uri(baseUrl, $"api/status/{commandResult.InstanceId}").ToString());
+                commandResult.Links.Add("status", new Uri(baseUrl, $"api/status/{commandResult.CommandId}").ToString());
             }
         }
 
-        public async Task<ICommandResult> QueryAsync(Guid correlationId, Guid? projectId)
+        public async Task<ICommandResult> QueryAsync(Guid commandId, Guid? projectId)
         {
-            var result = await options.Url
-                .AppendPathSegment($"api/orchestrator/{correlationId}")
+            var resultJson = await options.Url
+                .AppendPathSegment($"api/orchestrator/{commandId}")
                 .WithHeader("x-functions-key", options.AuthCode)
                 .AllowHttpStatus(HttpStatusCode.NotFound)
-                .GetJsonAsync<ICommandResult>()
+                .GetStringAsync()
                 .ConfigureAwait(false);
+
+            var result = JsonConvert.DeserializeObject<CommandResult>(resultJson);
 
             SetResultLinks(result, projectId);
 
             return result;
         }
 
-        public async Task<ICommandResult<TResult>> InvokeAsync<TResult>(ICommand command)
+        public async Task<CommandResult<TResult>> InvokeAsync<TResult>(ICommand command)
             where TResult : new()
         {
             var commandResponse = await options.Url
@@ -71,8 +73,10 @@ namespace TeamCloud.API
                 .ConfigureAwait(false);
 
             var commandResult = await commandResponse.Content
-                .ReadAsAsync<ICommandResult<TResult>>()
+                .ReadAsAsync<CommandResult<TResult>>()
                 .ConfigureAwait(false);
+
+            SetResultLinks(commandResult, command.ProjectId);
 
             return commandResult;
         }
