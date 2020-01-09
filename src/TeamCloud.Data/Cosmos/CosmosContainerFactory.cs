@@ -13,11 +13,11 @@ using TeamCloud.Model;
 
 namespace TeamCloud.Data.Cosmos
 {
-    internal sealed class ContainerFactory
+    internal sealed class CosmosContainerFactory
     {
-        private static readonly ConcurrentDictionary<string, ContainerFactory> containerFactories = new ConcurrentDictionary<string, ContainerFactory>();
+        private static readonly ConcurrentDictionary<string, CosmosContainerFactory> containerFactories = new ConcurrentDictionary<string, CosmosContainerFactory>();
 
-        public static ContainerFactory Get(ICosmosOptions options)
+        public static CosmosContainerFactory Get(ICosmosOptions options)
         {
             if (options is null)
             {
@@ -26,14 +26,14 @@ namespace TeamCloud.Data.Cosmos
 
             var key = $"{options.AzureCosmosDBName}@{options.AzureCosmosDBConnection}";
 
-            return containerFactories.GetOrAdd(key, _ => new ContainerFactory(options));
+            return containerFactories.GetOrAdd(key, _ => new CosmosContainerFactory(options));
         }
 
         private readonly ICosmosOptions options;
         private readonly HashSet<Type> containers = new HashSet<Type>();
         private readonly Lazy<CosmosClient> client;
 
-        private ContainerFactory(ICosmosOptions options)
+        private CosmosContainerFactory(ICosmosOptions options)
         {
             this.options = options ?? throw new ArgumentNullException(nameof(options));
 

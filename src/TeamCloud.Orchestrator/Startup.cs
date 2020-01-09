@@ -29,8 +29,8 @@ namespace TeamCloud.Orchestrator
                 .AddNewtonsoftJson();
 
             builder.Services
-                .AddScoped<IProjectsRepository, ProjectsRepository>()
-                .AddScoped<ITeamCloudRepository, TeamCloudRepository>();
+                .AddScoped<IProjectsRepository, CosmosProjectsRepository>()
+                .AddScoped<ITeamCloudRepository, CosmonsTeamCloudRepository>();
         }
     }
 }

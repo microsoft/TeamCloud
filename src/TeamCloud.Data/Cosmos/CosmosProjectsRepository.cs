@@ -12,13 +12,13 @@ using TeamCloud.Model;
 namespace TeamCloud.Data.Cosmos
 {
 
-    public class ProjectsRepository : IProjectsRepository
+    public class CosmosProjectsRepository : IProjectsRepository
     {
-        private readonly ContainerFactory containerFactory;
+        private readonly CosmosContainerFactory containerFactory;
 
-        public ProjectsRepository(ICosmosOptions cosmosOptions)
+        public CosmosProjectsRepository(ICosmosOptions cosmosOptions)
         {
-            containerFactory = ContainerFactory.Get(cosmosOptions);
+            containerFactory = CosmosContainerFactory.Get(cosmosOptions);
         }
 
         private Task<Container> GetContainerAsync() 

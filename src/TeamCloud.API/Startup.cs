@@ -64,8 +64,8 @@ namespace TeamCloud.API
             services
                 .AddSingleton<IHttpContextAccessor, HttpContextAccessor>()
                 .AddSingleton<Orchestrator>()
-                .AddScoped<IProjectsRepositoryReadOnly, ProjectsRepository>()
-                .AddScoped<ITeamCloudRepository, TeamCloudRepository>();
+                .AddScoped<IProjectsRepositoryReadOnly, CosmosProjectsRepository>()
+                .AddScoped<ITeamCloudRepository, CosmonsTeamCloudRepository>();
 
             ConfigureAuthentication(services);
             ConfigureAuthorization(services);
