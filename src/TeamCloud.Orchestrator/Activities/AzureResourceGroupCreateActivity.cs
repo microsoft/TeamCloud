@@ -13,7 +13,7 @@ namespace TeamCloud.Orchestrator.Activities
     {
         [FunctionName(nameof(AzureResourceGroupCreateActivity))]
         public async static Task<Guid> RunActivity(
-            [ActivityTrigger] AzureResourceGroup azureResourceGroup)
+            [ActivityTrigger] Project project)
         {
             IAzure azure = null; // TODO get a live authenticed instance
 
@@ -29,25 +29,24 @@ namespace TeamCloud.Orchestrator.Activities
             // end
 
 
-            if (azureResourceGroup == null)
-                throw new ArgumentNullException(nameof(azureResourceGroup));
-            if (string.IsNullOrWhiteSpace(azureResourceGroup.ResourceGroupName))
-                throw new ArgumentNullException(nameof(azureResourceGroup.ResourceGroupName));
-            if (azureResourceGroup.Region == null)
-                throw new ArgumentNullException(nameof(azureResourceGroup.Region));
+            if (string.IsNullOrWhiteSpace(project.ResourceGroup.ResourceGroupName))
+                throw new ArgumentNullException(nameof(project.ResourceGroup.ResourceGroupName));
+            if (project.ResourceGroup.Region == null)
+                throw new ArgumentNullException(nameof(project.ResourceGroup.Region));
 
-            if (await azure.ResourceGroups.ContainAsync(azureResourceGroup.ResourceGroupName) == false)
+            if (await azure.ResourceGroups.ContainAsync(project.ResourceGroup.ResourceGroupName) == false)
             {
                 IResourceGroup newGroup = await azure.ResourceGroups
-                    .Define(azureResourceGroup.ResourceGroupName)
-                    .WithRegion(azureResourceGroup.Region)
+                    .Define(project.ResourceGroup.ResourceGroupName)
+                    .WithRegion(project.ResourceGroup.Region)
+                    .WithTags(project.Tags)
                     .CreateAsync();
 
                 return Guid.Parse(newGroup.Id);
             }
             else
             {
-                IResourceGroup existingGroup = await azure.ResourceGroups.GetByNameAsync(azureResourceGroup.ResourceGroupName);
+                IResourceGroup existingGroup = await azure.ResourceGroups.GetByNameAsync(project.ResourceGroup.ResourceGroupName);
                 return Guid.Parse(existingGroup.Id);
             }
         }

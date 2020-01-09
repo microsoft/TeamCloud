@@ -54,8 +54,8 @@ namespace TeamCloud.Orchestrator.Orchestrations
                 Region = teamCloud.Configuration.Azure.Region
             };
 
-            // Create new resoruce group for project
-            resourceGroup.Id = await functionContext.CallActivityAsync<Guid>(nameof(AzureResourceGroupCreateActivity), resourceGroup);
+            // Create new resource group for project
+            resourceGroup.Id = await functionContext.CallActivityAsync<Guid>(nameof(AzureResourceGroupCreateActivity), project);
 
             // Assign resource group to project
             project.ResourceGroup = resourceGroup;
