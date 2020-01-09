@@ -17,18 +17,18 @@ namespace TeamCloud.API.Controllers
     [Authorize(Policy = "admin")]
     public class TeamCloudController : ControllerBase
     {
-        readonly ITeamCloudContainer teamCloudContainer;
+        readonly ITeamCloudRepositoryReadOnly teamCloudRepository;
 
-        public TeamCloudController(ITeamCloudContainer teamCloudContainer)
+        public TeamCloudController(ITeamCloudRepositoryReadOnly teamCloudRepository)
         {
-            this.teamCloudContainer = teamCloudContainer ?? throw new ArgumentNullException(nameof(teamCloudContainer));
+            this.teamCloudRepository = teamCloudRepository ?? throw new ArgumentNullException(nameof(teamCloudRepository));
         }
 
         // GET: api/config
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var teamCloudInstance = await teamCloudContainer
+            var teamCloudInstance = await teamCloudRepository
                 .GetAsync()
                 .ConfigureAwait(false);
 

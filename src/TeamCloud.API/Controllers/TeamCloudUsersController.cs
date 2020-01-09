@@ -26,19 +26,19 @@ namespace TeamCloud.API
         };
 
         readonly Orchestrator orchestrator;
-        readonly ITeamCloudContainer teamCloudContainer;
+        readonly ITeamCloudRepositoryReadOnly teamCloudRepository;
 
-        public TeamCloudUsersController(Orchestrator orchestrator, ITeamCloudContainer teamCloudContainer)
+        public TeamCloudUsersController(Orchestrator orchestrator, ITeamCloudRepositoryReadOnly teamCloudRepository)
         {
             this.orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
-            this.teamCloudContainer = teamCloudContainer ?? throw new ArgumentNullException(nameof(teamCloudContainer));
+            this.teamCloudRepository = teamCloudRepository ?? throw new ArgumentNullException(nameof(teamCloudRepository));
         }
 
         // GET: api/config
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var teamCloudInstance = await teamCloudContainer
+            var teamCloudInstance = await teamCloudRepository
                 .GetAsync()
                 .ConfigureAwait(false);
 
@@ -53,7 +53,7 @@ namespace TeamCloud.API
         [HttpGet("{userId:guid}")]
         public async Task<IActionResult> Get(Guid userId)
         {
-            var teamCloudInstance = await teamCloudContainer
+            var teamCloudInstance = await teamCloudRepository
                 .GetAsync()
                 .ConfigureAwait(false);
 
@@ -97,7 +97,7 @@ namespace TeamCloud.API
         [HttpPut]
         public async Task<IActionResult> Put([FromBody] User user)
         {
-            var teamCloudInstance = await teamCloudContainer
+            var teamCloudInstance = await teamCloudRepository
                 .GetAsync()
                 .ConfigureAwait(false);
 
@@ -114,7 +114,7 @@ namespace TeamCloud.API
         [HttpDelete("{userId:guid}")]
         public async Task<IActionResult> Delete(Guid userId)
         {
-            var teamCloudInstance = await teamCloudContainer
+            var teamCloudInstance = await teamCloudRepository
                 .GetAsync()
                 .ConfigureAwait(false);
 
