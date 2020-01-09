@@ -25,11 +25,13 @@ namespace TeamCloud.API.Controllers
             Role = UserRoles.TeamCloud.Admin
         };
 
+        readonly UserService userService;
         readonly Orchestrator orchestrator;
         readonly IProjectsContainer projectsContainer;
 
-        public ProjectsController(Orchestrator orchestrator, IProjectsContainer projectsContainer)
+        public ProjectsController(UserService userService, Orchestrator orchestrator, IProjectsContainer projectsContainer)
         {
+            this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
             this.orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
             this.projectsContainer = projectsContainer ?? throw new ArgumentNullException(nameof(projectsContainer));
         }
@@ -67,7 +69,7 @@ namespace TeamCloud.API.Controllers
         {
             if (projectDefinition is null) return new BadRequestResult();
 
-            var projectUsers = GetUserForNewProject(projectDefinition);
+            var projectUsers = await GetUsersForNewProject(projectDefinition);
 
             var project = new Project
             {
@@ -128,15 +130,11 @@ namespace TeamCloud.API.Controllers
         }
 
 
-        private List<User> GetUserForNewProject(ProjectDefinition projectDefinition)
+        private async Task<List<User>> GetUsersForNewProject(ProjectDefinition projectDefinition)
         {
-            // these are Project Users
-            var projectUsers = projectDefinition.Users.Select(u => new User
-            {
-                Id = Guid.NewGuid(), // TODO: Get the id using u.Email
-                Role = u.Role, // TODO: validate
-                Tags = u.Tags
-            }).ToList();
+            var projectUserTasks = projectDefinition.Users.Select(u => userService.GetUser(u));
+
+            var projectUsers = (await Task.WhenAll(projectUserTasks)).ToList();
 
             var currentProjectUser = projectUsers.FirstOrDefault(u => u.Id == currentUser.Id);
 

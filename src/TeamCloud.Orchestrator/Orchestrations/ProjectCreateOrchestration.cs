@@ -3,6 +3,7 @@
  *  Licensed under the MIT License.
  */
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
@@ -40,7 +41,7 @@ namespace TeamCloud.Orchestrator.Orchestrations
 
             var projectIdentity = new AzureIdentity
             {
-                Id = "",
+                Id = Guid.NewGuid(),
                 AppId = "",
                 Secret = ""
             };
@@ -56,7 +57,7 @@ namespace TeamCloud.Orchestrator.Orchestrations
 
             // TODO: deploy new resoruce group for project
 
-            resourceGroup.ResourceGroupId = ""; // get resource group id
+            resourceGroup.Id = Guid.NewGuid(); // TODO: get resource group id
 
 
             project.ResourceGroup = resourceGroup;

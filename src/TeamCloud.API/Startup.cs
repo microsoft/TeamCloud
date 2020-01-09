@@ -42,7 +42,6 @@ namespace TeamCloud.API
                 .AddSingleton<IHttpContextAccessor, HttpContextAccessor>()
                 .AddSingleton<IProjectsContainer, ProjectsContainer>()
                 .AddSingleton<ITeamCloudContainer, TeamCloudContainer>()
-                .AddSingleton<Orchestrator>();
 
             services
                 .AddMvc(options =>
@@ -143,6 +142,8 @@ namespace TeamCloud.API
                         policy.RequireRole(UserRoles.TeamCloud.Admin, UserRoles.Project.Owner);
                     });
                 });
+                .AddSingleton<Orchestrator>()
+                .AddSingleton<UserService>();
 
             services
                 .AddControllers()
