@@ -9,7 +9,7 @@ using System;
 using System.Reflection;
 using TeamCloud.Configuration;
 using TeamCloud.Data;
-using TeamCloud.Data.Cosmos;
+using TeamCloud.Data.CosmosDb;
 using TeamCloud.Orchestrator;
 
 [assembly: FunctionsStartup(typeof(Startup))]
@@ -29,8 +29,8 @@ namespace TeamCloud.Orchestrator
                 .AddNewtonsoftJson();
 
             builder.Services
-                .AddScoped<IProjectsRepository, CosmosProjectsRepository>()
-                .AddScoped<ITeamCloudRepository, CosmonsTeamCloudRepository>();
+                .AddScoped<IProjectsRepository, CosmosDbProjectsRepository>()
+                .AddScoped<ITeamCloudRepository, CosmosDbTeamCloudRepository>();
         }
     }
 }

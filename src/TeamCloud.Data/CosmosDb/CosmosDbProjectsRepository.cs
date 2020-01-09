@@ -9,16 +9,16 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using TeamCloud.Model;
 
-namespace TeamCloud.Data.Cosmos
+namespace TeamCloud.Data.CosmosDb
 {
 
-    public class CosmosProjectsRepository : IProjectsRepository
+    public class CosmosDbProjectsRepository : IProjectsRepository
     {
-        private readonly CosmosContainerFactory containerFactory;
+        private readonly CosmosDbContainerFactory containerFactory;
 
-        public CosmosProjectsRepository(ICosmosOptions cosmosOptions)
+        public CosmosDbProjectsRepository(ICosmosDbOptions cosmosOptions)
         {
-            containerFactory = CosmosContainerFactory.Get(cosmosOptions);
+            containerFactory = CosmosDbContainerFactory.Get(cosmosOptions);
         }
 
         private Task<Container> GetContainerAsync() 

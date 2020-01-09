@@ -22,7 +22,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using TeamCloud.Configuration;
 using TeamCloud.Data;
-using TeamCloud.Data.Cosmos;
+using TeamCloud.Data.CosmosDb;
 using TeamCloud.Model;
 
 namespace TeamCloud.API
@@ -64,8 +64,8 @@ namespace TeamCloud.API
             services
                 .AddSingleton<IHttpContextAccessor, HttpContextAccessor>()
                 .AddSingleton<Orchestrator>()
-                .AddScoped<IProjectsRepositoryReadOnly, CosmosProjectsRepository>()
-                .AddScoped<ITeamCloudRepository, CosmonsTeamCloudRepository>();
+                .AddScoped<IProjectsRepositoryReadOnly, CosmosDbProjectsRepository>()
+                .AddScoped<ITeamCloudRepositoryReadOnly, CosmosDbTeamCloudRepository>();
 
             ConfigureAuthentication(services);
             ConfigureAuthorization(services);

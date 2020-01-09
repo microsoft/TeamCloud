@@ -7,18 +7,18 @@ using Microsoft.Azure.Cosmos;
 using System.Threading.Tasks;
 using TeamCloud.Model;
 
-namespace TeamCloud.Data.Cosmos
+namespace TeamCloud.Data.CosmosDb
 {
-    public class CosmonsTeamCloudRepository : ITeamCloudRepository
+    public class CosmosDbTeamCloudRepository : ITeamCloudRepository
     {
-        private readonly CosmosContainerFactory containerFactory;
+        private readonly CosmosDbContainerFactory containerFactory;
 
         private Task<Container> GetContainerAsync() 
             => containerFactory.GetContainerAsync<TeamCloudInstance>();
 
-        public CosmonsTeamCloudRepository(ICosmosOptions cosmosOptions)
+        public CosmosDbTeamCloudRepository(ICosmosDbOptions cosmosOptions)
         {
-            containerFactory = CosmosContainerFactory.Get(cosmosOptions);
+            containerFactory = CosmosDbContainerFactory.Get(cosmosOptions);
         }
 
         public async Task<TeamCloudInstance> GetAsync()
