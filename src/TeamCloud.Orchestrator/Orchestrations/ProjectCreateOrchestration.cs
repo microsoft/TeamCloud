@@ -3,12 +3,12 @@
  *  Licensed under the MIT License.
  */
 
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 using TeamCloud.Model;
 using TeamCloud.Orchestrator.Activities;
 
@@ -23,7 +23,6 @@ namespace TeamCloud.Orchestrator.Orchestrations
         {
             (OrchestratorContext orchestratorContext, ProjectCreateCommand command) = functionContext.GetInput<(OrchestratorContext, ProjectCreateCommand)>();
 
-
             var user = command.User;
             var project = command.Payload;
             var teamCloud = orchestratorContext.TeamCloud;
@@ -34,7 +33,7 @@ namespace TeamCloud.Orchestrator.Orchestrations
             project.TeamCloudApplicationInsightsKey = teamCloud.ApplicationInsightsKey;
             project.ProviderVariables = teamCloud.Configuration.Providers.Select(p => (p.Id, p.Variables)).ToDictionary(t => t.Id, t => t.Variables);
 
-            // add project to db and add new project to teamcloud in db
+            // Add project to db and add new project to teamcloud in db
             project = await functionContext.CallActivityAsync<Project>(nameof(ProjectCreateActivity), project);
 
             // TODO: Create identity (service principal) for Project
@@ -50,16 +49,15 @@ namespace TeamCloud.Orchestrator.Orchestrations
 
             var resourceGroup = new AzureResourceGroup
             {
-                SubscriptionId = "", // get sub ID
-                ResourceGroupName = $"{teamCloud.Configuration.Azure.ResourceGroupNamePrefix}{project.Name}", // validate/clean
+                SubscriptionId = teamCloud.Configuration.Azure.SubscriptionId,
+                ResourceGroupName = $"{teamCloud.Configuration.Azure.ResourceGroupNamePrefix}{project.Name}", // TODO validate/clean
                 Region = teamCloud.Configuration.Azure.Region
             };
 
-            // TODO: deploy new resoruce group for project
+            // Create new resoruce group for project
+            resourceGroup.Id = await functionContext.CallActivityAsync<Guid>(nameof(AzureResourceGroupCreateActivity), resourceGroup);
 
-            resourceGroup.Id = Guid.NewGuid(); // TODO: get resource group id
-
-
+            // Assign resource group to project
             project.ResourceGroup = resourceGroup;
 
             project = await functionContext.CallActivityAsync<Project>(nameof(ProjectUpdateActivity), project);

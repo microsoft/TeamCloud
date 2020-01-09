@@ -11,6 +11,7 @@ using TeamCloud.Configuration;
 using TeamCloud.Data;
 using TeamCloud.Data.CosmosDb;
 using TeamCloud.Orchestrator;
+using TeamCloud.Orchestrator.Services;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 
@@ -29,6 +30,7 @@ namespace TeamCloud.Orchestrator
                 .AddNewtonsoftJson();
 
             builder.Services
+                .AddScoped<IAzureSessionFactory, AzureSessionFactory>()
                 .AddScoped<IProjectsRepository, CosmosDbProjectsRepository>()
                 .AddScoped<ITeamCloudRepository, CosmosDbTeamCloudRepository>();
         }
