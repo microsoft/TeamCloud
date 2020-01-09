@@ -40,6 +40,9 @@ namespace TeamCloud.Orchestrator
             if (httpRequest is null)
                 throw new ArgumentNullException(nameof(httpRequest));
 
+            if (durableClient is null)
+                throw new ArgumentNullException(nameof(durableClient));
+
             var requestBody = await new StreamReader(httpRequest.Body)
                 .ReadToEndAsync()
                 .ConfigureAwait(false);
@@ -54,8 +57,8 @@ namespace TeamCloud.Orchestrator
                 .GetAsync(command.ProjectId.Value)
                 .ConfigureAwait(false);
 
-            var user = project.Users
-                .SingleOrDefault(usr => usr.Id == command.UserId);
+            
+            var orchestratorContext = new OrchestratorContext(teamCloud, project);
 
             switch (command)
             {
