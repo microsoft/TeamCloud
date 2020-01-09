@@ -67,31 +67,15 @@ namespace TeamCloud.API.Controllers
         {
             if (projectDefinition is null) return new BadRequestResult();
 
-            // these are Project Users
-            List<User> users = new List<User>(); // TODO: projectDefinition.Users.Select(...)
-
+            var projectUsers = GetUserForNewProject(projectDefinition);
 
             var project = new Project
             {
                 Id = Guid.NewGuid(),
                 Name = projectDefinition.Name,
-                Users = users,
+                Users = projectUsers,
                 Tags = projectDefinition.Tags
             };
-
-            var existingUser = project.Users.FirstOrDefault(u => u.Id == currentUser.Id);
-
-            if (existingUser != null)
-            {
-                // ensure Role is Owner
-                // maybe merge tags
-                // project.Users.Add(new User { Id = user.Id, Role = UserRoles.Project.Owner, Tags = user.Tags });
-            }
-            else
-            {
-                // project.Users.Add(new User { Id = user.Id, Role = UserRoles.Project.Owner, Tags = user.Tags });
-            }
-
 
             var command = new ProjectCreateCommand(currentUser, project);
 
@@ -141,6 +125,40 @@ namespace TeamCloud.API.Controllers
             {
                 return new OkObjectResult(commandResult);
             }
+        }
+
+
+        private List<User> GetUserForNewProject(ProjectDefinition projectDefinition)
+        {
+            // these are Project Users
+            var projectUsers = projectDefinition.Users.Select(u => new User
+            {
+                Id = Guid.NewGuid(), // TODO: Get the id using u.Email
+                Role = u.Role, // TODO: validate
+                Tags = u.Tags
+            }).ToList();
+
+            var currentProjectUser = projectUsers.FirstOrDefault(u => u.Id == currentUser.Id);
+
+            if (currentProjectUser is null)
+            {
+                projectUsers.Append(new User
+                {
+                    Id = currentUser.Id,
+                    Role = UserRoles.Project.Owner,
+                    Tags = currentUser.Tags
+                });
+            }
+            else if (currentProjectUser.Role != UserRoles.Project.Owner)
+            {
+                currentProjectUser.Role = UserRoles.Project.Owner;
+
+                // TODO:
+                // Should we merge the tags of the currentUser (TeamCloud User)?
+                // Should we merge the tags of ALL users that are also TeamCloud Users?
+            }
+
+            return projectUsers;
         }
     }
 }

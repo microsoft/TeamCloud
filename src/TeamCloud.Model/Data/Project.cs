@@ -11,7 +11,7 @@ using Newtonsoft.Json.Serialization;
 namespace TeamCloud.Model
 {
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public class Project : IContainerDocument
+    public class Project : Identifiable, IContainerDocument, IEquatable<Project>
     {
         public string PartitionKey => TeamCloudId;
 
@@ -32,5 +32,7 @@ namespace TeamCloud.Model
         public Dictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();
 
         public Dictionary<string, Dictionary<string, string>> ProviderVariables { get; set; } = new Dictionary<string, Dictionary<string, string>>();
+
+        public bool Equals(Project other) => Id.Equals(other.Id);
     }
 }

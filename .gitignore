@@ -336,3 +336,4 @@ src/TeamCloud/local.settings.json
 src/TeamCloud.Orchestrator/local.settings.json
 src/TeamCloud.API/appsettings.json
 src/TeamCloud.API/appsettings.json
+.vscode/TeamCloud.code-workspace
