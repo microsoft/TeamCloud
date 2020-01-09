@@ -85,6 +85,8 @@
                     "apiVersion": "2018-02-01",
                     "properties": {
                         "PROJECT": "src/TeamCloud.API/TeamCloud.API.csproj",
+                        "Azure:SubscriptionId": "[subscription().SubscriptionId]",
+                        "Azure:TenantId": "[subscription().tenantId]",
                         "AzureCosmosDBName": "TeamCloud",
                         "AzureCosmosDBConnection": "[concat('AccountEndpoint=', reference(concat('Microsoft.DocumentDb/databaseAccounts/', variables('cosmosDbName'))).documentEndpoint, ';AccountKey=', listKeys(resourceId('Microsoft.DocumentDb/databaseAccounts', variables('cosmosDbName')), '2015-04-08').primaryMasterKey)]",
                         "CosmosDb:DatabaseName": "TeamCloud",
@@ -265,13 +267,73 @@
                                 "DeleteIssuers"
                             ]
                         }
+                    },
+                    {
+                        "tenantId": "[reference(concat('Microsoft.Web/sites/', variables('webAppNameLower')), '2018-02-01', 'Full').identity.tenantId]",
+                        "objectId": "[reference(concat('Microsoft.Web/sites/', variables('webAppNameLower')), '2018-02-01', 'Full').identity.principalId]",
+                        "permissions": {
+                            "keys": [
+                                "Get",
+                                "List",
+                                "Update",
+                                "Create",
+                                "Import",
+                                "Delete",
+                                "Recover",
+                                "Backup",
+                                "Restore"
+                            ],
+                            "secrets": [
+                                "Get",
+                                "List",
+                                "Set",
+                                "Delete",
+                                "Recover",
+                                "Backup",
+                                "Restore"
+                            ],
+                            "certificates": [
+                                "Get",
+                                "List",
+                                "Update",
+                                "Create",
+                                "Import",
+                                "Delete",
+                                "Recover",
+                                "ManageContacts",
+                                "ManageIssuers",
+                                "GetIssuers",
+                                "ListIssuers",
+                                "SetIssuers",
+                                "DeleteIssuers"
+                            ]
+                        }
                     }
                 ],
                 "enabledForDeployment": false
             },
             "dependsOn": [
                 "[resourceId('Microsoft.Web/sites', variables('functionAppNameLower'))]",
-                "[resourceId('Microsoft.Web/serverfarms', variables('functionAppNameLower'))]"
+                "[resourceId('Microsoft.Web/serverfarms', variables('functionAppNameLower'))]",
+                "[resourceId('Microsoft.Web/sites', variables('webAppNameLower'))]",
+                "[resourceId('Microsoft.Web/serverfarms', variables('webAppNameLower'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Insights/components",
+            "kind": "web",
+            "name": "[variables('webAppNameLower')]",
+            "apiVersion": "2014-04-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "ApplicationId": "[variables('webAppNameLower')]"
+            },
+            "tags": {
+                "[concat('hidden-link:', resourceId('Microsoft.Web/sites', variables('webAppNameLower')))]": "Resource"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', variables('webAppNameLower'))]",
+                "[resourceId('Microsoft.Web/serverfarms', variables('webAppNameLower'))]"
             ]
         },
         {
