@@ -53,9 +53,7 @@ namespace TeamCloud.Orchestrator
                 }
             }
 
-            var user = teamCloud?.Users?.FirstOrDefault(u => u.Id == command.UserId) ?? project?.Users?.FirstOrDefault(u => u.Id == command.UserId);
-
-            var orchestratorContext = new OrchestratorContext(teamCloud, project, user);
+            var orchestratorContext = new OrchestratorContext(teamCloud, project);
 
             switch (command)
             {
@@ -114,34 +112,14 @@ namespace TeamCloud.Orchestrator
             where TResult : new()
         {
             var instanceId = await durableClient
-                .StartNewAsync<object>(orchestrationName, (orchestratorContext, command.Payload))
+                .StartNewAsync<object>(orchestrationName, command.CommandId.ToString(), (orchestratorContext, command))
                 .ConfigureAwait(false);
 
             var status = await durableClient
                 .GetStatusAsync(instanceId)
                 .ConfigureAwait(false);
 
-            return GetResult<TResult>(status);
-        }
-
-
-        private ICommandResult<TResult> GetResult<TResult>(DurableOrchestrationStatus orchestrationStatus)
-            where TResult : new()
-        {
-            var result = new CommandResult<TResult>(Guid.Parse(orchestrationStatus.InstanceId))
-            {
-                CreatedTime = orchestrationStatus.CreatedTime,
-                LastUpdatedTime = orchestrationStatus.LastUpdatedTime,
-                RuntimeStatus = (CommandRuntimeStatus)orchestrationStatus.RuntimeStatus,
-                CustomStatus = orchestrationStatus.CustomStatus?.ToString(),
-            };
-
-            if (orchestrationStatus.Output?.HasValues ?? false)
-            {
-                result.Result = orchestrationStatus.Output.ToObject<TResult>();
-            }
-
-            return result;
+            return status.GetResult<TResult>();
         }
     }
 }

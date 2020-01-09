@@ -11,8 +11,9 @@ namespace TeamCloud.Model
     {
         public override Guid? ProjectId => Payload.Id;
 
-        public ProjectCreateCommand(Project project) : base(project)
-        { }
+        public ProjectCreateCommand(User user, Project project) : base(user, project)
+        {
+        }
     }
 
 
@@ -20,27 +21,27 @@ namespace TeamCloud.Model
     {
         public override Guid? ProjectId => Payload.Id;
 
-        public ProjectUpdateCommand(Project payload) : base(payload)
+        public ProjectUpdateCommand(User user, Project payload) : base(user, payload)
         {
         }
     }
 
 
-    public class ProjectDeleteCommand : Command<ProjectDefinition, Project>
+    public class ProjectDeleteCommand : Command<Project, Project>
     {
         public override Guid? ProjectId => Payload.Id;
 
-        public ProjectDeleteCommand(ProjectDefinition payload) : base(payload)
+        public ProjectDeleteCommand(User user, Project payload) : base(user, payload)
         {
         }
     }
 
 
-    public class ProjectUserCreateCommand : Command<UserDefinition, User>
+    public class ProjectUserCreateCommand : Command<User, User>
     {
         public override Guid? ProjectId { get; set; }
 
-        public ProjectUserCreateCommand(UserDefinition payload, Guid projectId) : base(payload)
+        public ProjectUserCreateCommand(User user, User payload, Guid projectId) : base(user, payload)
         {
             ProjectId = projectId;
         }
@@ -51,7 +52,7 @@ namespace TeamCloud.Model
     {
         public override Guid? ProjectId { get; set; }
 
-        public ProjectUserUpdateCommand(User payload, Guid projectId) : base(payload)
+        public ProjectUserUpdateCommand(User user, User payload, Guid projectId) : base(user, payload)
         {
             ProjectId = projectId;
         }
@@ -62,16 +63,16 @@ namespace TeamCloud.Model
     {
         public override Guid? ProjectId { get; set; }
 
-        public ProjectUserDeleteCommand(User payload, Guid projectId) : base(payload)
+        public ProjectUserDeleteCommand(User user, User payload, Guid projectId) : base(user, payload)
         {
             ProjectId = projectId;
         }
     }
 
 
-    public class TeamCloudUserCreateCommand : Command<UserDefinition, User>
+    public class TeamCloudUserCreateCommand : Command<User, User>
     {
-        public TeamCloudUserCreateCommand(UserDefinition payload) : base(payload)
+        public TeamCloudUserCreateCommand(User user, User payload) : base(user, payload)
         {
         }
     }
@@ -79,7 +80,7 @@ namespace TeamCloud.Model
 
     public class TeamCloudUserUpdateCommand : Command<User, User>
     {
-        public TeamCloudUserUpdateCommand(User payload) : base(payload)
+        public TeamCloudUserUpdateCommand(User user, User payload) : base(user, payload)
         {
         }
     }
@@ -87,7 +88,7 @@ namespace TeamCloud.Model
 
     public class TeamCloudUserDeletCommand : Command<User, User>
     {
-        public TeamCloudUserDeletCommand(User payload) : base(payload)
+        public TeamCloudUserDeletCommand(User user, User payload) : base(user, payload)
         {
         }
     }

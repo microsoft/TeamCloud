@@ -4,6 +4,7 @@
  */
 
 using System.Threading.Tasks;
+using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -21,7 +22,7 @@ namespace TeamCloud.Orchestrator.Activities
         {
             var projectUri = UriFactory.CreateDocumentUri(Constants.CosmosDb.DatabaseName, nameof(Project), project.Id.ToString());
 
-            var deleteResponse = await client.DeleteDocumentAsync(projectUri);
+            var deleteResponse = await client.DeleteDocumentAsync(projectUri, new RequestOptions { PartitionKey = new PartitionKey(Constants.CosmosDb.TeamCloudInstanceId) });
 
             teamCloud.ProjectIds?.Remove(project.Id);
 

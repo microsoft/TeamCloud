@@ -8,13 +8,11 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace TeamCloud.Model
+namespace TeamCloud.API
 {
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class ProjectDefinition
     {
-        public Guid Id { get; set; } = Guid.NewGuid();
-
         public string Name { get; set; }
 
         public Dictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();

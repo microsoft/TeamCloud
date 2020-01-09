@@ -15,13 +15,10 @@ namespace TeamCloud.Model
 
         public Project Project { get; set; }
 
-        public User User { get; set; }
-
-        public OrchestratorContext(TeamCloudInstance teamCloud, Project project = null, User user = null)
+        public OrchestratorContext(TeamCloudInstance teamCloud, Project project = null)
         {
             TeamCloud = teamCloud;
             Project = project;
-            User = user;
         }
     }
 }
