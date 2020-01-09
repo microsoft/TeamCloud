@@ -16,10 +16,6 @@ namespace TeamCloud.Orchestrator.Orchestrations
 {
     public static class ProjectDeleteOrchestration
     {
-        private static TeamCloudConfiguraiton TeamCloudConfiguraiton = new ConfigurationBuilder()
-            .AddAzureAppConfiguration(Environment.GetEnvironmentVariable("AppConfigurationConnectionString"))
-            .Build().GetSection("teamcloud").Get<TeamCloudConfiguraiton>();
-
         [FunctionName(nameof(ProjectDeleteOrchestration))]
         public static async Task<bool> RunOrchestration([OrchestrationTrigger] IDurableOrchestrationContext functionContext, ILogger log)
         {

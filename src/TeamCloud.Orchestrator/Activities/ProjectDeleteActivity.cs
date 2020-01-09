@@ -4,29 +4,29 @@
  */
 
 using System.Threading.Tasks;
-using Microsoft.Azure.Documents;
-using Microsoft.Azure.Documents.Client;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using TeamCloud.Data;
 using TeamCloud.Model;
 
 namespace TeamCloud.Orchestrator.Activities
 {
-    public static class ProjectDeleteActivity
+    public class ProjectDeleteActivity
     {
-        [FunctionName(nameof(ProjectDeleteActivity))]
-        public static async Task<TeamCloudInstance> RunActivity(
-            [ActivityTrigger] Project project,
-            [CosmosDB(Constants.CosmosDb.DatabaseName, nameof(TeamCloudInstance), Id = Constants.CosmosDb.TeamCloudInstanceId, PartitionKey = Constants.CosmosDb.TeamCloudInstanceId, ConnectionStringSetting = "AzureCosmosDBConnection")] TeamCloudInstance teamCloud,
-            [CosmosDB(Constants.CosmosDb.DatabaseName, nameof(Project), ConnectionStringSetting = "AzureCosmosDBConnection")] DocumentClient client)
+        private readonly IProjectsRepository projectsRepository;
+
+        public ProjectDeleteActivity(IProjectsRepository projectsRepository)
         {
-            var projectUri = UriFactory.CreateDocumentUri(Constants.CosmosDb.DatabaseName, nameof(Project), project.Id.ToString());
+            this.projectsRepository = projectsRepository ?? throw new System.ArgumentNullException(nameof(projectsRepository));
+        }
 
-            var deleteResponse = await client.DeleteDocumentAsync(projectUri, new RequestOptions { PartitionKey = new PartitionKey(Constants.CosmosDb.TeamCloudInstanceId) });
-
-            teamCloud.ProjectIds?.Remove(project.Id);
-
-            return teamCloud;
+        [FunctionName(nameof(ProjectDeleteActivity))]
+        public async Task<Project> RunActivity(
+            [ActivityTrigger] Project project)
+        {
+            return await projectsRepository
+                .RemoveAsync(project)
+                .ConfigureAwait(false);
         }
     }
 }

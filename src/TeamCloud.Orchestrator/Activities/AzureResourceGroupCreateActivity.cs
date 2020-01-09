@@ -6,29 +6,23 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using System;
 using System.Threading.Tasks;
 using TeamCloud.Model;
+using TeamCloud.Orchestrator.Services;
 
 namespace TeamCloud.Orchestrator.Activities
 {
-    public static class AzureResourceGroupCreateActivity
+    public class AzureResourceGroupCreateActivity
     {
+        private readonly IAzureSessionFactory azureSessionFactory;
+
+        public AzureResourceGroupCreateActivity(IAzureSessionFactory azureSessionFactory)
+        {
+            this.azureSessionFactory = azureSessionFactory ?? throw new ArgumentNullException(nameof(azureSessionFactory));
+        }
+
         [FunctionName(nameof(AzureResourceGroupCreateActivity))]
-        public async static Task<Guid> RunActivity(
+        public async Task<string> RunActivity(
             [ActivityTrigger] AzureResourceGroup azureResourceGroup)
         {
-            IAzure azure = null; // TODO get a live authenticed instance
-
-
-            // TODO move this azure authentication to singleton somewhere else so its global to all activities
-            // start
-            const string client = "";
-            const string key = "";
-            const string tenant_id = "";
-            const string subscription_id = "";
-            var creds = new AzureCredentialsFactory().FromServicePrincipal(client, key, tenant_id, AzureEnvironment.AzureGlobalCloud);
-            azure = Microsoft.Azure.Management.Fluent.Azure.Authenticate(creds).WithSubscription(subscription_id);
-            // end
-
-
             if (azureResourceGroup == null)
                 throw new ArgumentNullException(nameof(azureResourceGroup));
             if (string.IsNullOrWhiteSpace(azureResourceGroup.ResourceGroupName))
@@ -36,19 +30,25 @@ namespace TeamCloud.Orchestrator.Activities
             if (azureResourceGroup.Region == null)
                 throw new ArgumentNullException(nameof(azureResourceGroup.Region));
 
-            if (await azure.ResourceGroups.ContainAsync(azureResourceGroup.ResourceGroupName) == false)
+            var azureSession = azureSessionFactory.CreateSession(Guid.Parse(azureResourceGroup.SubscriptionId));
+
+            if (await azureSession.ResourceGroups.ContainAsync(azureResourceGroup.ResourceGroupName).ConfigureAwait(false) == false)
             {
-                IResourceGroup newGroup = await azure.ResourceGroups
+                var newGroup = await azureSession.ResourceGroups
                     .Define(azureResourceGroup.ResourceGroupName)
                     .WithRegion(azureResourceGroup.Region)
-                    .CreateAsync();
+                    .CreateAsync()
+                    .ConfigureAwait(false);
 
-                return Guid.Parse(newGroup.Id);
+                return newGroup.Id;
             }
             else
             {
-                IResourceGroup existingGroup = await azure.ResourceGroups.GetByNameAsync(azureResourceGroup.ResourceGroupName);
-                return Guid.Parse(existingGroup.Id);
+                IResourceGroup existingGroup = await azureSession.ResourceGroups
+                    .GetByNameAsync(azureResourceGroup.ResourceGroupName)
+                    .ConfigureAwait(false);
+
+                return existingGroup.Id;
             }
         }
     }
