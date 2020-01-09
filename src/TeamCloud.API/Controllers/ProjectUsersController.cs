@@ -26,7 +26,7 @@ namespace TeamCloud.API.Controllers
         };
 
         readonly Orchestrator orchestrator;
-        readonly IProjectsRepository projectsRepository;
+        readonly IProjectsRepositoryReadOnly projectsRepository;
 
         public Guid? ProjectId {
             get {
@@ -36,7 +36,7 @@ namespace TeamCloud.API.Controllers
             }
         }
 
-        public ProjectUsersController(Orchestrator orchestrator, IProjectsRepository projectsRepository)
+        public ProjectUsersController(Orchestrator orchestrator, IProjectsRepositoryReadOnly projectsRepository)
         {
             this.orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
             this.projectsRepository = projectsRepository ?? throw new ArgumentNullException(nameof(projectsRepository));

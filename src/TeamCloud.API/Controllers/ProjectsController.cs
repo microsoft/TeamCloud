@@ -27,9 +27,9 @@ namespace TeamCloud.API.Controllers
 
         readonly UserService userService;
         readonly Orchestrator orchestrator;
-        readonly IProjectsRepository projectsRepository;
+        readonly IProjectsRepositoryReadOnly projectsRepository;
 
-        public ProjectsController(UserService userService, Orchestrator orchestrator, IProjectsRepository projectsRepository)
+        public ProjectsController(UserService userService, Orchestrator orchestrator, IProjectsRepositoryReadOnly projectsRepository)
         {
             this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
             this.orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
@@ -107,7 +107,7 @@ namespace TeamCloud.API.Controllers
         [Authorize(Policy = "projectDelete")]
         public async Task<IActionResult> Delete(Guid projectId)
         {
-            var project = await projectsContainer
+            var project = await projectsRepository
                 .GetAsync(projectId)
                 .ConfigureAwait(false);
 

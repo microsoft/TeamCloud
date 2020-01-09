@@ -17,9 +17,9 @@ namespace TeamCloud.API.Controllers
     [Authorize(Policy = "admin")]
     public class TeamCloudController : ControllerBase
     {
-        readonly ITeamCloudRepository teamCloudRepository;
+        readonly ITeamCloudRepositoryReadOnly teamCloudRepository;
 
-        public TeamCloudController(ITeamCloudRepository teamCloudRepository)
+        public TeamCloudController(ITeamCloudRepositoryReadOnly teamCloudRepository)
         {
             this.teamCloudRepository = teamCloudRepository ?? throw new ArgumentNullException(nameof(teamCloudRepository));
         }

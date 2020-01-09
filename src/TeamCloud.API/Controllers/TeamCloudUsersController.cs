@@ -26,9 +26,9 @@ namespace TeamCloud.API
         };
 
         readonly Orchestrator orchestrator;
-        readonly ITeamCloudContainer teamCloudContainer;
+        readonly ITeamCloudRepositoryReadOnly teamCloudRepository;
 
-        public TeamCloudUsersController(Orchestrator orchestrator, ITeamCloudRepository teamCloudRepository)
+        public TeamCloudUsersController(Orchestrator orchestrator, ITeamCloudRepositoryReadOnly teamCloudRepository)
         {
             this.orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
             this.teamCloudRepository = teamCloudRepository ?? throw new ArgumentNullException(nameof(teamCloudRepository));
