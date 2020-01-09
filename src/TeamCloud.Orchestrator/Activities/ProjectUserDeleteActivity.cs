@@ -4,27 +4,35 @@
  */
 
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using TeamCloud.Data;
 using TeamCloud.Model;
 
 namespace TeamCloud.Orchestrator.Activities
 {
-    public static class ProjectUserDeleteActivity
+    public class ProjectUserDeleteActivity
     {
-        [FunctionName(nameof(ProjectUserDeleteActivity))]
-        public static Project RunActivity(
-            [ActivityTrigger] (Project project, User deleteUser) input,
-            [CosmosDB(Constants.CosmosDb.DatabaseName, nameof(Project), Id = "{input.project.id}", PartitionKey = Constants.CosmosDb.TeamCloudInstanceId, ConnectionStringSetting = "AzureCosmosDBConnection")] Project project)
+        private readonly IProjectsRepository projectsRepository;
+
+        public ProjectUserDeleteActivity(IProjectsRepository projectsRepository)
         {
-            var user = project.Users?.FirstOrDefault(u => u.Id == input.deleteUser.Id);
+            this.projectsRepository = projectsRepository ?? throw new System.ArgumentNullException(nameof(projectsRepository));
+        }
+
+        [FunctionName(nameof(ProjectUserDeleteActivity))]
+        public Task<Project> RunActivity(
+            [ActivityTrigger] (Project project, User deleteUser) input)
+        {
+            var user = input.project.Users?.FirstOrDefault(u => u.Id == input.deleteUser.Id);
 
             if (user != null)
             {
-                project.Users.Remove(user);
+                input.project.Users.Remove(user);
             }
 
-            return project;
+            return Task.FromResult(input.project);
         }
     }
 }

@@ -4,27 +4,35 @@
  */
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using TeamCloud.Data;
 using TeamCloud.Model;
 
 namespace TeamCloud.Orchestrator.Activities
 {
-    public static class ProjectUserCreateActivity
+    public class ProjectUserCreateActivity
     {
-        [FunctionName(nameof(ProjectUserCreateActivity))]
-        public static Project RunActivity(
-            [ActivityTrigger] (Project project, User newUser) input,
-            [CosmosDB(Constants.CosmosDb.DatabaseName, nameof(Project), Id = "{input.project.id}", PartitionKey = Constants.CosmosDb.TeamCloudInstanceId, ConnectionStringSetting = "AzureCosmosDBConnection")] Project project)
+        private readonly IProjectsRepository projectsRepository;
+
+        public ProjectUserCreateActivity(IProjectsRepository projectsRepository)
         {
-            if (project.Users == null)
+            this.projectsRepository = projectsRepository ?? throw new System.ArgumentNullException(nameof(projectsRepository));
+        }
+
+        [FunctionName(nameof(ProjectUserCreateActivity))]
+        public Task<Project> RunActivity(
+            [ActivityTrigger] (Project project, User newUser) input)
+        {
+            if (input.project.Users == null)
             {
-                project.Users = new List<User>();
+                input.project.Users = new List<User>();
             }
 
-            project.Users.Add(input.newUser);
+            input.project.Users.Add(input.newUser);
 
-            return project;
+            return Task.FromResult(input.project);
         }
     }
 }

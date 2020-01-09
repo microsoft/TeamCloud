@@ -21,7 +21,7 @@ namespace TeamCloud.Configuration
         private static readonly MethodInfo AddProxyMethod = typeof(OptionsExtensions).GetMethods(BindingFlags.Static | BindingFlags.NonPublic)
             .SingleOrDefault(mi => mi.Name.StartsWith(nameof(AddProxy)) && mi.IsGenericMethodDefinition);
 
-        public static void AddOptions(this IServiceCollection services, Assembly assembly, params Assembly[] additionalAssemblies)
+        public static IServiceCollection AddOptions(this IServiceCollection services, Assembly assembly, params Assembly[] additionalAssemblies)
         {
             if (assembly is null)
             {
@@ -50,6 +50,8 @@ namespace TeamCloud.Configuration
 
                 method.Invoke(null, new object[] { kvp.Value, services });
             }
+
+            return services;
         }
 
         private static void AddProxy<T>(OptionsAttribute attribute, IServiceCollection services)

@@ -19,7 +19,7 @@ namespace TeamCloud.API.Controllers
     public class ProjectUsersController : ControllerBase
     {
         readonly Orchestrator orchestrator;
-        readonly IProjectsContainer projectsContainer;
+        readonly IProjectsRepository projectsRepository;
 
         public Guid? ProjectId {
             get {
@@ -29,10 +29,10 @@ namespace TeamCloud.API.Controllers
             }
         }
 
-        public ProjectUsersController(Orchestrator orchestrator, IProjectsContainer projectsContainer)
+        public ProjectUsersController(Orchestrator orchestrator, IProjectsRepository projectsRepository)
         {
             this.orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
-            this.projectsContainer = projectsContainer ?? throw new ArgumentNullException(nameof(projectsContainer));
+            this.projectsRepository = projectsRepository ?? throw new ArgumentNullException(nameof(projectsRepository));
         }
 
         // GET: api/projects/{projectId}/users
@@ -41,7 +41,7 @@ namespace TeamCloud.API.Controllers
         {
             if (!ProjectId.HasValue) return new NotFoundResult();
 
-            var project = await projectsContainer
+            var project = await projectsRepository
                 .GetAsync(ProjectId.Value)
                 .ConfigureAwait(false);
 
@@ -58,7 +58,7 @@ namespace TeamCloud.API.Controllers
         {
             if (!ProjectId.HasValue) return new NotFoundResult();
 
-            var project = await projectsContainer
+            var project = await projectsRepository
                 .GetAsync(ProjectId.Value)
                 .ConfigureAwait(false);
 
@@ -101,7 +101,7 @@ namespace TeamCloud.API.Controllers
         {
             if (!ProjectId.HasValue) return new NotFoundResult();
 
-            var project = await projectsContainer
+            var project = await projectsRepository
                 .GetAsync(ProjectId.Value)
                 .ConfigureAwait(false);
 
@@ -121,7 +121,7 @@ namespace TeamCloud.API.Controllers
         {
             if (!ProjectId.HasValue) return new NotFoundResult();
 
-            var project = await projectsContainer
+            var project = await projectsRepository
                 .GetAsync(ProjectId.Value)
                 .ConfigureAwait(false);
 

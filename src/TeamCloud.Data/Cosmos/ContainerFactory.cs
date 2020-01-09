@@ -3,15 +3,15 @@
  *  Licensed under the MIT License.
  */
 
+using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Fluent;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Azure.Cosmos;
-using Azure.Cosmos.Fluent;
 using TeamCloud.Model;
 
-namespace TeamCloud.Data
+namespace TeamCloud.Data.Cosmos
 {
     internal sealed class ContainerFactory
     {

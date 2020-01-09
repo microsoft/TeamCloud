@@ -7,18 +7,24 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using TeamCloud.Data;
 using TeamCloud.Model;
 
 namespace TeamCloud.Orchestrator.Activities
 {
-    public static class ProjectGetActivity
+    public class ProjectGetActivity
     {
-        [FunctionName(nameof(ProjectGetActivity))]
-        public static List<Project> RunActivity(
-            [ActivityTrigger] TeamCloudInstance teamCloud,
-            [CosmosDB(Constants.CosmosDb.DatabaseName, nameof(Project), PartitionKey = Constants.CosmosDb.TeamCloudInstanceId, ConnectionStringSetting = "AzureCosmosDBConnection")] IEnumerable<Project> projects)
+        private readonly IProjectsRepository projectsRepository;
+
+        public ProjectGetActivity(IProjectsRepository projectsRepository)
         {
-            return projects.ToList();
+            this.projectsRepository = projectsRepository ?? throw new System.ArgumentNullException(nameof(projectsRepository));
+        }
+        [FunctionName(nameof(ProjectGetActivity))]
+        public IAsyncEnumerable<Project> RunActivity(
+            [ActivityTrigger] TeamCloudInstance teamCloud)
+        {
+            return projectsRepository.ListAsync();
         }
     }
 }

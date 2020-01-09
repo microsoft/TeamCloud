@@ -22,6 +22,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using TeamCloud.Configuration;
 using TeamCloud.Data;
+using TeamCloud.Data.Cosmos;
 using TeamCloud.Model;
 
 namespace TeamCloud.API
@@ -62,9 +63,9 @@ namespace TeamCloud.API
 
             services
                 .AddSingleton<IHttpContextAccessor, HttpContextAccessor>()
-                .AddSingleton<IProjectsContainer, ProjectsContainer>()
-                .AddSingleton<ITeamCloudContainer, TeamCloudContainer>()
-                .AddSingleton<Orchestrator>();
+                .AddSingleton<Orchestrator>()
+                .AddScoped<IProjectsRepositoryReadOnly, ProjectsRepository>()
+                .AddScoped<ITeamCloudRepository, TeamCloudRepository>();
 
             ConfigureAuthentication(services);
             ConfigureAuthorization(services);
@@ -170,7 +171,7 @@ namespace TeamCloud.API
             if (Guid.TryParse(projectIdRouteValue, out Guid projectId))
             {
                 var projectRepository = httpContext.RequestServices
-                    .GetRequiredService<IProjectsContainer>();
+                    .GetRequiredService<IProjectsRepository>();
 
                 var project = await projectRepository
                     .GetAsync(projectId)

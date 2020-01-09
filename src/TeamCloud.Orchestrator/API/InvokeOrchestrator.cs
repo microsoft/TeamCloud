@@ -9,13 +9,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Documents;
-using Microsoft.Azure.Documents.Client;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using TeamCloud.Data;
 using TeamCloud.Model;
 using TeamCloud.Orchestrator.Orchestrations;
 
@@ -23,37 +22,40 @@ namespace TeamCloud.Orchestrator
 {
     public class InvokeOrchestrator
     {
+        private readonly IProjectsRepository projectsRepository;
+        private readonly ITeamCloudRepository teamCloudRepository;
+
+        public InvokeOrchestrator(IProjectsRepository projectsRepository, ITeamCloudRepository teamCloudRepository)
+        {
+            this.projectsRepository = projectsRepository ?? throw new ArgumentNullException(nameof(projectsRepository));
+            this.teamCloudRepository = teamCloudRepository ?? throw new ArgumentNullException(nameof(teamCloudRepository));
+        }
+
         [FunctionName(nameof(InvokeOrchestrator))]
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = "orchestrator")] HttpRequest httpRequest,
-            [CosmosDB(Constants.CosmosDb.DatabaseName, nameof(TeamCloudInstance), Id = Constants.CosmosDb.TeamCloudInstanceId, PartitionKey = Constants.CosmosDb.TeamCloudInstanceId, ConnectionStringSetting = "AzureCosmosDBConnection")] TeamCloudInstance teamCloud,
-            [CosmosDB(Constants.CosmosDb.DatabaseName, nameof(Project), ConnectionStringSetting = "AzureCosmosDBConnection")] DocumentClient documentClient,
             [DurableClient] IDurableClient durableClient,
             ILogger logger)
         {
-            var requestBody = await new StreamReader(httpRequest.Body).ReadToEndAsync();
+            if (httpRequest is null)
+                throw new ArgumentNullException(nameof(httpRequest));
+
+            var requestBody = await new StreamReader(httpRequest.Body)
+                .ReadToEndAsync()
+                .ConfigureAwait(false);
 
             var command = JsonConvert.DeserializeObject<ICommand>(requestBody);
 
-            Project project = null;
+            var teamCloud = await teamCloudRepository
+                .GetAsync()
+                .ConfigureAwait(false);
 
-            if (command.ProjectId.HasValue)
-            {
-                var projectUri = UriFactory.CreateDocumentUri(Constants.CosmosDb.DatabaseName, nameof(Project), command.ProjectId.Value.ToString());
+            var project = await projectsRepository
+                .GetAsync(command.ProjectId.Value)
+                .ConfigureAwait(false);
 
-                try
-                {
-                    var projectResponse = await documentClient.ReadDocumentAsync<Project>(projectUri, new RequestOptions { PartitionKey = new PartitionKey(Constants.CosmosDb.TeamCloudInstanceId) });
-
-                    project = projectResponse.Document;
-                }
-                catch
-                {
-                    // TODO:
-                }
-            }
-
-            var user = teamCloud?.Users?.FirstOrDefault(u => u.Id == command.UserId) ?? project?.Users?.FirstOrDefault(u => u.Id == command.UserId);
+            var user = project.Users
+                .SingleOrDefault(usr => usr.Id == command.UserId);
 
             var orchestratorContext = new OrchestratorContext(teamCloud, project, user);
 

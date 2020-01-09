@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using TeamCloud.Configuration;
+﻿using TeamCloud.Configuration;
 using TeamCloud.Configuration.Options;
-using TeamCloud.Data;
+using TeamCloud.Data.Cosmos;
 
 namespace TeamCloud.API.Options
 {
