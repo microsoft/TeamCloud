@@ -72,8 +72,8 @@ namespace TeamCloud.API
                 .PostJsonAsync(command)
                 .ConfigureAwait(false);
 
-            var commandResult = await commandResponse
-                .GetJsonAsync<CommandResult<TResult>>()
+            var commandResult = await commandResponse.Content
+                .ReadAsAsync<CommandResult<TResult>>()
                 .ConfigureAwait(false);
 
             SetResultLinks(commandResult, command.ProjectId);
