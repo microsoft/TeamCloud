@@ -1,7 +1,9 @@
 ﻿/**
- *  Copyright (c) Microsoft Corporation.
- *  Licensed under the MIT License.
- */
+*  Copyright (c) Microsoft Corporation.
+*  Licensed under the MIT License.
+*/
+
+using TeamCloud.Configuration;
 
 namespace TeamCloud.API.Options
 {

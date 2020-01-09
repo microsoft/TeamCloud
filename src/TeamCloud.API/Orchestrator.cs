@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Flurl;
 using Flurl.Http;
 using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
 using TeamCloud.Model;
 
 namespace TeamCloud.API
@@ -60,7 +61,7 @@ namespace TeamCloud.API
             return result;
         }
 
-        public async Task<CommandResult<TResult>> InvokeAsync<TResult>(ICommand command)
+        public async Task<ICommandResult<TResult>> InvokeAsync<TResult>(ICommand command)
             where TResult : new()
         {
             var commandResponse = await options.Url
@@ -69,12 +70,9 @@ namespace TeamCloud.API
                 .PostJsonAsync(command)
                 .ConfigureAwait(false);
 
-            var commandResult = await commandResponse
-                .GetJsonAsync<CommandResult<TResult>>()
-                //.GetStringAsync()
+            var commandResult = await commandResponse.Content
+                .ReadAsAsync<ICommandResult<TResult>>()
                 .ConfigureAwait(false);
-
-            SetResultLinks(commandResult, command.ProjectId);
 
             return commandResult;
         }

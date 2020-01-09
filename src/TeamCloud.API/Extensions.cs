@@ -5,11 +5,15 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
 
 namespace TeamCloud.API
 {
@@ -67,6 +71,18 @@ namespace TeamCloud.API
             var objectIdenifier = claimsPrincipal.FindFirstValue(ObjectIdentifierClaimType);
 
             return Guid.Parse(objectIdenifier);
+        }
+
+        public static Task<T> ReadAsAsync<T>(this HttpContent httpContent, JsonSerializerSettings serializerSettings = null)
+            => httpContent.ReadAsAsync<T>(JsonSerializer.CreateDefault(serializerSettings));
+
+        public static async Task<T> ReadAsAsync<T>(this HttpContent httpContent, JsonSerializer serializer)
+        {
+            using var stream = await httpContent.ReadAsStreamAsync().ConfigureAwait(false);
+            using var streamReader = new StreamReader(stream);
+            using var jsonReader = new JsonTextReader(streamReader);
+
+            return serializer.Deserialize<T>(jsonReader);
         }
     }
 }

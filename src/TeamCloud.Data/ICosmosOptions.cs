@@ -7,8 +7,8 @@ namespace TeamCloud.Data
 {
     public interface ICosmosOptions
     {
-        string AzureCosmosDBName { get; set; }
+        string AzureCosmosDBName { get; }
 
-        string AzureCosmosDBConnection { get; set; }
+        string AzureCosmosDBConnection { get; }
     }
 }

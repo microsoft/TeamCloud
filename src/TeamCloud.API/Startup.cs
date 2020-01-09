@@ -8,6 +8,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.AzureAD.UI;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -17,12 +20,13 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.IdentityModel.Tokens;
+using TeamCloud.Configuration;
 using TeamCloud.Data;
 using TeamCloud.Model;
 
 namespace TeamCloud.API
 {
+
     public class Startup
     {
         public Startup(IConfiguration configuration)
@@ -32,7 +36,25 @@ namespace TeamCloud.API
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                app.UseHsts();
+            }
+
+            app
+                .UseHttpsRedirection()
+                .UseRouting()
+                .UseAuthentication()
+                .UseAuthorization()
+                .UseEndpoints(endpoints => endpoints.MapControllers());
+        }
+
         public void ConfigureServices(IServiceCollection services)
         {
             services
@@ -44,75 +66,64 @@ namespace TeamCloud.API
                 .AddSingleton<ITeamCloudContainer, TeamCloudContainer>()
                 .AddSingleton<Orchestrator>();
 
-            services
-                .AddMvc(options =>
-                {
-                    // Requires authentication across the API
-                    options.Filters.Add(new AuthorizeFilter("default"));
-                });
+            ConfigureAuthentication(services);
+            ConfigureAuthorization(services);
 
             services
-                .AddAuthentication(options =>
-                {
-                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                })
-                .AddJwtBearer(options =>
-                {
-                    options.Authority = "https://sts.windows.net/72f988bf-86f1-41af-91ab-2d7cd011db47/";
+                .AddControllers()
+                .AddNewtonsoftJson();
+        }
 
-                    options.TokenValidationParameters = new TokenValidationParameters()
+        private void ConfigureAuthentication(IServiceCollection services)
+        {
+            const string AzureAdSectionName = "AzureAD";
+
+            services
+                .AddAuthentication(AzureADDefaults.JwtBearerAuthenticationScheme)
+                .AddAzureADBearer(options => Configuration.Bind(AzureAdSectionName, options));
+
+            services
+                .AddHttpContextAccessor()
+                .Configure<AzureADOptions>(options => Configuration.Bind(AzureAdSectionName, options))
+                .Configure<JwtBearerOptions>(AzureADDefaults.JwtBearerAuthenticationScheme, options =>
+                {
+                    // This is an Microsoft identity platform Web API
+                    options.Authority += "/v2.0";
+
+                    // Disable audience validation
+                    options.TokenValidationParameters.ValidateAudience = false;
+
+                    // Get the tenant ID from configuration to configure issuer validation
+                    var tenantId = Configuration.GetSection(AzureAdSectionName).GetValue<string>("TenantId");
+
+                    // The valid issuers can be based on Azure identity V1 or V2
+                    options.TokenValidationParameters.ValidIssuers = new string[]
                     {
-                        ValidateIssuer = true,
-                        ValidIssuer = "https://sts.windows.net/72f988bf-86f1-41af-91ab-2d7cd011db47/",
-
-                        ValidateAudience = true,
-                        ValidAudience = "https://microsoft.onmicrosoft.com/TeamCloud.Proxy",
-
-                        ValidateLifetime = true
+                        $"https://login.microsoftonline.com/{tenantId}/v2.0",
+                        $"https://sts.windows.net/{tenantId}/"
                     };
 
                     options.Events = new JwtBearerEvents()
                     {
                         OnTokenValidated = async (TokenValidatedContext context) =>
                         {
-                            var userObjectId = context.Principal.GetObjectId();
+                            var userId = context.Principal.GetObjectId();
 
-                            var userRoleClaims = new List<Claim>()
-                            {
-                                // TODO: remove this
-                                // just for testing - everyone is an admin
-                                new Claim(ClaimTypes.Role, UserRoles.TeamCloud.Admin)
-                            };
-
-                            var projectIdRoute = context
-                                .HttpContext.GetRouteData()
-                                .Values.GetValueOrDefault("ProjectId", StringComparison.OrdinalIgnoreCase)?.ToString();
-
-                            if (Guid.TryParse(projectIdRoute, out Guid projectId))
-                            {
-                                var projectRepository = context.HttpContext.RequestServices
-                                    .GetRequiredService<IProjectsContainer>();
-
-                                var project = await projectRepository
-                                    .GetAsync(projectId)
-                                    .ConfigureAwait(false);
-
-                                var projectClaims = (project.Users ?? Enumerable.Empty<User>())
-                                    .Where(user => user.Id == userObjectId)
-                                    .Select(user => new Claim(ClaimTypes.Role, user.Role));
-
-                                userRoleClaims.AddRange(projectClaims);
-                            }
-
-                            if (userRoleClaims.Any())
-                            {
-                                var userIdentity = new ClaimsIdentity(userRoleClaims);
-
-                                context.Principal.AddIdentity(userIdentity);
-                            }
+                            var userClaims = await ResolveClaimsAsync(userId, context.HttpContext).ConfigureAwait(false);
+                            if (userClaims.Any()) context.Principal.AddIdentity(new ClaimsIdentity(userClaims));
                         }
                     };
+                });
+
+        }
+
+        private void ConfigureAuthorization(IServiceCollection services)
+        {
+            services
+                .AddMvc(options =>
+                {
+                    // Requires authentication across the API
+                    options.Filters.Add(new AuthorizeFilter("default"));
                 });
 
             services
@@ -143,25 +154,36 @@ namespace TeamCloud.API
                         policy.RequireRole(UserRoles.TeamCloud.Admin, UserRoles.Project.Owner);
                     });
                 });
-
-            services
-                .AddControllers()
-                .AddNewtonsoftJson();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        private async Task<IEnumerable<Claim>> ResolveClaimsAsync(Guid userId, HttpContext httpContext)
         {
-            if (env.IsDevelopment())
+            var claims = new List<Claim>()
             {
-                app.UseDeveloperExceptionPage();
+                // just for testing - everyone is an admin
+                new Claim(ClaimTypes.Role, UserRoles.TeamCloud.Admin)
+            };
+
+            var projectIdRouteValue = httpContext.GetRouteData()
+                .Values.GetValueOrDefault("ProjectId", StringComparison.OrdinalIgnoreCase)?.ToString();
+
+            if (Guid.TryParse(projectIdRouteValue, out Guid projectId))
+            {
+                var projectRepository = httpContext.RequestServices
+                    .GetRequiredService<IProjectsContainer>();
+
+                var project = await projectRepository
+                    .GetAsync(projectId)
+                    .ConfigureAwait(false);
+
+                var projectClaims = (project.Users ?? Enumerable.Empty<User>())
+                    .Where(user => user.Id == userId)
+                    .Select(user => new Claim(ClaimTypes.Role, user.Role));
+
+                claims.AddRange(projectClaims);
             }
 
-            app.UseHttpsRedirection()
-               .UseRouting()
-               .UseAuthentication()
-               .UseAuthorization()
-               .UseEndpoints(endpoints => endpoints.MapControllers());
+            return claims;
         }
     }
 }

@@ -1,11 +1,9 @@
 {
     "version": "2.0",
     "extensions": {
-        "durableTask": {
-            "storageProvider": {
-                "connectionStringName": "DurableFunctionsHubStorage"
-            }
-        }
+      "durableTask": {
+        "hubName": "Orchestrator"
+      }
     },
     "watchDirectories": [ "Orchestrations", "Activities", "API" ]
 }
