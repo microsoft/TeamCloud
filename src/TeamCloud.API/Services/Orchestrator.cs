@@ -67,7 +67,7 @@ namespace TeamCloud.API
             where TResult : new()
         {
             var commandResponse = await options.Url
-                .AppendPathSegment("/api/orchestrator")
+                .AppendPathSegment("api/orchestrator")
                 .WithHeader("x-functions-key", options.AuthCode)
                 .PostJsonAsync(command)
                 .ConfigureAwait(false);

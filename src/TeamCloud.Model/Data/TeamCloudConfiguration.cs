@@ -68,4 +68,32 @@ namespace TeamCloud.Model
 
         public List<string> Init { get; set; } = new List<string>();
     }
+
+
+    public static class TeamCloudConfigurationValidationExtensions
+    {
+        public static (bool, string) Validate(this TeamCloudConfiguraiton config)
+        {
+            string message = "";
+
+            if (config is null)
+                return (false, "Unable to read yaml file");
+
+            if (config.Azure.Region is null)
+                message += "Azure Region is required.";
+            if (config.Azure.SubscriptionId is null)
+                message += "\n Azure SubscriptionId is required.";
+            if (config.Azure.ServicePricipal is null)
+                message += "\n Azure ServicePricipal is required.";
+            if (config.Azure.ServicePricipal.Id == Guid.Empty)
+                message += "\n Azure ServicePricipal.Id is required.";
+            if (string.IsNullOrEmpty(config.Azure.ServicePricipal.AppId))
+                message += "\n Azure ServicePricipal.AppId is required.";
+
+            // TODO:...
+            return (string.IsNullOrWhiteSpace(message), message);
+        }
+    }
+
 }
+

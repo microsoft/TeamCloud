@@ -9,7 +9,7 @@ using TeamCloud.Data.CosmosDb;
 
 namespace TeamCloud.Orchestrator.Options
 {
-    [Options()]
+    [Options]
     public class DatabaseOptionsProxy : ICosmosDbOptions
     {
         private readonly CosmosDbOptions cosmosDbOptions;
