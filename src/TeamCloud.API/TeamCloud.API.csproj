@@ -5,6 +5,7 @@
     <WebProject_DirectoryAccessLevelKey>1</WebProject_DirectoryAccessLevelKey>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="8.6.1" />
     <PackageReference Include="Flurl.Http" Version="2.4.2" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.AzureAD.UI" Version="3.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.0" />
