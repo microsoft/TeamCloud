@@ -3,10 +3,10 @@
  *  Licensed under the MIT License.
  */
 
-using System;
-using System.Collections.Generic;
+using FluentValidation;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using System.Collections.Generic;
 
 namespace TeamCloud.API
 {
@@ -18,5 +18,14 @@ namespace TeamCloud.API
         public Dictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();
 
         public List<UserDefinition> Users { get; set; } = new List<UserDefinition>();
+    }
+
+    public sealed class ProjectDefinitionValidator : AbstractValidator<ProjectDefinition>
+    {
+        public ProjectDefinitionValidator()
+        {
+            RuleFor(obj => obj.Name).NotEmpty();
+            RuleFor(obj => obj.Users).NotNull();
+        }
     }
 }

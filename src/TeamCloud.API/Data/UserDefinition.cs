@@ -3,9 +3,10 @@
  *  Licensed under the MIT License.
  */
 
-using System.Collections.Generic;
+using FluentValidation;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using System.Collections.Generic;
 
 namespace TeamCloud.API
 {
@@ -17,5 +18,15 @@ namespace TeamCloud.API
         public string Role { get; set; }
 
         public Dictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();
+    }
+
+    public sealed class UserDefinitionValidator : AbstractValidator<UserDefinition>
+    {
+        public UserDefinitionValidator()
+        {
+            RuleFor(obj => obj.Email).NotEmpty();
+            RuleFor(obj => obj.Role).NotEmpty();
+            RuleFor(obj => obj.Tags).NotNull();
+        }
     }
 }

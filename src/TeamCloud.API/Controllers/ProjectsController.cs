@@ -3,14 +3,12 @@
  *  Licensed under the MIT License.
  */
 
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using FluentValidation;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using TeamCloud.API.Data;
 using TeamCloud.Data;
 using TeamCloud.Model;
 
@@ -71,7 +69,10 @@ namespace TeamCloud.API.Controllers
         {
             // Validate project object
             var validator = new ProjectDefinitionValidator();
-            await validator.ValidateAndThrowAsync(projectDefinition);
+            if(!validator.Validate(projectDefinition).IsValid)
+            {
+                return new BadRequestResult();
+            }
 
             var projectUsers = await GetUsersForNewProject(projectDefinition);
 
