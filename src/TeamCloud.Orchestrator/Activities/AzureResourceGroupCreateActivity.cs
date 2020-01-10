@@ -1,4 +1,9 @@
-﻿using Microsoft.Azure.WebJobs;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
+
+using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using System;
 using System.Threading.Tasks;
