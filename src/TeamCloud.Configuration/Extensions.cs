@@ -13,13 +13,32 @@ using System.Reflection;
 
 namespace TeamCloud.Configuration
 {
-    public static class OptionsExtensions
+    public static class Extensions
     {
-        private static readonly MethodInfo AddOptionsMethod = typeof(OptionsExtensions).GetMethods(BindingFlags.Static | BindingFlags.NonPublic)
+        private static readonly MethodInfo AddOptionsMethod = typeof(Extensions).GetMethods(BindingFlags.Static | BindingFlags.NonPublic)
             .SingleOrDefault(mi => mi.Name.StartsWith(nameof(AddOptions)) && mi.IsGenericMethodDefinition);
 
-        private static readonly MethodInfo AddProxyMethod = typeof(OptionsExtensions).GetMethods(BindingFlags.Static | BindingFlags.NonPublic)
+        private static readonly MethodInfo AddProxyMethod = typeof(Extensions).GetMethods(BindingFlags.Static | BindingFlags.NonPublic)
             .SingleOrDefault(mi => mi.Name.StartsWith(nameof(AddProxy)) && mi.IsGenericMethodDefinition);
+
+        public static IConfigurationBuilder AddConfigurationService(this IConfigurationBuilder configurationBuilder, string connectionString, bool optional = false)
+        {
+            var connectionStringExpanded = Environment.ExpandEnvironmentVariables(connectionString);
+
+            if (Uri.IsWellFormedUriString(connectionStringExpanded, UriKind.Absolute))
+            {
+                var configurationServiceFile = new Uri(connectionStringExpanded, UriKind.Absolute);
+
+                if (!configurationServiceFile.IsFile)
+                    throw new NotSupportedException($"Scheme '{configurationServiceFile.Scheme}' is not supported - use file:// instead");
+
+                return configurationBuilder.AddJsonFile(configurationServiceFile.LocalPath, optional, true);
+            }
+            else
+            {
+                return configurationBuilder.AddAzureAppConfiguration(connectionString, optional);
+            }
+        }
 
         public static IServiceCollection AddOptions(this IServiceCollection services, Assembly assembly, params Assembly[] additionalAssemblies)
         {

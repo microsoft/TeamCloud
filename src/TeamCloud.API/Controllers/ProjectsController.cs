@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TeamCloud.Data;
 using TeamCloud.Model;
+using TeamCloud.Model.Data;
 
 namespace TeamCloud.API.Controllers
 {
@@ -19,12 +20,6 @@ namespace TeamCloud.API.Controllers
     [Authorize(Policy = "projectRead")]
     public class ProjectsController : ControllerBase
     {
-        private User currentUser = new User
-        {
-            Id = Guid.Parse("bc8a62dc-c327-4418-a004-77c85c3fb488"),
-            Role = UserRoles.TeamCloud.Admin
-        };
-
         readonly UserService userService;
         readonly Orchestrator orchestrator;
         readonly IProjectsRepositoryReadOnly projectsRepository;
@@ -69,17 +64,15 @@ namespace TeamCloud.API.Controllers
         {
             if (projectDefinition is null) return new BadRequestResult();
 
-            var projectUsers = await GetUsersForNewProject(projectDefinition);
-
             var project = new Project
             {
                 Id = Guid.NewGuid(),
                 Name = projectDefinition.Name,
-                Users = projectUsers,
+                Users = await ResolveUsersAsync(projectDefinition).ConfigureAwait(false),
                 Tags = projectDefinition.Tags
             };
 
-            var command = new ProjectCreateCommand(currentUser, project);
+            var command = new ProjectCreateCommand(CurrentUser, project);
 
             var commandResult = await orchestrator
                 .InvokeAsync<Project>(command)
@@ -113,7 +106,7 @@ namespace TeamCloud.API.Controllers
 
             if (project is null) return new NotFoundResult();
 
-            var command = new ProjectDeleteCommand(currentUser, project);
+            var command = new ProjectDeleteCommand(CurrentUser, project);
 
             var commandResult = await orchestrator
                 .InvokeAsync<Project>(command)
@@ -129,34 +122,23 @@ namespace TeamCloud.API.Controllers
             }
         }
 
-
-        private async Task<List<User>> GetUsersForNewProject(ProjectDefinition projectDefinition)
+        private User CurrentUser => new User()
         {
-            var projectUserTasks = projectDefinition.Users.Select(u => userService.GetUser(u));
+            Id = userService.CurrentUserId,
+            Role = UserRoles.Project.Owner
+        };
 
-            var projectUsers = (await Task.WhenAll(projectUserTasks)).ToList();
+        private async Task<List<User>> ResolveUsersAsync(ProjectDefinition projectDefinition)
+        {
+            var tasks = projectDefinition.Users.Select(user => userService.GetUserAsync(user));
+            var users = await Task.WhenAll(tasks).ConfigureAwait(false);
+            var owners = users.Where(user => user.Role.Equals(UserRoles.Project.Owner));
 
-            var currentProjectUser = projectUsers.FirstOrDefault(u => u.Id == currentUser.Id);
-
-            if (currentProjectUser is null)
-            {
-                projectUsers.Append(new User
-                {
-                    Id = currentUser.Id,
-                    Role = UserRoles.Project.Owner,
-                    Tags = currentUser.Tags
-                });
-            }
-            else if (currentProjectUser.Role != UserRoles.Project.Owner)
-            {
-                currentProjectUser.Role = UserRoles.Project.Owner;
-
-                // TODO:
-                // Should we merge the tags of the currentUser (TeamCloud User)?
-                // Should we merge the tags of ALL users that are also TeamCloud Users?
-            }
-
-            return projectUsers;
+            return users
+                .Where(user => user.Role.Equals(UserRoles.Project.Member))
+                .Except(owners, new UserComparer()) // filter out owners
+                .Union(owners) // union members and owners
+                .ToList();
         }
     }
 }

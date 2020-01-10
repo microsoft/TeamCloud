@@ -1,12 +1,10 @@
-﻿using Microsoft.Azure.Management.Fluent;
-using Microsoft.Azure.Management.ResourceManager.Fluent;
-using Microsoft.Azure.Management.ResourceManager.Fluent.Authentication;
+﻿using Microsoft.Azure.Management.ResourceManager.Fluent;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using System;
 using System.Threading.Tasks;
+using TeamCloud.Azure;
 using TeamCloud.Model;
-using TeamCloud.Orchestrator.Services;
 
 namespace TeamCloud.Orchestrator.Activities
 {

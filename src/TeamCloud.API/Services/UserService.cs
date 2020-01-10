@@ -6,6 +6,7 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using TeamCloud.Azure;
 using TeamCloud.Model;
 
 namespace TeamCloud.API
@@ -13,33 +14,26 @@ namespace TeamCloud.API
     public class UserService
     {
         private readonly IHttpContextAccessor httpContextAccessor;
+        private readonly IAzureDirectoryService azureDirectoryService;
 
-        public UserService(IHttpContextAccessor httpContextAccessor)
+        public UserService(IHttpContextAccessor httpContextAccessor, IAzureDirectoryService azureDirectoryService)
         {
             this.httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+            this.azureDirectoryService = azureDirectoryService ?? throw new ArgumentNullException(nameof(azureDirectoryService));
         }
 
-        public Guid CurrentUserId()
+        public Guid CurrentUserId
+            => httpContextAccessor.HttpContext.User.GetObjectId();
+
+        private Task<Guid?> GetUserIdAsync(string email)            
         {
-            // TODO: no clue if this works
-
-            var objectId = httpContextAccessor.HttpContext.User.GetObjectId();
-
-            return objectId;
-
-            //return httpContextAccessor.HttpContext.User.GetObjectId();
+            return azureDirectoryService.GetUserIdAsync(email);
         }
 
-        private async Task<Guid?> GetUserId(string email)
+        public async Task<User> GetUserAsync(UserDefinition userDefinition)
         {
-            // TODO: call graph to get id from email
-
-            return Guid.NewGuid();
-        }
-
-        public async Task<User> GetUser(UserDefinition userDefinition)
-        {
-            var userId = await GetUserId(userDefinition.Email);
+            var userId = await GetUserIdAsync(userDefinition.Email)
+                .ConfigureAwait(false);
 
             if (!userId.HasValue) return null;
 

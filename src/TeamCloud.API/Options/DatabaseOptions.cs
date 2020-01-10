@@ -7,16 +7,16 @@ using TeamCloud.Configuration;
 using TeamCloud.Configuration.Options;
 using TeamCloud.Data.CosmosDb;
 
-namespace TeamCloud.Orchestrator.Options
+namespace TeamCloud.API.Options
 {
     [Options()]
-    public class DatabaseOptionsProxy : ICosmosDbOptions
+    public class DatabaseOptions : ICosmosDbOptions
     {
         private readonly CosmosDbOptions cosmosDbOptions;
 
-        public DatabaseOptionsProxy(CosmosDbOptions cosmosDbOptions)
+        public DatabaseOptions(CosmosDbOptions cosmosDbOptions)
         {
-            this.cosmosDbOptions = cosmosDbOptions ?? throw new System.ArgumentNullException(nameof(cosmosDbOptions));
+            this.cosmosDbOptions = cosmosDbOptions;
         }
 
         string ICosmosDbOptions.DatabaseName => cosmosDbOptions.DatabaseName;

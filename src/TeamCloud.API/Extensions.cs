@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -44,26 +45,6 @@ namespace TeamCloud.API
             return result.Key is null ? defaultValue : result.Value;
         }
 
-        public static Guid ToGuid(this string instance)
-        {
-            if (instance is null)
-            {
-                return Guid.Empty;
-            }
-
-            if (Guid.TryParse(instance, out Guid guid))
-            {
-                return guid;
-            }
-
-            using var algorithm = HashAlgorithm.Create("MD5");
-
-            var buffer = ASCIIEncoding.ASCII.GetBytes(instance);
-            var hash = algorithm.ComputeHash(buffer);
-
-            return new Guid(hash);
-        }
-
         public static Guid GetObjectId(this ClaimsPrincipal claimsPrincipal)
         {
             const string ObjectIdentifierClaimType = "http://schemas.microsoft.com/identity/claims/objectidentifier";
@@ -84,5 +65,11 @@ namespace TeamCloud.API
 
             return serializer.Deserialize<T>(jsonReader);
         }
+
+        public static bool IsGuid(this string value)
+            => Guid.TryParse(value, out var _);
+
+        public static bool IsEMail(this string value)
+            => new EmailAddressAttribute().IsValid(value);
     }
 }

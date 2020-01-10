@@ -10,7 +10,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamCloud.Orchestrator", "T
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamCloud.Data", "TeamCloud.Data\TeamCloud.Data.csproj", "{C89ECD4E-243F-48EB-A7F6-B5E7BBB71131}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeamCloud.Configuration", "TeamCloud.Configuration\TeamCloud.Configuration.csproj", "{61B44E82-7B12-469A-81D7-AB6EEC4C6AA6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamCloud.Configuration", "TeamCloud.Configuration\TeamCloud.Configuration.csproj", "{61B44E82-7B12-469A-81D7-AB6EEC4C6AA6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeamCloud.Azure", "TeamCloud.Azure\TeamCloud.Azure.csproj", "{0699B550-63FB-40FF-862D-866DD14E35E3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -38,6 +40,10 @@ Global
 		{61B44E82-7B12-469A-81D7-AB6EEC4C6AA6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{61B44E82-7B12-469A-81D7-AB6EEC4C6AA6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{61B44E82-7B12-469A-81D7-AB6EEC4C6AA6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0699B550-63FB-40FF-862D-866DD14E35E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0699B550-63FB-40FF-862D-866DD14E35E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0699B550-63FB-40FF-862D-866DD14E35E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0699B550-63FB-40FF-862D-866DD14E35E3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

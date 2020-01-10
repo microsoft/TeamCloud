@@ -17,6 +17,6 @@ namespace TeamCloud.API
 
         public Dictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();
 
-        public List<UserDefinition> Users { get; set; }
+        public List<UserDefinition> Users { get; set; } = new List<UserDefinition>();
     }
 }
