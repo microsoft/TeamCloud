@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace TeamCloud.Configuration.Options
+﻿namespace TeamCloud.Configuration.Options
 {
     [Options("AzureRM")]
     public class AzureRMOptions
@@ -12,5 +8,7 @@ namespace TeamCloud.Configuration.Options
         public string ClientSecret { get; set; }
 
         public string TenantId { get; set; }
+
+        public string Key { get; set; }
     }
 }
