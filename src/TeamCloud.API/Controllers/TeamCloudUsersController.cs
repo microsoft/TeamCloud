@@ -8,7 +8,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-    [Authorize(Policy = "admin")]
 using TeamCloud.Data;
 using TeamCloud.Model;
 
@@ -16,6 +15,7 @@ namespace TeamCloud.API
 {
     [ApiController]
     [Route("api/users")]
+    [Authorize(Policy = "admin")]
     public class TeamCloudUsersController : ControllerBase
     {
         // FIXME:
