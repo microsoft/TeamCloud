@@ -9,8 +9,6 @@
     <PackageReference Include="Microsoft.AspNetCore.Authentication.AzureAD.UI" Version="3.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.0" />
     <PackageReference Include="Microsoft.Azure.AppConfiguration.AspNetCore" Version="3.0.0-preview-010560002-1165" />
-    <PackageReference Include="Microsoft.Azure.Cosmos.Table" Version="1.0.6" />
-    <PackageReference Include="Microsoft.Azure.Storage.Queue" Version="11.1.1" />
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="1.1.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.AzureKeyVault" Version="3.1.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.1.0" />
@@ -22,8 +20,6 @@
   <ItemGroup>
     <ProjectReference Include="..\TeamCloud.Configuration\TeamCloud.Configuration.csproj" />
     <ProjectReference Include="..\TeamCloud.Data\TeamCloud.Data.csproj" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\TeamCloud.Model\TeamCloud.Model.csproj" />
   </ItemGroup>
 </Project>

@@ -3,12 +3,12 @@
  *  Licensed under the MIT License.
  */
 
-using Microsoft.Azure.Cosmos;
-using Microsoft.Azure.Cosmos.Fluent;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Azure.Cosmos;
+using Azure.Cosmos.Fluent;
 using TeamCloud.Model;
 
 namespace TeamCloud.Data.CosmosDb
@@ -40,7 +40,7 @@ namespace TeamCloud.Data.CosmosDb
             client = new Lazy<CosmosClient>(() =>
             {
                 var builder = new CosmosClientBuilder(options.ConnectionString)
-                    .WithSerializerOptions(new CosmosSerializationOptions() { PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase });
+                    .WithSerializerOptions(new CosmosSerializationOptions { PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase });
 
                 return builder.Build();
             });

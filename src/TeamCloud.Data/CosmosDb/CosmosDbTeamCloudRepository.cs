@@ -3,8 +3,8 @@
  *  Licensed under the MIT License.
  */
 
-using Microsoft.Azure.Cosmos;
 using System.Threading.Tasks;
+using Azure.Cosmos;
 using TeamCloud.Model;
 
 namespace TeamCloud.Data.CosmosDb
@@ -13,7 +13,7 @@ namespace TeamCloud.Data.CosmosDb
     {
         private readonly CosmosDbContainerFactory containerFactory;
 
-        private Task<Container> GetContainerAsync() 
+        private Task<Container> GetContainerAsync()
             => containerFactory.GetContainerAsync<TeamCloudInstance>();
 
         public CosmosDbTeamCloudRepository(ICosmosDbOptions cosmosOptions)
@@ -30,7 +30,7 @@ namespace TeamCloud.Data.CosmosDb
                 .ReadItemAsync<TeamCloudInstance>(Constants.CosmosDb.TeamCloudInstanceId, new PartitionKey(Constants.CosmosDb.TeamCloudInstanceId))
                 .ConfigureAwait(false);
 
-            return response.Resource;
+            return response.Value;
         }
 
         public async Task<TeamCloudInstance> SetAsync(TeamCloudInstance teamCloudInstance)
@@ -42,8 +42,7 @@ namespace TeamCloud.Data.CosmosDb
                 .UpsertItemAsync<TeamCloudInstance>(teamCloudInstance, new PartitionKey(Constants.CosmosDb.TeamCloudInstanceId))
                 .ConfigureAwait(false);
 
-            return response.Resource;
+            return response.Value;
         }
-
     }
 }

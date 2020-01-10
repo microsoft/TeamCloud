@@ -3,7 +3,6 @@
  *  Licensed under the MIT License.
  */
 
-using Microsoft.Azure.Cosmos;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -16,7 +15,6 @@ namespace TeamCloud.Data
         Task<Project> GetAsync(Guid id);
 
         IAsyncEnumerable<Project> ListAsync(Guid? userId = null);
-
     }
 
     public interface IProjectsRepository : IProjectsRepositoryReadOnly
