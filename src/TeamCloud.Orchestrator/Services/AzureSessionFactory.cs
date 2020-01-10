@@ -4,7 +4,6 @@ using RMFluent = Microsoft.Azure.Management.ResourceManager.Fluent;
 using System;
 using TeamCloud.Configuration.Options;
 
-
 namespace TeamCloud.Orchestrator.Services
 {
     public interface IAzureSessionFactory

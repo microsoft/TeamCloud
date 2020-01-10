@@ -1,7 +1,4 @@
-﻿using Microsoft.Azure.Management.Fluent;
-using Microsoft.Azure.Management.ResourceManager.Fluent;
-using Microsoft.Azure.Management.ResourceManager.Fluent.Authentication;
-using Microsoft.Azure.WebJobs;
+﻿using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using System;
 using System.Threading.Tasks;
@@ -44,7 +41,7 @@ namespace TeamCloud.Orchestrator.Activities
             }
             else
             {
-                IResourceGroup existingGroup = await azureSession.ResourceGroups
+                var existingGroup = await azureSession.ResourceGroups
                     .GetByNameAsync(azureResourceGroup.ResourceGroupName)
                     .ConfigureAwait(false);
 
