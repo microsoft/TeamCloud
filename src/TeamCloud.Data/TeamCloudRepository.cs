@@ -3,7 +3,6 @@
  *  Licensed under the MIT License.
  */
 
-using Microsoft.Azure.Cosmos;
 using System.Threading.Tasks;
 using TeamCloud.Model;
 
