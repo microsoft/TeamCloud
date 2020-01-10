@@ -7,10 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TeamCloud.API.Data;
 using TeamCloud.Data;
 using TeamCloud.Model;
 
@@ -19,7 +17,7 @@ namespace TeamCloud.API.Controllers
     [ApiController]
     [Route("api/projects")]
     [Authorize(Policy = "projectRead")]
-    public sealed class ProjectsController : ControllerBase
+    public class ProjectsController : ControllerBase
     {
         private User currentUser = new User
         {
@@ -69,9 +67,7 @@ namespace TeamCloud.API.Controllers
         [Authorize(Policy = "projectCreate")]
         public async Task<IActionResult> Post([FromBody] ProjectDefinition projectDefinition)
         {
-            // Validate project object
-            var validator = new ProjectDefinitionValidator();
-            await validator.ValidateAndThrowAsync(projectDefinition);
+            if (projectDefinition is null) return new BadRequestResult();
 
             var projectUsers = await GetUsersForNewProject(projectDefinition);
 

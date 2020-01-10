@@ -11,12 +11,12 @@ using Newtonsoft.Json.Serialization;
 namespace TeamCloud.API
 {
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public sealed class ProjectDefinition
+    public class ProjectDefinition
     {
         public string Name { get; set; }
 
         public Dictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();
 
-        public List<UserDefinition> Users { get; set; } = new List<UserDefinition>();
+        public List<UserDefinition> Users { get; set; }
     }
 }
