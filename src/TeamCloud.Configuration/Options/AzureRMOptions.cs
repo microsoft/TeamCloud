@@ -13,5 +13,7 @@ namespace TeamCloud.Configuration.Options
         public string ClientSecret { get; set; }
 
         public string TenantId { get; set; }
+
+        public string Key { get; set; }
     }
 }

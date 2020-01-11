@@ -2,7 +2,7 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "functionAppName": {
+        "webAppName": {
             "type": "string",
             "metadata": {
                 "description": "The name of the TeamCloud instance that you wish to create. This will also be used as the subdomain of your service endpoint (i.e. myteamcloud.azurewebsites.net)."
@@ -17,7 +17,8 @@
         }
     },
     "variables": {
-        "functionAppNameLower": "[toLower(parameters('functionAppName'))]",
+        "webAppNameLower":  "[toLower(parameters('webAppName'))]",
+        "functionAppNameLower": "[concat(toLower(parameters('webAppName')), '-orchestrator')]",
         "cosmosDbName": "[concat('database', uniqueString(resourceGroup().id))]",
         "webjobsStorageAccountName": "[concat('wjstorage', uniqueString(resourceGroup().id))]",
         "taskhubStorageAccountName": "[concat('thstorage', uniqueString(resourceGroup().id))]",
@@ -27,6 +28,109 @@
         "sourceBranch": "master"
     },
     "resources": [
+        {
+            "type": "Microsoft.Web/serverfarms",
+            "kind": "app",
+            "name": "[variables('webAppNameLower')]",
+            "apiVersion": "2018-02-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "name": "[variables('webAppNameLower')]",
+                "perSiteScaling": false,
+                "maximumElasticWorkerCount": 1,
+                "isSpot": false,
+                "reserved": false,
+                "isXenon": false,
+                "hyperV": false,
+                "targetWorkerCount": 0,
+                "targetWorkerSizeId": 0
+            },
+            "sku": {
+                "name": "S1",
+                "tier": "Standard",
+                "size": "S1",
+                "family": "S",
+                "capacity": 1
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites",
+            "kind": "app",
+            "name": "[variables('webAppNameLower')]",
+            "apiVersion": "2018-02-01",
+            "location": "[resourceGroup().location]",
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "name": "[variables('webAppNameLower')]",
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('webAppNameLower'))]",
+                "siteConfig": {
+                    "phpVersion": "off",
+                    "clientAffinityEnabled": false
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', variables('webAppNameLower'))]",
+                "[resourceId('Microsoft.Web/sites', variables('functionAppNameLower'))]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('webjobsStorageAccountName'))]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('taskhubStorageAccountName'))]",
+                "[resourceId('Microsoft.DocumentDb/databaseAccounts', variables('cosmosDbName'))]",
+                "[resourceId('Microsoft.AppConfiguration/configurationStores', variables('appConfiguraitonName'))]"
+            ],
+            "resources": [
+                {
+                    "type": "config",
+                    "name": "appsettings",
+                    "apiVersion": "2018-02-01",
+                    "properties": {
+                        "PROJECT": "src/TeamCloud.API/TeamCloud.API.csproj",
+                        "Azure:SubscriptionId": "[subscription().SubscriptionId]",
+                        "Azure:TenantId": "[subscription().tenantId]",
+                        "AzureCosmosDBName": "TeamCloud",
+                        "AzureCosmosDBConnection": "[concat('AccountEndpoint=', reference(concat('Microsoft.DocumentDb/databaseAccounts/', variables('cosmosDbName'))).documentEndpoint, ';AccountKey=', listKeys(resourceId('Microsoft.DocumentDb/databaseAccounts', variables('cosmosDbName')), '2015-04-08').primaryMasterKey)]",
+                        "CosmosDb:DatabaseName": "TeamCloud",
+                        "CosmosDb:ConnectionString": "[concat('AccountEndpoint=', reference(concat('Microsoft.DocumentDb/databaseAccounts/', variables('cosmosDbName'))).documentEndpoint, ';AccountKey=', listKeys(resourceId('Microsoft.DocumentDb/databaseAccounts', variables('cosmosDbName')), '2015-04-08').primaryMasterKey)]",
+                        "AppConfigurationConnectionString": "[listKeys(resourceId('Microsoft.AppConfiguration/configurationStores', variables('appConfiguraitonName')), '2019-10-01').value[0].connectionString]",
+                        "TeamCloudConfig:ConnectionString": "[listKeys(resourceId('Microsoft.AppConfiguration/configurationStores', variables('appConfiguraitonName')), '2019-10-01').value[0].connectionString]",
+                        "APPINSIGHTS_INSTRUMENTATIONKEY": "[reference(resourceId('Microsoft.Insights/components', variables('webAppNameLower')), '2015-05-01').InstrumentationKey]",
+                        "APPINSIGHTS_PROFILERFEATURE_VERSION": "disabled",
+                        "APPINSIGHTS_SNAPSHOTFEATURE_VERSION": "disabled",
+                        "ApplicationInsightsAgent_EXTENSION_VERSION": "~2",
+                        "AzureKeyVaultName": "[variables('keyVaultName')]",
+                        "AzureKeyVaultUrl": "[concat('https://', variables('keyVaultName'), '.vault.azure.net')]",
+                        "DiagnosticServices_EXTENSION_VERSION": "disabled",
+                        "InstrumentationEngine_EXTENSION_VERSION": "disabled",
+                        "Orchestrator:Url": "[concat('https://', variables('functionAppNameLower'), '.azurewebsites.net')]",
+                        "Orchestrator:AuthCode": "[listkeys(concat(resourceId('Microsoft.Web/sites', variables('functionAppNameLower')), '/host/default/'),'2016-08-01').functionKeys.default]",
+                        "SnapshotDebugger_EXTENSION_VERSION": "disabled",
+                        "XDT_MicrosoftApplicationInsights_BaseExtensions": "disabled",
+                        "XDT_MicrosoftApplicationInsights_Mode": "default"
+                    },
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Web/sites', variables('webAppNameLower'))]",
+                        "[resourceId('Microsoft.Web/sites', variables('functionAppNameLower'))]"
+                    ]
+                },
+                {
+                    "condition": "[parameters('deployTeamCloudSource')]",
+                    "type": "sourcecontrols",
+                    "name": "web",
+                    "apiVersion": "2019-08-01",
+                     "properties": {
+                        "repoUrl": "[variables('sourceRepoUrl')]",
+                        "branch": "[variables('sourceBranch')]",
+                        "isManualIntegration": true,
+                        "deploymentRollbackEnabled": false,
+                        "isMercurial": false
+                    },
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Web/sites', variables('webAppNameLower'))]",
+                        "[resourceId('Microsoft.Web/sites/config', variables('webAppNameLower'), 'appsettings')]"
+                    ]
+                }
+            ]
+        },
         {
             "type": "Microsoft.Web/serverfarms",
             "kind": "functionapp",
@@ -77,7 +181,7 @@
                         "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('webjobsStorageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('webjobsStorageAccountName')), '2017-06-01').keys[0].value)]",
                         "WEBSITE_CONTENTSHARE": "[variables('functionAppNameLower')]",
                         "WEBSITE_NODE_DEFAULT_VERSION": "~12",
-                        "PROJECT": "src/TeamCloud",
+                        "PROJECT": "src/TeamCloud.Orchestrator/TeamCloud.Orchestrator.csproj",
                         "AzureWebJobsStorage": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('webjobsStorageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('webjobsStorageAccountName')), '2017-06-01').keys[0].value)]",
                         "DurableFunctionsHubStorage": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('taskhubStorageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('taskhubStorageAccountName')), '2017-06-01').keys[0].value)]",
                         "AzureCosmosDBConnection": "[concat('AccountEndpoint=', reference(concat('Microsoft.DocumentDb/databaseAccounts/', variables('cosmosDbName'))).documentEndpoint, ';AccountKey=', listKeys(resourceId('Microsoft.DocumentDb/databaseAccounts', variables('cosmosDbName')), '2015-04-08').primaryMasterKey)]",
@@ -163,13 +267,73 @@
                                 "DeleteIssuers"
                             ]
                         }
+                    },
+                    {
+                        "tenantId": "[reference(concat('Microsoft.Web/sites/', variables('webAppNameLower')), '2018-02-01', 'Full').identity.tenantId]",
+                        "objectId": "[reference(concat('Microsoft.Web/sites/', variables('webAppNameLower')), '2018-02-01', 'Full').identity.principalId]",
+                        "permissions": {
+                            "keys": [
+                                "Get",
+                                "List",
+                                "Update",
+                                "Create",
+                                "Import",
+                                "Delete",
+                                "Recover",
+                                "Backup",
+                                "Restore"
+                            ],
+                            "secrets": [
+                                "Get",
+                                "List",
+                                "Set",
+                                "Delete",
+                                "Recover",
+                                "Backup",
+                                "Restore"
+                            ],
+                            "certificates": [
+                                "Get",
+                                "List",
+                                "Update",
+                                "Create",
+                                "Import",
+                                "Delete",
+                                "Recover",
+                                "ManageContacts",
+                                "ManageIssuers",
+                                "GetIssuers",
+                                "ListIssuers",
+                                "SetIssuers",
+                                "DeleteIssuers"
+                            ]
+                        }
                     }
                 ],
                 "enabledForDeployment": false
             },
             "dependsOn": [
                 "[resourceId('Microsoft.Web/sites', variables('functionAppNameLower'))]",
-                "[resourceId('Microsoft.Web/serverfarms', variables('functionAppNameLower'))]"
+                "[resourceId('Microsoft.Web/serverfarms', variables('functionAppNameLower'))]",
+                "[resourceId('Microsoft.Web/sites', variables('webAppNameLower'))]",
+                "[resourceId('Microsoft.Web/serverfarms', variables('webAppNameLower'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Insights/components",
+            "kind": "web",
+            "name": "[variables('webAppNameLower')]",
+            "apiVersion": "2014-04-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "ApplicationId": "[variables('webAppNameLower')]"
+            },
+            "tags": {
+                "[concat('hidden-link:', resourceId('Microsoft.Web/sites', variables('webAppNameLower')))]": "Resource"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', variables('webAppNameLower'))]",
+                "[resourceId('Microsoft.Web/serverfarms', variables('webAppNameLower'))]"
             ]
         },
         {

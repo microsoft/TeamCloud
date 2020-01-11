@@ -4,11 +4,13 @@
  */
 
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TeamCloud.Data;
 using TeamCloud.Model;
+using YamlDotNet;
 
 namespace TeamCloud.API.Controllers
 {
@@ -17,10 +19,18 @@ namespace TeamCloud.API.Controllers
     [Authorize(Policy = "admin")]
     public class TeamCloudController : ControllerBase
     {
+        private User currentUser = new User
+        {
+            Id = Guid.Parse("bc8a62dc-c327-4418-a004-77c85c3fb488"),
+            Role = UserRoles.TeamCloud.Admin
+        };
+
+        readonly Orchestrator orchestrator;
         readonly ITeamCloudRepositoryReadOnly teamCloudRepository;
 
-        public TeamCloudController(ITeamCloudRepositoryReadOnly teamCloudRepository)
+        public TeamCloudController(Orchestrator orchestrator, ITeamCloudRepositoryReadOnly teamCloudRepository)
         {
+            this.orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
             this.teamCloudRepository = teamCloudRepository ?? throw new ArgumentNullException(nameof(teamCloudRepository));
         }
 
@@ -39,8 +49,36 @@ namespace TeamCloud.API.Controllers
 
         // POST: api/config
         [HttpPost]
-        public void Post([FromBody] TeamCloudConfiguraiton teamCloudConfiguraiton)
+        [Consumes("application/x-yaml")]
+        public async Task<IActionResult> Post([FromBody] TeamCloudConfiguraiton teamCloudConfiguraiton)
         {
+            (bool valid, string validationError) = teamCloudConfiguraiton.Validate();
+
+            if (!valid)
+            {
+                return new BadRequestObjectResult(validationError);
+            }
+
+            var teamCloud = new TeamCloudInstance
+            {
+                Configuration = teamCloudConfiguraiton
+            };
+
+            var command = new TeamCloudCreateCommand(currentUser, teamCloud);
+
+            var commandResult = await orchestrator
+                .InvokeAsync<TeamCloudInstance>(command)
+                .ConfigureAwait(false);
+
+            if (commandResult.Links.TryGetValue("status", out var statusUrl))
+            {
+                return new AcceptedResult(statusUrl, commandResult);
+            }
+            else
+            {
+                return new OkObjectResult(commandResult);
+            }
+
             /* TODO:
              *
              * - Change the input to a file upload

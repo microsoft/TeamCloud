@@ -53,12 +53,16 @@ namespace TeamCloud.Orchestrator
                 .GetAsync()
                 .ConfigureAwait(false);
 
-            var project = await projectsRepository
-                .GetAsync(command.ProjectId.Value)
-                .ConfigureAwait(false);
+            var orchestratorContext = new OrchestratorContext(teamCloud);
 
-            
-            var orchestratorContext = new OrchestratorContext(teamCloud, project);
+            if (command.ProjectId.HasValue)
+            {
+                var project = await projectsRepository
+                    .GetAsync(command.ProjectId.Value)
+                    .ConfigureAwait(false);
+
+                orchestratorContext.Project = project;
+            }
 
             switch (command)
             {
@@ -91,6 +95,11 @@ namespace TeamCloud.Orchestrator
                 var projectUserDeleteCommandResult = await Handle(durableClient, orchestratorContext, projectUserDeleteCommand, nameof(ProjectUserDeleteOrchestration))
                     .ConfigureAwait(false);
                 return new OkObjectResult(projectUserDeleteCommandResult);
+
+                case TeamCloudCreateCommand teamCloudCreateCommand:
+                var teamCloudCreateCommandResult = await Handle(durableClient, orchestratorContext, teamCloudCreateCommand, nameof(TeamCloudCreateOrchestration))
+                    .ConfigureAwait(false);
+                return new OkObjectResult(teamCloudCreateCommandResult);
 
                 case TeamCloudUserCreateCommand teamCloudUserCreateCommand:
                 var teamCloudUserCreateCommandResult = await Handle(durableClient, orchestratorContext, teamCloudUserCreateCommand, nameof(TeamCloudUserCreateOrchestration))

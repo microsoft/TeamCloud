@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -26,6 +27,8 @@ using TeamCloud.Configuration;
 using TeamCloud.Data;
 using TeamCloud.Data.CosmosDb;
 using TeamCloud.Model;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
 
 namespace TeamCloud.API
 {
@@ -60,6 +63,18 @@ namespace TeamCloud.API
 
         public void ConfigureServices(IServiceCollection services)
         {
+            // kestrel
+            services.Configure<KestrelServerOptions>(options =>
+            {
+                options.AllowSynchronousIO = true;
+            });
+
+            // IIS
+            services.Configure<IISServerOptions>(options =>
+            {
+                options.AllowSynchronousIO = true;
+            });
+
             var currentAssembly = Assembly.GetExecutingAssembly();
 
             services
@@ -75,6 +90,16 @@ namespace TeamCloud.API
 
             ConfigureAuthentication(services);
             ConfigureAuthorization(services);
+
+            services
+                .AddMvc(options =>
+                {
+                    options.InputFormatters.Add(new YamlInputFormatter(new DeserializerBuilder().WithNamingConvention(CamelCaseNamingConvention.Instance).Build()));
+                    //options.OutputFormatters.Add(new YamlOutputFormatter(new SerializerBuilder().WithNamingConvention(CamelCaseNamingConvention.Instance).Build()));
+                    options.FormatterMappings.SetMediaTypeMappingForFormat("application/x-yaml", MediaTypeHeaderValues.ApplicationYaml);
+                    options.FormatterMappings.SetMediaTypeMappingForFormat("text/yaml", MediaTypeHeaderValues.TextYaml);
+                });
+
 
             services
                 .AddControllers()

@@ -42,7 +42,7 @@ namespace TeamCloud.Orchestrator.Activities
             }
             else
             {
-                IResourceGroup existingGroup = await azureSession.ResourceGroups
+                var existingGroup = await azureSession.ResourceGroups
                     .GetByNameAsync(azureResourceGroup.ResourceGroupName)
                     .ConfigureAwait(false);
 
