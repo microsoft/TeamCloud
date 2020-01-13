@@ -3,14 +3,14 @@
  *  Licensed under the MIT License.
  */
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections;
 using System.Diagnostics;
 using System.Reflection;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
-namespace TeamCloud.Model
+namespace TeamCloud.Model.Commands.Serialization
 {
     class CommandResultContractResolver : SuppressConverterContractResolver<CommandResultConverter>
     {

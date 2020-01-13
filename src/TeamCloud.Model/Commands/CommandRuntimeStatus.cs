@@ -6,7 +6,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace TeamCloud.Model
+namespace TeamCloud.Model.Commands
 {
     /// <summary>
     /// Represents the possible runtime execution status values for an orchestration instance.

@@ -6,8 +6,9 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using TeamCloud.API.Data;
 using TeamCloud.Azure;
-using TeamCloud.Model;
+using TeamCloud.Model.Data;
 
 namespace TeamCloud.API.Services
 {

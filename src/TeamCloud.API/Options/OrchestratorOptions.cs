@@ -3,6 +3,7 @@
  *  Licensed under the MIT License.
  */
 
+using TeamCloud.API.Services;
 using TeamCloud.Configuration;
 
 namespace TeamCloud.API.Options

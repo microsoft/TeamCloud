@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using Azure.Cosmos;
 using Azure.Cosmos.Fluent;
 using Azure.Cosmos.Serialization;
-using TeamCloud.Model;
+using TeamCloud.Model.Data;
 
 namespace TeamCloud.Data.CosmosDb
 {

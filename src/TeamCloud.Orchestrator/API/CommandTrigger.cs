@@ -5,7 +5,6 @@
 
 using System;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,7 +14,8 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using TeamCloud.Data;
-using TeamCloud.Model;
+using TeamCloud.Model.Commands;
+using TeamCloud.Model.Context;
 using TeamCloud.Orchestrator.Orchestrations;
 
 namespace TeamCloud.Orchestrator

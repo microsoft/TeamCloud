@@ -10,7 +10,7 @@ using Flurl;
 using Flurl.Http;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
-using TeamCloud.Model;
+using TeamCloud.Model.Commands;
 
 namespace TeamCloud.API.Services
 {

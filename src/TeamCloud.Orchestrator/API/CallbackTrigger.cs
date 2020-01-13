@@ -12,7 +12,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using TeamCloud.Model;
+using TeamCloud.Model.Commands;
 
 namespace TeamCloud.Orchestrator
 {

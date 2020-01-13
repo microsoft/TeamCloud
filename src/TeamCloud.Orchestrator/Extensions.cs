@@ -12,7 +12,7 @@ using Flurl;
 using Flurl.Http;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Newtonsoft.Json.Linq;
-using TeamCloud.Model;
+using TeamCloud.Model.Commands;
 using TeamCloud.Orchestrator.Orchestrations.Commands;
 
 namespace TeamCloud.Orchestrator

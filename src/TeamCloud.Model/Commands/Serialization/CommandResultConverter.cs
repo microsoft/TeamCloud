@@ -3,11 +3,11 @@
  *  Licensed under the MIT License.
  */
 
+using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using System;
 
-namespace TeamCloud.Model
+namespace TeamCloud.Model.Commands.Serialization
 {
     class CommandResultConverter : JsonConverter<ICommandResult>
     {

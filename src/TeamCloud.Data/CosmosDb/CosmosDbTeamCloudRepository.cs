@@ -6,6 +6,7 @@
 using System.Threading.Tasks;
 using Azure.Cosmos;
 using TeamCloud.Model;
+using TeamCloud.Model.Data;
 
 namespace TeamCloud.Data.CosmosDb
 {

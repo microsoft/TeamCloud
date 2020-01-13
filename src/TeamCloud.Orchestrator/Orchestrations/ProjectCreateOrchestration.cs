@@ -3,13 +3,15 @@
  *  Licensed under the MIT License.
  */
 
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using TeamCloud.Model;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Extensions.Logging;
+using TeamCloud.Model.Commands;
+using TeamCloud.Model.Context;
+using TeamCloud.Model.Data;
 using TeamCloud.Orchestrator.Activities;
 
 namespace TeamCloud.Orchestrator.Orchestrations

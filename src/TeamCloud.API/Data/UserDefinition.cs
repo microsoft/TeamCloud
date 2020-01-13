@@ -8,7 +8,7 @@ using System.Linq;
 using FluentValidation;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using TeamCloud.Model;
+using TeamCloud.Model.Data;
 
 namespace TeamCloud.API.Data
 {

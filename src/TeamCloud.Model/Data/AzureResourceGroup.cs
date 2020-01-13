@@ -3,12 +3,12 @@
  *  Licensed under the MIT License.
  */
 
+using System;
 using FluentValidation;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using System;
 
-namespace TeamCloud.Model
+namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class AzureResourceGroup : Identifiable, IEquatable<AzureResourceGroup>
