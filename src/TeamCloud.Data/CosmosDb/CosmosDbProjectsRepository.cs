@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using Azure.Cosmos;
+using TeamCloud.Model;
 using TeamCloud.Model.Data;
 
 namespace TeamCloud.Data.CosmosDb
@@ -22,7 +23,7 @@ namespace TeamCloud.Data.CosmosDb
             containerFactory = CosmosDbContainerFactory.Get(cosmosOptions);
         }
 
-        private Task<CosmosContainer> GetContainerAsync()
+        private Task<Container> GetContainerAsync()
             => containerFactory.GetContainerAsync<Project>();
 
         public async Task<Project> AddAsync(Project project)
@@ -78,7 +79,7 @@ namespace TeamCloud.Data.CosmosDb
                 .ConfigureAwait(false);
 
             var query = new QueryDefinition($"SELECT * FROM c");
-            var queryIterator = container.GetItemQueryIterator<Project>(query);
+            var queryIterator = container.GetItemQueryIterator<Project>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Constants.CosmosDb.TeamCloudInstanceId) });
 
             await foreach (var queryResult in queryIterator)
             {

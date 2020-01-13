@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Azure.Cosmos;
 using Azure.Cosmos.Fluent;
-using Azure.Cosmos.Serialization;
 using TeamCloud.Model.Data;
 
 namespace TeamCloud.Data.CosmosDb
@@ -47,7 +46,7 @@ namespace TeamCloud.Data.CosmosDb
             });
         }
 
-        public async Task<CosmosDatabase> GetDatabaseAsync()
+        public async Task<Database> GetDatabaseAsync()
         {
             if (client.IsValueCreated)
             {
@@ -65,7 +64,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async Task<CosmosContainer> GetContainerAsync<T>()
+        public async Task<Container> GetContainerAsync<T>()
             where T : IContainerDocument, new()
         {
             var database = await GetDatabaseAsync().ConfigureAwait(false);
