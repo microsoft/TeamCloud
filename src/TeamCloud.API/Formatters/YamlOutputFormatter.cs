@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using YamlDotNet.Serialization;
 
-namespace TeamCloud.API
+namespace TeamCloud.API.Formatters
 {
     public class YamlOutputFormatter : TextOutputFormatter
     {

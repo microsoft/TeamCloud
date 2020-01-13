@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Http;
 using TeamCloud.Azure;
 using TeamCloud.Model;
 
-namespace TeamCloud.API
+namespace TeamCloud.API.Services
 {
     public class UserService
     {

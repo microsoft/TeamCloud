@@ -3,7 +3,6 @@
  *  Licensed under the MIT License.
  */
 
-using System;
 using TeamCloud.Azure;
 using TeamCloud.Configuration;
 using TeamCloud.Configuration.Options;
@@ -17,7 +16,7 @@ namespace TeamCloud.Orchestrator.Options
 
         public AzureSessionOptions(AzureRMOptions azureRMOptions)
         {
-            this.azureRMOptions = azureRMOptions ?? throw new ArgumentNullException(nameof(azureRMOptions));
+            this.azureRMOptions = azureRMOptions ?? throw new System.ArgumentNullException(nameof(azureRMOptions));
         }
 
         public string TenantId => azureRMOptions.TenantId;

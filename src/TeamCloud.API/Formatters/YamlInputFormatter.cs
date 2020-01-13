@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Net.Http.Headers;
 using YamlDotNet.Serialization;
 
-namespace TeamCloud.API
+namespace TeamCloud.API.Formatters
 {
     public class YamlInputFormatter : TextInputFormatter
     {

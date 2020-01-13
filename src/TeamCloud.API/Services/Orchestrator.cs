@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using TeamCloud.Model;
 
-namespace TeamCloud.API
+namespace TeamCloud.API.Services
 {
     public interface IOrchestratorOptions
     {
@@ -50,7 +50,7 @@ namespace TeamCloud.API
         public async Task<ICommandResult> QueryAsync(Guid commandId, Guid? projectId)
         {
             var resultJson = await options.Url
-                .AppendPathSegment($"api/orchestrator/{commandId}")
+                .AppendPathSegment($"api/command/{commandId}")
                 .WithHeader("x-functions-key", options.AuthCode)
                 .AllowHttpStatus(HttpStatusCode.NotFound)
                 .GetStringAsync()
@@ -67,7 +67,7 @@ namespace TeamCloud.API
             where TResult : new()
         {
             var commandResponse = await options.Url
-                .AppendPathSegment("api/orchestrator")
+                .AppendPathSegment("api/command")
                 .WithHeader("x-functions-key", options.AuthCode)
                 .PostJsonAsync(command)
                 .ConfigureAwait(false);

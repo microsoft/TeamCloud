@@ -3,12 +3,12 @@
  *  Licensed under the MIT License.
  */
 
+using System.Collections.Generic;
 using FluentValidation;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using System.Collections.Generic;
 
-namespace TeamCloud.API
+namespace TeamCloud.API.Data
 {
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class UserDefinition
