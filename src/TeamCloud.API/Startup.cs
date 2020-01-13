@@ -9,6 +9,7 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.AzureAD.UI;
@@ -104,7 +105,7 @@ namespace TeamCloud.API
             services
                 .AddControllers()
                 .AddNewtonsoftJson()
-                .AddFluentValidation(config => 
+                .AddFluentValidation(config =>
                 {
                     config.RegisterValidatorsFromAssembly(currentAssembly);
                     config.ImplicitlyValidateChildProperties = true;

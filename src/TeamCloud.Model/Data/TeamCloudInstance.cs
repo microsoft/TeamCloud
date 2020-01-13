@@ -5,13 +5,14 @@
 
 using System;
 using System.Collections.Generic;
+using FluentValidation;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 namespace TeamCloud.Model
 {
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public class TeamCloudInstance : IContainerDocument
+    public sealed class TeamCloudInstance : IContainerDocument
     {
         public string Id = Constants.CosmosDb.TeamCloudInstanceId;
 
@@ -25,6 +26,16 @@ namespace TeamCloud.Model
 
         public List<Guid> ProjectIds { get; set; } = new List<Guid>();
 
-        public TeamCloudConfiguraiton Configuration { get; set; }
+        public TeamCloudConfiguration Configuration { get; set; }
+    }
+
+    public sealed class TeamCloudInstanceValidator : AbstractValidator<TeamCloudInstance>
+    {
+        public TeamCloudInstanceValidator()
+        {
+            RuleFor(obj => obj.Users).NotEmpty();
+            RuleFor(obj => obj.ProjectIds).NotEmpty();
+            RuleFor(obj => obj.Configuration).NotEmpty();
+        }
     }
 }

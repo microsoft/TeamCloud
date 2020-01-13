@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TeamCloud.API.Services;
@@ -63,8 +64,6 @@ namespace TeamCloud.API.Controllers
         [Authorize(Policy = "projectCreate")]
         public async Task<IActionResult> Post([FromBody] ProjectDefinition projectDefinition)
         {
-            if (projectDefinition is null) return new BadRequestResult();
-
             var project = new Project
             {
                 Id = Guid.NewGuid(),
