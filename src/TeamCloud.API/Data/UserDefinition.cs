@@ -3,15 +3,17 @@
  *  Licensed under the MIT License.
  */
 
+using System.Collections.Generic;
+using System.Linq;
 using FluentValidation;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using System.Collections.Generic;
+using TeamCloud.Model;
 
 namespace TeamCloud.API
 {
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public class UserDefinition
+    public sealed class UserDefinition
     {
         public string Email { get; set; }
 
@@ -24,9 +26,23 @@ namespace TeamCloud.API
     {
         public UserDefinitionValidator()
         {
-            RuleFor(obj => obj.Email).NotEmpty();
-            RuleFor(obj => obj.Role).NotEmpty();
-            RuleFor(obj => obj.Tags).NotNull();
+            RuleFor(obj => obj.Email).NotEmpty()
+                .WithMessage("Email is required");
+
+            RuleFor(obj => obj.Email).EmailAddress()
+                .WithMessage("Email must contain a valid email address");
+
+            RuleFor(obj => obj.Tags).NotNull()
+                .WithMessage("Tags must not be null");
+
+            RuleFor(obj => obj.Role).Must(role => ValidProjectRoles.Contains(role))
+                .WithMessage($"Invalid role detected - valid rules: {string.Join(", ", ValidProjectRoles)}");
         }
+
+        private static readonly string[] ValidProjectRoles = new string[]
+        {
+            UserRoles.Project.Owner,
+            UserRoles.Project.Member
+        };
     }
 }
