@@ -2,14 +2,14 @@
  *  Copyright (c) Microsoft Corporation.
  *  Licensed under the MIT License.
  */
- 
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace TeamCloud.Configuration
 {
@@ -94,7 +94,7 @@ namespace TeamCloud.Configuration
                 services.AddTransient(contract, ResolveOptions);
             }
 
-            T ResolveOptions(IServiceProvider provider)
+            static T ResolveOptions(IServiceProvider provider)
             {
                 try
                 {
