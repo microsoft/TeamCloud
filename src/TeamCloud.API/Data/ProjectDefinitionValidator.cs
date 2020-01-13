@@ -1,13 +1,15 @@
-﻿using FluentValidation;
-using System;
-using System.Collections.Generic;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
+
 using System.Linq;
-using System.Threading.Tasks;
+using FluentValidation;
 using TeamCloud.Model;
 
 namespace TeamCloud.API.Data
 {
-    public class ProjectDefinitionValidator: AbstractValidator<ProjectDefinition>
+    public class ProjectDefinitionValidator : AbstractValidator<ProjectDefinition>
     {
         public ProjectDefinitionValidator()
         {

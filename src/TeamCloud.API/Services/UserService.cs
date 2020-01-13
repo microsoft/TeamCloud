@@ -4,7 +4,6 @@
  */
 
 using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using TeamCloud.Azure;
@@ -26,7 +25,7 @@ namespace TeamCloud.API
         public Guid CurrentUserId
             => httpContextAccessor.HttpContext.User.GetObjectId();
 
-        private Task<Guid?> GetUserIdAsync(string email)            
+        private Task<Guid?> GetUserIdAsync(string email)
         {
             return azureDirectoryService.GetUserIdAsync(email);
         }

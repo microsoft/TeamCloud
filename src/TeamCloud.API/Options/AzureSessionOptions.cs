@@ -1,7 +1,7 @@
 ﻿/**
-*  Copyright (c) Microsoft Corporation.
-*  Licensed under the MIT License.
-*/
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
 
 using System;
 using TeamCloud.Azure;
