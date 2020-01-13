@@ -13,7 +13,7 @@ namespace TeamCloud.Data.CosmosDb
     {
         private readonly CosmosDbContainerFactory containerFactory;
 
-        private Task<Container> GetContainerAsync()
+        private Task<CosmosContainer> GetContainerAsync()
             => containerFactory.GetContainerAsync<TeamCloudInstance>();
 
         public CosmosDbTeamCloudRepository(ICosmosDbOptions cosmosOptions)

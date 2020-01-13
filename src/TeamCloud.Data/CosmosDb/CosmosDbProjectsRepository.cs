@@ -22,7 +22,7 @@ namespace TeamCloud.Data.CosmosDb
             containerFactory = CosmosDbContainerFactory.Get(cosmosOptions);
         }
 
-        private Task<Container> GetContainerAsync()
+        private Task<CosmosContainer> GetContainerAsync()
             => containerFactory.GetContainerAsync<Project>();
 
         public async Task<Project> AddAsync(Project project)
@@ -52,7 +52,7 @@ namespace TeamCloud.Data.CosmosDb
             }
             catch (CosmosException cosmosEx)
             {
-                if (cosmosEx.StatusCode == HttpStatusCode.NotFound)
+                if (cosmosEx.Status == (int)HttpStatusCode.NotFound)
                 {
                     return null;
                 }
