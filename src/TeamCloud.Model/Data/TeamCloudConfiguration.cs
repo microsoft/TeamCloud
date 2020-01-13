@@ -5,13 +5,14 @@
 
 using System;
 using System.Collections.Generic;
+using FluentValidation;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 namespace TeamCloud.Model
 {
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public class TeamCloudConfiguraiton
+    public sealed class TeamCloudConfiguration
     {
         public string Version { get; set; }
 
@@ -24,9 +25,18 @@ namespace TeamCloud.Model
         public Dictionary<string, string> Variables { get; set; } = new Dictionary<string, string>();
     }
 
-
+    public sealed class TeamCloudConfigurationValidator : AbstractValidator<TeamCloudConfiguration>
+    {
+        public TeamCloudConfigurationValidator()
+        {
+            RuleFor(obj => obj.Azure).NotEmpty();
+            RuleFor(obj => obj.Tags).NotEmpty();
+            RuleFor(obj => obj.Variables).NotEmpty();
+        }
+    }
+    
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public class TeamCloudAzureConfiguration
+    public sealed class TeamCloudAzureConfiguration
     {
         public string Region { get; set; }
 
@@ -41,9 +51,18 @@ namespace TeamCloud.Model
         public string ResourceGroupNamePrefix { get; set; }
     }
 
+    public sealed class TeamCloudAzureConfigurationValidator : AbstractValidator<TeamCloudAzureConfiguration>
+    {
+        public TeamCloudAzureConfigurationValidator()
+        {
+            RuleFor(obj => obj.Region).NotEmpty();
+            RuleFor(obj => obj.SubscriptionId).NotEmpty();
+            RuleFor(obj => obj.ServicePricipal).NotEmpty();
+        }
+    }
 
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public class TeamCloudProviderConfiguration
+    public sealed class TeamCloudProviderConfiguration
     {
         public string Id { get; set; }
 
@@ -60,40 +79,11 @@ namespace TeamCloud.Model
         public Dictionary<string, string> Variables { get; set; } = new Dictionary<string, string>();
     }
 
-
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public class TeamCloudProviderConfigurationDependencies
+    public sealed class TeamCloudProviderConfigurationDependencies
     {
         public List<string> Create { get; set; } = new List<string>();
 
         public List<string> Init { get; set; } = new List<string>();
     }
-
-
-    public static class TeamCloudConfigurationValidationExtensions
-    {
-        public static (bool, string) Validate(this TeamCloudConfiguraiton config)
-        {
-            string message = "";
-
-            if (config is null)
-                return (false, "Unable to read yaml file");
-
-            if (config.Azure.Region is null)
-                message += "Azure Region is required.";
-            if (config.Azure.SubscriptionId is null)
-                message += "\n Azure SubscriptionId is required.";
-            if (config.Azure.ServicePricipal is null)
-                message += "\n Azure ServicePricipal is required.";
-            if (config.Azure.ServicePricipal.Id == Guid.Empty)
-                message += "\n Azure ServicePricipal.Id is required.";
-            if (string.IsNullOrEmpty(config.Azure.ServicePricipal.AppId))
-                message += "\n Azure ServicePricipal.AppId is required.";
-
-            // TODO:...
-            return (string.IsNullOrWhiteSpace(message), message);
-        }
-    }
-
 }
-

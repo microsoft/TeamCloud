@@ -25,6 +25,6 @@ namespace TeamCloud.Model
 
         public List<Guid> ProjectIds { get; set; } = new List<Guid>();
 
-        public TeamCloudConfiguraiton Configuration { get; set; }
+        public TeamCloudConfiguration Configuration { get; set; }
     }
 }

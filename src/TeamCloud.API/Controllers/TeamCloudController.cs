@@ -4,13 +4,11 @@
  */
 
 using System;
-using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TeamCloud.Data;
 using TeamCloud.Model;
-using YamlDotNet;
 
 namespace TeamCloud.API.Controllers
 {
@@ -50,15 +48,8 @@ namespace TeamCloud.API.Controllers
         // POST: api/config
         [HttpPost]
         [Consumes("application/x-yaml")]
-        public async Task<IActionResult> Post([FromBody] TeamCloudConfiguraiton teamCloudConfiguraiton)
+        public async Task<IActionResult> Post([FromBody] TeamCloudConfiguration teamCloudConfiguraiton)
         {
-            (bool valid, string validationError) = teamCloudConfiguraiton.Validate();
-
-            if (!valid)
-            {
-                return new BadRequestObjectResult(validationError);
-            }
-
             var teamCloud = new TeamCloudInstance
             {
                 Configuration = teamCloudConfiguraiton
