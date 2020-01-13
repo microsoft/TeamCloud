@@ -9,12 +9,12 @@ using TeamCloud.Data.CosmosDb;
 
 namespace TeamCloud.API.Options
 {
-    [Options]
-    public class DatabaseOptionsProxy : ICosmosDbOptions
+    [Options()]
+    public class DatabaseOptions : ICosmosDbOptions
     {
         private readonly CosmosDbOptions cosmosDbOptions;
 
-        public DatabaseOptionsProxy(CosmosDbOptions cosmosDbOptions)
+        public DatabaseOptions(CosmosDbOptions cosmosDbOptions)
         {
             this.cosmosDbOptions = cosmosDbOptions;
         }

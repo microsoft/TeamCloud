@@ -9,6 +9,7 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.AzureAD.UI;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -21,6 +22,7 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using TeamCloud.Azure;
 using TeamCloud.Configuration;
 using TeamCloud.Data;
 using TeamCloud.Data.CosmosDb;
@@ -73,8 +75,11 @@ namespace TeamCloud.API
                 options.AllowSynchronousIO = true;
             });
 
+            var currentAssembly = Assembly.GetExecutingAssembly();
+
             services
-                .AddOptions(Assembly.GetExecutingAssembly());
+                .AddOptions(currentAssembly)
+                .AddAzure();
 
             services
                 .AddSingleton<IHttpContextAccessor, HttpContextAccessor>()
@@ -98,7 +103,12 @@ namespace TeamCloud.API
 
             services
                 .AddControllers()
-                .AddNewtonsoftJson();
+                .AddNewtonsoftJson()
+                .AddFluentValidation(config => 
+                {
+                    config.RegisterValidatorsFromAssembly(currentAssembly);
+                    config.ImplicitlyValidateChildProperties = true;
+                });
         }
 
         private void ConfigureAuthentication(IServiceCollection services)

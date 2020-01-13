@@ -1,4 +1,9 @@
-﻿namespace TeamCloud.Configuration.Options
+﻿/**
+*  Copyright (c) Microsoft Corporation.
+*  Licensed under the MIT License.
+*/
+
+namespace TeamCloud.Configuration.Options
 {
     [Options("AzureRM")]
     public class AzureRMOptions
