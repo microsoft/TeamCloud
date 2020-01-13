@@ -18,11 +18,11 @@ namespace TeamCloud.Orchestrator.Activities
 
         public ProjectUpdateActivity(IProjectsRepository projectsRepository)
         {
-            this.projectsRepository = projectsRepository ?? throw new System.ArgumentNullException(nameof(projectsRepository));
+            this.projectsRepository = projectsRepository ?? throw new ArgumentNullException(nameof(projectsRepository));
         }
 
         [FunctionName(nameof(ProjectUpdateActivity))]
-        public  Task<Project> RunActivity(
+        public Task<Project> RunActivity(
             [ActivityTrigger] Project project)
         {
             throw new NotImplementedException();

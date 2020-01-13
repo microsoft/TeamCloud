@@ -1,5 +1,4 @@
-﻿
-/**
+﻿/**
  *  Copyright (c) Microsoft Corporation.
  *  Licensed under the MIT License.
  */
@@ -34,8 +33,8 @@ namespace TeamCloud.Azure
         {
             this.azureSessionOptions = azureSessionOptions ?? throw new ArgumentNullException(nameof(azureSessionOptions));
 
-            session = new Lazy<AZFluent.Azure.IAuthenticated>(() => {
-
+            session = new Lazy<AZFluent.Azure.IAuthenticated>(() =>
+            {
                 var credentials = new RMFluent.Authentication.AzureCredentialsFactory()
                     .FromServicePrincipal(azureSessionOptions.ClientId, azureSessionOptions.ClientSecret, azureSessionOptions.TenantId, RMFluent.AzureEnvironment.AzureGlobalCloud);
 
@@ -43,7 +42,6 @@ namespace TeamCloud.Azure
                     .Configure()
                     .Authenticate(credentials);
             });
-            
         }
 
         public string TenantId => azureSessionOptions.TenantId;
