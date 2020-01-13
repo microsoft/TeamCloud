@@ -36,6 +36,7 @@ namespace TeamCloud.Model.Data
             RuleFor(obj => obj.Users).NotEmpty();
             RuleFor(obj => obj.ProjectIds).NotEmpty();
             RuleFor(obj => obj.Configuration).NotEmpty();
+            RuleFor(obj => obj.Configuration).NotNull();
         }
     }
 }
