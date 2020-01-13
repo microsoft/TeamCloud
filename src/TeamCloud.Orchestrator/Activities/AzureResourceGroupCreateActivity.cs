@@ -1,4 +1,8 @@
-﻿using Microsoft.Azure.Management.ResourceManager.Fluent;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
+
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using System;
