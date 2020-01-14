@@ -8,6 +8,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Formatters;
+using TeamCloud.Model.Data;
 using YamlDotNet.Serialization;
 
 namespace TeamCloud.API.Formatters
@@ -25,6 +26,9 @@ namespace TeamCloud.API.Formatters
             SupportedMediaTypes.Add(MediaTypeHeaderValues.ApplicationYaml);
             SupportedMediaTypes.Add(MediaTypeHeaderValues.TextYaml);
         }
+
+        protected override bool CanWriteType(Type type)
+            => typeof(TeamCloudConfiguration).IsAssignableFrom(type) && base.CanWriteType(type);
 
         public override async Task WriteResponseBodyAsync(OutputFormatterWriteContext context, Encoding selectedEncoding)
         {

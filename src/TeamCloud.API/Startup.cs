@@ -35,7 +35,6 @@ using YamlDotNet.Serialization.NamingConventions;
 
 namespace TeamCloud.API
 {
-
     public class Startup
     {
         public Startup(IConfiguration configuration)
@@ -98,7 +97,7 @@ namespace TeamCloud.API
                 .AddMvc(options =>
                 {
                     options.InputFormatters.Add(new YamlInputFormatter(new DeserializerBuilder().WithNamingConvention(CamelCaseNamingConvention.Instance).Build()));
-                    //options.OutputFormatters.Add(new YamlOutputFormatter(new SerializerBuilder().WithNamingConvention(CamelCaseNamingConvention.Instance).Build()));
+                    options.OutputFormatters.Add(new YamlOutputFormatter(new SerializerBuilder().WithNamingConvention(CamelCaseNamingConvention.Instance).Build()));
                     options.FormatterMappings.SetMediaTypeMappingForFormat("application/x-yaml", MediaTypeHeaderValues.ApplicationYaml);
                     options.FormatterMappings.SetMediaTypeMappingForFormat("text/yaml", MediaTypeHeaderValues.TextYaml);
                 });

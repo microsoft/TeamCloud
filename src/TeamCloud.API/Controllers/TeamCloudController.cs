@@ -37,6 +37,7 @@ namespace TeamCloud.API.Controllers
 
         // GET: api/config
         [HttpGet]
+        [Produces("application/json", "application/x-yaml")]
         public async Task<IActionResult> Get()
         {
             var teamCloudInstance = await teamCloudRepository
