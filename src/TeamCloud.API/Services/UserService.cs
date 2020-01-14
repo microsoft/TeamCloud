@@ -45,7 +45,7 @@ namespace TeamCloud.API.Services
                 // Key doesn't exist, query for UserID
                 val = await azureDirectoryService.GetUserIdAsync(identifier);
 
-
+                // Set value to cache so long as it's a valid Guid
                 if(val.HasValue && val.Value != Guid.Empty)
                     cache.Set(key, val);
             }
