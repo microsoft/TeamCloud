@@ -79,7 +79,7 @@ namespace TeamCloud.Model.Data
 
         public Uri Location { get; set; }
 
-        public string AuthKey { get; set; }
+        public string AuthCode { get; set; }
 
         public bool Optional { get; set; }
 
@@ -96,7 +96,7 @@ namespace TeamCloud.Model.Data
         {
             RuleFor(obj => obj.Id).NotEmpty();
             RuleFor(obj => obj.Location).NotEmpty();
-            RuleFor(obj => obj.AuthKey).NotEmpty();
+            RuleFor(obj => obj.AuthCode).NotEmpty();
         }
     }
 

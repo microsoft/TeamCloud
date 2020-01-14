@@ -83,7 +83,7 @@ azure:
 providers:
 - id: string           # unique identifier of the Provider (a-z and period)
   location: string     # URL where the Provider is hosted, used by the orchestrator to call the Provider
-  authKey: string      # authorization key required to securely invoke the Provider service
+  authCode: string     # authorization code required to securely invoke the Provider service
   optional: boolean    # defaults to true; whether this provider will be included in every Project upon creation
   dependencies:
     create: [ string ] # ids of Providers that this Provider's Init call is dependent on

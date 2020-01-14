@@ -5,7 +5,7 @@
 
 namespace TeamCloud.Configuration.Options
 {
-    [Options("AzureRM")]
+    [Options("Azure:ResourceManager")]
     public class AzureRMOptions
     {
         public string ClientId { get; set; }
@@ -13,7 +13,5 @@ namespace TeamCloud.Configuration.Options
         public string ClientSecret { get; set; }
 
         public string TenantId { get; set; }
-
-        public string Key { get; set; }
     }
 }

@@ -16,7 +16,7 @@ azure:
 providers:
 - id: azure.devtestlab
   location: 'https://github.com/Azure/azure-sdk-for-ios/tree/master/AzureData'
-  authKey: foobar
+  authCode: foobar
   optional: false
   dependencies:
     create:
@@ -28,7 +28,7 @@ providers:
     dtlvar2: dtlvalue2
 - id: azure.applicationinsights
   location: 'https://github.com/Azure/azure-sdk-for-ios/tree/master/AzureData'
-  authKey: barfoo
+  authCode: barfoo
   optional: false
   dependencies:
     init:

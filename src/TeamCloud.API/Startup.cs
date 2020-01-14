@@ -24,6 +24,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using TeamCloud.API.Formatters;
+using TeamCloud.API.Middleware;
 using TeamCloud.API.Services;
 using TeamCloud.Azure;
 using TeamCloud.Configuration;
@@ -56,6 +57,7 @@ namespace TeamCloud.API
             }
 
             app
+                .UseMiddleware<EnsureTeamCloudConfigurationMiddleware>()
                 .UseHttpsRedirection()
                 .UseRouting()
                 .UseAuthentication()
@@ -89,7 +91,8 @@ namespace TeamCloud.API
                 .AddSingleton<Orchestrator>()
                 .AddSingleton<UserService>()
                 .AddScoped<IProjectsRepositoryReadOnly, CosmosDbProjectsRepository>()
-                .AddScoped<ITeamCloudRepositoryReadOnly, CosmosDbTeamCloudRepository>();
+                .AddScoped<ITeamCloudRepositoryReadOnly, CosmosDbTeamCloudRepository>()
+                .AddScoped<EnsureTeamCloudConfigurationMiddleware>();
 
             ConfigureAuthentication(services);
             ConfigureAuthorization(services);
@@ -116,7 +119,7 @@ namespace TeamCloud.API
 
         private void ConfigureAuthentication(IServiceCollection services)
         {
-            const string AzureAdSectionName = "AzureAD";
+            const string AzureAdSectionName = "Azure:ActiveDirectory";
 
             services
                 .AddAuthentication(AzureADDefaults.JwtBearerAuthenticationScheme)

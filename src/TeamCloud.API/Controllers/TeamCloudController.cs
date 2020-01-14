@@ -54,6 +54,8 @@ namespace TeamCloud.API.Controllers
         [Consumes("application/x-yaml")]
         public async Task<IActionResult> Post([FromBody] TeamCloudConfiguration teamCloudConfiguraiton)
         {
+            if (teamCloudConfiguraiton is null) return new BadRequestObjectResult("Unable to parse teamcloud.yaml file.");
+
             try
             {
                 new TeamCloudConfigurationValidator().ValidateAndThrow(teamCloudConfiguraiton);
