@@ -28,15 +28,9 @@ namespace TeamCloud.API.Formatters
 
         public override async Task WriteResponseBodyAsync(OutputFormatterWriteContext context, Encoding selectedEncoding)
         {
-            if (context == null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
+            if (context is null) throw new ArgumentNullException(nameof(context));
 
-            if (selectedEncoding == null)
-            {
-                throw new ArgumentNullException(nameof(selectedEncoding));
-            }
+            if (selectedEncoding is null) throw new ArgumentNullException(nameof(selectedEncoding));
 
             var response = context.HttpContext.Response;
 

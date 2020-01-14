@@ -27,8 +27,9 @@ namespace TeamCloud.Model.Data
     {
         public UserValidator()
         {
+            RuleFor(obj => obj.Id).NotEmpty();
             RuleFor(obj => obj.Role).NotEmpty();
-            RuleFor(obj => obj.Tags).NotEmpty();
+            //RuleFor(obj => obj.Tags).NotEmpty();
         }
     }
 

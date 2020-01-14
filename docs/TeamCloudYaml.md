@@ -7,6 +7,7 @@ This document provides a detailed reference guide to the TeamCloud YAML configur
 - [Version](#version)
 - [Azure](#azure)
 - [Providers](#providers)
+- [Users](#users)
 - [Tags](#tags)
 - [Variables](#variables)
 
@@ -120,6 +121,30 @@ providers:
   variables:
     aivar1: aivalue1
     aivar2: aivalue2
+```
+
+## Users
+
+### Schema
+
+```yaml
+providers:
+- id: guid                  # unique identifier of the User (active director objectId)
+  role: strings             # the role of the user (Admin or Creator)
+  tags: { string: string }  # ...
+```
+
+### Example
+
+```yaml
+users:
+- id: bc8a62dc-c327-4418-a004-77c85c3fb488
+  role: Admin
+  tags:
+    usertag1: tagvalue1
+    usertag2: tagvalue2
+- id: aba7458f-746e-4a59-a3f0-ebf36eddfcf6
+  role: Creator
 ```
 
 ## Tags

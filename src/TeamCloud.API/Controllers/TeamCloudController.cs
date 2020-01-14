@@ -5,6 +5,7 @@
 
 using System;
 using System.Threading.Tasks;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TeamCloud.API.Services;
@@ -52,8 +53,18 @@ namespace TeamCloud.API.Controllers
         [Consumes("application/x-yaml")]
         public async Task<IActionResult> Post([FromBody] TeamCloudConfiguration teamCloudConfiguraiton)
         {
+            try
+            {
+                new TeamCloudConfigurationValidator().ValidateAndThrow(teamCloudConfiguraiton);
+            }
+            catch (ValidationException validationEx)
+            {
+                return new BadRequestObjectResult(validationEx.Errors);
+            }
+
             var teamCloud = new TeamCloudInstance
             {
+                Users = teamCloudConfiguraiton.Users,
                 Configuration = teamCloudConfiguraiton
             };
 

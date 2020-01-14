@@ -24,11 +24,11 @@ namespace TeamCloud.Orchestrator.Activities
         public async Task<TeamCloudInstance> RunActivity(
             [ActivityTrigger] TeamCloudInstance teamCloudInstance)
         {
-            var project = await teamCloudRepository
+            var teamCloud = await teamCloudRepository
                 .SetAsync(teamCloudInstance)
                 .ConfigureAwait(false);
 
-            return project;
+            return teamCloud;
         }
     }
 }
