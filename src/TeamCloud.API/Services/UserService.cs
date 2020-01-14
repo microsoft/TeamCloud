@@ -6,6 +6,7 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Memory;
 using TeamCloud.API.Data;
 using TeamCloud.Azure;
 using TeamCloud.Model.Data;
@@ -16,19 +17,40 @@ namespace TeamCloud.API.Services
     {
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly IAzureDirectoryService azureDirectoryService;
+        private readonly IMemoryCache cache;
 
-        public UserService(IHttpContextAccessor httpContextAccessor, IAzureDirectoryService azureDirectoryService)
+        public UserService(IHttpContextAccessor httpContextAccessor, IAzureDirectoryService azureDirectoryService, IMemoryCache cache)
         {
             this.httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             this.azureDirectoryService = azureDirectoryService ?? throw new ArgumentNullException(nameof(azureDirectoryService));
+            this.cache = cache;
         }
 
         public Guid CurrentUserId
             => httpContextAccessor.HttpContext.User.GetObjectId();
 
-        private Task<Guid?> GetUserIdAsync(string email)
+        private async Task<Guid?> GetUserIdAsync(string identifier)
         {
-            return azureDirectoryService.GetUserIdAsync(email);
+            if (string.IsNullOrWhiteSpace(identifier))
+                throw new ArgumentNullException(nameof(identifier));
+
+            Guid? val = null;
+
+            // Generate unique key for this identifier
+            string key = $"{nameof(UserService)}_{nameof(GetUserIdAsync)}_{identifier}";
+
+            // See if the cache has this key value
+            if (!cache.TryGetValue<Guid?>(key, out val))
+            {
+                // Key doesn't exist, query for UserID
+                val = await azureDirectoryService.GetUserIdAsync(identifier);
+
+
+                if(val.HasValue && val.Value != Guid.Empty)
+                    cache.Set(key, val);
+            }
+            
+            return val;
         }
 
         public async Task<User> GetUserAsync(UserDefinition userDefinition)

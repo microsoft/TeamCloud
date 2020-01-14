@@ -80,6 +80,7 @@ namespace TeamCloud.API
             var currentAssembly = Assembly.GetExecutingAssembly();
 
             services
+                .AddMemoryCache()
                 .AddOptions(currentAssembly)
                 .AddAzure();
 
