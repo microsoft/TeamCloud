@@ -27,15 +27,16 @@ namespace TeamCloud.Orchestrator.Activities
         {
             if (azureResourceGroup == null)
                 throw new ArgumentNullException(nameof(azureResourceGroup));
-            if (string.IsNullOrWhiteSpace(azureResourceGroup.ResourceGroupName))
-                throw new ArgumentNullException(nameof(azureResourceGroup.ResourceGroupName));
-            if (azureResourceGroup.Region == null)
-                throw new ArgumentNullException(nameof(azureResourceGroup.Region));
 
+            // Create instance to Azure instance
             var azureSession = azureSessionFactory.CreateSession(Guid.Parse(azureResourceGroup.SubscriptionId));
 
+            // TODO Should we retrieve existing group if the name is already used?
+
+            // Check if group already exists
             if (await azureSession.ResourceGroups.ContainAsync(azureResourceGroup.ResourceGroupName).ConfigureAwait(false) == false)
             {
+                // Create new group
                 var newGroup = await azureSession.ResourceGroups
                     .Define(azureResourceGroup.ResourceGroupName)
                     .WithRegion(azureResourceGroup.Region)
@@ -46,6 +47,7 @@ namespace TeamCloud.Orchestrator.Activities
             }
             else
             {
+                // Retrieve existing group
                 var existingGroup = await azureSession.ResourceGroups
                     .GetByNameAsync(azureResourceGroup.ResourceGroupName)
                     .ConfigureAwait(false);
