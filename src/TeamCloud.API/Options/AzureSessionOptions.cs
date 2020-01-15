@@ -25,5 +25,7 @@ namespace TeamCloud.API.Options
         public string ClientId => azureRMOptions.ClientId;
 
         public string ClientSecret => azureRMOptions.ClientSecret;
+
+        public string DefaultLocation => azureRMOptions.DefaultLocation;
     }
 }

@@ -10,9 +10,9 @@ namespace TeamCloud.Orchestrator.Activities
 {
     public class AzureResourceGroupCreateActivity
     {
-        private readonly IAzureSessionFactory azureSessionFactory;
+        private readonly IAzureSessionService azureSessionFactory;
 
-        public AzureResourceGroupCreateActivity(IAzureSessionFactory azureSessionFactory)
+        public AzureResourceGroupCreateActivity(IAzureSessionService azureSessionFactory)
         {
             this.azureSessionFactory = azureSessionFactory ?? throw new ArgumentNullException(nameof(azureSessionFactory));
         }

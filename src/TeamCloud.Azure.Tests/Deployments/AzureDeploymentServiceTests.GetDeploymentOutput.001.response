@@ -1,0 +1,83 @@
+﻿HTTP/1.1 200 OK
+Cache-Control: no-cache
+Pragma: no-cache
+Content-Type: application/json; charset=utf-8
+Expires: -1
+Vary: Accept-Encoding
+x-ms-ratelimit-remaining-subscription-reads: 11999
+x-ms-request-id: d3d52e8a-f030-4040-b768-1930da4ba880
+x-ms-correlation-request-id: d3d52e8a-f030-4040-b768-1930da4ba880
+x-ms-routing-request-id: WESTUS:20200115T000613Z:d3d52e8a-f030-4040-b768-1930da4ba880
+Strict-Transport-Security: max-age=31536000; includeSubDomains
+X-Content-Type-Options: nosniff
+Date: Wed, 15 Jan 2020 00:06:13 GMT
+Connection: close
+Content-Length: 1102
+
+{
+    "id": "/subscriptions/d3fed5a4-2ebb-4ad4-93c6-51afcbe01350/resourceGroups/foo/providers/Microsoft.Resources/deployments/Microsoft.Template",
+    "name": "Microsoft.Template",
+    "type": "Microsoft.Resources/deployments",
+    "tags": {
+        "primaryResourceId": "/subscriptions/d3fed5a4-2ebb-4ad4-93c6-51afcbe01350/resourcegroups/foo",
+        "marketplaceItemId": "Microsoft.Template"
+    },
+    "properties": {
+        "templateHash": "10268960095280883026",
+        "parameters": {
+            "objectToTest": {
+                "type": "Object",
+                "value": {
+                    "null1": null,
+                    "null2": null,
+                    "string": "default",
+                    "int": 1,
+                    "object": {
+                        "first": "default"
+                    },
+                    "array": [
+                        1
+                    ]
+                }
+            }
+        },
+        "mode": "Incremental",
+        "debugSetting": {
+            "detailLevel": "None"
+        },
+        "provisioningState": "Succeeded",
+        "timestamp": "2020-01-14T22:18:56.2218425Z",
+        "duration": "PT6.4187446S",
+        "correlationId": "8a05a012-3763-4c1d-a2fe-00a6c060f1ab",
+        "providers": [],
+        "dependencies": [],
+        "outputs": {
+            "stringOutput": {
+                "type": "String",
+                "value": "default"
+            },
+            "intOutput": {
+                "type": "Int",
+                "value": 1
+            },
+            "objectOutput": {
+                "type": "Object",
+                "value": {
+                    "first": "default"
+                }
+            },
+            "arrayOutput": {
+                "type": "Array",
+                "value": [
+                    1
+                ]
+            },
+            "boolOutput": {
+                "type": "Bool",
+                "value": true
+            }
+        },
+        "outputResources": [],
+        "validationLevel": "Template"
+    }
+}

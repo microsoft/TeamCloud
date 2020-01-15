@@ -12,7 +12,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamCloud.Data", "TeamCloud
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamCloud.Configuration", "TeamCloud.Configuration\TeamCloud.Configuration.csproj", "{61B44E82-7B12-469A-81D7-AB6EEC4C6AA6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeamCloud.Azure", "TeamCloud.Azure\TeamCloud.Azure.csproj", "{0699B550-63FB-40FF-862D-866DD14E35E3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamCloud.Azure", "TeamCloud.Azure\TeamCloud.Azure.csproj", "{0699B550-63FB-40FF-862D-866DD14E35E3}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamCloud.Azure.Tests", "TeamCloud.Azure.Tests\TeamCloud.Azure.Tests.csproj", "{1E5AB1FD-1185-4811-9517-0A0AA3D25D33}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionProperties", "SolutionProperties", "{2BBEED0F-8230-49D0-9F4A-E1C90E14812B}"
+	ProjectSection(SolutionItems) = preProject
+		TeamCloud.sln.licenseheader = TeamCloud.sln.licenseheader
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -44,6 +51,10 @@ Global
 		{0699B550-63FB-40FF-862D-866DD14E35E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0699B550-63FB-40FF-862D-866DD14E35E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0699B550-63FB-40FF-862D-866DD14E35E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1E5AB1FD-1185-4811-9517-0A0AA3D25D33}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E5AB1FD-1185-4811-9517-0A0AA3D25D33}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E5AB1FD-1185-4811-9517-0A0AA3D25D33}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E5AB1FD-1185-4811-9517-0A0AA3D25D33}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

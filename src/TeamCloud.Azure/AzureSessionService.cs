@@ -1,5 +1,4 @@
-﻿
-/**
+﻿/**
  *  Copyright (c) Microsoft Corporation.
  *  Licensed under the MIT License.
  */
@@ -12,11 +11,9 @@ using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
 namespace TeamCloud.Azure
 {
-    public interface IAzureSessionFactory
+    public interface IAzureSessionService
     {
-        string TenantId { get; }
-
-        string ClientId { get; }
+        IAzureSessionOptions Options { get; }
 
         AZFluent.Azure.IAuthenticated CreateSession();
 
@@ -25,12 +22,12 @@ namespace TeamCloud.Azure
         Task<string> AcquireTokenAsync(string authority);
     }
 
-    public class AzureSessionFactory : IAzureSessionFactory
+    public class AzureSessionService : IAzureSessionService
     {
         private readonly Lazy<AZFluent.Azure.IAuthenticated> session;
         private readonly IAzureSessionOptions azureSessionOptions;
 
-        public AzureSessionFactory(IAzureSessionOptions azureSessionOptions)
+        public AzureSessionService(IAzureSessionOptions azureSessionOptions)
         {
             this.azureSessionOptions = azureSessionOptions ?? throw new ArgumentNullException(nameof(azureSessionOptions));
 
@@ -46,9 +43,7 @@ namespace TeamCloud.Azure
             
         }
 
-        public string TenantId => azureSessionOptions.TenantId;
-
-        public string ClientId => azureSessionOptions.ClientId;
+        public IAzureSessionOptions Options => azureSessionOptions;
 
         public async Task<string> AcquireTokenAsync(string authority)
         {

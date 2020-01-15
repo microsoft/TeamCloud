@@ -22,9 +22,9 @@ namespace TeamCloud.Azure
 
     public class AzureDirectoryService : IAzureDirectoryService
     {
-        private readonly IAzureSessionFactory azureSessionFactory;
+        private readonly IAzureSessionService azureSessionFactory;
 
-        public AzureDirectoryService(IAzureSessionFactory azureSessionFactory)
+        public AzureDirectoryService(IAzureSessionService azureSessionFactory)
         {
             this.azureSessionFactory = azureSessionFactory ?? throw new ArgumentNullException(nameof(azureSessionFactory));
         }
@@ -36,7 +36,7 @@ namespace TeamCloud.Azure
                 .ConfigureAwait(false);
 
             var json = await AzureAuthorities.AzureGraph
-                .AppendPathSegment($"{azureSessionFactory.TenantId}/tenantDetails")
+                .AppendPathSegment($"{azureSessionFactory.Options.TenantId}/tenantDetails")
                 .SetQueryParam("api-version", "1.6")
                 .WithOAuthBearerToken(token)
                 .GetJObjectAsync();
@@ -51,7 +51,7 @@ namespace TeamCloud.Azure
                 .ConfigureAwait(false);
 
             var json = await AzureAuthorities.AzureGraph
-                .AppendPathSegment($"{azureSessionFactory.TenantId}/tenantDetails")
+                .AppendPathSegment($"{azureSessionFactory.Options.TenantId}/tenantDetails")
                 .SetQueryParam("api-version", "1.6")
                 .WithOAuthBearerToken(token)
                 .GetJObjectAsync()

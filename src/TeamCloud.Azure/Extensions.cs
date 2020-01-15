@@ -3,12 +3,15 @@
  *  Licensed under the MIT License.
  */
 
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
 using Flurl.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
-using System;
-using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks;
+using TeamCloud.Azure.Deployments;
 
 namespace TeamCloud.Azure
 {
@@ -16,8 +19,9 @@ namespace TeamCloud.Azure
     {
         public static IServiceCollection AddAzure(this IServiceCollection services)
             => services
-            .AddSingleton<IAzureSessionFactory, AzureSessionFactory>()
-            .AddSingleton<IAzureDirectoryService, AzureDirectoryService>();
+            .AddSingleton<IAzureSessionService, AzureSessionService>()
+            .AddSingleton<IAzureDirectoryService, AzureDirectoryService>()
+            .AddSingleton<IAzureDeploymentService, AzureDeploymentService>();
 
         internal static bool IsGuid(this string value)
             => Guid.TryParse(value, out var _);
@@ -31,5 +35,12 @@ namespace TeamCloud.Azure
 
             return json is null ? null : JObject.FromObject(json);
         }
+
+        internal static IDictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> collection)
+            => new Dictionary<TKey, TValue>(collection);
+
+        internal static IReadOnlyDictionary<TKey, TValue> AsReadOnly<TKey, TValue>(this IDictionary<TKey, TValue> dictionary)
+            => new ReadOnlyDictionary<TKey, TValue>(dictionary);
+
     }
 }

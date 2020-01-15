@@ -14,6 +14,6 @@ namespace TeamCloud.Configuration.Options
 
         public string TenantId { get; set; }
 
-        public string Key { get; set; }
+        public string DefaultLocation { get; set; }
     }
 }
