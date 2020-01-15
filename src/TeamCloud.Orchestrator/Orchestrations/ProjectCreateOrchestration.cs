@@ -36,37 +36,35 @@ namespace TeamCloud.Orchestrator.Orchestrations
             project.ProviderVariables = teamCloud.Configuration.Providers.Select(p => (p.Id, p.Variables)).ToDictionary(t => t.Id, t => t.Variables);
 
             // Add project to db and add new project to teamcloud in db
-            project = await functionContext.CallActivityAsync<Project>(nameof(ProjectCreateActivity), project);
+            project = await functionContext.CallActivityAsync<Project>(nameof(ProjectCreateActivity), project).ConfigureAwait(false);
 
-            // TODO: Create identity (service principal) for Project
+            //// TODO: Create identity (service principal) for Project
+            //var projectIdentity = new AzureIdentity
+            //{
+            //    Id = Guid.NewGuid(),
+            //    AppId = "",
+            //    Secret = ""
+            //};
+            //// Save the updated project back into the database
+            //project = await functionContext.CallActivityAsync<Project>(nameof(ProjectUpdateActivity), project).ConfigureAwait(false);
 
-            var projectIdentity = new AzureIdentity
-            {
-                Id = Guid.NewGuid(),
-                AppId = "",
-                Secret = ""
-            };
+            // Determine an Azure subscription from the SubscriptionPool property of TeamCloudAzureConfiguration
+            var subscriptionID = await functionContext.CallActivityAsync<Guid>(nameof(AzureSubscriptionPoolSelectActivity), teamCloud).ConfigureAwait(false);
 
-            project = await functionContext.CallActivityAsync<Project>(nameof(ProjectUpdateActivity), project);
-
-            var resourceGroup = new AzureResourceGroup
-            {
-                SubscriptionId = teamCloud.Configuration.Azure.SubscriptionId,
-                ResourceGroupName = $"{teamCloud.Configuration.Azure.ResourceGroupNamePrefix}{project.Name}", // TODO validate/clean
-                Region = teamCloud.Configuration.Azure.Region
-            };
-
-            // Create new resource group for project
-            resourceGroup.Id = await functionContext.CallActivityAsync<Guid>(nameof(AzureResourceGroupCreateActivity), project);
-
-            // Assign resource group to project
-            project.ResourceGroup = resourceGroup;
-
-            project = await functionContext.CallActivityAsync<Project>(nameof(ProjectUpdateActivity), project);
+            // Create a new Azure resource group for the project
+            project = await functionContext.CallActivityAsync<Project>(nameof(AzureResourceGroupCreateActivity), (teamCloud, project, subscriptionID)).ConfigureAwait(false);
+            
+            // Save the updated project back into the database
+            project = await functionContext.CallActivityAsync<Project>(nameof(ProjectUpdateActivity), project).ConfigureAwait(false);
 
             var projectContext = new ProjectContext(teamCloud, project, command.User);
-
             functionContext.SetCustomStatus("Creating Project Resources...");
+
+            //var p1 = teamCloud.Configuration.Providers[0];
+            //var p2 = teamCloud.Configuration.Providers[1];
+            //var c1 = p1.Dependencies.Init;
+            //project.ProviderVariables[p2.Id] = null; // TODO call create on P2
+            //project.ProviderVariables[c]
 
             // TODO: call create on all providers (handeling dependencies)
             // var tasks = teamCloud.Configuration.Providers.Select(p =>
