@@ -27,11 +27,18 @@ namespace TeamCloud.Data.CosmosDb
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
-            var response = await container
-                .ReadItemAsync<TeamCloudInstance>(Constants.CosmosDb.TeamCloudInstanceId, new PartitionKey(Constants.CosmosDb.TeamCloudInstanceId))
-                .ConfigureAwait(false);
+            try
+            {
+                var response = await container
+                    .ReadItemAsync<TeamCloudInstance>(Constants.CosmosDb.TeamCloudInstanceId, new PartitionKey(Constants.CosmosDb.TeamCloudInstanceId))
+                    .ConfigureAwait(false);
 
-            return response.Value;
+                return response.Value;
+            }
+            catch(CosmosException exc) when (exc.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                return null;
+            }
         }
 
         public async Task<TeamCloudInstance> SetAsync(TeamCloudInstance teamCloudInstance)
