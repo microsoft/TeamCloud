@@ -9,6 +9,7 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.AzureAD.UI;
@@ -22,17 +23,20 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using TeamCloud.API.Formatters;
+using TeamCloud.API.Middleware;
+using TeamCloud.API.Services;
 using TeamCloud.Azure;
+using TeamCloud.Azure.Deployments.Providers;
 using TeamCloud.Configuration;
 using TeamCloud.Data;
 using TeamCloud.Data.CosmosDb;
-using TeamCloud.Model;
+using TeamCloud.Model.Data;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
 namespace TeamCloud.API
 {
-
     public class Startup
     {
         public Startup(IConfiguration configuration)
@@ -53,12 +57,17 @@ namespace TeamCloud.API
                 app.UseHsts();
             }
 
-            app
-                .UseHttpsRedirection()
-                .UseRouting()
-                .UseAuthentication()
-                .UseAuthorization()
-                .UseEndpoints(endpoints => endpoints.MapControllers());
+            app.UseWhen(context => !context.Request.Path.StartsWithSegments("/api/config", StringComparison.OrdinalIgnoreCase), appBuilder =>
+            {
+                // ensure TeamCloud to be configured for all paths other than /api/config
+                appBuilder.UseMiddleware<EnsureTeamCloudConfigurationMiddleware>();
+            });
+
+            app.UseHttpsRedirection()
+               .UseRouting()
+               .UseAuthentication()
+               .UseAuthorization()
+               .UseEndpoints(endpoints => endpoints.MapControllers());
         }
 
         public void ConfigureServices(IServiceCollection services)
@@ -78,15 +87,20 @@ namespace TeamCloud.API
             var currentAssembly = Assembly.GetExecutingAssembly();
 
             services
+                .AddMemoryCache()
                 .AddOptions(currentAssembly)
-                .AddAzure();
+                .AddAzure(configuration =>
+                {
+                    configuration.SetDeploymentArtifactsProvider<AzureStorageArtifactsProvider>();
+                });
 
             services
                 .AddSingleton<IHttpContextAccessor, HttpContextAccessor>()
                 .AddSingleton<Orchestrator>()
                 .AddSingleton<UserService>()
                 .AddScoped<IProjectsRepositoryReadOnly, CosmosDbProjectsRepository>()
-                .AddScoped<ITeamCloudRepositoryReadOnly, CosmosDbTeamCloudRepository>();
+                .AddScoped<ITeamCloudRepositoryReadOnly, CosmosDbTeamCloudRepository>()
+                .AddScoped<EnsureTeamCloudConfigurationMiddleware>();
 
             ConfigureAuthentication(services);
             ConfigureAuthorization(services);
@@ -95,7 +109,7 @@ namespace TeamCloud.API
                 .AddMvc(options =>
                 {
                     options.InputFormatters.Add(new YamlInputFormatter(new DeserializerBuilder().WithNamingConvention(CamelCaseNamingConvention.Instance).Build()));
-                    //options.OutputFormatters.Add(new YamlOutputFormatter(new SerializerBuilder().WithNamingConvention(CamelCaseNamingConvention.Instance).Build()));
+                    options.OutputFormatters.Add(new YamlOutputFormatter(new SerializerBuilder().WithNamingConvention(CamelCaseNamingConvention.Instance).Build()));
                     options.FormatterMappings.SetMediaTypeMappingForFormat("application/x-yaml", MediaTypeHeaderValues.ApplicationYaml);
                     options.FormatterMappings.SetMediaTypeMappingForFormat("text/yaml", MediaTypeHeaderValues.TextYaml);
                 });
@@ -104,7 +118,7 @@ namespace TeamCloud.API
             services
                 .AddControllers()
                 .AddNewtonsoftJson()
-                .AddFluentValidation(config => 
+                .AddFluentValidation(config =>
                 {
                     config.RegisterValidatorsFromAssembly(currentAssembly);
                     config.ImplicitlyValidateChildProperties = true;
@@ -113,7 +127,7 @@ namespace TeamCloud.API
 
         private void ConfigureAuthentication(IServiceCollection services)
         {
-            const string AzureAdSectionName = "AzureAD";
+            const string AzureAdSectionName = "Azure:ActiveDirectory";
 
             services
                 .AddAuthentication(AzureADDefaults.JwtBearerAuthenticationScheme)

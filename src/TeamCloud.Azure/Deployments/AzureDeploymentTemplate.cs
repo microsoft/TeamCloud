@@ -45,7 +45,7 @@ namespace TeamCloud.Azure.Deployments
 
             return resourceNames.ToDictionary(
                 resourceName => resourceName.Equals(resourceNameMain) ? "azuredeploy.json" : resourceName.Replace(resourceNamePrefix, string.Empty),
-                resourceName => GetTemplate(resourceName));            
+                resourceName => GetTemplate(resourceName));
 
             string GetTemplate(string templateName)
             {
@@ -69,14 +69,14 @@ namespace TeamCloud.Azure.Deployments
 
             return new Dictionary<string, object>();
         }
-        
-        public virtual string Template 
+
+        public virtual string Template
             => templates.Value["azuredeploy.json"];
 
         public virtual IDictionary<string, object> Parameters
             => parameters.Value;
 
-        public virtual IDictionary<string, string> LinkedTemplates 
+        public virtual IDictionary<string, string> LinkedTemplates
             => new ReadOnlyDictionary<string, string>(templates.Value.Where(kvp => !kvp.Key.Equals("azuredeploy.json")).ToDictionary());
     }
 }

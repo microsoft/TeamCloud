@@ -4,8 +4,9 @@
  */
 
 using System;
+using TeamCloud.Model.Data;
 
-namespace TeamCloud.Model
+namespace TeamCloud.Model.Commands
 {
     public class ProjectCreateCommand : Command<Project, Project>
     {

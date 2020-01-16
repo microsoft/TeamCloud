@@ -3,7 +3,7 @@
  *  Licensed under the MIT License.
  */
 
-namespace TeamCloud.Model
+namespace TeamCloud.Model.Data
 {
     public static class UserRoles
     {

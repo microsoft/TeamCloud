@@ -3,7 +3,6 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using NSubstitute;
-using NSubstitute.Core;
 using TeamCloud.Azure.Deployments;
 using TeamCloud.Azure.Tests.Deployments.Templates;
 using Xunit;
@@ -22,11 +21,14 @@ namespace TeamCloud.Azure.Tests.Deployments
             azureDeploymentArtifactContainer.Location.Returns("http://storage.com");
             azureDeploymentArtifactContainer.Token.Returns("?token");
 
-            var azureDeploymentArtifactStorage = Substitute.For<IAzureDeploymentArtifactsStorage>();
+            var azureDeploymentArtifactStorage = Substitute.For<IAzureDeploymentArtifactsProvider>();
             azureDeploymentArtifactStorage.CreateContainerAsync(default, default).ReturnsForAnyArgs(azureDeploymentArtifactContainer);
 
+            var azureDeploymentOptions = Substitute.For<IAzureDeploymentOptions>();
+            azureDeploymentOptions.BaseUrl.Returns("West Europe");
+
+            var deploymentService = new AzureDeploymentService(azureDeploymentOptions, azureSessionFactory, azureDeploymentArtifactStorage);
             var deploymentTemplate = new SimpleTemplate();
-            var deploymentService = new AzureDeploymentService(azureSessionFactory, azureDeploymentArtifactStorage);
 
             var deployment = await deploymentService
                 .DeployTemplateAsync(deploymentTemplate, Guid.Empty)
@@ -52,11 +54,14 @@ namespace TeamCloud.Azure.Tests.Deployments
             azureDeploymentArtifactContainer.Location.Returns("http://storage.com");
             azureDeploymentArtifactContainer.Token.Returns("?token");
 
-            var azureDeploymentArtifactStorage = Substitute.For<IAzureDeploymentArtifactsStorage>();
+            var azureDeploymentArtifactStorage = Substitute.For<IAzureDeploymentArtifactsProvider>();
             azureDeploymentArtifactStorage.CreateContainerAsync(default, default).ReturnsForAnyArgs(azureDeploymentArtifactContainer);
 
+            var azureDeploymentOptions = Substitute.For<IAzureDeploymentOptions>();
+            azureDeploymentOptions.BaseUrl.Returns("West Europe");
+
+            var deploymentService = new AzureDeploymentService(azureDeploymentOptions, azureSessionFactory, azureDeploymentArtifactStorage);
             var deploymentTemplate = new SimpleTemplate();
-            var deploymentService = new AzureDeploymentService(azureSessionFactory, azureDeploymentArtifactStorage);
 
             var deployment = await deploymentService
                 .DeployTemplateAsync(deploymentTemplate, Guid.Empty)
@@ -84,11 +89,14 @@ namespace TeamCloud.Azure.Tests.Deployments
             azureDeploymentArtifactContainer.Location.Returns("http://storage.com");
             azureDeploymentArtifactContainer.Token.Returns("?token");
 
-            var azureDeploymentArtifactStorage = Substitute.For<IAzureDeploymentArtifactsStorage>();
+            var azureDeploymentArtifactStorage = Substitute.For<IAzureDeploymentArtifactsProvider>();
             azureDeploymentArtifactStorage.CreateContainerAsync(default, default).ReturnsForAnyArgs(azureDeploymentArtifactContainer);
 
+            var azureDeploymentOptions = Substitute.For<IAzureDeploymentOptions>();
+            azureDeploymentOptions.BaseUrl.Returns("West Europe");
+
+            var deploymentService = new AzureDeploymentService(azureDeploymentOptions, azureSessionFactory, azureDeploymentArtifactStorage);
             var deploymentTemplate = new SimpleTemplate();
-            var deploymentService = new AzureDeploymentService(azureSessionFactory, azureDeploymentArtifactStorage);
 
             var deployment = await deploymentService
                 .DeployTemplateAsync(deploymentTemplate, Guid.Empty)
@@ -117,11 +125,14 @@ namespace TeamCloud.Azure.Tests.Deployments
             azureDeploymentArtifactContainer.Location.Returns("http://storage.com");
             azureDeploymentArtifactContainer.Token.Returns("?token");
 
-            var azureDeploymentArtifactStorage = Substitute.For<IAzureDeploymentArtifactsStorage>();
+            var azureDeploymentArtifactStorage = Substitute.For<IAzureDeploymentArtifactsProvider>();
             azureDeploymentArtifactStorage.CreateContainerAsync(default, default).ReturnsForAnyArgs(azureDeploymentArtifactContainer);
 
+            var azureDeploymentOptions = Substitute.For<IAzureDeploymentOptions>();
+            azureDeploymentOptions.BaseUrl.Returns("West Europe");
+
+            var deploymentService = new AzureDeploymentService(azureDeploymentOptions, azureSessionFactory, azureDeploymentArtifactStorage);
             var deploymentTemplate = new SimpleTemplate();
-            var deploymentService = new AzureDeploymentService(azureSessionFactory, azureDeploymentArtifactStorage);
 
             var deployment = await deploymentService
                 .DeployTemplateAsync(deploymentTemplate, Guid.Empty)
@@ -154,11 +165,14 @@ namespace TeamCloud.Azure.Tests.Deployments
             azureDeploymentArtifactContainer.Location.Returns("http://storage.com");
             azureDeploymentArtifactContainer.Token.Returns("?token");
 
-            var azureDeploymentArtifactStorage = Substitute.For<IAzureDeploymentArtifactsStorage>();
+            var azureDeploymentArtifactStorage = Substitute.For<IAzureDeploymentArtifactsProvider>();
             azureDeploymentArtifactStorage.CreateContainerAsync(default, default).ReturnsForAnyArgs(azureDeploymentArtifactContainer);
 
+            var azureDeploymentOptions = Substitute.For<IAzureDeploymentOptions>();
+            azureDeploymentOptions.BaseUrl.Returns("West Europe");
+
+            var deploymentService = new AzureDeploymentService(azureDeploymentOptions, azureSessionFactory, azureDeploymentArtifactStorage);
             var deploymentTemplate = new SimpleTemplate();
-            var deploymentService = new AzureDeploymentService(azureSessionFactory, azureDeploymentArtifactStorage);
 
             var deployment = await deploymentService
                 .DeployTemplateAsync(deploymentTemplate, Guid.Empty)
@@ -166,8 +180,9 @@ namespace TeamCloud.Azure.Tests.Deployments
 
             using (WithResponses(nameof(GetDeploymentOutputWhileRunning)))
             {
-                _ = Assert.ThrowsAsync<ApplicationException>(async () => {
-                
+                _ = Assert.ThrowsAsync<ApplicationException>(async () =>
+                {
+
                     var deploymentOutput = await deployment
                           .GetOutputAsync()
                           .ConfigureAwait(false);

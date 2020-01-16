@@ -5,7 +5,6 @@
 
 using System;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,25 +14,26 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using TeamCloud.Data;
-using TeamCloud.Model;
+using TeamCloud.Model.Commands;
+using TeamCloud.Model.Context;
 using TeamCloud.Orchestrator.Orchestrations;
 
 namespace TeamCloud.Orchestrator
 {
-    public class InvokeOrchestrator
+    public class CommandTrigger
     {
         private readonly IProjectsRepository projectsRepository;
         private readonly ITeamCloudRepository teamCloudRepository;
 
-        public InvokeOrchestrator(IProjectsRepository projectsRepository, ITeamCloudRepository teamCloudRepository)
+        public CommandTrigger(IProjectsRepository projectsRepository, ITeamCloudRepository teamCloudRepository)
         {
             this.projectsRepository = projectsRepository ?? throw new ArgumentNullException(nameof(projectsRepository));
             this.teamCloudRepository = teamCloudRepository ?? throw new ArgumentNullException(nameof(teamCloudRepository));
         }
 
-        [FunctionName(nameof(InvokeOrchestrator))]
+        [FunctionName(nameof(CommandTrigger))]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "orchestrator")] HttpRequest httpRequest,
+            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "command")] HttpRequest httpRequest,
             [DurableClient] IDurableClient durableClient,
             ILogger logger)
         {
@@ -133,7 +133,7 @@ namespace TeamCloud.Orchestrator
                 .GetStatusAsync(instanceId)
                 .ConfigureAwait(false);
 
-            return status.GetResult<TResult>();
+            return status?.GetResult<TResult>();
         }
     }
 }

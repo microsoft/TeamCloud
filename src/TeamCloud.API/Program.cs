@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Azure.KeyVault;
 using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.AzureKeyVault;
 using Microsoft.Extensions.Hosting;
 using TeamCloud.Configuration;
 
@@ -28,17 +27,10 @@ namespace TeamCloud.API
         private static void ConfigureEnvironment(IHostEnvironment hostingEnvironment, IConfigurationBuilder configurationBuilder)
         {
             var configurationRoot = configurationBuilder.Build();
-            var configurationService = configurationRoot.GetConnectionString("ConfigurationService");
 
-            if (!string.IsNullOrEmpty(configurationService))
-            {
-                // the configuration service connection string can either be an Azure App Configuration
-                // service connection string or a file uri that points to a local settings file.                
-
-                configurationRoot = configurationBuilder
-                    .AddConfigurationService(configurationService, true)
-                    .Build(); // refresh configuration root to get configuration service settings
-            }
+            configurationRoot = configurationBuilder
+                .AddConfigurationService()
+                .Build(); // refresh configuration root to get configuration service settings
 
             var keyVaultName = configurationRoot["KeyVaultName"];
 

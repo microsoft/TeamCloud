@@ -1,9 +1,8 @@
 ﻿/**
-*  Copyright (c) Microsoft Corporation.
-*  Licensed under the MIT License.
-*/
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
 
-using System;
 using TeamCloud.Azure;
 using TeamCloud.Configuration;
 using TeamCloud.Configuration.Options;
@@ -13,11 +12,11 @@ namespace TeamCloud.Orchestrator.Options
     [Options]
     public class AzureSessionOptions : IAzureSessionOptions
     {
-        private readonly AzureRMOptions azureRMOptions;
+        private readonly AzureResourceManagerOptions azureRMOptions;
 
-        public AzureSessionOptions(AzureRMOptions azureRMOptions)
+        public AzureSessionOptions(AzureResourceManagerOptions azureRMOptions)
         {
-            this.azureRMOptions = azureRMOptions ?? throw new ArgumentNullException(nameof(azureRMOptions));
+            this.azureRMOptions = azureRMOptions ?? throw new System.ArgumentNullException(nameof(azureRMOptions));
         }
 
         public string TenantId => azureRMOptions.TenantId;
@@ -25,7 +24,5 @@ namespace TeamCloud.Orchestrator.Options
         public string ClientId => azureRMOptions.ClientId;
 
         public string ClientSecret => azureRMOptions.ClientSecret;
-
-        public string DefaultLocation => azureRMOptions.DefaultLocation;
     }
 }

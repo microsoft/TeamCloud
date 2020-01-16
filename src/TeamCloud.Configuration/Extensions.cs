@@ -2,14 +2,14 @@
  *  Copyright (c) Microsoft Corporation.
  *  Licensed under the MIT License.
  */
- 
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace TeamCloud.Configuration
 {
@@ -21,8 +21,14 @@ namespace TeamCloud.Configuration
         private static readonly MethodInfo AddProxyMethod = typeof(Extensions).GetMethods(BindingFlags.Static | BindingFlags.NonPublic)
             .SingleOrDefault(mi => mi.Name.StartsWith(nameof(AddProxy)) && mi.IsGenericMethodDefinition);
 
-        public static IConfigurationBuilder AddConfigurationService(this IConfigurationBuilder configurationBuilder, string connectionString, bool optional = false)
+        public static IConfigurationBuilder AddConfigurationService(this IConfigurationBuilder configurationBuilder, string connectionString = null)
         {
+            if (string.IsNullOrEmpty(connectionString))
+                connectionString = configurationBuilder.Build().GetConnectionString("ConfigurationService");
+
+            if (string.IsNullOrEmpty(connectionString))
+                throw new InvalidOperationException("Unable to add configuration service without connection string ('ConfigurationService')");
+
             var connectionStringExpanded = Environment.ExpandEnvironmentVariables(connectionString);
 
             if (Uri.IsWellFormedUriString(connectionStringExpanded, UriKind.Absolute))
@@ -32,11 +38,11 @@ namespace TeamCloud.Configuration
                 if (!configurationServiceFile.IsFile)
                     throw new NotSupportedException($"Scheme '{configurationServiceFile.Scheme}' is not supported - use file:// instead");
 
-                return configurationBuilder.AddJsonFile(configurationServiceFile.LocalPath, optional, true);
+                return configurationBuilder.AddJsonFile(configurationServiceFile.LocalPath, false, true);
             }
             else
             {
-                return configurationBuilder.AddAzureAppConfiguration(connectionString, optional);
+                return configurationBuilder.AddAzureAppConfiguration(connectionString, false);
             }
         }
 
@@ -94,7 +100,7 @@ namespace TeamCloud.Configuration
                 services.AddTransient(contract, ResolveOptions);
             }
 
-            T ResolveOptions(IServiceProvider provider)
+            static T ResolveOptions(IServiceProvider provider)
             {
                 try
                 {

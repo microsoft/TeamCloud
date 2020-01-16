@@ -12,52 +12,53 @@ using System.Text;
 using System.Threading.Tasks;
 using Azure.Storage.Blobs;
 using Azure.Storage.Sas;
+using Flurl;
 
-namespace TeamCloud.Azure.Deployments
+namespace TeamCloud.Azure.Deployments.Providers
 {
-    public interface IAzureDeploymentArtifactsStorage
-    {
-        Task<IAzureDeploymentArtifactsContainer> CreateContainerAsync(Guid deploymentId, IAzureDeploymentTemplate azureDeploymentTemplate);
-    }    
-
-    public class AzureDeploymentArtifactsStorage : IAzureDeploymentArtifactsStorage
+    public class AzureStorageArtifactsProvider : IAzureDeploymentArtifactsProvider
     {
         private const string DEPLOYMENT_CONTAINER_NAME = "deployments";
 
-        private static readonly ConcurrentDictionary<string, Lazy<BlobServiceClient>> BlobServiceClientCache 
+        private static readonly ConcurrentDictionary<string, Lazy<BlobServiceClient>> BlobServiceClientCache
             = new ConcurrentDictionary<string, Lazy<BlobServiceClient>>();
 
         private static Lazy<BlobServiceClient> GetBlobServiceClientFactory(string connectionString)
             => BlobServiceClientCache.GetOrAdd(connectionString, key => new Lazy<BlobServiceClient>(() => new BlobServiceClient(connectionString)));
 
-        private readonly IAzureDeploymentArtifactsOptions azureDeploymentArtifactsOptions;
+        private readonly IAzureStorageArtifactsOptions azureStorageArtifactsOptions;
+        private readonly IAzureDeploymentTokenProvider azureDeploymentTokenProvider;
 
-        public AzureDeploymentArtifactsStorage(IAzureDeploymentArtifactsOptions azureDeploymentArtifactsOptions)
+        public AzureStorageArtifactsProvider(IAzureStorageArtifactsOptions azureStorageArtifactsOptions, IAzureDeploymentTokenProvider azureDeploymentTokenProvider = null)
         {
-            this.azureDeploymentArtifactsOptions = azureDeploymentArtifactsOptions ?? throw new ArgumentNullException(nameof(azureDeploymentArtifactsOptions));
+            this.azureStorageArtifactsOptions = azureStorageArtifactsOptions ?? throw new ArgumentNullException(nameof(AzureStorageArtifactsProvider.azureStorageArtifactsOptions));
+            this.azureDeploymentTokenProvider = azureDeploymentTokenProvider;
         }
 
         public async Task<IAzureDeploymentArtifactsContainer> CreateContainerAsync(Guid deploymentId, IAzureDeploymentTemplate azureDeploymentTemplate)
         {
-            var initialize = azureDeploymentTemplate.LinkedTemplates?.Any() ?? false;
+            var container = new Container();
 
-            var container = new Container()
+            if (azureDeploymentTemplate.LinkedTemplates?.Any() ?? false)
             {
-                Location = initialize
-                    ? await UploadTemplatesAsync(deploymentId, azureDeploymentTemplate.LinkedTemplates).ConfigureAwait(false)
-                    : default(string),
+                var location = await UploadTemplatesAsync(deploymentId, azureDeploymentTemplate.LinkedTemplates)
+                    .ConfigureAwait(false);
 
-                Token = initialize
+                container.Location = string.IsNullOrEmpty(azureStorageArtifactsOptions.BaseUrl)
+                    ? location
+                    : azureStorageArtifactsOptions.BaseUrl.AppendPathSegment(deploymentId).ToString();
+
+                container.Token = azureDeploymentTokenProvider is null
                     ? await CreateSasTokenAsync(deploymentId).ConfigureAwait(false)
-                    : default(string)
-            };
+                    : await azureDeploymentTokenProvider.AcquireToken(deploymentId, this).ConfigureAwait(false);
+            }
 
             return container;
         }
 
         private async Task<string> UploadTemplatesAsync(Guid deploymentId, IDictionary<string, string> templates)
         {
-            var blobServiceClientFactory = GetBlobServiceClientFactory(azureDeploymentArtifactsOptions.ConnectionString);
+            var blobServiceClientFactory = GetBlobServiceClientFactory(azureStorageArtifactsOptions.ConnectionString);
             var blobServiceClientInitialized = blobServiceClientFactory.IsValueCreated;
 
             var deploymentContainerClient = blobServiceClientFactory.Value.GetBlobContainerClient(DEPLOYMENT_CONTAINER_NAME);
@@ -80,7 +81,7 @@ namespace TeamCloud.Azure.Deployments
 
         private async Task<string> CreateSasTokenAsync(Guid deploymentId)
         {
-            var blobServiceClientFactory = GetBlobServiceClientFactory(azureDeploymentArtifactsOptions.ConnectionString);
+            var blobServiceClientFactory = GetBlobServiceClientFactory(azureStorageArtifactsOptions.ConnectionString);
 
             var sasBuilder = new BlobSasBuilder()
             {

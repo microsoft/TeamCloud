@@ -20,14 +20,16 @@ namespace TeamCloud.Azure.Deployments
         Task<IAzureDeployment> DeployTemplateAsync(IAzureDeploymentTemplate template, Guid subscriptionId, string resourceGroupName = null, bool completeMode = false);
     }
 
-    public class AzureDeploymentService: IAzureDeploymentService
+    public class AzureDeploymentService : IAzureDeploymentService
     {
-        private readonly IAzureSessionService azureSessionFactory;
-        private readonly IAzureDeploymentArtifactsStorage azureDeploymentArtifactsStorage;
+        private readonly IAzureDeploymentOptions azureDeploymentOptions;
+        private readonly IAzureSessionService azureSessionService;
+        private readonly IAzureDeploymentArtifactsProvider azureDeploymentArtifactsStorage;
 
-        public AzureDeploymentService(IAzureSessionService azureSessionFactory, IAzureDeploymentArtifactsStorage azureDeploymentArtifactsStorage)
+        public AzureDeploymentService(IAzureDeploymentOptions azureDeploymentOptions, IAzureSessionService azureSessionService, IAzureDeploymentArtifactsProvider azureDeploymentArtifactsStorage)
         {
-            this.azureSessionFactory = azureSessionFactory ?? throw new ArgumentNullException(nameof(azureSessionFactory));
+            this.azureDeploymentOptions = azureDeploymentOptions ?? throw new ArgumentNullException(nameof(azureDeploymentOptions));
+            this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
             this.azureDeploymentArtifactsStorage = azureDeploymentArtifactsStorage ?? throw new ArgumentNullException(nameof(azureDeploymentArtifactsStorage));
         }
 
@@ -45,13 +47,18 @@ namespace TeamCloud.Azure.Deployments
                 azureDeploymentTemplate.Parameters[IAzureDeploymentTemplate.ArtifactsLocationSasTokenParameterName] = deploymentContainer.Token;
             }
 
-            var deploymentParameters = (azureDeploymentTemplate.Parameters?.Any() ?? false)
-                ? azureDeploymentTemplate.Parameters.Aggregate(new ExpandoObject() as IDictionary<string, object>, (a, kv) => { a.Add(kv.Key, new { value = kv.Value }); return a; })
-                : null;
+            IDictionary<string, object> deploymentParameters = null;
+
+            if (azureDeploymentTemplate.Parameters?.Any() ?? false)
+            {
+                deploymentParameters = azureDeploymentTemplate.Parameters
+                    .Where(param => param.Value != null)
+                    .Aggregate(new ExpandoObject() as IDictionary<string, object>, (a, kv) => { a.Add(kv.Key, new { value = kv.Value }); return a; });
+            }
 
             var deploymentLocation = string.IsNullOrEmpty(resourceGroupName)
-                ? azureSessionFactory.Options.DefaultLocation
-                : await GetResourceGroupLocationAsync(subscriptionId, resourceGroupName).ConfigureAwait(false); 
+                ? azureDeploymentOptions.BaseUrl
+                : await GetResourceGroupLocationAsync(subscriptionId, resourceGroupName).ConfigureAwait(false);
 
             var deploymentPayload = new
             {
@@ -68,7 +75,7 @@ namespace TeamCloud.Azure.Deployments
                 ? $"/subscriptions/{subscriptionId}/providers/Microsoft.Resources/deployments/{deploymentId}"
                 : $"/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Resources/deployments/{deploymentId}";
 
-            var token = await azureSessionFactory
+            var token = await azureSessionService
                 .AcquireTokenAsync(AzureAuthorities.AzureResourceManager)
                 .ConfigureAwait(false);
 
@@ -79,12 +86,12 @@ namespace TeamCloud.Azure.Deployments
                 .PutJsonAsync(deploymentPayload)
                 .ConfigureAwait(false);
 
-            return new AzureDeployment(deploymentResourceId, azureSessionFactory);
+            return new AzureDeployment(deploymentResourceId, azureSessionService);
         }
 
         private async Task<string> GetResourceGroupLocationAsync(Guid subscriptionId, string resourceGroupName)
         {
-            var token = await azureSessionFactory
+            var token = await azureSessionService
                 .AcquireTokenAsync(AzureAuthorities.AzureResourceManager)
                 .ConfigureAwait(false);
 

@@ -17,11 +17,21 @@ namespace TeamCloud.Azure
 {
     public static class Extensions
     {
-        public static IServiceCollection AddAzure(this IServiceCollection services)
-            => services
-            .AddSingleton<IAzureSessionService, AzureSessionService>()
-            .AddSingleton<IAzureDirectoryService, AzureDirectoryService>()
-            .AddSingleton<IAzureDeploymentService, AzureDeploymentService>();
+        public static IServiceCollection AddAzure(this IServiceCollection services, Action<IAzureConfiguration> configuration)
+        {
+            services
+                .AddSingleton<IAzureSessionService, AzureSessionService>()
+                .AddSingleton<IAzureDirectoryService, AzureDirectoryService>()
+                .AddSingleton<IAzureDeploymentService, AzureDeploymentService>();
+
+            configuration.Invoke(new AzureConfiguration(services));
+
+            return services;
+        }
+
+        public static void SetDeploymentArtifactsProvider<T>(this IAzureConfiguration azureConfiguration)
+            where T : class, IAzureDeploymentArtifactsProvider
+            => azureConfiguration.Services.AddSingleton<IAzureDeploymentArtifactsProvider, T>();
 
         internal static bool IsGuid(this string value)
             => Guid.TryParse(value, out var _);

@@ -12,7 +12,5 @@ namespace TeamCloud.Azure
         string ClientId { get; }
 
         string ClientSecret { get; }
-
-        string DefaultLocation { get; }
     }
 }

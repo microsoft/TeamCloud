@@ -1,7 +1,7 @@
 ﻿/**
-*  Copyright (c) Microsoft Corporation.
-*  Licensed under the MIT License.
-*/
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
 
 using System;
 using TeamCloud.Azure;
@@ -13,9 +13,9 @@ namespace TeamCloud.API.Options
     [Options]
     public class AzureSessionOptions : IAzureSessionOptions
     {
-        private readonly AzureRMOptions azureRMOptions;
+        private readonly AzureResourceManagerOptions azureRMOptions;
 
-        public AzureSessionOptions(AzureRMOptions azureRMOptions)
+        public AzureSessionOptions(AzureResourceManagerOptions azureRMOptions)
         {
             this.azureRMOptions = azureRMOptions ?? throw new ArgumentNullException(nameof(azureRMOptions));
         }
@@ -26,6 +26,6 @@ namespace TeamCloud.API.Options
 
         public string ClientSecret => azureRMOptions.ClientSecret;
 
-        public string DefaultLocation => azureRMOptions.DefaultLocation;
+        public string DefaultLocation => Environment.GetEnvironmentVariable("REGION_NAME");
     }
 }

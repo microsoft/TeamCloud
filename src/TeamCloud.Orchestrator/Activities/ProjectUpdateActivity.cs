@@ -3,12 +3,12 @@
  *  Licensed under the MIT License.
  */
 
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using System;
 using System.Threading.Tasks;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Data;
-using TeamCloud.Model;
+using TeamCloud.Model.Data;
 
 namespace TeamCloud.Orchestrator.Activities
 {
@@ -18,11 +18,11 @@ namespace TeamCloud.Orchestrator.Activities
 
         public ProjectUpdateActivity(IProjectsRepository projectsRepository)
         {
-            this.projectsRepository = projectsRepository ?? throw new System.ArgumentNullException(nameof(projectsRepository));
+            this.projectsRepository = projectsRepository ?? throw new ArgumentNullException(nameof(projectsRepository));
         }
 
         [FunctionName(nameof(ProjectUpdateActivity))]
-        public  Task<Project> RunActivity(
+        public Task<Project> RunActivity(
             [ActivityTrigger] Project project)
         {
             throw new NotImplementedException();

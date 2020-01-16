@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Azure.Cosmos;
 using Azure.Cosmos.Fluent;
-using TeamCloud.Model;
+using TeamCloud.Model.Data;
 
 namespace TeamCloud.Data.CosmosDb
 {

@@ -5,8 +5,10 @@
 
 using System;
 using Newtonsoft.Json;
+using TeamCloud.Model.Commands.Serialization;
+using TeamCloud.Model.Data;
 
-namespace TeamCloud.Model
+namespace TeamCloud.Model.Commands
 {
     [JsonConverter(typeof(CommandConverter))]
     public interface ICommand

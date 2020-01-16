@@ -9,6 +9,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Azure.Cosmos;
 using TeamCloud.Model;
+using TeamCloud.Model.Data;
 
 namespace TeamCloud.Data.CosmosDb
 {
@@ -52,7 +53,7 @@ namespace TeamCloud.Data.CosmosDb
             }
             catch (CosmosException cosmosEx)
             {
-                if (cosmosEx.StatusCode == HttpStatusCode.NotFound)
+                if (cosmosEx.Status == (int)HttpStatusCode.NotFound)
                 {
                     return null;
                 }
@@ -78,7 +79,7 @@ namespace TeamCloud.Data.CosmosDb
                 .ConfigureAwait(false);
 
             var query = new QueryDefinition($"SELECT * FROM c");
-            var queryIterator = container.GetItemQueryIterator<Project>(query);
+            var queryIterator = container.GetItemQueryIterator<Project>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Constants.CosmosDb.TeamCloudInstanceId) });
 
             await foreach (var queryResult in queryIterator)
             {

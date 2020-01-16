@@ -13,16 +13,18 @@ using Microsoft.Extensions.Logging;
 
 namespace TeamCloud.Orchestrator
 {
-    public class QueryOrchestrator
+    public class QueryTrigger
     {
-        [FunctionName(nameof(QueryOrchestrator))]
+        [FunctionName(nameof(QueryTrigger))]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "orchestrator/{commandId:guid}")] HttpRequest httpRequest,
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "command/{commandId:guid}")] HttpRequest httpRequest,
             [DurableClient] IDurableClient durableClient,
             string commandId,
             ILogger logger)
         {
-            var status = await durableClient.GetStatusAsync(commandId, showHistory: false, showHistoryOutput: false, showInput: false);
+            var status = await durableClient
+                .GetStatusAsync(commandId, showHistory: false, showHistoryOutput: false, showInput: false)
+                .ConfigureAwait(false);
 
             return status is null ? (IActionResult)new NotFoundResult() : new OkObjectResult(status.GetResult());
         }

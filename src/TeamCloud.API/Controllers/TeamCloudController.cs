@@ -4,13 +4,14 @@
  */
 
 using System;
-using System.IO;
 using System.Threading.Tasks;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TeamCloud.API.Services;
 using TeamCloud.Data;
-using TeamCloud.Model;
-using YamlDotNet;
+using TeamCloud.Model.Commands;
+using TeamCloud.Model.Data;
 
 namespace TeamCloud.API.Controllers
 {
@@ -36,6 +37,7 @@ namespace TeamCloud.API.Controllers
 
         // GET: api/config
         [HttpGet]
+        [Produces("application/json", "application/x-yaml")]
         public async Task<IActionResult> Get()
         {
             var teamCloudInstance = await teamCloudRepository
@@ -50,17 +52,22 @@ namespace TeamCloud.API.Controllers
         // POST: api/config
         [HttpPost]
         [Consumes("application/x-yaml")]
-        public async Task<IActionResult> Post([FromBody] TeamCloudConfiguraiton teamCloudConfiguraiton)
+        public async Task<IActionResult> Post([FromBody] TeamCloudConfiguration teamCloudConfiguraiton)
         {
-            (bool valid, string validationError) = teamCloudConfiguraiton.Validate();
+            if (teamCloudConfiguraiton is null) return new BadRequestObjectResult("Unable to parse teamcloud.yaml file.");
 
-            if (!valid)
+            try
             {
-                return new BadRequestObjectResult(validationError);
+                new TeamCloudConfigurationValidator().ValidateAndThrow(teamCloudConfiguraiton);
+            }
+            catch (ValidationException validationEx)
+            {
+                return new BadRequestObjectResult(validationEx.Errors);
             }
 
             var teamCloud = new TeamCloudInstance
             {
+                Users = teamCloudConfiguraiton.Users,
                 Configuration = teamCloudConfiguraiton
             };
 

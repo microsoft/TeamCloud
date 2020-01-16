@@ -3,10 +3,12 @@
  *  Licensed under the MIT License.
  */
 
-namespace TeamCloud.Azure.Deployments
+namespace TeamCloud.Azure.Deployments.Providers
 {
-    public interface IAzureDeploymentArtifactsOptions
+    public interface IAzureStorageArtifactsOptions
     {
+        string BaseUrl { get; }
+
         string ConnectionString { get; }
     }
 }

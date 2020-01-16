@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Net.Http.Headers;
 using YamlDotNet.Serialization;
 
-namespace TeamCloud.API
+namespace TeamCloud.API.Formatters
 {
     public class YamlInputFormatter : TextInputFormatter
     {
@@ -28,15 +28,8 @@ namespace TeamCloud.API
 
         public override Task<InputFormatterResult> ReadRequestBodyAsync(InputFormatterContext context, Encoding encoding)
         {
-            if (context == null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
-
-            if (encoding == null)
-            {
-                throw new ArgumentNullException(nameof(encoding));
-            }
+            if (context is null) throw new ArgumentNullException(nameof(context));
+            if (encoding is null) throw new ArgumentNullException(nameof(encoding));
 
             var request = context.HttpContext.Request;
 
@@ -50,7 +43,7 @@ namespace TeamCloud.API
 
                 return InputFormatterResult.SuccessAsync(model);
             }
-            catch (Exception)
+            catch
             {
                 return InputFormatterResult.FailureAsync();
             }

@@ -1,7 +1,7 @@
 ﻿/**
-*  Copyright (c) Microsoft Corporation.
-*  Licensed under the MIT License.
-*/
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
 
 using TeamCloud.Configuration;
 using TeamCloud.Configuration.Options;
@@ -9,7 +9,7 @@ using TeamCloud.Data.CosmosDb;
 
 namespace TeamCloud.API.Options
 {
-    [Options()]
+    [Options]
     public class DatabaseOptions : ICosmosDbOptions
     {
         private readonly CosmosDbOptions cosmosDbOptions;
