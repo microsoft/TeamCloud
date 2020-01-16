@@ -73,7 +73,7 @@ namespace TeamCloud.Model.Data
     }
 
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public sealed class TeamCloudProviderConfiguration
+    public sealed class TeamCloudProviderConfiguration: IEquatable<TeamCloudProviderConfiguration>
     {
         public string Id { get; set; }
 
@@ -88,6 +88,8 @@ namespace TeamCloud.Model.Data
         public List<string> Events { get; set; } = new List<string>();
 
         public Dictionary<string, string> Variables { get; set; } = new Dictionary<string, string>();
+
+        public bool Equals(TeamCloudProviderConfiguration other) => Id.Equals(other.Id, StringComparison.InvariantCultureIgnoreCase);
     }
 
     public sealed class TeamCloudProviderConfigurationValidator : AbstractValidator<TeamCloudProviderConfiguration>
