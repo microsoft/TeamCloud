@@ -10,6 +10,8 @@ namespace TeamCloud.Azure.Deployments
 {
     public interface IAzureDeploymentArtifactsProvider
     {
-        Task<IAzureDeploymentArtifactsContainer> CreateContainerAsync(Guid deploymentId, IAzureDeploymentTemplate azureDeploymentTemplate);
+        Task<IAzureDeploymentArtifactsContainer> UploadArtifactsAsync(Guid deploymentId, AzureDeploymentTemplate azureDeploymentTemplate);
+
+        Task<string> DownloadArtifactAsync(Guid deploymentId, string artifactName);
     }
 }

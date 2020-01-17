@@ -33,6 +33,10 @@ namespace TeamCloud.Azure
             where T : class, IAzureDeploymentArtifactsProvider
             => azureConfiguration.Services.AddSingleton<IAzureDeploymentArtifactsProvider, T>();
 
+        public static void SetDeploymentTokenProvider<T>(this IAzureConfiguration azureConfiguration)
+            where T : class, IAzureDeploymentTokenProvider
+            => azureConfiguration.Services.AddSingleton<IAzureDeploymentTokenProvider, T>();
+
         internal static bool IsGuid(this string value)
             => Guid.TryParse(value, out var _);
 

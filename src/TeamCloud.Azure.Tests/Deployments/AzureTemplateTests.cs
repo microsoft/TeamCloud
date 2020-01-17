@@ -5,6 +5,8 @@
 
 using System;
 using System.Linq;
+using System.Threading.Tasks;
+using TeamCloud.Azure.Deployments;
 using TeamCloud.Azure.Tests.Deployments.Templates;
 using Xunit;
 
@@ -16,18 +18,20 @@ namespace TeamCloud.Azure.Tests.Deployments
         {
             "array",
             "bool",
-            "int", 
+            "int",
             "object",
-            "secureObject", 
+            "secureObject",
             "securestring",
             "string"
         };
 
-        
+
         [Fact]
-        public void CreateSimpleTemplate()
+        public async Task CreateSimpleTemplate()
         {
-            var template = new SimpleTemplate();
+            var template = await AzureDeploymentTemplate
+                .CreateAsync<SimpleTemplate>()
+                .ConfigureAwait(false);
 
             Assert.NotNull(template.Template);
             Assert.NotNull(template.Parameters);
@@ -39,9 +43,11 @@ namespace TeamCloud.Azure.Tests.Deployments
 
 
         [Fact]
-        public void CreateComplexTemplate()
+        public async Task CreateComplexTemplate()
         {
-            var template = new ComplexTemplate();
+            var template = await AzureDeploymentTemplate
+                .CreateAsync<ComplexTemplate>()
+                .ConfigureAwait(false);
 
             Assert.NotNull(template.Template);
             Assert.NotNull(template.Parameters);

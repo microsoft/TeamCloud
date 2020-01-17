@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
-  "contentVersion": "1.0.0",
+  "contentVersion": "1.0.0.0",
   "parameters": {
     "projectId": {
       "type": "string"
@@ -17,6 +17,14 @@
     },
     "resourceGroupLocation": {
       "type": "string"
+    },
+    "_artifactsLocation": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "_artifactsLocationSasToken": {
+      "type": "securestring",
+      "defaultValue": ""
     }
   },
   "variables": {
@@ -27,11 +35,27 @@
       "apiVersion": "2018-05-01",
       "location": "[parameters('resourceGroupLocation')]",
       "name": "[parameters('resourceGroupName')]",
-      "tags" :{
-        "hidden-TeamCloud.ProjectId" : "[parameters('projectId')]",
+      "tags": {
+        "hidden-TeamCloud.ProjectId": "[parameters('projectId')]",
         "hidden-TeamCloud.ProjectName": "[parameters('projectName')]"
       },
       "properties": {
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2018-05-01",
+      "name": "[concat(deployment().name, '-', 'Resources')]",
+      "resourceGroup": "[parameters('resourceGroupName')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/resourceGroups/', parameters('resourceGroupName'))]"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(uri(parameters('_artifactsLocation'), 'Resources.json'), parameters('_artifactsLocationSasToken'))]",
+          "contentVersion": "1.0.0.0"
+        }
       }
     }
   ],

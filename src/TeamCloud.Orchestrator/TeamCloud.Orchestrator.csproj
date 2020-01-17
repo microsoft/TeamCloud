@@ -6,8 +6,10 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Templates\CreateProjectTemplate.json" />
+    <None Remove="Templates\CreateProjectTemplate_Resources.json" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Templates\CreateProjectTemplate_Resources.json" />
     <EmbeddedResource Include="Templates\CreateProjectTemplate.json" />
   </ItemGroup>
   <ItemGroup>

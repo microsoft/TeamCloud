@@ -27,13 +27,13 @@ namespace TeamCloud.Azure.Tests.Deployments
             azureDeploymentArtifactContainer.Token.Returns("?token");
 
             var azureDeploymentArtifactStorage = Substitute.For<IAzureDeploymentArtifactsProvider>();
-            azureDeploymentArtifactStorage.CreateContainerAsync(default, default).ReturnsForAnyArgs(azureDeploymentArtifactContainer);
+            azureDeploymentArtifactStorage.UploadArtifactsAsync(default, default).ReturnsForAnyArgs(azureDeploymentArtifactContainer);
 
             var azureDeploymentOptions = Substitute.For<IAzureDeploymentOptions>();
             azureDeploymentOptions.BaseUrl.Returns("West Europe");
 
             var deploymentService = new AzureDeploymentService(azureDeploymentOptions, azureSessionFactory, azureDeploymentArtifactStorage);
-            var deploymentTemplate = new SimpleTemplate();
+            var deploymentTemplate = await AzureDeploymentTemplate.CreateAsync<SimpleTemplate>().ConfigureAwait(false);
 
             var deployment = await deploymentService
                 .DeployTemplateAsync(deploymentTemplate, Guid.Empty)
@@ -60,13 +60,13 @@ namespace TeamCloud.Azure.Tests.Deployments
             azureDeploymentArtifactContainer.Token.Returns("?token");
 
             var azureDeploymentArtifactStorage = Substitute.For<IAzureDeploymentArtifactsProvider>();
-            azureDeploymentArtifactStorage.CreateContainerAsync(default, default).ReturnsForAnyArgs(azureDeploymentArtifactContainer);
+            azureDeploymentArtifactStorage.UploadArtifactsAsync(default, default).ReturnsForAnyArgs(azureDeploymentArtifactContainer);
 
             var azureDeploymentOptions = Substitute.For<IAzureDeploymentOptions>();
             azureDeploymentOptions.BaseUrl.Returns("West Europe");
 
             var deploymentService = new AzureDeploymentService(azureDeploymentOptions, azureSessionFactory, azureDeploymentArtifactStorage);
-            var deploymentTemplate = new SimpleTemplate();
+            var deploymentTemplate = await AzureDeploymentTemplate.CreateAsync<SimpleTemplate>().ConfigureAwait(false);
 
             var deployment = await deploymentService
                 .DeployTemplateAsync(deploymentTemplate, Guid.Empty)
@@ -95,13 +95,13 @@ namespace TeamCloud.Azure.Tests.Deployments
             azureDeploymentArtifactContainer.Token.Returns("?token");
 
             var azureDeploymentArtifactStorage = Substitute.For<IAzureDeploymentArtifactsProvider>();
-            azureDeploymentArtifactStorage.CreateContainerAsync(default, default).ReturnsForAnyArgs(azureDeploymentArtifactContainer);
+            azureDeploymentArtifactStorage.UploadArtifactsAsync(default, default).ReturnsForAnyArgs(azureDeploymentArtifactContainer);
 
             var azureDeploymentOptions = Substitute.For<IAzureDeploymentOptions>();
             azureDeploymentOptions.BaseUrl.Returns("West Europe");
 
             var deploymentService = new AzureDeploymentService(azureDeploymentOptions, azureSessionFactory, azureDeploymentArtifactStorage);
-            var deploymentTemplate = new SimpleTemplate();
+            var deploymentTemplate = await AzureDeploymentTemplate.CreateAsync<SimpleTemplate>().ConfigureAwait(false);
 
             var deployment = await deploymentService
                 .DeployTemplateAsync(deploymentTemplate, Guid.Empty)
@@ -131,13 +131,13 @@ namespace TeamCloud.Azure.Tests.Deployments
             azureDeploymentArtifactContainer.Token.Returns("?token");
 
             var azureDeploymentArtifactStorage = Substitute.For<IAzureDeploymentArtifactsProvider>();
-            azureDeploymentArtifactStorage.CreateContainerAsync(default, default).ReturnsForAnyArgs(azureDeploymentArtifactContainer);
+            azureDeploymentArtifactStorage.UploadArtifactsAsync(default, default).ReturnsForAnyArgs(azureDeploymentArtifactContainer);
 
             var azureDeploymentOptions = Substitute.For<IAzureDeploymentOptions>();
             azureDeploymentOptions.BaseUrl.Returns("West Europe");
 
             var deploymentService = new AzureDeploymentService(azureDeploymentOptions, azureSessionFactory, azureDeploymentArtifactStorage);
-            var deploymentTemplate = new SimpleTemplate();
+            var deploymentTemplate = await AzureDeploymentTemplate.CreateAsync<SimpleTemplate>().ConfigureAwait(false);
 
             var deployment = await deploymentService
                 .DeployTemplateAsync(deploymentTemplate, Guid.Empty)
@@ -171,13 +171,13 @@ namespace TeamCloud.Azure.Tests.Deployments
             azureDeploymentArtifactContainer.Token.Returns("?token");
 
             var azureDeploymentArtifactStorage = Substitute.For<IAzureDeploymentArtifactsProvider>();
-            azureDeploymentArtifactStorage.CreateContainerAsync(default, default).ReturnsForAnyArgs(azureDeploymentArtifactContainer);
+            azureDeploymentArtifactStorage.UploadArtifactsAsync(default, default).ReturnsForAnyArgs(azureDeploymentArtifactContainer);
 
             var azureDeploymentOptions = Substitute.For<IAzureDeploymentOptions>();
             azureDeploymentOptions.BaseUrl.Returns("West Europe");
 
             var deploymentService = new AzureDeploymentService(azureDeploymentOptions, azureSessionFactory, azureDeploymentArtifactStorage);
-            var deploymentTemplate = new SimpleTemplate();
+            var deploymentTemplate = await AzureDeploymentTemplate.CreateAsync<SimpleTemplate>().ConfigureAwait(false);
 
             var deployment = await deploymentService
                 .DeployTemplateAsync(deploymentTemplate, Guid.Empty)

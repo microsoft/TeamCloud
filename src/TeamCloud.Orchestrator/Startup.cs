@@ -14,12 +14,14 @@ using Microsoft.Extensions.Configuration.AzureKeyVault;
 using Microsoft.Extensions.Configuration.UserSecrets;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.WindowsAzure.Storage;
 using TeamCloud.Azure;
 using TeamCloud.Azure.Deployments.Providers;
 using TeamCloud.Configuration;
 using TeamCloud.Data;
 using TeamCloud.Data.CosmosDb;
 using TeamCloud.Orchestrator;
+using TeamCloud.Orchestrator.Providers;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 
@@ -43,6 +45,18 @@ namespace TeamCloud.Orchestrator
                 .AddScoped<ITeamCloudRepository, CosmosDbTeamCloudRepository>()
                 .AddAzure(configuration =>
                 {
+                    var provider = builder.Services.BuildServiceProvider();
+                    var options = provider.GetRequiredService<IAzureStorageArtifactsOptions>();
+
+                    if (CloudStorageAccount.TryParse(options.ConnectionString, out var storageAccount) && storageAccount.IsDevelopmentStorage())
+                    {
+                        // if our artifact storage provider points towards a development storage
+                        // account (emulator) we need to set a token provider. this way an arm
+                        // deployment can resolve a linked template (via ngrok) from the function app.
+
+                        configuration.SetDeploymentTokenProvider<AzureDeploymentTokenProvider>();
+                    }
+
                     configuration.SetDeploymentArtifactsProvider<AzureStorageArtifactsProvider>();
                 });
         }

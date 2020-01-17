@@ -6,13 +6,11 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Azure.Storage.Blobs;
-using Azure.Storage.Sas;
 using Flurl;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Blob;
 
 namespace TeamCloud.Azure.Deployments.Providers
 {
@@ -20,11 +18,11 @@ namespace TeamCloud.Azure.Deployments.Providers
     {
         private const string DEPLOYMENT_CONTAINER_NAME = "deployments";
 
-        private static readonly ConcurrentDictionary<string, Lazy<BlobServiceClient>> BlobServiceClientCache
-            = new ConcurrentDictionary<string, Lazy<BlobServiceClient>>();
+        private static readonly ConcurrentDictionary<string, Lazy<CloudBlobContainer>> DeploymentContainerCache
+            = new ConcurrentDictionary<string, Lazy<CloudBlobContainer>>();
 
-        private static Lazy<BlobServiceClient> GetBlobServiceClientFactory(string connectionString)
-            => BlobServiceClientCache.GetOrAdd(connectionString, key => new Lazy<BlobServiceClient>(() => new BlobServiceClient(connectionString)));
+        private static Lazy<CloudBlobContainer> GetDeploymentContainer(string connectionString)
+            => DeploymentContainerCache.GetOrAdd(connectionString, key => new Lazy<CloudBlobContainer>(() => CloudStorageAccount.Parse(key).CreateCloudBlobClient().GetContainerReference(DEPLOYMENT_CONTAINER_NAME)));
 
         private readonly IAzureStorageArtifactsOptions azureStorageArtifactsOptions;
         private readonly IAzureDeploymentTokenProvider azureDeploymentTokenProvider;
@@ -35,7 +33,7 @@ namespace TeamCloud.Azure.Deployments.Providers
             this.azureDeploymentTokenProvider = azureDeploymentTokenProvider;
         }
 
-        public async Task<IAzureDeploymentArtifactsContainer> CreateContainerAsync(Guid deploymentId, IAzureDeploymentTemplate azureDeploymentTemplate)
+        public async Task<IAzureDeploymentArtifactsContainer> UploadArtifactsAsync(Guid deploymentId, AzureDeploymentTemplate azureDeploymentTemplate)
         {
             var container = new Container();
 
@@ -44,9 +42,10 @@ namespace TeamCloud.Azure.Deployments.Providers
                 var location = await UploadTemplatesAsync(deploymentId, azureDeploymentTemplate.LinkedTemplates)
                     .ConfigureAwait(false);
 
-                container.Location = string.IsNullOrEmpty(azureStorageArtifactsOptions.BaseUrl)
-                    ? location
-                    : azureStorageArtifactsOptions.BaseUrl.AppendPathSegment(deploymentId).ToString();
+                if (!string.IsNullOrEmpty(azureStorageArtifactsOptions.BaseUrl))
+                    location = azureStorageArtifactsOptions.BaseUrl.AppendPathSegment(deploymentId).ToString();
+
+                container.Location = $"{location.TrimEnd('/')}/";
 
                 container.Token = azureDeploymentTokenProvider is null
                     ? await CreateSasTokenAsync(deploymentId).ConfigureAwait(false)
@@ -58,46 +57,52 @@ namespace TeamCloud.Azure.Deployments.Providers
 
         private async Task<string> UploadTemplatesAsync(Guid deploymentId, IDictionary<string, string> templates)
         {
-            var blobServiceClientFactory = GetBlobServiceClientFactory(azureStorageArtifactsOptions.ConnectionString);
-            var blobServiceClientInitialized = blobServiceClientFactory.IsValueCreated;
+            var deploymentContainer = GetDeploymentContainer(azureStorageArtifactsOptions.ConnectionString);
 
-            var deploymentContainerClient = blobServiceClientFactory.Value.GetBlobContainerClient(DEPLOYMENT_CONTAINER_NAME);
-            if (!blobServiceClientInitialized) _ = await deploymentContainerClient.CreateIfNotExistsAsync().ConfigureAwait(false);
+            if (!deploymentContainer.IsValueCreated)
+                await deploymentContainer.Value.CreateIfNotExistsAsync().ConfigureAwait(false);
 
-            Task.WaitAll(templates.Select(template => UploadTeamplateAsync($"{deploymentId}/{template.Key}", template.Value)).ToArray());
+            var uploadTasks = templates.Select(template => deploymentContainer.Value
+                .GetBlockBlobReference($"{deploymentId}/{template.Key}")
+                .UploadTextAsync(template.Value));
 
-            return deploymentContainerClient.Uri.ToString();
+            Task.WaitAll(uploadTasks.ToArray());
 
-            async Task UploadTeamplateAsync(string filePath, string fileContent)
-            {
-                using var blobStream = new MemoryStream(Encoding.UTF8.GetBytes(fileContent));
-
-                await deploymentContainerClient
-                    .GetBlobClient(filePath)
-                    .UploadAsync(blobStream)
-                    .ConfigureAwait(false);
-            }
+            return deploymentContainer.Value.Uri.ToString()
+                .AppendPathSegment(deploymentId.ToString())
+                .ToString();
         }
 
         private async Task<string> CreateSasTokenAsync(Guid deploymentId)
         {
-            var blobServiceClientFactory = GetBlobServiceClientFactory(azureStorageArtifactsOptions.ConnectionString);
+            var deploymentContainer = GetDeploymentContainer(azureStorageArtifactsOptions.ConnectionString);
 
-            var sasBuilder = new BlobSasBuilder()
+            if (!deploymentContainer.IsValueCreated)
+                await deploymentContainer.Value.CreateIfNotExistsAsync().ConfigureAwait(false);
+
+            var adHocPolicy = new SharedAccessBlobPolicy()
             {
-                BlobContainerName = DEPLOYMENT_CONTAINER_NAME,
-                Resource = "c", // container level access
-                StartsOn = DateTimeOffset.UtcNow,
-                ExpiresOn = DateTimeOffset.UtcNow.AddDays(1)
+                SharedAccessExpiryTime = DateTime.UtcNow.AddDays(1),
+                Permissions = SharedAccessBlobPermissions.Read
             };
 
-            sasBuilder.SetPermissions(BlobAccountSasPermissions.Read);
+            return deploymentContainer.Value.GetSharedAccessSignature(adHocPolicy, null);
+        }
 
-            var sasKey = await blobServiceClientFactory.Value
-                .GetUserDelegationKeyAsync(sasBuilder.StartsOn, sasBuilder.ExpiresOn)
-                .ConfigureAwait(false);
+        public async Task<string> DownloadArtifactAsync(Guid deploymentId, string artifactName)
+        {
+            var deploymentContainer = GetDeploymentContainer(azureStorageArtifactsOptions.ConnectionString);
 
-            return sasBuilder.ToSasQueryParameters(sasKey, blobServiceClientFactory.Value.AccountName).ToString();
+            if (deploymentContainer.IsValueCreated)
+            {
+                var artifactBlob = deploymentContainer.Value.GetBlockBlobReference($"{deploymentId}/{artifactName}");
+                var artifactExists = await artifactBlob.ExistsAsync().ConfigureAwait(false);
+
+                if (artifactExists)
+                    return await artifactBlob.DownloadTextAsync().ConfigureAwait(false);
+            }
+
+            return null;
         }
 
         public sealed class Container : IAzureDeploymentArtifactsContainer
