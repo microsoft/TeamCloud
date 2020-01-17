@@ -24,8 +24,6 @@ namespace TeamCloud.Orchestrator.Activities
         [FunctionName(nameof(ProjectUpdateActivity))]
         public Task<Project> RunActivity(
             [ActivityTrigger] Project project)
-        {
-            throw new NotImplementedException();
-        }
+            => projectsRepository.SetAsync(project);
     }
 }

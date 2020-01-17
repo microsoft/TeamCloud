@@ -21,14 +21,8 @@ namespace TeamCloud.Orchestrator.Activities
         }
 
         [FunctionName(nameof(ProjectCreateActivity))]
-        public async Task<Project> RunActivity(
-            [ActivityTrigger] Project newProject)
-        {
-            var project = await projectsRepository
-                .AddAsync(newProject)
-                .ConfigureAwait(false);
-
-            return project;
-        }
+        public Task<Project> RunActivity(
+            [ActivityTrigger] Project project)
+            => projectsRepository.AddAsync(project);
     }
 }

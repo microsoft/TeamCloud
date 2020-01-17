@@ -26,38 +26,37 @@ namespace TeamCloud.Orchestrator.Activities
 
         [FunctionName(nameof(AzureResourceGroupCreateActivity))]
         public async Task<AzureResourceGroup> RunActivity(
-            [ActivityTrigger] (OrchestratorContext, Project) input)
+            [ActivityTrigger] (OrchestratorContext, Project, Guid) input)
         {
             var orchestratorContext = input.Item1;
+            var project = input.Item2;
+            var subscriptionId = input.Item3;
 
             if (orchestratorContext == null)
                 throw new ArgumentNullException(nameof(input));
 
-            var project = input.Item2;
-
             if (project == null)
                 throw new ArgumentNullException(nameof(input));
 
-            // get the subscription from project state if possible
-            var subscriptionId = project.ResourceGroup?.SubscriptionId;
 
-            if (subscriptionId.GetValueOrDefault(Guid.Empty) == Guid.Empty)
-            {
-                // TODO: Resolve subscription id from pool
-                subscriptionId = Guid.Parse(orchestratorContext.TeamCloud.Configuration.Azure.SubscriptionId);
-            }
+            // if the provided project instance is already assigned
+            // to a subscription we use this one instead of the provided
+            // one to make our activity idempotent (we always go to the
+            // same subscription). the same is valid for the projects
+            // resource group name and location (passed as templated params).
+
+            subscriptionId = project.ResourceGroup?.SubscriptionId ?? subscriptionId;
 
             var template = new CreateProjectTemplate();
 
             template.Parameters["projectId"] = project.Id;
             template.Parameters["projectName"] = project.Name;
             template.Parameters["projectPrefix"] = orchestratorContext.TeamCloud.Configuration.Azure.ResourceGroupNamePrefix;
-
             template.Parameters["resourceGroupName"] = project.ResourceGroup?.ResourceGroupName; // if null - the template generates a unique name
             template.Parameters["resourceGroupLocation"] = project.ResourceGroup?.Region ?? orchestratorContext.TeamCloud.Configuration.Azure.Region;
 
             var deployment = await azureDeploymentService
-                .DeployTemplateAsync(template, subscriptionId.Value)
+                .DeployTemplateAsync(template, subscriptionId)
                 .ConfigureAwait(false);
 
             _ = await deployment
@@ -70,7 +69,7 @@ namespace TeamCloud.Orchestrator.Activities
 
             return new AzureResourceGroup()
             {
-                SubscriptionId = subscriptionId.Value,
+                SubscriptionId = subscriptionId,
                 Region = orchestratorContext.TeamCloud.Configuration.Azure.Region,
                 ResourceGroupId = (string)deploymentOutput.GetValueOrDefault("resourceGroupId", default(string)),
                 ResourceGroupName = (string)deploymentOutput.GetValueOrDefault("resourceGroupName", default(string))

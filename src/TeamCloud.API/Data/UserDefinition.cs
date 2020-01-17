@@ -32,9 +32,6 @@ namespace TeamCloud.API.Data
             RuleFor(obj => obj.Email).EmailAddress()
                 .WithMessage("Email must contain a valid email address");
 
-            RuleFor(obj => obj.Tags).NotNull()
-                .WithMessage("Tags must not be null");
-
             RuleFor(obj => obj.Role).Must(role => ValidProjectRoles.Contains(role))
                 .WithMessage($"Invalid role detected - valid rules: {string.Join(", ", ValidProjectRoles)}");
         }

@@ -30,8 +30,6 @@ namespace TeamCloud.API.Data
             RuleFor(obj => obj.Name).NotEmpty()
                 .WithMessage("Name is required");
 
-            RuleFor(obj => obj.Tags).NotEmpty().WithMessage("Tags must not be null.");
-
             // project cannot be empty
             RuleFor(obj => obj.Users).NotEmpty()
                 .WithMessage("Users are required");
