@@ -1,4 +1,9 @@
-﻿using System;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
+
+using System;
 using TeamCloud.Azure.Deployments;
 using TeamCloud.Azure.Deployments.Providers;
 using TeamCloud.Configuration;
