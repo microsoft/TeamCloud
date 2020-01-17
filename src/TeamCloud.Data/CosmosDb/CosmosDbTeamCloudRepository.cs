@@ -53,5 +53,8 @@ namespace TeamCloud.Data.CosmosDb
 
             return response.Value;
         }
+
+        public Task<bool> ExistsAsync()
+            => GetAsync().ContinueWith(task => !(task.Result is null));
     }
 }

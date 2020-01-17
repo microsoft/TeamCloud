@@ -8,7 +8,6 @@ using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using TeamCloud.Data;
-using TeamCloud.Model.Data;
 
 namespace TeamCloud.API.Middleware
 {
@@ -25,34 +24,24 @@ namespace TeamCloud.API.Middleware
 
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
+            // teamcloud needs a configuration in place to work properly.
+            // to avoid calls that will fail because of a missing configuration
+            // we will check its existance in this middleware and block
+            // calls until a configuration is in place.
+
+            // as we don't support to delete a configuration we can
+            // keep the configured state once it was evaluated as true
+            // to avoid unnecessary request to the configuration repository
+            // for further requests.
+
+            Configured = Configured || await teamCloudRepository.ExistsAsync().ConfigureAwait(false);
+
             if (Configured)
             {
                 await next(context);
             }
             else
             {
-                var teamCloud = await teamCloudRepository
-                    .GetAsync()
-                    .ConfigureAwait(false);
-
-                if (teamCloud?.Configuration != null)
-                {
-                    var teamCloudConfigValidation = await new TeamCloudConfigurationValidator()
-                        .ValidateAsync(teamCloud.Configuration)
-                        .ConfigureAwait(false);
-
-                    if (teamCloudConfigValidation.IsValid)
-                    {
-                        Configured = true;
-
-                        await next(context);
-
-                        return;
-                    }
-                }
-
-                // not configured
-
                 context.Response.StatusCode = (int)HttpStatusCode.NotFound;
 
                 await context.Response
