@@ -8,13 +8,13 @@
                 "description": "The name of the TeamCloud instance that you wish to create. This will also be used as the subdomain of your service endpoint (i.e. myteamcloud.azurewebsites.net)."
             }
         },
-        "authIdentityClientId": {
+        "activeDirectoryIdentityClientId": {
             "type": "string",
             "metadata": {
                 "description": "The ClientId of the service principals used to authenticate users."
             }
         },
-        "authIdentityClientSecret": {
+        "activeDirectoryIdentityClientSecret": {
             "type": "string",
             "metadata": {
                 "description": "The ClientSecret of the service principals used to authenticate users."
@@ -47,7 +47,7 @@
         "webjobsStorageAccountName": "[concat('wjstorage', uniqueString(resourceGroup().id))]",
         "taskhubStorageAccountName": "[concat('thstorage', uniqueString(resourceGroup().id))]",
         "keyVaultName": "[concat('keyvault', uniqueString(resourceGroup().id))]",
-        "appConfiguraitonName": "[concat(toLower(parameters('webAppName')), '-config')]",
+        "appConfigurationName": "[concat(toLower(parameters('webAppName')), '-config')]",
         "sourceRepoUrl": "https://github.com/microsoft/TeamCloud.git",
         "sourceBranch": "master"
     },
@@ -100,7 +100,7 @@
                 "[resourceId('Microsoft.Storage/storageAccounts', variables('webjobsStorageAccountName'))]",
                 "[resourceId('Microsoft.Storage/storageAccounts', variables('taskhubStorageAccountName'))]",
                 "[resourceId('Microsoft.DocumentDb/databaseAccounts', variables('cosmosDbName'))]",
-                "[resourceId('Microsoft.AppConfiguration/configurationStores', variables('appConfiguraitonName'))]"
+                "[resourceId('Microsoft.AppConfiguration/configurationStores', variables('appConfigurationName'))]"
             ],
             "resources": [
                 {
@@ -109,22 +109,8 @@
                     "apiVersion": "2018-02-01",
                     "properties": {
                         "PROJECT": "src/TeamCloud.API/TeamCloud.API.csproj",
-                        "Azure:SubscriptionId": "[subscription().SubscriptionId]",
-                        "Azure:TenantId": "[subscription().tenantId]",
-                        "Azure:ResourceManager:ClientId": "[parameters('resourceManagerIdentityClientId')]",
-                        "Azure:ResourceManager:ClientSecret": "[parameters('resourceManagerIdentityClientSecret')]",
-                        "Azure:ResourceManager:TenentId": "[subscription().tenantId]",
-                        "Azure:ActiveDirectory:ClientId": "[parameters('authIdentityClientId')]",
-                        "Azure:ActiveDirectory:ClientSecret": "[parameters('authIdentityClientSecret')]",
-                        "Azure:ActiveDirectory:TenentId": "[subscription().tenantId]",
-                        "Azure:CosmosDb:DatabaseName": "TeamCloud",
-                        "Azure:CosmosDb:ConnectionString": "[concat('AccountEndpoint=', reference(concat('Microsoft.DocumentDb/databaseAccounts/', variables('cosmosDbName'))).documentEndpoint, ';AccountKey=', listKeys(resourceId('Microsoft.DocumentDb/databaseAccounts', variables('cosmosDbName')), '2015-04-08').primaryMasterKey)]",
-                        "Azure:KeyVault:Name": "[variables('keyVaultName')]",
-                        "Azure:KeyVault:Url": "[concat('https://', variables('keyVaultName'), '.vault.azure.net')]",
-                        "AppConfiguration:ConnectionString": "[listKeys(resourceId('Microsoft.AppConfiguration/configurationStores', variables('appConfiguraitonName')), '2019-10-01').value[0].connectionString]",
-                        "TeamCloudConfig:ConnectionString": "[listKeys(resourceId('Microsoft.AppConfiguration/configurationStores', variables('appConfiguraitonName')), '2019-10-01').value[0].connectionString]",
-                        "Orchestrator:Url": "[concat('https://', variables('functionAppNameLower'), '.azurewebsites.net')]",
-                        "Orchestrator:AuthCode": "[listkeys(concat(resourceId('Microsoft.Web/sites', variables('functionAppNameLower')), '/host/default/'),'2016-08-01').functionKeys.default]",
+                        "AppConfiguration:ConnectionString": "[listKeys(resourceId('Microsoft.AppConfiguration/configurationStores', variables('appConfigurationName')), '2019-10-01').value[0].connectionString]",
+                        "TeamCloudConfig:ConnectionString": "[listKeys(resourceId('Microsoft.AppConfiguration/configurationStores', variables('appConfigurationName')), '2019-10-01').value[0].connectionString]",
                         "APPINSIGHTS_INSTRUMENTATIONKEY": "[reference(resourceId('Microsoft.Insights/components', variables('webAppNameLower')), '2015-05-01').InstrumentationKey]",
                         "APPINSIGHTS_PROFILERFEATURE_VERSION": "disabled",
                         "APPINSIGHTS_SNAPSHOTFEATURE_VERSION": "disabled",
@@ -196,7 +182,7 @@
                 "[resourceId('Microsoft.Storage/storageAccounts', variables('webjobsStorageAccountName'))]",
                 "[resourceId('Microsoft.Storage/storageAccounts', variables('taskhubStorageAccountName'))]",
                 "[resourceId('Microsoft.DocumentDb/databaseAccounts', variables('cosmosDbName'))]",
-                "[resourceId('Microsoft.AppConfiguration/configurationStores', variables('appConfiguraitonName'))]"
+                "[resourceId('Microsoft.AppConfiguration/configurationStores', variables('appConfigurationName'))]"
             ],
             "resources": [
                 {
@@ -205,20 +191,8 @@
                     "apiVersion": "2018-02-01",
                     "properties": {
                         "PROJECT": "src/TeamCloud.Orchestrator/TeamCloud.Orchestrator.csproj",
-                        "Azure:SubscriptionId": "[subscription().SubscriptionId]",
-                        "Azure:TenantId": "[subscription().tenantId]",
-                        "Azure:ResourceManager:ClientId": "[parameters('resourceManagerIdentityClientId')]",
-                        "Azure:ResourceManager:ClientSecret": "[parameters('resourceManagerIdentityClientSecret')]",
-                        "Azure:ResourceManager:TenentId": "[subscription().tenantId]",
-                        "Azure:ActiveDirectory:ClientId": "[parameters('authIdentityClientId')]",
-                        "Azure:ActiveDirectory:ClientSecret": "[parameters('authIdentityClientSecret')]",
-                        "Azure:ActiveDirectory:TenentId": "[subscription().tenantId]",
-                        "Azure:CosmosDb:DatabaseName": "TeamCloud",
-                        "Azure:CosmosDb:ConnectionString": "[concat('AccountEndpoint=', reference(concat('Microsoft.DocumentDb/databaseAccounts/', variables('cosmosDbName'))).documentEndpoint, ';AccountKey=', listKeys(resourceId('Microsoft.DocumentDb/databaseAccounts', variables('cosmosDbName')), '2015-04-08').primaryMasterKey)]",
-                        "Azure:KeyVault:Name": "[variables('keyVaultName')]",
-                        "Azure:KeyVault:Url": "[concat('https://', variables('keyVaultName'), '.vault.azure.net')]",
-                        "AppConfiguration:ConnectionString": "[listKeys(resourceId('Microsoft.AppConfiguration/configurationStores', variables('appConfiguraitonName')), '2019-10-01').value[0].connectionString]",
-                        "TeamCloudConfig:ConnectionString": "[listKeys(resourceId('Microsoft.AppConfiguration/configurationStores', variables('appConfiguraitonName')), '2019-10-01').value[0].connectionString]",
+                        "AppConfiguration:ConnectionString": "[listKeys(resourceId('Microsoft.AppConfiguration/configurationStores', variables('appConfigurationName')), '2019-10-01').value[0].connectionString]",
+                        "TeamCloudConfig:ConnectionString": "[listKeys(resourceId('Microsoft.AppConfiguration/configurationStores', variables('appConfigurationName')), '2019-10-01').value[0].connectionString]",
                         "AzureWebJobsStorage": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('webjobsStorageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('webjobsStorageAccountName')), '2017-06-01').keys[0].value)]",
                         "DurableFunctionsHubStorage": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('taskhubStorageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('taskhubStorageAccountName')), '2017-06-01').keys[0].value)]",
                         "FUNCTION_APP_EDIT_MODE": "readonly",
@@ -439,13 +413,48 @@
         {
             "type": "Microsoft.AppConfiguration/configurationStores",
             "apiVersion": "2019-02-01-preview",
-            "name": "[variables('appConfiguraitonName')]",
+            "name": "[variables('appConfigurationName')]",
             "location": "[resourceGroup().location]",
             "properties": {
-                "name": "[variables('appConfiguraitonName')]"
+                "name": "[variables('appConfigurationName')]"
             }
         }
     ],
     "outputs": {
+        "configName": {
+            "type": "string",
+            "value": "[variables('appConfigurationName')]"
+        },
+        "config": {
+            "type": "object",
+            "value": {
+                "Azure": {
+                    "SubscriptionId": "[subscription().SubscriptionId]",
+                    "TenantId": "[subscription().tenantId]",
+                    "ResourceManager": {
+                        "ClientId": "[parameters('resourceManagerIdentityClientId')]",
+                        "ClientSecret": "[parameters('resourceManagerIdentityClientSecret')]",
+                        "TenentId": "[subscription().tenantId]"
+                    },
+                    "ActiveDirectory": {
+                        "ClientId": "[parameters('activeDirectoryIdentityClientId')]",
+                        "ClientSecret": "[parameters('activeDirectoryIdentityClientSecret')]",
+                        "TenentId": "[subscription().tenantId]"
+                    },
+                    "CosmosDb": {
+                        "DatabaseName": "TeamCloud",
+                        "ConnectionString": "[concat('AccountEndpoint=', reference(concat('Microsoft.DocumentDb/databaseAccounts/', variables('cosmosDbName'))).documentEndpoint, ';AccountKey=', listKeys(resourceId('Microsoft.DocumentDb/databaseAccounts', variables('cosmosDbName')), '2015-04-08').primaryMasterKey)]"
+                    },
+                    "KeyVault": {
+                        "Name": "[variables('keyVaultName')]",
+                        "Url": "[concat('https://', variables('keyVaultName'), '.vault.azure.net')]"
+                    }
+                },
+                "Orchestrator": {
+                    "Url": "[concat('https://', variables('functionAppNameLower'), '.azurewebsites.net')]",
+                    "AuthCode": "[listkeys(concat(resourceId('Microsoft.Web/sites', variables('functionAppNameLower')), '/host/default/'),'2016-08-01').functionKeys.default]"
+                }
+            }
+        }
     }
 }
