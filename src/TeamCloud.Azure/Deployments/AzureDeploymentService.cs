@@ -17,9 +17,9 @@ namespace TeamCloud.Azure.Deployments
 {
     public interface IAzureDeploymentService
     {
-        Task<IAzureDeployment> DeployTemplateAsync(IAzureDeploymentTemplate template, Guid subscriptionId, string resourceGroupName = null, bool completeMode = false);
+        Task<IAzureDeployment> DeployTemplateAsync(AzureDeploymentTemplate template, Guid subscriptionId, string resourceGroupName = null, bool completeMode = false);
 
-        Task<string> ValidateTemplateAsync(IAzureDeploymentTemplate template, Guid subscriptionId, string resourceGroupName = null, bool throwOnError = false);
+        Task<string> ValidateTemplateAsync(AzureDeploymentTemplate template, Guid subscriptionId, string resourceGroupName = null, bool throwOnError = false);
     }
 
     public class AzureDeploymentService : IAzureDeploymentService
@@ -35,7 +35,7 @@ namespace TeamCloud.Azure.Deployments
             this.azureDeploymentArtifactsStorage = azureDeploymentArtifactsStorage ?? throw new ArgumentNullException(nameof(azureDeploymentArtifactsStorage));
         }
 
-        public async Task<IAzureDeployment> DeployTemplateAsync(IAzureDeploymentTemplate template, Guid subscriptionId, string resourceGroupName = null, bool completeMode = false)
+        public async Task<IAzureDeployment> DeployTemplateAsync(AzureDeploymentTemplate template, Guid subscriptionId, string resourceGroupName = null, bool completeMode = false)
         {
             var deploymentId = Guid.NewGuid();
 
@@ -70,7 +70,7 @@ namespace TeamCloud.Azure.Deployments
             return new AzureDeployment(deploymentResourceId, azureSessionService);
         }
 
-        public async Task<string> ValidateTemplateAsync(IAzureDeploymentTemplate template, Guid subscriptionId, string resourceGroupName = null, bool throwOnError = false)
+        public async Task<string> ValidateTemplateAsync(AzureDeploymentTemplate template, Guid subscriptionId, string resourceGroupName = null, bool throwOnError = false)
         {
             var deploymentId = Guid.NewGuid();
 
@@ -108,12 +108,15 @@ namespace TeamCloud.Azure.Deployments
             }
         }
 
-        private async Task<object> GetDeploymentPayloadAsync(Guid deploymentId, IAzureDeploymentTemplate template, Guid subscriptionId, string resourceGroupName, DeploymentMode deploymentMode)
+        private async Task<object> GetDeploymentPayloadAsync(Guid deploymentId, AzureDeploymentTemplate template, Guid subscriptionId, string resourceGroupName, DeploymentMode deploymentMode)
         {
+            if (string.IsNullOrEmpty(template.Template))
+                throw new ArgumentException("Unable to create deployment payload by an empty template.", nameof(template));
+
             if (template.LinkedTemplates?.Any() ?? false)
             {
                 var deploymentContainer = await azureDeploymentArtifactsStorage
-                    .CreateContainerAsync(deploymentId, template)
+                    .UploadArtifactsAsync(deploymentId, template)
                     .ConfigureAwait(false);
 
                 template.Parameters[IAzureDeploymentTemplate.ArtifactsLocationParameterName] = deploymentContainer.Location;

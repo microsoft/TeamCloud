@@ -3,13 +3,10 @@
  *  Licensed under the MIT License.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using TeamCloud.Azure.Deployments;
+using TeamCloud.Azure.Deployments.Templates;
 
 namespace TeamCloud.Azure.Tests.Deployments.Templates
 {
-    public class SimpleTemplate : EmbeddedAzureDeploymentTemplate
+    public class SimpleTemplate : EmbeddedDeploymentTemplate
     { }
 }

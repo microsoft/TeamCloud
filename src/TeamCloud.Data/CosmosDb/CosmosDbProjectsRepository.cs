@@ -14,21 +14,15 @@ using TeamCloud.Model.Data;
 namespace TeamCloud.Data.CosmosDb
 {
 
-    public class CosmosDbProjectsRepository : IProjectsRepository
+    public class CosmosDbProjectsRepository : CosmosDbBaseRepository, IProjectsRepository
     {
-        private readonly CosmosDbContainerFactory containerFactory;
-
         public CosmosDbProjectsRepository(ICosmosDbOptions cosmosOptions)
-        {
-            containerFactory = CosmosDbContainerFactory.Get(cosmosOptions);
-        }
-
-        private Task<Container> GetContainerAsync()
-            => containerFactory.GetContainerAsync<Project>();
+            : base(cosmosOptions)
+        { }
 
         public async Task<Project> AddAsync(Project project)
         {
-            var container = await GetContainerAsync()
+            var container = await GetContainerAsync<Project>()
                 .ConfigureAwait(false);
 
             var response = await container
@@ -40,7 +34,7 @@ namespace TeamCloud.Data.CosmosDb
 
         public async Task<Project> GetAsync(Guid projectId)
         {
-            var container = await GetContainerAsync()
+            var container = await GetContainerAsync<Project>()
                 .ConfigureAwait(false);
 
             try
@@ -63,7 +57,7 @@ namespace TeamCloud.Data.CosmosDb
 
         public async Task<Project> SetAsync(Project project)
         {
-            var container = await GetContainerAsync()
+            var container = await GetContainerAsync<Project>()
                 .ConfigureAwait(false);
 
             var response = await container
@@ -75,7 +69,7 @@ namespace TeamCloud.Data.CosmosDb
 
         public async IAsyncEnumerable<Project> ListAsync(Guid? userId = null)
         {
-            var container = await GetContainerAsync()
+            var container = await GetContainerAsync<Project>()
                 .ConfigureAwait(false);
 
             var query = new QueryDefinition($"SELECT * FROM c");
@@ -89,7 +83,7 @@ namespace TeamCloud.Data.CosmosDb
 
         public async Task<Project> RemoveAsync(Project project)
         {
-            var container = await GetContainerAsync()
+            var container = await GetContainerAsync<Project>()
                 .ConfigureAwait(false);
 
             var response = await container

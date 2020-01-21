@@ -11,21 +11,15 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Data.CosmosDb
 {
-    public class CosmosDbTeamCloudRepository : ITeamCloudRepository
+    public class CosmosDbTeamCloudRepository : CosmosDbBaseRepository, ITeamCloudRepository
     {
-        private readonly CosmosDbContainerFactory containerFactory;
-
-        private Task<Container> GetContainerAsync()
-            => containerFactory.GetContainerAsync<TeamCloudInstance>();
-
         public CosmosDbTeamCloudRepository(ICosmosDbOptions cosmosOptions)
-        {
-            containerFactory = CosmosDbContainerFactory.Get(cosmosOptions);
-        }
+            : base(cosmosOptions)
+        { }
 
         public async Task<TeamCloudInstance> GetAsync()
         {
-            var container = await GetContainerAsync()
+            var container = await GetContainerAsync<TeamCloudInstance>()
                 .ConfigureAwait(false);
 
             try
@@ -44,7 +38,7 @@ namespace TeamCloud.Data.CosmosDb
 
         public async Task<TeamCloudInstance> SetAsync(TeamCloudInstance teamCloudInstance)
         {
-            var container = await GetContainerAsync()
+            var container = await GetContainerAsync<TeamCloudInstance>()
                 .ConfigureAwait(false);
 
             var response = await container
@@ -53,5 +47,8 @@ namespace TeamCloud.Data.CosmosDb
 
             return response.Value;
         }
+
+        public Task<bool> ExistsAsync()
+            => GetAsync().ContinueWith(task => !(task.Result is null));
     }
 }

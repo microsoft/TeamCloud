@@ -12,7 +12,7 @@ using TeamCloud.Configuration.Options;
 namespace TeamCloud.API.Options
 {
     [Options]
-    public class AzureDeploymentOptions : IAzureDeploymentOptions, IAzureStorageArtifactsOptions, IMemoryArtifactsOptions
+    public class AzureDeploymentOptions : IAzureDeploymentOptions, IAzureStorageArtifactsOptions
     {
         private readonly AzureResourceManagerOptions azureResourceManagerOptions;
         private readonly AzureDeploymentStorageOptions azureDeploymentStorageOptions;

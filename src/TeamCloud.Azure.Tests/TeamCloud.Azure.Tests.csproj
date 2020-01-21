@@ -15,8 +15,8 @@
     <None Remove="Deployments\AzureDeploymentServiceTests.WaitForDeploymentWithCleanUp.001.response" />
     <None Remove="Deployments\AzureDeploymentServiceTests.WaitForDeploymentWithThrowOnError.001.response" />
     <None Remove="Deployments\Templates\ComplexTemplate.json" />
-    <None Remove="Deployments\Templates\ComplexTemplate.Linked1.json" />
-    <None Remove="Deployments\Templates\ComplexTemplate.Linked2.json" />
+    <None Remove="Deployments\Templates\ComplexTemplate_Linked1.json" />
+    <None Remove="Deployments\Templates\ComplexTemplate_Linked2.json" />
     <None Remove="Deployments\Templates\SimpleTemplate.json" />
   </ItemGroup>
 
@@ -28,8 +28,8 @@
     <EmbeddedResource Include="Deployments\AzureDeploymentServiceTests.WaitForDeployment.003.response" />
     <EmbeddedResource Include="Deployments\AzureDeploymentServiceTests.WaitForDeployment.002.response" />
     <EmbeddedResource Include="Deployments\AzureDeploymentServiceTests.WaitForDeployment.001.response" />
-    <EmbeddedResource Include="Deployments\Templates\ComplexTemplate.Linked2.json" />
-    <EmbeddedResource Include="Deployments\Templates\ComplexTemplate.Linked1.json" />
+    <EmbeddedResource Include="Deployments\Templates\ComplexTemplate_Linked2.json" />
+    <EmbeddedResource Include="Deployments\Templates\ComplexTemplate_Linked1.json" />
     <EmbeddedResource Include="Deployments\Templates\ComplexTemplate.json" />
     <EmbeddedResource Include="Deployments\Templates\SimpleTemplate.json" />
   </ItemGroup>
