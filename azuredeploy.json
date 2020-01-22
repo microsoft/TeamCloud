@@ -46,6 +46,7 @@
         "cosmosDbName": "[concat('database', uniqueString(resourceGroup().id))]",
         "webjobsStorageAccountName": "[concat('wjstorage', uniqueString(resourceGroup().id))]",
         "taskhubStorageAccountName": "[concat('thstorage', uniqueString(resourceGroup().id))]",
+        "deploymentStorageAccountName": "[concat('depstorage', uniqueString(resourceGroup().id))]",
         "keyVaultName": "[concat('keyvault', uniqueString(resourceGroup().id))]",
         "appConfigurationName": "[concat(toLower(parameters('webAppName')), '-config')]",
         "sourceRepoUrl": "https://github.com/microsoft/TeamCloud.git",
@@ -411,6 +412,20 @@
             }
         },
         {
+            "type": "Microsoft.Storage/storageAccounts",
+            "name": "[variables('deploymentStorageAccountName')]",
+            "apiVersion": "2019-04-01",
+            "kind": "Storage",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "Standard_GRS",
+                "tier": "Standard"
+            },
+            "properties": {
+                "name": "[variables('deploymentStorageAccountName')]"
+            }
+        },
+        {
             "type": "Microsoft.AppConfiguration/configurationStores",
             "apiVersion": "2019-02-01-preview",
             "name": "[variables('appConfigurationName')]",
@@ -434,12 +449,17 @@
                     "ResourceManager": {
                         "ClientId": "[parameters('resourceManagerIdentityClientId')]",
                         "ClientSecret": "[parameters('resourceManagerIdentityClientSecret')]",
-                        "TenentId": "[subscription().tenantId]"
+                        "TenentId": "[subscription().tenantId]",
+                        "Region": "[resourceGroup().location]"
                     },
                     "ActiveDirectory": {
                         "ClientId": "[parameters('activeDirectoryIdentityClientId')]",
                         "ClientSecret": "[parameters('activeDirectoryIdentityClientSecret')]",
                         "TenentId": "[subscription().tenantId]"
+                    },
+                    "DeploymentStorage": {
+                        "BaseUrl": "[reference(concat('Microsoft.Storage/storageAccounts/', parameters('deploymentStorageAccountName')), '2019-04-01').primaryEndpoints.blob]",
+                        "ConnectionString": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('deploymentStorageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('deploymentStorageAccountName')), '2017-06-01').keys[0].value)]"
                     },
                     "CosmosDb": {
                         "DatabaseName": "TeamCloud",
