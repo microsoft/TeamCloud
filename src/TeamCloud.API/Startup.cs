@@ -65,8 +65,8 @@ namespace TeamCloud.API
 
             app.UseHttpsRedirection()
                .UseRouting()
-               .UseAuthentication()
-               .UseAuthorization()
+               //.UseAuthentication()
+               //.UseAuthorization()
                .UseEndpoints(endpoints => endpoints.MapControllers());
         }
 
@@ -102,8 +102,8 @@ namespace TeamCloud.API
                 .AddScoped<ITeamCloudRepositoryReadOnly, CosmosDbTeamCloudRepository>()
                 .AddScoped<EnsureTeamCloudConfigurationMiddleware>();
 
-            ConfigureAuthentication(services);
-            ConfigureAuthorization(services);
+            //ConfigureAuthentication(services);
+            //ConfigureAuthorization(services);
 
             services
                 .AddMvc(options =>

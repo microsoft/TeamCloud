@@ -17,9 +17,9 @@ namespace TeamCloud.Model.Data
     {
         public string Version { get; set; }
 
-        public TeamCloudAzureConfiguration Azure { get; set; }
+        public TeamCloudProjectConfiguration Projects { get; set; }
 
-        public List<TeamCloudProviderConfiguration> Providers { get; set; }
+        public List<Provider> Providers { get; set; }
 
         public List<User> Users { get; set; } = new List<User>();
 
@@ -32,8 +32,8 @@ namespace TeamCloud.Model.Data
     {
         public TeamCloudConfigurationValidator()
         {
-            RuleFor(obj => obj.Version).NotEmpty();
-            RuleFor(obj => obj.Azure).NotEmpty();
+            //RuleFor(obj => obj.Version).NotEmpty();
+            RuleFor(obj => obj.Projects).NotEmpty();
             RuleFor(obj => obj.Providers).NotEmpty();
             RuleFor(obj => obj.Users).NotEmpty();
 
@@ -43,70 +43,51 @@ namespace TeamCloud.Model.Data
         }
     }
 
+
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public sealed class TeamCloudAzureConfiguration
+    public sealed class TeamCloudProjectConfiguration
+    {
+        public TeamCloudProjectAzureConfiguration Azure { get; set; }
+    }
+
+
+    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
+    public sealed class TeamCloudProjectAzureConfiguration
     {
         public string Region { get; set; }
 
-        public string SubscriptionId { get; set; }
-
-        public AzureIdentity ServicePricipal { get; set; }
-
-        public List<string> SubscriptionPoolIds { get; set; } = new List<string>();
-
-        public int ProjectsPerSubscription { get; set; }
-
         public string ResourceGroupNamePrefix { get; set; }
+
+        public int DefaultSubscriptionCapacity { get; set; }
+
+        public List<TeamCloudProjectSubscriptionConfiguration> Subscriptions { get; set; } = new List<TeamCloudProjectSubscriptionConfiguration>();
     }
 
-    public sealed class TeamCloudAzureConfigurationValidator : AbstractValidator<TeamCloudAzureConfiguration>
+    public sealed class TeamCloudProjectAzureConfigurationValidator : AbstractValidator<TeamCloudProjectAzureConfiguration>
     {
-        public TeamCloudAzureConfigurationValidator()
+        public TeamCloudProjectAzureConfigurationValidator()
         {
             RuleFor(obj => obj.Region).NotEmpty();
-            RuleFor(obj => obj.SubscriptionId).Must(Validation.BeGuid);
-            RuleFor(obj => obj.ServicePricipal).NotEmpty();
-            RuleFor(obj => obj.SubscriptionPoolIds).Must(obj => obj.Count >= 3);
-
-            RuleForEach(obj => obj.SubscriptionPoolIds).Must(Validation.BeGuid);
+            RuleFor(obj => obj.Subscriptions).NotEmpty();
+            RuleFor(obj => obj.Subscriptions).Must(obj => obj.Count >= 3);
         }
     }
 
+
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public sealed class TeamCloudProviderConfiguration: IEquatable<TeamCloudProviderConfiguration>
+    public sealed class TeamCloudProjectSubscriptionConfiguration
     {
         public string Id { get; set; }
 
-        public Uri Location { get; set; }
-
-        public string AuthCode { get; set; }
-
-        public bool Optional { get; set; }
-
-        public TeamCloudProviderConfigurationDependencies Dependencies { get; set; }
-
-        public List<string> Events { get; set; } = new List<string>();
-
-        public Dictionary<string, string> Variables { get; set; } = new Dictionary<string, string>();
-
-        public bool Equals(TeamCloudProviderConfiguration other) => Id.Equals(other.Id, StringComparison.InvariantCultureIgnoreCase);
+        public int? Capacity { get; set; }
     }
 
-    public sealed class TeamCloudProviderConfigurationValidator : AbstractValidator<TeamCloudProviderConfiguration>
+    public sealed class TeamCloudProjectSubscriptionConfigurationValidator : AbstractValidator<TeamCloudProjectSubscriptionConfiguration>
     {
-        public TeamCloudProviderConfigurationValidator()
+        public TeamCloudProjectSubscriptionConfigurationValidator()
         {
-            RuleFor(obj => obj.Id).NotEmpty();
-            RuleFor(obj => obj.Location).NotEmpty();
-            RuleFor(obj => obj.AuthCode).NotEmpty();
+            RuleFor(obj => obj.Id).Must(Validation.BeGuid);
         }
     }
 
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public sealed class TeamCloudProviderConfigurationDependencies
-    {
-        public List<string> Create { get; set; } = new List<string>();
-
-        public List<string> Init { get; set; } = new List<string>();
-    }
 }

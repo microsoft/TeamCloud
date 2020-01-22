@@ -65,13 +65,7 @@ namespace TeamCloud.API.Controllers
                 return new BadRequestObjectResult(validationEx.Errors);
             }
 
-            var teamCloud = new TeamCloudInstance
-            {
-                Users = teamCloudConfiguraiton.Users,
-                Configuration = teamCloudConfiguraiton
-            };
-
-            var command = new TeamCloudCreateCommand(currentUser, teamCloud);
+            var command = new TeamCloudCreateCommand(currentUser, new TeamCloudInstance(teamCloudConfiguraiton));
 
             var commandResult = await orchestrator
                 .InvokeAsync<TeamCloudInstance>(command)

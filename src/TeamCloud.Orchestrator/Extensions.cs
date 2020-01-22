@@ -15,7 +15,6 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.WindowsAzure.Storage;
 using Newtonsoft.Json.Linq;
 using TeamCloud.Model.Commands;
-using TeamCloud.Orchestrator.Orchestrations.Commands;
 
 namespace TeamCloud.Orchestrator
 {
@@ -35,18 +34,6 @@ namespace TeamCloud.Orchestrator
             if (status is null) throw new ArgumentNullException(nameof(status));
 
             return FinalRuntimeStatus.Contains((int)status.RuntimeStatus);
-        }
-
-        internal static Task WaitForProjectCommandsAsync(this IDurableOrchestrationContext context, ICommand command)
-        {
-            if (context is null) throw new ArgumentNullException(nameof(context));
-
-            if (command is null) throw new ArgumentNullException(nameof(command));
-
-            if (command.ProjectId.HasValue)
-                return context.CallSubOrchestratorAsync(nameof(ProjectCommandSerialization.ProjectCommandSerializationOrchestrator), command);
-            else
-                return Task.CompletedTask;
         }
 
         internal static ICommandResult<TResult> GetResult<TResult>(this DurableOrchestrationStatus orchestrationStatus)

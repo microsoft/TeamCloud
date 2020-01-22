@@ -1,0 +1,57 @@
+---
+version: 1.0
+projects:
+  azure:
+    region: eastus
+    subscriptions:
+    - id: b54e1d81-8c0c-4442-9283-9869630d060a
+      capacity: 5
+    - id: aba7458f-746e-4a59-a3f0-ebf36eddfcf6
+      capacity: 5
+    - id: 13f34552-b3d0-4099-a672-a8ac7a830db2
+      capacity: 5
+    defaultSubscriptionCapacity: 10
+    resourceGroupNamePrefix: tc_
+providers:
+- id: azure.devtestlab
+  url: 'https://github.com/Azure/azure-sdk-for-ios/tree/master/AzureData'
+  authCode: foobar
+  optional: false
+  dependencies:
+    create:
+    - azure.applicationinsights
+  events:
+  - azure.devtestlab
+  variables:
+    dtlvar1: dtlvalue1
+    dtlvar2: dtlvalue2
+- id: azure.applicationinsights
+  url: 'https://github.com/Azure/azure-sdk-for-ios/tree/master/AzureData'
+  authCode: barfoo
+  optional: false
+  dependencies:
+    init:
+    - azure.devtestlab
+  events:
+  - azure.devtestlab
+  - azure.applicationinsights
+  variables:
+    aivar1: aivalue1
+    aivar2: aivalue2
+users:
+- id: bc8a62dc-c327-4418-a004-77c85c3fb488
+  role: Admin
+  tags:
+    usertag1: tagvalue1
+    usertag2: tagvalue2
+- id: aba7458f-746e-4a59-a3f0-ebf36eddfcf6
+  role: Creator
+tags:
+  tag1: tagvalue1
+  tag2: tagvalue2
+  tag3: tagvalue3
+variables:
+  var1: value1
+  var2: value2
+  var3: value3
+...

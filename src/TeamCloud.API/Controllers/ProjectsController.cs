@@ -20,7 +20,7 @@ namespace TeamCloud.API.Controllers
 {
     [ApiController]
     [Route("api/projects")]
-    [Authorize(Policy = "projectRead")]
+    //[Authorize(Policy = "projectRead")]
     public class ProjectsController : ControllerBase
     {
         readonly UserService userService;
@@ -62,7 +62,7 @@ namespace TeamCloud.API.Controllers
 
         // POST: api/projects
         [HttpPost]
-        [Authorize(Policy = "projectCreate")]
+        //[Authorize(Policy = "projectCreate")]
         public async Task<IActionResult> Post([FromBody] ProjectDefinition projectDefinition)
         {
             var project = new Project

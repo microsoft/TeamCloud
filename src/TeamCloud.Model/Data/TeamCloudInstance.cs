@@ -27,7 +27,27 @@ namespace TeamCloud.Model.Data
 
         public List<Guid> ProjectIds { get; set; } = new List<Guid>();
 
+        public Dictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();
+
+        public Dictionary<string, string> Variables { get; set; } = new Dictionary<string, string>();
+
         public TeamCloudConfiguration Configuration { get; set; }
+
+        public List<Provider> Providers => Configuration.Providers;
+
+        public TeamCloudProjectConfiguration ProjectsConfiguration => Configuration.Projects;
+
+        public TeamCloudInstance()
+        { }
+
+        public TeamCloudInstance(TeamCloudConfiguration config)
+        {
+            Configuration = config;
+
+            Users = config.Users;
+            Tags = config.Tags;
+            Variables = config.Variables;
+        }
     }
 
     public sealed class TeamCloudInstanceValidator : AbstractValidator<TeamCloudInstance>
@@ -44,6 +64,9 @@ namespace TeamCloud.Model.Data
                 .WithMessage($"There must be at least one user with the role '{UserRoles.TeamCloud.Admin}'.");
 
             RuleFor(obj => obj.ProjectIds).NotEmpty();
+
+            RuleFor(obj => obj.Providers).NotEmpty();
+
             RuleFor(obj => obj.Configuration).NotEmpty();
 
             RuleForEach(obj => obj.ProjectIds).NotEmpty();

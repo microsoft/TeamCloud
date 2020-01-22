@@ -66,5 +66,7 @@ Global
 		Policies = $0
 		$0.StandardHeader = $1
 		$1.Text = FIXME Needs Header
+		$0.DotNetNamingPolicy = $2
+		$2.DirectoryNamespaceAssociation = PrefixedHierarchical
 	EndGlobalSection
 EndGlobal
