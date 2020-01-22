@@ -3,6 +3,7 @@
  *  Licensed under the MIT License.
  */
 
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
@@ -22,9 +23,15 @@ namespace TeamCloud.Orchestrator.Activities
         }
 
         [FunctionName(nameof(ProjectUserCreateActivity))]
-        public Task<Project> RunActivity(
+        public async Task<Project> RunActivity(
             [ActivityTrigger] (Project project, User newUser) input)
         {
+            if (input.project is null)
+                throw new ArgumentException($"input param must contain a valid Project set on {nameof(input.project)}.", nameof(input));
+
+            if (input.newUser is null)
+                throw new ArgumentException($"input param must contain a valid User set on {nameof(input.newUser)}.", nameof(input));
+
             if (input.project.Users == null)
             {
                 input.project.Users = new List<User>();
@@ -32,7 +39,11 @@ namespace TeamCloud.Orchestrator.Activities
 
             input.project.Users.Add(input.newUser);
 
-            return Task.FromResult(input.project);
+            await projectsRepository
+                .SetAsync(input.project)
+                .ConfigureAwait(false);
+
+            return input.project;
         }
     }
 }

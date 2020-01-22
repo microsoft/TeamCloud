@@ -3,6 +3,7 @@
  *  Licensed under the MIT License.
  */
 
+using System;
 using System.Collections.Generic;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -17,12 +18,16 @@ namespace TeamCloud.Orchestrator.Activities
 
         public ProjectGetActivity(IProjectsRepository projectsRepository)
         {
-            this.projectsRepository = projectsRepository ?? throw new System.ArgumentNullException(nameof(projectsRepository));
+            this.projectsRepository = projectsRepository ?? throw new ArgumentNullException(nameof(projectsRepository));
         }
+
         [FunctionName(nameof(ProjectGetActivity))]
         public IAsyncEnumerable<Project> RunActivity(
             [ActivityTrigger] TeamCloudInstance teamCloud)
         {
+            if (teamCloud is null)
+                throw new ArgumentNullException(nameof(teamCloud));
+
             return projectsRepository.ListAsync();
         }
     }

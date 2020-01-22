@@ -19,7 +19,7 @@ using TeamCloud.Orchestrator.Orchestrations.Commands;
 
 namespace TeamCloud.Orchestrator
 {
-    public static class Extensions
+    internal static class Extensions
     {
         private static readonly PropertyInfo IsDevStoreAccountProperty = typeof(CloudStorageAccount).GetProperty("IsDevStoreAccount", BindingFlags.Instance | BindingFlags.NonPublic);
 

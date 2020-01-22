@@ -9,7 +9,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Microsoft.Extensions.Logging;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Context;
 using TeamCloud.Model.Data;
@@ -21,8 +20,8 @@ namespace TeamCloud.Orchestrator.Orchestrations
     {
         [FunctionName(nameof(ProjectCreateOrchestration))]
         public static async Task RunOrchestration(
-            [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
-            ILogger log)
+            [OrchestrationTrigger] IDurableOrchestrationContext functionContext
+            /* ILogger log */)
         {
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
@@ -48,8 +47,8 @@ namespace TeamCloud.Orchestrator.Orchestrations
             var projectContext = new ProjectContext(teamCloud, project, command.User);
 
             // Create and initialize providers...
-            await CreateProjectResourcesAsync(functionContext, teamCloud, projectContext).ConfigureAwait(false);
-            await InitializeProjectResourcesAsync(functionContext, teamCloud, projectContext).ConfigureAwait(false);
+            await CreateProjectResourcesAsync(functionContext, teamCloud/*, projectContext*/).ConfigureAwait(false);
+            await InitializeProjectResourcesAsync(functionContext, teamCloud/*, projectContext*/).ConfigureAwait(false);
 
             functionContext.SetOutput(project);
         }
@@ -70,7 +69,7 @@ namespace TeamCloud.Orchestrator.Orchestrations
                 .ConfigureAwait(true);
         }
 
-        private static Task InitializeProjectResourcesAsync(IDurableOrchestrationContext functionContext, TeamCloudInstance teamCloud, ProjectContext projectContext)
+        private static Task InitializeProjectResourcesAsync(IDurableOrchestrationContext functionContext, TeamCloudInstance teamCloud /*, ProjectContext projectContext */)
         {
             functionContext.SetCustomStatus("Initializing Project Resources...");
 
@@ -99,7 +98,7 @@ namespace TeamCloud.Orchestrator.Orchestrations
             return Task.CompletedTask;
         }
 
-        private static Task CreateProjectResourcesAsync(IDurableOrchestrationContext functionContext, TeamCloudInstance teamCloud, ProjectContext projectContext)
+        private static Task CreateProjectResourcesAsync(IDurableOrchestrationContext functionContext, TeamCloudInstance teamCloud/*, ProjectContext projectContext */)
         {
             functionContext.SetCustomStatus("Creating Project Resources...");
 

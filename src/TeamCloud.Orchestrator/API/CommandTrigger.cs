@@ -11,7 +11,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands;
@@ -34,8 +33,8 @@ namespace TeamCloud.Orchestrator
         [FunctionName(nameof(CommandTrigger))]
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = "command")] HttpRequest httpRequest,
-            [DurableClient] IDurableClient durableClient,
-            ILogger logger)
+            [DurableClient] IDurableClient durableClient
+            /* ILogger log */)
         {
             if (httpRequest is null)
                 throw new ArgumentNullException(nameof(httpRequest));

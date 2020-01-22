@@ -3,6 +3,7 @@
  *  Licensed under the MIT License.
  */
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
@@ -18,13 +19,19 @@ namespace TeamCloud.Orchestrator.Activities
 
         public ProjectUserDeleteActivity(IProjectsRepository projectsRepository)
         {
-            this.projectsRepository = projectsRepository ?? throw new System.ArgumentNullException(nameof(projectsRepository));
+            this.projectsRepository = projectsRepository ?? throw new ArgumentNullException(nameof(projectsRepository));
         }
 
         [FunctionName(nameof(ProjectUserDeleteActivity))]
-        public Task<Project> RunActivity(
+        public async Task<Project> RunActivity(
             [ActivityTrigger] (Project project, User deleteUser) input)
         {
+            if (input.project is null)
+                throw new ArgumentException($"input param must contain a valid Project set on {nameof(input.project)}.", nameof(input));
+
+            if (input.deleteUser is null)
+                throw new ArgumentException($"input param must contain a valid User set on {nameof(input.deleteUser)}.", nameof(input));
+
             var user = input.project.Users?.FirstOrDefault(u => u.Id == input.deleteUser.Id);
 
             if (user != null)
@@ -32,7 +39,11 @@ namespace TeamCloud.Orchestrator.Activities
                 input.project.Users.Remove(user);
             }
 
-            return Task.FromResult(input.project);
+            await projectsRepository
+                .SetAsync(input.project)
+                .ConfigureAwait(false);
+
+            return input.project;
         }
     }
 }

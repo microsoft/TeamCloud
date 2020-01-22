@@ -3,10 +3,10 @@
  *  Licensed under the MIT License.
  */
 
+using System;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Microsoft.Extensions.Logging;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Context;
@@ -27,12 +27,17 @@ namespace TeamCloud.Orchestrator.Orchestrations
 
         [FunctionName(nameof(TeamCloudCreateOrchestration))]
         public static async Task RunOrchestration(
-            [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
-            ILogger log)
+            [OrchestrationTrigger] IDurableOrchestrationContext functionContext
+            /* ILogger log */)
         {
+            if (functionContext is null)
+                throw new ArgumentNullException(nameof(functionContext));
+
             (OrchestratorContext orchestratorContext, TeamCloudCreateCommand command) = functionContext.GetInput<(OrchestratorContext, TeamCloudCreateCommand)>();
 
-            var teamCloud = await functionContext.CallActivityAsync<TeamCloudInstance>(nameof(TeamCloudCreateActivity), command.Payload);
+            var teamCloud = await functionContext
+                .CallActivityAsync<TeamCloudInstance>(nameof(TeamCloudCreateActivity), command.Payload)
+                .ConfigureAwait(true);
 
             functionContext.SetOutput(teamCloud);
         }
