@@ -57,7 +57,7 @@ namespace TeamCloud.API
                 app.UseHsts();
             }
 
-            app.UseWhen(context => !context.Request.Path.StartsWithSegments("/api/config", StringComparison.OrdinalIgnoreCase), appBuilder =>
+            app.UseWhen(context => !(context.Request.Path.StartsWithSegments("/api/config", StringComparison.OrdinalIgnoreCase) && HttpMethods.IsPost(context.Request.Method)), appBuilder =>
             {
                 // ensure TeamCloud to be configured for all paths other than /api/config
                 appBuilder.UseMiddleware<EnsureTeamCloudConfigurationMiddleware>();

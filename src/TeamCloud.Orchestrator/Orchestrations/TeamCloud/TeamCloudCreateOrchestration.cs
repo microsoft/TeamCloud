@@ -24,7 +24,6 @@ namespace TeamCloud.Orchestrator.Orchestrations.TeamCloud
             this.teamCloudRepository = teamCloudRepository ?? throw new System.ArgumentNullException(nameof(teamCloudRepository));
         }
 
-
         [FunctionName(nameof(TeamCloudCreateOrchestration))]
         public static async Task RunOrchestration(
             [OrchestrationTrigger] IDurableOrchestrationContext functionContext

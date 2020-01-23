@@ -31,6 +31,23 @@
       "problemMatcher": "$msCompile"
     },
     {
+      "type": "func",
+      "dependsOn": "build",
+      "options": {
+        "cwd": "${workspaceFolder}/bin/Debug/netcoreapp3.1"
+      },
+      "command": "start",
+      "isBackground": true,
+      "problemMatcher": "$func-watch",
+      "presentation": {
+        "reveal": "always",
+        "focus": false,
+        "panel": "new",
+        "showReuseMessage": true,
+        "clear": false
+      }
+    },
+    {
       "label": "clean release",
       "command": "dotnet",
       "args": [
@@ -58,16 +75,6 @@
       "type": "process",
       "dependsOn": "clean release",
       "problemMatcher": "$msCompile"
-    },
-    {
-      "type": "func",
-      "dependsOn": "build",
-      "options": {
-        "cwd": "${workspaceFolder}/bin/Debug/netcoreapp3.1"
-      },
-      "command": "host start",
-      "isBackground": true,
-      "problemMatcher": "$func-watch"
     }
   ]
 }

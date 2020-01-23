@@ -33,8 +33,10 @@ namespace TeamCloud.Model.Data
 
         public TeamCloudConfiguration Configuration { get; set; }
 
+        [JsonIgnore]
         public List<Provider> Providers => Configuration.Providers;
 
+        [JsonIgnore]
         public TeamCloudProjectConfiguration ProjectsConfiguration => Configuration.Projects;
 
         public TeamCloudInstance()

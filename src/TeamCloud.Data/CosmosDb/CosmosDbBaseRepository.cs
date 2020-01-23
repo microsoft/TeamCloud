@@ -54,6 +54,5 @@ namespace TeamCloud.Data.CosmosDb
 
             return container.Value;
         }
-
     }
 }
