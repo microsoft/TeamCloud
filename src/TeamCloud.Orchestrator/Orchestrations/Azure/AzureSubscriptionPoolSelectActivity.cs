@@ -36,10 +36,14 @@ namespace TeamCloud.Orchestrator.Orchestrations.Azure
             var results = await Task.WhenAll(tasks)
                 .ConfigureAwait(false);
 
-            return results
+            var subscriptions = results
                 .Where(kvp => kvp.Key != Guid.Empty)
-                .OrderBy(kvp => kvp.Value)
-                .First().Key;
+                .OrderBy(kvp => kvp.Value).ToArray();
+
+            if(subscriptions.Length == 0)
+                throw new ArgumentException("Subscription pool IDs are not valid or accessible.");
+            else
+                return subscriptions.First().Key;
         }
 
         private async Task<KeyValuePair<Guid, int>> GetResourceGroupCountAsync(Guid subscriptionId)
