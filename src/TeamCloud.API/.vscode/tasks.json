@@ -6,7 +6,7 @@
       "command": "dotnet",
       "args": [
         "clean",
-        "${workspaceFolder}/src",
+        "${workspaceFolder}",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary",
       ],
@@ -18,7 +18,7 @@
       "command": "dotnet",
       "args": [
         "build",
-        "${workspaceFolder}/src",
+        "${workspaceFolder}",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -35,7 +35,7 @@
       "command": "dotnet",
       "args": [
         "clean",
-        "${workspaceFolder}/src",
+        "${workspaceFolder}",
         "--configuration",
         "Release",
         "/property:GenerateFullPaths=true",
@@ -49,7 +49,7 @@
       "command": "dotnet",
       "args": [
         "publish",
-        "${workspaceFolder}/src",
+        "${workspaceFolder}",
         "--configuration",
         "Release",
         "/property:GenerateFullPaths=true",
@@ -58,16 +58,6 @@
       "type": "process",
       "dependsOn": "clean release",
       "problemMatcher": "$msCompile"
-    },
-    {
-      "type": "func",
-      "dependsOn": "build",
-      "options": {
-        "cwd": "${workspaceFolder}/src/TeamCloud.Orchestrator/bin/Debug/netcoreapp3.1"
-      },
-      "command": "host start",
-      "isBackground": true,
-      "problemMatcher": "$func-watch"
     }
   ]
 }

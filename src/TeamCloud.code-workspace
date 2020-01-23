@@ -1,0 +1,44 @@
+{
+	"folders": [
+		{
+			"path": "TeamCloud.API"
+		},
+		{
+			"path": "TeamCloud.Azure"
+		},
+		{
+			"path": "TeamCloud.Azure.Tests"
+		},
+		{
+			"path": "TeamCloud.Configuration"
+		},
+		{
+			"path": "TeamCloud.Data"
+		},
+		{
+			"path": "TeamCloud.Model"
+		},
+		{
+			"path": "TeamCloud.Orchestrator"
+		}
+	],
+	"settings": {
+		"files.exclude": {
+			"**/bin": true,
+			"**/obj": true,
+			"**/.DS_Store": true
+		}
+	},
+	"launch": {
+		"configurations": [],
+		"compounds": [
+			{
+				"name": "Run TeamCloud",
+				"configurations": [
+					"TeamCloud.API",
+					"TeamCloud.Orchestrator"
+				]
+			}
+		]
+	}
+}

@@ -2,27 +2,22 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch API App",
+      "name": "TeamCloud.API",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build",
-      "program": "${workspaceFolder}/src/TeamCloud.API/bin/Debug/netcoreapp3.1/TeamCloud.API.dll",
+      "program": "${workspaceFolder}/bin/Debug/netcoreapp3.1/TeamCloud.API.dll",
       "args": [],
-      "cwd": "${workspaceFolder}/src/TeamCloud.API/bin/Debug/netcoreapp3.1/",
+      "cwd": "${workspaceFolder}/bin/Debug/netcoreapp3.1/",
       "stopAtEntry": false,
       "serverReadyAction": {
         "action": "openExternally",
         "pattern": "^\\s*Now listening on:\\s+(https?://\\S+)"
       },
+      "justMyCode": true,
       "env": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
-    },
-    {
-      "name": "Attach to Orchestrator",
-      "type": "coreclr",
-      "request": "attach",
-      "processId": "${command:azureFunctions.pickProcess}"
     }
   ]
 }
