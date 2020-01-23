@@ -35,33 +35,32 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
                 .WaitForProjectCommandsAsync(command)
                 .ConfigureAwait(true);
 
+            functionContext.SetCustomStatus("Creating Project ...");
+
             var user = command.User;
             var project = command.Payload;
             var teamCloud = orchestratorContext.TeamCloud;
-
-            functionContext.SetCustomStatus("Creating Project ...");
-
             project.TeamCloudId = teamCloud.Id;
             project.TeamCloudApplicationInsightsKey = teamCloud.ApplicationInsightsKey;
-            project.ProviderVariables = teamCloud.Configuration.Providers.Select(p => (p.Id, p.Variables)).ToDictionary(t => t.Id, t => t.Variables);
+            //project.ProviderVariables = teamCloud.Configuration.Providers.Select(p => (p.Id, p.Variables)).ToDictionary(t => t.Id, t => t.Variables);
 
+            // Create project
             project = await functionContext
                 .CallActivityAsync<Project>(nameof(ProjectCreateActivity), project)
                 .ConfigureAwait(true);
 
+            // Create azure resource group
             await CreateAzureResourceGroupAsync(functionContext, orchestratorContext, project, teamCloud).ConfigureAwait(false);
 
-            var projectContext = new ProjectContext(teamCloud, project, command.User);
-
-            // Create and initialize providers...
-            // await CreateProjectResourcesAsync(functionContext, teamCloud/*, projectContext*/).ConfigureAwait(false);
-            // await InitializeProjectResourcesAsync(functionContext, teamCloud/*, projectContext*/).ConfigureAwait(false);
-
+            // Send create command to providers
+            var projectContext = new ProjectContext(teamCloud, project, user);
             var providerCommands = teamCloud.Providers.Select(provider => new ProviderCommand { Command = command, Provider = provider });
-
             var providerCommandTasks = providerCommands.Select(providerCommand => functionContext.CallSubOrchestratorAsync<ProviderCommandResult>(nameof(ProviderCommandOrchestration), providerCommand));
-
             var providerCommandResults = await Task.WhenAll(providerCommandTasks).ConfigureAwait(true);
+
+            //// Create and initialize providers...
+            // await CreateProjectResourcesAsync(functionContext, teamCloud, projectContext*).ConfigureAwait(false);
+            // await InitializeProjectResourcesAsync(functionContext, teamCloud, projectContext).ConfigureAwait(false);
 
             functionContext.SetOutput(project);
         }
@@ -82,7 +81,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
                 .ConfigureAwait(true);
         }
 
-        private static Task InitializeProjectResourcesAsync(IDurableOrchestrationContext functionContext, TeamCloudInstance teamCloud /*, ProjectContext projectContext */)
+        private static Task InitializeProjectResourcesAsync(IDurableOrchestrationContext functionContext, TeamCloudInstance teamCloud, ProjectContext projectContext)
         {
             functionContext.SetCustomStatus("Initializing Project Resources...");
 
