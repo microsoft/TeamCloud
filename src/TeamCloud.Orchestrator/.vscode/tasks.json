@@ -11,7 +11,10 @@
         "/consoleloggerparameters:NoSummary",
       ],
       "type": "process",
-      "problemMatcher": "$msCompile"
+      "problemMatcher": "$msCompile",
+      "presentation": {
+        "group": "functions"
+      }
     },
     {
       "label": "build",
@@ -28,7 +31,10 @@
         "kind": "build",
         "isDefault": true
       },
-      "problemMatcher": "$msCompile"
+      "problemMatcher": "$msCompile",
+      "presentation": {
+        "group": "functions"
+      }
     },
     {
       "type": "func",
@@ -38,13 +44,9 @@
       },
       "command": "start",
       "isBackground": true,
-      "problemMatcher": "$func-watch",
+      "problemMatcher": "$func-watch",,
       "presentation": {
-        "reveal": "always",
-        "focus": false,
-        "panel": "new",
-        "showReuseMessage": true,
-        "clear": false
+        "group": "functions"
       }
     },
     {

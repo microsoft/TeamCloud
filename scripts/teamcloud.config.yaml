@@ -13,31 +13,33 @@ projects:
     defaultSubscriptionCapacity: 10
     resourceGroupNamePrefix: tc_
 providers:
-- id: azure.devtestlab
-  url: 'https://github.com/Azure/azure-sdk-for-ios/tree/master/AzureData'
-  authCode: foobar
+- id: azure.applicationinsights
+  url: 'http://localhost:7072'
+  authCode: ''
   optional: false
-  dependencies:
-    create:
-    - azure.applicationinsights
+  events:
+  - azure.applicationinsights
+  variables:
+    dtlvar1: dtlvalue1
+    dtlvar2: dtlvalue2
+- id: azure.devops
+  url: 'http://localhost:7073'
+  authCode: ''
+  optional: false
+  events:
+  - azure.devops
+  variables:
+    dtlvar1: dtlvalue1
+    dtlvar2: dtlvalue2
+- id: azure.devtestlab
+  url: 'http://localhost:7074'
+  authCode: ''
+  optional: false
   events:
   - azure.devtestlab
   variables:
     dtlvar1: dtlvalue1
     dtlvar2: dtlvalue2
-- id: azure.applicationinsights
-  url: 'https://github.com/Azure/azure-sdk-for-ios/tree/master/AzureData'
-  authCode: barfoo
-  optional: false
-  dependencies:
-    init:
-    - azure.devtestlab
-  events:
-  - azure.devtestlab
-  - azure.applicationinsights
-  variables:
-    aivar1: aivalue1
-    aivar2: aivalue2
 users:
 - id: bc8a62dc-c327-4418-a004-77c85c3fb488
   role: Admin
