@@ -27,6 +27,13 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects.Activities
         {
             if (project is null) throw new ArgumentNullException(nameof(project));
 
+            var isExisting = await projectsRepository
+                .ExistsAsync(project)
+                .ConfigureAwait(false);
+
+            if (isExisting)
+                throw new ArgumentException($"Project name '{project.Name}' already exists.");
+
             var newProject = await projectsRepository
                 .AddAsync(project)
                 .ConfigureAwait(false);

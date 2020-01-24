@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Azure.Cosmos;
@@ -53,6 +54,17 @@ namespace TeamCloud.Data.CosmosDb
                 }
                 throw;
             }
+        }
+
+        public async Task<bool> ExistsAsync(Project project)
+        {
+            var container = await GetContainerAsync<Project>()
+                .ConfigureAwait(false);
+
+            var query = new QueryDefinition($"SELECT * FROM c WHERE c.name = \"{project.Name}\"");
+            var queryIterator = container.GetItemQueryIterator<Project>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Constants.CosmosDb.TeamCloudInstanceId) });
+            var count = await queryIterator.CountAsync();
+            return count > 0;
         }
 
         public async Task<Project> SetAsync(Project project)
