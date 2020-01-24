@@ -50,11 +50,12 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
                 .ConfigureAwait(true);
 
             // Create azure resource group
-            await CreateAzureResourceGroupAsync(functionContext, orchestratorContext, project, teamCloud).ConfigureAwait(false);
+            //await CreateAzureResourceGroupAsync(functionContext, orchestratorContext, project, teamCloud).ConfigureAwait(false);
 
             // Send create command to providers
             var projectContext = new ProjectContext(teamCloud, project, user);
             var providerCommands = teamCloud.Providers.Select(provider => new ProviderCommand { Command = command, Provider = provider });
+            // Execute tasks
             var providerCommandTasks = providerCommands.Select(providerCommand => functionContext.CallSubOrchestratorAsync<ProviderCommandResult>(nameof(ProviderCommandOrchestration), providerCommand));
             var providerCommandResults = await Task.WhenAll(providerCommandTasks).ConfigureAwait(true);
 
