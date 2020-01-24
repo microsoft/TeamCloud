@@ -56,7 +56,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async Task<bool> ExistsAsync(Project project)
+        public async Task<bool> NameExistsAsync(Project project)
         {
             var container = await GetContainerAsync<Project>()
                 .ConfigureAwait(false);

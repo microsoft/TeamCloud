@@ -25,6 +25,6 @@ namespace TeamCloud.Data
 
         Task<Project> RemoveAsync(Project project);
 
-        Task<bool> ExistsAsync(Project project);
+        Task<bool> NameExistsAsync(Project project);
     }
 }

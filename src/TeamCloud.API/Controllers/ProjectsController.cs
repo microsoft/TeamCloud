@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
@@ -25,9 +26,9 @@ namespace TeamCloud.API.Controllers
     {
         readonly UserService userService;
         readonly Orchestrator orchestrator;
-        readonly IProjectsRepositoryReadOnly projectsRepository;
+        readonly IProjectsRepository projectsRepository;
 
-        public ProjectsController(UserService userService, Orchestrator orchestrator, IProjectsRepositoryReadOnly projectsRepository)
+        public ProjectsController(UserService userService, Orchestrator orchestrator, IProjectsRepository projectsRepository)
         {
             this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
             this.orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
@@ -73,8 +74,13 @@ namespace TeamCloud.API.Controllers
                 Tags = projectDefinition.Tags
             };
 
-            var command = new ProjectCreateCommand(CurrentUser, project);
+            var isExisting = await projectsRepository
+                .NameExistsAsync(project)
+                .ConfigureAwait(false);
+            if (isExisting)
+                return new BadRequestObjectResult($"Project name '{project.Name}' already exists.");
 
+            var command = new ProjectCreateCommand(CurrentUser, project);
             var commandResult = await orchestrator
                 .InvokeAsync<Project>(command)
                 .ConfigureAwait(false);
