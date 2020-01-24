@@ -30,18 +30,10 @@
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.2" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\TeamCloud.Azure\TeamCloud.Azure.csproj">
-      <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
-    </ProjectReference>
-    <ProjectReference Include="..\TeamCloud.Configuration\TeamCloud.Configuration.csproj">
-      <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
-    </ProjectReference>
-    <ProjectReference Include="..\TeamCloud.Data\TeamCloud.Data.csproj">
-      <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
-    </ProjectReference>
-    <ProjectReference Include="..\TeamCloud.Model\TeamCloud.Model.csproj">
-      <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
-    </ProjectReference>
+    <ProjectReference Include="..\TeamCloud.Azure\TeamCloud.Azure.csproj" />
+    <ProjectReference Include="..\TeamCloud.Configuration\TeamCloud.Configuration.csproj" />
+    <ProjectReference Include="..\TeamCloud.Data\TeamCloud.Data.csproj" />
+    <ProjectReference Include="..\TeamCloud.Model\TeamCloud.Model.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">

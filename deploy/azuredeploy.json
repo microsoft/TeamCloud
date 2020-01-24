@@ -41,7 +41,7 @@
         }
     },
     "variables": {
-        "webAppNameLower":  "[toLower(parameters('webAppName'))]",
+        "webAppNameLower": "[toLower(parameters('webAppName'))]",
         "functionAppNameLower": "[concat(toLower(parameters('webAppName')), '-orchestrator')]",
         "cosmosDbName": "[concat('database', uniqueString(resourceGroup().id))]",
         "webjobsStorageAccountName": "[concat('wjstorage', uniqueString(resourceGroup().id))]",
@@ -132,7 +132,7 @@
                     "type": "sourcecontrols",
                     "name": "web",
                     "apiVersion": "2019-08-01",
-                     "properties": {
+                    "properties": {
                         "repoUrl": "[variables('sourceRepoUrl')]",
                         "branch": "[variables('sourceBranch')]",
                         "isManualIntegration": true,
@@ -212,7 +212,7 @@
                     "type": "sourcecontrols",
                     "name": "web",
                     "apiVersion": "2019-08-01",
-                     "properties": {
+                    "properties": {
                         "repoUrl": "[variables('sourceRepoUrl')]",
                         "branch": "[variables('sourceBranch')]",
                         "isManualIntegration": true,
@@ -436,11 +436,15 @@
         }
     ],
     "outputs": {
-        "configName": {
+        "apiUrl": {
+            "type": "string",
+            "value": "[concat('https://', variables('webAppNameLower'), '.azurewebsites.net')]"
+        },
+        "configServiceName": {
             "type": "string",
             "value": "[variables('appConfigurationName')]"
         },
-        "config": {
+        "configServiceImport": {
             "type": "object",
             "value": {
                 "Azure": {
@@ -458,7 +462,7 @@
                         "TenentId": "[subscription().tenantId]"
                     },
                     "DeploymentStorage": {
-                        "BaseUrl": "[reference(concat('Microsoft.Storage/storageAccounts/', parameters('deploymentStorageAccountName')), '2019-04-01').primaryEndpoints.blob]",
+                        "BaseUrl": "[reference(concat('Microsoft.Storage/storageAccounts/', variables('deploymentStorageAccountName')), '2019-04-01').primaryEndpoints.blob]",
                         "ConnectionString": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('deploymentStorageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('deploymentStorageAccountName')), '2017-06-01').keys[0].value)]"
                     },
                     "CosmosDb": {
