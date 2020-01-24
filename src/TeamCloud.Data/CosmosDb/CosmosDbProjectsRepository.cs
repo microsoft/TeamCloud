@@ -40,7 +40,7 @@ namespace TeamCloud.Data.CosmosDb
             try
             {
                 var response = await container
-                    .ReadItemAsync<Project>(projectId.ToString(), new PartitionKey(projectId.ToString()))
+                    .ReadItemAsync<Project>(projectId.ToString(), new PartitionKey(Constants.CosmosDb.TeamCloudInstanceId))
                     .ConfigureAwait(false);
 
                 return response.Value;
@@ -61,7 +61,7 @@ namespace TeamCloud.Data.CosmosDb
                 .ConfigureAwait(false);
 
             var response = await container
-                .UpsertItemAsync<Project>(project, new PartitionKey(project.Id.ToString()))
+                .UpsertItemAsync<Project>(project, new PartitionKey(Constants.CosmosDb.TeamCloudInstanceId))
                 .ConfigureAwait(false);
 
             return response.Value;
@@ -87,7 +87,7 @@ namespace TeamCloud.Data.CosmosDb
                 .ConfigureAwait(false);
 
             var response = await container
-                .DeleteItemAsync<Project>(project.Id.ToString(), new PartitionKey(project.Id.ToString()))
+                .DeleteItemAsync<Project>(project.Id.ToString(), new PartitionKey(Constants.CosmosDb.TeamCloudInstanceId))
                 .ConfigureAwait(false);
 
             return response.Value;
