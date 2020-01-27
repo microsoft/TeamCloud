@@ -14,11 +14,13 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects.Activities
 {
     public class ProjectCreateActivity
     {
+        private readonly ITeamCloudRepository teamCloudRepository;
         private readonly IProjectsRepository projectsRepository;
 
-        public ProjectCreateActivity(IProjectsRepository projectsRepository)
+        public ProjectCreateActivity(ITeamCloudRepository teamCloudRepository, IProjectsRepository projectsRepository)
         {
-            this.projectsRepository = projectsRepository ?? throw new System.ArgumentNullException(nameof(projectsRepository));
+            this.teamCloudRepository = teamCloudRepository ?? throw new ArgumentNullException(nameof(teamCloudRepository));
+            this.projectsRepository = projectsRepository ?? throw new ArgumentNullException(nameof(projectsRepository));
         }
 
         [FunctionName(nameof(ProjectCreateActivity))]
@@ -27,18 +29,21 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects.Activities
         {
             if (project is null) throw new ArgumentNullException(nameof(project));
 
-            try
-            {
-                var newProject = await projectsRepository
-                    .AddAsync(project)
-                    .ConfigureAwait(false);
+            var teamCloud = await teamCloudRepository
+                .GetAsync()
+                .ConfigureAwait(false);
 
-                return newProject;
-            }
-            catch
-            {
-                throw;
-            }
+            var newProject = await projectsRepository
+                .AddAsync(project)
+                .ConfigureAwait(false);
+
+            teamCloud.ProjectIds.Add(newProject.Id);
+
+            await teamCloudRepository
+                .SetAsync(teamCloud)
+                .ConfigureAwait(false);
+
+            return newProject;
         }
     }
 }
