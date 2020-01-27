@@ -77,8 +77,9 @@ namespace TeamCloud.API.Controllers
             var isExisting = await projectsRepository
                 .NameExistsAsync(project)
                 .ConfigureAwait(false);
+
             if (isExisting)
-                return new BadRequestObjectResult($"Project name '{project.Name}' already exists.");
+                return new ConflictObjectResult($"A Project with name '{project.Name}' already exists.  Project names must be unique.  Please try your request again with a unique name.");
 
             var command = new ProjectCreateCommand(CurrentUser, project);
             var commandResult = await orchestrator
