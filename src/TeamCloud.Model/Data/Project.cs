@@ -16,6 +16,9 @@ namespace TeamCloud.Model.Data
     {
         public string PartitionKey => TeamCloudId;
 
+        [JsonIgnore]
+        public List<string> UniqueKeys => new List<string> { "/name" };
+
         public Guid Id { get; set; }
 
         public string Name { get; set; }

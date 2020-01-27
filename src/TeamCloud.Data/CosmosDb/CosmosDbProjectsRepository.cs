@@ -26,11 +26,19 @@ namespace TeamCloud.Data.CosmosDb
             var container = await GetContainerAsync<Project>()
                 .ConfigureAwait(false);
 
-            var response = await container
-                .CreateItemAsync(project)
-                .ConfigureAwait(false);
+            try
+            {
+                var response = await container
+                    .CreateItemAsync(project)
+                    .ConfigureAwait(false);
 
-            return response.Value;
+                return response.Value;
+            }
+            catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.Conflict)
+            {
+                // Indicates a name conflict (already a project with name)
+                throw;
+            }
         }
 
         public async Task<Project> GetAsync(Guid projectId)

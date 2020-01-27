@@ -19,6 +19,9 @@ namespace TeamCloud.Model.Data
 
         public string PartitionKey => Id;
 
+        [JsonIgnore]
+        public List<string> UniqueKeys => new List<string> { };
+
         public AzureResourceGroup ResourceGroup { get; set; }
 
         public string ApplicationInsightsKey { get; set; }

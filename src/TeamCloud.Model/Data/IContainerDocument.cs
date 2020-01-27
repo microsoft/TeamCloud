@@ -3,6 +3,7 @@
  *  Licensed under the MIT License.
  */
 
+using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -14,5 +15,7 @@ namespace TeamCloud.Model.Data
         const string PartitionKeyPath = "/partitionKey";
 
         string PartitionKey { get; }
+
+        List<string> UniqueKeys { get; }
     }
 }

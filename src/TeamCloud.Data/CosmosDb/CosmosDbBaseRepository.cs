@@ -48,9 +48,27 @@ namespace TeamCloud.Data.CosmosDb
                 => new Lazy<Container>(() => database.GetContainer(containerType.Name)));
 
             if (!container.IsValueCreated)
+            {
+                var containerProperties = new ContainerProperties(typeof(T).Name, IContainerDocument.PartitionKeyPath);
+
+                var uniqueKeys = (new T()).UniqueKeys;
+
+                if (uniqueKeys.Count > 0)
+                {
+                    containerProperties.UniqueKeyPolicy = new UniqueKeyPolicy();
+
+                    foreach (var key in uniqueKeys)
+                    {
+                        var uniqueKey = new UniqueKey();
+                        uniqueKey.Paths.Add(key);
+                        containerProperties.UniqueKeyPolicy.UniqueKeys.Add(uniqueKey);
+                    }
+                }
+
                 await database
-                    .CreateContainerIfNotExistsAsync(new ContainerProperties(typeof(T).Name, IContainerDocument.PartitionKeyPath))
+                    .CreateContainerIfNotExistsAsync(containerProperties)
                     .ConfigureAwait(false);
+            }
 
             return container.Value;
         }
