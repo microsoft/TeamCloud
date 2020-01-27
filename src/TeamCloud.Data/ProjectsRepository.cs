@@ -15,6 +15,8 @@ namespace TeamCloud.Data
         Task<Project> GetAsync(Guid id);
 
         IAsyncEnumerable<Project> ListAsync(Guid? userId = null);
+
+        Task<bool> NameExistsAsync(Project project);
     }
 
     public interface IProjectsRepository : IProjectsRepositoryReadOnly
@@ -24,7 +26,5 @@ namespace TeamCloud.Data
         Task<Project> SetAsync(Project project);
 
         Task<Project> RemoveAsync(Project project);
-
-        Task<bool> NameExistsAsync(Project project);
     }
 }
