@@ -453,13 +453,13 @@
                     "ResourceManager": {
                         "ClientId": "[parameters('resourceManagerIdentityClientId')]",
                         "ClientSecret": "[parameters('resourceManagerIdentityClientSecret')]",
-                        "TenentId": "[subscription().tenantId]",
+                        "TenantId": "[subscription().tenantId]",
                         "Region": "[resourceGroup().location]"
                     },
                     "ActiveDirectory": {
                         "ClientId": "[parameters('activeDirectoryIdentityClientId')]",
                         "ClientSecret": "[parameters('activeDirectoryIdentityClientSecret')]",
-                        "TenentId": "[subscription().tenantId]"
+                        "TenantId": "[subscription().tenantId]"
                     },
                     "DeploymentStorage": {
                         "BaseUrl": "[reference(concat('Microsoft.Storage/storageAccounts/', variables('deploymentStorageAccountName')), '2019-04-01').primaryEndpoints.blob]",

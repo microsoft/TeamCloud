@@ -21,23 +21,23 @@ namespace TeamCloud.API
     [Authorize(Policy = "admin")]
     public class TeamCloudUsersController : ControllerBase
     {
-        // FIXME:
-        private User currentUser = new User
-        {
-            Id = Guid.Parse("bc8a62dc-c327-4418-a004-77c85c3fb488"),
-            Role = UserRoles.TeamCloud.Admin
-        };
-
+        readonly UserService userService;
         readonly Orchestrator orchestrator;
         readonly ITeamCloudRepositoryReadOnly teamCloudRepository;
 
-        public TeamCloudUsersController(Orchestrator orchestrator, ITeamCloudRepositoryReadOnly teamCloudRepository)
+        public TeamCloudUsersController(UserService userService, Orchestrator orchestrator, ITeamCloudRepositoryReadOnly teamCloudRepository)
         {
+            this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
             this.orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
             this.teamCloudRepository = teamCloudRepository ?? throw new ArgumentNullException(nameof(teamCloudRepository));
         }
 
-        // GET: api/config
+        private User CurrentUser => new User()
+        {
+            Id = userService.CurrentUserId,
+            Role = UserRoles.Project.Owner
+        };
+
         [HttpGet]
         public async Task<IActionResult> Get()
         {
@@ -52,7 +52,6 @@ namespace TeamCloud.API
                 : new OkObjectResult(users);
         }
 
-        // GET: api/users/{userId}
         [HttpGet("{userId:guid}")]
         public async Task<IActionResult> Get(Guid userId)
         {
@@ -67,7 +66,6 @@ namespace TeamCloud.API
                 : new OkObjectResult(user);
         }
 
-        // POST: api/users
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] UserDefinition userDefinition)
         {
@@ -80,7 +78,7 @@ namespace TeamCloud.API
                 Tags = userDefinition.Tags
             };
 
-            var command = new TeamCloudUserCreateCommand(currentUser, newUser);
+            var command = new TeamCloudUserCreateCommand(CurrentUser, newUser);
 
             var commandResult = await orchestrator
                 .InvokeAsync<User>(command)
@@ -96,7 +94,6 @@ namespace TeamCloud.API
             }
         }
 
-        // PUT: api/users
         [HttpPut]
         public async Task<IActionResult> Put([FromBody] User user)
         {
@@ -113,7 +110,6 @@ namespace TeamCloud.API
             return new OkObjectResult(user);
         }
 
-        // DELETE: api/users/{userId}
         [HttpDelete("{userId:guid}")]
         public async Task<IActionResult> Delete(Guid userId)
         {

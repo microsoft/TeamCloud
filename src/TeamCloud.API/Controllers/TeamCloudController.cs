@@ -20,22 +20,23 @@ namespace TeamCloud.API.Controllers
     [Authorize(Policy = "admin")]
     public class TeamCloudController : ControllerBase
     {
-        private User currentUser = new User
-        {
-            Id = Guid.Parse("bc8a62dc-c327-4418-a004-77c85c3fb488"),
-            Role = UserRoles.TeamCloud.Admin
-        };
-
+        readonly UserService userService;
         readonly Orchestrator orchestrator;
         readonly ITeamCloudRepositoryReadOnly teamCloudRepository;
 
-        public TeamCloudController(Orchestrator orchestrator, ITeamCloudRepositoryReadOnly teamCloudRepository)
+        public TeamCloudController(UserService userService, Orchestrator orchestrator, ITeamCloudRepositoryReadOnly teamCloudRepository)
         {
+            this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
             this.orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
             this.teamCloudRepository = teamCloudRepository ?? throw new ArgumentNullException(nameof(teamCloudRepository));
         }
 
-        // GET: api/config
+        private User CurrentUser => new User()
+        {
+            Id = userService.CurrentUserId,
+            Role = UserRoles.Project.Owner
+        };
+
         [HttpGet]
         [Produces("application/json", "application/x-yaml")]
         public async Task<IActionResult> Get()
@@ -49,12 +50,12 @@ namespace TeamCloud.API.Controllers
                 : new OkObjectResult(teamCloudInstance.Configuration);
         }
 
-        // POST: api/config
         [HttpPost]
         [Consumes("application/x-yaml")]
         public async Task<IActionResult> Post([FromBody] TeamCloudConfiguration teamCloudConfiguraiton)
         {
-            if (teamCloudConfiguraiton is null) return new BadRequestObjectResult("Unable to parse teamcloud.yaml file.");
+            if (teamCloudConfiguraiton is null)
+                return new BadRequestObjectResult("Unable to parse teamcloud.yaml file.");
 
             try
             {
@@ -65,7 +66,7 @@ namespace TeamCloud.API.Controllers
                 return new BadRequestObjectResult(validationEx.Errors);
             }
 
-            var command = new TeamCloudCreateCommand(currentUser, new TeamCloudInstance(teamCloudConfiguraiton));
+            var command = new TeamCloudCreateCommand(CurrentUser, new TeamCloudInstance(teamCloudConfiguraiton));
 
             var commandResult = await orchestrator
                 .InvokeAsync<TeamCloudInstance>(command)
@@ -79,15 +80,6 @@ namespace TeamCloud.API.Controllers
             {
                 return new OkObjectResult(commandResult);
             }
-
-            /* TODO:
-             *
-             * - Change the input to a file upload
-             * - This will be in the form of a yaml file (see: https://github.com/microsoft/TeamCloud/blob/master/docs/teamcloud.yaml)
-             * - Possibly save (cache) the file in storage
-             * - Parse the file into the TeamCloudConfiguraiton
-             * - ...
-             */
         }
     }
 }
