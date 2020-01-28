@@ -4,6 +4,8 @@ on: [push]
 
 env:
   BUILD_CONFIGURATION: Release
+  NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+  NUGET_PKG_SOURCE: "https://nuget.pkg.github.com/microsoft/TeamCloud/index.json"
 
 jobs:
   build:
@@ -31,4 +33,4 @@ jobs:
       working-directory: ./src/TeamCloud.Model
 
     - name: dotnet push 
-      run: dotnet nuget push ./src/TeamCloud.Model/**/*.nupkg --source "github"
+      run: dotnet nuget push ./src/TeamCloud.Model/**/*.nupkg --source $NUGET_PKG_SOURCE
