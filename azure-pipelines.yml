@@ -38,3 +38,10 @@ steps:
     publishTestResults: true
     workingDirectory: '$(System.DefaultWorkingDirectory)/src'
 
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet pack'
+  inputs:
+    command: 'pack'
+    packagesToPack: '**/*.csproj'
+    nobuild: true
+    versioningScheme: 'byBuildNumber'
