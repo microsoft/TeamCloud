@@ -21,13 +21,15 @@ jobs:
     - name: Setup NuGet
       uses: NuGet/setup-nuget@v1.0.2
 
-    - name: Configure Package Registry Config
-      run: sed -i 's/GITHUB_TOKEN/${{ secrets.GITHUB_TOKEN }}/g' nuget.config
-      working-directory: ./src
-        
+    # - name: Configure Package Registry Config
+    #   run: sed -i 's/GITHUB_TOKEN/${{ secrets.GITHUB_TOKEN }}/g' nuget.config
+    #   working-directory: ./src
+    
+    - name: Configure Package Registry Source
+      run: nuget sources add -name "github" -source "https://nuget.pkg.github.com/microsoft/index.json"
+
     - name: Configure Package Registry APIKey
-      run: nuget setapikey ${{ secrets.GITHUB_TOKEN }} -source https://nuget.pkg.github.com/microsoft
-      working-directory: ./src
+      run: nuget setapikey ${{ secrets.GITHUB_TOKEN }} -source "https://nuget.pkg.github.com/microsoft/index.json"
 
     - name: dotnet build
       run: dotnet build --configuration $BUILD_CONFIGURATION
