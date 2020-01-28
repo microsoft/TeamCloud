@@ -15,7 +15,7 @@ variables:
   value: 'Release' 
 
 - name: packVersion
-  value: '0.1.0.$(Build.SourceBranchName).$(Build.BuildNumber)'
+  value: '0.1.0.$(Build.BuildNumber)-$(Build.SourceBranchName)'
 
 steps:
 
@@ -49,3 +49,4 @@ steps:
     nobuild: true
     versioningScheme: 'byEnvVar'
     versionEnvVar: 'PACKVERSION'
+    verbosityPack: 'Minimal'
