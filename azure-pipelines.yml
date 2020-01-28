@@ -45,7 +45,8 @@ steps:
   displayName: 'dotnet pack'
   inputs:
     command: 'pack'
-    packagesToPack: '**/*.csproj'
+    packagesToPack: '*.sln'
     nobuild: true
     versioningScheme: 'byEnvVar'
     versionEnvVar: '$(buildVersion)'
+    workingDirectory: '$(System.DefaultWorkingDirectory)/src'
