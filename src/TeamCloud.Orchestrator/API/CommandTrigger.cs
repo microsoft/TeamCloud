@@ -112,10 +112,10 @@ namespace TeamCloud.Orchestrator
                     .ConfigureAwait(false);
                 return new OkObjectResult(teamCloudUserUpdateCommandResult);
 
-                case TeamCloudUserDeletCommand teamCloudUserDeletCommand:
-                var teamCloudUserDeletCommandResult = await Handle(durableClient, orchestratorContext, teamCloudUserDeletCommand, nameof(TeamCloudUserDeleteOrchestration))
+                case TeamCloudUserDeleteCommand teamCloudUserDeleteCommand:
+                var teamCloudUserDeleteCommandResult = await Handle(durableClient, orchestratorContext, teamCloudUserDeleteCommand, nameof(TeamCloudUserDeleteOrchestration))
                     .ConfigureAwait(false);
-                return new OkObjectResult(teamCloudUserDeletCommandResult);
+                return new OkObjectResult(teamCloudUserDeleteCommandResult);
             }
 
             return new NotFoundResult();

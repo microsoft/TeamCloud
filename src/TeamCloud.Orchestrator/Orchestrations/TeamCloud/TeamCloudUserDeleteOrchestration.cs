@@ -26,7 +26,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.TeamCloud
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
 
-            (OrchestratorContext orchestratorContext, TeamCloudUserDeletCommand command) = functionContext.GetInput<(OrchestratorContext, TeamCloudUserDeletCommand)>();
+            (OrchestratorContext orchestratorContext, TeamCloudUserDeleteCommand command) = functionContext.GetInput<(OrchestratorContext, TeamCloudUserDeleteCommand)>();
 
             var teamCloud = await functionContext
                 .CallActivityAsync<TeamCloudInstance>(nameof(TeamCloudUserDeleteActivity), (orchestratorContext.TeamCloud, command.Payload))
