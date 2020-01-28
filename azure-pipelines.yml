@@ -14,8 +14,8 @@ variables:
 - name: buildConfiguration
   value: 'Release' 
 
-- name: buildVersion
-  value: '0.1.0.$(Build.BuildNumber)'
+- name: packVersion
+  value: '0.1.0.$(Build.SourceBranchName).$(Build.BuildNumber)'
 
 steps:
 
@@ -48,4 +48,4 @@ steps:
     packagesToPack: '**/TeamCloud.Model/*.csproj'
     nobuild: true
     versioningScheme: 'byEnvVar'
-    versionEnvVar: 'BUILD.BUILDNUMBER'
+    versionEnvVar: 'PACKVERSION'
