@@ -9,6 +9,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Extensions.Logging;
+using TeamCloud.Azure.Deployments;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Context;
 using TeamCloud.Model.Data;
@@ -22,8 +24,8 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
     {
         [FunctionName(nameof(ProjectCreateOrchestration))]
         public static async Task RunOrchestration(
-            [OrchestrationTrigger] IDurableOrchestrationContext functionContext
-            /* ILogger log */)
+            [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
+            ILogger logger)
         {
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
@@ -35,7 +37,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
                 .WaitForProjectCommandsAsync(command)
                 .ConfigureAwait(true);
 
-            functionContext.SetCustomStatus("Creating Project...");
+            functionContext.SetCustomStatus("Creating new Project");
 
             var user = command.User;
             var project = command.Payload;
@@ -44,15 +46,39 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
             project.TeamCloudApplicationInsightsKey = teamCloud.ApplicationInsightsKey;
             //project.ProviderVariables = teamCloud.Configuration.Providers.Select(p => (p.Id, p.Variables)).ToDictionary(t => t.Id, t => t.Variables);
 
-            // Create project
             project = await functionContext
                 .CallActivityAsync<Project>(nameof(ProjectCreateActivity), project)
                 .ConfigureAwait(true);
 
-            // Create azure resource group
-            await CreateAzureResourceGroupAsync(functionContext, orchestratorContext, project, teamCloud).ConfigureAwait(false);
+            // await CreateAzureResourceGroupAsync(functionContext, orchestratorContext, project, teamCloud).ConfigureAwait(true);
 
-            functionContext.SetCustomStatus("Creating Project Resources...");
+            functionContext.SetCustomStatus("Creating new Resource Group for Project");
+
+            var subscriptionId = await functionContext
+                .CallActivityAsync<Guid>(nameof(AzureSubscriptionPoolSelectActivity), teamCloud)
+                .ConfigureAwait(true);
+
+
+
+            try
+            {
+                project.ResourceGroup = await functionContext
+                    .CallActivityAsync<AzureResourceGroup>(nameof(AzureResourceGroupCreateActivity), (orchestratorContext, project, subscriptionId))
+                    .ConfigureAwait(true);
+            }
+            catch (FunctionFailedException functionException) when (functionException.InnerException is AzureDeploymentException)
+            {
+                var deploymentExecption = functionException.InnerException as AzureDeploymentException;
+                functionContext.CreateReplaySafeLogger(logger).LogError(functionException, "Failed to create new Resource Group for Project\n{0}", deploymentExecption.ResourceError);
+                functionContext.SetCustomStatus("Failed to create new Resource Group for Project");
+                throw;
+            }
+
+            project = await functionContext
+                .CallActivityAsync<Project>(nameof(ProjectUpdateActivity), project)
+                .ConfigureAwait(true);
+
+            functionContext.SetCustomStatus("Creating Project Resources");
 
             // Send create command to providers
             var projectContext = new ProjectContext(teamCloud, project, user);
@@ -61,147 +87,12 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
             var providerCommandTasks = providerCommands.Select(providerCommand => functionContext.CallSubOrchestratorAsync<ProviderCommandResult>(nameof(ProviderCommandOrchestration), providerCommand));
             var providerCommandResults = await Task.WhenAll(providerCommandTasks).ConfigureAwait(true);
 
-            functionContext.SetCustomStatus("Project Created...");
+            functionContext.SetCustomStatus("Project Created");
             //// Create and initialize providers...
             // await CreateProjectResourcesAsync(functionContext, teamCloud, projectContext*).ConfigureAwait(false);
             // await InitializeProjectResourcesAsync(functionContext, teamCloud, projectContext).ConfigureAwait(false);
 
             functionContext.SetOutput(project);
-        }
-
-        private static async Task CreateAzureResourceGroupAsync(IDurableOrchestrationContext functionContext, OrchestratorContext orchestratorContext, Project project, TeamCloudInstance teamCloud)
-        {
-            functionContext.SetCustomStatus("Create Project Resource Group...");
-
-            var subscriptionId = await functionContext
-                .CallActivityAsync<Guid>(nameof(AzureSubscriptionPoolSelectActivity), teamCloud)
-                .ConfigureAwait(true);
-
-            project.ResourceGroup = await functionContext
-                .CallActivityAsync<AzureResourceGroup>(nameof(AzureResourceGroupCreateActivity), (orchestratorContext, project, subscriptionId))
-                .ConfigureAwait(true);
-
-            // Update the project with the new resource group object
-            project = await functionContext
-                .CallActivityAsync<Project>(nameof(ProjectUpdateActivity), project)
-                .ConfigureAwait(true);
-        }
-
-        private static Task InitializeProjectResourcesAsync(IDurableOrchestrationContext functionContext, TeamCloudInstance teamCloud, ProjectContext projectContext)
-        {
-            functionContext.SetCustomStatus("Initializing Project Resources...");
-
-            // Create dictionary for providers and their dependencies
-            var initProviders = new Dictionary<Provider, List<string>>();
-            foreach (var provider in teamCloud.Configuration.Providers)
-            {
-                // Ensure dependency IDs exist in the providers list
-                var dependencyIds = provider.Dependencies.Init.Intersect(teamCloud.Configuration.Providers.Select(s => s.Id));
-
-                initProviders.Add(provider, dependencyIds.ToList());
-            }
-
-            // Organize providers into a list of lists where each list contains a list of providers that should be created together
-            var initProviderGroupings = PrioritizedProviderGroupings(initProviders);
-
-            foreach (var group in initProviderGroupings)
-            {
-                // TODO: call init on all providers (handeling dependencies)
-                // var tasks = teamCloud.Configuration.Providers.Select(p =>
-                //                 functionContext.CallHttpAsync(HttpMethod.Post, p.Location, JsonConvert.SerializeObject(projectContext)));
-
-                // await Task.WhenAll(tasks);
-            }
-
-            return Task.CompletedTask;
-        }
-
-        private static Task CreateProjectResourcesAsync(IDurableOrchestrationContext functionContext, TeamCloudInstance teamCloud/*, ProjectContext projectContext */)
-        {
-            functionContext.SetCustomStatus("Creating Project Resources...");
-
-            // Create dictionary for providers and their dependencies
-            var createProviders = new Dictionary<Provider, List<string>>();
-            foreach (var provider in teamCloud.Configuration.Providers)
-            {
-                // Ensure dependency IDs exist in the providers list
-                var dependencyIds = provider.Dependencies.Create.Intersect(teamCloud.Configuration.Providers.Select(s => s.Id));
-
-                createProviders.Add(provider, dependencyIds.ToList());
-            }
-
-            // Organize providers into a list of lists where each list contains a list of providers that should be created together
-            var createProviderGroupings = PrioritizedProviderGroupings(createProviders);
-
-            foreach (var group in createProviderGroupings)
-            {
-                // TODO: call create on all providers (handeling dependencies)
-                //var tasks = teamCloud.Configuration.Providers.Select(p =>
-                //                 functionContext.CallHttpAsync(HttpMethod.Post, p.Location, JsonConvert.SerializeObject(projectContext)));
-
-                //await Task.WhenAll(tasks).ConfigureAwait(false);
-            }
-
-            return Task.CompletedTask;
-        }
-
-        /// <summary>
-        /// Create a list of list of providers that are grouped together based on the order of dependencies. Each list contains a list of providers that should be created together. List is
-        /// ordered based on how they should be priortized.
-        /// </summary>
-        /// <param name="allProviders"></param>
-        /// <returns></returns>
-        private static List<List<Provider>> PrioritizedProviderGroupings(Dictionary<Provider, List<string>> allProviders)
-        {
-            // Dictionary to store which phase the provider should be created in
-            var prioritizedProviders = new Dictionary<Provider, int>();
-
-            // Recursive function to order the providers into groups based on when they should be executed
-            OrganizeProviders(0, allProviders, prioritizedProviders);
-
-            // Represents a list of list of providers based on phased order of when they should be executed
-            var list = new List<List<Provider>>();
-
-            // Group the providers by phase in which they should be executed and loop through
-            foreach (var priorityLevel in prioritizedProviders.OrderBy(o => o.Value).GroupBy(g => g.Value))
-            {
-                list.Add(priorityLevel.Select(s => s.Key).ToList());
-            }
-
-            return list;
-
-            // Private recursive method to organize providers
-            void OrganizeProviders(int phase, Dictionary<Provider, List<string>> remainingProviders, Dictionary<Provider, int> prioritizedList)
-            {
-                // Populate providers that don't have any more dependencies
-                var noDependencyProvider = remainingProviders.Where(s => s.Value.Count == 0);
-                foreach (var provider in noDependencyProvider)
-                {
-                    prioritizedList.Add(provider.Key, phase);
-                }
-
-                // Create list of remaining providers which have dependencies
-                var dependentProviders = remainingProviders.Where(s => s.Value.Count > 0);
-
-                // Override the list providers and their dependencies which be used to tracking remaining dependent providers in the recursive call
-                remainingProviders = new Dictionary<Provider, List<string>>();
-
-                foreach (var dependentProvider in dependentProviders)
-                {
-                    // Remove any dependencies in provider dependencies that were already marked in the prioritized list
-                    var remainingDependencyIDs = dependentProvider.Value.Where(s =>
-                        prioritizedList.Any(a => a.Key.Id.Equals(s, StringComparison.InvariantCultureIgnoreCase)) // Ensure that the dependent provider isn't already added of prioritize providers list
-                        && !dependentProvider.Key.Id.Contains(s, StringComparison.InvariantCultureIgnoreCase) // Ensure that this provider isn't relying on itself
-                        ).ToList();
-
-                    // Add provider to list of providers that need to be generated
-                    remainingProviders.Add(dependentProvider.Key, remainingDependencyIDs);
-                }
-
-                // If there are still dependent providers, recurse with updated phase number
-                if (remainingProviders.Count > 0)
-                    OrganizeProviders(++phase, remainingProviders, prioritizedList);
-            }
         }
     }
 }

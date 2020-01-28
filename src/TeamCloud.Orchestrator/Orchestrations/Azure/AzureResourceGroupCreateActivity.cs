@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Extensions.Logging;
 using TeamCloud.Azure.Deployments;
 using TeamCloud.Model.Context;
 using TeamCloud.Model.Data;
@@ -26,7 +27,8 @@ namespace TeamCloud.Orchestrator.Orchestrations.Azure
 
         [FunctionName(nameof(AzureResourceGroupCreateActivity))]
         public async Task<AzureResourceGroup> RunActivity(
-            [ActivityTrigger] (OrchestratorContext, Project, Guid) input)
+            [ActivityTrigger] (OrchestratorContext, Project, Guid) input,
+            ILogger logger)
         {
             var orchestratorContext = input.Item1;
             var project = input.Item2;
@@ -57,25 +59,38 @@ namespace TeamCloud.Orchestrator.Orchestrations.Azure
             template.Parameters["resourceGroupName"] = project.ResourceGroup?.ResourceGroupName; // if null - the template generates a unique name
             template.Parameters["resourceGroupLocation"] = project.ResourceGroup?.Region ?? orchestratorContext.TeamCloud.ProjectsConfiguration.Azure.Region;
 
-            var deployment = await azureDeploymentService
-                .DeployTemplateAsync(template, subscriptionId)
-                .ConfigureAwait(false);
-
-            _ = await deployment
-                .WaitAsync(throwOnError: true)
-                .ConfigureAwait(false);
-
-            var deploymentOutput = await deployment
-                .GetOutputAsync()
-                .ConfigureAwait(false);
-
-            return new AzureResourceGroup()
+            try
             {
-                SubscriptionId = subscriptionId,
-                Region = orchestratorContext.TeamCloud.ProjectsConfiguration.Azure.Region,
-                ResourceGroupId = (string)deploymentOutput.GetValueOrDefault("resourceGroupId", default(string)),
-                ResourceGroupName = (string)deploymentOutput.GetValueOrDefault("resourceGroupName", default(string))
-            };
+                var deployment = await azureDeploymentService
+                    .DeployTemplateAsync(template, subscriptionId)
+                    .ConfigureAwait(false);
+
+                var deploymentState = await deployment
+                    .WaitAsync(throwOnError: true)
+                    .ConfigureAwait(false);
+
+                var deploymentOutput = await deployment
+                    .GetOutputAsync()
+                    .ConfigureAwait(false);
+
+                return new AzureResourceGroup()
+                {
+                    SubscriptionId = subscriptionId,
+                    Region = orchestratorContext.TeamCloud.ProjectsConfiguration.Azure.Region,
+                    ResourceGroupId = (string)deploymentOutput.GetValueOrDefault("resourceGroupId", default(string)),
+                    ResourceGroupName = (string)deploymentOutput.GetValueOrDefault("resourceGroupName", default(string))
+                };
+            }
+            catch (AzureDeploymentException deployEx)
+            {
+                logger.LogError(deployEx, $"Error deploying new Resource Group for Project.\n {deployEx.ResourceError}");
+                throw;
+            }
+            catch (System.Exception ex)
+            {
+                logger.LogError(ex, "Error deploying new Resource Group for Project.");
+                throw;
+            }
         }
     }
 }
