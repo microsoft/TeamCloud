@@ -13,7 +13,7 @@
     },
     "resourceGroupName": {
       "type": "string",
-      "defaultValue": "[concat(parameters('projectPrefix'), parameters('projectName'), '_', uniqueString(parameters('projectId')))]"
+      "defaultValue": "[concat(parameters('projectPrefix'), replace(parameters('projectName'), ' ', '_'), '_', uniqueString(parameters('projectId')))]"
     },
     "resourceGroupLocation": {
       "type": "string"

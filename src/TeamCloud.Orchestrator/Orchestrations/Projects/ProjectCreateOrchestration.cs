@@ -35,7 +35,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
                 .WaitForProjectCommandsAsync(command)
                 .ConfigureAwait(true);
 
-            functionContext.SetCustomStatus("Creating Project ...");
+            functionContext.SetCustomStatus("Creating Project...");
 
             var user = command.User;
             var project = command.Payload;
@@ -50,7 +50,9 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
                 .ConfigureAwait(true);
 
             // Create azure resource group
-            //await CreateAzureResourceGroupAsync(functionContext, orchestratorContext, project, teamCloud).ConfigureAwait(false);
+            await CreateAzureResourceGroupAsync(functionContext, orchestratorContext, project, teamCloud).ConfigureAwait(false);
+
+            functionContext.SetCustomStatus("Creating Project Resources...");
 
             // Send create command to providers
             var projectContext = new ProjectContext(teamCloud, project, user);
@@ -59,6 +61,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
             var providerCommandTasks = providerCommands.Select(providerCommand => functionContext.CallSubOrchestratorAsync<ProviderCommandResult>(nameof(ProviderCommandOrchestration), providerCommand));
             var providerCommandResults = await Task.WhenAll(providerCommandTasks).ConfigureAwait(true);
 
+            functionContext.SetCustomStatus("Project Created...");
             //// Create and initialize providers...
             // await CreateProjectResourcesAsync(functionContext, teamCloud, projectContext*).ConfigureAwait(false);
             // await InitializeProjectResourcesAsync(functionContext, teamCloud, projectContext).ConfigureAwait(false);
@@ -68,6 +71,8 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
 
         private static async Task CreateAzureResourceGroupAsync(IDurableOrchestrationContext functionContext, OrchestratorContext orchestratorContext, Project project, TeamCloudInstance teamCloud)
         {
+            functionContext.SetCustomStatus("Create Project Resource Group...");
+
             var subscriptionId = await functionContext
                 .CallActivityAsync<Guid>(nameof(AzureSubscriptionPoolSelectActivity), teamCloud)
                 .ConfigureAwait(true);

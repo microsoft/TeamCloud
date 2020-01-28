@@ -56,7 +56,7 @@ namespace TeamCloud.API.Services
                 .GetStringAsync()
                 .ConfigureAwait(false);
 
-            var result = JsonConvert.DeserializeObject<CommandResult>(resultJson);
+            var result = JsonConvert.DeserializeObject<ICommandResult>(resultJson);
 
             SetResultLinks(result, projectId);
 

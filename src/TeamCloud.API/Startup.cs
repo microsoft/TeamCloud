@@ -42,6 +42,8 @@ namespace TeamCloud.API
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+
+            Microsoft.IdentityModel.Logging.IdentityModelEventSource.ShowPII = true;
         }
 
         public IConfiguration Configuration { get; }
@@ -65,8 +67,8 @@ namespace TeamCloud.API
 
             app.UseHttpsRedirection()
                .UseRouting()
-               //.UseAuthentication()
-               //.UseAuthorization()
+               .UseAuthentication()
+               .UseAuthorization()
                .UseEndpoints(endpoints => endpoints.MapControllers());
         }
 
@@ -102,8 +104,8 @@ namespace TeamCloud.API
                 .AddScoped<ITeamCloudRepositoryReadOnly, CosmosDbTeamCloudRepository>()
                 .AddScoped<EnsureTeamCloudConfigurationMiddleware>();
 
-            //ConfigureAuthentication(services);
-            //ConfigureAuthorization(services);
+            ConfigureAuthentication(services);
+            ConfigureAuthorization(services);
 
             services
                 .AddMvc(options =>
@@ -221,7 +223,7 @@ namespace TeamCloud.API
             if (Guid.TryParse(projectIdRouteValue, out Guid projectId))
             {
                 var projectRepository = httpContext.RequestServices
-                    .GetRequiredService<IProjectsRepository>();
+                    .GetRequiredService<IProjectsRepositoryReadOnly>();
 
                 var project = await projectRepository
                     .GetAsync(projectId)

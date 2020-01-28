@@ -31,8 +31,10 @@ namespace TeamCloud.API.Controllers
         readonly Orchestrator orchestrator;
         readonly IProjectsRepositoryReadOnly projectsRepository;
 
-        public Guid? ProjectId {
-            get {
+        public Guid? ProjectId
+        {
+            get
+            {
                 var projectId = RouteData.Values.GetValueOrDefault(nameof(ProjectId), StringComparison.OrdinalIgnoreCase)?.ToString();
 
                 return (string.IsNullOrEmpty(projectId) ? null : (Guid?)Guid.Parse(projectId));
@@ -45,7 +47,6 @@ namespace TeamCloud.API.Controllers
             this.projectsRepository = projectsRepository ?? throw new ArgumentNullException(nameof(projectsRepository));
         }
 
-        // GET: api/projects/{projectId}/users
         [HttpGet]
         public async Task<IActionResult> Get()
         {
@@ -62,7 +63,6 @@ namespace TeamCloud.API.Controllers
                 : new OkObjectResult(users);
         }
 
-        // GET: api/projects/{projectId}/users/{userId}
         [HttpGet("{userId:guid}")]
         public async Task<IActionResult> Get(Guid userId)
         {
@@ -79,7 +79,6 @@ namespace TeamCloud.API.Controllers
                 : new OkObjectResult(user);
         }
 
-        // POST: api/projects/{projectId}/users
         [HttpPost]
         [Authorize(Policy = "projectCreate")]
         public async Task<IActionResult> Post([FromBody] UserDefinition userDefinition)
@@ -111,7 +110,6 @@ namespace TeamCloud.API.Controllers
             }
         }
 
-        // PUT: api/projects/{projectId}/users
         [HttpPut]
         [Authorize(Policy = "projectCreate")]
         public async Task<IActionResult> Put([FromBody] User user)
@@ -131,7 +129,6 @@ namespace TeamCloud.API.Controllers
             return new OkObjectResult(user);
         }
 
-        // DELETE: api/projects/{projectId}/users/{userId}
         [HttpDelete("{userId:guid}")]
         [Authorize(Policy = "projectCreate")]
         public async Task<IActionResult> Delete(Guid userId)

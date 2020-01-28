@@ -33,7 +33,6 @@ Options:
 
 Examples:
 
-  Increment the build number by one
     $ deploy.sh -n teamcloudapp -g TeamCloud -d teamcloud.deploy.yaml -c teamcloud.config.yaml
 
 endHelp
@@ -45,7 +44,7 @@ if (($# == 0)); then
 fi
 
 # get arg values
-while getopts ":n:g:y:h:" opt; do
+while getopts ":n:g:d:c:h:" opt; do
     case $opt in
         n)  appName=$OPTARG;;
         g)  resourceGroupName=$OPTARG;;

@@ -42,8 +42,9 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers
                 {
                     log.LogInformation($"Waiting for external event in orchestration {functionContext.InstanceId}");
 
+                    // FIXME: Change timespan back to 30 mins
                     activityResponse.CommandResult = await functionContext
-                        .WaitForExternalEvent<ICommandResult>(orchestratorRequest.Command.CommandId.ToString(), TimeSpan.FromMinutes(30), null)
+                        .WaitForExternalEvent<ICommandResult>(orchestratorRequest.Command.CommandId.ToString(), TimeSpan.FromMinutes(3), null)
                         .ConfigureAwait(true);
                 }
 
