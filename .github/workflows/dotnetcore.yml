@@ -17,6 +17,10 @@ jobs:
       run: sed -i 's/GITHUB_TOKEN/${{ secrets.GITHUB_TOKEN }}/g' nuget.config
       working-directory: ./src
         
+    - name: Configure Package Registry TEST
+      run: cat nuget.config
+      working-directory: ./src
+
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
@@ -35,4 +39,4 @@ jobs:
       working-directory: ./src/TeamCloud.Model
 
     - name: dotnet push TeamCloud.Model
-      run: dotnet nuget push ./src/TeamCloud.Model/**/*.nupkg --source "github"
+      run: dotnet nuget push ./src/TeamCloud.Model/**/*.nupkg --source 'github'
