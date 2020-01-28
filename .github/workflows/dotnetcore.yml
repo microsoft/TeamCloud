@@ -12,7 +12,15 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-      
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '3.1.101'
+
+    - name: Setup NuGet
+      uses: NuGet/setup-nuget@v1.0.2
+
     - name: Configure Package Registry Config
       run: sed -i 's/GITHUB_TOKEN/${{ secrets.GITHUB_TOKEN }}/g' nuget.config
       working-directory: ./src
@@ -20,11 +28,6 @@ jobs:
     - name: Configure Package Registry APIKey
       run: nuget setapikey ${{ secrets.GITHUB_TOKEN }} -source https://nuget.pkg.github.com/microsoft
       working-directory: ./src
-
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: '3.1.101'
 
     - name: dotnet build
       run: dotnet build --configuration $BUILD_CONFIGURATION
