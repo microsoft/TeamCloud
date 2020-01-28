@@ -45,8 +45,7 @@ steps:
   displayName: 'dotnet pack'
   inputs:
     command: 'pack'
-    packagesToPack: '*.sln'
+    packagesToPack: '**/TeamCloud.Model/*.csproj'
     nobuild: true
     versioningScheme: 'byEnvVar'
     versionEnvVar: '$(buildVersion)'
-    workingDirectory: '$(System.DefaultWorkingDirectory)/src'
