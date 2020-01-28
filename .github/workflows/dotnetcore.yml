@@ -32,3 +32,5 @@ jobs:
 
     - name: dotnet push 
       run: dotnet nuget push ./src/TeamCloud.Model/**/*.nupkg --source "github"
+      env:
+        NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
