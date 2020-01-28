@@ -5,7 +5,7 @@ on: [push]
 env:
   BUILD_CONFIGURATION: Release
   NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
-  NUGET_PKG_SOURCE: "https://nuget.pkg.github.com/microsoft/index.json"
+  NUGET_PKG_SOURCE: "https://nuget.pkg.github.com/microsoft/TeamCloud/index.json"
 
 jobs:
   build:
