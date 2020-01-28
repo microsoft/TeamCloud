@@ -14,6 +14,9 @@ variables:
 - name: buildConfiguration
   value: 'Release' 
 
+- name: buildVersion
+  value: '0.1.0.$(Build.BuildNumber)'
+
 steps:
 
 - task: UseDotNet@2 
@@ -39,9 +42,10 @@ steps:
     workingDirectory: '$(System.DefaultWorkingDirectory)/src'
 
 - task: DotNetCoreCLI@2
+  displayName: 'dotnet pack'
   inputs:
     command: 'pack'
     packagesToPack: '**/*.csproj'
     nobuild: true
     versioningScheme: 'byEnvVar'
-    versionEnvVar: '$(Build.BuildNumber)'
+    versionEnvVar: '$(buildVersion)'
