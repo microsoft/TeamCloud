@@ -16,11 +16,12 @@ variables:
 
 steps:
 
+
 - task: DotNetCoreCLI@2
-  displayName: 'dotnet build'
   inputs:
     command: 'build'
     arguments: '--configuration $(buildConfiguration)'
+    workingDirectory: '$(System.DefaultWorkingDirectory)/src'
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet test'
@@ -29,4 +30,5 @@ steps:
     arguments: '--configuration $(buildConfiguration)'
     nobuild: true
     publishTestResults: true
+    workingDirectory: '$(System.DefaultWorkingDirectory)/src'
 
