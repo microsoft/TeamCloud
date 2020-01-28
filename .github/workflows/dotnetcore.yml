@@ -13,12 +13,12 @@ jobs:
     steps:
     - uses: actions/checkout@v1
       
-    - name: Configure Package Registry
+    - name: Configure Package Registry Config
       run: sed -i 's/GITHUB_TOKEN/${{ secrets.GITHUB_TOKEN }}/g' nuget.config
       working-directory: ./src
         
-    - name: Configure Package Registry TEST
-      run: cat nuget.config
+    - name: Configure Package Registry APIKey
+      run: nuget setapikey ${{ secrets.GITHUB_TOKEN }} -source https://nuget.pkg.github.com/microsoft
       working-directory: ./src
 
     - name: Setup .NET Core
