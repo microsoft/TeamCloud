@@ -9,11 +9,24 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+variables:
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+- name: buildConfiguration
+  value: 'Release' 
+
+steps:
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet build'
+  inputs:
+    command: 'build'
+    arguments: '--configuration $(buildConfiguration)'
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet test'
+  inputs:
+    command: 'test'
+    arguments: '--configuration $(buildConfiguration)'
+    nobuild: true
+    publishTestResults: true
+
