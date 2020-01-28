@@ -34,9 +34,10 @@ jobs:
       run: dotnet test --configuration $BUILD_CONFIGURATION --no-build
       working-directory: ./src
 
-    - name: dotnet pack TeamCloud.Model
+    - name: dotnet pack
       run: dotnet pack --configuration $BUILD_CONFIGURATION --no-build
-      working-directory: ./src/TeamCloud.Model
+      working-directory: ./src
 
-    - name: dotnet push TeamCloud.Model
-      run: dotnet nuget push ./src/TeamCloud.Model/**/*.nupkg --source 'github'
+    - name: dotnet push 
+      run: dotnet nuget push ./**/bin/$BUILD_CONFIGURATION/*.nupkg --source 'github'
+      working-directory: ./src
