@@ -56,4 +56,4 @@ steps:
   inputs:
     command: 'push'
     searchPatternPush: '$(Build.ArtifactStagingDirectory)/*.nupkg;!$(Build.ArtifactStagingDirectory)/*.Tests.nupkg'
-    feedPublish: 'TeamCloud'
+    feedPublish: 'TeamCloud/TeamCloud'
