@@ -1,6 +1,9 @@
-name: TeamCloud-Build
+name: TeamCloud-Packaging
 
-on: [push]
+on:
+  push:
+    branches:
+      - feature/package-automation
 
 env:
   BUILD_CONFIGURATION: Release
@@ -22,16 +25,8 @@ jobs:
       run: sed -i 's/GITHUB_TOKEN/${{ secrets.GITHUB_TOKEN }}/g' nuget.config
       working-directory: ./src
 
-    - name: dotnet build
-      run: dotnet build --configuration $BUILD_CONFIGURATION
-      working-directory: ./src
-
-    # - name: dotnet test
-    #   run: dotnet test --configuration $BUILD_CONFIGURATION --no-build
-    #   working-directory: ./src
-
     - name: dotnet pack
-      run: dotnet pack --configuration $BUILD_CONFIGURATION --no-build
+      run: dotnet pack --configuration $BUILD_CONFIGURATION
       working-directory: ./src
 
     - name: dotnet push 
