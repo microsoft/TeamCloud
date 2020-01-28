@@ -13,13 +13,15 @@ jobs:
     steps:
     - uses: actions/checkout@v1
       
+    - name: Configure Package Registry
+      run: sed -i 's/GITHUB_TOKEN/${{ secrets.GITHUB_TOKEN }}/g' nuget.config
+      working-directory: ./src
+        
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: '3.1.101'
-      env:
-        NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
-        
+
     - name: dotnet build
       run: dotnet build --configuration $BUILD_CONFIGURATION
       working-directory: ./src
@@ -33,4 +35,4 @@ jobs:
       working-directory: ./src/TeamCloud.Model
 
     - name: dotnet push TeamCloud.Model
-      run: dotnet nuget push ./src/TeamCloud.Model/**/*.nupkg -k ${{secrets.GITHUB_TOKEN}} -s https://nuget.pkg.github.com/microsoft/index.json
+      run: dotnet nuget push ./src/TeamCloud.Model/**/*.nupkg --source "github"
