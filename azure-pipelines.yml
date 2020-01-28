@@ -15,7 +15,7 @@ variables:
   value: 'Release' 
 
 - name: packVersion
-  value: '0.1.0-$(Build.SourceBranchName)-$(BuildID)'
+  value: '0.1.0-$(Build.SourceBranchName)-$(Build.BuildId)'
 
 steps:
 
