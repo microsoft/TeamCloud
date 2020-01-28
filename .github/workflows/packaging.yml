@@ -1,0 +1,39 @@
+name: TeamCloud-Build
+
+on: [push]
+
+env:
+  BUILD_CONFIGURATION: Release
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '3.1.101'
+
+    - name: Configure Package Registry Config
+      run: sed -i 's/GITHUB_TOKEN/${{ secrets.GITHUB_TOKEN }}/g' nuget.config
+      working-directory: ./src
+
+    - name: dotnet build
+      run: dotnet build --configuration $BUILD_CONFIGURATION
+      working-directory: ./src
+
+    # - name: dotnet test
+    #   run: dotnet test --configuration $BUILD_CONFIGURATION --no-build
+    #   working-directory: ./src
+
+    - name: dotnet pack
+      run: dotnet pack --configuration $BUILD_CONFIGURATION --no-build
+      working-directory: ./src
+
+    - name: dotnet push 
+      run: dotnet nuget push ./**/bin/$BUILD_CONFIGURATION/*.nupkg --source 'github'
+      working-directory: ./src
