@@ -50,3 +50,10 @@ steps:
     versioningScheme: 'byEnvVar'
     versionEnvVar: 'PACKVERSION'
     verbosityPack: 'Minimal'
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet push'
+  inputs:
+    command: 'push'
+    searchPatternPush: '$(Build.ArtifactStagingDirectory)/*.nupkg;!$(Build.ArtifactStagingDirectory)/*.Tests.nupkg'
+    feedPublish: 'TeamCloud'
