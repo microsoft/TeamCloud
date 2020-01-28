@@ -57,7 +57,8 @@ namespace TeamCloud.Azure.Deployments.Providers
         private async Task<string> UploadTemplatesAsync(Guid deploymentId, IDictionary<string, string> templates)
         {
             if (!deploymentContainer.IsValueCreated)
-                await deploymentContainer.Value.CreateIfNotExistsAsync().ConfigureAwait(false);
+                await deploymentContainer.Value.CreateIfNotExistsAsync()
+                    .ConfigureAwait(false);
 
             var uploadTasks = templates.Select(template => deploymentContainer.Value
                 .GetBlockBlobReference($"{deploymentId}/{template.Key}")
@@ -65,7 +66,7 @@ namespace TeamCloud.Azure.Deployments.Providers
 
             Task.WaitAll(uploadTasks.ToArray());
 
-            return deploymentContainer.Value.Uri.ToString()
+            return deploymentContainer.Value.Uri.AbsoluteUri
                 .AppendPathSegment(deploymentId.ToString())
                 .ToString();
         }

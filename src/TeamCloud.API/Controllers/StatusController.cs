@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TeamCloud.API.Services;
+using TeamCloud.Model.Commands;
 
 namespace TeamCloud.API.Controllers
 {
@@ -29,9 +30,10 @@ namespace TeamCloud.API.Controllers
                 .QueryAsync(instanceId, null)
                 .ConfigureAwait(false);
 
-            if (result is null) return new NotFoundResult();
+            if (result is null)
+                return new NotFoundResult();
 
-            return new ObjectResult(result);
+            return result.StatusResult();
         }
 
         [Authorize(Policy = "projectRead")]
@@ -42,9 +44,10 @@ namespace TeamCloud.API.Controllers
                 .QueryAsync(commandId, projectId)
                 .ConfigureAwait(false);
 
-            if (result is null) return new NotFoundResult();
+            if (result is null)
+                return new NotFoundResult();
 
-            return new ObjectResult(result);
+            return result.StatusResult();
         }
     }
 }

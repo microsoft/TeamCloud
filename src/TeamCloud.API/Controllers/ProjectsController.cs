@@ -61,9 +61,7 @@ namespace TeamCloud.API.Controllers
                 .ListAsync();
 
             await foreach (var project in projects)
-            {
                 yield return project;
-            }
         }
 
         [HttpGet("{projectId:guid}")]
@@ -73,9 +71,10 @@ namespace TeamCloud.API.Controllers
                 .GetAsync(projectId)
                 .ConfigureAwait(false);
 
-            return project is null
-                ? (IActionResult)new NotFoundResult()
-                : new OkObjectResult(project);
+            if (project is null)
+                return new NotFoundResult();
+
+            return new OkObjectResult(project);
         }
 
         [HttpPost]
@@ -98,18 +97,12 @@ namespace TeamCloud.API.Controllers
                 return new ConflictObjectResult($"A Project with name '{project.Name}' already exists.  Project names must be unique.  Please try your request again with a unique name.");
 
             var command = new ProjectCreateCommand(CurrentUser, project);
+
             var commandResult = await orchestrator
                 .InvokeAsync<Project>(command)
                 .ConfigureAwait(false);
 
-            if (commandResult.Links.TryGetValue("status", out var statusUrl))
-            {
-                return new AcceptedResult(statusUrl, commandResult);
-            }
-            else
-            {
-                return new OkObjectResult(commandResult);
-            }
+            return commandResult.ActionResult();
         }
 
         [HttpDelete("{projectId:guid}")]
@@ -128,14 +121,7 @@ namespace TeamCloud.API.Controllers
                 .InvokeAsync<Project>(command)
                 .ConfigureAwait(false);
 
-            if (commandResult.Links.TryGetValue("status", out var statusUrl))
-            {
-                return new AcceptedResult(statusUrl, commandResult);
-            }
-            else
-            {
-                return new OkObjectResult(commandResult);
-            }
+            return commandResult.ActionResult();
         }
     }
 }

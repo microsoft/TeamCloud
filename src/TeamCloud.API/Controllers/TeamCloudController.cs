@@ -45,9 +45,10 @@ namespace TeamCloud.API.Controllers
                 .GetAsync()
                 .ConfigureAwait(false);
 
-            return teamCloudInstance is null
-                ? (IActionResult)new NotFoundResult()
-                : new OkObjectResult(teamCloudInstance.Configuration);
+            if (teamCloudInstance is null)
+                return new NotFoundResult();
+
+            return new OkObjectResult(teamCloudInstance.Configuration);
         }
 
         [HttpPost]
@@ -72,14 +73,7 @@ namespace TeamCloud.API.Controllers
                 .InvokeAsync<TeamCloudInstance>(command)
                 .ConfigureAwait(false);
 
-            if (commandResult.Links.TryGetValue("status", out var statusUrl))
-            {
-                return new AcceptedResult(statusUrl, commandResult);
-            }
-            else
-            {
-                return new OkObjectResult(commandResult);
-            }
+            return commandResult.ActionResult();
         }
     }
 }

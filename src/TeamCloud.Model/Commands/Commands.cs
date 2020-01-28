@@ -95,9 +95,9 @@ namespace TeamCloud.Model.Commands
     }
 
 
-    public class TeamCloudUserDeletCommand : Command<User, User>
+    public class TeamCloudUserDeleteCommand : Command<User, User>
     {
-        public TeamCloudUserDeletCommand(User user, User payload) : base(user, payload)
+        public TeamCloudUserDeleteCommand(User user, User payload) : base(user, payload)
         {
         }
     }

@@ -45,11 +45,15 @@ namespace TeamCloud.API
                 .GetAsync()
                 .ConfigureAwait(false);
 
+            if (teamCloudInstance is null)
+                return new NotFoundResult();
+
             var users = teamCloudInstance?.Users;
 
-            return users is null
-                ? (IActionResult)new NotFoundResult()
-                : new OkObjectResult(users);
+            if (users is null)
+                return new NotFoundResult();
+
+            return new OkObjectResult(users);
         }
 
         [HttpGet("{userId:guid}")]
@@ -59,24 +63,39 @@ namespace TeamCloud.API
                 .GetAsync()
                 .ConfigureAwait(false);
 
+            if (teamCloudInstance is null)
+                return new NotFoundResult();
+
             var user = teamCloudInstance?.Users?.FirstOrDefault(u => u.Id == userId);
 
-            return user is null
-                ? (IActionResult)new NotFoundResult()
-                : new OkObjectResult(user);
+            if (user is null)
+                return new NotFoundResult();
+
+            return new OkObjectResult(user); ;
         }
 
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] UserDefinition userDefinition)
         {
-            if (userDefinition is null) return new BadRequestResult();
+            if (userDefinition is null)
+                return new BadRequestResult();
 
-            var newUser = new User
-            {
-                Id = Guid.NewGuid(), // TODO: Get user id from graph using userDefinition.Email
-                Role = userDefinition.Role, // TODO: validate
-                Tags = userDefinition.Tags
-            };
+            var teamCloudInstance = await teamCloudRepository
+                .GetAsync()
+                .ConfigureAwait(false);
+
+            if (teamCloudInstance is null)
+                return new NotFoundResult();
+
+            var newUser = await userService
+                .GetUserAsync(userDefinition)
+                .ConfigureAwait(false);
+
+            if (newUser is null)
+                return new NotFoundResult();
+
+            if (teamCloudInstance.Users.Contains(newUser))
+                return new ConflictObjectResult("User already esists in this TeamCloud Instance.");
 
             var command = new TeamCloudUserCreateCommand(CurrentUser, newUser);
 
@@ -84,14 +103,7 @@ namespace TeamCloud.API
                 .InvokeAsync<User>(command)
                 .ConfigureAwait(false);
 
-            if (commandResult.Links.TryGetValue("status", out var statusUrl))
-            {
-                return new AcceptedResult(statusUrl, commandResult);
-            }
-            else
-            {
-                return new OkObjectResult(commandResult);
-            }
+            return commandResult.ActionResult();
         }
 
         [HttpPut]
@@ -101,13 +113,21 @@ namespace TeamCloud.API
                 .GetAsync()
                 .ConfigureAwait(false);
 
+            if (teamCloudInstance is null)
+                return new NotFoundResult();
+
             var oldUser = teamCloudInstance?.Users?.FirstOrDefault(u => u.Id == user.Id);
 
-            if (oldUser is null) return new NotFoundResult();
+            if (oldUser is null)
+                return new NotFoundObjectResult("User does not esists in this TeamCloud Instance.");
 
-            // TODO: start TeamCloudUserUpdateOrchestration and replace the code below (only the orchestrator can write to the database)
+            var command = new TeamCloudUserUpdateCommand(CurrentUser, user);
 
-            return new OkObjectResult(user);
+            var commandResult = await orchestrator
+                .InvokeAsync<User>(command)
+                .ConfigureAwait(false);
+
+            return commandResult.ActionResult();
         }
 
         [HttpDelete("{userId:guid}")]
@@ -117,13 +137,21 @@ namespace TeamCloud.API
                 .GetAsync()
                 .ConfigureAwait(false);
 
+            if (teamCloudInstance is null)
+                return new NotFoundResult();
+
             var user = teamCloudInstance?.Users?.FirstOrDefault(u => u.Id == userId);
 
-            if (user is null) return new NotFoundResult();
+            if (user is null)
+                return new NotFoundObjectResult("User does not esists in this TeamCloud Instance.");
 
-            // TODO: start TeamCloudUserDeleteOrchestration and replace the code below (only the orchestrator can write to the database)
+            var command = new TeamCloudUserDeleteCommand(CurrentUser, user);
 
-            return new OkResult();
+            var commandResult = await orchestrator
+                .InvokeAsync<User>(command)
+                .ConfigureAwait(false);
+
+            return commandResult.ActionResult();
         }
     }
 }
