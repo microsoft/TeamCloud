@@ -2,6 +2,9 @@ name: TeamCloud-Build
 
 on: [push]
 
+env:
+  BUILD_CONFIGURATION: Release
+
 jobs:
   build:
 
@@ -15,6 +18,10 @@ jobs:
       with:
         dotnet-version: '3.1.101'
         
-    - name: Build with dotnet
-      run: dotnet build --configuration Release
+    - name: dotnet build
+      run: dotnet build --configuration $BUILD_CONFIGURATION
+      working-directory: ./src
+
+    - name: dotnet test
+      run: dotnet test --configuration $BUILD_CONFIGURATION --no-build
       working-directory: ./src
