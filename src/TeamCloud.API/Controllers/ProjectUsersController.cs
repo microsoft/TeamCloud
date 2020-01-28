@@ -21,15 +21,16 @@ namespace TeamCloud.API.Controllers
     [Route("api/projects/{projectId:guid}/users")]
     public class ProjectUsersController : ControllerBase
     {
-        // FIXME:
-        private User currentUser = new User
-        {
-            Id = Guid.Parse("bc8a62dc-c327-4418-a004-77c85c3fb488"),
-            Role = UserRoles.TeamCloud.Admin
-        };
-
+        readonly UserService userService;
         readonly Orchestrator orchestrator;
         readonly IProjectsRepositoryReadOnly projectsRepository;
+
+        public ProjectUsersController(UserService userService, Orchestrator orchestrator, IProjectsRepositoryReadOnly projectsRepository)
+        {
+            this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
+            this.orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
+            this.projectsRepository = projectsRepository ?? throw new ArgumentNullException(nameof(projectsRepository));
+        }
 
         public Guid? ProjectId
         {
@@ -41,26 +42,31 @@ namespace TeamCloud.API.Controllers
             }
         }
 
-        public ProjectUsersController(Orchestrator orchestrator, IProjectsRepositoryReadOnly projectsRepository)
+        private User CurrentUser => new User()
         {
-            this.orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
-            this.projectsRepository = projectsRepository ?? throw new ArgumentNullException(nameof(projectsRepository));
-        }
+            Id = userService.CurrentUserId,
+            Role = UserRoles.Project.Owner
+        };
 
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            if (!ProjectId.HasValue) return new NotFoundResult();
+            if (!ProjectId.HasValue)
+                return new NotFoundResult();
 
             var project = await projectsRepository
                 .GetAsync(ProjectId.Value)
                 .ConfigureAwait(false);
 
+            if (project is null)
+                return new NotFoundResult();
+
             var users = project?.Users;
 
-            return users is null
-                ? (IActionResult)new NotFoundResult()
-                : new OkObjectResult(users);
+            if (users is null)
+                return new NotFoundResult();
+
+            return new OkObjectResult(users);
         }
 
         [HttpGet("{userId:guid}")]
@@ -72,91 +78,107 @@ namespace TeamCloud.API.Controllers
                 .GetAsync(ProjectId.Value)
                 .ConfigureAwait(false);
 
+            if (project is null)
+                return new NotFoundResult();
+
             var user = project?.Users?.FirstOrDefault(u => u.Id == userId);
 
-            return user is null
-                ? (IActionResult)new NotFoundResult()
-                : new OkObjectResult(user);
+            if (user is null)
+                return new NotFoundResult();
+
+            return new OkObjectResult(user); ;
         }
 
         [HttpPost]
         [Authorize(Policy = "projectCreate")]
         public async Task<IActionResult> Post([FromBody] UserDefinition userDefinition)
         {
-            if (!ProjectId.HasValue) return new NotFoundResult();
+            if (!ProjectId.HasValue)
+                return new NotFoundResult();
 
-            if (userDefinition is null) return new BadRequestResult();
+            if (userDefinition is null)
+                return new BadRequestResult();
 
-            var newUser = new User
-            {
-                Id = Guid.NewGuid(), // TODO: Get user id from graph using userDefinition.Email
-                Role = userDefinition.Role, // TODO: validate
-                Tags = userDefinition.Tags
-            };
+            var project = await projectsRepository
+                .GetAsync(ProjectId.Value)
+                .ConfigureAwait(false);
 
-            var command = new ProjectUserCreateCommand(currentUser, newUser, ProjectId.Value);
+            if (project is null)
+                return new NotFoundResult();
+
+            var newUser = await userService
+                .GetUserAsync(userDefinition)
+                .ConfigureAwait(false);
+
+            if (newUser is null)
+                return new NotFoundResult();
+
+            if (project.Users.Contains(newUser))
+                return new ConflictObjectResult("User already esists in this Project.");
+
+            var command = new ProjectUserCreateCommand(CurrentUser, newUser, ProjectId.Value);
 
             var commandResult = await orchestrator
                 .InvokeAsync<User>(command)
                 .ConfigureAwait(false);
 
-            if (commandResult.Links.TryGetValue("status", out var statusUrl))
-            {
-                return new AcceptedResult(statusUrl, commandResult);
-            }
-            else
-            {
-                return new OkObjectResult(commandResult);
-            }
+            return commandResult.ActionResult();
         }
 
         [HttpPut]
         [Authorize(Policy = "projectCreate")]
         public async Task<IActionResult> Put([FromBody] User user)
         {
-            if (!ProjectId.HasValue) return new NotFoundResult();
+            if (!ProjectId.HasValue)
+                return new NotFoundResult();
 
             var project = await projectsRepository
                 .GetAsync(ProjectId.Value)
                 .ConfigureAwait(false);
 
+            if (project is null)
+                return new NotFoundResult();
+
             var oldUser = project?.Users?.FirstOrDefault(u => u.Id == user.Id);
 
-            if (oldUser is null) return new NotFoundResult();
+            if (oldUser is null)
+                return new NotFoundObjectResult("User does not esists in this Project.");
 
-            // TODO: send ProjectUserUpdateCommand and replace the code below (only the orchestrator can write to the database)
+            var command = new ProjectUserUpdateCommand(CurrentUser, user, ProjectId.Value);
 
-            return new OkObjectResult(user);
+            var commandResult = await orchestrator
+                .InvokeAsync<User>(command)
+                .ConfigureAwait(false);
+
+            return commandResult.ActionResult();
         }
 
         [HttpDelete("{userId:guid}")]
         [Authorize(Policy = "projectCreate")]
         public async Task<IActionResult> Delete(Guid userId)
         {
-            if (!ProjectId.HasValue) return new NotFoundResult();
+            if (!ProjectId.HasValue)
+                return new NotFoundResult();
 
             var project = await projectsRepository
                 .GetAsync(ProjectId.Value)
                 .ConfigureAwait(false);
 
+            if (project is null)
+                return new NotFoundResult();
+
             var user = project?.Users?.FirstOrDefault(u => u.Id == userId);
 
-            if (user is null) return new NotFoundResult();
+            if (user is null)
+                return new NotFoundObjectResult("User does not esists in this Project.");
 
-            var command = new ProjectUserDeleteCommand(currentUser, user, ProjectId.Value);
+            var command = new ProjectUserDeleteCommand(CurrentUser, user, ProjectId.Value);
 
             var commandResult = await orchestrator
-                .InvokeAsync<Project>(command)
+                .InvokeAsync<User>(command)
                 .ConfigureAwait(false);
 
-            if (commandResult.Links.TryGetValue("status", out var statusUrl))
-            {
-                return new AcceptedResult(statusUrl, commandResult);
-            }
-            else
-            {
-                return new OkObjectResult(commandResult);
-            }
+            return commandResult.ActionResult();
         }
     }
 }

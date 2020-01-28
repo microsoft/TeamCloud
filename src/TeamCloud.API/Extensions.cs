@@ -12,7 +12,9 @@ using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using TeamCloud.Model.Commands;
 
 namespace TeamCloud.API
 {
@@ -69,5 +71,15 @@ namespace TeamCloud.API
 
         public static bool IsEMail(this string value)
             => new EmailAddressAttribute().IsValid(value);
+
+        public static IActionResult ActionResult(this ICommandResult result)
+            => result.Links.TryGetValue("status", out var statusUrl)
+               ? new AcceptedResult(statusUrl, result)
+               : new OkObjectResult(result) as IActionResult;
+
+        public static IActionResult StatusResult(this ICommandResult result)
+            => result.RuntimeStatus.IsFinal() && result.Links.TryGetValue("status", out var statusUrl)
+               ? new AcceptedResult(statusUrl, result)
+               : new OkObjectResult(result) as IActionResult;
     }
 }

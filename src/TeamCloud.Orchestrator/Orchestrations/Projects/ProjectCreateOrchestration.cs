@@ -50,15 +50,11 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
                 .CallActivityAsync<Project>(nameof(ProjectCreateActivity), project)
                 .ConfigureAwait(true);
 
-            // await CreateAzureResourceGroupAsync(functionContext, orchestratorContext, project, teamCloud).ConfigureAwait(true);
-
             functionContext.SetCustomStatus("Creating new Resource Group for Project");
 
             var subscriptionId = await functionContext
                 .CallActivityAsync<Guid>(nameof(AzureSubscriptionPoolSelectActivity), teamCloud)
                 .ConfigureAwait(true);
-
-
 
             try
             {
@@ -80,17 +76,14 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
 
             functionContext.SetCustomStatus("Creating Project Resources");
 
-            // Send create command to providers
-            var projectContext = new ProjectContext(teamCloud, project, user);
             var providerCommands = teamCloud.Providers.Select(provider => new ProviderCommand { Command = command, Provider = provider });
-            // Execute tasks
             var providerCommandTasks = providerCommands.Select(providerCommand => functionContext.CallSubOrchestratorAsync<ProviderCommandResult>(nameof(ProviderCommandOrchestration), providerCommand));
-            var providerCommandResults = await Task.WhenAll(providerCommandTasks).ConfigureAwait(true);
+
+            var providerCommandResults = await Task
+                .WhenAll(providerCommandTasks)
+                .ConfigureAwait(true);
 
             functionContext.SetCustomStatus("Project Created");
-            //// Create and initialize providers...
-            // await CreateProjectResourcesAsync(functionContext, teamCloud, projectContext*).ConfigureAwait(false);
-            // await InitializeProjectResourcesAsync(functionContext, teamCloud, projectContext).ConfigureAwait(false);
 
             functionContext.SetOutput(project);
         }
