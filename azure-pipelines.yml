@@ -48,4 +48,4 @@ steps:
     packagesToPack: '**/TeamCloud.Model/*.csproj'
     nobuild: true
     versioningScheme: 'byEnvVar'
-    versionEnvVar: '$(buildVersion)'
+    versionEnvVar: 'buildVersion'
