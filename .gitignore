@@ -332,6 +332,6 @@ ASALocalRun/
 local/
 docs/local/
 *.DS_Store
-src/TeamCloud.Orchestrator/local.settings.json
-appsettings.json
+# src/TeamCloud.Orchestrator/local.settings.json
+# appsettings.json
 .vscode/TeamCloud.code-workspace
