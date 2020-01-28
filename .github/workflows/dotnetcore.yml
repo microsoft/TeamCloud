@@ -4,8 +4,6 @@ on: [push]
 
 env:
   BUILD_CONFIGURATION: Release
-  NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
-  NUGET_PKG_SOURCE: "https://nuget.pkg.github.com/microsoft/TeamCloud/index.json"
 
 jobs:
   build:
@@ -19,6 +17,9 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: '3.1.101'
+        source-url: https://nuget.pkg.github.com/microsoft/index.json
+      env:
+        NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
         
     - name: dotnet build
       run: dotnet build --configuration $BUILD_CONFIGURATION
@@ -32,5 +33,5 @@ jobs:
       run: dotnet pack --configuration $BUILD_CONFIGURATION --no-build
       working-directory: ./src/TeamCloud.Model
 
-    - name: dotnet push 
-      run: dotnet nuget push ./src/TeamCloud.Model/**/*.nupkg --source $NUGET_PKG_SOURCE
+    - name: dotnet push TeamCloud.Model
+      run: dotnet nuget push ./src/TeamCloud.Model/**/*.nupkg
