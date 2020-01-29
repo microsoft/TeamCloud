@@ -13,8 +13,7 @@ namespace TeamCloud.Model.Commands
         public override Guid? ProjectId => Payload.Id;
 
         public ProjectCreateCommand(User user, Project project) : base(user, project)
-        {
-        }
+        { }
     }
 
 
@@ -23,8 +22,7 @@ namespace TeamCloud.Model.Commands
         public override Guid? ProjectId => Payload.Id;
 
         public ProjectUpdateCommand(User user, Project payload) : base(user, payload)
-        {
-        }
+        { }
     }
 
 
@@ -33,8 +31,7 @@ namespace TeamCloud.Model.Commands
         public override Guid? ProjectId => Payload.Id;
 
         public ProjectDeleteCommand(User user, Project payload) : base(user, payload)
-        {
-        }
+        { }
     }
 
 
@@ -43,9 +40,7 @@ namespace TeamCloud.Model.Commands
         public override Guid? ProjectId { get; set; }
 
         public ProjectUserCreateCommand(User user, User payload, Guid projectId) : base(user, payload)
-        {
-            ProjectId = projectId;
-        }
+            => ProjectId = projectId;
     }
 
 
@@ -54,9 +49,7 @@ namespace TeamCloud.Model.Commands
         public override Guid? ProjectId { get; set; }
 
         public ProjectUserUpdateCommand(User user, User payload, Guid projectId) : base(user, payload)
-        {
-            ProjectId = projectId;
-        }
+            => ProjectId = projectId;
     }
 
 
@@ -65,40 +58,34 @@ namespace TeamCloud.Model.Commands
         public override Guid? ProjectId { get; set; }
 
         public ProjectUserDeleteCommand(User user, User payload, Guid projectId) : base(user, payload)
-        {
-            ProjectId = projectId;
-        }
+            => ProjectId = projectId;
     }
 
 
     public class TeamCloudCreateCommand : Command<TeamCloudInstance, TeamCloudInstance>
     {
         public TeamCloudCreateCommand(User user, TeamCloudInstance payload) : base(user, payload)
-        {
-        }
+        { }
     }
 
 
     public class TeamCloudUserCreateCommand : Command<User, User>
     {
         public TeamCloudUserCreateCommand(User user, User payload) : base(user, payload)
-        {
-        }
+        { }
     }
 
 
     public class TeamCloudUserUpdateCommand : Command<User, User>
     {
         public TeamCloudUserUpdateCommand(User user, User payload) : base(user, payload)
-        {
-        }
+        { }
     }
 
 
     public class TeamCloudUserDeleteCommand : Command<User, User>
     {
         public TeamCloudUserDeleteCommand(User user, User payload) : base(user, payload)
-        {
-        }
+        { }
     }
 }
