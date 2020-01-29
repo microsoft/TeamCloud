@@ -31,7 +31,6 @@ namespace TeamCloud.Azure.Deployments.Providers
                 .CreateCloudBlobClient().GetContainerReference(DEPLOYMENT_CONTAINER_NAME));
         }
 
-
         public async Task<IAzureDeploymentArtifactsContainer> UploadArtifactsAsync(Guid deploymentId, AzureDeploymentTemplate azureDeploymentTemplate)
         {
             var container = new Container();
@@ -41,8 +40,20 @@ namespace TeamCloud.Azure.Deployments.Providers
                 var location = await UploadTemplatesAsync(deploymentId, azureDeploymentTemplate.LinkedTemplates)
                     .ConfigureAwait(false);
 
-                if (!string.IsNullOrEmpty(azureStorageArtifactsOptions.BaseUrl))
-                    location = azureStorageArtifactsOptions.BaseUrl.AppendPathSegment(deploymentId).ToString();
+                if (!string.IsNullOrEmpty(azureStorageArtifactsOptions.BaseUrlOverride)
+                    && Uri.IsWellFormedUriString(azureStorageArtifactsOptions.BaseUrlOverride, UriKind.Absolute))
+                {
+                    location = azureStorageArtifactsOptions.BaseUrlOverride.AppendPathSegment(deploymentId).ToString();
+                }
+                else if (azureStorageArtifactsOptions.ConnectionString.IsDevelopmentStorageConnectionString())
+                {
+                    // if the artifact storage connection string points to a development storage (Azure Storage Emulator)
+                    // a BaseUrlOverride must be given as the storage is not publicly accessable in this case.
+                    // in this case it's required to use a tool like ngrok to make a local endpoint publicly available
+                    // that deliveres artifacts requested by the ARM deployment.
+
+                    throw new NotSupportedException($"Using development storage (Azure Storage Emulator) without a {nameof(azureStorageArtifactsOptions.BaseUrlOverride)} is not supported");
+                }
 
                 container.Location = $"{location.TrimEnd('/')}/";
 
