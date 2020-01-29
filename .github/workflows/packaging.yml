@@ -25,10 +25,12 @@ jobs:
       run: sed -i 's/GITHUB_TOKEN/${{ secrets.GITHUB_TOKEN }}/g' nuget.config
       working-directory: ./src
 
-    - name: dotnet pack
-      run: dotnet pack --configuration $BUILD_CONFIGURATION
+    - name: Build and Package
+      run:  |
+        commit="${{ github.sha }}"
+        dotnet build -c Release --version-suffix "v${commit:0:7}"
       working-directory: ./src
 
-    - name: dotnet push 
+    - name: Push packages to GitHub 
       run: dotnet nuget push ./TeamCloud.Model/bin/$BUILD_CONFIGURATION/*.nupkg --source 'github'
       working-directory: ./src
