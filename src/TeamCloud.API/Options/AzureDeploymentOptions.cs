@@ -23,12 +23,10 @@ namespace TeamCloud.API.Options
             this.azureDeploymentStorageOptions = azureDeploymentStorageOptions ?? throw new ArgumentNullException(nameof(azureDeploymentStorageOptions));
         }
 
-        public string Region => string.IsNullOrEmpty(azureResourceManagerOptions.Region)
-            ? Environment.GetEnvironmentVariable("REGION_NAME")
-            : azureResourceManagerOptions.Region;
-
-        public string BaseUrl => azureDeploymentStorageOptions.BaseUrl;
+        string IAzureStorageArtifactsOptions.BaseUrlOverride => azureDeploymentStorageOptions.BaseUrlOverride;
 
         string IAzureStorageArtifactsOptions.ConnectionString => azureDeploymentStorageOptions.ConnectionString;
+
+        string IAzureDeploymentOptions.Region => azureResourceManagerOptions.Region;
     }
 }

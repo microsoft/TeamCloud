@@ -7,7 +7,7 @@ namespace TeamCloud.Azure.Deployments.Providers
 {
     public interface IAzureStorageArtifactsOptions
     {
-        string BaseUrl { get; }
+        string BaseUrlOverride { get; }
 
         string ConnectionString { get; }
     }

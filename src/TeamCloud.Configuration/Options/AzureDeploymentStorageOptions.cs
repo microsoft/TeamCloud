@@ -10,6 +10,6 @@ namespace TeamCloud.Configuration.Options
     {
         public string ConnectionString { get; set; }
 
-        public string BaseUrl { get; set; }
+        public string BaseUrlOverride { get; set; }
     }
 }

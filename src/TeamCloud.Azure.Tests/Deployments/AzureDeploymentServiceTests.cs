@@ -30,7 +30,7 @@ namespace TeamCloud.Azure.Tests.Deployments
             azureDeploymentArtifactStorage.UploadArtifactsAsync(default, default).ReturnsForAnyArgs(azureDeploymentArtifactContainer);
 
             var azureDeploymentOptions = Substitute.For<IAzureDeploymentOptions>();
-            azureDeploymentOptions.BaseUrl.Returns("West Europe");
+            azureDeploymentOptions.Region.Returns("West Europe");
 
             var deploymentService = new AzureDeploymentService(azureDeploymentOptions, azureSessionFactory, azureDeploymentArtifactStorage);
             var deploymentTemplate = await AzureDeploymentTemplate.CreateAsync<SimpleTemplate>().ConfigureAwait(false);
@@ -63,7 +63,7 @@ namespace TeamCloud.Azure.Tests.Deployments
             azureDeploymentArtifactStorage.UploadArtifactsAsync(default, default).ReturnsForAnyArgs(azureDeploymentArtifactContainer);
 
             var azureDeploymentOptions = Substitute.For<IAzureDeploymentOptions>();
-            azureDeploymentOptions.BaseUrl.Returns("West Europe");
+            azureDeploymentOptions.Region.Returns("West Europe");
 
             var deploymentService = new AzureDeploymentService(azureDeploymentOptions, azureSessionFactory, azureDeploymentArtifactStorage);
             var deploymentTemplate = await AzureDeploymentTemplate.CreateAsync<SimpleTemplate>().ConfigureAwait(false);
@@ -98,7 +98,7 @@ namespace TeamCloud.Azure.Tests.Deployments
             azureDeploymentArtifactStorage.UploadArtifactsAsync(default, default).ReturnsForAnyArgs(azureDeploymentArtifactContainer);
 
             var azureDeploymentOptions = Substitute.For<IAzureDeploymentOptions>();
-            azureDeploymentOptions.BaseUrl.Returns("West Europe");
+            azureDeploymentOptions.Region.Returns("West Europe");
 
             var deploymentService = new AzureDeploymentService(azureDeploymentOptions, azureSessionFactory, azureDeploymentArtifactStorage);
             var deploymentTemplate = await AzureDeploymentTemplate.CreateAsync<SimpleTemplate>().ConfigureAwait(false);
@@ -134,7 +134,7 @@ namespace TeamCloud.Azure.Tests.Deployments
             azureDeploymentArtifactStorage.UploadArtifactsAsync(default, default).ReturnsForAnyArgs(azureDeploymentArtifactContainer);
 
             var azureDeploymentOptions = Substitute.For<IAzureDeploymentOptions>();
-            azureDeploymentOptions.BaseUrl.Returns("West Europe");
+            azureDeploymentOptions.Region.Returns("West Europe");
 
             var deploymentService = new AzureDeploymentService(azureDeploymentOptions, azureSessionFactory, azureDeploymentArtifactStorage);
             var deploymentTemplate = await AzureDeploymentTemplate.CreateAsync<SimpleTemplate>().ConfigureAwait(false);
@@ -174,7 +174,7 @@ namespace TeamCloud.Azure.Tests.Deployments
             azureDeploymentArtifactStorage.UploadArtifactsAsync(default, default).ReturnsForAnyArgs(azureDeploymentArtifactContainer);
 
             var azureDeploymentOptions = Substitute.For<IAzureDeploymentOptions>();
-            azureDeploymentOptions.BaseUrl.Returns("West Europe");
+            azureDeploymentOptions.Region.Returns("West Europe");
 
             var deploymentService = new AzureDeploymentService(azureDeploymentOptions, azureSessionFactory, azureDeploymentArtifactStorage);
             var deploymentTemplate = await AzureDeploymentTemplate.CreateAsync<SimpleTemplate>().ConfigureAwait(false);
