@@ -10,7 +10,6 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Azure.Deployments;
-using TeamCloud.Model.Context;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestrator.Templates;
 
@@ -27,14 +26,14 @@ namespace TeamCloud.Orchestrator.Orchestrations.Azure
 
         [FunctionName(nameof(AzureResourceGroupCreateActivity))]
         public async Task<AzureResourceGroup> RunActivity(
-            [ActivityTrigger] (OrchestratorContext, Project, Guid) input,
+            [ActivityTrigger] (TeamCloudInstance, Project, Guid) input,
             ILogger logger)
         {
-            var orchestratorContext = input.Item1;
+            var teamCloud = input.Item1;
             var project = input.Item2;
             var subscriptionId = input.Item3;
 
-            if (orchestratorContext == null)
+            if (teamCloud == null)
                 throw new ArgumentNullException(nameof(input));
 
             if (project == null)
@@ -55,9 +54,9 @@ namespace TeamCloud.Orchestrator.Orchestrations.Azure
 
             template.Parameters["projectId"] = project.Id;
             template.Parameters["projectName"] = project.Name;
-            template.Parameters["projectPrefix"] = orchestratorContext.TeamCloud.ProjectsConfiguration.Azure.ResourceGroupNamePrefix;
+            template.Parameters["projectPrefix"] = teamCloud.ProjectsConfiguration.Azure.ResourceGroupNamePrefix;
             template.Parameters["resourceGroupName"] = project.ResourceGroup?.ResourceGroupName; // if null - the template generates a unique name
-            template.Parameters["resourceGroupLocation"] = project.ResourceGroup?.Region ?? orchestratorContext.TeamCloud.ProjectsConfiguration.Azure.Region;
+            template.Parameters["resourceGroupLocation"] = project.ResourceGroup?.Region ?? teamCloud.ProjectsConfiguration.Azure.Region;
 
             try
             {
@@ -76,7 +75,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Azure
                 return new AzureResourceGroup()
                 {
                     SubscriptionId = subscriptionId,
-                    Region = orchestratorContext.TeamCloud.ProjectsConfiguration.Azure.Region,
+                    Region = teamCloud.ProjectsConfiguration.Azure.Region,
                     ResourceGroupId = (string)deploymentOutput.GetValueOrDefault("resourceGroupId", default(string)),
                     ResourceGroupName = (string)deploymentOutput.GetValueOrDefault("resourceGroupName", default(string))
                 };

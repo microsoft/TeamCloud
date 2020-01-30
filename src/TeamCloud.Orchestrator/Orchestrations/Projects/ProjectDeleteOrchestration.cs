@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Model.Commands;
-using TeamCloud.Model.Context;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestrator.Orchestrations.Projects.Activities;
 using TeamCloud.Orchestrator.Orchestrations.Providers;
@@ -26,7 +25,9 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
 
-            (OrchestratorContext orchestratorContext, ProjectDeleteCommand command) = functionContext.GetInput<(OrchestratorContext, ProjectDeleteCommand)>();
+            var orchestratorCommand = functionContext.GetInput<OrchestratorCommand>();
+
+            var command = orchestratorCommand.Command as ProjectDeleteCommand;
 
             await functionContext
                 .WaitForProjectCommandsAsync(command)
@@ -36,21 +37,25 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
 
             var user = command.User;
             var project = command.Payload;
-            var teamCloud = orchestratorContext.TeamCloud;
+            var teamCloud = orchestratorCommand.TeamCloud;
 
-            // Send delete command to providers
-            var projectContext = new ProjectContext(teamCloud, project, user);
-            var providerCommands = teamCloud.Providers.Select(provider => new ProviderCommand { Command = command, Provider = provider });
             // Execute tasks in reverse order
+            var providerCommands = teamCloud.Providers.Select(provider => new ProviderCommand { Command = command, Provider = provider });
             var providerCommandTasks = providerCommands.Reverse().Select(providerCommand => functionContext.CallSubOrchestratorAsync<ProviderCommandResult>(nameof(ProviderCommandOrchestration), providerCommand));
-            var providerCommandResults = await Task.WhenAll(providerCommandTasks).ConfigureAwait(true);
 
-            // Delete project
-            teamCloud = await functionContext
-                .CallActivityAsync<TeamCloudInstance>(nameof(ProjectDeleteActivity), orchestratorContext.Project)
+            var providerCommandResults = await Task
+                .WhenAll(providerCommandTasks)
                 .ConfigureAwait(true);
 
-            functionContext.SetOutput(project);
+            // Delete project
+            project = await functionContext
+                .CallActivityAsync<Project>(nameof(ProjectDeleteActivity), project)
+                .ConfigureAwait(true);
+
+            var commandResult = command.CreateResult();
+            commandResult.Result = project;
+
+            functionContext.SetOutput(commandResult);
         }
     }
 }

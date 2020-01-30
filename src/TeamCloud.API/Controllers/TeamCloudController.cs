@@ -70,7 +70,7 @@ namespace TeamCloud.API.Controllers
             var command = new TeamCloudCreateCommand(CurrentUser, new TeamCloudInstance(teamCloudConfiguraiton));
 
             var commandResult = await orchestrator
-                .InvokeAsync<TeamCloudInstance>(command)
+                .InvokeAsync(command)
                 .ConfigureAwait(false);
 
             return commandResult.ActionResult();

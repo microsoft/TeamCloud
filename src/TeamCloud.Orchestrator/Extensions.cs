@@ -36,42 +36,41 @@ namespace TeamCloud.Orchestrator
             return FinalRuntimeStatus.Contains((int)status.RuntimeStatus);
         }
 
-        internal static ICommandResult<TResult> GetResult<TResult>(this DurableOrchestrationStatus orchestrationStatus)
-            where TResult : new()
+        internal static ICommandResult CreateResult(this ICommand command, DurableOrchestrationStatus orchestrationStatus)
         {
-            var result = new CommandResult<TResult>(Guid.Parse(orchestrationStatus.InstanceId))
-            {
-                CreatedTime = orchestrationStatus.CreatedTime,
-                LastUpdatedTime = orchestrationStatus.LastUpdatedTime,
-                RuntimeStatus = (CommandRuntimeStatus)orchestrationStatus.RuntimeStatus,
-                CustomStatus = orchestrationStatus.CustomStatus?.ToString(),
-            };
+            var result = (orchestrationStatus.Output?.HasValues ?? false) ? orchestrationStatus.Output.ToObject<ICommandResult>() : command.CreateResult();
 
+            result.CreatedTime = orchestrationStatus.CreatedTime;
+            result.LastUpdatedTime = orchestrationStatus.LastUpdatedTime;
+            result.RuntimeStatus = (CommandRuntimeStatus)orchestrationStatus.RuntimeStatus;
+            result.CustomStatus = orchestrationStatus.CustomStatus?.ToString();
+
+            return result;
+        }
+
+        internal static ICommandResult GetCommandResult(this DurableOrchestrationStatus orchestrationStatus)
+        {
             if (orchestrationStatus.Output?.HasValues ?? false)
             {
-                result.Result = orchestrationStatus.Output.ToObject<TResult>();
+                var result = orchestrationStatus.Output.ToObject<ICommandResult>();
+
+                result.CreatedTime = orchestrationStatus.CreatedTime;
+                result.LastUpdatedTime = orchestrationStatus.LastUpdatedTime;
+                result.RuntimeStatus = (CommandRuntimeStatus)orchestrationStatus.RuntimeStatus;
+                result.CustomStatus = orchestrationStatus.CustomStatus?.ToString();
+
+                return result;
+            }
+            else if (orchestrationStatus.Input?.HasValues ?? false)
+            {
+                var command = orchestrationStatus.Input.ToObject<ICommand>();
+
+                return command.CreateResult(orchestrationStatus);
             }
 
-            return result;
+            return null;
         }
 
-        internal static ICommandResult GetResult(this DurableOrchestrationStatus orchestrationStatus)
-        {
-            var result = new CommandResult(Guid.Parse(orchestrationStatus.InstanceId))
-            {
-                CreatedTime = orchestrationStatus.CreatedTime,
-                LastUpdatedTime = orchestrationStatus.LastUpdatedTime,
-                RuntimeStatus = (CommandRuntimeStatus)orchestrationStatus.RuntimeStatus,
-                CustomStatus = orchestrationStatus.CustomStatus?.ToString(),
-            };
-
-            //if (orchestrationStatus.Output?.HasValues ?? false)
-            //{
-            //    result.Result = orchestrationStatus.Output.ToObject<TResult>();
-            //}
-
-            return result;
-        }
 
         internal static async Task<JObject> GetJObjectAsync(this Url url, CancellationToken cancellationToken = default, HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead)
         {

@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Model.Commands;
-using TeamCloud.Model.Context;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestrator.Orchestrations.Projects.Activities;
 
@@ -17,30 +16,31 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
     public static class ProjectUserCreateOrchestration
     {
         [FunctionName(nameof(ProjectUserCreateOrchestration))]
-        public static async Task<bool> RunOrchestration(
+        public static async Task RunOrchestration(
             [OrchestrationTrigger] IDurableOrchestrationContext functionContext
             /* ILogger log */)
         {
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
 
-            (OrchestratorContext orchestratorContext, ProjectUserCreateCommand command) = functionContext.GetInput<(OrchestratorContext, ProjectUserCreateCommand)>();
+            var orchestratorCommand = functionContext.GetInput<OrchestratorCommand>();
 
-            var user = command.Payload;
+            var command = orchestratorCommand.Command as ProjectUserCreateCommand;
 
-            var project = await functionContext
-                .CallActivityAsync<Project>(nameof(ProjectUserCreateActivity), (orchestratorContext.Project, user))
+            await functionContext
+                .WaitForProjectCommandsAsync(command)
                 .ConfigureAwait(true);
 
-            //functionContext.WaitForExternalEvent()
+            var user = await functionContext
+                .CallActivityAsync<User>(nameof(ProjectUserCreateActivity), (command.ProjectId, command.Payload))
+                .ConfigureAwait(true);
 
-            // TODO: call set users on all providers
-            // var tasks = input.teamCloud.Configuration.Providers.Select(p =>
-            //                 context.CallHttpAsync(HttpMethod.Post, p.Location, JsonConvert.SerializeObject(projectContext)));
+            // TODO: call set users on all providers (or project update for now)
 
-            // await Task.WhenAll(tasks);
+            var commandResult = command.CreateResult();
+            commandResult.Result = user;
 
-            return true;
+            functionContext.SetOutput(commandResult);
         }
     }
 }

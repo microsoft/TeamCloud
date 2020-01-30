@@ -14,8 +14,6 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Newtonsoft.Json;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands;
-using TeamCloud.Model.Context;
-using TeamCloud.Orchestrator.Orchestrations;
 using TeamCloud.Orchestrator.Orchestrations.Projects;
 using TeamCloud.Orchestrator.Orchestrations.TeamCloud;
 
@@ -54,87 +52,43 @@ namespace TeamCloud.Orchestrator
                 .GetAsync()
                 .ConfigureAwait(false);
 
-            var orchestratorContext = new OrchestratorContext(teamCloud);
+            if (teamCloud is null)
+                throw new NullReferenceException();
 
-            if (command.ProjectId.HasValue)
-            {
-                var project = await projectsRepository
-                    .GetAsync(command.ProjectId.Value)
-                    .ConfigureAwait(false);
+            var orchestratorCommand = new OrchestratorCommand(teamCloud, command);
 
-                orchestratorContext.Project = project;
-            }
+            var commandResult = await SendCommand(durableClient, orchestratorCommand, OrchestrationName(command))
+                .ConfigureAwait(false);
 
-            switch (command)
-            {
-                case ProjectCreateCommand projectCreateCommand:
-                var projectCreateCommandResult = await Handle(durableClient, orchestratorContext, projectCreateCommand, nameof(ProjectCreateOrchestration))
-                    .ConfigureAwait(false);
-                return new OkObjectResult(projectCreateCommandResult);
-
-                case ProjectUpdateCommand projectUpdateCommand:
-                var projectUpdateCommandResult = await Handle(durableClient, orchestratorContext, projectUpdateCommand, nameof(ProjectCreateOrchestration))
-                    .ConfigureAwait(false);
-                return new OkObjectResult(projectUpdateCommandResult);
-
-                case ProjectDeleteCommand projectDeleteCommand:
-                var projectDeleteCommandResult = await Handle(durableClient, orchestratorContext, projectDeleteCommand, nameof(ProjectDeleteOrchestration))
-                    .ConfigureAwait(false);
-                return new ObjectResult(projectDeleteCommandResult);
-
-                case ProjectUserCreateCommand projectUserCreateCommand:
-                var projectUserCreateCommandResult = await Handle(durableClient, orchestratorContext, projectUserCreateCommand, nameof(ProjectUserCreateOrchestration))
-                    .ConfigureAwait(false);
-                return new OkObjectResult(projectUserCreateCommandResult);
-
-                case ProjectUserUpdateCommand projectUserUpdateCommand:
-                var projectUserUpdateCommandResult = await Handle(durableClient, orchestratorContext, projectUserUpdateCommand, nameof(ProjectUserCreateOrchestration))
-                    .ConfigureAwait(false);
-                return new OkObjectResult(projectUserUpdateCommandResult);
-
-                case ProjectUserDeleteCommand projectUserDeleteCommand:
-                var projectUserDeleteCommandResult = await Handle(durableClient, orchestratorContext, projectUserDeleteCommand, nameof(ProjectUserDeleteOrchestration))
-                    .ConfigureAwait(false);
-                return new OkObjectResult(projectUserDeleteCommandResult);
-
-                case TeamCloudCreateCommand teamCloudCreateCommand:
-                var teamCloudCreateCommandResult = await Handle(durableClient, orchestratorContext, teamCloudCreateCommand, nameof(TeamCloudCreateOrchestration))
-                    .ConfigureAwait(false);
-                return new OkObjectResult(teamCloudCreateCommandResult);
-
-                case TeamCloudUserCreateCommand teamCloudUserCreateCommand:
-                var teamCloudUserCreateCommandResult = await Handle(durableClient, orchestratorContext, teamCloudUserCreateCommand, nameof(TeamCloudUserCreateOrchestration))
-                    .ConfigureAwait(false);
-                return new OkObjectResult(teamCloudUserCreateCommandResult);
-
-                case TeamCloudUserUpdateCommand teamCloudUserUpdateCommand:
-                var teamCloudUserUpdateCommandResult = await Handle(durableClient, orchestratorContext, teamCloudUserUpdateCommand, nameof(TeamCloudUserCreateOrchestration))
-                    .ConfigureAwait(false);
-                return new OkObjectResult(teamCloudUserUpdateCommandResult);
-
-                case TeamCloudUserDeleteCommand teamCloudUserDeleteCommand:
-                var teamCloudUserDeleteCommandResult = await Handle(durableClient, orchestratorContext, teamCloudUserDeleteCommand, nameof(TeamCloudUserDeleteOrchestration))
-                    .ConfigureAwait(false);
-                return new OkObjectResult(teamCloudUserDeleteCommandResult);
-            }
-
-            return new NotFoundResult();
+            return new OkObjectResult(commandResult);
         }
 
+        private static string OrchestrationName(ICommand command) => (command) switch
+        {
+            ProjectCreateCommand _ => nameof(ProjectCreateOrchestration),
+            ProjectUpdateCommand _ => nameof(ProjectCreateOrchestration),
+            ProjectDeleteCommand _ => nameof(ProjectDeleteOrchestration),
+            ProjectUserCreateCommand _ => nameof(ProjectUserCreateOrchestration),
+            ProjectUserUpdateCommand _ => nameof(ProjectUserCreateOrchestration),
+            ProjectUserDeleteCommand _ => nameof(ProjectUserDeleteOrchestration),
+            TeamCloudCreateCommand _ => nameof(TeamCloudCreateOrchestration),
+            TeamCloudUserCreateCommand _ => nameof(TeamCloudUserCreateOrchestration),
+            TeamCloudUserUpdateCommand _ => nameof(TeamCloudUserCreateOrchestration),
+            TeamCloudUserDeleteCommand _ => nameof(TeamCloudUserDeleteOrchestration),
+            _ => throw new NotSupportedException()
+        };
 
-        private async Task<ICommandResult<TResult>> Handle<TPayload, TResult>(IDurableClient durableClient, OrchestratorContext orchestratorContext, ICommand<TPayload, TResult> command, string orchestrationName)
-            where TPayload : new()
-            where TResult : new()
+        private static async Task<ICommandResult> SendCommand(IDurableClient durableClient, OrchestratorCommand orchestratorCommand, string orchestrationName)
         {
             var instanceId = await durableClient
-                .StartNewAsync<object>(orchestrationName, command.CommandId.ToString(), (orchestratorContext, command))
+                .StartNewAsync<object>(orchestrationName, orchestratorCommand.CommandId.ToString(), orchestratorCommand)
                 .ConfigureAwait(false);
 
             var status = await durableClient
                 .GetStatusAsync(instanceId)
                 .ConfigureAwait(false);
 
-            return status?.GetResult<TResult>();
+            return orchestratorCommand.Command.CreateResult(status);
         }
     }
 }

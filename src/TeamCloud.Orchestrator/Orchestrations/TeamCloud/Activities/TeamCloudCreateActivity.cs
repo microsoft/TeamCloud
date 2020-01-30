@@ -25,7 +25,8 @@ namespace TeamCloud.Orchestrator.Orchestrations.TeamCloud.Activities
         public async Task<TeamCloudInstance> RunActivity(
             [ActivityTrigger] TeamCloudInstance teamCloudInstance)
         {
-            if (teamCloudInstance is null) throw new ArgumentNullException(nameof(teamCloudInstance));
+            if (teamCloudInstance is null)
+                throw new ArgumentNullException(nameof(teamCloudInstance));
 
             var teamCloud = await teamCloudRepository
                 .SetAsync(teamCloudInstance)

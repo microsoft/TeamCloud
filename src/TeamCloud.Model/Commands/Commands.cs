@@ -8,7 +8,7 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Model.Commands
 {
-    public class ProjectCreateCommand : Command<Project, Project>
+    public class ProjectCreateCommand : Command<Project, ProjectCreateCommandResult>
     {
         public override Guid? ProjectId => Payload.Id;
 
@@ -17,7 +17,7 @@ namespace TeamCloud.Model.Commands
     }
 
 
-    public class ProjectUpdateCommand : Command<Project, Project>
+    public class ProjectUpdateCommand : Command<Project, ProjectUpdateCommandResult>
     {
         public override Guid? ProjectId => Payload.Id;
 
@@ -26,7 +26,7 @@ namespace TeamCloud.Model.Commands
     }
 
 
-    public class ProjectDeleteCommand : Command<Project, Project>
+    public class ProjectDeleteCommand : Command<Project, ProjectDeleteCommandResult>
     {
         public override Guid? ProjectId => Payload.Id;
 
@@ -35,7 +35,7 @@ namespace TeamCloud.Model.Commands
     }
 
 
-    public class ProjectUserCreateCommand : Command<User, User>
+    public class ProjectUserCreateCommand : Command<User, ProjectUserCreateCommandResult>
     {
         public override Guid? ProjectId { get; set; }
 
@@ -44,7 +44,7 @@ namespace TeamCloud.Model.Commands
     }
 
 
-    public class ProjectUserUpdateCommand : Command<User, Project>
+    public class ProjectUserUpdateCommand : Command<User, ProjectUserUpdateCommandResult>
     {
         public override Guid? ProjectId { get; set; }
 
@@ -53,7 +53,7 @@ namespace TeamCloud.Model.Commands
     }
 
 
-    public class ProjectUserDeleteCommand : Command<User, Project>
+    public class ProjectUserDeleteCommand : Command<User, ProjectUserDeleteCommandResult>
     {
         public override Guid? ProjectId { get; set; }
 
@@ -62,28 +62,28 @@ namespace TeamCloud.Model.Commands
     }
 
 
-    public class TeamCloudCreateCommand : Command<TeamCloudInstance, TeamCloudInstance>
+    public class TeamCloudCreateCommand : Command<TeamCloudInstance, TeamCloudCreateCommandResult>
     {
         public TeamCloudCreateCommand(User user, TeamCloudInstance payload) : base(user, payload)
         { }
     }
 
 
-    public class TeamCloudUserCreateCommand : Command<User, User>
+    public class TeamCloudUserCreateCommand : Command<User, TeamCloudUserCreateCommandResult>
     {
         public TeamCloudUserCreateCommand(User user, User payload) : base(user, payload)
         { }
     }
 
 
-    public class TeamCloudUserUpdateCommand : Command<User, User>
+    public class TeamCloudUserUpdateCommand : Command<User, TeamCloudUserUpdateCommandResult>
     {
         public TeamCloudUserUpdateCommand(User user, User payload) : base(user, payload)
         { }
     }
 
 
-    public class TeamCloudUserDeleteCommand : Command<User, User>
+    public class TeamCloudUserDeleteCommand : Command<User, TeamCloudUserDeleteCommandResult>
     {
         public TeamCloudUserDeleteCommand(User user, User payload) : base(user, payload)
         { }

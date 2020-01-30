@@ -18,20 +18,22 @@ namespace TeamCloud.Model.Commands
         Guid? ProjectId { get; }
 
         User User { get; set; }
+
+        ICommandResult CreateResult();
     }
 
 
-    public interface ICommand<TPayload, TResult> : ICommand
+    public interface ICommand<TPayload, TCommandResult> : ICommand
         where TPayload : new()
-        where TResult : new()
+        where TCommandResult : ICommandResult
     {
         TPayload Payload { get; set; }
     }
 
 
-    public abstract class Command<TPayload, TResult> : ICommand<TPayload, TResult>
+    public abstract class Command<TPayload, TCommandResult> : ICommand<TPayload, TCommandResult>
         where TPayload : new()
-        where TResult : new()
+        where TCommandResult : ICommandResult, new()
     {
         public Guid CommandId { get; set; } = Guid.NewGuid();
 
@@ -47,5 +49,17 @@ namespace TeamCloud.Model.Commands
             User = user;
             Payload = payload;
         }
+
+        public TCommandResult CreateResult()
+        {
+            var result = Activator.CreateInstance<TCommandResult>();
+
+            result.CommandId = CommandId;
+
+            return result;
+        }
+
+        ICommandResult ICommand.CreateResult()
+            => this.CreateResult();
     }
 }

@@ -13,7 +13,7 @@ namespace TeamCloud.Model.Commands
     [JsonConverter(typeof(CommandResultConverter))]
     public interface ICommandResult
     {
-        Guid CommandId { get; }
+        Guid CommandId { get; set; }
 
         DateTime CreatedTime { get; set; }
 
@@ -28,25 +28,6 @@ namespace TeamCloud.Model.Commands
     }
 
 
-    public class CommandResult : ICommandResult
-    {
-        public Guid CommandId { get; internal set; }
-
-        public DateTime CreatedTime { get; set; }
-
-        public DateTime LastUpdatedTime { get; set; }
-
-        public CommandRuntimeStatus RuntimeStatus { get; set; }
-
-        public string CustomStatus { get; set; }
-
-        [JsonProperty(Order = int.MaxValue, PropertyName = "_links")]
-        public Dictionary<string, string> Links { get; private set; } = new Dictionary<string, string>();
-
-        public CommandResult(Guid commandId) => CommandId = commandId;
-    }
-
-
     public interface ICommandResult<TResult> : ICommandResult
         where TResult : new()
     {
@@ -57,7 +38,7 @@ namespace TeamCloud.Model.Commands
     public class CommandResult<TResult> : ICommandResult<TResult>
         where TResult : new()
     {
-        public Guid CommandId { get; internal set; }
+        public Guid CommandId { get; set; }
 
         public DateTime CreatedTime { get; set; }
 
@@ -71,6 +52,8 @@ namespace TeamCloud.Model.Commands
 
         [JsonProperty(Order = int.MaxValue, PropertyName = "_links")]
         public Dictionary<string, string> Links { get; private set; } = new Dictionary<string, string>();
+
+        public CommandResult() { }
 
         public CommandResult(Guid commandId) => CommandId = commandId;
     }

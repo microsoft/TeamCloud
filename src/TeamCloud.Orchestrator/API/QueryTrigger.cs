@@ -33,10 +33,17 @@ namespace TeamCloud.Orchestrator
 
 
             var status = await durableClient
-                .GetStatusAsync(commandId, showHistory: false, showHistoryOutput: false, showInput: false)
+                .GetStatusAsync(commandId, showHistory: false, showHistoryOutput: false, showInput: true)
                 .ConfigureAwait(false);
 
-            return status is null ? (IActionResult)new NotFoundResult() : new OkObjectResult(status.GetResult());
+            // TODO: ProviderCommand throws here
+
+            var commandResult = status?.GetCommandResult();
+
+            if (commandResult is null)
+                return new NotFoundResult();
+
+            return new OkObjectResult(commandResult);
         }
     }
 }

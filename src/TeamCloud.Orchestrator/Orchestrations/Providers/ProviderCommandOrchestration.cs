@@ -19,43 +19,40 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers
             [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
             ILogger log)
         {
-            if (functionContext is null) throw new ArgumentNullException(nameof(functionContext));
+            if (functionContext is null)
+                throw new ArgumentNullException(nameof(functionContext));
 
-            var orchestratorResponse = new ProviderCommandResult();
+            var providerCommand = functionContext.GetInput<ProviderCommand>();
+
+            providerCommand.CallbackUrl = await CallbackTrigger
+                .GetCallbackUrlAsync(functionContext.InstanceId)
+                .ConfigureAwait(true);
+
+            var providerCommandResult = new ProviderCommandResult(providerCommand);
 
             try
             {
-                var orchestratorRequest = functionContext.GetInput<ProviderCommand>();
-
-                var activityResponse = await functionContext
-                    .CallActivityAsync<ProviderCommandResult>(nameof(ProviderCommandActivity), new ProviderCommand
-                    {
-                        Command = orchestratorRequest.Command,
-                        Provider = orchestratorRequest.Provider,
-                        CallbackUrl = await CallbackTrigger
-                            .GetCallbackUrlAsync(functionContext.InstanceId)
-                            .ConfigureAwait(true)
-                    })
+                providerCommandResult = await functionContext
+                    .CallActivityAsync<ProviderCommandResult>(nameof(ProviderCommandActivity), providerCommand)
                     .ConfigureAwait(true);
 
-                if (activityResponse.CommandResult is null)
+                if (!providerCommandResult.RuntimeStatus.IsFinal())
                 {
                     log.LogInformation($"Waiting for external event in orchestration {functionContext.InstanceId}");
 
                     // FIXME: Change timespan back to 30 mins
-                    activityResponse.CommandResult = await functionContext
-                        .WaitForExternalEvent<ICommandResult>(orchestratorRequest.Command.CommandId.ToString(), TimeSpan.FromMinutes(3), null)
+                    providerCommandResult = await functionContext
+                        .WaitForExternalEvent<ProviderCommandResult>(providerCommand.CommandId.ToString(), TimeSpan.FromMinutes(3), null)
                         .ConfigureAwait(true);
                 }
-
-                orchestratorResponse.CommandResult = activityResponse.CommandResult;
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
-                orchestratorResponse.Error = exc.Message;
+                log.LogDebug(ex, "ProviderCommandOrchestration Failded");
+                providerCommandResult.Error = ex.Message;
             }
 
-            return orchestratorResponse;
+            return providerCommandResult;
         }
     }
 }

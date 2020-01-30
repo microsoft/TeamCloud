@@ -27,7 +27,8 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects.Activities
         public async Task<Project> RunActivity(
             [ActivityTrigger] Project project)
         {
-            if (project is null) throw new ArgumentNullException(nameof(project));
+            if (project is null)
+                throw new ArgumentNullException(nameof(project));
 
             var teamCloud = await teamCloudRepository
                 .GetAsync()

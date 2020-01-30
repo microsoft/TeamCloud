@@ -100,7 +100,7 @@ namespace TeamCloud.API
             var command = new TeamCloudUserCreateCommand(CurrentUser, newUser);
 
             var commandResult = await orchestrator
-                .InvokeAsync<User>(command)
+                .InvokeAsync(command)
                 .ConfigureAwait(false);
 
             return commandResult.ActionResult();
@@ -124,7 +124,7 @@ namespace TeamCloud.API
             var command = new TeamCloudUserUpdateCommand(CurrentUser, user);
 
             var commandResult = await orchestrator
-                .InvokeAsync<User>(command)
+                .InvokeAsync(command)
                 .ConfigureAwait(false);
 
             return commandResult.ActionResult();
@@ -148,7 +148,7 @@ namespace TeamCloud.API
             var command = new TeamCloudUserDeleteCommand(CurrentUser, user);
 
             var commandResult = await orchestrator
-                .InvokeAsync<User>(command)
+                .InvokeAsync(command)
                 .ConfigureAwait(false);
 
             return commandResult.ActionResult();

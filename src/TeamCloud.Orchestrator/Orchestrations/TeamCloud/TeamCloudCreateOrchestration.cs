@@ -9,7 +9,6 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands;
-using TeamCloud.Model.Context;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestrator.Orchestrations.TeamCloud.Activities;
 
@@ -32,13 +31,18 @@ namespace TeamCloud.Orchestrator.Orchestrations.TeamCloud
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
 
-            (OrchestratorContext orchestratorContext, TeamCloudCreateCommand command) = functionContext.GetInput<(OrchestratorContext, TeamCloudCreateCommand)>();
+            var orchestratorCommand = functionContext.GetInput<OrchestratorCommand>();
+
+            var command = orchestratorCommand.Command as TeamCloudCreateCommand;
 
             var teamCloud = await functionContext
                 .CallActivityAsync<TeamCloudInstance>(nameof(TeamCloudCreateActivity), command.Payload)
                 .ConfigureAwait(true);
 
-            functionContext.SetOutput(teamCloud);
+            var commandResult = command.CreateResult();
+            commandResult.Result = teamCloud;
+
+            functionContext.SetOutput(commandResult);
         }
     }
 }

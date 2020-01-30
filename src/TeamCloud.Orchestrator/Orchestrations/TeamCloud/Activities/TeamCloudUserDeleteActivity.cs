@@ -4,7 +4,6 @@
  */
 
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -23,27 +22,24 @@ namespace TeamCloud.Orchestrator.Orchestrations.TeamCloud.Activities
         }
 
         [FunctionName(nameof(TeamCloudUserDeleteActivity))]
-        public async Task<TeamCloudInstance> RunActivity(
-            [ActivityTrigger] (TeamCloudInstance teamCloud, User deleteUser) input)
+        public async Task<User> RunActivity(
+            [ActivityTrigger] User user)
         {
-            if (input.teamCloud is null)
-                throw new ArgumentException($"input param must contain a valid TeamCloudInstance set on {nameof(input.teamCloud)}.", nameof(input));
+            if (user is null)
+                throw new ArgumentNullException(nameof(user));
 
-            if (input.deleteUser is null)
-                throw new ArgumentException($"input param must contain a valid User set on {nameof(input.deleteUser)}.", nameof(input));
-
-            var user = input.teamCloud.Users?.FirstOrDefault(u => u.Id == input.deleteUser.Id);
-
-            if (user != null)
-            {
-                input.teamCloud.Users.Remove(user);
-            }
-
-            await teamCloudRepository
-                .SetAsync(input.teamCloud)
+            var teamCloud = await teamCloudRepository
+                .GetAsync()
                 .ConfigureAwait(false);
 
-            return input.teamCloud;
+            if (teamCloud.Users.Remove(user))
+            {
+                await teamCloudRepository
+                    .SetAsync(teamCloud)
+                    .ConfigureAwait(false);
+            }
+
+            return user;
         }
     }
 }
