@@ -43,7 +43,7 @@ namespace TeamCloud.API
         {
             Configuration = configuration;
 
-            Microsoft.IdentityModel.Logging.IdentityModelEventSource.ShowPII = true;
+            // Microsoft.IdentityModel.Logging.IdentityModelEventSource.ShowPII = true;
         }
 
         public IConfiguration Configuration { get; }
@@ -229,11 +229,14 @@ namespace TeamCloud.API
                     .GetAsync(projectId)
                     .ConfigureAwait(false);
 
-                var projectClaims = (project.Users ?? Enumerable.Empty<User>())
-                    .Where(user => user.Id == userId)
-                    .Select(user => new Claim(ClaimTypes.Role, user.Role));
+                if (project != null)
+                {
+                    var projectClaims = (project.Users ?? Enumerable.Empty<User>())
+                        .Where(user => user.Id == userId)
+                        .Select(user => new Claim(ClaimTypes.Role, user.Role));
 
-                claims.AddRange(projectClaims);
+                    claims.AddRange(projectClaims);
+                }
             }
 
             return claims;
