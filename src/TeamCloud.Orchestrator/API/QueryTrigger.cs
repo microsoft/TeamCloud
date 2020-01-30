@@ -36,8 +36,6 @@ namespace TeamCloud.Orchestrator
                 .GetStatusAsync(commandId, showHistory: false, showHistoryOutput: false, showInput: true)
                 .ConfigureAwait(false);
 
-            // TODO: ProviderCommand throws here
-
             var commandResult = status?.GetCommandResult();
 
             if (commandResult is null)
