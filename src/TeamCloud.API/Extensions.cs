@@ -78,7 +78,7 @@ namespace TeamCloud.API
                : new OkObjectResult(result) as IActionResult;
 
         public static IActionResult StatusResult(this ICommandResult result)
-            => result.RuntimeStatus.IsFinal() && result.Links.TryGetValue("status", out var statusUrl)
+            => !result.RuntimeStatus.IsFinal() && result.Links.TryGetValue("status", out var statusUrl)
                ? new AcceptedResult(statusUrl, result)
                : new OkObjectResult(result) as IActionResult;
     }
