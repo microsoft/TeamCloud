@@ -7,6 +7,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Azure.Management.Fluent;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Rest.Azure;
@@ -34,14 +35,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Azure
             try
             {
                 var azure = azureSessionService.CreateSession(azureResourceGroup.SubscriptionId);
-                var locks = await azure.ManagementLocks.ListByResourceGroupAsync(azureResourceGroup.ResourceGroupName, true).ConfigureAwait(false);
-                var ids = locks.Select(s => s.Id).ToArray();
-                if (ids.Length > 0)
-                {
-                    await azure.ManagementLocks.DeleteByIdsAsync(ids).ConfigureAwait(false);
-                    // Wait one minute after deleting locks to ensure that Azure has updated itself before trying to delete the RG
-                    await Task.Delay(60 * 1000).ConfigureAwait(false);
-                }
+                await DeleteResourceGroupLocksAsync(azureResourceGroup, azure).ConfigureAwait(false);
                 await azure.ResourceGroups
                     .DeleteByNameAsync(azureResourceGroup.ResourceGroupName)
                     .ConfigureAwait(false);
@@ -57,6 +51,36 @@ namespace TeamCloud.Orchestrator.Orchestrations.Azure
                 Debug.WriteLine(ex.ToString());
                 throw;
             }
+        }
+
+        private async Task DeleteResourceGroupLocksAsync(AzureResourceGroup azureResourceGroup, IAzure azure)
+        {
+            string[] ids = await GetResourceGroupLockIdsAsync(azureResourceGroup, azure).ConfigureAwait(false);
+
+            if (ids.Length > 0)
+            {
+                int counter = 1;
+                do
+                {
+                    if (counter >= 10)
+                        throw new Exception($"10 attempts were made to try and delete locks on Resource Group '{azureResourceGroup.ResourceGroupName}' and the locks still remain.  Resource group cannot be deleted right now.");
+                    counter++;
+
+                    // Delete locks within the RG
+                    await azure.ManagementLocks.DeleteByIdsAsync(ids).ConfigureAwait(false);
+
+                    // Check again to make sure there are no locks in the RG
+                    ids = await GetResourceGroupLockIdsAsync(azureResourceGroup, azure).ConfigureAwait(false);
+                }
+                while (ids.Length != 0);
+            }
+        }
+
+        private async Task<string[]> GetResourceGroupLockIdsAsync(AzureResourceGroup azureResourceGroup, IAzure azure)
+        {
+            var locks = await azure.ManagementLocks.ListByResourceGroupAsync(azureResourceGroup.ResourceGroupName, true).ConfigureAwait(false);
+            var ids = locks.Select(s => s.Id).ToArray();
+            return ids;
         }
     }
 }
