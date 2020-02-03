@@ -23,6 +23,8 @@ namespace TeamCloud.Model.Data
 
         public string Name { get; set; }
 
+        // public ProjectDefinition Definition { get; set; }
+
         public AzureIdentity Identity { get; set; }
 
         public AzureResourceGroup ResourceGroup { get; set; }

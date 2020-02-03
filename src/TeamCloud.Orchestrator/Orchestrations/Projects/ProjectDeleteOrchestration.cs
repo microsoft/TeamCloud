@@ -4,7 +4,6 @@
  */
 
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -12,7 +11,6 @@ using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestrator.Orchestrations.Azure;
 using TeamCloud.Orchestrator.Orchestrations.Projects.Activities;
-using TeamCloud.Orchestrator.Orchestrations.Providers;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Projects
 {
@@ -26,7 +24,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
 
-            var orchestratorCommand = functionContext.GetInput<OrchestratorCommand>();
+            var orchestratorCommand = functionContext.GetInput<OrchestratorCommandMessage>();
             var command = orchestratorCommand.Command as ProjectDeleteCommand;
 
             await functionContext
@@ -39,15 +37,15 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
             var project = command.Payload;
             var teamCloud = orchestratorCommand.TeamCloud;
 
-            // Execute provider tasks in reverse order
-            var providerCommands = teamCloud.Providers.Select(provider => new ProviderCommand { Command = command, Provider = provider });
-            var providerCommandTasks = providerCommands.Reverse().Select(providerCommand => functionContext.CallSubOrchestratorAsync<ProviderCommandResult>(nameof(ProviderCommandOrchestration), providerCommand));
-            var providerCommandResults = await Task.WhenAll(providerCommandTasks).ConfigureAwait(true);
+            var providerCommandTasks = teamCloud.GetProviderCommandTasks(command, functionContext);
+            var providerCommandResultMessages = await Task
+                .WhenAll(providerCommandTasks)
+                .ConfigureAwait(true);
 
             // Delete Azure resource group
             await functionContext
                 .CallActivityAsync<AzureResourceGroup>(nameof(AzureResourceGroupDeleteActivity), project.ResourceGroup)
-                .ConfigureAwait(true);
+                .ConfigureAwait(false);
 
             // Delete project in DB
             project = await functionContext

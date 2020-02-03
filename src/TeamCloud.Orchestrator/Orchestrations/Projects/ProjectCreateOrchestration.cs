@@ -29,7 +29,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
 
-            var orchestratorCommand = functionContext.GetInput<OrchestratorCommand>();
+            var orchestratorCommand = functionContext.GetInput<OrchestratorCommandMessage>();
 
             var command = orchestratorCommand.Command as ProjectCreateCommand;
 
@@ -80,10 +80,9 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
 
             functionContext.SetCustomStatus("Creating Project Resources");
 
-            var providerCommands = teamCloud.Providers.Select(provider => new ProviderCommand { Command = command, Provider = provider });
-            var providerCommandTasks = providerCommands.Select(providerCommand => functionContext.CallSubOrchestratorAsync<ProviderCommandResult>(nameof(ProviderCommandOrchestration), providerCommand));
+            var providerCommandTasks = teamCloud.GetProviderCommandTasks(command, functionContext);
 
-            var providerCommandResults = await Task
+            var providerCommandResultMessages = await Task
                 .WhenAll(providerCommandTasks)
                 .ConfigureAwait(true);
 

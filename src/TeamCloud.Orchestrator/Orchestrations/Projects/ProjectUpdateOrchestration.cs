@@ -4,14 +4,12 @@
  */
 
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestrator.Orchestrations.Projects.Activities;
-using TeamCloud.Orchestrator.Orchestrations.Providers;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Projects
 {
@@ -25,7 +23,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
 
-            var orchestratorCommand = functionContext.GetInput<OrchestratorCommand>();
+            var orchestratorCommand = functionContext.GetInput<OrchestratorCommandMessage>();
 
             var command = orchestratorCommand.Command as ProjectUpdateCommand;
 
@@ -43,10 +41,9 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
                 .CallActivityAsync<Project>(nameof(ProjectUpdateActivity), project)
                 .ConfigureAwait(true);
 
-            var providerCommands = teamCloud.Providers.Select(provider => new ProviderCommand { Command = command, Provider = provider });
-            var providerCommandTasks = providerCommands.Select(providerCommand => functionContext.CallSubOrchestratorAsync<ProviderCommandResult>(nameof(ProviderCommandOrchestration), providerCommand));
+            var providerCommandTasks = teamCloud.GetProviderCommandTasks(command, functionContext);
 
-            var providerCommandResults = await Task
+            var providerCommandResultMessages = await Task
                 .WhenAll(providerCommandTasks)
                 .ConfigureAwait(true);
 

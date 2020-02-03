@@ -14,19 +14,19 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using TeamCloud.Model.Commands;
 
-namespace TeamCloud.Orchestrator.Orchestrations.Providers
+namespace TeamCloud.Orchestrator.Orchestrations.Providers.Activities
 {
     public static class ProviderCommandActivity
     {
         [FunctionName(nameof(ProviderCommandActivity))]
-        public static async Task<ProviderCommandResult> Run(
-            [ActivityTrigger] ProviderCommand providerCommand,
+        public static async Task<ICommandResult> Run(
+            [ActivityTrigger] ProviderCommandMessage providerCommand,
             ILogger log)
         {
             if (providerCommand is null)
                 throw new ArgumentNullException(nameof(providerCommand));
 
-            var providerCommandResult = new ProviderCommandResult(providerCommand);
+            var providerCommandResult = providerCommand.Command.CreateResult();
 
             try
             {
@@ -43,13 +43,13 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers
                         .ReadAsStringAsync()
                         .ConfigureAwait(false);
 
-                    providerCommandResult = JsonConvert.DeserializeObject<ProviderCommandResult>(providerResponseJson);
+                    providerCommandResult = JsonConvert.DeserializeObject<ICommandResult>(providerResponseJson);
                 }
             }
             catch (Exception ex)
             {
                 log.LogDebug(ex, "ProviderCommandActivity Failded");
-                providerCommandResult.Error = ex.Message;
+                providerCommandResult.Exceptions.Add(ex);
             }
 
             return providerCommandResult;
