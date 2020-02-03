@@ -31,7 +31,7 @@ jobs:
       uses: gittools/actions/gitversion/execute@v0.6.1
 
     - name: Setup Packages
-      run: sed -i 's/GITHUB_TOKEN/${{ secrets.GITHUB_TOKEN }}/g' nuget.config
+      run: find . -name "nuget.config" -exec sed -i 's/GITHUB_TOKEN/${{ secrets.GITHUB_TOKEN }}/g' {} \;
       working-directory: ${{ env.SOURCE_DIRECTORY }}
 
     - name: Setup .NET Core
