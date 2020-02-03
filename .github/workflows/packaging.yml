@@ -29,7 +29,11 @@ jobs:
     - name: Execute GitVersion
       id: gitversion # step id used as reference for output values
       uses: gittools/actions/gitversion/execute@v0.6.1
-      
+
+    - name: Setup Feed Tokens
+      run: sed -i 's/GITHUB_TOKEN/${{ secrets.GITHUB_TOKEN }}/g' nuget.config
+      working-directory: ${{ env.SOURCE_DIRECTORY }}
+
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
