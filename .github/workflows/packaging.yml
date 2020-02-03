@@ -30,7 +30,7 @@ jobs:
       id: gitversion # step id used as reference for output values
       uses: gittools/actions/gitversion/execute@v0.6.1
 
-    - name: Setup Feed Tokens
+    - name: Setup Packages
       run: sed -i 's/GITHUB_TOKEN/${{ secrets.GITHUB_TOKEN }}/g' nuget.config
       working-directory: ${{ env.SOURCE_DIRECTORY }}
 
@@ -41,11 +41,6 @@ jobs:
 
     - name: Build and Package
       run:  dotnet build -c $BUILD_CONFIGURATION -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" --version-suffix "${{ steps.gitversion.outputs.nuGetPreReleaseTagV2 }}"
-      working-directory: ${{ env.SOURCE_DIRECTORY }}
-
-    - name: Setup Packages (master only)
-      if: steps.gitversion.outputs.branchName == 'master'
-      run: sed -i 's/GITHUB_TOKEN/${{ secrets.GITHUB_TOKEN }}/g' nuget.config
       working-directory: ${{ env.SOURCE_DIRECTORY }}
     
     - name: Publish Packages (master only)
