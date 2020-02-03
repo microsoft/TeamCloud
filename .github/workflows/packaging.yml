@@ -1,4 +1,4 @@
-name: .NET Core
+name: TeamCloud - Build & Packaging
 
 on: [push]
 
