@@ -8,6 +8,14 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Model.Commands
 {
+    public class ProviderRegisterCommandResult : CommandResult<ProviderRegistration>
+    {
+        public ProviderRegisterCommandResult() { }
+
+        public ProviderRegisterCommandResult(Guid commandId, ProviderRegistration result) : base(commandId)
+            => Result = result;
+    }
+
     public class ProjectCreateCommandResult : CommandResult<Project>
     {
         public ProjectCreateCommandResult() { }

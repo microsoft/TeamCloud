@@ -25,7 +25,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
 
-            var orchestratorCommand = functionContext.GetInput<OrchestratorCommand>();
+            var orchestratorCommand = functionContext.GetInput<OrchestratorCommandMessage>();
 
             var command = orchestratorCommand.Command as ProjectDeleteCommand;
 
@@ -39,11 +39,9 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
             var project = command.Payload;
             var teamCloud = orchestratorCommand.TeamCloud;
 
-            // Execute tasks in reverse order
-            var providerCommands = teamCloud.Providers.Select(provider => new ProviderCommand { Command = command, Provider = provider });
-            var providerCommandTasks = providerCommands.Reverse().Select(providerCommand => functionContext.CallSubOrchestratorAsync<ProviderCommandResult>(nameof(ProviderCommandOrchestration), providerCommand));
+            var providerCommandTasks = teamCloud.GetProviderCommandTasks(command, functionContext);
 
-            var providerCommandResults = await Task
+            var providerCommandResultMessages = await Task
                 .WhenAll(providerCommandTasks)
                 .ConfigureAwait(true);
 

@@ -3,6 +3,7 @@
  *  Licensed under the MIT License.
  */
 
+using System;
 using System.Collections.Generic;
 using FluentValidation;
 using Newtonsoft.Json;
@@ -18,6 +19,8 @@ namespace TeamCloud.Model.Data
         public string Url { get; set; }
 
         public string AuthCode { get; set; }
+
+        public Guid PricipalId { get; set; }
 
         public bool Optional { get; set; }
 

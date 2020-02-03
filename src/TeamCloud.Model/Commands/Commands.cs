@@ -8,6 +8,13 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Model.Commands
 {
+    public class ProviderRegisterCommand : Command<ProviderConfiguration, ProviderRegisterCommandResult>
+    {
+        public ProviderRegisterCommand(User user, ProviderConfiguration payload) : base(user, payload)
+        { }
+    }
+
+
     public class ProjectCreateCommand : Command<Project, ProjectCreateCommandResult>
     {
         public override Guid? ProjectId => Payload.Id;
