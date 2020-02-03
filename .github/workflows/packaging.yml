@@ -45,7 +45,7 @@ jobs:
     
     - name: Publish Packages (master only)
       if: steps.gitversion.outputs.branchName == 'master'
-      run: dotnet nuget push ./bin/$BUILD_CONFIGURATION/*.nupkg --source 'github' --skip-duplicate
+      run: find . -name "*.nupkg" -exec echo {} \; # -exec dotnet nuget push {} --source 'github' --skip-duplicate \;
       working-directory: ${{ env.SOURCE_DIRECTORY }}        
 
     - name: Augment Release (master only)
