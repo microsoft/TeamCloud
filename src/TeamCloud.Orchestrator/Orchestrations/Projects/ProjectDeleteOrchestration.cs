@@ -27,7 +27,6 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
                 throw new ArgumentNullException(nameof(functionContext));
 
             var orchestratorCommand = functionContext.GetInput<OrchestratorCommand>();
-
             var command = orchestratorCommand.Command as ProjectDeleteCommand;
 
             await functionContext
@@ -40,23 +39,23 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
             var project = command.Payload;
             var teamCloud = orchestratorCommand.TeamCloud;
 
-            // Execute tasks in reverse order
+            // Execute provider tasks in reverse order
             var providerCommands = teamCloud.Providers.Select(provider => new ProviderCommand { Command = command, Provider = provider });
             var providerCommandTasks = providerCommands.Reverse().Select(providerCommand => functionContext.CallSubOrchestratorAsync<ProviderCommandResult>(nameof(ProviderCommandOrchestration), providerCommand));
+            var providerCommandResults = await Task.WhenAll(providerCommandTasks).ConfigureAwait(true);
 
             // Delete Azure resource group
             await functionContext
                 .CallActivityAsync<AzureResourceGroup>(nameof(AzureResourceGroupDeleteActivity), project.ResourceGroup)
                 .ConfigureAwait(true);
 
-            // Delete project
+            // Delete project in DB
             project = await functionContext
                 .CallActivityAsync<Project>(nameof(ProjectDeleteActivity), project)
                 .ConfigureAwait(true);
 
             var commandResult = command.CreateResult();
             commandResult.Result = project;
-
             functionContext.SetOutput(commandResult);
         }
     }

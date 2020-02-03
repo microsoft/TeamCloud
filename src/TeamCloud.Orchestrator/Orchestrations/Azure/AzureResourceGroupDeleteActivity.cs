@@ -4,12 +4,12 @@
  */
 
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.Management.Fluent;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Extensions.Logging;
 using Microsoft.Rest.Azure;
 using TeamCloud.Azure;
 using TeamCloud.Model.Data;
@@ -27,7 +27,8 @@ namespace TeamCloud.Orchestrator.Orchestrations.Azure
 
         [FunctionName(nameof(AzureResourceGroupDeleteActivity))]
         public async Task RunActivity(
-            [ActivityTrigger] AzureResourceGroup azureResourceGroup)
+            [ActivityTrigger] AzureResourceGroup azureResourceGroup,
+            ILogger log)
         {
             if (azureResourceGroup == null)
                 throw new ArgumentNullException(nameof(azureResourceGroup));
@@ -40,15 +41,13 @@ namespace TeamCloud.Orchestrator.Orchestrations.Azure
                     .DeleteByNameAsync(azureResourceGroup.ResourceGroupName)
                     .ConfigureAwait(false);
             }
-            catch (CloudException ex) when (ex.Message.Contains("could not be found", StringComparison.InvariantCultureIgnoreCase)) 
-            // TODO: Is this ok way to check for an exception? This only happens when the RG is already deleted and may not happen often. 
-            // But ignoring this error could prevent the project in the DB from being deleted
+            catch (CloudException ex) when (ex.Body.Code.Equals("ResourceGroupNotFound", StringComparison.InvariantCultureIgnoreCase)) 
             {
-                Debug.WriteLine("Resource group is already deleted, ignore this exception: " + ex.ToString());
+                log.LogInformation($"Resource group '{azureResourceGroup.ResourceGroupName}' was not found in Azure, so nothing to delete.");
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex.ToString());
+                log.LogError(ex, $"Failed to delete resource group '{azureResourceGroup.ResourceGroupName}' in Azure.");
                 throw;
             }
         }
