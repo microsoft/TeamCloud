@@ -1,0 +1,66 @@
+name: TeamCloud - Build & Packaging
+
+on: [push]
+
+env:
+  BUILD_CONFIGURATION: Release
+  SOURCE_DIRECTORY: ./src
+  
+jobs:
+     
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    
+    - name: Checkout Code
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+      
+    - name: Checkout Tags
+      run: git fetch -t
+        
+    - name: Setup GitVersion
+      uses: gittools/actions/gitversion/setup@v0.6.1
+      with:
+          versionSpec: '5.1.x'
+
+    - name: Execute GitVersion
+      id: gitversion # step id used as reference for output values
+      uses: gittools/actions/gitversion/execute@v0.6.1
+
+    - name: Setup Packages
+      run: sed -i 's/GITHUB_TOKEN/${{ secrets.GITHUB_TOKEN }}/g' nuget.config
+      working-directory: ${{ env.SOURCE_DIRECTORY }}
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '3.1.101'
+
+    - name: Build and Package
+      run:  dotnet build -c $BUILD_CONFIGURATION -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" --version-suffix "${{ steps.gitversion.outputs.nuGetPreReleaseTagV2 }}"
+      working-directory: ${{ env.SOURCE_DIRECTORY }}
+    
+    - name: Publish Packages (master only)
+      if: steps.gitversion.outputs.branchName == 'master'
+      run: dotnet nuget push ./bin/$BUILD_CONFIGURATION/*.nupkg --source 'github' --skip-duplicate
+      working-directory: ${{ env.SOURCE_DIRECTORY }}        
+
+    - name: Augment Release (master only)
+      if: steps.gitversion.outputs.branchName == 'master'
+      run: |
+        RELEASE_TAG=$([[ "${{ github.ref }}" =~ ^refs\/tags\/ ]] && (echo "${{ github.ref }}" | sed -e "s/.*\///g") || echo "")
+        RELEASE_URL=$([[ -z "$RELEASE_TAG" ]] && echo "" || (curl https://api.github.com/repos/$GITHUB_REPOSITORY/releases/tags/$RELEASE_TAG -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" | jq -r ".url"))
+        if [[ ! -z "$RELEASE_URL" ]]; then
+          if [ -z "${{ steps.gitversion.outputs.preReleaseTag }}" ]; then
+            echo "Ensure release $RELEASE_TAG is set to major release"
+            curl --data '{"prerelease": false}' -X PATCH $RELEASE_URL -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}"
+          else
+            echo "Ensure release $RELEASE_TAG is set to pre release"
+            curl --data '{"prerelease": true}' -X PATCH $RELEASE_URL -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}"
+          fi
+        else
+          echo "${{ github.ref }} is not assigned to a release"
+        fi
