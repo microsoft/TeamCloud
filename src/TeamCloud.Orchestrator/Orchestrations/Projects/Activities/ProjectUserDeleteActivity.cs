@@ -23,27 +23,27 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects.Activities
         }
 
         [FunctionName(nameof(ProjectUserDeleteActivity))]
-        public async Task<Project> RunActivity(
-            [ActivityTrigger] (Project project, User deleteUser) input)
+        public async Task<User> RunActivity(
+            [ActivityTrigger] (Guid projectId, User deleteUser) input)
         {
-            if (input.project is null)
-                throw new ArgumentException($"input param must contain a valid Project set on {nameof(input.project)}.", nameof(input));
+            if (input.projectId == Guid.Empty)
+                throw new ArgumentException($"input param must contain a valid ProjectID set on {nameof(input.projectId)}.", nameof(input));
 
             if (input.deleteUser is null)
                 throw new ArgumentException($"input param must contain a valid User set on {nameof(input.deleteUser)}.", nameof(input));
 
-            var user = input.project.Users?.FirstOrDefault(u => u.Id == input.deleteUser.Id);
-
-            if (user != null)
-            {
-                input.project.Users.Remove(user);
-            }
-
-            await projectsRepository
-                .SetAsync(input.project)
+            var project = await projectsRepository
+                .GetAsync(input.projectId)
                 .ConfigureAwait(false);
 
-            return input.project;
+            if (project.Users.Remove(input.deleteUser))
+            {
+                await projectsRepository
+                    .SetAsync(project)
+                    .ConfigureAwait(false);
+            }
+
+            return input.deleteUser;
         }
     }
 }

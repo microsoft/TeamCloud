@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Model.Commands;
-using TeamCloud.Model.Context;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestrator.Orchestrations.Projects.Activities;
 using TeamCloud.Orchestrator.Orchestrations.Providers;
@@ -26,7 +25,9 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
 
-            (OrchestratorContext orchestratorContext, ProjectUpdateCommand command) = functionContext.GetInput<(OrchestratorContext, ProjectUpdateCommand)>();
+            var orchestratorCommand = functionContext.GetInput<OrchestratorCommand>();
+
+            var command = orchestratorCommand.Command as ProjectUpdateCommand;
 
             await functionContext
                 .WaitForProjectCommandsAsync(command)
@@ -36,21 +37,23 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
 
             var user = command.User;
             var project = command.Payload;
-            var teamCloud = orchestratorContext.TeamCloud;
+            var teamCloud = orchestratorCommand.TeamCloud;
 
-            // Update project
-            teamCloud = await functionContext
-                .CallActivityAsync<TeamCloudInstance>(nameof(ProjectUpdateActivity), orchestratorContext.Project)
+            project = await functionContext
+                .CallActivityAsync<Project>(nameof(ProjectUpdateActivity), project)
                 .ConfigureAwait(true);
 
-            // Send update command to providers
-            var projectContext = new ProjectContext(teamCloud, project, user);
             var providerCommands = teamCloud.Providers.Select(provider => new ProviderCommand { Command = command, Provider = provider });
-            // Execute tasks
             var providerCommandTasks = providerCommands.Select(providerCommand => functionContext.CallSubOrchestratorAsync<ProviderCommandResult>(nameof(ProviderCommandOrchestration), providerCommand));
-            var providerCommandResults = await Task.WhenAll(providerCommandTasks).ConfigureAwait(true);
 
-            functionContext.SetOutput(project);
+            var providerCommandResults = await Task
+                .WhenAll(providerCommandTasks)
+                .ConfigureAwait(true);
+
+            var commandResult = command.CreateResult();
+            commandResult.Result = project;
+
+            functionContext.SetOutput(commandResult);
         }
     }
 }

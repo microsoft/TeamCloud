@@ -14,36 +14,38 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects.Activities
 {
     public class ProjectDeleteActivity
     {
-        private readonly ITeamCloudRepository teamCloudRepository;
         private readonly IProjectsRepository projectsRepository;
+        private readonly ITeamCloudRepository teamCloudRepository;
 
         public ProjectDeleteActivity(ITeamCloudRepository teamCloudRepository, IProjectsRepository projectsRepository)
         {
-            this.teamCloudRepository = teamCloudRepository ?? throw new ArgumentNullException(nameof(teamCloudRepository));
             this.projectsRepository = projectsRepository ?? throw new ArgumentNullException(nameof(projectsRepository));
+            this.teamCloudRepository = teamCloudRepository ?? throw new ArgumentNullException(nameof(teamCloudRepository));
         }
 
         [FunctionName(nameof(ProjectDeleteActivity))]
         public async Task<Project> RunActivity(
             [ActivityTrigger] Project project)
         {
-            if (project is null) throw new ArgumentNullException(nameof(project));
+            if (project is null)
+                throw new ArgumentNullException(nameof(project));
 
             var teamCloud = await teamCloudRepository
                 .GetAsync()
                 .ConfigureAwait(false);
 
-            var oldProject = await projectsRepository
+            _ = await projectsRepository
                 .RemoveAsync(project)
                 .ConfigureAwait(false);
 
-            teamCloud.ProjectIds.Remove(oldProject.Id);
+            if (teamCloud.ProjectIds.Remove(project.Id))
+            {
+                await teamCloudRepository
+                    .SetAsync(teamCloud)
+                    .ConfigureAwait(false);
+            }
 
-            await teamCloudRepository
-                .SetAsync(teamCloud)
-                .ConfigureAwait(false);
-
-            return oldProject;
+            return project;
         }
     }
 }

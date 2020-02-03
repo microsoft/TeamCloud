@@ -13,28 +13,28 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using TeamCloud.Model.Commands;
-using TeamCloud.Model.Data;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Providers
 {
-    public class ProviderCommandActivity
+    public static class ProviderCommandActivity
     {
         [FunctionName(nameof(ProviderCommandActivity))]
-        public async Task<ProviderCommandResult> Run(
-            [ActivityTrigger] ProviderCommand activityRequest,
+        public static async Task<ProviderCommandResult> Run(
+            [ActivityTrigger] ProviderCommand providerCommand,
             ILogger log)
         {
-            if (activityRequest is null) throw new ArgumentNullException(nameof(activityRequest));
+            if (providerCommand is null)
+                throw new ArgumentNullException(nameof(providerCommand));
 
-            var activityResponse = new ProviderCommandResult();
+            var providerCommandResult = new ProviderCommandResult(providerCommand);
 
             try
             {
-                var providerResponse = await activityRequest.Provider.Url
+                var providerResponse = await providerCommand.Provider.Url
                     .AppendPathSegment("api/command")
-                    .WithHeader("x-functions-key", activityRequest.Provider.AuthCode)
-                    .WithHeader("x-functions-callback", activityRequest.CallbackUrl)
-                    .PostJsonAsync(activityRequest.Command)
+                    .WithHeader("x-functions-key", providerCommand.Provider.AuthCode)
+                    .WithHeader("x-functions-callback", providerCommand.CallbackUrl)
+                    .PostJsonAsync(providerCommand)
                     .ConfigureAwait(false);
 
                 if (providerResponse.StatusCode == HttpStatusCode.OK)
@@ -43,15 +43,16 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers
                         .ReadAsStringAsync()
                         .ConfigureAwait(false);
 
-                    activityResponse.CommandResult = JsonConvert.DeserializeObject<ICommandResult>(providerResponseJson);
+                    providerCommandResult = JsonConvert.DeserializeObject<ProviderCommandResult>(providerResponseJson);
                 }
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
-                activityResponse.Error = exc.Message;
+                log.LogDebug(ex, "ProviderCommandActivity Failded");
+                providerCommandResult.Error = ex.Message;
             }
 
-            return activityResponse;
+            return providerCommandResult;
         }
     }
 }

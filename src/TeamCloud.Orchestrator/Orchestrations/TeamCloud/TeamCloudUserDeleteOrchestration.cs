@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Model.Commands;
-using TeamCloud.Model.Context;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestrator.Orchestrations.Projects.Activities;
 using TeamCloud.Orchestrator.Orchestrations.TeamCloud.Activities;
@@ -19,17 +18,19 @@ namespace TeamCloud.Orchestrator.Orchestrations.TeamCloud
     public static class TeamCloudUserDeleteOrchestration
     {
         [FunctionName(nameof(TeamCloudUserDeleteOrchestration))]
-        public static async Task<TeamCloudInstance> RunOrchestration(
+        public static async Task RunOrchestration(
             [OrchestrationTrigger] IDurableOrchestrationContext functionContext
             /* ILogger log */)
         {
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
 
-            (OrchestratorContext orchestratorContext, TeamCloudUserDeleteCommand command) = functionContext.GetInput<(OrchestratorContext, TeamCloudUserDeleteCommand)>();
+            var orchestratorCommand = functionContext.GetInput<OrchestratorCommand>();
 
-            var teamCloud = await functionContext
-                .CallActivityAsync<TeamCloudInstance>(nameof(TeamCloudUserDeleteActivity), (orchestratorContext.TeamCloud, command.Payload))
+            var command = orchestratorCommand.Command as TeamCloudUserDeleteCommand;
+
+            var user = await functionContext
+                .CallActivityAsync<User>(nameof(TeamCloudUserDeleteActivity), command.Payload)
                 .ConfigureAwait(true);
 
             // TODO: is this necessary?
@@ -37,7 +38,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.TeamCloud
             if (command.Payload.Role == UserRoles.TeamCloud.Admin)
             {
                 var projects = await functionContext
-                    .CallActivityAsync<List<Project>>(nameof(ProjectGetActivity), teamCloud)
+                    .CallActivityAsync<List<Project>>(nameof(ProjectGetActivity), orchestratorCommand.TeamCloud)
                     .ConfigureAwait(true); ;
 
                 // TODO: this should probably be done in parallel
@@ -52,7 +53,10 @@ namespace TeamCloud.Orchestrator.Orchestrations.TeamCloud
                 }
             }
 
-            return teamCloud;
+            var commandResult = command.CreateResult();
+            commandResult.Result = user;
+
+            functionContext.SetOutput(commandResult);
         }
     }
 }

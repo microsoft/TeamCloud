@@ -81,11 +81,14 @@ namespace TeamCloud.API.Controllers
         [Authorize(Policy = "projectCreate")]
         public async Task<IActionResult> Post([FromBody] ProjectDefinition projectDefinition)
         {
+            var users = await ResolveUsersAsync(projectDefinition)
+                .ConfigureAwait(false);
+
             var project = new Project
             {
                 Id = Guid.NewGuid(),
+                Users = users,
                 Name = projectDefinition.Name,
-                Users = await ResolveUsersAsync(projectDefinition).ConfigureAwait(false),
                 Tags = projectDefinition.Tags
             };
 
@@ -99,7 +102,7 @@ namespace TeamCloud.API.Controllers
             var command = new ProjectCreateCommand(CurrentUser, project);
 
             var commandResult = await orchestrator
-                .InvokeAsync<Project>(command)
+                .InvokeAsync(command)
                 .ConfigureAwait(false);
 
             return commandResult.ActionResult();
@@ -118,7 +121,7 @@ namespace TeamCloud.API.Controllers
             var command = new ProjectDeleteCommand(CurrentUser, project);
 
             var commandResult = await orchestrator
-                .InvokeAsync<Project>(command)
+                .InvokeAsync(command)
                 .ConfigureAwait(false);
 
             return commandResult.ActionResult();

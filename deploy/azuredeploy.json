@@ -462,7 +462,7 @@
                         "TenantId": "[subscription().tenantId]"
                     },
                     "DeploymentStorage": {
-                        "BaseUrl": "[reference(concat('Microsoft.Storage/storageAccounts/', variables('deploymentStorageAccountName')), '2019-04-01').primaryEndpoints.blob]",
+                        "BaseUrl": "",
                         "ConnectionString": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('deploymentStorageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('deploymentStorageAccountName')), '2017-06-01').keys[0].value)]"
                     },
                     "CosmosDb": {

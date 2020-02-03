@@ -12,7 +12,6 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Azure.Deployments;
 using TeamCloud.Model.Commands;
-using TeamCloud.Model.Context;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestrator.Orchestrations.Azure;
 using TeamCloud.Orchestrator.Orchestrations.Projects.Activities;
@@ -30,7 +29,9 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
 
-            (OrchestratorContext orchestratorContext, ProjectCreateCommand command) = functionContext.GetInput<(OrchestratorContext, ProjectCreateCommand)>();
+            var orchestratorCommand = functionContext.GetInput<OrchestratorCommand>();
+
+            var command = orchestratorCommand.Command as ProjectCreateCommand;
 
             // Not sure if we need this here, create shouldn't ever wait on another command
             await functionContext
@@ -41,10 +42,13 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
 
             var user = command.User;
             var project = command.Payload;
-            var teamCloud = orchestratorContext.TeamCloud;
+            var teamCloud = orchestratorCommand.TeamCloud;
+
             project.TeamCloudId = teamCloud.Id;
             project.TeamCloudApplicationInsightsKey = teamCloud.ApplicationInsightsKey;
-            //project.ProviderVariables = teamCloud.Configuration.Providers.Select(p => (p.Id, p.Variables)).ToDictionary(t => t.Id, t => t.Variables);
+            project.ProviderVariables = teamCloud.Configuration.Providers
+                .Select(p => (p.Id, p.Variables))
+                .ToDictionary(t => t.Id, t => t.Variables);
 
             project = await functionContext
                 .CallActivityAsync<Project>(nameof(ProjectCreateActivity), project)
@@ -59,7 +63,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
             try
             {
                 project.ResourceGroup = await functionContext
-                    .CallActivityAsync<AzureResourceGroup>(nameof(AzureResourceGroupCreateActivity), (orchestratorContext, project, subscriptionId))
+                    .CallActivityAsync<AzureResourceGroup>(nameof(AzureResourceGroupCreateActivity), (teamCloud, project, subscriptionId))
                     .ConfigureAwait(true);
             }
             catch (FunctionFailedException functionException) when (functionException.InnerException is AzureDeploymentException)
@@ -85,7 +89,10 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
 
             functionContext.SetCustomStatus("Project Created");
 
-            functionContext.SetOutput(project);
+            var commandResult = command.CreateResult();
+            commandResult.Result = project;
+
+            functionContext.SetOutput(commandResult);
         }
     }
 }

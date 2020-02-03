@@ -40,13 +40,13 @@ namespace TeamCloud.Orchestrator
 
         [FunctionName(nameof(CallbackTrigger))]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "callback/{instanceId}")] HttpRequest request,
+            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "callback/{instanceId}")] ProviderCommandResult providerCommandResult,
             [DurableClient] IDurableClient durableClient,
             string instanceId
             /* ILogger log */)
         {
-            if (request is null)
-                throw new ArgumentNullException(nameof(request));
+            if (providerCommandResult is null)
+                throw new ArgumentNullException(nameof(providerCommandResult));
 
             if (durableClient is null)
                 throw new ArgumentNullException(nameof(durableClient));
@@ -54,11 +54,8 @@ namespace TeamCloud.Orchestrator
             if (instanceId is null)
                 throw new ArgumentNullException(nameof(instanceId));
 
-            var commandResultJson = await request.ReadAsStringAsync().ConfigureAwait(false);
-            var commandResult = JsonConvert.DeserializeObject<ICommandResult>(commandResultJson);
-
             await durableClient
-                .RaiseEventAsync(instanceId, commandResult.CommandId.ToString(), commandResult)
+                .RaiseEventAsync(instanceId, providerCommandResult.CommandId.ToString(), providerCommandResult)
                 .ConfigureAwait(false);
 
             return new OkResult();

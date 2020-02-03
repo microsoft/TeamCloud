@@ -7,9 +7,11 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
+using System.Reflection;
 using System.Threading.Tasks;
 using Flurl.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.WindowsAzure.Storage;
 using Newtonsoft.Json.Linq;
 using TeamCloud.Azure.Deployments;
 
@@ -17,6 +19,8 @@ namespace TeamCloud.Azure
 {
     public static class Extensions
     {
+        private static readonly PropertyInfo IsDevStoreAccountProperty = typeof(CloudStorageAccount).GetProperty("IsDevStoreAccount", BindingFlags.Instance | BindingFlags.NonPublic);
+
         public static IServiceCollection AddAzure(this IServiceCollection services, Action<IAzureConfiguration> configuration)
         {
             services
@@ -42,6 +46,12 @@ namespace TeamCloud.Azure
 
         internal static bool IsEMail(this string value)
             => new EmailAddressAttribute().IsValid(value);
+
+        internal static bool IsDevelopmentStorageConnectionString(this string value)
+            => CloudStorageAccount.TryParse(value, out var account) && account.IsDevelopmentStorage();
+
+        internal static bool IsDevelopmentStorage(this CloudStorageAccount account)
+            => (bool)IsDevStoreAccountProperty.GetValue(account);
 
         internal static async Task<JObject> GetJObjectAsync(this IFlurlRequest request)
         {

@@ -27,7 +27,7 @@ namespace TeamCloud.Orchestrator.Options
             ? Environment.GetEnvironmentVariable("REGION_NAME")
             : azureResourceManagerOptions.Region;
 
-        public string BaseUrl => azureDeploymentStorageOptions.BaseUrl;
+        public string BaseUrlOverride => azureDeploymentStorageOptions.BaseUrlOverride;
 
         string IAzureStorageArtifactsOptions.ConnectionString => azureDeploymentStorageOptions.ConnectionString;
     }

@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Model.Commands;
-using TeamCloud.Model.Context;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestrator.Orchestrations.Projects.Activities;
 using TeamCloud.Orchestrator.Orchestrations.TeamCloud.Activities;
@@ -19,25 +18,25 @@ namespace TeamCloud.Orchestrator.Orchestrations.TeamCloud
     public static class TeamCloudUserCreateOrchestration
     {
         [FunctionName(nameof(TeamCloudUserCreateOrchestration))]
-        public static async Task<bool> RunOrchestration(
+        public static async Task RunOrchestration(
             [OrchestrationTrigger] IDurableOrchestrationContext functionContext
             /* ILogger log */)
         {
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
 
-            (OrchestratorContext orchestratorContext, TeamCloudUserCreateCommand command) = functionContext.GetInput<(OrchestratorContext, TeamCloudUserCreateCommand)>();
+            var orchestratorCommand = functionContext.GetInput<OrchestratorCommand>();
 
-            var user = command.Payload;
+            var command = orchestratorCommand.Command as TeamCloudUserCreateCommand;
 
-            var teamCloud = await functionContext
-                .CallActivityAsync<TeamCloudInstance>(nameof(TeamCloudUserCreateActivity), (orchestratorContext.TeamCloud, user))
+            var user = await functionContext
+                .CallActivityAsync<User>(nameof(TeamCloudUserCreateActivity), command.Payload)
                 .ConfigureAwait(true);
 
             if (user.Role == UserRoles.TeamCloud.Admin)
             {
                 var projects = await functionContext
-                    .CallActivityAsync<List<Project>>(nameof(ProjectGetActivity), teamCloud)
+                    .CallActivityAsync<List<Project>>(nameof(ProjectGetActivity), orchestratorCommand.TeamCloud)
                     .ConfigureAwait(true);
 
                 // TODO: this should probably be done in parallel
@@ -52,7 +51,10 @@ namespace TeamCloud.Orchestrator.Orchestrations.TeamCloud
                 }
             }
 
-            return true;
+            var commandResult = command.CreateResult();
+            commandResult.Result = user;
+
+            functionContext.SetOutput(commandResult);
         }
     }
 }

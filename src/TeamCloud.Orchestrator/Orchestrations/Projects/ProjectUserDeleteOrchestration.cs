@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Model.Commands;
-using TeamCloud.Model.Context;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestrator.Orchestrations.Projects.Activities;
 
@@ -17,28 +16,31 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
     public static class ProjectUserDeleteOrchestration
     {
         [FunctionName(nameof(ProjectUserDeleteOrchestration))]
-        public static async Task<Project> RunOrchestration(
+        public static async Task RunOrchestration(
             [OrchestrationTrigger] IDurableOrchestrationContext functionContext
             /* ILogger log */)
         {
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
 
-            (OrchestratorContext orchestratorContext, ProjectUserDeleteCommand command) = functionContext.GetInput<(OrchestratorContext, ProjectUserDeleteCommand)>();
+            var orchestratorCommand = functionContext.GetInput<OrchestratorCommand>();
 
-            var project = await functionContext
-                .CallActivityAsync<Project>(nameof(ProjectUserDeleteActivity), (orchestratorContext.Project, command.Payload))
+            var command = orchestratorCommand.Command as ProjectUserDeleteCommand;
+
+            await functionContext
+                .WaitForProjectCommandsAsync(command)
                 .ConfigureAwait(true);
 
-            // var projectContext = new ProjectContext(orchestratorContext.TeamCloud, project, command.User.Id);
+            var user = await functionContext
+                .CallActivityAsync<User>(nameof(ProjectUserDeleteActivity), (command.ProjectId, command.Payload))
+                .ConfigureAwait(true);
 
-            // TODO: call set users on all providers
-            // var tasks = input.teamCloud.Configuration.Providers.Select(p =>
-            //                 functionContext.CallHttpAsync(HttpMethod.Post, p.Location, JsonConvert.SerializeObject(projectContext)));
+            // TODO: call set users on all providers (or project update for now)
 
-            // await Task.WhenAll(tasks);
+            var commandResult = command.CreateResult();
+            commandResult.Result = user;
 
-            return project;
+            functionContext.SetOutput(commandResult);
         }
     }
 }

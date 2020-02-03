@@ -4,7 +4,6 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -23,27 +22,23 @@ namespace TeamCloud.Orchestrator.Orchestrations.TeamCloud.Activities
         }
 
         [FunctionName(nameof(TeamCloudUserCreateActivity))]
-        public async Task<TeamCloudInstance> RunActivity(
-            [ActivityTrigger] (TeamCloudInstance teamCloud, User newUser) input)
+        public async Task<User> RunActivity(
+            [ActivityTrigger] User user)
         {
-            if (input.teamCloud is null)
-                throw new ArgumentException($"input param must contain a valid TeamCloudInstance set on {nameof(input.teamCloud)}.", nameof(input));
+            if (user is null)
+                throw new ArgumentNullException(nameof(user));
 
-            if (input.newUser is null)
-                throw new ArgumentException($"input param must contain a valid User set on {nameof(input.newUser)}.", nameof(input));
-
-            if (input.teamCloud.Users == null)
-            {
-                input.teamCloud.Users = new List<User>();
-            }
-
-            input.teamCloud.Users.Add(input.newUser);
-
-            await teamCloudRepository
-                .SetAsync(input.teamCloud)
+            var teamCloud = await teamCloudRepository
+                .GetAsync()
                 .ConfigureAwait(false);
 
-            return input.teamCloud;
+            teamCloud.Users.Add(user);
+
+            await teamCloudRepository
+                .SetAsync(teamCloud)
+                .ConfigureAwait(false);
+
+            return user;
         }
     }
 }

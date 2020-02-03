@@ -23,27 +23,26 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects.Activities
         }
 
         [FunctionName(nameof(ProjectUserCreateActivity))]
-        public async Task<Project> RunActivity(
-            [ActivityTrigger] (Project project, User newUser) input)
+        public async Task<User> RunActivity(
+            [ActivityTrigger] (Guid projectId, User newUser) input)
         {
-            if (input.project is null)
-                throw new ArgumentException($"input param must contain a valid Project set on {nameof(input.project)}.", nameof(input));
+            if (input.projectId == Guid.Empty)
+                throw new ArgumentException($"input param must contain a valid ProjectID set on {nameof(input.projectId)}.", nameof(input));
 
             if (input.newUser is null)
                 throw new ArgumentException($"input param must contain a valid User set on {nameof(input.newUser)}.", nameof(input));
 
-            if (input.project.Users == null)
-            {
-                input.project.Users = new List<User>();
-            }
-
-            input.project.Users.Add(input.newUser);
-
-            await projectsRepository
-                .SetAsync(input.project)
+            var project = await projectsRepository
+                .GetAsync(input.projectId)
                 .ConfigureAwait(false);
 
-            return input.project;
+            project.Users.Add(input.newUser);
+
+            await projectsRepository
+                .SetAsync(project)
+                .ConfigureAwait(false);
+
+            return input.newUser;
         }
     }
 }
