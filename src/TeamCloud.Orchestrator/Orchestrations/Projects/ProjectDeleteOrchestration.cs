@@ -4,14 +4,13 @@
  */
 
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
+using TeamCloud.Orchestrator.Orchestrations.Azure;
 using TeamCloud.Orchestrator.Orchestrations.Projects.Activities;
-using TeamCloud.Orchestrator.Orchestrations.Providers;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Projects
 {
@@ -26,7 +25,6 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
                 throw new ArgumentNullException(nameof(functionContext));
 
             var orchestratorCommand = functionContext.GetInput<OrchestratorCommandMessage>();
-
             var command = orchestratorCommand.Command as ProjectDeleteCommand;
 
             await functionContext
@@ -40,19 +38,22 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
             var teamCloud = orchestratorCommand.TeamCloud;
 
             var providerCommandTasks = teamCloud.GetProviderCommandTasks(command, functionContext);
-
             var providerCommandResultMessages = await Task
                 .WhenAll(providerCommandTasks)
                 .ConfigureAwait(true);
 
-            // Delete project
+            // Delete Azure resource group
+            await functionContext
+                .CallActivityAsync<AzureResourceGroup>(nameof(AzureResourceGroupDeleteActivity), project.ResourceGroup)
+                .ConfigureAwait(false);
+
+            // Delete project in DB
             project = await functionContext
                 .CallActivityAsync<Project>(nameof(ProjectDeleteActivity), project)
                 .ConfigureAwait(true);
 
             var commandResult = command.CreateResult();
             commandResult.Result = project;
-
             functionContext.SetOutput(commandResult);
         }
     }
