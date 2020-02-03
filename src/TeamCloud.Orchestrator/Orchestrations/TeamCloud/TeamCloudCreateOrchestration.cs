@@ -31,7 +31,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.TeamCloud
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
 
-            var orchestratorCommand = functionContext.GetInput<OrchestratorCommand>();
+            var orchestratorCommand = functionContext.GetInput<OrchestratorCommandMessage>();
 
             var command = orchestratorCommand.Command as TeamCloudCreateCommand;
 

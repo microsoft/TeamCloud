@@ -4,7 +4,9 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using TeamCloud.Model.Data;
 
 namespace TeamCloud.Model.Commands
 {
@@ -22,5 +24,8 @@ namespace TeamCloud.Model.Commands
 
         public static string StatusUrl(this ICommandResult result)
             => result.Links.TryGetValue("status", out var statusUrl) ? statusUrl : null;
+
+        public static IEnumerable<ProviderCommandMessage> GetProviderCommandMessages(this TeamCloudInstance teamCloud, ICommand command)
+            => teamCloud.Providers.Select(provider => new ProviderCommandMessage { Provider = provider, Command = command });
     }
 }

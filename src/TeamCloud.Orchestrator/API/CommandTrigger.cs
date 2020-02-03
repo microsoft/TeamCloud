@@ -55,7 +55,7 @@ namespace TeamCloud.Orchestrator
             if (teamCloud is null)
                 throw new NullReferenceException();
 
-            var orchestratorCommand = new OrchestratorCommand(teamCloud, command);
+            var orchestratorCommand = new OrchestratorCommandMessage(teamCloud, command);
 
             var commandResult = await SendCommand(durableClient, orchestratorCommand, OrchestrationName(command))
                 .ConfigureAwait(false);
@@ -78,7 +78,7 @@ namespace TeamCloud.Orchestrator
             _ => throw new NotSupportedException()
         };
 
-        private static async Task<ICommandResult> SendCommand(IDurableClient durableClient, OrchestratorCommand orchestratorCommand, string orchestrationName)
+        private static async Task<ICommandResult> SendCommand(IDurableClient durableClient, OrchestratorCommandMessage orchestratorCommand, string orchestrationName)
         {
             var instanceId = await durableClient
                 .StartNewAsync<object>(orchestrationName, orchestratorCommand.CommandId.ToString(), orchestratorCommand)

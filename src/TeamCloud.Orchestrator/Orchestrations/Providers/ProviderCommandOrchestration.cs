@@ -9,50 +9,51 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Model.Commands;
+using TeamCloud.Orchestrator.Orchestrations.Providers.Activities;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Providers
 {
     public static class ProviderCommandOrchestration
     {
         [FunctionName(nameof(ProviderCommandOrchestration))]
-        public static async Task<ProviderCommandResult> Run(
+        public static async Task<ProviderCommandResultMessage> Run(
             [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
             ILogger log)
         {
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
 
-            var providerCommand = functionContext.GetInput<ProviderCommand>();
+            var providerCommandMessage = functionContext.GetInput<ProviderCommandMessage>();
 
-            providerCommand.CallbackUrl = await CallbackTrigger
+            providerCommandMessage.CallbackUrl = await CallbackTrigger
                 .GetCallbackUrlAsync(functionContext.InstanceId)
                 .ConfigureAwait(true);
 
-            var providerCommandResult = new ProviderCommandResult(providerCommand);
+            var providerCommandResultMessage = providerCommandMessage.CreateResult();
 
             try
             {
-                providerCommandResult = await functionContext
-                    .CallActivityAsync<ProviderCommandResult>(nameof(ProviderCommandActivity), providerCommand)
+                providerCommandResultMessage.CommandResult = await functionContext
+                    .CallActivityAsync<ICommandResult>(nameof(ProviderCommandActivity), providerCommandMessage)
                     .ConfigureAwait(true);
 
-                if (!providerCommandResult.RuntimeStatus.IsFinal())
+                if (!providerCommandResultMessage.CommandResult.RuntimeStatus.IsFinal())
                 {
                     log.LogInformation($"Waiting for external event in orchestration {functionContext.InstanceId}");
 
                     // FIXME: Change timespan back to 30 mins
-                    providerCommandResult = await functionContext
-                        .WaitForExternalEvent<ProviderCommandResult>(providerCommand.CommandId.ToString(), TimeSpan.FromMinutes(3), null)
+                    providerCommandResultMessage.CommandResult = await functionContext
+                        .WaitForExternalEvent<ICommandResult>(providerCommandMessage.CommandId.ToString(), TimeSpan.FromMinutes(3), null)
                         .ConfigureAwait(true);
                 }
             }
             catch (Exception ex)
             {
                 log.LogDebug(ex, "ProviderCommandOrchestration Failded");
-                providerCommandResult.Error = ex.Message;
+                providerCommandResultMessage.CommandResult.Exceptions.Add(ex);
             }
 
-            return providerCommandResult;
+            return providerCommandResultMessage;
         }
     }
 }

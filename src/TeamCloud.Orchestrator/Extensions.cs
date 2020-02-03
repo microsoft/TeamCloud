@@ -4,6 +4,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
@@ -15,6 +16,8 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.WindowsAzure.Storage;
 using Newtonsoft.Json.Linq;
 using TeamCloud.Model.Commands;
+using TeamCloud.Model.Data;
+using TeamCloud.Orchestrator.Orchestrations.Providers;
 
 namespace TeamCloud.Orchestrator
 {
@@ -63,7 +66,7 @@ namespace TeamCloud.Orchestrator
             }
             else if (orchestrationStatus.Input?.HasValues ?? false)
             {
-                var command = orchestrationStatus.Input.ToObject<OrchestratorCommand>()?.Command;
+                var command = orchestrationStatus.Input.ToObject<OrchestratorCommandMessage>()?.Command;
 
                 return command?.CreateResult(orchestrationStatus);
             }
@@ -71,6 +74,9 @@ namespace TeamCloud.Orchestrator
             return null;
         }
 
+        internal static IEnumerable<Task<ProviderCommandResultMessage>> GetProviderCommandTasks(this TeamCloudInstance teamCloud, ICommand command, IDurableOrchestrationContext functionContext)
+            => teamCloud.GetProviderCommandMessages(command)
+                    .Select(providerCommandMessage => functionContext.CallSubOrchestratorAsync<ProviderCommandResultMessage>(nameof(ProviderCommandOrchestration), providerCommandMessage));
 
         internal static async Task<JObject> GetJObjectAsync(this Url url, CancellationToken cancellationToken = default, HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead)
         {

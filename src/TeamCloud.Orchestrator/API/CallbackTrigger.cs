@@ -4,6 +4,7 @@
  */
 
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -40,13 +41,13 @@ namespace TeamCloud.Orchestrator
 
         [FunctionName(nameof(CallbackTrigger))]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "callback/{instanceId}")] ProviderCommandResult providerCommandResult,
+            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "callback/{instanceId}")] HttpRequest httpRequest,
             [DurableClient] IDurableClient durableClient,
             string instanceId
             /* ILogger log */)
         {
-            if (providerCommandResult is null)
-                throw new ArgumentNullException(nameof(providerCommandResult));
+            if (httpRequest is null)
+                throw new ArgumentNullException(nameof(httpRequest));
 
             if (durableClient is null)
                 throw new ArgumentNullException(nameof(durableClient));
@@ -54,8 +55,14 @@ namespace TeamCloud.Orchestrator
             if (instanceId is null)
                 throw new ArgumentNullException(nameof(instanceId));
 
+            var requestBody = await new StreamReader(httpRequest.Body)
+                .ReadToEndAsync()
+                .ConfigureAwait(false);
+
+            var commandResult = JsonConvert.DeserializeObject<ICommandResult>(requestBody);
+
             await durableClient
-                .RaiseEventAsync(instanceId, providerCommandResult.CommandId.ToString(), providerCommandResult)
+                .RaiseEventAsync(instanceId, commandResult.CommandId.ToString(), commandResult)
                 .ConfigureAwait(false);
 
             return new OkResult();
