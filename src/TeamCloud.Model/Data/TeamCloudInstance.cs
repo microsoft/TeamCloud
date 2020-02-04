@@ -32,26 +32,19 @@ namespace TeamCloud.Model.Data
 
         public Dictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();
 
-        public Dictionary<string, string> Variables { get; set; } = new Dictionary<string, string>();
+        public Dictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
 
-        public TeamCloudConfiguration Configuration { get; set; }
-
-        [JsonIgnore]
-        public List<Provider> Providers => Configuration.Providers;
-
-        [JsonIgnore]
-        public TeamCloudProjectConfiguration ProjectsConfiguration => Configuration.Projects;
+        public List<Provider> Providers { get; set; } = new List<Provider>();
 
         public TeamCloudInstance()
         { }
 
         public TeamCloudInstance(TeamCloudConfiguration config)
         {
-            Configuration = config;
-
             Users = config.Users;
             Tags = config.Tags;
-            Variables = config.Variables;
+            Properties = config.Properties;
+            Providers = config.Providers;
         }
     }
 
@@ -71,8 +64,6 @@ namespace TeamCloud.Model.Data
             RuleFor(obj => obj.ProjectIds).NotEmpty();
 
             RuleFor(obj => obj.Providers).NotEmpty();
-
-            RuleFor(obj => obj.Configuration).NotEmpty();
 
             RuleForEach(obj => obj.ProjectIds).NotEmpty();
         }

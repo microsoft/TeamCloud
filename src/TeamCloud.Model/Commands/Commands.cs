@@ -69,9 +69,9 @@ namespace TeamCloud.Model.Commands
     }
 
 
-    public class TeamCloudCreateCommand : Command<TeamCloudInstance, TeamCloudCreateCommandResult>
+    public class TeamCloudCreateCommand : Command<TeamCloudConfiguration, TeamCloudCreateCommandResult>
     {
-        public TeamCloudCreateCommand(User user, TeamCloudInstance payload) : base(user, payload)
+        public TeamCloudCreateCommand(User user, TeamCloudConfiguration payload) : base(user, payload)
         { }
     }
 

@@ -16,7 +16,7 @@ namespace TeamCloud.Data
 
         IAsyncEnumerable<Project> ListAsync(Guid? userId = null);
 
-        Task<bool> NameExistsAsync(Project project);
+        Task<bool> NameExistsAsync(string name);
     }
 
     public interface IProjectsRepository : IProjectsRepositoryReadOnly

@@ -26,15 +26,11 @@ namespace TeamCloud.Orchestrator.Orchestrations.Azure
 
         [FunctionName(nameof(AzureResourceGroupCreateActivity))]
         public async Task<AzureResourceGroup> RunActivity(
-            [ActivityTrigger] (TeamCloudInstance, Project, Guid) input,
-            ILogger logger)
+            [ActivityTrigger] (Project project, Guid subscriptionId) input,
+            ILogger log)
         {
-            var teamCloud = input.Item1;
-            var project = input.Item2;
-            var subscriptionId = input.Item3;
-
-            if (teamCloud == null)
-                throw new ArgumentNullException(nameof(input));
+            var project = input.project;
+            var subscriptionId = input.subscriptionId;
 
             if (project == null)
                 throw new ArgumentNullException(nameof(input));
@@ -54,9 +50,9 @@ namespace TeamCloud.Orchestrator.Orchestrations.Azure
 
             template.Parameters["projectId"] = project.Id;
             template.Parameters["projectName"] = project.Name;
-            template.Parameters["projectPrefix"] = teamCloud.ProjectsConfiguration.Azure.ResourceGroupNamePrefix;
+            template.Parameters["projectPrefix"] = project.Type.ResourceGroupNamePrefix;
             template.Parameters["resourceGroupName"] = project.ResourceGroup?.ResourceGroupName; // if null - the template generates a unique name
-            template.Parameters["resourceGroupLocation"] = project.ResourceGroup?.Region ?? teamCloud.ProjectsConfiguration.Azure.Region;
+            template.Parameters["resourceGroupLocation"] = project.ResourceGroup?.Region ?? project.Type.Region;
 
             try
             {
@@ -75,19 +71,19 @@ namespace TeamCloud.Orchestrator.Orchestrations.Azure
                 return new AzureResourceGroup()
                 {
                     SubscriptionId = subscriptionId,
-                    Region = teamCloud.ProjectsConfiguration.Azure.Region,
+                    Region = project.Type.Region,
                     ResourceGroupId = (string)deploymentOutput.GetValueOrDefault("resourceGroupId", default(string)),
                     ResourceGroupName = (string)deploymentOutput.GetValueOrDefault("resourceGroupName", default(string))
                 };
             }
             catch (AzureDeploymentException deployEx)
             {
-                logger.LogError(deployEx, $"Error deploying new Resource Group for Project.\n {deployEx.ResourceError}");
+                log.LogError(deployEx, $"Error deploying new Resource Group for Project.\n {deployEx.ResourceError}");
                 throw;
             }
             catch (System.Exception ex)
             {
-                logger.LogError(ex, "Error deploying new Resource Group for Project.");
+                log.LogError(ex, "Error deploying new Resource Group for Project.");
                 throw;
             }
         }

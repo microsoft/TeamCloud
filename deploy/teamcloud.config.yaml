@@ -1,43 +1,74 @@
 ---
-version: 1.0
-projects:
-  azure:
-    region: eastus
-    subscriptions:
-    - id: b54e1d81-8c0c-4442-9283-9869630d060a
-      capacity: 5
-    - id: aba7458f-746e-4a59-a3f0-ebf36eddfcf6
-      capacity: 5
-    - id: 13f34552-b3d0-4099-a672-a8ac7a830db2
-      capacity: 5
-    defaultSubscriptionCapacity: 10
-    resourceGroupNamePrefix: tc_
+projectTypes:
+- id: project.type.one
+  default: true
+  region: eastus
+  subscriptions:
+  - 456bb1ba-04ae-481a-9c55-0e5c1bef0f65
+  - 456bb1ba-04ae-481a-9c55-0e5c1bef0f65
+  - 456bb1ba-04ae-481a-9c55-0e5c1bef0f65
+  subscriptionCapacity: 10
+  resourceGroupNamePrefix: TC_ONE_
+  providers:
+  - id: azure.applicationinsights
+    properties:
+      dtlvarA: dtlvalueA
+      dtlvarB: dtlvalueB
+  - id: azure.devops
+    properties:
+      dtlvarC: dtlvalueC
+      dtlvarD: dtlvalueD
+  - id: azure.devtestlabs
+    properties:
+      dtlvarE: dtlvalueE
+      dtlvarF: dtlvalueF
+- id: project.type.two
+  region: westus
+  subscriptions:
+  - 456bb1ba-04ae-481a-9c55-0e5c1bef0f65
+  - 456bb1ba-04ae-481a-9c55-0e5c1bef0f65
+  - 456bb1ba-04ae-481a-9c55-0e5c1bef0f65
+  subscriptionCapacity: 5
+  resourceGroupNamePrefix: TC_TWO_
+  providers:
+  - id: azure.applicationinsights
+    properties:
+      dtlvarA: dtlvalueA
+      dtlvarB: dtlvalueB
+  - id: azure.devops
+    properties:
+      dtlvarC: dtlvalueC
+      dtlvarD: dtlvalueD
+  - id: azure.devtestlabs
+    properties:
+      dtlvarE: dtlvalueE
+      dtlvarF: dtlvalueF
 providers:
 - id: azure.applicationinsights
-  url: 'http://localhost:7072'
+  url: 'http://localhost:7101'
   authCode: ''
   optional: false
   events:
   - azure.applicationinsights
-  variables:
+  properties:
     dtlvar1: dtlvalue1
     dtlvar2: dtlvalue2
 - id: azure.devops
-  url: 'http://localhost:7073'
+  url: 'http://localhost:7102'
   authCode: ''
   optional: false
   events:
   - azure.devops
-  variables:
+  properties:
     dtlvar1: dtlvalue1
     dtlvar2: dtlvalue2
-- id: azure.devtestlab
-  url: 'http://localhost:7074'
+- id: azure.devtestlabs
+  url: 'http://localhost:7103'
   authCode: ''
   optional: false
   events:
-  - azure.devtestlab
-  variables:
+  - azure.devtestlabs
+  properties:
     dtlvar1: dtlvalue1
     dtlvar2: dtlvalue2
 users:
@@ -46,13 +77,11 @@ users:
   tags:
     usertag1: tagvalue1
     usertag2: tagvalue2
-- id: aba7458f-746e-4a59-a3f0-ebf36eddfcf6
-  role: Creator
 tags:
   tag1: tagvalue1
   tag2: tagvalue2
   tag3: tagvalue3
-variables:
+properties:
   var1: value1
   var2: value2
   var3: value3

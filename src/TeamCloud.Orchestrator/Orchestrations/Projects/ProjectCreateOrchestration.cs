@@ -4,7 +4,6 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
@@ -15,7 +14,6 @@ using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestrator.Orchestrations.Azure;
 using TeamCloud.Orchestrator.Orchestrations.Projects.Activities;
-using TeamCloud.Orchestrator.Orchestrations.Providers;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Projects
 {
@@ -24,7 +22,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
         [FunctionName(nameof(ProjectCreateOrchestration))]
         public static async Task RunOrchestration(
             [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
-            ILogger logger)
+            ILogger log)
         {
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
@@ -46,9 +44,14 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
 
             project.TeamCloudId = teamCloud.Id;
             project.TeamCloudApplicationInsightsKey = teamCloud.ApplicationInsightsKey;
-            project.ProviderVariables = teamCloud.Configuration.Providers
-                .Select(p => (p.Id, p.Variables))
-                .ToDictionary(t => t.Id, t => t.Variables);
+
+            project.Tags.Concat(teamCloud.Tags);
+            project.Properties = teamCloud.Properties;
+
+            project.ProviderProperties = teamCloud.Providers
+                .Where(p => project.Type.Providers.Any(pp => pp.Id == p.Id))
+                .Select(p => (p.Id, p.Properties))
+                .ToDictionary(t => t.Id, t => t.Properties);
 
             project = await functionContext
                 .CallActivityAsync<Project>(nameof(ProjectCreateActivity), project)
@@ -57,19 +60,19 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
             functionContext.SetCustomStatus("Creating new Resource Group for Project");
 
             var subscriptionId = await functionContext
-                .CallActivityAsync<Guid>(nameof(AzureSubscriptionPoolSelectActivity), teamCloud)
+                .CallActivityAsync<Guid>(nameof(AzureSubscriptionPoolSelectActivity), project)
                 .ConfigureAwait(true);
 
             try
             {
                 project.ResourceGroup = await functionContext
-                    .CallActivityAsync<AzureResourceGroup>(nameof(AzureResourceGroupCreateActivity), (teamCloud, project, subscriptionId))
+                    .CallActivityAsync<AzureResourceGroup>(nameof(AzureResourceGroupCreateActivity), (project, subscriptionId))
                     .ConfigureAwait(true);
             }
             catch (FunctionFailedException functionException) when (functionException.InnerException is AzureDeploymentException)
             {
                 var deploymentExecption = functionException.InnerException as AzureDeploymentException;
-                functionContext.CreateReplaySafeLogger(logger).LogError(functionException, "Failed to create new Resource Group for Project\n{0}", deploymentExecption.ResourceError);
+                functionContext.CreateReplaySafeLogger(log).LogError(functionException, "Failed to create new Resource Group for Project\n{0}", deploymentExecption.ResourceError);
                 functionContext.SetCustomStatus("Failed to create new Resource Group for Project");
                 throw;
             }

@@ -27,12 +27,14 @@ namespace TeamCloud.API.Controllers
         readonly UserService userService;
         readonly Orchestrator orchestrator;
         readonly IProjectsRepositoryReadOnly projectsRepository;
+        readonly IProjectTypesRepositoryReadOnly projectTypesRepository;
 
-        public ProjectsController(UserService userService, Orchestrator orchestrator, IProjectsRepositoryReadOnly projectsRepository)
+        public ProjectsController(UserService userService, Orchestrator orchestrator, IProjectsRepositoryReadOnly projectsRepository, IProjectTypesRepositoryReadOnly projectTypesRepository)
         {
             this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
             this.orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
             this.projectsRepository = projectsRepository ?? throw new ArgumentNullException(nameof(projectsRepository));
+            this.projectTypesRepository = projectTypesRepository ?? throw new ArgumentNullException(nameof(projectTypesRepository));
         }
 
         private User CurrentUser => new User()
@@ -58,7 +60,8 @@ namespace TeamCloud.API.Controllers
         public async IAsyncEnumerable<Project> Get()
         {
             var projects = projectsRepository
-                .ListAsync();
+                .ListAsync()
+                .ConfigureAwait(false);
 
             await foreach (var project in projects)
                 yield return project;
@@ -84,6 +87,13 @@ namespace TeamCloud.API.Controllers
             var users = await ResolveUsersAsync(projectDefinition)
                 .ConfigureAwait(false);
 
+            var nameExists = await projectsRepository
+                .NameExistsAsync(projectDefinition.Name)
+                .ConfigureAwait(false);
+
+            if (nameExists)
+                return new ConflictObjectResult($"A Project with name '{projectDefinition.Name}' already exists.  Project names must be unique.  Please try your request again with a unique name.");
+
             var project = new Project
             {
                 Id = Guid.NewGuid(),
@@ -92,12 +102,24 @@ namespace TeamCloud.API.Controllers
                 Tags = projectDefinition.Tags
             };
 
-            var isExisting = await projectsRepository
-                .NameExistsAsync(project)
-                .ConfigureAwait(false);
+            if (!string.IsNullOrEmpty(projectDefinition.ProjectType))
+            {
+                project.Type = await projectTypesRepository
+                    .GetAsync(projectDefinition.ProjectType)
+                    .ConfigureAwait(false);
 
-            if (isExisting)
-                return new ConflictObjectResult($"A Project with name '{project.Name}' already exists.  Project names must be unique.  Please try your request again with a unique name.");
+                if (project.Type is null)
+                    return new NotFoundObjectResult($"Project Type invalid.  No Project Type was found with the id: '{projectDefinition.ProjectType}' found for this TeamCloud Instance.");
+            }
+            else
+            {
+                project.Type = await projectTypesRepository
+                    .GetDefaultAsync()
+                    .ConfigureAwait(false);
+
+                if (project.Type is null)
+                    return new NotFoundObjectResult("Project Type required.  No Project Type was provided and there isn't a default Project Type set for this TeamCloud Instance.");
+            }
 
             var command = new ProjectCreateCommand(CurrentUser, project);
 

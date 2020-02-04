@@ -11,6 +11,7 @@ using Flurl.Http;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using TeamCloud.Model.Commands;
+using TeamCloud.Model.Data;
 
 namespace TeamCloud.API.Services
 {
@@ -78,6 +79,51 @@ namespace TeamCloud.API.Services
             SetResultLinks(commandResult, command.ProjectId);
 
             return commandResult;
+        }
+
+        public async Task<ProjectType> AddAsync(ProjectType projectType)
+        {
+            var response = await options.Url
+                .AppendPathSegment("api/data/projectTypes")
+                .WithHeader("x-functions-key", options.AuthCode)
+                .PostJsonAsync(projectType)
+                .ConfigureAwait(false);
+
+            var result = await response.Content
+                .ReadAsAsync<ProjectType>()
+                .ConfigureAwait(false);
+
+            return result;
+        }
+
+        public async Task<ProjectType> UpdateAsync(ProjectType projectType)
+        {
+            var response = await options.Url
+                .AppendPathSegment("api/data/projectTypes")
+                .WithHeader("x-functions-key", options.AuthCode)
+                .PutJsonAsync(projectType)
+                .ConfigureAwait(false);
+
+            var result = await response.Content
+                .ReadAsAsync<ProjectType>()
+                .ConfigureAwait(false);
+
+            return result;
+        }
+
+        public async Task<ProjectType> DeleteAsync(string projectTypeId)
+        {
+            var response = await options.Url
+                .AppendPathSegments($"api/data/projectTypes/{projectTypeId}")
+                .WithHeader("x-functions-key", options.AuthCode)
+                .DeleteAsync()
+                .ConfigureAwait(false);
+
+            var result = await response.Content
+                .ReadAsAsync<ProjectType>()
+                .ConfigureAwait(false);
+
+            return result;
         }
     }
 }

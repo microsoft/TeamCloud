@@ -6,14 +6,14 @@
       "command": "dotnet",
       "args": [
         "clean",
-        "${workspaceFolder}",
+        "${workspaceFolder}/TeamCloud.Orchestrator.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary",
       ],
       "type": "process",
       "problemMatcher": "$msCompile",
       "presentation": {
-        "group": "functions"
+        "group": "teamcloud"
       }
     },
     {
@@ -21,7 +21,7 @@
       "command": "dotnet",
       "args": [
         "build",
-        "${workspaceFolder}",
+        "${workspaceFolder}/TeamCloud.Orchestrator.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -33,7 +33,7 @@
       },
       "problemMatcher": "$msCompile",
       "presentation": {
-        "group": "functions"
+        "group": "teamcloud"
       }
     },
     {
@@ -46,37 +46,8 @@
       "isBackground": true,
       "problemMatcher": "$func-watch",
       "presentation": {
-        "group": "functions"
+        "group": "teamcloud"
       }
-    },
-    {
-      "label": "clean release",
-      "command": "dotnet",
-      "args": [
-        "clean",
-        "${workspaceFolder}",
-        "--configuration",
-        "Release",
-        "/property:GenerateFullPaths=true",
-        "/consoleloggerparameters:NoSummary"
-      ],
-      "type": "process",
-      "problemMatcher": "$msCompile"
-    },
-    {
-      "label": "publish",
-      "command": "dotnet",
-      "args": [
-        "publish",
-        "${workspaceFolder}",
-        "--configuration",
-        "Release",
-        "/property:GenerateFullPaths=true",
-        "/consoleloggerparameters:NoSummary"
-      ],
-      "type": "process",
-      "dependsOn": "clean release",
-      "problemMatcher": "$msCompile"
     }
   ]
 }

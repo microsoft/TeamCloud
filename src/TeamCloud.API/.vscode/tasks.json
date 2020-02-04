@@ -6,19 +6,22 @@
       "command": "dotnet",
       "args": [
         "clean",
-        "${workspaceFolder}",
+        "${workspaceFolder}/TeamCloud.API.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary",
       ],
       "type": "process",
-      "problemMatcher": "$msCompile"
+      "problemMatcher": "$msCompile",
+      "presentation": {
+        "group": "teamcloud"
+      }
     },
     {
       "label": "build",
       "command": "dotnet",
       "args": [
         "build",
-        "${workspaceFolder}",
+        "${workspaceFolder}/TeamCloud.API.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -28,36 +31,10 @@
         "kind": "build",
         "isDefault": true
       },
-      "problemMatcher": "$msCompile"
-    },
-    {
-      "label": "clean release",
-      "command": "dotnet",
-      "args": [
-        "clean",
-        "${workspaceFolder}",
-        "--configuration",
-        "Release",
-        "/property:GenerateFullPaths=true",
-        "/consoleloggerparameters:NoSummary"
-      ],
-      "type": "process",
-      "problemMatcher": "$msCompile"
-    },
-    {
-      "label": "publish",
-      "command": "dotnet",
-      "args": [
-        "publish",
-        "${workspaceFolder}",
-        "--configuration",
-        "Release",
-        "/property:GenerateFullPaths=true",
-        "/consoleloggerparameters:NoSummary"
-      ],
-      "type": "process",
-      "dependsOn": "clean release",
-      "problemMatcher": "$msCompile"
+      "problemMatcher": "$msCompile",
+      "presentation": {
+        "group": "teamcloud"
+      }
     }
   ]
 }

@@ -102,6 +102,7 @@ namespace TeamCloud.API
                 .AddSingleton<UserService>()
                 .AddScoped<IProjectsRepositoryReadOnly, CosmosDbProjectsRepository>()
                 .AddScoped<ITeamCloudRepositoryReadOnly, CosmosDbTeamCloudRepository>()
+                .AddScoped<IProjectTypesRepositoryReadOnly, CosmosDbProjectTypesRepository>()
                 .AddScoped<EnsureTeamCloudConfigurationMiddleware>();
 
             ConfigureAuthentication(services);
@@ -116,13 +117,13 @@ namespace TeamCloud.API
                     options.FormatterMappings.SetMediaTypeMappingForFormat("text/yaml", MediaTypeHeaderValues.TextYaml);
                 });
 
-
             services
                 .AddControllers()
                 .AddNewtonsoftJson()
                 .AddFluentValidation(config =>
                 {
                     config.RegisterValidatorsFromAssembly(currentAssembly);
+                    config.RegisterValidatorsFromAssemblyContaining<TeamCloudInstance>();
                     config.ImplicitlyValidateChildProperties = true;
                 });
         }
