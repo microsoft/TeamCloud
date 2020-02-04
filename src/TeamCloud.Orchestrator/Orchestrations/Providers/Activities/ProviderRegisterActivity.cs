@@ -42,9 +42,9 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers.Activities
                 {
                     provider.PricipalId = providerRegistration.registration.PricipalId;
 
-                    foreach (var property in providerRegistration.registration.Variables)
+                    foreach (var property in providerRegistration.registration.Properties)
                     {
-                        provider.Variables[property.Key] = property.Value;
+                        provider.Properties[property.Key] = property.Value;
                     }
                 }
             }

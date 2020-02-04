@@ -23,7 +23,7 @@ namespace TeamCloud.Model.Data
 
         public string Name { get; set; }
 
-        // public ProjectDefinition Definition { get; set; }
+        public ProjectType Type { get; set; }
 
         public AzureIdentity Identity { get; set; }
 
@@ -37,7 +37,9 @@ namespace TeamCloud.Model.Data
 
         public Dictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();
 
-        public Dictionary<string, Dictionary<string, string>> ProviderVariables { get; set; } = new Dictionary<string, Dictionary<string, string>>();
+        public Dictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
+
+        public Dictionary<string, Dictionary<string, string>> ProviderProperties { get; set; } = new Dictionary<string, Dictionary<string, string>>();
 
         public bool Equals(Project other) => Id.Equals(other.Id);
     }
@@ -48,7 +50,7 @@ namespace TeamCloud.Model.Data
         {
             RuleFor(obj => obj.Name).NotEmpty();
             RuleFor(obj => obj.Users).NotEmpty();
-            RuleFor(obj => obj.Tags).NotEmpty();
+            RuleFor(obj => obj.Type).NotEmpty();
         }
     }
 }

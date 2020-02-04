@@ -7,22 +7,14 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using TeamCloud.Data;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestrator.Orchestrations.TeamCloud.Activities;
 
 namespace TeamCloud.Orchestrator.Orchestrations.TeamCloud
 {
-    public class TeamCloudCreateOrchestration
+    public static class TeamCloudCreateOrchestration
     {
-        private readonly ITeamCloudRepository teamCloudRepository;
-
-        public TeamCloudCreateOrchestration(ITeamCloudRepository teamCloudRepository)
-        {
-            this.teamCloudRepository = teamCloudRepository ?? throw new System.ArgumentNullException(nameof(teamCloudRepository));
-        }
-
         [FunctionName(nameof(TeamCloudCreateOrchestration))]
         public static async Task RunOrchestration(
             [OrchestrationTrigger] IDurableOrchestrationContext functionContext

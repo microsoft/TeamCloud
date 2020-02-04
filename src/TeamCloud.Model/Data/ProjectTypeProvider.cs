@@ -8,9 +8,9 @@ using System.Collections.Generic;
 
 namespace TeamCloud.Model.Data
 {
-    public class ProviderRegistration
+    public class ProjectTypeProvider
     {
-        public Guid PricipalId { get; set; }
+        public string Id { get; set; }
 
         public Dictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
     }

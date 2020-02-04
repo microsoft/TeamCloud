@@ -43,6 +43,7 @@ namespace TeamCloud.Orchestrator
             builder.Services
                 .AddScoped<IProjectsRepository, CosmosDbProjectsRepository>()
                 .AddScoped<ITeamCloudRepository, CosmosDbTeamCloudRepository>()
+                .AddScoped<IProjectTypesRepository, CosmosDbProjectTypesRepository>()
                 .AddAzure(configuration =>
                 {
                     var provider = builder.Services.BuildServiceProvider();
@@ -99,7 +100,7 @@ namespace TeamCloud.Orchestrator
             }
             else if (hostingEnvironment.IsDevelopment())
             {
-                // for development we use the local secret store as a fallback if not KeyVaultName is provided 
+                // for development we use the local secret store as a fallback if not KeyVaultName is provided
                 // see: https://docs.microsoft.com/en-us/aspnet/core/security/app-secrets?view=aspnetcore-3.1
 
                 try

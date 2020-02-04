@@ -11,19 +11,19 @@ using Newtonsoft.Json.Serialization;
 namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public sealed class ProviderVariables
+    public sealed class ProviderProperties
     {
         public string ProviderId { get; set; }
 
-        public Dictionary<string, string> Variables { get; set; } = new Dictionary<string, string>();
+        public Dictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
     }
 
-    public sealed class ProviderVariablesValidator : AbstractValidator<ProviderVariables>
+    public sealed class ProviderPropertiesValidator : AbstractValidator<ProviderProperties>
     {
-        public ProviderVariablesValidator()
+        public ProviderPropertiesValidator()
         {
             RuleFor(obj => obj.ProviderId).NotEmpty();
-            RuleFor(obj => obj.Variables).NotEmpty();
+            RuleFor(obj => obj.Properties).NotEmpty();
         }
     }
 }

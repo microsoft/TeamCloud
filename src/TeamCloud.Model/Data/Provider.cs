@@ -28,14 +28,14 @@ namespace TeamCloud.Model.Data
 
         public List<string> Events { get; set; } = new List<string>();
 
-        public Dictionary<string, string> Variables { get; set; } = new Dictionary<string, string>();
+        public Dictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
     }
 
     public sealed class ProviderValidator : AbstractValidator<Provider>
     {
         public ProviderValidator()
         {
-            RuleFor(obj => obj.Id).NotEmpty();
+            RuleFor(obj => obj.Id).Must(Validation.BeValidResourceId);
             RuleFor(obj => obj.Url).NotEmpty();
             RuleFor(obj => obj.AuthCode).NotEmpty();
         }

@@ -11,6 +11,6 @@ namespace TeamCloud.Model.Data
     {
         public string TeamCloudApplicationInsightsKey { get; set; }
 
-        public Dictionary<string, string> Variables { get; set; }
+        public Dictionary<string, string> Properties { get; set; }
     }
 }

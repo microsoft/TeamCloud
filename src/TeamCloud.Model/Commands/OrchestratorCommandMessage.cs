@@ -19,6 +19,11 @@ namespace TeamCloud.Model.Commands
 
         public OrchestratorCommandMessage() { }
 
+        public OrchestratorCommandMessage(ICommand command)
+        {
+            Command = command;
+        }
+
         public OrchestratorCommandMessage(TeamCloudInstance teamCloud, ICommand command)
         {
             TeamCloud = teamCloud;

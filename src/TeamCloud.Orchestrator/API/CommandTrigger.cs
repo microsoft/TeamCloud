@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands;
@@ -33,8 +34,8 @@ namespace TeamCloud.Orchestrator
         [FunctionName(nameof(CommandTrigger))]
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = "command")] HttpRequest httpRequest,
-            [DurableClient] IDurableClient durableClient
-            /* ILogger log */)
+            [DurableClient] IDurableClient durableClient,
+            ILogger log)
         {
             if (httpRequest is null)
                 throw new ArgumentNullException(nameof(httpRequest));
@@ -48,16 +49,26 @@ namespace TeamCloud.Orchestrator
 
             var command = JsonConvert.DeserializeObject<ICommand>(requestBody);
 
-            var teamCloud = await teamCloudRepository
-                .GetAsync()
-                .ConfigureAwait(false);
+            var orchestratorCommand = new OrchestratorCommandMessage(command);
 
-            if (teamCloud is null)
-                throw new NullReferenceException();
+            var orchestrationName = OrchestrationName(command);
 
-            var orchestratorCommand = new OrchestratorCommandMessage(teamCloud, command);
+            log.LogDebug("Orchestrator triggered, running {orchestrationName}", orchestrationName);
 
-            var commandResult = await SendCommand(durableClient, orchestratorCommand, OrchestrationName(command))
+            // teamcloud instance won't exist yet for CreateTeamCloudCommand
+            if (orchestrationName != nameof(TeamCloudCreateOrchestration))
+            {
+                var teamCloud = await teamCloudRepository
+                    .GetAsync()
+                    .ConfigureAwait(false);
+
+                if (teamCloud is null)
+                    throw new NullReferenceException();
+
+                orchestratorCommand.TeamCloud = teamCloud;
+            }
+
+            var commandResult = await SendCommand(durableClient, orchestratorCommand, orchestrationName)
                 .ConfigureAwait(false);
 
             return new OkObjectResult(commandResult);

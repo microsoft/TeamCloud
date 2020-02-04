@@ -4,6 +4,7 @@
  */
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
@@ -23,12 +24,14 @@ namespace TeamCloud.API.Controllers
         readonly UserService userService;
         readonly Orchestrator orchestrator;
         readonly ITeamCloudRepositoryReadOnly teamCloudRepository;
+        readonly IProjectTypesRepositoryReadOnly projectTypesRepository;
 
-        public TeamCloudController(UserService userService, Orchestrator orchestrator, ITeamCloudRepositoryReadOnly teamCloudRepository)
+        public TeamCloudController(UserService userService, Orchestrator orchestrator, ITeamCloudRepositoryReadOnly teamCloudRepository, IProjectTypesRepositoryReadOnly projectTypesRepository)
         {
             this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
             this.orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
             this.teamCloudRepository = teamCloudRepository ?? throw new ArgumentNullException(nameof(teamCloudRepository));
+            this.projectTypesRepository = projectTypesRepository ?? throw new ArgumentNullException(nameof(projectTypesRepository));
         }
 
         private User CurrentUser => new User()
@@ -48,7 +51,21 @@ namespace TeamCloud.API.Controllers
             if (teamCloudInstance is null)
                 return new NotFoundResult();
 
-            return new OkObjectResult(teamCloudInstance.Configuration);
+            var projectTypes = await projectTypesRepository
+                .ListAsync()
+                .ToListAsync()
+                .ConfigureAwait(false);
+
+            var config = new TeamCloudConfiguration
+            {
+                ProjectTypes = projectTypes,
+                Providers = teamCloudInstance.Providers,
+                Users = teamCloudInstance.Users,
+                Tags = teamCloudInstance.Tags,
+                Properties = teamCloudInstance.Properties,
+            };
+
+            return new OkObjectResult(config);
         }
 
         [HttpPost]
@@ -67,7 +84,7 @@ namespace TeamCloud.API.Controllers
                 return new BadRequestObjectResult(validationEx.Errors);
             }
 
-            var command = new TeamCloudCreateCommand(CurrentUser, new TeamCloudInstance(teamCloudConfiguraiton));
+            var command = new TeamCloudCreateCommand(CurrentUser, teamCloudConfiguraiton);
 
             var commandResult = await orchestrator
                 .InvokeAsync(command)

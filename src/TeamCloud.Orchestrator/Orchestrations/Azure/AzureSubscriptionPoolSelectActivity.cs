@@ -25,13 +25,13 @@ namespace TeamCloud.Orchestrator.Orchestrations.Azure
 
         [FunctionName(nameof(AzureSubscriptionPoolSelectActivity))]
         public async Task<Guid> RunActivity(
-            [ActivityTrigger] TeamCloudInstance teamCloud)
+            [ActivityTrigger] Project project)
         {
-            if (teamCloud == null)
-                throw new ArgumentNullException(nameof(teamCloud));
+            if (project is null)
+                throw new ArgumentNullException(nameof(project));
 
-            var tasks = teamCloud.ProjectsConfiguration.Azure.Subscriptions
-                .Select(subscription => GetResourceGroupCountAsync(Guid.Parse(subscription.Id)));
+            var tasks = project.Type.Subscriptions
+                .Select(subscription => GetResourceGroupCountAsync(subscription));
 
             var results = await Task.WhenAll(tasks)
                 .ConfigureAwait(false);
@@ -40,7 +40,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Azure
                 .Where(kvp => kvp.Key != Guid.Empty)
                 .OrderBy(kvp => kvp.Value).ToArray();
 
-            if(subscriptions.Length == 0)
+            if (subscriptions.Length == 0)
                 throw new ArgumentException("Subscription pool IDs are not valid or accessible.");
             else
                 return subscriptions.First().Key;

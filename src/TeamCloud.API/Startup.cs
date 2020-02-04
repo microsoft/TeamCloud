@@ -102,6 +102,7 @@ namespace TeamCloud.API
                 .AddSingleton<UserService>()
                 .AddScoped<IProjectsRepositoryReadOnly, CosmosDbProjectsRepository>()
                 .AddScoped<ITeamCloudRepositoryReadOnly, CosmosDbTeamCloudRepository>()
+                .AddScoped<IProjectTypesRepositoryReadOnly, CosmosDbProjectTypesRepository>()
                 .AddScoped<EnsureTeamCloudConfigurationMiddleware>();
 
             ConfigureAuthentication(services);
