@@ -23,8 +23,9 @@ jobs:
 
     - name: Validate License Headers
       run: |
-        MISSING_LIC_HEADER=$((find . -name '*.cs' -exec grep  -H -E -o -c "Copyright \(c\) Microsoft Corporation\." {} \; -exec grep  -H -E -o -c "Licensed under the MIT License\." {} \;) | grep ":0$" || :)
-        [ ! -z "$MISSING_LIC_HEADER" ] && echo -e "Missing License Header:\n$MISSING_LIC_HEADER" && exit 1
+        LIC_HEADER_COUNT=$(find . -name '*.cs' -exec grep  -H -E -o -c "Copyright \(c\) Microsoft Corporation\." {} \; -exec grep  -H -E -o -c "Licensed under the MIT License\." {} \;)
+        LIC_HEADER_MISSING=$(echo "$LIC_HEADER_COUNT" | grep ":0$" || :)
+        [ ! -z "$LIC_HEADER_MISSING" ] && echo -e "Missing License Header:\n$LIC_HEADER_MISSING" && exit 1
       working-directory: ${{ env.SOURCE_DIRECTORY }}
       
     - name: Setup GitVersion
