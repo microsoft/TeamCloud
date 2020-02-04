@@ -24,8 +24,7 @@ jobs:
     - name: Test
       run: |
         MISSING_LIC_HEADER=$(find . -name '*.cs' -exec grep  -H -E -o -c "Copyright \(c\) Microsoft Corporation\." {} \; -exec grep  -H -E -o -c "Licensed under the MIT License\." {} \;)
-        echo "$MISSING_LIC_HEADER" 
-        grep ':0$' <<< "$MISSING_LIC_HEADER"        
+        echo "$MISSING_LIC_HEADER" | grep -s ':0$'           
       working-directory: ${{ env.SOURCE_DIRECTORY }}
 
 #    - name: Validate License Headers
