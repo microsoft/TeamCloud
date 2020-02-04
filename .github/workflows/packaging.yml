@@ -22,7 +22,7 @@ jobs:
       run: git fetch -t
 
     - name: Test
-      run: find . -name '*.cs' ! -path '**/obj/*' ! -path '**/bin/*' -exec grep  -H -E -o -c "Copyright \(c\) Microsoft Corporation\." {} \; -exec grep  -H -E -o -c "Licensed under the MIT License\." {} \; | grep :0$
+      run: find . -name '*.cs' #! -path '**/obj/*' ! -path '**/bin/*' -exec grep  -H -E -o -c "Copyright \(c\) Microsoft Corporation\." {} \; -exec grep  -H -E -o -c "Licensed under the MIT License\." {} \; | grep :0$
       working-directory: ${{ env.SOURCE_DIRECTORY }}
 
 #    - name: Validate License Headers
