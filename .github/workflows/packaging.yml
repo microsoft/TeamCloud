@@ -23,9 +23,7 @@ jobs:
         
     - name: Validate License Headers
       run: |
-        MISSING_LIC_HEADER=$(find . -name '*.cs' ! -path '**/obj/*' ! -path '**/bin/*' \
-        -exec grep  -H -E -o -c "Copyright \(c\) Microsoft Corporation\."  {} \; \
-        -exec grep  -H -E -o -c "Licensed under the MIT License\."  {} \; | grep 0)
+        MISSING_LIC_HEADER=$(find . -name '*.cs' ! -path '**/obj/*' ! -path '**/bin/*' -exec grep  -H -E -o -c "Copyright \(c\) Microsoft Corporation\."  {} \; -exec grep  -H -E -o -c "Licensed under the MIT License\."  {} \; | grep 0)
         [ ! -z "$MISSING_LIC_HEADER" ] && echo -e "Missing License Header:\n$MISSING_LIC_HEADER" && exit 1
       working-directory: ${{ env.SOURCE_DIRECTORY }}
       
