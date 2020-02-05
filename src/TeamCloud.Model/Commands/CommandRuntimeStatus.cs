@@ -24,4 +24,17 @@ namespace TeamCloud.Model.Commands
         Terminated,
         Pending
     }
+
+    public static class CommandRuntimeStatusExtensions
+    {
+        public static bool IsActive(this CommandRuntimeStatus status)
+            => status == CommandRuntimeStatus.ContinuedAsNew
+            || status == CommandRuntimeStatus.Pending
+            || status == CommandRuntimeStatus.Running;
+
+        public static bool IsStopped(this CommandRuntimeStatus status)
+            => status == CommandRuntimeStatus.Canceled
+            || status == CommandRuntimeStatus.Terminated;
+
+    }
 }

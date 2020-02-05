@@ -56,16 +56,20 @@ namespace TeamCloud.API.Controllers
                 .ToList();
         }
 
+
         [HttpGet]
-        public async IAsyncEnumerable<Project> Get()
+        public async Task<IActionResult> Get()
         {
-            var projects = projectsRepository
+            var projects = await projectsRepository
                 .ListAsync()
+                .ToListAsync()
                 .ConfigureAwait(false);
 
-            await foreach (var project in projects)
-                yield return project;
+            return DataResult<List<Project>>
+                .Ok(projects)
+                .ActionResult();
         }
+
 
         [HttpGet("{projectId:guid}")]
         public async Task<IActionResult> Get(Guid projectId)
@@ -75,15 +79,27 @@ namespace TeamCloud.API.Controllers
                 .ConfigureAwait(false);
 
             if (project is null)
-                return new NotFoundResult();
+                return ErrorResult
+                    .NotFound($"A Project with the ID '{projectId}' could not be found in this TeamCloud Instance")
+                    .ActionResult();
 
-            return new OkObjectResult(project);
+            return DataResult<Project>
+                .Ok(project)
+                .ActionResult();
         }
+
 
         [HttpPost]
         [Authorize(Policy = "projectCreate")]
         public async Task<IActionResult> Post([FromBody] ProjectDefinition projectDefinition)
         {
+            var validation = new ProjectDefinitionValidator().Validate(projectDefinition);
+
+            if (!validation.IsValid)
+                return ErrorResult
+                    .BadRequest(validation)
+                    .ActionResult();
+
             var users = await ResolveUsersAsync(projectDefinition)
                 .ConfigureAwait(false);
 
@@ -92,7 +108,9 @@ namespace TeamCloud.API.Controllers
                 .ConfigureAwait(false);
 
             if (nameExists)
-                return new ConflictObjectResult($"A Project with name '{projectDefinition.Name}' already exists.  Project names must be unique.  Please try your request again with a unique name.");
+                return ErrorResult
+                    .Conflict($"A Project with name '{projectDefinition.Name}' already exists. Project names must be unique. Please try your request again with a unique name.")
+                    .ActionResult();
 
             var project = new Project
             {
@@ -109,7 +127,9 @@ namespace TeamCloud.API.Controllers
                     .ConfigureAwait(false);
 
                 if (project.Type is null)
-                    return new NotFoundObjectResult($"Project Type invalid.  No Project Type was found with the id: '{projectDefinition.ProjectType}' found for this TeamCloud Instance.");
+                    return ErrorResult
+                        .NotFound($"A Project Type with the ID '{projectDefinition.ProjectType}' could not be found in this TeamCloud Instance. Please try your request again with a valid Project Type ID for 'projectType'.")
+                        .ActionResult();
             }
             else
             {
@@ -118,7 +138,9 @@ namespace TeamCloud.API.Controllers
                     .ConfigureAwait(false);
 
                 if (project.Type is null)
-                    return new NotFoundObjectResult("Project Type required.  No Project Type was provided and there isn't a default Project Type set for this TeamCloud Instance.");
+                    return ErrorResult
+                        .NotFound("No value was provided for 'projectType' and there is no a default Project Type set for this TeamCloud Instance. Please try your request again with a valid Project Type ID for 'projectType'.")
+                        .ActionResult();
             }
 
             var command = new ProjectCreateCommand(CurrentUser, project);
@@ -127,8 +149,14 @@ namespace TeamCloud.API.Controllers
                 .InvokeAsync(command)
                 .ConfigureAwait(false);
 
-            return commandResult.ActionResult();
+            if (commandResult.Links.TryGetValue("status", out var statusUrl))
+                return StatusResult
+                    .Accepted(statusUrl, commandResult.RuntimeStatus.ToString(), commandResult.CustomStatus)
+                    .ActionResult();
+
+            throw new Exception("This shoudn't happen, but we need to decide to do when it does...");
         }
+
 
         [HttpDelete("{projectId:guid}")]
         [Authorize(Policy = "projectDelete")]
@@ -138,7 +166,10 @@ namespace TeamCloud.API.Controllers
                 .GetAsync(projectId)
                 .ConfigureAwait(false);
 
-            if (project is null) return new NotFoundResult();
+            if (project is null)
+                return ErrorResult
+                    .NotFound($"A Project with the ID '{projectId}' could not be found in this TeamCloud Instance")
+                    .ActionResult();
 
             var command = new ProjectDeleteCommand(CurrentUser, project);
 
@@ -146,7 +177,12 @@ namespace TeamCloud.API.Controllers
                 .InvokeAsync(command)
                 .ConfigureAwait(false);
 
-            return commandResult.ActionResult();
+            if (commandResult.Links.TryGetValue("status", out var statusUrl))
+                return StatusResult
+                    .Accepted(statusUrl, commandResult.RuntimeStatus.ToString(), commandResult.CustomStatus)
+                    .ActionResult();
+
+            throw new Exception("This shoudn't happen, but we need to decide to do when it does...");
         }
     }
 }

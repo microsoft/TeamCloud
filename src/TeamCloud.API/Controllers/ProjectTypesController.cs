@@ -12,8 +12,8 @@ using Microsoft.AspNetCore.Mvc;
 using TeamCloud.API.Data;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
-using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
+using TeamCloud.Model.Validation;
 
 namespace TeamCloud.API.Controllers
 {
@@ -41,16 +41,20 @@ namespace TeamCloud.API.Controllers
             Role = UserRoles.Project.Owner
         };
 
+
         [HttpGet]
-        public async IAsyncEnumerable<ProjectType> Get()
+        public async Task<IActionResult> Get()
         {
-            var projectTypes = projectTypesRepository
+            var projectTypes = await projectTypesRepository
                 .ListAsync()
+                .ToListAsync()
                 .ConfigureAwait(false);
 
-            await foreach (var projectType in projectTypes)
-                yield return projectType;
+            return DataResult<List<ProjectType>>
+                .Ok(projectTypes)
+                .ActionResult();
         }
+
 
         [HttpGet("{projectTypeId}")]
         public async Task<IActionResult> Get(string projectTypeId)
@@ -60,20 +64,34 @@ namespace TeamCloud.API.Controllers
                 .ConfigureAwait(false);
 
             if (projectType is null)
-                return new NotFoundResult();
+                return ErrorResult
+                    .NotFound($"A ProjectType with the ID '{projectTypeId}' could not be found in this TeamCloud Instance")
+                    .ActionResult();
 
-            return new OkObjectResult(projectType);
+            return DataResult<ProjectType>
+                .Ok(projectType)
+                .ActionResult();
         }
+
 
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] ProjectType projectType)
         {
+            var validation = new ProjectTypeValidator().Validate(projectType);
+
+            if (!validation.IsValid)
+                return ErrorResult
+                    .BadRequest(validation)
+                    .ActionResult();
+
             var existingProjectType = await projectTypesRepository
                 .GetAsync(projectType.Id)
                 .ConfigureAwait(false);
 
             if (existingProjectType != null)
-                return new ConflictObjectResult($"A ProjectType with id '{projectType.Id}' already exists.  Please try your request again with a unique id or call PUT to update the existing ProjectType.");
+                return ErrorResult
+                    .Conflict($"A ProjectType with id '{projectType.Id}' already exists.  Please try your request again with a unique id or call PUT to update the existing ProjectType.")
+                    .ActionResult();
 
             var teamCloud = await teamCloudRepository
                 .GetAsync()
@@ -85,25 +103,39 @@ namespace TeamCloud.API.Controllers
             if (!validProviders)
             {
                 var validProviderIds = string.Join(", ", teamCloud.Providers.Select(p => p.Id));
-                return new BadRequestObjectResult($"All provider ids on a ProjectType must match the id of a registered Provider on the TeamCloud instance.\nValid provider ids are: {validProviderIds}");
+                return ErrorResult
+                    .BadRequest($"All provider ids on a ProjectType must match the id of a registered Provider on the TeamCloud instance.\nValid provider ids are: {validProviderIds}", ResultErrorCodes.ValidationError)
+                    .ActionResult();
             }
 
             var addResult = await orchestrator
                 .AddAsync(projectType)
                 .ConfigureAwait(false);
 
-            return new OkObjectResult(addResult);
+            return DataResult<ProjectType>
+                .Ok(addResult)
+                .ActionResult();
         }
+
 
         [HttpPut]
         public async Task<IActionResult> Put([FromBody] ProjectType projectType)
         {
+            var validation = new ProjectTypeValidator().Validate(projectType);
+
+            if (!validation.IsValid)
+                return ErrorResult
+                    .BadRequest(validation)
+                    .ActionResult();
+
             var existingProjectType = await projectTypesRepository
                 .GetAsync(projectType.Id)
                 .ConfigureAwait(false);
 
             if (existingProjectType is null)
-                return new NotFoundResult();
+                return ErrorResult
+                    .NotFound($"A ProjectType with the ID '{projectType.Id}' could not be found in this TeamCloud Instance")
+                    .ActionResult();
 
             var teamCloud = await teamCloudRepository
                 .GetAsync()
@@ -115,15 +147,20 @@ namespace TeamCloud.API.Controllers
             if (!validProviders)
             {
                 var validProviderIds = string.Join(",", teamCloud.Providers.Select(p => p.Id));
-                return new BadRequestObjectResult($"All provider ids on a ProjectType must match the id of a registered Provider on the TeamCloud instance.\n Valid provider ids are: {validProviderIds}");
+                return ErrorResult
+                    .BadRequest($"All provider ids on a ProjectType must match the id of a registered Provider on the TeamCloud instance.\nValid provider ids are: {validProviderIds}", ResultErrorCodes.ValidationError)
+                    .ActionResult();
             }
 
-            var addResult = await orchestrator
+            var updateResult = await orchestrator
                 .UpdateAsync(projectType)
                 .ConfigureAwait(false);
 
-            return new OkObjectResult(addResult);
+            return DataResult<ProjectType>
+                .Ok(updateResult)
+                .ActionResult();
         }
+
 
         [HttpDelete("{projectTypeId}")]
         public async Task<IActionResult> Delete(string projectTypeId)
@@ -133,13 +170,17 @@ namespace TeamCloud.API.Controllers
                 .ConfigureAwait(false);
 
             if (existingProjectType is null)
-                return new NotFoundResult();
+                return ErrorResult
+                    .NotFound($"A ProjectType with the ID '{projectTypeId}' could not be found in this TeamCloud Instance")
+                    .ActionResult();
 
             var deleteResult = await orchestrator
                 .DeleteAsync(projectTypeId)
                 .ConfigureAwait(false);
 
-            return new OkObjectResult(deleteResult);
+            return DataResult<ProjectType>
+                .Ok(deleteResult)
+                .ActionResult();
         }
     }
 }

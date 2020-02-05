@@ -28,17 +28,13 @@ namespace TeamCloud.API.Data
     {
         public ProjectDefinitionValidator()
         {
-            // project name is required
-            RuleFor(obj => obj.Name).NotEmpty()
-                .WithMessage("Name is required");
-
-            // project cannot be empty
-            RuleFor(obj => obj.Users).NotEmpty()
-                .WithMessage("Users are required");
-
-            // there must at least one user with role admin
-            RuleFor(obj => obj.Users).Must(users => users.Any(user => user.Role == UserRoles.Project.Owner))
-                .WithMessage($"There must be at least one user with the role '{UserRoles.Project.Owner}'.");
+            RuleFor(obj => obj.Name).NotEmpty();
+            RuleFor(obj => obj.Users)
+                .Cascade(CascadeMode.StopOnFirstFailure)
+                .NotEmpty()
+                .ForEach(user => user.SetValidator(new UserDefinitionValidator()))
+                .Must(users => users.Any(user => user.Role == UserRoles.Project.Owner))
+                    .WithMessage("'{PropertyName}' must contain at least one user with the role " + $"'{UserRoles.Project.Owner}'.");
         }
     }
 }

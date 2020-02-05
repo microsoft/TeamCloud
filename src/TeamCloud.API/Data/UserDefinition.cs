@@ -4,11 +4,10 @@
  */
 
 using System.Collections.Generic;
-using System.Linq;
 using FluentValidation;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using TeamCloud.Model.Data;
+using TeamCloud.Model.Validation;
 
 namespace TeamCloud.API.Data
 {
@@ -26,20 +25,8 @@ namespace TeamCloud.API.Data
     {
         public UserDefinitionValidator()
         {
-            RuleFor(obj => obj.Email).NotEmpty()
-                .WithMessage("Email is required");
-
-            RuleFor(obj => obj.Email).EmailAddress()
-                .WithMessage("Email must contain a valid email address");
-
-            RuleFor(obj => obj.Role).Must(role => ValidProjectRoles.Contains(role))
-                .WithMessage($"Invalid role detected - valid rules: {string.Join(", ", ValidProjectRoles)}");
+            RuleFor(obj => obj.Email).MustBeEmail();
+            RuleFor(obj => obj.Role).MustBeUserRole();
         }
-
-        private static readonly string[] ValidProjectRoles = new string[]
-        {
-            UserRoles.Project.Owner,
-            UserRoles.Project.Member
-        };
     }
 }

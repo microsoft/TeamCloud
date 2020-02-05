@@ -6,9 +6,9 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TeamCloud.API.Data;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands;
@@ -50,7 +50,9 @@ namespace TeamCloud.API.Controllers
                 .ConfigureAwait(false);
 
             if (teamCloudInstance is null)
-                return new NotFoundResult();
+                return ErrorResult
+                    .NotFound($"No TeamCloud Instance was found.")
+                    .ActionResult();
 
             var projectTypes = await projectTypesRepository
                 .ListAsync()
@@ -66,24 +68,21 @@ namespace TeamCloud.API.Controllers
                 Properties = teamCloudInstance.Properties,
             };
 
-            return new OkObjectResult(config);
+            return DataResult<TeamCloudConfiguration>
+                .Ok(config)
+                .ActionResult();
         }
 
         [HttpPost]
         [Consumes("application/x-yaml")]
         public async Task<IActionResult> Post([FromBody] TeamCloudConfiguration teamCloudConfiguraiton)
         {
-            if (teamCloudConfiguraiton is null)
-                return new BadRequestObjectResult("Unable to parse teamcloud.yaml file.");
+            var validation = new TeamCloudConfigurationValidator().Validate(teamCloudConfiguraiton);
 
-            try
-            {
-                new TeamCloudConfigurationValidator().ValidateAndThrow(teamCloudConfiguraiton);
-            }
-            catch (ValidationException validationEx)
-            {
-                return new BadRequestObjectResult(validationEx.Errors);
-            }
+            if (!validation.IsValid)
+                return ErrorResult
+                    .BadRequest(validation)
+                    .ActionResult();
 
             var command = new TeamCloudCreateCommand(CurrentUser, teamCloudConfiguraiton);
 
@@ -91,7 +90,12 @@ namespace TeamCloud.API.Controllers
                 .InvokeAsync(command)
                 .ConfigureAwait(false);
 
-            return commandResult.ActionResult();
+            if (commandResult.Links.TryGetValue("status", out var statusUrl))
+                return StatusResult
+                    .Accepted(statusUrl, commandResult.RuntimeStatus.ToString(), commandResult.CustomStatus)
+                    .ActionResult();
+
+            throw new Exception("This shoudn't happen, but we need to decide to do when it does...");
         }
     }
 }

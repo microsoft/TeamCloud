@@ -6,36 +6,72 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using FluentValidation;
+using TeamCloud.Model.Data;
 
 namespace TeamCloud.Model.Validation
 {
     public static class ValidationExtensions
     {
-        public static IRuleBuilderOptions<T, string> MustBeValidResourcId<T>(this IRuleBuilder<T, string> ruleBuilder)
+
+        public static IRuleBuilderOptions<T, IList<TElement>> MustContainAtLeast<T, TElement>(this IRuleBuilderInitial<T, IList<TElement>> ruleBuilder, int min)
             => ruleBuilder
+                .Cascade(CascadeMode.StopOnFirstFailure)
+                .NotEmpty()
+                .Must(list => list.Count >= min)
+                    .WithMessage("'{PropertyName}' must contain at least " + $"{min} items.");
+
+        public static IRuleBuilderOptions<T, string> MustBeResourcId<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
+            => ruleBuilder
+                .Cascade(CascadeMode.StopOnFirstFailure)
+                .NotEmpty()
                 .Must(BeValidResourceId)
-                .WithMessage("{PropertyName} must be less than 255 characters long and may not contain: " + @"'/', '\\', '?', '#'");
+                    .WithMessage("'{PropertyName}' must be less than 255 characters long and may not contain: " + @"'/', '\\', '?', '#'");
 
-        public static IRuleBuilderOptions<T, string> MustBeAzureRegion<T>(this IRuleBuilder<T, string> ruleBuilder)
+        public static IRuleBuilderOptions<T, string> MustBeAzureRegion<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
             => ruleBuilder
+                .Cascade(CascadeMode.StopOnFirstFailure)
+                .NotEmpty()
                 .Must(BeAzureRegion)
-                .WithMessage("{PropertyName} must be a valid Azure Region code. See https://azure.microsoft.com/en-us/global-infrastructure/regions/ for more information on Azure Regions");
+                    .WithMessage("'{PropertyName}' must be a valid Azure Region. See https://azure.microsoft.com/en-us/global-infrastructure/regions/ for more information on Azure Regions");
 
-        public static IRuleBuilderOptions<T, string> MustBeGuid<T>(this IRuleBuilder<T, string> ruleBuilder)
+
+        public static IRuleBuilderOptions<T, string> MustBeEmail<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
             => ruleBuilder
+                .Cascade(CascadeMode.StopOnFirstFailure)
+                .NotEmpty()
+                .EmailAddress()
+                    .WithMessage("'{PropertyName}' must be a valid email address.");
+
+
+        public static IRuleBuilderOptions<T, string> MustBeGuid<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
+            => ruleBuilder
+                .Cascade(CascadeMode.StopOnFirstFailure)
+                .NotEmpty()
                 .Must(BeGuid)
-                .WithMessage("{PropertyName} must be a valid, non-empty GUID.");
+                    .WithMessage("'{PropertyName}' must be a valid, non-empty GUID.");
 
         public static IRuleBuilderOptions<T, Guid> MustBeGuid<T>(this IRuleBuilder<T, Guid> ruleBuilder)
             => ruleBuilder
                 .NotEqual(Guid.Empty)
-                .WithMessage("{PropertyName} must be a valid, non-empty GUID.");
+                    .WithMessage("'{PropertyName}' must be a valid, non-empty GUID.");
 
-        public static IRuleBuilderOptions<T, string> MustBeUrl<T>(this IRuleBuilder<T, string> ruleBuilder)
+
+        public static IRuleBuilderOptions<T, string> MustBeUrl<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
             => ruleBuilder
+                .Cascade(CascadeMode.StopOnFirstFailure)
+                .NotEmpty()
                 .Must(BeUrl)
-                .WithMessage("{PropertyName} must be a url.");
+                    .WithMessage("'{PropertyName}' must be a valid url.");
+
+        public static IRuleBuilderOptions<T, string> MustBeUserRole<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
+            => ruleBuilder
+                .Cascade(CascadeMode.StopOnFirstFailure)
+                .NotEmpty()
+                .Must(BeUserRole)
+                    .WithMessage("'{PropertyName}' must be a valid Role. Valid roles for Project users are 'Owner' and 'Member'. Valid roles for TeamCloud users are 'Admin' and 'Creator'.");
+
 
         private static bool BeGuid(string guid)
             => !string.IsNullOrEmpty(guid) && Guid.TryParse(guid, out var outGuid) && !outGuid.Equals(Guid.Empty);
@@ -43,11 +79,20 @@ namespace TeamCloud.Model.Validation
         private static bool BeUrl(string url)
             => !string.IsNullOrEmpty(url) && Uri.TryCreate(url, UriKind.Absolute, out var _);
 
+        private static bool BeUserRole(string role)
+            => !string.IsNullOrEmpty(role) && ValidUserRoles.Contains(role.ToLowerInvariant());
+
         private static bool BeAzureRegion(string region)
             => !string.IsNullOrEmpty(region) && AzureRegion.IsValid(region);
 
         private static bool BeValidResourceId(string id)
             => !(string.IsNullOrEmpty(id) || id.Length >= 255 || id.Contains('/') || id.Contains(@"\\") || id.Contains('?') || id.Contains('#'));
+
+
+        private static readonly string[] ValidUserRoles = new string[]
+        {
+            UserRoles.Project.Owner.ToLowerInvariant(), UserRoles.Project.Member.ToLowerInvariant(), UserRoles.TeamCloud.Admin.ToLowerInvariant(), UserRoles.TeamCloud.Creator.ToLowerInvariant()
+        };
     }
 
     internal class AzureRegion

@@ -12,14 +12,16 @@ namespace TeamCloud.Model.Validation
     {
         public ProjectTypeValidator()
         {
-            RuleFor(obj => obj.Id).MustBeValidResourcId();
+            RuleFor(obj => obj.Id).MustBeResourcId();
             RuleFor(obj => obj.Region).MustBeAzureRegion();
 
-            RuleFor(obj => obj.Subscriptions).NotEmpty();
-            RuleFor(obj => obj.Subscriptions).Must(obj => obj.Count >= 3);
+            RuleFor(obj => obj.Subscriptions)
+                .MustContainAtLeast(3)
+                .ForEach(sub => sub.MustBeGuid());
 
-            RuleFor(obj => obj.Providers).NotEmpty();
-            RuleFor(obj => obj.Providers).Must(obj => obj.Count >= 1);
+            RuleFor(obj => obj.Providers)
+                .MustContainAtLeast(1)
+                .ForEach(provider => provider.SetValidator(new ProjectTypeProviderValidator()));
         }
     }
 }

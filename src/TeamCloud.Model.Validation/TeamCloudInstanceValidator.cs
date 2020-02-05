@@ -13,16 +13,15 @@ namespace TeamCloud.Model.Validation
     {
         public TeamCloudInstanceValidator()
         {
-            RuleFor(obj => obj.Id).NotEmpty();
+            RuleFor(obj => obj.Id).MustBeResourcId();
             RuleFor(obj => obj.PartitionKey).NotEmpty();
             RuleFor(obj => obj.ApplicationInsightsKey).NotEmpty();
-            RuleFor(obj => obj.Users).NotEmpty();
 
-            // there must at least one user with role admin
-            RuleFor(obj => obj.Users).Must(users => users.Any(u => u.Role == UserRoles.TeamCloud.Admin))
-                .WithMessage($"There must be at least one user with the role '{UserRoles.TeamCloud.Admin}'.");
-
-            // RuleFor(obj => obj.ProjectIds).NotEmpty();
+            RuleFor(obj => obj.Users)
+                .Cascade(CascadeMode.StopOnFirstFailure)
+                .NotEmpty()
+                .Must(users => users.Any(user => user.Role == UserRoles.TeamCloud.Admin))
+                    .WithMessage("'{PropertyName}' must contain at least one user with the role " + $"'{UserRoles.TeamCloud.Admin}'.");
 
             RuleFor(obj => obj.Providers).NotEmpty();
         }

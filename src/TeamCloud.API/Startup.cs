@@ -10,7 +10,6 @@ using System.Reflection;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using FluentValidation;
-using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.AzureAD.UI;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -32,7 +31,6 @@ using TeamCloud.Configuration;
 using TeamCloud.Data;
 using TeamCloud.Data.CosmosDb;
 using TeamCloud.Model.Data;
-using TeamCloud.Model.Validation;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -76,17 +74,8 @@ namespace TeamCloud.API
 
         public void ConfigureServices(IServiceCollection services)
         {
-            // kestrel
-            services.Configure<KestrelServerOptions>(options =>
-            {
-                options.AllowSynchronousIO = true;
-            });
-
-            // IIS
-            services.Configure<IISServerOptions>(options =>
-            {
-                options.AllowSynchronousIO = true;
-            });
+            services.Configure<KestrelServerOptions>(options => options.AllowSynchronousIO = true);
+            services.Configure<IISServerOptions>(options => options.AllowSynchronousIO = true);
 
             var currentAssembly = Assembly.GetExecutingAssembly();
 
@@ -121,13 +110,16 @@ namespace TeamCloud.API
 
             services
                 .AddControllers()
-                .AddNewtonsoftJson()
-                .AddFluentValidation(config =>
-                {
-                    config.RegisterValidatorsFromAssembly(currentAssembly);
-                    config.RegisterValidatorsFromAssemblyContaining<TeamCloudModelValidation>();
-                    config.ImplicitlyValidateChildProperties = true;
-                });
+                .AddNewtonsoftJson();
+            // .AddFluentValidation(config =>
+            // {
+            //     config.RegisterValidatorsFromAssembly(currentAssembly);
+            //     config.RegisterValidatorsFromAssemblyContaining<TeamCloudModelValidation>();
+            //     config.ImplicitlyValidateChildProperties = true;
+            // });
+
+            ValidatorOptions.DisplayNameResolver = (type, memberInfo, lambda) => memberInfo?.Name?.ToLowerInvariant();
+            ValidatorOptions.PropertyNameResolver = (type, memberInfo, lambda) => memberInfo?.Name?.ToLowerInvariant();
         }
 
         private void ConfigureAuthentication(IServiceCollection services)

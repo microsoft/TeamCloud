@@ -46,7 +46,26 @@ namespace TeamCloud.API.Services
             {
                 commandResult.Links.Add("status", new Uri(baseUrl, $"api/status/{commandResult.CommandId}").ToString());
             }
+
+            commandResult.Links.Add("location", new Uri(baseUrl, GetLocation(commandResult, projectId)).ToString());
         }
+
+        private string GetLocation(ICommandResult commandResult, Guid? projectId) => (commandResult) switch
+        {
+            ProjectCreateCommandResult result => $"api/projects/{projectId}",
+            ProjectUpdateCommandResult result => $"api/projects/{projectId}",
+            ProjectUserCreateCommandResult result => $"api/projects/{projectId}/users/{result.Result.Id}",
+            ProjectUserUpdateCommandResult result => $"api/projects/{projectId}/users/{result.Result.Id}",
+            TeamCloudCreateCommandResult result => $"api/config",
+            TeamCloudUserCreateCommandResult result => $"api/users/{result.Result.Id}",
+            TeamCloudUserUpdateCommandResult result => $"api/users/{result.Result.Id}",
+            // ProviderRegisterCommandResult result => $"api/projects/{projectId.Value}",
+            // ProjectDeleteCommandResult result => $"api/projects/{projectId}",
+            // ProjectUserDeleteCommandResult result => $"api/projects/{projectId}",
+            // TeamCloudUserDeleteCommandResult result => $"api/projects/{projectId}",
+            _ => null
+        };
+
 
         public async Task<ICommandResult> QueryAsync(Guid commandId, Guid? projectId)
         {

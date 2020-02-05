@@ -34,6 +34,7 @@ namespace TeamCloud.Model.Data
 
         public Dictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
 
+
         public bool Equals(ProjectType other) => Id.Equals(other.Id);
     }
 }
