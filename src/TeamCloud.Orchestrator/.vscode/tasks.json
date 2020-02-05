@@ -13,7 +13,9 @@
       "type": "process",
       "problemMatcher": "$msCompile",
       "presentation": {
-        "group": "teamcloud"
+        "group": "teamcloudBuild",
+        "showReuseMessage": false,
+        "clear": true
       }
     },
     {
@@ -22,18 +24,21 @@
       "args": [
         "build",
         "${workspaceFolder}/TeamCloud.Orchestrator.csproj",
+        "--no-dependencies",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
       "type": "process",
-      "dependsOn": "clean",
+      // "dependsOn": "clean",
       "group": {
         "kind": "build",
         "isDefault": true
       },
       "problemMatcher": "$msCompile",
       "presentation": {
-        "group": "teamcloud"
+        "group": "teamcloudBuild",
+        "showReuseMessage": false,
+        "clear": true
       }
     },
     {
@@ -46,7 +51,8 @@
       "isBackground": true,
       "problemMatcher": "$func-watch",
       "presentation": {
-        "group": "teamcloud"
+        "group": "teamcloud",
+        "showReuseMessage": false,
       }
     }
   ]

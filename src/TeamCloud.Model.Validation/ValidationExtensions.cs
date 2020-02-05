@@ -6,22 +6,51 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using FluentValidation;
 
-namespace TeamCloud.Model.Data
+namespace TeamCloud.Model.Validation
 {
-    internal static class Validation
+    public static class ValidationExtensions
     {
-        internal static bool BeGuid(string guid)
-            => !string.IsNullOrEmpty(guid) && Guid.TryParse(guid, out var _);
+        public static IRuleBuilderOptions<T, string> MustBeValidResourcId<T>(this IRuleBuilder<T, string> ruleBuilder)
+            => ruleBuilder
+                .Must(BeValidResourceId)
+                .WithMessage("{PropertyName} must be less than 255 characters long and may not contain: " + @"'/', '\\', '?', '#'");
 
-        internal static bool BeAzureRegion(string region)
+        public static IRuleBuilderOptions<T, string> MustBeAzureRegion<T>(this IRuleBuilder<T, string> ruleBuilder)
+            => ruleBuilder
+                .Must(BeAzureRegion)
+                .WithMessage("{PropertyName} must be a valid Azure Region code. See https://azure.microsoft.com/en-us/global-infrastructure/regions/ for more information on Azure Regions");
+
+        public static IRuleBuilderOptions<T, string> MustBeGuid<T>(this IRuleBuilder<T, string> ruleBuilder)
+            => ruleBuilder
+                .Must(BeGuid)
+                .WithMessage("{PropertyName} must be a valid, non-empty GUID.");
+
+        public static IRuleBuilderOptions<T, Guid> MustBeGuid<T>(this IRuleBuilder<T, Guid> ruleBuilder)
+            => ruleBuilder
+                .NotEqual(Guid.Empty)
+                .WithMessage("{PropertyName} must be a valid, non-empty GUID.");
+
+        public static IRuleBuilderOptions<T, string> MustBeUrl<T>(this IRuleBuilder<T, string> ruleBuilder)
+            => ruleBuilder
+                .Must(BeUrl)
+                .WithMessage("{PropertyName} must be a url.");
+
+        private static bool BeGuid(string guid)
+            => !string.IsNullOrEmpty(guid) && Guid.TryParse(guid, out var outGuid) && !outGuid.Equals(Guid.Empty);
+
+        private static bool BeUrl(string url)
+            => !string.IsNullOrEmpty(url) && Uri.TryCreate(url, UriKind.Absolute, out var _);
+
+        private static bool BeAzureRegion(string region)
             => !string.IsNullOrEmpty(region) && AzureRegion.IsValid(region);
 
-        internal static bool BeValidResourceId(string id)
+        private static bool BeValidResourceId(string id)
             => !(string.IsNullOrEmpty(id) || id.Length >= 255 || id.Contains('/') || id.Contains(@"\\") || id.Contains('?') || id.Contains('#'));
     }
 
-    internal partial class AzureRegion
+    internal class AzureRegion
     {
         private static ConcurrentDictionary<string, AzureRegion> regions = new ConcurrentDictionary<string, AzureRegion>();
 

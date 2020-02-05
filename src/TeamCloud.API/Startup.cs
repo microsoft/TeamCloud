@@ -32,6 +32,7 @@ using TeamCloud.Configuration;
 using TeamCloud.Data;
 using TeamCloud.Data.CosmosDb;
 using TeamCloud.Model.Data;
+using TeamCloud.Model.Validation;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -59,7 +60,8 @@ namespace TeamCloud.API
                 app.UseHsts();
             }
 
-            app.UseWhen(context => !(context.Request.Path.StartsWithSegments("/api/config", StringComparison.OrdinalIgnoreCase) && HttpMethods.IsPost(context.Request.Method)), appBuilder =>
+            app.UseWhen(context => !(context.Request.Path.StartsWithSegments("/api/config", StringComparison.OrdinalIgnoreCase)
+                                && HttpMethods.IsPost(context.Request.Method)), appBuilder =>
             {
                 // ensure TeamCloud to be configured for all paths other than /api/config
                 appBuilder.UseMiddleware<EnsureTeamCloudConfigurationMiddleware>();
@@ -123,7 +125,7 @@ namespace TeamCloud.API
                 .AddFluentValidation(config =>
                 {
                     config.RegisterValidatorsFromAssembly(currentAssembly);
-                    config.RegisterValidatorsFromAssemblyContaining<TeamCloudInstance>();
+                    config.RegisterValidatorsFromAssemblyContaining<TeamCloudModelValidation>();
                     config.ImplicitlyValidateChildProperties = true;
                 });
         }

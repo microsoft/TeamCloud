@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using FluentValidation;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -42,15 +41,5 @@ namespace TeamCloud.Model.Data
         public Dictionary<string, Dictionary<string, string>> ProviderProperties { get; set; } = new Dictionary<string, Dictionary<string, string>>();
 
         public bool Equals(Project other) => Id.Equals(other.Id);
-    }
-
-    public sealed class ProjectValidator : AbstractValidator<Project>
-    {
-        public ProjectValidator()
-        {
-            RuleFor(obj => obj.Name).NotEmpty();
-            RuleFor(obj => obj.Users).NotEmpty();
-            RuleFor(obj => obj.Type).NotEmpty();
-        }
     }
 }
