@@ -21,6 +21,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionProperties", "Solut
 		TeamCloud.sln.licenseheader = TeamCloud.sln.licenseheader
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamCloud.Model.Validation", "TeamCloud.Model.Validation\TeamCloud.Model.Validation.csproj", "{1A123294-55E1-4EB6-AC5A-F9A55316EC22}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,10 @@ Global
 		{1E5AB1FD-1185-4811-9517-0A0AA3D25D33}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1E5AB1FD-1185-4811-9517-0A0AA3D25D33}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1E5AB1FD-1185-4811-9517-0A0AA3D25D33}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A123294-55E1-4EB6-AC5A-F9A55316EC22}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A123294-55E1-4EB6-AC5A-F9A55316EC22}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A123294-55E1-4EB6-AC5A-F9A55316EC22}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A123294-55E1-4EB6-AC5A-F9A55316EC22}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
