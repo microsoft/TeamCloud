@@ -12,12 +12,6 @@ namespace TeamCloud.Model.Commands
 {
     public class ProviderCommandMessage
     {
-        public ICommand Command { get; set; }
-
-        public Provider Provider { get; set; }
-
-        public string CallbackUrl { get; set; }
-
         public ProviderCommandMessage() { }
 
         public ProviderCommandMessage(ICommand command, Provider provider, string callbackUrl)
@@ -29,6 +23,16 @@ namespace TeamCloud.Model.Commands
 
         [JsonIgnore]
         public Guid? CommandId => Command?.CommandId;
+
+        [JsonIgnore]
+        public Type CommandType => Command?.GetType();
+
+        public ICommand Command { get; set; }
+
+        public Provider Provider { get; set; }
+
+        public string CallbackUrl { get; set; }
+
 
         public ProviderCommandResultMessage CreateResultMessage(ICommandResult commandResult = null)
         {
