@@ -29,7 +29,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers
                 .GetCallbackUrlAsync(functionContext.InstanceId)
                 .ConfigureAwait(true);
 
-            var providerCommandResultMessage = providerCommandMessage.CreateResult();
+            var providerCommandResultMessage = providerCommandMessage.CreateResultMessage();
 
             try
             {

@@ -22,16 +22,26 @@ namespace TeamCloud.Model.Commands
 
         public ProviderCommandMessage(ICommand command, Provider provider, string callbackUrl)
         {
-            Command = command;
-            Provider = provider;
-            CallbackUrl = callbackUrl;
+            Command = command ?? throw new ArgumentNullException(nameof(command));
+            Provider = provider ?? throw new ArgumentNullException(nameof(provider));
+            CallbackUrl = callbackUrl ?? throw new ArgumentNullException(nameof(callbackUrl));
         }
 
         [JsonIgnore]
-        public Guid CommandId => Command.CommandId;
+        public Guid? CommandId => Command?.CommandId;
 
-        public ProviderCommandResultMessage CreateResult()
-            => new ProviderCommandResultMessage(Command.CreateResult(), Provider);
+        public ProviderCommandResultMessage CreateResultMessage(ICommandResult commandResult = null)
+        {
+            commandResult = commandResult ?? Command.CreateResult();
+
+            if (commandResult is null)
+                throw new ArgumentNullException(nameof(commandResult));
+
+            if (commandResult.CommandId != CommandId)
+                throw new ArgumentException($"Result does not belong to command {this.CommandId}.", nameof(commandResult));
+
+            return new ProviderCommandResultMessage(commandResult, Provider);
+        }
     }
 
     public class ProviderCommandResultMessage
@@ -44,14 +54,14 @@ namespace TeamCloud.Model.Commands
 
         public ProviderCommandResultMessage(ICommandResult commandResult, Provider provider)
         {
-            CommandResult = commandResult;
-            Provider = provider;
+            CommandResult = commandResult ?? throw new ArgumentNullException(nameof(commandResult));
+            Provider = provider ?? throw new ArgumentNullException(nameof(provider));
         }
 
         [JsonIgnore]
-        public Guid CommandId => CommandResult.CommandId;
+        public Guid? CommandId => CommandResult?.CommandId;
 
         [JsonIgnore]
-        public List<Exception> Exceptions => CommandResult.Exceptions;
+        public List<Exception> Exceptions => CommandResult?.Exceptions ?? new List<Exception>();
     }
 }
