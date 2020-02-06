@@ -7,13 +7,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 namespace TeamCloud.API.Data
 {
-    public interface IErrorResult : IReturnResult
+    public interface IErrorResult : IFailureResult
     {
     }
 
@@ -29,34 +30,43 @@ namespace TeamCloud.API.Data
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public List<ResultError> Errors { get; set; }
 
-        private ErrorResult() { }
+        [JsonProperty("_trackingId", NullValueHandling = NullValueHandling.Ignore, Order = int.MaxValue)]
+        public string CommandId { get; set; }
 
-        public static ErrorResult Ok()
-            => new ErrorResult() { Code = 200, Status = "Ok" };
 
         public static ErrorResult BadRequest(List<ResultError> errors = null)
-            => new ErrorResult() { Code = 400, Status = "BadRequest", Errors = errors };
+            => new ErrorResult { Code = StatusCodes.Status400BadRequest, Status = "BadRequest", Errors = errors };
 
         public static ErrorResult BadRequest(string message, ResultErrorCodes code)
-            => ErrorResult.BadRequest(new List<ResultError> { new ResultError { Code = code, Message = message } });
+            => BadRequest(new List<ResultError> { new ResultError { Code = code, Message = message } });
 
         public static ErrorResult BadRequest(ValidationResult validation)
-            => ErrorResult.BadRequest(validation.Errors.Select(failure => ResultError.ValidationFailure(failure)).ToList());
+            => BadRequest(new List<ResultError> { ResultError.ValidationFailure(validation.Errors) });
+
+        public static ErrorResult BadRequest(ValidationError validationError)
+            => BadRequest(new List<ResultError> { ResultError.ValidationFailure(validationError) });
 
         public static ErrorResult NotFound(string message)
-            => new ErrorResult { Code = 404, Status = "NotFound", Errors = new List<ResultError> { ResultError.NotFound(message) } };
+            => new ErrorResult { Code = StatusCodes.Status404NotFound, Status = "NotFound", Errors = new List<ResultError> { ResultError.NotFound(message) } };
 
         public static ErrorResult Conflict(string message)
-            => new ErrorResult { Code = 409, Status = "Conflict", Errors = new List<ResultError> { ResultError.Conflict(message) } };
+            => new ErrorResult { Code = StatusCodes.Status409Conflict, Status = "Conflict", Errors = new List<ResultError> { ResultError.Conflict(message) } };
+
+        public static ErrorResult ServerError(List<ResultError> errors = null, string commandId = null)
+            => new ErrorResult { CommandId = commandId, Code = StatusCodes.Status500InternalServerError, Status = "ServerError", Errors = errors ?? new List<ResultError>() };
+
+        public static ErrorResult ServerError(List<Exception> exceptions, string commandId = null)
+            => new ErrorResult { CommandId = commandId, Code = StatusCodes.Status500InternalServerError, Status = "ServerError", Errors = exceptions?.Select(e => ResultError.ServerError(e)).ToList() ?? new List<ResultError>() };
     }
 
     public static class ErrorResultExtensions
     {
-        public static IActionResult ActionResult(this IErrorResult result) => (result.Code) switch
+        public static IActionResult ActionResult(this IErrorResult result) => result.Code switch
         {
-            400 => new BadRequestObjectResult(result),
-            404 => new NotFoundObjectResult(result),
-            409 => new ConflictObjectResult(result),
+            StatusCodes.Status400BadRequest => new BadRequestObjectResult(result),
+            StatusCodes.Status404NotFound => new NotFoundObjectResult(result),
+            StatusCodes.Status409Conflict => new ConflictObjectResult(result),
+            StatusCodes.Status500InternalServerError => new JsonResult(result) { StatusCode = StatusCodes.Status500InternalServerError },
             _ => throw new NotImplementedException()
         };
     }

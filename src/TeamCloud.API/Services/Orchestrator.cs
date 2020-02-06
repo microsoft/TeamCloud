@@ -52,17 +52,13 @@ namespace TeamCloud.API.Services
 
         private string GetLocation(ICommandResult commandResult, Guid? projectId) => (commandResult) switch
         {
-            ProjectCreateCommandResult result => $"api/projects/{projectId}",
-            ProjectUpdateCommandResult result => $"api/projects/{projectId}",
+            ProjectCreateCommandResult _ => $"api/projects/{projectId}",
+            ProjectUpdateCommandResult _ => $"api/projects/{projectId}",
             ProjectUserCreateCommandResult result => $"api/projects/{projectId}/users/{result.Result.Id}",
             ProjectUserUpdateCommandResult result => $"api/projects/{projectId}/users/{result.Result.Id}",
-            TeamCloudCreateCommandResult result => $"api/config",
+            TeamCloudCreateCommandResult _ => $"api/config",
             TeamCloudUserCreateCommandResult result => $"api/users/{result.Result.Id}",
             TeamCloudUserUpdateCommandResult result => $"api/users/{result.Result.Id}",
-            // ProviderRegisterCommandResult result => $"api/projects/{projectId.Value}",
-            // ProjectDeleteCommandResult result => $"api/projects/{projectId}",
-            // ProjectUserDeleteCommandResult result => $"api/projects/{projectId}",
-            // TeamCloudUserDeleteCommandResult result => $"api/projects/{projectId}",
             _ => null
         };
 

@@ -15,7 +15,15 @@ namespace TeamCloud.API.Data
         int Code { get; }
 
         string Status { get; }
+    }
 
-        List<ResultError> Errors { get; set; }
+    public interface ISuccessResult : IReturnResult
+    {
+        string Location { get; }
+    }
+
+    public interface IFailureResult : IReturnResult
+    {
+        List<ResultError> Errors { get; }
     }
 }

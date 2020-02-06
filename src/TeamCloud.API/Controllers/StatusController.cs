@@ -25,17 +25,14 @@ namespace TeamCloud.API.Controllers
         }
 
         [Authorize(Policy = "admin")]
-        [HttpGet("api/status/{instanceId:guid}")]
-        public async Task<IActionResult> Get(Guid instanceId)
+        [HttpGet("api/status/{commandId:guid}")]
+        public async Task<IActionResult> Get(Guid commandId)
         {
             var result = await orchestrator
-                .QueryAsync(instanceId, null)
+                .QueryAsync(commandId, null)
                 .ConfigureAwait(false);
 
-            if (result is null)
-                return StatusResult.NotFound().ActionResult();
-
-            return GetStatusResult(result).ActionResult();
+            return GetStatusResult(result);
         }
 
         [Authorize(Policy = "projectRead")]
@@ -46,43 +43,64 @@ namespace TeamCloud.API.Controllers
                 .QueryAsync(commandId, projectId)
                 .ConfigureAwait(false);
 
-            if (result is null)
-                return new NotFoundResult();
-
-            return GetStatusResult(result).ActionResult();
+            return GetStatusResult(result);
         }
 
-        private StatusResult GetStatusResult(ICommandResult result)
+        private IActionResult GetStatusResult(ICommandResult result)
         {
-            result.Links.TryGetValue("location", out var location);
+            if (result is null)
+                return ErrorResult
+                    .NotFound($"A status with the provided Id was not found.")
+                    .ActionResult();
+
             result.Links.TryGetValue("status", out var status);
 
-            StatusResult statusResult = null;
-
-            if (result.RuntimeStatus == CommandRuntimeStatus.Completed && !string.IsNullOrEmpty(location))
+            switch (result.RuntimeStatus)
             {
-                Response.Headers.Add("Location", location);
-                statusResult = StatusResult.Success(location);
-            }
-            else if (result.RuntimeStatus.IsActive() && !string.IsNullOrEmpty(status))
-            {
-                statusResult = StatusResult.Accepted(status, result.RuntimeStatus.ToString(), result.CustomStatus);
-            }
-            else if (result.RuntimeStatus.IsStopped())
-            {
-                statusResult = StatusResult.Ok(result.RuntimeStatus.ToString(), result.CustomStatus);
-            }
-            else if (result.RuntimeStatus == CommandRuntimeStatus.Failed)
-            {
-                statusResult = StatusResult.Failed();
-            }
+                case CommandRuntimeStatus.Completed:
 
-            statusResult ??= StatusResult.Ok(result.RuntimeStatus.ToString(), result.CustomStatus);
+                    if (result.Links.TryGetValue("location", out var location))
+                    {
+                        // return 302 (found) with location to resource
+                        Response.Headers.Add("Location", location);
+                        return StatusResult
+                            .Success(result.CommandId.ToString(), location)
+                            .ActionResult();
+                    }
 
-            if (result.Exceptions?.Any() ?? false)
-                statusResult.Errors = result.Exceptions.Select(e => new ResultError { Message = e.Message }).ToList();
+                    // no resource location (i.e. DELETE command) return 200 (ok)
+                    return StatusResult
+                        .Success(result.CommandId.ToString())
+                        .ActionResult();
 
-            return statusResult;
+                case CommandRuntimeStatus.Running:
+                case CommandRuntimeStatus.ContinuedAsNew:
+                case CommandRuntimeStatus.Pending:
+
+                    // command is in an active state, return 202 (accepted) so client can poll
+                    return StatusResult
+                        .Accepted(result.CommandId.ToString(), status, result.RuntimeStatus.ToString(), result.CustomStatus)
+                        .ActionResult();
+
+                case CommandRuntimeStatus.Canceled:
+                case CommandRuntimeStatus.Terminated:
+                case CommandRuntimeStatus.Failed:
+
+                    return ErrorResult
+                        .ServerError(result.Exceptions, result.CommandId.ToString())
+                        .ActionResult();
+
+                default: // TODO: this probably isn't right as a default
+
+                    if (result.Exceptions?.Any() ?? false)
+                        return ErrorResult
+                            .ServerError(result.Exceptions, result.CommandId.ToString())
+                            .ActionResult();
+
+                    return StatusResult
+                        .Ok(result.CommandId.ToString(), result.RuntimeStatus.ToString(), result.CustomStatus)
+                        .ActionResult();
+            }
         }
     }
 }

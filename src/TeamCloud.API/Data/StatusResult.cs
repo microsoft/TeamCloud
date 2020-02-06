@@ -5,20 +5,19 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 namespace TeamCloud.API.Data
 {
-    public interface IStatusResult : IReturnResult
+    public interface IStatusResult : ISuccessResult
     {
         string State { get; }
 
         // user-facing
         string StateMessage { get; }
-
-        string Location { get; }
     }
 
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
@@ -36,71 +35,62 @@ namespace TeamCloud.API.Data
         public string StateMessage { get; private set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public List<ResultError> Errors { get; set; }
-
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string Location { get; private set; }
+
+        [JsonProperty("_trackingId", NullValueHandling = NullValueHandling.Ignore, Order = int.MaxValue)]
+        public string CommandId { get; set; }
+
 
         private StatusResult() { }
 
-        public static StatusResult Ok(string state = null, string stateMessage = null)
-        {
-            var result = new StatusResult();
-            result.Code = 200;
-            result.Status = "Ok";
-            result.State = state;
-            result.StateMessage = stateMessage;
-            return result;
-        }
+        public static StatusResult Ok(string commandId, string state = null, string stateMessage = null)
+            => new StatusResult
+            {
+                CommandId = commandId,
+                Code = StatusCodes.Status200OK,
+                Status = "Ok",
+                State = string.IsNullOrWhiteSpace(state) ? null : state,
+                StateMessage = string.IsNullOrWhiteSpace(stateMessage) ? null : stateMessage
+            };
 
-        public static StatusResult Accepted(string location, string state = null, string stateMessage = null)
-        {
-            var result = new StatusResult();
-            result.Code = 202;
-            result.Status = "Accepted";
-            result.Location = location;
-            result.State = state;
-            result.StateMessage = stateMessage;
-            return result;
-        }
+        public static StatusResult Accepted(string commandId, string location, string state = null, string stateMessage = null)
+            => new StatusResult
+            {
+                CommandId = commandId,
+                Code = StatusCodes.Status202Accepted,
+                Status = "Accepted",
+                Location = location,
+                State = string.IsNullOrWhiteSpace(state) ? null : state,
+                StateMessage = string.IsNullOrWhiteSpace(stateMessage) ? null : stateMessage,
+            };
 
-        public static StatusResult Success(string location)
-        {
-            var result = new StatusResult();
-            result.Code = 302;
-            result.Location = location;
-            result.Status = "Found";
-            result.State = "Complete";
-            return result;
-        }
+        public static StatusResult Success(string commandId)
+            => new StatusResult
+            {
+                CommandId = commandId,
+                Code = StatusCodes.Status200OK,
+                Status = "Ok",
+                State = "Complete"
+            };
 
-        public static StatusResult Failed(List<ResultError> errors = null)
-        {
-            var result = new StatusResult();
-            result.Code = 302;
-            result.Status = "Found";
-            result.State = "Failed";
-            result.Errors = errors;
-            return result;
-        }
-
-        public static StatusResult NotFound()
-        {
-            var result = new StatusResult();
-            result.Code = 404;
-            result.Status = "NotFound";
-            return result;
-        }
+        public static StatusResult Success(string commandId, string location)
+            => new StatusResult
+            {
+                CommandId = commandId,
+                Code = StatusCodes.Status302Found,
+                Location = location,
+                Status = "Found",
+                State = "Complete"
+            };
     }
 
     public static class StatusResultExtensions
     {
         public static IActionResult ActionResult(this IStatusResult result) => (result.Code) switch
         {
-            200 => new OkObjectResult(result),
-            202 => new AcceptedResult(result.Location, result),
-            302 => new JsonResult(result) { StatusCode = 302 },
-            404 => new NotFoundObjectResult(result),
+            StatusCodes.Status200OK => new OkObjectResult(result),
+            StatusCodes.Status202Accepted => new AcceptedResult(result.Location, result),
+            StatusCodes.Status302Found => new JsonResult(result) { StatusCode = StatusCodes.Status302Found },
             _ => throw new NotImplementedException()
         };
     }

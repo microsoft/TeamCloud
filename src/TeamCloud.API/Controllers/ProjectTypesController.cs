@@ -104,7 +104,7 @@ namespace TeamCloud.API.Controllers
             {
                 var validProviderIds = string.Join(", ", teamCloud.Providers.Select(p => p.Id));
                 return ErrorResult
-                    .BadRequest($"All provider ids on a ProjectType must match the id of a registered Provider on the TeamCloud instance.\nValid provider ids are: {validProviderIds}", ResultErrorCodes.ValidationError)
+                    .BadRequest(new ValidationError { Field = "projectType", Message = $"All provider ids on a ProjectType must match the id of a registered Provider on the TeamCloud instance. Valid provider ids are: {validProviderIds}" })
                     .ActionResult();
             }
 
@@ -112,8 +112,11 @@ namespace TeamCloud.API.Controllers
                 .AddAsync(projectType)
                 .ConfigureAwait(false);
 
+            var baseUrl = HttpContext.GetApplicationBaseUrl();
+            var location = new Uri(baseUrl, $"api/projectTypes/{addResult.Id}").ToString();
+
             return DataResult<ProjectType>
-                .Ok(addResult)
+                .Created(addResult, location)
                 .ActionResult();
         }
 
@@ -148,7 +151,7 @@ namespace TeamCloud.API.Controllers
             {
                 var validProviderIds = string.Join(",", teamCloud.Providers.Select(p => p.Id));
                 return ErrorResult
-                    .BadRequest($"All provider ids on a ProjectType must match the id of a registered Provider on the TeamCloud instance.\nValid provider ids are: {validProviderIds}", ResultErrorCodes.ValidationError)
+                    .BadRequest(new ValidationError { Field = "projectType", Message = $"All provider ids on a ProjectType must match the id of a registered Provider on the TeamCloud instance. Valid provider ids are: {validProviderIds}" })
                     .ActionResult();
             }
 
@@ -174,12 +177,12 @@ namespace TeamCloud.API.Controllers
                     .NotFound($"A ProjectType with the ID '{projectTypeId}' could not be found in this TeamCloud Instance")
                     .ActionResult();
 
-            var deleteResult = await orchestrator
+            _ = await orchestrator
                 .DeleteAsync(projectTypeId)
                 .ConfigureAwait(false);
 
             return DataResult<ProjectType>
-                .Ok(deleteResult)
+                .NoContent()
                 .ActionResult();
         }
     }

@@ -128,7 +128,7 @@ namespace TeamCloud.API.Controllers
 
                 if (project.Type is null)
                     return ErrorResult
-                        .NotFound($"A Project Type with the ID '{projectDefinition.ProjectType}' could not be found in this TeamCloud Instance. Please try your request again with a valid Project Type ID for 'projectType'.")
+                        .BadRequest(new ValidationError { Field = "projectType", Message = $"A Project Type with the ID '{projectDefinition.ProjectType}' could not be found in this TeamCloud Instance. Please try your request again with a valid Project Type ID for 'projectType'." })
                         .ActionResult();
             }
             else
@@ -139,7 +139,7 @@ namespace TeamCloud.API.Controllers
 
                 if (project.Type is null)
                     return ErrorResult
-                        .NotFound("No value was provided for 'projectType' and there is no a default Project Type set for this TeamCloud Instance. Please try your request again with a valid Project Type ID for 'projectType'.")
+                        .BadRequest(new ValidationError { Field = "projectType", Message = $"No value was provided for 'projectType' and there is no a default Project Type set for this TeamCloud Instance. Please try your request again with a valid Project Type ID for 'projectType'." })
                         .ActionResult();
             }
 
@@ -151,7 +151,7 @@ namespace TeamCloud.API.Controllers
 
             if (commandResult.Links.TryGetValue("status", out var statusUrl))
                 return StatusResult
-                    .Accepted(statusUrl, commandResult.RuntimeStatus.ToString(), commandResult.CustomStatus)
+                    .Accepted(commandResult.CommandId.ToString(), statusUrl, commandResult.RuntimeStatus.ToString(), commandResult.CustomStatus)
                     .ActionResult();
 
             throw new Exception("This shoudn't happen, but we need to decide to do when it does...");
@@ -179,7 +179,7 @@ namespace TeamCloud.API.Controllers
 
             if (commandResult.Links.TryGetValue("status", out var statusUrl))
                 return StatusResult
-                    .Accepted(statusUrl, commandResult.RuntimeStatus.ToString(), commandResult.CustomStatus)
+                    .Accepted(commandResult.CommandId.ToString(), statusUrl, commandResult.RuntimeStatus.ToString(), commandResult.CustomStatus)
                     .ActionResult();
 
             throw new Exception("This shoudn't happen, but we need to decide to do when it does...");
