@@ -5,7 +5,7 @@
 
 using TeamCloud.Model.Data;
 
-namespace TeamCloud.Model.Validation
+namespace TeamCloud.Model.Validation.Data
 {
 
 }

@@ -10,29 +10,20 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Model.Commands
 {
-    public class ProviderCommandMessage
+    public class ProviderCommandMessage : CommandMessage
     {
-        public ProviderCommandMessage() { }
+        public ProviderCommandMessage() : base()
+        { }
 
-        public ProviderCommandMessage(ICommand command, Provider provider, string callbackUrl)
+        public ProviderCommandMessage(ICommand command, Provider provider, string callbackUrl) : base(command)
         {
-            Command = command ?? throw new ArgumentNullException(nameof(command));
             Provider = provider ?? throw new ArgumentNullException(nameof(provider));
             CallbackUrl = callbackUrl ?? throw new ArgumentNullException(nameof(callbackUrl));
         }
 
-        [JsonIgnore]
-        public Guid? CommandId => Command?.CommandId;
-
-        [JsonIgnore]
-        public Type CommandType => Command?.GetType();
-
-        public ICommand Command { get; set; }
-
         public Provider Provider { get; set; }
 
         public string CallbackUrl { get; set; }
-
 
         public ProviderCommandResultMessage CreateResultMessage(ICommandResult commandResult = null)
         {

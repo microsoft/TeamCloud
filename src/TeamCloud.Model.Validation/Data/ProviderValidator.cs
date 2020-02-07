@@ -6,7 +6,7 @@
 using FluentValidation;
 using TeamCloud.Model.Data;
 
-namespace TeamCloud.Model.Validation
+namespace TeamCloud.Model.Validation.Data
 {
     public sealed class ProviderValidator : AbstractValidator<Provider>
     {
@@ -17,12 +17,4 @@ namespace TeamCloud.Model.Validation
             RuleFor(obj => obj.AuthCode).NotEmpty();
         }
     }
-
-    // [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    // public sealed class ProviderDependencies
-    // {
-    //     public List<string> Create { get; set; } = new List<string>();
-
-    //     public List<string> Init { get; set; } = new List<string>();
-    // }
 }

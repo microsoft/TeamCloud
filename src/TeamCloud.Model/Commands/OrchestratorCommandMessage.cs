@@ -11,27 +11,23 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Model.Commands
 {
-    public class OrchestratorCommandMessage
+    public class OrchestratorCommandMessage : CommandMessage
     {
-        public ICommand Command { get; set; }
+        public OrchestratorCommandMessage() : base()
+        { }
+
+        public OrchestratorCommandMessage(ICommand command) : base(command)
+        { }
+
+        public OrchestratorCommandMessage(ICommand command, TeamCloudInstance teamCloud) : base(command)
+        {
+            TeamCloud = teamCloud ?? throw new ArgumentNullException(nameof(teamCloud));
+        }
 
         public TeamCloudInstance TeamCloud { get; set; }
 
-        public OrchestratorCommandMessage() { }
 
-        public OrchestratorCommandMessage(ICommand command)
-        {
-            Command = command;
-        }
 
-        public OrchestratorCommandMessage(TeamCloudInstance teamCloud, ICommand command)
-        {
-            TeamCloud = teamCloud;
-            Command = command;
-        }
-
-        [JsonIgnore]
-        public Guid CommandId => Command.CommandId;
     }
 
     public class OrchestratorCommandResultMessage

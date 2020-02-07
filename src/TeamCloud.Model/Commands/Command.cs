@@ -11,7 +11,7 @@ using TeamCloud.Model.Data;
 namespace TeamCloud.Model.Commands
 {
     [JsonConverter(typeof(CommandConverter))]
-    public interface ICommand
+    public interface ICommand : IValidatable
     {
         Guid CommandId { get; }
 

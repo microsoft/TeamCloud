@@ -45,6 +45,8 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers
                     providerCommandResultMessage.CommandResult = await functionContext
                         .WaitForExternalEvent<ICommandResult>(providerCommandMessage.CommandId.ToString(), TimeSpan.FromMinutes(3), null)
                         .ConfigureAwait(true);
+
+
                 }
             }
             catch (Exception ex)
