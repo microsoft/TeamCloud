@@ -66,8 +66,8 @@ jobs:
       if: steps.gitversion.outputs.branchName == 'master'
       uses: nuget/setup-nuget@v1
       with:
-        nuget-api-key: ${{ secrets.NuGetAPIKey }}
-        nuget-version: 'latest'
+        nuget-api-key: ${{ secrets.MYGET_TOKEN }}
+        nuget-api-key-source: 'teamcloud'
         
 #    - name: Setup MyGet Feed (master only)
 #      if: steps.gitversion.outputs.branchName == 'master'
@@ -79,7 +79,7 @@ jobs:
 
     - name: Push MyGet Feed (master only)
       if: steps.gitversion.outputs.branchName == 'master'
-      run: dotnet nuget push **/*.nupkg --skip-duplicate
+      run: dotnet nuget push **/*.nupkg --source 'teamcloud' --skip-duplicate
       
 #    - name: Publish Packages (master only)
 #      if: steps.gitversion.outputs.branchName == 'master'
