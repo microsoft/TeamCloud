@@ -35,16 +35,14 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers
 
             functionContext.SetCustomStatus("Registering Providers");
 
-            var providerCommandTasks = teamCloud.GetProviderCommandTasks(command, functionContext);
+            var providerCommandTasks = teamCloud.Providers.GetProviderCommandTasks(command, functionContext);
 
-            var providerCommandResultMessages = await Task
+            var providerCommandResults = await Task
                 .WhenAll(providerCommandTasks)
                 .ConfigureAwait(true);
 
-            var providerRegistrations = providerCommandResultMessages
-                .Select(m => (m.Provider, m.CommandResult))
-                .Cast<(Provider provider, ProviderRegisterCommandResult commandResult)>()
-                .Select(pr => (pr.provider, pr.commandResult.Result))
+            var providerRegistrations = providerCommandResults
+                .Cast<ProviderRegisterCommandResult>()
                 .ToList();
 
             var providers = await functionContext
@@ -58,7 +56,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers
             // TODO: Figure out how to merge these results
             // commandResult.Result = providerCommandResults.FirstOrDefault(cr => cr.Result != null).Result;
 
-            var providerExcepitons = providerCommandResultMessages
+            var providerExcepitons = providerRegistrations
                 .Where(cr => cr.Exceptions.Any())
                 .SelectMany(cr => cr.Exceptions)
                 .ToList();

@@ -74,9 +74,8 @@ namespace TeamCloud.Orchestrator
             return null;
         }
 
-        internal static IEnumerable<Task<ProviderCommandResultMessage>> GetProviderCommandTasks(this TeamCloudInstance teamCloud, ICommand command, IDurableOrchestrationContext functionContext)
-            => teamCloud.GetProviderCommandMessages(command)
-                    .Select(providerCommandMessage => functionContext.CallSubOrchestratorAsync<ProviderCommandResultMessage>(nameof(ProviderCommandOrchestration), providerCommandMessage));
+        internal static IEnumerable<Task<ICommandResult>> GetProviderCommandTasks(this List<Provider> providers, ICommand command, IDurableOrchestrationContext functionContext)
+            => providers.Select(provider => functionContext.CallSubOrchestratorAsync<ICommandResult>(nameof(ProviderCommandOrchestration), (provider, command.GetProviderCommand(provider))));
 
         internal static async Task<JObject> GetJObjectAsync(this Url url, CancellationToken cancellationToken = default, HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead)
         {

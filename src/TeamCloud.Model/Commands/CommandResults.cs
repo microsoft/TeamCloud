@@ -3,105 +3,27 @@
  *  Licensed under the MIT License.
  */
 
-using System;
 using TeamCloud.Model.Data;
 
 namespace TeamCloud.Model.Commands
 {
-    public class ProviderRegisterCommandResult : CommandResult<ProviderRegistration>
-    {
-        public ProviderRegisterCommandResult() { }
+    public class ProjectCreateCommandResult : CommandResult<Project> { }
 
-        public ProviderRegisterCommandResult(Guid commandId, ProviderRegistration result) : base(commandId)
-            => Result = result;
-    }
+    public class ProjectUpdateCommandResult : CommandResult<Project> { }
 
-    public class ProjectCreateCommandResult : CommandResult<Project>
-    {
-        public ProjectCreateCommandResult() { }
+    public class ProjectDeleteCommandResult : CommandResult<Project> { }
 
-        public ProjectCreateCommandResult(Guid commandId, Project result) : base(commandId)
-            => Result = result;
-    }
+    public class ProjectUserCreateCommandResult : CommandResult<User> { }
 
+    public class ProjectUserUpdateCommandResult : CommandResult<User> { }
 
-    public class ProjectUpdateCommandResult : CommandResult<Project>
-    {
-        public ProjectUpdateCommandResult() { }
+    public class ProjectUserDeleteCommandResult : CommandResult<User> { }
 
-        public ProjectUpdateCommandResult(Guid commandId, Project result) : base(commandId)
-            => Result = result;
-    }
+    public class TeamCloudCreateCommandResult : CommandResult<TeamCloudInstance> { }
 
+    public class TeamCloudUserCreateCommandResult : CommandResult<User> { }
 
-    public class ProjectDeleteCommandResult : CommandResult<Project>
-    {
-        public ProjectDeleteCommandResult() { }
+    public class TeamCloudUserUpdateCommandResult : CommandResult<User> { }
 
-        public ProjectDeleteCommandResult(Guid commandId, Project result) : base(commandId)
-            => Result = result;
-    }
-
-
-    public class ProjectUserCreateCommandResult : CommandResult<User>
-    {
-        public ProjectUserCreateCommandResult() { }
-
-        public ProjectUserCreateCommandResult(Guid commandId, User result) : base(commandId)
-            => Result = result;
-    }
-
-
-    public class ProjectUserUpdateCommandResult : CommandResult<User>
-    {
-        public ProjectUserUpdateCommandResult() { }
-
-        public ProjectUserUpdateCommandResult(Guid commandId, User result) : base(commandId)
-            => Result = result;
-    }
-
-
-    public class ProjectUserDeleteCommandResult : CommandResult<User>
-    {
-        public ProjectUserDeleteCommandResult() { }
-
-        public ProjectUserDeleteCommandResult(Guid commandId, User result) : base(commandId)
-            => Result = result;
-    }
-
-
-    public class TeamCloudCreateCommandResult : CommandResult<TeamCloudInstance>
-    {
-        public TeamCloudCreateCommandResult() { }
-
-        public TeamCloudCreateCommandResult(Guid commandId, TeamCloudInstance result) : base(commandId)
-            => Result = result;
-    }
-
-
-    public class TeamCloudUserCreateCommandResult : CommandResult<User>
-    {
-        public TeamCloudUserCreateCommandResult() { }
-
-        public TeamCloudUserCreateCommandResult(Guid commandId, User result) : base(commandId)
-            => Result = result;
-    }
-
-
-    public class TeamCloudUserUpdateCommandResult : CommandResult<User>
-    {
-        public TeamCloudUserUpdateCommandResult() { }
-
-        public TeamCloudUserUpdateCommandResult(Guid commandId, User result) : base(commandId)
-            => Result = result;
-    }
-
-
-    public class TeamCloudUserDeleteCommandResult : CommandResult<User>
-    {
-        public TeamCloudUserDeleteCommandResult() { }
-
-        public TeamCloudUserDeleteCommandResult(Guid commandId, User result) : base(commandId)
-            => Result = result;
-    }
+    public class TeamCloudUserDeleteCommandResult : CommandResult<User> { }
 }

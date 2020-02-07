@@ -4,7 +4,6 @@
  */
 
 using System;
-using System.Net;
 using System.Threading.Tasks;
 using Flurl;
 using Flurl.Http;
@@ -13,6 +12,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using TeamCloud.Model.Commands;
+using TeamCloud.Model.Data;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Providers.Activities
 {
@@ -20,39 +20,31 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers.Activities
     {
         [FunctionName(nameof(ProviderCommandActivity))]
         public static async Task<ICommandResult> Run(
-            [ActivityTrigger] ProviderCommandMessage providerCommand,
+            [ActivityTrigger] (Provider provider, ProviderCommandMessage message) input,
             ILogger log)
         {
-            if (providerCommand is null)
-                throw new ArgumentNullException(nameof(providerCommand));
+            if (input.provider is null)
+                throw new ArgumentException($"input param must contain a valid Provider set on {nameof(input.provider)}.", nameof(input));
 
-            var providerCommandResult = providerCommand.Command.CreateResult();
+            if (input.message is null)
+                throw new ArgumentException($"input param must contain a valid ProviderCommandMessage set on {nameof(input.message)}.", nameof(input));
 
-            try
-            {
-                var providerResponse = await providerCommand.Provider.Url
-                    .AppendPathSegment("api/command")
-                    .WithHeader("x-functions-key", providerCommand.Provider.AuthCode)
-                    .WithHeader("x-functions-callback", providerCommand.CallbackUrl)
-                    .PostJsonAsync(providerCommand)
-                    .ConfigureAwait(false);
+            var response = await input.provider.Url
+                .AppendPathSegment("api/command")
+                .WithHeader("x-functions-key", input.provider.AuthCode)
+                .WithHeader("x-functions-callback", input.message.CallbackUrl)
+                .PostJsonAsync(input.message)
+                .ConfigureAwait(false);
 
-                if (providerResponse.StatusCode == HttpStatusCode.OK)
-                {
-                    var providerResponseJson = await providerResponse.Content
-                        .ReadAsStringAsync()
-                        .ConfigureAwait(false);
+            response.EnsureSuccessStatusCode();
 
-                    providerCommandResult = JsonConvert.DeserializeObject<ICommandResult>(providerResponseJson);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.LogDebug(ex, "ProviderCommandActivity Failded");
-                providerCommandResult.Exceptions.Add(ex);
-            }
+            var responseJson = await response.Content
+                .ReadAsStringAsync()
+                .ConfigureAwait(false);
 
-            return providerCommandResult;
+            var commandResult = JsonConvert.DeserializeObject<ICommandResult>(responseJson);
+
+            return commandResult;
         }
     }
 }

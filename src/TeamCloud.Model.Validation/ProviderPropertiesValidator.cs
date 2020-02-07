@@ -3,7 +3,6 @@
  *  Licensed under the MIT License.
  */
 
-using System.Collections.Generic;
 using FluentValidation;
 using TeamCloud.Model.Data;
 
@@ -13,7 +12,7 @@ namespace TeamCloud.Model.Validation
     {
         public ProviderPropertiesValidator()
         {
-            RuleFor(obj => obj.ProviderId).NotEmpty();
+            // RuleFor(obj => obj.ProviderId).NotEmpty();
             RuleFor(obj => obj.Properties).NotEmpty();
         }
     }

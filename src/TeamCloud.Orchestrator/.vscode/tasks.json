@@ -14,8 +14,7 @@
       "problemMatcher": "$msCompile",
       "presentation": {
         "group": "teamcloudBuild",
-        "showReuseMessage": false,
-        "clear": true
+        "showReuseMessage": false
       }
     },
     {
@@ -37,8 +36,7 @@
       "problemMatcher": "$msCompile",
       "presentation": {
         "group": "teamcloudBuild",
-        "showReuseMessage": false,
-        "clear": true
+        "showReuseMessage": false
       }
     },
     {
