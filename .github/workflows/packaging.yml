@@ -50,17 +50,17 @@ jobs:
       run:  dotnet build -c $BUILD_CONFIGURATION -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" --version-suffix "${{ steps.gitversion.outputs.nuGetPreReleaseTagV2 }}"
       working-directory: ${{ env.SOURCE_DIRECTORY }}
 
-    - name: Setup GitHub Feed (master only)
-      if: steps.gitversion.outputs.branchName == 'master'
-      uses: actions/setup-dotnet@v1
-      with:
-        source-url: https://nuget.pkg.github.com/microsoft/index.json
-      env:
-        NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#    - name: Setup GitHub Feed (master only)
+#      if: steps.gitversion.outputs.branchName == 'master'
+#      uses: actions/setup-dotnet@v1
+#      with:
+#        source-url: https://nuget.pkg.github.com/microsoft/index.json
+#      env:
+#        NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Push GitHub Feed (master only)
-      if: steps.gitversion.outputs.branchName == 'master'
-      run: dotnet nuget push **/*.nupkg --skip-duplicate
+#    - name: Push GitHub Feed (master only)
+#      if: steps.gitversion.outputs.branchName == 'master'
+#      run: dotnet nuget push **/*.nupkg --skip-duplicate
 
     - name: Setup MyGet Feed (master only)
       if: steps.gitversion.outputs.branchName == 'master'
