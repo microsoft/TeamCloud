@@ -43,7 +43,7 @@ jobs:
         dotnet-version: '3.1.101'
 
     - name: Setup Packages
-      run: find . -name "nuget.config" -exec echo {} \; -exec sed -i 's/GITHUB_TOKEN/${{ secrets.GITHUB_TOKEN }}/g' {} \; -exec cat {} \;
+      run: find . -name "nuget.config" -exec echo {} \; -exec sed -i 's/GITHUB_TOKEN/${{ secrets.GITHUB_TOKEN }}/g' {} \; -exec sed -i 's/MYGET_TOKEN/${{ secrets.MYGET_TOKEN }}/g' {} \; -exec cat {} \;
       working-directory: ${{ env.SOURCE_DIRECTORY }}
 
     - name: Build and Package
