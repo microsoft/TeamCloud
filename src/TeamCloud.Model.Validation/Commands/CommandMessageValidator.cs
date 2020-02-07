@@ -1,4 +1,9 @@
-﻿using FluentValidation;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
+
+using FluentValidation;
 using TeamCloud.Model.Commands;
 
 namespace TeamCloud.Model.Validation.Commands
