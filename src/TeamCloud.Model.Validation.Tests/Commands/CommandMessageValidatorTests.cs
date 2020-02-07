@@ -16,7 +16,7 @@ namespace TeamCloud.Model.Validation.Tests.Commands
         public void Validate_Success()
         {
             var command = new ProjectCreateCommand(new User(), new Project());
-            var message = new ProviderCommandMessage(command, new Provider(), "http://localhost/callback");
+            var message = new ProviderCommandMessage(command, "http://localhost/callback");
 
             var result = message.Validate();
 
@@ -27,7 +27,7 @@ namespace TeamCloud.Model.Validation.Tests.Commands
         public async Task ValidateAsync_Success()
         {
             var command = new ProjectCreateCommand(new User(), new Project());
-            var message = new ProviderCommandMessage(command, new Provider(), "http://localhost/callback");
+            var message = new ProviderCommandMessage(command, "http://localhost/callback");
 
             var result = await message.ValidateAsync();
 
@@ -38,7 +38,7 @@ namespace TeamCloud.Model.Validation.Tests.Commands
         public void Validate_Error()
         {
             var command = new ProjectCreateCommand(null, new Project());
-            var message = new ProviderCommandMessage(command, new Provider(), "http://localhost/callback");
+            var message = new ProviderCommandMessage(command, "http://localhost/callback");
 
             var result = message.Validate();
 
@@ -49,7 +49,7 @@ namespace TeamCloud.Model.Validation.Tests.Commands
         public async Task ValidateAsync_Error()
         {
             var command = new ProjectCreateCommand(null, new Project());
-            var message = new ProviderCommandMessage(command, new Provider(), "http://localhost/callback");
+            var message = new ProviderCommandMessage(command, "http://localhost/callback");
 
             var result = await message.ValidateAsync();
 
