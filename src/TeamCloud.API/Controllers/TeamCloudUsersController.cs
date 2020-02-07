@@ -71,7 +71,7 @@ namespace TeamCloud.API
                     .NotFound($"No TeamCloud Instance was found.")
                     .ActionResult();
 
-            var user = teamCloudInstance?.Users?.FirstOrDefault(u => u.Id == userId);
+            var user = teamCloudInstance.Users?.FirstOrDefault(u => u.Id == userId);
 
             if (user is null)
                 return ErrorResult
@@ -149,7 +149,7 @@ namespace TeamCloud.API
                     .NotFound($"No TeamCloud Instance was found.")
                     .ActionResult();
 
-            var oldUser = teamCloudInstance?.Users?.FirstOrDefault(u => u.Id == user.Id);
+            var oldUser = teamCloudInstance.Users?.FirstOrDefault(u => u.Id == user.Id);
 
             if (oldUser is null)
                 return ErrorResult
@@ -182,7 +182,7 @@ namespace TeamCloud.API
                     .NotFound($"No TeamCloud Instance was found.")
                     .ActionResult();
 
-            var user = teamCloudInstance?.Users?.FirstOrDefault(u => u.Id == userId);
+            var user = teamCloudInstance.Users?.FirstOrDefault(u => u.Id == userId);
 
             if (user is null)
                 return ErrorResult

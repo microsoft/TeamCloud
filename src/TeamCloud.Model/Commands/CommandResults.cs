@@ -19,6 +19,12 @@ namespace TeamCloud.Model.Commands
 
     public class ProjectUserDeleteCommandResult : CommandResult<User> { }
 
+    public class ProviderCreateCommandResult : CommandResult<Provider> { }
+
+    public class ProviderUpdateCommandResult : CommandResult<Provider> { }
+
+    public class ProviderDeleteCommandResult : CommandResult<Provider> { }
+
     public class TeamCloudCreateCommandResult : CommandResult<TeamCloudInstance> { }
 
     public class TeamCloudUserCreateCommandResult : CommandResult<User> { }

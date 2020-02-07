@@ -12,7 +12,7 @@ namespace TeamCloud.Model.Commands
     {
         public override Guid? ProjectId => Payload.Id;
 
-        public ProjectCreateCommand(User user, Project project) : base(user, project) { }
+        public ProjectCreateCommand(User user, Project payload) : base(user, payload) { }
     }
 
     public class ProjectUpdateCommand : Command<Project, ProjectUpdateCommandResult>
@@ -51,6 +51,21 @@ namespace TeamCloud.Model.Commands
 
         public ProjectUserDeleteCommand(User user, User payload, Guid projectId) : base(user, payload)
             => ProjectId = projectId;
+    }
+
+    public class ProviderCreateCommand : Command<Provider, ProviderCreateCommandResult>
+    {
+        public ProviderCreateCommand(User user, Provider payload) : base(user, payload) { }
+    }
+
+    public class ProviderUpdateCommand : Command<Provider, ProviderUpdateCommandResult>
+    {
+        public ProviderUpdateCommand(User user, Provider payload) : base(user, payload) { }
+    }
+
+    public class ProviderDeleteCommand : Command<Provider, ProviderDeleteCommandResult>
+    {
+        public ProviderDeleteCommand(User user, Provider payload) : base(user, payload) { }
     }
 
     public class TeamCloudCreateCommand : Command<TeamCloudConfiguration, TeamCloudCreateCommandResult>

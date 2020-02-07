@@ -85,14 +85,6 @@ namespace TeamCloud.Model.Commands
         }
     }
 
-    public class ProviderTeamCloudCreateCommand : Command<TeamCloudConfiguration, ProviderTeamCloudCreateCommandResult>
-    {
-        public override string ProviderId { get; set; }
-
-        public ProviderTeamCloudCreateCommand(Guid commandId, string providerId, User user, TeamCloudConfiguration payload) : base(commandId, user, payload)
-            => ProviderId = providerId;
-    }
-
     public class ProviderTeamCloudUserCreateCommand : Command<User, ProviderTeamCloudUserCreateCommandResult>
     {
         public override string ProviderId { get; set; }

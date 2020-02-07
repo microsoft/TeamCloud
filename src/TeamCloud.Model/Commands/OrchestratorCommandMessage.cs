@@ -13,6 +13,8 @@ namespace TeamCloud.Model.Commands
 {
     public class OrchestratorCommandMessage : CommandMessage
     {
+        public TeamCloudInstance TeamCloud { get; set; }
+
         public OrchestratorCommandMessage() : base()
         { }
 
@@ -23,11 +25,6 @@ namespace TeamCloud.Model.Commands
         {
             TeamCloud = teamCloud ?? throw new ArgumentNullException(nameof(teamCloud));
         }
-
-        public TeamCloudInstance TeamCloud { get; set; }
-
-
-
     }
 
     public class OrchestratorCommandResultMessage

@@ -1,4 +1,4 @@
-﻿/**
+/**
  *  Copyright (c) Microsoft Corporation.
  *  Licensed under the MIT License.
  */
@@ -14,9 +14,9 @@ using TeamCloud.Orchestrator.Orchestrations.TeamCloud.Activities;
 
 namespace TeamCloud.Orchestrator.Orchestrations.TeamCloud
 {
-    public static class TeamCloudCreateOrchestration
+    public static class ProviderDeleteOrchestration
     {
-        [FunctionName(nameof(TeamCloudCreateOrchestration))]
+        [FunctionName(nameof(ProviderDeleteOrchestration))]
         public static async Task RunOrchestration(
             [OrchestrationTrigger] IDurableOrchestrationContext functionContext
             /* ILogger log */)
@@ -26,19 +26,18 @@ namespace TeamCloud.Orchestrator.Orchestrations.TeamCloud
 
             var orchestratorCommand = functionContext.GetInput<OrchestratorCommandMessage>();
 
-            var command = orchestratorCommand.Command as TeamCloudCreateCommand;
+            var command = orchestratorCommand.Command as ProviderDeleteCommand;
 
-            var teamCloud = await functionContext
-                .CallActivityAsync<TeamCloudInstance>(nameof(TeamCloudCreateActivity), command.Payload)
+            var provider = await functionContext
+                .CallActivityAsync<Provider>(nameof(ProviderDeleteActivity), command.Payload)
                 .ConfigureAwait(true);
 
             var commandResult = command.CreateResult();
-            commandResult.Result = teamCloud;
-
-            // start eternal orchestration to register providers every 1 hour
-            functionContext.StartNewOrchestration(nameof(ProviderRegisterOrchestration), teamCloud.Providers, ProviderRegisterOrchestration.InstanceId);
+            commandResult.Result = provider;
 
             functionContext.SetOutput(commandResult);
+
+            functionContext.StartNewOrchestration(nameof(ProviderRegisterOrchestration), null, ProviderRegisterOrchestration.InstanceId);
         }
     }
 }

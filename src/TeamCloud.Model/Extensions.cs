@@ -47,11 +47,10 @@ namespace TeamCloud.Model.Commands
             ProjectUserCreateCommand c => new ProviderProjectUserCreateCommand(c.CommandId, provider.Id, c.User, c.Payload, c.ProjectId.Value),
             ProjectUserUpdateCommand c => new ProviderProjectUserUpdateCommand(c.CommandId, provider.Id, c.User, c.Payload, c.ProjectId.Value),
             ProjectUserDeleteCommand c => new ProviderProjectUserDeleteCommand(c.CommandId, provider.Id, c.User, c.Payload, c.ProjectId.Value),
-            TeamCloudCreateCommand c => new ProviderTeamCloudCreateCommand(c.CommandId, provider.Id, c.User, c.Payload),
             TeamCloudUserCreateCommand c => new ProviderTeamCloudUserCreateCommand(c.CommandId, provider.Id, c.User, c.Payload),
             TeamCloudUserUpdateCommand c => new ProviderTeamCloudUserUpdateCommand(c.CommandId, provider.Id, c.User, c.Payload),
             TeamCloudUserDeleteCommand c => new ProviderTeamCloudUserDeleteCommand(c.CommandId, provider.Id, c.User, c.Payload),
-            _ => throw new NotImplementedException()
+            _ => throw new NotSupportedException()
         };
     }
 }
