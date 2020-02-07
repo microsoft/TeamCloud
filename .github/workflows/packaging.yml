@@ -42,54 +42,14 @@ jobs:
       with:
         dotnet-version: '3.1.101'
 
-#    - name: Setup Packages
-#      run: find . -name "nuget.config" -exec echo {} \; -exec sed -i 's/GITHUB_TOKEN/${{ secrets.GITHUB_TOKEN }}/g' {} \; -exec sed -i 's/MYGET_TOKEN/${{ secrets.MYGET_TOKEN }}/g' {} \; -exec cat {} \;
-#      working-directory: ${{ env.SOURCE_DIRECTORY }}
-
     - name: Build and Package
       run:  dotnet build -c $BUILD_CONFIGURATION -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" --version-suffix "${{ steps.gitversion.outputs.nuGetPreReleaseTagV2 }}"
       working-directory: ${{ env.SOURCE_DIRECTORY }}
 
-#    - name: Setup GitHub Feed (master only)
-#      if: steps.gitversion.outputs.branchName == 'master'
-#      uses: actions/setup-dotnet@v1
-#      with:
-#        source-url: https://nuget.pkg.github.com/microsoft/index.json
-#      env:
-#        NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-#    - name: Push GitHub Feed (master only)
-#      if: steps.gitversion.outputs.branchName == 'master'
-#      run: dotnet nuget push **/*.nupkg --skip-duplicate
-
-#    - name: Setup MyGet Feed (master only)
-#      if: steps.gitversion.outputs.branchName == 'master'
-#      uses: nuget/setup-nuget@v1
-#      with:
-#        nuget-api-key: ${{ secrets.MYGET_TOKEN }}
-#        nuget-api-key-source: 'teamcloud'
-        
-#    - name: Setup MyGet Feed (master only)
-#      if: steps.gitversion.outputs.branchName == 'master'
-#      uses: actions/setup-dotnet@v1
-#      with:
-#        source-url: https://www.myget.org/F/teamcloud-dev/api/v2/package
-#      env:
-#        NUGET_AUTH_TOKEN: ${{ secrets.MYGET_TOKEN }}
-
-#    - name: Push GitHub Feed (master only)
-#      if: steps.gitversion.outputs.branchName == 'master'
-#      run: dotnet nuget push **/*.nupkg --api-key '${{ secrets.GITHUB_TOKEN }}' --source 'https://nuget.pkg.github.com/microsoft/index.json' --skip-duplicate
-
-    - name: Push MyGet Feed (master only)
+    - name: Publish Packages (master only)
       if: steps.gitversion.outputs.branchName == 'master'
       run: dotnet nuget push **/*.nupkg --api-key '${{ secrets.MYGET_TOKEN }}' --source 'https://www.myget.org/F/teamcloud-dev/api/v2/package' --skip-duplicate
       
-#    - name: Publish Packages (master only)
-#      if: steps.gitversion.outputs.branchName == 'master'
-#      run: find . -name "*.nupkg" -exec echo {} \; -exec dotnet nuget push {} --source 'teamcloud' --skip-duplicate \;  -exec dotnet nuget push {} --source 'github' --skip-duplicate \;
-#      working-directory: ${{ env.SOURCE_DIRECTORY }}        
-
     - name: Augment Release (master only)
       if: steps.gitversion.outputs.branchName == 'master'
       run: |
