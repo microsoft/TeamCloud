@@ -64,11 +64,18 @@ jobs:
 
     - name: Setup MyGet Feed (master only)
       if: steps.gitversion.outputs.branchName == 'master'
-      uses: actions/setup-dotnet@v1
+      uses: nuget/setup-nuget@v1
       with:
-        source-url: https://www.myget.org/F/teamcloud-dev/api/v2/package
-      env:
-        NUGET_AUTH_TOKEN: ${{ secrets.MYGET_TOKEN }}
+        nuget-api-key: ${{ secrets.NuGetAPIKey }}
+        nuget-version: 'latest'
+        
+#    - name: Setup MyGet Feed (master only)
+#      if: steps.gitversion.outputs.branchName == 'master'
+#      uses: actions/setup-dotnet@v1
+#      with:
+#        source-url: https://www.myget.org/F/teamcloud-dev/api/v2/package
+#      env:
+#        NUGET_AUTH_TOKEN: ${{ secrets.MYGET_TOKEN }}
 
     - name: Push MyGet Feed (master only)
       if: steps.gitversion.outputs.branchName == 'master'
