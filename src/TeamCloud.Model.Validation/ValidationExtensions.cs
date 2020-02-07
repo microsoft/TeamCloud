@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.Extensions.DependencyInjection;
+using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
 
 namespace TeamCloud.Model.Validation
@@ -53,7 +54,7 @@ namespace TeamCloud.Model.Validation
             return validatorTypes.Distinct();
         }
 
-        public static ValidationResult Validate(this IValidatable validatable, IServiceProvider provider = null, bool throwOnNoValidatorFound = false)
+        public static ValidationResult Validate(this IValidatable validatable, IServiceProvider provider = null, bool throwOnNoValidatorFound = false, bool throwOnValidationError = false)
         {
             if (validatable is null)
                 throw new ArgumentNullException(nameof(validatable));
@@ -62,9 +63,14 @@ namespace TeamCloud.Model.Validation
 
             if (validatorTypes.Any())
             {
-                return validatorTypes
+                var validationResult = validatorTypes
                     .Select(validatorType => ValidateInternal(validatorType, validatable, provider))
                     .MergeValidationResults();
+
+                if (!validationResult.IsValid && throwOnValidationError)
+                    throw validationResult.ToException();
+
+                return validationResult;
             }
 
             if (throwOnNoValidatorFound)
@@ -73,7 +79,7 @@ namespace TeamCloud.Model.Validation
             return new ValidationResult();
         }
 
-        public static async Task<ValidationResult> ValidateAsync(this IValidatable validatable, IServiceProvider provider = null, bool throwOnNoValidatorFound = false)
+        public static async Task<ValidationResult> ValidateAsync(this IValidatable validatable, IServiceProvider provider = null, bool throwOnNoValidatorFound = false, bool throwOnValidationError = false)
         {
             if (validatable is null)
                 throw new ArgumentNullException(nameof(validatable));
@@ -89,8 +95,13 @@ namespace TeamCloud.Model.Validation
                     .WhenAll(validationTasks)
                     .ConfigureAwait(false);
 
-                return validationResults
+                var validationResult = validationResults
                     .MergeValidationResults();
+
+                if (!validationResult.IsValid && throwOnValidationError)
+                    throw validationResult.ToException();
+
+                return validationResult;
             }
 
             if (throwOnNoValidatorFound)
@@ -123,6 +134,17 @@ namespace TeamCloud.Model.Validation
                 : ActivatorUtilities.CreateInstance(provider, validatorType));
 
             return validatorInstance.ValidateAsync(instance);
+        }
+
+        public static ValidationException ToException(this ValidationResult validationResult)
+            => validationResult.IsValid ? null : new ValidationException(validationResult.Errors);
+
+        private static ICommandResult ApplyValidationResult(this ICommandResult commandResult, ValidationResult validationResult)
+        {
+            if (!validationResult.IsValid)
+                commandResult.Exceptions.Add(validationResult.ToException());
+
+            return commandResult;
         }
 
         public static IRuleBuilderOptions<T, IList<TElement>> MustContainAtLeast<T, TElement>(this IRuleBuilderInitial<T, IList<TElement>> ruleBuilder, int min)
