@@ -14,6 +14,7 @@ using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestrator.Orchestrations.Azure;
 using TeamCloud.Orchestrator.Orchestrations.Projects.Activities;
+using TeamCloud.Orchestrator.Orchestrations.Providers;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Projects
 {
@@ -41,6 +42,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
             var user = command.User;
             var project = command.Payload;
             var teamCloud = orchestratorCommand.TeamCloud;
+            var providers = teamCloud.ProvidersFor(project);
 
             project.TeamCloudId = teamCloud.Id;
             project.TeamCloudApplicationInsightsKey = teamCloud.ApplicationInsightsKey;
@@ -48,8 +50,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
             project.Tags.Concat(teamCloud.Tags);
             project.Properties = teamCloud.Properties;
 
-            project.ProviderProperties = teamCloud.Providers
-                .Where(p => project.Type.Providers.Any(pp => pp.Id == p.Id))
+            project.ProviderProperties = providers
                 .Select(p => (p.Id, p.Properties))
                 .ToDictionary(t => t.Id, t => t.Properties);
 
@@ -83,10 +84,25 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
 
             functionContext.SetCustomStatus("Creating Project Resources");
 
-            var providerCommandTasks = teamCloud.GetProviderCommandTasks(command, functionContext);
+            var providerCommandTasks = providers.GetProviderCommandTasks(command, functionContext);
 
-            var providerCommandResultMessages = await Task
+            var providerCommandResults = await Task
                 .WhenAll(providerCommandTasks)
+                .ConfigureAwait(true);
+
+            var providerResults = providerCommandResults
+                .Cast<ProviderProjectCreateCommandResult>();
+
+            foreach (var providerResult in providerResults)
+            {
+                foreach (var providerProperty in providerResult.Result.Properties)
+                {
+                    project.ProviderProperties[providerResult.ProviderId][providerProperty.Key] = providerProperty.Value;
+                }
+            }
+
+            project = await functionContext
+                .CallActivityAsync<Project>(nameof(ProjectUpdateActivity), project)
                 .ConfigureAwait(true);
 
             functionContext.SetCustomStatus("Project Created");

@@ -37,7 +37,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
             var project = command.Payload;
             var teamCloud = orchestratorCommand.TeamCloud;
 
-            var providerCommandTasks = teamCloud.GetProviderCommandTasks(command, functionContext);
+            var providerCommandTasks = teamCloud.ProvidersFor(project).GetProviderCommandTasks(command, functionContext);
             var providerCommandResultMessages = await Task
                 .WhenAll(providerCommandTasks)
                 .ConfigureAwait(true);
@@ -45,7 +45,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
             // Delete Azure resource group
             await functionContext
                 .CallActivityAsync<AzureResourceGroup>(nameof(AzureResourceGroupDeleteActivity), project.ResourceGroup)
-                .ConfigureAwait(false);
+                .ConfigureAwait(true);
 
             // Delete project in DB
             project = await functionContext

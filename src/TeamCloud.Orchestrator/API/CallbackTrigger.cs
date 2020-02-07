@@ -18,10 +18,10 @@ namespace TeamCloud.Orchestrator
 {
     public static class CallbackTrigger
     {
-        internal static async Task<string> GetCallbackUrlAsync(string instanceId)
+        internal static async Task<string> GetCallbackUrlAsync(string instanceId, string eventName)
         {
             var hostname = Environment.GetEnvironmentVariable("WEBSITE_HOSTNAME");
-            var hostpath = $"api/callback/{instanceId}";
+            var hostpath = $"api/callback/{instanceId}/{eventName}";
 
             if (hostname.StartsWith("localhost", StringComparison.OrdinalIgnoreCase))
             {
@@ -41,9 +41,10 @@ namespace TeamCloud.Orchestrator
 
         [FunctionName(nameof(CallbackTrigger))]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "callback/{instanceId}")] HttpRequest httpRequest,
+            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "callback/{instanceId}/{eventName}")] HttpRequest httpRequest,
             [DurableClient] IDurableClient durableClient,
-            string instanceId
+            string instanceId,
+            string eventName
             /* ILogger log */)
         {
             if (httpRequest is null)
@@ -55,14 +56,19 @@ namespace TeamCloud.Orchestrator
             if (instanceId is null)
                 throw new ArgumentNullException(nameof(instanceId));
 
-            var requestBody = await new StreamReader(httpRequest.Body)
+            if (eventName is null)
+                throw new ArgumentNullException(nameof(eventName));
+
+            using var reader = new StreamReader(httpRequest.Body);
+
+            var requestBody = await reader
                 .ReadToEndAsync()
                 .ConfigureAwait(false);
 
             var commandResult = JsonConvert.DeserializeObject<ICommandResult>(requestBody);
 
             await durableClient
-                .RaiseEventAsync(instanceId, commandResult.CommandId.ToString(), commandResult)
+                .RaiseEventAsync(instanceId, eventName, commandResult)
                 .ConfigureAwait(false);
 
             return new OkResult();

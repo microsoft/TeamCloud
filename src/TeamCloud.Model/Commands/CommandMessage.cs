@@ -1,18 +1,22 @@
-﻿using System;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
+
+using System;
 using Newtonsoft.Json;
 
 namespace TeamCloud.Model.Commands
 {
     public interface ICommandMessage : IValidatable
     {
-        public ICommand Command { get; }
+        ICommand Command { get; }
 
         [JsonIgnore]
-        public Guid? CommandId { get; }
+        Guid? CommandId { get; }
 
         [JsonIgnore]
-        public Type CommandType { get; }
-
+        Type CommandType { get; }
     }
 
     public abstract class CommandMessage : ICommandMessage

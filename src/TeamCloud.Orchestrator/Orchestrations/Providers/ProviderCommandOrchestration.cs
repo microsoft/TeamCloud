@@ -9,6 +9,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Model.Commands;
+using TeamCloud.Model.Data;
 using TeamCloud.Orchestrator.Orchestrations.Providers.Activities;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Providers
@@ -16,46 +17,59 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers
     public static class ProviderCommandOrchestration
     {
         [FunctionName(nameof(ProviderCommandOrchestration))]
-        public static async Task<ProviderCommandResultMessage> Run(
+        public static async Task<ICommandResult> Run(
             [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
             ILogger log)
         {
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
 
-            var providerCommandMessage = functionContext.GetInput<ProviderCommandMessage>();
+            var (provider, command) = functionContext.GetInput<(Provider, ICommand)>();
 
-            providerCommandMessage.CallbackUrl = await CallbackTrigger
-                .GetCallbackUrlAsync(functionContext.InstanceId)
+            var eventName = GetExternalEventName(command.CommandId.ToString(), command.ProviderId);
+
+            var callbackUrl = await CallbackTrigger
+                .GetCallbackUrlAsync(functionContext.InstanceId, eventName)
                 .ConfigureAwait(true);
 
-            var providerCommandResultMessage = providerCommandMessage.CreateResultMessage();
+            var message = new ProviderCommandMessage(command, callbackUrl);
 
             try
             {
-                providerCommandResultMessage.CommandResult = await functionContext
-                    .CallActivityAsync<ICommandResult>(nameof(ProviderCommandActivity), providerCommandMessage)
+                var commandResult = await functionContext
+                    .CallActivityAsync<ICommandResult>(nameof(ProviderCommandActivity), (provider, message))
                     .ConfigureAwait(true);
 
-                if (!providerCommandResultMessage.CommandResult.RuntimeStatus.IsFinal())
+                if (commandResult.RuntimeStatus.IsRunning())
                 {
-                    log.LogInformation($"Waiting for external event in orchestration {functionContext.InstanceId}");
+                    log.LogInformation($"Waiting for external event {eventName} in orchestration {functionContext.InstanceId}");
 
-                    // FIXME: Change timespan back to 30 mins
-                    providerCommandResultMessage.CommandResult = await functionContext
-                        .WaitForExternalEvent<ICommandResult>(providerCommandMessage.CommandId.ToString(), TimeSpan.FromMinutes(3), null)
+                    commandResult = await functionContext
+                        .WaitForExternalEvent<ICommandResult>(eventName, TimeSpan.FromMinutes(30), null)
                         .ConfigureAwait(true);
 
 
                 }
-            }
-            catch (Exception ex)
-            {
-                log.LogDebug(ex, "ProviderCommandOrchestration Failded");
-                providerCommandResultMessage.CommandResult.Exceptions.Add(ex);
-            }
 
-            return providerCommandResultMessage;
+                return commandResult;
+            }
+            catch (FunctionFailedException ex)
+            {
+                var commandResult = command.CreateResult();
+                commandResult.Exceptions.Add(ex);
+                return commandResult;
+            }
+        }
+
+        private static string GetExternalEventName(string commandId, string providerId)
+        {
+            if (commandId is null)
+                throw new ArgumentNullException(nameof(commandId));
+
+            if (providerId is null)
+                throw new ArgumentNullException(nameof(providerId));
+
+            return $"{commandId}~{providerId}";
         }
     }
 }

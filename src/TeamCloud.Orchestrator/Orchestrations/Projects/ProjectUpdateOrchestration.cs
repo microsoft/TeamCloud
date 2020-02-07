@@ -41,7 +41,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
                 .CallActivityAsync<Project>(nameof(ProjectUpdateActivity), project)
                 .ConfigureAwait(true);
 
-            var providerCommandTasks = teamCloud.GetProviderCommandTasks(command, functionContext);
+            var providerCommandTasks = teamCloud.ProvidersFor(project).GetProviderCommandTasks(command, functionContext);
 
             var providerCommandResultMessages = await Task
                 .WhenAll(providerCommandTasks)

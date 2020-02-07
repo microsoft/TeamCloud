@@ -23,6 +23,8 @@ namespace TeamCloud.Model.Commands
 
         string CustomStatus { get; set; }
 
+        string ProviderId { get; set; }
+
         List<Exception> Exceptions { get; set; }
 
         [JsonProperty(Order = int.MaxValue, PropertyName = "_links")]
@@ -37,7 +39,7 @@ namespace TeamCloud.Model.Commands
     }
 
 
-    public class CommandResult<TResult> : ICommandResult<TResult>
+    public abstract class CommandResult<TResult> : ICommandResult<TResult>
         where TResult : new()
     {
         public Guid CommandId { get; set; }
@@ -52,13 +54,11 @@ namespace TeamCloud.Model.Commands
 
         public TResult Result { get; set; }
 
+        public string ProviderId { get; set; }
+
         public List<Exception> Exceptions { get; set; } = new List<Exception>();
 
         [JsonProperty(Order = int.MaxValue, PropertyName = "_links")]
         public Dictionary<string, string> Links { get; private set; } = new Dictionary<string, string>();
-
-        public CommandResult() { }
-
-        public CommandResult(Guid commandId) => CommandId = commandId;
     }
 }
