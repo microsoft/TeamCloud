@@ -7,11 +7,9 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using FluentValidation;
 using FluentValidation.Results;
-using Microsoft.Extensions.DependencyInjection;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
 
@@ -19,52 +17,17 @@ namespace TeamCloud.Model.Validation
 {
     public static class ValidationExtensions
     {
-        private static IEnumerable<Type> GetValidatorTargetTypes(Type validatorType)
-        {
-            if (!typeof(IValidator).IsAssignableFrom(validatorType))
-                return Enumerable.Empty<Type>();
-
-            return validatorType.GetInterfaces()
-                .Where(type => type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IValidator<>))
-                .Select(type => type.GetGenericArguments().First());
-        }
-
-        private static readonly Dictionary<Type, Type[]> Validators = Assembly.GetExecutingAssembly().GetTypes()
-            .Where(type => type.IsClass && typeof(IValidator).IsAssignableFrom(type))
-            .SelectMany(validatorType => GetValidatorTargetTypes(validatorType).Select(targetType => new KeyValuePair<Type, Type>(targetType, validatorType)))
-            .GroupBy(kvp => kvp.Key)
-            .ToDictionary(grp => grp.Key, grp => grp.Select(item => item.Value).ToArray());
-
-        private static IEnumerable<Type> GetValidators(Type validationTargetType)
-        {
-            var validatorTypes = new List<Type>();
-
-            if (Validators.TryGetValue(validationTargetType, out var validatorTypesByClass))
-                validatorTypes.AddRange(validatorTypesByClass);
-
-            foreach (var validationTargetInterfaceType in validationTargetType.GetInterfaces())
-            {
-                if (Validators.TryGetValue(validationTargetInterfaceType, out var validatorTypesByInterface))
-                    validatorTypes.AddRange(validatorTypesByInterface);
-            }
-
-            if (validationTargetType.BaseType != null)
-                validatorTypes.AddRange(GetValidators(validationTargetType.BaseType));
-
-            return validatorTypes.Distinct();
-        }
-
-        public static ValidationResult Validate(this IValidatable validatable, IServiceProvider provider = null, bool throwOnNoValidatorFound = false, bool throwOnValidationError = false)
+        public static ValidationResult Validate(this IValidatable validatable, IValidatorFactory validatorFactory = null, IServiceProvider serviceProvider = null, bool throwOnNoValidatorFound = false, bool throwOnValidationError = false)
         {
             if (validatable is null)
                 throw new ArgumentNullException(nameof(validatable));
 
-            var validatorTypes = GetValidators(validatable.GetType());
+            var validators = (validatorFactory ?? ValidatorFactory.DefaultFactory).GetValidators(validatable.GetType(), serviceProvider);
 
-            if (validatorTypes.Any())
+            if (validators.Any())
             {
-                var validationResult = validatorTypes
-                    .Select(validatorType => ValidateInternal(validatorType, validatable, provider))
+                var validationResult = validators
+                    .Select(validator => validator.Validate(validatable))
                     .MergeValidationResults();
 
                 if (!validationResult.IsValid && throwOnValidationError)
@@ -79,17 +42,17 @@ namespace TeamCloud.Model.Validation
             return new ValidationResult();
         }
 
-        public static async Task<ValidationResult> ValidateAsync(this IValidatable validatable, IServiceProvider provider = null, bool throwOnNoValidatorFound = false, bool throwOnValidationError = false)
+        public static async Task<ValidationResult> ValidateAsync(this IValidatable validatable, IValidatorFactory validatorFactory = null, IServiceProvider serviceProvider = null, bool throwOnNoValidatorFound = false, bool throwOnValidationError = false)
         {
             if (validatable is null)
                 throw new ArgumentNullException(nameof(validatable));
 
-            var validatorTypes = GetValidators(validatable.GetType());
+            var validators = (validatorFactory ?? ValidatorFactory.DefaultFactory).GetValidators(validatable.GetType(), serviceProvider);
 
-            if (validatorTypes.Any())
+            if (validators.Any())
             {
-                var validationTasks = validatorTypes
-                    .Select(validatorType => ValidateInternalAsync(validatorType, validatable, provider));
+                var validationTasks = validators
+                    .Select(validator => validator.ValidateAsync(validatable));
 
                 var validationResults = await Task
                     .WhenAll(validationTasks)
@@ -111,30 +74,7 @@ namespace TeamCloud.Model.Validation
         }
 
         private static ValidationResult MergeValidationResults(this IEnumerable<ValidationResult> validationResults)
-        {
-            var failures = validationResults
-                .SelectMany(validationResult => validationResult.Errors);
-
-            return new ValidationResult(failures);
-        }
-
-        private static ValidationResult ValidateInternal(Type validatorType, object instance, IServiceProvider provider)
-        {
-            var validatorInstance = (IValidator)(provider is null
-                ? Activator.CreateInstance(validatorType)
-                : ActivatorUtilities.CreateInstance(provider, validatorType));
-
-            return validatorInstance.Validate(instance);
-        }
-
-        private static Task<ValidationResult> ValidateInternalAsync(Type validatorType, object instance, IServiceProvider provider)
-        {
-            var validatorInstance = (IValidator)(provider is null
-                ? Activator.CreateInstance(validatorType)
-                : ActivatorUtilities.CreateInstance(provider, validatorType));
-
-            return validatorInstance.ValidateAsync(instance);
-        }
+            => new ValidationResult(validationResults.SelectMany(validationResult => validationResult.Errors));
 
         public static ValidationException ToException(this ValidationResult validationResult)
             => validationResult.IsValid ? null : new ValidationException(validationResult.Errors);
