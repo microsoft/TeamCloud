@@ -52,7 +52,7 @@ jobs:
     
     - name: Publish Packages (master only)
       if: steps.gitversion.outputs.branchName == 'master'
-      run: find . -name "*.nupkg" -exec echo {} \; -exec dotnet nuget push {} --source 'github' --skip-duplicate \;  -exec dotnet nuget push {} --source 'teamcloud' --skip-duplicate \;
+      run: find . -name "*.nupkg" -exec echo {} \; -exec dotnet nuget push {} --source 'teamcloud' --skip-duplicate \;  -exec dotnet nuget push {} --source 'github' --skip-duplicate \;
       working-directory: ${{ env.SOURCE_DIRECTORY }}        
 
     - name: Augment Release (master only)
