@@ -7,7 +7,7 @@ using System.Linq;
 using FluentValidation;
 using TeamCloud.Model.Data;
 
-namespace TeamCloud.Model.Validation
+namespace TeamCloud.Model.Validation.Data
 {
     public sealed class TeamCloudInstanceValidator : AbstractValidator<TeamCloudInstance>
     {
