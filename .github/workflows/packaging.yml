@@ -77,6 +77,10 @@ jobs:
 #      env:
 #        NUGET_AUTH_TOKEN: ${{ secrets.MYGET_TOKEN }}
 
+    - name: Push GitHub Feed (master only)
+      if: steps.gitversion.outputs.branchName == 'master'
+      run: dotnet nuget push **/*.nupkg --api-key '${{ secrets.GITHUB_TOKEN }}' --source 'https://nuget.pkg.github.com/microsoft/index.json' --skip-duplicate
+
     - name: Push MyGet Feed (master only)
       if: steps.gitversion.outputs.branchName == 'master'
       run: dotnet nuget push **/*.nupkg --api-key '${{ secrets.MYGET_TOKEN }}' --source 'https://www.myget.org/F/teamcloud-dev/api/v2/package' --skip-duplicate
