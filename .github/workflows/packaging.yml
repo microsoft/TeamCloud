@@ -42,9 +42,9 @@ jobs:
       with:
         dotnet-version: '3.1.101'
 
-    - name: Setup Packages
-      run: find . -name "nuget.config" -exec echo {} \; -exec sed -i 's/GITHUB_TOKEN/${{ secrets.GITHUB_TOKEN }}/g' {} \; -exec sed -i 's/MYGET_TOKEN/${{ secrets.MYGET_TOKEN }}/g' {} \; -exec cat {} \;
-      working-directory: ${{ env.SOURCE_DIRECTORY }}
+#    - name: Setup Packages
+#      run: find . -name "nuget.config" -exec echo {} \; -exec sed -i 's/GITHUB_TOKEN/${{ secrets.GITHUB_TOKEN }}/g' {} \; -exec sed -i 's/MYGET_TOKEN/${{ secrets.MYGET_TOKEN }}/g' {} \; -exec cat {} \;
+#      working-directory: ${{ env.SOURCE_DIRECTORY }}
 
     - name: Build and Package
       run:  dotnet build -c $BUILD_CONFIGURATION -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" --version-suffix "${{ steps.gitversion.outputs.nuGetPreReleaseTagV2 }}"
@@ -77,9 +77,9 @@ jobs:
 #      env:
 #        NUGET_AUTH_TOKEN: ${{ secrets.MYGET_TOKEN }}
 
-    - name: Push GitHub Feed (master only)
-      if: steps.gitversion.outputs.branchName == 'master'
-      run: dotnet nuget push **/*.nupkg --api-key '${{ secrets.GITHUB_TOKEN }}' --source 'https://nuget.pkg.github.com/microsoft/index.json' --skip-duplicate
+#    - name: Push GitHub Feed (master only)
+#      if: steps.gitversion.outputs.branchName == 'master'
+#      run: dotnet nuget push **/*.nupkg --api-key '${{ secrets.GITHUB_TOKEN }}' --source 'https://nuget.pkg.github.com/microsoft/index.json' --skip-duplicate
 
     - name: Push MyGet Feed (master only)
       if: steps.gitversion.outputs.branchName == 'master'
