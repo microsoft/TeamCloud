@@ -7,7 +7,7 @@ namespace TeamCloud.Model.Validation.Tests.Data
 {
     public class TeamCloudConfigurationValidatorTests
     {
-        [Fact]
+        [Fact(Skip = "Not implementedd")]
         public void Validate_Success()
         {
             var configuration = new TeamCloudConfiguration()
