@@ -21,7 +21,7 @@ namespace TeamCloud.Azure
     {
         private static readonly PropertyInfo IsDevStoreAccountProperty = typeof(CloudStorageAccount).GetProperty("IsDevStoreAccount", BindingFlags.Instance | BindingFlags.NonPublic);
 
-        public static IServiceCollection AddAzure(this IServiceCollection services, Action<IAzureConfiguration> configuration)
+        public static IServiceCollection AddTeamCloudAzure(this IServiceCollection services, Action<IAzureConfiguration> configuration)
         {
             services
                 .AddSingleton<IAzureSessionService, AzureSessionService>()

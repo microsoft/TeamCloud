@@ -30,6 +30,7 @@ using TeamCloud.Azure.Deployments.Providers;
 using TeamCloud.Configuration;
 using TeamCloud.Data;
 using TeamCloud.Data.CosmosDb;
+using TeamCloud.Http;
 using TeamCloud.Model.Data;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
@@ -81,10 +82,14 @@ namespace TeamCloud.API
 
             services
                 .AddMemoryCache()
-                .AddOptions(currentAssembly)
-                .AddAzure(configuration =>
+                .AddTeamCloudOptions(currentAssembly)
+                .AddTeamCloudAzure(configuration =>
                 {
                     configuration.SetDeploymentArtifactsProvider<AzureStorageArtifactsProvider>();
+                })
+                .AddTeamCloudHttp(configuration =>
+                {
+                    // nothing to configure
                 });
 
             services

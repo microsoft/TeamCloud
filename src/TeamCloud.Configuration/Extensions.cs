@@ -46,7 +46,7 @@ namespace TeamCloud.Configuration
             }
         }
 
-        public static IServiceCollection AddOptions(this IServiceCollection services, Assembly assembly, params Assembly[] additionalAssemblies)
+        public static IServiceCollection AddTeamCloudOptions(this IServiceCollection services, Assembly assembly, params Assembly[] additionalAssemblies)
         {
             if (assembly is null)
             {

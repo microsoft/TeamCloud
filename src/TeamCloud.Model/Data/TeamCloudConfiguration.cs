@@ -10,7 +10,7 @@ using Newtonsoft.Json.Serialization;
 namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public sealed class TeamCloudConfiguration
+    public sealed class TeamCloudConfiguration : IValidatable
     {
         public List<ProjectType> ProjectTypes { get; set; } = new List<ProjectType>();
 

@@ -8,6 +8,9 @@ using RMFluent = Microsoft.Azure.Management.ResourceManager.Fluent;
 using System;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Flurl.Http.Configuration;
+using System.Linq;
+using System.Net.Http;
 
 namespace TeamCloud.Azure
 {
@@ -26,18 +29,28 @@ namespace TeamCloud.Azure
     {
         private readonly Lazy<AZFluent.Azure.IAuthenticated> session;
         private readonly IAzureSessionOptions azureSessionOptions;
+        private readonly IHttpClientFactory httpClientFactory;
 
-        public AzureSessionService(IAzureSessionOptions azureSessionOptions)
+        public AzureSessionService(IAzureSessionOptions azureSessionOptions, IHttpClientFactory httpClientFactory = null)
         {
             this.azureSessionOptions = azureSessionOptions ?? throw new ArgumentNullException(nameof(azureSessionOptions));
+            this.httpClientFactory = httpClientFactory;
 
             session = new Lazy<AZFluent.Azure.IAuthenticated>(() =>
             {
                 var credentials = new RMFluent.Authentication.AzureCredentialsFactory()
                     .FromServicePrincipal(azureSessionOptions.ClientId, azureSessionOptions.ClientSecret, azureSessionOptions.TenantId, RMFluent.AzureEnvironment.AzureGlobalCloud);
 
-                return AZFluent.Azure
-                    .Configure()
+                var configured = AZFluent.Azure
+                    .Configure();
+
+                var messageHandler = this.httpClientFactory?
+                    .CreateMessageHandler() as DelegatingHandler;
+
+                if (messageHandler != null)
+                    configured = configured.WithDelegatingHandler(messageHandler);
+
+                return configured
                     .Authenticate(credentials);
             });
         }

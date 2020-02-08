@@ -22,21 +22,21 @@ namespace TeamCloud.Azure
 
     public class AzureDirectoryService : IAzureDirectoryService
     {
-        private readonly IAzureSessionService azureSessionFactory;
+        private readonly IAzureSessionService azureSessionService;
 
-        public AzureDirectoryService(IAzureSessionService azureSessionFactory)
+        public AzureDirectoryService(IAzureSessionService azureSessionService)
         {
-            this.azureSessionFactory = azureSessionFactory ?? throw new ArgumentNullException(nameof(azureSessionFactory));
+            this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
         }
 
         private async Task<string> GetDefaultDomainAsync()
         {
-            var token = await azureSessionFactory
+            var token = await azureSessionService
                 .AcquireTokenAsync(AzureAuthorities.AzureGraph)
                 .ConfigureAwait(false);
 
             var json = await AzureAuthorities.AzureGraph
-                .AppendPathSegment($"{azureSessionFactory.Options.TenantId}/tenantDetails")
+                .AppendPathSegment($"{azureSessionService.Options.TenantId}/tenantDetails")
                 .SetQueryParam("api-version", "1.6")
                 .WithOAuthBearerToken(token)
                 .GetJObjectAsync();
@@ -46,12 +46,12 @@ namespace TeamCloud.Azure
 
         private async Task<IEnumerable<string>> GetVerifiedDomainsAsync()
         {
-            var token = await azureSessionFactory
+            var token = await azureSessionService
                 .AcquireTokenAsync(AzureAuthorities.AzureGraph)
                 .ConfigureAwait(false);
 
             var json = await AzureAuthorities.AzureGraph
-                .AppendPathSegment($"{azureSessionFactory.Options.TenantId}/tenantDetails")
+                .AppendPathSegment($"{azureSessionService.Options.TenantId}/tenantDetails")
                 .SetQueryParam("api-version", "1.6")
                 .WithOAuthBearerToken(token)
                 .GetJObjectAsync()
@@ -65,7 +65,7 @@ namespace TeamCloud.Azure
             if (identifier is null)
                 throw new ArgumentNullException(nameof(identifier));
 
-            var azureSession = azureSessionFactory.CreateSession();
+            var azureSession = azureSessionService.CreateSession();
             var azureUser = default(IActiveDirectoryUser);
 
             if (identifier.IsEMail())

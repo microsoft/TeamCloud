@@ -20,6 +20,7 @@ using TeamCloud.Azure.Deployments.Providers;
 using TeamCloud.Configuration;
 using TeamCloud.Data;
 using TeamCloud.Data.CosmosDb;
+using TeamCloud.Http;
 using TeamCloud.Orchestrator;
 using TeamCloud.Orchestrator.Providers;
 
@@ -36,15 +37,18 @@ namespace TeamCloud.Orchestrator
 
             builder.Services
                 .AddSingleton(GetConfiguration(builder.Services))
-                .AddOptions(Assembly.GetExecutingAssembly())
+                .AddTeamCloudOptions(Assembly.GetExecutingAssembly())
+                .AddTeamCloudHttp()
                 .AddMvcCore()
                 .AddNewtonsoftJson();
 
             builder.Services
                 .AddScoped<IProjectsRepository, CosmosDbProjectsRepository>()
                 .AddScoped<ITeamCloudRepository, CosmosDbTeamCloudRepository>()
-                .AddScoped<IProjectTypesRepository, CosmosDbProjectTypesRepository>()
-                .AddAzure(configuration =>
+                .AddScoped<IProjectTypesRepository, CosmosDbProjectTypesRepository>();
+
+            builder.Services
+                .AddTeamCloudAzure(configuration =>
                 {
                     var provider = builder.Services.BuildServiceProvider();
                     var options = provider.GetRequiredService<IAzureStorageArtifactsOptions>();
