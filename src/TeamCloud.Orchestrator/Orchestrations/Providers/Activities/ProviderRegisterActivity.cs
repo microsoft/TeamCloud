@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Data;
+using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Providers.Activities
@@ -25,24 +26,24 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers.Activities
 
         [FunctionName(nameof(ProviderRegisterActivity))]
         public async Task<List<Provider>> RunActivity(
-            [ActivityTrigger] List<(string providerId, ProviderRegistration registration)> providerRegistrations)
+            [ActivityTrigger] List<ProviderRegisterCommandResult> providerRegistrationResults)
         {
-            if (providerRegistrations is null)
-                throw new ArgumentNullException(nameof(providerRegistrations));
+            if (providerRegistrationResults is null)
+                throw new ArgumentNullException(nameof(providerRegistrationResults));
 
             var teamCloud = await teamCloudRepository
                 .GetAsync()
                 .ConfigureAwait(false);
 
-            foreach (var providerRegistration in providerRegistrations)
+            foreach (var result in providerRegistrationResults)
             {
-                var provider = teamCloud.Providers.FirstOrDefault(p => p.Id == providerRegistration.providerId);
+                var provider = teamCloud.Providers.FirstOrDefault(p => p.Id == result.ProviderId);
 
                 if (provider != null)
                 {
-                    provider.PricipalId = providerRegistration.registration.PricipalId;
+                    provider.PricipalId = result.Result.PricipalId;
 
-                    foreach (var property in providerRegistration.registration.Properties)
+                    foreach (var property in result.Result.Properties)
                     {
                         provider.Properties[property.Key] = property.Value;
                     }

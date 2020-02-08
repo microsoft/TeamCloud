@@ -47,8 +47,6 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers
                     commandResult = await functionContext
                         .WaitForExternalEvent<ICommandResult>(eventName, TimeSpan.FromMinutes(30), null)
                         .ConfigureAwait(true);
-
-
                 }
 
                 return commandResult;

@@ -35,12 +35,6 @@ namespace TeamCloud.API.Controllers
             this.projectTypesRepository = projectTypesRepository ?? throw new ArgumentNullException(nameof(projectTypesRepository));
         }
 
-        private User CurrentUser => new User()
-        {
-            Id = userService.CurrentUserId,
-            Role = UserRoles.Project.Owner
-        };
-
 
         [HttpGet]
         public async Task<IActionResult> Get()

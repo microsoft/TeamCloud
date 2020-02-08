@@ -21,8 +21,6 @@ namespace TeamCloud.Model.Commands
 
     public class ProviderProjectUserDeleteCommandResult : CommandResult<ProviderProperties> { }
 
-    public class ProviderTeamCloudCreateCommandResult : CommandResult<ProviderProperties> { }
-
     public class ProviderTeamCloudUserCreateCommandResult : CommandResult<ProviderProperties> { }
 
     public class ProviderTeamCloudUserUpdateCommandResult : CommandResult<ProviderProperties> { }

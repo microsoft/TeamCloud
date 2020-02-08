@@ -84,6 +84,15 @@ namespace TeamCloud.API.Controllers
                     .BadRequest(validation)
                     .ActionResult();
 
+            var teamCloudInstance = await teamCloudRepository
+                .GetAsync()
+                .ConfigureAwait(false);
+
+            if (teamCloudInstance != null)
+                return ErrorResult
+                    .Conflict("A TeamCloud Instance already existis.")
+                    .ActionResult();
+
             var command = new TeamCloudCreateCommand(CurrentUser, teamCloudConfiguraiton);
 
             var commandResult = await orchestrator

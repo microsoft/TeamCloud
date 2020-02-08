@@ -6,18 +6,22 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
+using TeamCloud.Orchestrator.Orchestrations.Projects.Activities;
 using TeamCloud.Orchestrator.Orchestrations.Providers.Activities;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Providers
 {
     public static class ProviderRegisterOrchestration
     {
+        public const string InstanceId = "c0ed8d5a-ca7a-4186-84bd-062a8bac0d3a";
+
         [FunctionName(nameof(ProviderRegisterOrchestration))]
         public static async Task RunOrchestration(
             [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
@@ -26,45 +30,39 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
 
-            var orchestratorCommand = functionContext.GetInput<OrchestratorCommandMessage>();
-
-            var command = orchestratorCommand.Command as ProviderRegisterCommand;
-
-            var provider = command.Payload;
-            var teamCloud = orchestratorCommand.TeamCloud;
+            var teamCloud = await functionContext
+                .CallActivityAsync<TeamCloudInstance>(nameof(TeamCloudGetActivity), null)
+                .ConfigureAwait(true);
 
             functionContext.SetCustomStatus("Registering Providers");
 
-            var providerCommandTasks = teamCloud.Providers.GetProviderCommandTasks(command, functionContext);
+            var providerCommandTasks = GetProviderRegisterCommandTasks(functionContext, teamCloud);
 
             var providerCommandResults = await Task
                 .WhenAll(providerCommandTasks)
                 .ConfigureAwait(true);
 
-            var providerRegistrations = providerCommandResults
-                .Cast<ProviderRegisterCommandResult>()
-                .ToList();
-
-            var providers = await functionContext
-                .CallActivityAsync<List<Provider>>(nameof(ProviderRegisterActivity), providerRegistrations)
+            var savedProviders = await functionContext
+                .CallActivityAsync<List<Provider>>(nameof(ProviderRegisterActivity), providerCommandResults)
                 .ConfigureAwait(true);
 
-            functionContext.SetCustomStatus("Providers Registered");
+            var nextRegistration = functionContext.CurrentUtcDateTime.AddHours(1);
 
-            var commandResult = command.CreateResult();
+            functionContext.SetCustomStatus($"Providers Registered. Next registraton scheduled for {nextRegistration}");
 
-            // TODO: Figure out how to merge these results
-            // commandResult.Result = providerCommandResults.FirstOrDefault(cr => cr.Result != null).Result;
+            await functionContext
+                .CreateTimer(nextRegistration, CancellationToken.None)
+                .ConfigureAwait(true);
 
-            var providerExcepitons = providerRegistrations
-                .Where(cr => cr.Exceptions.Any())
-                .SelectMany(cr => cr.Exceptions)
-                .ToList();
-
-            if (providerExcepitons.Any())
-                commandResult.Exceptions.AddRange(providerExcepitons);
-
-            functionContext.SetOutput(commandResult);
+            functionContext.ContinueAsNew(savedProviders);
         }
+
+        static IEnumerable<Task<ProviderRegisterCommandResult>> GetProviderRegisterCommandTasks(IDurableOrchestrationContext context, TeamCloudInstance teamCloud)
+            => teamCloud.Providers.Select(p => context.CallSubOrchestratorAsync<ProviderRegisterCommandResult>(nameof(ProviderCommandOrchestration),
+                (p, new ProviderRegisterCommand(Guid.Parse(context.InstanceId), p.Id, null, new ProviderConfiguration
+                {
+                    Properties = p.Properties,
+                    TeamCloudApplicationInsightsKey = teamCloud.ApplicationInsightsKey
+                }))));
     }
 }

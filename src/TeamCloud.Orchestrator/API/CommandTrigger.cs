@@ -16,6 +16,7 @@ using Newtonsoft.Json;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands;
 using TeamCloud.Orchestrator.Orchestrations.Projects;
+using TeamCloud.Orchestrator.Orchestrations.Providers;
 using TeamCloud.Orchestrator.Orchestrations.TeamCloud;
 
 namespace TeamCloud.Orchestrator
@@ -82,6 +83,9 @@ namespace TeamCloud.Orchestrator
             ProjectUserCreateCommand _ => nameof(ProjectUserCreateOrchestration),
             ProjectUserUpdateCommand _ => nameof(ProjectUserCreateOrchestration),
             ProjectUserDeleteCommand _ => nameof(ProjectUserDeleteOrchestration),
+            ProviderCreateCommand _ => nameof(ProviderCreateOrchestration),
+            ProviderUpdateCommand _ => nameof(ProviderUpdateOrchestration),
+            ProviderDeleteCommand _ => nameof(ProviderDeleteOrchestration),
             TeamCloudCreateCommand _ => nameof(TeamCloudCreateOrchestration),
             TeamCloudUserCreateCommand _ => nameof(TeamCloudUserCreateOrchestration),
             TeamCloudUserUpdateCommand _ => nameof(TeamCloudUserCreateOrchestration),

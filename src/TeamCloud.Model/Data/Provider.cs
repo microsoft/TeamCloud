@@ -23,7 +23,7 @@ namespace TeamCloud.Model.Data
 
         public bool Optional { get; set; }
 
-        public ProviderDependencies Dependencies { get; set; }
+        public ProviderDependencies Dependencies { get; set; } = new ProviderDependencies();
 
         public List<string> Events { get; set; } = new List<string>();
 
