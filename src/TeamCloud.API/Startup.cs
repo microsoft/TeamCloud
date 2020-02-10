@@ -26,7 +26,8 @@ using TeamCloud.API.Formatters;
 using TeamCloud.API.Middleware;
 using TeamCloud.API.Services;
 using TeamCloud.Azure;
-using TeamCloud.Azure.Deployments.Providers;
+using TeamCloud.Azure.Deployment;
+using TeamCloud.Azure.Deployment.Providers;
 using TeamCloud.Configuration;
 using TeamCloud.Data;
 using TeamCloud.Data.CosmosDb;
@@ -85,7 +86,10 @@ namespace TeamCloud.API
                 .AddTeamCloudOptions(currentAssembly)
                 .AddTeamCloudAzure(configuration =>
                 {
-                    configuration.SetDeploymentArtifactsProvider<AzureStorageArtifactsProvider>();
+                    configuration
+                        .AddDirectory()
+                        .AddDeployment()
+                        .SetDeploymentArtifactsProvider<AzureStorageArtifactsProvider>();
                 })
                 .AddTeamCloudHttp(configuration =>
                 {

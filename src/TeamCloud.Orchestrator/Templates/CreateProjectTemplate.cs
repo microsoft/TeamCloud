@@ -3,7 +3,7 @@
  *  Licensed under the MIT License.
  */
 
-using TeamCloud.Azure.Deployments.Templates;
+using TeamCloud.Azure.Deployment.Templates;
 
 namespace TeamCloud.Orchestrator.Templates
 {

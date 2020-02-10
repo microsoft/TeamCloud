@@ -6,7 +6,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace TeamCloud.Azure.Deployments
+namespace TeamCloud.Azure.Deployment
 {
     public interface IAzureDeploymentArtifactsProvider
     {

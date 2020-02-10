@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace TeamCloud.Azure.Deployments
+namespace TeamCloud.Azure.Deployment
 {
     public interface IAzureDeploymentTemplate
     {

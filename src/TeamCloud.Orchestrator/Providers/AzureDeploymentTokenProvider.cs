@@ -5,8 +5,8 @@
 
 using System;
 using System.Threading.Tasks;
-using TeamCloud.Azure.Deployments;
-using TeamCloud.Azure.Deployments.Providers;
+using TeamCloud.Azure.Deployment;
+using TeamCloud.Azure.Deployment.Providers;
 using TeamCloud.Http;
 using TeamCloud.Orchestrator.API;
 

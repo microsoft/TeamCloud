@@ -14,7 +14,7 @@ using Microsoft.Azure.Management.ResourceManager.Fluent.Models;
 using Newtonsoft.Json.Linq;
 using TeamCloud.Http;
 
-namespace TeamCloud.Azure.Deployments
+namespace TeamCloud.Azure.Deployment
 {
     public interface IAzureDeploymentService
     {

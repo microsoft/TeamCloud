@@ -6,11 +6,11 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using TeamCloud.Azure.Deployments;
-using TeamCloud.Azure.Tests.Deployments.Templates;
+using TeamCloud.Azure.Deployment;
+using TeamCloud.Azure.Tests.Deployment.Templates;
 using Xunit;
 
-namespace TeamCloud.Azure.Tests.Deployments
+namespace TeamCloud.Azure.Tests.Deployment
 {
     public class AzureTemplateTests : HttpTestContext
     {

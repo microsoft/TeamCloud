@@ -4,8 +4,8 @@
  */
 
 using System;
-using TeamCloud.Azure.Deployments;
-using TeamCloud.Azure.Deployments.Providers;
+using TeamCloud.Azure.Deployment;
+using TeamCloud.Azure.Deployment.Providers;
 using TeamCloud.Configuration;
 using TeamCloud.Configuration.Options;
 

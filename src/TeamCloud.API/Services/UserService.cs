@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using TeamCloud.API.Data;
-using TeamCloud.Azure;
+using TeamCloud.Azure.Directory;
 using TeamCloud.Model.Data;
 
 namespace TeamCloud.API.Services

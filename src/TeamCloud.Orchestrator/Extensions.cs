@@ -23,8 +23,6 @@ namespace TeamCloud.Orchestrator
 {
     internal static class Extensions
     {
-        private static readonly PropertyInfo IsDevStoreAccountProperty = typeof(CloudStorageAccount).GetProperty("IsDevStoreAccount", BindingFlags.Instance | BindingFlags.NonPublic);
-
         private static readonly int[] FinalRuntimeStatus = new int[]
         {
             (int) OrchestrationRuntimeStatus.Canceled,
@@ -76,9 +74,5 @@ namespace TeamCloud.Orchestrator
 
         internal static IEnumerable<Task<ICommandResult>> GetProviderCommandTasks(this List<Provider> providers, ICommand command, IDurableOrchestrationContext functionContext)
             => providers.Select(provider => functionContext.CallSubOrchestratorAsync<ICommandResult>(nameof(ProviderCommandOrchestration), (provider, command.GetProviderCommand(provider))));
-
-
-        internal static bool IsDevelopmentStorage(this CloudStorageAccount cloudStorageAccount)
-            => (bool)IsDevStoreAccountProperty.GetValue(cloudStorageAccount);
     }
 }

@@ -3,7 +3,7 @@
  *  Licensed under the MIT License.
  */
 
-namespace TeamCloud.Azure.Deployments
+namespace TeamCloud.Azure.Deployment
 {
     public enum AzureDeploymentState
     {

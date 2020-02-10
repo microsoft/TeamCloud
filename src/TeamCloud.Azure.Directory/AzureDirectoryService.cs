@@ -12,7 +12,7 @@ using Flurl.Http;
 using Microsoft.Azure.Management.Graph.RBAC.Fluent;
 using TeamCloud.Http;
 
-namespace TeamCloud.Azure
+namespace TeamCloud.Azure.Directory
 {
     public interface IAzureDirectoryService
     {

@@ -3,7 +3,7 @@
  *  Licensed under the MIT License.
  */
 
-namespace TeamCloud.Azure.Deployments.Providers
+namespace TeamCloud.Azure.Deployment.Providers
 {
     public interface IAzureStorageArtifactsOptions
     {

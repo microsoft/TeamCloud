@@ -10,32 +10,32 @@
     <None Remove="AzureDeploymentServiceTests.DeploySimpleTemplateToSubscription.001.response" />
     <None Remove="AzureDeploymentServiceTests.DeploySimpleTemplateToSubscription.002.response" />
     <None Remove="AzureDeploymentServiceTests.DeploySimpleTemplateToSubscription.003.response" />
-    <None Remove="Deployments\AzureDeploymentServiceTests.GetDeploymentOutput.001.response" />
-    <None Remove="Deployments\AzureDeploymentServiceTests.GetDeploymentOutputWhileRunning.001.response" />
-    <None Remove="Deployments\AzureDeploymentServiceTests.WaitForDeploymentWithCleanUp.001.response" />
-    <None Remove="Deployments\AzureDeploymentServiceTests.WaitForDeploymentWithThrowOnError.001.response" />
-    <None Remove="Deployments\Templates\ComplexTemplate.json" />
-    <None Remove="Deployments\Templates\ComplexTemplate_Linked1.json" />
-    <None Remove="Deployments\Templates\ComplexTemplate_Linked2.json" />
-    <None Remove="Deployments\Templates\SimpleTemplate.json" />
+    <None Remove="Deployment\AzureDeploymentServiceTests.GetDeploymentOutput.001.response" />
+    <None Remove="Deployment\AzureDeploymentServiceTests.GetDeploymentOutputWhileRunning.001.response" />
+    <None Remove="Deployment\AzureDeploymentServiceTests.WaitForDeploymentWithCleanUp.001.response" />
+    <None Remove="Deployment\AzureDeploymentServiceTests.WaitForDeploymentWithThrowOnError.001.response" />
+    <None Remove="Deployment\Templates\ComplexTemplate.json" />
+    <None Remove="Deployment\Templates\ComplexTemplate_Linked1.json" />
+    <None Remove="Deployment\Templates\ComplexTemplate_Linked2.json" />
+    <None Remove="Deployment\Templates\SimpleTemplate.json" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Deployments\AzureDeploymentServiceTests.WaitForDeploymentWithCleanUp.001.response" />
-    <EmbeddedResource Include="Deployments\AzureDeploymentServiceTests.WaitForDeploymentWithThrowOnError.001.response" />
-    <EmbeddedResource Include="Deployments\AzureDeploymentServiceTests.GetDeploymentOutputWhileRunning.001.response" />
-    <EmbeddedResource Include="Deployments\AzureDeploymentServiceTests.GetDeploymentOutput.001.response" />
-    <EmbeddedResource Include="Deployments\AzureDeploymentServiceTests.WaitForDeployment.003.response" />
-    <EmbeddedResource Include="Deployments\AzureDeploymentServiceTests.WaitForDeployment.002.response" />
-    <EmbeddedResource Include="Deployments\AzureDeploymentServiceTests.WaitForDeployment.001.response" />
-    <EmbeddedResource Include="Deployments\Templates\ComplexTemplate_Linked2.json" />
-    <EmbeddedResource Include="Deployments\Templates\ComplexTemplate_Linked1.json" />
-    <EmbeddedResource Include="Deployments\Templates\ComplexTemplate.json" />
-    <EmbeddedResource Include="Deployments\Templates\SimpleTemplate.json" />
+    <EmbeddedResource Include="Deployment\AzureDeploymentServiceTests.WaitForDeploymentWithCleanUp.001.response" />
+    <EmbeddedResource Include="Deployment\AzureDeploymentServiceTests.WaitForDeploymentWithThrowOnError.001.response" />
+    <EmbeddedResource Include="Deployment\AzureDeploymentServiceTests.GetDeploymentOutputWhileRunning.001.response" />
+    <EmbeddedResource Include="Deployment\AzureDeploymentServiceTests.GetDeploymentOutput.001.response" />
+    <EmbeddedResource Include="Deployment\AzureDeploymentServiceTests.WaitForDeployment.003.response" />
+    <EmbeddedResource Include="Deployment\AzureDeploymentServiceTests.WaitForDeployment.002.response" />
+    <EmbeddedResource Include="Deployment\AzureDeploymentServiceTests.WaitForDeployment.001.response" />
+    <EmbeddedResource Include="Deployment\Templates\ComplexTemplate_Linked2.json" />
+    <EmbeddedResource Include="Deployment\Templates\ComplexTemplate_Linked1.json" />
+    <EmbeddedResource Include="Deployment\Templates\ComplexTemplate.json" />
+    <EmbeddedResource Include="Deployment\Templates\SimpleTemplate.json" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
     <PackageReference Include="NSubstitute" Version="4.2.1" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1">
@@ -49,6 +49,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TeamCloud.Azure.Deployments\TeamCloud.Azure.Deployment.csproj" />
+    <ProjectReference Include="..\TeamCloud.Azure.Directory\TeamCloud.Azure.Directory.csproj" />
     <ProjectReference Include="..\TeamCloud.Azure\TeamCloud.Azure.csproj" />
   </ItemGroup>
 

@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Newtonsoft.Json.Linq;
-using TeamCloud.Azure.Deployments;
+using TeamCloud.Azure.Deployment;
 
 namespace TeamCloud.Orchestrator.API
 {

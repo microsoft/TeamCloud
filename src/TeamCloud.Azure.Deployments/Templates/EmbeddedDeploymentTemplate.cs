@@ -10,7 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 
-namespace TeamCloud.Azure.Deployments.Templates
+namespace TeamCloud.Azure.Deployment.Templates
 {
     public abstract class EmbeddedDeploymentTemplate : AzureDeploymentTemplate
     {

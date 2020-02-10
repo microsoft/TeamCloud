@@ -8,11 +8,11 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using NSubstitute;
-using TeamCloud.Azure.Deployments;
-using TeamCloud.Azure.Tests.Deployments.Templates;
+using TeamCloud.Azure.Deployment;
+using TeamCloud.Azure.Tests.Deployment.Templates;
 using Xunit;
 
-namespace TeamCloud.Azure.Tests.Deployments
+namespace TeamCloud.Azure.Tests.Deployment
 {
     public class AzureDeploymentServiceTests : HttpTestContext
     {

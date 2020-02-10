@@ -7,7 +7,7 @@ using System;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 
-namespace TeamCloud.Azure.Deployments
+namespace TeamCloud.Azure.Deployment
 {
     [Serializable]
     public class AzureDeploymentException : Exception

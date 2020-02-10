@@ -16,7 +16,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.WindowsAzure.Storage;
 using TeamCloud.Azure;
-using TeamCloud.Azure.Deployments.Providers;
+using TeamCloud.Azure.Deployment;
+using TeamCloud.Azure.Deployment.Providers;
 using TeamCloud.Configuration;
 using TeamCloud.Data;
 using TeamCloud.Data.CosmosDb;
@@ -50,10 +51,17 @@ namespace TeamCloud.Orchestrator
             builder.Services
                 .AddTeamCloudAzure(configuration =>
                 {
-                    var provider = builder.Services.BuildServiceProvider();
-                    var options = provider.GetRequiredService<IAzureStorageArtifactsOptions>();
+                    configuration
+                        .AddDeployment()
+                        .SetDeploymentArtifactsProvider<AzureStorageArtifactsProvider>();
 
-                    if (CloudStorageAccount.TryParse(options.ConnectionString, out var storageAccount) && storageAccount.IsDevelopmentStorage())
+                    var connectionString = configuration.Services
+                        .BuildServiceProvider()
+                        .GetService<IAzureStorageArtifactsOptions>()?.ConnectionString;
+
+                    if (!string.IsNullOrEmpty(connectionString)
+                        && CloudStorageAccount.TryParse(connectionString, out var storageAccount)
+                        && storageAccount.IsDevelopmentStorage())
                     {
                         // if our artifact storage provider points towards a development storage
                         // account (emulator) we need to set a token provider. this way an arm
@@ -61,8 +69,6 @@ namespace TeamCloud.Orchestrator
 
                         configuration.SetDeploymentTokenProvider<AzureDeploymentTokenProvider>();
                     }
-
-                    configuration.SetDeploymentArtifactsProvider<AzureStorageArtifactsProvider>();
                 });
         }
 

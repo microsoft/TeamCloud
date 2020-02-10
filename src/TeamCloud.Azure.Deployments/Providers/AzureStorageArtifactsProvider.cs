@@ -11,7 +11,7 @@ using Flurl;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 
-namespace TeamCloud.Azure.Deployments.Providers
+namespace TeamCloud.Azure.Deployment.Providers
 {
     public class AzureStorageArtifactsProvider : IAzureDeploymentArtifactsProvider
     {

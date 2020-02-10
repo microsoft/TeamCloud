@@ -17,12 +17,14 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.1.1" />
     <PackageReference Include="Microsoft.Graph" Version="1.21.0" />
     <PackageReference Include="Microsoft.Graph.Auth" Version="1.0.0-preview.2" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.1" />
     <PackageReference Include="System.Interactive.Async" Version="4.0.0" />
     <PackageReference Include="YamlDotNet" Version="8.1.0" />
     <PackageReference Include="System.Linq.Async" Version="4.0.0" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\TeamCloud.Azure.Deployments\TeamCloud.Azure.Deployment.csproj" />
+    <ProjectReference Include="..\TeamCloud.Azure.Directory\TeamCloud.Azure.Directory.csproj" />
     <ProjectReference Include="..\TeamCloud.Azure\TeamCloud.Azure.csproj" />
     <ProjectReference Include="..\TeamCloud.Configuration\TeamCloud.Configuration.csproj" />
     <ProjectReference Include="..\TeamCloud.Data\TeamCloud.Data.csproj" />
