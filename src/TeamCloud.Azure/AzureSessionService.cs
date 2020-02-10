@@ -9,7 +9,6 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Flurl.Http.Configuration;
-using System.Linq;
 using System.Net.Http;
 
 namespace TeamCloud.Azure

@@ -51,13 +51,13 @@ namespace TeamCloud.Azure.Deployments
             AzureDeploymentState.Failed
         };
 
-        private readonly IAzureSessionService azureSessionFactory;
+        private readonly IAzureSessionService azureSessionService;
         private JObject deploymentJsonFinal = null;
 
-        internal AzureDeployment(string resourceId, IAzureSessionService azureSessionFactory)
+        internal AzureDeployment(string resourceId, IAzureSessionService azureSessionService)
         {
             ResourceId = resourceId?.TrimEnd('/') ?? throw new ArgumentNullException(nameof(resourceId));
-            this.azureSessionFactory = azureSessionFactory ?? throw new ArgumentNullException(nameof(azureSessionFactory));
+            this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
         }
 
         public string ResourceId { get; }
@@ -69,7 +69,7 @@ namespace TeamCloud.Azure.Deployments
 
             try
             {
-                var token = await azureSessionFactory
+                var token = await azureSessionService
                     .AcquireTokenAsync(AzureAuthorities.AzureResourceManager)
                     .ConfigureAwait(false);
 
@@ -112,7 +112,7 @@ namespace TeamCloud.Azure.Deployments
 
             while (!string.IsNullOrEmpty(url))
             {
-                var token = await azureSessionFactory
+                var token = await azureSessionService
                     .AcquireTokenAsync(AzureAuthorities.AzureResourceManager)
                     .ConfigureAwait(false);
 
@@ -218,7 +218,7 @@ namespace TeamCloud.Azure.Deployments
             var deploymentIds = await GetDeploymentIdsByCorrelationIdAsync(correlationId)
                 .ConfigureAwait(false);
 
-            var token = await azureSessionFactory
+            var token = await azureSessionService
                 .AcquireTokenAsync(AzureAuthorities.AzureResourceManager)
                 .ConfigureAwait(false);
 
