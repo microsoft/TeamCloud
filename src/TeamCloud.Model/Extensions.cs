@@ -52,5 +52,17 @@ namespace TeamCloud.Model.Commands
             TeamCloudUserDeleteCommand c => new ProviderTeamCloudUserDeleteCommand(c.CommandId, provider.Id, c.User, c.Payload),
             _ => throw new NotSupportedException()
         };
+
+        public static string LocationPath(this ICommandResult commandResult, Guid? projectId) => commandResult switch
+        {
+            ProjectCreateCommandResult _ => $"api/projects/{projectId}",
+            ProjectUpdateCommandResult _ => $"api/projects/{projectId}",
+            ProjectUserCreateCommandResult result => $"api/projects/{projectId}/users/{result.Result.Id}",
+            ProjectUserUpdateCommandResult result => $"api/projects/{projectId}/users/{result.Result.Id}",
+            TeamCloudCreateCommandResult _ => $"api/config",
+            TeamCloudUserCreateCommandResult result => $"api/users/{result.Result.Id}",
+            TeamCloudUserUpdateCommandResult result => $"api/users/{result.Result.Id}",
+            _ => null
+        };
     }
 }

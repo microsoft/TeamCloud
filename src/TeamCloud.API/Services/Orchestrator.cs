@@ -47,21 +47,13 @@ namespace TeamCloud.API.Services
                 commandResult.Links.Add("status", new Uri(baseUrl, $"api/status/{commandResult.CommandId}").ToString());
             }
 
-            commandResult.Links.Add("location", new Uri(baseUrl, GetLocation(commandResult, projectId)).ToString());
+            var locationPath = commandResult.LocationPath(projectId);
+
+            if (!string.IsNullOrEmpty(locationPath))
+            {
+                commandResult.Links.Add("location", new Uri(baseUrl, locationPath).ToString());
+            }
         }
-
-        private string GetLocation(ICommandResult commandResult, Guid? projectId) => (commandResult) switch
-        {
-            ProjectCreateCommandResult _ => $"api/projects/{projectId}",
-            ProjectUpdateCommandResult _ => $"api/projects/{projectId}",
-            ProjectUserCreateCommandResult result => $"api/projects/{projectId}/users/{result.Result.Id}",
-            ProjectUserUpdateCommandResult result => $"api/projects/{projectId}/users/{result.Result.Id}",
-            TeamCloudCreateCommandResult _ => $"api/config",
-            TeamCloudUserCreateCommandResult result => $"api/users/{result.Result.Id}",
-            TeamCloudUserUpdateCommandResult result => $"api/users/{result.Result.Id}",
-            _ => null
-        };
-
 
         public async Task<ICommandResult> QueryAsync(Guid commandId, Guid? projectId)
         {
@@ -74,7 +66,8 @@ namespace TeamCloud.API.Services
 
             var result = JsonConvert.DeserializeObject<ICommandResult>(resultJson);
 
-            SetResultLinks(result, projectId);
+            if (result != null)
+                SetResultLinks(result, projectId);
 
             return result;
         }

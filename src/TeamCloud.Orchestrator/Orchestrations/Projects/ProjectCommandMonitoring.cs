@@ -67,9 +67,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
                 return false; // orchestration is not active
             }
 
-            // orchstration is active (has not reached final state)
-
-            return true;
+            return true; // orchstration is active (has not reached final state)
         }
     }
 }
