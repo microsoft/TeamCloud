@@ -1,0 +1,390 @@
+{
+	"folders": [
+		{
+			"name": "API",
+			"path": "src/TeamCloud.API"
+		},
+		{
+			"name": "Azure",
+			"path": "src/TeamCloud.Azure"
+		},
+		{
+			"name": "Configuration",
+			"path": "src/TeamCloud.Configuration"
+		},
+		{
+			"name": "Data",
+			"path": "src/TeamCloud.Data"
+		},
+		{
+			"name": "Http",
+			"path": "src/TeamCloud.Http"
+		},
+		{
+			"name": "Model",
+			"path": "src/TeamCloud.Model"
+		},
+		{
+			"name": "Model.Validation",
+			"path": "src/TeamCloud.Model.Validation"
+		},
+		{
+			"name": "Orchestrator",
+			"path": "src/TeamCloud.Orchestrator"
+		},
+		{
+			"name": "[Tests] Azure",
+			"path": "src/TeamCloud.Azure.Tests"
+		},
+		{
+			"name": "[Tests] Model.Validation",
+			"path": "src/TeamCloud.Model.Validation.Tests"
+		},
+		{
+			"path": "deploy"
+		}
+	],
+	"settings": {
+		"files.exclude": {
+			"**/bin": true,
+			"**/obj": true,
+			"**/.git": true,
+			"**/.DS_Store": true
+		}
+	},
+	"launch": {
+		"configurations": [],
+		"compounds": [
+			{
+				"name": "Run TeamCloud ALL",
+				"configurations": [
+					"TeamCloud.API",
+					"TeamCloud.Orchestrator"
+				],
+				"preLaunchTask": "buildAll"
+			}
+		]
+	},
+	"tasks": {
+		"version": "2.0.0",
+		"tasks": [
+			{
+				"label": "cleanAzure",
+				"command": "dotnet",
+				"args": [
+					"clean",
+					"${workspaceFolder:Azure}/TeamCloud.Azure.csproj",
+					"/property:GenerateFullPaths=true",
+					"/consoleloggerparameters:NoSummary",
+				],
+				"type": "process",
+				"problemMatcher": "$msCompile",
+				"options": {
+					"cwd": "${workspaceFolder:Azure}"
+				},
+				"presentation": {
+					"group": "buildAll",
+					"showReuseMessage": false
+				}
+			},
+			{
+				"label": "cleanConfig",
+				"command": "dotnet",
+				"args": [
+					"clean",
+					"${workspaceFolder:Configuration}/TeamCloud.Configuration.csproj",
+					"/property:GenerateFullPaths=true",
+					"/consoleloggerparameters:NoSummary",
+				],
+				"type": "process",
+				"problemMatcher": "$msCompile",
+				"options": {
+					"cwd": "${workspaceFolder:Configuration}"
+				},
+				"presentation": {
+					"group": "buildAll",
+					"showReuseMessage": false
+				}
+			},
+			{
+				"label": "cleanData",
+				"command": "dotnet",
+				"args": [
+					"clean",
+					"${workspaceFolder:Data}/TeamCloud.Data.csproj",
+					"/property:GenerateFullPaths=true",
+					"/consoleloggerparameters:NoSummary",
+				],
+				"type": "process",
+				"problemMatcher": "$msCompile",
+				"options": {
+					"cwd": "${workspaceFolder:Data}"
+				},
+				"presentation": {
+					"group": "buildAll",
+					"showReuseMessage": false
+				}
+			},
+			{
+				"label": "cleanHttp",
+				"command": "dotnet",
+				"args": [
+					"clean",
+					"${workspaceFolder:Http}/TeamCloud.Http.csproj",
+					"/property:GenerateFullPaths=true",
+					"/consoleloggerparameters:NoSummary",
+				],
+				"type": "process",
+				"problemMatcher": "$msCompile",
+				"options": {
+					"cwd": "${workspaceFolder:Http}"
+				},
+				"presentation": {
+					"group": "buildAll",
+					"showReuseMessage": false
+				}
+			},
+			{
+				"label": "cleanModel",
+				"command": "dotnet",
+				"args": [
+					"clean",
+					"${workspaceFolder:Model}/TeamCloud.Model.csproj",
+					"/property:GenerateFullPaths=true",
+					"/consoleloggerparameters:NoSummary",
+				],
+				"type": "process",
+				"problemMatcher": "$msCompile",
+				"options": {
+					"cwd": "${workspaceFolder:Model}"
+				},
+				"presentation": {
+					"group": "buildAll",
+					"showReuseMessage": false
+				}
+			},
+			{
+				"label": "cleanModelVal",
+				"command": "dotnet",
+				"args": [
+					"clean",
+					"${workspaceFolder:Model.Validation}/TeamCloud.Model.Validation.csproj",
+					"/property:GenerateFullPaths=true",
+					"/consoleloggerparameters:NoSummary",
+				],
+				"type": "process",
+				"problemMatcher": "$msCompile",
+				"options": {
+					"cwd": "${workspaceFolder:Model.Validation}"
+				},
+				"presentation": {
+					"group": "buildAll",
+					"showReuseMessage": false
+				}
+			},
+			{
+				"label": "buildAzure",
+				"command": "dotnet",
+				"args": [
+					"build",
+					"${workspaceFolder:Azure}/TeamCloud.Azure.csproj",
+					"--no-dependencies",
+					"/property:GenerateFullPaths=true",
+					"/consoleloggerparameters:NoSummary"
+				],
+				"type": "process",
+				"dependsOn": "cleanAzure",
+				"group": {
+					"kind": "build",
+					"isDefault": true
+				},
+				"problemMatcher": "$msCompile",
+				"options": {
+					"cwd": "${workspaceFolder:Azure}"
+				},
+				"presentation": {
+					"group": "buildAll",
+					"showReuseMessage": false
+				}
+			},
+			{
+				"label": "buildConfig",
+				"command": "dotnet",
+				"args": [
+					"build",
+					"${workspaceFolder:Configuration}/TeamCloud.Configuration.csproj",
+					"--no-dependencies",
+					"/property:GenerateFullPaths=true",
+					"/consoleloggerparameters:NoSummary"
+				],
+				"type": "process",
+				"dependsOn": "cleanConfig",
+				"group": {
+					"kind": "build",
+					"isDefault": true
+				},
+				"problemMatcher": "$msCompile",
+				"options": {
+					"cwd": "${workspaceFolder:Configuration}"
+				},
+				"presentation": {
+					"group": "buildAll",
+					"showReuseMessage": false
+				}
+			},
+			{
+				"label": "buildData",
+				"command": "dotnet",
+				"args": [
+					"build",
+					"${workspaceFolder:Data}/TeamCloud.Data.csproj",
+					"--no-dependencies",
+					"/property:GenerateFullPaths=true",
+					"/consoleloggerparameters:NoSummary"
+				],
+				"type": "process",
+				"group": {
+					"kind": "build",
+					"isDefault": true
+				},
+				"problemMatcher": "$msCompile",
+				"options": {
+					"cwd": "${workspaceFolder:Data}"
+				},
+				"presentation": {
+					"group": "buildAll",
+					"showReuseMessage": false
+				}
+			},
+			{
+				"label": "buildHttp",
+				"command": "dotnet",
+				"args": [
+					"build",
+					"${workspaceFolder:Http}/TeamCloud.Http.csproj",
+					"--no-dependencies",
+					"/property:GenerateFullPaths=true",
+					"/consoleloggerparameters:NoSummary"
+				],
+				"type": "process",
+				"dependsOn": "cleanHttp",
+				"group": {
+					"kind": "build",
+					"isDefault": true
+				},
+				"problemMatcher": "$msCompile",
+				"options": {
+					"cwd": "${workspaceFolder:Http}"
+				},
+				"presentation": {
+					"group": "buildAll",
+					"showReuseMessage": false
+				}
+			},
+			{
+				"label": "buildModel",
+				"command": "dotnet",
+				"args": [
+					"build",
+					"${workspaceFolder:Model}/TeamCloud.Model.csproj",
+					"--no-dependencies",
+					"/property:GenerateFullPaths=true",
+					"/consoleloggerparameters:NoSummary"
+				],
+				"type": "process",
+				"group": {
+					"kind": "build",
+					"isDefault": true
+				},
+				"problemMatcher": "$msCompile",
+				"options": {
+					"cwd": "${workspaceFolder:Model}"
+				},
+				"presentation": {
+					"group": "buildAll",
+					"showReuseMessage": false
+				}
+			},
+			{
+				"label": "buildModelVal",
+				"command": "dotnet",
+				"args": [
+					"build",
+					"${workspaceFolder:Model.Validation}/TeamCloud.Model.Validation.csproj",
+					"--no-dependencies",
+					"/property:GenerateFullPaths=true",
+					"/consoleloggerparameters:NoSummary"
+				],
+				"type": "process",
+				"group": {
+					"kind": "build",
+					"isDefault": true
+				},
+				"problemMatcher": "$msCompile",
+				"options": {
+					"cwd": "${workspaceFolder:Model.Validation}"
+				},
+				"presentation": {
+					"group": "buildAll",
+					"showReuseMessage": false
+				}
+			},
+			{
+				"label": "cleanModelDependents",
+				"command": "echo",
+				"args": [
+					"cleanModelDependents"
+				],
+				"type": "process",
+				"dependsOn": [
+					"cleanModelVal",
+					"cleanData",
+					"cleanModel"
+				],
+				"dependsOrder": "parallel",
+				"presentation": {
+					"group": "buildAll",
+					"showReuseMessage": false
+				}
+			},
+			{
+				"label": "buildModelDependents",
+				"command": "echo",
+				"args": [
+					"buildModelDependents"
+				],
+				"type": "process",
+				"dependsOn": [
+					"cleanModelDependents",
+					"buildModel",
+					"buildModelVal",
+					"buildData"
+				],
+				"dependsOrder": "sequence",
+				"presentation": {
+					"group": "buildAll",
+					"showReuseMessage": false
+				}
+			},
+			{
+				"label": "buildAll",
+				"command": "echo",
+				"args": [
+					"buildAll"
+				],
+				"type": "process",
+				"dependsOn": [
+					"buildModelDependents",
+					"buildAzure",
+					"buildConfig",
+					"buildHttp"
+				],
+				"dependsOrder": "parallel",
+				"presentation": {
+					"group": "buildAll",
+					"showReuseMessage": false
+				}
+			}
+		]
+	}
+}

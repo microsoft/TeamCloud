@@ -50,7 +50,7 @@ namespace TeamCloud.API.Controllers
         {
             if (result is null)
                 return ErrorResult
-                    .NotFound($"A status with the provided Id was not found.")
+                    .NotFound($"A status for the provided Tracking Id was not found.")
                     .ActionResult();
 
             result.Links.TryGetValue("status", out var status);
