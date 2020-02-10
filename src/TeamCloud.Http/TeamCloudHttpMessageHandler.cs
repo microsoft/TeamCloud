@@ -44,11 +44,11 @@ namespace TeamCloud.Http
                     responseTime.Stop();
                 }
 
-                Debug.WriteLine($"<<< {request.Method.ToString().ToUpperInvariant()} {request.RequestUri} ({response.StatusCode} - {responseTime.Elapsed})");
+                Debug.WriteLine($"<<< {request.Method.ToString().ToUpperInvariant()} {request.RequestUri} {response.StatusCode} ({responseTime.ElapsedMilliseconds} msec)");
             }
             else
             {
-                Debug.WriteLine($"<=> {request.Method.ToString().ToUpperInvariant()} {request.RequestUri} (Flurl redirect)");
+                Debug.WriteLine($"<=> {request.Method.ToString().ToUpperInvariant()} {request.RequestUri}");
 
                 response = await request.RequestUri.ToString()
                     .AllowAnyHttpStatus()

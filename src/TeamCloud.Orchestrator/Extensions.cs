@@ -77,26 +77,6 @@ namespace TeamCloud.Orchestrator
         internal static IEnumerable<Task<ICommandResult>> GetProviderCommandTasks(this List<Provider> providers, ICommand command, IDurableOrchestrationContext functionContext)
             => providers.Select(provider => functionContext.CallSubOrchestratorAsync<ICommandResult>(nameof(ProviderCommandOrchestration), (provider, command.GetProviderCommand(provider))));
 
-        internal static async Task<JObject> GetJObjectAsync(this Url url, CancellationToken cancellationToken = default, HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead)
-        {
-            var json = await url.GetJsonAsync(cancellationToken, completionOption).ConfigureAwait(false);
-
-            return JObject.FromObject(json);
-        }
-
-        internal static async Task<JObject> GetJObjectAsync(this IFlurlRequest request, CancellationToken cancellationToken = default, HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead)
-        {
-            var json = await request.GetJsonAsync(cancellationToken, completionOption).ConfigureAwait(false);
-
-            return JObject.FromObject(json);
-        }
-
-        internal static async Task<JObject> GetJObjectAsync(this string url, CancellationToken cancellationToken = default, HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead)
-        {
-            var json = await url.GetJsonAsync(cancellationToken, completionOption).ConfigureAwait(false);
-
-            return JObject.FromObject(json);
-        }
 
         internal static bool IsDevelopmentStorage(this CloudStorageAccount cloudStorageAccount)
             => (bool)IsDevStoreAccountProperty.GetValue(cloudStorageAccount);

@@ -11,6 +11,7 @@ using Flurl;
 using Flurl.Http;
 using Microsoft.Azure.Management.ResourceManager.Fluent;
 using Newtonsoft.Json.Linq;
+using TeamCloud.Http;
 
 namespace TeamCloud.Azure.Deployments
 {

@@ -3,13 +3,14 @@
  *  Licensed under the MIT License.
  */
 
-using Flurl;
-using Flurl.Http;
-using Microsoft.Azure.Management.Graph.RBAC.Fluent;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Flurl;
+using Flurl.Http;
+using Microsoft.Azure.Management.Graph.RBAC.Fluent;
+using TeamCloud.Http;
 
 namespace TeamCloud.Azure
 {

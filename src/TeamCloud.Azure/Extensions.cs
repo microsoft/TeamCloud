@@ -53,13 +53,6 @@ namespace TeamCloud.Azure
         internal static bool IsDevelopmentStorage(this CloudStorageAccount account)
             => (bool)IsDevStoreAccountProperty.GetValue(account);
 
-        internal static async Task<JObject> GetJObjectAsync(this IFlurlRequest request)
-        {
-            var json = await request.GetJsonAsync().ConfigureAwait(false);
-
-            return json is null ? null : JObject.FromObject(json);
-        }
-
         internal static IDictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> collection)
             => new Dictionary<TKey, TValue>(collection);
 
