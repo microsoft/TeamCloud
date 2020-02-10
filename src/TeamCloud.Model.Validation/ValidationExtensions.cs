@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.Extensions.DependencyInjection;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
 
@@ -42,6 +43,33 @@ namespace TeamCloud.Model.Validation
             return new ValidationResult();
         }
 
+        public static ValidationResult Validate<T>(this IValidatable validatable, IServiceProvider serviceProvider = null, bool throwOnNotValidable = false, bool throwOnValidationError = false)
+            where T : class, IValidator
+        {
+            if (validatable is null)
+                throw new ArgumentNullException(nameof(validatable));
+
+            var validator = serviceProvider is null
+                ? Activator.CreateInstance<T>()
+                : ActivatorUtilities.CreateInstance<T>(serviceProvider);
+
+            if (validator.CanValidateInstancesOfType(validatable.GetType()))
+            {
+                var validationResult = validator.Validate(validatable);
+
+                if (!validationResult.IsValid && throwOnValidationError)
+                    throw validationResult.ToException();
+
+                return validationResult;
+            }
+            else if (throwOnNotValidable)
+            {
+                throw new NotSupportedException($"Validator or type {typeof(T)} does not support objects of type {validatable.GetType()}");
+            }
+
+            return new ValidationResult();
+        }
+
         public static async Task<ValidationResult> ValidateAsync(this IValidatable validatable, IValidatorFactory validatorFactory = null, IServiceProvider serviceProvider = null, bool throwOnNoValidatorFound = false, bool throwOnValidationError = false)
         {
             if (validatable is null)
@@ -69,6 +97,35 @@ namespace TeamCloud.Model.Validation
 
             if (throwOnNoValidatorFound)
                 throw new NotSupportedException($"Validation of type {validatable.GetType()} is not supported");
+
+            return new ValidationResult();
+        }
+
+        public static async Task<ValidationResult> ValidateAsync<T>(this IValidatable validatable, IServiceProvider serviceProvider = null, bool throwOnNotValidable = false, bool throwOnValidationError = false)
+            where T : class, IValidator
+        {
+            if (validatable is null)
+                throw new ArgumentNullException(nameof(validatable));
+
+            var validator = serviceProvider is null
+                ? Activator.CreateInstance<T>()
+                : ActivatorUtilities.CreateInstance<T>(serviceProvider);
+
+            if (validator.CanValidateInstancesOfType(validatable.GetType()))
+            {
+                var validationResult = await validator
+                .ValidateAsync(validatable)
+                .ConfigureAwait(false);
+
+                if (!validationResult.IsValid && throwOnValidationError)
+                    throw validationResult.ToException();
+
+                return validationResult;
+            }
+            else if (throwOnNotValidable)
+            {
+                throw new NotSupportedException($"Validator or type {typeof(T)} does not support objects of type {validatable.GetType()}");
+            }
 
             return new ValidationResult();
         }
