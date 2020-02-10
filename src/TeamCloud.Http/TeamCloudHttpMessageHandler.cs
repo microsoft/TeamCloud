@@ -4,7 +4,6 @@
  */
 
 using System.Diagnostics;
-using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -52,8 +51,8 @@ namespace TeamCloud.Http
                 Debug.WriteLine($"<=> {request.Method.ToString().ToUpperInvariant()} {request.RequestUri} (Flurl redirect)");
 
                 response = await request.RequestUri.ToString()
-                    .AllowAnyHttpStatus() 
-                    .WithHeader("Authorization", request.Headers.Authorization?.ToString())
+                    .AllowAnyHttpStatus()
+                    .WithHeaders(request.Headers)
                     .SendAsync(request.Method, request.Content, cancellationToken)
                     .ConfigureAwait(false);
             }

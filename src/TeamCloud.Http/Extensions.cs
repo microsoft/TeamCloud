@@ -4,6 +4,9 @@
  */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http.Headers;
 using Flurl.Http;
 using Flurl.Http.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,6 +30,18 @@ namespace TeamCloud.Http
             });
 
             return services;
+        }
+
+        internal static T WithHeaders<T>(this T clientOrRequest, HttpHeaders headers)
+            where T : IHttpSettingsContainer
+        {
+            if (headers == null)
+                return clientOrRequest;
+
+            foreach (var header in headers ?? Enumerable.Empty<KeyValuePair<string, IEnumerable<string>>>())
+                clientOrRequest.WithHeader(header.Key, header.Value);
+
+            return clientOrRequest;
         }
     }
 }
