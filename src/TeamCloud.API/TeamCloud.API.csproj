@@ -23,7 +23,7 @@
     <PackageReference Include="System.Linq.Async" Version="4.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\TeamCloud.Azure.Deployments\TeamCloud.Azure.Deployment.csproj" />
+    <ProjectReference Include="..\TeamCloud.Azure.Deployment\TeamCloud.Azure.Deployment.csproj" />
     <ProjectReference Include="..\TeamCloud.Azure.Directory\TeamCloud.Azure.Directory.csproj" />
     <ProjectReference Include="..\TeamCloud.Azure\TeamCloud.Azure.csproj" />
     <ProjectReference Include="..\TeamCloud.Configuration\TeamCloud.Configuration.csproj" />
