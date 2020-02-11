@@ -5,20 +5,19 @@
 
 using System;
 using System.Threading.Tasks;
-using TeamCloud.Azure.Deployment;
-using TeamCloud.Azure.Deployment.Providers;
 using TeamCloud.Http;
-using TeamCloud.Orchestrator.API;
 
-namespace TeamCloud.Orchestrator.Providers
+namespace TeamCloud.Azure.Deployment.Providers
 {
-    public class AzureDeploymentTokenProvider : IAzureDeploymentTokenProvider
+    public sealed class AzureFunctionsTokenProvider : IAzureDeploymentTokenProvider
     {
         private readonly IAzureStorageArtifactsOptions azureStorageArtifactsOptions;
+        private readonly string functionName;
 
-        public AzureDeploymentTokenProvider(IAzureStorageArtifactsOptions azureStorageArtifactsOptions)
+        public AzureFunctionsTokenProvider(IAzureStorageArtifactsOptions azureStorageArtifactsOptions, string functionName)
         {
             this.azureStorageArtifactsOptions = azureStorageArtifactsOptions ?? throw new ArgumentNullException(nameof(azureStorageArtifactsOptions));
+            this.functionName = functionName ?? throw new ArgumentNullException(nameof(functionName));
         }
 
         public async Task<string> AcquireToken(Guid deploymentId, IAzureDeploymentArtifactsProvider azureDeploymentArtifactsProvider)
@@ -31,7 +30,7 @@ namespace TeamCloud.Orchestrator.Providers
             if (hostname.StartsWith("localhost", StringComparison.OrdinalIgnoreCase))
                 return null;
 
-            var json = await $"https://{hostname}/admin/functions/{nameof(ArtifactTrigger)}/keys"
+            var json = await $"https://{hostname}/admin/functions/{functionName}/keys"
                 .GetJObjectAsync()
                 .ConfigureAwait(false);
 

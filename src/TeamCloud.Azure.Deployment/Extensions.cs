@@ -3,6 +3,7 @@
  *  Licensed under the MIT License.
  */
 
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reflection;
@@ -29,9 +30,15 @@ namespace TeamCloud.Azure.Deployment
             where T : class, IAzureDeploymentArtifactsProvider
             => azureConfiguration.AddDeployment().Services.AddSingleton<IAzureDeploymentArtifactsProvider, T>();
 
+        public static void SetDeploymentArtifactsProvider(this IAzureConfiguration azureConfiguration, Func<IServiceProvider, IAzureDeploymentArtifactsProvider> implementationInstance)
+            => azureConfiguration.AddDeployment().Services.AddSingleton(implementationInstance);
+
         public static void SetDeploymentTokenProvider<T>(this IAzureConfiguration azureConfiguration)
             where T : class, IAzureDeploymentTokenProvider
             => azureConfiguration.AddDeployment().Services.AddSingleton<IAzureDeploymentTokenProvider, T>();
+
+        public static void SetDeploymentTokenProvider(this IAzureConfiguration azureConfiguration, Func<IServiceProvider, IAzureDeploymentTokenProvider> implementationInstance)
+            => azureConfiguration.AddDeployment().Services.AddSingleton(implementationInstance);
 
         internal static IDictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> collection)
             => new Dictionary<TKey, TValue>(collection);
