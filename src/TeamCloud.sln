@@ -27,7 +27,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamCloud.Model.Validation.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamCloud.Http", "TeamCloud.Http\TeamCloud.Http.csproj", "{0A2493BE-E919-4771-A41A-4F3B68FD579A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamCloud.Azure.Deployment", "TeamCloud.Azure.Deployments\TeamCloud.Azure.Deployment.csproj", "{B9B2847C-0C90-451F-8D13-EDA4441C95AE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamCloud.Azure.Deployment", "TeamCloud.Azure.Deployment\TeamCloud.Azure.Deployment.csproj", "{B9B2847C-0C90-451F-8D13-EDA4441C95AE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeamCloud.Azure.Directory", "TeamCloud.Azure.Directory\TeamCloud.Azure.Directory.csproj", "{38DEB222-5BBF-48AB-9CF0-3D132D580734}"
 EndProject
