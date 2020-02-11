@@ -1,6 +1,12 @@
-﻿using System.Collections.Generic;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
+
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reflection;
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.WindowsAzure.Storage;
@@ -38,5 +44,23 @@ namespace TeamCloud.Azure.Deployment
 
         internal static IReadOnlyDictionary<TKey, TValue> AsReadOnly<TKey, TValue>(this IDictionary<TKey, TValue> dictionary)
             => new ReadOnlyDictionary<TKey, TValue>(dictionary);
+
+        public static async Task<IReadOnlyDictionary<string, object>> WaitAndGetOutputAsync(this IAzureDeployment azureDeployment, bool throwOnError = false, bool cleanUp = false)
+        {
+            var deploymentOutput = default(IReadOnlyDictionary<string, object>);
+
+            var deploymentState = await azureDeployment
+                .WaitAsync(throwOnError: throwOnError)
+                .ConfigureAwait(false);
+
+            if (deploymentState == AzureDeploymentState.Succeeded)
+            {
+                deploymentOutput = await azureDeployment
+                    .GetOutputAsync()
+                    .ConfigureAwait(false);
+            }
+
+            return deploymentOutput;
+        }
     }
 }
