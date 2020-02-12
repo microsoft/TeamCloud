@@ -33,10 +33,10 @@ namespace TeamCloud.Azure.Directory
         private async Task<string> GetDefaultDomainAsync()
         {
             var token = await azureSessionService
-                .AcquireTokenAsync(AzureAuthorities.AzureGraph)
+                .AcquireTokenAsync(AzureEndpoint.GraphEndpoint)
                 .ConfigureAwait(false);
 
-            var json = await AzureAuthorities.AzureGraph
+            var json = await azureSessionService.Environment.GraphEndpoint
                 .AppendPathSegment($"{azureSessionService.Options.TenantId}/tenantDetails")
                 .SetQueryParam("api-version", "1.6")
                 .WithOAuthBearerToken(token)
@@ -48,10 +48,10 @@ namespace TeamCloud.Azure.Directory
         private async Task<IEnumerable<string>> GetVerifiedDomainsAsync()
         {
             var token = await azureSessionService
-                .AcquireTokenAsync(AzureAuthorities.AzureGraph)
+                .AcquireTokenAsync(AzureEndpoint.GraphEndpoint)
                 .ConfigureAwait(false);
 
-            var json = await AzureAuthorities.AzureGraph
+            var json = await azureSessionService.Environment.GraphEndpoint
                 .AppendPathSegment($"{azureSessionService.Options.TenantId}/tenantDetails")
                 .SetQueryParam("api-version", "1.6")
                 .WithOAuthBearerToken(token)

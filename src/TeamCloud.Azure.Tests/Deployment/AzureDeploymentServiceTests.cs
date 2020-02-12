@@ -20,7 +20,7 @@ namespace TeamCloud.Azure.Tests.Deployment
         public async Task WaitForDeployment()
         {
             var azureSessionFactory = Substitute.For<IAzureSessionService>();
-            azureSessionFactory.AcquireTokenAsync(AzureAuthorities.AzureResourceManager).Returns(Guid.NewGuid().ToString());
+            azureSessionFactory.AcquireTokenAsync().Returns(Guid.NewGuid().ToString());
 
             var azureDeploymentArtifactContainer = Substitute.For<IAzureDeploymentArtifactsContainer>();
             azureDeploymentArtifactContainer.Location.Returns("http://storage.com");
@@ -53,7 +53,7 @@ namespace TeamCloud.Azure.Tests.Deployment
         public async Task WaitForDeploymentWithThrowOnError()
         {
             var azureSessionFactory = Substitute.For<IAzureSessionService>();
-            azureSessionFactory.AcquireTokenAsync(AzureAuthorities.AzureResourceManager).Returns(Guid.NewGuid().ToString());
+            azureSessionFactory.AcquireTokenAsync().Returns(Guid.NewGuid().ToString());
 
             var azureDeploymentArtifactContainer = Substitute.For<IAzureDeploymentArtifactsContainer>();
             azureDeploymentArtifactContainer.Location.Returns("http://storage.com");
@@ -88,7 +88,7 @@ namespace TeamCloud.Azure.Tests.Deployment
         public async Task WaitForDeploymentWithCleanUp()
         {
             var azureSessionFactory = Substitute.For<IAzureSessionService>();
-            azureSessionFactory.AcquireTokenAsync(AzureAuthorities.AzureResourceManager).Returns(Guid.NewGuid().ToString());
+            azureSessionFactory.AcquireTokenAsync().Returns(Guid.NewGuid().ToString());
 
             var azureDeploymentArtifactContainer = Substitute.For<IAzureDeploymentArtifactsContainer>();
             azureDeploymentArtifactContainer.Location.Returns("http://storage.com");
@@ -124,7 +124,7 @@ namespace TeamCloud.Azure.Tests.Deployment
         public async Task GetDeploymentOutput()
         {
             var azureSessionFactory = Substitute.For<IAzureSessionService>();
-            azureSessionFactory.AcquireTokenAsync(AzureAuthorities.AzureResourceManager).Returns(Guid.NewGuid().ToString());
+            azureSessionFactory.AcquireTokenAsync().Returns(Guid.NewGuid().ToString());
 
             var azureDeploymentArtifactContainer = Substitute.For<IAzureDeploymentArtifactsContainer>();
             azureDeploymentArtifactContainer.Location.Returns("http://storage.com");
@@ -164,7 +164,7 @@ namespace TeamCloud.Azure.Tests.Deployment
         public async Task GetDeploymentOutputWhileRunning()
         {
             var azureSessionFactory = Substitute.For<IAzureSessionService>();
-            azureSessionFactory.AcquireTokenAsync(AzureAuthorities.AzureResourceManager).Returns(Guid.NewGuid().ToString());
+            azureSessionFactory.AcquireTokenAsync().Returns(Guid.NewGuid().ToString());
 
             var azureDeploymentArtifactContainer = Substitute.For<IAzureDeploymentArtifactsContainer>();
             azureDeploymentArtifactContainer.Location.Returns("http://storage.com");

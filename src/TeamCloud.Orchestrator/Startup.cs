@@ -17,6 +17,7 @@ using Microsoft.Extensions.Hosting;
 using TeamCloud.Azure;
 using TeamCloud.Azure.Deployment;
 using TeamCloud.Azure.Deployment.Providers;
+using TeamCloud.Azure.Resources;
 using TeamCloud.Configuration;
 using TeamCloud.Data;
 using TeamCloud.Data.CosmosDb;
@@ -43,13 +44,17 @@ namespace TeamCloud.Orchestrator
 
             builder.Services
                 .AddScoped<IProjectsRepository, CosmosDbProjectsRepository>()
+                .AddTransient<IProjectsRepositoryReadOnly>(provider => provider.GetRequiredService<IProjectsRepository>())
                 .AddScoped<ITeamCloudRepository, CosmosDbTeamCloudRepository>()
-                .AddScoped<IProjectTypesRepository, CosmosDbProjectTypesRepository>();
+                .AddTransient<ITeamCloudRepositoryReadOnly>(provider => provider.GetRequiredService<ITeamCloudRepository>())
+                .AddScoped<IProjectTypesRepository, CosmosDbProjectTypesRepository>()
+                .AddTransient<IProjectTypesRepositoryReadOnly>(provider => provider.GetRequiredService<IProjectTypesRepository>());
 
             builder.Services
                 .AddTeamCloudAzure(configuration =>
                 {
                     configuration
+                        .AddResources()
                         .AddDeployment()
                         .SetDeploymentArtifactsProvider<AzureStorageArtifactsProvider>();
                 });

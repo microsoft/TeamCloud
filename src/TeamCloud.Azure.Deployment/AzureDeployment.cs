@@ -70,10 +70,10 @@ namespace TeamCloud.Azure.Deployment
             try
             {
                 var token = await azureSessionService
-                    .AcquireTokenAsync(AzureAuthorities.AzureResourceManager)
+                    .AcquireTokenAsync()
                     .ConfigureAwait(false);
 
-                var json = await AzureAuthorities.AzureResourceManager
+                var json = await azureSessionService.Environment.ResourceManagerEndpoint
                     .AppendPathSegment(ResourceId)
                     .SetQueryParam("api-version", "2019-05-01")
                     .WithOAuthBearerToken(token)
@@ -106,14 +106,14 @@ namespace TeamCloud.Azure.Deployment
                 ResourceId
             };
 
-            var url = AzureAuthorities.AzureResourceManager
+            var url = azureSessionService.Environment.ResourceManagerEndpoint
                 .AppendPathSegment(ResourceId.Substring(0, ResourceId.LastIndexOf('/') + 1))
                 .ToString();
 
             while (!string.IsNullOrEmpty(url))
             {
                 var token = await azureSessionService
-                    .AcquireTokenAsync(AzureAuthorities.AzureResourceManager)
+                    .AcquireTokenAsync()
                     .ConfigureAwait(false);
 
                 var json = await url
@@ -219,10 +219,10 @@ namespace TeamCloud.Azure.Deployment
                 .ConfigureAwait(false);
 
             var token = await azureSessionService
-                .AcquireTokenAsync(AzureAuthorities.AzureResourceManager)
+                .AcquireTokenAsync()
                 .ConfigureAwait(false);
 
-            var tasks = deploymentIds.Select(deploymentId => AzureAuthorities.AzureResourceManager
+            var tasks = deploymentIds.Select(deploymentId => azureSessionService.Environment.ResourceManagerEndpoint
                 .AppendPathSegment(deploymentId)
                 .SetQueryParam("api-version", "2019-08-01")
                 .WithOAuthBearerToken(token)

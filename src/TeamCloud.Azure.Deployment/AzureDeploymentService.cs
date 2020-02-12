@@ -48,12 +48,12 @@ namespace TeamCloud.Azure.Deployment
                 : $"/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Resources/deployments/{deploymentId}";
 
             var token = await azureSessionService
-                .AcquireTokenAsync(AzureAuthorities.AzureResourceManager)
+                .AcquireTokenAsync()
                 .ConfigureAwait(false);
 
             try
             {
-                _ = await AzureAuthorities.AzureResourceManager
+                _ = await azureSessionService.Environment.ResourceManagerEndpoint
                     .AppendPathSegment(deploymentResourceId)
                     .SetQueryParam("api-version", "2019-05-01")
                     .WithOAuthBearerToken(token)
@@ -83,12 +83,12 @@ namespace TeamCloud.Azure.Deployment
                 : $"/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Resources/deployments/{deploymentId}/validate";
 
             var token = await azureSessionService
-                .AcquireTokenAsync(AzureAuthorities.AzureResourceManager)
+                .AcquireTokenAsync()
                 .ConfigureAwait(false);
 
             try
             {
-                _ = await AzureAuthorities.AzureResourceManager
+                _ = await azureSessionService.Environment.ResourceManagerEndpoint
                     .AppendPathSegment(deploymentResourceId)
                     .SetQueryParam("api-version", "2019-10-01")
                     .WithOAuthBearerToken(token)
@@ -152,10 +152,10 @@ namespace TeamCloud.Azure.Deployment
         private async Task<string> GetResourceGroupLocationAsync(Guid subscriptionId, string resourceGroupName)
         {
             var token = await azureSessionService
-                .AcquireTokenAsync(AzureAuthorities.AzureResourceManager)
+                .AcquireTokenAsync()
                 .ConfigureAwait(false);
 
-            var json = await AzureAuthorities.AzureResourceManager
+            var json = await azureSessionService.Environment.ResourceManagerEndpoint
                 .AppendPathSegment($"/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}")
                 .SetQueryParam("api-version", "2014-04-01")
                 .WithOAuthBearerToken(token)

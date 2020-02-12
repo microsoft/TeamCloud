@@ -3,6 +3,7 @@
  *  Licensed under the MIT License.
  */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -53,14 +54,26 @@ namespace TeamCloud.Data.CosmosDb
 
                 return response.Value;
             }
-            catch (CosmosException cosmosEx)
+            catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
             {
-                if (cosmosEx.Status == (int)HttpStatusCode.NotFound)
-                {
-                    return null;
-                }
-                throw;
+                return null;
             }
+        }
+
+        public async Task<int> GetInstanceCountAsync(string id, Guid? subscriptionId = null)
+        {
+            var container = await GetContainerAsync<Project>()
+                .ConfigureAwait(false);
+
+            var instances = container.GetItemQueryIterator<Project>()
+                .Where(project => project.Type.Id.Equals(id));
+
+            if (subscriptionId.HasValue)
+                instances = instances.Where(project => project.ResourceGroup?.SubscriptionId == subscriptionId.GetValueOrDefault());
+
+            return await instances
+                .CountAsync()
+                .ConfigureAwait(false);
         }
 
         public async Task<ProjectType> GetDefaultAsync()
@@ -78,13 +91,9 @@ namespace TeamCloud.Data.CosmosDb
 
                 return defaultType;
             }
-            catch (CosmosException cosmosEx)
+            catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
             {
-                if (cosmosEx.Status == (int)HttpStatusCode.NotFound)
-                {
-                    return null;
-                }
-                throw;
+                return null;
             }
         }
 

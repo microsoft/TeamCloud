@@ -67,6 +67,13 @@ namespace TeamCloud.Azure.Deployment
                     .ConfigureAwait(false);
             }
 
+            if (cleanUp)
+            {
+                await azureDeployment
+                    .DeleteAsync()
+                    .ConfigureAwait(false);
+            }
+
             return deploymentOutput;
         }
     }

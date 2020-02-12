@@ -4,24 +4,28 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Azure.Management.Fluent;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Microsoft.Rest.Azure;
 using TeamCloud.Azure;
+using TeamCloud.Azure.Deployment;
 using TeamCloud.Model.Data;
+using TeamCloud.Orchestrator.Templates;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Azure
 {
     public class AzureResourceGroupDeleteActivity
     {
+        private readonly IAzureDeploymentService azureDeploymentService;
         private readonly IAzureSessionService azureSessionService;
 
-        public AzureResourceGroupDeleteActivity(IAzureSessionService azure)
+        public AzureResourceGroupDeleteActivity(IAzureDeploymentService azureDeploymentService, IAzureSessionService azure)
         {
+            this.azureDeploymentService = azureDeploymentService ?? throw new ArgumentNullException(nameof(azureDeploymentService));
             this.azureSessionService = azure ?? throw new ArgumentNullException(nameof(azure));
         }
 
@@ -35,13 +39,13 @@ namespace TeamCloud.Orchestrator.Orchestrations.Azure
 
             try
             {
-                var azure = azureSessionService.CreateSession(azureResourceGroup.SubscriptionId);
-                await DeleteResourceGroupLocksAsync(azureResourceGroup, azure).ConfigureAwait(false);
-                await azure.ResourceGroups
-                    .DeleteByNameAsync(azureResourceGroup.ResourceGroupName)
+                await CleanupResourceGroupAsync(azureResourceGroup)
+                    .ConfigureAwait(false);
+
+                await DeleteResourceGroupAsync(azureResourceGroup)
                     .ConfigureAwait(false);
             }
-            catch (CloudException ex) when (ex.Body.Code.Equals("ResourceGroupNotFound", StringComparison.InvariantCultureIgnoreCase)) 
+            catch (CloudException ex) when (ex.Body.Code.Equals("ResourceGroupNotFound", StringComparison.InvariantCultureIgnoreCase))
             {
                 log.LogInformation($"Resource group '{azureResourceGroup.ResourceGroupName}' was not found in Azure, so nothing to delete.");
             }
@@ -52,34 +56,56 @@ namespace TeamCloud.Orchestrator.Orchestrations.Azure
             }
         }
 
-        private async Task DeleteResourceGroupLocksAsync(AzureResourceGroup azureResourceGroup, IAzure azure)
+        private async Task CleanupResourceGroupAsync(AzureResourceGroup azureResourceGroup)
         {
-            string[] ids = await GetResourceGroupLockIdsAsync(azureResourceGroup, azure).ConfigureAwait(false);
+            var template = new CleanupProjectTemplate();
 
-            if (ids.Length > 0)
-            {
-                int counter = 1;
-                do
-                {
-                    if (counter >= 10)
-                        throw new Exception($"10 attempts were made to try and delete locks on Resource Group '{azureResourceGroup.ResourceGroupName}' and the locks still remain.  Resource group cannot be deleted right now.");
-                    counter++;
+            var deployment = await azureDeploymentService
+                .DeployTemplateAsync(template, azureResourceGroup.SubscriptionId, azureResourceGroup.ResourceGroupName, completeMode: true)
+                .ConfigureAwait(false);
 
-                    // Delete locks within the RG
-                    await azure.ManagementLocks.DeleteByIdsAsync(ids).ConfigureAwait(false);
-
-                    // Check again to make sure there are no locks in the RG
-                    ids = await GetResourceGroupLockIdsAsync(azureResourceGroup, azure).ConfigureAwait(false);
-                }
-                while (ids.Length != 0);
-            }
+            _ = await deployment
+                .WaitAsync(throwOnError: true)
+                .ConfigureAwait(false);
         }
 
-        private async Task<string[]> GetResourceGroupLockIdsAsync(AzureResourceGroup azureResourceGroup, IAzure azure)
+        private async Task DeleteResourceGroupAsync(AzureResourceGroup azureResourceGroup)
         {
-            var locks = await azure.ManagementLocks.ListByResourceGroupAsync(azureResourceGroup.ResourceGroupName, true).ConfigureAwait(false);
-            var ids = locks.Select(s => s.Id).ToArray();
-            return ids;
+            var session = azureSessionService.CreateSession(azureResourceGroup.SubscriptionId);
+
+            var mgmtLocks = await GetManagementLocksAsync()
+                .ConfigureAwait(false);
+
+            if (mgmtLocks.Any())
+            {
+                await session.ManagementLocks
+                    .DeleteByIdsAsync(mgmtLocks.ToArray())
+                    .ConfigureAwait(false);
+
+                var timeoutDuration = TimeSpan.FromMinutes(5);
+                var timeout = DateTime.UtcNow.Add(timeoutDuration);
+
+                while (DateTime.UtcNow < timeout && mgmtLocks.Any())
+                {
+                    await Task.Delay(5000).ConfigureAwait(false);
+
+                    mgmtLocks = await GetManagementLocksAsync()
+                        .ConfigureAwait(false);
+                }
+            }
+
+            await session.ResourceGroups
+                .DeleteByNameAsync(azureResourceGroup.ResourceGroupName)
+                .ConfigureAwait(false);
+
+            async Task<IEnumerable<string>> GetManagementLocksAsync()
+            {
+                var locks = await session.ManagementLocks
+                    .ListByResourceGroupAsync(azureResourceGroup.ResourceGroupName, loadAllPages: true)
+                    .ConfigureAwait(false);
+
+                return locks.Select(lck => lck.Id);
+            }
         }
     }
 }

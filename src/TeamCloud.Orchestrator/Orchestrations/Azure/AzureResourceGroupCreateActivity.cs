@@ -60,12 +60,8 @@ namespace TeamCloud.Orchestrator.Orchestrations.Azure
                     .DeployTemplateAsync(template, subscriptionId)
                     .ConfigureAwait(false);
 
-                var deploymentState = await deployment
-                    .WaitAsync(throwOnError: true)
-                    .ConfigureAwait(false);
-
                 var deploymentOutput = await deployment
-                    .GetOutputAsync()
+                    .WaitAndGetOutputAsync(throwOnError: true, cleanUp: true)
                     .ConfigureAwait(false);
 
                 return new AzureResourceGroup()

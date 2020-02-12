@@ -24,7 +24,7 @@ namespace TeamCloud.Model.Data
 
         public List<Guid> Subscriptions { get; set; }
 
-        public int? SubscriptionCapacity { get; set; } = 10;
+        public int SubscriptionCapacity { get; set; } = 10;
 
         public string ResourceGroupNamePrefix { get; set; }
 

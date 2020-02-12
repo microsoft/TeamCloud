@@ -16,6 +16,8 @@ namespace TeamCloud.Data
 
         IAsyncEnumerable<ProjectType> ListAsync();
 
+        Task<int> GetInstanceCountAsync(string id, Guid? subscriptionId = null);
+
         Task<ProjectType> GetDefaultAsync();
     }
 

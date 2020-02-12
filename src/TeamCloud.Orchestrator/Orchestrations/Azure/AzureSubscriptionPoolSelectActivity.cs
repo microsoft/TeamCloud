@@ -4,23 +4,26 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Azure;
+using TeamCloud.Azure.Resources;
+using TeamCloud.Data;
 using TeamCloud.Model.Data;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Azure
 {
     public class AzureSubscriptionPoolSelectActivity
     {
-        private readonly IAzureSessionService azureSessionService;
+        private readonly IProjectTypesRepositoryReadOnly projectTypesRepository;
+        private readonly IAzureResourceService azureResourceService;
 
-        public AzureSubscriptionPoolSelectActivity(IAzureSessionService azureSessionService)
+        public AzureSubscriptionPoolSelectActivity(IProjectTypesRepositoryReadOnly projectTypesRepository, IAzureResourceService azureResourceService)
         {
-            this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
+            this.projectTypesRepository = projectTypesRepository ?? throw new ArgumentNullException(nameof(projectTypesRepository));
+            this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
         }
 
         [FunctionName(nameof(AzureSubscriptionPoolSelectActivity))]
@@ -30,41 +33,50 @@ namespace TeamCloud.Orchestrator.Orchestrations.Azure
             if (project is null)
                 throw new ArgumentNullException(nameof(project));
 
-            var tasks = project.Type.Subscriptions
-                .Select(subscription => GetResourceGroupCountAsync(subscription));
+            var subscriptionCapacityTasks = project.Type.Subscriptions
+                .Select(subscriptionId => GetSubscriptionCapacityAsync(project.Type, subscriptionId));
 
-            var results = await Task.WhenAll(tasks)
+            var subscriptionCapacity = await Task
+                .WhenAll(subscriptionCapacityTasks)
                 .ConfigureAwait(false);
 
-            var subscriptions = results
-                .Where(kvp => kvp.Key != Guid.Empty)
-                .OrderBy(kvp => kvp.Value).ToArray();
+            var subscriptionPick = subscriptionCapacity
+                .OrderByDescending((item) => item.Item2)
+                .First();
 
-            if (subscriptions.Length == 0)
-                throw new ArgumentException("Subscription pool IDs are not valid or accessible.");
-            else
-                return subscriptions.First().Key;
+            if (subscriptionPick.Item2 == 0)
+                throw new NotSupportedException($"All subscriptions reached their maximum capacity of {project.Type.SubscriptionCapacity} project of type {project.Type.Id}.");
+
+            return subscriptionPick.Item1;
         }
 
-        private async Task<KeyValuePair<Guid, int>> GetResourceGroupCountAsync(Guid subscriptionId)
+        private async Task<(Guid, int)> GetSubscriptionCapacityAsync(ProjectType projectType, Guid subscriptionId)
         {
-            var azureSession = azureSessionService
-                .CreateSession(subscriptionId);
+            var subscription = await azureResourceService
+                .GetSubscriptionAsync(subscriptionId)
+                .ConfigureAwait(false);
+            
+            if (subscription is null)
+                return (subscriptionId, 0);
 
-            try
+            var identity = await azureResourceService.AzureSessionService
+                .GetIdentityAsync()
+                .ConfigureAwait(false);
+
+            var hasOwnership = await subscription
+                .HasRoleAssignmentAsync(identity.ObjectId, AzureRoleDefinition.Owner)
+                .ConfigureAwait(false);
+
+            if (hasOwnership)
             {
-                var resourceGroups = await azureSession.ResourceGroups
-                    .ListAsync(true) // TODO: optimize this code using .ListByTagAsync instead and filter by some kind of TeamCloud tag
+                var instanceCount = await projectTypesRepository
+                    .GetInstanceCountAsync(projectType.Id, subscriptionId)
                     .ConfigureAwait(false);
 
-                return new KeyValuePair<Guid, int>(subscriptionId, resourceGroups.Count());
+                return (subscriptionId, Math.Max((projectType.SubscriptionCapacity - instanceCount), 0));
             }
-            catch
-            {
-                // TODO: add some logging and may some kind of logic to mark the given subscription id as broken
 
-                return new KeyValuePair<Guid, int>(Guid.Empty, 0);
-            }
+            return (subscriptionId, 0);
         }
     }
 }
