@@ -10,8 +10,8 @@ namespace TeamCloud.Model.Data
 {
     public class ProviderRegistration
     {
-        public Guid PrincipalId { get; set; }
+        public Guid? PrincipalId { get; set; }
 
-        public Dictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
+        public IDictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
     }
 }
