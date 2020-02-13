@@ -7,8 +7,12 @@ using Flurl;
 using Flurl.Http;
 using Microsoft.Azure.Management.Graph.RBAC.Fluent;
 using Microsoft.Azure.Management.Graph.RBAC.Fluent.Models;
+using Microsoft.Azure.Management.Network.Fluent;
+using Microsoft.Azure.Management.ResourceManager.Fluent;
+using Microsoft.Azure.Management.ResourceManager.Fluent.Models;
 using Microsoft.Rest.Azure;
 using Microsoft.Rest.Azure.OData;
+using Newtonsoft.Json.Linq;
 
 namespace TeamCloud.Azure.Resources
 {
@@ -74,7 +78,139 @@ namespace TeamCloud.Azure.Resources
             return response.StatusCode == System.Net.HttpStatusCode.OK;
         }
 
-        public async Task AddRoleAssignmentAsync(Guid userObjectId, Guid roleDefinitionId)
+        protected virtual async Task<string> GetLatestApiVersionAsync(bool includePreviewVersions = false)
+        {
+            var apiVersions = await AzureResourceService
+                .GetApiVersionsAsync(this.ResourceId, includePreviewVersions)
+                .ConfigureAwait(false);
+
+            return apiVersions.FirstOrDefault();
+        }
+
+        private async Task<GenericResourceInner> GetResourceAsync()
+        {
+            using var resourceManagementClient = AzureResourceService.AzureSessionService
+                .CreateClient<ResourceManagementClient>(subscriptionId: this.ResourceId.SubscriptionId);
+
+            var apiVersion = await GetLatestApiVersionAsync()
+                .ConfigureAwait(false);
+
+            return await resourceManagementClient.Resources
+                .GetByIdAsync(this.ResourceId.ToString(), apiVersion)
+                .ConfigureAwait(false);
+        }
+
+        private async Task<GenericResourceInner> SetResourceAsync(GenericResourceInner resource)
+        {
+            if (resource is null)
+                throw new ArgumentNullException(nameof(resource));
+
+            using var resourceManagementClient = AzureResourceService.AzureSessionService
+                .CreateClient<ResourceManagementClient>(subscriptionId: this.ResourceId.SubscriptionId);
+
+            var apiVersion = await GetLatestApiVersionAsync()
+                .ConfigureAwait(false);
+
+            // we need to ensure that the update call doesn't contain
+            // a provisioning state information - otherwise the update
+            // call will end up in a BAD REQUEST error
+
+            var properties = JObject.FromObject(resource.Properties);
+            properties.SelectToken("$.provisioningState")?.Parent.Remove();
+            resource.Properties = properties;
+
+            return await resourceManagementClient.Resources
+                .UpdateByIdAsync(this.ResourceId.ToString(), apiVersion, resource)
+                .ConfigureAwait(false);
+        }
+
+        public virtual async Task<IDictionary<string, string>> GetTagsAsync(bool includeHidden = false)
+        {
+            var resource = await GetResourceAsync()
+                .ConfigureAwait(false);
+
+            var resourceTags = resource.Tags ?? new Dictionary<string, string>();
+
+            if (includeHidden)
+                return resourceTags;
+
+            return resourceTags
+                .Where(kvp => !kvp.Key.StartsWith("hidden-", StringComparison.OrdinalIgnoreCase))
+                .ToDictionary();
+        }
+
+        public virtual async Task SetTagsAsync(IDictionary<string, string> tags, bool merge = false)
+        {
+            var resource = await GetResourceAsync()
+                .ConfigureAwait(false);
+
+            // we treat hidden tags like system settings
+            // and won't delete them - overriding them is OK
+
+            var hiddenTags = resource.Tags
+                .Where(kvp => kvp.Key.StartsWith("hidden-", StringComparison.Ordinal))
+                .ToDictionary();
+
+            if (merge)
+            {
+                resource.Tags = resource.Tags.Merge(tags);
+            }
+            else
+            {
+                resource.Tags = hiddenTags.Merge(tags);
+            }
+
+            _ = await SetResourceAsync(resource)
+                .ConfigureAwait(false);
+        }
+
+        public virtual async Task<string> GetTagAsync(string key)
+        {
+            var tags = await GetTagsAsync(true)
+                .ConfigureAwait(false);
+
+            if (tags.TryGetValue(key, out string value))
+                return value;
+
+            return default(string);
+        }
+
+        public virtual async Task AddTagAsync(string key, string value)
+        {
+            var resource = await GetResourceAsync()
+                .ConfigureAwait(false);
+
+            if (resource.Tags is null)
+                resource.Tags = new Dictionary<string, string>();
+
+            resource.Tags.Add(key, value);
+
+            _ = await SetResourceAsync(resource)
+                .ConfigureAwait(false);
+        }
+
+        public virtual async Task DeleteTagAsync(string key)
+        {
+            var resource = await GetResourceAsync()
+                .ConfigureAwait(false);
+
+            if (resource.Tags?.Any() ?? false)
+            {
+                var tagCount = resource.Tags.Count;
+
+                resource.Tags = resource.Tags
+                    .Where(kvp => kvp.Key.Equals(key, StringComparison.Ordinal))
+                    .ToDictionary();
+
+                if (tagCount != resource.Tags.Count)
+                {
+                    _ = await SetResourceAsync(resource)
+                        .ConfigureAwait(false);
+                }
+            }
+        }
+
+        public virtual async Task AddRoleAssignmentAsync(Guid userObjectId, Guid roleDefinitionId)
         {
             using var authClient = AzureResourceService.AzureSessionService
                 .CreateClient<AuthorizationManagementClient>();
@@ -98,7 +234,7 @@ namespace TeamCloud.Azure.Resources
             }
         }
 
-        public async Task DeleteRoleAssignmentAsync(Guid userObjectId, Guid? roleDefinitionId = null)
+        public virtual async Task DeleteRoleAssignmentAsync(Guid userObjectId, Guid? roleDefinitionId = null)
         {
             var assignments = await GetRoleAssignmentsInternalAsync(userObjectId)
                 .ConfigureAwait(false);
@@ -118,7 +254,7 @@ namespace TeamCloud.Azure.Resources
             }
         }
 
-        public async Task<bool> HasRoleAssignmentAsync(Guid userObjectId, Guid roleDefinitionId)
+        public virtual async Task<bool> HasRoleAssignmentAsync(Guid userObjectId, Guid roleDefinitionId)
         {
             var assignments = await GetRoleAssignmentsAsync(userObjectId)
                 .ConfigureAwait(false);
@@ -126,7 +262,7 @@ namespace TeamCloud.Azure.Resources
             return assignments.Contains(roleDefinitionId);
         }
 
-        public async Task<IEnumerable<Guid>> GetRoleAssignmentsAsync(Guid userObjectId)
+        public virtual async Task<IEnumerable<Guid>> GetRoleAssignmentsAsync(Guid userObjectId)
         {
             var assignments = await GetRoleAssignmentsInternalAsync(userObjectId)
                 .ConfigureAwait(false);
@@ -137,7 +273,7 @@ namespace TeamCloud.Azure.Resources
             return Enumerable.Empty<Guid>();
         }
 
-        public async Task<IReadOnlyDictionary<Guid, IEnumerable<Guid>>> GetRoleAssignmentsAsync()
+        public virtual async Task<IReadOnlyDictionary<Guid, IEnumerable<Guid>>> GetRoleAssignmentsAsync()
         {
             var assignments = await GetRoleAssignmentsInternalAsync()
                 .ConfigureAwait(false);

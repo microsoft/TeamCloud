@@ -41,7 +41,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers.Activities
 
                 if (provider != null)
                 {
-                    provider.PricipalId = result.Result.PricipalId;
+                    provider.PrincipalId = result.Result.PrincipalId;
 
                     foreach (var property in result.Result.Properties)
                     {
@@ -54,7 +54,9 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers.Activities
                 .SetAsync(teamCloud)
                 .ConfigureAwait(false);
 
-            return teamCloud.Providers;
+            return teamCloud
+                .Providers
+                .ToList();
         }
     }
 }

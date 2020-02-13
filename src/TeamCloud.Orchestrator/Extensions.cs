@@ -6,15 +6,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
-using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
-using Flurl;
-using Flurl.Http;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Microsoft.WindowsAzure.Storage;
-using Newtonsoft.Json.Linq;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestrator.Orchestrations.Providers;
@@ -70,6 +63,19 @@ namespace TeamCloud.Orchestrator
             }
 
             return null;
+        }
+
+
+        internal static IDictionary<string, string> Merge(this IDictionary<string, string> instance, IDictionary<string, string> merge, params IDictionary<string, string>[] additionalMerges)
+        {
+            var keyValuePairs = instance.Concat(merge);
+
+            foreach (var additionalMerge in additionalMerges)
+                keyValuePairs = keyValuePairs.Concat(additionalMerge);
+
+            return keyValuePairs
+                .GroupBy(kvp => kvp.Key)
+                .ToDictionary(kvp => kvp.Key, kvp => kvp.Last().Value);
         }
 
         internal static IEnumerable<Task<ICommandResult>> GetProviderCommandTasks(this List<Provider> providers, ICommand command, IDurableOrchestrationContext functionContext)

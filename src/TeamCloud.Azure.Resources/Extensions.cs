@@ -32,7 +32,27 @@ namespace TeamCloud.Azure.Resources
         }
 
         public static Task<IEnumerable<string>> GetApiVersionsAsync(this IAzureResourceService azureResourceService, AzureResourceIdentifier azureResourceIdentifier, bool includePreviewVersions = false)
-            => azureResourceService.GetApiVersionsAsync(azureResourceIdentifier.SubscriptionId, azureResourceIdentifier.ResourceNamespace, azureResourceIdentifier.ResourceTypeName, includePreviewVersions);
+        {
+            if (string.IsNullOrEmpty(azureResourceIdentifier.ResourceNamespace))
+                return azureResourceService.GetApiVersionsAsync(azureResourceIdentifier.SubscriptionId, "Microsoft.Resources", "resourceGroups", includePreviewVersions);
+            else
+                return azureResourceService.GetApiVersionsAsync(azureResourceIdentifier.SubscriptionId, azureResourceIdentifier.ResourceNamespace, azureResourceIdentifier.ResourceTypeName, includePreviewVersions);
+        }
+
+        internal static IDictionary<string, string> Merge(this IDictionary<string, string> instance, IDictionary<string, string> merge, params IDictionary<string, string>[] additionalMerges)
+        {
+            var keyValuePairs = instance.Concat(merge);
+
+            foreach (var additionalMerge in additionalMerges)
+                keyValuePairs = keyValuePairs.Concat(additionalMerge);
+
+            return keyValuePairs
+                .GroupBy(kvp => kvp.Key)
+                .ToDictionary(kvp => kvp.Key, kvp => kvp.Last().Value);
+        }
+
+        internal static IDictionary<string, string> ToDictionary(this IEnumerable<KeyValuePair<string, string>> keyValuePairs)
+            => keyValuePairs.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
         internal static T WithAzureResourceException<T>(this T obj, AzureEnvironment environment) where T : IHttpSettingsContainer
         {

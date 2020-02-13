@@ -60,7 +60,7 @@ namespace TeamCloud.API.Controllers
             var providers = teamCloudInstance?.Providers ?? new List<Provider>();
 
             return DataResult<List<Provider>>
-                .Ok(providers)
+                .Ok(providers.ToList())
                 .ActionResult();
 
         }

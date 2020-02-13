@@ -16,7 +16,7 @@ namespace TeamCloud.Model.Data
         public string PartitionKey => TeamCloudId;
 
         [JsonIgnore]
-        public List<string> UniqueKeys => new List<string> { "/name" };
+        public IList<string> UniqueKeys => new List<string> { "/name" };
 
         public Guid Id { get; set; }
 
@@ -32,13 +32,13 @@ namespace TeamCloud.Model.Data
 
         public string TeamCloudApplicationInsightsKey { get; set; }
 
-        public List<User> Users { get; set; } = new List<User>();
+        public IList<User> Users { get; set; } = new List<User>();
 
-        public Dictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();
+        public IDictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();
 
-        public Dictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
+        public IDictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
 
-        public Dictionary<string, Dictionary<string, string>> ProviderProperties { get; set; } = new Dictionary<string, Dictionary<string, string>>();
+        public IDictionary<string, IDictionary<string, string>> ProviderProperties { get; set; } = new Dictionary<string, IDictionary<string, string>>();
 
         public bool Equals(Project other) => Id.Equals(other.Id);
     }

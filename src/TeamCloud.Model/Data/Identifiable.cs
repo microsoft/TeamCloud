@@ -33,6 +33,6 @@ namespace TeamCloud.Model.Data
 
         string PartitionKey { get; }
 
-        List<string> UniqueKeys { get; }
+        IList<string> UniqueKeys { get; }
     }
 }

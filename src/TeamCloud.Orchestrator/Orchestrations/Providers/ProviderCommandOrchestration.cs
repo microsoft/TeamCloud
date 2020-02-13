@@ -10,6 +10,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
+using TeamCloud.Orchestrator.Orchestrations.Azure;
 using TeamCloud.Orchestrator.Orchestrations.Providers.Activities;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Providers
@@ -26,18 +27,25 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers
 
             var (provider, command) = functionContext.GetInput<(Provider, ICommand)>();
 
-            var eventName = GetExternalEventName(command.CommandId.ToString(), command.ProviderId);
-
-            var callbackUrl = await CallbackTrigger
-                .GetCallbackUrlAsync(functionContext.InstanceId, eventName)
-                .ConfigureAwait(true);
-
-            var message = new ProviderCommandMessage(command, callbackUrl);
-
             try
             {
+                if (command.ProjectId.HasValue && provider.PrincipalId.HasValue)
+                {
+                    await functionContext
+                        .CallActivityAsync(nameof(AzureResourceGroupContributorActivity), (command.ProjectId.Value, provider.PrincipalId.Value))
+                        .ConfigureAwait(true);
+                }
+
+                var eventName = GetExternalEventName(command.CommandId.ToString(), command.ProviderId);
+
+                var callbackUrl = await CallbackTrigger
+                    .GetCallbackUrlAsync(functionContext.InstanceId, eventName)
+                    .ConfigureAwait(true);
+
+                var commandMessage = new ProviderCommandMessage(command, callbackUrl);
+
                 var commandResult = await functionContext
-                    .CallActivityAsync<ICommandResult>(nameof(ProviderCommandActivity), (provider, message))
+                    .CallActivityAsync<ICommandResult>(nameof(ProviderCommandActivity), (provider, commandMessage))
                     .ConfigureAwait(true);
 
                 if (commandResult.RuntimeStatus.IsRunning())
@@ -54,7 +62,9 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers
             catch (FunctionFailedException ex)
             {
                 var commandResult = command.CreateResult();
+
                 commandResult.Exceptions.Add(ex);
+
                 return commandResult;
             }
         }

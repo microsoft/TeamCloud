@@ -55,7 +55,7 @@ namespace TeamCloud.API
             var users = teamCloudInstance?.Users ?? new List<User>();
 
             return DataResult<List<User>>
-                .Ok(users)
+                .Ok(users.ToList())
                 .ActionResult();
         }
 

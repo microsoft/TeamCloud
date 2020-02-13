@@ -18,21 +18,21 @@ namespace TeamCloud.Model.Data
         public string PartitionKey => Id;
 
         [JsonIgnore]
-        public List<string> UniqueKeys => new List<string> { };
+        public IList<string> UniqueKeys => new List<string> { };
 
         public AzureResourceGroup ResourceGroup { get; set; }
 
         public string ApplicationInsightsKey { get; set; }
 
-        public List<User> Users { get; set; } = new List<User>();
+        public IList<User> Users { get; set; } = new List<User>();
 
-        public List<Guid> ProjectIds { get; set; } = new List<Guid>();
+        public IList<Guid> ProjectIds { get; set; } = new List<Guid>();
 
-        public Dictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();
+        public IDictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();
 
-        public Dictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
+        public IDictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
 
-        public List<Provider> Providers { get; set; } = new List<Provider>();
+        public IList<Provider> Providers { get; set; } = new List<Provider>();
 
         public TeamCloudInstance()
         { }

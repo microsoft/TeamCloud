@@ -12,14 +12,14 @@ namespace TeamCloud.Model.Data
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public sealed class TeamCloudConfiguration : IValidatable
     {
-        public List<ProjectType> ProjectTypes { get; set; } = new List<ProjectType>();
+        public IList<ProjectType> ProjectTypes { get; set; } = new List<ProjectType>();
 
-        public List<Provider> Providers { get; set; } = new List<Provider>();
+        public IList<Provider> Providers { get; set; } = new List<Provider>();
 
-        public List<User> Users { get; set; } = new List<User>();
+        public IList<User> Users { get; set; } = new List<User>();
 
-        public Dictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();
+        public IDictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();
 
-        public Dictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
+        public IDictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
     }
 }

@@ -58,10 +58,11 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers
         }
 
         static IEnumerable<Task<ProviderRegisterCommandResult>> GetProviderRegisterCommandTasks(IDurableOrchestrationContext context, TeamCloudInstance teamCloud)
-            => teamCloud.Providers.Select(p => context.CallSubOrchestratorAsync<ProviderRegisterCommandResult>(nameof(ProviderCommandOrchestration),
-                (p, new ProviderRegisterCommand(Guid.Parse(context.InstanceId), p.Id, null, new ProviderConfiguration
+            => teamCloud.Providers.Select(provider => context.CallSubOrchestratorAsync<ProviderRegisterCommandResult>(
+                nameof(ProviderCommandOrchestration),
+                (provider, new ProviderRegisterCommand(Guid.Parse(context.InstanceId), provider.Id, null, new ProviderConfiguration
                 {
-                    Properties = p.Properties,
+                    Properties = provider.Properties,
                     TeamCloudApplicationInsightsKey = teamCloud.ApplicationInsightsKey
                 }))));
     }

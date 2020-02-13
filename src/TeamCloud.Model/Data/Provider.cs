@@ -19,22 +19,22 @@ namespace TeamCloud.Model.Data
 
         public string AuthCode { get; set; }
 
-        public Guid PricipalId { get; set; }
+        public Guid? PrincipalId { get; set; }
 
         public bool Optional { get; set; }
 
         public ProviderDependencies Dependencies { get; set; } = new ProviderDependencies();
 
-        public List<string> Events { get; set; } = new List<string>();
+        public IList<string> Events { get; set; } = new List<string>();
 
-        public Dictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
+        public IDictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
     }
 
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public sealed class ProviderDependencies
     {
-        public List<string> Create { get; set; } = new List<string>();
+        public IList<string> Create { get; set; } = new List<string>();
 
-        public List<string> Init { get; set; } = new List<string>();
+        public IList<string> Init { get; set; } = new List<string>();
     }
 }

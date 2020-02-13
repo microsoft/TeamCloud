@@ -14,7 +14,6 @@ using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestrator.Orchestrations.Azure;
 using TeamCloud.Orchestrator.Orchestrations.Projects.Activities;
-using TeamCloud.Orchestrator.Orchestrations.Providers;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Projects
 {
@@ -28,89 +27,100 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
 
-            var orchestratorCommand = functionContext.GetInput<OrchestratorCommandMessage>();
-
-            var command = orchestratorCommand.Command as ProjectCreateCommand;
-
-            // Not sure if we need this here, create shouldn't ever wait on another command
-            await functionContext
-                .WaitForProjectCommandsAsync(command)
-                .ConfigureAwait(true);
-
-            functionContext.SetCustomStatus("Creating new Project");
-
-            var user = command.User;
-            var project = command.Payload;
-            var teamCloud = orchestratorCommand.TeamCloud;
-            var providers = teamCloud.ProvidersFor(project);
-
-            project.TeamCloudId = teamCloud.Id;
-            project.TeamCloudApplicationInsightsKey = teamCloud.ApplicationInsightsKey;
-
-            project.Tags.Concat(teamCloud.Tags);
-            project.Properties = teamCloud.Properties;
-
-            project.ProviderProperties = providers
-                .Select(p => (p.Id, p.Properties))
-                .ToDictionary(t => t.Id, t => t.Properties);
-
-            project = await functionContext
-                .CallActivityAsync<Project>(nameof(ProjectCreateActivity), project)
-                .ConfigureAwait(true);
-
-            functionContext.SetCustomStatus("Creating new Resource Group for Project");
-
-            var subscriptionId = await functionContext
-                .CallActivityAsync<Guid>(nameof(AzureSubscriptionPoolSelectActivity), project)
-                .ConfigureAwait(true);
+            var commandMessage = functionContext.GetInput<OrchestratorCommandMessage>();
+            var command = commandMessage.Command as ProjectCreateCommand;
+            var commandResult = command.CreateResult();
 
             try
             {
+                await functionContext
+                    .WaitForProjectCommandsAsync(command)
+                    .ConfigureAwait(true);
+
+                if (!functionContext.IsReplaying)
+                    functionContext.SetCustomStatus("Creating new Project");
+
+                var project = command.Payload;
+                var teamCloud = commandMessage.TeamCloud;
+                var providers = teamCloud.ProvidersFor(project);
+
+                project.TeamCloudId = teamCloud.Id;
+                project.TeamCloudApplicationInsightsKey = teamCloud.ApplicationInsightsKey; // TODO: why do we persist the AI IK on each project? and why on the TC instance?
+                project.Tags = teamCloud.Tags.Merge(project.Tags);
+                project.Properties = teamCloud.Properties.Merge(project.Properties);
+
+                project.ProviderProperties = providers
+                    .ToDictionary(provider => provider.Id, provider => provider.Properties);
+
+                project = await functionContext
+                    .CallActivityAsync<Project>(nameof(ProjectCreateActivity), project)
+                    .ConfigureAwait(true);
+
+                if (!functionContext.IsReplaying)
+                    functionContext.SetCustomStatus("Creating new Resource Group for Project");
+
+                var subscriptionId = await functionContext
+                    .CallActivityAsync<Guid>(nameof(AzureSubscriptionPoolSelectActivity), project)
+                    .ConfigureAwait(true);
+
                 project.ResourceGroup = await functionContext
                     .CallActivityAsync<AzureResourceGroup>(nameof(AzureResourceGroupCreateActivity), (project, subscriptionId))
                     .ConfigureAwait(true);
+
+                project = await functionContext
+                    .CallActivityAsync<Project>(nameof(ProjectUpdateActivity), project)
+                    .ConfigureAwait(true);
+
+                await functionContext
+                    .CallActivityAsync(nameof(AzureResourceGroupTagActivity), project)
+                    .ConfigureAwait(true);
+
+                if (!functionContext.IsReplaying)
+                    functionContext.SetCustomStatus("Creating Project Resources");
+
+                var providerCommandTasks = providers
+                    .GetProviderCommandTasks(command, functionContext);
+
+                var providerCommandResults = await Task
+                    .WhenAll(providerCommandTasks)
+                    .ConfigureAwait(true);
+
+                var providerResults = providerCommandResults
+                    .Cast<ProviderProjectCreateCommandResult>();
+
+                foreach (var providerResult in providerResults)
+                {
+                    if (project.ProviderProperties.TryGetValue(providerResult.ProviderId, out var providerProperties))
+                    {
+                        project.ProviderProperties[providerResult.ProviderId] = providerProperties.Merge(providerResult.Result.Properties);
+                    }
+                    else
+                    {
+                        project.ProviderProperties.Add(providerResult.ProviderId, providerResult.Result.Properties);
+                    }
+                }
+
+                project = await functionContext
+                    .CallActivityAsync<Project>(nameof(ProjectUpdateActivity), project)
+                    .ConfigureAwait(true);
+
+                if (!functionContext.IsReplaying)
+                    functionContext.SetCustomStatus("Project Created");
+
+                commandResult.Result = project;
             }
-            catch (FunctionFailedException functionException) when (functionException.InnerException is AzureDeploymentException)
+            catch (FunctionFailedException functionException) when (functionException.InnerException is AzureDeploymentException deploymentException)
             {
-                var deploymentExecption = functionException.InnerException as AzureDeploymentException;
-                functionContext.CreateReplaySafeLogger(log).LogError(functionException, "Failed to create new Resource Group for Project\n{0}", deploymentExecption.ResourceError);
+                log.LogError(functionException, $"Failed to create new Resource Group for Project - {deploymentException.ResourceError}");
+
                 functionContext.SetCustomStatus("Failed to create new Resource Group for Project");
+
                 throw;
             }
-
-            project = await functionContext
-                .CallActivityAsync<Project>(nameof(ProjectUpdateActivity), project)
-                .ConfigureAwait(true);
-
-            functionContext.SetCustomStatus("Creating Project Resources");
-
-            var providerCommandTasks = providers.GetProviderCommandTasks(command, functionContext);
-
-            var providerCommandResults = await Task
-                .WhenAll(providerCommandTasks)
-                .ConfigureAwait(true);
-
-            var providerResults = providerCommandResults
-                .Cast<ProviderProjectCreateCommandResult>();
-
-            foreach (var providerResult in providerResults)
+            finally
             {
-                foreach (var providerProperty in providerResult.Result.Properties)
-                {
-                    project.ProviderProperties[providerResult.ProviderId][providerProperty.Key] = providerProperty.Value;
-                }
+                functionContext.SetOutput(commandResult);
             }
-
-            project = await functionContext
-                .CallActivityAsync<Project>(nameof(ProjectUpdateActivity), project)
-                .ConfigureAwait(true);
-
-            functionContext.SetCustomStatus("Project Created");
-
-            var commandResult = command.CreateResult();
-            commandResult.Result = project;
-
-            functionContext.SetOutput(commandResult);
         }
     }
 }

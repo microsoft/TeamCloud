@@ -6,6 +6,7 @@
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.Azure.Management.ResourceManager.Fluent;
 using Newtonsoft.Json.Linq;
 using NSubstitute;
 using TeamCloud.Azure.Deployment;
@@ -19,8 +20,9 @@ namespace TeamCloud.Azure.Tests.Deployment
         [Fact]
         public async Task WaitForDeployment()
         {
-            var azureSessionFactory = Substitute.For<IAzureSessionService>();
-            azureSessionFactory.AcquireTokenAsync().Returns(Guid.NewGuid().ToString());
+            var azureSessionService = Substitute.For<IAzureSessionService>();
+            azureSessionService.Environment.Returns(AzureEnvironment.AzureGlobalCloud);
+            azureSessionService.AcquireTokenAsync().Returns(Guid.NewGuid().ToString());
 
             var azureDeploymentArtifactContainer = Substitute.For<IAzureDeploymentArtifactsContainer>();
             azureDeploymentArtifactContainer.Location.Returns("http://storage.com");
@@ -32,7 +34,7 @@ namespace TeamCloud.Azure.Tests.Deployment
             var azureDeploymentOptions = Substitute.For<IAzureDeploymentOptions>();
             azureDeploymentOptions.Region.Returns("West Europe");
 
-            var deploymentService = new AzureDeploymentService(azureDeploymentOptions, azureSessionFactory, azureDeploymentArtifactStorage);
+            var deploymentService = new AzureDeploymentService(azureDeploymentOptions, azureSessionService, azureDeploymentArtifactStorage);
             var deploymentTemplate = await AzureDeploymentTemplate.CreateAsync<SimpleTemplate>().ConfigureAwait(false);
 
             var deployment = await deploymentService
@@ -52,8 +54,9 @@ namespace TeamCloud.Azure.Tests.Deployment
         [Fact]
         public async Task WaitForDeploymentWithThrowOnError()
         {
-            var azureSessionFactory = Substitute.For<IAzureSessionService>();
-            azureSessionFactory.AcquireTokenAsync().Returns(Guid.NewGuid().ToString());
+            var azureSessionService = Substitute.For<IAzureSessionService>();
+            azureSessionService.Environment.Returns(AzureEnvironment.AzureGlobalCloud);
+            azureSessionService.AcquireTokenAsync().Returns(Guid.NewGuid().ToString());
 
             var azureDeploymentArtifactContainer = Substitute.For<IAzureDeploymentArtifactsContainer>();
             azureDeploymentArtifactContainer.Location.Returns("http://storage.com");
@@ -65,7 +68,7 @@ namespace TeamCloud.Azure.Tests.Deployment
             var azureDeploymentOptions = Substitute.For<IAzureDeploymentOptions>();
             azureDeploymentOptions.Region.Returns("West Europe");
 
-            var deploymentService = new AzureDeploymentService(azureDeploymentOptions, azureSessionFactory, azureDeploymentArtifactStorage);
+            var deploymentService = new AzureDeploymentService(azureDeploymentOptions, azureSessionService, azureDeploymentArtifactStorage);
             var deploymentTemplate = await AzureDeploymentTemplate.CreateAsync<SimpleTemplate>().ConfigureAwait(false);
 
             var deployment = await deploymentService
@@ -87,8 +90,9 @@ namespace TeamCloud.Azure.Tests.Deployment
         [Fact]
         public async Task WaitForDeploymentWithCleanUp()
         {
-            var azureSessionFactory = Substitute.For<IAzureSessionService>();
-            azureSessionFactory.AcquireTokenAsync().Returns(Guid.NewGuid().ToString());
+            var azureSessionService = Substitute.For<IAzureSessionService>();
+            azureSessionService.Environment.Returns(AzureEnvironment.AzureGlobalCloud);
+            azureSessionService.AcquireTokenAsync().Returns(Guid.NewGuid().ToString());
 
             var azureDeploymentArtifactContainer = Substitute.For<IAzureDeploymentArtifactsContainer>();
             azureDeploymentArtifactContainer.Location.Returns("http://storage.com");
@@ -100,7 +104,7 @@ namespace TeamCloud.Azure.Tests.Deployment
             var azureDeploymentOptions = Substitute.For<IAzureDeploymentOptions>();
             azureDeploymentOptions.Region.Returns("West Europe");
 
-            var deploymentService = new AzureDeploymentService(azureDeploymentOptions, azureSessionFactory, azureDeploymentArtifactStorage);
+            var deploymentService = new AzureDeploymentService(azureDeploymentOptions, azureSessionService, azureDeploymentArtifactStorage);
             var deploymentTemplate = await AzureDeploymentTemplate.CreateAsync<SimpleTemplate>().ConfigureAwait(false);
 
             var deployment = await deploymentService
@@ -123,8 +127,9 @@ namespace TeamCloud.Azure.Tests.Deployment
         [Fact]
         public async Task GetDeploymentOutput()
         {
-            var azureSessionFactory = Substitute.For<IAzureSessionService>();
-            azureSessionFactory.AcquireTokenAsync().Returns(Guid.NewGuid().ToString());
+            var azureSessionService = Substitute.For<IAzureSessionService>();
+            azureSessionService.Environment.Returns(AzureEnvironment.AzureGlobalCloud);
+            azureSessionService.AcquireTokenAsync().Returns(Guid.NewGuid().ToString());
 
             var azureDeploymentArtifactContainer = Substitute.For<IAzureDeploymentArtifactsContainer>();
             azureDeploymentArtifactContainer.Location.Returns("http://storage.com");
@@ -136,7 +141,7 @@ namespace TeamCloud.Azure.Tests.Deployment
             var azureDeploymentOptions = Substitute.For<IAzureDeploymentOptions>();
             azureDeploymentOptions.Region.Returns("West Europe");
 
-            var deploymentService = new AzureDeploymentService(azureDeploymentOptions, azureSessionFactory, azureDeploymentArtifactStorage);
+            var deploymentService = new AzureDeploymentService(azureDeploymentOptions, azureSessionService, azureDeploymentArtifactStorage);
             var deploymentTemplate = await AzureDeploymentTemplate.CreateAsync<SimpleTemplate>().ConfigureAwait(false);
 
             var deployment = await deploymentService
@@ -163,8 +168,9 @@ namespace TeamCloud.Azure.Tests.Deployment
         [Fact]
         public async Task GetDeploymentOutputWhileRunning()
         {
-            var azureSessionFactory = Substitute.For<IAzureSessionService>();
-            azureSessionFactory.AcquireTokenAsync().Returns(Guid.NewGuid().ToString());
+            var azureSessionService = Substitute.For<IAzureSessionService>();
+            azureSessionService.Environment.Returns(AzureEnvironment.AzureGlobalCloud);
+            azureSessionService.AcquireTokenAsync().Returns(Guid.NewGuid().ToString());
 
             var azureDeploymentArtifactContainer = Substitute.For<IAzureDeploymentArtifactsContainer>();
             azureDeploymentArtifactContainer.Location.Returns("http://storage.com");
@@ -176,7 +182,7 @@ namespace TeamCloud.Azure.Tests.Deployment
             var azureDeploymentOptions = Substitute.For<IAzureDeploymentOptions>();
             azureDeploymentOptions.Region.Returns("West Europe");
 
-            var deploymentService = new AzureDeploymentService(azureDeploymentOptions, azureSessionFactory, azureDeploymentArtifactStorage);
+            var deploymentService = new AzureDeploymentService(azureDeploymentOptions, azureSessionService, azureDeploymentArtifactStorage);
             var deploymentTemplate = await AzureDeploymentTemplate.CreateAsync<SimpleTemplate>().ConfigureAwait(false);
 
             var deployment = await deploymentService
