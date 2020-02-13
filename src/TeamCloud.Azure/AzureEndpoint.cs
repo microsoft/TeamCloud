@@ -1,4 +1,9 @@
-﻿namespace TeamCloud.Azure
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
+
+namespace TeamCloud.Azure
 {
     public enum AzureEndpoint
     {

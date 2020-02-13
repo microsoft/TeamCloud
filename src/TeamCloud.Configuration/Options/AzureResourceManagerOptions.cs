@@ -3,8 +3,6 @@
  *  Licensed under the MIT License.
  */
 
-
-
 using System;
 /**
 *  Copyright (c) Microsoft Corporation.
