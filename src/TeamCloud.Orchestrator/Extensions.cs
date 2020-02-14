@@ -8,8 +8,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
+using TeamCloud.Orchestrator.Orchestrations.Locks;
 using TeamCloud.Orchestrator.Orchestrations.Providers;
 
 namespace TeamCloud.Orchestrator
@@ -29,6 +32,10 @@ namespace TeamCloud.Orchestrator
 
             return FinalRuntimeStatus.Contains((int)status.RuntimeStatus);
         }
+
+        internal static EntityId GetEntityId<T>(this T document)
+            where T : class, IContainerDocument
+            => new EntityId(nameof(DocumentEntityLock), $"{document.Id}@{document.GetType()}");
 
         internal static ICommandResult CreateResult(this ICommand command, DurableOrchestrationStatus orchestrationStatus)
         {
@@ -78,7 +85,24 @@ namespace TeamCloud.Orchestrator
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Last().Value);
         }
 
+        internal static DateTime NextHour(this DateTime dateTime)
+             => dateTime.Date.AddHours(dateTime.Hour + 1);
+
         internal static IEnumerable<Task<ICommandResult>> GetProviderCommandTasks(this List<Provider> providers, ICommand command, IDurableOrchestrationContext functionContext)
             => providers.Select(provider => functionContext.CallSubOrchestratorAsync<ICommandResult>(nameof(ProviderCommandOrchestration), (provider, command.GetProviderCommand(provider))));
+
+        internal static void SetCustomStatus(this IDurableOrchestrationContext durableOrchestrationContext, object customStatusObject, ILogger log, Exception exception = null)
+        {
+            durableOrchestrationContext.SetCustomStatus(customStatusObject);
+
+            var customStatusMessage = customStatusObject is string
+                ? customStatusObject.ToString()
+                : JsonConvert.SerializeObject(customStatusObject, Formatting.None);
+
+            if (exception is null)
+                log?.LogInformation($"{durableOrchestrationContext.InstanceId} - CUSTOM STATUS: {customStatusMessage}");
+            else
+                log?.LogError(exception, $"{durableOrchestrationContext.InstanceId} - CUSTOM STATUS: {customStatusMessage}");
+        }
     }
 }

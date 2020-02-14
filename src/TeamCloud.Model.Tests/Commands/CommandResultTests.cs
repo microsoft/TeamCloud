@@ -42,7 +42,7 @@ namespace TeamCloud.Model
             var result = new MockCommandResult()
             {
                 Result = new MockCommandEntity(),
-                Exceptions = new List<Exception>()
+                Errors = new List<Exception>()
                 {
                     flurlHttpException,
                     notSupportedException
@@ -63,7 +63,7 @@ namespace TeamCloud.Model
             var result1 = new MockCommandResult()
             {
                 Result = new MockCommandEntity(),
-                Exceptions = new List<Exception>()
+                Errors = new List<Exception>()
                 {
                     flurlHttpException,
                     notSupportedException

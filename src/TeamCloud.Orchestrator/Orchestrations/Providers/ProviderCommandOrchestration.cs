@@ -63,7 +63,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers
             {
                 var commandResult = command.CreateResult();
 
-                commandResult.Exceptions.Add(ex);
+                commandResult.Errors.Add(ex);
 
                 return commandResult;
             }

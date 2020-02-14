@@ -74,9 +74,11 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
             [ActivityTrigger] ProjectCommandNotification notification,
             [DurableClient] IDurableClient durableClient)
         {
-            if (notification is null) throw new ArgumentNullException(nameof(notification));
+            if (notification is null)
+                throw new ArgumentNullException(nameof(notification));
 
-            if (durableClient is null) throw new ArgumentNullException(nameof(durableClient));
+            if (durableClient is null)
+                throw new ArgumentNullException(nameof(durableClient));
 
             var status = await durableClient
                 .GetStatusAsync(notification.ActiveCommandId.ToString())
@@ -100,7 +102,8 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
             [EntityTrigger] IDurableEntityContext functionContext,
             [DurableClient] IDurableClient durableClient)
         {
-            if (functionContext is null) throw new ArgumentNullException(nameof(functionContext));
+            if (functionContext is null)
+                throw new ArgumentNullException(nameof(functionContext));
 
             var activeCommand = functionContext.GetState<ICommand>();
             var pendingCommand = functionContext.GetInput<ICommand>();
@@ -116,9 +119,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
                     .ConfigureAwait(false);
 
                 if (status?.IsFinalRuntimeStatus() ?? true)
-                {
                     activeCommandId = null;
-                }
             }
 
             functionContext.Return(activeCommandId?.ToString());
@@ -130,14 +131,14 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
     {
         internal static Task WaitForProjectCommandsAsync(this IDurableOrchestrationContext context, ICommand command)
         {
-            if (context is null) throw new ArgumentNullException(nameof(context));
+            if (context is null)
+                throw new ArgumentNullException(nameof(context));
 
-            if (command is null) throw new ArgumentNullException(nameof(command));
+            if (command is null)
+                throw new ArgumentNullException(nameof(command));
 
             if (command.ProjectId.HasValue)
-            {
                 return context.CallSubOrchestratorAsync(nameof(ProjectCommandSerialization.ProjectCommandSerializationOrchestrator), command);
-            }
 
             return Task.CompletedTask;
         }

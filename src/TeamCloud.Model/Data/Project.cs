@@ -20,6 +20,8 @@ namespace TeamCloud.Model.Data
 
         public Guid Id { get; set; }
 
+        string IContainerDocument.Id => this.Id.ToString();
+
         public string Name { get; set; }
 
         public ProjectType Type { get; set; }
@@ -29,8 +31,6 @@ namespace TeamCloud.Model.Data
         public AzureResourceGroup ResourceGroup { get; set; }
 
         public string TeamCloudId { get; set; }
-
-        public string TeamCloudApplicationInsightsKey { get; set; }
 
         public IList<User> Users { get; set; } = new List<User>();
 

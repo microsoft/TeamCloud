@@ -87,14 +87,14 @@ namespace TeamCloud.API.Controllers
                 case CommandRuntimeStatus.Failed:
 
                     return ErrorResult
-                        .ServerError(result.Exceptions, result.CommandId.ToString())
+                        .ServerError(result.Errors, result.CommandId.ToString())
                         .ActionResult();
 
                 default: // TODO: this probably isn't right as a default
 
-                    if (result.Exceptions?.Any() ?? false)
+                    if (result.Errors?.Any() ?? false)
                         return ErrorResult
-                            .ServerError(result.Exceptions, result.CommandId.ToString())
+                            .ServerError(result.Errors, result.CommandId.ToString())
                             .ActionResult();
 
                     return StatusResult

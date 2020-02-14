@@ -24,20 +24,26 @@ namespace TeamCloud.Orchestrator.Orchestrations.TeamCloud
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
 
-            var orchestratorCommand = functionContext.GetInput<OrchestratorCommandMessage>();
-
-            var command = orchestratorCommand.Command as ProviderCreateCommand;
-
-            var provider = await functionContext
-                .CallActivityAsync<Provider>(nameof(ProviderCreateActivity), command.Payload)
-                .ConfigureAwait(true);
-
+            var commandMessage = functionContext.GetInput<OrchestratorCommandMessage>();
+            var command = commandMessage.Command as ProviderCreateCommand;
             var commandResult = command.CreateResult();
-            commandResult.Result = provider;
 
-            functionContext.SetOutput(commandResult);
+            try
+            {
+                var provider = commandResult.Result = await functionContext
+                    .CallActivityAsync<Provider>(nameof(ProviderCreateActivity), command.Payload)
+                    .ConfigureAwait(true);
 
-            functionContext.StartNewOrchestration(nameof(ProviderRegisterOrchestration), null, ProviderRegisterOrchestration.InstanceId);
+                functionContext.StartNewOrchestration(nameof(ProviderRegisterOrchestration), provider);
+            }
+            catch(Exception exc)
+            {
+                commandResult.Errors.Add(exc);
+            }
+            finally
+            {
+                functionContext.SetOutput(commandResult);
+            }
         }
     }
 }

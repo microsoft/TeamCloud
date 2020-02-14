@@ -40,14 +40,15 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
                 if (!functionContext.IsReplaying)
                     functionContext.SetCustomStatus("Creating new Project");
 
-                var project = command.Payload;
                 var teamCloud = commandMessage.TeamCloud;
-                var providers = teamCloud.ProvidersFor(project);
+
+                var project = command.Payload;
 
                 project.TeamCloudId = teamCloud.Id;
-                project.TeamCloudApplicationInsightsKey = teamCloud.ApplicationInsightsKey; // TODO: why do we persist the AI IK on each project? and why on the TC instance?
                 project.Tags = teamCloud.Tags.Merge(project.Tags);
                 project.Properties = teamCloud.Properties.Merge(project.Properties);
+
+                var providers = teamCloud.ProvidersFor(project);
 
                 project.ProviderProperties = providers
                     .ToDictionary(provider => provider.Id, provider => provider.Properties);

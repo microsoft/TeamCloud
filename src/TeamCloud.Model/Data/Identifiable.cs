@@ -31,6 +31,8 @@ namespace TeamCloud.Model.Data
     {
         const string PartitionKeyPath = "/partitionKey";
 
+        string Id { get; }
+
         string PartitionKey { get; }
 
         IList<string> UniqueKeys { get; }

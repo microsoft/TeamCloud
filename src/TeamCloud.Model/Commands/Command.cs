@@ -68,6 +68,7 @@ namespace TeamCloud.Model.Commands
 
             result.CommandId = CommandId;
             result.ProviderId = ProviderId;
+            result.RuntimeStatus = CommandRuntimeStatus.Unknown;
 
             return result;
         }

@@ -25,7 +25,7 @@ namespace TeamCloud.Data.CosmosDb
             try
             {
                 var response = await container
-                    .ReadItemAsync<TeamCloudInstance>(Constants.CosmosDb.TeamCloudInstanceId, new PartitionKey(Constants.CosmosDb.TeamCloudInstanceId))
+                    .ReadItemAsync<TeamCloudInstance>(Constants.CosmosDb.TenantName, new PartitionKey(Constants.CosmosDb.TenantName))
                     .ConfigureAwait(false);
 
                 return response.Value;
@@ -42,7 +42,7 @@ namespace TeamCloud.Data.CosmosDb
                 .ConfigureAwait(false);
 
             var response = await container
-                .UpsertItemAsync<TeamCloudInstance>(teamCloudInstance, new PartitionKey(Constants.CosmosDb.TeamCloudInstanceId))
+                .UpsertItemAsync<TeamCloudInstance>(teamCloudInstance, new PartitionKey(Constants.CosmosDb.TenantName))
                 .ConfigureAwait(false);
 
             return response.Value;

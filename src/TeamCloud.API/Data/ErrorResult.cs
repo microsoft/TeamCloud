@@ -28,7 +28,7 @@ namespace TeamCloud.API.Data
         public string Status { get; private set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public List<ResultError> Errors { get; set; }
+        public IList<ResultError> Errors { get; set; }
 
         [JsonProperty("_trackingId", NullValueHandling = NullValueHandling.Ignore, Order = int.MaxValue)]
         public string CommandId { get; set; }
@@ -52,10 +52,10 @@ namespace TeamCloud.API.Data
         public static ErrorResult Conflict(string message)
             => new ErrorResult { Code = StatusCodes.Status409Conflict, Status = "Conflict", Errors = new List<ResultError> { ResultError.Conflict(message) } };
 
-        public static ErrorResult ServerError(List<ResultError> errors = null, string commandId = null)
+        public static ErrorResult ServerError(IList<ResultError> errors = null, string commandId = null)
             => new ErrorResult { CommandId = commandId, Code = StatusCodes.Status500InternalServerError, Status = "ServerError", Errors = errors ?? new List<ResultError>() };
 
-        public static ErrorResult ServerError(List<Exception> exceptions, string commandId = null)
+        public static ErrorResult ServerError(IList<Exception> exceptions, string commandId = null)
             => new ErrorResult { CommandId = commandId, Code = StatusCodes.Status500InternalServerError, Status = "ServerError", Errors = exceptions?.Select(e => ResultError.ServerError(e)).ToList() ?? new List<ResultError>() };
     }
 

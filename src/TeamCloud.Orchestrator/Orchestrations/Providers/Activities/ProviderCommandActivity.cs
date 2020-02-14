@@ -29,20 +29,35 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers.Activities
             if (input.message is null)
                 throw new ArgumentException($"input param must contain a valid ProviderCommandMessage set on {nameof(input.message)}.", nameof(input));
 
-            var response = await input.provider.Url
-                .AppendPathSegment("api/command")
-                .WithHeader("x-functions-key", input.provider.AuthCode)
-                .WithHeader("x-functions-callback", input.message.CallbackUrl)
-                .PostJsonAsync(input.message)
-                .ConfigureAwait(false);
+            ICommandResult commandResult = input.message.Command.CreateResult();
 
-            response.EnsureSuccessStatusCode();
+            try
+            {
+                var providerUrl = new Url(input.provider.Url);
 
-            var responseJson = await response.Content
-                .ReadAsStringAsync()
-                .ConfigureAwait(false);
+                if (string.IsNullOrEmpty(providerUrl.Path))
+                {
+                    providerUrl = providerUrl.AppendPathSegment("api/command");
+                }
 
-            var commandResult = JsonConvert.DeserializeObject<ICommandResult>(responseJson);
+                var response = await providerUrl
+                    .WithHeader("x-functions-key", input.provider.AuthCode)
+                    .WithHeader("x-functions-callback", input.message.CallbackUrl)
+                    .PostJsonAsync(input.message)
+                    .ConfigureAwait(false);
+
+                var responseJson = await response.Content
+                    .ReadAsStringAsync()
+                    .ConfigureAwait(false);
+
+                commandResult = JsonConvert.DeserializeObject<ICommandResult>(responseJson);
+            }
+            catch (Exception exc)
+            {
+                log.LogError(exc, $"Sending command to provider {input.provider.Id} failed: {exc.Message}");
+
+                commandResult.Errors.Add(exc);
+            }
 
             return commandResult;
         }

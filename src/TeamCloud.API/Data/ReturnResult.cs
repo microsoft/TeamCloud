@@ -24,6 +24,6 @@ namespace TeamCloud.API.Data
 
     public interface IFailureResult : IReturnResult
     {
-        List<ResultError> Errors { get; }
+        IList<ResultError> Errors { get; }
     }
 }

@@ -25,7 +25,7 @@ namespace TeamCloud.Model.Commands
 
         string ProviderId { get; set; }
 
-        List<Exception> Exceptions { get; set; }
+        IList<Exception> Errors { get; set; }
 
         [JsonProperty(Order = int.MaxValue, PropertyName = "_links")]
         Dictionary<string, string> Links { get; }
@@ -56,7 +56,7 @@ namespace TeamCloud.Model.Commands
 
         public string ProviderId { get; set; }
 
-        public List<Exception> Exceptions { get; set; } = new List<Exception>();
+        public IList<Exception> Errors { get; set; } = new List<Exception>();
 
         [JsonProperty(Order = int.MaxValue, PropertyName = "_links")]
         public Dictionary<string, string> Links { get; private set; } = new Dictionary<string, string>();

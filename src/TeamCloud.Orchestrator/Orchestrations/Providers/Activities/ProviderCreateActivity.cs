@@ -44,7 +44,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.TeamCloud.Activities
                 .ConfigureAwait(false);
 
             await durableClient
-                .TerminateAsync(ProviderRegisterOrchestration.InstanceId, "New Provider Added, Restarting")
+                .TerminateAsync(ProviderRegisterOrchestration.EternalInstanceId, "New Provider Added, Restarting")
                 .ConfigureAwait(false);
 
             return provider;

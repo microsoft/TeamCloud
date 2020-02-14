@@ -14,7 +14,7 @@ namespace TeamCloud.Model.Data
         [JsonIgnore]
         public IList<string> UniqueKeys => new List<string> { };
 
-        public string PartitionKey => Constants.CosmosDb.TeamCloudInstanceId;
+        public string PartitionKey => Constants.CosmosDb.TenantName;
 
         public string Id { get; set; }
 

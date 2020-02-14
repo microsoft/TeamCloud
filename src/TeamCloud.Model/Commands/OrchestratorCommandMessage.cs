@@ -45,15 +45,15 @@ namespace TeamCloud.Model.Commands
         public Guid CommandId => CommandResult.CommandId;
 
         [JsonIgnore]
-        public Dictionary<Provider, List<Exception>> ProviderExceptions => ProviderCommandResults
-            .Where(pr => pr.Value.Exceptions.Any())
-            .ToDictionary(pr => pr.Key, pr => pr.Value.Exceptions);
+        public Dictionary<Provider, IList<Exception>> ProviderExceptions => ProviderCommandResults
+            .Where(pr => pr.Value.Errors.Any())
+            .ToDictionary(pr => pr.Key, pr => pr.Value.Errors);
 
         [JsonIgnore]
-        public List<Exception> Exceptions => CommandResult.Exceptions
+        public List<Exception> Exceptions => CommandResult.Errors
             .Concat(ProviderCommandResults
-                .Where(pr => pr.Value.Exceptions.Any())
-                .SelectMany(pr => pr.Value.Exceptions)
+                .Where(pr => pr.Value.Errors.Any())
+                .SelectMany(pr => pr.Value.Errors)
             ).ToList();
     }
 }

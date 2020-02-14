@@ -1,8 +1,7 @@
 ﻿/**
- *  Copyright (c) Microsoft Corporation.
- *  Licensed under the MIT License.
- */
-
+*  Copyright (c) Microsoft Corporation.
+*  Licensed under the MIT License.
+*/
 namespace TeamCloud.Model
 {
     public static class Constants
@@ -11,8 +10,7 @@ namespace TeamCloud.Model
         {
             public const string DatabaseName = "TeamCloud";
 
-            // single arbitrary id for the TeamCloudInstance
-            public const string TeamCloudInstanceId = "TeamCloud";
+            public const string TenantName = "TeamCloud";
         }
     }
 }

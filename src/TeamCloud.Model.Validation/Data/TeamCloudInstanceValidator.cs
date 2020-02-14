@@ -13,9 +13,11 @@ namespace TeamCloud.Model.Validation.Data
     {
         public TeamCloudInstanceValidator()
         {
-            RuleFor(obj => obj.Id).MustBeResourcId();
-            RuleFor(obj => obj.PartitionKey).NotEmpty();
-            RuleFor(obj => obj.ApplicationInsightsKey).NotEmpty();
+            RuleFor(obj => obj.Id)
+                .MustBeResourcId();
+
+            RuleFor(obj => obj.PartitionKey)
+                .NotEmpty();
 
             RuleFor(obj => obj.Users)
                 .Cascade(CascadeMode.StopOnFirstFailure)
@@ -23,7 +25,8 @@ namespace TeamCloud.Model.Validation.Data
                 .Must(users => users.Any(user => user.Role == UserRoles.TeamCloud.Admin))
                     .WithMessage("'{PropertyName}' must contain at least one user with the role " + $"'{UserRoles.TeamCloud.Admin}'.");
 
-            RuleFor(obj => obj.Providers).NotEmpty();
+            RuleFor(obj => obj.Providers)
+                .NotEmpty();
         }
     }
 }

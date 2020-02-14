@@ -4,7 +4,6 @@
  */
 
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -36,10 +35,6 @@ namespace TeamCloud.Orchestrator.Orchestrations.TeamCloud.Activities
             var teamCloud = await teamCloudRepository
                 .SetAsync(teamCloudInstance)
                 .ConfigureAwait(false);
-
-            // await Task
-            //     .WhenAll(teamCloudConfiguration.ProjectTypes.Select(pt => projectTypesRepository.AddAsync(pt)))
-            //     .ConfigureAwait(false);
 
             foreach (var projectType in teamCloudConfiguration.ProjectTypes)
             {

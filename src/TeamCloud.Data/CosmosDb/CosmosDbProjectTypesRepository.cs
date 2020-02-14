@@ -49,7 +49,7 @@ namespace TeamCloud.Data.CosmosDb
             try
             {
                 var response = await container
-                    .ReadItemAsync<ProjectType>(id, new PartitionKey(Constants.CosmosDb.TeamCloudInstanceId))
+                    .ReadItemAsync<ProjectType>(id, new PartitionKey(Constants.CosmosDb.TenantName))
                     .ConfigureAwait(false);
 
                 return response.Value;
@@ -84,7 +84,7 @@ namespace TeamCloud.Data.CosmosDb
             try
             {
                 var query = new QueryDefinition($"SELECT * FROM t WHERE t.default");
-                var queryIterator = container.GetItemQueryIterator<ProjectType>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Constants.CosmosDb.TeamCloudInstanceId) });
+                var queryIterator = container.GetItemQueryIterator<ProjectType>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Constants.CosmosDb.TenantName) });
                 var defaultType = await queryIterator
                     .FirstOrDefaultAsync(t => t.Default)
                     .ConfigureAwait(false);
@@ -103,7 +103,7 @@ namespace TeamCloud.Data.CosmosDb
                 .ConfigureAwait(false);
 
             var response = await container
-                .UpsertItemAsync<ProjectType>(projectType, new PartitionKey(Constants.CosmosDb.TeamCloudInstanceId))
+                .UpsertItemAsync<ProjectType>(projectType, new PartitionKey(Constants.CosmosDb.TenantName))
                 .ConfigureAwait(false);
 
             return response.Value;
@@ -116,7 +116,7 @@ namespace TeamCloud.Data.CosmosDb
 
             var query = new QueryDefinition($"SELECT * FROM c");
             var queryIterator = container
-                .GetItemQueryIterator<ProjectType>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Constants.CosmosDb.TeamCloudInstanceId) });
+                .GetItemQueryIterator<ProjectType>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Constants.CosmosDb.TenantName) });
 
             await foreach (var queryResult in queryIterator)
             {
@@ -130,7 +130,7 @@ namespace TeamCloud.Data.CosmosDb
                 .ConfigureAwait(false);
 
             var response = await container
-                .DeleteItemAsync<ProjectType>(projectType.Id, new PartitionKey(Constants.CosmosDb.TeamCloudInstanceId))
+                .DeleteItemAsync<ProjectType>(projectType.Id, new PartitionKey(Constants.CosmosDb.TenantName))
                 .ConfigureAwait(false);
 
             return response.Value;

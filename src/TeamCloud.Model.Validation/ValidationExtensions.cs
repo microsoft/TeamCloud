@@ -114,8 +114,8 @@ namespace TeamCloud.Model.Validation
             if (validator.CanValidateInstancesOfType(validatable.GetType()))
             {
                 var validationResult = await validator
-                .ValidateAsync(validatable)
-                .ConfigureAwait(false);
+                    .ValidateAsync(validatable)
+                    .ConfigureAwait(false);
 
                 if (!validationResult.IsValid && throwOnValidationError)
                     throw validationResult.ToException();
@@ -136,10 +136,10 @@ namespace TeamCloud.Model.Validation
         public static ValidationException ToException(this ValidationResult validationResult)
             => validationResult.IsValid ? null : new ValidationException(validationResult.Errors);
 
-        private static ICommandResult ApplyValidationResult(this ICommandResult commandResult, ValidationResult validationResult)
+        public static ICommandResult ApplyValidationResult(this ICommandResult commandResult, ValidationResult validationResult)
         {
             if (!validationResult.IsValid)
-                commandResult.Exceptions.Add(validationResult.ToException());
+                commandResult.Errors.Add(validationResult.ToException());
 
             return commandResult;
         }

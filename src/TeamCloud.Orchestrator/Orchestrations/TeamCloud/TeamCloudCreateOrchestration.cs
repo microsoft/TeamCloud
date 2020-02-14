@@ -36,7 +36,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.TeamCloud
             commandResult.Result = teamCloud;
 
             // start eternal orchestration to register providers every 1 hour
-            functionContext.StartNewOrchestration(nameof(ProviderRegisterOrchestration), teamCloud.Providers, ProviderRegisterOrchestration.InstanceId);
+            functionContext.StartNewOrchestration(nameof(ProviderRegisterOrchestration), teamCloud.Providers, ProviderRegisterOrchestration.EternalInstanceId);
 
             functionContext.SetOutput(commandResult);
         }

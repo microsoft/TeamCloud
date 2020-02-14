@@ -13,20 +13,16 @@ namespace TeamCloud.Model.Data
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public sealed class TeamCloudInstance : IContainerDocument
     {
-        public string Id = Constants.CosmosDb.TeamCloudInstanceId;
+        public string Id => Constants.CosmosDb.TenantName;
 
-        public string PartitionKey => Id;
+        public string PartitionKey => Constants.CosmosDb.DatabaseName;
 
         [JsonIgnore]
         public IList<string> UniqueKeys => new List<string> { };
 
         public AzureResourceGroup ResourceGroup { get; set; }
 
-        public string ApplicationInsightsKey { get; set; }
-
         public IList<User> Users { get; set; } = new List<User>();
-
-        public IList<Guid> ProjectIds { get; set; } = new List<Guid>();
 
         public IDictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();
 
