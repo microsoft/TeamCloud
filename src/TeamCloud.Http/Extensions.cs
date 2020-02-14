@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Flurl;
@@ -54,6 +55,13 @@ namespace TeamCloud.Http
                 clientOrRequest.WithHeader(header.Key, string.Join(' ', header.Value).Trim());
 
             return clientOrRequest;
+        }
+
+        public static bool IsJson(this string json)
+        {
+            var match = Regex.Match(json.Trim(), @"^([{\[]).*([}\]])$", RegexOptions.Singleline);
+
+            return match.Success && (new string[] { "{}", "[]" }).Contains($"{match.Groups[1].Value}{match.Groups[2].Value}");
         }
     }
 }

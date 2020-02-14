@@ -7,6 +7,7 @@ using System;
 using System.Diagnostics;
 using System.Net.Http;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Flurl.Http;
@@ -75,15 +76,23 @@ namespace TeamCloud.Http
 
             var trace = new StringBuilder();
 
-            trace.AppendLine("REQUEST:  " + await request.Content
+            trace.AppendLine("REQUEST:  " + SanitizeJson(await request.Content
                 .ReadAsStringAsync()
-                .ConfigureAwait(false));
+                .ConfigureAwait(false)));
 
-            trace.AppendLine("RESPONSE: " + await response.Content
+            trace.AppendLine("RESPONSE: " + SanitizeJson(await response.Content
                 .ReadAsStringAsync()
-                .ConfigureAwait(false));
+                .ConfigureAwait(false)));
 
             Debug.WriteLine($"!!! {request.Method.ToString().ToUpperInvariant()} {request.RequestUri} {response.StatusCode}{Environment.NewLine}{trace}");
+
+            string SanitizeJson(string json)
+            {
+                if (json?.IsJson() ?? false)
+                    return json;
+
+                return Regex.Replace(json, "\\s+(?=(?:[^'\"]*['\"][^'\"]*['\"])*[^'\"]*$)", string.Empty);
+            }
         }
     }
 }
