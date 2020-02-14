@@ -5,11 +5,10 @@
 
 using System;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 
 namespace TeamCloud.Model.Commands.Serialization
 {
-    public class SuppressConverterContractResolver<TConverter> : DefaultContractResolver
+    public class SuppressConverterContractResolver<TConverter> : ModelConverterContractResolver
         where TConverter : JsonConverter
     {
         protected override JsonConverter ResolveContractConverter(Type objectType)
