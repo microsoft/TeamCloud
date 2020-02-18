@@ -9,6 +9,14 @@
 			"path": "src/TeamCloud.Azure"
 		},
 		{
+			"name": "Azure.Deployment",
+			"path": "src/TeamCloud.Azure.Deployment"
+		},
+		{
+			"name": "Azure.Directory",
+			"path": "src/TeamCloud.Azure.Directory"
+		},
+		{
 			"name": "Configuration",
 			"path": "src/TeamCloud.Configuration"
 		},

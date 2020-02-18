@@ -8,7 +8,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 using TeamCloud.API.Data;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
@@ -18,18 +20,16 @@ using TeamCloud.Model.Validation.Data;
 namespace TeamCloud.API.Controllers
 {
     [ApiController]
-    [Authorize(Policy = "admin")]
     [Route("api/projectTypes")]
+    [Produces("application/json")]
     public class ProjectTypesController : ControllerBase
     {
-        readonly UserService userService;
         readonly Orchestrator orchestrator;
         readonly ITeamCloudRepositoryReadOnly teamCloudRepository;
         readonly IProjectTypesRepositoryReadOnly projectTypesRepository;
 
-        public ProjectTypesController(UserService userService, Orchestrator orchestrator, ITeamCloudRepositoryReadOnly teamCloudRepository, IProjectTypesRepositoryReadOnly projectTypesRepository)
+        public ProjectTypesController(Orchestrator orchestrator, ITeamCloudRepositoryReadOnly teamCloudRepository, IProjectTypesRepositoryReadOnly projectTypesRepository)
         {
-            this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
             this.orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
             this.teamCloudRepository = teamCloudRepository ?? throw new ArgumentNullException(nameof(teamCloudRepository));
             this.projectTypesRepository = projectTypesRepository ?? throw new ArgumentNullException(nameof(projectTypesRepository));
@@ -37,6 +37,8 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpGet]
+        [SwaggerOperation(OperationId = "GetProjectTypes", Summary = "Gets all Project Types.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Returns all ProjectTypes.", typeof(DataResult<List<ProjectType>>))]
         public async Task<IActionResult> Get()
         {
             var projectTypes = await projectTypesRepository
@@ -51,6 +53,10 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpGet("{projectTypeId}")]
+        [Authorize(Policy = "admin")]
+        [SwaggerOperation(OperationId = "GetProjectTypeById", Summary = "Gets a Project Type by ID.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Returns a ProjectType.", typeof(DataResult<ProjectType>))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "A ProjectType with the projectTypeId provided was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Get(string projectTypeId)
         {
             var projectType = await projectTypesRepository
@@ -69,6 +75,12 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpPost]
+        [Authorize(Policy = "admin")]
+        [Consumes("application/json")]
+        [SwaggerOperation(OperationId = "CreateProjectType", Summary = "Creates a new Project Type.")]
+        [SwaggerResponse(StatusCodes.Status201Created, "The new ProjectType was created.", typeof(DataResult<ProjectType>))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "The ProjectType did not pass validation.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status409Conflict, "A ProjectType already exists with the ID provided in the request body.", typeof(ErrorResult))]
         public async Task<IActionResult> Post([FromBody] ProjectType projectType)
         {
             var validation = new ProjectTypeValidator().Validate(projectType);
@@ -116,6 +128,12 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpPut]
+        [Authorize(Policy = "admin")]
+        [Consumes("application/json")]
+        [SwaggerOperation(OperationId = "UpdateProjectType", Summary = "Updates an existing ProjectType.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "The ProjectType was updated.", typeof(DataResult<ProjectType>))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "The ProjectType did not pass validation.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status409Conflict, "A Project Type already exists with the ID provided in the reques body.", typeof(ErrorResult))]
         public async Task<IActionResult> Put([FromBody] ProjectType projectType)
         {
             var validation = new ProjectTypeValidator().Validate(projectType);
@@ -160,6 +178,10 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpDelete("{projectTypeId}")]
+        [Authorize(Policy = "admin")]
+        [SwaggerOperation(OperationId = "DeleteProjectType", Summary = "Deletes a ProjectType.")]
+        [SwaggerResponse(StatusCodes.Status204NoContent, "The ProjectType was deleted.", typeof(DataResult<ProjectType>))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "A ProjectType with the projectTypeId provided was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Delete(string projectTypeId)
         {
             var existingProjectType = await projectTypesRepository

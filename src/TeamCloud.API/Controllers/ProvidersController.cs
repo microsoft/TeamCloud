@@ -8,7 +8,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 using TeamCloud.API.Data;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
@@ -20,7 +22,7 @@ namespace TeamCloud.API.Controllers
 {
     [ApiController]
     [Route("api/providers")]
-    [Authorize(Policy = "admin")]
+    [Produces("application/json")]
     public class ProvidersController : ControllerBase
     {
         readonly UserService userService;
@@ -29,7 +31,7 @@ namespace TeamCloud.API.Controllers
         readonly ITeamCloudRepositoryReadOnly teamCloudRepository;
         readonly IProjectTypesRepositoryReadOnly projectTypesRepository;
 
-        public ProvidersController(UserService userService, Orchestrator orchestrator, ITeamCloudRepositoryReadOnly teamCloudRepository, IProjectTypesRepositoryReadOnly projectTypesRepository)
+        public ProvidersController(UserService userService, Orchestrator orchestrator, IProjectsRepositoryReadOnly projectsRepository, ITeamCloudRepositoryReadOnly teamCloudRepository, IProjectTypesRepositoryReadOnly projectTypesRepository)
         {
             this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
             this.orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
@@ -46,6 +48,10 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpGet]
+        [Authorize(Policy = "admin")]
+        [SwaggerOperation(OperationId = "GetProviders", Summary = "Gets all Providers.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Returns all Providers.", typeof(DataResult<List<Provider>>))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Get()
         {
             var teamCloudInstance = await teamCloudRepository
@@ -67,6 +73,10 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpGet("{providerId}")]
+        [Authorize(Policy = "admin")]
+        [SwaggerOperation(OperationId = "GetProviderById", Summary = "Gets a Provider by ID.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Returns a DataResult with the Provider as the data value.", typeof(DataResult<Provider>))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found, or a Provider with the providerId provided was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Get(string providerId)
         {
             var teamCloudInstance = await teamCloudRepository
@@ -92,6 +102,13 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpPost]
+        [Authorize(Policy = "admin")]
+        [Consumes("application/json")]
+        [SwaggerOperation(OperationId = "CreateProvider", Summary = "Creates a new Provider.")]
+        [SwaggerResponse(StatusCodes.Status202Accepted, "Starts creating the new Provider. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "The Provider provided in the request body did not pass validation.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status409Conflict, "A Provider already exists with the ID provided in the request body.", typeof(ErrorResult))]
         public async Task<IActionResult> Post([FromBody] Provider provider)
         {
             var validation = new ProviderValidator().Validate(provider);
@@ -131,6 +148,12 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpPut]
+        [Authorize(Policy = "admin")]
+        [Consumes("application/json")]
+        [SwaggerOperation(OperationId = "UpdateProvider", Summary = "Updates an existing Provider.")]
+        [SwaggerResponse(StatusCodes.Status202Accepted, "Starts updating the provided Provider. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "The Provider provided in the request body did not pass validation.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found, or a Provider with the ID provided in the reques body was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Put([FromBody] Provider provider)
         {
             var validation = new ProviderValidator().Validate(provider);
@@ -172,6 +195,10 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpDelete("{providerId}")]
+        [Authorize(Policy = "admin")]
+        [SwaggerOperation(OperationId = "DeleteProvider", Summary = "Deletes an existing Provider.")]
+        [SwaggerResponse(StatusCodes.Status202Accepted, "Starts deleting the provided Provider. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found, or a Provider with the provided providerId was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Delete(string providerId)
         {
             var teamCloudInstance = await teamCloudRepository

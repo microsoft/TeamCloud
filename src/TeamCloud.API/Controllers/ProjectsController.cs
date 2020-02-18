@@ -10,7 +10,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 using TeamCloud.API.Data;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
@@ -21,7 +23,7 @@ namespace TeamCloud.API.Controllers
 {
     [ApiController]
     [Route("api/projects")]
-    [Authorize(Policy = "projectRead")]
+    [Produces("application/json")]
     public class ProjectsController : ControllerBase
     {
         readonly UserService userService;
@@ -58,6 +60,9 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpGet]
+        [Authorize(Policy = "projectRead")]
+        [SwaggerOperation(OperationId = "GetProjects", Summary = "Gets all Projects.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Returns all Projects.", typeof(DataResult<List<Project>>))]
         public async Task<IActionResult> Get()
         {
             var projects = await projectsRepository
@@ -72,6 +77,10 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpGet("{projectId:guid}")]
+        [Authorize(Policy = "projectRead")]
+        [SwaggerOperation(OperationId = "GetProjectById", Summary = "Gets a Project by ID.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Returns a Project.", typeof(DataResult<Project>))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the specified projectId was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Get(Guid projectId)
         {
             var project = await projectsRepository
@@ -91,6 +100,11 @@ namespace TeamCloud.API.Controllers
 
         [HttpPost]
         [Authorize(Policy = "projectCreate")]
+        [Consumes("application/json")]
+        [SwaggerOperation(OperationId = "CreateProject", Summary = "Creates a new Project.")]
+        [SwaggerResponse(StatusCodes.Status202Accepted, "Started creating the new Project. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "The projectDefinition specified in the request body did not pass validation.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status409Conflict, "A Project already exists with the name specified in the request body.", typeof(ErrorResult))]
         public async Task<IActionResult> Post([FromBody] ProjectDefinition projectDefinition)
         {
             var validation = new ProjectDefinitionValidator().Validate(projectDefinition);
@@ -160,6 +174,9 @@ namespace TeamCloud.API.Controllers
 
         [HttpDelete("{projectId:guid}")]
         [Authorize(Policy = "projectDelete")]
+        [SwaggerOperation(OperationId = "DeleteProject", Summary = "Deletes a Project.")]
+        [SwaggerResponse(StatusCodes.Status202Accepted, "Starts deleting the specified Project. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the specified projectId was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Delete(Guid projectId)
         {
             var project = await projectsRepository

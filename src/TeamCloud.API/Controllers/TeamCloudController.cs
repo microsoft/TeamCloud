@@ -7,7 +7,9 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 using TeamCloud.API.Data;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
@@ -19,7 +21,6 @@ namespace TeamCloud.API.Controllers
 {
     [ApiController]
     [Route("api/config")]
-    [Authorize(Policy = "admin")]
     public class TeamCloudController : ControllerBase
     {
         readonly UserService userService;
@@ -41,8 +42,13 @@ namespace TeamCloud.API.Controllers
             Role = UserRoles.Project.Owner
         };
 
+
         [HttpGet]
+        [Authorize(Policy = "admin")]
         [Produces("application/json", "application/x-yaml")]
+        [SwaggerOperation(OperationId = "GetTeamCloudConfiguration", Summary = "Gets the TeamCloud instance's TeamCloudConfiguration.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Returns the TeamCloud instance's TeamCloudConfiguration.", typeof(StatusResult))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Get()
         {
             var teamCloudInstance = await teamCloudRepository
@@ -73,8 +79,15 @@ namespace TeamCloud.API.Controllers
                 .ActionResult();
         }
 
+
         [HttpPost]
+        [Authorize(Policy = "admin")]
         [Consumes("application/x-yaml")]
+        [Produces("application/json")]
+        [SwaggerOperation(OperationId = "PostTeamCloudConfiguration", Summary = "Configures the TeamCloud instance.")]
+        [SwaggerResponse(StatusCodes.Status202Accepted, "Starts configuring the new TeamCloud instance. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "The teamCloudConfiguraiton provided in the request body did not pass validation.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status409Conflict, "The TeamCloud instance is already configured.", typeof(ErrorResult))]
         public async Task<IActionResult> Post([FromBody] TeamCloudConfiguration teamCloudConfiguraiton)
         {
             var validation = new TeamCloudConfigurationValidator().Validate(teamCloudConfiguraiton);

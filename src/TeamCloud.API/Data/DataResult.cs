@@ -4,7 +4,6 @@
  */
 
 using System;
-using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -32,9 +31,6 @@ namespace TeamCloud.API.Data
 
         [JsonProperty(Order = int.MinValue)]
         public string Status { get; private set; }
-
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public List<ResultError> Errors { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string Location { get; private set; }

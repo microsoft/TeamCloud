@@ -21,6 +21,10 @@
     <PackageReference Include="System.Interactive.Async" Version="4.0.0" />
     <PackageReference Include="YamlDotNet" Version="8.1.0" />
     <PackageReference Include="System.Linq.Async" Version="4.0.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.0.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="5.0.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="5.0.0" />
+    <!-- <PackageReference Include="MicroElements.Swashbuckle.FluentValidation" Version="3.0.0-rc.6" /> -->
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TeamCloud.Azure.Deployment\TeamCloud.Azure.Deployment.csproj" />

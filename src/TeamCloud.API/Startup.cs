@@ -22,6 +22,7 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
 using TeamCloud.API.Formatters;
 using TeamCloud.API.Middleware;
 using TeamCloud.API.Services;
@@ -65,6 +66,16 @@ namespace TeamCloud.API
             {
                 // ensure TeamCloud to be configured for all paths other than /api/config
                 appBuilder.UseMiddleware<EnsureTeamCloudConfigurationMiddleware>();
+            });
+
+            // Enable middleware to serve generated Swagger as a JSON endpoint.
+            app.UseSwagger();
+
+            // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
+            // specifying the Swagger JSON endpoint.
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "TeamCloud API v1");
             });
 
             app.UseHttpsRedirection()
@@ -129,6 +140,50 @@ namespace TeamCloud.API
 
             ValidatorOptions.DisplayNameResolver = (type, memberInfo, lambda) => memberInfo?.Name?.ToLowerInvariant();
             ValidatorOptions.PropertyNameResolver = (type, memberInfo, lambda) => memberInfo?.Name?.ToLowerInvariant();
+
+            ConfigureSwagger(services);
+        }
+
+        private void ConfigureSwagger(IServiceCollection services)
+        {
+            services
+            .AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Version = "v1",
+                    Title = "TeamCloud",
+                    Description = "API for working with a TeamCloud instance.",
+                    Contact = new OpenApiContact
+                    {
+                        Url = new Uri("https://github.com/microsoft/TeamCloud/issues/new"),
+                        Email = @"Markus.Heiliger@microsoft.com",
+                        Name = "TeamCloud Dev Team"
+                    },
+                    License = new OpenApiLicense
+                    {
+                        Name = "TeamCloud is licensed under the MIT License",
+                        Url = new Uri("https://github.com/microsoft/TeamCloud/blob/master/LICENSE")
+                    }
+                });
+
+                // options.AddFluentValidationRules();
+                options.EnableAnnotations();
+
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "oauth2" },
+                        },
+                        new [] { "default", "admin", "projectCreate", "projectRead", "projectDelete" }
+                    }
+                });
+
+                options.OperationFilter<SecurityRequirementsOperationFilter>();
+            })
+            .AddSwaggerGenNewtonsoftSupport(); // explicit Newtonsoft opt-in - needs to be placed after AddSwaggerGen()
         }
 
         private void ConfigureAuthentication(IServiceCollection services)

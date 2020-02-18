@@ -8,7 +8,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 using TeamCloud.API.Data;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
@@ -20,7 +22,7 @@ namespace TeamCloud.API
 {
     [ApiController]
     [Route("api/users")]
-    [Authorize(Policy = "admin")]
+    [Produces("application/json")]
     public class TeamCloudUsersController : ControllerBase
     {
         readonly UserService userService;
@@ -40,7 +42,12 @@ namespace TeamCloud.API
             Role = UserRoles.Project.Owner
         };
 
+
         [HttpGet]
+        [Authorize(Policy = "admin")]
+        [SwaggerOperation(OperationId = "GetTeamCloudUsers", Summary = "Gets all TeamCloud Users.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Returns all TeamCloud Users.", typeof(DataResult<List<User>>))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Get()
         {
             var teamCloudInstance = await teamCloudRepository
@@ -59,7 +66,12 @@ namespace TeamCloud.API
                 .ActionResult();
         }
 
+
         [HttpGet("{userId:guid}")]
+        [Authorize(Policy = "admin")]
+        [SwaggerOperation(OperationId = "GetTeamCloudUserById", Summary = "Gets a TeamCloud User by ID.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Returns TeamCloud User.", typeof(DataResult<User>))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found, or a User with the userID provided was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Get(Guid userId)
         {
             var teamCloudInstance = await teamCloudRepository
@@ -83,7 +95,15 @@ namespace TeamCloud.API
                 .ActionResult();
         }
 
+
         [HttpPost]
+        [Authorize(Policy = "admin")]
+        [Consumes("application/json")]
+        [SwaggerOperation(OperationId = "CreateTeamCloudUser", Summary = "Creates a new TeamCloud User.")]
+        [SwaggerResponse(StatusCodes.Status202Accepted, "Starts creating the new TeamCloud UserProject. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "The User provided in the request body did not pass validation.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found, or a User with the email address provided in the request body was not found.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status409Conflict, "A TeamCloud User already exists with the email address provided in the request body.", typeof(ErrorResult))]
         public async Task<IActionResult> Post([FromBody] UserDefinition userDefinition)
         {
             var validation = new UserDefinitionValidator().Validate(userDefinition);
@@ -130,7 +150,14 @@ namespace TeamCloud.API
             throw new Exception("This shoudn't happen, but we need to decide to do when it does...");
         }
 
+
         [HttpPut]
+        [Authorize(Policy = "admin")]
+        [Consumes("application/json")]
+        [SwaggerOperation(OperationId = "UpdateTeamCloudUser", Summary = "Updates an existing TeamCloud User.")]
+        [SwaggerResponse(StatusCodes.Status202Accepted, "Starts updating the TeamCloud UserProject. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "The User provided in the request body did not pass validation.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found, or a User with the ID provided in the request body was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Put([FromBody] User user)
         {
             var validation = new UserValidator().Validate(user);
@@ -170,7 +197,12 @@ namespace TeamCloud.API
             throw new Exception("This shoudn't happen, but we need to decide to do when it does...");
         }
 
+
         [HttpDelete("{userId:guid}")]
+        [Authorize(Policy = "admin")]
+        [SwaggerOperation(OperationId = "DeleteTeamCloudUser", Summary = "Deletes an existing TeamCloud User.")]
+        [SwaggerResponse(StatusCodes.Status202Accepted, "Starts deleting the TeamCloud User. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found, or a User with the userID provided was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Delete(Guid userId)
         {
             var teamCloudInstance = await teamCloudRepository

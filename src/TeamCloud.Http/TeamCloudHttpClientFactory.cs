@@ -3,11 +3,8 @@
  *  Licensed under the MIT License.
  */
 
-using System;
-using System.Collections.Generic;
 using System.Net.Http;
 using System.Reflection;
-using System.Text;
 using Flurl.Http;
 using Flurl.Http.Configuration;
 using Microsoft.ApplicationInsights.Extensibility;

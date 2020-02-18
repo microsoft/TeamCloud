@@ -7,7 +7,9 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 using TeamCloud.API.Data;
 using TeamCloud.API.Services;
 using TeamCloud.Model.Commands;
@@ -15,6 +17,8 @@ using TeamCloud.Model.Commands;
 namespace TeamCloud.API.Controllers
 {
     [ApiController]
+    [Consumes("application/json")]
+    [Produces("application/json")]
     public class StatusController : ControllerBase
     {
         private readonly Orchestrator orchestrator;
@@ -25,22 +29,34 @@ namespace TeamCloud.API.Controllers
         }
 
         [Authorize(Policy = "admin")]
-        [HttpGet("api/status/{commandId:guid}")]
-        public async Task<IActionResult> Get(Guid commandId)
+        [HttpGet("api/status/{trackingId:guid}")]
+        [SwaggerOperation(OperationId = "GetStatus", Summary = "Gets the status of a long-running opertation.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "The long-running operation completed.", typeof(StatusResult))]
+        [SwaggerResponse(StatusCodes.Status202Accepted, "The long-running operation is running. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
+        [SwaggerResponse(StatusCodes.Status302Found, "The long-running operation completed.", typeof(StatusResult))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "The long-running operation with the trackingId provided was not found.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status500InternalServerError, "An internal error occured during the long-running operation.", typeof(ErrorResult))]
+        public async Task<IActionResult> Get(Guid trackingId)
         {
             var result = await orchestrator
-                .QueryAsync(commandId, null)
+                .QueryAsync(trackingId, null)
                 .ConfigureAwait(false);
 
             return GetStatusResult(result);
         }
 
         [Authorize(Policy = "projectRead")]
-        [HttpGet("api/projects/{projectId:guid}/status/{commandId:guid}")]
-        public async Task<IActionResult> Get(Guid projectId, Guid commandId)
+        [HttpGet("api/projects/{projectId:guid}/status/{trackingId:guid}")]
+        [SwaggerOperation(OperationId = "GetProjectStatus", Summary = "Gets the status of a long-running opertation.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "The long-running operation completed.", typeof(StatusResult))]
+        [SwaggerResponse(StatusCodes.Status202Accepted, "The long-running operation is running. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
+        [SwaggerResponse(StatusCodes.Status302Found, "The long-running operation completed.", typeof(StatusResult))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "The long-running operation with the trackingId provided was not found.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status500InternalServerError, "An internal error occured during the long-running operation.", typeof(ErrorResult))]
+        public async Task<IActionResult> Get(Guid projectId, Guid trackingId)
         {
             var result = await orchestrator
-                .QueryAsync(commandId, projectId)
+                .QueryAsync(trackingId, projectId)
                 .ConfigureAwait(false);
 
             return GetStatusResult(result);

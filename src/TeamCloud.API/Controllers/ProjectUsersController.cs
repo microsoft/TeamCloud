@@ -8,7 +8,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 using TeamCloud.API.Data;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
@@ -19,8 +21,8 @@ using TeamCloud.Model.Validation.Data;
 namespace TeamCloud.API.Controllers
 {
     [ApiController]
-    [Authorize(Policy = "projectRead")]
     [Route("api/projects/{projectId:guid}/users")]
+    [Produces("application/json")]
     public class ProjectUsersController : ControllerBase
     {
         readonly UserService userService;
@@ -52,6 +54,11 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpGet]
+        [Authorize(Policy = "projectRead")]
+        [SwaggerOperation(OperationId = "GetProjectUsers", Summary = "Gets all Users for a Project.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Returns all Project Users", typeof(DataResult<List<User>>))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "The projectId provided in the path was invalid.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a User with the provided userId was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Get()
         {
             if (!ProjectId.HasValue)
@@ -77,6 +84,11 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpGet("{userId:guid}")]
+        [Authorize(Policy = "projectRead")]
+        [SwaggerOperation(OperationId = "GetProjectUserById", Summary = "Gets a Project User by ID.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Returns Project User", typeof(DataResult<User>))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "The projectId provided in the path was invalid.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a User with the provided userId was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Get(Guid userId)
         {
             if (!ProjectId.HasValue)
@@ -108,6 +120,12 @@ namespace TeamCloud.API.Controllers
 
         [HttpPost]
         [Authorize(Policy = "projectCreate")]
+        [Consumes("application/json")]
+        [SwaggerOperation(OperationId = "CreateProjectUser", Summary = "Creates a new Project User")]
+        [SwaggerResponse(StatusCodes.Status202Accepted, "Starts creating the new Project UserProject. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "The projectId provided in the path was invalid.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a User with the email address provided in the request body was not found.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status409Conflict, "A Project User already exists with the email address provided in the request body.", typeof(ErrorResult))]
         public async Task<IActionResult> Post([FromBody] UserDefinition userDefinition)
         {
             if (!ProjectId.HasValue)
@@ -159,8 +177,15 @@ namespace TeamCloud.API.Controllers
             throw new Exception("This shoudn't happen, but we need to decide to do when it does...");
         }
 
+
+
         [HttpPut]
         [Authorize(Policy = "projectCreate")]
+        [Consumes("application/json")]
+        [SwaggerOperation(OperationId = "UpdateProjectUser", Summary = "Updates an existing Project User.")]
+        [SwaggerResponse(StatusCodes.Status202Accepted, "Starts updating the Project UserProject. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "The projectId provided in the path was invalid, or the User provided in the request body did not pass validation.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a User with the ID provided in the request body was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Put([FromBody] User user)
         {
             if (!ProjectId.HasValue)
@@ -205,8 +230,14 @@ namespace TeamCloud.API.Controllers
             throw new Exception("This shoudn't happen, but we need to decide to do when it does...");
         }
 
+
+
         [HttpDelete("{userId:guid}")]
         [Authorize(Policy = "projectCreate")]
+        [SwaggerOperation(OperationId = "DeleteProjectUser", Summary = "Deletes an existing Project User.")]
+        [SwaggerResponse(StatusCodes.Status202Accepted, "Starts deleting the Project UserProject. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "The projectId provided in the path was invalid.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a User with the provided userId was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Delete(Guid userId)
         {
             if (!ProjectId.HasValue)
