@@ -26,7 +26,7 @@ namespace TeamCloud.Model.Data
     {
         public bool Equals(User x, User y)
         {
-            if (object.ReferenceEquals(x, y))
+            if (ReferenceEquals(x, y))
                 return true;
             else if (x == null || y == null)
                 return false;

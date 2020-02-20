@@ -4,11 +4,9 @@
  */
 
 using System.Collections.Generic;
-using System.Linq;
 using FluentValidation;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using TeamCloud.Model.Data;
 
 namespace TeamCloud.API.Data
 {
@@ -30,11 +28,7 @@ namespace TeamCloud.API.Data
         {
             RuleFor(obj => obj.Name).NotEmpty();
             RuleFor(obj => obj.Users)
-                .Cascade(CascadeMode.StopOnFirstFailure)
-                .NotEmpty()
-                .ForEach(user => user.SetValidator(new UserDefinitionValidator()))
-                .Must(users => users.Any(user => user.Role == UserRoles.Project.Owner))
-                    .WithMessage("'{PropertyName}' must contain at least one user with the role " + $"'{UserRoles.Project.Owner}'.");
+                .ForEach(user => user.SetValidator(new UserDefinitionValidator()));
         }
     }
 }

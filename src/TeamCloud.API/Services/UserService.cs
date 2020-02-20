@@ -29,27 +29,25 @@ namespace TeamCloud.API.Services
         public Guid CurrentUserId
             => httpContextAccessor.HttpContext.User.GetObjectId();
 
-        private async Task<Guid?> GetUserIdAsync(string identifier)
+        public async Task<Guid?> GetUserIdAsync(string identifier)
         {
             if (string.IsNullOrWhiteSpace(identifier))
                 throw new ArgumentNullException(nameof(identifier));
-
-            Guid? val = null;
 
             // Generate unique key for this identifier
             string key = $"{nameof(UserService)}_{nameof(GetUserIdAsync)}_{identifier}";
 
             // See if the cache has this key value
-            if (!cache.TryGetValue<Guid?>(key, out val))
+            if (!cache.TryGetValue(key, out Guid? val))
             {
                 // Key doesn't exist, query for UserID
                 val = await azureDirectoryService.GetUserIdAsync(identifier).ConfigureAwait(false);
 
                 // Set value to cache so long as it's a valid Guid
-                if(val.HasValue && val.Value != Guid.Empty)
+                if (val.HasValue && val.Value != Guid.Empty)
                     cache.Set(key, val, TimeSpan.FromMinutes(5)); // Cached value only for certain amount of time
             }
-            
+
             return val;
         }
 
@@ -62,8 +60,8 @@ namespace TeamCloud.API.Services
 
             return new User
             {
-                Id = userId.Value, // TODO: Get the id using u.Email
-                Role = userDefinition.Role, // TODO: validate
+                Id = userId.Value,
+                Role = userDefinition.Role,
                 Tags = userDefinition.Tags
             };
         }

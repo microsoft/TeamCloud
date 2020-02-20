@@ -147,43 +147,43 @@ namespace TeamCloud.API
         private void ConfigureSwagger(IServiceCollection services)
         {
             services
-            .AddSwaggerGen(options =>
-            {
-                options.SwaggerDoc("v1", new OpenApiInfo
+                .AddSwaggerGen(options =>
                 {
-                    Version = "v1",
-                    Title = "TeamCloud",
-                    Description = "API for working with a TeamCloud instance.",
-                    Contact = new OpenApiContact
+                    options.SwaggerDoc("v1", new OpenApiInfo
                     {
-                        Url = new Uri("https://github.com/microsoft/TeamCloud/issues/new"),
-                        Email = @"Markus.Heiliger@microsoft.com",
-                        Name = "TeamCloud Dev Team"
-                    },
-                    License = new OpenApiLicense
-                    {
-                        Name = "TeamCloud is licensed under the MIT License",
-                        Url = new Uri("https://github.com/microsoft/TeamCloud/blob/master/LICENSE")
-                    }
-                });
-
-                // options.AddFluentValidationRules();
-                options.EnableAnnotations();
-
-                options.AddSecurityRequirement(new OpenApiSecurityRequirement
-                {
-                    {
-                        new OpenApiSecurityScheme
+                        Version = "v1",
+                        Title = "TeamCloud",
+                        Description = "API for working with a TeamCloud instance.",
+                        Contact = new OpenApiContact
                         {
-                            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "oauth2" },
+                            Url = new Uri("https://github.com/microsoft/TeamCloud/issues/new"),
+                            Email = @"Markus.Heiliger@microsoft.com",
+                            Name = "TeamCloud Dev Team"
                         },
-                        new [] { "default", "admin", "projectCreate", "projectRead", "projectDelete" }
-                    }
-                });
+                        License = new OpenApiLicense
+                        {
+                            Name = "TeamCloud is licensed under the MIT License",
+                            Url = new Uri("https://github.com/microsoft/TeamCloud/blob/master/LICENSE")
+                        }
+                    });
 
-                options.OperationFilter<SecurityRequirementsOperationFilter>();
-            })
-            .AddSwaggerGenNewtonsoftSupport(); // explicit Newtonsoft opt-in - needs to be placed after AddSwaggerGen()
+                    // options.AddFluentValidationRules();
+                    options.EnableAnnotations();
+
+                    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                    {
+                        {
+                            new OpenApiSecurityScheme
+                            {
+                                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "oauth2" },
+                            },
+                            new [] { "default", "admin", "projectCreate", "projectRead", "projectDelete" }
+                        }
+                    });
+
+                    options.OperationFilter<SecurityRequirementsOperationFilter>();
+                })
+                .AddSwaggerGenNewtonsoftSupport(); // explicit Newtonsoft opt-in - needs to be placed after AddSwaggerGen()
         }
 
         private void ConfigureAuthentication(IServiceCollection services)
@@ -270,31 +270,45 @@ namespace TeamCloud.API
 
         private async Task<IEnumerable<Claim>> ResolveClaimsAsync(Guid userId, HttpContext httpContext)
         {
-            var claims = new List<Claim>()
+            // TODO: Try to cache this so every API call doesn't perform two DB calls
+
+            var claims = new List<Claim>();
+
+            var teamCloudRepository = httpContext.RequestServices
+                .GetRequiredService<ITeamCloudRepositoryReadOnly>();
+
+            var teamCloudInstance = await teamCloudRepository
+                .GetAsync()
+                .ConfigureAwait(false);
+
+            var teamCloudClaims = teamCloudInstance?.Users?
+                .Where(u => u.Id.Equals(userId))
+                .Select(u => new Claim(ClaimTypes.Role, u.Role));
+
+            if (teamCloudClaims != null)
+                claims.AddRange(teamCloudClaims);
+
+
+            if (httpContext.Request.Path.StartsWithSegments("/api/projects", StringComparison.OrdinalIgnoreCase))
             {
-                // just for testing - everyone is an admin
-                new Claim(ClaimTypes.Role, UserRoles.TeamCloud.Admin)
-            };
+                var projectIdRouteValue = httpContext.GetRouteData()
+                    .Values.GetValueOrDefault("ProjectId", StringComparison.OrdinalIgnoreCase)?.ToString();
 
-            var projectIdRouteValue = httpContext.GetRouteData()
-                .Values.GetValueOrDefault("ProjectId", StringComparison.OrdinalIgnoreCase)?.ToString();
-
-            if (Guid.TryParse(projectIdRouteValue, out Guid projectId))
-            {
-                var projectRepository = httpContext.RequestServices
-                    .GetRequiredService<IProjectsRepositoryReadOnly>();
-
-                var project = await projectRepository
-                    .GetAsync(projectId)
-                    .ConfigureAwait(false);
-
-                if (project != null)
+                if (Guid.TryParse(projectIdRouteValue, out Guid projectId))
                 {
-                    var projectClaims = (project.Users ?? Enumerable.Empty<User>())
-                        .Where(user => user.Id == userId)
-                        .Select(user => new Claim(ClaimTypes.Role, user.Role));
+                    var projectRepository = httpContext.RequestServices
+                        .GetRequiredService<IProjectsRepositoryReadOnly>();
 
-                    claims.AddRange(projectClaims);
+                    var project = await projectRepository
+                        .GetAsync(projectId)
+                        .ConfigureAwait(false);
+
+                    var projectClaims = project?.Users?
+                        .Where(u => u.Id == userId)
+                        .Select(u => new Claim(ClaimTypes.Role, u.Role));
+
+                    if (projectClaims != null)
+                        claims.AddRange(projectClaims);
                 }
             }
 

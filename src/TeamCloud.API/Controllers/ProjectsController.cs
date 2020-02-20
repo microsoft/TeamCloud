@@ -47,15 +47,28 @@ namespace TeamCloud.API.Controllers
 
         private async Task<List<User>> ResolveUsersAsync(ProjectDefinition projectDefinition)
         {
+            if (projectDefinition.Users is null || !projectDefinition.Users.Any())
+                return new List<User> { CurrentUser };
+
             var tasks = projectDefinition.Users.Select(user => userService.GetUserAsync(user));
             var users = await Task.WhenAll(tasks).ConfigureAwait(false);
             var owners = users.Where(user => user.Role.Equals(UserRoles.Project.Owner));
 
-            return users
+            var filteredUsers = users
                 .Where(user => user.Role.Equals(UserRoles.Project.Member))
                 .Except(owners, new UserComparer()) // filter out owners
                 .Union(owners) // union members and owners
                 .ToList();
+
+            // ensure current user and owner role
+            var currentUser = filteredUsers.FirstOrDefault(u => u.Id.Equals(CurrentUser.Id));
+
+            if (currentUser is null)
+                filteredUsers.Add(CurrentUser);
+            else if (currentUser.Role != UserRoles.Project.Owner)
+                currentUser.Role = UserRoles.Project.Owner;
+
+            return filteredUsers;
         }
 
 
