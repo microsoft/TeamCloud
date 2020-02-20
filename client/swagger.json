@@ -2033,8 +2033,13 @@
                 "type": "object",
                 "properties": {
                     "code": {
-                        "type": "string",
-                        "nullable": false
+                        "enum": [
+                            "Conflict",
+                            "NotFound",
+                            "ServerError",
+                            "ValidationError"
+                        ],
+                        "type": "string"
                     },
                     "message": {
                         "type": "string",

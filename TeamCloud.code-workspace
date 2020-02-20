@@ -54,6 +54,9 @@
 		},
 		{
 			"path": "deploy"
+		},
+		{
+			"path": "client"
 		}
 	],
 	"settings": {

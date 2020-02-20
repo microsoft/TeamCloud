@@ -169,6 +169,7 @@ namespace TeamCloud.API
 
                     // options.AddFluentValidationRules();
                     options.EnableAnnotations();
+                    options.UseInlineDefinitionsForEnums();
 
                     options.AddSecurityRequirement(new OpenApiSecurityRequirement
                     {
@@ -226,7 +227,6 @@ namespace TeamCloud.API
                         }
                     };
                 });
-
         }
 
         private void ConfigureAuthorization(IServiceCollection services)
