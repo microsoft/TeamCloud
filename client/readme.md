@@ -41,8 +41,7 @@ input-file: swagger.json
 namespace: teamcloud
 add-credentials: true
 override-client-name: TeamCloudClient
-license-header: MICROSOFT_MIT_NO_CODEGEN
-# license-header: MICROSOFT_MIT_NO_VERSION
+license-header: MICROSOFT_MIT_NO_VERSION
 ```
 
 ### Generation
@@ -50,16 +49,18 @@ license-header: MICROSOFT_MIT_NO_CODEGEN
 #### CSharp
 
 ``` yaml
-csharp:
-  output-folder: CSharp
-  namespace: TeamCloud.Client
+# Uncomment to generate CSharp client.
+# csharp:
+#   output-folder: CSharp
+#   namespace: TeamCloud.Client
 ```
 
 #### NodeJS
 
 ``` yaml
-nodejs:
-  output-folder: NodeJS
+# Uncomment to generate NodeJS client.
+# nodejs:
+#   output-folder: NodeJS
 ```
 
 #### Python
