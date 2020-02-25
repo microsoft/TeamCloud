@@ -50,7 +50,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers
 
                 if (commandResult.RuntimeStatus.IsRunning())
                 {
-                    log.LogInformation($"Waiting for external event {eventName} in orchestration {functionContext.InstanceId}");
+                    functionContext.SetCustomStatus($"Waiting for external event {eventName} for command {command.GetType().Name} in orchestration {functionContext.InstanceId}", log);
 
                     commandResult = await functionContext
                         .WaitForExternalEvent<ICommandResult>(eventName, TimeSpan.FromMinutes(30), null)

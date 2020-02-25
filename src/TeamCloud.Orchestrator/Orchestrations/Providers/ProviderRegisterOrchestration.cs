@@ -35,7 +35,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers
 
             try
             {
-                functionContext.SetCustomStatus("Registering Providers ...", log);
+                functionContext.SetCustomStatus("Registering Providers", log);
 
                 var provider = functionContext.GetInput<Provider>();
 
@@ -43,9 +43,14 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers
                     .CallActivityAsync<TeamCloudInstance>(nameof(TeamCloudGetActivity), null)
                     .ConfigureAwait(true);
 
+                // providers only handle a command id once so we have to
+                // generate a new command id each time the eternal instance runs
+                var providerCommandId = functionContext.NewGuid();
+                // var providerCommandId = isEternalInstance ? functionContext.NewGuid() : Guid.Parse(functionContext.InstanceId);
+
                 var providerCommandTasks = (isEternalInstance || provider is null)
-                    ? GetProviderRegisterCommandTasks(functionContext, teamCloud.Providers)
-                    : GetProviderRegisterCommandTasks(functionContext, Enumerable.Repeat(provider, 1));
+                    ? GetProviderRegisterCommandTasks(functionContext, teamCloud.Providers, providerCommandId)
+                    : GetProviderRegisterCommandTasks(functionContext, Enumerable.Repeat(provider, 1), providerCommandId);
 
                 var providerCommandResults = await Task
                     .WhenAll(providerCommandTasks)
@@ -99,7 +104,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers
             }
             catch (Exception exc)
             {
-                // in case of an exception we will switch to a shorter 
+                // in case of an exception we will switch to a shorter
                 // registration cycle to handle hiccups on the provider side
 
                 nextRegistration = functionContext.CurrentUtcDateTime.AddMinutes(5);
@@ -107,12 +112,12 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers
                 functionContext.SetCustomStatus($"Provider registration failed", log, exc);
 
                 if (!isEternalInstance)
-                    throw; // for none eternal instances we bubble the catched exception
+                    throw; // for non-eternal instances we bubble the catched exception
             }
             finally
             {
                 // there is no way to define an orchestration as "eternal only"
-                // to ensure that only one eternal version exists we need to 
+                // to ensure that only one eternal version exists we need to
                 // compare the current instance id with the eternal instance id
                 // and only reschedule if they are equal
 
@@ -136,7 +141,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers
             }
         }
 
-        private static IEnumerable<Task<ProviderRegisterCommandResult>> GetProviderRegisterCommandTasks(IDurableOrchestrationContext context, IEnumerable<Provider> providers)
+        private static IEnumerable<Task<ProviderRegisterCommandResult>> GetProviderRegisterCommandTasks(IDurableOrchestrationContext context, IEnumerable<Provider> providers, Guid commandId)
             => providers.Select(provider =>
             {
                 var config = new ProviderConfiguration
@@ -144,7 +149,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers
                     Properties = provider.Properties
                 };
 
-                var command = new ProviderRegisterCommand(Guid.Parse(context.InstanceId), provider.Id, null, config);
+                var command = new ProviderRegisterCommand(commandId, provider.Id, new User { Id = commandId }, config);
 
                 return context.CallSubOrchestratorAsync<ProviderRegisterCommandResult>(nameof(ProviderCommandOrchestration), (provider, command));
             });

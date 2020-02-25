@@ -21,8 +21,9 @@ namespace TeamCloud.Orchestrator
     {
         private static readonly int[] FinalRuntimeStatus = new int[]
         {
-            (int) OrchestrationRuntimeStatus.Canceled,
             (int) OrchestrationRuntimeStatus.Completed,
+            (int) OrchestrationRuntimeStatus.Failed,
+            (int) OrchestrationRuntimeStatus.Canceled,
             (int) OrchestrationRuntimeStatus.Terminated
         };
 
@@ -93,16 +94,20 @@ namespace TeamCloud.Orchestrator
 
         internal static void SetCustomStatus(this IDurableOrchestrationContext durableOrchestrationContext, object customStatusObject, ILogger log, Exception exception = null)
         {
-            durableOrchestrationContext.SetCustomStatus(customStatusObject);
+            if (!durableOrchestrationContext.IsReplaying)
+                durableOrchestrationContext.SetCustomStatus(customStatusObject);
 
             var customStatusMessage = customStatusObject is string
                 ? customStatusObject.ToString()
                 : JsonConvert.SerializeObject(customStatusObject, Formatting.None);
 
-            if (exception is null)
-                log?.LogInformation($"{durableOrchestrationContext.InstanceId} - CUSTOM STATUS: {customStatusMessage}");
-            else
-                log?.LogError(exception, $"{durableOrchestrationContext.InstanceId} - CUSTOM STATUS: {customStatusMessage}");
+            if (log != null)
+            {
+                if (exception is null)
+                    durableOrchestrationContext.CreateReplaySafeLogger(log).LogInformation($"{durableOrchestrationContext.InstanceId} - CUSTOM STATUS: {customStatusMessage}");
+                else
+                    durableOrchestrationContext.CreateReplaySafeLogger(log).LogError(exception, $"{durableOrchestrationContext.InstanceId} - CUSTOM STATUS: {customStatusMessage}");
+            }
         }
     }
 }
