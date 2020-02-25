@@ -23,6 +23,14 @@ namespace TeamCloud.API.Data
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public List<ValidationError> Errors { get; set; }
 
+
+        public static ResultError Failed(Exception exception)
+            => new ResultError
+            {
+                Code = ResultErrorCodes.Failed,
+                Message = $"Operation Failed: {exception.Message}"
+            };
+
         public static ResultError Conflict(string message)
             => new ResultError
             {
@@ -53,12 +61,34 @@ namespace TeamCloud.API.Data
                 Errors = new List<ValidationError> { validationError }
             };
 
+        public static ResultError Unauthorized()
+            => new ResultError
+            {
+                Code = ResultErrorCodes.Unauthorized,
+                Message = "Unauthorized"
+            };
+
+        public static ResultError Forbidden()
+            => new ResultError
+            {
+                Code = ResultErrorCodes.Forbidden,
+                Message = "Forbidden"
+            };
+
         public static ResultError ServerError(Exception exception)
             => new ResultError
             {
                 Code = ResultErrorCodes.ServerError,
                 Message = $"ServerError: {exception.Message}"
             };
+
+        public static ResultError Unknown()
+            => new ResultError
+            {
+                Code = ResultErrorCodes.Unknown,
+                Message = "An unknown error occured."
+            };
+
     }
 
     public class ValidationError
@@ -71,10 +101,14 @@ namespace TeamCloud.API.Data
     [JsonConverter(typeof(StringEnumConverter))]
     public enum ResultErrorCodes
     {
+        Unknown,
+        Failed,
         Conflict,
         NotFound,
         ServerError,
-        ValidationError
+        ValidationError,
+        Unauthorized,
+        Forbidden
     }
 
     public static class ResultErrorExtensions

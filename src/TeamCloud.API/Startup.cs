@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
@@ -115,7 +116,8 @@ namespace TeamCloud.API
                 .AddScoped<IProjectsRepositoryReadOnly, CosmosDbProjectsRepository>()
                 .AddScoped<ITeamCloudRepositoryReadOnly, CosmosDbTeamCloudRepository>()
                 .AddScoped<IProjectTypesRepositoryReadOnly, CosmosDbProjectTypesRepository>()
-                .AddScoped<EnsureTeamCloudConfigurationMiddleware>();
+                .AddScoped<EnsureTeamCloudConfigurationMiddleware>()
+                .AddSingleton<IClientErrorFactory, ClientErrorFactory>();
 
             ConfigureAuthentication(services);
             ConfigureAuthorization(services);
@@ -136,7 +138,8 @@ namespace TeamCloud.API
                     options.ConstraintMap.Add("projectIdentifier", typeof(ProjectIdentifierRouteConstraint));
                 })
                 .AddControllers()
-                .AddNewtonsoftJson();
+                .AddNewtonsoftJson()
+                .ConfigureApiBehaviorOptions(options => options.SuppressMapClientErrors = true);
             // .AddFluentValidation(config =>
             // {
             //     config.RegisterValidatorsFromAssembly(currentAssembly);

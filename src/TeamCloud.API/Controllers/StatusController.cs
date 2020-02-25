@@ -35,7 +35,6 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status202Accepted, "The long-running operation is running. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status302Found, "The long-running operation completed.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "The long-running operation with the trackingId provided was not found.", typeof(ErrorResult))]
-        [SwaggerResponse(StatusCodes.Status500InternalServerError, "An internal error occured during the long-running operation.", typeof(ErrorResult))]
         public async Task<IActionResult> Get(Guid trackingId)
         {
             var result = await orchestrator
@@ -52,7 +51,6 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status202Accepted, "The long-running operation is running. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status302Found, "The long-running operation completed.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "The long-running operation with the trackingId provided was not found.", typeof(ErrorResult))]
-        [SwaggerResponse(StatusCodes.Status500InternalServerError, "An internal error occured during the long-running operation.", typeof(ErrorResult))]
         public async Task<IActionResult> Get(Guid projectId, Guid trackingId)
         {
             var result = await orchestrator
@@ -102,15 +100,15 @@ namespace TeamCloud.API.Controllers
                 case CommandRuntimeStatus.Terminated:
                 case CommandRuntimeStatus.Failed:
 
-                    return ErrorResult
-                        .ServerError(result.Errors, result.CommandId.ToString())
+                    return StatusResult
+                        .Failed(result.Errors, result.CommandId.ToString(), result.RuntimeStatus.ToString(), result.CustomStatus)
                         .ActionResult();
 
                 default: // TODO: this probably isn't right as a default
 
                     if (result.Errors?.Any() ?? false)
-                        return ErrorResult
-                            .ServerError(result.Errors, result.CommandId.ToString())
+                        return StatusResult
+                            .Failed(result.Errors, result.CommandId.ToString(), result.RuntimeStatus.ToString(), result.CustomStatus)
                             .ActionResult();
 
                     return StatusResult
