@@ -15,8 +15,8 @@ from msrest.serialization import Model
 class ResultError(Model):
     """ResultError.
 
-    :param code: Possible values include: 'Conflict', 'NotFound',
-     'ServerError', 'ValidationError'
+    :param code: Possible values include: 'Unknown', 'Failed', 'Conflict',
+     'NotFound', 'ServerError', 'ValidationError', 'Unauthorized', 'Forbidden'
     :type code: str or ~teamcloud.models.enum
     :param message:
     :type message: str

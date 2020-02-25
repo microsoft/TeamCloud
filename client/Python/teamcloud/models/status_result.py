@@ -28,6 +28,8 @@ class StatusResult(Model):
     :type state_message: str
     :param location:
     :type location: str
+    :param errors:
+    :type errors: list[~teamcloud.models.ResultError]
     :param _tracking_id:
     :type _tracking_id: str
     """
@@ -42,6 +44,7 @@ class StatusResult(Model):
         'state': {'key': 'state', 'type': 'str'},
         'state_message': {'key': 'stateMessage', 'type': 'str'},
         'location': {'key': 'location', 'type': 'str'},
+        'errors': {'key': 'errors', 'type': '[ResultError]'},
         '_tracking_id': {'key': '_trackingId', 'type': 'str'},
     }
 
@@ -52,4 +55,5 @@ class StatusResult(Model):
         self.state = None
         self.state_message = kwargs.get('state_message', None)
         self.location = kwargs.get('location', None)
+        self.errors = kwargs.get('errors', None)
         self._tracking_id = kwargs.get('_tracking_id', None)

@@ -22,9 +22,9 @@ try:
     from .project_resource_group_py3 import ProjectResourceGroup
     from .project_py3 import Project
     from .project_list_data_result_py3 import ProjectListDataResult
-    from .status_result_py3 import StatusResult
     from .validation_error_py3 import ValidationError
     from .result_error_py3 import ResultError
+    from .status_result_py3 import StatusResult
     from .error_result_py3 import ErrorResult
     from .project_data_result_data_py3 import ProjectDataResultData
     from .project_data_result_py3 import ProjectDataResult
@@ -54,9 +54,9 @@ except (SyntaxError, ImportError):
     from .project_resource_group import ProjectResourceGroup
     from .project import Project
     from .project_list_data_result import ProjectListDataResult
-    from .status_result import StatusResult
     from .validation_error import ValidationError
     from .result_error import ResultError
+    from .status_result import StatusResult
     from .error_result import ErrorResult
     from .project_data_result_data import ProjectDataResultData
     from .project_data_result import ProjectDataResult
@@ -87,9 +87,9 @@ __all__ = [
     'ProjectResourceGroup',
     'Project',
     'ProjectListDataResult',
-    'StatusResult',
     'ValidationError',
     'ResultError',
+    'StatusResult',
     'ErrorResult',
     'ProjectDataResultData',
     'ProjectDataResult',

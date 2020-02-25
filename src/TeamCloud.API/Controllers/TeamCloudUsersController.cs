@@ -67,16 +67,16 @@ namespace TeamCloud.API
         }
 
 
-        [HttpGet("{identifier:userIdentifier}")]
+        [HttpGet("{userNameOrId:userNameOrId}")]
         [Authorize(Policy = "admin")]
-        [SwaggerOperation(OperationId = "GetTeamCloudUserById", Summary = "Gets a TeamCloud User by ID or email address.")]
+        [SwaggerOperation(OperationId = "GetTeamCloudUserByNameOrId", Summary = "Gets a TeamCloud User by ID or email address.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns TeamCloud User.", typeof(DataResult<User>))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found, or a User with the provided identifier was not found.", typeof(ErrorResult))]
-        public async Task<IActionResult> Get([FromRoute] string identifier)
+        public async Task<IActionResult> Get([FromRoute] string userNameOrId)
         {
-            if (string.IsNullOrWhiteSpace(identifier))
+            if (string.IsNullOrWhiteSpace(userNameOrId))
                 return ErrorResult
-                    .BadRequest($"The identifier '{identifier}' provided in the url path is invalid.  Must be a valid email address or GUID.", ResultErrorCodes.ValidationError)
+                    .BadRequest($"The identifier '{userNameOrId}' provided in the url path is invalid.  Must be a valid email address or GUID.", ResultErrorCodes.ValidationError)
                     .ActionResult();
 
             var teamCloudInstance = await teamCloudRepository
@@ -88,15 +88,15 @@ namespace TeamCloud.API
                     .NotFound($"No TeamCloud Instance was found.")
                     .ActionResult();
 
-            if (!Guid.TryParse(identifier, out var userId))
+            if (!Guid.TryParse(userNameOrId, out var userId))
             {
                 var idLookup = await userService
-                    .GetUserIdAsync(identifier)
+                    .GetUserIdAsync(userNameOrId)
                     .ConfigureAwait(false);
 
                 if (!idLookup.HasValue || idLookup.Value == Guid.Empty)
                     return ErrorResult
-                        .NotFound($"A User with the email '{identifier}' could not be found.")
+                        .NotFound($"A User with the email '{userNameOrId}' could not be found.")
                         .ActionResult();
 
                 userId = idLookup.Value;
@@ -217,16 +217,16 @@ namespace TeamCloud.API
         }
 
 
-        [HttpDelete("{identifier:userIdentifier}")]
+        [HttpDelete("{userNameOrId:userNameOrId}")]
         [Authorize(Policy = "admin")]
         [SwaggerOperation(OperationId = "DeleteTeamCloudUser", Summary = "Deletes an existing TeamCloud User.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts deleting the TeamCloud User. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found, or a User with the identifier provided was not found.", typeof(ErrorResult))]
-        public async Task<IActionResult> Delete([FromRoute] string identifier)
+        public async Task<IActionResult> Delete([FromRoute] string userNameOrId)
         {
-            if (string.IsNullOrWhiteSpace(identifier))
+            if (string.IsNullOrWhiteSpace(userNameOrId))
                 return ErrorResult
-                    .BadRequest($"The identifier '{identifier}' provided in the url path is invalid.  Must be a valid email address or GUID.", ResultErrorCodes.ValidationError)
+                    .BadRequest($"The identifier '{userNameOrId}' provided in the url path is invalid.  Must be a valid email address or GUID.", ResultErrorCodes.ValidationError)
                     .ActionResult();
 
             var teamCloudInstance = await teamCloudRepository
@@ -238,15 +238,15 @@ namespace TeamCloud.API
                     .NotFound($"No TeamCloud Instance was found.")
                     .ActionResult();
 
-            if (!Guid.TryParse(identifier, out var userId))
+            if (!Guid.TryParse(userNameOrId, out var userId))
             {
                 var idLookup = await userService
-                    .GetUserIdAsync(identifier)
+                    .GetUserIdAsync(userNameOrId)
                     .ConfigureAwait(false);
 
                 if (!idLookup.HasValue || idLookup.Value == Guid.Empty)
                     return ErrorResult
-                        .NotFound($"A User with the email '{identifier}' could not be found.")
+                        .NotFound($"A User with the email '{userNameOrId}' could not be found.")
                         .ActionResult();
 
                 userId = idLookup.Value;

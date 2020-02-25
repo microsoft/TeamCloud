@@ -1,2391 +1,2372 @@
 {
-    "openapi": "3.0.1",
-    "info": {
-        "title": "TeamCloud",
-        "description": "API for working with a TeamCloud instance.",
-        "contact": {
-            "name": "TeamCloud Dev Team",
-            "url": "https://github.com/microsoft/TeamCloud/issues/new",
-            "email": "Markus.Heiliger@microsoft.com"
-        },
-        "license": {
-            "name": "TeamCloud is licensed under the MIT License",
-            "url": "https://github.com/microsoft/TeamCloud/blob/master/LICENSE"
-        },
-        "version": "v1"
+  "openapi": "3.0.1",
+  "info": {
+    "title": "TeamCloud",
+    "description": "API for working with a TeamCloud instance.",
+    "contact": {
+      "name": "TeamCloud Dev Team",
+      "url": "https://github.com/microsoft/TeamCloud/issues/new",
+      "email": "Markus.Heiliger@microsoft.com"
     },
-    "paths": {
-        "/api/projects": {
-            "get": {
-                "tags": [
-                    "Projects"
-                ],
-                "summary": "Gets all Projects.",
-                "operationId": "GetProjects",
-                "responses": {
-                    "200": {
-                        "description": "Returns all Projects.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProjectListDataResult"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "403": {
-                        "description": "Forbidden"
-                    }
-                },
-                "security": [
-                    {
-                        "oauth2": [
-                            "projectRead"
-                        ]
-                    }
-                ]
-            },
-            "post": {
-                "tags": [
-                    "Projects"
-                ],
-                "summary": "Creates a new Project.",
-                "operationId": "CreateProject",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/ProjectDefinition"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "202": {
-                        "description": "Started creating the new Project. Returns a StatusResult object that can be used to track progress of the long-running operation.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/StatusResult"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "The projectDefinition specified in the request body did not pass validation.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResult"
-                                }
-                            }
-                        }
-                    },
-                    "409": {
-                        "description": "A Project already exists with the name specified in the request body.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResult"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "403": {
-                        "description": "Forbidden"
-                    }
-                },
-                "security": [
-                    {
-                        "oauth2": [
-                            "projectCreate"
-                        ]
-                    }
-                ]
-            }
-        },
-        "/api/projects/{projectId}": {
-            "get": {
-                "tags": [
-                    "Projects"
-                ],
-                "summary": "Gets a Project by ID.",
-                "operationId": "GetProjectById",
-                "parameters": [
-                    {
-                        "name": "projectId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Returns a Project.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProjectDataResult"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "A Project with the specified projectId was not found.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResult"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "403": {
-                        "description": "Forbidden"
-                    }
-                },
-                "security": [
-                    {
-                        "oauth2": [
-                            "projectRead"
-                        ]
-                    }
-                ]
-            },
-            "delete": {
-                "tags": [
-                    "Projects"
-                ],
-                "summary": "Deletes a Project.",
-                "operationId": "DeleteProject",
-                "parameters": [
-                    {
-                        "name": "projectId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid"
-                        }
-                    }
-                ],
-                "responses": {
-                    "202": {
-                        "description": "Starts deleting the specified Project. Returns a StatusResult object that can be used to track progress of the long-running operation.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/StatusResult"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "A Project with the specified projectId was not found.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResult"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "403": {
-                        "description": "Forbidden"
-                    }
-                },
-                "security": [
-                    {
-                        "oauth2": [
-                            "projectDelete"
-                        ]
-                    }
-                ]
-            }
-        },
-        "/api/projectTypes": {
-            "get": {
-                "tags": [
-                    "ProjectTypes"
-                ],
-                "summary": "Gets all Project Types.",
-                "operationId": "GetProjectTypes",
-                "responses": {
-                    "200": {
-                        "description": "Returns all ProjectTypes.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProjectTypeListDataResult"
-                                }
-                            }
-                        }
-                    }
+    "license": {
+      "name": "TeamCloud is licensed under the MIT License",
+      "url": "https://github.com/microsoft/TeamCloud/blob/master/LICENSE"
+    },
+    "version": "v1"
+  },
+  "paths": {
+    "/api/projects": {
+      "get": {
+        "tags": [
+          "Projects"
+        ],
+        "summary": "Gets all Projects.",
+        "operationId": "GetProjects",
+        "responses": {
+          "200": {
+            "description": "Returns all Projects.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectListDataResult"
                 }
-            },
-            "post": {
-                "tags": [
-                    "ProjectTypes"
-                ],
-                "summary": "Creates a new Project Type.",
-                "operationId": "CreateProjectType",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/ProjectType"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "The new ProjectType was created.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProjectTypeDataResult"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "The ProjectType did not pass validation.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResult"
-                                }
-                            }
-                        }
-                    },
-                    "409": {
-                        "description": "A ProjectType already exists with the ID provided in the request body.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResult"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "403": {
-                        "description": "Forbidden"
-                    }
-                },
-                "security": [
-                    {
-                        "oauth2": [
-                            "admin"
-                        ]
-                    }
-                ]
-            },
-            "put": {
-                "tags": [
-                    "ProjectTypes"
-                ],
-                "summary": "Updates an existing ProjectType.",
-                "operationId": "UpdateProjectType",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/ProjectType"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "The ProjectType was updated.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProjectTypeDataResult"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "The ProjectType did not pass validation.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResult"
-                                }
-                            }
-                        }
-                    },
-                    "409": {
-                        "description": "A Project Type already exists with the ID provided in the reques body.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResult"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "403": {
-                        "description": "Forbidden"
-                    }
-                },
-                "security": [
-                    {
-                        "oauth2": [
-                            "admin"
-                        ]
-                    }
-                ]
+              }
             }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
         },
-        "/api/projectTypes/{projectTypeId}": {
-            "get": {
-                "tags": [
-                    "ProjectTypes"
-                ],
-                "summary": "Gets a Project Type by ID.",
-                "operationId": "GetProjectTypeById",
-                "parameters": [
-                    {
-                        "name": "projectTypeId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Returns a ProjectType.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProjectTypeDataResult"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "A ProjectType with the projectTypeId provided was not found.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResult"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "403": {
-                        "description": "Forbidden"
-                    }
-                },
-                "security": [
-                    {
-                        "oauth2": [
-                            "admin"
-                        ]
-                    }
-                ]
-            },
-            "delete": {
-                "tags": [
-                    "ProjectTypes"
-                ],
-                "summary": "Deletes a ProjectType.",
-                "operationId": "DeleteProjectType",
-                "parameters": [
-                    {
-                        "name": "projectTypeId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "The ProjectType was deleted.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProjectTypeDataResult"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "A ProjectType with the projectTypeId provided was not found.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResult"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "403": {
-                        "description": "Forbidden"
-                    }
-                },
-                "security": [
-                    {
-                        "oauth2": [
-                            "admin"
-                        ]
-                    }
-                ]
-            }
-        },
-        "/api/projects/{projectId}/users": {
-            "get": {
-                "tags": [
-                    "ProjectUsers"
-                ],
-                "summary": "Gets all Users for a Project.",
-                "operationId": "GetProjectUsers",
-                "parameters": [
-                    {
-                        "name": "projectId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Returns all Project Users",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UserListDataResult"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "The projectId provided in the path was invalid.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResult"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "A Project with the provided projectId was not found, or a User with the provided userId was not found.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResult"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "403": {
-                        "description": "Forbidden"
-                    }
-                },
-                "security": [
-                    {
-                        "oauth2": [
-                            "projectRead"
-                        ]
-                    }
-                ]
-            },
-            "post": {
-                "tags": [
-                    "ProjectUsers"
-                ],
-                "summary": "Creates a new Project User",
-                "operationId": "CreateProjectUser",
-                "parameters": [
-                    {
-                        "name": "projectId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/UserDefinition"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "202": {
-                        "description": "Starts creating the new Project UserProject. Returns a StatusResult object that can be used to track progress of the long-running operation.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/StatusResult"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "The projectId provided in the path was invalid.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResult"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "A Project with the provided projectId was not found, or a User with the email address provided in the request body was not found.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResult"
-                                }
-                            }
-                        }
-                    },
-                    "409": {
-                        "description": "A Project User already exists with the email address provided in the request body.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResult"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "403": {
-                        "description": "Forbidden"
-                    }
-                },
-                "security": [
-                    {
-                        "oauth2": [
-                            "projectCreate"
-                        ]
-                    }
-                ]
-            },
-            "put": {
-                "tags": [
-                    "ProjectUsers"
-                ],
-                "summary": "Updates an existing Project User.",
-                "operationId": "UpdateProjectUser",
-                "parameters": [
-                    {
-                        "name": "projectId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/User"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "202": {
-                        "description": "Starts updating the Project UserProject. Returns a StatusResult object that can be used to track progress of the long-running operation.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/StatusResult"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "The projectId provided in the path was invalid, or the User provided in the request body did not pass validation.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResult"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "A Project with the provided projectId was not found, or a User with the ID provided in the request body was not found.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResult"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "403": {
-                        "description": "Forbidden"
-                    }
-                },
-                "security": [
-                    {
-                        "oauth2": [
-                            "projectCreate"
-                        ]
-                    }
-                ]
-            }
-        },
-        "/api/projects/{projectId}/users/{userId}": {
-            "get": {
-                "tags": [
-                    "ProjectUsers"
-                ],
-                "summary": "Gets a Project User by ID.",
-                "operationId": "GetProjectUserById",
-                "parameters": [
-                    {
-                        "name": "userId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid"
-                        }
-                    },
-                    {
-                        "name": "projectId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Returns Project User",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UserDataResult"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "The projectId provided in the path was invalid.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResult"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "A Project with the provided projectId was not found, or a User with the provided userId was not found.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResult"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "403": {
-                        "description": "Forbidden"
-                    }
-                },
-                "security": [
-                    {
-                        "oauth2": [
-                            "projectRead"
-                        ]
-                    }
-                ]
-            },
-            "delete": {
-                "tags": [
-                    "ProjectUsers"
-                ],
-                "summary": "Deletes an existing Project User.",
-                "operationId": "DeleteProjectUser",
-                "parameters": [
-                    {
-                        "name": "userId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid"
-                        }
-                    },
-                    {
-                        "name": "projectId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "202": {
-                        "description": "Starts deleting the Project UserProject. Returns a StatusResult object that can be used to track progress of the long-running operation.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/StatusResult"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "The projectId provided in the path was invalid.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResult"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "A Project with the provided projectId was not found, or a User with the provided userId was not found.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResult"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "403": {
-                        "description": "Forbidden"
-                    }
-                },
-                "security": [
-                    {
-                        "oauth2": [
-                            "projectCreate"
-                        ]
-                    }
-                ]
-            }
-        },
-        "/api/providers": {
-            "get": {
-                "tags": [
-                    "Providers"
-                ],
-                "summary": "Gets all Providers.",
-                "operationId": "GetProviders",
-                "responses": {
-                    "200": {
-                        "description": "Returns all Providers.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProviderListDataResult"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "The TeamCloud instance was not found.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResult"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "403": {
-                        "description": "Forbidden"
-                    }
-                },
-                "security": [
-                    {
-                        "oauth2": [
-                            "admin"
-                        ]
-                    }
-                ]
-            },
-            "post": {
-                "tags": [
-                    "Providers"
-                ],
-                "summary": "Creates a new Provider.",
-                "operationId": "CreateProvider",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/Provider"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "202": {
-                        "description": "Starts creating the new Provider. Returns a StatusResult object that can be used to track progress of the long-running operation.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/StatusResult"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "The Provider provided in the request body did not pass validation.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResult"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "The TeamCloud instance was not found.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResult"
-                                }
-                            }
-                        }
-                    },
-                    "409": {
-                        "description": "A Provider already exists with the ID provided in the request body.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResult"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "403": {
-                        "description": "Forbidden"
-                    }
-                },
-                "security": [
-                    {
-                        "oauth2": [
-                            "admin"
-                        ]
-                    }
-                ]
-            },
-            "put": {
-                "tags": [
-                    "Providers"
-                ],
-                "summary": "Updates an existing Provider.",
-                "operationId": "UpdateProvider",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/Provider"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "202": {
-                        "description": "Starts updating the provided Provider. Returns a StatusResult object that can be used to track progress of the long-running operation.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/StatusResult"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "The Provider provided in the request body did not pass validation.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResult"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "The TeamCloud instance was not found, or a Provider with the ID provided in the reques body was not found.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResult"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "403": {
-                        "description": "Forbidden"
-                    }
-                },
-                "security": [
-                    {
-                        "oauth2": [
-                            "admin"
-                        ]
-                    }
-                ]
-            }
-        },
-        "/api/providers/{providerId}": {
-            "get": {
-                "tags": [
-                    "Providers"
-                ],
-                "summary": "Gets a Provider by ID.",
-                "operationId": "GetProviderById",
-                "parameters": [
-                    {
-                        "name": "providerId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Returns a DataResult with the Provider as the data value.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProviderDataResult"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "The TeamCloud instance was not found, or a Provider with the providerId provided was not found.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResult"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "403": {
-                        "description": "Forbidden"
-                    }
-                },
-                "security": [
-                    {
-                        "oauth2": [
-                            "admin"
-                        ]
-                    }
-                ]
-            },
-            "delete": {
-                "tags": [
-                    "Providers"
-                ],
-                "summary": "Deletes an existing Provider.",
-                "operationId": "DeleteProvider",
-                "parameters": [
-                    {
-                        "name": "providerId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "202": {
-                        "description": "Starts deleting the provided Provider. Returns a StatusResult object that can be used to track progress of the long-running operation.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/StatusResult"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "The TeamCloud instance was not found, or a Provider with the provided providerId was not found.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResult"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "403": {
-                        "description": "Forbidden"
-                    }
-                },
-                "security": [
-                    {
-                        "oauth2": [
-                            "admin"
-                        ]
-                    }
-                ]
-            }
-        },
-        "/api/status/{trackingId}": {
-            "get": {
-                "tags": [
-                    "Status"
-                ],
-                "summary": "Gets the status of a long-running opertation.",
-                "operationId": "GetStatus",
-                "parameters": [
-                    {
-                        "name": "trackingId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "The long-running operation completed.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/StatusResult"
-                                }
-                            }
-                        }
-                    },
-                    "202": {
-                        "description": "The long-running operation is running. Returns a StatusResult object that can be used to track progress of the long-running operation.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/StatusResult"
-                                }
-                            }
-                        }
-                    },
-                    "302": {
-                        "description": "The long-running operation completed.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/StatusResult"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "The long-running operation with the trackingId provided was not found.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResult"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "An internal error occured during the long-running operation.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResult"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "403": {
-                        "description": "Forbidden"
-                    }
-                },
-                "security": [
-                    {
-                        "oauth2": [
-                            "admin"
-                        ]
-                    }
-                ]
-            }
-        },
-        "/api/projects/{projectId}/status/{trackingId}": {
-            "get": {
-                "tags": [
-                    "Status"
-                ],
-                "summary": "Gets the status of a long-running opertation.",
-                "operationId": "GetProjectStatus",
-                "parameters": [
-                    {
-                        "name": "projectId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid"
-                        }
-                    },
-                    {
-                        "name": "trackingId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "The long-running operation completed.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/StatusResult"
-                                }
-                            }
-                        }
-                    },
-                    "202": {
-                        "description": "The long-running operation is running. Returns a StatusResult object that can be used to track progress of the long-running operation.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/StatusResult"
-                                }
-                            }
-                        }
-                    },
-                    "302": {
-                        "description": "The long-running operation completed.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/StatusResult"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "The long-running operation with the trackingId provided was not found.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResult"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "An internal error occured during the long-running operation.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResult"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "403": {
-                        "description": "Forbidden"
-                    }
-                },
-                "security": [
-                    {
-                        "oauth2": [
-                            "projectRead"
-                        ]
-                    }
-                ]
-            }
-        },
-        "/api/config": {
-            "get": {
-                "tags": [
-                    "TeamCloud"
-                ],
-                "summary": "Gets the TeamCloud instance's TeamCloudConfiguration.",
-                "operationId": "GetTeamCloudConfiguration",
-                "responses": {
-                    "200": {
-                        "description": "Returns the TeamCloud instance's TeamCloudConfiguration.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/StatusResult"
-                                }
-                            },
-                            "application/x-yaml": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/StatusResult"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "The TeamCloud instance was not found.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResult"
-                                }
-                            },
-                            "application/x-yaml": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResult"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "403": {
-                        "description": "Forbidden"
-                    }
-                },
-                "security": [
-                    {
-                        "oauth2": [
-                            "admin"
-                        ]
-                    }
-                ]
-            },
-            "post": {
-                "tags": [
-                    "TeamCloud"
-                ],
-                "summary": "Configures the TeamCloud instance.",
-                "operationId": "PostTeamCloudConfiguration",
-                "requestBody": {
-                    "content": {
-                        "application/x-yaml": {
-                            "schema": {
-                                "$ref": "#/components/schemas/TeamCloudConfiguration"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "202": {
-                        "description": "Starts configuring the new TeamCloud instance. Returns a StatusResult object that can be used to track progress of the long-running operation.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/StatusResult"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "The teamCloudConfiguraiton provided in the request body did not pass validation.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResult"
-                                }
-                            }
-                        }
-                    },
-                    "409": {
-                        "description": "The TeamCloud instance is already configured.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResult"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "403": {
-                        "description": "Forbidden"
-                    }
-                },
-                "security": [
-                    {
-                        "oauth2": [
-                            "admin"
-                        ]
-                    }
-                ]
-            }
-        },
-        "/api/users": {
-            "get": {
-                "tags": [
-                    "TeamCloudUsers"
-                ],
-                "summary": "Gets all TeamCloud Users.",
-                "operationId": "GetTeamCloudUsers",
-                "responses": {
-                    "200": {
-                        "description": "Returns all TeamCloud Users.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UserListDataResult"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "The TeamCloud instance was not found.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResult"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "403": {
-                        "description": "Forbidden"
-                    }
-                },
-                "security": [
-                    {
-                        "oauth2": [
-                            "admin"
-                        ]
-                    }
-                ]
-            },
-            "post": {
-                "tags": [
-                    "TeamCloudUsers"
-                ],
-                "summary": "Creates a new TeamCloud User.",
-                "operationId": "CreateTeamCloudUser",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/UserDefinition"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "202": {
-                        "description": "Starts creating the new TeamCloud UserProject. Returns a StatusResult object that can be used to track progress of the long-running operation.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/StatusResult"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "The User provided in the request body did not pass validation.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResult"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "The TeamCloud instance was not found, or a User with the email address provided in the request body was not found.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResult"
-                                }
-                            }
-                        }
-                    },
-                    "409": {
-                        "description": "A TeamCloud User already exists with the email address provided in the request body.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResult"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "403": {
-                        "description": "Forbidden"
-                    }
-                },
-                "security": [
-                    {
-                        "oauth2": [
-                            "admin"
-                        ]
-                    }
-                ]
-            },
-            "put": {
-                "tags": [
-                    "TeamCloudUsers"
-                ],
-                "summary": "Updates an existing TeamCloud User.",
-                "operationId": "UpdateTeamCloudUser",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/User"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "202": {
-                        "description": "Starts updating the TeamCloud UserProject. Returns a StatusResult object that can be used to track progress of the long-running operation.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/StatusResult"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "The User provided in the request body did not pass validation.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResult"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "The TeamCloud instance was not found, or a User with the ID provided in the request body was not found.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResult"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "403": {
-                        "description": "Forbidden"
-                    }
-                },
-                "security": [
-                    {
-                        "oauth2": [
-                            "admin"
-                        ]
-                    }
-                ]
-            }
-        },
-        "/api/users/{userId}": {
-            "get": {
-                "tags": [
-                    "TeamCloudUsers"
-                ],
-                "summary": "Gets a TeamCloud User by ID.",
-                "operationId": "GetTeamCloudUserById",
-                "parameters": [
-                    {
-                        "name": "userId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Returns TeamCloud User.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UserDataResult"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "The TeamCloud instance was not found, or a User with the userID provided was not found.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResult"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "403": {
-                        "description": "Forbidden"
-                    }
-                },
-                "security": [
-                    {
-                        "oauth2": [
-                            "admin"
-                        ]
-                    }
-                ]
-            },
-            "delete": {
-                "tags": [
-                    "TeamCloudUsers"
-                ],
-                "summary": "Deletes an existing TeamCloud User.",
-                "operationId": "DeleteTeamCloudUser",
-                "parameters": [
-                    {
-                        "name": "userId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid"
-                        }
-                    }
-                ],
-                "responses": {
-                    "202": {
-                        "description": "Starts deleting the TeamCloud User. Returns a StatusResult object that can be used to track progress of the long-running operation.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/StatusResult"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "The TeamCloud instance was not found, or a User with the userID provided was not found.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResult"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "403": {
-                        "description": "Forbidden"
-                    }
-                },
-                "security": [
-                    {
-                        "oauth2": [
-                            "admin"
-                        ]
-                    }
-                ]
-            }
-        }
-    },
-    "components": {
-        "schemas": {
-            "ProjectTypeProvider": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "properties": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "string"
-                        },
-                        "nullable": true
-                    }
-                },
-                "additionalProperties": false
-            },
-            "ProjectType": {
-                "type": "object",
-                "properties": {
-                    "partitionKey": {
-                        "type": "string",
-                        "nullable": true,
-                        "readOnly": true
-                    },
-                    "id": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "default": {
-                        "type": "boolean"
-                    },
-                    "region": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "subscriptions": {
-                        "type": "array",
-                        "items": {
-                            "type": "string",
-                            "format": "uuid"
-                        },
-                        "nullable": true
-                    },
-                    "subscriptionCapacity": {
-                        "type": "integer",
-                        "format": "int32"
-                    },
-                    "resourceGroupNamePrefix": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "providers": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/ProjectTypeProvider"
-                        },
-                        "nullable": true
-                    },
-                    "tags": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "string"
-                        },
-                        "nullable": true
-                    },
-                    "properties": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "string"
-                        },
-                        "nullable": true
-                    }
-                },
-                "additionalProperties": false
-            },
-            "AzureIdentity": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "string",
-                        "format": "uuid"
-                    },
-                    "appId": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "secret": {
-                        "type": "string",
-                        "nullable": true
-                    }
-                },
-                "additionalProperties": false
-            },
-            "AzureResourceGroup": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "string",
-                        "format": "uuid"
-                    },
-                    "subscriptionId": {
-                        "type": "string",
-                        "format": "uuid"
-                    },
-                    "resourceGroupId": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "resourceGroupName": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "region": {
-                        "type": "string",
-                        "nullable": true
-                    }
-                },
-                "additionalProperties": false
-            },
-            "User": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "string",
-                        "format": "uuid"
-                    },
-                    "role": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "tags": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "string"
-                        },
-                        "nullable": true
-                    }
-                },
-                "additionalProperties": false
-            },
-            "Project": {
-                "type": "object",
-                "properties": {
-                    "partitionKey": {
-                        "type": "string",
-                        "nullable": true,
-                        "readOnly": true
-                    },
-                    "id": {
-                        "type": "string",
-                        "format": "uuid"
-                    },
-                    "name": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "type": {
-                        "allOf": [
-                            {
-                                "$ref": "#/components/schemas/ProjectType"
-                            }
-                        ],
-                        "nullable": true
-                    },
-                    "identity": {
-                        "allOf": [
-                            {
-                                "$ref": "#/components/schemas/AzureIdentity"
-                            }
-                        ],
-                        "nullable": true
-                    },
-                    "resourceGroup": {
-                        "allOf": [
-                            {
-                                "$ref": "#/components/schemas/AzureResourceGroup"
-                            }
-                        ],
-                        "nullable": true
-                    },
-                    "teamCloudId": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "users": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/User"
-                        },
-                        "nullable": true
-                    },
-                    "tags": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "string"
-                        },
-                        "nullable": true
-                    },
-                    "properties": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "string"
-                        },
-                        "nullable": true
-                    },
-                    "providerProperties": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        },
-                        "nullable": true
-                    }
-                },
-                "additionalProperties": false
-            },
-            "ProjectListDataResult": {
-                "type": "object",
-                "properties": {
-                    "code": {
-                        "type": "integer",
-                        "format": "int32"
-                    },
-                    "status": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "data": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/Project"
-                        },
-                        "nullable": true,
-                        "readOnly": true
-                    },
-                    "location": {
-                        "type": "string",
-                        "nullable": true
-                    }
-                },
-                "additionalProperties": false
-            },
-            "UserDefinition": {
-                "type": "object",
-                "properties": {
-                    "email": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "role": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "tags": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "string"
-                        },
-                        "nullable": true
-                    }
-                },
-                "additionalProperties": false
-            },
-            "ProjectDefinition": {
-                "type": "object",
-                "properties": {
-                    "name": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "projectType": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "users": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/UserDefinition"
-                        },
-                        "nullable": true
-                    },
-                    "tags": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "string"
-                        },
-                        "nullable": true
-                    }
-                },
-                "additionalProperties": false
-            },
-            "StatusResult": {
-                "type": "object",
-                "properties": {
-                    "code": {
-                        "type": "integer",
-                        "format": "int32"
-                    },
-                    "status": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "state": {
-                        "type": "string",
-                        "nullable": true,
-                        "readOnly": true
-                    },
-                    "stateMessage": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "location": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "_trackingId": {
-                        "type": "string",
-                        "nullable": true
-                    }
-                },
-                "additionalProperties": false
-            },
-            "ValidationError": {
-                "type": "object",
-                "properties": {
-                    "field": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "message": {
-                        "type": "string",
-                        "nullable": true
-                    }
-                },
-                "additionalProperties": false
-            },
-            "ResultError": {
-                "type": "object",
-                "properties": {
-                    "code": {
-                        "enum": [
-                            "Conflict",
-                            "NotFound",
-                            "ServerError",
-                            "ValidationError"
-                        ],
-                        "type": "string"
-                    },
-                    "message": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "errors": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/ValidationError"
-                        },
-                        "nullable": true
-                    }
-                },
-                "additionalProperties": false
-            },
-            "ErrorResult": {
-                "type": "object",
-                "properties": {
-                    "code": {
-                        "type": "integer",
-                        "format": "int32"
-                    },
-                    "status": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "errors": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/ResultError"
-                        },
-                        "nullable": true
-                    },
-                    "_trackingId": {
-                        "type": "string",
-                        "nullable": true
-                    }
-                },
-                "additionalProperties": false
-            },
-            "ProjectDataResult": {
-                "type": "object",
-                "properties": {
-                    "code": {
-                        "type": "integer",
-                        "format": "int32"
-                    },
-                    "status": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "data": {
-                        "allOf": [
-                            {
-                                "$ref": "#/components/schemas/Project"
-                            }
-                        ],
-                        "nullable": true,
-                        "readOnly": true
-                    },
-                    "location": {
-                        "type": "string",
-                        "nullable": true
-                    }
-                },
-                "additionalProperties": false
-            },
-            "ProjectTypeListDataResult": {
-                "type": "object",
-                "properties": {
-                    "code": {
-                        "type": "integer",
-                        "format": "int32"
-                    },
-                    "status": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "data": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/ProjectType"
-                        },
-                        "nullable": true,
-                        "readOnly": true
-                    },
-                    "location": {
-                        "type": "string",
-                        "nullable": true
-                    }
-                },
-                "additionalProperties": false
-            },
-            "ProjectTypeDataResult": {
-                "type": "object",
-                "properties": {
-                    "code": {
-                        "type": "integer",
-                        "format": "int32"
-                    },
-                    "status": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "data": {
-                        "allOf": [
-                            {
-                                "$ref": "#/components/schemas/ProjectType"
-                            }
-                        ],
-                        "nullable": true,
-                        "readOnly": true
-                    },
-                    "location": {
-                        "type": "string",
-                        "nullable": true
-                    }
-                },
-                "additionalProperties": false
-            },
-            "UserListDataResult": {
-                "type": "object",
-                "properties": {
-                    "code": {
-                        "type": "integer",
-                        "format": "int32"
-                    },
-                    "status": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "data": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/User"
-                        },
-                        "nullable": true,
-                        "readOnly": true
-                    },
-                    "location": {
-                        "type": "string",
-                        "nullable": true
-                    }
-                },
-                "additionalProperties": false
-            },
-            "UserDataResult": {
-                "type": "object",
-                "properties": {
-                    "code": {
-                        "type": "integer",
-                        "format": "int32"
-                    },
-                    "status": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "data": {
-                        "allOf": [
-                            {
-                                "$ref": "#/components/schemas/User"
-                            }
-                        ],
-                        "nullable": true,
-                        "readOnly": true
-                    },
-                    "location": {
-                        "type": "string",
-                        "nullable": true
-                    }
-                },
-                "additionalProperties": false
-            },
-            "ProviderDependencies": {
-                "type": "object",
-                "properties": {
-                    "create": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        },
-                        "nullable": true
-                    },
-                    "init": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        },
-                        "nullable": true
-                    }
-                },
-                "additionalProperties": false
-            },
-            "Provider": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "url": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "authCode": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "principalId": {
-                        "type": "string",
-                        "format": "uuid",
-                        "nullable": true
-                    },
-                    "optional": {
-                        "type": "boolean"
-                    },
-                    "dependencies": {
-                        "allOf": [
-                            {
-                                "$ref": "#/components/schemas/ProviderDependencies"
-                            }
-                        ],
-                        "nullable": true
-                    },
-                    "events": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        },
-                        "nullable": true
-                    },
-                    "properties": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "string"
-                        },
-                        "nullable": true
-                    }
-                },
-                "additionalProperties": false
-            },
-            "ProviderListDataResult": {
-                "type": "object",
-                "properties": {
-                    "code": {
-                        "type": "integer",
-                        "format": "int32"
-                    },
-                    "status": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "data": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/Provider"
-                        },
-                        "nullable": true,
-                        "readOnly": true
-                    },
-                    "location": {
-                        "type": "string",
-                        "nullable": true
-                    }
-                },
-                "additionalProperties": false
-            },
-            "ProviderDataResult": {
-                "type": "object",
-                "properties": {
-                    "code": {
-                        "type": "integer",
-                        "format": "int32"
-                    },
-                    "status": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "data": {
-                        "allOf": [
-                            {
-                                "$ref": "#/components/schemas/Provider"
-                            }
-                        ],
-                        "nullable": true,
-                        "readOnly": true
-                    },
-                    "location": {
-                        "type": "string",
-                        "nullable": true
-                    }
-                },
-                "additionalProperties": false
-            },
-            "TeamCloudConfiguration": {
-                "type": "object",
-                "properties": {
-                    "projectTypes": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/ProjectType"
-                        },
-                        "nullable": true
-                    },
-                    "providers": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/Provider"
-                        },
-                        "nullable": true
-                    },
-                    "users": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/User"
-                        },
-                        "nullable": true
-                    },
-                    "tags": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "string"
-                        },
-                        "nullable": true
-                    },
-                    "properties": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "string"
-                        },
-                        "nullable": true
-                    }
-                },
-                "additionalProperties": false
-            }
-        }
-    },
-    "security": [
-        {
+        "security": [
+          {
             "oauth2": [
-                "default",
-                "admin",
-                "projectCreate",
-                "projectRead",
-                "projectDelete"
+              "projectRead"
             ]
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Projects"
+        ],
+        "summary": "Creates a new Project.",
+        "operationId": "CreateProject",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectDefinition"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Started creating the new Project. Returns a StatusResult object that can be used to track progress of the long-running operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The projectDefinition specified in the request body did not pass validation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A Project already exists with the name specified in the request body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "projectCreate"
+            ]
+          }
+        ]
+      }
+    },
+    "/api/projects/{projectNameOrId}": {
+      "get": {
+        "tags": [
+          "Projects"
+        ],
+        "summary": "Gets a Project by Name or ID.",
+        "operationId": "GetProjectByNameOrId",
+        "parameters": [
+          {
+            "name": "projectNameOrId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns a Project.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectDataResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Project with the specified Name or ID was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "projectRead"
+            ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Projects"
+        ],
+        "summary": "Deletes a Project.",
+        "operationId": "DeleteProject",
+        "parameters": [
+          {
+            "name": "projectNameOrId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Starts deleting the specified Project. Returns a StatusResult object that can be used to track progress of the long-running operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Project with the specified name or ID was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "projectDelete"
+            ]
+          }
+        ]
+      }
+    },
+    "/api/projectTypes": {
+      "get": {
+        "tags": [
+          "ProjectTypes"
+        ],
+        "summary": "Gets all Project Types.",
+        "operationId": "GetProjectTypes",
+        "responses": {
+          "200": {
+            "description": "Returns all ProjectTypes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectTypeListDataResult"
+                }
+              }
+            }
+          }
         }
-    ]
+      },
+      "post": {
+        "tags": [
+          "ProjectTypes"
+        ],
+        "summary": "Creates a new Project Type.",
+        "operationId": "CreateProjectType",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectType"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The new ProjectType was created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectTypeDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The ProjectType did not pass validation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A ProjectType already exists with the ID provided in the request body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "admin"
+            ]
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "ProjectTypes"
+        ],
+        "summary": "Updates an existing ProjectType.",
+        "operationId": "UpdateProjectType",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectType"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The ProjectType was updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectTypeDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The ProjectType did not pass validation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A Project Type already exists with the ID provided in the reques body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "admin"
+            ]
+          }
+        ]
+      }
+    },
+    "/api/projectTypes/{projectTypeId}": {
+      "get": {
+        "tags": [
+          "ProjectTypes"
+        ],
+        "summary": "Gets a Project Type by ID.",
+        "operationId": "GetProjectTypeById",
+        "parameters": [
+          {
+            "name": "projectTypeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns a ProjectType.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectTypeDataResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A ProjectType with the projectTypeId provided was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "admin"
+            ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "ProjectTypes"
+        ],
+        "summary": "Deletes a ProjectType.",
+        "operationId": "DeleteProjectType",
+        "parameters": [
+          {
+            "name": "projectTypeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The ProjectType was deleted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectTypeDataResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A ProjectType with the projectTypeId provided was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "admin"
+            ]
+          }
+        ]
+      }
+    },
+    "/api/projects/{projectId}/users": {
+      "get": {
+        "tags": [
+          "ProjectUsers"
+        ],
+        "summary": "Gets all Users for a Project.",
+        "operationId": "GetProjectUsers",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns all Project Users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserListDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The projectId provided in the path was invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Project with the provided projectId was not found, or a User with the provided userId was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "projectRead"
+            ]
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "ProjectUsers"
+        ],
+        "summary": "Creates a new Project User",
+        "operationId": "CreateProjectUser",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserDefinition"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Starts creating the new Project UserProject. Returns a StatusResult object that can be used to track progress of the long-running operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The projectId provided in the path was invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Project with the provided projectId was not found, or a User with the email address provided in the request body was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A Project User already exists with the email address provided in the request body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "projectCreate"
+            ]
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "ProjectUsers"
+        ],
+        "summary": "Updates an existing Project User.",
+        "operationId": "UpdateProjectUser",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Starts updating the Project UserProject. Returns a StatusResult object that can be used to track progress of the long-running operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The projectId provided in the path was invalid, or the User provided in the request body did not pass validation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Project with the provided projectId was not found, or a User with the ID provided in the request body was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "projectCreate"
+            ]
+          }
+        ]
+      }
+    },
+    "/api/projects/{projectId}/users/{userNameOrId}": {
+      "get": {
+        "tags": [
+          "ProjectUsers"
+        ],
+        "summary": "Gets a Project User by ID or email address.",
+        "operationId": "GetProjectUserByNameOrId",
+        "parameters": [
+          {
+            "name": "userNameOrId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns Project User",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The projectId provided in the path was invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Project with the provided projectId was not found, or a User with the provided identifier was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "projectRead"
+            ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "ProjectUsers"
+        ],
+        "summary": "Deletes an existing Project User.",
+        "operationId": "DeleteProjectUser",
+        "parameters": [
+          {
+            "name": "userNameOrId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Starts deleting the Project UserProject. Returns a StatusResult object that can be used to track progress of the long-running operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The projectId provided in the path was invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Project with the provided projectId was not found, or a User with the provided identifier was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "projectCreate"
+            ]
+          }
+        ]
+      }
+    },
+    "/api/providers": {
+      "get": {
+        "tags": [
+          "Providers"
+        ],
+        "summary": "Gets all Providers.",
+        "operationId": "GetProviders",
+        "responses": {
+          "200": {
+            "description": "Returns all Providers.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProviderListDataResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The TeamCloud instance was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "admin"
+            ]
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Providers"
+        ],
+        "summary": "Creates a new Provider.",
+        "operationId": "CreateProvider",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Provider"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Starts creating the new Provider. Returns a StatusResult object that can be used to track progress of the long-running operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The Provider provided in the request body did not pass validation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The TeamCloud instance was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A Provider already exists with the ID provided in the request body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "admin"
+            ]
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Providers"
+        ],
+        "summary": "Updates an existing Provider.",
+        "operationId": "UpdateProvider",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Provider"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Starts updating the provided Provider. Returns a StatusResult object that can be used to track progress of the long-running operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The Provider provided in the request body did not pass validation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The TeamCloud instance was not found, or a Provider with the ID provided in the reques body was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "admin"
+            ]
+          }
+        ]
+      }
+    },
+    "/api/providers/{providerId}": {
+      "get": {
+        "tags": [
+          "Providers"
+        ],
+        "summary": "Gets a Provider by ID.",
+        "operationId": "GetProviderById",
+        "parameters": [
+          {
+            "name": "providerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns a DataResult with the Provider as the data value.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProviderDataResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The TeamCloud instance was not found, or a Provider with the providerId provided was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "admin"
+            ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Providers"
+        ],
+        "summary": "Deletes an existing Provider.",
+        "operationId": "DeleteProvider",
+        "parameters": [
+          {
+            "name": "providerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Starts deleting the provided Provider. Returns a StatusResult object that can be used to track progress of the long-running operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The TeamCloud instance was not found, or a Provider with the provided providerId was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "admin"
+            ]
+          }
+        ]
+      }
+    },
+    "/api/status/{trackingId}": {
+      "get": {
+        "tags": [
+          "Status"
+        ],
+        "summary": "Gets the status of a long-running opertation.",
+        "operationId": "GetStatus",
+        "parameters": [
+          {
+            "name": "trackingId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The long-running operation completed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResult"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "The long-running operation is running. Returns a StatusResult object that can be used to track progress of the long-running operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResult"
+                }
+              }
+            }
+          },
+          "302": {
+            "description": "The long-running operation completed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The long-running operation with the trackingId provided was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "admin"
+            ]
+          }
+        ]
+      }
+    },
+    "/api/projects/{projectId}/status/{trackingId}": {
+      "get": {
+        "tags": [
+          "Status"
+        ],
+        "summary": "Gets the status of a long-running opertation.",
+        "operationId": "GetProjectStatus",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "trackingId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The long-running operation completed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResult"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "The long-running operation is running. Returns a StatusResult object that can be used to track progress of the long-running operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResult"
+                }
+              }
+            }
+          },
+          "302": {
+            "description": "The long-running operation completed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The long-running operation with the trackingId provided was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "projectRead"
+            ]
+          }
+        ]
+      }
+    },
+    "/api/config": {
+      "get": {
+        "tags": [
+          "TeamCloud"
+        ],
+        "summary": "Gets the TeamCloud instance's TeamCloudConfiguration.",
+        "operationId": "GetTeamCloudConfiguration",
+        "responses": {
+          "200": {
+            "description": "Returns the TeamCloud instance's TeamCloudConfiguration.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResult"
+                }
+              },
+              "application/x-yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The TeamCloud instance was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              },
+              "application/x-yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "admin"
+            ]
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "TeamCloud"
+        ],
+        "summary": "Configures the TeamCloud instance.",
+        "operationId": "PostTeamCloudConfiguration",
+        "requestBody": {
+          "content": {
+            "application/x-yaml": {
+              "schema": {
+                "$ref": "#/components/schemas/TeamCloudConfiguration"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Starts configuring the new TeamCloud instance. Returns a StatusResult object that can be used to track progress of the long-running operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The teamCloudConfiguraiton provided in the request body did not pass validation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The TeamCloud instance is already configured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "admin"
+            ]
+          }
+        ]
+      }
+    },
+    "/api/users": {
+      "get": {
+        "tags": [
+          "TeamCloudUsers"
+        ],
+        "summary": "Gets all TeamCloud Users.",
+        "operationId": "GetTeamCloudUsers",
+        "responses": {
+          "200": {
+            "description": "Returns all TeamCloud Users.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserListDataResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The TeamCloud instance was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "admin"
+            ]
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "TeamCloudUsers"
+        ],
+        "summary": "Creates a new TeamCloud User.",
+        "operationId": "CreateTeamCloudUser",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserDefinition"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Starts creating the new TeamCloud UserProject. Returns a StatusResult object that can be used to track progress of the long-running operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The User provided in the request body did not pass validation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The TeamCloud instance was not found, or a User with the email address provided in the request body was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A TeamCloud User already exists with the email address provided in the request body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "admin"
+            ]
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "TeamCloudUsers"
+        ],
+        "summary": "Updates an existing TeamCloud User.",
+        "operationId": "UpdateTeamCloudUser",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Starts updating the TeamCloud UserProject. Returns a StatusResult object that can be used to track progress of the long-running operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The User provided in the request body did not pass validation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The TeamCloud instance was not found, or a User with the ID provided in the request body was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "admin"
+            ]
+          }
+        ]
+      }
+    },
+    "/api/users/{userNameOrId}": {
+      "get": {
+        "tags": [
+          "TeamCloudUsers"
+        ],
+        "summary": "Gets a TeamCloud User by ID or email address.",
+        "operationId": "GetTeamCloudUserByNameOrId",
+        "parameters": [
+          {
+            "name": "userNameOrId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns TeamCloud User.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDataResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The TeamCloud instance was not found, or a User with the provided identifier was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "admin"
+            ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "TeamCloudUsers"
+        ],
+        "summary": "Deletes an existing TeamCloud User.",
+        "operationId": "DeleteTeamCloudUser",
+        "parameters": [
+          {
+            "name": "userNameOrId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Starts deleting the TeamCloud User. Returns a StatusResult object that can be used to track progress of the long-running operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The TeamCloud instance was not found, or a User with the identifier provided was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "admin"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ProjectTypeProvider": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "properties": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProjectType": {
+        "type": "object",
+        "properties": {
+          "partitionKey": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "default": {
+            "type": "boolean"
+          },
+          "region": {
+            "type": "string",
+            "nullable": true
+          },
+          "subscriptions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "nullable": true
+          },
+          "subscriptionCapacity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "resourceGroupNamePrefix": {
+            "type": "string",
+            "nullable": true
+          },
+          "providers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProjectTypeProvider"
+            },
+            "nullable": true
+          },
+          "tags": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "properties": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "AzureIdentity": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "appId": {
+            "type": "string",
+            "nullable": true
+          },
+          "secret": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "AzureResourceGroup": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "subscriptionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "resourceGroupId": {
+            "type": "string",
+            "nullable": true
+          },
+          "resourceGroupName": {
+            "type": "string",
+            "nullable": true
+          },
+          "region": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "role": {
+            "type": "string",
+            "nullable": true
+          },
+          "tags": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Project": {
+        "type": "object",
+        "properties": {
+          "partitionKey": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProjectType"
+              }
+            ],
+            "nullable": true
+          },
+          "identity": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AzureIdentity"
+              }
+            ],
+            "nullable": true
+          },
+          "resourceGroup": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AzureResourceGroup"
+              }
+            ],
+            "nullable": true
+          },
+          "teamCloudId": {
+            "type": "string",
+            "nullable": true
+          },
+          "users": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/User"
+            },
+            "nullable": true
+          },
+          "tags": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "properties": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "providerProperties": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProjectListDataResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Project"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserDefinition": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "role": {
+            "type": "string",
+            "nullable": true
+          },
+          "tags": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProjectDefinition": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "projectType": {
+            "type": "string",
+            "nullable": true
+          },
+          "users": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserDefinition"
+            },
+            "nullable": true
+          },
+          "tags": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ValidationError": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ResultError": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "enum": [
+              "Unknown",
+              "Failed",
+              "Conflict",
+              "NotFound",
+              "ServerError",
+              "ValidationError",
+              "Unauthorized",
+              "Forbidden"
+            ],
+            "type": "string"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "StatusResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "state": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
+          "stateMessage": {
+            "type": "string",
+            "nullable": true
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResultError"
+            },
+            "nullable": true
+          },
+          "_trackingId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ErrorResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResultError"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProjectDataResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Project"
+              }
+            ],
+            "nullable": true,
+            "readOnly": true
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProjectTypeListDataResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProjectType"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProjectTypeDataResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProjectType"
+              }
+            ],
+            "nullable": true,
+            "readOnly": true
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserListDataResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/User"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserDataResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/User"
+              }
+            ],
+            "nullable": true,
+            "readOnly": true
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProviderDependencies": {
+        "type": "object",
+        "properties": {
+          "create": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "init": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Provider": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "url": {
+            "type": "string",
+            "nullable": true
+          },
+          "authCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "principalId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "optional": {
+            "type": "boolean"
+          },
+          "dependencies": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProviderDependencies"
+              }
+            ],
+            "nullable": true
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "properties": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProviderListDataResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Provider"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProviderDataResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Provider"
+              }
+            ],
+            "nullable": true,
+            "readOnly": true
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "TeamCloudConfiguration": {
+        "type": "object",
+        "properties": {
+          "projectTypes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProjectType"
+            },
+            "nullable": true
+          },
+          "providers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Provider"
+            },
+            "nullable": true
+          },
+          "users": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/User"
+            },
+            "nullable": true
+          },
+          "tags": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "properties": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "security": [
+    {
+      "oauth2": [
+        "default",
+        "admin",
+        "projectCreate",
+        "projectRead",
+        "projectDelete"
+      ]
+    }
+  ]
 }

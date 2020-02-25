@@ -21,20 +21,16 @@ class ErrorResult(Model):
     :type status: str
     :param errors:
     :type errors: list[~teamcloud.models.ResultError]
-    :param _tracking_id:
-    :type _tracking_id: str
     """
 
     _attribute_map = {
         'code': {'key': 'code', 'type': 'int'},
         'status': {'key': 'status', 'type': 'str'},
         'errors': {'key': 'errors', 'type': '[ResultError]'},
-        '_tracking_id': {'key': '_trackingId', 'type': 'str'},
     }
 
-    def __init__(self, *, code: int=None, status: str=None, errors=None, _tracking_id: str=None, **kwargs) -> None:
+    def __init__(self, *, code: int=None, status: str=None, errors=None, **kwargs) -> None:
         super(ErrorResult, self).__init__(**kwargs)
         self.code = code
         self.status = status
         self.errors = errors
-        self._tracking_id = _tracking_id

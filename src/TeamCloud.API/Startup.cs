@@ -134,8 +134,8 @@ namespace TeamCloud.API
             services
                 .AddRouting(options =>
                 {
-                    options.ConstraintMap.Add("userIdentifier", typeof(UserIdentifierRouteConstraint));
-                    options.ConstraintMap.Add("projectIdentifier", typeof(ProjectIdentifierRouteConstraint));
+                    options.ConstraintMap.Add("userNameOrId", typeof(UserIdentifierRouteConstraint));
+                    options.ConstraintMap.Add("projectNameOrId", typeof(ProjectIdentifierRouteConstraint));
                 })
                 .AddControllers()
                 .AddNewtonsoftJson()

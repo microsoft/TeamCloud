@@ -83,22 +83,22 @@ namespace TeamCloud.API.Controllers
         }
 
 
-        [HttpGet("{identifier:userIdentifier}")]
+        [HttpGet("{userNameOrId:userNameOrId}")]
         [Authorize(Policy = "projectRead")]
-        [SwaggerOperation(OperationId = "GetProjectUserById", Summary = "Gets a Project User by ID or email address.")]
+        [SwaggerOperation(OperationId = "GetProjectUserByNameOrId", Summary = "Gets a Project User by ID or email address.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns Project User", typeof(DataResult<User>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "The projectId provided in the path was invalid.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a User with the provided identifier was not found.", typeof(ErrorResult))]
-        public async Task<IActionResult> Get([FromRoute] string identifier)
+        public async Task<IActionResult> Get([FromRoute] string userNameOrId)
         {
             if (!ProjectId.HasValue)
                 return ErrorResult
                     .BadRequest($"Project Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCodes.ValidationError)
                     .ActionResult();
 
-            if (string.IsNullOrWhiteSpace(identifier))
+            if (string.IsNullOrWhiteSpace(userNameOrId))
                 return ErrorResult
-                    .BadRequest($"The identifier '{identifier}' provided in the url path is invalid.  Must be a valid email address or GUID.", ResultErrorCodes.ValidationError)
+                    .BadRequest($"The identifier '{userNameOrId}' provided in the url path is invalid.  Must be a valid email address or GUID.", ResultErrorCodes.ValidationError)
                     .ActionResult();
 
             var project = await projectsRepository
@@ -110,15 +110,15 @@ namespace TeamCloud.API.Controllers
                     .NotFound($"A Project with the ID '{ProjectId.Value}' could not be found in this TeamCloud Instance.")
                     .ActionResult();
 
-            if (!Guid.TryParse(identifier, out var userId))
+            if (!Guid.TryParse(userNameOrId, out var userId))
             {
                 var idLookup = await userService
-                    .GetUserIdAsync(identifier)
+                    .GetUserIdAsync(userNameOrId)
                     .ConfigureAwait(false);
 
                 if (!idLookup.HasValue || idLookup.Value == Guid.Empty)
                     return ErrorResult
-                        .NotFound($"A User with the email '{identifier}' could not be found.")
+                        .NotFound($"A User with the email '{userNameOrId}' could not be found.")
                         .ActionResult();
 
                 userId = idLookup.Value;
@@ -250,22 +250,22 @@ namespace TeamCloud.API.Controllers
 
 
 
-        [HttpDelete("{identifier:userIdentifier}")]
+        [HttpDelete("{userNameOrId:userNameOrId}")]
         [Authorize(Policy = "projectCreate")]
         [SwaggerOperation(OperationId = "DeleteProjectUser", Summary = "Deletes an existing Project User.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts deleting the Project UserProject. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "The projectId provided in the path was invalid.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a User with the provided identifier was not found.", typeof(ErrorResult))]
-        public async Task<IActionResult> Delete([FromRoute]string identifier)
+        public async Task<IActionResult> Delete([FromRoute]string userNameOrId)
         {
             if (!ProjectId.HasValue)
                 return ErrorResult
                     .BadRequest($"Project Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCodes.ValidationError)
                     .ActionResult();
 
-            if (string.IsNullOrWhiteSpace(identifier))
+            if (string.IsNullOrWhiteSpace(userNameOrId))
                 return ErrorResult
-                    .BadRequest($"The identifier '{identifier}' provided in the url path is invalid.  Must be a valid email address or GUID.", ResultErrorCodes.ValidationError)
+                    .BadRequest($"The identifier '{userNameOrId}' provided in the url path is invalid.  Must be a valid email address or GUID.", ResultErrorCodes.ValidationError)
                     .ActionResult();
 
             var project = await projectsRepository
@@ -277,15 +277,15 @@ namespace TeamCloud.API.Controllers
                     .NotFound($"A Project with the ID '{ProjectId.Value}' could not be found in this TeamCloud Instance.")
                     .ActionResult();
 
-            if (!Guid.TryParse(identifier, out var userId))
+            if (!Guid.TryParse(userNameOrId, out var userId))
             {
                 var idLookup = await userService
-                    .GetUserIdAsync(identifier)
+                    .GetUserIdAsync(userNameOrId)
                     .ConfigureAwait(false);
 
                 if (!idLookup.HasValue || idLookup.Value == Guid.Empty)
                     return ErrorResult
-                        .NotFound($"A User with the email '{identifier}' could not be found.")
+                        .NotFound($"A User with the email '{userNameOrId}' could not be found.")
                         .ActionResult();
 
                 userId = idLookup.Value;

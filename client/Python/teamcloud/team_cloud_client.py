@@ -171,12 +171,12 @@ class TeamCloudClient(SDKClient):
         return deserialized
     create_project.metadata = {'url': '/api/projects'}
 
-    def get_project_by_id(
-            self, project_id, custom_headers=None, raw=False, **operation_config):
-        """Gets a Project by ID.
+    def get_project_by_name_or_id(
+            self, project_name_or_id, custom_headers=None, raw=False, **operation_config):
+        """Gets a Project by Name or ID.
 
-        :param project_id:
-        :type project_id: str
+        :param project_name_or_id:
+        :type project_name_or_id: str
         :param dict custom_headers: headers that will be added to the request
         :param bool raw: returns the direct response alongside the
          deserialized response
@@ -188,9 +188,9 @@ class TeamCloudClient(SDKClient):
          :class:`HttpOperationError<msrest.exceptions.HttpOperationError>`
         """
         # Construct URL
-        url = self.get_project_by_id.metadata['url']
+        url = self.get_project_by_name_or_id.metadata['url']
         path_format_arguments = {
-            'projectId': self._serialize.url("project_id", project_id, 'str')
+            'projectNameOrId': self._serialize.url("project_name_or_id", project_name_or_id, 'str')
         }
         url = self._client.format_url(url, **path_format_arguments)
 
@@ -222,14 +222,14 @@ class TeamCloudClient(SDKClient):
             return client_raw_response
 
         return deserialized
-    get_project_by_id.metadata = {'url': '/api/projects/{projectId}'}
+    get_project_by_name_or_id.metadata = {'url': '/api/projects/{projectNameOrId}'}
 
     def delete_project(
-            self, project_id, custom_headers=None, raw=False, **operation_config):
+            self, project_name_or_id, custom_headers=None, raw=False, **operation_config):
         """Deletes a Project.
 
-        :param project_id:
-        :type project_id: str
+        :param project_name_or_id:
+        :type project_name_or_id: str
         :param dict custom_headers: headers that will be added to the request
         :param bool raw: returns the direct response alongside the
          deserialized response
@@ -243,7 +243,7 @@ class TeamCloudClient(SDKClient):
         # Construct URL
         url = self.delete_project.metadata['url']
         path_format_arguments = {
-            'projectId': self._serialize.url("project_id", project_id, 'str')
+            'projectNameOrId': self._serialize.url("project_name_or_id", project_name_or_id, 'str')
         }
         url = self._client.format_url(url, **path_format_arguments)
 
@@ -275,7 +275,7 @@ class TeamCloudClient(SDKClient):
             return client_raw_response
 
         return deserialized
-    delete_project.metadata = {'url': '/api/projects/{projectId}'}
+    delete_project.metadata = {'url': '/api/projects/{projectNameOrId}'}
 
     def get_project_types(
             self, custom_headers=None, raw=False, **operation_config):
@@ -730,12 +730,12 @@ class TeamCloudClient(SDKClient):
         return deserialized
     update_project_user.metadata = {'url': '/api/projects/{projectId}/users'}
 
-    def get_project_user_by_id(
-            self, user_id, project_id, custom_headers=None, raw=False, **operation_config):
-        """Gets a Project User by ID.
+    def get_project_user_by_name_or_id(
+            self, user_name_or_id, project_id, custom_headers=None, raw=False, **operation_config):
+        """Gets a Project User by ID or email address.
 
-        :param user_id:
-        :type user_id: str
+        :param user_name_or_id:
+        :type user_name_or_id: str
         :param project_id:
         :type project_id: str
         :param dict custom_headers: headers that will be added to the request
@@ -749,9 +749,9 @@ class TeamCloudClient(SDKClient):
          :class:`HttpOperationError<msrest.exceptions.HttpOperationError>`
         """
         # Construct URL
-        url = self.get_project_user_by_id.metadata['url']
+        url = self.get_project_user_by_name_or_id.metadata['url']
         path_format_arguments = {
-            'userId': self._serialize.url("user_id", user_id, 'str'),
+            'userNameOrId': self._serialize.url("user_name_or_id", user_name_or_id, 'str'),
             'projectId': self._serialize.url("project_id", project_id, 'str')
         }
         url = self._client.format_url(url, **path_format_arguments)
@@ -786,14 +786,14 @@ class TeamCloudClient(SDKClient):
             return client_raw_response
 
         return deserialized
-    get_project_user_by_id.metadata = {'url': '/api/projects/{projectId}/users/{userId}'}
+    get_project_user_by_name_or_id.metadata = {'url': '/api/projects/{projectId}/users/{userNameOrId}'}
 
     def delete_project_user(
-            self, user_id, project_id, custom_headers=None, raw=False, **operation_config):
+            self, user_name_or_id, project_id, custom_headers=None, raw=False, **operation_config):
         """Deletes an existing Project User.
 
-        :param user_id:
-        :type user_id: str
+        :param user_name_or_id:
+        :type user_name_or_id: str
         :param project_id:
         :type project_id: str
         :param dict custom_headers: headers that will be added to the request
@@ -809,7 +809,7 @@ class TeamCloudClient(SDKClient):
         # Construct URL
         url = self.delete_project_user.metadata['url']
         path_format_arguments = {
-            'userId': self._serialize.url("user_id", user_id, 'str'),
+            'userNameOrId': self._serialize.url("user_name_or_id", user_name_or_id, 'str'),
             'projectId': self._serialize.url("project_id", project_id, 'str')
         }
         url = self._client.format_url(url, **path_format_arguments)
@@ -844,7 +844,7 @@ class TeamCloudClient(SDKClient):
             return client_raw_response
 
         return deserialized
-    delete_project_user.metadata = {'url': '/api/projects/{projectId}/users/{userId}'}
+    delete_project_user.metadata = {'url': '/api/projects/{projectId}/users/{userNameOrId}'}
 
     def get_providers(
             self, custom_headers=None, raw=False, **operation_config):
@@ -1153,7 +1153,7 @@ class TeamCloudClient(SDKClient):
         request = self._client.get(url, query_parameters, header_parameters)
         response = self._client.send(request, stream=False, **operation_config)
 
-        if response.status_code not in [200, 202, 302, 401, 403, 404, 500]:
+        if response.status_code not in [200, 202, 302, 401, 403, 404]:
             raise HttpOperationError(self._deserialize, response)
 
         deserialized = None
@@ -1165,8 +1165,6 @@ class TeamCloudClient(SDKClient):
         if response.status_code == 302:
             deserialized = self._deserialize('StatusResult', response)
         if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', response)
-        if response.status_code == 500:
             deserialized = self._deserialize('ErrorResult', response)
 
         if raw:
@@ -1215,7 +1213,7 @@ class TeamCloudClient(SDKClient):
         request = self._client.get(url, query_parameters, header_parameters)
         response = self._client.send(request, stream=False, **operation_config)
 
-        if response.status_code not in [200, 202, 302, 401, 403, 404, 500]:
+        if response.status_code not in [200, 202, 302, 401, 403, 404]:
             raise HttpOperationError(self._deserialize, response)
 
         deserialized = None
@@ -1227,8 +1225,6 @@ class TeamCloudClient(SDKClient):
         if response.status_code == 302:
             deserialized = self._deserialize('StatusResult', response)
         if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', response)
-        if response.status_code == 500:
             deserialized = self._deserialize('ErrorResult', response)
 
         if raw:
@@ -1508,12 +1504,12 @@ class TeamCloudClient(SDKClient):
         return deserialized
     update_team_cloud_user.metadata = {'url': '/api/users'}
 
-    def get_team_cloud_user_by_id(
-            self, user_id, custom_headers=None, raw=False, **operation_config):
-        """Gets a TeamCloud User by ID.
+    def get_team_cloud_user_by_name_or_id(
+            self, user_name_or_id, custom_headers=None, raw=False, **operation_config):
+        """Gets a TeamCloud User by ID or email address.
 
-        :param user_id:
-        :type user_id: str
+        :param user_name_or_id:
+        :type user_name_or_id: str
         :param dict custom_headers: headers that will be added to the request
         :param bool raw: returns the direct response alongside the
          deserialized response
@@ -1525,9 +1521,9 @@ class TeamCloudClient(SDKClient):
          :class:`HttpOperationError<msrest.exceptions.HttpOperationError>`
         """
         # Construct URL
-        url = self.get_team_cloud_user_by_id.metadata['url']
+        url = self.get_team_cloud_user_by_name_or_id.metadata['url']
         path_format_arguments = {
-            'userId': self._serialize.url("user_id", user_id, 'str')
+            'userNameOrId': self._serialize.url("user_name_or_id", user_name_or_id, 'str')
         }
         url = self._client.format_url(url, **path_format_arguments)
 
@@ -1559,14 +1555,14 @@ class TeamCloudClient(SDKClient):
             return client_raw_response
 
         return deserialized
-    get_team_cloud_user_by_id.metadata = {'url': '/api/users/{userId}'}
+    get_team_cloud_user_by_name_or_id.metadata = {'url': '/api/users/{userNameOrId}'}
 
     def delete_team_cloud_user(
-            self, user_id, custom_headers=None, raw=False, **operation_config):
+            self, user_name_or_id, custom_headers=None, raw=False, **operation_config):
         """Deletes an existing TeamCloud User.
 
-        :param user_id:
-        :type user_id: str
+        :param user_name_or_id:
+        :type user_name_or_id: str
         :param dict custom_headers: headers that will be added to the request
         :param bool raw: returns the direct response alongside the
          deserialized response
@@ -1580,7 +1576,7 @@ class TeamCloudClient(SDKClient):
         # Construct URL
         url = self.delete_team_cloud_user.metadata['url']
         path_format_arguments = {
-            'userId': self._serialize.url("user_id", user_id, 'str')
+            'userNameOrId': self._serialize.url("user_name_or_id", user_name_or_id, 'str')
         }
         url = self._client.format_url(url, **path_format_arguments)
 
@@ -1612,4 +1608,4 @@ class TeamCloudClient(SDKClient):
             return client_raw_response
 
         return deserialized
-    delete_team_cloud_user.metadata = {'url': '/api/users/{userId}'}
+    delete_team_cloud_user.metadata = {'url': '/api/users/{userNameOrId}'}

@@ -28,6 +28,8 @@ class StatusResult(Model):
     :type state_message: str
     :param location:
     :type location: str
+    :param errors:
+    :type errors: list[~teamcloud.models.ResultError]
     :param _tracking_id:
     :type _tracking_id: str
     """
@@ -42,14 +44,16 @@ class StatusResult(Model):
         'state': {'key': 'state', 'type': 'str'},
         'state_message': {'key': 'stateMessage', 'type': 'str'},
         'location': {'key': 'location', 'type': 'str'},
+        'errors': {'key': 'errors', 'type': '[ResultError]'},
         '_tracking_id': {'key': '_trackingId', 'type': 'str'},
     }
 
-    def __init__(self, *, code: int=None, status: str=None, state_message: str=None, location: str=None, _tracking_id: str=None, **kwargs) -> None:
+    def __init__(self, *, code: int=None, status: str=None, state_message: str=None, location: str=None, errors=None, _tracking_id: str=None, **kwargs) -> None:
         super(StatusResult, self).__init__(**kwargs)
         self.code = code
         self.status = status
         self.state = None
         self.state_message = state_message
         self.location = location
+        self.errors = errors
         self._tracking_id = _tracking_id

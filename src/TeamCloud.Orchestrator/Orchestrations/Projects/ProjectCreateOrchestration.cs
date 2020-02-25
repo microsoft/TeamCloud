@@ -79,7 +79,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
                     .CallActivityAsync(nameof(AzureResourceGroupTagActivity), project)
                     .ConfigureAwait(true);
 
-                functionContext.SetCustomStatus("Waiting on providers to deploy project resources.", log);
+                functionContext.SetCustomStatus("Waiting on providers to create project resources.", log);
 
                 var providerCommandTasks = providers
                     .GetProviderCommandTasks(command, functionContext);
