@@ -83,17 +83,22 @@ namespace TeamCloud.API.Controllers
         }
 
 
-        [HttpGet("{userId:guid}")]
+        [HttpGet("{identifier:userIdentifier}")]
         [Authorize(Policy = "projectRead")]
-        [SwaggerOperation(OperationId = "GetProjectUserById", Summary = "Gets a Project User by ID.")]
+        [SwaggerOperation(OperationId = "GetProjectUserById", Summary = "Gets a Project User by ID or email address.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns Project User", typeof(DataResult<User>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "The projectId provided in the path was invalid.", typeof(ErrorResult))]
-        [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a User with the provided userId was not found.", typeof(ErrorResult))]
-        public async Task<IActionResult> Get(Guid userId)
+        [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a User with the provided identifier was not found.", typeof(ErrorResult))]
+        public async Task<IActionResult> Get([FromRoute] string identifier)
         {
             if (!ProjectId.HasValue)
                 return ErrorResult
                     .BadRequest($"Project Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCodes.ValidationError)
+                    .ActionResult();
+
+            if (string.IsNullOrWhiteSpace(identifier))
+                return ErrorResult
+                    .BadRequest($"The identifier '{identifier}' provided in the url path is invalid.  Must be a valid email address or GUID.", ResultErrorCodes.ValidationError)
                     .ActionResult();
 
             var project = await projectsRepository
@@ -105,18 +110,31 @@ namespace TeamCloud.API.Controllers
                     .NotFound($"A Project with the ID '{ProjectId.Value}' could not be found in this TeamCloud Instance.")
                     .ActionResult();
 
+            if (!Guid.TryParse(identifier, out var userId))
+            {
+                var idLookup = await userService
+                    .GetUserIdAsync(identifier)
+                    .ConfigureAwait(false);
+
+                if (!idLookup.HasValue || idLookup.Value == Guid.Empty)
+                    return ErrorResult
+                        .NotFound($"A User with the email '{identifier}' could not be found.")
+                        .ActionResult();
+
+                userId = idLookup.Value;
+            }
+
             var user = project?.Users?.FirstOrDefault(u => u.Id == userId);
 
             if (user is null)
                 return ErrorResult
-                    .NotFound($"A User with the ID '{userId}' could not be found in this Project.")
+                    .NotFound($"The specified User could not be found in this Project.")
                     .ActionResult();
 
             return DataResult<User>
                 .Ok(user)
                 .ActionResult();
         }
-
 
         [HttpPost]
         [Authorize(Policy = "projectCreate")]
@@ -174,7 +192,7 @@ namespace TeamCloud.API.Controllers
                     .Accepted(commandResult.CommandId.ToString(), statusUrl, commandResult.RuntimeStatus.ToString(), commandResult.CustomStatus)
                     .ActionResult();
 
-            throw new Exception("This shoudn't happen, but we need to decide to do when it does...");
+            throw new Exception("This shoudn't happen, but we need to decide to do when it does.");
         }
 
 
@@ -227,22 +245,27 @@ namespace TeamCloud.API.Controllers
                     .Accepted(commandResult.CommandId.ToString(), statusUrl, commandResult.RuntimeStatus.ToString(), commandResult.CustomStatus)
                     .ActionResult();
 
-            throw new Exception("This shoudn't happen, but we need to decide to do when it does...");
+            throw new Exception("This shoudn't happen, but we need to decide to do when it does.");
         }
 
 
 
-        [HttpDelete("{userId:guid}")]
+        [HttpDelete("{identifier:userIdentifier}")]
         [Authorize(Policy = "projectCreate")]
         [SwaggerOperation(OperationId = "DeleteProjectUser", Summary = "Deletes an existing Project User.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts deleting the Project UserProject. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "The projectId provided in the path was invalid.", typeof(ErrorResult))]
-        [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a User with the provided userId was not found.", typeof(ErrorResult))]
-        public async Task<IActionResult> Delete(Guid userId)
+        [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a User with the provided identifier was not found.", typeof(ErrorResult))]
+        public async Task<IActionResult> Delete([FromRoute]string identifier)
         {
             if (!ProjectId.HasValue)
                 return ErrorResult
                     .BadRequest($"Project Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCodes.ValidationError)
+                    .ActionResult();
+
+            if (string.IsNullOrWhiteSpace(identifier))
+                return ErrorResult
+                    .BadRequest($"The identifier '{identifier}' provided in the url path is invalid.  Must be a valid email address or GUID.", ResultErrorCodes.ValidationError)
                     .ActionResult();
 
             var project = await projectsRepository
@@ -254,11 +277,25 @@ namespace TeamCloud.API.Controllers
                     .NotFound($"A Project with the ID '{ProjectId.Value}' could not be found in this TeamCloud Instance.")
                     .ActionResult();
 
+            if (!Guid.TryParse(identifier, out var userId))
+            {
+                var idLookup = await userService
+                    .GetUserIdAsync(identifier)
+                    .ConfigureAwait(false);
+
+                if (!idLookup.HasValue || idLookup.Value == Guid.Empty)
+                    return ErrorResult
+                        .NotFound($"A User with the email '{identifier}' could not be found.")
+                        .ActionResult();
+
+                userId = idLookup.Value;
+            }
+
             var user = project?.Users?.FirstOrDefault(u => u.Id == userId);
 
             if (user is null)
                 return ErrorResult
-                    .NotFound($"A User with the ID '{userId}' could not be found on this Project.")
+                    .NotFound($"The specified User could not be found in this Project.")
                     .ActionResult();
 
             var command = new ProjectUserDeleteCommand(CurrentUser, user, ProjectId.Value);
@@ -272,7 +309,7 @@ namespace TeamCloud.API.Controllers
                     .Accepted(commandResult.CommandId.ToString(), statusUrl, commandResult.RuntimeStatus.ToString(), commandResult.CustomStatus)
                     .ActionResult();
 
-            throw new Exception("This shoudn't happen, but we need to decide to do when it does...");
+            throw new Exception("This shoudn't happen, but we need to decide to do when it does.");
         }
     }
 }

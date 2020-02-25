@@ -89,20 +89,36 @@ namespace TeamCloud.API.Controllers
         }
 
 
-        [HttpGet("{projectId:guid}")]
+        [HttpGet("{identifier:projectIdentifier}")]
         [Authorize(Policy = "projectRead")]
-        [SwaggerOperation(OperationId = "GetProjectById", Summary = "Gets a Project by ID.")]
+        [SwaggerOperation(OperationId = "GetProjectById", Summary = "Gets a Project by Name or ID.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns a Project.", typeof(DataResult<Project>))]
-        [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the specified projectId was not found.", typeof(ErrorResult))]
-        public async Task<IActionResult> Get(Guid projectId)
+        [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the specified Name or ID was not found.", typeof(ErrorResult))]
+        public async Task<IActionResult> Get(string identifier)
         {
-            var project = await projectsRepository
-                .GetAsync(projectId)
-                .ConfigureAwait(false);
+            if (string.IsNullOrWhiteSpace(identifier))
+                return ErrorResult
+                    .BadRequest($"The identifier '{identifier}' provided in the url path is invalid.  Must be a valid project name or GUID.", ResultErrorCodes.ValidationError)
+                    .ActionResult();
+
+            Project project;
+
+            if (Guid.TryParse(identifier, out var projectId))
+            {
+                project = await projectsRepository
+                    .GetAsync(projectId)
+                    .ConfigureAwait(false);
+            }
+            else
+            {
+                project = await projectsRepository
+                    .GetAsync(identifier)
+                    .ConfigureAwait(false);
+            }
 
             if (project is null)
                 return ErrorResult
-                    .NotFound($"A Project with the ID '{projectId}' could not be found in this TeamCloud Instance")
+                    .NotFound($"A Project with the identifier '{identifier}' could not be found in this TeamCloud Instance")
                     .ActionResult();
 
             return DataResult<Project>
@@ -181,24 +197,40 @@ namespace TeamCloud.API.Controllers
                     .Accepted(commandResult.CommandId.ToString(), statusUrl, commandResult.RuntimeStatus.ToString(), commandResult.CustomStatus)
                     .ActionResult();
 
-            throw new Exception("This shoudn't happen, but we need to decide to do when it does...");
+            throw new Exception("This shoudn't happen, but we need to decide to do when it does.");
         }
 
 
-        [HttpDelete("{projectId:guid}")]
+        [HttpDelete("{identifier:projectIdentifier}")]
         [Authorize(Policy = "projectDelete")]
         [SwaggerOperation(OperationId = "DeleteProject", Summary = "Deletes a Project.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts deleting the specified Project. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
-        [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the specified projectId was not found.", typeof(ErrorResult))]
-        public async Task<IActionResult> Delete(Guid projectId)
+        [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the specified name or ID was not found.", typeof(ErrorResult))]
+        public async Task<IActionResult> Delete(string identifier)
         {
-            var project = await projectsRepository
-                .GetAsync(projectId)
-                .ConfigureAwait(false);
+            if (string.IsNullOrWhiteSpace(identifier))
+                return ErrorResult
+                    .BadRequest($"The identifier '{identifier}' provided in the url path is invalid.  Must be a valid project name or GUID.", ResultErrorCodes.ValidationError)
+                    .ActionResult();
+
+            Project project;
+
+            if (Guid.TryParse(identifier, out var projectId))
+            {
+                project = await projectsRepository
+                    .GetAsync(projectId)
+                    .ConfigureAwait(false);
+            }
+            else
+            {
+                project = await projectsRepository
+                    .GetAsync(identifier)
+                    .ConfigureAwait(false);
+            }
 
             if (project is null)
                 return ErrorResult
-                    .NotFound($"A Project with the ID '{projectId}' could not be found in this TeamCloud Instance")
+                    .NotFound($"A Project with the identifier '{identifier}' could not be found in this TeamCloud Instance")
                     .ActionResult();
 
             var command = new ProjectDeleteCommand(CurrentUser, project);
@@ -212,7 +244,7 @@ namespace TeamCloud.API.Controllers
                     .Accepted(commandResult.CommandId.ToString(), statusUrl, commandResult.RuntimeStatus.ToString(), commandResult.CustomStatus)
                     .ActionResult();
 
-            throw new Exception("This shoudn't happen, but we need to decide to do when it does...");
+            throw new Exception("This shoudn't happen, but we need to decide to do when it does.");
         }
     }
 }

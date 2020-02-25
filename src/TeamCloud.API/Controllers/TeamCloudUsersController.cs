@@ -67,13 +67,18 @@ namespace TeamCloud.API
         }
 
 
-        [HttpGet("{userId:guid}")]
+        [HttpGet("{identifier:userIdentifier}")]
         [Authorize(Policy = "admin")]
-        [SwaggerOperation(OperationId = "GetTeamCloudUserById", Summary = "Gets a TeamCloud User by ID.")]
+        [SwaggerOperation(OperationId = "GetTeamCloudUserById", Summary = "Gets a TeamCloud User by ID or email address.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns TeamCloud User.", typeof(DataResult<User>))]
-        [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found, or a User with the userID provided was not found.", typeof(ErrorResult))]
-        public async Task<IActionResult> Get(Guid userId)
+        [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found, or a User with the provided identifier was not found.", typeof(ErrorResult))]
+        public async Task<IActionResult> Get([FromRoute] string identifier)
         {
+            if (string.IsNullOrWhiteSpace(identifier))
+                return ErrorResult
+                    .BadRequest($"The identifier '{identifier}' provided in the url path is invalid.  Must be a valid email address or GUID.", ResultErrorCodes.ValidationError)
+                    .ActionResult();
+
             var teamCloudInstance = await teamCloudRepository
                 .GetAsync()
                 .ConfigureAwait(false);
@@ -83,11 +88,25 @@ namespace TeamCloud.API
                     .NotFound($"No TeamCloud Instance was found.")
                     .ActionResult();
 
+            if (!Guid.TryParse(identifier, out var userId))
+            {
+                var idLookup = await userService
+                    .GetUserIdAsync(identifier)
+                    .ConfigureAwait(false);
+
+                if (!idLookup.HasValue || idLookup.Value == Guid.Empty)
+                    return ErrorResult
+                        .NotFound($"A User with the email '{identifier}' could not be found.")
+                        .ActionResult();
+
+                userId = idLookup.Value;
+            }
+
             var user = teamCloudInstance.Users?.FirstOrDefault(u => u.Id == userId);
 
             if (user is null)
                 return ErrorResult
-                    .NotFound($"A User with the ID '{userId}' could not be found in this TeamCloud Instance.")
+                    .NotFound($"The specified User could not be found in this TeamCloud Instance.")
                     .ActionResult();
 
             return DataResult<User>
@@ -147,7 +166,7 @@ namespace TeamCloud.API
                     .Accepted(commandResult.CommandId.ToString(), statusUrl, commandResult.RuntimeStatus.ToString(), commandResult.CustomStatus)
                     .ActionResult();
 
-            throw new Exception("This shoudn't happen, but we need to decide to do when it does...");
+            throw new Exception("This shoudn't happen, but we need to decide to do when it does.");
         }
 
 
@@ -194,17 +213,22 @@ namespace TeamCloud.API
                     .Accepted(commandResult.CommandId.ToString(), statusUrl, commandResult.RuntimeStatus.ToString(), commandResult.CustomStatus)
                     .ActionResult();
 
-            throw new Exception("This shoudn't happen, but we need to decide to do when it does...");
+            throw new Exception("This shoudn't happen, but we need to decide to do when it does.");
         }
 
 
-        [HttpDelete("{userId:guid}")]
+        [HttpDelete("{identifier:userIdentifier}")]
         [Authorize(Policy = "admin")]
         [SwaggerOperation(OperationId = "DeleteTeamCloudUser", Summary = "Deletes an existing TeamCloud User.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts deleting the TeamCloud User. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
-        [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found, or a User with the userID provided was not found.", typeof(ErrorResult))]
-        public async Task<IActionResult> Delete(Guid userId)
+        [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found, or a User with the identifier provided was not found.", typeof(ErrorResult))]
+        public async Task<IActionResult> Delete([FromRoute] string identifier)
         {
+            if (string.IsNullOrWhiteSpace(identifier))
+                return ErrorResult
+                    .BadRequest($"The identifier '{identifier}' provided in the url path is invalid.  Must be a valid email address or GUID.", ResultErrorCodes.ValidationError)
+                    .ActionResult();
+
             var teamCloudInstance = await teamCloudRepository
                 .GetAsync()
                 .ConfigureAwait(false);
@@ -214,11 +238,25 @@ namespace TeamCloud.API
                     .NotFound($"No TeamCloud Instance was found.")
                     .ActionResult();
 
+            if (!Guid.TryParse(identifier, out var userId))
+            {
+                var idLookup = await userService
+                    .GetUserIdAsync(identifier)
+                    .ConfigureAwait(false);
+
+                if (!idLookup.HasValue || idLookup.Value == Guid.Empty)
+                    return ErrorResult
+                        .NotFound($"A User with the email '{identifier}' could not be found.")
+                        .ActionResult();
+
+                userId = idLookup.Value;
+            }
+
             var user = teamCloudInstance.Users?.FirstOrDefault(u => u.Id == userId);
 
             if (user is null)
                 return ErrorResult
-                    .NotFound($"A User with the ID '{userId}' could not be found on this TeamCloud Instance.")
+                    .NotFound($"The specified User could not be found in this TeamCloud Instance.")
                     .ActionResult();
 
             var command = new TeamCloudUserDeleteCommand(CurrentUser, user);
@@ -232,7 +270,7 @@ namespace TeamCloud.API
                     .Accepted(commandResult.CommandId.ToString(), statusUrl, commandResult.RuntimeStatus.ToString(), commandResult.CustomStatus)
                     .ActionResult();
 
-            throw new Exception("This shoudn't happen, but we need to decide to do when it does...");
+            throw new Exception("This shoudn't happen, but we need to decide to do when it does.");
         }
     }
 }

@@ -17,6 +17,10 @@
 			"path": "src/TeamCloud.Azure.Directory"
 		},
 		{
+			"name": "Azure.Resources",
+			"path": "src/TeamCloud.Azure.Resources"
+		},
+		{
 			"name": "Configuration",
 			"path": "src/TeamCloud.Configuration"
 		},
@@ -70,6 +74,9 @@
 		},
 		{
 			"path": "deploy"
+		},
+		{
+			"path": "client"
 		}
 	],
 	"settings": {
@@ -129,6 +136,63 @@
 				"problemMatcher": "$msCompile",
 				"options": {
 					"cwd": "${workspaceFolder:Azure}"
+				},
+				"presentation": {
+					"group": "buildAll",
+					"showReuseMessage": false
+				}
+			},
+			{
+				"label": "cleanAzureDeployment",
+				"command": "dotnet",
+				"args": [
+					"clean",
+					"${workspaceFolder:Azure.Deployment}/TeamCloud.Azure.Deployment.csproj",
+					"/property:GenerateFullPaths=true",
+					"/consoleloggerparameters:NoSummary",
+				],
+				"type": "process",
+				"problemMatcher": "$msCompile",
+				"options": {
+					"cwd": "${workspaceFolder:Azure.Deployment}"
+				},
+				"presentation": {
+					"group": "buildAll",
+					"showReuseMessage": false
+				}
+			},
+			{
+				"label": "cleanAzureDirectory",
+				"command": "dotnet",
+				"args": [
+					"clean",
+					"${workspaceFolder:Azure.Directory}/TeamCloud.Azure.Directory.csproj",
+					"/property:GenerateFullPaths=true",
+					"/consoleloggerparameters:NoSummary",
+				],
+				"type": "process",
+				"problemMatcher": "$msCompile",
+				"options": {
+					"cwd": "${workspaceFolder:Azure.Directory}"
+				},
+				"presentation": {
+					"group": "buildAll",
+					"showReuseMessage": false
+				}
+			},
+			{
+				"label": "cleanAzureResources",
+				"command": "dotnet",
+				"args": [
+					"clean",
+					"${workspaceFolder:Azure.Resources}/TeamCloud.Azure.Resources.csproj",
+					"/property:GenerateFullPaths=true",
+					"/consoleloggerparameters:NoSummary",
+				],
+				"type": "process",
+				"problemMatcher": "$msCompile",
+				"options": {
+					"cwd": "${workspaceFolder:Azure.Resources}"
 				},
 				"presentation": {
 					"group": "buildAll",
@@ -260,7 +324,7 @@
 					"/consoleloggerparameters:NoSummary"
 				],
 				"type": "process",
-				"dependsOn": "cleanAzure",
+				// "dependsOn": "cleanAzure",
 				"group": {
 					"kind": "build",
 					"isDefault": true
@@ -268,6 +332,81 @@
 				"problemMatcher": "$msCompile",
 				"options": {
 					"cwd": "${workspaceFolder:Azure}"
+				},
+				"presentation": {
+					"group": "buildAll",
+					"showReuseMessage": false
+				}
+			},
+			{
+				"label": "buildAzureDeployment",
+				"command": "dotnet",
+				"args": [
+					"build",
+					"${workspaceFolder:Azure.Deployment}/TeamCloud.Azure.Deployment.csproj",
+					"--no-dependencies",
+					"/property:GenerateFullPaths=true",
+					"/consoleloggerparameters:NoSummary"
+				],
+				"type": "process",
+				// "dependsOn": "cleanAzureDeployment",
+				"group": {
+					"kind": "build",
+					"isDefault": true
+				},
+				"problemMatcher": "$msCompile",
+				"options": {
+					"cwd": "${workspaceFolder:Azure.Deployment}"
+				},
+				"presentation": {
+					"group": "buildAll",
+					"showReuseMessage": false
+				}
+			},
+			{
+				"label": "buildAzureDirectory",
+				"command": "dotnet",
+				"args": [
+					"build",
+					"${workspaceFolder:Azure.Directory}/TeamCloud.Azure.Directory.csproj",
+					"--no-dependencies",
+					"/property:GenerateFullPaths=true",
+					"/consoleloggerparameters:NoSummary"
+				],
+				"type": "process",
+				// "dependsOn": "cleanAzureDirectory",
+				"group": {
+					"kind": "build",
+					"isDefault": true
+				},
+				"problemMatcher": "$msCompile",
+				"options": {
+					"cwd": "${workspaceFolder:Azure.Directory}"
+				},
+				"presentation": {
+					"group": "buildAll",
+					"showReuseMessage": false
+				}
+			},
+			{
+				"label": "buildAzureResources",
+				"command": "dotnet",
+				"args": [
+					"build",
+					"${workspaceFolder:Azure.Resources}/TeamCloud.Azure.Resources.csproj",
+					"--no-dependencies",
+					"/property:GenerateFullPaths=true",
+					"/consoleloggerparameters:NoSummary"
+				],
+				"type": "process",
+				// "dependsOn": "cleanAzureResources",
+				"group": {
+					"kind": "build",
+					"isDefault": true
+				},
+				"problemMatcher": "$msCompile",
+				"options": {
+					"cwd": "${workspaceFolder:Azure.Resources}"
 				},
 				"presentation": {
 					"group": "buildAll",
@@ -334,7 +473,7 @@
 					"/consoleloggerparameters:NoSummary"
 				],
 				"type": "process",
-				"dependsOn": "cleanHttp",
+				// "dependsOn": "cleanHttp",
 				"group": {
 					"kind": "build",
 					"isDefault": true
@@ -440,6 +579,26 @@
 				}
 			},
 			{
+				"label": "cleanAzureDependents",
+				"command": "echo",
+				"args": [
+					"cleanAzureDependents"
+				],
+				"type": "process",
+				"dependsOn": [
+					"cleanHttp",
+					"cleanAzure",
+					"cleanAzureDeployment",
+					"cleanAzureDirectory",
+					"cleanAzureResources"
+				],
+				"dependsOrder": "parallel",
+				"presentation": {
+					"group": "buildAll",
+					"showReuseMessage": false
+				}
+			},
+			{
 				"label": "buildModelDependents",
 				"command": "echo",
 				"args": [
@@ -460,6 +619,44 @@
 				}
 			},
 			{
+				"label": "buildAzureDependents",
+				"command": "echo",
+				"args": [
+					"buildAzureDependents"
+				],
+				"type": "process",
+				"dependsOn": [
+					"cleanAzureDependents",
+					"buildHttp",
+					"buildAzure",
+					"buildAzureDeployment",
+					"buildAzureDirectory",
+					"buildAzureResources"
+				],
+				"dependsOrder": "sequence",
+				"presentation": {
+					"group": "buildAll",
+					"showReuseMessage": false
+				}
+			},
+			{
+				"label": "buildAllDependents",
+				"command": "echo",
+				"args": [
+					"buildAllDependents"
+				],
+				"type": "process",
+				"dependsOn": [
+					"buildModelDependents",
+					"buildAzureDependents"
+				],
+				"dependsOrder": "parallel",
+				"presentation": {
+					"group": "buildAll",
+					"showReuseMessage": false
+				}
+			},
+			{
 				"label": "buildAll",
 				"command": "echo",
 				"args": [
@@ -467,10 +664,8 @@
 				],
 				"type": "process",
 				"dependsOn": [
-					"buildModelDependents",
-					"buildAzure",
+					"buildAllDependents",
 					"buildConfig",
-					"buildHttp"
 				],
 				"dependsOrder": "parallel",
 				"presentation": {

@@ -25,6 +25,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using TeamCloud.API.Formatters;
 using TeamCloud.API.Middleware;
+using TeamCloud.API.Routing;
 using TeamCloud.API.Services;
 using TeamCloud.Azure;
 using TeamCloud.Azure.Deployment;
@@ -129,6 +130,11 @@ namespace TeamCloud.API
                 });
 
             services
+                .AddRouting(options =>
+                {
+                    options.ConstraintMap.Add("userIdentifier", typeof(UserIdentifierRouteConstraint));
+                    options.ConstraintMap.Add("projectIdentifier", typeof(ProjectIdentifierRouteConstraint));
+                })
                 .AddControllers()
                 .AddNewtonsoftJson();
             // .AddFluentValidation(config =>
