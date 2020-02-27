@@ -94,8 +94,7 @@ namespace TeamCloud.Orchestrator
 
         internal static void SetCustomStatus(this IDurableOrchestrationContext durableOrchestrationContext, object customStatusObject, ILogger log, Exception exception = null)
         {
-            if (!durableOrchestrationContext.IsReplaying)
-                durableOrchestrationContext.SetCustomStatus(customStatusObject);
+            durableOrchestrationContext.SetCustomStatus(customStatusObject);
 
             var customStatusMessage = customStatusObject is string
                 ? customStatusObject.ToString()

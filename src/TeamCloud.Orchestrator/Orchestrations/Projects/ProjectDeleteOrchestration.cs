@@ -48,11 +48,14 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
                     .WhenAll(providerCommandTasks)
                     .ConfigureAwait(true);
 
-                functionContext.SetCustomStatus("Deleting Azure resource group.", log);
+                if (project.ResourceGroup != null)
+                {
+                    functionContext.SetCustomStatus("Deleting Azure resource group.", log);
 
-                await functionContext
-                    .CallActivityAsync<AzureResourceGroup>(nameof(AzureResourceGroupDeleteActivity), project.ResourceGroup)
-                    .ConfigureAwait(true);
+                    await functionContext
+                        .CallActivityAsync<AzureResourceGroup>(nameof(AzureResourceGroupDeleteActivity), project.ResourceGroup)
+                        .ConfigureAwait(true);
+                }
 
                 functionContext.SetCustomStatus("Deleting project from database.", log);
 
