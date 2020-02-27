@@ -79,6 +79,8 @@ namespace TeamCloud.Azure
             });
         }
 
+        public bool IsAzureEnvironment => !string.IsNullOrEmpty(System.Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID"));
+
         public AzureEnvironment Environment { get => AzureEnvironment.AzureGlobalCloud; }
 
         public IAzureSessionOptions Options { get => azureSessionOptions; }
@@ -115,7 +117,9 @@ namespace TeamCloud.Azure
         {
             if (string.IsNullOrEmpty(azureSessionOptions.ClientId))
             {
-                var tokenProvider = new AzureServiceTokenProvider("RunAs=App;AppId=872cd9fa-d31f-45e0-9eab-6e460a02d1f1");
+                var tokenProvider = IsAzureEnvironment
+                    ? new AzureServiceTokenProvider("RunAs=App")
+                    : new AzureServiceTokenProvider("RunAs=Developer;DeveloperTool=AzureCLI");
 
                 return tokenProvider.GetAccessTokenAsync(this.Environment.GetEndpointUrl(azureEndpoint));
             }
