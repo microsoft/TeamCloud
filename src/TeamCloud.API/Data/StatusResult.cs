@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -12,7 +13,7 @@ using Newtonsoft.Json.Serialization;
 
 namespace TeamCloud.API.Data
 {
-    public interface IStatusResult : ISuccessResult
+    public interface IStatusResult : ISuccessResult, IErrorResult
     {
         string State { get; }
 
@@ -40,6 +41,9 @@ namespace TeamCloud.API.Data
         [JsonProperty("_trackingId", NullValueHandling = NullValueHandling.Ignore, Order = int.MaxValue)]
         public string CommandId { get; set; }
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public IList<ResultError> Errors { get; set; }
+
 
         private StatusResult() { }
 
@@ -64,24 +68,49 @@ namespace TeamCloud.API.Data
                 StateMessage = string.IsNullOrWhiteSpace(stateMessage) ? null : stateMessage,
             };
 
-        public static StatusResult Success(string commandId)
+        public static StatusResult Success(string commandId, string state = null, string stateMessage = null)
             => new StatusResult
             {
                 CommandId = commandId,
                 Code = StatusCodes.Status200OK,
                 Status = "Ok",
-                State = "Complete"
+                State = string.IsNullOrWhiteSpace(state) ? null : state,
+                StateMessage = string.IsNullOrWhiteSpace(stateMessage) ? null : stateMessage,
             };
 
-        public static StatusResult Success(string commandId, string location)
+        public static StatusResult Success(string commandId, string location, string state = null, string stateMessage = null)
             => new StatusResult
             {
                 CommandId = commandId,
-                Code = StatusCodes.Status302Found,
                 Location = location,
+                Code = StatusCodes.Status302Found,
                 Status = "Found",
-                State = "Complete"
+                State = string.IsNullOrWhiteSpace(state) ? null : state,
+                StateMessage = string.IsNullOrWhiteSpace(stateMessage) ? null : stateMessage,
             };
+
+        public static StatusResult Failed(IList<ResultError> errors = null, string commandId = null, string state = null, string stateMessage = null)
+            => new StatusResult
+            {
+                CommandId = commandId,
+                Code = StatusCodes.Status200OK,
+                Status = "Failed",
+                State = string.IsNullOrWhiteSpace(state) ? null : state,
+                StateMessage = string.IsNullOrWhiteSpace(stateMessage) ? null : stateMessage,
+                Errors = errors ?? new List<ResultError>()
+            };
+
+        public static StatusResult Failed(IList<Exception> exceptions, string commandId = null, string state = null, string stateMessage = null)
+            => new StatusResult
+            {
+                CommandId = commandId,
+                Code = StatusCodes.Status200OK,
+                Status = "Failed",
+                State = string.IsNullOrWhiteSpace(state) ? null : state,
+                StateMessage = string.IsNullOrWhiteSpace(stateMessage) ? null : stateMessage,
+                Errors = exceptions?.Select(e => ResultError.Failed(e)).ToList() ?? new List<ResultError>()
+            };
+
     }
 
     public static class StatusResultExtensions

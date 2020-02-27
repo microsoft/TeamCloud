@@ -78,17 +78,17 @@ namespace TeamCloud.Orchestrator
         private static string OrchestrationName(ICommand command) => (command) switch
         {
             ProjectCreateCommand _ => nameof(ProjectCreateOrchestration),
-            ProjectUpdateCommand _ => nameof(ProjectCreateOrchestration),
+            ProjectUpdateCommand _ => nameof(ProjectUpdateOrchestration),
             ProjectDeleteCommand _ => nameof(ProjectDeleteOrchestration),
             ProjectUserCreateCommand _ => nameof(ProjectUserCreateOrchestration),
-            ProjectUserUpdateCommand _ => nameof(ProjectUserCreateOrchestration),
+            ProjectUserUpdateCommand _ => nameof(ProjectUserUpdateOrchestration),
             ProjectUserDeleteCommand _ => nameof(ProjectUserDeleteOrchestration),
             ProviderCreateCommand _ => nameof(ProviderCreateOrchestration),
             ProviderUpdateCommand _ => nameof(ProviderUpdateOrchestration),
             ProviderDeleteCommand _ => nameof(ProviderDeleteOrchestration),
             TeamCloudCreateCommand _ => nameof(TeamCloudCreateOrchestration),
             TeamCloudUserCreateCommand _ => nameof(TeamCloudUserCreateOrchestration),
-            TeamCloudUserUpdateCommand _ => nameof(TeamCloudUserCreateOrchestration),
+            TeamCloudUserUpdateCommand _ => nameof(TeamCloudUserUpdateOrchestration),
             TeamCloudUserDeleteCommand _ => nameof(TeamCloudUserDeleteOrchestration),
             _ => throw new NotSupportedException()
         };

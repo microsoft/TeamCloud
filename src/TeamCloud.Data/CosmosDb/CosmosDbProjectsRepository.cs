@@ -64,18 +64,26 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async Task<bool> NameExistsAsync(string name)
+        public async Task<Project> GetAsync(string name)
         {
             var container = await GetContainerAsync<Project>()
                 .ConfigureAwait(false);
 
             var query = new QueryDefinition($"SELECT * FROM c WHERE c.name = \"{name}\"");
             var queryIterator = container.GetItemQueryIterator<Project>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Constants.CosmosDb.TenantName) });
-            var count = await queryIterator
-                .CountAsync()
+            var project = await queryIterator
+                .FirstOrDefaultAsync()
                 .ConfigureAwait(false);
 
-            return count > 0;
+            return project;
+        }
+
+        public async Task<bool> NameExistsAsync(string name)
+        {
+            var project = await GetAsync(name)
+                .ConfigureAwait(false);
+
+            return project != null;
         }
 
         public async Task<Project> SetAsync(Project project)

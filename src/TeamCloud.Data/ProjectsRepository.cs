@@ -14,6 +14,8 @@ namespace TeamCloud.Data
     {
         Task<Project> GetAsync(Guid id);
 
+        Task<Project> GetAsync(string name);
+
         IAsyncEnumerable<Project> ListAsync(Guid? userId = null);
 
         Task<bool> NameExistsAsync(string name);

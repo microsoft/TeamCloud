@@ -33,15 +33,15 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
 
             try
             {
+                functionContext.SetCustomStatus("Waiting on for another project operation to complete.", log);
+
                 await functionContext
                     .WaitForProjectCommandsAsync(command)
                     .ConfigureAwait(true);
 
-                if (!functionContext.IsReplaying)
-                    functionContext.SetCustomStatus("Creating new Project");
+                functionContext.SetCustomStatus($"Creating project.", log);
 
                 var teamCloud = commandMessage.TeamCloud;
-
                 var project = command.Payload;
 
                 project.TeamCloudId = teamCloud.Id;
@@ -57,8 +57,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
                     .CallActivityAsync<Project>(nameof(ProjectCreateActivity), project)
                     .ConfigureAwait(true);
 
-                if (!functionContext.IsReplaying)
-                    functionContext.SetCustomStatus("Creating new Resource Group for Project");
+                functionContext.SetCustomStatus("Creating Azure resource group.", log);
 
                 var subscriptionId = await functionContext
                     .CallActivityAsync<Guid>(nameof(AzureSubscriptionPoolSelectActivity), project)
@@ -68,16 +67,19 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
                     .CallActivityAsync<AzureResourceGroup>(nameof(AzureResourceGroupCreateActivity), (project, subscriptionId))
                     .ConfigureAwait(true);
 
+                functionContext.SetCustomStatus("Saving resource group details.", log);
+
                 project = await functionContext
                     .CallActivityAsync<Project>(nameof(ProjectUpdateActivity), project)
                     .ConfigureAwait(true);
+
+                functionContext.SetCustomStatus("Applying tags to resource group.", log);
 
                 await functionContext
                     .CallActivityAsync(nameof(AzureResourceGroupTagActivity), project)
                     .ConfigureAwait(true);
 
-                if (!functionContext.IsReplaying)
-                    functionContext.SetCustomStatus("Creating Project Resources");
+                functionContext.SetCustomStatus("Waiting on providers to create project resources.", log);
 
                 var providerCommandTasks = providers
                     .GetProviderCommandTasks(command, functionContext);
@@ -89,15 +91,20 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
                 var providerResults = providerCommandResults
                     .Cast<ProviderProjectCreateCommandResult>();
 
+                functionContext.SetCustomStatus("Saving provider resource details.", log);
+
                 foreach (var providerResult in providerResults)
                 {
-                    if (project.ProviderProperties.TryGetValue(providerResult.ProviderId, out var providerProperties))
+                    if (providerResult.Result?.Properties?.Any() ?? false)
                     {
-                        project.ProviderProperties[providerResult.ProviderId] = providerProperties.Merge(providerResult.Result.Properties);
-                    }
-                    else
-                    {
-                        project.ProviderProperties.Add(providerResult.ProviderId, providerResult.Result.Properties);
+                        if (project.ProviderProperties.TryGetValue(providerResult.ProviderId, out var providerProperties))
+                        {
+                            project.ProviderProperties[providerResult.ProviderId] = providerProperties.Merge(providerResult.Result.Properties);
+                        }
+                        else
+                        {
+                            project.ProviderProperties.Add(providerResult.ProviderId, providerResult.Result.Properties);
+                        }
                     }
                 }
 
@@ -105,16 +112,21 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
                     .CallActivityAsync<Project>(nameof(ProjectUpdateActivity), project)
                     .ConfigureAwait(true);
 
-                if (!functionContext.IsReplaying)
-                    functionContext.SetCustomStatus("Project Created");
+                functionContext.SetCustomStatus("Project created.", log);
 
                 commandResult.Result = project;
             }
             catch (FunctionFailedException functionException) when (functionException.InnerException is AzureDeploymentException deploymentException)
             {
-                log.LogError(functionException, $"Failed to create new Resource Group for Project - {deploymentException.ResourceError}");
+                functionContext.SetCustomStatus("Failed to create resource group: {deploymentException.ResourceError}.", log, functionException);
 
-                functionContext.SetCustomStatus("Failed to create new Resource Group for Project");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                functionContext.SetCustomStatus("Failed to create project.", log, ex);
+
+                commandResult.Errors.Add(ex);
 
                 throw;
             }

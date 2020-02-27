@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
@@ -25,6 +26,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using TeamCloud.API.Formatters;
 using TeamCloud.API.Middleware;
+using TeamCloud.API.Routing;
 using TeamCloud.API.Services;
 using TeamCloud.Azure;
 using TeamCloud.Azure.Deployment;
@@ -114,7 +116,8 @@ namespace TeamCloud.API
                 .AddScoped<IProjectsRepositoryReadOnly, CosmosDbProjectsRepository>()
                 .AddScoped<ITeamCloudRepositoryReadOnly, CosmosDbTeamCloudRepository>()
                 .AddScoped<IProjectTypesRepositoryReadOnly, CosmosDbProjectTypesRepository>()
-                .AddScoped<EnsureTeamCloudConfigurationMiddleware>();
+                .AddScoped<EnsureTeamCloudConfigurationMiddleware>()
+                .AddSingleton<IClientErrorFactory, ClientErrorFactory>();
 
             ConfigureAuthentication(services);
             ConfigureAuthorization(services);
@@ -129,8 +132,14 @@ namespace TeamCloud.API
                 });
 
             services
+                .AddRouting(options =>
+                {
+                    options.ConstraintMap.Add("userNameOrId", typeof(UserIdentifierRouteConstraint));
+                    options.ConstraintMap.Add("projectNameOrId", typeof(ProjectIdentifierRouteConstraint));
+                })
                 .AddControllers()
-                .AddNewtonsoftJson();
+                .AddNewtonsoftJson()
+                .ConfigureApiBehaviorOptions(options => options.SuppressMapClientErrors = true);
             // .AddFluentValidation(config =>
             // {
             //     config.RegisterValidatorsFromAssembly(currentAssembly);
@@ -169,6 +178,7 @@ namespace TeamCloud.API
 
                     // options.AddFluentValidationRules();
                     options.EnableAnnotations();
+                    options.UseInlineDefinitionsForEnums();
 
                     options.AddSecurityRequirement(new OpenApiSecurityRequirement
                     {
@@ -226,7 +236,6 @@ namespace TeamCloud.API
                         }
                     };
                 });
-
         }
 
         private void ConfigureAuthorization(IServiceCollection services)

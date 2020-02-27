@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO.Enumeration;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -119,7 +118,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers
             }
             catch (Exception exc)
             {
-                // in case of an exception we will switch to a shorter 
+                // in case of an exception we will switch to a shorter
                 // registration cycle to handle hiccups on the provider side
 
                 nextRegistration = functionContext.CurrentUtcDateTime.AddMinutes(5);
@@ -127,12 +126,12 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers
                 functionContext.SetCustomStatus($"Provider registration failed", log, exc);
 
                 if (!isEternalInstance)
-                    throw; // for none eternal instances we bubble the catched exception
+                    throw; // for non-eternal instances we bubble the catched exception
             }
             finally
             {
                 // there is no way to define an orchestration as "eternal only"
-                // to ensure that only one eternal version exists we need to 
+                // to ensure that only one eternal version exists we need to
                 // compare the current instance id with the eternal instance id
                 // and only reschedule if they are equal
 
@@ -159,12 +158,10 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers
         private IEnumerable<Task<ProviderRegisterCommandResult>> GetProviderRegisterCommandTasks(IDurableOrchestrationContext context, IEnumerable<Provider> providers, User user)
             => providers.Select(provider =>
             {
-                var config = new ProviderConfiguration
+                var command = new ProviderRegisterCommand(Guid.NewGuid(), provider.Id, user, new ProviderConfiguration
                 {
                     Properties = provider.Properties
-                };
-
-                var command = new ProviderRegisterCommand(Guid.Parse(context.InstanceId), provider.Id, user, config);
+                });
 
                 return context.CallSubOrchestratorAsync<ProviderRegisterCommandResult>(nameof(ProviderCommandOrchestration), (provider, command));
             });
