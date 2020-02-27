@@ -57,12 +57,15 @@ namespace TeamCloud.Model.Commands
         {
             ProjectCreateCommandResult _ => $"api/projects/{projectId}",
             ProjectUpdateCommandResult _ => $"api/projects/{projectId}",
-            ProjectUserCreateCommandResult result => $"api/projects/{projectId}/users/{result.Result.Id}",
-            ProjectUserUpdateCommandResult result => $"api/projects/{projectId}/users/{result.Result.Id}",
+            ProjectUserCreateCommandResult result => PathEnsuringUserId(result.Result, $"api/projects/{projectId}/users/"),
+            ProjectUserUpdateCommandResult result => PathEnsuringUserId(result.Result, $"api/projects/{projectId}/users/"),
             TeamCloudCreateCommandResult _ => $"api/config",
-            TeamCloudUserCreateCommandResult result => $"api/users/{result.Result.Id}",
-            TeamCloudUserUpdateCommandResult result => $"api/users/{result.Result.Id}",
+            TeamCloudUserCreateCommandResult result => PathEnsuringUserId(result.Result, $"api/users/"),
+            TeamCloudUserUpdateCommandResult result => PathEnsuringUserId(result.Result, $"api/users/"),
             _ => null
         };
+
+        private static string PathEnsuringUserId(User user, string path)
+            => user == null || user.Id == Guid.Empty ? null : $"{path}{user.Id}";
     }
 }

@@ -27,7 +27,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.TeamCloud
                 throw new ArgumentNullException(nameof(functionContext));
 
             var orchestratorCommand = functionContext.GetInput<OrchestratorCommandMessage>();
-            var command = orchestratorCommand.Command as TeamCloudUserCreateCommand;
+            var command = orchestratorCommand.Command as TeamCloudUserUpdateCommand;
             var commandResult = command.CreateResult();
 
             try

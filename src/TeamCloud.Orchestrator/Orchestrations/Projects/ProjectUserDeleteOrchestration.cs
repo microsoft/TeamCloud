@@ -43,7 +43,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
                 functionContext.SetCustomStatus($"Deleting user.", log);
 
                 var user = await functionContext
-                    .CallActivityAsync<User>(nameof(ProjectUserDeleteActivity), (command.ProjectId, command.Payload))
+                    .CallActivityAsync<User>(nameof(ProjectUserDeleteActivity), (command.ProjectId.Value, command.Payload))
                     .ConfigureAwait(true);
 
                 commandResult.Result = user;

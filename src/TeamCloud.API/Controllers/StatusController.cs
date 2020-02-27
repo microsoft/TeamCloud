@@ -78,13 +78,13 @@ namespace TeamCloud.API.Controllers
                         // return 302 (found) with location to resource
                         Response.Headers.Add("Location", location);
                         return StatusResult
-                            .Success(result.CommandId.ToString(), location)
+                            .Success(result.CommandId.ToString(), location, result.RuntimeStatus.ToString(), result.CustomStatus)
                             .ActionResult();
                     }
 
                     // no resource location (i.e. DELETE command) return 200 (ok)
                     return StatusResult
-                        .Success(result.CommandId.ToString())
+                        .Success(result.CommandId.ToString(), result.RuntimeStatus.ToString(), result.CustomStatus)
                         .ActionResult();
 
                 case CommandRuntimeStatus.Running:

@@ -39,7 +39,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
                 functionContext.SetCustomStatus($"Creating user.", log);
 
                 var user = await functionContext
-                    .CallActivityAsync<User>(nameof(ProjectUserCreateActivity), (command.ProjectId, command.Payload))
+                    .CallActivityAsync<User>(nameof(ProjectUserCreateActivity), (command.ProjectId.Value, command.Payload))
                     .ConfigureAwait(true);
 
                 functionContext.SetCustomStatus("Waiting on providers to create user.", log);

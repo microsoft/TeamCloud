@@ -68,23 +68,25 @@ namespace TeamCloud.API.Data
                 StateMessage = string.IsNullOrWhiteSpace(stateMessage) ? null : stateMessage,
             };
 
-        public static StatusResult Success(string commandId)
+        public static StatusResult Success(string commandId, string state = null, string stateMessage = null)
             => new StatusResult
             {
                 CommandId = commandId,
                 Code = StatusCodes.Status200OK,
                 Status = "Ok",
-                State = "Complete"
+                State = string.IsNullOrWhiteSpace(state) ? null : state,
+                StateMessage = string.IsNullOrWhiteSpace(stateMessage) ? null : stateMessage,
             };
 
-        public static StatusResult Success(string commandId, string location)
+        public static StatusResult Success(string commandId, string location, string state = null, string stateMessage = null)
             => new StatusResult
             {
                 CommandId = commandId,
-                Code = StatusCodes.Status302Found,
                 Location = location,
+                Code = StatusCodes.Status302Found,
                 Status = "Found",
-                State = "Complete"
+                State = string.IsNullOrWhiteSpace(state) ? null : state,
+                StateMessage = string.IsNullOrWhiteSpace(stateMessage) ? null : stateMessage,
             };
 
         public static StatusResult Failed(IList<ResultError> errors = null, string commandId = null, string state = null, string stateMessage = null)
