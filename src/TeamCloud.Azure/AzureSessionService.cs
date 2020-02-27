@@ -115,7 +115,7 @@ namespace TeamCloud.Azure
         {
             if (string.IsNullOrEmpty(azureSessionOptions.ClientId))
             {
-                var tokenProvider = new AzureServiceTokenProvider("RunAs=App");
+                var tokenProvider = new AzureServiceTokenProvider("RunAs=App;AppId=872cd9fa-d31f-45e0-9eab-6e460a02d1f1");
 
                 return tokenProvider.GetAccessTokenAsync(this.Environment.GetEndpointUrl(azureEndpoint));
             }
