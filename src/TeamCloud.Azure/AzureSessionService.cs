@@ -44,9 +44,9 @@ namespace TeamCloud.Azure
         private readonly IAzureSessionOptions azureSessionOptions;
         private readonly IHttpClientFactory httpClientFactory;
 
-        public AzureSessionService(IAzureSessionOptions azureSessionOptions, IHttpClientFactory httpClientFactory = null)
+        public AzureSessionService(IAzureSessionOptions azureSessionOptions = null, IHttpClientFactory httpClientFactory = null)
         {
-            this.azureSessionOptions = azureSessionOptions ?? throw new ArgumentNullException(nameof(azureSessionOptions));
+            this.azureSessionOptions = azureSessionOptions ?? AzureSessionOptions.Default;
             this.httpClientFactory = httpClientFactory;
 
             credentials = new Lazy<AzureCredentials>(() =>

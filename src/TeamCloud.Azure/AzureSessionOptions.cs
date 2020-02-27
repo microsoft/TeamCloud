@@ -13,4 +13,19 @@ namespace TeamCloud.Azure
 
         string ClientSecret { get; }
     }
+
+    public sealed class AzureSessionOptions : IAzureSessionOptions
+    {
+        public static IAzureSessionOptions Default => new AzureSessionOptions();
+
+        private AzureSessionOptions()
+        { }
+
+        public string TenantId => default;
+
+        public string ClientId => default;
+
+        public string ClientSecret => default;
+
+    }
 }
