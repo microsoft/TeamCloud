@@ -37,7 +37,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TeamCloud.Misc", "TeamCloud
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamCloud.Azure.Resources", "TeamCloud.Azure.Resources\TeamCloud.Azure.Resources.csproj", "{D03ECC6B-A61E-4EE1-A2F9-898E76911883}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeamCloud.Model.Tests", "TeamCloud.Model.Tests\TeamCloud.Model.Tests.csproj", "{E7882EF4-2ADC-449B-973D-BE17F174039E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamCloud.Model.Tests", "TeamCloud.Model.Tests\TeamCloud.Model.Tests.csproj", "{E7882EF4-2ADC-449B-973D-BE17F174039E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

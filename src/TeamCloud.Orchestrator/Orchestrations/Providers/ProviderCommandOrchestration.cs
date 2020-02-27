@@ -29,6 +29,19 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers
 
             try
             {
+                if (!(command is ProviderRegisterCommand) && !provider.Registered.HasValue)
+                {
+                    // the provider to use wasn't registered yet
+                    // to ensure we have a registered provider
+                    // to process our command we need to start
+                    // a provider registration sub orchestration
+
+                    await functionContext
+                        .CallSubOrchestratorAsync(nameof(ProviderRegisterOrchestration), provider)
+                        .ConfigureAwait(true);
+
+                }
+
                 if (command.ProjectId.HasValue && provider.PrincipalId.HasValue)
                 {
                     await functionContext

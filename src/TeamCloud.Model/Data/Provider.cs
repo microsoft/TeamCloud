@@ -28,6 +28,8 @@ namespace TeamCloud.Model.Data
         public IList<string> Events { get; set; } = new List<string>();
 
         public IDictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
+
+        public DateTime? Registered { get; set; }
     }
 
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]

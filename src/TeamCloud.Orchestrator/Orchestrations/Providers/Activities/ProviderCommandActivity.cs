@@ -33,9 +33,9 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers.Activities
 
             try
             {
-                var providerUrl = new Url(input.provider.Url);
+                var providerUrl = new Url(input.provider.Url?.Trim());
 
-                if (string.IsNullOrEmpty(providerUrl.Path))
+                if (!providerUrl.Path.EndsWith("/", StringComparison.OrdinalIgnoreCase))
                 {
                     providerUrl = providerUrl.AppendPathSegment("api/command");
                 }

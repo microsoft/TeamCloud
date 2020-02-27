@@ -5,25 +5,34 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO.Enumeration;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
+using TeamCloud.Azure;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestrator.Orchestrations.Projects.Activities;
+using TeamCloud.Orchestrator.Orchestrations.Providers.Activities;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Providers
 {
     [EternalOrchestration(EternalInstanceId)]
-    public static class ProviderRegisterOrchestration
+    public class ProviderRegisterOrchestration
     {
         public const string EternalInstanceId = "c0ed8d5a-ca7a-4186-84bd-062a8bac0d3a";
+        private readonly IAzureSessionService azureSessionService;
+
+        public ProviderRegisterOrchestration(IAzureSessionService azureSessionService)
+        {
+            this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
+        }
 
         [FunctionName(nameof(ProviderRegisterOrchestration))]
-        public static async Task RunOrchestration(
+        public async Task RunOrchestration(
             [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
             ILogger log)
         {
@@ -35,17 +44,28 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers
 
             try
             {
-                functionContext.SetCustomStatus("Registering Providers ...", log);
-
                 var provider = functionContext.GetInput<Provider>();
+
+                if (provider is null)
+                {
+                    functionContext.SetCustomStatus("Registering Providers ...", log);
+                }
+                else
+                {
+                    functionContext.SetCustomStatus($"Registering Provider {provider.Id} ...", log);
+                }
 
                 var teamCloud = await functionContext
                     .CallActivityAsync<TeamCloudInstance>(nameof(TeamCloudGetActivity), null)
                     .ConfigureAwait(true);
 
+                var systemUser = await functionContext
+                    .CallActivityAsync<User>(nameof(SystemUserActivity), null)
+                    .ConfigureAwait(true);
+
                 var providerCommandTasks = (isEternalInstance || provider is null)
-                    ? GetProviderRegisterCommandTasks(functionContext, teamCloud.Providers)
-                    : GetProviderRegisterCommandTasks(functionContext, Enumerable.Repeat(provider, 1));
+                    ? GetProviderRegisterCommandTasks(functionContext, teamCloud.Providers, systemUser)
+                    : GetProviderRegisterCommandTasks(functionContext, Enumerable.Repeat(provider, 1), systemUser);
 
                 var providerCommandResults = await Task
                     .WhenAll(providerCommandTasks)
@@ -136,7 +156,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers
             }
         }
 
-        private static IEnumerable<Task<ProviderRegisterCommandResult>> GetProviderRegisterCommandTasks(IDurableOrchestrationContext context, IEnumerable<Provider> providers)
+        private IEnumerable<Task<ProviderRegisterCommandResult>> GetProviderRegisterCommandTasks(IDurableOrchestrationContext context, IEnumerable<Provider> providers, User user)
             => providers.Select(provider =>
             {
                 var config = new ProviderConfiguration
@@ -144,7 +164,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers
                     Properties = provider.Properties
                 };
 
-                var command = new ProviderRegisterCommand(Guid.Parse(context.InstanceId), provider.Id, null, config);
+                var command = new ProviderRegisterCommand(Guid.Parse(context.InstanceId), provider.Id, user, config);
 
                 return context.CallSubOrchestratorAsync<ProviderRegisterCommandResult>(nameof(ProviderCommandOrchestration), (provider, command));
             });
