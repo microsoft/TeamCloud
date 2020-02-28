@@ -133,20 +133,17 @@ namespace TeamCloud.Azure.Deployment
                     .Aggregate(new ExpandoObject() as IDictionary<string, object>, (a, kv) => { a.Add(kv.Key, new { value = kv.Value }); return a; });
             }
 
-            var deploymentLocation = string.IsNullOrEmpty(resourceGroupName)
-                ? azureDeploymentOptions.Region
-                : await GetResourceGroupLocationAsync(subscriptionId, resourceGroupName).ConfigureAwait(false);
-
-            return new
+            var deploymentProperties = new DeploymentProperties()
             {
-                location = deploymentLocation,
-                properties = new DeploymentProperties()
-                {
-                    Mode = deploymentMode,
-                    Template = JObject.Parse(template.Template),
-                    Parameters = deploymentParameters is null ? new JObject() : JObject.FromObject(deploymentParameters)
-                }
+                Mode = deploymentMode,
+                Template = JObject.Parse(template.Template),
+                Parameters = deploymentParameters is null ? new JObject() : JObject.FromObject(deploymentParameters)
             };
+
+            if (string.IsNullOrEmpty(resourceGroupName))
+                return new { location = azureDeploymentOptions.Region, properties = deploymentProperties };
+
+            return new { properties = deploymentProperties };
         }
 
         private async Task<string> GetResourceGroupLocationAsync(Guid subscriptionId, string resourceGroupName)
