@@ -5,13 +5,16 @@
 
 using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http.Headers;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.Management.ResourceManager.Fluent;
 using Microsoft.Azure.Management.ResourceManager.Fluent.Authentication;
 using Microsoft.Azure.Management.ResourceManager.Fluent.Core;
 using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.Rest;
 using AZFluent = Microsoft.Azure.Management.Fluent;
 using IHttpClientFactory = Flurl.Http.Configuration.IHttpClientFactory;
 using RMFluent = Microsoft.Azure.Management.ResourceManager.Fluent;
@@ -39,6 +42,8 @@ namespace TeamCloud.Azure
 
     public class AzureSessionService : IAzureSessionService
     {
+        public static bool IsAzureEnvironment => !string.IsNullOrEmpty(System.Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID"));
+
         private readonly Lazy<AzureCredentials> credentials;
         private readonly Lazy<AZFluent.Azure.IAuthenticated> session;
         private readonly IAzureSessionOptions azureSessionOptions;
@@ -55,8 +60,19 @@ namespace TeamCloud.Azure
 
                 if (string.IsNullOrEmpty(azureSessionOptions.ClientId))
                 {
-                    return credentialsFactory
-                        .FromSystemAssignedManagedServiceIdentity(MSIResourceType.AppService, this.Environment, azureSessionOptions.TenantId);
+                    if (IsAzureEnvironment)
+                    {
+                        return credentialsFactory
+                            .FromSystemAssignedManagedServiceIdentity(MSIResourceType.AppService, this.Environment, azureSessionOptions.TenantId);
+                    }
+                    else
+                    {
+                        return new AzureCredentials(
+                            new TokenCredentials(new DevelopmentTokenProvider(this, AzureEndpoint.ResourceManagerEndpoint)),
+                            new TokenCredentials(new DevelopmentTokenProvider(this, AzureEndpoint.GraphEndpoint)),
+                            azureSessionOptions.TenantId,
+                            this.Environment);
+                    }
                 }
                 else if (string.IsNullOrEmpty(azureSessionOptions.ClientSecret))
                 {
@@ -78,8 +94,6 @@ namespace TeamCloud.Azure
                     .Authenticate(credentials.Value);
             });
         }
-
-        public bool IsAzureEnvironment => !string.IsNullOrEmpty(System.Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID"));
 
         public AzureEnvironment Environment { get => AzureEnvironment.AzureGlobalCloud; }
 
@@ -139,7 +153,6 @@ namespace TeamCloud.Azure
             }
         }
 
-
         public AZFluent.Azure.IAuthenticated CreateSession()
             => session.Value;
 
@@ -168,6 +181,25 @@ namespace TeamCloud.Azure
                 propertyInfo.SetValue(client, subscriptionId.Value.ToString());
 
             return client;
+        }
+
+        private class DevelopmentTokenProvider : ITokenProvider
+        {
+            private readonly IAzureSessionService azureSessionService;
+            private readonly AzureEndpoint azureEndpoint;
+
+            public DevelopmentTokenProvider(IAzureSessionService azureSessionService, AzureEndpoint azureEndpoint)
+            {
+                this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
+                this.azureEndpoint = azureEndpoint;
+            }
+
+            public async Task<AuthenticationHeaderValue> GetAuthenticationHeaderAsync(CancellationToken cancellationToken)
+            {
+                var token = await azureSessionService.AcquireTokenAsync(azureEndpoint).ConfigureAwait(false);
+
+                return new AuthenticationHeaderValue("Bearer", token);
+            }
         }
     }
 }

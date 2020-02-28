@@ -26,6 +26,5 @@ namespace TeamCloud.Azure
         public string ClientId => default;
 
         public string ClientSecret => default;
-
     }
 }
