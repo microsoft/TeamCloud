@@ -19,6 +19,7 @@ using TeamCloud.Azure.Deployment;
 using TeamCloud.Azure.Deployment.Providers;
 using TeamCloud.Azure.Resources;
 using TeamCloud.Configuration;
+using TeamCloud.Configuration.Options;
 using TeamCloud.Data;
 using TeamCloud.Data.CosmosDb;
 using TeamCloud.Http;
@@ -38,6 +39,7 @@ namespace TeamCloud.Orchestrator
             builder.Services
                 .AddSingleton(GetConfiguration(builder.Services))
                 .AddTeamCloudOptions(Assembly.GetExecutingAssembly())
+                .AddTeamCloudOptionsShared()
                 .AddTeamCloudHttp()
                 .AddMvcCore()
                 .AddNewtonsoftJson();

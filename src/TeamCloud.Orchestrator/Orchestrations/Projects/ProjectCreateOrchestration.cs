@@ -69,7 +69,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
 
                 functionContext.SetCustomStatus("Saving resource group details.", log);
 
-                project = await functionContext
+                command.Payload = project = await functionContext
                     .CallActivityAsync<Project>(nameof(ProjectUpdateActivity), project)
                     .ConfigureAwait(true);
 

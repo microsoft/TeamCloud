@@ -4,10 +4,7 @@
  */
 
 using System;
-/**
-*  Copyright (c) Microsoft Corporation.
-*  Licensed under the MIT License.
-*/
+
 namespace TeamCloud.Configuration.Options
 {
     [Options("Azure:ResourceManager")]

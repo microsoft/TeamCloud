@@ -32,6 +32,7 @@ using TeamCloud.Azure;
 using TeamCloud.Azure.Deployment;
 using TeamCloud.Azure.Deployment.Providers;
 using TeamCloud.Configuration;
+using TeamCloud.Configuration.Options;
 using TeamCloud.Data;
 using TeamCloud.Data.CosmosDb;
 using TeamCloud.Http;
@@ -92,11 +93,10 @@ namespace TeamCloud.API
             services.Configure<KestrelServerOptions>(options => options.AllowSynchronousIO = true);
             services.Configure<IISServerOptions>(options => options.AllowSynchronousIO = true);
 
-            var currentAssembly = Assembly.GetExecutingAssembly();
-
             services
                 .AddMemoryCache()
-                .AddTeamCloudOptions(currentAssembly)
+                .AddTeamCloudOptions(Assembly.GetExecutingAssembly())
+                .AddTeamCloudOptionsShared()
                 .AddTeamCloudAzure(configuration =>
                 {
                     configuration
@@ -140,12 +140,6 @@ namespace TeamCloud.API
                 .AddControllers()
                 .AddNewtonsoftJson()
                 .ConfigureApiBehaviorOptions(options => options.SuppressMapClientErrors = true);
-            // .AddFluentValidation(config =>
-            // {
-            //     config.RegisterValidatorsFromAssembly(currentAssembly);
-            //     config.RegisterValidatorsFromAssemblyContaining<TeamCloudModelValidation>();
-            //     config.ImplicitlyValidateChildProperties = true;
-            // });
 
             ValidatorOptions.DisplayNameResolver = (type, memberInfo, lambda) => memberInfo?.Name?.ToLowerInvariant();
             ValidatorOptions.PropertyNameResolver = (type, memberInfo, lambda) => memberInfo?.Name?.ToLowerInvariant();

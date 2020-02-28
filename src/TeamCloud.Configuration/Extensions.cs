@@ -55,7 +55,7 @@ namespace TeamCloud.Configuration
 
             var assemblies = new HashSet<Assembly>(additionalAssemblies)
             {
-                assembly, Assembly.GetExecutingAssembly()
+                assembly
             };
 
             var optionsMap = assemblies
