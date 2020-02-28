@@ -44,9 +44,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Azure
 
             subscriptionId = project.ResourceGroup?.SubscriptionId ?? subscriptionId;
 
-            var template = await AzureDeploymentTemplate
-                .CreateAsync<CreateProjectTemplate>()
-                .ConfigureAwait(false);
+            var template = new CreateProjectTemplate();
 
             template.Parameters["projectId"] = project.Id;
             template.Parameters["projectName"] = project.Name;
