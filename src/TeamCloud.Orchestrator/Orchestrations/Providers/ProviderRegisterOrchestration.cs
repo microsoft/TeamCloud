@@ -96,6 +96,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers
                             if (provider != null)
                             {
                                 provider.PrincipalId = providerCommandResult.Result.PrincipalId;
+                                provider.Registered = functionContext.CurrentUtcDateTime;
                                 provider.Properties = provider.Properties.Merge(providerCommandResult.Result.Properties);
 
                                 providerCommandApplied = true;
@@ -155,7 +156,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers
             }
         }
 
-        private IEnumerable<Task<ProviderRegisterCommandResult>> GetProviderRegisterCommandTasks(IDurableOrchestrationContext context, IEnumerable<Provider> providers, User user)
+        private static IEnumerable<Task<ProviderRegisterCommandResult>> GetProviderRegisterCommandTasks(IDurableOrchestrationContext context, IEnumerable<Provider> providers, User user)
             => providers.Select(provider =>
             {
                 var command = new ProviderRegisterCommand(Guid.NewGuid(), provider.Id, user, new ProviderConfiguration

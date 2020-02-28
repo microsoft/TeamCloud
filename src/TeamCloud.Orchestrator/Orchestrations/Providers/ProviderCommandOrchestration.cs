@@ -44,6 +44,10 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers
 
                 if (command.ProjectId.HasValue && provider.PrincipalId.HasValue)
                 {
+                    // for project related commands with a provider that reported
+                    // a principal id as part of it's registration we need to grant
+                    // contributor access on the projects resource group
+
                     await functionContext
                         .CallActivityAsync(nameof(AzureResourceGroupContributorActivity), (command.ProjectId.Value, provider.PrincipalId.Value))
                         .ConfigureAwait(true);
@@ -63,6 +67,10 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers
 
                 if (commandResult.RuntimeStatus.IsRunning())
                 {
+                    // the command result has no final runtime status
+                    // so we need to wait for the final result as an
+                    // external event.
+
                     functionContext.SetCustomStatus($"Waiting for external event {eventName} for command {command.GetType().Name} in orchestration {functionContext.InstanceId}", log);
 
                     commandResult = await functionContext

@@ -4,6 +4,7 @@
  */
 
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Flurl;
 using Flurl.Http;
@@ -29,7 +30,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers.Activities
             if (input.message is null)
                 throw new ArgumentException($"input param must contain a valid ProviderCommandMessage set on {nameof(input.message)}.", nameof(input));
 
-            ICommandResult commandResult = input.message.Command.CreateResult();
+            var commandResult = input.message.Command.CreateResult();
 
             try
             {
@@ -39,6 +40,8 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers.Activities
                 {
                     providerUrl = providerUrl.AppendPathSegment("api/command");
                 }
+
+                Debug.WriteLine($"Sending command {input.message.CommandId}: {providerUrl}{Environment.NewLine}{JsonConvert.SerializeObject(input.message)}");
 
                 var response = await providerUrl
                     .WithHeader("x-functions-key", input.provider.AuthCode)
