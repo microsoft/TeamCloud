@@ -144,7 +144,7 @@ namespace TeamCloud.Azure.Deployment
                 {
                     Mode = deploymentMode,
                     Template = JObject.Parse(template.Template),
-                    Parameters = JObject.FromObject(deploymentParameters)
+                    Parameters = deploymentParameters is null ? new JObject() : JObject.FromObject(deploymentParameters)
                 }
             };
         }
