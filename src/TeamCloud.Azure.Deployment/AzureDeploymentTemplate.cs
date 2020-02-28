@@ -24,24 +24,12 @@ namespace TeamCloud.Azure.Deployment
 
     public abstract class AzureDeploymentTemplate : IAzureDeploymentTemplate
     {
-        public static async Task<T> CreateAsync<T>()
-            where T : IAzureDeploymentTemplate, new()
-        {
-            var template = Activator.CreateInstance<T>();
-
-            if (template is AzureDeploymentTemplate baseTemplate)
-                await baseTemplate.OnCreateAsync().ConfigureAwait(false);
-
-            return template;
-        }
-
-        public static async Task<T> CreateAsync<T>(IServiceProvider serviceProvider)
+        public static async Task<T> CreateAsync<T>(IServiceProvider serviceProvider = null)
             where T : IAzureDeploymentTemplate
         {
-            if (serviceProvider is null)
-                throw new ArgumentNullException(nameof(serviceProvider));
-
-            var template = ActivatorUtilities.CreateInstance<T>(serviceProvider);
+            var template = serviceProvider is null
+                ? Activator.CreateInstance<T>()
+                : ActivatorUtilities.CreateInstance<T>(serviceProvider);
 
             if (template is AzureDeploymentTemplate baseTemplate)
                 await baseTemplate.OnCreateAsync().ConfigureAwait(false);

@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 
 namespace TeamCloud.Azure.Deployment.Templates
@@ -16,36 +15,34 @@ namespace TeamCloud.Azure.Deployment.Templates
     {
         private const string TemplateSuffix = ".json";
 
-        protected override Task OnCreateAsync()
+        protected EmbeddedDeploymentTemplate()
         {
-            base.Template = GetMainTemplate();
-            base.Parameters = GetParameters(Template);
-            base.LinkedTemplates = GetLinkedTemplates();
-
-            return base.OnCreateAsync();
+            Template = GetMainTemplate(this.GetType());
+            LinkedTemplates = GetLinkedTemplates(this.GetType());
+            Parameters = GetParameters(Template);
         }
 
-        private string GetMainTemplate()
-            => GetResourceJson($"{this.GetType().FullName}.json");
+        private static string GetMainTemplate(Type templateType)
+            => GetResourceJson(templateType, $"{templateType.FullName}.json");
 
-        private IDictionary<string, string> GetLinkedTemplates()
+        private static IDictionary<string, string> GetLinkedTemplates(Type templateType)
         {
-            var templatePrefix = $"{this.GetType().FullName}_";
+            var templatePrefix = $"{templateType.FullName}_";
 
-            return this.GetType().Assembly.GetManifestResourceNames()
+            return templateType.Assembly.GetManifestResourceNames()
                 .Where(name => name.StartsWith(templatePrefix, StringComparison.Ordinal)
                             && name.EndsWith(TemplateSuffix, StringComparison.Ordinal))
-                .ToDictionary(name => name.Substring(templatePrefix.Length), name => GetResourceJson(name));
+                .ToDictionary(name => name.Substring(templatePrefix.Length), name => GetResourceJson(templateType, name));
         }
 
-        private string GetResourceJson(string resourceName)
+        private static string GetResourceJson(Type templateType, string resourceName)
         {
-            using var stream = this.GetType().Assembly.GetManifestResourceStream(resourceName);
+            using var stream = templateType.Assembly.GetManifestResourceStream(resourceName);
 
             if (stream is null)
             {
-                var availableResources = this.GetType().Assembly.GetManifestResourceNames()
-                    .Where(name => name.StartsWith(this.GetType().FullName, StringComparison.Ordinal)
+                var availableResources = templateType.Assembly.GetManifestResourceNames()
+                    .Where(name => name.StartsWith(templateType.FullName, StringComparison.Ordinal)
                                 && name.EndsWith(TemplateSuffix, StringComparison.Ordinal))
                     .Select(name => name);
 
