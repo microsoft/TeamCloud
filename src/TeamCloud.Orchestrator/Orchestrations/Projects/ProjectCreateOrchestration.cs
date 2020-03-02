@@ -50,9 +50,6 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
 
                 var providers = teamCloud.ProvidersFor(project);
 
-                project.ProviderProperties = providers
-                    .ToDictionary(provider => provider.Id, provider => provider.Properties);
-
                 project = await functionContext
                     .CallActivityAsync<Project>(nameof(ProjectCreateActivity), project)
                     .ConfigureAwait(true);
@@ -97,13 +94,13 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
                 {
                     if (providerResult.Result?.Properties?.Any() ?? false)
                     {
-                        if (project.ProviderProperties.TryGetValue(providerResult.ProviderId, out var providerProperties))
+                        if (project.Outputs.TryGetValue(providerResult.ProviderId, out var providerProperties))
                         {
-                            project.ProviderProperties[providerResult.ProviderId] = providerProperties.Merge(providerResult.Result.Properties);
+                            project.Outputs[providerResult.ProviderId] = providerProperties.Merge(providerResult.Result.Properties);
                         }
                         else
                         {
-                            project.ProviderProperties.Add(providerResult.ProviderId, providerResult.Result.Properties);
+                            project.Outputs.Add(providerResult.ProviderId, providerResult.Result.Properties);
                         }
                     }
                 }
