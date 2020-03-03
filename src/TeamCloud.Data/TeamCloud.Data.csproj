@@ -6,7 +6,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
     <PackageReference Include="System.Interactive.Async" Version="4.0.0" />
-    <PackageReference Include="Azure.Cosmos" Version="4.0.0-preview3" />
+    <PackageReference Include="Azure.Cosmos" Version="4.0.0-preview" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TeamCloud.Model\TeamCloud.Model.csproj" />
