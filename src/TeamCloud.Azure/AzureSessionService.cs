@@ -9,6 +9,7 @@ using System.Net.Http.Headers;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Flurl.Http.Configuration;
 using Microsoft.Azure.Management.ResourceManager.Fluent;
 using Microsoft.Azure.Management.ResourceManager.Fluent.Authentication;
 using Microsoft.Azure.Management.ResourceManager.Fluent.Core;
@@ -52,7 +53,7 @@ namespace TeamCloud.Azure
         public AzureSessionService(IAzureSessionOptions azureSessionOptions = null, IHttpClientFactory httpClientFactory = null)
         {
             this.azureSessionOptions = azureSessionOptions ?? AzureSessionOptions.Default;
-            this.httpClientFactory = httpClientFactory;
+            this.httpClientFactory = httpClientFactory ?? new DefaultHttpClientFactory();
 
             credentials = new Lazy<AzureCredentials>(() =>
             {
