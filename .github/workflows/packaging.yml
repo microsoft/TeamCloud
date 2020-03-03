@@ -43,12 +43,12 @@ jobs:
         dotnet-version: '3.1.101'
 
     - name: Build and Package
-      run:  dotnet build -c $BUILD_CONFIGURATION -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" --version-suffix "${{ steps.gitversion.outputs.nuGetPreReleaseTagV2 }}"
+      run:  dotnet build -c $BUILD_CONFIGURATION -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true -p:IncludeSource=true --version-suffix "${{ steps.gitversion.outputs.nuGetPreReleaseTagV2 }}"
       working-directory: ${{ env.SOURCE_DIRECTORY }}
 
     - name: Publish Packages (master only)
       if: steps.gitversion.outputs.branchName == 'master'
-      run: dotnet nuget push **/*.nupkg --api-key '${{ secrets.MYGET_TOKEN }}' --source 'https://www.myget.org/F/teamcloud-dev/api/v2/package' --skip-duplicate
+      run: dotnet nuget push **/*.nupkg --api-key '${{ secrets.MYGET_TOKEN }}' --source 'https://www.myget.org/F/teamcloud-dev/api/v2/package' --symbol-api-key '${{ secrets.MYGET_TOKEN }}' --symbol-source 'https://www.myget.org/F/teamcloud-dev/symbols/api/v2/package' --skip-duplicate
       
     - name: Augment Release (master only)
       if: steps.gitversion.outputs.branchName == 'master'

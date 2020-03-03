@@ -12,7 +12,7 @@
 try:
     from .user_definition_py3 import UserDefinition
     from .project_definition_py3 import ProjectDefinition
-    from .project_type_provider_py3 import ProjectTypeProvider
+    from .provider_reference_py3 import ProviderReference
     from .project_type_py3 import ProjectType
     from .azure_identity_py3 import AzureIdentity
     from .azure_resource_group_py3 import AzureResourceGroup
@@ -44,7 +44,7 @@ try:
 except (SyntaxError, ImportError):
     from .user_definition import UserDefinition
     from .project_definition import ProjectDefinition
-    from .project_type_provider import ProjectTypeProvider
+    from .provider_reference import ProviderReference
     from .project_type import ProjectType
     from .azure_identity import AzureIdentity
     from .azure_resource_group import AzureResourceGroup
@@ -77,7 +77,7 @@ except (SyntaxError, ImportError):
 __all__ = [
     'UserDefinition',
     'ProjectDefinition',
-    'ProjectTypeProvider',
+    'ProviderReference',
     'ProjectType',
     'AzureIdentity',
     'AzureResourceGroup',

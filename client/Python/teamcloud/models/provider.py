@@ -31,6 +31,8 @@ class Provider(Model):
     :type events: list[str]
     :param properties:
     :type properties: dict[str, str]
+    :param registered:
+    :type registered: datetime
     """
 
     _attribute_map = {
@@ -42,6 +44,7 @@ class Provider(Model):
         'dependencies': {'key': 'dependencies', 'type': 'ProviderDependenciesModel'},
         'events': {'key': 'events', 'type': '[str]'},
         'properties': {'key': 'properties', 'type': '{str}'},
+        'registered': {'key': 'registered', 'type': 'iso-8601'},
     }
 
     def __init__(self, **kwargs):
@@ -54,3 +57,4 @@ class Provider(Model):
         self.dependencies = kwargs.get('dependencies', None)
         self.events = kwargs.get('events', None)
         self.properties = kwargs.get('properties', None)
+        self.registered = kwargs.get('registered', None)

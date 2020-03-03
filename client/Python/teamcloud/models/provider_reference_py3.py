@@ -12,8 +12,8 @@
 from msrest.serialization import Model
 
 
-class ProjectTypeProvider(Model):
-    """ProjectTypeProvider.
+class ProviderReference(Model):
+    """ProviderReference.
 
     :param id:
     :type id: str
@@ -26,7 +26,7 @@ class ProjectTypeProvider(Model):
         'properties': {'key': 'properties', 'type': '{str}'},
     }
 
-    def __init__(self, **kwargs):
-        super(ProjectTypeProvider, self).__init__(**kwargs)
-        self.id = kwargs.get('id', None)
-        self.properties = kwargs.get('properties', None)
+    def __init__(self, *, id: str=None, properties=None, **kwargs) -> None:
+        super(ProviderReference, self).__init__(**kwargs)
+        self.id = id
+        self.properties = properties

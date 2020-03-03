@@ -25,6 +25,10 @@
 			"path": "src/TeamCloud.Configuration"
 		},
 		{
+			"name": "Configuration.Options",
+			"path": "src/TeamCloud.Configuration.Options"
+		},
+		{
 			"name": "Data",
 			"path": "src/TeamCloud.Data"
 		},
@@ -47,6 +51,10 @@
 		{
 			"name": "[Tests] Azure",
 			"path": "src/TeamCloud.Azure.Tests"
+		},
+		{
+			"name": "[Tests] Model",
+			"path": "src/TeamCloud.Model.Tests"
 		},
 		{
 			"name": "[Tests] Model.Validation",
@@ -172,6 +180,25 @@
 				"problemMatcher": "$msCompile",
 				"options": {
 					"cwd": "${workspaceFolder:Configuration}"
+				},
+				"presentation": {
+					"group": "buildAll",
+					"showReuseMessage": false
+				}
+			},
+			{
+				"label": "cleanConfigOptions",
+				"command": "dotnet",
+				"args": [
+					"clean",
+					"${workspaceFolder:Configuration.Options}/TeamCloud.Configuration.Options.csproj",
+					"/property:GenerateFullPaths=true",
+					"/consoleloggerparameters:NoSummary",
+				],
+				"type": "process",
+				"problemMatcher": "$msCompile",
+				"options": {
+					"cwd": "${workspaceFolder:Configuration.Options}"
 				},
 				"presentation": {
 					"group": "buildAll",
@@ -365,7 +392,7 @@
 					"/consoleloggerparameters:NoSummary"
 				],
 				"type": "process",
-				"dependsOn": "cleanConfig",
+				// "dependsOn": "cleanConfig",
 				"group": {
 					"kind": "build",
 					"isDefault": true
@@ -373,6 +400,31 @@
 				"problemMatcher": "$msCompile",
 				"options": {
 					"cwd": "${workspaceFolder:Configuration}"
+				},
+				"presentation": {
+					"group": "buildAll",
+					"showReuseMessage": false
+				}
+			},
+			{
+				"label": "buildConfigOptions",
+				"command": "dotnet",
+				"args": [
+					"build",
+					"${workspaceFolder:Configuration.Options}/TeamCloud.Configuration.Options.csproj",
+					"--no-dependencies",
+					"/property:GenerateFullPaths=true",
+					"/consoleloggerparameters:NoSummary"
+				],
+				"type": "process",
+				// "dependsOn": "cleanConfigOptions",
+				"group": {
+					"kind": "build",
+					"isDefault": true
+				},
+				"problemMatcher": "$msCompile",
+				"options": {
+					"cwd": "${workspaceFolder:Configuration.Options}"
 				},
 				"presentation": {
 					"group": "buildAll",
@@ -515,6 +567,23 @@
 				}
 			},
 			{
+				"label": "cleanConfigDependents",
+				"command": "echo",
+				"args": [
+					"cleanConfigDependents"
+				],
+				"type": "process",
+				"dependsOn": [
+					"cleanConfig",
+					"cleanConfigOptions",
+				],
+				"dependsOrder": "parallel",
+				"presentation": {
+					"group": "buildAll",
+					"showReuseMessage": false
+				}
+			},
+			{
 				"label": "buildModelDependents",
 				"command": "echo",
 				"args": [
@@ -555,6 +624,24 @@
 				}
 			},
 			{
+				"label": "buildConfigDependents",
+				"command": "echo",
+				"args": [
+					"buildAzureDependents"
+				],
+				"type": "process",
+				"dependsOn": [
+					"cleanConfigDependents",
+					"buildConfig",
+					"buildConfigOptions",
+				],
+				"dependsOrder": "sequence",
+				"presentation": {
+					"group": "buildAll",
+					"showReuseMessage": false
+				}
+			},
+			{
 				"label": "buildAllDependents",
 				"command": "echo",
 				"args": [
@@ -579,8 +666,9 @@
 				],
 				"type": "process",
 				"dependsOn": [
-					"buildAllDependents",
-					"buildConfig",
+					"buildModelDependents",
+					"buildAzureDependents",
+					"buildConfigDependents"
 				],
 				"dependsOrder": "parallel",
 				"presentation": {

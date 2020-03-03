@@ -38,8 +38,8 @@ class Project(Model):
     :type tags: dict[str, str]
     :param properties:
     :type properties: dict[str, str]
-    :param provider_properties:
-    :type provider_properties: dict[str, dict[str, str]]
+    :param outputs:
+    :type outputs: dict[str, dict[str, str]]
     """
 
     _validation = {
@@ -57,7 +57,7 @@ class Project(Model):
         'users': {'key': 'users', 'type': '[User]'},
         'tags': {'key': 'tags', 'type': '{str}'},
         'properties': {'key': 'properties', 'type': '{str}'},
-        'provider_properties': {'key': 'providerProperties', 'type': '{{str}}'},
+        'outputs': {'key': 'outputs', 'type': '{{str}}'},
     }
 
     def __init__(self, **kwargs):
@@ -72,4 +72,4 @@ class Project(Model):
         self.users = kwargs.get('users', None)
         self.tags = kwargs.get('tags', None)
         self.properties = kwargs.get('properties', None)
-        self.provider_properties = kwargs.get('provider_properties', None)
+        self.outputs = kwargs.get('outputs', None)
