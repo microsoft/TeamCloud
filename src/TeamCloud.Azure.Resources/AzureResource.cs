@@ -322,7 +322,7 @@ namespace TeamCloud.Azure.Resources
             Task.WaitAll(tasks.ToArray());
         }
 
-        public virtual async Task<IReadOnlyDictionary<Guid, IEnumerable<Guid>>> GetRoleAssignmentsAsync()
+        public virtual async Task<IDictionary<Guid, IEnumerable<Guid>>> GetRoleAssignmentsAsync()
         {
             var assignments = await GetRoleAssignmentsInternalAsync()
                 .ConfigureAwait(false);
@@ -330,7 +330,7 @@ namespace TeamCloud.Azure.Resources
             return assignments.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Select(assignment => assignment.GetRoleDefinitionId()));
         }
 
-        private async Task<IReadOnlyDictionary<Guid, IEnumerable<RoleAssignmentInner>>> GetRoleAssignmentsInternalAsync(Guid? userObjectId = null)
+        private async Task<IDictionary<Guid, IEnumerable<RoleAssignmentInner>>> GetRoleAssignmentsInternalAsync(Guid? userObjectId = null)
         {
             using var authClient = AzureResourceService.AzureSessionService
                 .CreateClient<AuthorizationManagementClient>();
