@@ -33,7 +33,7 @@ class ProjectTypeDataResultData(ProjectType):
     :param resource_group_name_prefix:
     :type resource_group_name_prefix: str
     :param providers:
-    :type providers: list[~teamcloud.models.ProjectTypeProvider]
+    :type providers: list[~teamcloud.models.ProviderReference]
     :param tags:
     :type tags: dict[str, str]
     :param properties:
@@ -52,7 +52,7 @@ class ProjectTypeDataResultData(ProjectType):
         'subscriptions': {'key': 'subscriptions', 'type': '[str]'},
         'subscription_capacity': {'key': 'subscriptionCapacity', 'type': 'int'},
         'resource_group_name_prefix': {'key': 'resourceGroupNamePrefix', 'type': 'str'},
-        'providers': {'key': 'providers', 'type': '[ProjectTypeProvider]'},
+        'providers': {'key': 'providers', 'type': '[ProviderReference]'},
         'tags': {'key': 'tags', 'type': '{str}'},
         'properties': {'key': 'properties', 'type': '{str}'},
     }

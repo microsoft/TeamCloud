@@ -1664,7 +1664,7 @@
   },
   "components": {
     "schemas": {
-      "ProjectTypeProvider": {
+      "ProviderReference": {
         "type": "object",
         "properties": {
           "id": {
@@ -1719,7 +1719,7 @@
           "providers": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ProjectTypeProvider"
+              "$ref": "#/components/schemas/ProviderReference"
             },
             "nullable": true
           },
@@ -1870,7 +1870,7 @@
             },
             "nullable": true
           },
-          "providerProperties": {
+          "outputs": {
             "type": "object",
             "additionalProperties": {
               "type": "object",
@@ -2257,6 +2257,11 @@
             "additionalProperties": {
               "type": "string"
             },
+            "nullable": true
+          },
+          "registered": {
+            "type": "string",
+            "format": "date-time",
             "nullable": true
           }
         },

@@ -31,6 +31,8 @@ class ProviderDataResultData(Provider):
     :type events: list[str]
     :param properties:
     :type properties: dict[str, str]
+    :param registered:
+    :type registered: datetime
     """
 
     _attribute_map = {
@@ -42,6 +44,7 @@ class ProviderDataResultData(Provider):
         'dependencies': {'key': 'dependencies', 'type': 'ProviderDependenciesModel'},
         'events': {'key': 'events', 'type': '[str]'},
         'properties': {'key': 'properties', 'type': '{str}'},
+        'registered': {'key': 'registered', 'type': 'iso-8601'},
     }
 
     def __init__(self, **kwargs):

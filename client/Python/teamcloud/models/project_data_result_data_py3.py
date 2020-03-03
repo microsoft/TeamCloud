@@ -38,8 +38,8 @@ class ProjectDataResultData(Project):
     :type tags: dict[str, str]
     :param properties:
     :type properties: dict[str, str]
-    :param provider_properties:
-    :type provider_properties: dict[str, dict[str, str]]
+    :param outputs:
+    :type outputs: dict[str, dict[str, str]]
     """
 
     _validation = {
@@ -57,8 +57,8 @@ class ProjectDataResultData(Project):
         'users': {'key': 'users', 'type': '[User]'},
         'tags': {'key': 'tags', 'type': '{str}'},
         'properties': {'key': 'properties', 'type': '{str}'},
-        'provider_properties': {'key': 'providerProperties', 'type': '{{str}}'},
+        'outputs': {'key': 'outputs', 'type': '{{str}}'},
     }
 
-    def __init__(self, *, id: str=None, name: str=None, type=None, identity=None, resource_group=None, team_cloud_id: str=None, users=None, tags=None, properties=None, provider_properties=None, **kwargs) -> None:
-        super(ProjectDataResultData, self).__init__(id=id, name=name, type=type, identity=identity, resource_group=resource_group, team_cloud_id=team_cloud_id, users=users, tags=tags, properties=properties, provider_properties=provider_properties, **kwargs)
+    def __init__(self, *, id: str=None, name: str=None, type=None, identity=None, resource_group=None, team_cloud_id: str=None, users=None, tags=None, properties=None, outputs=None, **kwargs) -> None:
+        super(ProjectDataResultData, self).__init__(id=id, name=name, type=type, identity=identity, resource_group=resource_group, team_cloud_id=team_cloud_id, users=users, tags=tags, properties=properties, outputs=outputs, **kwargs)
