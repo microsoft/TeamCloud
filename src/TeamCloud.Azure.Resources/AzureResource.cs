@@ -278,6 +278,50 @@ namespace TeamCloud.Azure.Resources
             return Enumerable.Empty<Guid>();
         }
 
+        public virtual async Task SetRoleAssignmentsAsync(IReadOnlyDictionary<Guid, IEnumerable<Guid>> roleAssignments)
+        {
+            var assignments = await GetRoleAssignmentsAsync()
+                .ConfigureAwait(false);
+
+            var tasks = new List<Task>();
+
+            // delete all role assignments
+            // for users that don't exist
+            // in our target state
+
+            tasks.AddRange(assignments.Keys
+                .Except(roleAssignments.Keys)
+                .Select(userObjectId => DeleteRoleAssignmentAsync(userObjectId)));
+
+            // add all role assignments
+            // for users that don't exist
+            // in our current state
+
+            tasks.AddRange(roleAssignments.Keys
+                .Except(assignments.Keys)
+                .SelectMany(userObjectId => roleAssignments[userObjectId].Select(roleId => AddRoleAssignmentAsync(userObjectId, roleId))));
+
+            // update role assignments
+            // for users existing in
+            // our current and target state
+
+            foreach (var userObjectId in assignments.Keys.Intersect(roleAssignments.Keys))
+            {
+                var currentRoleIds = assignments[userObjectId];
+                var targetRoleIds = roleAssignments[userObjectId];
+
+                tasks.AddRange(currentRoleIds
+                    .Except(targetRoleIds)
+                    .Select(roleId => DeleteRoleAssignmentAsync(userObjectId, roleId)));
+
+                tasks.AddRange(targetRoleIds
+                    .Except(currentRoleIds)
+                    .Select(roleId => AddRoleAssignmentAsync(userObjectId, roleId)));
+            }
+
+            Task.WaitAll(tasks.ToArray());
+        }
+
         public virtual async Task<IReadOnlyDictionary<Guid, IEnumerable<Guid>>> GetRoleAssignmentsAsync()
         {
             var assignments = await GetRoleAssignmentsInternalAsync()
