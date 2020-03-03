@@ -278,7 +278,7 @@ namespace TeamCloud.Azure.Resources
             return Enumerable.Empty<Guid>();
         }
 
-        public virtual async Task SetRoleAssignmentsAsync(IReadOnlyDictionary<Guid, IEnumerable<Guid>> roleAssignments)
+        public virtual async Task SetRoleAssignmentsAsync(IDictionary<Guid, IEnumerable<Guid>> roleAssignments)
         {
             var assignments = await GetRoleAssignmentsAsync()
                 .ConfigureAwait(false);
