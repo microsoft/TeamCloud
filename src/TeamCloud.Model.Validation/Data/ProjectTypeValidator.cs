@@ -21,7 +21,7 @@ namespace TeamCloud.Model.Validation.Data
 
             RuleFor(obj => obj.Providers)
                 .MustContainAtLeast(1)
-                .ForEach(provider => provider.SetValidator(new ProjectTypeProviderValidator()));
+                .ForEach(provider => provider.SetValidator(new ProviderReferenceValidator()));
         }
     }
 }

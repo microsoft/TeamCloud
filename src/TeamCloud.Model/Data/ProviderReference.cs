@@ -4,14 +4,13 @@
  */
 
 using System.Collections.Generic;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 
 namespace TeamCloud.Model.Data
 {
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public sealed class ProviderProperties
+    public class ProviderReference
     {
+        public string Id { get; set; }
+
         public Dictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
     }
 }

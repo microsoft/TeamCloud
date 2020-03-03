@@ -28,7 +28,7 @@ namespace TeamCloud.Model.Data
 
         public string ResourceGroupNamePrefix { get; set; }
 
-        public IList<ProjectTypeProvider> Providers { get; set; } = new List<ProjectTypeProvider>();
+        public IList<ProviderReference> Providers { get; set; } = new List<ProviderReference>();
 
         public IDictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();
 

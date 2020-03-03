@@ -28,13 +28,13 @@ namespace TeamCloud.Model.Validation.Tests.Data
                              Guid.NewGuid()
                          },
                          ResourceGroupNamePrefix = "tc_",
-                         Providers = new List<ProjectTypeProvider>()
+                         Providers = new List<ProviderReference>()
                          {
-                             new ProjectTypeProvider()
+                             new ProviderReference()
                              {
                                  Id = "providerA"
                              },
-                             new ProjectTypeProvider()
+                             new ProviderReference()
                              {
                                  Id = "providerB"
                              }

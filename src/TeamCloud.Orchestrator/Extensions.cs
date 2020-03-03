@@ -86,7 +86,7 @@ namespace TeamCloud.Orchestrator
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Last().Value);
         }
 
-        internal static void Merge(this Project project, IEnumerable<ICommandResult<ProviderProperties>> commandResults)
+        internal static void Merge(this Project project, IEnumerable<ICommandResult<ProviderOutput>> commandResults)
         {
             foreach (var commandResult in commandResults.Where(result => result.Result?.Properties?.Any() ?? false))
             {

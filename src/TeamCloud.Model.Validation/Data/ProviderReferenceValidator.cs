@@ -8,9 +8,9 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Model.Validation.Data
 {
-    public class ProjectTypeProviderValidator : AbstractValidator<ProjectTypeProvider>
+    public class ProviderReferenceValidator : AbstractValidator<ProviderReference>
     {
-        public ProjectTypeProviderValidator()
+        public ProviderReferenceValidator()
         {
             RuleFor(obj => obj.Id).NotEmpty();
         }
