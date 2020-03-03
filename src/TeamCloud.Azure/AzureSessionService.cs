@@ -85,7 +85,8 @@ namespace TeamCloud.Azure
                     return credentialsFactory
                         .FromServicePrincipal(azureSessionOptions.ClientId, azureSessionOptions.ClientSecret, azureSessionOptions.TenantId, this.Environment);
                 }
-            });
+            },
+            LazyThreadSafetyMode.PublicationOnly);
 
             session = new Lazy<AZFluent.Azure.IAuthenticated>(() =>
             {
@@ -93,7 +94,8 @@ namespace TeamCloud.Azure
                     .Configure()
                     .WithDelegatingHandler(this.httpClientFactory)
                     .Authenticate(credentials.Value);
-            });
+            },
+            LazyThreadSafetyMode.PublicationOnly);
         }
 
         public AzureEnvironment Environment { get => AzureEnvironment.AzureGlobalCloud; }
@@ -162,26 +164,47 @@ namespace TeamCloud.Azure
 
         public RestClient CreateClient(AzureEndpoint azureEndpoint = AzureEndpoint.ResourceManagerEndpoint)
         {
-            var endpointUrl = AzureEnvironment.AzureGlobalCloud.GetEndpointUrl(azureEndpoint);
+            try
+            {
+                var endpointUrl = AzureEnvironment.AzureGlobalCloud.GetEndpointUrl(azureEndpoint);
 
-            return RestClient.Configure()
-                .WithBaseUri(endpointUrl)
-                .WithCredentials(credentials.Value)
-                .WithDelegatingHandler(httpClientFactory)
-                .Build();
+                return RestClient.Configure()
+                    .WithBaseUri(endpointUrl)
+                    .WithCredentials(credentials.Value)
+                    .WithDelegatingHandler(httpClientFactory)
+                    .Build();
+            }
+            catch (Exception exc)
+            {
+                throw new TypeInitializationException(typeof(RestClient).FullName, exc);
+            }
         }
 
         public T CreateClient<T>(AzureEndpoint azureEndpoint = AzureEndpoint.ResourceManagerEndpoint, Guid? subscriptionId = null)
             where T : FluentServiceClientBase<T>
         {
-            var client = (T)Activator.CreateInstance(typeof(T), new object[] { CreateClient(azureEndpoint) });
+            try
+            {
+                var client = (T)Activator.CreateInstance(typeof(T), new object[]
+                {
+                    CreateClient(azureEndpoint)
+                });
 
-            if (subscriptionId.HasValue
-                && typeof(T).TryGetProperty("SubscriptionId", out PropertyInfo propertyInfo)
-                && propertyInfo.PropertyType == typeof(string))
-                propertyInfo.SetValue(client, subscriptionId.Value.ToString());
+                if (subscriptionId.HasValue
+                    && typeof(T).TryGetProperty("SubscriptionId", out PropertyInfo propertyInfo)
+                    && propertyInfo.PropertyType == typeof(string))
+                    propertyInfo.SetValue(client, subscriptionId.Value.ToString());
 
-            return client;
+                return client;
+            }
+            catch (TypeInitializationException)
+            {
+                throw;
+            }
+            catch (Exception exc)
+            {
+                throw new TypeInitializationException(typeof(T).FullName, exc);
+            }
         }
 
         private class DevelopmentTokenProvider : ITokenProvider
