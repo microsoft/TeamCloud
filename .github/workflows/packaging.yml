@@ -48,7 +48,7 @@ jobs:
 
     - name: Publish Packages (master only)
       if: steps.gitversion.outputs.branchName == 'master'
-      run: dotnet nuget push **/*.nupkg --api-key '${{ secrets.MYGET_TOKEN }}' --source 'https://www.myget.org/F/teamcloud-dev/api/v2/package' --skip-duplicate
+      run: dotnet nuget push **/*.nupkg --api-key '${{ secrets.MYGET_TOKEN }}' --source 'https://www.myget.org/F/teamcloud-dev/api/v2/package' --symbol-api-key '${{ secrets.MYGET_TOKEN }}' --symbol-source 'https://www.myget.org/F/teamcloud-dev/symbols/api/v2/package' --skip-duplicate
       
     - name: Augment Release (master only)
       if: steps.gitversion.outputs.branchName == 'master'
