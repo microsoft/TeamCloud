@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.Azure.Management.ResourceManager.Fluent;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -192,15 +193,20 @@ namespace TeamCloud.API
 
         private void ConfigureAuthentication(IServiceCollection services)
         {
-            const string AzureAdSectionName = "Azure:ActiveDirectory";
+            var resourceManagerOptions = services
+                .BuildServiceProvider()
+                .GetRequiredService<AzureResourceManagerOptions>();
 
             services
                 .AddAuthentication(AzureADDefaults.JwtBearerAuthenticationScheme)
-                .AddAzureADBearer(options => Configuration.Bind(AzureAdSectionName, options));
+                .AddAzureADBearer(options =>
+                {
+                    options.Instance = AzureEnvironment.AzureGlobalCloud.AuthenticationEndpoint;
+                    options.TenantId = resourceManagerOptions.TenantId;
+                });
 
             services
                 .AddHttpContextAccessor()
-                .Configure<AzureADOptions>(options => Configuration.Bind(AzureAdSectionName, options))
                 .Configure<JwtBearerOptions>(AzureADDefaults.JwtBearerAuthenticationScheme, options =>
                 {
                     // This is an Microsoft identity platform Web API
@@ -209,14 +215,11 @@ namespace TeamCloud.API
                     // Disable audience validation
                     options.TokenValidationParameters.ValidateAudience = false;
 
-                    // Get the tenant ID from configuration to configure issuer validation
-                    var tenantId = Configuration.GetSection(AzureAdSectionName).GetValue<string>("TenantId");
-
                     // The valid issuers can be based on Azure identity V1 or V2
                     options.TokenValidationParameters.ValidIssuers = new string[]
                     {
-                        $"https://login.microsoftonline.com/{tenantId}/v2.0",
-                        $"https://sts.windows.net/{tenantId}/"
+                        $"https://login.microsoftonline.com/{resourceManagerOptions.TenantId}/v2.0",
+                        $"https://sts.windows.net/{resourceManagerOptions.TenantId}/"
                     };
 
                     options.Events = new JwtBearerEvents()
