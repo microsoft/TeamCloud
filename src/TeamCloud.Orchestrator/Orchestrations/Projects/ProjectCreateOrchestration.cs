@@ -85,25 +85,9 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
                     .WhenAll(providerCommandTasks)
                     .ConfigureAwait(true);
 
-                var providerResults = providerCommandResults
-                    .Cast<ProviderProjectCreateCommandResult>();
+                project.Merge(providerCommandResults.OfType<ProviderProjectCreateCommandResult>());
 
-                functionContext.SetCustomStatus("Saving provider resource details.", log);
-
-                foreach (var providerResult in providerResults)
-                {
-                    if (providerResult.Result?.Properties?.Any() ?? false)
-                    {
-                        if (project.Outputs.TryGetValue(providerResult.ProviderId, out var providerProperties))
-                        {
-                            project.Outputs[providerResult.ProviderId] = providerProperties.Merge(providerResult.Result.Properties);
-                        }
-                        else
-                        {
-                            project.Outputs.Add(providerResult.ProviderId, providerResult.Result.Properties);
-                        }
-                    }
-                }
+                functionContext.SetCustomStatus("Saving provider outputs.", log);
 
                 project = await functionContext
                     .CallActivityAsync<Project>(nameof(ProjectUpdateActivity), project)

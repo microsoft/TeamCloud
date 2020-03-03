@@ -86,6 +86,21 @@ namespace TeamCloud.Orchestrator
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Last().Value);
         }
 
+        internal static void Merge(this Project project, IEnumerable<ICommandResult<ProviderProperties>> commandResults)
+        {
+            foreach (var commandResult in commandResults.Where(result => result.Result?.Properties?.Any() ?? false))
+            {
+                if (project.Outputs.TryGetValue(commandResult.ProviderId, out var providerProperties))
+                {
+                    project.Outputs[commandResult.ProviderId] = providerProperties.Merge(commandResult.Result.Properties);
+                }
+                else
+                {
+                    project.Outputs.Add(commandResult.ProviderId, commandResult.Result.Properties);
+                }
+            }
+        }
+
         internal static DateTime NextHour(this DateTime dateTime)
              => dateTime.Date.AddHours(dateTime.Hour + 1);
 
