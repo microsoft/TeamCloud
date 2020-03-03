@@ -12,15 +12,18 @@ using Flurl;
 using Flurl.Http;
 using Microsoft.Azure.Management.ResourceManager.Fluent.Models;
 using Newtonsoft.Json.Linq;
-using TeamCloud.Http;
 
 namespace TeamCloud.Azure.Deployment
 {
     public interface IAzureDeploymentService
     {
-        Task<IAzureDeployment> DeployTemplateAsync(AzureDeploymentTemplate template, Guid subscriptionId, string resourceGroupName = null, bool completeMode = false);
+        Task<IAzureDeployment> DeploySubscriptionTemplateAsync(AzureDeploymentTemplate template, Guid subscriptionId, string location);
 
-        Task<string> ValidateTemplateAsync(AzureDeploymentTemplate template, Guid subscriptionId, string resourceGroupName = null, bool throwOnError = false);
+        Task<IAzureDeployment> DeployResourceGroupTemplateAsync(AzureDeploymentTemplate template, Guid subscriptionId, string resourceGroupName, bool completeMode = false);
+
+        Task<string> ValidateSubscriptionTemplateAsync(AzureDeploymentTemplate template, Guid subscriptionId, string location, bool throwOnError = false);
+
+        Task<string> ValidateResourceGroupTemplateAsync(AzureDeploymentTemplate template, Guid subscriptionId, string resourceGroupName, bool throwOnError = false);
     }
 
     public class AzureDeploymentService : IAzureDeploymentService
@@ -31,21 +34,24 @@ namespace TeamCloud.Azure.Deployment
 
         public AzureDeploymentService(IAzureDeploymentOptions azureDeploymentOptions, IAzureSessionService azureSessionService, IAzureDeploymentArtifactsProvider azureDeploymentArtifactsStorage)
         {
-            this.azureDeploymentOptions = azureDeploymentOptions ?? throw new ArgumentNullException(nameof(azureDeploymentOptions));
+            this.azureDeploymentOptions = azureDeploymentOptions ?? AzureDeploymentOptions.Default;
             this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
             this.azureDeploymentArtifactsStorage = azureDeploymentArtifactsStorage ?? throw new ArgumentNullException(nameof(azureDeploymentArtifactsStorage));
         }
 
-        public async Task<IAzureDeployment> DeployTemplateAsync(AzureDeploymentTemplate template, Guid subscriptionId, string resourceGroupName = null, bool completeMode = false)
+        public async Task<IAzureDeployment> DeploySubscriptionTemplateAsync(AzureDeploymentTemplate template, Guid subscriptionId, string location)
         {
+            if (template is null)
+                throw new ArgumentNullException(nameof(template));
+
+            if (location is null)
+                throw new ArgumentNullException(nameof(location));
+
             var deploymentId = Guid.NewGuid();
+            var deploymentResourceId = $"/subscriptions/{subscriptionId}/providers/Microsoft.Resources/deployments/{deploymentId}";
 
-            var deploymentPayload = await GetDeploymentPayloadAsync(deploymentId, template, subscriptionId, resourceGroupName, completeMode ? DeploymentMode.Complete : DeploymentMode.Incremental)
+            var payload = await GetDeploymentPayloadAsync(deploymentId, template, location, DeploymentMode.Incremental)
                 .ConfigureAwait(false);
-
-            var deploymentResourceId = string.IsNullOrEmpty(resourceGroupName)
-                ? $"/subscriptions/{subscriptionId}/providers/Microsoft.Resources/deployments/{deploymentId}"
-                : $"/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Resources/deployments/{deploymentId}";
 
             var token = await azureSessionService
                 .AcquireTokenAsync()
@@ -57,7 +63,7 @@ namespace TeamCloud.Azure.Deployment
                     .AppendPathSegment(deploymentResourceId)
                     .SetQueryParam("api-version", "2019-05-01")
                     .WithOAuthBearerToken(token)
-                    .PutJsonAsync(deploymentPayload)
+                    .PutJsonAsync(payload)
                     .ConfigureAwait(false);
             }
             catch (FlurlHttpException exc) when (exc.Call.HttpStatus == System.Net.HttpStatusCode.BadRequest)
@@ -71,16 +77,13 @@ namespace TeamCloud.Azure.Deployment
             return new AzureDeployment(deploymentResourceId, azureSessionService);
         }
 
-        public async Task<string> ValidateTemplateAsync(AzureDeploymentTemplate template, Guid subscriptionId, string resourceGroupName = null, bool throwOnError = false)
+        public async Task<string> ValidateSubscriptionTemplateAsync(AzureDeploymentTemplate template, Guid subscriptionId, string location, bool throwOnError = false)
         {
             var deploymentId = Guid.NewGuid();
+            var deploymentResourceId = $"/subscriptions/{subscriptionId}/providers/Microsoft.Resources/deployments/{deploymentId}/validate";
 
-            var deploymentPayload = await GetDeploymentPayloadAsync(deploymentId, template, subscriptionId, resourceGroupName, DeploymentMode.Incremental)
+            var payload = await GetDeploymentPayloadAsync(deploymentId, template, location, DeploymentMode.Incremental)
                 .ConfigureAwait(false);
-
-            var deploymentResourceId = string.IsNullOrEmpty(resourceGroupName)
-                ? $"/subscriptions/{subscriptionId}/providers/Microsoft.Resources/deployments/{deploymentId}/validate"
-                : $"/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Resources/deployments/{deploymentId}/validate";
 
             var token = await azureSessionService
                 .AcquireTokenAsync()
@@ -92,7 +95,7 @@ namespace TeamCloud.Azure.Deployment
                     .AppendPathSegment(deploymentResourceId)
                     .SetQueryParam("api-version", "2019-10-01")
                     .WithOAuthBearerToken(token)
-                    .PostJsonAsync(deploymentPayload)
+                    .PostJsonAsync(payload)
                     .ConfigureAwait(false);
 
                 return null;
@@ -109,7 +112,74 @@ namespace TeamCloud.Azure.Deployment
             }
         }
 
-        private async Task<object> GetDeploymentPayloadAsync(Guid deploymentId, AzureDeploymentTemplate template, Guid subscriptionId, string resourceGroupName, DeploymentMode deploymentMode)
+        public async Task<IAzureDeployment> DeployResourceGroupTemplateAsync(AzureDeploymentTemplate template, Guid subscriptionId, string resourceGroupName, bool completeMode = false)
+        {
+            var deploymentId = Guid.NewGuid();
+            var deploymentResourceId = $"/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Resources/deployments/{deploymentId}";
+
+            var payload = await GetDeploymentPayloadAsync(deploymentId, template, null, completeMode ? DeploymentMode.Complete : DeploymentMode.Incremental)
+                .ConfigureAwait(false);
+
+            var token = await azureSessionService
+                .AcquireTokenAsync()
+                .ConfigureAwait(false);
+
+            try
+            {
+                _ = await azureSessionService.Environment.ResourceManagerEndpoint
+                    .AppendPathSegment(deploymentResourceId)
+                    .SetQueryParam("api-version", "2019-05-01")
+                    .WithOAuthBearerToken(token)
+                    .PutJsonAsync(payload)
+                    .ConfigureAwait(false);
+            }
+            catch (FlurlHttpException exc) when (exc.Call.HttpStatus == System.Net.HttpStatusCode.BadRequest)
+            {
+                var validationResultJson = await exc.Call.Response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                var validationResultMessage = JObject.Parse(validationResultJson).SelectToken("$..message")?.ToString();
+
+                throw new AzureDeploymentException($"Invalid deployment template: {validationResultMessage}", deploymentResourceId, validationResultMessage);
+            }
+
+            return new AzureDeployment(deploymentResourceId, azureSessionService);
+        }
+
+        public async Task<string> ValidateResourceGroupTemplateAsync(AzureDeploymentTemplate template, Guid subscriptionId, string resourceGroupName, bool throwOnError = false)
+        {
+            var deploymentId = Guid.NewGuid();
+            var deploymentResourceId = $"/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Resources/deployments/{deploymentId}/validate";
+
+            var payload = await GetDeploymentPayloadAsync(deploymentId, template, null, DeploymentMode.Incremental)
+                .ConfigureAwait(false);
+
+            var token = await azureSessionService
+                .AcquireTokenAsync()
+                .ConfigureAwait(false);
+
+            try
+            {
+                _ = await azureSessionService.Environment.ResourceManagerEndpoint
+                    .AppendPathSegment(deploymentResourceId)
+                    .SetQueryParam("api-version", "2019-10-01")
+                    .WithOAuthBearerToken(token)
+                    .PostJsonAsync(payload)
+                    .ConfigureAwait(false);
+
+                return null;
+            }
+            catch (FlurlHttpException exc) when (exc.Call.HttpStatus == System.Net.HttpStatusCode.BadRequest)
+            {
+                var validationResultJson = await exc.Call.Response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                var validationResultMessage = JObject.Parse(validationResultJson).SelectToken("$..message")?.ToString();
+
+                if (throwOnError)
+                    throw new AzureDeploymentException($"Invalid deployment template: {validationResultMessage}", deploymentResourceId, validationResultMessage);
+
+                return validationResultMessage;
+            }
+        }
+
+        private async Task<object> GetDeploymentPayloadAsync(Guid deploymentId, AzureDeploymentTemplate template, string location, DeploymentMode deploymentMode)
         {
             if (string.IsNullOrEmpty(template.Template))
                 throw new ArgumentException("Unable to create deployment payload by an empty template.", nameof(template));
@@ -133,33 +203,17 @@ namespace TeamCloud.Azure.Deployment
                     .Aggregate(new ExpandoObject() as IDictionary<string, object>, (a, kv) => { a.Add(kv.Key, new { value = kv.Value }); return a; });
             }
 
-            var deploymentProperties = new DeploymentProperties()
+            var properties = new DeploymentProperties()
             {
                 Mode = deploymentMode,
                 Template = JObject.Parse(template.Template),
                 Parameters = deploymentParameters is null ? new JObject() : JObject.FromObject(deploymentParameters)
             };
 
-            if (string.IsNullOrEmpty(resourceGroupName))
-                return new { location = azureDeploymentOptions.Region, properties = deploymentProperties };
+            if (string.IsNullOrEmpty(location))
+                return new { properties };
 
-            return new { properties = deploymentProperties };
-        }
-
-        private async Task<string> GetResourceGroupLocationAsync(Guid subscriptionId, string resourceGroupName)
-        {
-            var token = await azureSessionService
-                .AcquireTokenAsync()
-                .ConfigureAwait(false);
-
-            var json = await azureSessionService.Environment.ResourceManagerEndpoint
-                .AppendPathSegment($"/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}")
-                .SetQueryParam("api-version", "2014-04-01")
-                .WithOAuthBearerToken(token)
-                .GetJObjectAsync()
-                .ConfigureAwait(false);
-
-            return json.SelectToken("$.location")?.ToString();
+            return new { location, properties };
         }
     }
 }

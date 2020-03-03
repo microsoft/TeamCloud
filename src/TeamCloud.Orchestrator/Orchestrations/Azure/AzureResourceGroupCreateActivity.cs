@@ -55,7 +55,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Azure
             try
             {
                 var deployment = await azureDeploymentService
-                    .DeployTemplateAsync(template, subscriptionId)
+                    .DeploySubscriptionTemplateAsync(template, subscriptionId, project.Type.Region)
                     .ConfigureAwait(false);
 
                 var deploymentOutput = await deployment

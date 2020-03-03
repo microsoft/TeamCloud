@@ -61,7 +61,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Azure
             var template = new CleanupProjectTemplate();
 
             var deployment = await azureDeploymentService
-                .DeployTemplateAsync(template, azureResourceGroup.SubscriptionId, azureResourceGroup.ResourceGroupName, completeMode: true)
+                .DeployResourceGroupTemplateAsync(template, azureResourceGroup.SubscriptionId, azureResourceGroup.ResourceGroupName, completeMode: true)
                 .ConfigureAwait(false);
 
             _ = await deployment

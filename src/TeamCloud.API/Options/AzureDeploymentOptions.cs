@@ -14,19 +14,15 @@ namespace TeamCloud.API.Options
     [Options]
     public class AzureDeploymentOptions : IAzureDeploymentOptions, IAzureStorageArtifactsOptions
     {
-        private readonly AzureResourceManagerOptions azureResourceManagerOptions;
         private readonly AzureDeploymentStorageOptions azureDeploymentStorageOptions;
 
-        public AzureDeploymentOptions(AzureResourceManagerOptions azureResourceManagerOptions, AzureDeploymentStorageOptions azureDeploymentStorageOptions)
+        public AzureDeploymentOptions(AzureDeploymentStorageOptions azureDeploymentStorageOptions)
         {
-            this.azureResourceManagerOptions = azureResourceManagerOptions ?? throw new ArgumentNullException(nameof(azureResourceManagerOptions));
             this.azureDeploymentStorageOptions = azureDeploymentStorageOptions ?? throw new ArgumentNullException(nameof(azureDeploymentStorageOptions));
         }
 
         string IAzureStorageArtifactsOptions.BaseUrlOverride => azureDeploymentStorageOptions.BaseUrlOverride;
 
         string IAzureStorageArtifactsOptions.ConnectionString => azureDeploymentStorageOptions.ConnectionString;
-
-        string IAzureDeploymentOptions.Region => azureResourceManagerOptions.Region;
     }
 }

@@ -32,13 +32,12 @@ namespace TeamCloud.Azure.Tests.Deployment
             azureDeploymentArtifactStorage.UploadArtifactsAsync(default, default).ReturnsForAnyArgs(azureDeploymentArtifactContainer);
 
             var azureDeploymentOptions = Substitute.For<IAzureDeploymentOptions>();
-            azureDeploymentOptions.Region.Returns("West Europe");
 
             var deploymentService = new AzureDeploymentService(azureDeploymentOptions, azureSessionService, azureDeploymentArtifactStorage);
             var deploymentTemplate = await AzureDeploymentTemplate.CreateAsync<SimpleTemplate>().ConfigureAwait(false);
 
             var deployment = await deploymentService
-                .DeployTemplateAsync(deploymentTemplate, Guid.Empty)
+                .DeploySubscriptionTemplateAsync(deploymentTemplate, Guid.Empty, "West Europe")
                 .ConfigureAwait(false);
 
             using (WithResponses(nameof(WaitForDeployment)))
@@ -66,13 +65,12 @@ namespace TeamCloud.Azure.Tests.Deployment
             azureDeploymentArtifactStorage.UploadArtifactsAsync(default, default).ReturnsForAnyArgs(azureDeploymentArtifactContainer);
 
             var azureDeploymentOptions = Substitute.For<IAzureDeploymentOptions>();
-            azureDeploymentOptions.Region.Returns("West Europe");
 
             var deploymentService = new AzureDeploymentService(azureDeploymentOptions, azureSessionService, azureDeploymentArtifactStorage);
             var deploymentTemplate = await AzureDeploymentTemplate.CreateAsync<SimpleTemplate>().ConfigureAwait(false);
 
             var deployment = await deploymentService
-                .DeployTemplateAsync(deploymentTemplate, Guid.Empty)
+                .DeploySubscriptionTemplateAsync(deploymentTemplate, Guid.Empty, "West Europe")
                 .ConfigureAwait(false);
 
             using (WithResponses(nameof(WaitForDeploymentWithThrowOnError)))
@@ -102,13 +100,12 @@ namespace TeamCloud.Azure.Tests.Deployment
             azureDeploymentArtifactStorage.UploadArtifactsAsync(default, default).ReturnsForAnyArgs(azureDeploymentArtifactContainer);
 
             var azureDeploymentOptions = Substitute.For<IAzureDeploymentOptions>();
-            azureDeploymentOptions.Region.Returns("West Europe");
 
             var deploymentService = new AzureDeploymentService(azureDeploymentOptions, azureSessionService, azureDeploymentArtifactStorage);
             var deploymentTemplate = await AzureDeploymentTemplate.CreateAsync<SimpleTemplate>().ConfigureAwait(false);
 
             var deployment = await deploymentService
-                .DeployTemplateAsync(deploymentTemplate, Guid.Empty)
+                .DeploySubscriptionTemplateAsync(deploymentTemplate, Guid.Empty, "West Europe")
                 .ConfigureAwait(false);
 
             using (WithResponses(nameof(WaitForDeploymentWithCleanUp)))
@@ -139,13 +136,12 @@ namespace TeamCloud.Azure.Tests.Deployment
             azureDeploymentArtifactStorage.UploadArtifactsAsync(default, default).ReturnsForAnyArgs(azureDeploymentArtifactContainer);
 
             var azureDeploymentOptions = Substitute.For<IAzureDeploymentOptions>();
-            azureDeploymentOptions.Region.Returns("West Europe");
 
             var deploymentService = new AzureDeploymentService(azureDeploymentOptions, azureSessionService, azureDeploymentArtifactStorage);
             var deploymentTemplate = await AzureDeploymentTemplate.CreateAsync<SimpleTemplate>().ConfigureAwait(false);
 
             var deployment = await deploymentService
-                .DeployTemplateAsync(deploymentTemplate, Guid.Empty)
+                .DeploySubscriptionTemplateAsync(deploymentTemplate, Guid.Empty, "West Europe")
                 .ConfigureAwait(false);
 
             using (WithResponses(nameof(GetDeploymentOutput)))
@@ -180,13 +176,12 @@ namespace TeamCloud.Azure.Tests.Deployment
             azureDeploymentArtifactStorage.UploadArtifactsAsync(default, default).ReturnsForAnyArgs(azureDeploymentArtifactContainer);
 
             var azureDeploymentOptions = Substitute.For<IAzureDeploymentOptions>();
-            azureDeploymentOptions.Region.Returns("West Europe");
 
             var deploymentService = new AzureDeploymentService(azureDeploymentOptions, azureSessionService, azureDeploymentArtifactStorage);
             var deploymentTemplate = await AzureDeploymentTemplate.CreateAsync<SimpleTemplate>().ConfigureAwait(false);
 
             var deployment = await deploymentService
-                .DeployTemplateAsync(deploymentTemplate, Guid.Empty)
+                .DeploySubscriptionTemplateAsync(deploymentTemplate, Guid.Empty, "West Europe")
                 .ConfigureAwait(false);
 
             using (WithResponses(nameof(GetDeploymentOutputWhileRunning)))

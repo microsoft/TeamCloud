@@ -7,6 +7,12 @@ namespace TeamCloud.Azure.Deployment
 {
     public interface IAzureDeploymentOptions
     {
-        public string Region { get; }
+    }
+
+    public sealed class AzureDeploymentOptions : IAzureDeploymentOptions
+    {
+        public static IAzureDeploymentOptions Default => new AzureDeploymentOptions();
+
+        private AzureDeploymentOptions() { }
     }
 }
