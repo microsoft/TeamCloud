@@ -26,8 +26,8 @@
 		</None>
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="FluentValidation" Version="8.6.1" />
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.1.1" />
+		<PackageReference Include="FluentValidation" Version="8.6.2" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.1.2" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\TeamCloud.Model\TeamCloud.Model.csproj" />

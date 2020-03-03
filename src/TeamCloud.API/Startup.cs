@@ -48,8 +48,6 @@ namespace TeamCloud.API
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-
-            // Microsoft.IdentityModel.Logging.IdentityModelEventSource.ShowPII = true;
         }
 
         public IConfiguration Configuration { get; }

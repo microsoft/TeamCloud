@@ -20,7 +20,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers.Activities
     public static class ProviderCommandActivity
     {
         [FunctionName(nameof(ProviderCommandActivity))]
-        public static async Task<ICommandResult> Run(
+        public static async Task<ICommandResult> RunActivity(
             [ActivityTrigger] (Provider provider, ProviderCommandMessage message) input,
             ILogger log)
         {

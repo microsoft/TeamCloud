@@ -39,7 +39,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamCloud.Azure.Resources",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamCloud.Model.Tests", "TeamCloud.Model.Tests\TeamCloud.Model.Tests.csproj", "{E7882EF4-2ADC-449B-973D-BE17F174039E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeamCloud.Configuration.Options", "TeamCloud.Configuration.Options\TeamCloud.Configuration.Options.csproj", "{E69C47DB-4D01-4EA0-85FE-87E8B0924C38}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamCloud.Configuration.Options", "TeamCloud.Configuration.Options\TeamCloud.Configuration.Options.csproj", "{E69C47DB-4D01-4EA0-85FE-87E8B0924C38}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BCF21788-73F1-4671-AF59-51E16436ED7C}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -88,15 +88,9 @@ namespace TeamCloud.Orchestrator
                 // we use the managed identity of the service to authenticate at the KeyVault
                 var azureServiceTokenProvider = new AzureServiceTokenProvider();
 
-                using (var keyVaultClient = new KeyVaultClient(
-                    new KeyVaultClient.AuthenticationCallback(
-                        azureServiceTokenProvider.KeyVaultTokenCallback)))
-                {
-                    configurationBuilder.AddAzureKeyVault(
-                        $"https://{keyVaultName}.vault.azure.net/",
-                        keyVaultClient,
-                        new DefaultKeyVaultSecretManager());
-                }
+                using var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
+
+                configurationBuilder.AddAzureKeyVault($"https://{keyVaultName}.vault.azure.net/", keyVaultClient, new DefaultKeyVaultSecretManager());
             }
             else if (hostingEnvironment.IsDevelopment())
             {

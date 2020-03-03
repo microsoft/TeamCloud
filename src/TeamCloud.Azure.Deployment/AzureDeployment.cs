@@ -252,7 +252,7 @@ namespace TeamCloud.Azure.Deployment
                 .ToDictionary()
                 .AsReadOnly();
 
-            object ConvertOutputValue(JProperty token)
+            static object ConvertOutputValue(JProperty token)
             {
                 var outputType = token.Value.SelectToken("type")?.ToString();
                 var outputValue = token.Value.SelectToken("value");
@@ -260,32 +260,20 @@ namespace TeamCloud.Azure.Deployment
                 if (outputValue is null)
                     return null;
 
-                switch ((outputType ?? "string").ToUpperInvariant())
+                return ((outputType ?? "string").ToUpperInvariant()) switch
                 {
                     // simple type conversion
-
-                    case "BOOL":
-                        return outputValue.ToObject<bool>();
-
-                    case "INT":
-                        return outputValue.ToObject<int>();
-
-                    case "STRING":
-                        return outputValue.ToString();
+                    "BOOL" => outputValue.ToObject<bool>(),
+                    "INT" => outputValue.ToObject<int>(),
+                    "STRING" => outputValue.ToString(),
 
                     // complex type conversion
-
-                    case "ARRAY":
-                        return outputValue.ToObject<JArray>();
-
-                    case "OBJECT":
-                        return outputValue.ToObject<JObject>();
-
+                    "ARRAY" => outputValue.ToObject<JArray>(),
+                    "OBJECT" => outputValue.ToObject<JObject>(),
+                    
                     // unsupported type conversion
-
-                    default:
-                        throw new NotSupportedException($"Output type '{outputType}' is not supported.");
-                }
+                    _ => throw new NotSupportedException($"Output type '{outputType}' is not supported."),
+                };
             }
 
         }

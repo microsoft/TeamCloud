@@ -36,8 +36,6 @@ namespace TeamCloud.API
 
             if (!string.IsNullOrEmpty(keyVaultName))
             {
-#pragma warning disable CA2000 // Dispose objects before losing scope
-
                 // we use the managed identity of the service to authenticate at the KeyVault
 
                 var azureServiceTokenProvider = new AzureServiceTokenProvider();
@@ -50,8 +48,6 @@ namespace TeamCloud.API
                 //    $"https://{keyVaultName}.vault.azure.net/",
                 //    keyVaultClient,
                 //    new DefaultKeyVaultSecretManager());
-
-#pragma warning restore CA2000 // Dispose objects before losing scope
             }
             else if (hostingEnvironment.IsDevelopment())
             {

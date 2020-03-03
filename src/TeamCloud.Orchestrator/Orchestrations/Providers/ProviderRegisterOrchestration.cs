@@ -20,18 +20,12 @@ using TeamCloud.Orchestrator.Orchestrations.Providers.Activities;
 namespace TeamCloud.Orchestrator.Orchestrations.Providers
 {
     [EternalOrchestration(EternalInstanceId)]
-    public class ProviderRegisterOrchestration
+    public static class ProviderRegisterOrchestration
     {
         public const string EternalInstanceId = "c0ed8d5a-ca7a-4186-84bd-062a8bac0d3a";
-        private readonly IAzureSessionService azureSessionService;
-
-        public ProviderRegisterOrchestration(IAzureSessionService azureSessionService)
-        {
-            this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
-        }
 
         [FunctionName(nameof(ProviderRegisterOrchestration))]
-        public async Task RunOrchestration(
+        public static async Task RunOrchestration(
             [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
             ILogger log)
         {

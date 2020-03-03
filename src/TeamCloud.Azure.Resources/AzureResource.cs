@@ -177,7 +177,7 @@ namespace TeamCloud.Azure.Resources
             if (tags.TryGetValue(key, out string value))
                 return value;
 
-            return default(string);
+            return default;
         }
 
         public virtual async Task AddTagAsync(string key, string value)

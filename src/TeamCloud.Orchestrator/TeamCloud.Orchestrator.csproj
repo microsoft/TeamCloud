@@ -17,20 +17,20 @@
   <ItemGroup>
     <PackageReference Include="Flurl.Http" Version="2.4.2" />
     <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.0.0" />
-    <PackageReference Include="Microsoft.Azure.Management.Fluent" Version="1.31.0" />
-    <PackageReference Include="Microsoft.Azure.Management.ResourceManager.Fluent" Version="1.31.0" />
+    <PackageReference Include="Microsoft.Azure.Management.Fluent" Version="1.31.1" />
+    <PackageReference Include="Microsoft.Azure.Management.ResourceManager.Fluent" Version="1.31.1" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.DurableTask" Version="2.1.1" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Storage" Version="3.0.10" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.1" />
-    <PackageReference Include="Microsoft.Azure.WebJobs.Script.ExtensionsMetadataGenerator" Version="1.1.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.2" />
+    <PackageReference Include="Microsoft.Azure.WebJobs.Script.ExtensionsMetadataGenerator" Version="1.1.4" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.8">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Configuration.AzureAppConfiguration" Version="3.0.0-preview-011100001-1152" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.AzureKeyVault" Version="3.1.1" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="3.1.1" />
-    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.AzureAppConfiguration" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.AzureKeyVault" Version="3.1.2" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="3.1.2" />
+    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.4" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TeamCloud.Azure.Deployment\TeamCloud.Azure.Deployment.csproj" />
