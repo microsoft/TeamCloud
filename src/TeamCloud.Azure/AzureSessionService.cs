@@ -43,7 +43,8 @@ namespace TeamCloud.Azure
 
     public class AzureSessionService : IAzureSessionService
     {
-        public static bool IsAzureEnvironment => !string.IsNullOrEmpty(System.Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID"));
+        public static bool IsAzureEnvironment =>
+            !string.IsNullOrEmpty(System.Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID"));
 
         private readonly Lazy<AzureCredentials> credentials;
         private readonly Lazy<AZFluent.Azure.IAuthenticated> session;
