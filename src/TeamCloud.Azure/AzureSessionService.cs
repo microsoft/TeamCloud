@@ -57,33 +57,40 @@ namespace TeamCloud.Azure
 
             credentials = new Lazy<AzureCredentials>(() =>
             {
-                var credentialsFactory = new RMFluent.Authentication.AzureCredentialsFactory();
-
-                if (string.IsNullOrEmpty(azureSessionOptions.ClientId))
+                try
                 {
-                    if (IsAzureEnvironment)
+                    var credentialsFactory = new RMFluent.Authentication.AzureCredentialsFactory();
+
+                    if (string.IsNullOrEmpty(azureSessionOptions.ClientId))
+                    {
+                        if (IsAzureEnvironment)
+                        {
+                            return credentialsFactory
+                                .FromSystemAssignedManagedServiceIdentity(MSIResourceType.AppService, this.Environment, azureSessionOptions.TenantId);
+                        }
+                        else
+                        {
+                            return new AzureCredentials(
+                                new TokenCredentials(new DevelopmentTokenProvider(this, AzureEndpoint.ResourceManagerEndpoint)),
+                                new TokenCredentials(new DevelopmentTokenProvider(this, AzureEndpoint.GraphEndpoint)),
+                                azureSessionOptions.TenantId,
+                                this.Environment);
+                        }
+                    }
+                    else if (string.IsNullOrEmpty(azureSessionOptions.ClientSecret))
                     {
                         return credentialsFactory
-                            .FromSystemAssignedManagedServiceIdentity(MSIResourceType.AppService, this.Environment, azureSessionOptions.TenantId);
+                            .FromUserAssigedManagedServiceIdentity(azureSessionOptions.ClientId, MSIResourceType.AppService, this.Environment, azureSessionOptions.TenantId);
                     }
                     else
                     {
-                        return new AzureCredentials(
-                            new TokenCredentials(new DevelopmentTokenProvider(this, AzureEndpoint.ResourceManagerEndpoint)),
-                            new TokenCredentials(new DevelopmentTokenProvider(this, AzureEndpoint.GraphEndpoint)),
-                            azureSessionOptions.TenantId,
-                            this.Environment);
+                        return credentialsFactory
+                            .FromServicePrincipal(azureSessionOptions.ClientId, azureSessionOptions.ClientSecret, azureSessionOptions.TenantId, this.Environment);
                     }
                 }
-                else if (string.IsNullOrEmpty(azureSessionOptions.ClientSecret))
+                catch (Exception exc)
                 {
-                    return credentialsFactory
-                        .FromUserAssigedManagedServiceIdentity(azureSessionOptions.ClientId, MSIResourceType.AppService, this.Environment, azureSessionOptions.TenantId);
-                }
-                else
-                {
-                    return credentialsFactory
-                        .FromServicePrincipal(azureSessionOptions.ClientId, azureSessionOptions.ClientSecret, azureSessionOptions.TenantId, this.Environment);
+                    throw new TypeInitializationException(typeof(AzureCredentials).FullName, exc);
                 }
             },
             LazyThreadSafetyMode.PublicationOnly);
