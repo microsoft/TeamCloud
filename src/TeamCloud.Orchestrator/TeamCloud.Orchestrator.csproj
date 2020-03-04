@@ -4,16 +4,31 @@
     <AzureFunctionsVersion>v3</AzureFunctionsVersion>
     <!--<UserSecretsId></UserSecretsId>-->
   </PropertyGroup>
+  
   <ItemGroup>
     <None Remove="Templates\CleanupProjectTemplate.json" />
     <None Remove="Templates\CreateProjectTemplate.json" />
     <None Remove="Templates\CreateProjectTemplate_Resources.json" />
   </ItemGroup>
+  
   <ItemGroup>
     <EmbeddedResource Include="Templates\CleanupProjectTemplate.json" />
     <EmbeddedResource Include="Templates\CreateProjectTemplate_Resources.json" />
     <EmbeddedResource Include="Templates\CreateProjectTemplate.json" />
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis" Version="3.4.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="2.9.8">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.8">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  
   <ItemGroup>
     <PackageReference Include="Flurl.Http" Version="2.4.2" />
     <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.0.0" />
@@ -23,15 +38,12 @@
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Storage" Version="3.0.10" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.2" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Script.ExtensionsMetadataGenerator" Version="1.1.4" />
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.8">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Configuration.AzureAppConfiguration" Version="3.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.AzureKeyVault" Version="3.1.2" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="3.1.2" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.4" />
   </ItemGroup>
+  
   <ItemGroup>
     <ProjectReference Include="..\TeamCloud.Azure.Deployment\TeamCloud.Azure.Deployment.csproj" />
     <ProjectReference Include="..\TeamCloud.Azure.Resources\TeamCloud.Azure.Resources.csproj" />
@@ -42,6 +54,7 @@
     <ProjectReference Include="..\TeamCloud.Http\TeamCloud.Http.csproj" />
     <ProjectReference Include="..\TeamCloud.Model\TeamCloud.Model.csproj" />
   </ItemGroup>
+  
   <ItemGroup>
     <None Update="host.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -51,6 +64,7 @@
       <CopyToPublishDirectory>Never</CopyToPublishDirectory>
     </None>
   </ItemGroup>
+  
   <Target Name="UserSecretIdInfo" BeforeTargets="PreBuildEvent" Condition="'$(UserSecretsId)' != ''">
     <Warning Text="==============================================================================" />
     <Warning Text="= UserSecretsId ISSUE !!!                                                    =" />
