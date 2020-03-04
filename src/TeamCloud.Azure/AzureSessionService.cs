@@ -55,54 +55,55 @@ namespace TeamCloud.Azure
             this.azureSessionOptions = azureSessionOptions ?? AzureSessionOptions.Default;
             this.httpClientFactory = httpClientFactory ?? new DefaultHttpClientFactory();
 
-            credentials = new Lazy<AzureCredentials>(() =>
-            {
-                try
-                {
-                    var credentialsFactory = new RMFluent.Authentication.AzureCredentialsFactory();
+            credentials = new Lazy<AzureCredentials>(() => InitCredentials(), LazyThreadSafetyMode.PublicationOnly);
+            session = new Lazy<AZFluent.Azure.IAuthenticated>(() => InitSession(), LazyThreadSafetyMode.PublicationOnly);
+        }
 
-                    if (string.IsNullOrEmpty(azureSessionOptions.ClientId))
-                    {
-                        if (IsAzureEnvironment)
-                        {
-                            return credentialsFactory
-                                .FromSystemAssignedManagedServiceIdentity(MSIResourceType.AppService, this.Environment, azureSessionOptions.TenantId);
-                        }
-                        else
-                        {
-                            return new AzureCredentials(
-                                new TokenCredentials(new DevelopmentTokenProvider(this, AzureEndpoint.ResourceManagerEndpoint)),
-                                new TokenCredentials(new DevelopmentTokenProvider(this, AzureEndpoint.GraphEndpoint)),
-                                azureSessionOptions.TenantId,
-                                this.Environment);
-                        }
-                    }
-                    else if (string.IsNullOrEmpty(azureSessionOptions.ClientSecret))
+        private AzureCredentials InitCredentials()
+        {
+            try
+            {
+                var credentialsFactory = new RMFluent.Authentication.AzureCredentialsFactory();
+
+                if (string.IsNullOrEmpty(azureSessionOptions.ClientId))
+                {
+                    if (IsAzureEnvironment)
                     {
                         return credentialsFactory
-                            .FromUserAssigedManagedServiceIdentity(azureSessionOptions.ClientId, MSIResourceType.AppService, this.Environment, azureSessionOptions.TenantId);
+                            .FromSystemAssignedManagedServiceIdentity(MSIResourceType.AppService, Environment, azureSessionOptions.TenantId);
                     }
                     else
                     {
-                        return credentialsFactory
-                            .FromServicePrincipal(azureSessionOptions.ClientId, azureSessionOptions.ClientSecret, azureSessionOptions.TenantId, this.Environment);
+                        return new AzureCredentials(
+                            new TokenCredentials(new DevelopmentTokenProvider(this, AzureEndpoint.ResourceManagerEndpoint)),
+                            new TokenCredentials(new DevelopmentTokenProvider(this, AzureEndpoint.GraphEndpoint)),
+                            azureSessionOptions.TenantId,
+                            Environment);
                     }
                 }
-                catch (Exception exc)
+                else if (string.IsNullOrEmpty(azureSessionOptions.ClientSecret))
                 {
-                    throw new TypeInitializationException(typeof(AzureCredentials).FullName, exc);
+                    return credentialsFactory
+                        .FromUserAssigedManagedServiceIdentity(azureSessionOptions.ClientId, MSIResourceType.AppService, this.Environment, azureSessionOptions.TenantId);
                 }
-            },
-            LazyThreadSafetyMode.PublicationOnly);
-
-            session = new Lazy<AZFluent.Azure.IAuthenticated>(() =>
+                else
+                {
+                    return credentialsFactory
+                        .FromServicePrincipal(azureSessionOptions.ClientId, azureSessionOptions.ClientSecret, azureSessionOptions.TenantId, this.Environment);
+                }
+            }
+            catch (Exception exc)
             {
-                return AZFluent.Azure
-                    .Configure()
-                    .WithDelegatingHandler(this.httpClientFactory)
-                    .Authenticate(credentials.Value);
-            },
-            LazyThreadSafetyMode.PublicationOnly);
+                throw new TypeInitializationException(typeof(AzureCredentials).FullName, exc);
+            }
+        }
+
+        private AZFluent.Azure.IAuthenticated InitSession()
+        {
+            return AZFluent.Azure
+                .Configure()
+                .WithDelegatingHandler(this.httpClientFactory)
+                .Authenticate(credentials.Value);
         }
 
         public AzureEnvironment Environment { get => AzureEnvironment.AzureGlobalCloud; }
@@ -180,6 +181,10 @@ namespace TeamCloud.Azure
                     .WithCredentials(credentials.Value)
                     .WithDelegatingHandler(httpClientFactory)
                     .Build();
+            }
+            catch (TypeInitializationException)
+            {
+                throw;
             }
             catch (Exception exc)
             {
