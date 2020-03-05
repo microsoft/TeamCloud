@@ -2234,9 +2234,6 @@
             "format": "uuid",
             "nullable": true
           },
-          "optional": {
-            "type": "boolean"
-          },
           "dependencies": {
             "allOf": [
               {

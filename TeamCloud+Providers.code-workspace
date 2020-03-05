@@ -45,6 +45,10 @@
 			"path": "src/TeamCloud.Model.Validation"
 		},
 		{
+			"name": "Orchestration",
+			"path": "src/TeamCloud.Orchestration"
+		},
+		{
 			"name": "Orchestrator",
 			"path": "src/TeamCloud.Orchestrator"
 		},
