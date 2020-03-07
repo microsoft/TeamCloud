@@ -21,8 +21,6 @@ namespace TeamCloud.Model.Data
 
         public Guid? PrincipalId { get; set; }
 
-        public bool Optional { get; set; }
-
         public ProviderDependencies Dependencies { get; set; } = new ProviderDependencies();
 
         public IList<string> Events { get; set; } = new List<string>();

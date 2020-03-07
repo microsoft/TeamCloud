@@ -23,8 +23,6 @@ class ProviderDataResultData(Provider):
     :type auth_code: str
     :param principal_id:
     :type principal_id: str
-    :param optional:
-    :type optional: bool
     :param dependencies:
     :type dependencies: ~teamcloud.models.ProviderDependenciesModel
     :param events:
@@ -40,12 +38,11 @@ class ProviderDataResultData(Provider):
         'url': {'key': 'url', 'type': 'str'},
         'auth_code': {'key': 'authCode', 'type': 'str'},
         'principal_id': {'key': 'principalId', 'type': 'str'},
-        'optional': {'key': 'optional', 'type': 'bool'},
         'dependencies': {'key': 'dependencies', 'type': 'ProviderDependenciesModel'},
         'events': {'key': 'events', 'type': '[str]'},
         'properties': {'key': 'properties', 'type': '{str}'},
         'registered': {'key': 'registered', 'type': 'iso-8601'},
     }
 
-    def __init__(self, *, id: str=None, url: str=None, auth_code: str=None, principal_id: str=None, optional: bool=None, dependencies=None, events=None, properties=None, registered=None, **kwargs) -> None:
-        super(ProviderDataResultData, self).__init__(id=id, url=url, auth_code=auth_code, principal_id=principal_id, optional=optional, dependencies=dependencies, events=events, properties=properties, registered=registered, **kwargs)
+    def __init__(self, *, id: str=None, url: str=None, auth_code: str=None, principal_id: str=None, dependencies=None, events=None, properties=None, registered=None, **kwargs) -> None:
+        super(ProviderDataResultData, self).__init__(id=id, url=url, auth_code=auth_code, principal_id=principal_id, dependencies=dependencies, events=events, properties=properties, registered=registered, **kwargs)

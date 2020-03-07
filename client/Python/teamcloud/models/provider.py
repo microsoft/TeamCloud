@@ -23,8 +23,6 @@ class Provider(Model):
     :type auth_code: str
     :param principal_id:
     :type principal_id: str
-    :param optional:
-    :type optional: bool
     :param dependencies:
     :type dependencies: ~teamcloud.models.ProviderDependenciesModel
     :param events:
@@ -40,7 +38,6 @@ class Provider(Model):
         'url': {'key': 'url', 'type': 'str'},
         'auth_code': {'key': 'authCode', 'type': 'str'},
         'principal_id': {'key': 'principalId', 'type': 'str'},
-        'optional': {'key': 'optional', 'type': 'bool'},
         'dependencies': {'key': 'dependencies', 'type': 'ProviderDependenciesModel'},
         'events': {'key': 'events', 'type': '[str]'},
         'properties': {'key': 'properties', 'type': '{str}'},
@@ -53,7 +50,6 @@ class Provider(Model):
         self.url = kwargs.get('url', None)
         self.auth_code = kwargs.get('auth_code', None)
         self.principal_id = kwargs.get('principal_id', None)
-        self.optional = kwargs.get('optional', None)
         self.dependencies = kwargs.get('dependencies', None)
         self.events = kwargs.get('events', None)
         self.properties = kwargs.get('properties', None)

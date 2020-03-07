@@ -58,7 +58,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerOperation(OperationId = "GetProjectUsers", Summary = "Gets all Users for a Project.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all Project Users", typeof(DataResult<List<User>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "The projectId provided in the path was invalid.", typeof(ErrorResult))]
-        [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a User with the provided userId was not found.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Get()
         {
             if (!ProjectId.HasValue)
@@ -140,7 +140,7 @@ namespace TeamCloud.API.Controllers
         [Authorize(Policy = "projectCreate")]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "CreateProjectUser", Summary = "Creates a new Project User")]
-        [SwaggerResponse(StatusCodes.Status202Accepted, "Starts creating the new Project UserProject. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
+        [SwaggerResponse(StatusCodes.Status202Accepted, "Starts creating the new Project User. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "The projectId provided in the path was invalid.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a User with the email address provided in the request body was not found.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status409Conflict, "A Project User already exists with the email address provided in the request body.", typeof(ErrorResult))]
@@ -253,7 +253,7 @@ namespace TeamCloud.API.Controllers
         [HttpDelete("{userNameOrId:userNameOrId}")]
         [Authorize(Policy = "projectCreate")]
         [SwaggerOperation(OperationId = "DeleteProjectUser", Summary = "Deletes an existing Project User.")]
-        [SwaggerResponse(StatusCodes.Status202Accepted, "Starts deleting the Project UserProject. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
+        [SwaggerResponse(StatusCodes.Status202Accepted, "Starts deleting the Project User. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "The projectId provided in the path was invalid.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a User with the provided identifier was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Delete([FromRoute]string userNameOrId)

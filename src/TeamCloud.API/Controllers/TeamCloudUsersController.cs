@@ -119,7 +119,7 @@ namespace TeamCloud.API
         [Authorize(Policy = "admin")]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "CreateTeamCloudUser", Summary = "Creates a new TeamCloud User.")]
-        [SwaggerResponse(StatusCodes.Status202Accepted, "Starts creating the new TeamCloud UserProject. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
+        [SwaggerResponse(StatusCodes.Status202Accepted, "Starts creating the new TeamCloud User. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "The User provided in the request body did not pass validation.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found, or a User with the email address provided in the request body was not found.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status409Conflict, "A TeamCloud User already exists with the email address provided in the request body.", typeof(ErrorResult))]
@@ -174,7 +174,7 @@ namespace TeamCloud.API
         [Authorize(Policy = "admin")]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "UpdateTeamCloudUser", Summary = "Updates an existing TeamCloud User.")]
-        [SwaggerResponse(StatusCodes.Status202Accepted, "Starts updating the TeamCloud UserProject. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
+        [SwaggerResponse(StatusCodes.Status202Accepted, "Starts updating the TeamCloud User. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "The User provided in the request body did not pass validation.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found, or a User with the ID provided in the request body was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Put([FromBody] User user)

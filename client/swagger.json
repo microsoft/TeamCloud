@@ -216,6 +216,370 @@
         ]
       }
     },
+    "/api/projects/{projectId}/tags": {
+      "get": {
+        "tags": [
+          "ProjectTags"
+        ],
+        "summary": "Gets all Tags for a Project.",
+        "operationId": "GetProjectTags",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns all Project Tags",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringStringDictionaryDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The projectId provided in the path was invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Project with the provided projectId was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "projectRead"
+            ]
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "ProjectTags"
+        ],
+        "summary": "Creates a new Project Tag",
+        "operationId": "CreateProjectTag",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Starts creating the new Project Tag. Returns a StatusResult object that can be used to track progress of the long-running operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The projectId provided in the path was invalid, or the key provided in the request body was invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Project with the provided projectId was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A Project Tag already exists with the key provided in the request body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "projectCreate"
+            ]
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "ProjectTags"
+        ],
+        "summary": "Updates an existing Project Tag.",
+        "operationId": "UpdateProjectTag",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Starts updating the Project Tag. Returns a StatusResult object that can be used to track progress of the long-running operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The projectId provided in the path was invalid, or the Tag provided in the request body did not pass validation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Project with the provided projectId was not found, or a Tag with the key provided in the request body was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "projectCreate"
+            ]
+          }
+        ]
+      }
+    },
+    "/api/projects/{projectId}/tags/{tagKey}": {
+      "get": {
+        "tags": [
+          "ProjectTags"
+        ],
+        "summary": "Gets a Project Tag by Key or email address.",
+        "operationId": "GetProjectTagByKey",
+        "parameters": [
+          {
+            "name": "tagKey",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns Project Tag",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringStringDictionaryDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The projectId provided in the path was invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Project with the provided projectId was not found, or a Tag with the provided key was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "projectRead"
+            ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "ProjectTags"
+        ],
+        "summary": "Deletes an existing Project Tag.",
+        "operationId": "DeleteProjectTag",
+        "parameters": [
+          {
+            "name": "tagKey",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Starts deleting the Project Tag. Returns a StatusResult object that can be used to track progress of the long-running operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The projectId or key provided in the path was invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Project with the provided projectId was not found, or a Tag with the provided key was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "projectCreate"
+            ]
+          }
+        ]
+      }
+    },
     "/api/projectTypes": {
       "get": {
         "tags": [
@@ -504,7 +868,7 @@
             }
           },
           "404": {
-            "description": "A Project with the provided projectId was not found, or a User with the provided userId was not found.",
+            "description": "A Project with the provided projectId was not found.",
             "content": {
               "application/json": {
                 "schema": {
@@ -555,7 +919,7 @@
         },
         "responses": {
           "202": {
-            "description": "Starts creating the new Project UserProject. Returns a StatusResult object that can be used to track progress of the long-running operation.",
+            "description": "Starts creating the new Project User. Returns a StatusResult object that can be used to track progress of the long-running operation.",
             "content": {
               "application/json": {
                 "schema": {
@@ -778,7 +1142,7 @@
         ],
         "responses": {
           "202": {
-            "description": "Starts deleting the Project UserProject. Returns a StatusResult object that can be used to track progress of the long-running operation.",
+            "description": "Starts deleting the Project User. Returns a StatusResult object that can be used to track progress of the long-running operation.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1379,6 +1743,314 @@
         ]
       }
     },
+    "/api/tags": {
+      "get": {
+        "tags": [
+          "TeamCloudTags"
+        ],
+        "summary": "Gets all Tags for a TeamCloud Instance.",
+        "operationId": "GetTeamCloudTags",
+        "responses": {
+          "200": {
+            "description": "Returns all TeamCloud Tags",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringStringDictionaryDataResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The TeamCloud instance was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "admin"
+            ]
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "TeamCloudTags"
+        ],
+        "summary": "Creates a new TeamCloud Tag",
+        "operationId": "CreateTeamCloudTag",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Starts creating the new TeamCloud Tag. Returns a StatusResult object that can be used to track progress of the long-running operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The key provided in the request body was invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The TeamCloud instance was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A TeamCloud Tag already exists with the key provided in the request body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "admin"
+            ]
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "TeamCloudTags"
+        ],
+        "summary": "Updates an existing TeamCloud Tag.",
+        "operationId": "UpdateTeamCloudTag",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Starts updating the TeamCloud Tag. Returns a StatusResult object that can be used to track progress of the long-running operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The Tag provided in the request body did not pass validation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The TeamCloud instance was not found, or a Tag with the key provided in the request body was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "admin"
+            ]
+          }
+        ]
+      }
+    },
+    "/api/tags/{tagKey}": {
+      "get": {
+        "tags": [
+          "TeamCloudTags"
+        ],
+        "summary": "Gets a TeamCloud Tag by Key or email address.",
+        "operationId": "GetTeamCloudTagByKey",
+        "parameters": [
+          {
+            "name": "tagKey",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns TeamCloud Tag",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringStringDictionaryDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The key provided in the path was invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The TeamCloud instance was not found, or a Tag with the provided key was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "admin"
+            ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "TeamCloudTags"
+        ],
+        "summary": "Deletes an existing TeamCloud Tag.",
+        "operationId": "DeleteTeamCloudTag",
+        "parameters": [
+          {
+            "name": "tagKey",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Starts deleting the TeamCloud Tag. Returns a StatusResult object that can be used to track progress of the long-running operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The key provided in the path was invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The TeamCloud instance was not found, or a Tag with the provided key was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "admin"
+            ]
+          }
+        ]
+      }
+    },
     "/api/users": {
       "get": {
         "tags": [
@@ -1439,7 +2111,7 @@
         },
         "responses": {
           "202": {
-            "description": "Starts creating the new TeamCloud UserProject. Returns a StatusResult object that can be used to track progress of the long-running operation.",
+            "description": "Starts creating the new TeamCloud User. Returns a StatusResult object that can be used to track progress of the long-running operation.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1510,7 +2182,7 @@
         },
         "responses": {
           "202": {
-            "description": "Starts updating the TeamCloud UserProject. Returns a StatusResult object that can be used to track progress of the long-running operation.",
+            "description": "Starts updating the TeamCloud User. Returns a StatusResult object that can be used to track progress of the long-running operation.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2088,6 +2760,32 @@
         },
         "additionalProperties": false
       },
+      "StringStringDictionaryDataResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "ProjectTypeListDataResult": {
         "type": "object",
         "properties": {
@@ -2233,9 +2931,6 @@
             "type": "string",
             "format": "uuid",
             "nullable": true
-          },
-          "optional": {
-            "type": "boolean"
           },
           "dependencies": {
             "allOf": [
