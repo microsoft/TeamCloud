@@ -23,8 +23,6 @@ namespace TeamCloud.Model.Commands
 
         string CustomStatus { get; set; }
 
-        string ProviderId { get; set; }
-
         IList<Exception> Errors { get; set; }
 
         [JsonProperty(Order = int.MaxValue, PropertyName = "_links")]
@@ -53,8 +51,6 @@ namespace TeamCloud.Model.Commands
         public string CustomStatus { get; set; }
 
         public TResult Result { get; set; }
-
-        public string ProviderId { get; set; }
 
         public IList<Exception> Errors { get; set; } = new List<Exception>();
 

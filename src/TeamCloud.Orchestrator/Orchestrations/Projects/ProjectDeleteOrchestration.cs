@@ -10,8 +10,10 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
+using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Orchestrations.Azure;
 using TeamCloud.Orchestrator.Orchestrations.Projects.Activities;
+using TeamCloud.Orchestrator.Orchestrations.Projects.Utilities;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Projects
 {
@@ -43,9 +45,8 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
 
                 functionContext.SetCustomStatus("Waiting on providers to delete project resources.", log);
 
-                var providerCommandTasks = teamCloud.ProvidersFor(project).GetProviderCommandTasks(command, functionContext);
-                var providerCommandResultMessages = await Task
-                    .WhenAll(providerCommandTasks)
+                await functionContext
+                    .SendCommandAsync(command)
                     .ConfigureAwait(true);
 
                 if (project.ResourceGroup != null)
@@ -53,14 +54,14 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
                     functionContext.SetCustomStatus("Deleting Azure resource group.", log);
 
                     await functionContext
-                        .CallActivityAsync<AzureResourceGroup>(nameof(AzureResourceGroupDeleteActivity), project.ResourceGroup)
+                        .CallActivityWithRetryAsync<AzureResourceGroup>(nameof(AzureResourceGroupDeleteActivity), project.ResourceGroup)
                         .ConfigureAwait(true);
                 }
 
                 functionContext.SetCustomStatus("Deleting project from database.", log);
 
                 project = await functionContext
-                    .CallActivityAsync<Project>(nameof(ProjectDeleteActivity), project)
+                    .CallActivityWithRetryAsync<Project>(nameof(ProjectDeleteActivity), project)
                     .ConfigureAwait(true);
 
                 functionContext.SetCustomStatus("Project deleted.", log);

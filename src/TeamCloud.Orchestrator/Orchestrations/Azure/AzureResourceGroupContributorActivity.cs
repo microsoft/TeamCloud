@@ -26,14 +26,11 @@ namespace TeamCloud.Orchestrator.Orchestrations.Azure
 
         [FunctionName(nameof(AzureResourceGroupContributorActivity))]
         public async Task RunActivity(
-            [ActivityTrigger] (Guid, Guid) projectAndPrincipalId,
+            [ActivityTrigger] (Guid projectId, Guid principalId) input,
             ILogger log)
         {
-            var projectId = projectAndPrincipalId.Item1;
-            var principalId = projectAndPrincipalId.Item2;
-
             var project = await projectsRepository
-                .GetAsync(projectId)
+                .GetAsync(input.projectId)
                 .ConfigureAwait(false);
 
             var resourceGroup = await azureResourceService
@@ -41,7 +38,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Azure
                 .ConfigureAwait(false);
 
             await resourceGroup
-                .AddRoleAssignmentAsync(principalId, AzureRoleDefinition.Contributor)
+                .AddRoleAssignmentAsync(input.principalId, AzureRoleDefinition.Contributor)
                 .ConfigureAwait(false);
         }
     }

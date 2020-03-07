@@ -17,19 +17,22 @@ namespace TeamCloud.Model.Commands
 
         Guid? ProjectId { get; }
 
-        string ProviderId { get; }
-
         User User { get; set; }
 
         ICommandResult CreateResult();
     }
 
+    public interface ICommand<TPayload> : ICommand
+        where TPayload : new()
+    {
+        TPayload Payload { get; set; }
+    }
 
-    public interface ICommand<TPayload, TCommandResult> : ICommand
+    public interface ICommand<TPayload, TCommandResult> : ICommand<TPayload>
         where TPayload : new()
         where TCommandResult : ICommandResult
     {
-        TPayload Payload { get; set; }
+        new TCommandResult CreateResult();
     }
 
 
@@ -41,9 +44,6 @@ namespace TeamCloud.Model.Commands
 
         [JsonIgnore]
         public virtual Guid? ProjectId { get; set; }
-
-        // [JsonIgnore]
-        public virtual string ProviderId { get; set; }
 
         public User User { get; set; }
 
@@ -67,7 +67,6 @@ namespace TeamCloud.Model.Commands
             var result = Activator.CreateInstance<TCommandResult>();
 
             result.CommandId = CommandId;
-            result.ProviderId = ProviderId;
             result.RuntimeStatus = CommandRuntimeStatus.Unknown;
 
             return result;

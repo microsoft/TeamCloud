@@ -12,8 +12,10 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
+using TeamCloud.Orchestration;
+using TeamCloud.Orchestrator.Orchestrations.Commands;
 using TeamCloud.Orchestrator.Orchestrations.Locks;
-using TeamCloud.Orchestrator.Orchestrations.Providers;
+using TeamCloud.Orchestrator.Orchestrations.Projects.Activities;
 
 namespace TeamCloud.Orchestrator
 {
@@ -33,6 +35,9 @@ namespace TeamCloud.Orchestrator
 
             return FinalRuntimeStatus.Contains((int)status.RuntimeStatus);
         }
+
+        internal static Task<IDisposable> LockAsync(this IDurableOrchestrationContext functionContext, IContainerDocument containerDocument)
+            => functionContext.LockAsync(containerDocument.GetEntityId());
 
         internal static EntityId GetEntityId<T>(this T document)
             where T : class, IContainerDocument
@@ -86,26 +91,97 @@ namespace TeamCloud.Orchestrator
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Last().Value);
         }
 
-        internal static void Merge(this Project project, IEnumerable<ICommandResult<ProviderOutput>> commandResults)
+        internal static void Merge(this Project project, IDictionary<string, ICommandResult<ProviderOutput>> commandResults)
         {
-            foreach (var commandResult in commandResults.Where(result => result.Result?.Properties?.Any() ?? false))
+            foreach (var commandResult in commandResults)
+                project.Merge(commandResult.Key, commandResult.Value);
+        }
+
+        internal static void Merge(this Project project, string providerId, ICommandResult<ProviderOutput> commandResult)
+        {
+            if (project.Outputs.TryGetValue(providerId, out var providerProperties))
             {
-                if (project.Outputs.TryGetValue(commandResult.ProviderId, out var providerProperties))
-                {
-                    project.Outputs[commandResult.ProviderId] = providerProperties.Merge(commandResult.Result.Properties);
-                }
-                else
-                {
-                    project.Outputs.Add(commandResult.ProviderId, commandResult.Result.Properties);
-                }
+                project.Outputs[providerId] = providerProperties.Merge(commandResult.Result.Properties);
+            }
+            else
+            {
+                project.Outputs.Add(providerId, commandResult.Result.Properties);
             }
         }
 
         internal static DateTime NextHour(this DateTime dateTime)
              => dateTime.Date.AddHours(dateTime.Hour + 1);
 
-        internal static IEnumerable<Task<ICommandResult>> GetProviderCommandTasks(this List<Provider> providers, ICommand command, IDurableOrchestrationContext functionContext)
-            => providers.Select(provider => functionContext.CallSubOrchestratorAsync<ICommandResult>(nameof(ProviderCommandOrchestration), (provider, command.GetProviderCommand(provider))));
+        internal static Task<ICommandResult> SendCommandAsync(this IDurableOrchestrationContext functionContext, ICommand command, Provider provider)
+            => functionContext.SendCommandAsync<ICommandResult>(command, provider);
+
+        internal static async Task<TCommandResult> SendCommandAsync<TCommandResult>(this IDurableOrchestrationContext functionContext, ICommand command, Provider provider)
+            where TCommandResult : ICommandResult
+        {
+            if (command is null)
+                throw new ArgumentNullException(nameof(command));
+
+            if (provider is null)
+                throw new ArgumentNullException(nameof(provider));
+
+            var providerResult = (TCommandResult)await functionContext
+                .CallSubOrchestratorWithRetryAsync<ICommandResult>(nameof(CommandSendOrchestration), (command, provider))
+                .ConfigureAwait(true);
+
+            return providerResult;
+        }
+
+        internal static Task<IDictionary<string, ICommandResult>> SendCommandAsync(this IDurableOrchestrationContext functionContext, ICommand command, Project project = null, TeamCloudInstance teamCloud = null)
+            => functionContext.SendCommandAsync<ICommandResult>(command, project, teamCloud);
+
+        internal static async Task<IDictionary<string, TCommandResult>> SendCommandAsync<TCommandResult>(this IDurableOrchestrationContext functionContext, ICommand command, Project project = null, TeamCloudInstance teamCloud = null)
+            where TCommandResult : ICommandResult
+        {
+            if (command is null)
+                throw new ArgumentNullException(nameof(command));
+
+            teamCloud ??= await functionContext
+                .CallActivityWithRetryAsync<TeamCloudInstance>(nameof(TeamCloudGetActivity), project?.TeamCloudId)
+                .ConfigureAwait(true);
+
+            IEnumerable<Provider> providers = teamCloud.Providers;
+
+            if (command.ProjectId.HasValue)
+            {
+                project ??= await functionContext
+                    .CallActivityWithRetryAsync<Project>(nameof(ProjectGetActivity), command.ProjectId.Value)
+                    .ConfigureAwait(true);
+
+                providers = teamCloud.ProvidersFor(project);
+            }
+
+            if (!(command.ProjectId?.Equals(project.Id) ?? true))
+                throw new ArgumentException("The provided project doesn't match the project referenced by the command", nameof(project));
+
+            if (!(project?.TeamCloudId.Equals(teamCloud.Id, StringComparison.Ordinal) ?? true))
+                throw new ArgumentException("The provided TeamCloud instance doesn't match the instance referenced by project", nameof(teamCloud));
+
+            var providerResults = Enumerable.Empty<KeyValuePair<string, TCommandResult>>();
+
+            if (providers.Any())
+            {
+                var providerTasks = providers
+                    .Select(async provider =>
+                    {
+                        var providerResult = (TCommandResult)await functionContext
+                            .SendCommandAsync(command, provider)
+                            .ConfigureAwait(true);
+
+                        return new KeyValuePair<string, TCommandResult>(provider.Id, providerResult);
+                    });
+
+                providerResults = await Task
+                    .WhenAll(providerTasks)
+                    .ConfigureAwait(true);
+            }
+
+            return new Dictionary<string, TCommandResult>(providerResults);
+        }
 
         internal static void SetCustomStatus(this IDurableOrchestrationContext durableOrchestrationContext, object customStatusObject, ILogger log, Exception exception = null)
         {

@@ -4,8 +4,7 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 
@@ -13,37 +12,51 @@ namespace TeamCloud.Orchestration
 {
     public static class RetryOptionsExtensions
     {
-        private static RetryOptions GetFunctionRetryOptions(string functionName)
+        private static RetryOptions GetFunctionRetryOptions(string functionName, IRetryOptionsFactory retryOptionsFactory = null, Func<Exception, bool> handle = null)
         {
-            var retryAttribute = RetryOptionsAttribute.GetByFunctionName(functionName) ?? new RetryOptionsAttribute(1);
+            var factory = retryOptionsFactory ?? RetryOptionsFactory.Default;
+            var options = factory.GetRetryOptions(functionName, handle);
 
-            var retryOptions = new RetryOptions(TimeSpan.Parse(retryAttribute.FirstRetryInterval), retryAttribute.MaxNumberOfAttempts)
-            {
-                MaxRetryInterval = TimeSpan.Parse(retryAttribute.MaxRetryInterval),
-                RetryTimeout = TimeSpan.Parse(retryAttribute.RetryTimeout),
-                BackoffCoefficient = retryAttribute.BackoffCoefficient
-            };
+            Debug.WriteLine($"Function '{functionName}': Calling with a maximum of {options.MaxNumberOfAttempts} attempt/s.");
 
-            return retryOptions;
+            return options;
         }
 
         public static Task CallActivityWithRetryAsync(this IDurableOrchestrationContext orchestration, string functionName, object input)
             => orchestration.CallActivityWithRetryAsync(functionName, GetFunctionRetryOptions(functionName), input);
 
+        public static Task CallActivityWithRetryAsync(this IDurableOrchestrationContext orchestration, string functionName, IRetryOptionsFactory retryOptionsFactory, object input)
+            => orchestration.CallActivityWithRetryAsync(functionName, GetFunctionRetryOptions(functionName, retryOptionsFactory), input);
+
         public static Task<TResult> CallActivityWithRetryAsync<TResult>(this IDurableOrchestrationContext orchestration, string functionName, object input)
             => orchestration.CallActivityWithRetryAsync<TResult>(functionName, GetFunctionRetryOptions(functionName), input);
+
+        public static Task<TResult> CallActivityWithRetryAsync<TResult>(this IDurableOrchestrationContext orchestration, string functionName, IRetryOptionsFactory retryOptionsFactory, object input)
+            => orchestration.CallActivityWithRetryAsync<TResult>(functionName, GetFunctionRetryOptions(functionName, retryOptionsFactory), input);
 
         public static Task CallSubOrchestratorWithRetryAsync(this IDurableOrchestrationContext orchestration, string functionName, object input)
             => orchestration.CallSubOrchestratorWithRetryAsync(functionName, GetFunctionRetryOptions(functionName), input);
 
+        public static Task CallSubOrchestratorWithRetryAsync(this IDurableOrchestrationContext orchestration, string functionName, IRetryOptionsFactory retryOptionsFactory, object input)
+            => orchestration.CallSubOrchestratorWithRetryAsync(functionName, GetFunctionRetryOptions(functionName, retryOptionsFactory), input);
+
         public static Task<TResult> CallSubOrchestratorWithRetryAsync<TResult>(this IDurableOrchestrationContext orchestration, string functionName, object input)
             => orchestration.CallSubOrchestratorWithRetryAsync<TResult>(functionName, GetFunctionRetryOptions(functionName), input);
+
+        public static Task<TResult> CallSubOrchestratorWithRetryAsync<TResult>(this IDurableOrchestrationContext orchestration, string functionName, IRetryOptionsFactory retryOptionsFactory, object input)
+            => orchestration.CallSubOrchestratorWithRetryAsync<TResult>(functionName, GetFunctionRetryOptions(functionName, retryOptionsFactory), input);
 
         public static Task CallSubOrchestratorWithRetryAsync(this IDurableOrchestrationContext orchestration, string functionName, string instanceId, object input)
             => orchestration.CallSubOrchestratorWithRetryAsync(functionName, GetFunctionRetryOptions(functionName), instanceId, input);
 
+        public static Task CallSubOrchestratorWithRetryAsync(this IDurableOrchestrationContext orchestration, string functionName, IRetryOptionsFactory retryOptionsFactory, string instanceId, object input)
+            => orchestration.CallSubOrchestratorWithRetryAsync(functionName, GetFunctionRetryOptions(functionName, retryOptionsFactory), instanceId, input);
+
         public static Task<TResult> CallSubOrchestratorWithRetryAsync<TResult>(this IDurableOrchestrationContext orchestration, string functionName, string instanceId, object input)
             => orchestration.CallSubOrchestratorWithRetryAsync<TResult>(functionName, GetFunctionRetryOptions(functionName), instanceId, input);
+
+        public static Task<TResult> CallSubOrchestratorWithRetryAsync<TResult>(this IDurableOrchestrationContext orchestration, string functionName, IRetryOptionsFactory retryOptionsFactory, string instanceId, object input)
+            => orchestration.CallSubOrchestratorWithRetryAsync<TResult>(functionName, GetFunctionRetryOptions(functionName, retryOptionsFactory), instanceId, input);
 
     }
 }

@@ -11,6 +11,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Azure.Deployment;
 using TeamCloud.Model.Data;
+using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Templates;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Azure
@@ -25,6 +26,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Azure
         }
 
         [FunctionName(nameof(AzureResourceGroupCreateActivity))]
+        [RetryOptions(3)]
         public async Task<AzureResourceGroup> RunActivity(
             [ActivityTrigger] (Project project, Guid subscriptionId) input,
             ILogger log)

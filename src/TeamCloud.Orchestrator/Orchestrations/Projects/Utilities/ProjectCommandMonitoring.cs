@@ -8,8 +8,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using TeamCloud.Orchestration;
 
-namespace TeamCloud.Orchestrator.Orchestrations.Projects
+namespace TeamCloud.Orchestrator.Orchestrations.Projects.Utilities
 {
     public sealed class ProjectCommandNotification
     {
@@ -34,7 +35,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
                 .ConfigureAwait(true);
 
             var active = await functionContext
-                .CallActivityAsync<bool>(nameof(ProjectCommandMonitoringActivity), notification)
+                .CallActivityWithRetryAsync<bool>(nameof(ProjectCommandMonitoringActivity), notification)
                 .ConfigureAwait(true);
 
             if (active)

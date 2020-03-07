@@ -1,10 +1,10 @@
-﻿/**
+/**
  *  Copyright (c) Microsoft Corporation.
  *  Licensed under the MIT License.
  */
 
 using System;
-using System.Threading.Tasks;
+using System.Collections.Generic;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Data;
@@ -12,22 +12,20 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Projects.Activities
 {
-    public class ProjectGetActivity
+    public class ProjectListActivity
     {
         private readonly IProjectsRepository projectsRepository;
 
-        public ProjectGetActivity(IProjectsRepository projectsRepository)
+        public ProjectListActivity(IProjectsRepository projectsRepository)
         {
             this.projectsRepository = projectsRepository ?? throw new ArgumentNullException(nameof(projectsRepository));
         }
 
-        [FunctionName(nameof(ProjectGetActivity))]
-        public async Task<Project> RunActivity(
-            [ActivityTrigger] Guid projectId)
+        [FunctionName(nameof(ProjectListActivity))]
+        public IAsyncEnumerable<Project> RunActivity(
+            [ActivityTrigger] object empty)
         {
-            return await projectsRepository
-                .GetAsync(projectId)
-                .ConfigureAwait(false);
+            return projectsRepository.ListAsync();
         }
     }
 }

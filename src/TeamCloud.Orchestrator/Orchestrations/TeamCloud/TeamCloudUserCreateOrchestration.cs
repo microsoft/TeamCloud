@@ -11,6 +11,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
+using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Orchestrations.Projects.Activities;
 using TeamCloud.Orchestrator.Orchestrations.TeamCloud.Activities;
 
@@ -35,7 +36,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.TeamCloud
                 functionContext.SetCustomStatus($"Creating user.", log);
 
                 var user = await functionContext
-                    .CallActivityAsync<User>(nameof(TeamCloudUserCreateActivity), command.Payload)
+                    .CallActivityWithRetryAsync<User>(nameof(TeamCloudUserCreateActivity), command.Payload)
                     .ConfigureAwait(true);
 
                 if (user.Role == UserRoles.TeamCloud.Admin)
@@ -43,7 +44,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.TeamCloud
                     functionContext.SetCustomStatus("Waiting on project providers to create user.", log);
 
                     var projects = await functionContext
-                        .CallActivityAsync<List<Project>>(nameof(ProjectGetActivity), orchestratorCommand.TeamCloud)
+                        .CallActivityWithRetryAsync<List<Project>>(nameof(ProjectListActivity), orchestratorCommand.TeamCloud)
                         .ConfigureAwait(true);
 
                     // TODO: this should probably be done in parallel

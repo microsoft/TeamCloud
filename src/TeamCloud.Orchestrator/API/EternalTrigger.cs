@@ -58,17 +58,32 @@ namespace TeamCloud.Orchestrator.API
                     .ConfigureAwait(false);
             }
 
+            var orchestrationName = eternalOrchestrationAttribute.OrchestrationName ?? eternalOrchestrationType.Name;
+            var orchestrationStarted = false;
+
             if (eternalOrchestrationStatus?.IsFinalRuntimeStatus() ?? true)
             {
                 // if there is no orchestration status or the existing status
                 // is in a final state we start a new orchestration instance
 
-                var orchestrationName = eternalOrchestrationAttribute.OrchestrationName ?? eternalOrchestrationType.Name;
-
                 log.LogInformation($"Starting new eternal orchstration '{orchestrationName}': {eternalOrchestrationAttribute.InstanceId}");
 
                 await durableClient
                     .StartNewAsync(orchestrationName, eternalOrchestrationAttribute.InstanceId)
+                    .ConfigureAwait(false);
+
+                orchestrationStarted = true;
+            }
+
+            if (!orchestrationStarted && eternalOrchestrationAttribute.RunOnStart)
+            {
+                // if there the eternal orchestration is configured as
+                // RunOnStart we start an independant orchestration instance
+
+                log.LogInformation($"Starting new eternal orchstration '{orchestrationName}': RUN ON START");
+
+                await durableClient
+                    .StartNewAsync(orchestrationName)
                     .ConfigureAwait(false);
             }
         }

@@ -10,7 +10,9 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
+using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Orchestrations.Projects.Activities;
+using TeamCloud.Orchestrator.Orchestrations.Projects.Utilities;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Projects
 {
@@ -43,15 +45,13 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
                 var teamCloud = orchestratorCommand.TeamCloud;
 
                 project = await functionContext
-                    .CallActivityAsync<Project>(nameof(ProjectUpdateActivity), project)
+                    .CallActivityWithRetryAsync<Project>(nameof(ProjectUpdateActivity), project)
                     .ConfigureAwait(true);
 
                 functionContext.SetCustomStatus("Waiting on providers to update project resources.", log);
 
-                var providerCommandTasks = teamCloud.ProvidersFor(project).GetProviderCommandTasks(command, functionContext);
-
-                var providerCommandResultMessages = await Task
-                    .WhenAll(providerCommandTasks)
+                await functionContext
+                    .SendCommandAsync(command)
                     .ConfigureAwait(true);
 
                 functionContext.SetCustomStatus("Project updated.", log);

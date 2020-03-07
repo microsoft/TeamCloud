@@ -11,15 +11,15 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using TeamCloud.Azure;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
+using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Orchestrations.Projects.Activities;
 using TeamCloud.Orchestrator.Orchestrations.Providers.Activities;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Providers
 {
-    [EternalOrchestration(EternalInstanceId)]
+    [EternalOrchestration(EternalInstanceId, RunOnStart = true)]
     public static class ProviderRegisterOrchestration
     {
         public const string EternalInstanceId = "c0ed8d5a-ca7a-4186-84bd-062a8bac0d3a";
@@ -39,75 +39,86 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers
             {
                 var provider = functionContext.GetInput<Provider>();
 
+                functionContext.SetCustomStatus($"Registering providers {provider?.Id ?? "ALL"} ...", log);
+
+                var systemUser = await functionContext
+                    .CallActivityWithRetryAsync<User>(nameof(SystemUserActivity), null)
+                    .ConfigureAwait(true);
+
+                TeamCloudInstance teamCloud = null;
+                IEnumerable<Provider> providers = null;
+
                 if (provider is null)
                 {
-                    functionContext.SetCustomStatus("Registering Providers ...", log);
+                    teamCloud = await functionContext
+                        .CallActivityWithRetryAsync<TeamCloudInstance>(nameof(TeamCloudGetActivity), null)
+                        .ConfigureAwait(true);
+
+                    providers = teamCloud.Providers;
                 }
                 else
                 {
-                    functionContext.SetCustomStatus($"Registering Provider {provider.Id} ...", log);
+                    providers = Enumerable.Repeat(provider, 1);
                 }
 
-                var teamCloud = await functionContext
-                    .CallActivityAsync<TeamCloudInstance>(nameof(TeamCloudGetActivity), null)
-                    .ConfigureAwait(true);
-
-                var systemUser = await functionContext
-                    .CallActivityAsync<User>(nameof(SystemUserActivity), null)
-                    .ConfigureAwait(true);
-
-                var providerCommandTasks = (isEternalInstance || provider is null)
-                    ? GetProviderRegisterCommandTasks(functionContext, teamCloud.Providers, systemUser)
-                    : GetProviderRegisterCommandTasks(functionContext, Enumerable.Repeat(provider, 1), systemUser);
-
-                var providerCommandResults = await Task
-                    .WhenAll(providerCommandTasks)
-                    .ConfigureAwait(true);
-
-                using (await functionContext.LockAsync(teamCloud.GetEntityId()).ConfigureAwait(true))
-                {
-                    // we need to re-get the current TeamCloud instance
-                    // to ensure we update the latest version inside
-                    // our critical section
-
-                    teamCloud = await functionContext
-                        .CallActivityAsync<TeamCloudInstance>(nameof(TeamCloudGetActivity), null)
-                        .ConfigureAwait(true);
-
-                    var providerCommandApplied = false;
-                    var providerCommandExceptions = new List<Exception>();
-
-                    foreach (var providerCommandResult in providerCommandResults)
+                var registerCommandTasks = providers
+                    .Select(async provider =>
                     {
-                        if (providerCommandResult.Errors.Any())
+                        var command = new ProviderRegisterCommand(Guid.NewGuid(), systemUser, new ProviderConfiguration
                         {
-                            providerCommandExceptions.AddRange(providerCommandResult.Errors);
+                            Properties = provider.Properties
+                        });
+
+                        var commandResult = await functionContext
+                            .SendCommandAsync<ProviderRegisterCommandResult>(command, provider)
+                            .ConfigureAwait(true);
+
+                        if (commandResult?.Result is null)
+                        {
+                            throw new NullReferenceException($"Provider '{provider.Id}' registration failed - command result is NULL");
                         }
                         else
                         {
-                            provider = teamCloud.Providers.FirstOrDefault(p => p.Id == providerCommandResult.ProviderId);
+                            teamCloud ??= await functionContext
+                                .CallActivityWithRetryAsync<TeamCloudInstance>(nameof(TeamCloudGetActivity), null)
+                                .ConfigureAwait(true);
 
-                            if (provider != null)
+                            using (await functionContext.LockAsync(teamCloud).ConfigureAwait(true))
                             {
-                                provider.PrincipalId = providerCommandResult.Result.PrincipalId;
-                                provider.Registered = functionContext.CurrentUtcDateTime;
-                                provider.Properties = provider.Properties.Merge(providerCommandResult.Result.Properties);
+                                // we need to re-get the current TeamCloud instance
+                                // to ensure we update the latest version inside
+                                // our critical section - the same is valid for the provider
 
-                                providerCommandApplied = true;
+                                teamCloud = await functionContext
+                                    .CallActivityWithRetryAsync<TeamCloudInstance>(nameof(TeamCloudGetActivity), null)
+                                    .ConfigureAwait(true);
+
+                                provider = teamCloud.Providers
+                                    .FirstOrDefault(p => p.Id == provider.Id);
+
+                                if (provider is null)
+                                {
+                                    log.LogWarning($"Provider '{provider.Id}' registration skipped - provider no longer exists");
+                                }
+                                else
+                                {
+                                    provider.PrincipalId = commandResult.Result.PrincipalId;
+                                    provider.Registered = functionContext.CurrentUtcDateTime;
+                                    provider.Properties = provider.Properties.Merge(commandResult.Result.Properties);
+
+                                    await functionContext
+                                        .CallActivityWithRetryAsync(nameof(TeamCloudSetActivity), teamCloud)
+                                        .ConfigureAwait(true);
+
+                                    functionContext.SetCustomStatus($"Provider '{provider.Id}' registration succeeded", log);
+                                }
                             }
                         }
-                    }
+                    });
 
-                    if (providerCommandApplied)
-                    {
-                        await functionContext
-                            .CallActivityAsync(nameof(TeamCloudSetActivity), teamCloud)
-                            .ConfigureAwait(true);
-                    }
-
-                    if (providerCommandExceptions.Any())
-                        throw new AggregateException(providerCommandExceptions);
-                }
+                await Task
+                    .WhenAll(registerCommandTasks)
+                    .ConfigureAwait(true);
 
                 functionContext.SetCustomStatus($"Provider registration succeeded", log);
             }
@@ -148,17 +159,8 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers
                     functionContext.ContinueAsNew(null);
                 }
             }
+
+
         }
-
-        private static IEnumerable<Task<ProviderRegisterCommandResult>> GetProviderRegisterCommandTasks(IDurableOrchestrationContext context, IEnumerable<Provider> providers, User user)
-            => providers.Select(provider =>
-            {
-                var command = new ProviderRegisterCommand(Guid.NewGuid(), provider.Id, user, new ProviderConfiguration
-                {
-                    Properties = provider.Properties
-                });
-
-                return context.CallSubOrchestratorAsync<ProviderRegisterCommandResult>(nameof(ProviderCommandOrchestration), (provider, command));
-            });
     }
 }

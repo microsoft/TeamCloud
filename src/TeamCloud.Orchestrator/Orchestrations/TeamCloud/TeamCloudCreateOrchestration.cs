@@ -9,6 +9,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
+using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Orchestrations.Providers;
 using TeamCloud.Orchestrator.Orchestrations.TeamCloud.Activities;
 
@@ -29,7 +30,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.TeamCloud
             var command = orchestratorCommand.Command as TeamCloudCreateCommand;
 
             var teamCloud = await functionContext
-                .CallActivityAsync<TeamCloudInstance>(nameof(TeamCloudCreateActivity), command.Payload)
+                .CallActivityWithRetryAsync<TeamCloudInstance>(nameof(TeamCloudCreateActivity), command.Payload)
                 .ConfigureAwait(true);
 
             var commandResult = command.CreateResult();

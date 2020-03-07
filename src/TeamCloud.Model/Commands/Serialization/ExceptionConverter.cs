@@ -4,7 +4,6 @@
  */
 
 using System;
-using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -26,7 +25,7 @@ namespace TeamCloud.Model.Commands.Serialization
 
         public override void WriteJson(JsonWriter writer, Exception value, JsonSerializer serializer)
         {
-            if (value.GetType().GetCustomAttribute<SerializableAttribute>() is null)
+            if (!value.IsJsonSerializable())
             {
                 var serializableException = value is null
                     ? default(CommandException)

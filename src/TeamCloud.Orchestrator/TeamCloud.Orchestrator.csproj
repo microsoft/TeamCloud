@@ -53,6 +53,7 @@
     <ProjectReference Include="..\TeamCloud.Data\TeamCloud.Data.csproj" />
     <ProjectReference Include="..\TeamCloud.Http\TeamCloud.Http.csproj" />
     <ProjectReference Include="..\TeamCloud.Model\TeamCloud.Model.csproj" />
+    <ProjectReference Include="..\TeamCloud.Orchestration\TeamCloud.Orchestration.csproj" />
   </ItemGroup>
   
   <ItemGroup>

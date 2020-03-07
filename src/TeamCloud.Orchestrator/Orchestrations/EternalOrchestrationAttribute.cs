@@ -21,5 +21,7 @@ namespace TeamCloud.Orchestrator.Orchestrations
         public string InstanceId { get; }
 
         public string OrchestrationName { get; set; }
+
+        public bool RunOnStart { get; set; }
     }
 }

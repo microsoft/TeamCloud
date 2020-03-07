@@ -9,6 +9,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
+using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Orchestrations.Providers;
 using TeamCloud.Orchestrator.Orchestrations.TeamCloud.Activities;
 
@@ -31,7 +32,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.TeamCloud
             try
             {
                 var provider = commandResult.Result = await functionContext
-                    .CallActivityAsync<Provider>(nameof(ProviderDeleteActivity), command.Payload)
+                    .CallActivityWithRetryAsync<Provider>(nameof(ProviderDeleteActivity), command.Payload)
                     .ConfigureAwait(true);
 
                 functionContext.StartNewOrchestration(nameof(ProviderRegisterOrchestration), null);

@@ -8,9 +8,10 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
+using TeamCloud.Orchestration;
 using TeamCloud.Model.Commands;
 
-namespace TeamCloud.Orchestrator.Orchestrations.Projects
+namespace TeamCloud.Orchestrator.Orchestrations.Projects.Utilities
 {
     public static class ProjectCommandSerialization
     {
@@ -47,7 +48,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
                     };
 
                     var waitForExternalEvent = await context
-                        .CallActivityAsync<bool>(nameof(ProjectCommandSerializationActivity), notification)
+                        .CallActivityWithRetryAsync<bool>(nameof(ProjectCommandSerializationActivity), notification)
                         .ConfigureAwait(true);
 
                     if (waitForExternalEvent)
@@ -138,7 +139,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
                 throw new ArgumentNullException(nameof(command));
 
             if (command.ProjectId.HasValue)
-                return context.CallSubOrchestratorAsync(nameof(ProjectCommandSerialization.ProjectCommandSerializationOrchestrator), command);
+                return context.CallSubOrchestratorWithRetryAsync(nameof(ProjectCommandSerialization.ProjectCommandSerializationOrchestrator), command);
 
             return Task.CompletedTask;
         }

@@ -10,7 +10,9 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
+using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Orchestrations.Projects.Activities;
+using TeamCloud.Orchestrator.Orchestrations.Projects.Utilities;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Projects
 {
@@ -39,7 +41,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
                 functionContext.SetCustomStatus($"Updating user.", log);
 
                 var user = await functionContext
-                    .CallActivityAsync<User>(nameof(ProjectUserUpdateActivity), (command.ProjectId.Value, command.Payload))
+                    .CallActivityWithRetryAsync<User>(nameof(ProjectUserUpdateActivity), (command.ProjectId.Value, command.Payload))
                     .ConfigureAwait(true);
 
                 functionContext.SetCustomStatus("Waiting on providers to update user.", log);
