@@ -15,7 +15,7 @@ namespace TeamCloud.Model.Validation.Tests.Commands
         [Fact]
         public void Validate_Success()
         {
-            var command = new ProjectCreateCommand(new User(), new Project());
+            var command = new OrchestratorProjectCreateCommand(new User(), new Project());
 
             var result = command.Validate();
 
@@ -25,7 +25,7 @@ namespace TeamCloud.Model.Validation.Tests.Commands
         [Fact]
         public async Task ValidateAsync_Success()
         {
-            var command = new ProjectCreateCommand(new User(), new Project());
+            var command = new OrchestratorProjectCreateCommand(new User(), new Project());
 
             var result = await command.ValidateAsync();
 
@@ -35,7 +35,7 @@ namespace TeamCloud.Model.Validation.Tests.Commands
         [Fact]
         public void Validate_Error()
         {
-            var command = new ProjectCreateCommand(null, new Project());
+            var command = new OrchestratorProjectCreateCommand(null, new Project());
 
             var result = command.Validate();
 
@@ -45,7 +45,7 @@ namespace TeamCloud.Model.Validation.Tests.Commands
         [Fact]
         public async Task ValidateAsync_Error()
         {
-            var command = new ProjectCreateCommand(null, new Project());
+            var command = new OrchestratorProjectCreateCommand(null, new Project());
 
             var result = await command.ValidateAsync();
 

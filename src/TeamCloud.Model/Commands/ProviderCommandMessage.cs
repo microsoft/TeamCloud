@@ -4,19 +4,21 @@
  */
 
 using System;
+using TeamCloud.Model.Commands.Core;
 
 namespace TeamCloud.Model.Commands
 {
     public class ProviderCommandMessage : CommandMessage
     {
-        public string CallbackUrl { get; set; }
 
         public ProviderCommandMessage() { }
 
-        public ProviderCommandMessage(ICommand command, string callbackUrl)
+        public ProviderCommandMessage(IProviderCommand command, string callbackUrl)
         {
             Command = command ?? throw new ArgumentNullException(nameof(command));
             CallbackUrl = callbackUrl ?? throw new ArgumentNullException(nameof(callbackUrl));
         }
+
+        public string CallbackUrl { get; set; }
     }
 }

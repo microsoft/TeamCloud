@@ -11,6 +11,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using TeamCloud.Model.Commands;
+using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Orchestrations.Commands;
@@ -45,16 +46,26 @@ namespace TeamCloud.Orchestrator
 
         internal static ICommandResult CreateResult(this ICommand command, DurableOrchestrationStatus orchestrationStatus)
         {
+            if (orchestrationStatus is null)
+                throw new ArgumentNullException(nameof(orchestrationStatus));
+
             var result = (orchestrationStatus.Output?.HasValues ?? false) ? orchestrationStatus.Output.ToObject<ICommandResult>() : command.CreateResult();
 
-            result.CreatedTime = orchestrationStatus.CreatedTime;
-            result.LastUpdatedTime = orchestrationStatus.LastUpdatedTime;
-            result.RuntimeStatus = (CommandRuntimeStatus)orchestrationStatus.RuntimeStatus;
-            result.CustomStatus = orchestrationStatus.CustomStatus?.ToString();
-
-            return result;
+            return result.ApplyStatus(orchestrationStatus);
         }
 
+        internal static ICommandResult ApplyStatus(this ICommandResult commandResult, DurableOrchestrationStatus orchestrationStatus)
+        {
+            if (orchestrationStatus is null)
+                throw new ArgumentNullException(nameof(orchestrationStatus));
+
+            commandResult.CreatedTime = orchestrationStatus.CreatedTime;
+            commandResult.LastUpdatedTime = orchestrationStatus.LastUpdatedTime;
+            commandResult.RuntimeStatus = (CommandRuntimeStatus)orchestrationStatus.RuntimeStatus;
+            commandResult.CustomStatus = orchestrationStatus.CustomStatus?.ToString();
+
+            return commandResult;
+        }
         internal static ICommandResult GetCommandResult(this DurableOrchestrationStatus orchestrationStatus)
         {
             if (orchestrationStatus.Output?.HasValues ?? false)
@@ -112,10 +123,10 @@ namespace TeamCloud.Orchestrator
         internal static DateTime NextHour(this DateTime dateTime)
              => dateTime.Date.AddHours(dateTime.Hour + 1);
 
-        internal static Task<ICommandResult> SendCommandAsync(this IDurableOrchestrationContext functionContext, ICommand command, Provider provider)
+        internal static Task<ICommandResult> SendCommandAsync(this IDurableOrchestrationContext functionContext, IProviderCommand command, Provider provider)
             => functionContext.SendCommandAsync<ICommandResult>(command, provider);
 
-        internal static async Task<TCommandResult> SendCommandAsync<TCommandResult>(this IDurableOrchestrationContext functionContext, ICommand command, Provider provider)
+        internal static async Task<TCommandResult> SendCommandAsync<TCommandResult>(this IDurableOrchestrationContext functionContext, IProviderCommand command, Provider provider)
             where TCommandResult : ICommandResult
         {
             if (command is null)
@@ -131,10 +142,10 @@ namespace TeamCloud.Orchestrator
             return providerResult;
         }
 
-        internal static Task<IDictionary<string, ICommandResult>> SendCommandAsync(this IDurableOrchestrationContext functionContext, ICommand command, Project project = null, TeamCloudInstance teamCloud = null)
+        internal static Task<IDictionary<string, ICommandResult>> SendCommandAsync(this IDurableOrchestrationContext functionContext, IProviderCommand command, Project project = null, TeamCloudInstance teamCloud = null)
             => functionContext.SendCommandAsync<ICommandResult>(command, project, teamCloud);
 
-        internal static async Task<IDictionary<string, TCommandResult>> SendCommandAsync<TCommandResult>(this IDurableOrchestrationContext functionContext, ICommand command, Project project = null, TeamCloudInstance teamCloud = null)
+        internal static async Task<IDictionary<string, TCommandResult>> SendCommandAsync<TCommandResult>(this IDurableOrchestrationContext functionContext, IProviderCommand command, Project project = null, TeamCloudInstance teamCloud = null)
             where TCommandResult : ICommandResult
         {
             if (command is null)

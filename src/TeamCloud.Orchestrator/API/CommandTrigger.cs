@@ -4,20 +4,18 @@
  */
 
 using System;
-using System.IO;
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using TeamCloud.Data;
+using TeamCloud.Http;
 using TeamCloud.Model.Commands;
-using TeamCloud.Orchestrator.Orchestrations.Projects;
-using TeamCloud.Orchestrator.Orchestrations.Providers;
-using TeamCloud.Orchestrator.Orchestrations.TeamCloud;
+using TeamCloud.Model.Commands.Core;
 
 namespace TeamCloud.Orchestrator
 {
@@ -33,8 +31,8 @@ namespace TeamCloud.Orchestrator
         }
 
         [FunctionName(nameof(CommandTrigger))]
-        public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "command")] HttpRequest httpRequest,
+        public async Task<IActionResult> RunTrigger(
+            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "command")] HttpRequestMessage httpRequest,
             [DurableClient] IDurableClient durableClient,
             ILogger log)
         {
@@ -44,66 +42,61 @@ namespace TeamCloud.Orchestrator
             if (durableClient is null)
                 throw new ArgumentNullException(nameof(durableClient));
 
-            var requestBody = await new StreamReader(httpRequest.Body)
-                .ReadToEndAsync()
+            var teamCloud = await teamCloudRepository
+                .GetAsync()
                 .ConfigureAwait(false);
 
-            var command = JsonConvert.DeserializeObject<ICommand>(requestBody);
+            var orchestratorCommand = await httpRequest.Content
+                .ReadAsJsonAsync<IOrchestratorCommand>()
+                .ConfigureAwait(false);
 
-            var orchestratorCommand = new OrchestratorCommandMessage(command);
-
-            var orchestrationName = OrchestrationName(command);
-
-            log.LogDebug("Orchestrator triggered, running {orchestrationName}", orchestrationName);
-
-            // teamcloud instance won't exist yet for CreateTeamCloudCommand
-            if (orchestrationName != nameof(TeamCloudCreateOrchestration))
+            if (orchestratorCommand is OrchestratorTeamCloudCreateCommand)
             {
-                var teamCloud = await teamCloudRepository
-                    .GetAsync()
-                    .ConfigureAwait(false);
-
+                if (teamCloud != null)
+                    return new ConflictResult();
+            }
+            else
+            {
                 if (teamCloud is null)
-                    throw new NullReferenceException();
-
-                orchestratorCommand.TeamCloud = teamCloud;
+                    return new StatusCodeResult((int)HttpStatusCode.ServiceUnavailable);
             }
 
-            var commandResult = await SendCommand(durableClient, orchestratorCommand, orchestrationName)
+            var commandResult = await StartCommandOrchestration(durableClient, orchestratorCommand)
                 .ConfigureAwait(false);
 
             return new OkObjectResult(commandResult);
         }
 
-        private static string OrchestrationName(ICommand command) => (command) switch
+        private static async Task<ICommandResult> StartCommandOrchestration(IDurableClient durableClient, IOrchestratorCommand orchestratorCommand)
         {
-            ProjectCreateCommand _ => nameof(ProjectCreateOrchestration),
-            ProjectUpdateCommand _ => nameof(ProjectUpdateOrchestration),
-            ProjectDeleteCommand _ => nameof(ProjectDeleteOrchestration),
-            ProjectUserCreateCommand _ => nameof(ProjectUserCreateOrchestration),
-            ProjectUserUpdateCommand _ => nameof(ProjectUserUpdateOrchestration),
-            ProjectUserDeleteCommand _ => nameof(ProjectUserDeleteOrchestration),
-            ProviderCreateCommand _ => nameof(ProviderCreateOrchestration),
-            ProviderUpdateCommand _ => nameof(ProviderUpdateOrchestration),
-            ProviderDeleteCommand _ => nameof(ProviderDeleteOrchestration),
-            TeamCloudCreateCommand _ => nameof(TeamCloudCreateOrchestration),
-            TeamCloudUserCreateCommand _ => nameof(TeamCloudUserCreateOrchestration),
-            TeamCloudUserUpdateCommand _ => nameof(TeamCloudUserUpdateOrchestration),
-            TeamCloudUserDeleteCommand _ => nameof(TeamCloudUserDeleteOrchestration),
-            _ => throw new NotSupportedException()
-        };
+            var orchestratorCommandMessage = new OrchestratorCommandMessage(orchestratorCommand);
+            var orchestratorCommandResult = orchestratorCommand.CreateResult();
 
-        private static async Task<ICommandResult> SendCommand(IDurableClient durableClient, OrchestratorCommandMessage orchestratorCommand, string orchestrationName)
-        {
-            var instanceId = await durableClient
-                .StartNewAsync<object>(orchestrationName, orchestratorCommand.CommandId.ToString(), orchestratorCommand)
-                .ConfigureAwait(false);
+            var orchestratorCommandOrchestration = orchestratorCommand switch
+            {
+                _ => $"{orchestratorCommand.GetType().Name}Orchestration"
+            };
 
-            var status = await durableClient
-                .GetStatusAsync(instanceId)
-                .ConfigureAwait(false);
+            try
+            {
+                var instanceId = await durableClient
+                    .StartNewAsync<object>(orchestratorCommandOrchestration, orchestratorCommand.CommandId.ToString(), orchestratorCommandMessage)
+                    .ConfigureAwait(false);
 
-            return orchestratorCommand.Command.CreateResult(status);
+                var status = await durableClient
+                    .GetStatusAsync(instanceId)
+                    .ConfigureAwait(false);
+
+                orchestratorCommandResult.ApplyStatus(status);
+            }
+            catch (FunctionFailedException exc)
+            {
+                orchestratorCommandResult.Errors.Add(exc);
+            }
+
+            return orchestratorCommandResult;
         }
+
+
     }
 }

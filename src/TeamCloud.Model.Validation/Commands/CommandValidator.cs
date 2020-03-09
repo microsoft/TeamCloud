@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using FluentValidation;
-using TeamCloud.Model.Commands;
+using TeamCloud.Model.Commands.Core;
 
 namespace TeamCloud.Model.Validation.Commands
 {

@@ -132,7 +132,7 @@ namespace TeamCloud.API.Controllers
                     .Conflict($"A Provider with the ID '{provider.Id}' already exists on this TeamCloud Instance. Please try your request again with a unique ID or call PUT to update the existing Provider.")
                     .ActionResult();
 
-            var command = new ProviderCreateCommand(CurrentUser, provider);
+            var command = new OrchestratorProviderCreateCommand(CurrentUser, provider);
 
             var commandResult = await orchestrator
                 .InvokeAsync(command)
@@ -179,7 +179,7 @@ namespace TeamCloud.API.Controllers
                     .NotFound($"A Provider with the ID '{provider.Id}' could not be found on this TeamCloud Instance.")
                     .ActionResult();
 
-            var command = new ProviderUpdateCommand(CurrentUser, provider);
+            var command = new OrchestratorProviderUpdateCommand(CurrentUser, provider);
 
             var commandResult = await orchestrator
                 .InvokeAsync(command)
@@ -240,7 +240,7 @@ namespace TeamCloud.API.Controllers
                         .BadRequest("Cannot delete Providers being used by existing Projects", ResultErrorCodes.ValidationError)
                         .ActionResult();
 
-            var command = new ProviderDeleteCommand(CurrentUser, provider);
+            var command = new OrchestratorProviderDeleteCommand(CurrentUser, provider);
 
             var commandResult = await orchestrator
                 .InvokeAsync(command)

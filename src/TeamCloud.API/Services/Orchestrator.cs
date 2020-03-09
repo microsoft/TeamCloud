@@ -11,6 +11,7 @@ using Flurl.Http;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using TeamCloud.Model.Commands;
+using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 
 namespace TeamCloud.API.Services
@@ -37,21 +38,30 @@ namespace TeamCloud.API.Services
         {
             var baseUrl = httpContextAccessor.HttpContext.GetApplicationBaseUrl();
 
-            if (projectId.HasValue && !projectId.Value.Equals(Guid.Empty))
+            if (projectId.HasValue)
             {
                 commandResult.Links.Add("status", new Uri(baseUrl, $"api/projects/{projectId}/status/{commandResult.CommandId}").ToString());
-                commandResult.Links.Add("project", new Uri(baseUrl, $"api/projects/{projectId}").ToString());
             }
             else
             {
                 commandResult.Links.Add("status", new Uri(baseUrl, $"api/status/{commandResult.CommandId}").ToString());
             }
 
-            var locationPath = commandResult.LocationPath(projectId);
-
-            if (!string.IsNullOrEmpty(locationPath))
+            if (commandResult is OrchestratorTeamCloudCreateCommandResult)
             {
-                commandResult.Links.Add("location", new Uri(baseUrl, locationPath).ToString());
+                commandResult.Links.Add("location", new Uri(baseUrl, "api/config").ToString());
+            }
+            else if (commandResult is ICommandResult<User> commandResultUserWithProject && projectId.HasValue)
+            {
+                commandResult.Links.Add("location", new Uri(baseUrl, $"api/projects/{projectId}/users/{commandResultUserWithProject.Result?.Id}").ToString());
+            }
+            else if (commandResult is ICommandResult<User> commandResultUserWithoutProject)
+            {
+                commandResult.Links.Add("location", new Uri(baseUrl, $"api/users/{commandResultUserWithoutProject.Result?.Id}").ToString());
+            }
+            else if (projectId.HasValue)
+            {
+                commandResult.Links.Add("location", new Uri(baseUrl, "api/projects/{projectId}").ToString());
             }
         }
 

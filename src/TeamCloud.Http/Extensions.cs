@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -16,6 +17,7 @@ using Flurl.Http;
 using Flurl.Http.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace TeamCloud.Http
@@ -63,5 +65,21 @@ namespace TeamCloud.Http
 
             return match.Success && (new string[] { "{}", "[]" }).Contains($"{match.Groups[1].Value}{match.Groups[2].Value}");
         }
+
+        public static async Task<JObject> ReadAsJsonAsync(this HttpContent httpContent)
+        {
+            using var stream = await httpContent
+                .ReadAsStreamAsync()
+                .ConfigureAwait(false);
+
+            var streamReader = new StreamReader(stream);
+            var jsonReader = new JsonTextReader(streamReader);
+
+            return JObject.Load(jsonReader);
+        }
+
+        public static Task<T> ReadAsJsonAsync<T>(this HttpContent httpContent)
+            => httpContent.ReadAsJsonAsync().ContinueWith((json) => json.Result.ToObject<T>(), TaskContinuationOptions.OnlyOnRanToCompletion);
+
     }
 }

@@ -9,6 +9,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Model.Commands;
+using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Orchestrations.Azure;
@@ -27,31 +28,31 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
 
-            var (command, provider) = functionContext.GetInput<(ICommand, Provider)>();
+            var (providerCommand, provider) = functionContext.GetInput<(IProviderCommand, Provider)>();
 
-            await RegisterProviderAsync(functionContext, command, provider, log)
+            await RegisterProviderAsync(functionContext, providerCommand, provider, log)
                 .ConfigureAwait(true);
 
-            if (command.ProjectId.HasValue && provider.PrincipalId.HasValue)
+            if (providerCommand.ProjectId.HasValue && provider.PrincipalId.HasValue)
             {
                 // ensure the provider we are going to
                 // use has contributor access on the
                 // project's resource group
 
                 await functionContext
-                    .CallActivityWithRetryAsync(nameof(AzureResourceGroupContributorActivity), (command.ProjectId.Value, provider.PrincipalId.Value))
+                    .CallActivityWithRetryAsync(nameof(AzureResourceGroupContributorActivity), (providerCommand.ProjectId.Value, provider.PrincipalId.Value))
                     .ConfigureAwait(true);
             }
 
             var callbackUrl = await functionContext
-                .CallActivityWithRetryAsync<string>(nameof(CommandCallbackActivity), (functionContext.InstanceId, command))
+                .CallActivityWithRetryAsync<string>(nameof(CommandCallbackActivity), (functionContext.InstanceId, providerCommand))
                 .ConfigureAwait(true);
 
-            var commandResult = command.CreateResult();
+            var commandResult = providerCommand.CreateResult();
 
             try
             {
-                var commandMessage = new ProviderCommandMessage(command, callbackUrl);
+                var commandMessage = new ProviderCommandMessage(providerCommand, callbackUrl);
 
                 commandResult = await functionContext
                     .CallActivityWithRetryAsync<ICommandResult>(nameof(CommandSendActivity), (provider, commandMessage))
@@ -62,10 +63,10 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                     // the command result has no final runtime status, so we 
                     // need to wait for the final result as an external event
 
-                    functionContext.SetCustomStatus($"Waiting for external event: Command={command.CommandId} Provider={provider.Id} Callback={callbackUrl}", log);
+                    functionContext.SetCustomStatus($"Waiting for external event: Command={providerCommand.CommandId} Provider={provider.Id} Callback={callbackUrl}", log);
 
                     commandResult = await functionContext
-                        .WaitForExternalEvent<ICommandResult>(command.CommandId.ToString(), TimeSpan.FromMinutes(30), null)
+                        .WaitForExternalEvent<ICommandResult>(providerCommand.CommandId.ToString(), TimeSpan.FromMinutes(30), null)
                         .ConfigureAwait(true);
                 }
             }
@@ -77,13 +78,13 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
             return commandResult;
         }
 
-        private static Task RegisterProviderAsync(IDurableOrchestrationContext functionContext, ICommand command, Provider provider, ILogger log)
+        private static Task RegisterProviderAsync(IDurableOrchestrationContext functionContext, IProviderCommand providerCommand, Provider provider, ILogger log)
         {
-            if (command is ProviderRegisterCommand || provider.Registered.HasValue)
+            if (providerCommand is ProviderRegisterCommand || provider.Registered.HasValue)
                 return Task.CompletedTask;
 
             return functionContext
-                .CallSubOrchestratorWithRetryAsync(nameof(ProviderRegisterOrchestration), provider);
+                .CallSubOrchestratorWithRetryAsync(nameof(OrchestratorProviderRegisterOrchestration), provider);
         }
     }
 }

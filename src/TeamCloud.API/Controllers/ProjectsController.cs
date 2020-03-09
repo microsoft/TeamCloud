@@ -186,7 +186,7 @@ namespace TeamCloud.API.Controllers
                         .ActionResult();
             }
 
-            var command = new ProjectCreateCommand(CurrentUser, project);
+            var command = new OrchestratorProjectCreateCommand(CurrentUser, project);
 
             var commandResult = await orchestrator
                 .InvokeAsync(command)
@@ -233,7 +233,7 @@ namespace TeamCloud.API.Controllers
                     .NotFound($"A Project with the identifier '{projectNameOrId}' could not be found in this TeamCloud Instance")
                     .ActionResult();
 
-            var command = new ProjectDeleteCommand(CurrentUser, project);
+            var command = new OrchestratorProjectDeleteCommand(CurrentUser, project);
 
             var commandResult = await orchestrator
                 .InvokeAsync(command)

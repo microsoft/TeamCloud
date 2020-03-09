@@ -155,7 +155,7 @@ namespace TeamCloud.API
                     .Conflict($"A User with the Email '{userDefinition.Email}' already exists on this TeamCloud Instance. Please try your request again with a unique email or call PUT to update the existing User.")
                     .ActionResult();
 
-            var command = new TeamCloudUserCreateCommand(CurrentUser, newUser);
+            var command = new OrchestratorTeamCloudUserCreateCommand(CurrentUser, newUser);
 
             var commandResult = await orchestrator
                 .InvokeAsync(command)
@@ -202,7 +202,7 @@ namespace TeamCloud.API
                     .NotFound($"A User with the ID '{oldUser.Id}' could not be found on this TeamCloud Instance.")
                     .ActionResult();
 
-            var command = new TeamCloudUserUpdateCommand(CurrentUser, user);
+            var command = new OrchestratorTeamCloudUserUpdateCommand(CurrentUser, user);
 
             var commandResult = await orchestrator
                 .InvokeAsync(command)
@@ -259,7 +259,7 @@ namespace TeamCloud.API
                     .NotFound($"The specified User could not be found in this TeamCloud Instance.")
                     .ActionResult();
 
-            var command = new TeamCloudUserDeleteCommand(CurrentUser, user);
+            var command = new OrchestratorTeamCloudUserDeleteCommand(CurrentUser, user);
 
             var commandResult = await orchestrator
                 .InvokeAsync(command)

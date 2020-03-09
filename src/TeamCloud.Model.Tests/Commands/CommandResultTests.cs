@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Flurl.Http;
 using Newtonsoft.Json;
-using TeamCloud.Model.Commands;
+using TeamCloud.Model.Commands.Core;
 using Xunit;
 
 namespace TeamCloud.Model

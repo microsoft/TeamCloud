@@ -106,7 +106,7 @@ namespace TeamCloud.API.Controllers
                     .Conflict("A TeamCloud Instance already existis.")
                     .ActionResult();
 
-            var command = new TeamCloudCreateCommand(CurrentUser, teamCloudConfiguraiton);
+            var command = new OrchestratorTeamCloudCreateCommand(CurrentUser, teamCloudConfiguraiton);
 
             var commandResult = await orchestrator
                 .InvokeAsync(command)

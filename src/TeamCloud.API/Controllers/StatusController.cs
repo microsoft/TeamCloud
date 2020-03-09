@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TeamCloud.API.Data;
 using TeamCloud.API.Services;
-using TeamCloud.Model.Commands;
+using TeamCloud.Model.Commands.Core;
 
 namespace TeamCloud.API.Controllers
 {

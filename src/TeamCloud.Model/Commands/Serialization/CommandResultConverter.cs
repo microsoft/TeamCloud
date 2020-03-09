@@ -6,6 +6,7 @@
 using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using TeamCloud.Model.Commands.Core;
 
 namespace TeamCloud.Model.Commands.Serialization
 {

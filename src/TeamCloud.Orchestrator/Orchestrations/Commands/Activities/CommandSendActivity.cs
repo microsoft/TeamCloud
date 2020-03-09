@@ -14,6 +14,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using TeamCloud.Model.Commands;
+using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestration.Serialization;
@@ -41,7 +42,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands.Activities
                 providerUrl = providerUrl.AppendPathSegment("api/command");
             }
 
-            var logMessage = new StringBuilder($"Sending command {input.message.CommandId}");
+            var logMessage = new StringBuilder($"Sending command {input.message.CommandId} ({input.message.CommandType})");
             logMessage.AppendLine($"Url:    {providerUrl}");
             logMessage.AppendLine($"Payload:{JsonConvert.SerializeObject(input.message)}");
             log.LogInformation(logMessage.ToString());
