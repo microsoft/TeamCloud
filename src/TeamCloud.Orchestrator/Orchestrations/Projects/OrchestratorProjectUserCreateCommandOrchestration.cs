@@ -1,4 +1,4 @@
-﻿/**
+/**
  *  Copyright (c) Microsoft Corporation.
  *  Licensed under the MIT License.
  */
@@ -16,9 +16,9 @@ using TeamCloud.Orchestrator.Orchestrations.Projects.Utilities;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Projects
 {
-    public static class OrchestratorProjectUserUpdateOrchestration
+    public static class OrchestratorProjectUserCreateCommandOrchestration
     {
-        [FunctionName(nameof(OrchestratorProjectUserUpdateOrchestration))]
+        [FunctionName(nameof(OrchestratorProjectUserCreateCommandOrchestration))]
         public static async Task RunOrchestration(
             [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
             ILogger log)
@@ -27,7 +27,8 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
                 throw new ArgumentNullException(nameof(functionContext));
 
             var orchestratorCommand = functionContext.GetInput<OrchestratorCommandMessage>();
-            var command = orchestratorCommand.Command as OrchestratorProjectUserDeleteCommand;
+
+            var command = (OrchestratorProjectUserCreateCommand)orchestratorCommand.Command;
             var commandResult = command.CreateResult();
 
             try
@@ -38,23 +39,23 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
                     .WaitForProjectCommandsAsync(command)
                     .ConfigureAwait(true);
 
-                functionContext.SetCustomStatus($"Updating user.", log);
+                functionContext.SetCustomStatus($"Creating user.", log);
 
                 var user = await functionContext
-                    .CallActivityWithRetryAsync<User>(nameof(ProjectUserUpdateActivity), (command.ProjectId.Value, command.Payload))
+                    .CallActivityWithRetryAsync<User>(nameof(ProjectUserCreateActivity), (command.ProjectId.Value, command.Payload))
                     .ConfigureAwait(true);
 
-                functionContext.SetCustomStatus("Waiting on providers to update user.", log);
+                functionContext.SetCustomStatus("Waiting on providers to create user.", log);
 
                 // TODO: call set users on all providers (or project update for now)
 
                 commandResult.Result = user;
 
-                functionContext.SetCustomStatus($"User updated.", log);
+                functionContext.SetCustomStatus($"User created.", log);
             }
             catch (Exception ex)
             {
-                functionContext.SetCustomStatus("Failed to update user.", log, ex);
+                functionContext.SetCustomStatus("Failed to create user.", log, ex);
 
                 commandResult.Errors.Add(ex);
 

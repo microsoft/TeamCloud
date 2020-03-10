@@ -16,12 +16,13 @@ using TeamCloud.Orchestrator.Orchestrations.Azure;
 using TeamCloud.Orchestrator.Orchestrations.Projects.Activities;
 using TeamCloud.Orchestrator.Orchestrations.Projects.Utilities;
 using TeamCloud.Orchestrator.Orchestrations.Providers.Activities;
+using TeamCloud.Orchestrator.Orchestrations.TeamCloud.Activities;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Projects
 {
-    public static class OrchestratorProjectCreateOrchestration
+    public static class OrchestratorProjectCreateCommandOrchestration
     {
-        [FunctionName(nameof(OrchestratorProjectCreateOrchestration))]
+        [FunctionName(nameof(OrchestratorProjectCreateCommandOrchestration))]
         public static async Task RunOrchestration(
             [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
             ILogger log)
@@ -44,30 +45,61 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
                     .WaitForProjectCommandsAsync(command)
                     .ConfigureAwait(true);
 
-                project.TeamCloudId = commandMessage.TeamCloud.Id;
-                project.Tags = commandMessage.TeamCloud.Tags.Merge(project.Tags);
-                project.Properties = commandMessage.TeamCloud.Properties.Merge(project.Properties);
+                var teamCloud = await functionContext
+                    .GetTeamCloudAsync()
+                    .ConfigureAwait(true);
 
-                functionContext.SetCustomStatus($"Creating project ...", log);
+                project.TeamCloudId = teamCloud.Id;
+                project.Tags = teamCloud.Tags.Merge(project.Tags);
+                project.Properties = teamCloud.Properties.Merge(project.Properties);
+
+                functionContext.SetCustomStatus($"Project {project.Id} - Creating ...", log);
 
                 project = await functionContext
                     .CallActivityWithRetryAsync<Project>(nameof(ProjectCreateActivity), project)
                     .ConfigureAwait(true);
 
-                functionContext.SetCustomStatus($"Creating project resources ...", log);
+                functionContext.SetCustomStatus($"Project {project.Id} - Allocating subscription ...", log);
 
-                project = await CreateProjectResourcesAsync(functionContext, project)
+                var subscriptionId = await functionContext
+                    .CallActivityWithRetryAsync<Guid>(nameof(AzureSubscriptionPoolSelectActivity), project)
                     .ConfigureAwait(true);
 
-                var providerCommand = command is IOrchestratorCommandConvert commandConvert
-                    ? commandConvert.CreateProviderCommand()
+                functionContext.SetCustomStatus($"Project {project.Id} - Provisioning resource group ...", log);
+
+                project.ResourceGroup = await functionContext
+                    .CallActivityWithRetryAsync<AzureResourceGroup>(nameof(AzureResourceGroupCreateActivity), (project, subscriptionId))
+                    .ConfigureAwait(true);
+
+                functionContext.SetCustomStatus($"Project {project.Id} - Updating resource group tags ...", log);
+
+                await functionContext
+                    .CallActivityWithRetryAsync(nameof(AzureResourceGroupTagActivity), project)
+                    .ConfigureAwait(true);
+
+                functionContext.SetCustomStatus($"Project {project.Id} - Updating ...", log);
+
+                project = await functionContext
+                    .CallActivityWithRetryAsync<Project>(nameof(ProjectUpdateActivity), project)
+                    .ConfigureAwait(true);
+
+                functionContext.SetCustomStatus($"Project {project.Id} - Preparing provider command ...", log);
+
+                var providerCommand = command is IOrchestratorCommandConvert<Project> commandConvert
+                    ? commandConvert.CreateProviderCommand(project)
                     : throw new NotSupportedException($"Unable to convert command of type '{command.GetType()}' to '{typeof(IProviderCommand)}'");
 
+                functionContext.SetCustomStatus($"Project {project.Id} - Sending provider command ...", log);
+
                 var providerResults = await functionContext
-                    .SendCommandAsync<ICommandResult<ProviderOutput>>(providerCommand, project, commandMessage.TeamCloud)
+                    .SendCommandAsync<ICommandResult<ProviderOutput>>(providerCommand, project)
                     .ConfigureAwait(true);
 
                 project.Merge(providerResults);
+
+                project = await functionContext
+                    .CallActivityWithRetryAsync<Project>(nameof(ProjectUpdateActivity), project)
+                    .ConfigureAwait(true);
 
                 commandResult.Result = project;
             }
@@ -99,31 +131,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
 
             var deleteCommand = new OrchestratorProjectDeleteCommand(systemUser, project);
 
-            functionContext.StartNewOrchestration(nameof(OrchestratorProjectDeleteOrchestration), new OrchestratorCommandMessage(deleteCommand));
-        }
-
-        private static async Task<Project> CreateProjectResourcesAsync(IDurableOrchestrationContext functionContext, Project project)
-        {
-            if (project is null)
-                throw new ArgumentNullException(nameof(project));
-
-            var subscriptionId = await functionContext
-                .CallActivityWithRetryAsync<Guid>(nameof(AzureSubscriptionPoolSelectActivity), project)
-                .ConfigureAwait(true);
-
-            project.ResourceGroup = await functionContext
-                .CallActivityWithRetryAsync<AzureResourceGroup>(nameof(AzureResourceGroupCreateActivity), (project, subscriptionId))
-                .ConfigureAwait(true);
-
-            project = await functionContext
-                .CallActivityWithRetryAsync<Project>(nameof(ProjectUpdateActivity), project)
-                .ConfigureAwait(true);
-
-            await functionContext
-                .CallActivityWithRetryAsync(nameof(AzureResourceGroupTagActivity), project)
-                .ConfigureAwait(true);
-
-            return project;
+            functionContext.StartNewOrchestration(nameof(OrchestratorProjectDeleteCommandOrchestration), new OrchestratorCommandMessage(deleteCommand));
         }
     }
 }

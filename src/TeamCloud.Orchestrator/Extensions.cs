@@ -17,6 +17,7 @@ using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Orchestrations.Commands;
 using TeamCloud.Orchestrator.Orchestrations.Locks;
 using TeamCloud.Orchestrator.Orchestrations.Projects.Activities;
+using TeamCloud.Orchestrator.Orchestrations.TeamCloud.Activities;
 
 namespace TeamCloud.Orchestrator
 {
@@ -142,17 +143,17 @@ namespace TeamCloud.Orchestrator
             return providerResult;
         }
 
-        internal static Task<IDictionary<string, ICommandResult>> SendCommandAsync(this IDurableOrchestrationContext functionContext, IProviderCommand command, Project project = null, TeamCloudInstance teamCloud = null)
-            => functionContext.SendCommandAsync<ICommandResult>(command, project, teamCloud);
+        internal static Task<IDictionary<string, ICommandResult>> SendCommandAsync(this IDurableOrchestrationContext functionContext, IProviderCommand command, Project project = null)
+            => functionContext.SendCommandAsync<ICommandResult>(command, project);
 
-        internal static async Task<IDictionary<string, TCommandResult>> SendCommandAsync<TCommandResult>(this IDurableOrchestrationContext functionContext, IProviderCommand command, Project project = null, TeamCloudInstance teamCloud = null)
+        internal static async Task<IDictionary<string, TCommandResult>> SendCommandAsync<TCommandResult>(this IDurableOrchestrationContext functionContext, IProviderCommand command, Project project = null)
             where TCommandResult : ICommandResult
         {
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
 
-            teamCloud ??= await functionContext
-                .CallActivityWithRetryAsync<TeamCloudInstance>(nameof(TeamCloudGetActivity), project?.TeamCloudId)
+            var teamCloud = await functionContext
+                .GetTeamCloudAsync()
                 .ConfigureAwait(true);
 
             IEnumerable<Provider> providers = teamCloud.Providers;
@@ -168,9 +169,6 @@ namespace TeamCloud.Orchestrator
 
             if (!(command.ProjectId?.Equals(project.Id) ?? true))
                 throw new ArgumentException("The provided project doesn't match the project referenced by the command", nameof(project));
-
-            if (!(project?.TeamCloudId.Equals(teamCloud.Id, StringComparison.Ordinal) ?? true))
-                throw new ArgumentException("The provided TeamCloud instance doesn't match the instance referenced by project", nameof(teamCloud));
 
             var providerResults = Enumerable.Empty<KeyValuePair<string, TCommandResult>>();
 

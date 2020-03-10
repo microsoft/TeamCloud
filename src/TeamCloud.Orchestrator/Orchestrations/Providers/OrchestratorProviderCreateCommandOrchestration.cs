@@ -10,15 +10,14 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Model.Commands;
-using TeamCloud.Model.Data;
-using TeamCloud.Orchestration;
-using TeamCloud.Orchestrator.Orchestrations.Projects.Activities;
+using TeamCloud.Orchestrator.Orchestrations.Providers;
+using TeamCloud.Orchestrator.Orchestrations.TeamCloud.Activities;
 
 namespace TeamCloud.Orchestrator.Orchestrations.TeamCloud
 {
-    public static class OrchestratorProviderDeleteOrchestration
+    public static class OrchestratorProviderCreateCommandOrchestration
     {
-        [FunctionName(nameof(OrchestratorProviderDeleteOrchestration))]
+        [FunctionName(nameof(OrchestratorProviderCreateCommandOrchestration))]
         public static async Task RunOrchestration(
             [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
             ILogger log)
@@ -28,33 +27,44 @@ namespace TeamCloud.Orchestrator.Orchestrations.TeamCloud
 
             var commandMessage = functionContext.GetInput<OrchestratorCommandMessage>();
 
-            var command = (OrchestratorProviderDeleteCommand)commandMessage.Command;
+            var command = (OrchestratorProviderCreateCommand)commandMessage.Command;
             var commandResult = command.CreateResult();
+
+            var provider = command.Payload;
 
             try
             {
                 var teamCloud = await functionContext
-                    .CallActivityWithRetryAsync<TeamCloudInstance>(nameof(TeamCloudGetActivity), null)
+                    .GetTeamCloudAsync()
                     .ConfigureAwait(true);
 
-                var provider = command.Payload;
+                // ensure the new provider is
+                // marked as not registered so we
+                // can start a provider registration
+                // afterwards
+
+                provider.Registered = null;
 
                 using (await functionContext.LockAsync(teamCloud).ConfigureAwait(true))
                 {
                     teamCloud = await functionContext
-                        .CallActivityWithRetryAsync<TeamCloudInstance>(nameof(TeamCloudGetActivity), null)
+                        .GetTeamCloudAsync()
                         .ConfigureAwait(true);
 
-                    provider = commandResult.Result = teamCloud.Providers
-                        .SingleOrDefault(p => p.Id.Equals(provider.Id, StringComparison.Ordinal));
+                    if (teamCloud.Providers.Any(p => p.Id.Equals(provider.Id, StringComparison.Ordinal)))
+                        throw new OrchestratorCommandException($"Provider {provider.Id} already exists.");
 
-                    if (provider != null)
-                        teamCloud.Providers.Remove(provider);
+                    teamCloud.Providers.Add(provider);
 
                     teamCloud = await functionContext
-                        .CallActivityWithRetryAsync<TeamCloudInstance>(nameof(TeamCloudSetActivity), teamCloud)
+                        .SetTeamCloudAsync(teamCloud)
                         .ConfigureAwait(true);
                 }
+
+                provider = commandResult.Result = teamCloud.Providers
+                    .Single(p => p.Id.Equals(provider.Id, StringComparison.Ordinal));
+
+                functionContext.StartNewOrchestration(nameof(OrchestratorProviderRegisterCommandOrchestration), provider);
             }
             catch (Exception exc)
             {
@@ -64,7 +74,6 @@ namespace TeamCloud.Orchestrator.Orchestrations.TeamCloud
             {
                 functionContext.SetOutput(commandResult);
             }
-
         }
     }
 }

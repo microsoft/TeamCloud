@@ -18,9 +18,9 @@ using TeamCloud.Orchestrator.Orchestrations.Projects.Utilities;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Projects
 {
-    public static class OrchestratorProjectDeleteOrchestration
+    public static class OrchestratorProjectDeleteCommandOrchestration
     {
-        [FunctionName(nameof(OrchestratorProjectDeleteOrchestration))]
+        [FunctionName(nameof(OrchestratorProjectDeleteCommandOrchestration))]
         public static async Task RunOrchestration(
             [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
             ILogger log)
@@ -50,7 +50,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
                     : throw new NotSupportedException($"Unable to convert command of type '{command.GetType()}' to '{typeof(IProviderCommand)}'");
 
                 var providerResults = await functionContext
-                    .SendCommandAsync<ICommandResult<ProviderOutput>>(providerCommand, project, commandMessage.TeamCloud)
+                    .SendCommandAsync<ICommandResult<ProviderOutput>>(providerCommand, project)
                     .ConfigureAwait(true);
 
                 if (project.ResourceGroup != null)

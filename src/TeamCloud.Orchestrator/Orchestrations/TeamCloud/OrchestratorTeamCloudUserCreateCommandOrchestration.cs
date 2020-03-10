@@ -4,22 +4,20 @@
  */
 
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Model.Commands;
-using TeamCloud.Model.Data;
-using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Orchestrations.Projects.Activities;
 using TeamCloud.Orchestrator.Orchestrations.TeamCloud.Activities;
 
 namespace TeamCloud.Orchestrator.Orchestrations.TeamCloud
 {
-    public static class OrchestratorTeamCloudUserCreateOrchestration
+    public static class OrchestratorTeamCloudUserCreateCommandOrchestration
     {
-        [FunctionName(nameof(OrchestratorTeamCloudUserCreateOrchestration))]
+        [FunctionName(nameof(OrchestratorTeamCloudUserCreateCommandOrchestration))]
         public static async Task RunOrchestration(
             [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
             ILogger log)
@@ -28,35 +26,45 @@ namespace TeamCloud.Orchestrator.Orchestrations.TeamCloud
                 throw new ArgumentNullException(nameof(functionContext));
 
             var orchestratorCommand = functionContext.GetInput<OrchestratorCommandMessage>();
-            var command = orchestratorCommand.Command as OrchestratorTeamCloudUserCreateCommand;
+
+            var command = (OrchestratorTeamCloudUserCreateCommand)orchestratorCommand.Command;
             var commandResult = command.CreateResult();
+
+            var user = command.Payload;
 
             try
             {
                 functionContext.SetCustomStatus($"Creating user.", log);
 
-                var user = await functionContext
-                    .CallActivityWithRetryAsync<User>(nameof(TeamCloudUserCreateActivity), command.Payload)
+                var teamCloud = await functionContext
+                    .GetTeamCloudAsync()
                     .ConfigureAwait(true);
 
-                if (user.Role == UserRoles.TeamCloud.Admin)
+                using (await functionContext.LockAsync(teamCloud).ConfigureAwait(true))
                 {
-                    functionContext.SetCustomStatus("Waiting on project providers to create user.", log);
-
-                    var projects = await functionContext
-                        .CallActivityWithRetryAsync<List<Project>>(nameof(ProjectListActivity), orchestratorCommand.TeamCloud)
+                    teamCloud = await functionContext
+                        .GetTeamCloudAsync()
                         .ConfigureAwait(true);
 
-                    // TODO: this should probably be done in parallel
+                    if (teamCloud.Users.Any(u => u.Id == user.Id))
+                        throw new OrchestratorCommandException($"User '{user.Id}' already exists.", command);
 
-                    foreach (var project in projects)
-                    {
-                        // TODO: call set users on all providers
-                        // var tasks = input.teamCloud.Configuration.Providers.Select(p =>
-                        //                 context.CallHttpAsync(HttpMethod.Post, p.Location, JsonConvert.SerializeObject(projectContext)));
+                    teamCloud.Users.Add(user);
 
-                        // await Task.WhenAll(tasks);
-                    }
+                    teamCloud = await functionContext
+                        .SetTeamCloudAsync(teamCloud)
+                        .ConfigureAwait(true);
+                }
+
+                var projects = await functionContext
+                    .GetTeamCloudProjectsAsync()
+                    .ConfigureAwait(true);
+
+                foreach (var project in projects)
+                {
+                    var projectUpdateCommand = new OrchestratorProjectUpdateCommand(command.User, project);
+
+                    functionContext.StartNewOrchestration(nameof(OrchestratorProjectUpdateCommand), new OrchestratorCommandMessage(projectUpdateCommand));
                 }
 
                 commandResult.Result = user;

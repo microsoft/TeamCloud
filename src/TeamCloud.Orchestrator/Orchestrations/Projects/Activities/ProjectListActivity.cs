@@ -5,6 +5,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Data;
@@ -22,10 +24,15 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects.Activities
         }
 
         [FunctionName(nameof(ProjectListActivity))]
-        public IAsyncEnumerable<Project> RunActivity(
-            [ActivityTrigger] object empty)
+        public async Task<IEnumerable<Project>> RunActivity(
+            [ActivityTrigger] TeamCloudInstance teamCloud)
         {
-            return projectsRepository.ListAsync();
+            var projects = projectsRepository
+                .ListAsync();
+
+            return await projects
+                .ToListAsync()
+                .ConfigureAwait(false);
         }
     }
 }

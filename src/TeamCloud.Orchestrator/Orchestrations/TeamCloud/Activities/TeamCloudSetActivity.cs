@@ -10,7 +10,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Data;
 using TeamCloud.Model.Data;
 
-namespace TeamCloud.Orchestrator.Orchestrations.Projects.Activities
+namespace TeamCloud.Orchestrator.Orchestrations.TeamCloud.Activities
 {
     public class TeamCloudSetActivity
     {

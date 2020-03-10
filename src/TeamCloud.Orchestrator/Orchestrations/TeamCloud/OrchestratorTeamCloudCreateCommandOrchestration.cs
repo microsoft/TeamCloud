@@ -15,9 +15,9 @@ using TeamCloud.Orchestrator.Orchestrations.TeamCloud.Activities;
 
 namespace TeamCloud.Orchestrator.Orchestrations.TeamCloud
 {
-    public static class OrchestratorTeamCloudCreateOrchestration
+    public static class OrchestratorTeamCloudCreateCommandOrchestration
     {
-        [FunctionName(nameof(OrchestratorTeamCloudCreateOrchestration))]
+        [FunctionName(nameof(OrchestratorTeamCloudCreateCommandOrchestration))]
         public static async Task RunOrchestration(
             [OrchestrationTrigger] IDurableOrchestrationContext functionContext
             /* ILogger log */)
@@ -44,7 +44,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.TeamCloud
             finally
             {
                 functionContext
-                    .StartNewOrchestration(nameof(OrchestratorProviderRegisterOrchestration), null);
+                    .StartNewOrchestration(nameof(OrchestratorProviderRegisterCommandOrchestration), null);
             }
         }
     }

@@ -10,16 +10,14 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Model.Commands;
-using TeamCloud.Model.Data;
-using TeamCloud.Orchestration;
-using TeamCloud.Orchestrator.Orchestrations.Projects.Activities;
 using TeamCloud.Orchestrator.Orchestrations.Providers;
+using TeamCloud.Orchestrator.Orchestrations.TeamCloud.Activities;
 
 namespace TeamCloud.Orchestrator.Orchestrations.TeamCloud
 {
-    public static class OrchestratorProviderUpdateOrchestration
+    public static class OrchestratorProviderUpdateCommandOrchestration
     {
-        [FunctionName(nameof(OrchestratorProviderUpdateOrchestration))]
+        [FunctionName(nameof(OrchestratorProviderUpdateCommandOrchestration))]
         public static async Task RunOrchestration(
             [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
             ILogger log)
@@ -35,7 +33,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.TeamCloud
             try
             {
                 var teamCloud = await functionContext
-                    .CallActivityWithRetryAsync<TeamCloudInstance>(nameof(TeamCloudGetActivity), null)
+                    .GetTeamCloudAsync()
                     .ConfigureAwait(true);
 
                 var provider = command.Payload;
@@ -50,7 +48,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.TeamCloud
                 using (await functionContext.LockAsync(teamCloud).ConfigureAwait(true))
                 {
                     teamCloud = await functionContext
-                        .CallActivityWithRetryAsync<TeamCloudInstance>(nameof(TeamCloudGetActivity), null)
+                        .GetTeamCloudAsync()
                         .ConfigureAwait(true);
 
                     var existingProvider = teamCloud.Providers
@@ -62,14 +60,14 @@ namespace TeamCloud.Orchestrator.Orchestrations.TeamCloud
                     teamCloud.Providers.Add(provider);
 
                     teamCloud = await functionContext
-                        .CallActivityWithRetryAsync<TeamCloudInstance>(nameof(TeamCloudSetActivity), teamCloud)
+                        .SetTeamCloudAsync(teamCloud)
                         .ConfigureAwait(true);
                 }
 
                 provider = commandResult.Result = teamCloud.Providers
                     .Single(p => p.Id.Equals(provider.Id, StringComparison.Ordinal));
 
-                functionContext.StartNewOrchestration(nameof(OrchestratorProviderRegisterOrchestration), provider);
+                functionContext.StartNewOrchestration(nameof(OrchestratorProviderRegisterCommandOrchestration), provider);
             }
             catch (Exception exc)
             {

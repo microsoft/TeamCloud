@@ -12,14 +12,14 @@ using Microsoft.Extensions.Logging;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
-using TeamCloud.Orchestrator.Orchestrations.Projects.Activities;
 using TeamCloud.Orchestrator.Orchestrations.Providers.Activities;
+using TeamCloud.Orchestrator.Orchestrations.TeamCloud.Activities;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Providers
 {
-    public static class OrchestratorProviderRegisterOrchestration
+    public static class OrchestratorProviderRegisterCommandOrchestration
     {
-        [FunctionName(nameof(OrchestratorProviderRegisterOrchestration) + "-Trigger")]
+        [FunctionName(nameof(OrchestratorProviderRegisterCommandOrchestration) + "-Trigger")]
         public static async Task RunTrigger(
             [TimerTrigger("0 0 * * * *", RunOnStartup = true)] TimerInfo timerInfo,
             [DurableClient] IDurableClient durableClient,
@@ -29,11 +29,11 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers
                 throw new ArgumentNullException(nameof(durableClient));
 
             _ = await durableClient
-                .StartNewAsync(nameof(OrchestratorProviderRegisterOrchestration))
+                .StartNewAsync(nameof(OrchestratorProviderRegisterCommandOrchestration))
                 .ConfigureAwait(false);
         }
 
-        [FunctionName(nameof(OrchestratorProviderRegisterOrchestration))]
+        [FunctionName(nameof(OrchestratorProviderRegisterCommandOrchestration))]
         public static async Task RunOrchestration(
             [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
             ILogger log)
@@ -50,11 +50,11 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers
             if (provider is null)
             {
                 teamCloud = await functionContext
-                    .CallActivityWithRetryAsync<TeamCloudInstance>(nameof(TeamCloudGetActivity), null)
+                    .GetTeamCloudAsync()
                     .ConfigureAwait(true);
 
                 var tasks = teamCloud.Providers
-                    .Select(provider => functionContext.CallSubOrchestratorWithRetryAsync(nameof(OrchestratorProviderRegisterOrchestration), provider));
+                    .Select(provider => functionContext.CallSubOrchestratorWithRetryAsync(nameof(OrchestratorProviderRegisterCommandOrchestration), provider));
 
                 await Task
                     .WhenAll(tasks)
@@ -84,7 +84,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers
                     else
                     {
                         teamCloud ??= await functionContext
-                            .CallActivityWithRetryAsync<TeamCloudInstance>(nameof(TeamCloudGetActivity), null)
+                            .GetTeamCloudAsync()
                             .ConfigureAwait(true);
 
                         using (await functionContext.LockAsync(teamCloud).ConfigureAwait(true))
@@ -94,7 +94,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers
                             // our critical section - the same is valid for the provider
 
                             teamCloud = await functionContext
-                                .CallActivityWithRetryAsync<TeamCloudInstance>(nameof(TeamCloudGetActivity), null)
+                                .GetTeamCloudAsync()
                                 .ConfigureAwait(true);
 
                             provider = teamCloud.Providers
@@ -110,8 +110,8 @@ namespace TeamCloud.Orchestrator.Orchestrations.Providers
                                 provider.Registered = functionContext.CurrentUtcDateTime;
                                 provider.Properties = provider.Properties.Merge(commandResult.Result.Properties);
 
-                                await functionContext
-                                    .CallActivityWithRetryAsync(nameof(TeamCloudSetActivity), teamCloud)
+                                teamCloud = await functionContext
+                                    .SetTeamCloudAsync(teamCloud)
                                     .ConfigureAwait(true);
 
                                 functionContext.SetCustomStatus($"Provider '{provider.Id}' registration succeeded", log);

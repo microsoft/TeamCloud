@@ -82,7 +82,7 @@ namespace TeamCloud.API.Services
             return result;
         }
 
-        public async Task<ICommandResult> InvokeAsync(ICommand command)
+        public async Task<ICommandResult> InvokeAsync(IOrchestratorCommand command)
         {
             var commandResponse = await options.Url
                 .AppendPathSegment("api/command")

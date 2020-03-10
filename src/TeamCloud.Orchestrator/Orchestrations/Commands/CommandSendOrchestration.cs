@@ -84,7 +84,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 return Task.CompletedTask;
 
             return functionContext
-                .CallSubOrchestratorWithRetryAsync(nameof(OrchestratorProviderRegisterOrchestration), provider);
+                .CallSubOrchestratorWithRetryAsync(nameof(OrchestratorProviderRegisterCommandOrchestration), provider);
         }
     }
 }

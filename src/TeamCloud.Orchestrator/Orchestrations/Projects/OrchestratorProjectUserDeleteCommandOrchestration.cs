@@ -16,9 +16,9 @@ using TeamCloud.Orchestrator.Orchestrations.Projects.Utilities;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Projects
 {
-    public static class OrchestratorProjectUserCreateOrchestration
+    public static class OrchestratorProjectUserDeleteCommandOrchestration
     {
-        [FunctionName(nameof(OrchestratorProjectUserCreateOrchestration))]
+        [FunctionName(nameof(OrchestratorProjectUserDeleteCommandOrchestration))]
         public static async Task RunOrchestration(
             [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
             ILogger log)
@@ -27,8 +27,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
                 throw new ArgumentNullException(nameof(functionContext));
 
             var orchestratorCommand = functionContext.GetInput<OrchestratorCommandMessage>();
-
-            var command = (OrchestratorProjectUserCreateCommand)orchestratorCommand.Command;
+            var command = orchestratorCommand.Command as OrchestratorProjectUserDeleteCommand;
             var commandResult = command.CreateResult();
 
             try
@@ -39,23 +38,23 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
                     .WaitForProjectCommandsAsync(command)
                     .ConfigureAwait(true);
 
-                functionContext.SetCustomStatus($"Creating user.", log);
-
-                var user = await functionContext
-                    .CallActivityWithRetryAsync<User>(nameof(ProjectUserCreateActivity), (command.ProjectId.Value, command.Payload))
-                    .ConfigureAwait(true);
-
-                functionContext.SetCustomStatus("Waiting on providers to create user.", log);
+                functionContext.SetCustomStatus("Waiting on providers to delete user.", log);
 
                 // TODO: call set users on all providers (or project update for now)
 
+                functionContext.SetCustomStatus($"Deleting user.", log);
+
+                var user = await functionContext
+                    .CallActivityWithRetryAsync<User>(nameof(ProjectUserDeleteActivity), (command.ProjectId.Value, command.Payload))
+                    .ConfigureAwait(true);
+
                 commandResult.Result = user;
 
-                functionContext.SetCustomStatus($"User created.", log);
+                functionContext.SetCustomStatus($"User deleted.", log);
             }
             catch (Exception ex)
             {
-                functionContext.SetCustomStatus("Failed to create user.", log, ex);
+                functionContext.SetCustomStatus("Failed to delete user.", log, ex);
 
                 commandResult.Errors.Add(ex);
 

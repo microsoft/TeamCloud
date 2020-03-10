@@ -9,7 +9,6 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Model.Commands;
-using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Orchestrations.Projects.Activities;
@@ -17,9 +16,9 @@ using TeamCloud.Orchestrator.Orchestrations.Projects.Utilities;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Projects
 {
-    public static class OrchestratorProjectUpdateOrchestration
+    public static class OrchestratorProjectUserUpdateCommandOrchestration
     {
-        [FunctionName(nameof(OrchestratorProjectUpdateOrchestration))]
+        [FunctionName(nameof(OrchestratorProjectUserUpdateCommandOrchestration))]
         public static async Task RunOrchestration(
             [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
             ILogger log)
@@ -27,12 +26,9 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
 
-            var commandMessage = functionContext.GetInput<OrchestratorCommandMessage>();
-
-            var command = (OrchestratorProjectUpdateCommand)commandMessage.Command;
+            var orchestratorCommand = functionContext.GetInput<OrchestratorCommandMessage>();
+            var command = orchestratorCommand.Command as OrchestratorProjectUserDeleteCommand;
             var commandResult = command.CreateResult();
-
-            var project = command.Payload;
 
             try
             {
@@ -42,29 +38,23 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
                     .WaitForProjectCommandsAsync(command)
                     .ConfigureAwait(true);
 
-                functionContext.SetCustomStatus($"Updating project.", log);
+                functionContext.SetCustomStatus($"Updating user.", log);
 
-                project = await functionContext
-                    .CallActivityWithRetryAsync<Project>(nameof(ProjectUpdateActivity), project)
+                var user = await functionContext
+                    .CallActivityWithRetryAsync<User>(nameof(ProjectUserUpdateActivity), (command.ProjectId.Value, command.Payload))
                     .ConfigureAwait(true);
 
-                functionContext.SetCustomStatus("Waiting on providers to update project resources.", log);
+                functionContext.SetCustomStatus("Waiting on providers to update user.", log);
 
-                var providerCommand = command is IOrchestratorCommandConvert commandConvert
-                    ? commandConvert.CreateProviderCommand()
-                    : throw new NotSupportedException($"Unable to convert command of type '{command.GetType()}' to '{typeof(IProviderCommand)}'");
+                // TODO: call set users on all providers (or project update for now)
 
-                var providerResults = await functionContext
-                    .SendCommandAsync<ICommandResult<ProviderOutput>>(providerCommand, project, commandMessage.TeamCloud)
-                    .ConfigureAwait(true);
+                commandResult.Result = user;
 
-                functionContext.SetCustomStatus("Project updated.", log);
-
-                commandResult.Result = project;
+                functionContext.SetCustomStatus($"User updated.", log);
             }
             catch (Exception ex)
             {
-                functionContext.SetCustomStatus("Failed to update project.", log, ex);
+                functionContext.SetCustomStatus("Failed to update user.", log, ex);
 
                 commandResult.Errors.Add(ex);
 
@@ -74,7 +64,6 @@ namespace TeamCloud.Orchestrator.Orchestrations.Projects
             {
                 functionContext.SetOutput(commandResult);
             }
-
         }
     }
 }
