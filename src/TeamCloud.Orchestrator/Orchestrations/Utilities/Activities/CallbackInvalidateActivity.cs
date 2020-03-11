@@ -9,7 +9,6 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Orchestration;
-using TeamCloud.Orchestration.Serialization;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
 {
@@ -36,7 +35,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
             {
                 log.LogError(exc, $"Failed to invalidate callback url for instance {instanceId}: {exc.Message}");
 
-                throw new SerializableException(exc);
+                throw exc.EnsureJsonSerializable();
             }
         }
     }

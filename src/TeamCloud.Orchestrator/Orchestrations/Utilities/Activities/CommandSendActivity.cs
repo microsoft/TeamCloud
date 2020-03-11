@@ -16,7 +16,6 @@ using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
-using TeamCloud.Orchestration.Serialization;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
 {
@@ -74,7 +73,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
             }
             catch (Exception exc) when (!exc.IsJsonSerializable())
             {
-                throw new SerializableException(exc);
+                throw exc.EnsureJsonSerializable();
             }
         }
     }

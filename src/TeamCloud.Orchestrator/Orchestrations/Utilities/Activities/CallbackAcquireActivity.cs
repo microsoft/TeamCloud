@@ -10,7 +10,6 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Orchestration;
-using TeamCloud.Orchestration.Serialization;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
 {
@@ -40,7 +39,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
             {
                 log.LogError(exc, $"Failed to acquire callback url for instance {instanceId}: {exc.Message}");
 
-                throw new SerializableException(exc);
+                throw exc.EnsureJsonSerializable();
             }
         }
     }

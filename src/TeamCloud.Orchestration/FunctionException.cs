@@ -7,24 +7,24 @@ using System;
 using System.Collections;
 using System.Runtime.Serialization;
 
-namespace TeamCloud.Orchestration.Serialization
+namespace TeamCloud.Orchestration
 {
 
     [Serializable]
-    public class SerializableException : Exception
+    public class FunctionException : Exception
     {
         private readonly Exception innerException;
 
-        public SerializableException(Exception innerException) : base(innerException.Message)
+        internal FunctionException(Exception innerException) : base(innerException.Message)
         {
             this.innerException = innerException ?? throw new ArgumentNullException(nameof(innerException));
 
-            this.OriginalExceptionType = innerException.GetType();
+            OriginalExceptionType = innerException.GetType();
         }
 
-        protected SerializableException(SerializationInfo info, StreamingContext context) : base(info, context)
+        protected FunctionException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
-            this.OriginalExceptionType = info.GetValue(nameof(OriginalExceptionType), typeof(Type)) as Type;
+            OriginalExceptionType = info.GetValue(nameof(OriginalExceptionType), typeof(Type)) as Type;
         }
 
         public Type OriginalExceptionType { get; private set; }
