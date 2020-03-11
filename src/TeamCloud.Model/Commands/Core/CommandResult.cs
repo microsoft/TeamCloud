@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
 using TeamCloud.Model.Commands.Serialization;
 
@@ -27,18 +28,18 @@ namespace TeamCloud.Model.Commands.Core
 
         [JsonProperty(Order = int.MaxValue, PropertyName = "_links")]
         Dictionary<string, string> Links { get; }
+
+        object Result { get; set; }
     }
 
 
     public interface ICommandResult<TResult> : ICommandResult
         where TResult : new()
     {
-        TResult Result { get; set; }
+        new TResult Result { get; set; }
     }
 
-
-    public abstract class CommandResult<TResult> : ICommandResult<TResult>
-        where TResult : new()
+    public abstract class CommandResult : ICommandResult
     {
         public Guid CommandId { get; set; }
 
@@ -46,15 +47,26 @@ namespace TeamCloud.Model.Commands.Core
 
         public DateTime LastUpdatedTime { get; set; }
 
-        public CommandRuntimeStatus RuntimeStatus { get; set; }
+        private CommandRuntimeStatus runtimeStatus = CommandRuntimeStatus.Unknown;
+
+        public CommandRuntimeStatus RuntimeStatus
+        {
+            get => Errors?.Any() ?? false ? CommandRuntimeStatus.Failed : runtimeStatus;
+            set => runtimeStatus = value;
+        }
 
         public string CustomStatus { get; set; }
 
-        public TResult Result { get; set; }
-
         public IList<Exception> Errors { get; set; } = new List<Exception>();
 
-        [JsonProperty(Order = int.MaxValue, PropertyName = "_links")]
         public Dictionary<string, string> Links { get; private set; } = new Dictionary<string, string>();
+
+        public object Result { get; set; }
+    }
+
+    public abstract class CommandResult<TResult> : CommandResult, ICommandResult<TResult>
+        where TResult : new()
+    {
+        public new TResult Result { get; set; }
     }
 }

@@ -14,10 +14,8 @@ using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
-using TeamCloud.Orchestrator.Orchestrations.Commands;
-using TeamCloud.Orchestrator.Orchestrations.Locks;
-using TeamCloud.Orchestrator.Orchestrations.Projects.Activities;
-using TeamCloud.Orchestrator.Orchestrations.TeamCloud.Activities;
+using TeamCloud.Orchestrator.Orchestrations.Commands.Activities;
+using TeamCloud.Orchestrator.Orchestrations.Utilities;
 
 namespace TeamCloud.Orchestrator
 {
@@ -111,13 +109,23 @@ namespace TeamCloud.Orchestrator
 
         internal static void Merge(this Project project, string providerId, ICommandResult<ProviderOutput> commandResult)
         {
-            if (project.Outputs.TryGetValue(providerId, out var providerProperties))
+            project.Outputs ??= new Dictionary<string, IDictionary<string, string>>();
+
+            if (commandResult is null)
             {
-                project.Outputs[providerId] = providerProperties.Merge(commandResult.Result.Properties);
+                if (project.Outputs.ContainsKey(providerId))
+                    project.Outputs.Remove(providerId);
             }
-            else
+            else if ((commandResult.Result?.Properties?.Count ?? 0) > 0)
             {
-                project.Outputs.Add(providerId, commandResult.Result.Properties);
+                if (project.Outputs.TryGetValue(providerId, out var providerProperties))
+                {
+                    project.Outputs[providerId] = providerProperties.Merge(commandResult.Result.Properties);
+                }
+                else
+                {
+                    project.Outputs.Add(providerId, commandResult.Result.Properties);
+                }
             }
         }
 

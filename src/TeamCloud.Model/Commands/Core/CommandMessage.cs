@@ -5,9 +5,11 @@
 
 using System;
 using Newtonsoft.Json;
+using TeamCloud.Model.Commands.Serialization;
 
 namespace TeamCloud.Model.Commands.Core
 {
+    [JsonConverter(typeof(CommandMessageConverter))]
     public interface ICommandMessage : IValidatable
     {
         ICommand Command { get; }

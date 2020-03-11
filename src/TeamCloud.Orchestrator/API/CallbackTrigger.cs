@@ -5,8 +5,11 @@
 
 using System;
 using System.IO;
+using System.Net;
 using System.Threading.Tasks;
 using System.Web;
+using Flurl;
+using Flurl.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -15,35 +18,99 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using TeamCloud.Http;
-using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
-using TeamCloud.Orchestration;
 
 namespace TeamCloud.Orchestrator
 {
     public static class CallbackTrigger
     {
-        internal static Task<string> GetCallbackUrlAsync(string instanceId, ICommand command)
-            => GetCallbackUrlAsync(instanceId, command.CommandId.ToString());
-
-        internal static async Task<string> GetCallbackUrlAsync(string instanceId, string eventName)
+        private static string GetHostBaseUrl()
         {
-            var scheme = "http";
-            var hostname = Environment.GetEnvironmentVariable("WEBSITE_HOSTNAME");
-            var hostpath = $"api/callback/{HttpUtility.UrlEncode(instanceId)}/{HttpUtility.UrlEncode(eventName)}";
+            var hostScheme = "http";
+            var hostName = Environment.GetEnvironmentVariable("WEBSITE_HOSTNAME");
 
-            if (!hostname.StartsWith("localhost", StringComparison.OrdinalIgnoreCase))
-            {
-                scheme += "s";
-            }
+            if (!hostName.StartsWith("localhost", StringComparison.OrdinalIgnoreCase))
+                hostScheme += "s";
 
-            var functionKeysJson = await $"{scheme}://{hostname}/admin/functions/{nameof(CallbackTrigger)}/keys"
+            return $"{hostScheme}://{hostName}";
+        }
+
+        private static async Task<string> GetCallbackToken(string instanceId)
+        {
+            var hostBase = GetHostBaseUrl();
+
+            var functionKeysUrl = hostBase
+                .AppendPathSegment("admin/functions")
+                .AppendPathSegment(nameof(CallbackTrigger))
+                .AppendPathSegment("keys");
+
+            var functionKeysJson = await functionKeysUrl
                 .GetJObjectAsync()
                 .ConfigureAwait(false);
 
-            var functionKey = functionKeysJson.SelectToken("keys[0].value")?.ToString();
+            return functionKeysJson
+                .SelectToken($"$.keys[?(@.name == '{instanceId}')].value")?
+                .ToString();
+        }
 
-            return $"{scheme}://{hostname}/{hostpath}?code={functionKey}";
+        internal static async Task<string> AcquireCallbackUrlAsync(string instanceId, ICommand command)
+        {
+            var hostBase = GetHostBaseUrl();
+
+            var functionKey = await GetCallbackToken(instanceId)
+                .ConfigureAwait(false);
+
+            if (string.IsNullOrEmpty(functionKey))
+            {
+                var response = await hostBase
+                    .AppendPathSegment("admin/functions")
+                    .AppendPathSegment(nameof(CallbackTrigger))
+                    .AppendPathSegment("keys")
+                    .AppendPathSegment(instanceId, true)
+                    .PostJsonAsync(null)
+                    .ConfigureAwait(false);
+
+                var functionKeysJson = await response.Content
+                    .ReadAsJsonAsync()
+                    .ConfigureAwait(false);
+
+                functionKey = functionKeysJson
+                    .SelectToken($"$.value")?
+                    .ToString();
+            }
+
+            return hostBase
+                .AppendPathSegment("api/callback")
+                .AppendPathSegment(instanceId, true)
+                .AppendPathSegment(command.CommandId)
+                .ToString();
+        }
+
+        internal static async Task InvalidateCallbackUrlAsync(string instanceId)
+        {
+            var hostBase = GetHostBaseUrl();
+
+            var functionKeysUrl = hostBase
+                .AppendPathSegment("admin/functions")
+                .AppendPathSegment(nameof(CallbackTrigger))
+                .AppendPathSegment("keys")
+                .AppendPathSegment(instanceId, true);
+
+            try
+            {
+                _ = await functionKeysUrl
+                    .AllowAnyHttpStatus()
+                    .DeleteAsync()
+                    .ConfigureAwait(false);
+            }
+            catch
+            {
+                var functionKey = await GetCallbackToken(instanceId)
+                    .ConfigureAwait(false);
+
+                if (!string.IsNullOrEmpty(functionKey))
+                    throw; 
+            }
         }
 
         [FunctionName(nameof(CallbackTrigger))]
@@ -78,39 +145,55 @@ namespace TeamCloud.Orchestrator
 
                 commandResult = JsonConvert.DeserializeObject<ICommandResult>(requestBody);
             }
-            catch
+            catch (Exception exc)
             {
+                log.LogError(exc, $"Callback '{instanceId}' ({eventName}) - Failed to deserialize callback payload");
+
                 return new BadRequestResult();
             }
 
             try
             {
-                var orchestrationStatus = await durableClient
-                    .GetStatusAsync(instanceId)
+                await durableClient
+                    .RaiseEventAsync(instanceId, eventName, commandResult)
                     .ConfigureAwait(false);
-
-                if (orchestrationStatus?.RuntimeStatus.IsFinal() ?? true)
-                {
-                    // the orchestration doesn't exist or reached
-                    // a final state and won't accept any events
-
-                    return new NotFoundResult();
-                }
-                else
-                {
-                    await durableClient
-                        .RaiseEventAsync(instanceId, eventName, commandResult)
-                        .ConfigureAwait(false);
-                }
             }
             catch (Exception exc)
             {
-                log.LogWarning(exc, $"Failed to raise event {eventName} for instance {instanceId}.");
+                var status = await durableClient
+                    .GetStatusAsync(instanceId)
+                    .ConfigureAwait(false);
 
-                throw; // re-throw exception to return an internal server error
+                if (status is null)
+                {
+                    log.LogError($"Callback '{instanceId}' ({eventName}) - Orchestration instance does not exist.");
+
+                    return new StatusCodeResult((int)HttpStatusCode.ServiceUnavailable);
+                }
+                else if (status.IsFinalRuntimeStatus())
+                {
+                    log.LogError($"Callback '{instanceId}' ({eventName}) - Orchestration instance already reached final state '{status.RuntimeStatus}'.");
+
+                    return new StatusCodeResult((int)HttpStatusCode.ServiceUnavailable);
+                }
+                else
+                {
+                    log.LogError(exc, $"Callback '{instanceId}' ({eventName}) - Failed to raise event with payload {JsonConvert.SerializeObject(commandResult)}.");
+
+                    throw; // re-throw exception to return an internal server error
+                }
             }
 
             return new OkResult();
         }
+
+        private class RetryAfterResult : IActionResult
+        {
+            public Task ExecuteResultAsync(ActionContext context)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
     }
 }
