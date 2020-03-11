@@ -5,9 +5,7 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Linq;
 using System.Reflection;
-using Microsoft.Azure.WebJobs;
 
 namespace TeamCloud.Orchestration
 {
@@ -23,11 +21,7 @@ namespace TeamCloud.Orchestration
 
             return Cache.GetOrAdd(functionName, (key) =>
             {
-                var functionMethod = AppDomain.CurrentDomain.GetAssemblies()
-                    .Where(asm => !asm.IsDynamic)
-                    .SelectMany(asm => asm.GetExportedTypes().Where(type => type.IsClass))
-                    .SelectMany(type => type.GetMethods())
-                    .FirstOrDefault(method => method.GetCustomAttribute<FunctionNameAttribute>()?.Name.Equals(functionName) ?? false);
+                var functionMethod = FunctionEnvironment.GetFunctionMethod(functionName);
 
                 if (functionMethod is null)
                     throw new ArgumentOutOfRangeException(nameof(functionName), $"Could not find function by name '{functionName}'");
