@@ -54,13 +54,12 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
 
                 if (commandResult != null)
                 {
-                    if (!commandResult.RuntimeStatus.IsActive())
+                    entity.Status = commandResult.RuntimeStatus.ToString();
+
+                    if (commandResult.RuntimeStatus != CommandRuntimeStatus.Unknown && !commandResult.RuntimeStatus.IsActive())
                     {
                         entity.Processed ??= DateTime.UtcNow;
                     }
-
-                    entity.RuntimeStatus = commandResult.RuntimeStatus.ToString();
-                    entity.CustomStatus = commandResult.CustomStatus;
                 }
 
                 await commandTable

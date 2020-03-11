@@ -25,8 +25,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
         }
         public string Provider { get; set; }
         public string Command { get; set; }
-        public string RuntimeStatus { get; set; }
-        public string CustomStatus { get; set; }
+        public string Status { get; set; }
         public DateTime? Created { get; set; }
         public DateTime? Processed { get; set; }
     }

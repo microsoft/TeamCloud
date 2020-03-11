@@ -63,7 +63,9 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 provider = commandResult.Result = teamCloud.Providers
                     .Single(p => p.Id.Equals(provider.Id, StringComparison.Ordinal));
 
-                functionContext.StartNewOrchestration(nameof(OrchestratorProviderRegisterCommandOrchestration), provider);
+                await functionContext
+                    .RegisterProviderAsync(provider)
+                    .ConfigureAwait(true);
             }
             catch (Exception exc)
             {

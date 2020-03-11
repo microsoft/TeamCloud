@@ -42,8 +42,9 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
             }
             finally
             {
-                functionContext
-                    .StartNewOrchestration(nameof(OrchestratorProviderRegisterCommandOrchestration), null);
+                await functionContext
+                    .RegisterProviderAsync()
+                    .ConfigureAwait(true);
             }
         }
     }

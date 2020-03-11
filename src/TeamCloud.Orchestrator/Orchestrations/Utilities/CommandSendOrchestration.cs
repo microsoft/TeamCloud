@@ -120,7 +120,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                 return Task.CompletedTask;
 
             return functionContext
-                .CallSubOrchestratorWithRetryAsync(nameof(OrchestratorProviderRegisterCommandOrchestration), provider);
+                .RegisterProviderAsync(provider, true);
         }
 
         private static Task EnableProviderAsync(IDurableOrchestrationContext functionContext, IProviderCommand providerCommand, Provider provider, ILogger log)
