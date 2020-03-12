@@ -16,6 +16,7 @@ using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
+using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
 {
@@ -71,9 +72,9 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
 
                 return JsonConvert.DeserializeObject<ICommandResult>(responseJson);
             }
-            catch (Exception exc) when (!exc.IsJsonSerializable())
+            catch (Exception exc) when (!exc.IsSerializable(out var serializableExc))
             {
-                throw exc.EnsureJsonSerializable();
+                throw serializableExc;
             }
         }
     }

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using TeamCloud.Orchestration;
+using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
 {
@@ -31,11 +31,9 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
                      .InvalidateCallbackUrlAsync(instanceId)
                      .ConfigureAwait(false);
             }
-            catch (Exception exc) when (!exc.IsJsonSerializable())
+            catch (Exception exc) when (!exc.IsSerializable(out var serializableExc))
             {
-                log.LogError(exc, $"Failed to invalidate callback url for instance {instanceId}: {exc.Message}");
-
-                throw exc.EnsureJsonSerializable();
+                throw serializableExc;
             }
         }
     }

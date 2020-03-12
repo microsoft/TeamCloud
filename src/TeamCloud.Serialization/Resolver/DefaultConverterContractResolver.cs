@@ -8,10 +8,11 @@ using System.Collections;
 using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using TeamCloud.Serialization.Converter;
 
-namespace TeamCloud.Model.Commands.Serialization
+namespace TeamCloud.Serialization.Resolver
 {
-    public class ModelConverterContractResolver : DefaultContractResolver
+    public class DefaultConverterContractResolver : DefaultContractResolver
     {
         protected override JsonConverter ResolveContractConverter(Type objectType)
         {

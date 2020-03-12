@@ -6,10 +6,11 @@
 using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using TeamCloud.Serialization.Resolver;
 
-namespace TeamCloud.Model.Commands.Serialization
+namespace TeamCloud.Serialization.Converter
 {
-    class ExceptionConverter : JsonConverter<Exception>
+    public sealed class ExceptionConverter : JsonConverter<Exception>
     {
         private JsonSerializer InnerSerializer => JsonSerializer.CreateDefault(new JsonSerializerSettings()
         {
@@ -25,12 +26,8 @@ namespace TeamCloud.Model.Commands.Serialization
 
         public override void WriteJson(JsonWriter writer, Exception value, JsonSerializer serializer)
         {
-            if (!value.IsJsonSerializable())
+            if (!value.IsSerializable(out var serializableException))
             {
-                var serializableException = value is null
-                    ? default(CommandException)
-                    : new CommandException(value.Message);
-
                 value = serializableException;
             }
 

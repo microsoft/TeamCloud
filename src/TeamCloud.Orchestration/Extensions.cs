@@ -14,11 +14,7 @@ namespace TeamCloud.Orchestration
 {
     public static class Extensions
     {
-        public static bool IsJsonSerializable(this Exception exception)
-            => !(exception.GetType().GetCustomAttribute<SerializableAttribute>() is null);
 
-        public static Exception EnsureJsonSerializable(this Exception exception)
-            => exception.IsJsonSerializable() ? exception : new FunctionException(exception);
 
         private static readonly int[] IsFinalStatus = new int[]
         {

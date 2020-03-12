@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 
@@ -40,9 +39,5 @@ namespace TeamCloud.Model.Commands
 
         public static List<Provider> ProvidersFor(this TeamCloudInstance teamCloud, Project project)
             => teamCloud.Providers.Where(provider => project.Type.Providers.Any(p => p.Id == provider.Id)).ToList();
-
-
-        internal static bool IsJsonSerializable(this Exception exception)
-            => !(exception.GetType().GetCustomAttribute<SerializableAttribute>() is null);
     }
 }
