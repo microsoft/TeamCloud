@@ -23,47 +23,58 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
     public static class CommandSendActivity
     {
         [FunctionName(nameof(CommandSendActivity))]
-        [RetryOptions(3)]
+        [RetryOptions(3, typeof(RetryHandler))]
         public static async Task<ICommandResult> RunActivity(
-            [ActivityTrigger] (Provider provider, ProviderCommandMessage message) input,
+            [ActivityTrigger] IDurableActivityContext functionContext,
             ILogger log)
         {
-            if (input.provider is null)
-                throw new ArgumentException($"input param must contain a valid Provider set on {nameof(input.provider)}.", nameof(input));
 
-            if (input.message is null)
-                throw new ArgumentException($"input param must contain a valid ProviderCommandMessage set on {nameof(input.message)}.", nameof(input));
+            var (provider, message) = functionContext.GetInput<(Provider, ProviderCommandMessage)>();
 
-            var providerUrl = new Url(input.provider.Url?.Trim());
+            var providerUrl = new Url(provider.Url?.Trim());
 
             if (!providerUrl.Path.EndsWith("/", StringComparison.OrdinalIgnoreCase))
             {
                 providerUrl = providerUrl.AppendPathSegment("api/command");
             }
 
-            log.LogInformation($"Sending command {input.message.CommandId} ({input.message.CommandType}) to {providerUrl}. Payload:{JsonConvert.SerializeObject(input.message)}");
+            log.LogInformation($"Sending command {message.CommandId} ({message.CommandType}) to {providerUrl}. Payload:{JsonConvert.SerializeObject(message)}");
 
             try
             {
                 var response = await providerUrl
-                    .WithHeader("x-functions-key", input.provider.AuthCode)
-                    .WithHeader("x-functions-callback", input.message.CallbackUrl)
-                    .AllowHttpStatus(HttpStatusCode.Conflict)
-                    .PostJsonAsync(input.message)
+                    .WithHeader("x-functions-key", provider.AuthCode)
+                    .WithHeader("x-functions-callback", message.CallbackUrl)
+                    .AllowHttpStatus(HttpStatusCode.Conflict, HttpStatusCode.BadRequest)
+                    .PostJsonAsync(message)
                     .ConfigureAwait(false);
 
-                if (response.StatusCode == HttpStatusCode.Conflict)
-                {
-                    // the provider returned a conflict 
-                    // this could mean that the sent command
-                    // is already in-flight. lets ask the provider
-                    // if there is a status available
+                log.LogInformation($"Sending command {message.CommandId} ({message.CommandType}) to {providerUrl} returned status code {response.StatusCode}.");
 
-                    response = await providerUrl
-                        .AppendPathSegment(input.message.CommandId)
-                        .WithHeader("x-functions-key", input.provider.AuthCode)
-                        .GetAsync()
-                        .ConfigureAwait(false);
+                switch (response.StatusCode)
+                {
+                    case HttpStatusCode.BadRequest:
+
+                        // the provider reported back a bad request
+                        // as resending the same payload doesn't
+                        // make sense we throw a cancelation exception
+
+                        throw new OperationCanceledException($"Provider '{provider.Id}' reported back a bad message for payload: {JsonConvert.SerializeObject(message)}");
+
+                    case HttpStatusCode.Conflict:
+
+                        // the provider returned a conflict 
+                        // this could mean that the sent command
+                        // is already in-flight. lets ask the provider
+                        // if there is a status available
+
+                        response = await providerUrl
+                            .AppendPathSegment(message.CommandId)
+                            .WithHeader("x-functions-key", provider.AuthCode)
+                            .GetAsync()
+                            .ConfigureAwait(false);
+
+                        break;
                 }
 
                 var responseJson = await response.Content
@@ -75,6 +86,19 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
             catch (Exception exc) when (!exc.IsSerializable(out var serializableExc))
             {
                 throw serializableExc;
+            }
+        }
+
+        private class RetryHandler : DefaultRetryHandler
+        {
+            public override bool Handle(Exception exception)
+            {
+                if (exception is OperationCanceledException)
+                {
+                    return false;
+                }
+
+                return base.Handle(exception);
             }
         }
     }

@@ -5,6 +5,7 @@
 
 using System;
 using System.Diagnostics;
+using DurableTask.Core.Exceptions;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
 
@@ -35,7 +36,7 @@ namespace TeamCloud.Orchestration
                 MaxRetryInterval = TimeSpan.Parse(retryAttribute.MaxRetryInterval),
                 RetryTimeout = TimeSpan.Parse(retryAttribute.RetryTimeout),
                 BackoffCoefficient = retryAttribute.BackoffCoefficient,
-                Handle = (exc) => HandleException(exc)
+                Handle = (exc) => HandleException(exc is TaskFailedException taskFailedExc ? taskFailedExc.InnerException : exc)
             };
 
             configuration?
@@ -48,7 +49,7 @@ namespace TeamCloud.Orchestration
             {
                 Debug.WriteLine($"Function '{functionName}': Execution failed -> {exc}");
 
-                return handle?.Invoke(exc) ?? true;
+                return handle?.Invoke(exc) ?? retryAttribute.RetryHandler?.Handle(exc) ?? true;
             }
         }
     }

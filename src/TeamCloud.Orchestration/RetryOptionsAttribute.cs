@@ -10,7 +10,7 @@ using System.Reflection;
 namespace TeamCloud.Orchestration
 {
     [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
-    public sealed class RetryOptionsAttribute : Attribute
+    public class RetryOptionsAttribute : Attribute
     {
         private static readonly ConcurrentDictionary<string, RetryOptionsAttribute> Cache = new ConcurrentDictionary<string, RetryOptionsAttribute>();
 
@@ -34,12 +34,24 @@ namespace TeamCloud.Orchestration
         /// Creates a new instance of <see cref="FunctionRetryAttribute"/>
         /// </summary>
         /// <param name="maxNumberOfAttempts">Sets the max number of attempts</param>
-        public RetryOptionsAttribute(int maxNumberOfAttempts)
+        public RetryOptionsAttribute(int maxNumberOfAttempts) : this(maxNumberOfAttempts, typeof(DefaultRetryHandler))
+        { }
+
+        /// <summary>
+        /// Creates a new instance of <see cref="FunctionRetryAttribute"/>
+        /// </summary>
+        /// <param name="maxNumberOfAttempts">Sets the max number of attempts</param>
+        /// <param name="retryHandlerType">The type of the retry handler</param>
+        public RetryOptionsAttribute(int maxNumberOfAttempts, Type retryHandlerType)
         {
             if (maxNumberOfAttempts < 1)
                 throw new ArgumentException("Invalid number of attempts. Specify a value greater than zero.", nameof(maxNumberOfAttempts));
 
+            if (retryHandlerType is null)
+                throw new ArgumentNullException(nameof(retryHandlerType));
+
             MaxNumberOfAttempts = maxNumberOfAttempts;
+            RetryHandler = (IRetryHandler)Activator.CreateInstance(retryHandlerType);
         }
 
         private TimeSpan firstRetryInterval = TimeSpan.FromMinutes(1);
@@ -86,8 +98,13 @@ namespace TeamCloud.Orchestration
 
 
         /// <summary>
-        /// Gets or sets the max number of attempts
+        /// Gets the max number of attempts
         /// </summary>
         public int MaxNumberOfAttempts { get; private set; }
+
+        /// <summary>
+        /// Gets the retry handler instance
+        /// </summary>
+        public IRetryHandler RetryHandler { get; private set; }
     }
 }
