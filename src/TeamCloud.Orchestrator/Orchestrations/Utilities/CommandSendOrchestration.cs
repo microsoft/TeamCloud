@@ -73,7 +73,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                         .ConfigureAwait(true);
                 }
 
-                if (commandResult.RuntimeStatus.IsRunning())
+                if (commandResult.RuntimeStatus.IsActive())
                 {
                     functionContext.SetCustomStatus($"Waiting for command ({command.CommandId}) result on {commandCallback}", log);
 

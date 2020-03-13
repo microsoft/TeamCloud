@@ -13,27 +13,6 @@ namespace TeamCloud.Model.Commands
 {
     public static class Extensions
     {
-        private static readonly CommandRuntimeStatus[] FinalRuntimeStatus = new CommandRuntimeStatus[]
-        {
-            CommandRuntimeStatus.Canceled,
-            CommandRuntimeStatus.Completed,
-            CommandRuntimeStatus.Terminated,
-            CommandRuntimeStatus.Failed
-        };
-
-        private static readonly CommandRuntimeStatus[] RunningRuntimeStatus = new CommandRuntimeStatus[]
-        {
-            CommandRuntimeStatus.Running,
-            CommandRuntimeStatus.ContinuedAsNew,
-            CommandRuntimeStatus.Pending
-        };
-
-        public static bool IsFinal(this CommandRuntimeStatus status)
-            => FinalRuntimeStatus.Contains(status);
-
-        public static bool IsRunning(this CommandRuntimeStatus status)
-            => RunningRuntimeStatus.Contains(status);
-
         public static string StatusUrl(this ICommandResult result)
             => result.Links.TryGetValue("status", out var statusUrl) ? statusUrl : null;
 
