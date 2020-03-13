@@ -30,17 +30,21 @@ namespace TeamCloud.Model.Commands.Core
         Dictionary<string, string> Links { get; }
 
         object Result { get; set; }
+
+        TimeSpan Timeout { get; set; }
     }
 
 
     public interface ICommandResult<TResult> : ICommandResult
-        where TResult : new()
+        where TResult : class, new()
     {
         new TResult Result { get; set; }
     }
 
     public abstract class CommandResult : ICommandResult
     {
+        public static TimeSpan MaximumTimeout => TimeSpan.FromMinutes(30);
+
         public Guid CommandId { get; set; }
 
         public DateTime CreatedTime { get; set; }
@@ -62,11 +66,17 @@ namespace TeamCloud.Model.Commands.Core
         public Dictionary<string, string> Links { get; private set; } = new Dictionary<string, string>();
 
         public object Result { get; set; }
+
+        public TimeSpan Timeout { get; set; } = MaximumTimeout;
     }
 
     public abstract class CommandResult<TResult> : CommandResult, ICommandResult<TResult>
-        where TResult : new()
+        where TResult : class, new()
     {
-        public new TResult Result { get; set; }
+        public new TResult Result
+        {
+            get => base.Result as TResult;
+            set => base.Result = value;
+        }
     }
 }

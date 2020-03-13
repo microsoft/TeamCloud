@@ -31,8 +31,6 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
             var (command, provider) = functionContext.GetInput<(IProviderCommand, Provider)>();
 
             var commandResult = command.CreateResult();
-            var commandTimeout = TimeSpan.FromMinutes(30);
-
             var commandMessage = default(ICommandMessage);
             var commandCallback = default(string);
 
@@ -66,6 +64,12 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                         .CallActivityWithRetryAsync<ICommandResult>(nameof(CommandSendActivity), (provider, commandMessage))
                         .ConfigureAwait(true);
                 }
+                catch (RetryCanceledException)
+                {
+                    commandResult = await functionContext
+                        .CallActivityWithRetryAsync<ICommandResult>(nameof(CommandResultActivity), (provider, commandMessage))
+                        .ConfigureAwait(true);
+                }
                 finally
                 {
                     await functionContext
@@ -75,7 +79,11 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 
                 if (commandResult.RuntimeStatus.IsActive())
                 {
-                    functionContext.SetCustomStatus($"Waiting for command ({command.CommandId}) result on {commandCallback}", log);
+                    var commandTimeout = (commandResult.Timeout > TimeSpan.Zero && commandResult.Timeout < CommandResult.MaximumTimeout)
+                        ? commandResult.Timeout         // use the timeout reported back by the provider
+                        : CommandResult.MaximumTimeout; // use the defined maximum timeout 
+
+                    functionContext.SetCustomStatus($"Waiting for command ({command.CommandId}) result on {commandCallback} for {commandTimeout}", log);
 
                     commandResult = await functionContext
                         .WaitForExternalEvent<ICommandResult>(command.CommandId.ToString(), commandTimeout, null)
@@ -83,7 +91,9 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 
                     if (commandResult is null)
                     {
-                        commandResult = command.CreateResult();
+                        commandResult = await functionContext
+                            .CallActivityWithRetryAsync<ICommandResult>(nameof(CommandResultActivity), (provider, commandMessage))
+                            .ConfigureAwait(true);
 
                         throw new TimeoutException($"Provider '{provider.Id}' ran into timeout ({commandTimeout})");
                     }
@@ -92,6 +102,10 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
             catch (Exception exc)
             {
                 functionContext.SetCustomStatus($"Sending command '{command.CommandId}' failed: {exc.Message}", log, exc);
+
+                // ensure we always have a command result
+                // to add our exception
+                commandResult ??= command.CreateResult();
 
                 commandResult.Errors.Add(exc);
             }

@@ -43,49 +43,30 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
 
             try
             {
-                ICommandResult commandResult;
+                var response = await providerUrl
+                    .WithHeader("x-functions-key", provider.AuthCode)
+                    .WithHeader("x-functions-callback", message.CallbackUrl)
+                    .PostJsonAsync(message)
+                    .ConfigureAwait(false);
 
-                try
-                {
-                    var response = await providerUrl
-                        .WithHeader("x-functions-key", provider.AuthCode)
-                        .WithHeader("x-functions-callback", message.CallbackUrl)
-                        .PostJsonAsync(message)
-                        .ConfigureAwait(false);
-
-                    commandResult = await response.Content
-                        .ReadAsJsonAsync<ICommandResult>()
-                        .ConfigureAwait(false);
-                }
-                catch (FlurlHttpException postException)
-                {
-                    switch (postException.Call.HttpStatus)
-                    {
-                        case HttpStatusCode.Conflict:
-
-                            commandResult = await providerUrl
-                                .AppendPathSegment(message.CommandId)
-                                .WithHeader("x-functions-key", provider.AuthCode)
-                                .GetJsonAsync<ICommandResult>()
-                                .ConfigureAwait(false);
-
-                            break;
-
-                        case HttpStatusCode.Unauthorized:
-                        case HttpStatusCode.BadRequest:
-
-                            // for some status codes it doesn't
-                            // make sense to run another attemp
-
-                            throw new RetryCancelException($"Provider '{provider.Id}' failed: {postException.Message}", postException);
-
-                        default:
-
-                            throw; // bubble the exception
-                    }
-                }
-
-                return commandResult;
+                return await response.Content
+                    .ReadAsJsonAsync<ICommandResult>()
+                    .ConfigureAwait(false);
+            }
+            catch (FlurlHttpException postException) when (postException.Call.HttpStatus == HttpStatusCode.Conflict)
+            {
+                // there is no need to retry sending the command - the provider reported a conflict, so the command was already sent
+                throw new RetryCanceledException($"Provider '{provider.Id}' failed with status code {postException.Call.HttpStatus}", postException);
+            }
+            catch (FlurlHttpException postException) when (postException.Call.HttpStatus == HttpStatusCode.BadRequest)
+            {
+                // there is no need to retry sending the command - the provider reported a bad message payload
+                throw new RetryCanceledException($"Provider '{provider.Id}' failed with status code {postException.Call.HttpStatus}", postException);
+            }
+            catch (FlurlHttpException postException) when (postException.Call.HttpStatus == HttpStatusCode.Unauthorized)
+            {
+                // there is no need to retry sending the command - seems like our auth code became invalid
+                throw new RetryCanceledException($"Provider '{provider.Id}' failed with status code {postException.Call.HttpStatus}", postException);
             }
             catch (Exception exc) when (!exc.IsSerializable(out var serializableExc))
             {
