@@ -25,5 +25,16 @@ namespace TeamCloud.Orchestration
 
         }) ?? throw new ArgumentOutOfRangeException(nameof(functionName), $"Could not find function by name '{functionName}'");
 
+        public static bool FunctionExists(string functionName)
+        {
+            try
+            {
+                return (GetFunctionMethod(functionName) != null);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                return false;
+            }
+        }
     }
 }
