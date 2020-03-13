@@ -7,7 +7,6 @@ using System;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
-using System.Web;
 using Flurl;
 using Flurl.Http;
 using Microsoft.AspNetCore.Http;
@@ -19,6 +18,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using TeamCloud.Http;
 using TeamCloud.Model.Commands.Core;
+using TeamCloud.Orchestration;
 
 namespace TeamCloud.Orchestrator
 {
@@ -109,7 +109,7 @@ namespace TeamCloud.Orchestrator
                     .ConfigureAwait(false);
 
                 if (!string.IsNullOrEmpty(functionKey))
-                    throw; 
+                    throw;
             }
         }
 
@@ -154,46 +154,36 @@ namespace TeamCloud.Orchestrator
 
             try
             {
-                await durableClient
-                    .RaiseEventAsync(instanceId, eventName, commandResult)
-                    .ConfigureAwait(false);
-            }
-            catch (Exception exc)
-            {
                 var status = await durableClient
                     .GetStatusAsync(instanceId)
                     .ConfigureAwait(false);
 
-                if (status is null)
+                if (status?.RuntimeStatus.IsFinal() ?? true)
                 {
-                    log.LogError($"Callback '{instanceId}' ({eventName}) - Orchestration instance does not exist.");
+                    // the orchestration does not exist or reached
+                    // a final state - raising an external event 
+                    // doesn't make sense, but we need to response
+                    // with an status code that indicates that
+                    // another retry doesn't make sense.
+                    // status code 410 (Gone) looks like a perfect fit
 
-                    return new StatusCodeResult((int)HttpStatusCode.ServiceUnavailable);
-                }
-                else if (status.IsFinalRuntimeStatus())
-                {
-                    log.LogError($"Callback '{instanceId}' ({eventName}) - Orchestration instance already reached final state '{status.RuntimeStatus}'.");
-
-                    return new StatusCodeResult((int)HttpStatusCode.ServiceUnavailable);
+                    return new StatusCodeResult((int)HttpStatusCode.Gone);
                 }
                 else
                 {
-                    log.LogError(exc, $"Callback '{instanceId}' ({eventName}) - Failed to raise event with payload {JsonConvert.SerializeObject(commandResult)}.");
-
-                    throw; // re-throw exception to return an internal server error
+                    await durableClient
+                        .RaiseEventAsync(instanceId, eventName, commandResult)
+                        .ConfigureAwait(false);
                 }
+            }
+            catch (Exception exc)
+            {
+                log.LogError(exc, $"Callback '{instanceId}' ({eventName}) - Failed to raise event with payload {JsonConvert.SerializeObject(commandResult)}.");
+
+                throw; // re-throw exception to return an internal server error
             }
 
             return new OkResult();
         }
-
-        private class RetryAfterResult : IActionResult
-        {
-            public Task ExecuteResultAsync(ActionContext context)
-            {
-                throw new NotImplementedException();
-            }
-        }
-
     }
 }

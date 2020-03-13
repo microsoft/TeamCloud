@@ -10,7 +10,7 @@ namespace TeamCloud.Serialization
 {
     public static class Extensions
     {
-        internal static bool IsSerializable(this Exception exception)
+        public static bool IsSerializable(this Exception exception)
         {
             if (typeof(SerializableException).IsAssignableFrom(exception.GetType())) return true;
 
@@ -23,9 +23,12 @@ namespace TeamCloud.Serialization
         {
             var isSerializable = exception.IsSerializable();
 
-            serializableException = (isSerializable ? exception : new SerializableException(exception));
+            serializableException = (isSerializable ? null : new SerializableException(exception));
 
             return isSerializable;
         }
+
+        public static Exception AsSerializable(this Exception exception)
+            => exception.IsSerializable() ? exception : new SerializableException(exception);
     }
 }

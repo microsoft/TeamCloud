@@ -48,19 +48,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
                     ? (CommandAuditEntity)entityResult.Result
                     : entity;
 
-                entity.Provider = provider.Id;
-                entity.Command = command.GetType().Name;
-                entity.Created ??= DateTime.UtcNow;
-
-                if (commandResult != null)
-                {
-                    entity.Status = commandResult.RuntimeStatus.ToString();
-
-                    if (commandResult.RuntimeStatus != CommandRuntimeStatus.Unknown && !commandResult.RuntimeStatus.IsActive())
-                    {
-                        entity.Processed ??= DateTime.UtcNow;
-                    }
-                }
+                AugmentEntity(entity, provider, command, commandResult);
 
                 await commandTable
                     .ExecuteAsync(TableOperation.InsertOrReplace(entity))
@@ -69,6 +57,23 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
             catch (Exception exc)
             {
                 log.LogWarning(exc, $"Failed to audit command {command?.GetType().Name ?? "UNKNOWN"} ({command?.CommandId ?? Guid.Empty}) for provider {provider?.Id ?? "UNKNOWN"}");
+            }
+        }
+
+        private static void AugmentEntity(CommandAuditEntity entity, Provider provider, ICommand command, ICommandResult commandResult)
+        {
+            entity.Provider = provider.Id;
+            entity.Command = command.GetType().Name;
+            entity.Created ??= DateTime.UtcNow;
+
+            if (commandResult != null)
+            {
+                entity.Status = commandResult.RuntimeStatus.ToString();
+
+                if (commandResult.RuntimeStatus.IsFinal())
+                {
+                    entity.Processed ??= DateTime.UtcNow;
+                }
             }
         }
     }

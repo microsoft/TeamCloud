@@ -30,6 +30,6 @@ namespace TeamCloud.Orchestration
         /// </summary>
         /// <param name="exception">The <see cref="System.Exception"/> to evaluate</param>
         /// <returns><c>true</c> if another attemp should be executed: otherwise <c>false</c></returns>
-        public virtual bool Handle(Exception exception) => true;
+        public virtual bool Handle(Exception exception) => (exception is RetryCancelException ? false : true);
     }
 }

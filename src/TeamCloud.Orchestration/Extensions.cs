@@ -5,8 +5,6 @@
 
 using System;
 using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 
@@ -14,29 +12,28 @@ namespace TeamCloud.Orchestration
 {
     public static class Extensions
     {
+        public static bool IsActive(this OrchestrationRuntimeStatus status)
+            => status == OrchestrationRuntimeStatus.ContinuedAsNew
+            || status == OrchestrationRuntimeStatus.Pending
+            || status == OrchestrationRuntimeStatus.Running;
 
+        public static bool IsFinal(this OrchestrationRuntimeStatus status)
+            => status == OrchestrationRuntimeStatus.Canceled
+            || status == OrchestrationRuntimeStatus.Completed
+            || status == OrchestrationRuntimeStatus.Failed
+            || status == OrchestrationRuntimeStatus.Terminated;
 
-        private static readonly int[] IsFinalStatus = new int[]
-        {
-            (int) OrchestrationRuntimeStatus.Completed,
-            (int) OrchestrationRuntimeStatus.Failed,
-            (int) OrchestrationRuntimeStatus.Canceled,
-            (int) OrchestrationRuntimeStatus.Terminated
-        };
+        public static bool IsUnknown(this OrchestrationRuntimeStatus status)
+            => status == OrchestrationRuntimeStatus.Unknown;
 
+        public static bool IsFinal(this OrchestrationRuntimeStatus? status)
+            => status.GetValueOrDefault(OrchestrationRuntimeStatus.Unknown).IsFinal();
 
-        public static bool IsFinal(this OrchestrationRuntimeStatus orchestrationRuntimeStatus)
-            => IsFinalStatus.Contains((int)orchestrationRuntimeStatus);
+        public static bool IsActive(this OrchestrationRuntimeStatus? status)
+            => status.GetValueOrDefault(OrchestrationRuntimeStatus.Unknown).IsActive();
 
-        private static readonly int[] IsActiveStatus = new int[]
-        {
-            (int) OrchestrationRuntimeStatus.ContinuedAsNew,
-            (int) OrchestrationRuntimeStatus.Pending,
-            (int) OrchestrationRuntimeStatus.Running
-        };
-
-        public static bool IsActive(this OrchestrationRuntimeStatus orchestrationRuntimeStatus)
-            => IsActiveStatus.Contains((int)orchestrationRuntimeStatus);
+        public static bool IsUnknown(this OrchestrationRuntimeStatus? status)
+            => status.GetValueOrDefault(OrchestrationRuntimeStatus.Unknown).IsUnknown();
 
         private static RetryOptions GetFunctionRetryOptions(IDurableOrchestrationContext orchestration, string functionName, IRetryOptionsFactory retryOptionsFactory = null, Func<Exception, bool> handle = null)
         {

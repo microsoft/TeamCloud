@@ -24,20 +24,20 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
     public static class CommandSendActivity
     {
         [FunctionName(nameof(CommandSendActivity))]
-        [RetryOptions(3, typeof(RetryHandler))]
+        [RetryOptions(3)]
         public static async Task<ICommandResult> RunActivity(
             [ActivityTrigger] IDurableActivityContext functionContext,
             ILogger log)
         {
+            if (functionContext is null)
+                throw new ArgumentNullException(nameof(functionContext));
 
             var (provider, message) = functionContext.GetInput<(Provider, ProviderCommandMessage)>();
 
             var providerUrl = new Url(provider.Url?.Trim());
 
             if (!providerUrl.Path.EndsWith("/", StringComparison.OrdinalIgnoreCase))
-            {
                 providerUrl = providerUrl.AppendPathSegment("api/command");
-            }
 
             log.LogInformation($"Sending command {message.CommandId} ({message.CommandType}) to {providerUrl}. Payload:{JsonConvert.SerializeObject(message)}");
 
@@ -61,14 +61,6 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
                 {
                     switch (postException.Call.HttpStatus)
                     {
-                        case HttpStatusCode.Unauthorized:
-                        case HttpStatusCode.BadRequest:
-
-                            // for some status codes it doesn't
-                            // make sense to run another attemp
-
-                            throw new OperationCanceledException($"Provider '{provider.Id}' failed with status code {postException.Call.HttpStatus}");
-
                         case HttpStatusCode.Conflict:
 
                             commandResult = await providerUrl
@@ -78,6 +70,14 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
                                 .ConfigureAwait(false);
 
                             break;
+
+                        case HttpStatusCode.Unauthorized:
+                        case HttpStatusCode.BadRequest:
+
+                            // for some status codes it doesn't
+                            // make sense to run another attemp
+
+                            throw new RetryCancelException($"Provider '{provider.Id}' failed: {postException.Message}", postException);
 
                         default:
 
@@ -90,19 +90,6 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
             catch (Exception exc) when (!exc.IsSerializable(out var serializableExc))
             {
                 throw serializableExc;
-            }
-        }
-
-        private class RetryHandler : DefaultRetryHandler
-        {
-            public override bool Handle(Exception exception)
-            {
-                if (exception is OperationCanceledException)
-                {
-                    return false;
-                }
-
-                return base.Handle(exception);
             }
         }
     }
