@@ -74,7 +74,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands.Activities
             }
             catch (AzureDeploymentException deployEx)
             {
-                log.LogError(deployEx, $"Error deploying new Resource Group for Project.\n {deployEx.ResourceError}");
+                log.LogError(deployEx, $"Error deploying new Resource Group for Project.{Environment.NewLine}{string.Join(Environment.NewLine, deployEx.ResourceErrors)}");
                 throw;
             }
             catch (Exception ex)

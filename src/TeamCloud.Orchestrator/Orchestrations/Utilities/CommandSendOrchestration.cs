@@ -104,10 +104,16 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                 functionContext.SetCustomStatus($"Sending command '{command.CommandId}' failed: {exc.Message}", log, exc);
 
                 // ensure we always have a command result
-                // to add our exception
-                commandResult ??= command.CreateResult();
+                // to add our exception so we won't break
+                // our command auditing in the finally block
 
+                commandResult ??= command.CreateResult();
                 commandResult.Errors.Add(exc);
+
+                // re-throw the exception to inform the
+                // outer orchestration that some bad happened
+
+                throw;
             }
             finally
             {
