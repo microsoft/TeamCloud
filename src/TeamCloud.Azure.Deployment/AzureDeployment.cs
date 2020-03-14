@@ -18,7 +18,7 @@ namespace TeamCloud.Azure.Deployment
     {
         string ResourceId { get; }
 
-        Task<string> GetErrorAsync();
+        Task<IEnumerable<string>> GetErrorsAsync();
 
         Task<AzureDeploymentState> GetStateAsync();
 
@@ -154,12 +154,14 @@ namespace TeamCloud.Azure.Deployment
             return GetState(json);
         }
 
-        public async Task<string> GetErrorAsync()
+        public async Task<IEnumerable<string>> GetErrorsAsync()
         {
             var json = await GetDeploymentJsonAsync()
                 .ConfigureAwait(false);
 
-            return json?.SelectToken("")?.ToString();
+            var errorToken = json.SelectToken("$.properties.error");
+
+            return AzureDeploymentException.ResolveResourceErrors(errorToken);
         }
 
         public async Task<AzureDeploymentState> WaitAsync(bool throwOnError = false, bool cleanUp = false)
@@ -185,9 +187,9 @@ namespace TeamCloud.Azure.Deployment
                     else if (throwOnError && ErrorStates.Contains(state))
                     {
                         var exceptionMessage = $"Deployment '{ResourceId}' ended in state '{state}'";
-                        var resourceError = await GetErrorAsync().ConfigureAwait(false);
+                        var deploymentErrors = await GetErrorsAsync().ConfigureAwait(false);
 
-                        throw new AzureDeploymentException(exceptionMessage, ResourceId, resourceError);
+                        throw new AzureDeploymentException(exceptionMessage, ResourceId, deploymentErrors?.ToArray());
                     }
                     else
                     {
@@ -270,7 +272,7 @@ namespace TeamCloud.Azure.Deployment
                     // complex type conversion
                     "ARRAY" => outputValue.ToObject<JArray>(),
                     "OBJECT" => outputValue.ToObject<JObject>(),
-                    
+
                     // unsupported type conversion
                     _ => throw new NotSupportedException($"Output type '{outputType}' is not supported."),
                 };

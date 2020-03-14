@@ -21,9 +21,9 @@ namespace TeamCloud.Azure.Deployment
 
         Task<IAzureDeployment> DeployResourceGroupTemplateAsync(AzureDeploymentTemplate template, Guid subscriptionId, string resourceGroupName, bool completeMode = false);
 
-        Task<string> ValidateSubscriptionTemplateAsync(AzureDeploymentTemplate template, Guid subscriptionId, string location, bool throwOnError = false);
+        Task<IEnumerable<string>> ValidateSubscriptionTemplateAsync(AzureDeploymentTemplate template, Guid subscriptionId, string location, bool throwOnError = false);
 
-        Task<string> ValidateResourceGroupTemplateAsync(AzureDeploymentTemplate template, Guid subscriptionId, string resourceGroupName, bool throwOnError = false);
+        Task<IEnumerable<string>> ValidateResourceGroupTemplateAsync(AzureDeploymentTemplate template, Guid subscriptionId, string resourceGroupName, bool throwOnError = false);
     }
 
     public class AzureDeploymentService : IAzureDeploymentService
@@ -69,15 +69,16 @@ namespace TeamCloud.Azure.Deployment
             catch (FlurlHttpException exc) when (exc.Call.HttpStatus == System.Net.HttpStatusCode.BadRequest)
             {
                 var validationResultJson = await exc.Call.Response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                var validationResultMessage = JObject.Parse(validationResultJson).SelectToken("$..message")?.ToString();
+                var validationResultError = JObject.Parse(validationResultJson).SelectToken("$..error");
+                var validationResultResourceErrors = AzureDeploymentException.ResolveResourceErrors(validationResultError);
 
-                throw new AzureDeploymentException($"Invalid deployment template: {validationResultMessage}", deploymentResourceId, validationResultMessage);
+                throw new AzureDeploymentException($"Invalid deployment template: {string.Join(", ", validationResultResourceErrors)}", deploymentResourceId, validationResultResourceErrors.ToArray());
             }
 
             return new AzureDeployment(deploymentResourceId, azureSessionService);
         }
 
-        public async Task<string> ValidateSubscriptionTemplateAsync(AzureDeploymentTemplate template, Guid subscriptionId, string location, bool throwOnError = false)
+        public async Task<IEnumerable<string>> ValidateSubscriptionTemplateAsync(AzureDeploymentTemplate template, Guid subscriptionId, string location, bool throwOnError = false)
         {
             var deploymentId = Guid.NewGuid();
             var deploymentResourceId = $"/subscriptions/{subscriptionId}/providers/Microsoft.Resources/deployments/{deploymentId}/validate";
@@ -103,12 +104,13 @@ namespace TeamCloud.Azure.Deployment
             catch (FlurlHttpException exc) when (exc.Call.HttpStatus == System.Net.HttpStatusCode.BadRequest)
             {
                 var validationResultJson = await exc.Call.Response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                var validationResultMessage = JObject.Parse(validationResultJson).SelectToken("$..message")?.ToString();
+                var validationResultError = JObject.Parse(validationResultJson).SelectToken("$..error");
+                var validationResultResourceErrors = AzureDeploymentException.ResolveResourceErrors(validationResultError);
 
                 if (throwOnError)
-                    throw new AzureDeploymentException($"Invalid deployment template: {validationResultMessage}", deploymentResourceId, validationResultMessage);
+                    throw new AzureDeploymentException($"Invalid deployment template: {string.Join(", ", validationResultResourceErrors)}", deploymentResourceId, validationResultResourceErrors.ToArray());
 
-                return validationResultMessage;
+                return validationResultResourceErrors;
             }
         }
 
@@ -136,15 +138,16 @@ namespace TeamCloud.Azure.Deployment
             catch (FlurlHttpException exc) when (exc.Call.HttpStatus == System.Net.HttpStatusCode.BadRequest)
             {
                 var validationResultJson = await exc.Call.Response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                var validationResultMessage = JObject.Parse(validationResultJson).SelectToken("$..message")?.ToString();
+                var validationResultError = JObject.Parse(validationResultJson).SelectToken("$..error");
+                var validationResultResourceErrors = AzureDeploymentException.ResolveResourceErrors(validationResultError);
 
-                throw new AzureDeploymentException($"Invalid deployment template: {validationResultMessage}", deploymentResourceId, validationResultMessage);
+                throw new AzureDeploymentException($"Invalid deployment template: {string.Join(", ", validationResultResourceErrors)}", deploymentResourceId, validationResultResourceErrors.ToArray());
             }
 
             return new AzureDeployment(deploymentResourceId, azureSessionService);
         }
 
-        public async Task<string> ValidateResourceGroupTemplateAsync(AzureDeploymentTemplate template, Guid subscriptionId, string resourceGroupName, bool throwOnError = false)
+        public async Task<IEnumerable<string>> ValidateResourceGroupTemplateAsync(AzureDeploymentTemplate template, Guid subscriptionId, string resourceGroupName, bool throwOnError = false)
         {
             var deploymentId = Guid.NewGuid();
             var deploymentResourceId = $"/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Resources/deployments/{deploymentId}/validate";
@@ -170,12 +173,13 @@ namespace TeamCloud.Azure.Deployment
             catch (FlurlHttpException exc) when (exc.Call.HttpStatus == System.Net.HttpStatusCode.BadRequest)
             {
                 var validationResultJson = await exc.Call.Response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                var validationResultMessage = JObject.Parse(validationResultJson).SelectToken("$..message")?.ToString();
+                var validationResultError = JObject.Parse(validationResultJson).SelectToken("$..error");
+                var validationResultResourceErrors = AzureDeploymentException.ResolveResourceErrors(validationResultError);
 
                 if (throwOnError)
-                    throw new AzureDeploymentException($"Invalid deployment template: {validationResultMessage}", deploymentResourceId, validationResultMessage);
+                    throw new AzureDeploymentException($"Invalid deployment template: {string.Join(", ", validationResultResourceErrors)}", deploymentResourceId, validationResultResourceErrors.ToArray());
 
-                return validationResultMessage;
+                return validationResultResourceErrors;
             }
         }
 
