@@ -37,13 +37,25 @@ jobs:
       id: gitversion # step id used as reference for output values
       uses: gittools/actions/gitversion/execute@v0.6.1
 
+    - name: Set Release Variables
+      id: release_variables
+      run: |
+        RELEASE_TAG=$([[ "${{ github.ref }}" =~ ^refs\/tags\/ ]] && (echo "${{ github.ref }}" | sed -e "s/.*\///g") || echo "")
+        RELEASE_URL=$([[ -z "$RELEASE_TAG" ]] && echo "" || (curl https://api.github.com/repos/$GITHUB_REPOSITORY/releases/tags/$RELEASE_TAG -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" | jq -r ".url"))
+        RELEASE_UPLOAD_URL=$([[ -z "$RELEASE_TAG" ]] && echo "" || (curl https://api.github.com/repos/$GITHUB_REPOSITORY/releases/tags/$RELEASE_TAG -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" | jq -r ".upload_url"))
+        IS_MASTER_RELEASE=$([[ ! -z "$RELEASE_URL" ]])
+        echo "::set-output name=tag::$RELEASE_TAG"
+        echo "::set-output name=url::$RELEASE_URL"
+        echo "::set-output name=upload_url::$RELEASE_UPLOAD_URL"
+        echo "::set-output name=is_master_release::$IS_MASTER_RELEASE"        
+
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: '3.1.101'
 
     - name: Build and Package
-      run:  dotnet build -c $BUILD_CONFIGURATION -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true --version-suffix "${{ steps.gitversion.outputs.nuGetPreReleaseTagV2 }}"
+      run:  dotnet build -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true --version-suffix "${{ steps.gitversion.outputs.nuGetPreReleaseTagV2 }}"
       working-directory: ${{ env.SOURCE_DIRECTORY }}
 
     - name: Publish Packages (master only)
@@ -53,16 +65,48 @@ jobs:
     - name: Augment Release (master only)
       if: steps.gitversion.outputs.branchName == 'master'
       run: |
-        RELEASE_TAG=$([[ "${{ github.ref }}" =~ ^refs\/tags\/ ]] && (echo "${{ github.ref }}" | sed -e "s/.*\///g") || echo "")
-        RELEASE_URL=$([[ -z "$RELEASE_TAG" ]] && echo "" || (curl https://api.github.com/repos/$GITHUB_REPOSITORY/releases/tags/$RELEASE_TAG -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" | jq -r ".url"))
-        if [[ ! -z "$RELEASE_URL" ]]; then
+        if [[ ! -z "${{ steps.release_variables.outputs.url }}" ]]; then
           if [ -z "${{ steps.gitversion.outputs.preReleaseTag }}" ]; then
-            echo "Ensure release $RELEASE_TAG is set to major release"
-            curl --data '{"prerelease": false}' -X PATCH $RELEASE_URL -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}"
+            echo "Ensure release ${{ steps.release_variables.outputs.tag }} is set to major release"
+            curl --data '{"prerelease": false}' -X PATCH ${{ steps.release_variables.outputs.url }} -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}"
           else
-            echo "Ensure release $RELEASE_TAG is set to pre release"
-            curl --data '{"prerelease": true}' -X PATCH $RELEASE_URL -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}"
+            echo "Ensure release ${{ steps.release_variables.outputs.tag }} is set to pre release"
+            curl --data '{"prerelease": true}' -X PATCH ${{ steps.release_variables.outputs.url }} -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}"
           fi
         else
           echo "${{ github.ref }} is not assigned to a release"
         fi
+        
+    - name: Build for Deployment (master only)
+      if: steps.release_variables.outputs.is_master_release
+      id: deployment_build
+      run: |
+        dotnet publish ./TeamCloud.API/TeamCloud.API.csproj -o ../TeamCloud.API -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true --version-suffix "${{ steps.gitversion.outputs.nuGetPreReleaseTagV2 }}"
+        dotnet publish ./TeamCloud.API/TeamCloud.Orchestrator.csproj -o ../TeamCloud.Orchestrator -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true --version-suffix "${{ steps.gitversion.outputs.nuGetPreReleaseTagV2 }}"
+
+        zip -r ../TeamCloud.API.zip ../TeamCloud.API
+        zip -r ../TeamCloud.Orchestrator.zip ../TeamCloud.Orchestrator
+
+      working-directory: ${{ env.SOURCE_DIRECTORY }}
+
+    - name: Upload TeamCloud.API Release Assets
+      if: steps.release_variables.outputs.is_master_release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.release_variables.outputs.upload_url }} 
+        asset_path: ./TeamCloud.API.zip
+        asset_name: TeamCloud.API.zip
+        asset_content_type: application/zip
+
+    - name: Upload TeamCloud.Orchestrator Release Assets
+      if: steps.release_variables.outputs.is_master_release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.release_variables.outputs.upload_url }} 
+        asset_path: ./TeamCloud.Orchestrator.zip
+        asset_name: TeamCloud.Orchestrator.zip
+        asset_content_type: application/zip
