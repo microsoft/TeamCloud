@@ -1,5 +1,6 @@
-next-version: 0.0.0
-mode: ContinuousDeployment
+# next-version: 0.0.0
+# mode: ContinuousDeployment
+mode: ContinuousDelivery
 branches: 
   master:
     tag: ''
