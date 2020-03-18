@@ -12,8 +12,5 @@ namespace TeamCloud.Model.Commands
     {
         public OrchestratorProjectUserDeleteCommand(User user, User payload, Guid projectId) : base(user, payload)
             => ProjectId = projectId;
-
-        public override ProviderProjectUserDeleteCommand CreateProviderCommand()
-            => new ProviderProjectUserDeleteCommand(this.User, this.Payload, this.ProjectId.Value, this.CommandId);
     }
 }

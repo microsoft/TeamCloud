@@ -9,7 +9,6 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Model.Commands;
-using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Orchestrations.Commands.Activities;
@@ -44,12 +43,8 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
 
                 functionContext.SetCustomStatus("Waiting on providers to delete project resources.", log);
 
-                var providerCommand = command is IOrchestratorCommandConvert commandConvert
-                    ? commandConvert.CreateProviderCommand()
-                    : throw new NotSupportedException($"Unable to convert command of type '{command.GetType()}' to '{typeof(IProviderCommand)}'");
-
                 var providerResults = await functionContext
-                    .SendCommandAsync<ICommandResult<ProviderOutput>>(providerCommand, project)
+                    .SendCommandAsync<ProviderProjectDeleteCommand, ProviderProjectDeleteCommandResult>(new ProviderProjectDeleteCommand(command.User, project, command.CommandId))
                     .ConfigureAwait(true);
 
                 if (project.ResourceGroup != null)

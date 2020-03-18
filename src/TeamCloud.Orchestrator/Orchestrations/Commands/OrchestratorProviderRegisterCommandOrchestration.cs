@@ -13,6 +13,7 @@ using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Orchestrations.Commands.Activities;
+using TeamCloud.Orchestrator.Orchestrations.Utilities;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Commands
 {
@@ -89,10 +90,10 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                         .TeamCloudApplicationInsightsKey = Environment.GetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY");
 
                     command.Payload
-                        .Properties = teamCloud.Properties.Merge(provider.Properties);
+                        .Properties = teamCloud.Properties.Override(provider.Properties);
 
                     var commandResult = await functionContext
-                        .SendCommandAsync<ProviderRegisterCommandResult>(command, provider)
+                        .SendCommandAsync<ProviderRegisterCommand, ProviderRegisterCommandResult>(command, provider)
                         .ConfigureAwait(true);
 
                     if (commandResult?.Result != null)
@@ -114,7 +115,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                             {
                                 provider.PrincipalId = commandResult.Result.PrincipalId;
                                 provider.Registered = functionContext.CurrentUtcDateTime;
-                                provider.Properties = provider.Properties.Merge(commandResult.Result.Properties);
+                                provider.Properties = provider.Properties.Override(commandResult.Result.Properties);
 
                                 teamCloud = await functionContext
                                     .SetTeamCloudAsync(teamCloud)

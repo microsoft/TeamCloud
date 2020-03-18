@@ -9,7 +9,6 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Model.Commands;
-using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Orchestrations.Commands.Activities;
@@ -45,17 +44,13 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 functionContext.SetCustomStatus($"Updating project.", log);
 
                 project = await functionContext
-                    .CallActivityWithRetryAsync<Project>(nameof(ProjectUpdateActivity), project)
+                    .CallActivityWithRetryAsync<Project>(nameof(ProjectSetActivity), project)
                     .ConfigureAwait(true);
 
                 functionContext.SetCustomStatus("Waiting on providers to update project resources.", log);
 
-                var providerCommand = command is IOrchestratorCommandConvert commandConvert
-                    ? commandConvert.CreateProviderCommand()
-                    : throw new NotSupportedException($"Unable to convert command of type '{command.GetType()}' to '{typeof(IProviderCommand)}'");
-
                 var providerResults = await functionContext
-                    .SendCommandAsync<ICommandResult<ProviderOutput>>(providerCommand, project)
+                    .SendCommandAsync<ProviderProjectUpdateCommand, ProviderProjectUpdateCommandResult>(new ProviderProjectUpdateCommand(command.User, project, command.CommandId))
                     .ConfigureAwait(true);
 
                 functionContext.SetCustomStatus("Project updated.", log);

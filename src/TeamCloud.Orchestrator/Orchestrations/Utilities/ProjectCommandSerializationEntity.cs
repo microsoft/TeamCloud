@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Model.Commands.Core;
+using TeamCloud.Orchestration;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 {
@@ -34,7 +35,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                     .GetStatusAsync(activeCommandId.Value.ToString())
                     .ConfigureAwait(false);
 
-                if (status?.IsFinalRuntimeStatus() ?? true)
+                if (status?.RuntimeStatus.IsFinal() ?? true)
                     activeCommandId = null;
             }
 

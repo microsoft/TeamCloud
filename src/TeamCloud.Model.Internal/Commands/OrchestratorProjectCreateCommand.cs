@@ -11,8 +11,5 @@ namespace TeamCloud.Model.Commands
     {
         public OrchestratorProjectCreateCommand(User user, Project payload) : base(user, payload)
         { }
-
-        public override ProviderProjectCreateCommand CreateProviderCommand()
-            => new ProviderProjectCreateCommand(this.User, this.Payload, this.CommandId);
     }
 }

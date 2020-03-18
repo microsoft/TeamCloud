@@ -12,16 +12,16 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Commands.Activities
 {
-    public class ProjectUpdateActivity
+    public class ProjectSetActivity
     {
         private readonly IProjectsRepository projectsRepository;
 
-        public ProjectUpdateActivity(IProjectsRepository projectsRepository)
+        public ProjectSetActivity(IProjectsRepository projectsRepository)
         {
             this.projectsRepository = projectsRepository ?? throw new ArgumentNullException(nameof(projectsRepository));
         }
 
-        [FunctionName(nameof(ProjectUpdateActivity))]
+        [FunctionName(nameof(ProjectSetActivity))]
         public async Task<Project> RunActivity(
             [ActivityTrigger] Project project)
         {

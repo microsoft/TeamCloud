@@ -7,6 +7,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using TeamCloud.Orchestration;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
 {
@@ -27,7 +28,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
                 .GetStatusAsync(notification.ActiveCommandId.ToString())
                 .ConfigureAwait(false);
 
-            if (!status.IsFinalRuntimeStatus())
+            if (!(status?.RuntimeStatus.IsFinal() ?? false))
             {
                 _ = await durableClient
                     .StartNewAsync(nameof(ProjectCommandMonitoringOrchestrator), notification)

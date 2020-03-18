@@ -149,7 +149,14 @@ namespace TeamCloud.Model.Validation
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .NotEmpty()
                 .Must(list => list.Count >= min)
-                    .WithMessage("'{PropertyName}' must contain at least " + $"{min} items.");
+                    .WithMessage("'{PropertyName}' must contain at least " + $"{min} item/s.");
+
+        public static IRuleBuilderOptions<T, IList<TElement>> MustContainAtLeast<T, TElement>(this IRuleBuilderInitial<T, IList<TElement>> ruleBuilder, int min, Func<TElement, bool> predicate, string predicateMessage)
+            => ruleBuilder
+                .Cascade(CascadeMode.StopOnFirstFailure)
+                .NotEmpty()
+                .Must(list => list.Where(predicate).Count() >= min)
+                    .WithMessage("'{PropertyName}' must contain at least " + $"{min} item/s succeeding predicate '{predicateMessage}'.");
 
         public static IRuleBuilderOptions<T, string> MustBeResourcId<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
             => ruleBuilder

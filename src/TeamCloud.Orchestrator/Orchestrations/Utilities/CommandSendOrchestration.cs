@@ -4,6 +4,8 @@
  */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -50,6 +52,9 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                     .ConfigureAwait(true);
 
                 await EnableProviderAsync(functionContext, command, provider, log)
+                    .ConfigureAwait(true);
+
+                command = await AugmentCommandAsync(functionContext, provider, command, log)
                     .ConfigureAwait(true);
 
                 await functionContext
@@ -129,6 +134,9 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                 await functionContext
                     .AuditAsync(provider, command, commandResult)
                     .ConfigureAwait(true);
+
+                await ProcessOutputAsync(functionContext, provider, command, commandResult, log)
+                    .ConfigureAwait(true);
             }
 
             return commandResult;
@@ -150,6 +158,80 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 
             return functionContext
                 .CallActivityWithRetryAsync(nameof(AzureResourceGroupContributorActivity), (providerCommand.ProjectId.Value, provider.PrincipalId.Value));
+        }
+
+        private static async Task<IProviderCommand> AugmentCommandAsync(IDurableOrchestrationContext functionContext, Provider provider, IProviderCommand command, ILogger log)
+        {
+            var teamCloud = await functionContext
+                .GetTeamCloudAsync()
+                .ConfigureAwait(true);
+
+            var providerProperties = teamCloud.Properties;
+
+            if (command.ProjectId.HasValue)
+            {
+                var project = await functionContext
+                    .GetProjectAsync(command.ProjectId.Value)
+                    .ConfigureAwait(true);
+
+                var providerReference = project.Type.Providers
+                    .Single(pr => pr.Id == provider.Id);
+
+                command.Properties = providerProperties.Resolve(project)
+                    .Override(project.Type.Properties.Resolve(project))
+                    .Override(project.Properties.Resolve(project))
+                    .Override(provider.Properties.Resolve(project))
+                    .Override(providerReference.Properties.Resolve(project));
+            }
+            else
+            {
+                command.Properties = providerProperties.Resolve()
+                    .Override(provider.Properties.Resolve());
+            }
+
+            if (command.Payload is IProperties payloadWithProperties)
+            {
+                payloadWithProperties.Properties = payloadWithProperties.Properties.Resolve(command.Payload);
+            }
+
+            return command;
+        }
+
+        private static async Task ProcessOutputAsync(IDurableOrchestrationContext functionContext, Provider provider, IProviderCommand command, ICommandResult commandResult, ILogger log)
+        {
+            if (command.ProjectId.HasValue && commandResult is ICommandResult<ProviderOutput> providerOutputResult)
+            {
+                var project = await functionContext
+                    .GetProjectAsync(command.ProjectId.Value)
+                    .ConfigureAwait(true);
+
+                using (await functionContext.LockAsync(project).ConfigureAwait(true))
+                {
+                    project = await functionContext
+                        .GetProjectAsync(command.ProjectId.Value)
+                        .ConfigureAwait(true);
+
+                    var providerReference = project.Type.Providers
+                        .SingleOrDefault(pr => pr.Id == provider.Id);
+
+                    if (providerReference != null)
+                    {
+                        var commandType = command.GetType().Name;
+
+                        var resultProperties = providerOutputResult?.Result?.Properties ?? new Dictionary<string, string>();
+
+                        if (!providerReference.Results.TryAdd(commandType, resultProperties))
+                        {
+                            providerReference.Results[commandType] =
+                                (providerReference.Results[commandType] ?? new Dictionary<string, string>()).Override(resultProperties);
+                        }
+
+                        project = await functionContext
+                            .SetProjectAsync(project)
+                            .ConfigureAwait(true);
+                    }
+                }
+            }
         }
     }
 }

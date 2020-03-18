@@ -11,6 +11,13 @@ namespace TeamCloud.Model.Commands
     public class ProviderProjectDeleteCommand : ProviderCommand<Project, ProviderProjectDeleteCommandResult>
     {
         public ProviderProjectDeleteCommand(User user, Project payload, Guid? commandId = null) : base(user, payload, commandId)
-        { }
+            => ProjectId = payload?.Id ?? throw new ArgumentNullException(nameof(payload));
+
+        public override Guid? ProjectId
+        {
+            get => (base.Payload as Project)?.Id ?? base.ProjectId;
+            set => base.ProjectId = value;
+        }
+
     }
 }

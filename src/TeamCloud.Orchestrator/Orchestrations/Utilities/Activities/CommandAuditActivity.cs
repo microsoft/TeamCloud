@@ -4,12 +4,14 @@
  */
 
 using System;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Microsoft.WindowsAzure.Storage.Table;
+using TeamCloud.Model.Auditing;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 
@@ -41,7 +43,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
                 };
 
                 var entityResult = await commandTable
-                    .ExecuteAsync(TableOperation.Retrieve<CommandAuditEntity>(entity.PartitionKey, entity.RowKey))
+                    .ExecuteAsync(TableOperation.Retrieve<CommandAuditEntity>(entity.TableEntity.PartitionKey, entity.TableEntity.RowKey))
                     .ConfigureAwait(false);
 
                 entity = entityResult.HttpStatusCode == (int)HttpStatusCode.OK
@@ -62,17 +64,36 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
 
         private static void AugmentEntity(CommandAuditEntity entity, Provider provider, ICommand command, ICommandResult commandResult)
         {
+            var timestamp = DateTime.UtcNow;
+
             entity.Provider = provider.Id;
             entity.Command = command.GetType().Name;
-            entity.Created ??= DateTime.UtcNow;
+            entity.Project ??= command.ProjectId?.ToString();
+            entity.Created ??= timestamp;
 
             if (commandResult != null)
             {
-                entity.Status = commandResult.RuntimeStatus.ToString();
+                entity.Status = commandResult.RuntimeStatus;
 
                 if (commandResult.RuntimeStatus.IsFinal())
                 {
-                    entity.Processed ??= DateTime.UtcNow;
+                    entity.Sent ??= timestamp;
+                    entity.Processed ??= timestamp;
+
+                    if (commandResult.RuntimeStatus == CommandRuntimeStatus.Failed)
+                    {
+                        // the command ran into an error - trace the error in our audit log
+                        entity.Errors = commandResult.Errors.Select(err => err.Message).ToArray();
+                    }
+                }
+                else if (commandResult.RuntimeStatus.IsActive())
+                {
+                    // the provider returned an active state
+                    // so we could set the sent state and 
+                    // tace the timeout returned by the provider
+
+                    entity.Sent ??= timestamp;
+                    entity.Timeout ??= timestamp + commandResult.Timeout;
                 }
             }
         }

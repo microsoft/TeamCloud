@@ -17,12 +17,12 @@ namespace TeamCloud.Model.Data
 
     public interface IProperties
     {
-        Dictionary<string, string> Properties { get; set; }
+        IDictionary<string, string> Properties { get; set; }
     }
 
     public interface ITags
     {
-        Dictionary<string, string> Tags { get; set; }
+        IDictionary<string, string> Tags { get; set; }
     }
 
 

@@ -7,6 +7,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using TeamCloud.Orchestration;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
 {
@@ -23,7 +24,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
                 .GetStatusAsync(notification.ActiveCommandId.ToString())
                 .ConfigureAwait(false);
 
-            if (status?.IsFinalRuntimeStatus() ?? true)
+            if (status?.RuntimeStatus.IsFinal() ?? true)
             {
                 // no status available or final status reached
 

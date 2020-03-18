@@ -58,7 +58,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 }
 
                 var projects = await functionContext
-                    .GetTeamCloudProjectsAsync()
+                    .ListProjectsAsync()
                     .ConfigureAwait(true);
 
                 foreach (var project in projects)

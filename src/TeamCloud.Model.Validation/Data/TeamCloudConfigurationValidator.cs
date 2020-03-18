@@ -3,7 +3,6 @@
  *  Licensed under the MIT License.
  */
 
-using System.Collections.Generic;
 using System.Linq;
 using FluentValidation;
 using TeamCloud.Model.Data;
@@ -33,16 +32,6 @@ namespace TeamCloud.Model.Validation.Data
                     .All(typeProvider => config.Providers
                         .Any(provider => provider.Id == typeProvider.Id))))
             .WithMessage("All provider ids on ProjectTypes must match a declared provider's id.");
-
-            // each provider dependency must match a valid provider id
-            RuleFor(obj => obj.Providers).Must((config, providers) => providers
-                .All(provider => provider.Dependencies.Create
-                    .All(dependency => config.Providers
-                        .Any(provider => provider.Id == dependency))
-                && provider.Dependencies.Init
-                    .All(dependency => config.Providers
-                        .Any(provider => provider.Id == dependency))))
-            .WithMessage("All provider dependencies must match a valid provider id.");
 
             // each provider event must match a valid provider id
             RuleFor(obj => obj.Providers).Must((config, providers) => providers

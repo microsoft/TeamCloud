@@ -21,20 +21,10 @@ namespace TeamCloud.Model.Data
 
         public Guid? PrincipalId { get; set; }
 
-        public ProviderDependencies Dependencies { get; set; } = new ProviderDependencies();
-
         public IList<string> Events { get; set; } = new List<string>();
 
         public IDictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
 
         public DateTime? Registered { get; set; }
-    }
-
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public sealed class ProviderDependencies
-    {
-        public IList<string> Create { get; set; } = new List<string>();
-
-        public IList<string> Init { get; set; } = new List<string>();
     }
 }

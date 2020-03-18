@@ -13,7 +13,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands.Activities
 {
     internal static class ProjectListExtension
     {
-        public static Task<IEnumerable<Project>> GetTeamCloudProjectsAsync(this IDurableOrchestrationContext durableOrchestrationContext)
+        public static Task<IEnumerable<Project>> ListProjectsAsync(this IDurableOrchestrationContext durableOrchestrationContext)
             => durableOrchestrationContext.CallActivityWithRetryAsync<IEnumerable<Project>>(nameof(ProjectListActivity), null);
     }
 }

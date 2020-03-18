@@ -5,37 +5,23 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
-using TeamCloud.Orchestration;
-using TeamCloud.Orchestrator.Orchestrations.Commands.Activities;
 using TeamCloud.Orchestrator.Orchestrations.Utilities;
 
 namespace TeamCloud.Orchestrator
 {
     internal static class Extensions
     {
-        private static readonly int[] FinalRuntimeStatus = new int[]
-        {
-            (int) OrchestrationRuntimeStatus.Completed,
-            (int) OrchestrationRuntimeStatus.Failed,
-            (int) OrchestrationRuntimeStatus.Canceled,
-            (int) OrchestrationRuntimeStatus.Terminated
-        };
-
-        internal static bool IsFinalRuntimeStatus(this DurableOrchestrationStatus status)
-        {
-            if (status is null) throw new ArgumentNullException(nameof(status));
-
-            return FinalRuntimeStatus.Contains((int)status.RuntimeStatus);
-        }
-
         internal static Task<IDisposable> LockAsync(this IDurableOrchestrationContext functionContext, IContainerDocument containerDocument)
             => functionContext.LockAsync(containerDocument.GetEntityId());
 
@@ -88,117 +74,66 @@ namespace TeamCloud.Orchestrator
             return null;
         }
 
-
-        internal static IDictionary<string, string> Merge(this IDictionary<string, string> instance, IDictionary<string, string> merge, params IDictionary<string, string>[] additionalMerges)
+        internal static IDictionary<string, string> Override(this IDictionary<string, string> instance, IDictionary<string, string> mainOverride)
         {
-            var keyValuePairs = instance.Concat(merge);
-
-            foreach (var additionalMerge in additionalMerges)
-                keyValuePairs = keyValuePairs.Concat(additionalMerge);
+            var keyValuePairs = instance
+                .Concat(mainOverride);
 
             return keyValuePairs
                 .GroupBy(kvp => kvp.Key)
+                .Where(kvp => kvp.Last().Value != null)
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Last().Value);
         }
 
-        internal static void Merge(this Project project, IDictionary<string, ICommandResult<ProviderOutput>> commandResults)
-        {
-            foreach (var commandResult in commandResults)
-                project.Merge(commandResult.Key, commandResult.Value);
-        }
+        private static readonly Regex DynamicPropertyExpression = new Regex(@"^\[(\$\..*)\]$", RegexOptions.Compiled);
 
-        internal static void Merge(this Project project, string providerId, ICommandResult<ProviderOutput> commandResult)
-        {
-            project.Outputs ??= new Dictionary<string, IDictionary<string, string>>();
+        internal static IDictionary<string, string> Resolve(this IDictionary<string, string> instance, object context, bool removeNull = false)
+            => context is null ? instance.Resolve(removeNull) : instance.Resolve(() => JObject.FromObject(context), removeNull);
 
-            if (commandResult is null)
+        internal static IDictionary<string, string> Resolve(this IDictionary<string, string> instance, bool removeNull = false)
+            => instance.Resolve(() => JObject.Parse("{}"), removeNull);
+
+        private static IDictionary<string, string> Resolve(this IDictionary<string, string> instance, Func<JObject> jsonCallback, bool removeNull = false)
+        {
+            var contextJson = default(JObject);
+            var resolvedProperties = new Dictionary<string, string>();
+
+            foreach (var item in instance)
             {
-                if (project.Outputs.ContainsKey(providerId))
-                    project.Outputs.Remove(providerId);
-            }
-            else if ((commandResult.Result?.Properties?.Count ?? 0) > 0)
-            {
-                if (project.Outputs.TryGetValue(providerId, out var providerProperties))
+                var itemValue = item.Value;
+
+                if (!string.IsNullOrWhiteSpace(itemValue))
                 {
-                    project.Outputs[providerId] = providerProperties.Merge(commandResult.Result.Properties);
+                    var match = DynamicPropertyExpression.Match(itemValue);
+
+                    if (match.Success)
+                    {
+                        contextJson ??= jsonCallback?.Invoke() ?? default;
+
+                        itemValue = contextJson?.HasValues ?? false
+                            ? contextJson.SelectToken(match.Groups[1].Value)?.ToString()
+                            : default;
+
+                        Debug.WriteLine($"Resolved '{item.Key}': {item.Value} => {itemValue ?? "NULL"}");
+                    }
+                }
+
+                if (!(itemValue != null) || !removeNull)
+                {
+                    resolvedProperties.Add(item.Key, itemValue);
                 }
                 else
                 {
-                    project.Outputs.Add(providerId, commandResult.Result.Properties);
+                    Debug.WriteLine($"Resolved '{item.Key}': removed as value was resolved as NULL");
                 }
             }
+
+            return resolvedProperties;
         }
 
         internal static DateTime NextHour(this DateTime dateTime)
              => dateTime.Date.AddHours(dateTime.Hour + 1);
 
-        internal static Task<ICommandResult> SendCommandAsync(this IDurableOrchestrationContext functionContext, IProviderCommand command, Provider provider)
-            => functionContext.SendCommandAsync<ICommandResult>(command, provider);
-
-        internal static async Task<TCommandResult> SendCommandAsync<TCommandResult>(this IDurableOrchestrationContext functionContext, IProviderCommand command, Provider provider)
-            where TCommandResult : ICommandResult
-        {
-            if (command is null)
-                throw new ArgumentNullException(nameof(command));
-
-            if (provider is null)
-                throw new ArgumentNullException(nameof(provider));
-
-            var providerResult = (TCommandResult)await functionContext
-                .CallSubOrchestratorWithRetryAsync<ICommandResult>(nameof(CommandSendOrchestration), (command, provider))
-                .ConfigureAwait(true);
-
-            return providerResult;
-        }
-
-        internal static Task<IDictionary<string, ICommandResult>> SendCommandAsync(this IDurableOrchestrationContext functionContext, IProviderCommand command, Project project = null)
-            => functionContext.SendCommandAsync<ICommandResult>(command, project);
-
-        internal static async Task<IDictionary<string, TCommandResult>> SendCommandAsync<TCommandResult>(this IDurableOrchestrationContext functionContext, IProviderCommand command, Project project = null)
-            where TCommandResult : ICommandResult
-        {
-            if (command is null)
-                throw new ArgumentNullException(nameof(command));
-
-            var teamCloud = await functionContext
-                .GetTeamCloudAsync()
-                .ConfigureAwait(true);
-
-            IEnumerable<Provider> providers = teamCloud.Providers;
-
-            if (command.ProjectId.HasValue)
-            {
-                project ??= await functionContext
-                    .CallActivityWithRetryAsync<Project>(nameof(ProjectGetActivity), command.ProjectId.Value)
-                    .ConfigureAwait(true);
-
-                providers = teamCloud.ProvidersFor(project);
-            }
-
-            if (!(command.ProjectId?.Equals(project.Id) ?? true))
-                throw new ArgumentException("The provided project doesn't match the project referenced by the command", nameof(project));
-
-            var providerResults = Enumerable.Empty<KeyValuePair<string, TCommandResult>>();
-
-            if (providers.Any())
-            {
-                var providerTasks = providers
-                    .Select(async provider =>
-                    {
-                        var providerResult = (TCommandResult)await functionContext
-                            .SendCommandAsync(command, provider)
-                            .ConfigureAwait(true);
-
-                        return new KeyValuePair<string, TCommandResult>(provider.Id, providerResult);
-                    });
-
-                providerResults = await Task
-                    .WhenAll(providerTasks)
-                    .ConfigureAwait(true);
-            }
-
-            return new Dictionary<string, TCommandResult>(providerResults);
-        }
 
         internal static void SetCustomStatus(this IDurableOrchestrationContext durableOrchestrationContext, object customStatusObject, ILogger log, Exception exception = null)
         {

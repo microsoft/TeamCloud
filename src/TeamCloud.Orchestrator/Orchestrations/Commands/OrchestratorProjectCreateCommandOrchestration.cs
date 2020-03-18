@@ -10,7 +10,6 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Model.Commands;
-using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Orchestrations.Commands.Activities;
@@ -99,9 +98,15 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 .ConfigureAwait(true);
 
             var project = command.Payload;
+
+            // initialize the new project with some data
+            // from the teamcloud instance:
+            // - TeamCloudId = ensure that the new project belongs to a team cloud instance
+            // - Tags = ensure that every project starts with a set of tags defined by the team cloud instance
+            // CAUTION: there is no need to populate any other data (e.g. properties) on the new project instance
+
             project.TeamCloudId = teamCloud.Id;
-            project.Tags = teamCloud.Tags.Merge(project.Tags);
-            project.Properties = teamCloud.Properties.Merge(project.Properties);
+            project.Tags = teamCloud.Tags.Override(project.Tags);
 
             functionContext.SetCustomStatus($"Project {project.Id} - Creating ...", log);
 
@@ -130,25 +135,13 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
             functionContext.SetCustomStatus($"Project {project.Id} - Updating ...", log);
 
             project = await functionContext
-                .CallActivityWithRetryAsync<Project>(nameof(ProjectUpdateActivity), project)
+                .CallActivityWithRetryAsync<Project>(nameof(ProjectSetActivity), project)
                 .ConfigureAwait(true);
-
-            functionContext.SetCustomStatus($"Project {project.Id} - Preparing provider command ...", log);
-
-            var providerCommand = command is IOrchestratorCommandConvert<Project> commandConvert
-                ? commandConvert.CreateProviderCommand(project)
-                : throw new NotSupportedException($"Unable to convert command of type '{command.GetType()}' to '{typeof(IProviderCommand)}'");
 
             functionContext.SetCustomStatus($"Project {project.Id} - Sending provider command ...", log);
 
             var providerResults = await functionContext
-                .SendCommandAsync<ICommandResult<ProviderOutput>>(providerCommand, project)
-                .ConfigureAwait(true);
-
-            project.Merge(providerResults);
-
-            project = await functionContext
-                .CallActivityWithRetryAsync<Project>(nameof(ProjectUpdateActivity), project)
+                .SendCommandAsync<ProviderProjectCreateCommand, ProviderProjectCreateCommandResult>(new ProviderProjectCreateCommand(command.User, project, command.CommandId))
                 .ConfigureAwait(true);
 
             commandResult.Result = project;
@@ -161,8 +154,10 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 .ConfigureAwait(true);
 
             var deleteCommand = new OrchestratorProjectDeleteCommand(systemUser, command.Payload);
+            var deleteCommandMessage = new OrchestratorCommandMessage(deleteCommand);
 
-            functionContext.StartNewOrchestration(nameof(OrchestratorProjectDeleteCommandOrchestration), new OrchestratorCommandMessage(deleteCommand));
+            functionContext
+                .StartNewOrchestration(nameof(OrchestratorProjectDeleteCommandOrchestration), deleteCommandMessage);
         }
     }
 }

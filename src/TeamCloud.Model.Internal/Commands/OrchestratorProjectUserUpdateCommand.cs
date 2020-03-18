@@ -12,8 +12,5 @@ namespace TeamCloud.Model.Commands
     {
         public OrchestratorProjectUserUpdateCommand(User user, User payload, Guid projectId) : base(user, payload)
             => ProjectId = projectId;
-
-        public override ProviderProjectUserUpdateCommand CreateProviderCommand()
-            => new ProviderProjectUserUpdateCommand(this.User, this.Payload, this.ProjectId.Value, this.CommandId);
     }
 }
