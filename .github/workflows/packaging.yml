@@ -62,22 +62,18 @@ jobs:
       if: steps.gitversion.outputs.branchName == 'master'
       run: dotnet nuget push **/*.nupkg --api-key '${{ secrets.MYGET_TOKEN }}' --source 'https://www.myget.org/F/teamcloud-dev/api/v2/package' --symbol-api-key '${{ secrets.MYGET_TOKEN }}' --symbol-source 'https://www.myget.org/F/teamcloud-dev/symbols/api/v2/package' --skip-duplicate
       
-    - name: Augment Release (master only)
-      if: steps.gitversion.outputs.branchName == 'master'
+    - name: Augment Release (master release only)
+      if: steps.release_variables.outputs.is_master_release == true
       run: |
-        if [[ ! -z "${{ steps.release_variables.outputs.url }}" ]]; then
-          if [ -z "${{ steps.gitversion.outputs.preReleaseTag }}" ]; then
-            echo "Ensure release ${{ steps.release_variables.outputs.tag }} is set to major release"
-            curl --data '{"prerelease": false}' -X PATCH ${{ steps.release_variables.outputs.url }} -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}"
-          else
-            echo "Ensure release ${{ steps.release_variables.outputs.tag }} is set to pre release"
-            curl --data '{"prerelease": true}' -X PATCH ${{ steps.release_variables.outputs.url }} -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}"
-          fi
+        if [ -z "${{ steps.gitversion.outputs.preReleaseTag }}" ]; then
+          echo "Ensure release ${{ steps.release_variables.outputs.tag }} is set to major release"
+          curl --data '{"prerelease": false}' -X PATCH ${{ steps.release_variables.outputs.url }} -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}"
         else
-          echo "${{ github.ref }} is not assigned to a release"
+          echo "Ensure release ${{ steps.release_variables.outputs.tag }} is set to pre release"
+          curl --data '{"prerelease": true}' -X PATCH ${{ steps.release_variables.outputs.url }} -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}"
         fi
         
-    - name: Build for Deployment (master only)
+    - name: Build for Release Deployment (master release only)
       if: steps.release_variables.outputs.is_master_release == true
       id: deployment_build
       run: |
@@ -89,7 +85,7 @@ jobs:
 
       working-directory: ${{ env.SOURCE_DIRECTORY }}
 
-    - name: Upload TeamCloud.API Release Assets
+    - name: Upload TeamCloud.API Release Assets (master release only)
       if: steps.release_variables.outputs.is_master_release == true
       uses: actions/upload-release-asset@v1
       env:
@@ -100,7 +96,7 @@ jobs:
         asset_name: TeamCloud.API.zip
         asset_content_type: application/zip
 
-    - name: Upload TeamCloud.Orchestrator Release Assets
+    - name: Upload TeamCloud.Orchestrator Release Assets (master release only)
       if: steps.release_variables.outputs.is_master_release == true
       uses: actions/upload-release-asset@v1
       env:
