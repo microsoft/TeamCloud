@@ -49,22 +49,12 @@ jobs:
         echo "::set-output name=upload_url::$RELEASE_UPLOAD_URL"
         echo "::set-output name=is_master_release::$IS_MASTER_RELEASE"        
 
-        echo "::set-env name=RELEASE_TAG::$RELEASE_TAG"
-        echo "::set-env name=RELEASE_URL::$RELEASE_URL"
-        echo "::set-env name=RELEASE_UPLOAD_URL::$RELEASE_UPLOAD_URL"
-        echo "::set-env name=IS_MASTER_RELEASE::$IS_MASTER_RELEASE"
-
     - name: Print Release Variables
       run: |
         echo "tag: ${{ steps.release_variables.outputs.tag }}"
         echo "url: ${{ steps.release_variables.outputs.url }}"
         echo "upload_url: ${{ steps.release_variables.outputs.upload_url }}"
         echo "is_master_release: ${{ steps.release_variables.outputs.is_master_release }}"
-
-        echo "RELEASE_TAG: ${{ env.RELEASE_TAG }}"
-        echo "RELEASE_URL: ${{ env.RELEASE_URL }}"
-        echo "RELEASE_UPLOAD_URL: ${{ env.RELEASE_UPLOAD_URL }}"
-        echo "IS_MASTER_RELEASE: ${{ env.IS_MASTER_RELEASE }}"
 
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
@@ -80,7 +70,7 @@ jobs:
       run: dotnet nuget push **/*.nupkg --api-key '${{ secrets.MYGET_TOKEN }}' --source 'https://www.myget.org/F/teamcloud-dev/api/v2/package' --symbol-api-key '${{ secrets.MYGET_TOKEN }}' --symbol-source 'https://www.myget.org/F/teamcloud-dev/symbols/api/v2/package' --skip-duplicate
       
     - name: Augment Release (master release only)
-      if: steps.release_variables.outputs.is_master_release == true
+      if: steps.release_variables.outputs.is_master_release == 'true'
       run: |
         if [ -z "${{ steps.gitversion.outputs.preReleaseTag }}" ]; then
           echo "Ensure release ${{ steps.release_variables.outputs.tag }} is set to major release"
@@ -91,7 +81,7 @@ jobs:
         fi
         
     - name: Build for Release Deployment (master release only)
-      if: steps.release_variables.outputs.is_master_release == true
+      if: steps.release_variables.outputs.is_master_release == 'true'
       id: deployment_build
       run: |
         dotnet publish ./TeamCloud.API/TeamCloud.API.csproj -o ../TeamCloud.API -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true --version-suffix "${{ steps.gitversion.outputs.nuGetPreReleaseTagV2 }}"
@@ -103,7 +93,7 @@ jobs:
       working-directory: ${{ env.SOURCE_DIRECTORY }}
 
     - name: Upload TeamCloud.API Release Assets (master release only)
-      if: steps.release_variables.outputs.is_master_release == true
+      if: steps.release_variables.outputs.is_master_release == 'true'
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -114,7 +104,7 @@ jobs:
         asset_content_type: application/zip
 
     - name: Upload TeamCloud.Orchestrator Release Assets (master release only)
-      if: steps.release_variables.outputs.is_master_release == true
+      if: steps.release_variables.outputs.is_master_release == 'true'
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
