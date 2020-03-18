@@ -69,7 +69,7 @@ TeamCloud is built on top of Azure Functions and targets [3.x runtime version][f
 [Azure Functions Core Tools][functions-core-tools] **version 3+** is required to build and run the code locally.  Core Tools is already integrated into some development environments.  See the documentation [here][functions-local-development] for guidance on setting up your environment for local development with functions.
 
 ### local.settings.json
-
+ 
 The [`local.settings.json`][functions-local-settings] file stores app settings, connection strings, and settings used by local development tools. Settings in the local.settings.json file are used only when you're running projects locally.
 
 This file contains keys and connection strings, so it is not committed to this public repo.  After cloning this repo, you'll need to create a new `local.settings.json` file in the `src` folder.  The file's contents should contain the following:
