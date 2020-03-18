@@ -41,8 +41,8 @@ jobs:
       id: release_variables
       run: |
         RELEASE_TAG=$([[ "${{ github.ref }}" =~ ^refs\/tags\/ ]] && (echo "${{ github.ref }}" | sed -e "s/.*\///g") || echo "")
-        RELEASE_URL=$([[ -z "$RELEASE_TAG" ]] && echo "" || (curl https://api.github.com/repos/$GITHUB_REPOSITORY/releases/tags/$RELEASE_TAG -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" | jq -r ".url"))
-        RELEASE_UPLOAD_URL=$([[ -z "$RELEASE_TAG" ]] && echo "" || (curl https://api.github.com/repos/$GITHUB_REPOSITORY/releases/tags/$RELEASE_TAG -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" | jq -r ".upload_url"))
+        RELEASE_URL=$([[ -z "$RELEASE_TAG" ]] && echo "" || (curl https://api.github.com/repos/${{ github.repository }}/releases/tags/$RELEASE_TAG -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" | jq -r ".url"))
+        RELEASE_UPLOAD_URL=$([[ -z "$RELEASE_TAG" ]] && echo "" || (curl https://api.github.com/repos/${{ github.repository }}/releases/tags/$RELEASE_TAG -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" | jq -r ".upload_url"))
         IS_MASTER_RELEASE=$([[ ! -z "$RELEASE_URL" ]])
         echo "::set-output name=tag::$RELEASE_TAG"
         echo "::set-output name=url::$RELEASE_URL"
@@ -78,7 +78,7 @@ jobs:
         fi
         
     - name: Build for Deployment (master only)
-      if: steps.release_variables.outputs.is_master_release
+      if: steps.release_variables.outputs.is_master_release == true
       id: deployment_build
       run: |
         dotnet publish ./TeamCloud.API/TeamCloud.API.csproj -o ../TeamCloud.API -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true --version-suffix "${{ steps.gitversion.outputs.nuGetPreReleaseTagV2 }}"
@@ -90,7 +90,7 @@ jobs:
       working-directory: ${{ env.SOURCE_DIRECTORY }}
 
     - name: Upload TeamCloud.API Release Assets
-      if: steps.release_variables.outputs.is_master_release
+      if: steps.release_variables.outputs.is_master_release == true
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -101,7 +101,7 @@ jobs:
         asset_content_type: application/zip
 
     - name: Upload TeamCloud.Orchestrator Release Assets
-      if: steps.release_variables.outputs.is_master_release
+      if: steps.release_variables.outputs.is_master_release == true
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
