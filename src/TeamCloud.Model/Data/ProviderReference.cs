@@ -18,6 +18,6 @@ namespace TeamCloud.Model.Data
 
         public IList<string> DependsOn { get; set; } = new List<string>();
 
-        public IDictionary<string, IDictionary<string, string>> Results { get; set; } = new Dictionary<string, IDictionary<string, string>>();
+        public IDictionary<string, IDictionary<string, string>> Metadata { get; set; } = new Dictionary<string, IDictionary<string, string>>();
     }
 }

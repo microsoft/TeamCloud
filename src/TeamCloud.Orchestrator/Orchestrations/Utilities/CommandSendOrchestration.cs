@@ -220,10 +220,10 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 
                         var resultProperties = providerOutputResult?.Result?.Properties ?? new Dictionary<string, string>();
 
-                        if (!providerReference.Results.TryAdd(commandType, resultProperties))
+                        if (!providerReference.Metadata.TryAdd(commandType, resultProperties))
                         {
-                            providerReference.Results[commandType] =
-                                (providerReference.Results[commandType] ?? new Dictionary<string, string>()).Override(resultProperties);
+                            providerReference.Metadata[commandType] =
+                                (providerReference.Metadata[commandType] ?? new Dictionary<string, string>()).Override(resultProperties);
                         }
 
                         project = await functionContext
