@@ -37,7 +37,7 @@ jobs:
       id: gitversion # step id used as reference for output values
       uses: gittools/actions/gitversion/execute@v0.9
       with:
-        useConfigFile: 'true'
+        useConfigFile: true
 
     - name: Set Release Variables
       id: release_variables
