@@ -41,7 +41,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamCloud.Model.Tests", "Te
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamCloud.Configuration.Options", "TeamCloud.Configuration.Options\TeamCloud.Configuration.Options.csproj", "{E69C47DB-4D01-4EA0-85FE-87E8B0924C38}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BCF21788-73F1-4671-AF59-51E16436ED7C}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{BCF21788-73F1-4671-AF59-51E16436ED7C}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 	EndProjectSection
@@ -50,11 +50,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamCloud.Orchestration", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamCloud.Model.Internal", "TeamCloud.Model.Internal\TeamCloud.Model.Internal.csproj", "{38453319-CD0C-4D53-AADB-666F39BC419A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeamCloud.Orchestration.Tests", "TeamCloud.Orchestration.Tests\TeamCloud.Orchestration.Tests.csproj", "{078098A7-CC8D-4B1B-A6CF-DF82EFDF3CB2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamCloud.Orchestration.Tests", "TeamCloud.Orchestration.Tests\TeamCloud.Orchestration.Tests.csproj", "{078098A7-CC8D-4B1B-A6CF-DF82EFDF3CB2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeamCloud.Serialization", "TeamCloud.Serialization\TeamCloud.Serialization.csproj", "{58710957-8D0D-4271-8F6B-6143C732992F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamCloud.Serialization", "TeamCloud.Serialization\TeamCloud.Serialization.csproj", "{58710957-8D0D-4271-8F6B-6143C732992F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeamCloud.Serialization.Tests", "TeamCloud.Serialization.Tests\TeamCloud.Serialization.Tests.csproj", "{E199F6D5-2601-4320-8187-8F37E9803FEF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamCloud.Serialization.Tests", "TeamCloud.Serialization.Tests\TeamCloud.Serialization.Tests.csproj", "{E199F6D5-2601-4320-8187-8F37E9803FEF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

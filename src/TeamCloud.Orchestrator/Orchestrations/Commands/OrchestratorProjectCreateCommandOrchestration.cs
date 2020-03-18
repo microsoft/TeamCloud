@@ -54,8 +54,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                     {
                         functionContext.SetCustomStatus($"Command {command.CommandId} ({command.GetType()}) - rolling back ...", log);
 
-                        await RollbackAsync(functionContext, command, commandResult, log)
-                            .ConfigureAwait(true);
+                        await RollbackAsync(functionContext, command).ConfigureAwait(true);
                     }
                     catch (Exception rollbackExc)
                     {
@@ -147,7 +146,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
             commandResult.Result = project;
         }
 
-        private static async Task RollbackAsync(IDurableOrchestrationContext functionContext, OrchestratorProjectCreateCommand command, OrchestratorProjectCreateCommandResult commandResult, ILogger log)
+        private static async Task RollbackAsync(IDurableOrchestrationContext functionContext, OrchestratorProjectCreateCommand command)
         {
             var systemUser = await functionContext
                 .CallActivityWithRetryAsync<User>(nameof(TeamCloudUserActivity), null)

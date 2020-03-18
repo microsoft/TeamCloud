@@ -10,7 +10,7 @@ using TeamCloud.Data.CosmosDb;
 namespace TeamCloud.API.Options
 {
     [Options]
-    public class DatabaseOptions : ICosmosDbOptions
+    public sealed class DatabaseOptions : ICosmosDbOptions
     {
         private readonly CosmosDbOptions cosmosDbOptions;
 

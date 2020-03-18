@@ -19,8 +19,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
         [FunctionName(nameof(CallbackAcquireActivity))]
         [RetryOptions(3)]
         public static async Task<string> RunActivity(
-            [ActivityTrigger] IDurableActivityContext functionContext,
-            ILogger log)
+            [ActivityTrigger] IDurableActivityContext functionContext)
         {
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));

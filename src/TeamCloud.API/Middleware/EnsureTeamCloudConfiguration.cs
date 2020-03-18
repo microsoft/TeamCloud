@@ -24,6 +24,12 @@ namespace TeamCloud.API.Middleware
 
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
+            if (context is null)
+                throw new ArgumentNullException(nameof(context));
+
+            if (next is null)
+                throw new ArgumentNullException(nameof(next));
+
             // teamcloud needs a configuration in place to work properly.
             // to avoid calls that will fail because of a missing configuration
             // we will check its existance in this middleware and block
@@ -38,7 +44,7 @@ namespace TeamCloud.API.Middleware
 
             if (Configured)
             {
-                await next(context);
+                await next(context).ConfigureAwait(false);
             }
             else
             {

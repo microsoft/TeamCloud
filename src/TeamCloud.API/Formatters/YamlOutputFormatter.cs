@@ -42,7 +42,7 @@ namespace TeamCloud.API.Formatters
 
             WriteObject(writer, context.Object);
 
-            await writer.FlushAsync();
+            await writer.FlushAsync().ConfigureAwait(false);
         }
 
         private void WriteObject(TextWriter writer, object value)

@@ -42,8 +42,7 @@ namespace TeamCloud.API.Data
         public string CommandId { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public IList<ResultError> Errors { get; set; }
-
+        public IList<ResultError> Errors { get; set; } = null;
 
         private StatusResult() { }
 
@@ -115,7 +114,7 @@ namespace TeamCloud.API.Data
 
     public static class StatusResultExtensions
     {
-        public static IActionResult ActionResult(this IStatusResult result) => (result.Code) switch
+        public static IActionResult ActionResult(this IStatusResult result) => (result?.Code) switch
         {
             StatusCodes.Status200OK => new OkObjectResult(result),
             StatusCodes.Status202Accepted => new AcceptedResult(result.Location, result),

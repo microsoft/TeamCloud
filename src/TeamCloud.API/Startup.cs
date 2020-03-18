@@ -52,6 +52,8 @@ namespace TeamCloud.API
 
         public IConfiguration Configuration { get; }
 
+#pragma warning disable CA1822 // Mark members as static
+
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
@@ -140,13 +142,19 @@ namespace TeamCloud.API
                 .AddNewtonsoftJson()
                 .ConfigureApiBehaviorOptions(options => options.SuppressMapClientErrors = true);
 
+#pragma warning disable CA1308 // Normalize strings to uppercase
+
             ValidatorOptions.DisplayNameResolver = (type, memberInfo, lambda) => memberInfo?.Name?.ToLowerInvariant();
             ValidatorOptions.PropertyNameResolver = (type, memberInfo, lambda) => memberInfo?.Name?.ToLowerInvariant();
+
+#pragma warning restore CA1308 // Normalize strings to uppercase
 
             ConfigureSwagger(services);
         }
 
-        private void ConfigureSwagger(IServiceCollection services)
+#pragma warning restore CA1822 // Mark members as static
+
+        private static void ConfigureSwagger(IServiceCollection services)
         {
             services
                 .AddSwaggerGen(options =>
@@ -189,7 +197,7 @@ namespace TeamCloud.API
                 .AddSwaggerGenNewtonsoftSupport(); // explicit Newtonsoft opt-in - needs to be placed after AddSwaggerGen()
         }
 
-        private void ConfigureAuthentication(IServiceCollection services)
+        private static void ConfigureAuthentication(IServiceCollection services)
         {
             var resourceManagerOptions = services
                 .BuildServiceProvider()
@@ -233,7 +241,7 @@ namespace TeamCloud.API
                 });
         }
 
-        private void ConfigureAuthorization(IServiceCollection services)
+        private static void ConfigureAuthorization(IServiceCollection services)
         {
             services
                 .AddMvc(options =>
@@ -272,7 +280,7 @@ namespace TeamCloud.API
                 });
         }
 
-        private async Task<IEnumerable<Claim>> ResolveClaimsAsync(Guid userId, HttpContext httpContext)
+        private static async Task<IEnumerable<Claim>> ResolveClaimsAsync(Guid userId, HttpContext httpContext)
         {
             // TODO: Try to cache this so every API call doesn't perform two DB calls
 

@@ -33,8 +33,7 @@ namespace TeamCloud.Orchestrator
         [FunctionName(nameof(CommandTrigger))]
         public async Task<IActionResult> RunTrigger(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = "command")] HttpRequestMessage httpRequest,
-            [DurableClient] IDurableClient durableClient,
-            ILogger log)
+            [DurableClient] IDurableClient durableClient)
         {
             if (httpRequest is null)
                 throw new ArgumentNullException(nameof(httpRequest));

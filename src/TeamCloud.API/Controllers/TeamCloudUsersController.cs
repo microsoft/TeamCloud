@@ -76,7 +76,7 @@ namespace TeamCloud.API
         {
             if (string.IsNullOrWhiteSpace(userNameOrId))
                 return ErrorResult
-                    .BadRequest($"The identifier '{userNameOrId}' provided in the url path is invalid.  Must be a valid email address or GUID.", ResultErrorCodes.ValidationError)
+                    .BadRequest($"The identifier '{userNameOrId}' provided in the url path is invalid.  Must be a valid email address or GUID.", ResultErrorCode.ValidationError)
                     .ActionResult();
 
             var teamCloudInstance = await teamCloudRepository
@@ -125,6 +125,9 @@ namespace TeamCloud.API
         [SwaggerResponse(StatusCodes.Status409Conflict, "A TeamCloud User already exists with the email address provided in the request body.", typeof(ErrorResult))]
         public async Task<IActionResult> Post([FromBody] UserDefinition userDefinition)
         {
+            if (userDefinition is null)
+                throw new ArgumentNullException(nameof(userDefinition));
+
             var validation = new UserDefinitionValidator().Validate(userDefinition);
 
             if (!validation.IsValid)
@@ -226,7 +229,7 @@ namespace TeamCloud.API
         {
             if (string.IsNullOrWhiteSpace(userNameOrId))
                 return ErrorResult
-                    .BadRequest($"The identifier '{userNameOrId}' provided in the url path is invalid.  Must be a valid email address or GUID.", ResultErrorCodes.ValidationError)
+                    .BadRequest($"The identifier '{userNameOrId}' provided in the url path is invalid.  Must be a valid email address or GUID.", ResultErrorCode.ValidationError)
                     .ActionResult();
 
             var teamCloudInstance = await teamCloudRepository

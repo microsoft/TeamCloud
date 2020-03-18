@@ -14,6 +14,9 @@ namespace TeamCloud.API.Middleware
     {
         public IActionResult GetClientError(ActionContext actionContext, IClientErrorActionResult clientError)
         {
+            if (clientError is null)
+                throw new System.ArgumentNullException(nameof(clientError));
+
             if (clientError.StatusCode.HasValue)
             {
                 switch (clientError.StatusCode.Value)

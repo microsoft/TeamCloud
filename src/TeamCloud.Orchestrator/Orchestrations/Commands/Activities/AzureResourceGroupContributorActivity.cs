@@ -26,8 +26,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands.Activities
 
         [FunctionName(nameof(AzureResourceGroupContributorActivity))]
         public async Task RunActivity(
-            [ActivityTrigger] (Guid projectId, Guid principalId) input,
-            ILogger log)
+            [ActivityTrigger] (Guid projectId, Guid principalId) input)
         {
             var project = await projectsRepository
                 .GetAsync(input.projectId)

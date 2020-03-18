@@ -12,7 +12,7 @@ using TeamCloud.Configuration;
 
 namespace TeamCloud.API
 {
-    public class Program
+    public static class Program
     {
         public static void Main(string[] args)
         {

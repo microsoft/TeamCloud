@@ -23,8 +23,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands.Activities
 
         [FunctionName(nameof(TeamCloudUserActivity))]
         public async Task<User> RunActivity(
-            [ActivityTrigger] object payload,
-            ILogger log)
+            [ActivityTrigger] IDurableActivityContext functionContext)
         {
             var systemIdentity = await azureSessionService
                 .GetIdentityAsync()

@@ -16,6 +16,12 @@ namespace TeamCloud.API.Middleware
     {
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {
+            if (operation is null)
+                throw new ArgumentNullException(nameof(operation));
+
+            if (context is null)
+                throw new ArgumentNullException(nameof(context));
+
             // Policy names map to scopes
             var requiredScopes = context.MethodInfo
                 .GetCustomAttributes(true)

@@ -52,10 +52,10 @@ namespace TeamCloud.API.Controllers
 
             var tasks = projectDefinition.Users.Select(user => userService.GetUserAsync(user));
             var users = await Task.WhenAll(tasks).ConfigureAwait(false);
-            var owners = users.Where(user => user.Role.Equals(UserRoles.Project.Owner));
+            var owners = users.Where(user => user.Role == UserRoles.Project.Owner);
 
             var filteredUsers = users
-                .Where(user => user.Role.Equals(UserRoles.Project.Member))
+                .Where(user => user.Role == UserRoles.Project.Member)
                 .Except(owners, new UserComparer()) // filter out owners
                 .Union(owners) // union members and owners
                 .ToList();
@@ -98,7 +98,7 @@ namespace TeamCloud.API.Controllers
         {
             if (string.IsNullOrWhiteSpace(projectNameOrId))
                 return ErrorResult
-                    .BadRequest($"The identifier '{projectNameOrId}' provided in the url path is invalid.  Must be a valid project name or GUID.", ResultErrorCodes.ValidationError)
+                    .BadRequest($"The identifier '{projectNameOrId}' provided in the url path is invalid.  Must be a valid project name or GUID.", ResultErrorCode.ValidationError)
                     .ActionResult();
 
             Project project;
@@ -136,6 +136,9 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status409Conflict, "A Project already exists with the name specified in the request body.", typeof(ErrorResult))]
         public async Task<IActionResult> Post([FromBody] ProjectDefinition projectDefinition)
         {
+            if (projectDefinition is null)
+                throw new ArgumentNullException(nameof(projectDefinition));
+
             var validation = new ProjectDefinitionValidator().Validate(projectDefinition);
 
             if (!validation.IsValid)
@@ -210,7 +213,7 @@ namespace TeamCloud.API.Controllers
         {
             if (string.IsNullOrWhiteSpace(projectNameOrId))
                 return ErrorResult
-                    .BadRequest($"The identifier '{projectNameOrId}' provided in the url path is invalid.  Must be a valid project name or GUID.", ResultErrorCodes.ValidationError)
+                    .BadRequest($"The identifier '{projectNameOrId}' provided in the url path is invalid.  Must be a valid project name or GUID.", ResultErrorCode.ValidationError)
                     .ActionResult();
 
             Project project;

@@ -28,8 +28,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
         [FunctionName(nameof(CommandProviderActivity))]
         [RetryOptions(3)]
         public async Task<IEnumerable<IEnumerable<Provider>>> RunActivity(
-            [ActivityTrigger] IDurableActivityContext functionContext,
-            ILogger log)
+            [ActivityTrigger] IDurableActivityContext functionContext)
         {
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));

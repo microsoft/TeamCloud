@@ -77,7 +77,7 @@ namespace TeamCloud.API.Controllers
         {
             if (string.IsNullOrWhiteSpace(tagKey))
                 return ErrorResult
-                    .BadRequest($"The key provided in the url path is invalid.  Must be a non-empty string.", ResultErrorCodes.ValidationError)
+                    .BadRequest($"The key provided in the url path is invalid.  Must be a non-empty string.", ResultErrorCode.ValidationError)
                     .ActionResult();
 
             var teamCloudInstance = await teamCloudRepository
@@ -206,7 +206,7 @@ namespace TeamCloud.API.Controllers
         {
             if (string.IsNullOrWhiteSpace(tagKey))
                 return ErrorResult
-                    .BadRequest($"The key provided in the url path is invalid.  Must be a non-empty string.", ResultErrorCodes.ValidationError)
+                    .BadRequest($"The key provided in the url path is invalid.  Must be a non-empty string.", ResultErrorCode.ValidationError)
                     .ActionResult();
 
             var teamCloudInstance = await teamCloudRepository

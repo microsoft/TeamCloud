@@ -3,6 +3,7 @@
  *  Licensed under the MIT License.
  */
 
+using System;
 using System.Net.Http;
 using System.Reflection;
 using Flurl.Http;
@@ -17,7 +18,7 @@ namespace TeamCloud.Http
         private readonly TelemetryConfiguration telemetryConfiguration;
 
         public TeamCloudHttpClientFactory(TelemetryConfiguration telemetryConfiguration = null)
-            => this.telemetryConfiguration = telemetryConfiguration ?? TelemetryConfiguration.Active;
+            => this.telemetryConfiguration = telemetryConfiguration ?? new TelemetryConfiguration(Guid.Empty.ToString());
 
         public override HttpMessageHandler CreateMessageHandler()
         {

@@ -53,6 +53,9 @@ namespace TeamCloud.API.Services
 
         public async Task<User> GetUserAsync(UserDefinition userDefinition)
         {
+            if (userDefinition is null)
+                throw new ArgumentNullException(nameof(userDefinition));
+
             var userId = await GetUserIdAsync(userDefinition.Email)
                 .ConfigureAwait(false);
 

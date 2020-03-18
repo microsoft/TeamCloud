@@ -37,6 +37,8 @@ namespace TeamCloud.API.Formatters
 
             var type = context.ModelType;
 
+#pragma warning disable CA1031 // Do not catch general exception types
+
             try
             {
                 var model = deserializer.Deserialize(streamReader, type);
@@ -47,6 +49,8 @@ namespace TeamCloud.API.Formatters
             {
                 return InputFormatterResult.FailureAsync();
             }
+
+#pragma warning restore CA1031 // Do not catch general exception types
         }
     }
 }

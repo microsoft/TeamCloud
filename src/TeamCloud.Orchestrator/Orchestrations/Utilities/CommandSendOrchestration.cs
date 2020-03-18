@@ -48,13 +48,13 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 
                 functionContext.SetCustomStatus($"Prepare sending command '{command.CommandId}'", log);
 
-                await RegisterProviderAsync(functionContext, command, provider, log)
+                await RegisterProviderAsync(functionContext, command, provider)
                     .ConfigureAwait(true);
 
-                await EnableProviderAsync(functionContext, command, provider, log)
+                await EnableProviderAsync(functionContext, command, provider)
                     .ConfigureAwait(true);
 
-                command = await AugmentCommandAsync(functionContext, provider, command, log)
+                command = await AugmentCommandAsync(functionContext, provider, command)
                     .ConfigureAwait(true);
 
                 await functionContext
@@ -135,14 +135,14 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                     .AuditAsync(provider, command, commandResult)
                     .ConfigureAwait(true);
 
-                await ProcessOutputAsync(functionContext, provider, command, commandResult, log)
+                await ProcessOutputAsync(functionContext, provider, command, commandResult)
                     .ConfigureAwait(true);
             }
 
             return commandResult;
         }
 
-        private static Task RegisterProviderAsync(IDurableOrchestrationContext functionContext, IProviderCommand providerCommand, Provider provider, ILogger log)
+        private static Task RegisterProviderAsync(IDurableOrchestrationContext functionContext, IProviderCommand providerCommand, Provider provider)
         {
             if (providerCommand is ProviderRegisterCommand || provider.Registered.HasValue)
                 return Task.CompletedTask;
@@ -151,7 +151,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                 .RegisterProviderAsync(provider, true);
         }
 
-        private static Task EnableProviderAsync(IDurableOrchestrationContext functionContext, IProviderCommand providerCommand, Provider provider, ILogger log)
+        private static Task EnableProviderAsync(IDurableOrchestrationContext functionContext, IProviderCommand providerCommand, Provider provider)
         {
             if (!providerCommand.ProjectId.HasValue || !provider.PrincipalId.HasValue)
                 return Task.CompletedTask;
@@ -160,7 +160,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                 .CallActivityWithRetryAsync(nameof(AzureResourceGroupContributorActivity), (providerCommand.ProjectId.Value, provider.PrincipalId.Value));
         }
 
-        private static async Task<IProviderCommand> AugmentCommandAsync(IDurableOrchestrationContext functionContext, Provider provider, IProviderCommand command, ILogger log)
+        private static async Task<IProviderCommand> AugmentCommandAsync(IDurableOrchestrationContext functionContext, Provider provider, IProviderCommand command)
         {
             var teamCloud = await functionContext
                 .GetTeamCloudAsync()
@@ -197,7 +197,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
             return command;
         }
 
-        private static async Task ProcessOutputAsync(IDurableOrchestrationContext functionContext, Provider provider, IProviderCommand command, ICommandResult commandResult, ILogger log)
+        private static async Task ProcessOutputAsync(IDurableOrchestrationContext functionContext, Provider provider, IProviderCommand command, ICommandResult commandResult)
         {
             if (command.ProjectId.HasValue && commandResult is ICommandResult<ProviderOutput> providerOutputResult)
             {

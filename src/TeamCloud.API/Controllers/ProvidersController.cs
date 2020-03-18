@@ -111,6 +111,9 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status409Conflict, "A Provider already exists with the ID provided in the request body.", typeof(ErrorResult))]
         public async Task<IActionResult> Post([FromBody] Provider provider)
         {
+            if (provider is null)
+                throw new ArgumentNullException(nameof(provider));
+
             var validation = new ProviderValidator().Validate(provider);
 
             if (!validation.IsValid)
@@ -156,6 +159,9 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found, or a Provider with the ID provided in the reques body was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Put([FromBody] Provider provider)
         {
+            if (provider is null)
+                throw new ArgumentNullException(nameof(provider));
+
             var validation = new ProviderValidator().Validate(provider);
 
             if (!validation.IsValid)
@@ -225,7 +231,7 @@ namespace TeamCloud.API.Controllers
 
             if (projectTypes.Any(pt => pt.Providers.Any(pr => pr.Id == providerId)))
                 return ErrorResult
-                    .BadRequest("Cannot delete Providers referenced in existing ProjectType definitions", ResultErrorCodes.ValidationError)
+                    .BadRequest("Cannot delete Providers referenced in existing ProjectType definitions", ResultErrorCode.ValidationError)
                     .ActionResult();
 
             // TODO: Query via the database query instead of getting all
@@ -237,7 +243,7 @@ namespace TeamCloud.API.Controllers
             if (projects.Any(p => p.Type.Providers.Any(pr => pr.Id == providerId)))
                 if (projectTypes.Any(pt => pt.Providers.Any(pr => pr.Id == providerId)))
                     return ErrorResult
-                        .BadRequest("Cannot delete Providers being used by existing Projects", ResultErrorCodes.ValidationError)
+                        .BadRequest("Cannot delete Providers being used by existing Projects", ResultErrorCode.ValidationError)
                         .ActionResult();
 
             var command = new OrchestratorProviderDeleteCommand(CurrentUser, provider);

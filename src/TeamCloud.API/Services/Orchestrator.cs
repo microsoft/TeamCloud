@@ -84,6 +84,9 @@ namespace TeamCloud.API.Services
 
         public async Task<ICommandResult> InvokeAsync(IOrchestratorCommand command)
         {
+            if (command is null)
+                throw new ArgumentNullException(nameof(command));
+
             var commandResponse = await options.Url
                 .AppendPathSegment("api/command")
                 .WithHeader("x-functions-key", options.AuthCode)

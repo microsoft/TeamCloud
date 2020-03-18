@@ -25,7 +25,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands.Activities
 
         [FunctionName(nameof(ProjectListActivity))]
         public async Task<IEnumerable<Project>> RunActivity(
-            [ActivityTrigger] TeamCloudInstance teamCloud)
+            [ActivityTrigger] IDurableActivityContext functionContext)
         {
             var projects = projectsRepository
                 .ListAsync();

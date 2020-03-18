@@ -22,9 +22,11 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
         [FunctionName(nameof(OrchestratorProviderRegisterCommandOrchestration) + "-Trigger")]
         public static async Task RunTrigger(
             [TimerTrigger("0 0 * * * *", RunOnStartup = true)] TimerInfo timerInfo,
-            [DurableClient] IDurableClient durableClient,
-            ILogger log)
+            [DurableClient] IDurableClient durableClient)
         {
+            if (timerInfo is null)
+                throw new ArgumentNullException(nameof(timerInfo));
+
             if (durableClient is null)
                 throw new ArgumentNullException(nameof(durableClient));
 

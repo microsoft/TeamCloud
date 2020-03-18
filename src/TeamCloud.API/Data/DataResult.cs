@@ -40,6 +40,8 @@ namespace TeamCloud.API.Data
         private DataResult(T data)
             => Data = data;
 
+#pragma warning disable CA1000 // Do not declare static members on generic types
+
         public static DataResult<T> Ok(T data)
             => new DataResult<T>(data) { Code = StatusCodes.Status200OK, Status = "Ok" };
 
@@ -48,11 +50,13 @@ namespace TeamCloud.API.Data
 
         public static DataResult<T> NoContent()
             => new DataResult<T> { Code = StatusCodes.Status204NoContent, Status = "NoContent" };
+
+#pragma warning restore CA1000 // Do not declare static members on generic types
     }
 
     public static class DataResultExtensions
     {
-        public static IActionResult ActionResult(this IDataResult result) => result.Code switch
+        public static IActionResult ActionResult(this IDataResult result) => result?.Code switch
         {
             StatusCodes.Status200OK => new OkObjectResult(result),
             StatusCodes.Status201Created => new CreatedResult(result.Location, result),

@@ -24,8 +24,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands.Activities
 
         [FunctionName(nameof(AzureResourceGroupTagActivity))]
         public async Task RunActivity(
-            [ActivityTrigger] Project project,
-            ILogger log)
+            [ActivityTrigger] Project project)
         {
             if (project == null)
                 throw new ArgumentNullException(nameof(project));

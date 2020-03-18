@@ -16,8 +16,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
     {
         [FunctionName(nameof(CallbackInvalidateActivity))]
         public static async Task RunActivity(
-            [ActivityTrigger] IDurableActivityContext functionContext,
-            ILogger log)
+            [ActivityTrigger] IDurableActivityContext functionContext)
         {
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));

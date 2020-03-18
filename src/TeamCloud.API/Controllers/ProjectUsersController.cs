@@ -63,7 +63,7 @@ namespace TeamCloud.API.Controllers
         {
             if (!ProjectId.HasValue)
                 return ErrorResult
-                    .BadRequest($"Project Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCodes.ValidationError)
+                    .BadRequest($"Project Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCode.ValidationError)
                     .ActionResult();
 
             var project = await projectsRepository
@@ -93,12 +93,12 @@ namespace TeamCloud.API.Controllers
         {
             if (!ProjectId.HasValue)
                 return ErrorResult
-                    .BadRequest($"Project Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCodes.ValidationError)
+                    .BadRequest($"Project Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCode.ValidationError)
                     .ActionResult();
 
             if (string.IsNullOrWhiteSpace(userNameOrId))
                 return ErrorResult
-                    .BadRequest($"The identifier '{userNameOrId}' provided in the url path is invalid.  Must be a valid email address or GUID.", ResultErrorCodes.ValidationError)
+                    .BadRequest($"The identifier '{userNameOrId}' provided in the url path is invalid.  Must be a valid email address or GUID.", ResultErrorCode.ValidationError)
                     .ActionResult();
 
             var project = await projectsRepository
@@ -146,9 +146,12 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status409Conflict, "A Project User already exists with the email address provided in the request body.", typeof(ErrorResult))]
         public async Task<IActionResult> Post([FromBody] UserDefinition userDefinition)
         {
+            if (userDefinition is null)
+                throw new ArgumentNullException(nameof(userDefinition));
+
             if (!ProjectId.HasValue)
                 return ErrorResult
-                    .BadRequest($"Project Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCodes.ValidationError)
+                    .BadRequest($"Project Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCode.ValidationError)
                     .ActionResult();
 
             var validation = new UserDefinitionValidator().Validate(userDefinition);
@@ -208,7 +211,7 @@ namespace TeamCloud.API.Controllers
         {
             if (!ProjectId.HasValue)
                 return ErrorResult
-                    .BadRequest($"Project Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCodes.ValidationError)
+                    .BadRequest($"Project Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCode.ValidationError)
                     .ActionResult();
 
             var validation = new UserValidator().Validate(user);
@@ -260,12 +263,12 @@ namespace TeamCloud.API.Controllers
         {
             if (!ProjectId.HasValue)
                 return ErrorResult
-                    .BadRequest($"Project Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCodes.ValidationError)
+                    .BadRequest($"Project Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCode.ValidationError)
                     .ActionResult();
 
             if (string.IsNullOrWhiteSpace(userNameOrId))
                 return ErrorResult
-                    .BadRequest($"The identifier '{userNameOrId}' provided in the url path is invalid.  Must be a valid email address or GUID.", ResultErrorCodes.ValidationError)
+                    .BadRequest($"The identifier '{userNameOrId}' provided in the url path is invalid.  Must be a valid email address or GUID.", ResultErrorCode.ValidationError)
                     .ActionResult();
 
             var project = await projectsRepository

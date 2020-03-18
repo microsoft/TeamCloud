@@ -63,7 +63,7 @@ namespace TeamCloud.API.Controllers
         {
             if (!ProjectId.HasValue)
                 return ErrorResult
-                    .BadRequest($"Project Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCodes.ValidationError)
+                    .BadRequest($"Project Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCode.ValidationError)
                     .ActionResult();
 
             var project = await projectsRepository
@@ -93,12 +93,12 @@ namespace TeamCloud.API.Controllers
         {
             if (!ProjectId.HasValue)
                 return ErrorResult
-                    .BadRequest($"Project Id provided in the url path is invalid.  Must be a non-empty string.", ResultErrorCodes.ValidationError)
+                    .BadRequest($"Project Id provided in the url path is invalid.  Must be a non-empty string.", ResultErrorCode.ValidationError)
                     .ActionResult();
 
             if (string.IsNullOrWhiteSpace(tagKey))
                 return ErrorResult
-                    .BadRequest($"The key provided in the url path is invalid.  Must be a non-empty string.", ResultErrorCodes.ValidationError)
+                    .BadRequest($"The key provided in the url path is invalid.  Must be a non-empty string.", ResultErrorCode.ValidationError)
                     .ActionResult();
 
             var project = await projectsRepository
@@ -133,7 +133,7 @@ namespace TeamCloud.API.Controllers
         {
             if (!ProjectId.HasValue)
                 return ErrorResult
-                    .BadRequest($"Project Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCodes.ValidationError)
+                    .BadRequest($"Project Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCode.ValidationError)
                     .ActionResult();
 
             var tag = tags.FirstOrDefault();
@@ -185,7 +185,7 @@ namespace TeamCloud.API.Controllers
         {
             if (!ProjectId.HasValue)
                 return ErrorResult
-                    .BadRequest($"Project Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCodes.ValidationError)
+                    .BadRequest($"Project Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCode.ValidationError)
                     .ActionResult();
 
             var tag = tags.FirstOrDefault();
@@ -238,12 +238,12 @@ namespace TeamCloud.API.Controllers
         {
             if (!ProjectId.HasValue)
                 return ErrorResult
-                    .BadRequest($"Project Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCodes.ValidationError)
+                    .BadRequest($"Project Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCode.ValidationError)
                     .ActionResult();
 
             if (string.IsNullOrWhiteSpace(tagKey))
                 return ErrorResult
-                    .BadRequest($"The key provided in the url path is invalid.  Must be a non-empty string.", ResultErrorCodes.ValidationError)
+                    .BadRequest($"The key provided in the url path is invalid.  Must be a non-empty string.", ResultErrorCode.ValidationError)
                     .ActionResult();
 
             var project = await projectsRepository

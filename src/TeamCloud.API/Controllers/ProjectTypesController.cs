@@ -83,6 +83,9 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status409Conflict, "A ProjectType already exists with the ID provided in the request body.", typeof(ErrorResult))]
         public async Task<IActionResult> Post([FromBody] ProjectType projectType)
         {
+            if (projectType is null)
+                throw new ArgumentNullException(nameof(projectType));
+
             var validation = new ProjectTypeValidator().Validate(projectType);
 
             if (!validation.IsValid)
@@ -136,6 +139,9 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status409Conflict, "A Project Type already exists with the ID provided in the reques body.", typeof(ErrorResult))]
         public async Task<IActionResult> Put([FromBody] ProjectType projectType)
         {
+            if (projectType is null)
+                throw new ArgumentNullException(nameof(projectType));
+
             var validation = new ProjectTypeValidator().Validate(projectType);
 
             if (!validation.IsValid)

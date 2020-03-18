@@ -34,11 +34,11 @@ namespace TeamCloud.API.Data
         public static ErrorResult BadRequest(List<ResultError> errors = null)
             => new ErrorResult { Code = StatusCodes.Status400BadRequest, Status = "BadRequest", Errors = errors };
 
-        public static ErrorResult BadRequest(string message, ResultErrorCodes code)
+        public static ErrorResult BadRequest(string message, ResultErrorCode code)
             => BadRequest(new List<ResultError> { new ResultError { Code = code, Message = message } });
 
         public static ErrorResult BadRequest(ValidationResult validation)
-            => BadRequest(new List<ResultError> { ResultError.ValidationFailure(validation.Errors) });
+            => BadRequest(new List<ResultError> { ResultError.ValidationFailure(validation?.Errors ?? throw new ArgumentNullException(nameof(validation))) });
 
         public static ErrorResult BadRequest(ValidationError validationError)
             => BadRequest(new List<ResultError> { ResultError.ValidationFailure(validationError) });
@@ -67,7 +67,7 @@ namespace TeamCloud.API.Data
 
     public static class ErrorResultExtensions
     {
-        public static IActionResult ActionResult(this IErrorResult result) => result.Code switch
+        public static IActionResult ActionResult(this IErrorResult result) => result?.Code switch
         {
             StatusCodes.Status400BadRequest => new BadRequestObjectResult(result),
             StatusCodes.Status401Unauthorized => new JsonResult(result) { StatusCode = StatusCodes.Status401Unauthorized },
