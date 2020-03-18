@@ -36,6 +36,8 @@ jobs:
     - name: Execute GitVersion
       id: gitversion # step id used as reference for output values
       uses: gittools/actions/gitversion/execute@v0.6.1
+      with:
+        useConfigFile: 'true'
 
     - name: Set Release Variables
       id: release_variables
@@ -48,13 +50,6 @@ jobs:
         echo "::set-output name=url::$RELEASE_URL"
         echo "::set-output name=upload_url::$RELEASE_UPLOAD_URL"
         echo "::set-output name=is_master_release::$IS_MASTER_RELEASE"        
-
-    - name: Print Release Variables
-      run: |
-        echo "tag: ${{ steps.release_variables.outputs.tag }}"
-        echo "url: ${{ steps.release_variables.outputs.url }}"
-        echo "upload_url: ${{ steps.release_variables.outputs.upload_url }}"
-        echo "is_master_release: ${{ steps.release_variables.outputs.is_master_release }}"
 
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
@@ -85,7 +80,7 @@ jobs:
       id: deployment_build
       run: |
         dotnet publish ./TeamCloud.API/TeamCloud.API.csproj -o ../TeamCloud.API -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true --version-suffix "${{ steps.gitversion.outputs.nuGetPreReleaseTagV2 }}"
-        dotnet publish ./TeamCloud.API/TeamCloud.Orchestrator.csproj -o ../TeamCloud.Orchestrator -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true --version-suffix "${{ steps.gitversion.outputs.nuGetPreReleaseTagV2 }}"
+        dotnet publish ./TeamCloud.Orchestrator/TeamCloud.Orchestrator.csproj -o ../TeamCloud.Orchestrator -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true --version-suffix "${{ steps.gitversion.outputs.nuGetPreReleaseTagV2 }}"
 
         zip -r ../TeamCloud.API.zip ../TeamCloud.API
         zip -r ../TeamCloud.Orchestrator.zip ../TeamCloud.Orchestrator
