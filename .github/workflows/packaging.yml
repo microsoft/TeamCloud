@@ -49,12 +49,22 @@ jobs:
         echo "::set-output name=upload_url::$RELEASE_UPLOAD_URL"
         echo "::set-output name=is_master_release::$IS_MASTER_RELEASE"        
 
+        echo "::set-env name=RELEASE_TAG::$RELEASE_TAG"
+        echo "::set-env name=RELEASE_URL::$RELEASE_URL"
+        echo "::set-env name=RELEASE_UPLOAD_URL::$RELEASE_UPLOAD_URL"
+        echo "::set-env name=IS_MASTER_RELEASE::$IS_MASTER_RELEASE"
+
     - name: Print Release Variables
       run: |
         echo "tag: ${{ steps.release_variables.outputs.tag }}"
         echo "url: ${{ steps.release_variables.outputs.url }}"
         echo "upload_url: ${{ steps.release_variables.outputs.upload_url }}"
         echo "is_master_release: ${{ steps.release_variables.outputs.is_master_release }}"
+
+        echo "RELEASE_TAG: ${{ env.RELEASE_TAG }}"
+        echo "RELEASE_URL: ${{ env.RELEASE_URL }}"
+        echo "RELEASE_UPLOAD_URL: ${{ env.RELEASE_UPLOAD_URL }}"
+        echo "IS_MASTER_RELEASE: ${{ env.IS_MASTER_RELEASE }}"
 
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
