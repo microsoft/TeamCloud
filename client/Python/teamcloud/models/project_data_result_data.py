@@ -38,8 +38,6 @@ class ProjectDataResultData(Project):
     :type tags: dict[str, str]
     :param properties:
     :type properties: dict[str, str]
-    :param outputs:
-    :type outputs: dict[str, dict[str, str]]
     """
 
     _validation = {
@@ -57,7 +55,6 @@ class ProjectDataResultData(Project):
         'users': {'key': 'users', 'type': '[User]'},
         'tags': {'key': 'tags', 'type': '{str}'},
         'properties': {'key': 'properties', 'type': '{str}'},
-        'outputs': {'key': 'outputs', 'type': '{{str}}'},
     }
 
     def __init__(self, **kwargs):

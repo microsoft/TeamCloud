@@ -2349,6 +2349,23 @@
               "type": "string"
             },
             "nullable": true
+          },
+          "dependsOn": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -2539,16 +2556,6 @@
             "type": "object",
             "additionalProperties": {
               "type": "string"
-            },
-            "nullable": true
-          },
-          "outputs": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "object",
-              "additionalProperties": {
-                "type": "string"
-              }
             },
             "nullable": true
           }
@@ -2892,26 +2899,6 @@
         },
         "additionalProperties": false
       },
-      "ProviderDependencies": {
-        "type": "object",
-        "properties": {
-          "create": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "nullable": true
-          },
-          "init": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
       "Provider": {
         "type": "object",
         "properties": {
@@ -2930,14 +2917,6 @@
           "principalId": {
             "type": "string",
             "format": "uuid",
-            "nullable": true
-          },
-          "dependencies": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ProviderDependencies"
-              }
-            ],
             "nullable": true
           },
           "events": {

@@ -35,8 +35,6 @@ try:
     from .user_list_data_result_py3 import UserListDataResult
     from .user_data_result_data_py3 import UserDataResultData
     from .user_data_result_py3 import UserDataResult
-    from .provider_dependencies_py3 import ProviderDependencies
-    from .provider_dependencies_model_py3 import ProviderDependenciesModel
     from .provider_py3 import Provider
     from .provider_list_data_result_py3 import ProviderListDataResult
     from .provider_data_result_data_py3 import ProviderDataResultData
@@ -68,8 +66,6 @@ except (SyntaxError, ImportError):
     from .user_list_data_result import UserListDataResult
     from .user_data_result_data import UserDataResultData
     from .user_data_result import UserDataResult
-    from .provider_dependencies import ProviderDependencies
-    from .provider_dependencies_model import ProviderDependenciesModel
     from .provider import Provider
     from .provider_list_data_result import ProviderListDataResult
     from .provider_data_result_data import ProviderDataResultData
@@ -102,8 +98,6 @@ __all__ = [
     'UserListDataResult',
     'UserDataResultData',
     'UserDataResult',
-    'ProviderDependencies',
-    'ProviderDependenciesModel',
     'Provider',
     'ProviderListDataResult',
     'ProviderDataResultData',

@@ -19,14 +19,22 @@ class ProviderReference(Model):
     :type id: str
     :param properties:
     :type properties: dict[str, str]
+    :param depends_on:
+    :type depends_on: list[str]
+    :param metadata:
+    :type metadata: dict[str, dict[str, str]]
     """
 
     _attribute_map = {
         'id': {'key': 'id', 'type': 'str'},
         'properties': {'key': 'properties', 'type': '{str}'},
+        'depends_on': {'key': 'dependsOn', 'type': '[str]'},
+        'metadata': {'key': 'metadata', 'type': '{{str}}'},
     }
 
-    def __init__(self, *, id: str=None, properties=None, **kwargs) -> None:
+    def __init__(self, *, id: str=None, properties=None, depends_on=None, metadata=None, **kwargs) -> None:
         super(ProviderReference, self).__init__(**kwargs)
         self.id = id
         self.properties = properties
+        self.depends_on = depends_on
+        self.metadata = metadata
