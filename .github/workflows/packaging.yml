@@ -49,6 +49,13 @@ jobs:
         echo "::set-output name=upload_url::$RELEASE_UPLOAD_URL"
         echo "::set-output name=is_master_release::$IS_MASTER_RELEASE"        
 
+    - name: Print Release Variables
+      run: |
+        echo "tag: ${{ steps.release_variables.outputs.tag }}"
+        echo "url: ${{ steps.release_variables.outputs.url }}"
+        echo "upload_url: ${{ steps.release_variables.outputs.upload_url }}"
+        echo "is_master_release: ${{ steps.release_variables.outputs.is_master_release }}"
+
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
