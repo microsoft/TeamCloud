@@ -43,7 +43,7 @@ jobs:
         RELEASE_TAG=$([[ "${{ github.ref }}" =~ ^refs\/tags\/ ]] && (echo "${{ github.ref }}" | sed -e "s/.*\///g") || echo "")
         RELEASE_URL=$([[ -z "$RELEASE_TAG" ]] && echo "" || (curl https://api.github.com/repos/${{ github.repository }}/releases/tags/$RELEASE_TAG -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" | jq -r ".url"))
         RELEASE_UPLOAD_URL=$([[ -z "$RELEASE_TAG" ]] && echo "" || (curl https://api.github.com/repos/${{ github.repository }}/releases/tags/$RELEASE_TAG -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" | jq -r ".upload_url"))
-        IS_MASTER_RELEASE=$([[ ! -z "$RELEASE_URL" ]])
+        [[ ! -z "$RELEASE_URL" ]] && IS_MASTER_RELEASE=true || IS_MASTER_RELEASE=false
         echo "::set-output name=tag::$RELEASE_TAG"
         echo "::set-output name=url::$RELEASE_URL"
         echo "::set-output name=upload_url::$RELEASE_UPLOAD_URL"
