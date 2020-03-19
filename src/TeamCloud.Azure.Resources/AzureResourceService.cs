@@ -65,7 +65,8 @@ namespace TeamCloud.Azure.Resources
                 .SetQueryParam("api-version", "2019-10-01")
                 .WithOAuthBearerToken(token)
                 .WithAzureResourceException(AzureSessionService.Environment)
-                .GetJObjectAsync();
+                .GetJObjectAsync()
+                .ConfigureAwait(false);
 
             var resourceTypeMatch = json
                 .SelectTokens("$..resourceType")

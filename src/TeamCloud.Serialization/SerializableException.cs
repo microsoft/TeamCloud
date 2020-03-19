@@ -5,12 +5,14 @@
 
 using System;
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
 
 namespace TeamCloud.Serialization
 {
 
     [Serializable]
+    [SuppressMessage("Design", "CA1032:Implement standard exception constructors", Justification = "Explicit non-standard implementation.")]
     public class SerializableException : Exception
     {
         private readonly string ClassNameOriginal;
@@ -42,6 +44,9 @@ namespace TeamCloud.Serialization
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
+            if (info is null)
+                throw new ArgumentNullException(nameof(info));
+
             if (InnerException is null)
             {
                 base.GetObjectData(info, context);
@@ -54,9 +59,9 @@ namespace TeamCloud.Serialization
 
                 foreach (var innerExceptionInfoEntry in innerExceptionInfo)
                 {
-                    if (innerExceptionInfoEntry.Name.Equals("ClassName") && innerExceptionInfoEntry.ObjectType == typeof(string))
+                    if (innerExceptionInfoEntry.Name.Equals("ClassName", StringComparison.Ordinal) && innerExceptionInfoEntry.ObjectType == typeof(string))
                         info.AddValue(innerExceptionInfoEntry.Name, this.GetType().FullName, innerExceptionInfoEntry.ObjectType);
-                    else if (innerExceptionInfoEntry.Name.Equals("Message") && innerExceptionInfoEntry.ObjectType == typeof(string))
+                    else if (innerExceptionInfoEntry.Name.Equals("Message", StringComparison.Ordinal) && innerExceptionInfoEntry.ObjectType == typeof(string))
                         info.AddValue(innerExceptionInfoEntry.Name, Message, innerExceptionInfoEntry.ObjectType);
                     else if (innerExceptionInfoEntry.Value is Exception exception && !exception.IsSerializable())
                         info.AddValue(innerExceptionInfoEntry.Name, null, innerExceptionInfoEntry.ObjectType);

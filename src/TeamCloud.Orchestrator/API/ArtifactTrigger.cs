@@ -27,9 +27,17 @@ namespace TeamCloud.Orchestrator.API
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = "artifacts/{deploymentId:guid}/{artifactName}")] HttpRequest httpRequest,
             string deploymentId,
-            string artifactName
-            /* ILogger log */)
+            string artifactName)
         {
+            if (httpRequest is null)
+                throw new ArgumentNullException(nameof(httpRequest));
+
+            if (string.IsNullOrEmpty(deploymentId))
+                throw new ArgumentException("message", nameof(deploymentId));
+
+            if (string.IsNullOrEmpty(artifactName))
+                throw new ArgumentException("message", nameof(artifactName));
+
             if (azureDeploymentArtifactsProvider is null)
                 return new NotFoundResult();
 

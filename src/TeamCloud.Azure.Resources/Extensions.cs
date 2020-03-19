@@ -22,6 +22,9 @@ namespace TeamCloud.Azure.Resources
     {
         public static IAzureConfiguration AddResources(this IAzureConfiguration azureConfiguration)
         {
+            if (azureConfiguration is null)
+                throw new ArgumentNullException(nameof(azureConfiguration));
+
             azureConfiguration.Services
                 .TryAddSingleton<IAzureResourceService, AzureResourceService>();
 
@@ -38,6 +41,12 @@ namespace TeamCloud.Azure.Resources
 
         public static Task<IEnumerable<string>> GetApiVersionsAsync(this IAzureResourceService azureResourceService, AzureResourceIdentifier azureResourceIdentifier, bool includePreviewVersions = false)
         {
+            if (azureResourceService is null)
+                throw new ArgumentNullException(nameof(azureResourceService));
+
+            if (azureResourceIdentifier is null)
+                throw new ArgumentNullException(nameof(azureResourceIdentifier));
+
             if (string.IsNullOrEmpty(azureResourceIdentifier.ResourceNamespace))
                 return azureResourceService.GetApiVersionsAsync(azureResourceIdentifier.SubscriptionId, "Microsoft.Resources", "resourceGroups", includePreviewVersions);
             else

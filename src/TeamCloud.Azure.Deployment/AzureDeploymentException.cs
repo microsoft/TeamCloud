@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.Serialization;
 using Newtonsoft.Json.Linq;
@@ -12,6 +13,7 @@ using Newtonsoft.Json.Linq;
 namespace TeamCloud.Azure.Deployment
 {
     [Serializable]
+    [SuppressMessage("Design", "CA1032:Implement standard exception constructors", Justification = "AzureDeploymentException needs more information than a usual exception.")]
     public class AzureDeploymentException : Exception
     {
         internal static IEnumerable<string> ResolveResourceErrors(JToken errorToken)
@@ -56,12 +58,12 @@ namespace TeamCloud.Azure.Deployment
             : base(info, context)
         {
             ResourceId = info.GetString(nameof(ResourceId));
-            ResourceErrors = info.GetString(nameof(ResourceErrors))?.Split('|') ?? Array.Empty<string>();
+            ResourceErrors = info.GetString(nameof(ResourceErrors))?.Split('|') ?? Enumerable.Empty<string>();
         }
 
         public string ResourceId { get; }
 
-        public string[] ResourceErrors { get; } = Array.Empty<string>();
+        public IEnumerable<string> ResourceErrors { get; } = Enumerable.Empty<string>();
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {

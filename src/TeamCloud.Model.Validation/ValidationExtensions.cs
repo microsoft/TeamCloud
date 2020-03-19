@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
@@ -134,10 +135,16 @@ namespace TeamCloud.Model.Validation
             => new ValidationResult(validationResults.SelectMany(validationResult => validationResult.Errors));
 
         public static ValidationException ToException(this ValidationResult validationResult)
-            => validationResult.IsValid ? null : new ValidationException(validationResult.Errors);
+            => (validationResult ?? throw new ArgumentNullException(nameof(validationResult))).IsValid ? null : new ValidationException(validationResult.Errors);
 
         public static ICommandResult ApplyValidationResult(this ICommandResult commandResult, ValidationResult validationResult)
         {
+            if (commandResult is null)
+                throw new ArgumentNullException(nameof(commandResult));
+
+            if (validationResult is null)
+                throw new ArgumentNullException(nameof(validationResult));
+
             if (!validationResult.IsValid)
                 commandResult.Errors.Add(validationResult.ToException());
 
@@ -216,18 +223,21 @@ namespace TeamCloud.Model.Validation
             => !string.IsNullOrEmpty(url) && Uri.TryCreate(url, UriKind.Absolute, out var _);
 
         private static bool BeUserRole(string role)
-            => !string.IsNullOrEmpty(role) && ValidUserRoles.Contains(role.ToLowerInvariant());
+            => !string.IsNullOrEmpty(role) && ValidUserRoles.Contains(role.ToUpperInvariant());
 
         private static bool BeAzureRegion(string region)
             => !string.IsNullOrEmpty(region) && AzureRegion.IsValid(region);
 
         private static bool BeValidResourceId(string id)
-            => !(string.IsNullOrEmpty(id) || id.Length >= 255 || id.Contains('/') || id.Contains(@"\\") || id.Contains('?') || id.Contains('#'));
+            => !(string.IsNullOrEmpty(id) || id.Length >= 255 || id.Contains('/', StringComparison.OrdinalIgnoreCase) || id.Contains(@"\\", StringComparison.OrdinalIgnoreCase) || id.Contains('?', StringComparison.OrdinalIgnoreCase) || id.Contains('#', StringComparison.OrdinalIgnoreCase));
 
 
         private static readonly string[] ValidUserRoles = new string[]
         {
-            UserRoles.Project.Owner.ToLowerInvariant(), UserRoles.Project.Member.ToLowerInvariant(), UserRoles.TeamCloud.Admin.ToLowerInvariant(), UserRoles.TeamCloud.Creator.ToLowerInvariant()
+            UserRoles.Project.Owner.ToUpperInvariant(),
+            UserRoles.Project.Member.ToUpperInvariant(),
+            UserRoles.TeamCloud.Admin.ToUpperInvariant(),
+            UserRoles.TeamCloud.Creator.ToUpperInvariant()
         };
     }
 
@@ -340,16 +350,24 @@ namespace TeamCloud.Model.Validation
             get; private set;
         }
 
+        [SuppressMessage("Globalization", "CA1308:Normalize strings to uppercase")]
         private AzureRegion(string name)
         {
             Name = name.ToLowerInvariant();
             regions.AddOrUpdate(Name, this, (k, v) => v);
         }
 
+        [SuppressMessage("Globalization", "CA1308:Normalize strings to uppercase")]
         internal static bool IsValid(string name)
-            => regions.ContainsKey(name.Replace(" ", "").ToLowerInvariant());
+        {
+            if (name is null)
+                throw new ArgumentNullException(nameof(name));
 
-        public override int GetHashCode() => this.Name.GetHashCode();
+            return regions.ContainsKey(name.Replace(" ", "", StringComparison.OrdinalIgnoreCase).ToLowerInvariant());
+        }
+
+        public override int GetHashCode()
+            => this.Name?.GetHashCode(StringComparison.OrdinalIgnoreCase) ?? base.GetHashCode();
 
         public static bool operator ==(AzureRegion lhs, AzureRegion rhs)
             => (object.ReferenceEquals(lhs, null))

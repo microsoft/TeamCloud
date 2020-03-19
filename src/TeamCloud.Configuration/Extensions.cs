@@ -16,13 +16,16 @@ namespace TeamCloud.Configuration
     public static class Extensions
     {
         private static readonly MethodInfo AddOptionsMethod = typeof(Extensions).GetMethods(BindingFlags.Static | BindingFlags.NonPublic)
-            .SingleOrDefault(mi => mi.Name.StartsWith(nameof(AddOptions)) && mi.IsGenericMethodDefinition);
+            .SingleOrDefault(mi => mi.Name.StartsWith(nameof(AddOptions), StringComparison.Ordinal) && mi.IsGenericMethodDefinition);
 
         private static readonly MethodInfo AddProxyMethod = typeof(Extensions).GetMethods(BindingFlags.Static | BindingFlags.NonPublic)
-            .SingleOrDefault(mi => mi.Name.StartsWith(nameof(AddProxy)) && mi.IsGenericMethodDefinition);
+            .SingleOrDefault(mi => mi.Name.StartsWith(nameof(AddProxy), StringComparison.Ordinal) && mi.IsGenericMethodDefinition);
 
         public static IConfigurationBuilder AddConfigurationService(this IConfigurationBuilder configurationBuilder, string connectionString = null)
         {
+            if (configurationBuilder is null)
+                throw new ArgumentNullException(nameof(configurationBuilder));
+
             if (string.IsNullOrEmpty(connectionString))
                 connectionString = configurationBuilder.Build().GetConnectionString("ConfigurationService");
 
@@ -82,6 +85,12 @@ namespace TeamCloud.Configuration
         private static void AddProxy<T>(OptionsAttribute attribute, IServiceCollection services)
             where T : class
         {
+            if (attribute is null)
+                throw new ArgumentNullException(nameof(attribute));
+
+            if (services is null)
+                throw new ArgumentNullException(nameof(services));
+
             foreach (var contract in typeof(T).GetInterfaces().Concat(new Type[] { typeof(T) }))
             {
                 services.AddTransient(contract, provider => ActivatorUtilities.CreateInstance<T>(provider));
@@ -91,6 +100,12 @@ namespace TeamCloud.Configuration
         private static void AddOptions<T>(OptionsAttribute attribute, IServiceCollection services)
              where T : class, new()
         {
+            if (attribute is null)
+                throw new ArgumentNullException(nameof(attribute));
+
+            if (services is null)
+                throw new ArgumentNullException(nameof(services));
+
             services
                 .AddOptions<T>()
                 .Configure<IConfiguration>((options, config) => config.GetSection(attribute.SectionName)?.Bind(options));

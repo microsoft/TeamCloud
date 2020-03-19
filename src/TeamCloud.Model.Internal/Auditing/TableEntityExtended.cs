@@ -81,8 +81,11 @@ namespace TeamCloud.Model.Auditing
         /// <param name="properties">The properties.</param>
         /// <param name="operationContext">The operation context.</param>
         /// <exception cref="Exception">Failed to read value for property '{complexProperty.Name}</exception>
-        void ITableEntity.ReadEntity(IDictionary<string, EntityProperty> properties, OperationContext operationContext)
+        public void ReadEntity(IDictionary<string, EntityProperty> properties, OperationContext operationContext)
         {
+            if (properties is null)
+                throw new ArgumentNullException(nameof(properties));
+
             ReflectionReadMethod.Invoke(null, new object[] { this, properties, operationContext });
 
             foreach (var complexProperty in ComplexProperties)
@@ -125,8 +128,11 @@ namespace TeamCloud.Model.Auditing
         /// </summary>
         /// <param name="operationContext">The operation context.</param>
         /// <returns></returns>
-        IDictionary<string, EntityProperty> ITableEntity.WriteEntity(OperationContext operationContext)
+        public IDictionary<string, EntityProperty> WriteEntity(OperationContext operationContext)
         {
+            if (operationContext is null)
+                throw new ArgumentNullException(nameof(operationContext));
+
             var properties = (IDictionary<string, EntityProperty>)ReflectionWriteMethod.Invoke(null, new object[] { this, operationContext });
 
             foreach (var complexProperty in ComplexProperties)

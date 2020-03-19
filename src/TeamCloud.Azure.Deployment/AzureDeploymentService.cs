@@ -17,13 +17,13 @@ namespace TeamCloud.Azure.Deployment
 {
     public interface IAzureDeploymentService
     {
-        Task<IAzureDeployment> DeploySubscriptionTemplateAsync(AzureDeploymentTemplate template, Guid subscriptionId, string location);
+        Task<IAzureDeployment> DeploySubscriptionTemplateAsync(AzureDeploymentTemplate deploymentTemplate, Guid subscriptionId, string location);
 
-        Task<IAzureDeployment> DeployResourceGroupTemplateAsync(AzureDeploymentTemplate template, Guid subscriptionId, string resourceGroupName, bool completeMode = false);
+        Task<IAzureDeployment> DeployResourceGroupTemplateAsync(AzureDeploymentTemplate deploymentTemplate, Guid subscriptionId, string resourceGroupName, bool completeMode = false);
 
-        Task<IEnumerable<string>> ValidateSubscriptionTemplateAsync(AzureDeploymentTemplate template, Guid subscriptionId, string location, bool throwOnError = false);
+        Task<IEnumerable<string>> ValidateSubscriptionTemplateAsync(AzureDeploymentTemplate deploymentTemplate, Guid subscriptionId, string location, bool throwOnError = false);
 
-        Task<IEnumerable<string>> ValidateResourceGroupTemplateAsync(AzureDeploymentTemplate template, Guid subscriptionId, string resourceGroupName, bool throwOnError = false);
+        Task<IEnumerable<string>> ValidateResourceGroupTemplateAsync(AzureDeploymentTemplate deploymentTemplate, Guid subscriptionId, string resourceGroupName, bool throwOnError = false);
     }
 
     public class AzureDeploymentService : IAzureDeploymentService
@@ -78,12 +78,15 @@ namespace TeamCloud.Azure.Deployment
             return new AzureDeployment(deploymentResourceId, azureSessionService);
         }
 
-        public async Task<IEnumerable<string>> ValidateSubscriptionTemplateAsync(AzureDeploymentTemplate template, Guid subscriptionId, string location, bool throwOnError = false)
+        public async Task<IEnumerable<string>> ValidateSubscriptionTemplateAsync(AzureDeploymentTemplate deploymentTemplate, Guid subscriptionId, string location, bool throwOnError = false)
         {
+            if (deploymentTemplate is null)
+                throw new ArgumentNullException(nameof(deploymentTemplate));
+
             var deploymentId = Guid.NewGuid();
             var deploymentResourceId = $"/subscriptions/{subscriptionId}/providers/Microsoft.Resources/deployments/{deploymentId}/validate";
 
-            var payload = await GetDeploymentPayloadAsync(deploymentId, template, location, DeploymentMode.Incremental)
+            var payload = await GetDeploymentPayloadAsync(deploymentId, deploymentTemplate, location, DeploymentMode.Incremental)
                 .ConfigureAwait(false);
 
             var token = await azureSessionService
@@ -114,12 +117,15 @@ namespace TeamCloud.Azure.Deployment
             }
         }
 
-        public async Task<IAzureDeployment> DeployResourceGroupTemplateAsync(AzureDeploymentTemplate template, Guid subscriptionId, string resourceGroupName, bool completeMode = false)
+        public async Task<IAzureDeployment> DeployResourceGroupTemplateAsync(AzureDeploymentTemplate deploymentTemplate, Guid subscriptionId, string resourceGroupName, bool completeMode = false)
         {
+            if (deploymentTemplate is null)
+                throw new ArgumentNullException(nameof(deploymentTemplate));
+
             var deploymentId = Guid.NewGuid();
             var deploymentResourceId = $"/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Resources/deployments/{deploymentId}";
 
-            var payload = await GetDeploymentPayloadAsync(deploymentId, template, null, completeMode ? DeploymentMode.Complete : DeploymentMode.Incremental)
+            var payload = await GetDeploymentPayloadAsync(deploymentId, deploymentTemplate, null, completeMode ? DeploymentMode.Complete : DeploymentMode.Incremental)
                 .ConfigureAwait(false);
 
             var token = await azureSessionService
@@ -147,12 +153,15 @@ namespace TeamCloud.Azure.Deployment
             return new AzureDeployment(deploymentResourceId, azureSessionService);
         }
 
-        public async Task<IEnumerable<string>> ValidateResourceGroupTemplateAsync(AzureDeploymentTemplate template, Guid subscriptionId, string resourceGroupName, bool throwOnError = false)
+        public async Task<IEnumerable<string>> ValidateResourceGroupTemplateAsync(AzureDeploymentTemplate deploymentTemplate, Guid subscriptionId, string resourceGroupName, bool throwOnError = false)
         {
+            if (deploymentTemplate is null)
+                throw new ArgumentNullException(nameof(deploymentTemplate));
+
             var deploymentId = Guid.NewGuid();
             var deploymentResourceId = $"/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Resources/deployments/{deploymentId}/validate";
 
-            var payload = await GetDeploymentPayloadAsync(deploymentId, template, null, DeploymentMode.Incremental)
+            var payload = await GetDeploymentPayloadAsync(deploymentId, deploymentTemplate, null, DeploymentMode.Incremental)
                 .ConfigureAwait(false);
 
             var token = await azureSessionService

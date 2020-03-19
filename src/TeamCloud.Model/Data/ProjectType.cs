@@ -35,6 +35,13 @@ namespace TeamCloud.Model.Data
         public IDictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
 
 
-        public bool Equals(ProjectType other) => Id.Equals(other.Id);
+        public bool Equals(ProjectType other)
+            => Id.Equals(other?.Id, StringComparison.Ordinal);
+
+        public override bool Equals(object obj)
+            => base.Equals(obj) || Equals(obj as ProjectType);
+
+        public override int GetHashCode()
+            => Id is null ? base.GetHashCode() : Id.GetHashCode(StringComparison.Ordinal);
     }
 }

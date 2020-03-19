@@ -18,6 +18,13 @@ namespace TeamCloud.Model.Data
 
         public string Secret { get; set; }
 
-        public bool Equals(AzureIdentity other) => Id.Equals(other.Id);
+        public bool Equals(AzureIdentity other)
+            => Id.Equals(other?.Id);
+
+        public override bool Equals(object obj)
+            => base.Equals(obj) || Equals(obj as AzureIdentity);
+
+        public override int GetHashCode()
+            => Id.GetHashCode();
     }
 }

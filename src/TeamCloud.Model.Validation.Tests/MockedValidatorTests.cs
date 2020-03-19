@@ -44,7 +44,7 @@ namespace TeamCloud.Model.Validation.Tests
             await Assert.ThrowsAsync<NotSupportedException>(() => validatable.ValidateAsync<ValidatableObjectValidator2>(throwOnNotValidable: true)).ConfigureAwait(false);
         }
 
-        public class ValidatableObject : IValidatable
+        internal class ValidatableObject : IValidatable
         {
             public ValidatableObject(bool isValid)
             {
@@ -54,7 +54,7 @@ namespace TeamCloud.Model.Validation.Tests
             public bool IsValid { get; set; }
         }
 
-        public class ValidatableObjectValidator : AbstractValidator<ValidatableObject>
+        internal class ValidatableObjectValidator : AbstractValidator<ValidatableObject>
         {
             public ValidatableObjectValidator()
             {
@@ -63,7 +63,7 @@ namespace TeamCloud.Model.Validation.Tests
             }
         }
 
-        public class ValidatableObject2 : IValidatable
+        internal class ValidatableObject2 : IValidatable
         {
             public ValidatableObject2(bool isValid)
             {
@@ -73,7 +73,7 @@ namespace TeamCloud.Model.Validation.Tests
             public bool IsValid { get; set; }
         }
 
-        public class ValidatableObjectValidator2 : AbstractValidator<ValidatableObject2>
+        internal class ValidatableObjectValidator2 : AbstractValidator<ValidatableObject2>
         {
             public ValidatableObjectValidator2()
             {

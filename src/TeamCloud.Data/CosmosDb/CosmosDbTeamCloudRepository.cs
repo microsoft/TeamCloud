@@ -49,6 +49,6 @@ namespace TeamCloud.Data.CosmosDb
         }
 
         public Task<bool> ExistsAsync()
-            => GetAsync().ContinueWith(task => !(task.Result is null));
+            => GetAsync().ContinueWith(task => !(task.Result is null), TaskScheduler.Current);
     }
 }

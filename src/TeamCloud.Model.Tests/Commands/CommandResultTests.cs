@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Flurl.Http;
 using Newtonsoft.Json;
@@ -34,6 +35,7 @@ namespace TeamCloud.Model
         }
 
         [Fact]
+        [SuppressMessage("Naming", "CA1707:Identifiers should not contain underscores", Justification = "<Pending>")]
         public async Task Serialize_WithErrorsAsync()
         {
             var flurlHttpException = await CreateFlurlHttpExceptionAsync().ConfigureAwait(false);
@@ -55,6 +57,7 @@ namespace TeamCloud.Model
         }
 
         [Fact]
+        [SuppressMessage("Naming", "CA1707:Identifiers should not contain underscores", Justification = "<Pending>")]
         public async Task Deserialize_WithExceptionErrorsAsync()
         {
             var flurlHttpException = await CreateFlurlHttpExceptionAsync().ConfigureAwait(false);

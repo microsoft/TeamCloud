@@ -280,6 +280,9 @@ namespace TeamCloud.Azure.Resources
 
         public virtual async Task SetRoleAssignmentsAsync(IDictionary<Guid, IEnumerable<Guid>> roleAssignments)
         {
+            if (roleAssignments is null)
+                throw new ArgumentNullException(nameof(roleAssignments));
+
             var assignments = await GetRoleAssignmentsAsync()
                 .ConfigureAwait(false);
 

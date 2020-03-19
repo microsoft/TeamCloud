@@ -4,6 +4,7 @@
  */
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using System.Reflection;
 using Flurl.Http;
@@ -20,6 +21,7 @@ namespace TeamCloud.Http
         public TeamCloudHttpClientFactory(TelemetryConfiguration telemetryConfiguration = null)
             => this.telemetryConfiguration = telemetryConfiguration ?? new TelemetryConfiguration(Guid.Empty.ToString());
 
+        [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "Lifetime is managed by the returned HttpMessageHandler instance.")]
         public override HttpMessageHandler CreateMessageHandler()
         {
             var innerHandler = new HttpTelemetryHandler(base.CreateMessageHandler(), telemetryConfiguration);

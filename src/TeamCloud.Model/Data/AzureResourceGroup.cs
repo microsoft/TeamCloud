@@ -22,6 +22,13 @@ namespace TeamCloud.Model.Data
 
         public string Region { get; set; }
 
-        public bool Equals(AzureResourceGroup other) => Id.Equals(other.Id);
+        public bool Equals(AzureResourceGroup other)
+            => Id.Equals(other?.Id);
+
+        public override bool Equals(object obj)
+            => base.Equals(obj) || Equals(obj as AzureResourceGroup);
+
+        public override int GetHashCode()
+            => Id.GetHashCode();
     }
 }

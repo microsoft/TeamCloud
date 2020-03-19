@@ -4,6 +4,7 @@
  */
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using System.Reflection;
 using Flurl.Http.Configuration;
@@ -20,6 +21,12 @@ namespace TeamCloud.Azure
 
         public static IServiceCollection AddTeamCloudAzure(this IServiceCollection services, Action<IAzureConfiguration> configuration)
         {
+            if (services is null)
+                throw new ArgumentNullException(nameof(services));
+
+            if (configuration is null)
+                throw new ArgumentNullException(nameof(configuration));
+
             services
                 .TryAddSingleton<IAzureSessionService, AzureSessionService>();
 
@@ -28,12 +35,18 @@ namespace TeamCloud.Azure
             return services;
         }
 
-        public static string GetEndpointUrl(this AzureEnvironment azureEnvironment, AzureEndpoint azureEndpoint) => azureEndpoint switch
+        public static string GetEndpointUrl(this AzureEnvironment azureEnvironment, AzureEndpoint azureEndpoint)
         {
-            AzureEndpoint.ResourceManagerEndpoint => azureEnvironment.ResourceManagerEndpoint,
-            AzureEndpoint.GraphEndpoint => azureEnvironment.GraphEndpoint,
-            _ => throw new NotSupportedException($"The Azure endpoint {azureEndpoint} is not supported.")
-        };
+            if (azureEnvironment is null)
+                throw new ArgumentNullException(nameof(azureEnvironment));
+
+            return azureEndpoint switch
+            {
+                AzureEndpoint.ResourceManagerEndpoint => azureEnvironment.ResourceManagerEndpoint,
+                AzureEndpoint.GraphEndpoint => azureEnvironment.GraphEndpoint,
+                _ => throw new NotSupportedException($"The Azure endpoint {azureEndpoint} is not supported.")
+            };
+        }
 
         internal static T WithDelegatingHandler<T>(this IAzureConfigurable<T> azureConfigurable, IHttpClientFactory httpClientFactory) where T : IAzureConfigurable<T>
         {
@@ -57,6 +70,7 @@ namespace TeamCloud.Azure
             return builder;
         }
 
+        [SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Swallows exception if GetProperty fails.")]
         internal static bool TryGetProperty(this Type type, string name, out PropertyInfo propertyInfo)
         {
             if (name is null)

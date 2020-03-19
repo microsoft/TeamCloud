@@ -16,11 +16,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamCloud.Azure", "TeamClou
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamCloud.Azure.Tests", "TeamCloud.Azure.Tests\TeamCloud.Azure.Tests.csproj", "{1E5AB1FD-1185-4811-9517-0A0AA3D25D33}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionProperties", "SolutionProperties", "{2BBEED0F-8230-49D0-9F4A-E1C90E14812B}"
-	ProjectSection(SolutionItems) = preProject
-		TeamCloud.sln.licenseheader = TeamCloud.sln.licenseheader
-	EndProjectSection
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamCloud.Model.Validation", "TeamCloud.Model.Validation\TeamCloud.Model.Validation.csproj", "{1A123294-55E1-4EB6-AC5A-F9A55316EC22}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamCloud.Model.Validation.Tests", "TeamCloud.Model.Validation.Tests\TeamCloud.Model.Validation.Tests.csproj", "{38631627-5E2F-4E29-93E3-14326DF5D863}"
@@ -41,11 +36,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamCloud.Model.Tests", "Te
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamCloud.Configuration.Options", "TeamCloud.Configuration.Options\TeamCloud.Configuration.Options.csproj", "{E69C47DB-4D01-4EA0-85FE-87E8B0924C38}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{BCF21788-73F1-4671-AF59-51E16436ED7C}"
-	ProjectSection(SolutionItems) = preProject
-		.editorconfig = .editorconfig
-	EndProjectSection
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamCloud.Orchestration", "TeamCloud.Orchestration\TeamCloud.Orchestration.csproj", "{10076816-878F-4161-8814-07A886F5E677}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamCloud.Model.Internal", "TeamCloud.Model.Internal\TeamCloud.Model.Internal.csproj", "{38453319-CD0C-4D53-AADB-666F39BC419A}"
@@ -55,6 +45,14 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamCloud.Serialization", "TeamCloud.Serialization\TeamCloud.Serialization.csproj", "{58710957-8D0D-4271-8F6B-6143C732992F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamCloud.Serialization.Tests", "TeamCloud.Serialization.Tests\TeamCloud.Serialization.Tests.csproj", "{E199F6D5-2601-4320-8187-8F37E9803FEF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B2847BCE-3558-47D4-890A-D5E59DFBC88F}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		GlobalSuppressions.cs = GlobalSuppressions.cs
+		TeamCloud.sln.licenseheader = TeamCloud.sln.licenseheader
+		TeamCloud.sln.targets = TeamCloud.sln.targets
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

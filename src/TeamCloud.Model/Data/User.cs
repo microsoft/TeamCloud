@@ -19,7 +19,13 @@ namespace TeamCloud.Model.Data
 
         public Dictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();
 
-        public bool Equals(User other) => Id.Equals(other.Id);
+        public bool Equals(User other) => Id.Equals(other?.Id);
+
+        public override bool Equals(object obj)
+            => base.Equals(obj) || this.Equals(obj as User);
+
+        public override int GetHashCode()
+            => this.Id.GetHashCode();
     }
 
     public class UserComparer : IEqualityComparer<User>
@@ -37,6 +43,6 @@ namespace TeamCloud.Model.Data
         }
 
         public int GetHashCode(User obj)
-            => obj.Id.GetHashCode();
+            => (obj ?? throw new ArgumentNullException(nameof(obj))).Id.GetHashCode();
     }
 }

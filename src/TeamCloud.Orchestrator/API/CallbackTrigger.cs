@@ -114,7 +114,7 @@ namespace TeamCloud.Orchestrator
         }
 
         [FunctionName(nameof(CallbackTrigger))]
-        public static async Task<IActionResult> Run(
+        public static async Task<IActionResult> RunTrigger(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = "callback/{instanceId}/{eventName}")] HttpRequest httpRequest,
             [DurableClient] IDurableClient durableClient,
             string instanceId,

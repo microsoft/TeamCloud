@@ -66,7 +66,7 @@ namespace TeamCloud.Data.CosmosDb
                 .ConfigureAwait(false);
 
             var instances = container.GetItemQueryIterator<Project>()
-                .Where(project => project.Type.Id.Equals(id));
+                .Where(project => project.Type.Id.Equals(id, StringComparison.Ordinal));
 
             if (subscriptionId.HasValue)
                 instances = instances.Where(project => project.ResourceGroup?.SubscriptionId == subscriptionId.GetValueOrDefault());
@@ -126,6 +126,9 @@ namespace TeamCloud.Data.CosmosDb
 
         public async Task<ProjectType> RemoveAsync(ProjectType projectType)
         {
+            if (projectType is null)
+                throw new ArgumentNullException(nameof(projectType));
+
             var container = await GetContainerAsync<ProjectType>()
                 .ConfigureAwait(false);
 

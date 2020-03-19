@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Globalization;
 using System.Reflection;
 
 namespace TeamCloud.Orchestration
@@ -63,7 +64,7 @@ namespace TeamCloud.Orchestration
         public string FirstRetryInterval
         {
             get => firstRetryInterval.ToString();
-            set => firstRetryInterval = TimeSpan.Parse(value);
+            set => firstRetryInterval = TimeSpan.Parse(value, CultureInfo.InvariantCulture.DateTimeFormat);
         }
 
         private TimeSpan maxRetryInterval = TimeSpan.FromHours(1);
@@ -75,7 +76,7 @@ namespace TeamCloud.Orchestration
         public string MaxRetryInterval
         {
             get => maxRetryInterval.ToString();
-            set => maxRetryInterval = TimeSpan.Parse(value);
+            set => maxRetryInterval = TimeSpan.Parse(value, CultureInfo.InvariantCulture.DateTimeFormat);
         }
 
         private TimeSpan retryTimeout = TimeSpan.FromDays(1);
@@ -87,7 +88,7 @@ namespace TeamCloud.Orchestration
         public string RetryTimeout
         {
             get => retryTimeout.ToString();
-            set => retryTimeout = TimeSpan.Parse(value);
+            set => retryTimeout = TimeSpan.Parse(value, CultureInfo.InvariantCulture.DateTimeFormat);
         }
 
         /// <summary>

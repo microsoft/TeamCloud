@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -38,14 +39,24 @@ namespace TeamCloud.Http
             return services;
         }
 
+        [SuppressMessage("Design", "CA1068:CancellationToken parameters must come last", Justification = "Following the method syntax of Flurl")]
         public static Task<JObject> GetJObjectAsync(this IFlurlRequest request, CancellationToken cancellationToken = default, HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead)
-            => request.GetJsonAsync(cancellationToken, completionOption).ContinueWith(task => (task.Result is null ? null : JObject.FromObject(task.Result)) as JObject, TaskContinuationOptions.OnlyOnRanToCompletion);
+            => (request ?? throw new ArgumentNullException(nameof(request)))
+            .GetJsonAsync(cancellationToken, completionOption)
+            .ContinueWith(task => (task.Result is null ? null : JObject.FromObject(task.Result)) as JObject, cancellationToken, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.Current);
 
+        [SuppressMessage("Design", "CA1068:CancellationToken parameters must come last", Justification = "Following the method syntax of Flurl")]
         public static Task<JObject> GetJObjectAsync(this Url url, CancellationToken cancellationToken = default, HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead)
-            => url.GetJsonAsync(cancellationToken, completionOption).ContinueWith(task => (task.Result is null ? null : JObject.FromObject(task.Result)) as JObject, TaskContinuationOptions.OnlyOnRanToCompletion);
+            => (url ?? throw new ArgumentNullException(nameof(url)))
+            .GetJsonAsync(cancellationToken, completionOption)
+            .ContinueWith(task => (task.Result is null ? null : JObject.FromObject(task.Result)) as JObject, cancellationToken, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.Current);
 
+        [SuppressMessage("Design", "CA1068:CancellationToken parameters must come last", Justification = "Following the method syntax of Flurl")]
+        [SuppressMessage("Design", "CA1054:Uri parameters should not be strings", Justification = "Following the method syntax of Flurl")]
         public static Task<JObject> GetJObjectAsync(this string url, CancellationToken cancellationToken = default, HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead)
-            => url.GetJsonAsync(cancellationToken, completionOption).ContinueWith(task => (task.Result is null ? null : JObject.FromObject(task.Result)) as JObject, TaskContinuationOptions.OnlyOnRanToCompletion);
+            => (url ?? throw new ArgumentNullException(nameof(url)))
+            .GetJsonAsync(cancellationToken, completionOption)
+            .ContinueWith(task => (task.Result is null ? null : JObject.FromObject(task.Result)) as JObject, cancellationToken, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.Current);
 
         public static T WithHeaders<T>(this T clientOrRequest, HttpHeaders headers)
             where T : IHttpSettingsContainer
@@ -61,6 +72,9 @@ namespace TeamCloud.Http
 
         public static bool IsJson(this string json)
         {
+            if (json is null)
+                throw new ArgumentNullException(nameof(json));
+
             var match = Regex.Match(json.Trim(), @"^([{\[]).*([}\]])$", RegexOptions.Singleline);
 
             return match.Success && (new string[] { "{}", "[]" }).Contains($"{match.Groups[1].Value}{match.Groups[2].Value}");
@@ -68,18 +82,23 @@ namespace TeamCloud.Http
 
         public static async Task<JObject> ReadAsJsonAsync(this HttpContent httpContent)
         {
+            if (httpContent is null)
+                throw new ArgumentNullException(nameof(httpContent));
+
             using var stream = await httpContent
                 .ReadAsStreamAsync()
                 .ConfigureAwait(false);
 
-            var streamReader = new StreamReader(stream);
-            var jsonReader = new JsonTextReader(streamReader);
+            using var streamReader = new StreamReader(stream);
+            using var jsonReader = new JsonTextReader(streamReader);
 
             return JObject.Load(jsonReader);
         }
 
         public static Task<T> ReadAsJsonAsync<T>(this HttpContent httpContent)
-            => httpContent.ReadAsJsonAsync().ContinueWith((json) => json.Result.ToObject<T>(), TaskContinuationOptions.OnlyOnRanToCompletion);
+            => (httpContent ?? throw new ArgumentNullException(nameof(httpContent)))
+            .ReadAsJsonAsync()
+            .ContinueWith((json) => json.Result.ToObject<T>(), default(CancellationToken), TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.Current);
 
     }
 }

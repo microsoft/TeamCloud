@@ -114,6 +114,9 @@ namespace TeamCloud.Data.CosmosDb
 
         public async Task<Project> RemoveAsync(Project project)
         {
+            if (project is null)
+                throw new ArgumentNullException(nameof(project));
+
             var container = await GetContainerAsync<Project>()
                 .ConfigureAwait(false);
 

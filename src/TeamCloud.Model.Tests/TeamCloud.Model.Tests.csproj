@@ -1,9 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <Import Project="..\TeamCloud.sln.targets" />
+  
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <RunAnalyzers>false</RunAnalyzers>
     <IsPackable>false</IsPackable>
-
     <RootNamespace>TeamCloud.Model</RootNamespace>
   </PropertyGroup>
 

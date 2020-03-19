@@ -28,6 +28,9 @@ namespace TeamCloud.Http
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
+            if (request is null)
+                throw new ArgumentNullException(nameof(request));
+
             HttpResponseMessage response;
 
             if (passthrough)
@@ -51,7 +54,7 @@ namespace TeamCloud.Http
 
 #if DEBUG
                 if (!response.IsSuccessStatusCode)
-                    await TraceErrorAsync(request, response);
+                    await TraceErrorAsync(request, response).ConfigureAwait(false);
 #endif
             }
             else
@@ -70,29 +73,34 @@ namespace TeamCloud.Http
 
         private async Task TraceErrorAsync(HttpRequestMessage request, HttpResponseMessage response)
         {
+            if (request is null || response is null) return;
+
             await response.Content
                 .LoadIntoBufferAsync()
                 .ConfigureAwait(false);
 
-            var trace = new StringBuilder();
+            var trace = new StringBuilder($"!!! {request.Method.ToString().ToUpperInvariant()} {request.RequestUri} {response.StatusCode}");
 
-            trace.AppendLine("REQUEST:  " + SanitizeJson(await request.Content
-                .ReadAsStringAsync()
-                .ConfigureAwait(false)));
+            trace.AppendLine("REQUEST:  " + await ReadContentAsync(request.Content).ConfigureAwait(false));
+            trace.AppendLine("RESPONSE: " + await ReadContentAsync(response.Content).ConfigureAwait(false));
 
-            trace.AppendLine("RESPONSE: " + SanitizeJson(await response.Content
-                .ReadAsStringAsync()
-                .ConfigureAwait(false)));
+            Debug.WriteLine(trace);
 
-            Debug.WriteLine($"!!! {request.Method.ToString().ToUpperInvariant()} {request.RequestUri} {response.StatusCode}{Environment.NewLine}{trace}");
-
-            string SanitizeJson(string json)
+            async Task<string> ReadContentAsync(HttpContent httpContent)
             {
-                if (json?.IsJson() ?? false)
-                    return json;
+                if (httpContent is null)
+                    return string.Empty;
 
-                return Regex.Replace(json, "\\s+(?=(?:[^'\"]*['\"][^'\"]*['\"])*[^'\"]*$)", string.Empty);
+                var content = await httpContent
+                    .ReadAsStringAsync()
+                    .ConfigureAwait(false);
+
+                if (content?.IsJson() ?? false)
+                    return content;
+
+                return Regex.Replace(content, "\\s+(?=(?:[^'\"]*['\"][^'\"]*['\"])*[^'\"]*$)", string.Empty);
             }
+
         }
     }
 }

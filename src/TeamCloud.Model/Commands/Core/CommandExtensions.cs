@@ -3,6 +3,7 @@
  *  Licensed under the MIT License.
  */
 
+using System;
 using TeamCloud.Model.Commands.Core;
 
 namespace TeamCloud.Model.Commands
@@ -10,6 +11,6 @@ namespace TeamCloud.Model.Commands
     public static class CommandExtensions
     {
         public static string StatusUrl(this ICommandResult result)
-            => result.Links.TryGetValue("status", out var statusUrl) ? statusUrl : null;
+            => (result ?? throw new ArgumentNullException(nameof(result))).Links.TryGetValue("status", out var statusUrl) ? statusUrl : null;
     }
 }

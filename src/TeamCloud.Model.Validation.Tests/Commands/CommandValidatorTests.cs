@@ -27,7 +27,7 @@ namespace TeamCloud.Model.Validation.Tests.Commands
         {
             var command = new OrchestratorProjectCreateCommand(new User(), new Project());
 
-            var result = await command.ValidateAsync();
+            var result = await command.ValidateAsync().ConfigureAwait(false);
 
             Assert.True(result.IsValid);
         }
@@ -47,7 +47,7 @@ namespace TeamCloud.Model.Validation.Tests.Commands
         {
             var command = new OrchestratorProjectCreateCommand(null, new Project());
 
-            var result = await command.ValidateAsync();
+            var result = await command.ValidateAsync().ConfigureAwait(false);
 
             Assert.False(result.IsValid);
         }

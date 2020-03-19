@@ -35,6 +35,9 @@ namespace TeamCloud.Model.Data
 
         public TeamCloudInstance(TeamCloudConfiguration config)
         {
+            if (config is null)
+                throw new ArgumentNullException(nameof(config));
+
             Users = config.Users;
             Tags = config.Tags;
             Properties = config.Properties;

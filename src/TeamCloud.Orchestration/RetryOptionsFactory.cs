@@ -5,6 +5,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Globalization;
 using DurableTask.Core.Exceptions;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
@@ -31,10 +32,10 @@ namespace TeamCloud.Orchestration
         {
             var retryAttribute = RetryOptionsAttribute.GetByFunctionName(functionName) ?? new RetryOptionsAttribute(1);
 
-            var retryOptions = new RetryOptions(TimeSpan.Parse(retryAttribute.FirstRetryInterval), retryAttribute.MaxNumberOfAttempts)
+            var retryOptions = new RetryOptions(TimeSpan.Parse(retryAttribute.FirstRetryInterval, CultureInfo.InvariantCulture.DateTimeFormat), retryAttribute.MaxNumberOfAttempts)
             {
-                MaxRetryInterval = TimeSpan.Parse(retryAttribute.MaxRetryInterval),
-                RetryTimeout = TimeSpan.Parse(retryAttribute.RetryTimeout),
+                MaxRetryInterval = TimeSpan.Parse(retryAttribute.MaxRetryInterval, CultureInfo.InvariantCulture.DateTimeFormat),
+                RetryTimeout = TimeSpan.Parse(retryAttribute.RetryTimeout, CultureInfo.InvariantCulture.DateTimeFormat),
                 BackoffCoefficient = retryAttribute.BackoffCoefficient,
                 Handle = (exc) => HandleException(exc is TaskFailedException taskFailedExc ? taskFailedExc.InnerException : exc)
             };

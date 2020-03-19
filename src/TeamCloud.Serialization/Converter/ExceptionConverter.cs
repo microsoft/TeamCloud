@@ -12,7 +12,7 @@ namespace TeamCloud.Serialization.Converter
 {
     public sealed class ExceptionConverter : JsonConverter<Exception>
     {
-        private JsonSerializer InnerSerializer => JsonSerializer.CreateDefault(new JsonSerializerSettings()
+        private static readonly JsonSerializer InnerSerializer = JsonSerializer.CreateDefault(new JsonSerializerSettings()
         {
             TypeNameHandling = TypeNameHandling.Auto,
             NullValueHandling = NullValueHandling.Ignore,

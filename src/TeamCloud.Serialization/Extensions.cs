@@ -12,7 +12,11 @@ namespace TeamCloud.Serialization
     {
         public static bool IsSerializable(this Exception exception)
         {
-            if (typeof(SerializableException).IsAssignableFrom(exception.GetType())) return true;
+            if (exception is null)
+                throw new ArgumentNullException(nameof(exception));
+
+            if (typeof(SerializableException).IsAssignableFrom(exception.GetType())) 
+                return true;
 
             var jsonSerializable = !(exception.GetType().GetCustomAttribute<SerializableAttribute>() is null);
 

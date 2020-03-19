@@ -21,7 +21,7 @@ namespace TeamCloud.Orchestration
                 .Where(asm => !asm.IsDynamic)
                 .SelectMany(asm => asm.GetExportedTypes().Where(type => type.IsClass))
                 .SelectMany(type => type.GetMethods())
-                .FirstOrDefault(method => method.GetCustomAttribute<FunctionNameAttribute>()?.Name.Equals(functionName) ?? false);
+                .FirstOrDefault(method => method.GetCustomAttribute<FunctionNameAttribute>()?.Name.Equals(functionName, StringComparison.Ordinal) ?? false);
 
         }) ?? throw new ArgumentOutOfRangeException(nameof(functionName), $"Could not find function by name '{functionName}'");
 

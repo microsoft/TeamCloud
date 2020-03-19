@@ -24,7 +24,7 @@ namespace TeamCloud.Azure.Resources
             addedTrailingSlash = false;
             resourceId = resourceId?.Trim();
 
-            if (!string.IsNullOrEmpty(resourceId) && !resourceId.EndsWith("/"))
+            if (!string.IsNullOrEmpty(resourceId) && !resourceId.EndsWith("/", StringComparison.OrdinalIgnoreCase))
             {
                 addedTrailingSlash = true;
                 resourceId += "/";
@@ -127,7 +127,8 @@ namespace TeamCloud.Azure.Resources
         }
 
         public string GetApiUrl(AzureEnvironment environment)
-            => environment.ResourceManagerEndpoint.AppendPathSegment(this.ToString()).ToString();
+            => (environment ?? throw new ArgumentNullException(nameof(environment)))
+            .ResourceManagerEndpoint.AppendPathSegment(this.ToString()).ToString();
 
         public string GetPortalUrl(Guid tenantId)
             => $"https://portal.azure.com/#@{tenantId}/resource{this.ToString()}";

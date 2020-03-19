@@ -49,7 +49,9 @@ namespace TeamCloud.Azure.Deployment.Templates
                 throw new ArgumentException($"Unable to find embedded template by resource name '{resourceName}' - available resources: {string.Join(", ", availableResources)}", nameof(resourceName));
             }
 
-            return new StreamReader(stream).ReadToEnd();
+            using var streamReader = new StreamReader(stream);
+
+            return streamReader.ReadToEnd();
         }
 
         private static IDictionary<string, object> GetParameters(string template)

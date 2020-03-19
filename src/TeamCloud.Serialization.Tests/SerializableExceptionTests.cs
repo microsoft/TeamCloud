@@ -9,6 +9,7 @@ using Flurl.Http;
 using Newtonsoft.Json;
 using Xunit;
 using TeamCloud.Serialization;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TeamCloud.Orchestration.Tests
 {
@@ -17,6 +18,8 @@ namespace TeamCloud.Orchestration.Tests
         [Theory]
         [InlineData(0)]
         [InlineData(5)]
+        [SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "<Pending>")]
+        [SuppressMessage("Naming", "CA1707:Identifiers should not contain underscores", Justification = "<Pending>")]
         public void DeSerialize_Exception(int nestingLevel)
         {
             try
@@ -36,6 +39,8 @@ namespace TeamCloud.Orchestration.Tests
         [Theory]
         [InlineData(0)]
         [InlineData(5)]
+        [SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "<Pending>")]
+        [SuppressMessage("Naming", "CA1707:Identifiers should not contain underscores", Justification = "<Pending>")]
         public async Task DeSerialize_FlurlHttpException(int nestingLevel)
         {
             try
@@ -54,6 +59,8 @@ namespace TeamCloud.Orchestration.Tests
         }
 
         [Fact]
+        [SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "<Pending>")]
+        [SuppressMessage("Naming", "CA1707:Identifiers should not contain underscores", Justification = "<Pending>")]
         public async Task DeSerialize_FlurlHttpExceptionRaw()
         {
             try
@@ -112,6 +119,7 @@ namespace TeamCloud.Orchestration.Tests
             }
         }
 
+        [SuppressMessage("Design", "CA1031:Do not catch general exception types")]
         private void AssertException(Exception serializableException, bool serializableExpected = true)
         {
             Assert.Equal(serializableExpected, serializableException.IsSerializable(out _));

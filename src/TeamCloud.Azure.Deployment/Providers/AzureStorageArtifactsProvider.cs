@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Flurl;
@@ -33,6 +34,9 @@ namespace TeamCloud.Azure.Deployment.Providers
 
         public async Task<IAzureDeploymentArtifactsContainer> UploadArtifactsAsync(Guid deploymentId, AzureDeploymentTemplate azureDeploymentTemplate)
         {
+            if (azureDeploymentTemplate is null)
+                throw new ArgumentNullException(nameof(azureDeploymentTemplate));
+
             var container = new Container();
 
             if (azureDeploymentTemplate.LinkedTemplates?.Any() ?? false)
@@ -58,7 +62,7 @@ namespace TeamCloud.Azure.Deployment.Providers
                 container.Location = $"{location.TrimEnd('/')}/";
 
                 container.Token = azureDeploymentTokenProvider is null
-                    ? await CreateSasTokenAsync(deploymentId).ConfigureAwait(false)
+                    ? await CreateSasTokenAsync().ConfigureAwait(false)
                     : await azureDeploymentTokenProvider.AcquireToken(deploymentId, this).ConfigureAwait(false);
             }
 
@@ -82,7 +86,8 @@ namespace TeamCloud.Azure.Deployment.Providers
                 .ToString();
         }
 
-        private async Task<string> CreateSasTokenAsync(Guid deploymentId)
+        [SuppressMessage("Security", "CA5377:Use Container Level Access Policy", Justification = "SasToken authentication is required.")]
+        private async Task<string> CreateSasTokenAsync()
         {
             if (!deploymentContainer.IsValueCreated)
                 await deploymentContainer.Value.CreateIfNotExistsAsync().ConfigureAwait(false);
@@ -110,7 +115,7 @@ namespace TeamCloud.Azure.Deployment.Providers
             return null;
         }
 
-        public sealed class Container : IAzureDeploymentArtifactsContainer
+        internal sealed class Container : IAzureDeploymentArtifactsContainer
         {
             public string Location { get; internal set; }
 

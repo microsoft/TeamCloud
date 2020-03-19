@@ -29,7 +29,7 @@ namespace TeamCloud.Model.Validation.Tests.Commands
             var command = new ProviderProjectCreateCommand(new User(), new Project());
             var message = new ProviderCommandMessage(command, "http://localhost/callback");
 
-            var result = await message.ValidateAsync();
+            var result = await message.ValidateAsync().ConfigureAwait(false);
 
             Assert.True(result.IsValid);
         }
@@ -51,7 +51,7 @@ namespace TeamCloud.Model.Validation.Tests.Commands
             var command = new ProviderProjectCreateCommand(null, new Project());
             var message = new ProviderCommandMessage(command, "http://localhost/callback");
 
-            var result = await message.ValidateAsync();
+            var result = await message.ValidateAsync().ConfigureAwait(false);
 
             Assert.False(result.IsValid);
         }

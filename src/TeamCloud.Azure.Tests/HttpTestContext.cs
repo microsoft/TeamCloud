@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -40,7 +41,7 @@ namespace TeamCloud.Azure.Tests
             var matches = this.GetType().Assembly.GetManifestResourceNames()
                 .Select(name => expression.Match(name))
                 .Where(match => match.Success)
-                .OrderBy(match => int.Parse(match.Groups[1].Value));
+                .OrderBy(match => int.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture.NumberFormat));
 
             var responses = matches.Select(match => GetResponseMessage(match.Value));
 
@@ -57,7 +58,7 @@ namespace TeamCloud.Azure.Tests
                     line = reader.ReadLine(); // skip comment line
 
                 var status = line.Split(' ')[1];
-                var statusCode = (HttpStatusCode)(int)float.Parse(status);
+                var statusCode = (HttpStatusCode)(int)float.Parse(status, CultureInfo.InvariantCulture.NumberFormat);
 
                 var response = new HttpResponseMessage(statusCode);
 

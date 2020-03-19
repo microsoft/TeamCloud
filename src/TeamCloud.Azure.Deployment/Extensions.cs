@@ -20,6 +20,9 @@ namespace TeamCloud.Azure.Deployment
 
         public static IAzureConfiguration AddDeployment(this IAzureConfiguration azureConfiguration)
         {
+            if (azureConfiguration is null)
+                throw new ArgumentNullException(nameof(azureConfiguration));
+
             azureConfiguration.Services
                 .TryAddSingleton<IAzureDeploymentService, AzureDeploymentService>();
 
@@ -28,17 +31,21 @@ namespace TeamCloud.Azure.Deployment
 
         public static void SetDeploymentArtifactsProvider<T>(this IAzureConfiguration azureConfiguration)
             where T : class, IAzureDeploymentArtifactsProvider
-            => azureConfiguration.AddDeployment().Services.AddSingleton<IAzureDeploymentArtifactsProvider, T>();
+            => (azureConfiguration ?? throw new ArgumentNullException(nameof(azureConfiguration)))
+            .AddDeployment().Services.AddSingleton<IAzureDeploymentArtifactsProvider, T>();
 
         public static void SetDeploymentArtifactsProvider(this IAzureConfiguration azureConfiguration, Func<IServiceProvider, IAzureDeploymentArtifactsProvider> implementationInstance)
-            => azureConfiguration.AddDeployment().Services.AddSingleton(implementationInstance);
+            => (azureConfiguration ?? throw new ArgumentNullException(nameof(azureConfiguration)))
+            .AddDeployment().Services.AddSingleton(implementationInstance);
 
         public static void SetDeploymentTokenProvider<T>(this IAzureConfiguration azureConfiguration)
             where T : class, IAzureDeploymentTokenProvider
-            => azureConfiguration.AddDeployment().Services.AddSingleton<IAzureDeploymentTokenProvider, T>();
+            => (azureConfiguration ?? throw new ArgumentNullException(nameof(azureConfiguration)))
+            .AddDeployment().Services.AddSingleton<IAzureDeploymentTokenProvider, T>();
 
         public static void SetDeploymentTokenProvider(this IAzureConfiguration azureConfiguration, Func<IServiceProvider, IAzureDeploymentTokenProvider> implementationInstance)
-            => azureConfiguration.AddDeployment().Services.AddSingleton(implementationInstance);
+            => (azureConfiguration ?? throw new ArgumentNullException(nameof(azureConfiguration)))
+            .AddDeployment().Services.AddSingleton(implementationInstance);
 
         internal static IDictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> collection)
             => new Dictionary<TKey, TValue>(collection);
@@ -54,6 +61,9 @@ namespace TeamCloud.Azure.Deployment
 
         public static async Task<IReadOnlyDictionary<string, object>> WaitAndGetOutputAsync(this IAzureDeployment azureDeployment, bool throwOnError = false, bool cleanUp = false)
         {
+            if (azureDeployment is null)
+                throw new ArgumentNullException(nameof(azureDeployment));
+
             var deploymentOutput = default(IReadOnlyDictionary<string, object>);
 
             var deploymentState = await azureDeployment

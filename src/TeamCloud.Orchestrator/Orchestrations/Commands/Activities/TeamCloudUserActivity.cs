@@ -25,6 +25,9 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands.Activities
         public async Task<User> RunActivity(
             [ActivityTrigger] IDurableActivityContext functionContext)
         {
+            if (functionContext is null)
+                throw new System.ArgumentNullException(nameof(functionContext));
+
             var systemIdentity = await azureSessionService
                 .GetIdentityAsync()
                 .ConfigureAwait(false);

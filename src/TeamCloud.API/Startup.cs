@@ -32,6 +32,7 @@ using TeamCloud.API.Services;
 using TeamCloud.Azure;
 using TeamCloud.Azure.Deployment;
 using TeamCloud.Azure.Deployment.Providers;
+using TeamCloud.Azure.Directory;
 using TeamCloud.Configuration;
 using TeamCloud.Configuration.Options;
 using TeamCloud.Data;

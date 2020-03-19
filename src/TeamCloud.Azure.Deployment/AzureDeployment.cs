@@ -119,7 +119,8 @@ namespace TeamCloud.Azure.Deployment
                 var json = await url
                     .SetQueryParam("api-version", "2019-05-01")
                     .WithOAuthBearerToken(token)
-                    .GetJObjectAsync();
+                    .GetJObjectAsync()
+                    .ConfigureAwait(false) ;
 
                 if (json is null)
                     break;
@@ -134,7 +135,7 @@ namespace TeamCloud.Azure.Deployment
             return deploymentIds.ToHashSet(StringComparer.OrdinalIgnoreCase);
         }
 
-        private AzureDeploymentState GetState(JObject deploymentJson)
+        private static AzureDeploymentState GetState(JObject deploymentJson)
         {
             var jsonState = deploymentJson?.SelectToken("$..provisioningState")?.ToString();
 

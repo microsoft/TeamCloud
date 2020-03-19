@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Newtonsoft.Json;
 using TeamCloud.Model.Commands.Serialization;
@@ -24,6 +25,8 @@ namespace TeamCloud.Model.Commands.Core
 
         string CustomStatus { get; set; }
 
+
+        [SuppressMessage("Usage", "CA2227:Collection properties should be read only")]
         IList<Exception> Errors { get; set; }
 
         [JsonProperty(Order = int.MaxValue, PropertyName = "_links")]

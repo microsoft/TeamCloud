@@ -161,7 +161,7 @@ namespace TeamCloud.Azure
 
                 return authenticationContext
                     .AcquireTokenAsync(this.Environment.GetEndpointUrl(azureEndpoint), new ClientCredential(azureSessionOptions.ClientId, azureSessionOptions.ClientSecret))
-                    .ContinueWith(task => task.Result.AccessToken, TaskContinuationOptions.OnlyOnRanToCompletion);
+                    .ContinueWith(task => task.Result.AccessToken, default(CancellationToken), TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.Current);
             }
         }
 

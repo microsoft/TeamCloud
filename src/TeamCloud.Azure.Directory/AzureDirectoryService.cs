@@ -40,7 +40,8 @@ namespace TeamCloud.Azure.Directory
                 .AppendPathSegment($"{azureSessionService.Options.TenantId}/tenantDetails")
                 .SetQueryParam("api-version", "1.6")
                 .WithOAuthBearerToken(token)
-                .GetJObjectAsync();
+                .GetJObjectAsync()
+                .ConfigureAwait(false);
 
             return json.SelectToken("$.value[0].verifiedDomains[?(@.default == true)].name")?.ToString();
         }
@@ -78,7 +79,7 @@ namespace TeamCloud.Azure.Directory
                 {
                     var defaultDomain = await GetDefaultDomainAsync().ConfigureAwait(false);
 
-                    identifier = $"{identifier.Replace("@", "_")}#EXT#@{defaultDomain}";
+                    identifier = $"{identifier.Replace("@", "_", StringComparison.OrdinalIgnoreCase)}#EXT#@{defaultDomain}";
                 }
 
                 azureUser = await azureSession.ActiveDirectoryUsers

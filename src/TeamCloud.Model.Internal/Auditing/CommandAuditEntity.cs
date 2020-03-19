@@ -4,6 +4,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using Microsoft.WindowsAzure.Storage.Table;
 using TeamCloud.Model.Commands.Core;
 
@@ -28,11 +29,11 @@ namespace TeamCloud.Model.Auditing
         public string Provider { get; set; }
         public string Command { get; set; }
         public string Project { get; set; }
-        public CommandRuntimeStatus Status { get; set; }
+        public CommandRuntimeStatus Status { get; set; } = CommandRuntimeStatus.Unknown;
         public DateTime? Created { get; set; }
         public DateTime? Sent { get; set; }
         public DateTime? Processed { get; set; }
         public DateTime? Timeout { get; set; }
-        public string[] Errors { get; set; }
+        public IList<string> Errors { get; set; } = new List<string>();
     }
 }
