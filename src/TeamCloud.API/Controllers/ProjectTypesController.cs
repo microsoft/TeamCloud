@@ -167,7 +167,7 @@ namespace TeamCloud.API.Controllers
 
             if (!validProviders)
             {
-                var validProviderIds = string.Join(",", teamCloud.Providers.Select(p => p.Id));
+                var validProviderIds = string.Join(", ", teamCloud.Providers.Select(p => p.Id));
                 return ErrorResult
                     .BadRequest(new ValidationError { Field = "projectType", Message = $"All provider ids on a ProjectType must match the id of a registered Provider on the TeamCloud instance. Valid provider ids are: {validProviderIds}" })
                     .ActionResult();

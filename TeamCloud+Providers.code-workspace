@@ -41,6 +41,10 @@
 			"path": "src/TeamCloud.Model"
 		},
 		{
+			"name": "Model.Internal",
+			"path": "src/TeamCloud.Model.Internal"
+		},
+		{
 			"name": "Model.Validation",
 			"path": "src/TeamCloud.Model.Validation"
 		},
@@ -51,6 +55,10 @@
 		{
 			"name": "Orchestrator",
 			"path": "src/TeamCloud.Orchestrator"
+		},
+		{
+			"name": "Serialization",
+			"path": "src/TeamCloud.Serialization"
 		},
 		{
 			"name": "[Providers] Azure.AppInsights",
@@ -307,6 +315,25 @@
 				}
 			},
 			{
+				"label": "cleanModelInternal",
+				"command": "dotnet",
+				"args": [
+					"clean",
+					"${workspaceFolder:Model.Internal}/TeamCloud.Model.Internal.csproj",
+					"/property:GenerateFullPaths=true",
+					"/consoleloggerparameters:NoSummary",
+				],
+				"type": "process",
+				"problemMatcher": "$msCompile",
+				"options": {
+					"cwd": "${workspaceFolder:Model.Internal}"
+				},
+				"presentation": {
+					"group": "buildAll",
+					"showReuseMessage": false
+				}
+			},
+			{
 				"label": "cleanModelVal",
 				"command": "dotnet",
 				"args": [
@@ -319,6 +346,44 @@
 				"problemMatcher": "$msCompile",
 				"options": {
 					"cwd": "${workspaceFolder:Model.Validation}"
+				},
+				"presentation": {
+					"group": "buildAll",
+					"showReuseMessage": false
+				}
+			},
+			{
+				"label": "cleanOrchestration",
+				"command": "dotnet",
+				"args": [
+					"clean",
+					"${workspaceFolder:Orchestration}/TeamCloud.Orchestration.csproj",
+					"/property:GenerateFullPaths=true",
+					"/consoleloggerparameters:NoSummary",
+				],
+				"type": "process",
+				"problemMatcher": "$msCompile",
+				"options": {
+					"cwd": "${workspaceFolder:Orchestration}"
+				},
+				"presentation": {
+					"group": "buildAll",
+					"showReuseMessage": false
+				}
+			},
+			{
+				"label": "cleanSerialization",
+				"command": "dotnet",
+				"args": [
+					"clean",
+					"${workspaceFolder:Serialization}/TeamCloud.Serialization.csproj",
+					"/property:GenerateFullPaths=true",
+					"/consoleloggerparameters:NoSummary",
+				],
+				"type": "process",
+				"problemMatcher": "$msCompile",
+				"options": {
+					"cwd": "${workspaceFolder:Serialization}"
 				},
 				"presentation": {
 					"group": "buildAll",
@@ -568,6 +633,30 @@
 				}
 			},
 			{
+				"label": "buildModelInternal",
+				"command": "dotnet",
+				"args": [
+					"build",
+					"${workspaceFolder:Model.Internal}/TeamCloud.Model.Internal.csproj",
+					"--no-dependencies",
+					"/property:GenerateFullPaths=true",
+					"/consoleloggerparameters:NoSummary"
+				],
+				"type": "process",
+				"group": {
+					"kind": "build",
+					"isDefault": true
+				},
+				"problemMatcher": "$msCompile",
+				"options": {
+					"cwd": "${workspaceFolder:Model.Internal}"
+				},
+				"presentation": {
+					"group": "buildAll",
+					"showReuseMessage": false
+				}
+			},
+			{
 				"label": "buildModelVal",
 				"command": "dotnet",
 				"args": [
@@ -585,6 +674,54 @@
 				"problemMatcher": "$msCompile",
 				"options": {
 					"cwd": "${workspaceFolder:Model.Validation}"
+				},
+				"presentation": {
+					"group": "buildAll",
+					"showReuseMessage": false
+				}
+			},
+			{
+				"label": "buildOrchestration",
+				"command": "dotnet",
+				"args": [
+					"build",
+					"${workspaceFolder:Orchestration}/TeamCloud.Orchestration.csproj",
+					"--no-dependencies",
+					"/property:GenerateFullPaths=true",
+					"/consoleloggerparameters:NoSummary"
+				],
+				"type": "process",
+				"group": {
+					"kind": "build",
+					"isDefault": true
+				},
+				"problemMatcher": "$msCompile",
+				"options": {
+					"cwd": "${workspaceFolder:Orchestration}"
+				},
+				"presentation": {
+					"group": "buildAll",
+					"showReuseMessage": false
+				}
+			},
+			{
+				"label": "buildSerialization",
+				"command": "dotnet",
+				"args": [
+					"build",
+					"${workspaceFolder:Serialization}/TeamCloud.Serialization.csproj",
+					"--no-dependencies",
+					"/property:GenerateFullPaths=true",
+					"/consoleloggerparameters:NoSummary"
+				],
+				"type": "process",
+				"group": {
+					"kind": "build",
+					"isDefault": true
+				},
+				"problemMatcher": "$msCompile",
+				"options": {
+					"cwd": "${workspaceFolder:Serialization}"
 				},
 				"presentation": {
 					"group": "buildAll",
@@ -626,6 +763,9 @@
 					"cleanModelVal",
 					"cleanData",
 					"cleanModel",
+					"cleanModelInternal",
+					"cleanOrchestration",
+					"cleanSerialization",
 					"cleanProvidersCore"
 				],
 				"dependsOrder": "parallel",
@@ -680,7 +820,10 @@
 				"type": "process",
 				"dependsOn": [
 					"cleanModelDependents",
+					"buildSerialization",
+					"buildOrchestration",
 					"buildModel",
+					"buildModelInternal",
 					"buildModelVal",
 					"buildData",
 					"buildProvidersCore"

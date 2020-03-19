@@ -23,8 +23,6 @@ class ProviderDataResultData(Provider):
     :type auth_code: str
     :param principal_id:
     :type principal_id: str
-    :param dependencies:
-    :type dependencies: ~teamcloud.models.ProviderDependenciesModel
     :param events:
     :type events: list[str]
     :param properties:
@@ -38,7 +36,6 @@ class ProviderDataResultData(Provider):
         'url': {'key': 'url', 'type': 'str'},
         'auth_code': {'key': 'authCode', 'type': 'str'},
         'principal_id': {'key': 'principalId', 'type': 'str'},
-        'dependencies': {'key': 'dependencies', 'type': 'ProviderDependenciesModel'},
         'events': {'key': 'events', 'type': '[str]'},
         'properties': {'key': 'properties', 'type': '{str}'},
         'registered': {'key': 'registered', 'type': 'iso-8601'},

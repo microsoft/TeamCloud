@@ -36,9 +36,6 @@ jobs:
     - name: Execute GitVersion
       id: gitversion # step id used as reference for output values
       uses: gittools/actions/gitversion/execute@v0.9.2
-      with:
-        useConfigFile: 'true'
-        configFilePath: './'
 
     - name: Set Release Variables
       id: release_variables
@@ -57,7 +54,14 @@ jobs:
       with:
         dotnet-version: '3.1.101'
 
-    - name: Build and Package
+    # Workaround until we move to feature branches
+    - name: Build and Package for CI
+      if: steps.gitversion.outputs.branchName == 'master'
+      run:  dotnet build -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true --version-suffix "ci-${{ steps.gitversion.outputs.CommitsSinceVersionSourcePadded }}"
+      working-directory: ${{ env.SOURCE_DIRECTORY }}
+
+    - name: Build and Package for Release
+      if: startsWith(steps.gitversion.outputs.branchName, 'tags')
       run:  dotnet build -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true --version-suffix "${{ steps.gitversion.outputs.PreReleaseTag }}"
       working-directory: ${{ env.SOURCE_DIRECTORY }}
 
