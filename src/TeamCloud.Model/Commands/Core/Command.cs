@@ -57,7 +57,7 @@ namespace TeamCloud.Model.Commands.Core
 
         object ICommand.Payload { get; set; }
 
-        public Command(User user, TPayload payload)
+        protected Command(User user, TPayload payload)
         {
             User = user;
             Payload = payload;

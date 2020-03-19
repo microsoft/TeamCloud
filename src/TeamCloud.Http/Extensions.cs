@@ -98,7 +98,7 @@ namespace TeamCloud.Http
         public static Task<T> ReadAsJsonAsync<T>(this HttpContent httpContent)
             => (httpContent ?? throw new ArgumentNullException(nameof(httpContent)))
             .ReadAsJsonAsync()
-            .ContinueWith((json) => json.Result.ToObject<T>(), default(CancellationToken), TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.Current);
+            .ContinueWith((json) => json.Result.ToObject<T>(), default, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.Current);
 
     }
 }

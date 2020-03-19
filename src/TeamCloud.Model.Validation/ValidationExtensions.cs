@@ -243,7 +243,7 @@ namespace TeamCloud.Model.Validation
 
     internal class AzureRegion
     {
-        private static ConcurrentDictionary<string, AzureRegion> regions = new ConcurrentDictionary<string, AzureRegion>();
+        private static readonly ConcurrentDictionary<string, AzureRegion> regions = new ConcurrentDictionary<string, AzureRegion>();
 
         #region Americas
         internal static readonly AzureRegion USWest = new AzureRegion("westus");
@@ -370,11 +370,10 @@ namespace TeamCloud.Model.Validation
             => this.Name?.GetHashCode(StringComparison.OrdinalIgnoreCase) ?? base.GetHashCode();
 
         public static bool operator ==(AzureRegion lhs, AzureRegion rhs)
-            => (object.ReferenceEquals(lhs, null))
-                ? object.ReferenceEquals(rhs, null)
-                : lhs.Equals(rhs);
+            => (lhs is null) ? rhs is null : lhs.Equals(rhs);
 
-        public static bool operator !=(AzureRegion lhs, AzureRegion rhs) => !(lhs == rhs);
+        public static bool operator !=(AzureRegion lhs, AzureRegion rhs)
+            => !(lhs == rhs);
 
         public override bool Equals(object obj)
         {

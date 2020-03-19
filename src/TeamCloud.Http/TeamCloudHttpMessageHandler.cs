@@ -86,7 +86,7 @@ namespace TeamCloud.Http
 
             Debug.WriteLine(trace);
 
-            async Task<string> ReadContentAsync(HttpContent httpContent)
+            static async Task<string> ReadContentAsync(HttpContent httpContent)
             {
                 if (httpContent is null)
                     return string.Empty;

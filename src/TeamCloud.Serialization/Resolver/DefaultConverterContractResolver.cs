@@ -37,14 +37,14 @@ namespace TeamCloud.Serialization.Resolver
                 // suppress serialization of empty enumerations
                 if (propertyInfo.PropertyType != typeof(string) && typeof(IEnumerable).IsAssignableFrom(propertyInfo.PropertyType))
                 {
-                    Predicate<object> shouldSerializeEnumerable = obj =>
+                    bool shouldSerializeEnumerable(object obj)
                     {
                         var enumerable = prop.ValueProvider.GetValue(obj) as IEnumerable;
                         return enumerable?.GetEnumerator().MoveNext() ?? false;
-                    };
+                    }
 
                     prop.ShouldSerialize = prop.ShouldSerialize == null
-                        ? shouldSerializeEnumerable
+                        ? (Predicate<object>)shouldSerializeEnumerable
                         : obj => prop.ShouldSerialize(obj) && shouldSerializeEnumerable(obj);
                 }
             }

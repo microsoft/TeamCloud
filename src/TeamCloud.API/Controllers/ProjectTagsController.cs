@@ -14,9 +14,7 @@ using Swashbuckle.AspNetCore.Annotations;
 using TeamCloud.API.Data;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
-using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
-using TeamCloud.Model.Validation.Data;
 
 namespace TeamCloud.API.Controllers
 {
@@ -254,8 +252,7 @@ namespace TeamCloud.API.Controllers
                 return ErrorResult
                     .NotFound($"A Project with the ID '{ProjectId.Value}' could not be found in this TeamCloud Instance.")
                     .ActionResult();
-
-            if (!project.Tags.TryGetValue(tagKey, out var tagValue))
+            if (!project.Tags.TryGetValue(tagKey, out _))
                 return ErrorResult
                     .NotFound($"The specified Tag could not be found in this Project.")
                     .ActionResult();

@@ -72,7 +72,7 @@ namespace TeamCloud.Azure.Resources
 
             return (azureResourceIdentifier != null);
 
-            KeyValuePair<string, string>[] ParseResourceSegment(string resourceSegment)
+            static KeyValuePair<string, string>[] ParseResourceSegment(string resourceSegment)
             {
                 var segments = resourceSegment.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
 
@@ -131,6 +131,6 @@ namespace TeamCloud.Azure.Resources
             .ResourceManagerEndpoint.AppendPathSegment(this.ToString()).ToString();
 
         public string GetPortalUrl(Guid tenantId)
-            => $"https://portal.azure.com/#@{tenantId}/resource{this.ToString()}";
+            => $"https://portal.azure.com/#@{tenantId}/resource{this}";
     }
 }

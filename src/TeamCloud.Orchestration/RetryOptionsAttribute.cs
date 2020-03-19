@@ -11,7 +11,7 @@ using System.Reflection;
 namespace TeamCloud.Orchestration
 {
     [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
-    public class RetryOptionsAttribute : Attribute
+    public sealed class RetryOptionsAttribute : Attribute
     {
         private static readonly ConcurrentDictionary<string, RetryOptionsAttribute> Cache = new ConcurrentDictionary<string, RetryOptionsAttribute>();
 

@@ -50,34 +50,33 @@ namespace TeamCloud.Azure.Tests
 
         private HttpResponseMessage GetResponseMessage(string resourceName)
         {
-            using (var reader = new StreamReader(this.GetType().Assembly.GetManifestResourceStream(resourceName)))
+            using var reader = new StreamReader(this.GetType().Assembly.GetManifestResourceStream(resourceName));
+
+            var line = reader.ReadLine();
+
+            while (!line.StartsWith("HTTP/", StringComparison.OrdinalIgnoreCase))
+                line = reader.ReadLine(); // skip comment line
+
+            var status = line.Split(' ')[1];
+            var statusCode = (HttpStatusCode)(int)float.Parse(status, CultureInfo.InvariantCulture.NumberFormat);
+
+            var response = new HttpResponseMessage(statusCode);
+
+            while (true)
             {
-                var line = reader.ReadLine();
+                var header = reader.ReadLine();
+                if (string.IsNullOrWhiteSpace(header)) break;
 
-                while (!line.StartsWith("HTTP/", StringComparison.OrdinalIgnoreCase))
-                    line = reader.ReadLine(); // skip comment line
-
-                var status = line.Split(' ')[1];
-                var statusCode = (HttpStatusCode)(int)float.Parse(status, CultureInfo.InvariantCulture.NumberFormat);
-
-                var response = new HttpResponseMessage(statusCode);
-
-                while (true)
-                {
-                    var header = reader.ReadLine();
-                    if (string.IsNullOrWhiteSpace(header)) break;
-
-                    var tokens = header.Split(new char[] { ':' }, 2);
-                    response.SetHeader(tokens[0], tokens[1].TrimStart());
-                }
-
-                var buffer = Encoding.UTF8.GetBytes(reader.ReadToEnd());
-
-                response.SetHeader("Content-Length", buffer.Length);
-                response.Content = new ByteArrayContent(buffer);
-
-                return response;
+                var tokens = header.Split(new char[] { ':' }, 2);
+                response.SetHeader(tokens[0], tokens[1].TrimStart());
             }
+
+            var buffer = Encoding.UTF8.GetBytes(reader.ReadToEnd());
+
+            response.SetHeader("Content-Length", buffer.Length);
+            response.Content = new ByteArrayContent(buffer);
+
+            return response;
         }
 
         public void Dispose()

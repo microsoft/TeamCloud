@@ -50,10 +50,7 @@ namespace TeamCloud.Azure
 
         internal static T WithDelegatingHandler<T>(this IAzureConfigurable<T> azureConfigurable, IHttpClientFactory httpClientFactory) where T : IAzureConfigurable<T>
         {
-            var messageHandler = httpClientFactory?
-                .CreateMessageHandler() as DelegatingHandler;
-
-            if (messageHandler != null)
+            if (httpClientFactory?.CreateMessageHandler() is DelegatingHandler messageHandler)
                 azureConfigurable = azureConfigurable.WithDelegatingHandler(messageHandler);
 
             return (T)azureConfigurable;
@@ -61,10 +58,7 @@ namespace TeamCloud.Azure
 
         internal static IBuildable WithDelegatingHandler(this IBuildable builder, IHttpClientFactory httpClientFactory)
         {
-            var messageHandler = httpClientFactory?
-                .CreateMessageHandler() as DelegatingHandler;
-
-            if (messageHandler != null)
+            if (httpClientFactory?.CreateMessageHandler() is DelegatingHandler messageHandler)
                 builder = builder.WithDelegatingHandler(messageHandler);
 
             return builder;
