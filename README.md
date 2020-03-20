@@ -36,7 +36,7 @@ There are a few steps steps required to get a TeamCloud instance configured and 
 ## Deploy the Azure Resources
 
 A TeamCloud instance is made up of the following Azure resources:
-
+ 
 - [App Configuration][app-configuration]
 - [Application Insights][application-insights]
 - [Event Grid][event-grid]
