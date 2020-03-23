@@ -31,6 +31,7 @@ namespace TeamCloud.API.Controllers
         readonly IProjectsRepositoryReadOnly projectsRepository;
         readonly IProjectTypesRepositoryReadOnly projectTypesRepository;
 
+
         public ProjectsController(UserService userService, Orchestrator orchestrator, IProjectsRepositoryReadOnly projectsRepository, IProjectTypesRepositoryReadOnly projectTypesRepository)
         {
             this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
