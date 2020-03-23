@@ -88,11 +88,11 @@ jobs:
         dotnet publish ${{ env.SOURCE_DIRECTORY }}/TeamCloud.Orchestrator/TeamCloud.Orchestrator.csproj -o TeamCloud.Orchestrator -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true --version-suffix "${{ steps.gitversion.outputs.PreReleaseTag }}"
 
         pushd TeamCloud.API
-          zip -r TeamCloud.API.zip *
+          zip -r ../TeamCloud.API.zip *
         popd
         
         pushd TeamCloud.Orchestrator
-          zip -r TeamCloud.Orchestrator.zip *
+          zip -r ../TeamCloud.Orchestrator.zip *
         popd
 
     - name: Upload TeamCloud.API Release Assets (master release only)
