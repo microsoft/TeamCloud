@@ -84,13 +84,11 @@ jobs:
       if: steps.release_variables.outputs.is_master_release == 'true'
       id: deployment_build
       run: |
-        dotnet publish ./TeamCloud.API/TeamCloud.API.csproj -o ../TeamCloud.API -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true --version-suffix "${{ steps.gitversion.outputs.PreReleaseTag }}"
-        dotnet publish ./TeamCloud.Orchestrator/TeamCloud.Orchestrator.csproj -o ../TeamCloud.Orchestrator -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true --version-suffix "${{ steps.gitversion.outputs.PreReleaseTag }}"
+        dotnet publish ${{ env.SOURCE_DIRECTORY }}/TeamCloud.API/TeamCloud.API.csproj -o TeamCloud.API -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true --version-suffix "${{ steps.gitversion.outputs.PreReleaseTag }}"
+        dotnet publish ${{ env.SOURCE_DIRECTORY }}/TeamCloud.Orchestrator/TeamCloud.Orchestrator.csproj -o TeamCloud.Orchestrator -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true --version-suffix "${{ steps.gitversion.outputs.PreReleaseTag }}"
 
-        zip -r ../TeamCloud.API.zip ../TeamCloud.API
-        zip -r ../TeamCloud.Orchestrator.zip ../TeamCloud.Orchestrator
-
-      working-directory: ${{ env.SOURCE_DIRECTORY }}
+        zip -r TeamCloud.API.zip TeamCloud.API
+        zip -r TeamCloud.Orchestrator.zip TeamCloud.Orchestrator
 
     - name: Upload TeamCloud.API Release Assets (master release only)
       if: steps.release_variables.outputs.is_master_release == 'true'
@@ -99,7 +97,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.release_variables.outputs.upload_url }} 
-        asset_path: ./TeamCloud.API.zip
+        asset_path: TeamCloud.API.zip
         asset_name: TeamCloud.API.zip
         asset_content_type: application/zip
 
@@ -110,6 +108,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.release_variables.outputs.upload_url }} 
-        asset_path: ./TeamCloud.Orchestrator.zip
+        asset_path: TeamCloud.Orchestrator.zip
         asset_name: TeamCloud.Orchestrator.zip
         asset_content_type: application/zip
