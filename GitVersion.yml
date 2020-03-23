@@ -1,11 +1,9 @@
 next-version: 0.0.0
-mode: ContinuousDeployment
-# mode: ContinuousDelivery
-# mode: Mainline
+mode: Mainline
 branches: 
   master:
     tag: ''
-    increment: None
+    increment: Patch
     prevent-increment-of-merged-branch-version: true
     track-merge-target: false
 ignore:
