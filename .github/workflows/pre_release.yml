@@ -1,0 +1,92 @@
+name: TeamCloud - Create Pre-release
+
+on:
+  push:
+    branches: [ master ]
+
+env:
+  BUILD_CONFIGURATION: Release
+  SOURCE_DIRECTORY: ./src
+  
+jobs:
+
+  build:
+    name: Create new Pre-release
+    runs-on: ubuntu-latest
+
+    steps:
+    
+    - name: Checkout Code
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+      
+    - name: Checkout Tags
+      run: git fetch -t
+      
+    - name: Setup GitVersion
+      uses: gittools/actions/gitversion/setup@v0.9.2
+      with:
+          versionSpec: '5.x'
+
+    - name: Execute GitVersion
+      id: gitversion # step id used as reference for output values
+      uses: gittools/actions/gitversion/execute@v0.9.2
+
+    # - name: Setup .NET Core
+    #   uses: actions/setup-dotnet@v1
+    #   with:
+    #     dotnet-version: '3.1.101'
+
+    # - name: Build and Package for Release
+    #   run:  dotnet build -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true --version-suffix "${{ steps.gitversion.outputs.PreReleaseTag }}"
+    #   working-directory: ${{ env.SOURCE_DIRECTORY }}
+
+    # - name: Publish NuGet Packages
+    #   run: dotnet nuget push **/*.nupkg --api-key '${{ secrets.MYGET_TOKEN }}' --source 'https://www.myget.org/F/teamcloud-dev/api/v2/package' --symbol-api-key '${{ secrets.MYGET_TOKEN }}' --symbol-source 'https://www.myget.org/F/teamcloud-dev/symbols/api/v2/package' --skip-duplicate
+      
+    # - name: Build for Release Deployment
+    #   if: steps.release_variables.outputs.is_master_release == 'true'
+    #   id: deployment_build
+    #   run: |
+    #     dotnet publish ${{ env.SOURCE_DIRECTORY }}/TeamCloud.API/TeamCloud.API.csproj -o TeamCloud.API -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true --version-suffix "${{ steps.gitversion.outputs.PreReleaseTag }}"
+    #     dotnet publish ${{ env.SOURCE_DIRECTORY }}/TeamCloud.Orchestrator/TeamCloud.Orchestrator.csproj -o TeamCloud.Orchestrator -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true --version-suffix "${{ steps.gitversion.outputs.PreReleaseTag }}"
+        
+    #     pushd TeamCloud.API
+    #       zip -r ../TeamCloud.API.zip *
+    #     popd
+        
+    #     pushd TeamCloud.Orchestrator
+    #       zip -r ../TeamCloud.Orchestrator.zip *
+    #     popd
+        
+    # - name: Create Release
+    #   id: create_release
+    #   uses: actions/create-release@v1
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #   with:
+    #     tag_name: ''
+    #     release_name: ''
+    #     body: 'Text describing the contents of the release'
+    #     prerelease: true
+      
+    # - name: Upload TeamCloud.API Release Assets (master release only)
+    #   uses: actions/upload-release-asset@v1
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #   with:
+    #     upload_url: ${{ steps.create_release.outputs.upload_url }} 
+    #     asset_path: TeamCloud.API.zip
+    #     asset_name: TeamCloud.API.zip
+    #     asset_content_type: application/zip
+
+    # - name: Upload TeamCloud.Orchestrator Release Assets (master release only)
+    #   uses: actions/upload-release-asset@v1
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #   with:
+    #     upload_url: ${{ steps.create_release.outputs.upload_url }} 
+    #     asset_path: TeamCloud.Orchestrator.zip
+    #     asset_name: TeamCloud.Orchestrator.zip
+    #     asset_content_type: application/zip
