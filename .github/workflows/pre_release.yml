@@ -16,13 +16,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
-    - name: Dump detail
-      env:
-        JSON_DUMP: ${{ toJson(github.event) }}
-      run: |
-        echo "$JSON_DUMP"
-        exit 1
     
     - name: Checkout Code
       uses: actions/checkout@v2
