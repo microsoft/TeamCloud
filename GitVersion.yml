@@ -10,6 +10,8 @@ branches:
     regex: ^tags?[/-]
     increment: None
     source-branches: ['master']
+    prevent-increment-of-merged-branch-version: true
+    tracks-release-branches: false
 ignore:
   sha: []
 major-version-bump-message: '\+(bump|semver):\s?(breaking|major)'
