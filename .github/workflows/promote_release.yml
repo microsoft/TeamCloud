@@ -29,12 +29,12 @@ jobs:
       with:
         # asset_id: ${{ github.event.release.assets[0].id }}
         asset_id: '18959847'
-        file_path: NuGet.zip
+        file_path: ${{ github.workspace }}/NuGet.zip
 
     - name: Print asset
       run: |
-        unzip NuGet.zip
         ls
+        unzip ${{ github.workspace }}/NuGet.zip
  
     # - name: Setup .NET Core
     #   uses: actions/setup-dotnet@v1
