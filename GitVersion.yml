@@ -6,10 +6,10 @@ branches:
     increment: Patch
     prevent-increment-of-merged-branch-version: true # When release-2.0.0 is merged into master, we want master to build 2.0.0. If release-2.0.0 is merged into develop we want it to build 2.1.0, this option prevents incrementing after a versioned branch is merged
     track-merge-target: false # Strategy which will look for tagged merge commits directly off the current branch. For example develop → release/1.0.0 → merge into master and tag 1.0.0. The tag is not on develop, but develop should be version 1.0.0 now.
-    major-version-bump-message: '\+(bump|semver):\s?(breaking|major)'
-    minor-version-bump-message: '\+(bump|semver):\s?(feature|minor)'
-    patch-version-bump-message: '\+(bump|semver):\s?(fix|patch)'
-    no-bump-message: '\+(bump|semver):\s?(none|skip)'
 ignore:
   sha: []
+major-version-bump-message: '\+(bump|semver):\s?(breaking|major)'
+minor-version-bump-message: '\+(bump|semver):\s?(feature|minor)'
+patch-version-bump-message: '\+(bump|semver):\s?(fix|patch)'
+no-bump-message: '\+(bump|semver):\s?(none|skip)'
 merge-message-formats: {}
