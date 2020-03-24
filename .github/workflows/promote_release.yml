@@ -23,11 +23,12 @@ jobs:
       run: echo "$STUFF_TO_PRINT"
 
     - name: Download asset
-      uses: colbylwilliams/download-release-asset@v1.0.0
+      uses: colbylwilliams/download-release-asset@v1.0.1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        asset_id: ${{ github.event.release.assets[0].id }}
+        # asset_id: ${{ github.event.release.assets[0].id }}
+        asset_id: '18959847'
         file_path: NuGet.zip
 
     - name: Print asset
