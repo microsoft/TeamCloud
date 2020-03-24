@@ -28,11 +28,11 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         asset_id: ${{ github.event.release.assets[0].id }}
-        file_path: ${{ temp }}/NuGet.zip
+        file_path: NuGet.zip
 
     - name: Print asset
       run: |
-        unzip ${{ temp }}/NuGet.zip
+        unzip NuGet.zip
         ls
 
     # - name: Setup .NET Core
