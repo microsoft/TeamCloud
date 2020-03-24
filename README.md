@@ -24,7 +24,7 @@ Together, the TeamCloud instance and its registered Providers define a template 
 A TeamCloud instance and its registered Providers define a template for a policy-compliant, secure, cloud development environment, which software development teams can create on-demand.  In the context of TeamCloud, these cloud development environments are called Projects.
 
 ### Providers
- 
+
 A Provider is responsible for managing one or more resources for a Project.  For example, an organization may implement an "Azure Key Vault Provider" responsible for creating a new Key Vault instance for each Project.  Another example would be a "GitHub repo provider" that creates an associated source code repository for each Project.
 
 Providers are registered with a TeamCloud instance and invoked by the Orchestrator when a Project is created or changed.  Any service that implements [required REST endpoints](docs/Providers.md) can be [registered as a Provider](docs/TeamCloudYaml.md).
