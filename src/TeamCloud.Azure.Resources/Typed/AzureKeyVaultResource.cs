@@ -1,0 +1,196 @@
+﻿using System;
+using System.Net;
+using System.Threading.Tasks;
+using Microsoft.Azure.KeyVault;
+using Microsoft.Azure.KeyVault.Models;
+using Microsoft.Azure.Management.KeyVault.Fluent;
+using Microsoft.Azure.Management.KeyVault.Fluent.Models;
+using TeamCloud.Azure.Resources.Utilities;
+
+namespace TeamCloud.Azure.Resources.Typed
+{
+    public sealed class AzureKeyVaultResource : AzureResource
+    {
+        private readonly AsyncLazy<IVault> vaultInstance;
+
+        internal AzureKeyVaultResource(string resourceId) : base(resourceId)
+        {
+            vaultInstance = new AsyncLazy<IVault>(() => GetVaultAsync());
+        }
+
+        private Task<IVault> GetVaultAsync()
+        {
+            return AzureResourceService.AzureSessionService
+                .CreateSession(ResourceId.SubscriptionId)
+                .Vaults.GetByIdAsync(ResourceId.ToString());
+        }
+
+        public async Task SetAllSecretPermissionsAsync(Guid userObjectId)
+        {
+            try
+            {
+                var vault = await vaultInstance
+                    .ConfigureAwait(false);
+
+                await vault.Update()
+                    .DefineAccessPolicy()
+                    .ForObjectId(userObjectId.ToString())
+                    .AllowSecretAllPermissions()
+                    .Attach()
+                    .ApplyAsync()
+                    .ConfigureAwait(false);
+            }
+            finally
+            {
+                vaultInstance.Reset();
+            }
+        }
+
+        public async Task SetSecretPermissionsAsync(Guid userObjectId, params SecretPermissions[] secretPermissions)
+        {
+            try
+            {
+                var vault = await vaultInstance
+                    .ConfigureAwait(false);
+
+                await vault.Update()
+                    .DefineAccessPolicy()
+                    .ForObjectId(userObjectId.ToString())
+                    .AllowSecretPermissions(secretPermissions)
+                    .Attach()
+                    .ApplyAsync()
+                    .ConfigureAwait(false);
+            }
+            finally
+            {
+                vaultInstance.Reset();
+            }
+        }
+
+        public async Task<string> SetSecretAsync(string secretName, string secretValue)
+        {
+            var vault = await vaultInstance
+                .ConfigureAwait(false);
+
+            if (secretValue is null)
+            {
+                await vault.Client
+                    .DeleteSecretAsync(vault.VaultUri, secretName)
+                    .ConfigureAwait(false);
+
+                return secretValue;
+            }
+            else
+            {
+                var secret = await vault.Client
+                    .SetSecretAsync(vault.VaultUri, secretName, secretValue)
+                    .ConfigureAwait(false);
+
+                return secret.Value;
+            }
+        }
+
+        public async Task<string> GetSecretAsync(string secretName)
+        {
+            var vault = await vaultInstance
+                .ConfigureAwait(false);
+
+            try
+            {
+                var secret = await vault.Client
+                    .GetSecretAsync(vault.VaultUri, secretName)
+                    .ConfigureAwait(false);
+
+                return secret.Value;
+            }
+            catch (KeyVaultErrorException exc) when (exc.Response.StatusCode == HttpStatusCode.NotFound)
+            {
+                return null;
+            }
+        }
+
+        public async Task SetAllCertificatePermissionsAsync(Guid userObjectId)
+        {
+            try
+            {
+                var vault = await vaultInstance
+                    .ConfigureAwait(false);
+
+                await vault.Update()
+                    .DefineAccessPolicy()
+                    .ForObjectId(userObjectId.ToString())
+                    .AllowCertificateAllPermissions()
+                    .Attach()
+                    .ApplyAsync()
+                    .ConfigureAwait(false);
+            }
+            finally
+            {
+                vaultInstance.Reset();
+            }
+        }
+
+        public async Task SetCertificatePermissionsAsync(Guid userObjectId, params CertificatePermissions[] certificatePermissions)
+        {
+            try
+            {
+                var vault = await vaultInstance
+                    .ConfigureAwait(false);
+
+                await vault.Update()
+                    .DefineAccessPolicy()
+                    .ForObjectId(userObjectId.ToString())
+                    .AllowCertificatePermissions(certificatePermissions)
+                    .Attach()
+                    .ApplyAsync()
+                    .ConfigureAwait(false);
+            }
+            finally
+            {
+                vaultInstance.Reset();
+            }
+        }
+
+        public async Task SetAllKeyPermissionsAsync(Guid userObjectId)
+        {
+            try
+            {
+                var vault = await vaultInstance
+                    .ConfigureAwait(false);
+
+                await vault.Update()
+                    .DefineAccessPolicy()
+                    .ForObjectId(userObjectId.ToString())
+                    .AllowKeyAllPermissions()
+                    .Attach()
+                    .ApplyAsync()
+                    .ConfigureAwait(false);
+            }
+            finally
+            {
+                vaultInstance.Reset();
+            }
+        }
+
+        public async Task SetKeyPermissionsAsync(Guid userObjectId, params KeyPermissions[] keyPermissions)
+        {
+            try
+            {
+                var vault = await vaultInstance
+                    .ConfigureAwait(false);
+
+                await vault.Update()
+                    .DefineAccessPolicy()
+                    .ForObjectId(userObjectId.ToString())
+                    .AllowKeyPermissions(keyPermissions)
+                    .Attach()
+                    .ApplyAsync()
+                    .ConfigureAwait(false);
+            }
+            finally
+            {
+                vaultInstance.Reset();
+            }
+        }
+    }
+}

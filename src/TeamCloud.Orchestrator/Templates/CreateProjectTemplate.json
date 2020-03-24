@@ -18,6 +18,12 @@
     "resourceGroupLocation": {
       "type": "string"
     },
+    "orchestratorIdentity": {
+      "type": "string"
+    },
+    "providerIdentities": {
+      "type": "array"
+    },
     "_artifactsLocation": {
       "type": "string",
       "defaultValue": ""
@@ -28,8 +34,49 @@
     }
   },
   "variables": {
+    "projectResourcesDeployment": "[concat(deployment().name, '-', 'ProjectResources')]",
+    "sharedResourcesDeployment": "[concat(deployment().name, '-', 'SharedResources')]",
+    "sharedResourceGroupName": "[concat('TeamCloud-', toUpper(replace(parameters('resourceGroupLocation'), ' ', '')))]"
   },
   "resources": [
+    {
+      "type": "Microsoft.Resources/resourceGroups",
+      "apiVersion": "2018-05-01",
+      "location": "[parameters('resourceGroupLocation')]",
+      "name": "[variables('sharedResourceGroupName')]",
+      "properties": {
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2018-05-01",
+      "name": "[variables('sharedResourcesDeployment')]",
+      "resourceGroup": "[variables('sharedResourceGroupName')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/resourceGroups/', variables('sharedResourceGroupName'))]"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(uri(parameters('_artifactsLocation'), 'SharedResources.json'), parameters('_artifactsLocationSasToken'))]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "projectId": {
+            "value": "[parameters('projectId')]"
+          },
+          "projectName": {
+            "value": "[parameters('projectName')]"
+          },
+          "orchestratorIdentity": {
+            "value": "[parameters('orchestratorIdentity')]"
+          },
+          "providerIdentities": {
+            "value": "[parameters('providerIdentities')]"
+          }
+        }
+      }
+    },
     {
       "type": "Microsoft.Resources/resourceGroups",
       "apiVersion": "2018-05-01",
@@ -45,7 +92,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2018-05-01",
-      "name": "[concat(deployment().name, '-', 'Resources')]",
+      "name": "[variables('projectResourcesDeployment')]",
       "resourceGroup": "[parameters('resourceGroupName')]",
       "dependsOn": [
         "[resourceId('Microsoft.Resources/resourceGroups/', parameters('resourceGroupName'))]"
@@ -53,7 +100,7 @@
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "[concat(uri(parameters('_artifactsLocation'), 'Resources.json'), parameters('_artifactsLocationSasToken'))]",
+          "uri": "[concat(uri(parameters('_artifactsLocation'), 'ProjectResources.json'), parameters('_artifactsLocationSasToken'))]",
           "contentVersion": "1.0.0.0"
         }
       }
@@ -67,6 +114,18 @@
     "resourceGroupName": {
       "type": "string",
       "value": "[parameters('resourceGroupName')]"
+    },
+    "vaultId": {
+      "type": "string",
+      "value": "[reference(variables('sharedResourcesDeployment')).outputs.vaultId.value]"
+    },
+    "vaultName": {
+      "type": "string",
+      "value": "[reference(variables('sharedResourcesDeployment')).outputs.vaultName.value]"
+    },
+    "vaultUrl": {
+      "type": "string",
+      "value": "[reference(variables('sharedResourcesDeployment')).outputs.vaultUrl.value]"
     }
   }
 }

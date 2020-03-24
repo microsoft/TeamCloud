@@ -26,9 +26,11 @@ namespace TeamCloud.Model.Data
 
         public ProjectType Type { get; set; }
 
-        public AzureIdentity Identity { get; set; }
+        public ProjectIdentity Identity { get; set; }
 
         public AzureResourceGroup ResourceGroup { get; set; }
+
+        public AzureKeyVault KeyVault { get; set; }
 
         public string TeamCloudId { get; set; }
 

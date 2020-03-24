@@ -157,7 +157,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                 return Task.CompletedTask;
 
             return functionContext
-                .CallActivityWithRetryAsync(nameof(AzureResourceGroupContributorActivity), (providerCommand.ProjectId.Value, provider.PrincipalId.Value));
+                .CallActivityWithRetryAsync(nameof(ProjectResourcesAccessActivity), (providerCommand.ProjectId.Value, provider.PrincipalId.Value));
         }
 
         private static async Task<IProviderCommand> AugmentCommandAsync(IDurableOrchestrationContext functionContext, Provider provider, IProviderCommand command)

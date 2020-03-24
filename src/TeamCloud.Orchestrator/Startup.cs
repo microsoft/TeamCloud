@@ -17,6 +17,7 @@ using Microsoft.Extensions.Hosting;
 using TeamCloud.Azure;
 using TeamCloud.Azure.Deployment;
 using TeamCloud.Azure.Deployment.Providers;
+using TeamCloud.Azure.Directory;
 using TeamCloud.Azure.Resources;
 using TeamCloud.Configuration;
 using TeamCloud.Configuration.Options;
@@ -57,6 +58,7 @@ namespace TeamCloud.Orchestrator
                 {
                     configuration
                         .AddResources()
+                        .AddDirectory()
                         .AddDeployment()
                         .SetDeploymentArtifactsProvider<AzureStorageArtifactsProvider>();
                 });

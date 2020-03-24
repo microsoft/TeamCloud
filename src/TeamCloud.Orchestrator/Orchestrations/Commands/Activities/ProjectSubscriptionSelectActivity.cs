@@ -15,18 +15,18 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Commands.Activities
 {
-    public class AzureSubscriptionPoolSelectActivity
+    public class ProjectSubscriptionSelectActivity
     {
         private readonly IProjectTypesRepositoryReadOnly projectTypesRepository;
         private readonly IAzureResourceService azureResourceService;
 
-        public AzureSubscriptionPoolSelectActivity(IProjectTypesRepositoryReadOnly projectTypesRepository, IAzureResourceService azureResourceService)
+        public ProjectSubscriptionSelectActivity(IProjectTypesRepositoryReadOnly projectTypesRepository, IAzureResourceService azureResourceService)
         {
             this.projectTypesRepository = projectTypesRepository ?? throw new ArgumentNullException(nameof(projectTypesRepository));
             this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
         }
 
-        [FunctionName(nameof(AzureSubscriptionPoolSelectActivity))]
+        [FunctionName(nameof(ProjectSubscriptionSelectActivity))]
         public async Task<Guid> RunActivity(
             [ActivityTrigger] Project project)
         {

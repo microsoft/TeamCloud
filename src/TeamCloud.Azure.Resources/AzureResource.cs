@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Flurl;
@@ -80,7 +81,84 @@ namespace TeamCloud.Azure.Resources
                 .GetAsync(completionOption: HttpCompletionOption.ResponseHeadersRead)
                 .ConfigureAwait(false);
 
-            return response.StatusCode == System.Net.HttpStatusCode.OK;
+            return response.IsSuccessStatusCode;
+        }
+
+        public virtual async Task DeleteAsync(bool deleteLocks = false)
+        {
+            if (deleteLocks)
+            {
+                await DeleteLocksAsync(true)
+                    .ConfigureAwait(false);
+            }
+
+            var apiVersions = await AzureResourceService
+                .GetApiVersionsAsync(ResourceId, true)
+                .ConfigureAwait(false);
+
+            var token = await AzureResourceService.AzureSessionService
+                .AcquireTokenAsync()
+                .ConfigureAwait(false);
+
+            await ResourceId.GetApiUrl(AzureResourceService.AzureSessionService.Environment)
+                .SetQueryParam("api-version", apiVersions.First())
+                .WithOAuthBearerToken(token)
+                .AllowHttpStatus(HttpStatusCode.NotFound)
+                .DeleteAsync()
+                .ConfigureAwait(false);
+        }
+
+        public virtual async Task DeleteLocksAsync(bool waitForDeletion = false)
+        {
+            var locks = await GetLocksInternalAsync()
+                .ConfigureAwait(false);
+
+            if (locks.Any())
+            {
+                var session = AzureResourceService.AzureSessionService
+                    .CreateSession(this.ResourceId.SubscriptionId);
+
+                await session.ManagementLocks
+                    .DeleteByIdsAsync(locks.ToArray())
+                    .ConfigureAwait(false);
+
+                if (waitForDeletion)
+                {
+                    var timeoutDuration = TimeSpan.FromMinutes(5);
+                    var timeout = DateTime.UtcNow.Add(timeoutDuration);
+
+                    while (DateTime.UtcNow < timeout && locks.Any())
+                    {
+                        await Task.Delay(5000)
+                            .ConfigureAwait(false);
+
+                        locks = await GetLocksInternalAsync()
+                            .ConfigureAwait(false);
+                    }
+                }
+            }
+        }
+
+        private async Task<IEnumerable<string>> GetLocksInternalAsync()
+        {
+            var session = AzureResourceService.AzureSessionService
+                .CreateSession(this.ResourceId.SubscriptionId);
+
+            var locks = new List<string>();
+
+            var page = await session.ManagementLocks
+                .ListForResourceAsync(this.ResourceId.ToString())
+                .ConfigureAwait(false);
+
+            while (page?.Any() ?? false)
+            {
+                locks.AddRange(page.Select(lck => lck.Id));
+
+                page = await page.GetNextPageAsync()
+                    .ConfigureAwait(false);
+            }
+
+            return locks.Distinct();
         }
 
         protected virtual async Task<string> GetLatestApiVersionAsync(bool includePreviewVersions = false)

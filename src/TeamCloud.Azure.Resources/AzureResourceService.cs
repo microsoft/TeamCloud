@@ -5,7 +5,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Flurl;
 using Flurl.Http;
@@ -23,6 +25,9 @@ namespace TeamCloud.Azure.Resources
         Task<AzureResourceGroup> GetResourceGroupAsync(Guid subscriptionId, string resourceGroupName, bool throwIfNotExists = false);
 
         Task<AzureResource> GetResourceAsync(string resourceId, bool throwIfNotExists = false);
+
+        Task<TAzureResource> GetResourceAsync<TAzureResource>(string resourceId, bool throwIfNotExists = false)
+            where TAzureResource : AzureResource;
 
         Task<IEnumerable<string>> GetApiVersionsAsync(Guid subscriptionId, string resourceNamespace, string resourceType, bool includePreviewVersions = false);
     }
@@ -44,6 +49,15 @@ namespace TeamCloud.Azure.Resources
 
         public Task<AzureResource> GetResourceAsync(string resourceId, bool throwIfNotExists = false)
             => AzureResource.InitializeAsync(new AzureResource(resourceId), this, throwIfNotExists);
+
+        public Task<TAzureResource> GetResourceAsync<TAzureResource>(string resourceId, bool throwIfNotExists = false)
+            where TAzureResource : AzureResource
+        {
+            var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+            var resource = Activator.CreateInstance(typeof(TAzureResource), bindingFlags, null, new object[] { resourceId }, CultureInfo.InvariantCulture) as TAzureResource;
+
+            return AzureResource.InitializeAsync(resource, this, throwIfNotExists);
+        }
 
         public async Task<IEnumerable<string>> GetApiVersionsAsync(Guid subscriptionId, string resourceNamespace, string resourceType, bool includePreviewVersions = false)
         {

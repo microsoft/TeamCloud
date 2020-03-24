@@ -7,37 +7,33 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Microsoft.Extensions.Logging;
 using TeamCloud.Azure.Resources;
-using TeamCloud.Data;
+using TeamCloud.Model.Data;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Commands.Activities
 {
-    public class AzureResourceGroupContributorActivity
+    public class ProjectResourcesTagActivity
     {
         private readonly IAzureResourceService azureResourceService;
-        private readonly IProjectsRepositoryReadOnly projectsRepository;
 
-        public AzureResourceGroupContributorActivity(IAzureResourceService azureResourceService, IProjectsRepositoryReadOnly projectsRepository)
+        public ProjectResourcesTagActivity(IAzureResourceService azureResourceService)
         {
             this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
-            this.projectsRepository = projectsRepository ?? throw new ArgumentNullException(nameof(projectsRepository));
         }
 
-        [FunctionName(nameof(AzureResourceGroupContributorActivity))]
+        [FunctionName(nameof(ProjectResourcesTagActivity))]
         public async Task RunActivity(
-            [ActivityTrigger] (Guid projectId, Guid principalId) input)
+            [ActivityTrigger] Project project)
         {
-            var project = await projectsRepository
-                .GetAsync(input.projectId)
-                .ConfigureAwait(false);
+            if (project == null)
+                throw new ArgumentNullException(nameof(project));
 
             var resourceGroup = await azureResourceService
                 .GetResourceGroupAsync(project.ResourceGroup.SubscriptionId, project.ResourceGroup.ResourceGroupName, throwIfNotExists: true)
                 .ConfigureAwait(false);
 
             await resourceGroup
-                .AddRoleAssignmentAsync(input.principalId, AzureRoleDefinition.Contributor)
+                .SetTagsAsync(project.Tags)
                 .ConfigureAwait(false);
         }
     }

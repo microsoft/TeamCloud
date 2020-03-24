@@ -10,25 +10,23 @@ using Newtonsoft.Json.Serialization;
 namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public class AzureResourceGroup : IIdentifiable, IEquatable<AzureResourceGroup>
+    public class AzureResourceGroup : IEquatable<AzureResourceGroup>
     {
-        public Guid Id { get; set; } = Guid.NewGuid();
-
-        public Guid SubscriptionId { get; set; } = Guid.Empty;
-
         public string ResourceGroupId { get; set; }
 
         public string ResourceGroupName { get; set; }
 
+        public Guid SubscriptionId { get; set; } = Guid.Empty;
+
         public string Region { get; set; }
 
         public bool Equals(AzureResourceGroup other)
-            => Id.Equals(other?.Id);
+            => ResourceGroupId?.Equals(other?.ResourceGroupId, StringComparison.OrdinalIgnoreCase) ?? false;
 
         public override bool Equals(object obj)
             => base.Equals(obj) || Equals(obj as AzureResourceGroup);
 
         public override int GetHashCode()
-            => Id.GetHashCode();
+            => ResourceGroupId?.GetHashCode(StringComparison.OrdinalIgnoreCase) ?? base.GetHashCode();
     }
 }

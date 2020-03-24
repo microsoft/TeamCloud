@@ -7,10 +7,10 @@ using System;
 using System.Diagnostics;
 using System.Net.Http;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Flurl.Http;
+using Newtonsoft.Json;
 
 namespace TeamCloud.Http
 {
@@ -73,32 +73,41 @@ namespace TeamCloud.Http
 
         private async Task TraceErrorAsync(HttpRequestMessage request, HttpResponseMessage response)
         {
-            if (request is null || response is null) return;
+            if (response != null)
+            {
+                // load the response into buffer
+                // to make it available later on
 
-            await response.Content
-                .LoadIntoBufferAsync()
-                .ConfigureAwait(false);
+                await response.Content
+                    .LoadIntoBufferAsync()
+                    .ConfigureAwait(false);
+            }
 
-            var trace = new StringBuilder($"!!! {request.Method.ToString().ToUpperInvariant()} {request.RequestUri} {response.StatusCode}");
+            var trace = new StringBuilder($"!!! {request.Method.ToString().ToUpperInvariant()} {request.RequestUri} {response.StatusCode}{Environment.NewLine}");
 
-            trace.AppendLine("REQUEST:  " + await ReadContentAsync(request.Content).ConfigureAwait(false));
-            trace.AppendLine("RESPONSE: " + await ReadContentAsync(response.Content).ConfigureAwait(false));
+            trace.AppendLine("AUTHORIZATION: " + request.Headers.Authorization);
+            trace.AppendLine("REQUEST: " + await ReadContentAsync(request?.Content).ConfigureAwait(false));
+            trace.AppendLine("RESPONSE: " + await ReadContentAsync(response?.Content).ConfigureAwait(false));
 
             Debug.WriteLine(trace);
 
             static async Task<string> ReadContentAsync(HttpContent httpContent)
             {
-                if (httpContent is null)
+                if ((httpContent?.Headers.ContentLength.GetValueOrDefault(0) ?? 0) == 0)
                     return string.Empty;
 
                 var content = await httpContent
                     .ReadAsStringAsync()
                     .ConfigureAwait(false);
 
-                if (content?.IsJson() ?? false)
-                    return content;
+                if (httpContent.Headers.ContentType.MediaType.Equals("application/json", StringComparison.OrdinalIgnoreCase))
+                {
+                    var jsonContent = JsonConvert.DeserializeObject(content);
 
-                return Regex.Replace(content, "\\s+(?=(?:[^'\"]*['\"][^'\"]*['\"])*[^'\"]*$)", string.Empty);
+                    return JsonConvert.SerializeObject(jsonContent, Formatting.Indented);
+                }
+
+                return content;
             }
 
         }
