@@ -39,7 +39,7 @@ jobs:
         dotnet-version: '3.1.101'
 
     - name: Build and Package for Release
-      run:  dotnet build -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true --version-suffix "${{ steps.gitversion.outputs.preReleaseTag }}"
+      run:  dotnet build -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true --version-suffix "beta${{ steps.gitversion.outputs.preReleaseTag }}"
       working-directory: ${{ env.SOURCE_DIRECTORY }}
 
     - name: Publish NuGet Packages
@@ -48,8 +48,8 @@ jobs:
     - name: Build for Release Deployment
       id: deployment_build
       run: |
-        dotnet publish ${{ env.SOURCE_DIRECTORY }}/TeamCloud.API/TeamCloud.API.csproj -o TeamCloud.API -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true --version-suffix "${{ steps.gitversion.outputs.preReleaseTag }}" --no-build
-        dotnet publish ${{ env.SOURCE_DIRECTORY }}/TeamCloud.Orchestrator/TeamCloud.Orchestrator.csproj -o TeamCloud.Orchestrator -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true --version-suffix "${{ steps.gitversion.outputs.preReleaseTag }}" --no-build
+        dotnet publish ${{ env.SOURCE_DIRECTORY }}/TeamCloud.API/TeamCloud.API.csproj -o TeamCloud.API -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true
+        dotnet publish ${{ env.SOURCE_DIRECTORY }}/TeamCloud.Orchestrator/TeamCloud.Orchestrator.csproj -o TeamCloud.Orchestrator -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true
         
         pushd TeamCloud.API
           zip -r ../TeamCloud.API.zip *
