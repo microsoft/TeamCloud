@@ -12,6 +12,7 @@ jobs:
 
   build:
     name: Create new Pre-release
+    if: "!contains(github.event.commits.*.message, '+norelease')"
     runs-on: ubuntu-latest
 
     steps:
