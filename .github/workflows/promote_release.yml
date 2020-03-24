@@ -22,7 +22,7 @@ jobs:
         STUFF_TO_PRINT: ${{ toJson(github.event.release) }}
       run: echo "$STUFF_TO_PRINT"
 
-    # - name: Checkout Code
+    # - name: Checkout Code 
     #   uses: actions/checkout@v2
     #   with:
     #     fetch-depth: 0
