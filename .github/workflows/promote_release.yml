@@ -20,6 +20,11 @@ jobs:
     # - name: Checkout Code
     #   uses: actions/checkout@v2
 
+    - name: Checkout Code
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
     - name: Checkout Tags
       run: git fetch -t
       
