@@ -17,7 +17,7 @@ jobs:
 
     steps:
 
-    - name: Dump details
+    - name: Dump detail
       env:
         JSON_DUMP: ${{ toJson(github.event) }}
       run: |
