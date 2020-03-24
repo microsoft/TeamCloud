@@ -87,19 +87,28 @@ namespace TeamCloud.API.Services
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
 
-            var commandResponse = await options.Url
-                .AppendPathSegment("api/command")
-                .WithHeader("x-functions-key", options.AuthCode)
-                .PostJsonAsync(command)
-                .ConfigureAwait(false);
+            try
+            {
+                var commandResponse = await options.Url
+                    .AppendPathSegment("api/command")
+                    .WithHeader("x-functions-key", options.AuthCode)
+                    .PostJsonAsync(command)
+                    .ConfigureAwait(false);
 
-            var commandResult = await commandResponse.Content
-                .ReadAsAsync<ICommandResult>()
-                .ConfigureAwait(false);
+                var commandResult = await commandResponse.Content
+                    .ReadAsAsync<ICommandResult>()
+                    .ConfigureAwait(false);
 
-            SetResultLinks(commandResult, command.ProjectId);
+                SetResultLinks(commandResult, command.ProjectId);
 
-            return commandResult;
+                return commandResult;
+            }
+            catch (FlurlHttpException ex) when ((ex.Call.HttpStatus ?? ex.Call.Response.StatusCode) == HttpStatusCode.ServiceUnavailable)
+            {
+                var unavailbleResult = command.CreateResult();
+                unavailbleResult.Errors.Add(ex);
+                return unavailbleResult;
+            }
         }
 
         public async Task<ProjectType> AddAsync(ProjectType projectType)

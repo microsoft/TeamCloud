@@ -66,11 +66,11 @@ namespace TeamCloud.API
                 app.UseHsts();
             }
 
-            app.UseWhen(context => !(context.Request.Path.StartsWithSegments("/api/config", StringComparison.OrdinalIgnoreCase)
+            app.UseWhen(context => !(context.Request.Path.StartsWithSegments("/api/users", StringComparison.OrdinalIgnoreCase)
                                 && HttpMethods.IsPost(context.Request.Method)), appBuilder =>
             {
-                // ensure TeamCloud to be configured for all paths other than /api/config
-                appBuilder.UseMiddleware<EnsureTeamCloudConfigurationMiddleware>();
+                // ensure TeamCloud to be configured for all paths other than /api/users
+                appBuilder.UseMiddleware<EnsureTeamCloudUserMiddleware>();
             });
 
             // Enable middleware to serve generated Swagger as a JSON endpoint.
@@ -118,7 +118,7 @@ namespace TeamCloud.API
                 .AddScoped<IProjectsRepositoryReadOnly, CosmosDbProjectsRepository>()
                 .AddScoped<ITeamCloudRepositoryReadOnly, CosmosDbTeamCloudRepository>()
                 .AddScoped<IProjectTypesRepositoryReadOnly, CosmosDbProjectTypesRepository>()
-                .AddScoped<EnsureTeamCloudConfigurationMiddleware>()
+                .AddScoped<EnsureTeamCloudUserMiddleware>()
                 .AddSingleton<IClientErrorFactory, ClientErrorFactory>();
 
             ConfigureAuthentication(services);
