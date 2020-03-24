@@ -22,11 +22,11 @@ jobs:
 
     - name: Checkout Code
       uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
+    #   with:
+    #     fetch-depth: 0
 
-    - name: Checkout Tags
-      run: git fetch -t
+    # - name: Checkout Tags
+    #   run: git fetch -t
       
     - name: Setup GitVersion
       uses: gittools/actions/gitversion/setup@v0.9.2
