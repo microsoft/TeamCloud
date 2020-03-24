@@ -39,7 +39,7 @@ jobs:
         dotnet-version: '3.1.101'
 
     - name: Build and Package for Release
-      run:  dotnet build -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true --version-suffix "beta${{ steps.gitversion.outputs.preReleaseTag }}"
+      run:  dotnet build -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true --version-suffix "pre${{ steps.gitversion.outputs.preReleaseTag }}"
       working-directory: ${{ env.SOURCE_DIRECTORY }}
 
     - name: Publish NuGet Packages
