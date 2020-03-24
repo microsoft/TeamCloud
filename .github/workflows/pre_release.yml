@@ -65,8 +65,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: 'v${{ steps.gitversion.outputs.majorMinorPatch }}${{ steps.gitversion.outputs.preReleaseTag }}'
-        release_name: 'v${{ steps.gitversion.outputs.majorMinorPatch }}${{ steps.gitversion.outputs.preReleaseTag }}'
+        tag_name: 'v${{ steps.gitversion.outputs.majorMinorPatch }}'
+        release_name: 'v${{ steps.gitversion.outputs.majorMinorPatch }}'
         body: 'Pre-release build.'
         prerelease: true
       
