@@ -2,7 +2,7 @@ name: TeamCloud - Promote Release
 
 on:
   release:
-    types: [ published ]
+    types: [ edited ]
 
 env:
   BUILD_CONFIGURATION: Release
