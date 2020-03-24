@@ -9,6 +9,7 @@ branches:
   tags:
     regex: ^tags?[/-]
     increment: None
+    source-branches: ['master']
 ignore:
   sha: []
 major-version-bump-message: '\+(bump|semver):\s?(breaking|major)'
