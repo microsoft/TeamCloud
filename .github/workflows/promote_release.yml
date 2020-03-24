@@ -18,7 +18,9 @@ jobs:
     steps:
     
     - name: Print stuff
-      run: echo "${{ github.event.release }}"
+      env:
+        STUFF_TO_PRINT: ${{ toJson(github.event.release) }}
+      run: echo "$STUFF_TO_PRINT"
 
     # - name: Checkout Code
     #   uses: actions/checkout@v2
