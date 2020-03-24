@@ -23,7 +23,7 @@ jobs:
       run: echo "$STUFF_TO_PRINT"
 
     - name: Download asset
-      uses: colbylwilliams/download-release-asset@v1
+      uses: colbylwilliams/download-release-asset@v1.0.0
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
