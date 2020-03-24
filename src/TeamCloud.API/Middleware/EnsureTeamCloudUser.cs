@@ -7,17 +7,19 @@ using System;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using TeamCloud.API.Data;
 using TeamCloud.Data;
+using Newtonsoft.Json;
 
 namespace TeamCloud.API.Middleware
 {
-    public class EnsureTeamCloudConfigurationMiddleware : IMiddleware
+    public class EnsureTeamCloudUserMiddleware : IMiddleware
     {
         private static bool Configured = false;
 
         readonly ITeamCloudRepositoryReadOnly teamCloudRepository;
 
-        public EnsureTeamCloudConfigurationMiddleware(ITeamCloudRepositoryReadOnly teamCloudRepository)
+        public EnsureTeamCloudUserMiddleware(ITeamCloudRepositoryReadOnly teamCloudRepository)
         {
             this.teamCloudRepository = teamCloudRepository ?? throw new ArgumentNullException(nameof(teamCloudRepository));
         }
@@ -50,8 +52,11 @@ namespace TeamCloud.API.Middleware
             {
                 context.Response.StatusCode = (int)HttpStatusCode.NotFound;
 
+                var error = ErrorResult.BadRequest("Must POST an admin User to api/users before calling any other APIs.", ResultErrorCode.NotFound);
+                var errorJson = JsonConvert.SerializeObject(error);
+
                 await context.Response
-                    .WriteAsync("Must POST a teamcloud.yaml file to api/config before calling any other APIs")
+                    .WriteAsync(errorJson)
                     .ConfigureAwait(false);
             }
         }
