@@ -17,35 +17,25 @@ jobs:
 
     steps:
     
-    # - name: Print stuff
-    #   env:
-    #     STUFF_TO_PRINT: ${{ toJson(github.event.release) }}
-    #   run: echo "$STUFF_TO_PRINT"
-
     - name: Make NuGet Directory
       run: mkdir NuGet
 
-    - name: Download asset
+    - name: Download NuGet.zip
       uses: colbylwilliams/download-release-asset@v1
       with:
         asset: 'NuGet.zip'
         path: 'NuGet'
 
-    - name: Print asset
+    - name: Unzip NuGet.zip
       run: |
         pushd NuGet
-          echo $( ls )
           unzip NuGet.zip
-          echo $( ls )
         popd
  
-    # - name: Setup .NET Core  
-    #   uses: actions/setup-dotnet@v1
-    #   with:
-    #     dotnet-version: '3.1.101'
+    - name: Setup .NET Core  
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '3.1.101'
 
-    # - name: Get Release NuGet Packages
-    #   run:  dotnet build ${{ env.SOURCE_DIRECTORY }}/TeamCloud.sln -o Prerelease -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true --version-suffix "pre"
-
-    # - name: Publish Pre-release NuGet Packages
-    #   run: dotnet nuget push Prerelease/*.nupkg --api-key '${{ secrets.MYGET_TOKEN }}' --source 'https://www.myget.org/F/teamcloud-dev/api/v2/package' --symbol-api-key '${{ secrets.MYGET_TOKEN }}' --symbol-source 'https://www.myget.org/F/teamcloud-dev/symbols/api/v2/package' --skip-duplicate
+    - name: Publish NuGet Packages
+      run: dotnet nuget push NuGet/*.nupkg --api-key '${{ secrets.MYGET_TOKEN }}' --source 'https://www.myget.org/F/teamcloud/api/v2/package' --symbol-api-key '${{ secrets.MYGET_TOKEN }}' --symbol-source 'https://www.myget.org/F/teamcloud/symbols/api/v2/package' --skip-duplicate
