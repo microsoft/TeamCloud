@@ -23,18 +23,18 @@ jobs:
       run: echo "$STUFF_TO_PRINT"
 
     - name: Download asset
-      uses: colbylwilliams/download-release-asset@v1.0.1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: colbylwilliams/download-release-asset@v1
       with:
+        token: ${{ secrets.GITHUB_TOKEN }}
         # asset_id: ${{ github.event.release.assets[0].id }}
         asset_id: '18959847'
         file_path: ${{ github.workspace }}/NuGet.zip
 
     - name: Print asset
       run: |
-        ls
+        echo $( ls )
         unzip ${{ github.workspace }}/NuGet.zip
+        echo $( ls )
  
     # - name: Setup .NET Core  
     #   uses: actions/setup-dotnet@v1
