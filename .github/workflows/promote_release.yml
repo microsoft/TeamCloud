@@ -38,10 +38,7 @@ jobs:
         dotnet-version: '3.1.101'
 
     - name: Publish NuGet Packages
-      run: |
-        pushd NuGet
-          dotnet nuget push *.nupkg --api-key '${{ secrets.MYGET_TOKEN }}' --source 'https://www.myget.org/F/teamcloud/api/v2/package' --symbol-api-key '${{ secrets.MYGET_TOKEN }}' --symbol-source 'https://www.myget.org/F/teamcloud/symbols/api/v2/package' --skip-duplicate
-        popd
+      run: dotnet nuget push 'NuGet/*.nupkg' --api-key '${{ secrets.MYGET_TOKEN }}' --source 'https://www.myget.org/F/teamcloud/api/v2/package' --symbol-api-key '${{ secrets.MYGET_TOKEN }}' --symbol-source 'https://www.myget.org/F/teamcloud/symbols/api/v2/package' --skip-duplicate
 
     - name: Random echo
       run: echo random
