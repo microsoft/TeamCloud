@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using Flurl;
 using Flurl.Http;
 using Flurl.Http.Configuration;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Newtonsoft.Json;
@@ -28,15 +29,41 @@ namespace TeamCloud.Http
     {
         public static IServiceCollection AddTeamCloudHttp(this IServiceCollection services, Action<GlobalFlurlHttpSettings> configure = null)
         {
-            services.TryAddSingleton<IHttpClientFactory, TeamCloudHttpClientFactory>();
+            if (services.Any(sd => sd.ServiceType == typeof(IHttpClientFactory) && sd.ImplementationType == typeof(DefaultHttpClientFactory)))
+            {
+                services.Replace(new ServiceDescriptor(typeof(IHttpClientFactory), HttpClientFactoryInitializer, ServiceLifetime.Singleton));
+            }
+            else
+            {
+                services.TryAddSingleton<IHttpClientFactory>(HttpClientFactoryInitializer);
+            }
 
             FlurlHttp.Configure(configuration =>
             {
                 configuration.HttpClientFactory = services.BuildServiceProvider().GetRequiredService<IHttpClientFactory>();
+
                 configure?.Invoke(configuration);
             });
 
             return services;
+
+            static IHttpClientFactory HttpClientFactoryInitializer(IServiceProvider serviceProvider)
+            {
+                try
+                {
+                    return (IHttpClientFactory)ActivatorUtilities.CreateInstance<TeamCloudHttpClientFactory>(serviceProvider);
+                }
+                catch (InvalidOperationException)
+                {
+                    var instrumentationKey = Environment.GetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY");
+
+                    var telemetryConfiguration = string.IsNullOrWhiteSpace(instrumentationKey)
+                        ? new TelemetryConfiguration()
+                        : new TelemetryConfiguration(instrumentationKey);
+
+                    return new TeamCloudHttpClientFactory(telemetryConfiguration);
+                }
+            }
         }
 
         [SuppressMessage("Design", "CA1068:CancellationToken parameters must come last", Justification = "Following the method syntax of Flurl")]
@@ -99,6 +126,14 @@ namespace TeamCloud.Http
             => (httpContent ?? throw new ArgumentNullException(nameof(httpContent)))
             .ReadAsJsonAsync()
             .ContinueWith((json) => json.Result.ToObject<T>(), default, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.Current);
+
+        public static Task<JObject> ReadAsJsonAsync(this HttpResponseMessage httpResponseMessage)
+            => (httpResponseMessage ?? throw new ArgumentNullException(nameof(httpResponseMessage)))
+            .Content.ReadAsJsonAsync();
+
+        public static Task<T> ReadAsJsonAsync<T>(this HttpResponseMessage httpResponseMessage)
+            => (httpResponseMessage ?? throw new ArgumentNullException(nameof(httpResponseMessage)))
+            .Content.ReadAsJsonAsync<T>();
 
     }
 }

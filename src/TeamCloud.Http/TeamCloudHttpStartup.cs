@@ -1,4 +1,10 @@
-﻿using System.Diagnostics;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
+
+using System;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
@@ -12,12 +18,15 @@ namespace TeamCloud.Http
     {
         public override void Configure(IFunctionsHostBuilder builder)
         {
+            if (builder is null)
+                throw new ArgumentNullException(nameof(builder));
+
             DisableCertificateValidation();
         }
 
         [Conditional("DEBUG")]
         [SuppressMessage("Security", "CA5359:Do Not Disable Certificate Validation", Justification = "Only for DEBUG builds")]
-        private void DisableCertificateValidation()
+        private static void DisableCertificateValidation()
         {
             ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
         }

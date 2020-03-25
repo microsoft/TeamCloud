@@ -1,2 +1,8 @@
 ﻿[*.{cs,vb}]
 
+
+# DF0106: 'Environment.GetEnvironmentVariable' violates the orchestrator deterministic code constraint.
+dotnet_diagnostic.DF0106.severity = error
+
+# DF0109: Activity function named 'nameof(TeamCloudCreateActivity)' does not exist. Did you mean 'TeamCloudCreateActivity'?
+dotnet_diagnostic.DF0109.severity = none

@@ -27,7 +27,6 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 throw new ArgumentNullException(nameof(functionContext));
 
             var commandMessage = functionContext.GetInput<OrchestratorCommandMessage>();
-
             var command = (OrchestratorProjectDeleteCommand)commandMessage.Command;
             var commandResult = command.CreateResult();
 
@@ -41,28 +40,23 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                     .WaitForProjectCommandsAsync(command)
                     .ConfigureAwait(true);
 
-                functionContext.SetCustomStatus("Waiting on providers to delete project resources.", log);
+                functionContext.SetCustomStatus("Sending commands", log);
 
                 var providerResults = await functionContext
                     .SendCommandAsync<ProviderProjectDeleteCommand, ProviderProjectDeleteCommandResult>(new ProviderProjectDeleteCommand(command.User, project, command.CommandId))
                     .ConfigureAwait(true);
 
-                if (project.ResourceGroup != null)
-                {
-                    functionContext.SetCustomStatus("Deleting Azure resource group.", log);
+                functionContext.SetCustomStatus("Deleting resources", log);
 
-                    await functionContext
-                        .CallActivityWithRetryAsync<AzureResourceGroup>(nameof(AzureResourceGroupDeleteActivity), project.ResourceGroup)
-                        .ConfigureAwait(true);
-                }
+                await functionContext
+                    .CallActivityWithRetryAsync<AzureResourceGroup>(nameof(ProjectResourcesDeleteActivity), project)
+                    .ConfigureAwait(true);
 
-                functionContext.SetCustomStatus("Deleting project from database.", log);
+                functionContext.SetCustomStatus("Deleting project", log);
 
                 project = await functionContext
                     .CallActivityWithRetryAsync<Project>(nameof(ProjectDeleteActivity), project)
                     .ConfigureAwait(true);
-
-                functionContext.SetCustomStatus("Project deleted.", log);
 
                 commandResult.Result = project;
             }

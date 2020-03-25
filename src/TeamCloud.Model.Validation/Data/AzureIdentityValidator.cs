@@ -8,12 +8,12 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Model.Validation.Data
 {
-    public sealed class AzureIdentityValidator : AbstractValidator<AzureIdentity>
+    public sealed class AzureIdentityValidator : AbstractValidator<ProjectIdentity>
     {
         public AzureIdentityValidator()
         {
             RuleFor(obj => obj.Id).MustBeGuid();
-            RuleFor(obj => obj.AppId).NotEmpty();
+            RuleFor(obj => obj.ApplicationId).NotEmpty();
             RuleFor(obj => obj.Secret).NotEmpty();
         }
     }
