@@ -114,11 +114,6 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 
                 commandResult ??= command.CreateResult();
                 commandResult.Errors.Add(exc);
-
-                // re-throw the exception to inform the
-                // outer orchestration that some bad happened
-
-                throw;
             }
             finally
             {

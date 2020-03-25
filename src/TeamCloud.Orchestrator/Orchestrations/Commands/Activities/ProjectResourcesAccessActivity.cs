@@ -4,7 +4,6 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Azure.Management.KeyVault.Fluent.Models;
 using Microsoft.Azure.WebJobs;
@@ -80,22 +79,34 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands.Activities
                 .GetIdentityAsync()
                 .ConfigureAwait(false);
 
-            var tasks = new List<Task>();
-
             if (systemIdentity.ObjectId == principalId)
             {
-                tasks.Add(keyVault.SetAllCertificatePermissionsAsync(principalId));
-                tasks.Add(keyVault.SetAllKeyPermissionsAsync(principalId));
-                tasks.Add(keyVault.SetAllSecretPermissionsAsync(principalId));
+                await keyVault
+                    .SetAllCertificatePermissionsAsync(principalId)
+                    .ConfigureAwait(false);
+
+                await keyVault
+                    .SetAllKeyPermissionsAsync(principalId)
+                    .ConfigureAwait(false);
+
+                await keyVault
+                    .SetAllSecretPermissionsAsync(principalId)
+                    .ConfigureAwait(false);
             }
             else
             {
-                tasks.Add(keyVault.SetCertificatePermissionsAsync(principalId, CertificatePermissions.Get, CertificatePermissions.List));
-                tasks.Add(keyVault.SetKeyPermissionsAsync(principalId, KeyPermissions.Get, KeyPermissions.List));
-                tasks.Add(keyVault.SetSecretPermissionsAsync(principalId, SecretPermissions.Get, SecretPermissions.List));
-            }
+                await keyVault
+                    .SetCertificatePermissionsAsync(principalId, CertificatePermissions.Get, CertificatePermissions.List)
+                    .ConfigureAwait(false);
 
-            await Task.WhenAll(tasks).ConfigureAwait(false);
+                await keyVault
+                    .SetKeyPermissionsAsync(principalId, KeyPermissions.Get, KeyPermissions.List)
+                    .ConfigureAwait(false);
+
+                await keyVault
+                    .SetSecretPermissionsAsync(principalId, SecretPermissions.Get, SecretPermissions.List)
+                    .ConfigureAwait(false);
+            }
         }
 
     }

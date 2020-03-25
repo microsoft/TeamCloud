@@ -34,31 +34,36 @@
     }
   },
   "variables": {
+    "projectResourceGroupName": "[parameters('resourceGroupName')]",
     "projectResourcesDeployment": "[concat(deployment().name, '-', 'ProjectResources')]",
-    "sharedResourcesDeployment": "[concat(deployment().name, '-', 'SharedResources')]",
-    "sharedResourceGroupName": "[concat('TeamCloud-', toUpper(replace(parameters('resourceGroupLocation'), ' ', '')))]"
+    "internalResourceGroupName": "[concat(variables('projectResourceGroupName'), '_INTERNAL')]",
+    "internalResourcesDeployment": "[concat(deployment().name, '-', 'InternalResources')]"
   },
   "resources": [
     {
       "type": "Microsoft.Resources/resourceGroups",
       "apiVersion": "2018-05-01",
       "location": "[parameters('resourceGroupLocation')]",
-      "name": "[variables('sharedResourceGroupName')]",
+      "name": "[variables('internalResourceGroupName')]",
+      "tags": {
+        "hidden-TeamCloud.ProjectId": "[parameters('projectId')]",
+        "hidden-TeamCloud.ProjectName": "[parameters('projectName')]"
+      },
       "properties": {
       }
     },
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2018-05-01",
-      "name": "[variables('sharedResourcesDeployment')]",
-      "resourceGroup": "[variables('sharedResourceGroupName')]",
+      "name": "[variables('internalResourcesDeployment')]",
+      "resourceGroup": "[variables('internalResourceGroupName')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/resourceGroups/', variables('sharedResourceGroupName'))]"
+        "[resourceId('Microsoft.Resources/resourceGroups/', variables('internalResourceGroupName'))]"
       ],
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "[concat(uri(parameters('_artifactsLocation'), 'SharedResources.json'), parameters('_artifactsLocationSasToken'))]",
+          "uri": "[concat(uri(parameters('_artifactsLocation'), 'InternalResources.json'), parameters('_artifactsLocationSasToken'))]",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
@@ -81,7 +86,7 @@
       "type": "Microsoft.Resources/resourceGroups",
       "apiVersion": "2018-05-01",
       "location": "[parameters('resourceGroupLocation')]",
-      "name": "[parameters('resourceGroupName')]",
+      "name": "[variables('projectResourceGroupName')]",
       "tags": {
         "hidden-TeamCloud.ProjectId": "[parameters('projectId')]",
         "hidden-TeamCloud.ProjectName": "[parameters('projectName')]"
@@ -93,9 +98,9 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2018-05-01",
       "name": "[variables('projectResourcesDeployment')]",
-      "resourceGroup": "[parameters('resourceGroupName')]",
+      "resourceGroup": "[variables('projectResourceGroupName')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/resourceGroups/', parameters('resourceGroupName'))]"
+        "[resourceId('Microsoft.Resources/resourceGroups/', variables('projectResourceGroupName'))]"
       ],
       "properties": {
         "mode": "Incremental",
@@ -109,23 +114,23 @@
   "outputs": {
     "resourceGroupId": {
       "type": "string",
-      "value": "[resourceId('Microsoft.Resources/resourceGroups/', parameters('resourceGroupName'))]"
+      "value": "[resourceId('Microsoft.Resources/resourceGroups/', variables('projectResourceGroupName'))]"
     },
     "resourceGroupName": {
       "type": "string",
-      "value": "[parameters('resourceGroupName')]"
+      "value": "[variables('projectResourceGroupName')]"
     },
     "vaultId": {
       "type": "string",
-      "value": "[reference(variables('sharedResourcesDeployment')).outputs.vaultId.value]"
+      "value": "[reference(variables('internalResourcesDeployment')).outputs.vaultId.value]"
     },
     "vaultName": {
       "type": "string",
-      "value": "[reference(variables('sharedResourcesDeployment')).outputs.vaultName.value]"
+      "value": "[reference(variables('internalResourcesDeployment')).outputs.vaultName.value]"
     },
     "vaultUrl": {
       "type": "string",
-      "value": "[reference(variables('sharedResourcesDeployment')).outputs.vaultUrl.value]"
+      "value": "[reference(variables('internalResourcesDeployment')).outputs.vaultUrl.value]"
     }
   }
 }

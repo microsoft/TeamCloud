@@ -26,6 +26,11 @@ namespace TeamCloud.Serialization.Converter
 
         public override void WriteJson(JsonWriter writer, Exception value, JsonSerializer serializer)
         {
+            if (value is AggregateException aggregateException)
+            {
+                value = aggregateException.Flatten();
+            }
+
             if (!value.IsSerializable(out var serializableException))
             {
                 value = serializableException;

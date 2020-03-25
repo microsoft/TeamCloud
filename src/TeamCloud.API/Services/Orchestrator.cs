@@ -103,10 +103,12 @@ namespace TeamCloud.API.Services
 
                 return commandResult;
             }
-            catch (FlurlHttpException ex) when ((ex.Call.HttpStatus ?? ex.Call.Response.StatusCode) == HttpStatusCode.ServiceUnavailable)
+            catch (FlurlHttpException ex) when ((ex.Call.HttpStatus ?? HttpStatusCode.ServiceUnavailable) == HttpStatusCode.ServiceUnavailable)
             {
                 var unavailbleResult = command.CreateResult();
+
                 unavailbleResult.Errors.Add(ex);
+
                 return unavailbleResult;
             }
         }

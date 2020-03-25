@@ -20,9 +20,11 @@ namespace TeamCloud.Azure.Resources.Typed
 
         private Task<IVault> GetVaultAsync()
         {
-            return AzureResourceService.AzureSessionService
-                .CreateSession(ResourceId.SubscriptionId)
-                .Vaults.GetByIdAsync(ResourceId.ToString());
+            var session = AzureResourceService.AzureSessionService
+                .CreateSession(ResourceId.SubscriptionId);
+
+            return session.Vaults
+                .GetByIdAsync(ResourceId.ToString());
         }
 
         public async Task SetAllSecretPermissionsAsync(Guid userObjectId)

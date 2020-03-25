@@ -22,6 +22,38 @@ namespace TeamCloud.Orchestrator
 {
     internal static class Extensions
     {
+        internal static Exception GetException(this ICommandResult commandResult)
+        {
+            if (commandResult is null)
+                throw new ArgumentNullException(nameof(commandResult));
+
+            if (commandResult.Errors?.Skip(1).Any() ?? false)
+                return new AggregateException(commandResult.Errors);
+
+            if (commandResult.Errors?.Any() ?? false)
+                return commandResult.Errors.Single();
+
+            return null;
+        }
+
+        internal static Exception GetException(this IEnumerable<ICommandResult> commandResults)
+        {
+            if (commandResults is null)
+                throw new ArgumentNullException(nameof(commandResults));
+
+            var exceptions = commandResults
+                .Where(cr => cr.Errors.Any())
+                .Select(cr => cr.GetException());
+
+            if (exceptions.Skip(1).Any())
+                return new AggregateException(exceptions);
+
+            if (exceptions.Any())
+                return exceptions.Single();
+
+            return null;
+        }
+
         internal static Task<IDisposable> LockAsync(this IDurableOrchestrationContext functionContext, IContainerDocument containerDocument)
             => functionContext.LockAsync(containerDocument.GetEntityId());
 

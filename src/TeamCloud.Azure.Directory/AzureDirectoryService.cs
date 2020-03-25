@@ -7,9 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Net;
 using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
 using Flurl;
 using Flurl.Http;
@@ -172,48 +170,69 @@ namespace TeamCloud.Azure.Directory
             if (string.IsNullOrWhiteSpace(servicePrincipalName))
                 throw new ArgumentException("Must not NULL or WHITESPACE", nameof(servicePrincipalName));
 
-            servicePrincipalName = SanitizeServicePrincipalName(servicePrincipalName);
-
             var serviceApplication = await GetServiceApplicationInternalAsync(servicePrincipalName)
                 .ConfigureAwait(false);
 
             if (serviceApplication is null)
                 throw new ArgumentOutOfRangeException(nameof(servicePrincipalName));
 
+            var servicePrincipal = await GetServicePrincipalAsync(servicePrincipalName)
+                .ConfigureAwait(false);
+
             var token = await azureSessionService
                 .AcquireTokenAsync(AzureEndpoint.GraphEndpoint)
                 .ConfigureAwait(false);
 
             if (string.IsNullOrEmpty(password))
-            {
                 password = CreateServicePrincipalPassword();
-            }
 
             var startDate = DateTime.UtcNow;
             var endDate = startDate.AddYears(1);
 
-            var payload = new
+            var patchPayloads = new List<object>()
             {
-                passwordCredentials = new[]
+                new
                 {
-                    new
+                    passwordCredentials = new[]
                     {
-                        startDate,
-                        endDate,
-                        keyId = Guid.NewGuid(),
-                        value = password,
-                        customKeyIdentifier = Encoding.UTF8.EncodeBase64(servicePrincipalName)
+                        new
+                        {
+                            startDate,
+                            endDate,
+                            keyId = Guid.NewGuid(),
+                            value = password,
+                            customKeyIdentifier = Convert.ToBase64String(servicePrincipal.ObjectId.ToByteArray())
+                        }
+                    }
+                },
+                new
+                {
+                    requiredResourceAccess = new[]
+                    {
+                        new
+                        {
+                            resourceAppId = "00000003-0000-0000-c000-000000000000",
+                            resourceAccess = new[]
+                            {
+                                new
+                                {
+                                    id = "e1fe6dd8-ba31-4d61-89e7-88639da4683d",
+                                    type = "Scope"
+                                }
+                            }
+                        }
                     }
                 }
             };
 
-            _ = await $"https://graph.windows.net/{azureSessionService.Options.TenantId}/applications/{serviceApplication.Inner.ObjectId}"
-                .SetQueryParam("api-version", "1.6")
-                .WithOAuthBearerToken(token)
-                .PatchJsonAsync(payload)
-                .ConfigureAwait(false);
+            var patchTasks = patchPayloads
+                .Select(payload => $"https://graph.windows.net/{azureSessionService.Options.TenantId}/applications/{serviceApplication.Inner.ObjectId}"
+                                    .SetQueryParam("api-version", "1.6")
+                                    .WithOAuthBearerToken(token)
+                                    .PatchJsonAsync(payload));
 
-            var servicePrincipal = await GetServicePrincipalAsync(servicePrincipalName)
+            await Task
+                .WhenAll(patchTasks)
                 .ConfigureAwait(false);
 
             servicePrincipal.Password = password;
@@ -225,8 +244,6 @@ namespace TeamCloud.Azure.Directory
         {
             if (string.IsNullOrWhiteSpace(servicePrincipalName))
                 throw new ArgumentException("Must not NULL or WHITESPACE", nameof(servicePrincipalName));
-
-            servicePrincipalName = SanitizeServicePrincipalName(servicePrincipalName);
 
             var servicePrincipal = await GetServicePrincipalInternalAsync(servicePrincipalName)
                 .ConfigureAwait(false);
@@ -240,6 +257,13 @@ namespace TeamCloud.Azure.Directory
             if (serviceApplication is null)
                 return null;
 
+            var azureServicePrincipal = new AzureServicePrincipal()
+            {
+                ObjectId = Guid.Parse(servicePrincipal.Id),
+                ApplicationId = Guid.Parse(servicePrincipal.ApplicationId),
+                Name = servicePrincipal.Name
+            };
+
             var token = await azureSessionService
                 .AcquireTokenAsync(AzureEndpoint.GraphEndpoint)
                 .ConfigureAwait(false);
@@ -250,55 +274,13 @@ namespace TeamCloud.Azure.Directory
                 .GetJObjectAsync()
                 .ConfigureAwait(false);
 
-            var identifier = Encoding.UTF8.EncodeBase64(servicePrincipalName);
+            var identifier = Convert.ToBase64String(azureServicePrincipal.ObjectId.ToByteArray());
+            var expiresOn = json.SelectToken($"$.value[?(@.customKeyIdentifier == '{identifier}')].endDate")?.ToString();
 
-            var expiresOnValue = json.SelectToken($"$.value[?(@.customKeyIdentifier == '{identifier}')].endDate")?.ToString();
-            var expiresOnDate = default(DateTime?);
+            if (!string.IsNullOrEmpty(expiresOn) && DateTime.TryParse(expiresOn, out var expiresOnDateTime))
+                azureServicePrincipal.ExpiresOn = expiresOnDateTime;
 
-            if (!string.IsNullOrEmpty(expiresOnValue) && DateTime.TryParse(expiresOnValue, out var expiresOn))
-            {
-                expiresOnDate = expiresOn;
-            }
-
-            return new AzureServicePrincipal()
-            {
-                ObjectId = Guid.Parse(servicePrincipal.Id),
-                ApplicationId = Guid.Parse(servicePrincipal.ApplicationId),
-                Name = servicePrincipal.Name,
-                ExpiresOn = expiresOnDate
-            };
-        }
-
-        private async Task SetServicePrincipalPermissionsAsync(string servicePrincipalName)
-        {
-            var serviceApplication = await GetServiceApplicationInternalAsync(servicePrincipalName)
-                .ConfigureAwait(false);
-
-            var token = await azureSessionService
-                .AcquireTokenAsync(AzureEndpoint.GraphEndpoint)
-                .ConfigureAwait(false);
-
-            var permissions = new
-            {
-                requiredResourceAccess = new
-                {
-                    resourceAppId = "00000003-0000-0000-c000-000000000000",
-                    resourceAccess = new[]
-                    {
-                        new
-                        {
-                            id = "e1fe6dd8-ba31-4d61-89e7-88639da4683d",
-                            type = "Scope"
-                        }
-                    }
-                }
-            };
-
-            await $"https://graph.windows.net/{azureSessionService.Options.TenantId}/applications/{serviceApplication.Inner.ObjectId}"
-                .SetQueryParam("api-version", "1.6")
-                .WithOAuthBearerToken(token)
-                .AllowHttpStatus(HttpStatusCode.NoContent)
-                .PatchJsonAsync(permissions).ConfigureAwait(false);
+            return azureServicePrincipal;
         }
 
         private async Task<IServicePrincipal> GetServicePrincipalInternalAsync(string servicePrincipalName)

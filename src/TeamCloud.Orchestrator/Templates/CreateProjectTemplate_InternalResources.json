@@ -24,10 +24,6 @@
       "name": "[variables('vaultName')]",
       "apiVersion": "2018-02-14",
       "location": "[resourceGroup().location]",
-      "tags": {
-        "hidden-TeamCloud.ProjectId": "[parameters('projectId')]",
-        "hidden-TeamCloud.ProjectName": "[parameters('projectName')]"
-      },
       "properties": {
         "enabledForDeployment": false,
         "enabledForTemplateDeployment": false,
@@ -57,18 +53,6 @@
             }
           }
         ]
-      }
-    },
-    {
-      "name": "[concat(variables('vaultName'),'/Microsoft.Authorization/', variables('vaultName'))]",
-      "type": "Microsoft.KeyVault/vaults/providers/locks",
-      "apiVersion": "2015-01-01",
-      "dependsOn": [
-        "[resourceId('Microsoft.KeyVault/vaults',variables('vaultName'))]"
-      ],
-      "properties": {
-        "level": "CannotDelete",
-        "notes": "[concat('Locked by TeamCloud for project ', parameters('projectName'), ' (', parameters('projectId'), ')')]"
       }
     },
     {

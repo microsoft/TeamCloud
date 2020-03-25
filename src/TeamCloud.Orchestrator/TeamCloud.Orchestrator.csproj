@@ -11,13 +11,13 @@
   <ItemGroup>
     <None Remove="Templates\CleanupProjectTemplate.json" />
     <None Remove="Templates\CreateProjectTemplate.json" />
+    <None Remove="Templates\CreateProjectTemplate_InternalResources.json" />
     <None Remove="Templates\CreateProjectTemplate_ProjectResources.json" />
-    <None Remove="Templates\CreateProjectTemplate_SharedResources.json" />
   </ItemGroup>
   
   <ItemGroup>
     <EmbeddedResource Include="Templates\CleanupProjectTemplate.json" />
-    <EmbeddedResource Include="Templates\CreateProjectTemplate_SharedResources.json" />
+    <EmbeddedResource Include="Templates\CreateProjectTemplate_InternalResources.json" />
     <EmbeddedResource Include="Templates\CreateProjectTemplate_ProjectResources.json" />
     <EmbeddedResource Include="Templates\CreateProjectTemplate.json" />
   </ItemGroup>
