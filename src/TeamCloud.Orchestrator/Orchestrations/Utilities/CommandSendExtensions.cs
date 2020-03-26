@@ -36,7 +36,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
             return providerResult;
         }
 
-        internal static async Task<IDictionary<string, TCommandResult>> SendCommandAsync<TCommand, TCommandResult>(this IDurableOrchestrationContext functionContext, TCommand command, Project project = null)
+        internal static async Task<IDictionary<string, TCommandResult>> SendCommandAsync<TCommand, TCommandResult>(this IDurableOrchestrationContext functionContext, TCommand command, Project project = null, bool failFast = false)
             where TCommand : IProviderCommand
             where TCommandResult : ICommandResult
         {
@@ -80,6 +80,9 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                 commandResults = commandResults.Concat(await Task
                     .WhenAll(providerTasks)
                     .ConfigureAwait(true));
+
+                if (failFast && commandResults.Any(cr => cr.Value.Errors.Any()))
+                    break;
             }
 
             return new Dictionary<string, TCommandResult>(commandResults);

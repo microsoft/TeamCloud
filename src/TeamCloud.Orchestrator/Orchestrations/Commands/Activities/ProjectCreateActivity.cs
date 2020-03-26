@@ -30,11 +30,11 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands.Activities
             if (project is null)
                 throw new ArgumentNullException(nameof(project));
 
-            var newProject = await projectsRepository
+            project = await projectsRepository
                 .AddAsync(project)
                 .ConfigureAwait(false);
 
-            return newProject;
+            return project;
         }
     }
 }

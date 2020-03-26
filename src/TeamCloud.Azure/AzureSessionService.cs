@@ -143,9 +143,18 @@ namespace TeamCloud.Azure
         {
             if (string.IsNullOrEmpty(azureSessionOptions.ClientId))
             {
-                var tokenProvider = IsAzureEnvironment
-                    ? new AzureServiceTokenProvider("RunAs=App")
-                    : new AzureServiceTokenProvider("RunAs=Developer;DeveloperTool=AzureCLI");
+                AzureServiceTokenProvider tokenProvider;
+
+                if (IsAzureEnvironment)
+                {
+                    tokenProvider = new AzureServiceTokenProvider("RunAs=App");
+                }
+                else
+                {
+                    System.Environment.SetEnvironmentVariable("AZURE_CLI_DISABLE_CONNECTION_VERIFICATION", "1", EnvironmentVariableTarget.Process);
+
+                    tokenProvider = new AzureServiceTokenProvider("RunAs=Developer;DeveloperTool=AzureCLI");
+                }
 
                 return tokenProvider.GetAccessTokenAsync(this.Environment.GetEndpointUrl(azureEndpoint));
             }

@@ -114,11 +114,6 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 
                 commandResult ??= command.CreateResult();
                 commandResult.Errors.Add(exc);
-
-                // re-throw the exception to inform the
-                // outer orchestration that some bad happened
-
-                throw;
             }
             finally
             {
@@ -157,7 +152,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                 return Task.CompletedTask;
 
             return functionContext
-                .CallActivityWithRetryAsync(nameof(AzureResourceGroupContributorActivity), (providerCommand.ProjectId.Value, provider.PrincipalId.Value));
+                .CallActivityWithRetryAsync(nameof(ProjectResourcesAccessActivity), (providerCommand.ProjectId.Value, provider.PrincipalId.Value));
         }
 
         private static async Task<IProviderCommand> AugmentCommandAsync(IDurableOrchestrationContext functionContext, Provider provider, IProviderCommand command)

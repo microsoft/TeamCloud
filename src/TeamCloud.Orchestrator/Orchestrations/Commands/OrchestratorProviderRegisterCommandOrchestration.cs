@@ -89,7 +89,9 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                         .ConfigureAwait(true);
 
                     command.Payload
-                        .TeamCloudApplicationInsightsKey = Environment.GetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY");
+                        .TeamCloudApplicationInsightsKey = await functionContext
+                        .GetInstrumentationKeyAsync()
+                        .ConfigureAwait(true);
 
                     command.Payload
                         .Properties = teamCloud.Properties.Override(provider.Properties);
