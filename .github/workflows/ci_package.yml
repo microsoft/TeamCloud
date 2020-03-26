@@ -1,4 +1,4 @@
-name: TeamCloud - Build & Packaging
+name: Build & Publish NuGet Packages
 
 on: 
   push:
@@ -45,7 +45,7 @@ jobs:
       with:
         dotnet-version: '3.1.101'
 
-    - name: Build and Package for CI
+    - name: Build & Package for CI
       run:  dotnet build -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true --version-suffix "ci-${{ steps.gitversion.outputs.preReleaseTag }}"
       working-directory: ${{ env.SOURCE_DIRECTORY }}
 
