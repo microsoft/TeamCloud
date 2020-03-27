@@ -7,6 +7,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Azure.Management.ResourceManager.Fluent;
+using Microsoft.Azure.Management.ResourceManager.Fluent.Models;
+using Microsoft.Rest.Azure.OData;
 using TeamCloud.Azure.Deployment;
 using TeamCloud.Azure.Deployment.Providers;
 using TeamCloud.Azure.Resources.Templates;
@@ -93,6 +96,45 @@ namespace TeamCloud.Azure.Resources
                 }
             }
         }
+
+        public IAsyncEnumerable<AzureResource> GetResourcesAsync(string resourceType = null, string resourceTagName = null, string resourceTagValue = null)
+        {
+            var resourceQuery = new ODataQuery<GenericResourceFilter>(resourceFilter =>
+                FilterByResourceType(resourceFilter, resourceType) &&
+                FilterByResourceTags(resourceFilter, resourceTagName, resourceTagValue));
+
+            return GetResourcesAsync(resourceQuery);
+        }
+
+        private async IAsyncEnumerable<AzureResource> GetResourcesAsync(ODataQuery<GenericResourceFilter> resourceQuery = null)
+        {
+            using var resourceManagementClient = AzureResourceService.AzureSessionService
+                .CreateClient<ResourceManagementClient>(subscriptionId: this.ResourceId.SubscriptionId);
+
+            var page = await resourceManagementClient.Resources
+                .ListByResourceGroupAsync(this.ResourceId.ResourceGroup, resourceQuery)
+                .ConfigureAwait(false);
+
+            var resources = page
+                .AsContinuousCollectionAsync((nextPageLink) => resourceManagementClient.Resources.ListByResourceGroupNextAsync(nextPageLink))
+                .ConfigureAwait(false);
+
+            await foreach (var resource in resources)
+            {
+                var resourceGeneric = await AzureResourceService
+                    .GetResourceAsync(resource.Id)
+                    .ConfigureAwait(false);
+
+                if (resourceGeneric != null)
+                    yield return resourceGeneric;
+            }
+        }
+
+        private static bool FilterByResourceType(GenericResourceFilter resourceFilter, string resourceType)
+            => string.IsNullOrEmpty(resourceType) || resourceFilter.ResourceType.Equals(resourceType, StringComparison.OrdinalIgnoreCase);
+
+        private static bool FilterByResourceTags(GenericResourceFilter resourceFilter, string tagName, string tagValue)
+            => resourceFilter.Tagname.Equals(tagName, StringComparison.OrdinalIgnoreCase) && (tagValue is null || resourceFilter.Tagvalue.Equals(tagValue, StringComparison.OrdinalIgnoreCase));
 
         private async Task<IEnumerable<string>> GetLocksInternalAsync()
         {
