@@ -14,4 +14,11 @@ namespace TeamCloud.Azure.Deployment
 
         Task<string> DownloadArtifactAsync(Guid deploymentId, string artifactName);
     }
+
+    public abstract class AzureDeploymentArtifactsProvider : IAzureDeploymentArtifactsProvider
+    {
+        public abstract Task<string> DownloadArtifactAsync(Guid deploymentId, string artifactName);
+
+        public abstract Task<IAzureDeploymentArtifactsContainer> UploadArtifactsAsync(Guid deploymentId, AzureDeploymentTemplate azureDeploymentTemplate);
+    }
 }

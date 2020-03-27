@@ -39,36 +39,36 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands.Activities
 
             var tasks = new Task[]
             {
-                DeleteKeyVaultAsync(project),
-                DeleteResourceGroupAsync(project)
+                DeleteInternalResourceGroupAsync(project),
+                DeleteProjectResourceGroupAsync(project)
             };
 
             return Task.WhenAll(tasks);
         }
 
-        private async Task DeleteResourceGroupAsync(Project project)
+        private async Task DeleteProjectResourceGroupAsync(Project project)
         {
             if (string.IsNullOrEmpty(project?.ResourceGroup?.ResourceGroupId))
                 return;
 
             var resourceGroup = await azureResourceService
-                .GetResourceGroupAsync(project.ResourceGroup.SubscriptionId, project.ResourceGroup.ResourceGroupId)
+                .GetResourceGroupAsync(project.ResourceGroup.SubscriptionId, project.ResourceGroup.ResourceGroupName)
                 .ConfigureAwait(false);
 
             await (resourceGroup?.DeleteAsync(true) ?? Task.CompletedTask)
                 .ConfigureAwait(false);
         }
 
-        private async Task DeleteKeyVaultAsync(Project project)
+        private async Task DeleteInternalResourceGroupAsync(Project project)
         {
-            if (string.IsNullOrEmpty(project?.KeyVault?.VaultId))
+            if (string.IsNullOrEmpty(project?.ResourceGroup?.ResourceGroupId))
                 return;
 
-            var resource = await azureResourceService
-                .GetResourceAsync(project.KeyVault.VaultId)
+            var resourceGroup = await azureResourceService
+                .GetResourceGroupAsync(project.ResourceGroup.SubscriptionId, $"{project.ResourceGroup.ResourceGroupName}_Internal")
                 .ConfigureAwait(false);
 
-            await (resource?.DeleteAsync(true) ?? Task.CompletedTask)
+            await (resourceGroup?.DeleteAsync(true) ?? Task.CompletedTask)
                 .ConfigureAwait(false);
         }
     }
