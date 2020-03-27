@@ -4,7 +4,9 @@
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "DurableFunctionsHubStorage": "UseDevelopmentStorage=true",
     "FUNCTIONS_WORKER_RUNTIME": "dotnet",
-    "AzureWebJobsSecretStorageType": "files"
+    "AzureWebJobsSecretStorageType": "files",
+    "APPINSIGHTS_INSTRUMENTATIONKEY": "00000000-0000-0000-0000-000000000000"
+
   },
   "ConnectionStrings": {
     "ConfigurationService": "file:///C:/Users/%USERNAME%/Desktop/ConfigurationService.json"
