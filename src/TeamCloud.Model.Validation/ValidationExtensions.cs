@@ -8,6 +8,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using FluentValidation;
 using FluentValidation.Results;
@@ -165,7 +166,7 @@ namespace TeamCloud.Model.Validation
                 .Must(list => list.Where(predicate).Count() >= min)
                     .WithMessage("'{PropertyName}' must contain at least " + $"{min} item/s succeeding predicate '{predicateMessage}'.");
 
-        public static IRuleBuilderOptions<T, string> MustBeResourcId<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
+        public static IRuleBuilderOptions<T, string> MustBeResourceId<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
             => ruleBuilder
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .NotEmpty()
@@ -215,6 +216,26 @@ namespace TeamCloud.Model.Validation
                 .Must(BeUserRole)
                     .WithMessage("'{PropertyName}' must be a valid Role. Valid roles for Project users are 'Owner' and 'Member'. Valid roles for TeamCloud users are 'Admin' and 'Creator'.");
 
+        public static IRuleBuilderOptions<T, string> MustBeProviderId<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
+            => ruleBuilder
+                .Cascade(CascadeMode.StopOnFirstFailure)
+                .NotEmpty()
+                .Must(BeValidProviderId)
+                    .WithMessage("'{PropertyName}' must start with a lowercase letter and contain only lowercase letters, numbers, and periods [.] with a length greater than 4 and less than 255");
+
+        public static IRuleBuilderOptions<T, string> MustBeProjectTypeId<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
+            => ruleBuilder
+                .Cascade(CascadeMode.StopOnFirstFailure)
+                .NotEmpty()
+                .Must(BeValidProjectTypeId)
+                    .WithMessage("'{PropertyName}' must start with a lowercase letter and contain only lowercase letters, numbers, and periods [.] with a length greater than 4 and less than 255");
+
+        public static IRuleBuilderOptions<T, string> MustBeFunctionAuthCode<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
+            => ruleBuilder
+                .Cascade(CascadeMode.StopOnFirstFailure)
+                .NotEmpty()
+                .Must(BeValidFunctionAuthCode)
+                    .WithMessage("'{PropertyName}' must contain only base-64 digits [A-Za-z0-9/] (excluding the plus sign (+)), ending in = or ==");
 
         private static bool BeGuid(string guid)
             => !string.IsNullOrEmpty(guid) && Guid.TryParse(guid, out var outGuid) && !outGuid.Equals(Guid.Empty);
@@ -231,6 +252,15 @@ namespace TeamCloud.Model.Validation
         private static bool BeValidResourceId(string id)
             => !(string.IsNullOrEmpty(id) || id.Length >= 255 || id.Contains('/', StringComparison.OrdinalIgnoreCase) || id.Contains(@"\\", StringComparison.OrdinalIgnoreCase) || id.Contains('?', StringComparison.OrdinalIgnoreCase) || id.Contains('#', StringComparison.OrdinalIgnoreCase));
 
+        private static bool BeValidProviderId(string id)
+            => !string.IsNullOrEmpty(id) && id.Length > 4 && id.Length < 255 && new Regex(@"^(?:[a-z][a-z0-9]+(?:\.[a-z0-9]+)+)$").IsMatch(id);
+
+        private static bool BeValidProjectTypeId(string id)
+            => !string.IsNullOrEmpty(id) && id.Length > 4 && id.Length < 255 && new Regex(@"^(?:[a-z][a-z0-9]+(?:\.[a-z0-9]+)+)$").IsMatch(id);
+
+        // https://github.com/Azure/azure-functions-host/blob/dev/src/WebJobs.Script.WebHost/Security/KeyManagement/SecretManager.cs#L592-L603
+        private static bool BeValidFunctionAuthCode(string code)
+            => !string.IsNullOrEmpty(code) && new Regex(@"^([A-Za-z0-9/]{4})*([A-Za-z0-9/]{3}=|[A-Za-z0-9/]{2}==)?$").IsMatch(code);
 
         private static readonly string[] ValidUserRoles = new string[]
         {

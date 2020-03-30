@@ -15,7 +15,7 @@ namespace TeamCloud.Model.Validation.Data
         public ProjectTypeValidator()
         {
             RuleFor(obj => obj.Id)
-                .MustBeResourcId();
+                .MustBeProjectTypeId();
 
             RuleFor(obj => obj.Region)
                 .MustBeAzureRegion();

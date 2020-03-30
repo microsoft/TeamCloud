@@ -12,9 +12,9 @@ namespace TeamCloud.Model.Validation.Data
     {
         public ProviderValidator()
         {
-            RuleFor(obj => obj.Id).MustBeGuid();
+            RuleFor(obj => obj.Id).MustBeProviderId();
             RuleFor(obj => obj.Url).MustBeUrl();
-            RuleFor(obj => obj.AuthCode).NotEmpty();
+            RuleFor(obj => obj.AuthCode).MustBeFunctionAuthCode();
         }
     }
 }
