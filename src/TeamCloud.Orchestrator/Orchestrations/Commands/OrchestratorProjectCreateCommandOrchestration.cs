@@ -32,10 +32,6 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
 
             try
             {
-                await functionContext
-                    .WaitForProjectCommandsAsync(command)
-                    .ConfigureAwait(true);
-
                 try
                 {
                     commandResult = await ProvisionAsync(functionContext, command, log)
