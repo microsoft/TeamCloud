@@ -13,7 +13,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands.Activities
 {
     internal static class ProjectSetExtension
     {
-        public static Task<Project> SetProjectAsync(this IDurableOrchestrationContext functionContext, Project project)
+        public static Task<Project> SetProjectAsync(this IDurableOrchestrationContext functionContext, Project project, bool allowUnsafe = false)
         {
             if (project is null)
                 throw new System.ArgumentNullException(nameof(project));
@@ -24,7 +24,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands.Activities
                     .CallActivityWithRetryAsync<Project>(nameof(ProjectSetActivity), project);
             }
 
-            throw new NotSupportedException($"Unable to set '{project.GetType()}' without acquired lock");
+            throw new NotSupportedException($"Unable to set project '{project.Id}' without acquired lock");
         }
 
     }

@@ -88,7 +88,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
             if (command.ProjectId.HasValue)
             {
                 var project = await functionContext
-                    .GetProjectAsync(command.ProjectId.Value)
+                    .GetProjectAsync(command.ProjectId.Value, allowUnsafe: true)
                     .ConfigureAwait(true);
 
                 var providerReference = project.Type.Providers
@@ -224,10 +224,14 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
         {
             try
             {
+                await functionContext
+                    .AuditAsync(provider, command, commandResult)
+                    .ConfigureAwait(true);
+
                 functionContext.SetCustomStatus($"Switching mode for command '{command.CommandId}'", log);
 
                 var project = await functionContext
-                    .GetProjectAsync(command.ProjectId.Value)
+                    .GetProjectAsync(command.ProjectId.Value, allowUnsafe: true)
                     .ConfigureAwait(true);
 
                 functionContext.ContinueAsNew((
