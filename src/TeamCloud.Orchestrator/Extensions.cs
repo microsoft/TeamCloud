@@ -54,12 +54,34 @@ namespace TeamCloud.Orchestrator
             return null;
         }
 
-        internal static Task<IDisposable> LockAsync(this IDurableOrchestrationContext functionContext, IContainerDocument containerDocument)
-            => functionContext.LockAsync(containerDocument.GetEntityId());
+        internal static Task<IDisposable> LockAsync<TContainerDocument>(this IDurableOrchestrationContext functionContext, string containerDocumentId)
+            where TContainerDocument : class, IContainerDocument
+            => functionContext.LockAsync(functionContext.GetEntityId<TContainerDocument>(containerDocumentId));
 
-        internal static EntityId GetEntityId<T>(this T document)
-            where T : class, IContainerDocument
-            => new EntityId(nameof(DocumentEntityLock), $"{document.Id}@{document.GetType()}");
+        internal static Task<IDisposable> LockAsync<TContainerDocument>(this IDurableOrchestrationContext functionContext, TContainerDocument containerDocument)
+            where TContainerDocument : class, IContainerDocument
+            => functionContext.LockAsync(functionContext.GetEntityId<TContainerDocument>(containerDocument?.Id));
+
+        internal static bool IsLockedBy<TContainerDocument>(this IDurableOrchestrationContext functionContext, string containerDocumentId)
+            where TContainerDocument : class, IContainerDocument
+            => functionContext.IsLocked(out var locks) && locks.Contains(functionContext.GetEntityId<TContainerDocument>(containerDocumentId));
+
+        internal static bool IsLockedBy<TContainerDocument>(this IDurableOrchestrationContext functionContext, TContainerDocument containerDocument)
+            where TContainerDocument : class, IContainerDocument
+            => functionContext.IsLocked(out var locks) && locks.Contains(functionContext.GetEntityId<TContainerDocument>(containerDocument?.Id));
+
+
+        private static EntityId GetEntityId<TContainerDocument>(this IDurableOrchestrationContext functionContext, string containerDocumentId)
+            where TContainerDocument : class, IContainerDocument
+        {
+            if (string.IsNullOrWhiteSpace(containerDocumentId))
+                throw new ArgumentException("A container document id must not NULL, EMPTY, or WHITESPACE", nameof(containerDocumentId));
+
+            if (Guid.TryParse(containerDocumentId, out var containerDocumentGuid) && containerDocumentGuid == Guid.Empty)
+                throw new ArgumentException("A container document id must not an empty GUID", nameof(containerDocumentId));
+
+            return new EntityId(nameof(DocumentEntityLock), $"{containerDocumentId}@{typeof(TContainerDocument)}");
+        }
 
         internal static ICommandResult CreateResult(this ICommand command, DurableOrchestrationStatus orchestrationStatus)
         {

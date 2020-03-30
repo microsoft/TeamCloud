@@ -7,7 +7,6 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Model.Commands.Core;
-using TeamCloud.Orchestration;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 {
@@ -21,8 +20,8 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
 
-            if (command.ProjectId.HasValue)
-                return context.CallSubOrchestratorWithRetryAsync(nameof(ProjectCommandSerializationOrchestrator), command);
+            //if (command.ProjectId.HasValue)
+            //    return context.CallSubOrchestratorWithRetryAsync(nameof(ProjectCommandSerializationOrchestrator), command);
 
             return Task.CompletedTask;
         }

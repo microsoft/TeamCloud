@@ -10,7 +10,6 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
-using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Orchestrations.Commands.Activities;
 using TeamCloud.Orchestrator.Orchestrations.Utilities;
 
@@ -26,9 +25,10 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
 
-            var orchestratorCommand = functionContext.GetInput<OrchestratorCommandMessage>();
-            var command = orchestratorCommand.Command as OrchestratorProjectUserDeleteCommand;
+            var commandMessage = functionContext.GetInput<OrchestratorCommandMessage>();
+            var command = (OrchestratorProjectUserUpdateCommand)commandMessage.Command;
             var commandResult = command.CreateResult();
+            var commandProject = default(Project);
 
             try
             {
@@ -38,30 +38,59 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                     .WaitForProjectCommandsAsync(command)
                     .ConfigureAwait(true);
 
-                functionContext.SetCustomStatus($"Updating user.", log);
+                functionContext.SetCustomStatus($"Deleting user", log);
 
-                var user = await functionContext
-                    .CallActivityWithRetryAsync<User>(nameof(ProjectUserUpdateActivity), (command.ProjectId.Value, command.Payload))
+                using (await functionContext.LockAsync<Project>(command.ProjectId.ToString()).ConfigureAwait(true))
+                {
+                    commandProject = await functionContext
+                        .GetProjectAsync(command.ProjectId.GetValueOrDefault())
+                        .ConfigureAwait(true);
+
+                    if (commandProject.Users.Remove(command.Payload))
+                    {
+                        commandProject = await functionContext
+                            .SetProjectAsync(commandProject)
+                            .ConfigureAwait(true);
+                    }
+                }
+
+                functionContext.SetCustomStatus("Sending commands", log);
+
+                var providerCommand = new ProviderProjectUserUpdateCommand
+                (
+                    command.User,
+                    command.Payload,
+                    commandProject.Id,
+                    command.CommandId
+                );
+
+                var providerResults = await functionContext
+                    .SendCommandAsync<ProviderProjectUserUpdateCommand>(providerCommand, commandProject)
                     .ConfigureAwait(true);
 
-                functionContext.SetCustomStatus("Waiting on providers to update user.", log);
+                var providerException = providerResults.Values?
+                    .GetException();
 
-                // TODO: call set users on all providers (or project update for now)
-
-                commandResult.Result = user;
-
-                functionContext.SetCustomStatus($"User updated.", log);
+                if (providerException != null)
+                    throw providerException;
             }
-            catch (Exception ex)
+            catch (Exception exc)
             {
-                functionContext.SetCustomStatus("Failed to update user.", log, ex);
-
-                commandResult.Errors.Add(ex);
+                commandResult.Errors.Add(exc);
 
                 throw;
             }
             finally
             {
+                var commandException = commandResult.GetException();
+
+                if (commandException is null)
+                    functionContext.SetCustomStatus($"Command succeeded", log);
+                else
+                    functionContext.SetCustomStatus($"Command failed", log, commandException);
+
+                commandResult.Result = command.Payload;
+
                 functionContext.SetOutput(commandResult);
             }
         }

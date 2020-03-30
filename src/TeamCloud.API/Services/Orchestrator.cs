@@ -78,7 +78,7 @@ namespace TeamCloud.API.Services
                 => result is OrchestratorProjectDeleteCommandResult
                 || result is OrchestratorProjectUserDeleteCommandResult
                 || result is OrchestratorProviderDeleteCommandResult
-                || result is OrchestratorTeamCloudUserDeleteCommandResult;                
+                || result is OrchestratorTeamCloudUserDeleteCommandResult;
         }
 
         public async Task<ICommandResult> QueryAsync(Guid commandId, Guid? projectId)
@@ -103,6 +103,8 @@ namespace TeamCloud.API.Services
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
 
+            var commandResult = command.CreateResult();
+
             try
             {
                 var commandResponse = await options.Url
@@ -111,22 +113,24 @@ namespace TeamCloud.API.Services
                     .PostJsonAsync(command)
                     .ConfigureAwait(false);
 
-                var commandResult = await commandResponse.Content
+                commandResult = await commandResponse.Content
                     .ReadAsAsync<ICommandResult>()
                     .ConfigureAwait(false);
 
                 SetResultLinks(commandResult, command.ProjectId);
-
-                return commandResult;
             }
-            catch (FlurlHttpException ex) when ((ex.Call.HttpStatus ?? HttpStatusCode.ServiceUnavailable) == HttpStatusCode.ServiceUnavailable)
+            catch (FlurlHttpTimeoutException timeoutExc)
             {
-                var unavailbleResult = command.CreateResult();
-
-                unavailbleResult.Errors.Add(ex);
-
-                return unavailbleResult;
+                commandResult ??= command.CreateResult();
+                commandResult.Errors.Add(timeoutExc);
             }
+            catch (FlurlHttpException serviceUnavailableExc) when (serviceUnavailableExc.Call.HttpStatus == HttpStatusCode.ServiceUnavailable)
+            {
+                commandResult ??= command.CreateResult();
+                commandResult.Errors.Add(serviceUnavailableExc);
+            }
+
+            return commandResult;
         }
 
         public async Task<ProjectType> AddAsync(ProjectType projectType)

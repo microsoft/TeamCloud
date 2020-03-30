@@ -26,5 +26,7 @@ namespace TeamCloud.Model.Data
         public IDictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
 
         public DateTime? Registered { get; set; }
+
+        public ProviderCommandMode CommandMode { get; set; } = ProviderCommandMode.Simple;
     }
 }
