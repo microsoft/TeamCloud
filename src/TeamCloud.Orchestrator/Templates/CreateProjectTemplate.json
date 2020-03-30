@@ -9,7 +9,8 @@
       "type": "string"
     },
     "projectPrefix": {
-      "type": "string"
+      "type": "string",
+      "defaultValue": ""
     },
     "resourceGroupName": {
       "type": "string",

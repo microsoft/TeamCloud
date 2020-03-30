@@ -12,7 +12,7 @@ namespace TeamCloud.Model.Validation.Data
     {
         public ProviderReferenceValidator()
         {
-            RuleFor(obj => obj.Id).NotEmpty();
+            RuleFor(obj => obj.Id).MustBeProviderId();
         }
     }
 }
