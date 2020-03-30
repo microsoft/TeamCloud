@@ -9,11 +9,11 @@
 # regenerated.
 # --------------------------------------------------------------------------
 
-from msrest.serialization import Model
+from .project_identity import ProjectIdentity
 
 
-class ProjectIdentity(Model):
-    """ProjectIdentity.
+class ProjectIdentityModel(ProjectIdentity):
+    """ProjectIdentityModel.
 
     :param id:
     :type id: str
@@ -29,8 +29,5 @@ class ProjectIdentity(Model):
         'secret': {'key': 'secret', 'type': 'str'},
     }
 
-    def __init__(self, *, id: str=None, application_id: str=None, secret: str=None, **kwargs) -> None:
-        super(ProjectIdentity, self).__init__(**kwargs)
-        self.id = id
-        self.application_id = application_id
-        self.secret = secret
+    def __init__(self, **kwargs):
+        super(ProjectIdentityModel, self).__init__(**kwargs)

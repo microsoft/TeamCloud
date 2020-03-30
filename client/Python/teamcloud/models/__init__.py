@@ -12,12 +12,14 @@
 try:
     from .provider_reference_py3 import ProviderReference
     from .project_type_py3 import ProjectType
-    from .azure_identity_py3 import AzureIdentity
+    from .project_identity_py3 import ProjectIdentity
     from .azure_resource_group_py3 import AzureResourceGroup
+    from .azure_key_vault_py3 import AzureKeyVault
     from .user_py3 import User
     from .project_type_model_py3 import ProjectTypeModel
-    from .project_identity_py3 import ProjectIdentity
+    from .project_identity_model_py3 import ProjectIdentityModel
     from .project_resource_group_py3 import ProjectResourceGroup
+    from .project_key_vault_py3 import ProjectKeyVault
     from .project_py3 import Project
     from .project_list_data_result_py3 import ProjectListDataResult
     from .user_definition_py3 import UserDefinition
@@ -43,12 +45,14 @@ try:
 except (SyntaxError, ImportError):
     from .provider_reference import ProviderReference
     from .project_type import ProjectType
-    from .azure_identity import AzureIdentity
+    from .project_identity import ProjectIdentity
     from .azure_resource_group import AzureResourceGroup
+    from .azure_key_vault import AzureKeyVault
     from .user import User
     from .project_type_model import ProjectTypeModel
-    from .project_identity import ProjectIdentity
+    from .project_identity_model import ProjectIdentityModel
     from .project_resource_group import ProjectResourceGroup
+    from .project_key_vault import ProjectKeyVault
     from .project import Project
     from .project_list_data_result import ProjectListDataResult
     from .user_definition import UserDefinition
@@ -75,12 +79,14 @@ except (SyntaxError, ImportError):
 __all__ = [
     'ProviderReference',
     'ProjectType',
-    'AzureIdentity',
+    'ProjectIdentity',
     'AzureResourceGroup',
+    'AzureKeyVault',
     'User',
     'ProjectTypeModel',
-    'ProjectIdentity',
+    'ProjectIdentityModel',
     'ProjectResourceGroup',
+    'ProjectKeyVault',
     'Project',
     'ProjectListDataResult',
     'UserDefinition',

@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,6 +22,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using TeamCloud.Http.Telemetry;
 
 namespace TeamCloud.Http
 {
@@ -29,6 +31,8 @@ namespace TeamCloud.Http
     {
         public static IServiceCollection AddTeamCloudHttp(this IServiceCollection services, Action<GlobalFlurlHttpSettings> configure = null)
         {
+            services.AddSingleton<ITelemetryInitializer>(new TeamCloudTelemetryInitializer(Assembly.GetCallingAssembly()));
+
             if (services.Any(sd => sd.ServiceType == typeof(IHttpClientFactory) && sd.ImplementationType == typeof(DefaultHttpClientFactory)))
             {
                 services.Replace(new ServiceDescriptor(typeof(IHttpClientFactory), HttpClientFactoryInitializer, ServiceLifetime.Singleton));

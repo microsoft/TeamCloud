@@ -2429,16 +2429,16 @@
         },
         "additionalProperties": false
       },
-      "AzureIdentity": {
+      "ProjectIdentity": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
             "format": "uuid"
           },
-          "appId": {
+          "applicationId": {
             "type": "string",
-            "nullable": true
+            "format": "uuid"
           },
           "secret": {
             "type": "string",
@@ -2450,14 +2450,6 @@
       "AzureResourceGroup": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "subscriptionId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "resourceGroupId": {
             "type": "string",
             "nullable": true
@@ -2466,7 +2458,29 @@
             "type": "string",
             "nullable": true
           },
+          "subscriptionId": {
+            "type": "string",
+            "format": "uuid"
+          },
           "region": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "AzureKeyVault": {
+        "type": "object",
+        "properties": {
+          "vaultId": {
+            "type": "string",
+            "nullable": true
+          },
+          "vaultName": {
+            "type": "string",
+            "nullable": true
+          },
+          "vaultUrl": {
             "type": "string",
             "nullable": true
           }
@@ -2521,7 +2535,7 @@
           "identity": {
             "allOf": [
               {
-                "$ref": "#/components/schemas/AzureIdentity"
+                "$ref": "#/components/schemas/ProjectIdentity"
               }
             ],
             "nullable": true
@@ -2530,6 +2544,14 @@
             "allOf": [
               {
                 "$ref": "#/components/schemas/AzureResourceGroup"
+              }
+            ],
+            "nullable": true
+          },
+          "keyVault": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AzureKeyVault"
               }
             ],
             "nullable": true

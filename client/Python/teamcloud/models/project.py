@@ -27,9 +27,11 @@ class Project(Model):
     :param type:
     :type type: ~teamcloud.models.ProjectTypeModel
     :param identity:
-    :type identity: ~teamcloud.models.ProjectIdentity
+    :type identity: ~teamcloud.models.ProjectIdentityModel
     :param resource_group:
     :type resource_group: ~teamcloud.models.ProjectResourceGroup
+    :param key_vault:
+    :type key_vault: ~teamcloud.models.ProjectKeyVault
     :param team_cloud_id:
     :type team_cloud_id: str
     :param users:
@@ -49,8 +51,9 @@ class Project(Model):
         'id': {'key': 'id', 'type': 'str'},
         'name': {'key': 'name', 'type': 'str'},
         'type': {'key': 'type', 'type': 'ProjectTypeModel'},
-        'identity': {'key': 'identity', 'type': 'ProjectIdentity'},
+        'identity': {'key': 'identity', 'type': 'ProjectIdentityModel'},
         'resource_group': {'key': 'resourceGroup', 'type': 'ProjectResourceGroup'},
+        'key_vault': {'key': 'keyVault', 'type': 'ProjectKeyVault'},
         'team_cloud_id': {'key': 'teamCloudId', 'type': 'str'},
         'users': {'key': 'users', 'type': '[User]'},
         'tags': {'key': 'tags', 'type': '{str}'},
@@ -65,6 +68,7 @@ class Project(Model):
         self.type = kwargs.get('type', None)
         self.identity = kwargs.get('identity', None)
         self.resource_group = kwargs.get('resource_group', None)
+        self.key_vault = kwargs.get('key_vault', None)
         self.team_cloud_id = kwargs.get('team_cloud_id', None)
         self.users = kwargs.get('users', None)
         self.tags = kwargs.get('tags', None)

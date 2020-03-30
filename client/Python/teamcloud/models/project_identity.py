@@ -9,25 +9,28 @@
 # regenerated.
 # --------------------------------------------------------------------------
 
-from .azure_identity import AzureIdentity
+from msrest.serialization import Model
 
 
-class ProjectIdentity(AzureIdentity):
+class ProjectIdentity(Model):
     """ProjectIdentity.
 
     :param id:
     :type id: str
-    :param app_id:
-    :type app_id: str
+    :param application_id:
+    :type application_id: str
     :param secret:
     :type secret: str
     """
 
     _attribute_map = {
         'id': {'key': 'id', 'type': 'str'},
-        'app_id': {'key': 'appId', 'type': 'str'},
+        'application_id': {'key': 'applicationId', 'type': 'str'},
         'secret': {'key': 'secret', 'type': 'str'},
     }
 
     def __init__(self, **kwargs):
         super(ProjectIdentity, self).__init__(**kwargs)
+        self.id = kwargs.get('id', None)
+        self.application_id = kwargs.get('application_id', None)
+        self.secret = kwargs.get('secret', None)
