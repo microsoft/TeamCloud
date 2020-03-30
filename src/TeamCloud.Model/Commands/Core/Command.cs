@@ -42,10 +42,22 @@ namespace TeamCloud.Model.Commands.Core
         where TPayload : class, new()
         where TCommandResult : ICommandResult, new()
     {
-        public Guid CommandId { get; set; } = Guid.NewGuid();
+        protected Command(User user, TPayload payload = default, Guid? commandId = default)
+        {
+            User = user ?? throw new ArgumentNullException(nameof(user));
+            Payload = payload;
+            CommandId = commandId.GetValueOrDefault(Guid.NewGuid());
+        }
 
-        [JsonIgnore]
-        public virtual Guid? ProjectId { get; set; }
+        public Guid CommandId { get; private set; }
+
+        private Guid? projectId = default;
+
+        public virtual Guid? ProjectId
+        {
+            get => Payload is Project project ? project?.Id : projectId;
+            protected set => projectId = value;
+        }
 
         public User User { get; set; }
 
@@ -56,12 +68,6 @@ namespace TeamCloud.Model.Commands.Core
         }
 
         object ICommand.Payload { get; set; }
-
-        protected Command(User user, TPayload payload)
-        {
-            User = user;
-            Payload = payload;
-        }
 
         public TCommandResult CreateResult()
         {

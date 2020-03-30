@@ -30,11 +30,8 @@ namespace TeamCloud.Model.Commands
         where TPayload : class, new()
         where TCommandResult : ICommandResult, new()
     {
-        protected ProviderCommand(User user, TPayload payload, Guid? commandId = null)
-            : base(user, payload)
-        {
-            if (commandId.HasValue) base.CommandId = commandId.Value;
-        }
+        protected ProviderCommand(User user, TPayload payload, Guid? commandId = default) : base(user, payload, commandId)
+        { }
 
         public IDictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
 

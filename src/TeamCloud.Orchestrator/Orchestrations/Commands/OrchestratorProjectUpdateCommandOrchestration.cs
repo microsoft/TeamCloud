@@ -35,12 +35,6 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
 
             try
             {
-                functionContext.SetCustomStatus("Waiting on for another project operation to complete.", log);
-
-                await functionContext
-                    .WaitForProjectCommandsAsync(command)
-                    .ConfigureAwait(true);
-
                 functionContext.SetCustomStatus($"Updating project.", log);
 
                 project = await functionContext

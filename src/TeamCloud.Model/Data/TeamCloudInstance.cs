@@ -13,7 +13,9 @@ namespace TeamCloud.Model.Data
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public sealed class TeamCloudInstance : IContainerDocument
     {
-        public string Id => Constants.CosmosDb.TenantName;
+        public static string DefaultId => Constants.CosmosDb.TenantName;
+
+        public string Id => DefaultId;
 
         public string PartitionKey => Constants.CosmosDb.DatabaseName;
 

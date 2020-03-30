@@ -8,8 +8,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Microsoft.Extensions.Logging;
 using TeamCloud.Model.Commands;
+using TeamCloud.Model.Data;
 using TeamCloud.Orchestrator.Orchestrations.Commands.Activities;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Commands
@@ -30,22 +30,18 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
 
             try
             {
-                var teamCloud = await functionContext
-                    .GetTeamCloudAsync()
-                    .ConfigureAwait(true);
-
-                var provider = command.Payload;
-
                 // ensure the updated provider is
                 // marked as not registered so we
                 // can start a provider registration
                 // afterwards
 
+                var provider = command.Payload;
+
                 provider.Registered = null;
 
-                using (await functionContext.LockAsync(teamCloud).ConfigureAwait(true))
+                using (await functionContext.LockAsync<TeamCloudInstance>(TeamCloudInstance.DefaultId).ConfigureAwait(true))
                 {
-                    teamCloud = await functionContext
+                    var teamCloud = await functionContext
                         .GetTeamCloudAsync()
                         .ConfigureAwait(true);
 
@@ -60,10 +56,10 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                     teamCloud = await functionContext
                         .SetTeamCloudAsync(teamCloud)
                         .ConfigureAwait(true);
-                }
 
-                provider = commandResult.Result = teamCloud.Providers
-                    .Single(p => p.Id.Equals(provider.Id, StringComparison.Ordinal));
+                    provider = commandResult.Result = teamCloud.Providers
+                        .Single(p => p.Id.Equals(provider.Id, StringComparison.Ordinal));
+                }
 
                 await functionContext
                     .RegisterProviderAsync(provider)

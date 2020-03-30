@@ -13,7 +13,15 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands.Activities
 {
     internal static class ProjectGetExtension
     {
-        public static Task<Project> GetProjectAsync(this IDurableOrchestrationContext durableOrchestrationContext, Guid projectId)
-            => durableOrchestrationContext.CallActivityWithRetryAsync<Project>(nameof(ProjectGetActivity), projectId);
+        public static Task<Project> GetProjectAsync(this IDurableOrchestrationContext functionContext, Guid projectId, bool allowUnsafe = false)
+        {
+            if (functionContext.IsLockedBy<Project>(projectId.ToString()) || allowUnsafe)
+            {
+                return functionContext
+                    .CallActivityWithRetryAsync<Project>(nameof(ProjectGetActivity), projectId);
+            }
+
+            throw new NotSupportedException($"Unable to get project '{projectId}' without acquired lock");
+        }
     }
 }

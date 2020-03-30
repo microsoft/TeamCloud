@@ -32,10 +32,6 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
 
             try
             {
-                await functionContext
-                    .WaitForProjectCommandsAsync(command)
-                    .ConfigureAwait(true);
-
                 try
                 {
                     commandResult = await ProvisionAsync(functionContext, command, log)
@@ -49,9 +45,9 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                     throw;
                 }
             }
-            catch (Exception processingExc)
+            catch (Exception exc)
             {
-                commandResult.Errors.Add(processingExc);
+                commandResult.Errors.Add(exc);
 
                 throw;
             }

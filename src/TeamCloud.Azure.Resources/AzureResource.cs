@@ -236,11 +236,11 @@ namespace TeamCloud.Azure.Resources
 
             if (merge)
             {
-                resource.Tags = resource.Tags.Merge(tags);
+                resource.Tags = resource.Tags.Override(tags);
             }
             else
             {
-                resource.Tags = hiddenTags.Merge(tags);
+                resource.Tags = hiddenTags.Override(tags);
             }
 
             _ = await SetResourceAsync(resource)

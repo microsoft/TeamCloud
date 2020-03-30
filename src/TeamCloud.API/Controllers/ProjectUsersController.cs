@@ -184,7 +184,7 @@ namespace TeamCloud.API.Controllers
                     .Conflict($"A User with the Email '{userDefinition.Email}' already exists on this Project. Please try your request again with a unique email or call PUT to update the existing User.")
                     .ActionResult();
 
-            var command = new OrchestratorProjectUserCreateCommand(CurrentUser, newUser, ProjectId.Value);
+            var command = new OrchestratorProjectUserCreateCommand(CurrentUser, newUser, project.Id);
 
             var commandResult = await orchestrator
                 .InvokeAsync(command)

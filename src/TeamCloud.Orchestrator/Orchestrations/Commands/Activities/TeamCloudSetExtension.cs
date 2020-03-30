@@ -4,7 +4,6 @@
  */
 
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Model.Data;
@@ -14,14 +13,14 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands.Activities
 {
     internal static class TeamCloudSetExtension
     {
-        public static Task<TeamCloudInstance> SetTeamCloudAsync(this IDurableOrchestrationContext durableOrchestrationContext, TeamCloudInstance teamCloud)
+        public static Task<TeamCloudInstance> SetTeamCloudAsync(this IDurableOrchestrationContext functionContext, TeamCloudInstance teamCloud)
         {
             if (teamCloud is null)
                 throw new ArgumentNullException(nameof(teamCloud));
 
-            if (durableOrchestrationContext.IsLocked(out var ownedLocks) && ownedLocks.Contains(teamCloud.GetEntityId()))
+            if (functionContext.IsLockedBy(teamCloud))
             {
-                return durableOrchestrationContext
+                return functionContext
                     .CallActivityWithRetryAsync<TeamCloudInstance>(nameof(TeamCloudSetActivity), teamCloud);
             }
 

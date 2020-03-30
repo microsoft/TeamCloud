@@ -13,6 +13,7 @@ using Flurl.Http;
 using Microsoft.Azure.Management.Graph.RBAC.Fluent.Models;
 using Microsoft.Azure.Management.ResourceManager.Fluent;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Rest.Azure;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -39,6 +40,28 @@ namespace TeamCloud.Azure.Resources
             return AzureResourceIdentifier.TryParse(resourceId, out var _);
         }
 
+        public static async IAsyncEnumerable<T> AsContinuousCollectionAsync<T>(
+            this IPage<T> firstPage,
+            Func<string, Task<IPage<T>>> getNextPage)
+        {
+            var currentPage = firstPage;
+
+            do
+            {
+                if (!(currentPage?.Any() ?? false))
+                {
+                    yield break;
+                }
+
+                foreach (var element in currentPage)
+                {
+                    yield return element;
+                }
+
+            } while (currentPage.NextPageLink != null &&
+                    (currentPage = await getNextPage(currentPage.NextPageLink).ConfigureAwait(false)) != null);
+        }
+
         public static Task<IEnumerable<string>> GetApiVersionsAsync(this IAzureResourceService azureResourceService, AzureResourceIdentifier azureResourceIdentifier, bool includePreviewVersions = false)
         {
             if (azureResourceService is null)
@@ -53,12 +76,9 @@ namespace TeamCloud.Azure.Resources
                 return azureResourceService.GetApiVersionsAsync(azureResourceIdentifier.SubscriptionId, azureResourceIdentifier.ResourceNamespace, azureResourceIdentifier.ResourceTypeName, includePreviewVersions);
         }
 
-        internal static IDictionary<string, string> Merge(this IDictionary<string, string> instance, IDictionary<string, string> merge, params IDictionary<string, string>[] additionalMerges)
+        internal static IDictionary<string, string> Override(this IDictionary<string, string> instance, IDictionary<string, string> dictionary)
         {
-            var keyValuePairs = instance.Concat(merge);
-
-            foreach (var additionalMerge in additionalMerges)
-                keyValuePairs = keyValuePairs.Concat(additionalMerge);
+            var keyValuePairs = instance.Concat(dictionary);
 
             return keyValuePairs
                 .GroupBy(kvp => kvp.Key)

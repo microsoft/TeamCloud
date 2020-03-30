@@ -8,8 +8,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Microsoft.Extensions.Logging;
 using TeamCloud.Model.Commands;
+using TeamCloud.Model.Data;
 using TeamCloud.Orchestrator.Orchestrations.Commands.Activities;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Commands
@@ -30,15 +30,11 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
 
             try
             {
-                var teamCloud = await functionContext
-                    .GetTeamCloudAsync()
-                    .ConfigureAwait(true);
-
                 var provider = command.Payload;
 
-                using (await functionContext.LockAsync(teamCloud).ConfigureAwait(true))
+                using (await functionContext.LockAsync<TeamCloudInstance>(TeamCloudInstance.DefaultId).ConfigureAwait(true))
                 {
-                    teamCloud = await functionContext
+                    var teamCloud = await functionContext
                         .GetTeamCloudAsync()
                         .ConfigureAwait(true);
 

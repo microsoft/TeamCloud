@@ -10,7 +10,6 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
-using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Orchestrations.Commands.Activities;
 using TeamCloud.Orchestrator.Orchestrations.Utilities;
 
@@ -26,43 +25,65 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
 
-            var orchestratorCommand = functionContext.GetInput<OrchestratorCommandMessage>();
-
-            var command = (OrchestratorProjectUserCreateCommand)orchestratorCommand.Command;
+            var commandMessage = functionContext.GetInput<OrchestratorCommandMessage>();
+            var command = (OrchestratorProjectUserCreateCommand)commandMessage.Command;
             var commandResult = command.CreateResult();
+            var commandProject = default(Project);
 
             try
             {
-                functionContext.SetCustomStatus("Waiting on for another project operation to complete.", log);
+                functionContext.SetCustomStatus($"Creating user", log);
 
-                await functionContext
-                    .WaitForProjectCommandsAsync(command)
+                using (await functionContext.LockAsync<Project>(command.ProjectId.ToString()).ConfigureAwait(true))
+                {
+                    commandProject = await functionContext
+                        .GetProjectAsync(command.ProjectId.GetValueOrDefault())
+                        .ConfigureAwait(true);
+
+                    commandProject.Users.Add(command.Payload);
+
+                    commandProject = await functionContext
+                        .SetProjectAsync(commandProject)
+                        .ConfigureAwait(true);
+                }
+
+                functionContext.SetCustomStatus("Sending commands", log);
+
+                var providerCommand = new ProviderProjectUserCreateCommand
+                (
+                    command.User,
+                    command.Payload,
+                    commandProject.Id,
+                    command.CommandId
+                );
+
+                var providerResults = await functionContext
+                    .SendCommandAsync<ProviderProjectUserCreateCommand>(providerCommand, commandProject)
                     .ConfigureAwait(true);
 
-                functionContext.SetCustomStatus($"Creating user.", log);
+                var providerException = providerResults.Values?
+                    .GetException();
 
-                var user = await functionContext
-                    .CallActivityWithRetryAsync<User>(nameof(ProjectUserCreateActivity), (command.ProjectId.Value, command.Payload))
-                    .ConfigureAwait(true);
-
-                functionContext.SetCustomStatus("Waiting on providers to create user.", log);
-
-                // TODO: call set users on all providers (or project update for now)
-
-                commandResult.Result = user;
-
-                functionContext.SetCustomStatus($"User created.", log);
+                if (providerException != null)
+                    throw providerException;
             }
-            catch (Exception ex)
+            catch (Exception exc)
             {
-                functionContext.SetCustomStatus("Failed to create user.", log, ex);
-
-                commandResult.Errors.Add(ex);
+                commandResult.Errors.Add(exc);
 
                 throw;
             }
             finally
             {
+                var commandException = commandResult.GetException();
+
+                if (commandException is null)
+                    functionContext.SetCustomStatus($"Command succeeded", log);
+                else
+                    functionContext.SetCustomStatus($"Command failed", log, commandException);
+
+                commandResult.Result = command.Payload;
+
                 functionContext.SetOutput(commandResult);
             }
         }

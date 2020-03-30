@@ -96,7 +96,16 @@ namespace TeamCloud.Azure.Resources
         public string ResourceGroup { get; }
         public string ResourceNamespace { get; }
         public IReadOnlyList<KeyValuePair<string, string>> ResourceTypes { get; }
-        public string ResourceTypeName => string.Join('/', ResourceTypes.Select(kvp => kvp.Key));
+
+        public string ResourceTypeName
+            => !string.IsNullOrEmpty(ResourceNamespace) && ResourceTypes.Any()
+            ? string.Join('/', ResourceTypes.Select(kvp => kvp.Key))
+            : null;
+
+        public string ResourceTypeFullName
+            => !string.IsNullOrEmpty(ResourceNamespace) && !string.IsNullOrEmpty(ResourceTypeName)
+            ? $"{ResourceNamespace}/{ResourceTypeName}"
+            : null;
 
         public override string ToString()
             => ToString(AzureResourceSegment.Resource);

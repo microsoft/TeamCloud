@@ -14,11 +14,11 @@ using TeamCloud.Azure.Resources.Utilities;
 
 namespace TeamCloud.Azure.Resources.Typed
 {
-    public sealed class AzureKeyVaultResource : AzureResource
+    public sealed class AzureKeyVaultResource : AzureTypedResource
     {
         private readonly AsyncLazy<IVault> vaultInstance;
 
-        internal AzureKeyVaultResource(string resourceId) : base(resourceId)
+        internal AzureKeyVaultResource(string resourceId) : base("Microsoft.KeyVault/vaults", resourceId)
         {
             vaultInstance = new AsyncLazy<IVault>(() => GetVaultAsync());
         }
