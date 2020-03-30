@@ -27,9 +27,11 @@ class Project(Model):
     :param type:
     :type type: ~teamcloud.models.ProjectTypeModel
     :param identity:
-    :type identity: ~teamcloud.models.ProjectIdentity
+    :type identity: ~teamcloud.models.ProjectIdentityModel
     :param resource_group:
     :type resource_group: ~teamcloud.models.ProjectResourceGroup
+    :param key_vault:
+    :type key_vault: ~teamcloud.models.ProjectKeyVault
     :param team_cloud_id:
     :type team_cloud_id: str
     :param users:
@@ -49,15 +51,16 @@ class Project(Model):
         'id': {'key': 'id', 'type': 'str'},
         'name': {'key': 'name', 'type': 'str'},
         'type': {'key': 'type', 'type': 'ProjectTypeModel'},
-        'identity': {'key': 'identity', 'type': 'ProjectIdentity'},
+        'identity': {'key': 'identity', 'type': 'ProjectIdentityModel'},
         'resource_group': {'key': 'resourceGroup', 'type': 'ProjectResourceGroup'},
+        'key_vault': {'key': 'keyVault', 'type': 'ProjectKeyVault'},
         'team_cloud_id': {'key': 'teamCloudId', 'type': 'str'},
         'users': {'key': 'users', 'type': '[User]'},
         'tags': {'key': 'tags', 'type': '{str}'},
         'properties': {'key': 'properties', 'type': '{str}'},
     }
 
-    def __init__(self, *, id: str=None, name: str=None, type=None, identity=None, resource_group=None, team_cloud_id: str=None, users=None, tags=None, properties=None, **kwargs) -> None:
+    def __init__(self, *, id: str=None, name: str=None, type=None, identity=None, resource_group=None, key_vault=None, team_cloud_id: str=None, users=None, tags=None, properties=None, **kwargs) -> None:
         super(Project, self).__init__(**kwargs)
         self.partition_key = None
         self.id = id
@@ -65,6 +68,7 @@ class Project(Model):
         self.type = type
         self.identity = identity
         self.resource_group = resource_group
+        self.key_vault = key_vault
         self.team_cloud_id = team_cloud_id
         self.users = users
         self.tags = tags

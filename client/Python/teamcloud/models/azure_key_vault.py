@@ -12,25 +12,25 @@
 from msrest.serialization import Model
 
 
-class AzureIdentity(Model):
-    """AzureIdentity.
+class AzureKeyVault(Model):
+    """AzureKeyVault.
 
-    :param id:
-    :type id: str
-    :param app_id:
-    :type app_id: str
-    :param secret:
-    :type secret: str
+    :param vault_id:
+    :type vault_id: str
+    :param vault_name:
+    :type vault_name: str
+    :param vault_url:
+    :type vault_url: str
     """
 
     _attribute_map = {
-        'id': {'key': 'id', 'type': 'str'},
-        'app_id': {'key': 'appId', 'type': 'str'},
-        'secret': {'key': 'secret', 'type': 'str'},
+        'vault_id': {'key': 'vaultId', 'type': 'str'},
+        'vault_name': {'key': 'vaultName', 'type': 'str'},
+        'vault_url': {'key': 'vaultUrl', 'type': 'str'},
     }
 
     def __init__(self, **kwargs):
-        super(AzureIdentity, self).__init__(**kwargs)
-        self.id = kwargs.get('id', None)
-        self.app_id = kwargs.get('app_id', None)
-        self.secret = kwargs.get('secret', None)
+        super(AzureKeyVault, self).__init__(**kwargs)
+        self.vault_id = kwargs.get('vault_id', None)
+        self.vault_name = kwargs.get('vault_name', None)
+        self.vault_url = kwargs.get('vault_url', None)
