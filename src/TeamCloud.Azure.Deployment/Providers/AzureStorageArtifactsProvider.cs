@@ -14,7 +14,7 @@ using Microsoft.WindowsAzure.Storage.Blob;
 
 namespace TeamCloud.Azure.Deployment.Providers
 {
-    public class AzureStorageArtifactsProvider : IAzureDeploymentArtifactsProvider
+    public class AzureStorageArtifactsProvider : AzureDeploymentArtifactsProvider
     {
         private const string DEPLOYMENT_CONTAINER_NAME = "deployments";
 
@@ -32,7 +32,7 @@ namespace TeamCloud.Azure.Deployment.Providers
                 .CreateCloudBlobClient().GetContainerReference(DEPLOYMENT_CONTAINER_NAME));
         }
 
-        public async Task<IAzureDeploymentArtifactsContainer> UploadArtifactsAsync(Guid deploymentId, AzureDeploymentTemplate azureDeploymentTemplate)
+        public override async Task<IAzureDeploymentArtifactsContainer> UploadArtifactsAsync(Guid deploymentId, AzureDeploymentTemplate azureDeploymentTemplate)
         {
             if (azureDeploymentTemplate is null)
                 throw new ArgumentNullException(nameof(azureDeploymentTemplate));
@@ -101,7 +101,7 @@ namespace TeamCloud.Azure.Deployment.Providers
             return deploymentContainer.Value.GetSharedAccessSignature(adHocPolicy, null);
         }
 
-        public async Task<string> DownloadArtifactAsync(Guid deploymentId, string artifactName)
+        public override async Task<string> DownloadArtifactAsync(Guid deploymentId, string artifactName)
         {
             if (!deploymentContainer.IsValueCreated)
                 await deploymentContainer.Value.CreateIfNotExistsAsync().ConfigureAwait(false);

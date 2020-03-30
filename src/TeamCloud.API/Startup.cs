@@ -125,6 +125,9 @@ namespace TeamCloud.API
             ConfigureAuthorization(services);
 
             services
+                .AddApplicationInsightsTelemetry();
+
+            services
                 .AddMvc(options =>
                 {
                     options.InputFormatters.Add(new YamlInputFormatter(new DeserializerBuilder().WithNamingConvention(CamelCaseNamingConvention.Instance).Build()));

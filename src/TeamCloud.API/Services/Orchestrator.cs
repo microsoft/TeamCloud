@@ -51,18 +51,34 @@ namespace TeamCloud.API.Services
             {
                 commandResult.Links.Add("location", new Uri(baseUrl, "api/config").ToString());
             }
-            else if (commandResult is ICommandResult<User> commandResultUserWithProject && projectId.HasValue)
+            else if (IsDeleteCommandResult(commandResult))
             {
-                commandResult.Links.Add("location", new Uri(baseUrl, $"api/projects/{projectId}/users/{commandResultUserWithProject.Result?.Id}").ToString());
+                return;
             }
-            else if (commandResult is ICommandResult<User> commandResultUserWithoutProject)
+            else if (commandResult is ICommandResult<User> userCommandResult)
             {
-                commandResult.Links.Add("location", new Uri(baseUrl, $"api/users/{commandResultUserWithoutProject.Result?.Id}").ToString());
+                if (userCommandResult.Result is null)
+                    return;
+
+                if (projectId.HasValue)
+                {
+                    commandResult.Links.Add("location", new Uri(baseUrl, $"api/projects/{projectId}/users/{userCommandResult.Result.Id}").ToString());
+                }
+                else
+                {
+                    commandResult.Links.Add("location", new Uri(baseUrl, $"api/users/{userCommandResult.Result.Id}").ToString());
+                }
             }
             else if (projectId.HasValue)
             {
                 commandResult.Links.Add("location", new Uri(baseUrl, "api/projects/{projectId}").ToString());
             }
+
+            static bool IsDeleteCommandResult(ICommandResult result)
+                => result is OrchestratorProjectDeleteCommandResult
+                || result is OrchestratorProjectUserDeleteCommandResult
+                || result is OrchestratorProviderDeleteCommandResult
+                || result is OrchestratorTeamCloudUserDeleteCommandResult;                
         }
 
         public async Task<ICommandResult> QueryAsync(Guid commandId, Guid? projectId)
