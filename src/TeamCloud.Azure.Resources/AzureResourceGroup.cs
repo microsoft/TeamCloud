@@ -97,14 +97,27 @@ namespace TeamCloud.Azure.Resources
             }
         }
 
-        public IAsyncEnumerable<AzureResource> GetResourcesAsync(string resourceType = null, string resourceTagName = null, string resourceTagValue = null)
-        {
-            var resourceQuery = new ODataQuery<GenericResourceFilter>(resourceFilter =>
-                FilterByResourceType(resourceFilter, resourceType) &&
-                FilterByResourceTags(resourceFilter, resourceTagName, resourceTagValue));
+        public IAsyncEnumerable<AzureResource> GetResourcesAsync()
+            => GetResourcesAsync(default(ODataQuery<GenericResourceFilter>));
 
-            return GetResourcesAsync(resourceQuery);
+        public IAsyncEnumerable<AzureResource> GetResourcesByTypeAsync(string resourceType)
+        {
+            if (string.IsNullOrWhiteSpace(resourceType))
+                throw new ArgumentException($"Resource type must not NULL or WHITESPACE", nameof(resourceType));
+
+            return GetResourcesAsync(new ODataQuery<GenericResourceFilter>(resourceFilter => resourceFilter.ResourceType == resourceType));
         }
+
+        public IAsyncEnumerable<AzureResource> GetResourcesByTagAsync(string tagName, string tagValue = default)
+        {
+            if (string.IsNullOrWhiteSpace(tagName))
+                throw new ArgumentException("Tag name must not NULL or WHITESPACE", nameof(tagName));
+
+            return string.IsNullOrWhiteSpace(tagValue)
+                ? GetResourcesAsync(new ODataQuery<GenericResourceFilter>(resourceFilter => resourceFilter.Tagname == tagName))
+                : GetResourcesAsync(new ODataQuery<GenericResourceFilter>(resourceFilter => resourceFilter.Tagname == tagName && resourceFilter.Tagvalue == tagValue));
+        }
+
 
         private async IAsyncEnumerable<AzureResource> GetResourcesAsync(ODataQuery<GenericResourceFilter> resourceQuery = null)
         {
@@ -129,12 +142,6 @@ namespace TeamCloud.Azure.Resources
                     yield return resourceGeneric;
             }
         }
-
-        private static bool FilterByResourceType(GenericResourceFilter resourceFilter, string resourceType)
-            => string.IsNullOrEmpty(resourceType) || resourceFilter.ResourceType.Equals(resourceType, StringComparison.OrdinalIgnoreCase);
-
-        private static bool FilterByResourceTags(GenericResourceFilter resourceFilter, string tagName, string tagValue)
-            => resourceFilter.Tagname.Equals(tagName, StringComparison.OrdinalIgnoreCase) && (tagValue is null || resourceFilter.Tagvalue.Equals(tagValue, StringComparison.OrdinalIgnoreCase));
 
         private async Task<IEnumerable<string>> GetLocksInternalAsync()
         {
