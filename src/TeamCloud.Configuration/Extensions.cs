@@ -26,11 +26,10 @@ namespace TeamCloud.Configuration
             if (configurationBuilder is null)
                 throw new ArgumentNullException(nameof(configurationBuilder));
 
-            if (string.IsNullOrEmpty(connectionString))
-                connectionString = configurationBuilder.Build().GetConnectionString("ConfigurationService");
+            connectionString ??= configurationBuilder.Build().GetConnectionString("ConfigurationService");
 
-            if (string.IsNullOrEmpty(connectionString))
-                throw new InvalidOperationException("Unable to add configuration service without connection string ('ConfigurationService')");
+            if (string.IsNullOrWhiteSpace(connectionString))
+                return configurationBuilder;
 
             var connectionStringExpanded = Environment.ExpandEnvironmentVariables(connectionString);
 
