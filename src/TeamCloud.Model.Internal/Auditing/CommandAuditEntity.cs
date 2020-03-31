@@ -13,7 +13,7 @@ namespace TeamCloud.Model.Auditing
     public sealed class CommandAuditEntity : TableEntityBase
     {
         [IgnoreProperty]
-        public string InstanceId
+        public string ProviderId
         {
             get => this.TableEntity.RowKey;
             set => this.TableEntity.RowKey = value;
@@ -26,9 +26,9 @@ namespace TeamCloud.Model.Auditing
             set => this.TableEntity.PartitionKey = value;
         }
 
-        public string Provider { get; set; }
         public string Command { get; set; }
         public string Project { get; set; }
+        public string ProjectId { get; set; }
         public CommandRuntimeStatus Status { get; set; } = CommandRuntimeStatus.Unknown;
         public DateTime? Created { get; set; }
         public DateTime? Sent { get; set; }

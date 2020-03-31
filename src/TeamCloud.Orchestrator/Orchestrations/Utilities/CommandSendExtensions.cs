@@ -37,6 +37,12 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                 .CallSubOrchestratorWithRetryAsync<ICommandResult>(nameof(CommandSendOrchestration), (command, provider))
                 .ConfigureAwait(true);
 
+            if (providerResult is null)
+            {
+                providerResult = (TCommandResult)command.CreateResult();
+                providerResult.Errors.Add(new NullReferenceException($"Provider '{provider.Id}' returned no result for command '{command.CommandId}'"));
+            }
+
             return providerResult;
         }
 
@@ -63,6 +69,10 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 
             var providerBatches = await functionContext
                 .CallActivityWithRetryAsync<IEnumerable<IEnumerable<Provider>>>(nameof(CommandProviderActivity), project)
+                .ConfigureAwait(true);
+
+            await functionContext
+                .AuditAsync(providerBatches.SelectMany(batch => batch), command)
                 .ConfigureAwait(true);
 
             var commandResults = Enumerable.Empty<KeyValuePair<string, TCommandResult>>();

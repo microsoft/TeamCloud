@@ -31,15 +31,15 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
             if (commandTable is null)
                 throw new ArgumentNullException(nameof(commandTable));
 
-            var (instanceId, provider, command, commandResult) =
-                functionContext.GetInput<(string, Provider, ICommand, ICommandResult)>();
+            var (provider, command, commandResult) =
+                functionContext.GetInput<(Provider, ICommand, ICommandResult)>();
 
             try
             {
                 var entity = new CommandAuditEntity()
                 {
-                    InstanceId = instanceId,
-                    CommandId = command.CommandId.ToString()
+                    CommandId = command.CommandId.ToString(),
+                    ProviderId = provider.Id
                 };
 
                 var entityResult = await commandTable
@@ -66,9 +66,9 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
         {
             var timestamp = DateTime.UtcNow;
 
-            entity.Provider = provider.Id;
             entity.Command = command.GetType().Name;
-            entity.Project ??= command.ProjectId?.ToString();
+            entity.ProjectId ??= command.ProjectId?.ToString();
+            entity.Project ??= command.Payload is Project project ? project.Name : null;
             entity.Created ??= timestamp;
 
             if (commandResult != null)
