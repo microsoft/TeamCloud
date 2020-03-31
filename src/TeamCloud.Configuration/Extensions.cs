@@ -26,7 +26,8 @@ namespace TeamCloud.Configuration
             if (configurationBuilder is null)
                 throw new ArgumentNullException(nameof(configurationBuilder));
 
-            connectionString ??= configurationBuilder.Build().GetConnectionString("ConfigurationService");
+            connectionString ??= configurationBuilder.Build()
+                .GetConnectionString("ConfigurationService");
 
             if (string.IsNullOrWhiteSpace(connectionString))
                 return configurationBuilder;
