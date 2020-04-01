@@ -1535,59 +1535,12 @@ class TeamCloudClient(SDKClient):
         return deserialized
     get_project_status.metadata = {'url': '/api/projects/{projectId}/status/{trackingId}'}
 
-    def get_team_cloud_configuration(
-            self, custom_headers=None, raw=False, **operation_config):
-        """Gets the TeamCloud instance's TeamCloudConfiguration.
-
-        :param dict custom_headers: headers that will be added to the request
-        :param bool raw: returns the direct response alongside the
-         deserialized response
-        :param operation_config: :ref:`Operation configuration
-         overrides<msrest:optionsforoperations>`.
-        :return: object or ClientRawResponse if raw=true
-        :rtype: object or ~msrest.pipeline.ClientRawResponse
-        :raises:
-         :class:`HttpOperationError<msrest.exceptions.HttpOperationError>`
-        """
-        # Construct URL
-        url = self.get_team_cloud_configuration.metadata['url']
-
-        # Construct parameters
-        query_parameters = {}
-
-        # Construct headers
-        header_parameters = {}
-        header_parameters['Accept'] = 'application/json'
-        if custom_headers:
-            header_parameters.update(custom_headers)
-
-        # Construct and send request
-        request = self._client.get(url, query_parameters, header_parameters)
-        response = self._client.send(request, stream=False, **operation_config)
-
-        if response.status_code not in [200, 401, 403, 404]:
-            raise HttpOperationError(self._deserialize, response)
-
-        deserialized = None
-
-        if response.status_code == 200:
-            deserialized = self._deserialize('StatusResult', response)
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', response)
-
-        if raw:
-            client_raw_response = ClientRawResponse(deserialized, response)
-            return client_raw_response
-
-        return deserialized
-    get_team_cloud_configuration.metadata = {'url': '/api/config'}
-
-    def post_team_cloud_configuration(
+    def create_team_cloud_admin_user(
             self, body=None, custom_headers=None, raw=False, **operation_config):
-        """Configures the TeamCloud instance.
+        """Creates a new TeamCloud User as an Admin.
 
         :param body:
-        :type body: ~teamcloud.models.TeamCloudConfiguration
+        :type body: ~teamcloud.models.UserDefinition
         :param dict custom_headers: headers that will be added to the request
         :param bool raw: returns the direct response alongside the
          deserialized response
@@ -1599,7 +1552,7 @@ class TeamCloudClient(SDKClient):
          :class:`HttpOperationError<msrest.exceptions.HttpOperationError>`
         """
         # Construct URL
-        url = self.post_team_cloud_configuration.metadata['url']
+        url = self.create_team_cloud_admin_user.metadata['url']
 
         # Construct parameters
         query_parameters = {}
@@ -1607,13 +1560,13 @@ class TeamCloudClient(SDKClient):
         # Construct headers
         header_parameters = {}
         header_parameters['Accept'] = 'application/json'
-        header_parameters['Content-Type'] = 'application/x-yaml'
+        header_parameters['Content-Type'] = 'application/json; charset=utf-8'
         if custom_headers:
             header_parameters.update(custom_headers)
 
         # Construct body
         if body is not None:
-            body_content = self._serialize.body(body, 'TeamCloudConfiguration')
+            body_content = self._serialize.body(body, 'UserDefinition')
         else:
             body_content = None
 
@@ -1621,7 +1574,7 @@ class TeamCloudClient(SDKClient):
         request = self._client.post(url, query_parameters, header_parameters, body_content)
         response = self._client.send(request, stream=False, **operation_config)
 
-        if response.status_code not in [202, 400, 401, 403, 409]:
+        if response.status_code not in [202, 400, 401, 403, 404, 409]:
             raise HttpOperationError(self._deserialize, response)
 
         deserialized = None
@@ -1629,6 +1582,8 @@ class TeamCloudClient(SDKClient):
         if response.status_code == 202:
             deserialized = self._deserialize('StatusResult', response)
         if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', response)
+        if response.status_code == 404:
             deserialized = self._deserialize('ErrorResult', response)
         if response.status_code == 409:
             deserialized = self._deserialize('ErrorResult', response)
@@ -1638,7 +1593,7 @@ class TeamCloudClient(SDKClient):
             return client_raw_response
 
         return deserialized
-    post_team_cloud_configuration.metadata = {'url': '/api/config'}
+    create_team_cloud_admin_user.metadata = {'url': '/api/admin/users'}
 
     def get_team_cloud_tags(
             self, custom_headers=None, raw=False, **operation_config):

@@ -49,17 +49,6 @@ namespace TeamCloud.Orchestrator
                 .ReadAsJsonAsync<IOrchestratorCommand>()
                 .ConfigureAwait(false);
 
-            if (orchestratorCommand is OrchestratorTeamCloudCreateCommand)
-            {
-                if (teamCloud != null)
-                    return new ConflictResult();
-            }
-            else
-            {
-                if (teamCloud is null)
-                    return new StatusCodeResult((int)HttpStatusCode.ServiceUnavailable);
-            }
-
             var commandResult = await StartCommandOrchestration(durableClient, orchestratorCommand)
                 .ConfigureAwait(false);
 
@@ -95,7 +84,5 @@ namespace TeamCloud.Orchestrator
 
             return orchestratorCommandResult;
         }
-
-
     }
 }

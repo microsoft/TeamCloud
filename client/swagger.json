@@ -1628,79 +1628,37 @@
         ]
       }
     },
-    "/api/config": {
-      "get": {
-        "tags": [
-          "TeamCloud"
-        ],
-        "summary": "Gets the TeamCloud instance's TeamCloudConfiguration.",
-        "operationId": "GetTeamCloudConfiguration",
-        "responses": {
-          "200": {
-            "description": "Returns the TeamCloud instance's TeamCloudConfiguration.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StatusResult"
-                }
-              },
-              "application/x-yaml": {
-                "schema": {
-                  "$ref": "#/components/schemas/StatusResult"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "The TeamCloud instance was not found.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResult"
-                }
-              },
-              "application/x-yaml": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResult"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "admin"
-            ]
-          }
-        ]
-      },
+    "/api/admin/users": {
       "post": {
         "tags": [
-          "TeamCloud"
+          "TeamCloudAdmin"
         ],
-        "summary": "Configures the TeamCloud instance.",
-        "operationId": "PostTeamCloudConfiguration",
+        "summary": "Creates a new TeamCloud User as an Admin.",
+        "operationId": "CreateTeamCloudAdminUser",
         "requestBody": {
           "content": {
-            "application/x-yaml": {
+            "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/TeamCloudConfiguration"
+                "$ref": "#/components/schemas/UserDefinition"
               }
             }
           }
         },
         "responses": {
           "202": {
-            "description": "Starts configuring the new TeamCloud instance. Returns a StatusResult object that can be used to track progress of the long-running operation.",
+            "description": "Starts creating the new TeamCloud User as an Admin. Returns a StatusResult object that can be used to track progress of the long-running operation.",
             "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResult"
+                }
+              },
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResult"
+                }
+              },
+              "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/StatusResult"
                 }
@@ -1708,9 +1666,39 @@
             }
           },
           "400": {
-            "description": "The teamCloudConfiguraiton provided in the request body did not pass validation.",
+            "description": "The User provided in the request body did not pass validation.",
             "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              },
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The TeamCloud instance was not found, or a User with the email address provided in the request body was not found.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              },
+              "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResult"
                 }
@@ -1718,9 +1706,19 @@
             }
           },
           "409": {
-            "description": "The TeamCloud instance is already configured.",
+            "description": "A TeamCloud User already exists with the email address provided in the request body.",
             "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              },
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              },
+              "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResult"
                 }
@@ -1737,7 +1735,7 @@
         "security": [
           {
             "oauth2": [
-              "admin"
+              "default"
             ]
           }
         ]
@@ -2959,6 +2957,14 @@
             "type": "string",
             "format": "date-time",
             "nullable": true
+          },
+          "commandMode": {
+            "enum": [
+              0,
+              1
+            ],
+            "type": "integer",
+            "format": "int32"
           }
         },
         "additionalProperties": false
@@ -3011,47 +3017,6 @@
           },
           "location": {
             "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "TeamCloudConfiguration": {
-        "type": "object",
-        "properties": {
-          "projectTypes": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProjectType"
-            },
-            "nullable": true
-          },
-          "providers": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Provider"
-            },
-            "nullable": true
-          },
-          "users": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/User"
-            },
-            "nullable": true
-          },
-          "tags": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "string"
-            },
-            "nullable": true
-          },
-          "properties": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "string"
-            },
             "nullable": true
           }
         },

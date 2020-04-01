@@ -29,6 +29,8 @@ class ProviderDataResultData(Provider):
     :type properties: dict[str, str]
     :param registered:
     :type registered: datetime
+    :param command_mode:
+    :type command_mode: int
     """
 
     _attribute_map = {
@@ -39,7 +41,8 @@ class ProviderDataResultData(Provider):
         'events': {'key': 'events', 'type': '[str]'},
         'properties': {'key': 'properties', 'type': '{str}'},
         'registered': {'key': 'registered', 'type': 'iso-8601'},
+        'command_mode': {'key': 'commandMode', 'type': 'int'},
     }
 
-    def __init__(self, *, id: str=None, url: str=None, auth_code: str=None, principal_id: str=None, events=None, properties=None, registered=None, **kwargs) -> None:
-        super(ProviderDataResultData, self).__init__(id=id, url=url, auth_code=auth_code, principal_id=principal_id, events=events, properties=properties, registered=registered, **kwargs)
+    def __init__(self, *, id: str=None, url: str=None, auth_code: str=None, principal_id: str=None, events=None, properties=None, registered=None, command_mode: int=None, **kwargs) -> None:
+        super(ProviderDataResultData, self).__init__(id=id, url=url, auth_code=auth_code, principal_id=principal_id, events=events, properties=properties, registered=registered, command_mode=command_mode, **kwargs)

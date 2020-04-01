@@ -32,7 +32,8 @@ namespace TeamCloud.Data.CosmosDb
             }
             catch (CosmosException exc) when (exc.StatusCode == HttpStatusCode.NotFound)
             {
-                return null;
+                return await SetAsync(new TeamCloudInstance())
+                    .ConfigureAwait(false);
             }
         }
 
@@ -47,8 +48,5 @@ namespace TeamCloud.Data.CosmosDb
 
             return response.Value;
         }
-
-        public Task<bool> ExistsAsync()
-            => GetAsync().ContinueWith(task => !(task.Result is null), TaskScheduler.Current);
     }
 }

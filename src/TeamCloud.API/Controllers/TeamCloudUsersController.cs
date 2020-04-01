@@ -169,7 +169,7 @@ namespace TeamCloud.API
                     .Accepted(commandResult.CommandId.ToString(), statusUrl, commandResult.RuntimeStatus.ToString(), commandResult.CustomStatus)
                     .ActionResult();
 
-            throw new Exception("This shoudn't happen, but we need to decide to do when it does.");
+            throw new Exception("This shouldn't happen, but we need to decide to do when it does.");
         }
 
 
@@ -205,6 +205,11 @@ namespace TeamCloud.API
                     .NotFound($"A User with the ID '{oldUser.Id}' could not be found on this TeamCloud Instance.")
                     .ActionResult();
 
+            if (oldUser.IsAdmin() && !user.IsAdmin() && teamCloudInstance.Users.Count(u => u.IsAdmin()) == 1)
+                return ErrorResult
+                    .BadRequest($"The TeamCloud instance must have at least one Admin user. To change this user's role you must first add another Admin user.", ResultErrorCode.ValidationError)
+                    .ActionResult();
+
             var command = new OrchestratorTeamCloudUserUpdateCommand(CurrentUser, user);
 
             var commandResult = await orchestrator
@@ -216,7 +221,7 @@ namespace TeamCloud.API
                     .Accepted(commandResult.CommandId.ToString(), statusUrl, commandResult.RuntimeStatus.ToString(), commandResult.CustomStatus)
                     .ActionResult();
 
-            throw new Exception("This shoudn't happen, but we need to decide to do when it does.");
+            throw new Exception("This shouldn't happen, but we need to decide to do when it does.");
         }
 
 
@@ -262,6 +267,11 @@ namespace TeamCloud.API
                     .NotFound($"The specified User could not be found in this TeamCloud Instance.")
                     .ActionResult();
 
+            if (user.IsAdmin() && teamCloudInstance.Users.Count(u => u.IsAdmin()) == 1)
+                return ErrorResult
+                    .BadRequest($"The TeamCloud instance must have at least one Admin user. To delete this user you must first add another Admin user.", ResultErrorCode.ValidationError)
+                    .ActionResult();
+
             var command = new OrchestratorTeamCloudUserDeleteCommand(CurrentUser, user);
 
             var commandResult = await orchestrator
@@ -273,7 +283,7 @@ namespace TeamCloud.API
                     .Accepted(commandResult.CommandId.ToString(), statusUrl, commandResult.RuntimeStatus.ToString(), commandResult.CustomStatus)
                     .ActionResult();
 
-            throw new Exception("This shoudn't happen, but we need to decide to do when it does.");
+            throw new Exception("This shouldn't happen, but we need to decide to do when it does.");
         }
     }
 }
