@@ -195,7 +195,7 @@ namespace TeamCloud.API.Controllers
                     .Accepted(commandResult.CommandId.ToString(), statusUrl, commandResult.RuntimeStatus.ToString(), commandResult.CustomStatus)
                     .ActionResult();
 
-            throw new Exception("This shoudn't happen, but we need to decide to do when it does.");
+            throw new Exception("This shouldn't happen, but we need to decide to do when it does.");
         }
 
 
@@ -237,6 +237,11 @@ namespace TeamCloud.API.Controllers
                     .NotFound($"A User with the ID '{oldUser.Id}' could not be found on this Project.")
                     .ActionResult();
 
+            if (oldUser.IsOwner() && !user.IsOwner() && project.Users.Count(u => u.IsOwner()) == 1)
+                return ErrorResult
+                    .BadRequest($"Projects must have at least one Owner. To change this user's role you must first add another Owner.", ResultErrorCode.ValidationError)
+                    .ActionResult();
+
             var command = new OrchestratorProjectUserUpdateCommand(CurrentUser, user, ProjectId.Value);
 
             var commandResult = await orchestrator
@@ -248,7 +253,7 @@ namespace TeamCloud.API.Controllers
                     .Accepted(commandResult.CommandId.ToString(), statusUrl, commandResult.RuntimeStatus.ToString(), commandResult.CustomStatus)
                     .ActionResult();
 
-            throw new Exception("This shoudn't happen, but we need to decide to do when it does.");
+            throw new Exception("This shouldn't happen, but we need to decide to do when it does.");
         }
 
 
@@ -301,6 +306,11 @@ namespace TeamCloud.API.Controllers
                     .NotFound($"The specified User could not be found in this Project.")
                     .ActionResult();
 
+            if (user.IsOwner() && project.Users.Count(u => u.IsOwner()) == 1)
+                return ErrorResult
+                    .BadRequest($"Projects must have at least one Owner. To delete this user you must first add another Owner.", ResultErrorCode.ValidationError)
+                    .ActionResult();
+
             var command = new OrchestratorProjectUserDeleteCommand(CurrentUser, user, ProjectId.Value);
 
             var commandResult = await orchestrator
@@ -312,7 +322,7 @@ namespace TeamCloud.API.Controllers
                     .Accepted(commandResult.CommandId.ToString(), statusUrl, commandResult.RuntimeStatus.ToString(), commandResult.CustomStatus)
                     .ActionResult();
 
-            throw new Exception("This shoudn't happen, but we need to decide to do when it does.");
+            throw new Exception("This shouldn't happen, but we need to decide to do when it does.");
         }
     }
 }

@@ -168,7 +168,7 @@ namespace TeamCloud.API.Controllers
             //         .Accepted(commandResult.CommandId.ToString(), statusUrl, commandResult.RuntimeStatus.ToString(), commandResult.CustomStatus)
             //         .ActionResult();
 
-            throw new Exception("This shoudn't happen, but we need to decide to do when it does.");
+            throw new Exception("This shouldn't happen, but we need to decide to do when it does.");
         }
 
 
@@ -222,7 +222,7 @@ namespace TeamCloud.API.Controllers
             //         .Accepted(commandResult.CommandId.ToString(), statusUrl, commandResult.RuntimeStatus.ToString(), commandResult.CustomStatus)
             //         .ActionResult();
 
-            throw new Exception("This shoudn't happen, but we need to decide to do when it does.");
+            throw new Exception("This shouldn't happen, but we need to decide to do when it does.");
         }
 
 
@@ -270,7 +270,7 @@ namespace TeamCloud.API.Controllers
             //         .Accepted(commandResult.CommandId.ToString(), statusUrl, commandResult.RuntimeStatus.ToString(), commandResult.CustomStatus)
             //         .ActionResult();
 
-            throw new Exception("This shoudn't happen, but we need to decide to do when it does.");
+            throw new Exception("This shouldn't happen, but we need to decide to do when it does.");
         }
     }
 }

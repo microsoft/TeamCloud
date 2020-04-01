@@ -10,12 +10,14 @@ using Microsoft.AspNetCore.Http;
 using TeamCloud.API.Data;
 using TeamCloud.Data;
 using Newtonsoft.Json;
+using System.Linq;
+using TeamCloud.Model.Data;
 
 namespace TeamCloud.API.Middleware
 {
     public class EnsureTeamCloudUserMiddleware : IMiddleware
     {
-        private static bool Configured = false;
+        private static bool HasAdmin = false;
 
         readonly ITeamCloudRepositoryReadOnly teamCloudRepository;
 
@@ -32,32 +34,41 @@ namespace TeamCloud.API.Middleware
             if (next is null)
                 throw new ArgumentNullException(nameof(next));
 
-            // teamcloud needs a configuration in place to work properly.
-            // to avoid calls that will fail because of a missing configuration
+            // teamcloud needs a at least one admin user to work properly.
+            // to avoid calls that will fail because of a missing user
             // we will check its existance in this middleware and block
-            // calls until a configuration is in place.
+            // calls until an admin user is in place.
 
-            // as we don't support to delete a configuration we can
-            // keep the configured state once it was evaluated as true
-            // to avoid unnecessary request to the configuration repository
-            // for further requests.
+            // as we ensure there is at least one admin user in the delete
+            // and update apis we can keep the hasadmin state once it is
+            // evaluated to true to avoid unnecessary request to the
+            // teamcloud repository in the future.
 
-            Configured = Configured || await teamCloudRepository.ExistsAsync().ConfigureAwait(false);
+            HasAdmin = HasAdmin || await AdminExistsAsync().ConfigureAwait(false);
 
-            if (Configured)
+            if (HasAdmin)
             {
                 await next(context).ConfigureAwait(false);
             }
             else
             {
-                context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
 
-                var error = ErrorResult.BadRequest("Must POST an admin User to api/users before calling any other APIs.", ResultErrorCode.NotFound);
+                var error = ErrorResult.BadRequest("Must POST an Admin user to api/admin/users before calling any other APIs.", ResultErrorCode.ValidationError);
                 var errorJson = JsonConvert.SerializeObject(error);
 
                 await context.Response
                     .WriteAsync(errorJson)
                     .ConfigureAwait(false);
+            }
+
+            async Task<bool> AdminExistsAsync()
+            {
+                var teamCloudInstance = await teamCloudRepository
+                    .GetAsync()
+                    .ConfigureAwait(false);
+
+                return teamCloudInstance.Users?.Any(u => u.IsAdmin()) ?? false;
             }
         }
     }

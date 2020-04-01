@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using FluentValidation;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using TeamCloud.Model.Data;
 using TeamCloud.Model.Validation;
 
 namespace TeamCloud.API.Data
@@ -28,5 +29,21 @@ namespace TeamCloud.API.Data
             RuleFor(obj => obj.Email).MustBeEmail();
             RuleFor(obj => obj.Role).MustBeUserRole();
         }
+    }
+
+    public sealed class UserDefinitionAdminValidator : AbstractValidator<UserDefinition>
+    {
+        public UserDefinitionAdminValidator()
+        {
+            RuleFor(obj => obj.Email).MustBeEmail();
+            RuleFor(obj => obj.Role)
+                .Cascade(CascadeMode.StopOnFirstFailure)
+                .NotEmpty()
+                .Must(BeAdminUserRole)
+                .WithMessage("'{PropertyName}' must be Admin.");
+        }
+
+        private static bool BeAdminUserRole(string role)
+            => !string.IsNullOrEmpty(role) && role.ToUpperInvariant() == UserRoles.TeamCloud.Admin.ToUpperInvariant();
     }
 }
