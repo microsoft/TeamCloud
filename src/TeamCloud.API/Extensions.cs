@@ -14,8 +14,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using TeamCloud.Model.Commands;
+using TeamCloud.Model.Data;
 using TeamCloud.Model.Commands.Core;
+using TeamCloud.API.Data;
 
 namespace TeamCloud.API
 {
@@ -82,5 +83,17 @@ namespace TeamCloud.API
             => !result.RuntimeStatus.IsFinal() && result.Links.TryGetValue("status", out var statusUrl)
                ? new AcceptedResult(statusUrl, result)
                : new OkObjectResult(result) as IActionResult;
+
+        public static bool IsAdmin(this User user)
+            => !string.IsNullOrEmpty(user.Role) && user.Role.ToUpperInvariant() == UserRoles.TeamCloud.Admin.ToUpperInvariant();
+
+        public static bool IsOwner(this User user)
+            => !string.IsNullOrEmpty(user.Role) && user.Role.ToUpperInvariant() == UserRoles.Project.Owner.ToUpperInvariant();
+
+        public static bool IsAdmin(this UserDefinition user)
+            => !string.IsNullOrEmpty(user.Role) && user.Role.ToUpperInvariant() == UserRoles.TeamCloud.Admin.ToUpperInvariant();
+
+        public static bool IsOwner(this UserDefinition user)
+            => !string.IsNullOrEmpty(user.Role) && user.Role.ToUpperInvariant() == UserRoles.Project.Owner.ToUpperInvariant();
     }
 }

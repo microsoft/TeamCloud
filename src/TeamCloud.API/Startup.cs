@@ -66,10 +66,10 @@ namespace TeamCloud.API
                 app.UseHsts();
             }
 
-            app.UseWhen(context => !(context.Request.Path.StartsWithSegments("/api/users", StringComparison.OrdinalIgnoreCase)
-                                && HttpMethods.IsPost(context.Request.Method)), appBuilder =>
+            app.UseWhen(context => !(context.Request.Path.StartsWithSegments("/api/admin/users", StringComparison.OrdinalIgnoreCase)
+                                     && HttpMethods.IsPost(context.Request.Method)), appBuilder =>
             {
-                // ensure TeamCloud to be configured for all paths other than /api/users
+                // ensure TeamCloud to be configured for all paths other than /api/admin/users
                 appBuilder.UseMiddleware<EnsureTeamCloudUserMiddleware>();
             });
 
