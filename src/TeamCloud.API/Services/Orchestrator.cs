@@ -47,11 +47,7 @@ namespace TeamCloud.API.Services
                 commandResult.Links.Add("status", new Uri(baseUrl, $"api/status/{commandResult.CommandId}").ToString());
             }
 
-            if (commandResult is OrchestratorTeamCloudCreateCommandResult)
-            {
-                commandResult.Links.Add("location", new Uri(baseUrl, "api/config").ToString());
-            }
-            else if (IsDeleteCommandResult(commandResult))
+            if (IsDeleteCommandResult(commandResult))
             {
                 return;
             }

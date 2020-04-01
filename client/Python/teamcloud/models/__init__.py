@@ -10,6 +10,7 @@
 # --------------------------------------------------------------------------
 
 try:
+    from .project_key_vault_py3 import ProjectKeyVault
     from .provider_reference_py3 import ProviderReference
     from .project_type_py3 import ProjectType
     from .project_identity_py3 import ProjectIdentity
@@ -19,7 +20,6 @@ try:
     from .project_type_model_py3 import ProjectTypeModel
     from .project_identity_model_py3 import ProjectIdentityModel
     from .project_resource_group_py3 import ProjectResourceGroup
-    from .project_key_vault_py3 import ProjectKeyVault
     from .project_py3 import Project
     from .project_list_data_result_py3 import ProjectListDataResult
     from .user_definition_py3 import UserDefinition
@@ -41,8 +41,8 @@ try:
     from .provider_list_data_result_py3 import ProviderListDataResult
     from .provider_data_result_data_py3 import ProviderDataResultData
     from .provider_data_result_py3 import ProviderDataResult
-    from .team_cloud_configuration_py3 import TeamCloudConfiguration
 except (SyntaxError, ImportError):
+    from .project_key_vault import ProjectKeyVault
     from .provider_reference import ProviderReference
     from .project_type import ProjectType
     from .project_identity import ProjectIdentity
@@ -52,7 +52,6 @@ except (SyntaxError, ImportError):
     from .project_type_model import ProjectTypeModel
     from .project_identity_model import ProjectIdentityModel
     from .project_resource_group import ProjectResourceGroup
-    from .project_key_vault import ProjectKeyVault
     from .project import Project
     from .project_list_data_result import ProjectListDataResult
     from .user_definition import UserDefinition
@@ -74,9 +73,9 @@ except (SyntaxError, ImportError):
     from .provider_list_data_result import ProviderListDataResult
     from .provider_data_result_data import ProviderDataResultData
     from .provider_data_result import ProviderDataResult
-    from .team_cloud_configuration import TeamCloudConfiguration
 
 __all__ = [
+    'ProjectKeyVault',
     'ProviderReference',
     'ProjectType',
     'ProjectIdentity',
@@ -86,7 +85,6 @@ __all__ = [
     'ProjectTypeModel',
     'ProjectIdentityModel',
     'ProjectResourceGroup',
-    'ProjectKeyVault',
     'Project',
     'ProjectListDataResult',
     'UserDefinition',
@@ -108,5 +106,4 @@ __all__ = [
     'ProviderListDataResult',
     'ProviderDataResultData',
     'ProviderDataResult',
-    'TeamCloudConfiguration',
 ]
