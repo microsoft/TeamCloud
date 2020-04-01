@@ -46,6 +46,9 @@ namespace TeamCloud.Azure
         public static bool IsAzureEnvironment =>
             !string.IsNullOrEmpty(System.Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID"));
 
+        public static Task<string> AcquireTokenAsync(AzureEndpoint azureEndpoint = AzureEndpoint.ResourceManagerEndpoint, IAzureSessionOptions azureSessionOptions = null, IHttpClientFactory httpClientFactory = null)
+            => new AzureSessionService(azureSessionOptions, httpClientFactory).AcquireTokenAsync(azureEndpoint);
+
         private readonly Lazy<AzureCredentials> credentials;
         private readonly Lazy<AZFluent.Azure.IAuthenticated> session;
         private readonly IAzureSessionOptions azureSessionOptions;

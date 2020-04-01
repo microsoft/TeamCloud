@@ -32,7 +32,8 @@ namespace TeamCloud.Orchestrator
             if (!hostName.StartsWith("localhost", StringComparison.OrdinalIgnoreCase))
                 hostScheme += "s";
 
-            return $"{hostScheme}://{hostName}";
+            return $"{hostScheme}://localhost";
+            //return $"{hostScheme}://{hostName}";
         }
 
         private static async Task<string> GetCallbackToken(string instanceId)
@@ -83,6 +84,7 @@ namespace TeamCloud.Orchestrator
                 .AppendPathSegment("api/callback")
                 .AppendPathSegment(instanceId, true)
                 .AppendPathSegment(command.CommandId)
+                .SetQueryParam("code", functionKey)
                 .ToString();
         }
 
