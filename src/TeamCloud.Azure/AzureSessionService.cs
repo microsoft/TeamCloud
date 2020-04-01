@@ -154,6 +154,10 @@ namespace TeamCloud.Azure
                 }
                 else
                 {
+                    // ensure we disable SSL verfication for this process when using the Azure CLI to aqcuire MSI token.
+                    // otherwise our code will fail in dev scenarios where a dev proxy like fiddler is running to sniff
+                    // http traffix between our services or between service and other reset apis (e.g. Azure)
+
                     System.Environment.SetEnvironmentVariable("AZURE_CLI_DISABLE_CONNECTION_VERIFICATION", "1", EnvironmentVariableTarget.Process);
 
                     tokenProvider = new AzureServiceTokenProvider("RunAs=Developer;DeveloperTool=AzureCLI");
