@@ -205,6 +205,13 @@ namespace TeamCloud.API
                     .NotFound($"A User with the ID '{oldUser.Id}' could not be found on this TeamCloud Instance.")
                     .ActionResult();
 
+            if (oldUser.Role == UserRoles.TeamCloud.Admin
+                && user.Role != UserRoles.TeamCloud.Admin
+                && teamCloudInstance.Users.Count(u => u.Role == UserRoles.TeamCloud.Admin) == 1)
+                return ErrorResult
+                    .BadRequest($"The TeamCloud instance must have at least one Admin user. To change this user's role you must first add another Admin user.", ResultErrorCode.ValidationError)
+                    .ActionResult();
+
             var command = new OrchestratorTeamCloudUserUpdateCommand(CurrentUser, user);
 
             var commandResult = await orchestrator
@@ -260,6 +267,11 @@ namespace TeamCloud.API
             if (user is null)
                 return ErrorResult
                     .NotFound($"The specified User could not be found in this TeamCloud Instance.")
+                    .ActionResult();
+
+            if (user.Role == UserRoles.TeamCloud.Admin && teamCloudInstance.Users.Count(u => u.Role == UserRoles.TeamCloud.Admin) == 1)
+                return ErrorResult
+                    .BadRequest($"The TeamCloud instance must have at least one Admin user. To delete this user you must first add another Admin user.", ResultErrorCode.ValidationError)
                     .ActionResult();
 
             var command = new OrchestratorTeamCloudUserDeleteCommand(CurrentUser, user);

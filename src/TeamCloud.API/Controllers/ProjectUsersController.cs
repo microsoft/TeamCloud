@@ -237,6 +237,13 @@ namespace TeamCloud.API.Controllers
                     .NotFound($"A User with the ID '{oldUser.Id}' could not be found on this Project.")
                     .ActionResult();
 
+            if (oldUser.Role == UserRoles.Project.Owner
+                && user.Role != UserRoles.Project.Owner
+                && project.Users.Count(u => u.Role == UserRoles.Project.Owner) == 1)
+                return ErrorResult
+                    .BadRequest($"Projects must have at least one Owner. To change this user's role you must first add another Owner.", ResultErrorCode.ValidationError)
+                    .ActionResult();
+
             var command = new OrchestratorProjectUserUpdateCommand(CurrentUser, user, ProjectId.Value);
 
             var commandResult = await orchestrator
@@ -299,6 +306,12 @@ namespace TeamCloud.API.Controllers
             if (user is null)
                 return ErrorResult
                     .NotFound($"The specified User could not be found in this Project.")
+                    .ActionResult();
+
+            if (user.Role == UserRoles.Project.Owner
+                && project.Users.Count(u => u.Role == UserRoles.Project.Owner) == 1)
+                return ErrorResult
+                    .BadRequest($"Projects must have at least one Owner. To delete this user you must first add another Owner.", ResultErrorCode.ValidationError)
                     .ActionResult();
 
             var command = new OrchestratorProjectUserDeleteCommand(CurrentUser, user, ProjectId.Value);
