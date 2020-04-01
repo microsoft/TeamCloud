@@ -22,8 +22,6 @@ namespace TeamCloud.Model.Data
         [JsonIgnore]
         public IList<string> UniqueKeys => new List<string> { };
 
-        public AzureResourceGroup ResourceGroup { get; set; }
-
         public IList<User> Users { get; set; } = new List<User>();
 
         public IDictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();
@@ -31,19 +29,5 @@ namespace TeamCloud.Model.Data
         public IDictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
 
         public IList<Provider> Providers { get; set; } = new List<Provider>();
-
-        public TeamCloudInstance()
-        { }
-
-        public TeamCloudInstance(TeamCloudConfiguration config)
-        {
-            if (config is null)
-                throw new ArgumentNullException(nameof(config));
-
-            Users = config.Users;
-            Tags = config.Tags;
-            Properties = config.Properties;
-            Providers = config.Providers;
-        }
     }
 }

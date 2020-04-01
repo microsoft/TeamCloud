@@ -11,8 +11,6 @@ namespace TeamCloud.Data
     public interface ITeamCloudRepositoryReadOnly
     {
         Task<TeamCloudInstance> GetAsync();
-
-        Task<bool> ExistsAsync();
     }
 
     public interface ITeamCloudRepository : ITeamCloudRepositoryReadOnly
