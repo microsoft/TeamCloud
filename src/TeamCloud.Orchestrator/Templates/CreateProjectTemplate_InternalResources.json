@@ -56,38 +56,52 @@
       }
     },
     {
-      "name": "[concat(variables('vaultName'), '/add')]",
-      "type": "Microsoft.KeyVault/vaults/accessPolicies",
-      "apiVersion": "2018-02-14",
-      "location": "[resourceGroup().location]",
+      "name": "[concat(deployment().name, '-AP', copyIndex())]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2017-05-10",
       "dependsOn": [
         "[resourceId('Microsoft.KeyVault/vaults',variables('vaultName'))]"
       ],
       "properties": {
-        "accessPolicies": [
-          {
-            "tenantId": "[subscription().tenantId]",
-            "objectId": "[parameters('providerIdentities')[copyIndex()]]",
-            "permissions": {
-              "keys": [
-                "get",
-                "list"
-              ],
-              "secrets": [
-                "get",
-                "list"
-              ],
-              "certificates": [
-                "get",
-                "list"
-              ],
-              "storage": [
-                "get",
-                "list"
-              ]
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "resources": [
+            {
+              "name": "[concat(variables('vaultName'), '/add')]",
+              "type": "Microsoft.KeyVault/vaults/accessPolicies",
+              "apiVersion": "2018-02-14",
+              "location": "[resourceGroup().location]",
+              "properties": {
+                "accessPolicies": [
+                  {
+                    "tenantId": "[subscription().tenantId]",
+                    "objectId": "[parameters('providerIdentities')[copyIndex()]]",
+                    "permissions": {
+                      "keys": [
+                        "get",
+                        "list"
+                      ],
+                      "secrets": [
+                        "get",
+                        "list"
+                      ],
+                      "certificates": [
+                        "get",
+                        "list"
+                      ],
+                      "storage": [
+                        "get",
+                        "list"
+                      ]
+                    }
+                  }
+                ]
+              }
             }
-          }
-        ]
+          ]
+        }
       },
       "copy": {
         "name": "accessPoliciesCopy",

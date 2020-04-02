@@ -47,16 +47,13 @@ namespace TeamCloud.Orchestration
         }
 
         public static bool FunctionExists(string functionName)
-        {
-            try
-            {
-                return (GetFunctionMethod(functionName) != null);
-            }
-            catch (ArgumentOutOfRangeException)
-            {
-                return false;
-            }
-        }
+            => TryGetFunctionMethod(functionName, out var _);
+
+        public static bool IsAzureEnvironment
+            => !IsLocalEnvironment;
+
+        public static bool IsLocalEnvironment
+            => string.IsNullOrEmpty(System.Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID"));
 
         public static string HostUrl
         {
@@ -74,6 +71,9 @@ namespace TeamCloud.Orchestration
 
         private static async Task<JObject> GetKeyJsonAsync()
         {
+            if (IsLocalEnvironment)
+                return JObject.Parse("{}");
+
             var token = await AzureSessionService
                 .AcquireTokenAsync()
                 .ConfigureAwait(false);
@@ -103,6 +103,7 @@ namespace TeamCloud.Orchestration
 
         public static async Task<string> GetMasterKeyAsync()
         {
+
             var json = await GetKeyJsonAsync().ConfigureAwait(false);
 
             return json.SelectToken("$.masterKey")?.ToString();
