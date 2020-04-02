@@ -2,78 +2,102 @@
 
 ***\*This file is incomplete. It is a work in progress and will change.\****
 
-TeamCloud provides a user-facing REST API that enables TeamCloud admins to manage the TeamCloud instance, and application development teams to create and manage Projects.
+A TeamCloud instance exposes a user-facing REST API that enables application development teams to create and manage Projects, and TeamCloud admins to manage the TeamCloud instance itself.
 
-Organizations either use the [TeamCloud Client](Client.md) or integrate TeamCloud into existing workflows and tools by using the REST API directly.
+Organizations either use the [TeamCloud CLI](CLI.md) to interface with this REST API, or integrate TeamCloud into existing workflows and tools by using the REST API directly.
 
-This document will initially contain the high-level design for the TeamCloud API.  Documentation on using the API will be added in the future.
+Once deployed, TeamCloud instances provide an API explorer that can be found at **_`/swagger`_**.
 
-## TeamCloud Admin API
+Below is a summary of the REST API.
 
-### /config/
+## Projects
 
-- Must be a User on the TeamCloud instance with the Admin role to call the TeamCloud Config API.
+- **`GET` _`​/api​/projects`_**  Gets all Projects.
 
-##### GET
+- **`POST` _`​/api​/projects`_**  Creates a new Project.
 
-- Returns: The [teamcloud.yaml](TeamCloudYaml.md) configuration file currently used by the TeamCloud instance
-  
-##### POST
+- **`GET` _`​/api​/projects​/{projectNameOrId}`_**  Gets a Project by Name or ID.
 
-- Payload: An updated [teamcloud.yaml](TeamCloudYaml.md) configuration file to use by the TeamCloud instance
+- **`DELETE` _`​/api​/projects​/{projectNameOrId}`_**  Deletes a Project.
 
-### /users/
+## Project Users
 
-- Must be a User on the TeamCloud instance with the Admin role to call the TeamCloud Users API.
+- **`GET` _`​/api​/projects​/{projectId}​/users`_**  Gets all Users for a Project.
 
-##### GET
+- **`POST` _`​/api​/projects​/{projectId}​/users`_**  Creates a new Project User
 
-- Returns: An array of [User](architecture/models/User.md) objects representing the TeamCloud instance's TeamCloud Users
+- **`PUT` _`​/api​/projects​/{projectId}​/users`_**  Updates an existing Project User.
 
-##### POST
+- **`GET` _`​/api​/projects​/{projectId}​/users​/{userNameOrId}`_**  Gets a Project User by ID or email address.
 
-- Payload: An array of [UserDefinition](architecture/models/User.md#userdefinition) objects representing Users to add to the TeamCloud instance
+- **`DELETE` _`​/api​/projects​/{projectId}​/users​/{userNameOrId}`_**  Deletes an existing Project User.
 
-##### PUT
+## Project Tags
 
-- Payload: An array of [UserDefinition](architecture/models/User.md#userdefinition) objects representing updated or additional information for existing Users on the TeamCloud instance
+- **`GET` _`​/api​/projects​/{projectId}​/tags`_**  Gets all Tags for a Project.
 
-##### DELETE
+- **`POST` _`​/api​/projects​/{projectId}​/tags`_**  Creates a new Project Tag.
 
-- Payload: An array of strings representing the email addresses of Users to be removed from the TeamCloud instance
+- **`PUT` _`​/api​/projects​/{projectId}​/tags`_**  Updates an existing Project Tag.
 
-### /projects/
+- **`GET` _`​/api​/projects​/{projectId}​/tags​/{tagKey}`_**  Gets a Project Tag by Key.
 
-##### GET
+- **`DELETE` _`​/api​/projects​/{projectId}​/tags​/{tagKey}`_**  Deletes an existing Project Tag.
 
-- Must be a User on the TeamCloud instance with the Admin role to call this API
-- Returns: An array of [Project](architecture/models/Project.md) objects representing the TeamCloud instance's Projects
+## Providers
 
-##### POST
+- **`GET` _`​/api​/providers`_**  Gets all Providers.
 
-- Must be a User on the TeamCloud instance with either the Admin or Creator role to call this API
-- Payload: A [ProjectDefinition](architecture/models/Project.md#projectdefinition) objects representing Users to add to the TeamCloud instance
+- **`POST` _`​/api​/providers`_**  Creates a new Provider.
 
-##### DELETE
+- **`PUT` _`​/api​/providers`_**  Updates an existing Provider.
 
-- Must be a User on the TeamCloud instance with the Admin role, or with Creator role and have the Owner role on the Project to call this API
-- Payload: A string representing the Project ID of the Project to be removed from the TeamCloud instance
+- **`GET` _`​/api​/providers​/{providerId}`_**  Gets a Provider by ID.
 
-### /providers/
+- **`DELETE` _`​/api​/providers​/{providerId}`_**  Deletes an existing Provider.
 
-- Adding, updating, and removing Providers is done through the Config API.
-- Must be a User on the TeamCloud instance with the Admin role to call the TeamCloud Providers API.
+## Project Types
 
-##### GET
+- **`GET` _`​/api​/projectTypes`_**  Gets all Project Types.
 
-- Returns: An array of [Provider](architecture/models/Provider.md) objects representing the TeamCloud instance's registered Providers
+- **`POST` _`​/api​/projectTypes`_**  Creates a new Project Type.
 
-## TeamCloud Project API
+- **`PUT` _`​/api​/projectTypes`_**  Updates an existing Project Type.
 
-### /projects/{projectId}/tags/
+- **`GET` _`​/api​/projectTypes​/{projectTypeId}`_**  Gets a Project Type by ID.
 
-### /projects/{projectId}/users/
+- **`DELETE` _`​/api​/projectTypes​/{projectTypeId}`_**  Deletes a Project Type.
 
-### /projects/{projectId}/providers/
+## TeamCloud Users
 
-### /projects/{projectId}/providers/{providerId}
+- **`GET` _`​/api​/users`_**  Gets all TeamCloud Users.
+
+- **`POST` _`​/api​/users`_**  Creates a new TeamCloud User.
+
+- **`PUT` _`​/api​/users`_**  Updates an existing TeamCloud User.
+
+- **`GET` _`​/api​/users​/{userNameOrId}`_**  Gets a TeamCloud User by ID or email address.
+
+- **`DELETE` _`​/api​/users​/{userNameOrId}`_**  Deletes an existing TeamCloud User.
+
+## TeamCloud Tags
+
+- **`GET` _`​/api​/tags`_**  Gets all Tags for a TeamCloud Instance.
+
+- **`POST` _`​/api​/tags`_**  Creates a new TeamCloud Tag.
+
+- **`PUT` _`​/api​/tags`_**  Updates an existing TeamCloud Tag.
+
+- **`GET` _`​/api​/tags​/{tagKey}`_**  Gets a TeamCloud Tag by Key.
+
+- **`DELETE` _`​/api​/tags​/{tagKey}`_**  Deletes an existing TeamCloud Tag.
+
+## Status
+
+- **`GET` _`​/api​/status​/{trackingId}`_**  Gets the status of a long-running operation.
+
+- **`GET` _`​/api​/projects​/{projectId}​/status​/{trackingId}`_**  Gets the status of a long-running operation.
+
+## Admin
+
+- **`POST` _`​/api​/admin​/users`_**  Creates a new TeamCloud User as an Admin.

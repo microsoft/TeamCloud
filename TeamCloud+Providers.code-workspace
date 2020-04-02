@@ -97,6 +97,9 @@
 		},
 		{
 			"path": "client"
+		},
+		{
+			"path": "docs"
 		}
 	],
 	"settings": {

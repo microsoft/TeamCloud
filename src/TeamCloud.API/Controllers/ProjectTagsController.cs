@@ -83,7 +83,7 @@ namespace TeamCloud.API.Controllers
 
         [HttpGet("{tagKey}")]
         [Authorize(Policy = "projectRead")]
-        [SwaggerOperation(OperationId = "GetProjectTagByKey", Summary = "Gets a Project Tag by Key or email address.")]
+        [SwaggerOperation(OperationId = "GetProjectTagByKey", Summary = "Gets a Project Tag by Key.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns Project Tag", typeof(DataResult<Dictionary<string, string>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "The projectId provided in the path was invalid.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a Tag with the provided key was not found.", typeof(ErrorResult))]
@@ -122,7 +122,7 @@ namespace TeamCloud.API.Controllers
         [HttpPost]
         [Authorize(Policy = "projectCreate")]
         [Consumes("application/json")]
-        [SwaggerOperation(OperationId = "CreateProjectTag", Summary = "Creates a new Project Tag")]
+        [SwaggerOperation(OperationId = "CreateProjectTag", Summary = "Creates a new Project Tag.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts creating the new Project Tag. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "The projectId provided in the path was invalid, or the key provided in the request body was invalid.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found.", typeof(ErrorResult))]
