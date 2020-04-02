@@ -133,7 +133,7 @@ namespace TeamCloud.API.Controllers
         [HttpPut]
         [Authorize(Policy = "admin")]
         [Consumes("application/json")]
-        [SwaggerOperation(OperationId = "UpdateProjectType", Summary = "Updates an existing ProjectType.")]
+        [SwaggerOperation(OperationId = "UpdateProjectType", Summary = "Updates an existing Project Type.")]
         [SwaggerResponse(StatusCodes.Status200OK, "The ProjectType was updated.", typeof(DataResult<ProjectType>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "The ProjectType did not pass validation.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status409Conflict, "A Project Type already exists with the ID provided in the reques body.", typeof(ErrorResult))]
@@ -185,7 +185,7 @@ namespace TeamCloud.API.Controllers
 
         [HttpDelete("{projectTypeId}")]
         [Authorize(Policy = "admin")]
-        [SwaggerOperation(OperationId = "DeleteProjectType", Summary = "Deletes a ProjectType.")]
+        [SwaggerOperation(OperationId = "DeleteProjectType", Summary = "Deletes a Project Type.")]
         [SwaggerResponse(StatusCodes.Status204NoContent, "The ProjectType was deleted.", typeof(DataResult<ProjectType>))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A ProjectType with the projectTypeId provided was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Delete(string projectTypeId)

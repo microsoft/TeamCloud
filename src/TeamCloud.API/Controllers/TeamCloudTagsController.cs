@@ -67,7 +67,7 @@ namespace TeamCloud.API.Controllers
 
         [HttpGet("{tagKey}")]
         [Authorize(Policy = "admin")]
-        [SwaggerOperation(OperationId = "GetTeamCloudTagByKey", Summary = "Gets a TeamCloud Tag by Key or email address.")]
+        [SwaggerOperation(OperationId = "GetTeamCloudTagByKey", Summary = "Gets a TeamCloud Tag by Key.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns TeamCloud Tag", typeof(DataResult<Dictionary<string, string>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "The key provided in the path was invalid.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found, or a Tag with the provided key was not found.", typeof(ErrorResult))]
@@ -101,7 +101,7 @@ namespace TeamCloud.API.Controllers
         [HttpPost]
         [Authorize(Policy = "admin")]
         [Consumes("application/json")]
-        [SwaggerOperation(OperationId = "CreateTeamCloudTag", Summary = "Creates a new TeamCloud Tag")]
+        [SwaggerOperation(OperationId = "CreateTeamCloudTag", Summary = "Creates a new TeamCloud Tag.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts creating the new TeamCloud Tag. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "The key provided in the request body was invalid.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found.", typeof(ErrorResult))]

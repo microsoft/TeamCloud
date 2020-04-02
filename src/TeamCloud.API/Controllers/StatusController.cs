@@ -30,7 +30,7 @@ namespace TeamCloud.API.Controllers
 
         [Authorize(Policy = "admin")]
         [HttpGet("api/status/{trackingId:guid}")]
-        [SwaggerOperation(OperationId = "GetStatus", Summary = "Gets the status of a long-running opertation.")]
+        [SwaggerOperation(OperationId = "GetStatus", Summary = "Gets the status of a long-running operation.")]
         [SwaggerResponse(StatusCodes.Status200OK, "The long-running operation completed.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status202Accepted, "The long-running operation is running. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status302Found, "The long-running operation completed.", typeof(StatusResult))]
@@ -46,7 +46,7 @@ namespace TeamCloud.API.Controllers
 
         [Authorize(Policy = "projectRead")]
         [HttpGet("api/projects/{projectId:guid}/status/{trackingId:guid}")]
-        [SwaggerOperation(OperationId = "GetProjectStatus", Summary = "Gets the status of a long-running opertation.")]
+        [SwaggerOperation(OperationId = "GetProjectStatus", Summary = "Gets the status of a long-running operation.")]
         [SwaggerResponse(StatusCodes.Status200OK, "The long-running operation completed.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status202Accepted, "The long-running operation is running. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status302Found, "The long-running operation completed.", typeof(StatusResult))]

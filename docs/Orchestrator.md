@@ -7,8 +7,3 @@ The Provider orchestration service (or "the Orchestrator") is responsible for in
 ## Orchestration Functions
 
 Several [Durable Orchestration Functions](durable-functions-overview) handle requests from the API and Events and invoke the Providers services accordingly.
-
-- Register
-- Create
-- Init
-- Delete
