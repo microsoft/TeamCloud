@@ -24,50 +24,42 @@ namespace TeamCloud.Orchestrator
 {
     public static class CallbackTrigger
     {
-        private static string GetHostBaseUrl()
-        {
-            var hostScheme = "http";
-            var hostName = Environment.GetEnvironmentVariable("WEBSITE_HOSTNAME");
-
-            if (!hostName.StartsWith("localhost", StringComparison.OrdinalIgnoreCase))
-                hostScheme += "s";
-
-            return $"{hostScheme}://localhost";
-            //return $"{hostScheme}://{hostName}";
-        }
-
         private static async Task<string> GetCallbackToken(string instanceId)
         {
-            var hostBase = GetHostBaseUrl();
+            var masterKey = await FunctionEnvironment
+                .GetMasterKeyAsync()
+                .ConfigureAwait(false);
 
-            var functionKeysUrl = hostBase
+            var json = await FunctionEnvironment.HostUrl
                 .AppendPathSegment("admin/functions")
                 .AppendPathSegment(nameof(CallbackTrigger))
-                .AppendPathSegment("keys");
-
-            var functionKeysJson = await functionKeysUrl
+                .AppendPathSegment("keys")
+                .SetQueryParam("code", masterKey)
                 .GetJObjectAsync()
                 .ConfigureAwait(false);
 
-            return functionKeysJson
+            return json
                 .SelectToken($"$.keys[?(@.name == '{instanceId}')].value")?
                 .ToString();
         }
 
         internal static async Task<string> AcquireCallbackUrlAsync(string instanceId, ICommand command)
         {
-            var hostBase = GetHostBaseUrl();
-
             var functionKey = await GetCallbackToken(instanceId)
                 .ConfigureAwait(false);
 
             if (string.IsNullOrEmpty(functionKey))
             {
-                var response = await hostBase
+                var masterKey = await FunctionEnvironment
+                    .GetMasterKeyAsync()
+                    .ConfigureAwait(false);
+
+                var response = await FunctionEnvironment.HostUrl
                     .AppendPathSegment("admin/functions")
                     .AppendPathSegment(nameof(CallbackTrigger))
                     .AppendPathSegment("keys")
                     .AppendPathSegment(instanceId, true)
+                    .SetQueryParam("code", masterKey)
                     .PostJsonAsync(null)
                     .ConfigureAwait(false);
 
@@ -80,7 +72,7 @@ namespace TeamCloud.Orchestrator
                     .ToString();
             }
 
-            return hostBase
+            return FunctionEnvironment.HostUrl
                 .AppendPathSegment("api/callback")
                 .AppendPathSegment(instanceId, true)
                 .AppendPathSegment(command.CommandId)
@@ -90,17 +82,18 @@ namespace TeamCloud.Orchestrator
 
         internal static async Task InvalidateCallbackUrlAsync(string instanceId)
         {
-            var hostBase = GetHostBaseUrl();
-
-            var functionKeysUrl = hostBase
-                .AppendPathSegment("admin/functions")
-                .AppendPathSegment(nameof(CallbackTrigger))
-                .AppendPathSegment("keys")
-                .AppendPathSegment(instanceId, true);
+            var masterKey = await FunctionEnvironment
+                .GetMasterKeyAsync()
+                .ConfigureAwait(false);
 
             try
             {
-                _ = await functionKeysUrl
+                _ = await FunctionEnvironment.HostUrl
+                    .AppendPathSegment("admin/functions")
+                    .AppendPathSegment(nameof(CallbackTrigger))
+                    .AppendPathSegment("keys")
+                    .AppendPathSegment(instanceId, true)
+                    .SetQueryParam("code", masterKey)
                     .AllowAnyHttpStatus()
                     .DeleteAsync()
                     .ConfigureAwait(false);
