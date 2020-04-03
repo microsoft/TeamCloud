@@ -18,6 +18,9 @@ namespace TeamCloud.Azure.Resources
         // https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#reader
         public static readonly Guid Reader = Guid.Parse("acdd72a7-3385-48ef-bd42-f606fba81ae7");
 
+        // https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#user-access-administrator
+        public static readonly Guid UserAccessAdministrator = Guid.Parse("18d7d88d-d35e-4fb5-a5c3-7773c20a72d9");
+
         // https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#devtest-labs-user
         public static readonly Guid DevTestLabUser = Guid.Parse("76283e04-6283-4c54-8f91-bcf1374a3c64");
 
