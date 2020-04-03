@@ -27,7 +27,7 @@ namespace TeamCloud.Orchestrator
         private static async Task<string> GetCallbackToken(string instanceId)
         {
             var masterKey = await FunctionEnvironment
-                .GetMasterKeyAsync()
+                .GetAdminKeyAsync()
                 .ConfigureAwait(false);
 
             var json = await FunctionEnvironment.HostUrl
@@ -51,7 +51,7 @@ namespace TeamCloud.Orchestrator
             if (string.IsNullOrEmpty(functionKey))
             {
                 var masterKey = await FunctionEnvironment
-                    .GetMasterKeyAsync()
+                    .GetAdminKeyAsync()
                     .ConfigureAwait(false);
 
                 var response = await FunctionEnvironment.HostUrl
@@ -83,7 +83,7 @@ namespace TeamCloud.Orchestrator
         internal static async Task InvalidateCallbackUrlAsync(string instanceId)
         {
             var masterKey = await FunctionEnvironment
-                .GetMasterKeyAsync()
+                .GetAdminKeyAsync()
                 .ConfigureAwait(false);
 
             try

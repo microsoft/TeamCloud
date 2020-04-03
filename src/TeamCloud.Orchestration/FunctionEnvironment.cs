@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Reflection;
@@ -53,7 +54,7 @@ namespace TeamCloud.Orchestration
             => !IsLocalEnvironment;
 
         public static bool IsLocalEnvironment
-            => string.IsNullOrEmpty(System.Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID"));
+            => string.IsNullOrEmpty(Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID"));
 
         public static string HostUrl
         {
@@ -69,6 +70,17 @@ namespace TeamCloud.Orchestration
             }
         }
 
+        private static string GetResourceId(string token)
+        {
+            var jwtToken = new JwtSecurityTokenHandler()
+                .ReadJwtToken(token);
+
+            if (jwtToken.Payload.TryGetValue("xms_mirid", out var value))
+                return value.ToString();
+
+            throw new NotSupportedException($"The acquired token does not contain any resource id information.");
+        }
+
         private static async Task<JObject> GetKeyJsonAsync()
         {
             if (IsLocalEnvironment)
@@ -78,43 +90,91 @@ namespace TeamCloud.Orchestration
                 .AcquireTokenAsync()
                 .ConfigureAwait(false);
 
-            var jwtToken = new JwtSecurityTokenHandler()
-                .ReadJwtToken(token);
+            var response = await "https://management.azure.com"
+                .AppendPathSegment(GetResourceId(token))
+                .AppendPathSegment("/host/default/listKeys")
+                .SetQueryParam("api-version", "2018-11-01")
+                .WithOAuthBearerToken(token)
+                .PostAsync(null)
+                .ConfigureAwait(false);
 
-            if (jwtToken.Payload.TryGetValue("xms_mirid", out var value))
-            {
-                var response = await "https://management.azure.com"
-                    .AppendPathSegment(value)
-                    .AppendPathSegment("/host/default/listKeys")
-                    .SetQueryParam("api-version", "2018-11-01")
-                    .WithOAuthBearerToken(token)
-                    .PostAsync(null)
-                    .ConfigureAwait(false);
-
-                return await response
-                    .ReadAsJsonAsync()
-                    .ConfigureAwait(false);
-            }
-            else
-            {
-                throw new NotSupportedException($"The acquired token does not contain any resource id information.");
-            }
+            return await response
+                .ReadAsJsonAsync()
+                .ConfigureAwait(false);
         }
 
-        public static async Task<string> GetMasterKeyAsync()
+        public static async Task<string> GetAdminKeyAsync()
         {
+            var json = await GetKeyJsonAsync()
+                .ConfigureAwait(false);
 
-            var json = await GetKeyJsonAsync().ConfigureAwait(false);
-
-            return json.SelectToken("$.masterKey")?.ToString();
+            return json
+                .SelectToken("$.masterKey")?
+                .ToString();
         }
 
-        public static async Task<string> GetHostKeyAsync(string hostKeyName = default)
+        public static async Task<string> GetHostKeyAsync(string keyName = default)
         {
-            var json = await GetKeyJsonAsync().ConfigureAwait(false);
+            var json = await GetKeyJsonAsync()
+                .ConfigureAwait(false);
 
-            return json.SelectToken($"$.functionKeys['{hostKeyName ?? "default"}']")?.ToString();
+            return json
+                .SelectToken($"$.functionKeys['{keyName ?? "default"}']")?
+                .ToString();
         }
 
+        public static async Task<IDictionary<string, string>> GetAppSettingsAsync()
+        {
+            if (IsLocalEnvironment)
+                return new Dictionary<string, string>();
+
+            var token = await AzureSessionService
+                .AcquireTokenAsync()
+                .ConfigureAwait(false);
+
+            var response = await "https://management.azure.com"
+                .AppendPathSegment(GetResourceId(token))
+                .AppendPathSegment("config/appsettings/list")
+                .SetQueryParam("api-version", "2019-08-01")
+                .WithOAuthBearerToken(token)
+                .PostAsync(null)
+                .ConfigureAwait(false);
+
+            var json = await response
+                .ReadAsJsonAsync()
+                .ConfigureAwait(false);
+
+            return json
+                .SelectToken("properties")?
+                .ToObject<IDictionary<string, string>>()
+                ?? new Dictionary<string, string>();
+        }
+
+        public static async Task<IDictionary<string, string>> SetAppSettingsAsync(IDictionary<string, string> appConfig)
+        {
+            if (IsLocalEnvironment)
+                return appConfig;
+
+            var token = await AzureSessionService
+                .AcquireTokenAsync()
+                .ConfigureAwait(false);
+
+            var response = await "https://management.azure.com"
+                .AppendPathSegment(GetResourceId(token))
+                .AppendPathSegment("config/appsettings")
+                .SetQueryParam("api-version", "2019-08-01")
+                .WithOAuthBearerToken(token)
+                .PutJsonAsync(new { properties = appConfig })
+                .ConfigureAwait(false);
+
+            var json = await response
+                .ReadAsJsonAsync()
+                .ConfigureAwait(false);
+
+            return json
+                .SelectToken("properties")?
+                .ToObject<IDictionary<string, string>>()
+                ?? new Dictionary<string, string>();
+        }
     }
 }
