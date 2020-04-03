@@ -4,15 +4,13 @@ TeamCloud is a tool that enables enterprise IT organizations to provide applicat
 
 ![TeamCloud - Build & Packaging](https://github.com/microsoft/TeamCloud/workflows/TeamCloud%20-%20Build%20&%20Packaging/badge.svg)
 
-## Concepts
-
 There are several components that make up the TeamCloud solution.
 
-### TeamCloud CLI
+## TeamCloud CLI
 
 The [TeamCloud CLI](docs/CLI.md) is an [extension](https://docs.microsoft.com/en-us/cli/azure/azure-cli-extensions-overview?view=azure-cli-latest) for the [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest).  It can be used by application development teams to create and manage Projects, and by TeamCloud admins to create new TeamCloud instances or manage existing instances.
 
-### TeamCloud Instance
+## TeamCloud Instance
 
 At the center of the tool is a TeamCloud instance (the source code in this repository). An enterprise deploys a single TeamCloud instance, along with one or more Providers, to an Azure subscription managed by its IT organization.
 
@@ -21,7 +19,7 @@ A TeamCloud instance is composed of two parts:
 1. A user-facing [REST API](docs/API.md) that enables TeamCloud admins to manage the TeamCloud instance, and application development teams to create and manage Projects.
 2. An internal [orchestration service](docs/Orchestrator.md) (sometimes referred to as "the orchestrator") that communicates with one or more [Providers](docs/Providers.md) responsible for creating and managing resources for a Project.
 
-#### TeamCloud Azure Resources
+### TeamCloud Azure Resources
 
 A TeamCloud instance is made up of the following Azure resources:
 
@@ -37,11 +35,11 @@ A TeamCloud instance is made up of the following Azure resources:
 
 These resources are deployed using the [CLI](docs/CLI.md). After installing the CLI use `az tc deploy -h` deployment instructions.
 
-### Projects
+## Projects
 
 A TeamCloud instance and its registered Providers define a templates (Project Types) for a policy-compliant, secure, cloud development environment, which software development teams can create on-demand.  In the context of TeamCloud, these cloud development environments are called Projects.
 
-### Providers
+## Providers
 
 A Provider is responsible for managing one or more resources for a Project.  For example, an organization may implement an "Azure Key Vault Provider" responsible for creating a new Key Vault instance for each Project.  Another example would be a "GitHub repo provider" that creates an associated source code repository for each Project.
 
