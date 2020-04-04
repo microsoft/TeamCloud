@@ -50,7 +50,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
                     ? (CommandAuditEntity)entityResult.Result
                     : entity;
 
-                AugmentEntity(entity, provider, command, commandResult);
+                AugmentEntity(entity, command, commandResult);
 
                 await commandTable
                     .ExecuteAsync(TableOperation.InsertOrReplace(entity))
@@ -62,7 +62,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
             }
         }
 
-        private static void AugmentEntity(CommandAuditEntity entity, Provider provider, ICommand command, ICommandResult commandResult)
+        private static void AugmentEntity(CommandAuditEntity entity, ICommand command, ICommandResult commandResult)
         {
             var timestamp = DateTime.UtcNow;
 

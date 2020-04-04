@@ -7,7 +7,7 @@ using System;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 
-namespace TeamCloud.Orchestrator.Orchestrations.Utilities
+namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Entities
 {
     public static class DocumentEntityLock
     {

@@ -16,7 +16,7 @@ using Newtonsoft.Json.Linq;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
-using TeamCloud.Orchestrator.Orchestrations.Utilities;
+using TeamCloud.Orchestrator.Orchestrations.Utilities.Entities;
 
 namespace TeamCloud.Orchestrator
 {
