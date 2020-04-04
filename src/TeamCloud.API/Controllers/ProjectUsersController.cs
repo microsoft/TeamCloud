@@ -209,6 +209,9 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a User with the ID provided in the request body was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Put([FromBody] User user)
         {
+            if (user is null)
+                throw new ArgumentNullException(nameof(user));
+
             if (!ProjectId.HasValue)
                 return ErrorResult
                     .BadRequest($"Project Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCode.ValidationError)

@@ -18,7 +18,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands.Activities
             if (project is null)
                 throw new System.ArgumentNullException(nameof(project));
 
-            if (functionContext.IsLockedBy(project))
+            if (functionContext.IsLockedBy(project) || allowUnsafe)
             {
                 return functionContext
                     .CallActivityWithRetryAsync<Project>(nameof(ProjectSetActivity), project);

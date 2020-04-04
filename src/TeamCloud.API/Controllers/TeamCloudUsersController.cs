@@ -182,6 +182,9 @@ namespace TeamCloud.API
         [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found, or a User with the ID provided in the request body was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Put([FromBody] User user)
         {
+            if (user is null)
+                throw new ArgumentNullException(nameof(user));
+
             var validation = new UserValidator().Validate(user);
 
             if (!validation.IsValid)
