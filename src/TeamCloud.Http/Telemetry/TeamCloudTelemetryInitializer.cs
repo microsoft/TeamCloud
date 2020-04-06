@@ -18,8 +18,7 @@ namespace TeamCloud.Http.Telemetry
             if (telemetry is null)
                 throw new System.ArgumentNullException(nameof(telemetry));
 
-            if (string.IsNullOrEmpty(telemetry.Context.Cloud.RoleName))
-                telemetry.Context.Cloud.RoleName = assembly.GetName().Name;
+            telemetry.Context.Cloud.RoleName = assembly.GetName().Name;
         }
     }
 }
