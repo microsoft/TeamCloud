@@ -67,11 +67,14 @@ namespace TeamCloud.API.Services
             }
             else if (commandResult is ICommandResult<Provider> providerCommandResult)
             {
+                if (providerCommandResult.Result is null)
+                    return;
+
                 commandResult.Links.Add("location", new Uri(baseUrl, $"api/providers/{providerCommandResult.Result.Id}").ToString());
             }
             else if (projectId.HasValue)
             {
-                commandResult.Links.Add("location", new Uri(baseUrl, "api/projects/{projectId}").ToString());
+                commandResult.Links.Add("location", new Uri(baseUrl, $"api/projects/{projectId}").ToString());
             }
 
             static bool IsDeleteCommandResult(ICommandResult result)
