@@ -105,7 +105,9 @@
       },
       "copy": {
         "name": "accessPoliciesCopy",
-        "count": "[length(parameters('providerIdentities'))]"
+        "count": "[length(parameters('providerIdentities'))]",
+        "mode": "serial",
+        "batchSize": 1
       }
     }
   ],
