@@ -7,21 +7,25 @@ using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
-using Microsoft.Azure.Functions.Extensions.DependencyInjection;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Hosting;
 using TeamCloud.Http;
+using TeamCloud.Http.Telemetry;
 
-[assembly: FunctionsStartup(typeof(TeamCloudHttpStartup))]
+[assembly: WebJobsStartup(typeof(TeamCloudHttpStartup))]
 
 namespace TeamCloud.Http
 {
-    public class TeamCloudHttpStartup : FunctionsStartup
+    public class TeamCloudHttpStartup : IWebJobsStartup
     {
-        public override void Configure(IFunctionsHostBuilder builder)
+        public void Configure(IWebJobsBuilder builder)
         {
             if (builder is null)
                 throw new ArgumentNullException(nameof(builder));
 
             DisableCertificateValidation();
+
+            builder.AddExtension<TeamCloudTelemetryExtension>();
         }
 
         [Conditional("DEBUG")]
