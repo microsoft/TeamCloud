@@ -35,11 +35,11 @@ namespace TeamCloud.Http
 
             if (services.Any(sd => sd.ServiceType == typeof(IHttpClientFactory) && sd.ImplementationType == typeof(DefaultHttpClientFactory)))
             {
-                services.Replace(new ServiceDescriptor(typeof(IHttpClientFactory), HttpClientFactoryInitializer, ServiceLifetime.Singleton));
+                services.Replace(new ServiceDescriptor(typeof(IHttpClientFactory), CreateHttpClientFactory, ServiceLifetime.Singleton));
             }
             else
             {
-                services.TryAddSingleton<IHttpClientFactory>(HttpClientFactoryInitializer);
+                services.TryAddSingleton<IHttpClientFactory>(CreateHttpClientFactory);
             }
 
             FlurlHttp.Configure(configuration =>
@@ -51,11 +51,11 @@ namespace TeamCloud.Http
 
             return services;
 
-            static IHttpClientFactory HttpClientFactoryInitializer(IServiceProvider serviceProvider)
+            static IHttpClientFactory CreateHttpClientFactory(IServiceProvider serviceProvider)
             {
                 try
                 {
-                    return (IHttpClientFactory)ActivatorUtilities.CreateInstance<TeamCloudHttpClientFactory>(serviceProvider);
+                    return ActivatorUtilities.CreateInstance<TeamCloudHttpClientFactory>(serviceProvider);
                 }
                 catch (InvalidOperationException)
                 {
