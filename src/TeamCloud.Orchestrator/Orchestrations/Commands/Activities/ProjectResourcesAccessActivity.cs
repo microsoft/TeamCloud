@@ -4,6 +4,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Azure.Management.KeyVault.Fluent.Models;
 using Microsoft.Azure.WebJobs;
@@ -42,27 +43,27 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands.Activities
                 .GetAsync(projectId)
                 .ConfigureAwait(false);
 
-            if (project.ResourceGroup?.ResourceGroupId is null)
+            if (project != null)
             {
-                throw new NullReferenceException($"Project {projectId} missing resource group information.");
-            }
-            else
-            {
-                var tasks = new Task[]
-                {
-                    EnsureResourceGroupAccessAsync(project, principalId),
-                    EnsureKeyVaultAccessAsync(project, principalId)
-                };
+                var tasks = new List<Task>();
 
-                await Task.WhenAll(tasks).ConfigureAwait(false);
+                if (!string.IsNullOrEmpty(project.ResourceGroup?.ResourceGroupId))
+                    tasks.Add(EnsureResourceGroupAccessAsync(project, principalId));
+
+                if (!string.IsNullOrEmpty(project.KeyVault?.VaultId))
+                    tasks.Add(EnsureKeyVaultAccessAsync(project, principalId));
+
+                await Task
+                    .WhenAll(tasks)
+                    .ConfigureAwait(false);
             }
         }
 
         private async Task EnsureResourceGroupAccessAsync(Project project, Guid principalId)
         {
             var resourceGroup = await azureResourceService
-                .GetResourceGroupAsync(project.ResourceGroup.SubscriptionId, project.ResourceGroup.ResourceGroupName, throwIfNotExists: true)
-                .ConfigureAwait(false);
+                 .GetResourceGroupAsync(project.ResourceGroup.SubscriptionId, project.ResourceGroup.ResourceGroupName, throwIfNotExists: true)
+                 .ConfigureAwait(false);
 
             await resourceGroup
                 .AddRoleAssignmentAsync(principalId, AzureRoleDefinition.Contributor)
