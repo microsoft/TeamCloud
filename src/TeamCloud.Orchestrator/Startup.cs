@@ -46,11 +46,11 @@ namespace TeamCloud.Orchestrator
                 .AddNewtonsoftJson();
 
             builder.Services
-                .AddScoped<IProjectsRepository, CosmosDbProjectsRepository>()
+                .AddSingleton<IProjectsRepository, CosmosDbProjectsRepository>()
                 .AddTransient<IProjectsRepositoryReadOnly>(provider => provider.GetRequiredService<IProjectsRepository>())
-                .AddScoped<ITeamCloudRepository, CosmosDbTeamCloudRepository>()
+                .AddSingleton<ITeamCloudRepository, CosmosDbTeamCloudRepository>()
                 .AddTransient<ITeamCloudRepositoryReadOnly>(provider => provider.GetRequiredService<ITeamCloudRepository>())
-                .AddScoped<IProjectTypesRepository, CosmosDbProjectTypesRepository>()
+                .AddSingleton<IProjectTypesRepository, CosmosDbProjectTypesRepository>()
                 .AddTransient<IProjectTypesRepositoryReadOnly>(provider => provider.GetRequiredService<IProjectTypesRepository>());
 
             builder.Services

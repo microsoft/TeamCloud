@@ -19,7 +19,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Azure.Management.ResourceManager.Fluent;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -107,13 +106,13 @@ namespace TeamCloud.API
 
             services
                 .AddSingleton<IHttpContextAccessor, HttpContextAccessor>()
+                .AddSingleton<IProjectsRepositoryReadOnly, CosmosDbProjectsRepository>()
+                .AddSingleton<ITeamCloudRepositoryReadOnly, CosmosDbTeamCloudRepository>()
+                .AddSingleton<IProjectTypesRepositoryReadOnly, CosmosDbProjectTypesRepository>()
+                .AddSingleton<IClientErrorFactory, ClientErrorFactory>()
                 .AddSingleton<Orchestrator>()
                 .AddSingleton<UserService>()
-                .AddScoped<IProjectsRepositoryReadOnly, CosmosDbProjectsRepository>()
-                .AddScoped<ITeamCloudRepositoryReadOnly, CosmosDbTeamCloudRepository>()
-                .AddScoped<IProjectTypesRepositoryReadOnly, CosmosDbProjectTypesRepository>()
-                .AddScoped<EnsureTeamCloudUserMiddleware>()
-                .AddSingleton<IClientErrorFactory, ClientErrorFactory>();
+                .AddScoped<EnsureTeamCloudUserMiddleware>();
 
             ConfigureAuthentication(services);
             ConfigureAuthorization(services);
