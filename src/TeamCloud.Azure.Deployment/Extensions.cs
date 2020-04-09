@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -86,5 +87,34 @@ namespace TeamCloud.Azure.Deployment
 
             return deploymentOutput;
         }
+
+        private static readonly AzureDeploymentState[] ProgressStates = new AzureDeploymentState[]
+        {
+                    AzureDeploymentState.Accepted,
+                    AzureDeploymentState.Running,
+                    AzureDeploymentState.Deleting
+        };
+
+        public static bool IsProgressState(this AzureDeploymentState state)
+            => ProgressStates.Contains(state);
+
+        private static readonly AzureDeploymentState[] FinalStates = new AzureDeploymentState[]
+        {
+            AzureDeploymentState.Succeeded,
+            AzureDeploymentState.Cancelled,
+            AzureDeploymentState.Failed
+        };
+
+        public static bool IsFinalState(this AzureDeploymentState state)
+            => FinalStates.Contains(state);
+
+        private static readonly AzureDeploymentState[] ErrorStates = new AzureDeploymentState[]
+        {
+            AzureDeploymentState.Cancelled,
+            AzureDeploymentState.Failed
+        };
+
+        public static bool IsErrorState(this AzureDeploymentState state)
+            => ErrorStates.Contains(state);
     }
 }

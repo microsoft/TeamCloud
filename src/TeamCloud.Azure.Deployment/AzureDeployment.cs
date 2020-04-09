@@ -31,25 +31,7 @@ namespace TeamCloud.Azure.Deployment
 
     public sealed class AzureDeployment : IAzureDeployment
     {
-        private static readonly AzureDeploymentState[] ProgressStates = new AzureDeploymentState[]
-        {
-            AzureDeploymentState.Accepted,
-            AzureDeploymentState.Running,
-            AzureDeploymentState.Deleting
-        };
 
-        private static readonly AzureDeploymentState[] FinalStates = new AzureDeploymentState[]
-        {
-            AzureDeploymentState.Succeeded,
-            AzureDeploymentState.Cancelled,
-            AzureDeploymentState.Failed
-        };
-
-        private static readonly AzureDeploymentState[] ErrorStates = new AzureDeploymentState[]
-        {
-            AzureDeploymentState.Cancelled,
-            AzureDeploymentState.Failed
-        };
 
         private readonly IAzureSessionService azureSessionService;
         private JObject deploymentJsonFinal = null;
@@ -80,7 +62,7 @@ namespace TeamCloud.Azure.Deployment
                     .GetJObjectAsync()
                     .ConfigureAwait(false);
 
-                if (FinalStates.Contains(GetState(json)))
+                if (GetState(json).IsFinalState())
                     deploymentJsonFinal = json;
 
                 return json;
@@ -120,7 +102,7 @@ namespace TeamCloud.Azure.Deployment
                     .SetQueryParam("api-version", "2019-05-01")
                     .WithOAuthBearerToken(token)
                     .GetJObjectAsync()
-                    .ConfigureAwait(false) ;
+                    .ConfigureAwait(false);
 
                 if (json is null)
                     break;
@@ -177,7 +159,7 @@ namespace TeamCloud.Azure.Deployment
             {
                 while (true)
                 {
-                    if (ProgressStates.Contains(state))
+                    if (state.IsProgressState())
                     {
                         await Task.Delay(5000)
                             .ConfigureAwait(false);
@@ -185,7 +167,7 @@ namespace TeamCloud.Azure.Deployment
                         state = await GetStateAsync()
                             .ConfigureAwait(false);
                     }
-                    else if (throwOnError && ErrorStates.Contains(state))
+                    else if (throwOnError && state.IsErrorState())
                     {
                         var exceptionMessage = $"Deployment '{ResourceId}' ended in state '{state}'";
                         var deploymentErrors = await GetErrorsAsync().ConfigureAwait(false);
@@ -212,7 +194,7 @@ namespace TeamCloud.Azure.Deployment
             var state = await GetStateAsync()
                 .ConfigureAwait(false);
 
-            if (ProgressStates.Contains(state))
+            if (state.IsProgressState())
                 throw new InvalidOperationException($"Deployment '{ResourceId}' cannot be deleted while in state '{state}'");
 
             var correlationId = await GetCorrelationIdAsync()
@@ -240,7 +222,7 @@ namespace TeamCloud.Azure.Deployment
             var state = await GetStateAsync()
                 .ConfigureAwait(false);
 
-            if (ProgressStates.Contains(state))
+            if (state.IsProgressState())
                 throw new InvalidOperationException($"Deployment '{ResourceId}' cannot provide output in state '{state}'");
 
             var json = await GetDeploymentJsonAsync()

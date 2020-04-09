@@ -4,6 +4,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -96,16 +97,32 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
 
             functionContext.SetCustomStatus($"Provisioning resources", log);
 
-            var (resourceGroup, keyVault) = await functionContext
-                .CallActivityWithRetryAsync<(AzureResourceGroup, AzureKeyVault)>(nameof(ProjectResourcesCreateActivity), (project, subscriptionId))
+            var deploymentResourceId = await functionContext
+                .CallActivityWithRetryAsync<string>(nameof(ProjectResourcesDeployActivity), (project, subscriptionId))
+                .ConfigureAwait(true);
+
+            var deploymentOutput = await functionContext
+                .GetDeploymentOutputAsync(deploymentResourceId)
                 .ConfigureAwait(true);
 
             using (await functionContext.LockAsync(project).ConfigureAwait(true))
             {
                 functionContext.SetCustomStatus($"Updating project", log);
 
-                project.ResourceGroup = resourceGroup;
-                project.KeyVault = keyVault;
+                project.ResourceGroup = new AzureResourceGroup()
+                {
+                    SubscriptionId = subscriptionId,
+                    Region = project.Type.Region,
+                    ResourceGroupId = (string)deploymentOutput.GetValueOrDefault("resourceGroupId", default(string)),
+                    ResourceGroupName = (string)deploymentOutput.GetValueOrDefault("resourceGroupName", default(string))
+                };
+
+                project.KeyVault = new AzureKeyVault()
+                {
+                    VaultId = (string)deploymentOutput.GetValueOrDefault("vaultId", default(string)),
+                    VaultName = (string)deploymentOutput.GetValueOrDefault("vaultName", default(string)),
+                    VaultUrl = (string)deploymentOutput.GetValueOrDefault("vaultUrl", default(string))
+                };
 
                 project = commandResult.Result = await functionContext
                     .SetProjectAsync(project)

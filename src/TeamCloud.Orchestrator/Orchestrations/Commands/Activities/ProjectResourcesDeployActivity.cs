@@ -4,7 +4,6 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
@@ -16,16 +15,17 @@ using TeamCloud.Data;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Templates;
+using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Commands.Activities
 {
-    public class ProjectResourcesCreateActivity
+    public class ProjectResourcesDeployActivity
     {
         private readonly IAzureDeploymentService azureDeploymentService;
         private readonly IAzureSessionService azureSessionService;
         private readonly ITeamCloudRepository teamCloudRepository;
 
-        public ProjectResourcesCreateActivity(IAzureDeploymentService azureDeploymentService, IAzureSessionService azureSessionService, ITeamCloudRepository teamCloudRepository)
+        public ProjectResourcesDeployActivity(IAzureDeploymentService azureDeploymentService, IAzureSessionService azureSessionService, ITeamCloudRepository teamCloudRepository)
         {
             this.azureDeploymentService = azureDeploymentService ?? throw new ArgumentNullException(nameof(azureDeploymentService));
             this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
@@ -54,9 +54,9 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands.Activities
                 .Distinct().ToArray();
         }
 
-        [FunctionName(nameof(ProjectResourcesCreateActivity))]
+        [FunctionName(nameof(ProjectResourcesDeployActivity))]
         [RetryOptions(3)]
-        public async Task<(AzureResourceGroup, AzureKeyVault)> RunActivity(
+        public async Task<string> RunActivity(
             [ActivityTrigger] IDurableActivityContext functionContext,
             ILogger log)
         {
@@ -89,35 +89,13 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands.Activities
                     .DeploySubscriptionTemplateAsync(template, subscriptionId, project.Type.Region)
                     .ConfigureAwait(false);
 
-                var deploymentOutput = await deployment
-                    .WaitAndGetOutputAsync(throwOnError: true, cleanUp: true)
-                    .ConfigureAwait(false);
+                return deployment.ResourceId;
+            }
+            catch (Exception exc) when (!exc.IsSerializable(out var serializableException))
+            {
+                log.LogError(exc, $"Activity '{nameof(ProjectResourcesDeployActivity)} failed: {exc.Message}");
 
-                return (
-                    new AzureResourceGroup()
-                    {
-                        SubscriptionId = subscriptionId,
-                        Region = project.Type.Region,
-                        ResourceGroupId = (string)deploymentOutput.GetValueOrDefault("resourceGroupId", default(string)),
-                        ResourceGroupName = (string)deploymentOutput.GetValueOrDefault("resourceGroupName", default(string))
-                    },
-                    new AzureKeyVault()
-                    {
-                        VaultId = (string)deploymentOutput.GetValueOrDefault("vaultId", default(string)),
-                        VaultName = (string)deploymentOutput.GetValueOrDefault("vaultName", default(string)),
-                        VaultUrl = (string)deploymentOutput.GetValueOrDefault("vaultUrl", default(string))
-                    }
-                );
-            }
-            catch (AzureDeploymentException deployEx)
-            {
-                log.LogError(deployEx, $"Error deploying new Resource Group for Project.{Environment.NewLine}{string.Join(Environment.NewLine, deployEx.ResourceErrors)}");
-                throw;
-            }
-            catch (Exception ex)
-            {
-                log.LogError(ex, "Error deploying new Resource Group for Project.");
-                throw;
+                throw serializableException;
             }
         }
     }

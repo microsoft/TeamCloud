@@ -17,6 +17,12 @@ namespace TeamCloud.Azure.Deployment
 {
     public interface IAzureDeploymentService
     {
+        Task<IAzureDeployment> GetAzureDeploymentAsync(string resourceId);
+
+        Task<IAzureDeployment> GetAzureDeploymentAsync(Guid subscriptionId, Guid deploymentId);
+
+        Task<IAzureDeployment> GetAzureDeploymentAsync(Guid subscriptionId, string resourceGroupName, Guid deploymentId);
+
         Task<IAzureDeployment> DeploySubscriptionTemplateAsync(AzureDeploymentTemplate deploymentTemplate, Guid subscriptionId, string location);
 
         Task<IAzureDeployment> DeployResourceGroupTemplateAsync(AzureDeploymentTemplate deploymentTemplate, Guid subscriptionId, string resourceGroupName, bool completeMode = false);
@@ -38,6 +44,37 @@ namespace TeamCloud.Azure.Deployment
             this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
             this.azureDeploymentArtifactsStorage = azureDeploymentArtifactsStorage ?? throw new ArgumentNullException(nameof(azureDeploymentArtifactsStorage));
         }
+
+        public async Task<IAzureDeployment> GetAzureDeploymentAsync(string resourceId)
+        {
+            if (string.IsNullOrWhiteSpace(resourceId))
+                throw new ArgumentException($"Argument '{nameof(resourceId)}' must not NULL or WHITESPACE", nameof(resourceId));
+
+            if (!resourceId.Contains("/providers/Microsoft.Resources/deployments/", StringComparison.OrdinalIgnoreCase))
+                throw new ArgumentException($"Argument '{nameof(resourceId)}' must be a valid deployment resource Id", nameof(resourceId));
+
+            var token = await azureSessionService
+                .AcquireTokenAsync()
+                .ConfigureAwait(false);
+
+            var response = await azureSessionService.Environment.ResourceManagerEndpoint
+                .AppendPathSegment(resourceId)
+                .SetQueryParam("api-version", "2019-05-01")
+                .AllowAnyHttpStatus()
+                .WithOAuthBearerToken(token)
+                .GetAsync(completionOption: System.Net.Http.HttpCompletionOption.ResponseHeadersRead)
+                .ConfigureAwait(false);
+
+            return response.IsSuccessStatusCode
+                ? new AzureDeployment(resourceId, azureSessionService)
+                : null;
+        }
+
+        public Task<IAzureDeployment> GetAzureDeploymentAsync(Guid subscriptionId, Guid deploymentId)
+            => GetAzureDeploymentAsync($"/subscriptions/{subscriptionId}/providers/Microsoft.Resources/deployments/{deploymentId}");
+
+        public Task<IAzureDeployment> GetAzureDeploymentAsync(Guid subscriptionId, string resourceGroupName, Guid deploymentId)
+            => GetAzureDeploymentAsync($"/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Resources/deployments/{deploymentId}");
 
         public async Task<IAzureDeployment> DeploySubscriptionTemplateAsync(AzureDeploymentTemplate template, Guid subscriptionId, string location)
         {
