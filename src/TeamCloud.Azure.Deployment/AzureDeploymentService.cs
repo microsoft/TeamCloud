@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Flurl;
 using Flurl.Http;
@@ -60,7 +61,7 @@ namespace TeamCloud.Azure.Deployment
             var response = await azureSessionService.Environment.ResourceManagerEndpoint
                 .AppendPathSegment(resourceId)
                 .SetQueryParam("api-version", "2019-05-01")
-                .AllowAnyHttpStatus()
+                .AllowHttpStatus(HttpStatusCode.NotFound)
                 .WithOAuthBearerToken(token)
                 .GetAsync(completionOption: System.Net.Http.HttpCompletionOption.ResponseHeadersRead)
                 .ConfigureAwait(false);
