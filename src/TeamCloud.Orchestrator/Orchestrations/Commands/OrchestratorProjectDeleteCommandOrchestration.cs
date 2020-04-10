@@ -55,6 +55,8 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                     .WhenAll(tasks)
                     .ConfigureAwait(true);
 
+                functionContext.SetCustomStatus("Deleting resource groups", log);
+
                 await functionContext
                     .CallActivityWithRetryAsync(nameof(ProjectResourcesDeleteActivity), project)
                     .ConfigureAwait(true);
