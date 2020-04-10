@@ -97,12 +97,8 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
 
             functionContext.SetCustomStatus($"Provisioning resources", log);
 
-            var deploymentResourceId = await functionContext
-                .CallActivityWithRetryAsync<string>(nameof(ProjectResourcesDeployActivity), (project, subscriptionId))
-                .ConfigureAwait(true);
-
             var deploymentOutput = await functionContext
-                .GetDeploymentOutputAsync(deploymentResourceId)
+                .GetDeploymentOutputAsync(nameof(ProjectResourcesCreateActivity), (project, subscriptionId))
                 .ConfigureAwait(true);
 
             using (await functionContext.LockAsync(project).ConfigureAwait(true))

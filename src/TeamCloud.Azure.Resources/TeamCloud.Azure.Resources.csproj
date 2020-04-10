@@ -25,14 +25,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Templates\AzureResourceGroupCleanupTemplate.json" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="Templates\AzureResourceGroupCleanupTemplate.json" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="..\..\LICENSE">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
@@ -40,7 +32,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\TeamCloud.Azure.Deployment\TeamCloud.Azure.Deployment.csproj" />
+    <PackageReference Include="System.Linq.Async" Version="4.0.0" />
     <ProjectReference Include="..\TeamCloud.Azure\TeamCloud.Azure.csproj" />
   </ItemGroup>
 

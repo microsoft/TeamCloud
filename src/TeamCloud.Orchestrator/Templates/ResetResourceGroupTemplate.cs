@@ -5,8 +5,8 @@
 
 using TeamCloud.Azure.Deployment.Templates;
 
-namespace TeamCloud.Azure.Resources.Templates
+namespace TeamCloud.Orchestrator.Templates
 {
-    public sealed class AzureResourceGroupCleanupTemplate : EmbeddedDeploymentTemplate
+    public sealed class ResetResourceGroupTemplate : EmbeddedDeploymentTemplate
     { }
 }

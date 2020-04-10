@@ -19,13 +19,13 @@ using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Commands.Activities
 {
-    public class ProjectResourcesDeployActivity
+    public class ProjectResourcesCreateActivity
     {
         private readonly IAzureDeploymentService azureDeploymentService;
         private readonly IAzureSessionService azureSessionService;
         private readonly ITeamCloudRepository teamCloudRepository;
 
-        public ProjectResourcesDeployActivity(IAzureDeploymentService azureDeploymentService, IAzureSessionService azureSessionService, ITeamCloudRepository teamCloudRepository)
+        public ProjectResourcesCreateActivity(IAzureDeploymentService azureDeploymentService, IAzureSessionService azureSessionService, ITeamCloudRepository teamCloudRepository)
         {
             this.azureDeploymentService = azureDeploymentService ?? throw new ArgumentNullException(nameof(azureDeploymentService));
             this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
@@ -54,7 +54,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands.Activities
                 .Distinct().ToArray();
         }
 
-        [FunctionName(nameof(ProjectResourcesDeployActivity))]
+        [FunctionName(nameof(ProjectResourcesCreateActivity))]
         [RetryOptions(3)]
         public async Task<string> RunActivity(
             [ActivityTrigger] IDurableActivityContext functionContext,
@@ -93,7 +93,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands.Activities
             }
             catch (Exception exc) when (!exc.IsSerializable(out var serializableException))
             {
-                log.LogError(exc, $"Activity '{nameof(ProjectResourcesDeployActivity)} failed: {exc.Message}");
+                log.LogError(exc, $"Activity '{nameof(ProjectResourcesCreateActivity)} failed: {exc.Message}");
 
                 throw serializableException;
             }

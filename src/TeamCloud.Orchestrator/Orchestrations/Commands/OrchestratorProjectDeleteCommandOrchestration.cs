@@ -4,12 +4,12 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Model.Commands;
-using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Orchestrations.Commands.Activities;
 using TeamCloud.Orchestrator.Orchestrations.Utilities;
@@ -40,16 +40,29 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                     .SendCommandAsync<ProviderProjectDeleteCommand, ProviderProjectDeleteCommandResult>(new ProviderProjectDeleteCommand(command.User, project, command.CommandId))
                     .ConfigureAwait(true);
 
-                functionContext.SetCustomStatus("Deleting resources", log);
+                if (!string.IsNullOrEmpty(project?.ResourceGroup?.ResourceGroupId))
+                {
+                    functionContext.SetCustomStatus("Deleting resources", log);
 
-                await functionContext
-                    .CallActivityWithRetryAsync<AzureResourceGroup>(nameof(ProjectResourcesDeleteActivity), project)
-                    .ConfigureAwait(true);
+                    var tasks = new List<Task>()
+                    {
+                        functionContext.ResetResourceGroupAsync(project.ResourceGroup.ResourceGroupId),
+                        functionContext.ResetResourceGroupAsync($"{project.ResourceGroup.ResourceGroupId}_Internal")
+                    };
+
+                    await Task
+                        .WhenAll(tasks)
+                        .ConfigureAwait(true);
+
+                    await functionContext
+                        .CallActivityWithRetryAsync(nameof(ProjectResourcesDeleteActivity), project)
+                        .ConfigureAwait(true);
+                }
 
                 functionContext.SetCustomStatus("Deleting project", log);
 
-                project = await functionContext
-                    .CallActivityWithRetryAsync<Project>(nameof(ProjectDeleteActivity), project)
+                await functionContext
+                    .CallActivityWithRetryAsync(nameof(ProjectDeleteActivity), project)
                     .ConfigureAwait(true);
 
                 commandResult.Result = project;

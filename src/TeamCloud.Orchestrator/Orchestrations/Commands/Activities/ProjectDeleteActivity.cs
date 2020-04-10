@@ -24,7 +24,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands.Activities
         }
 
         [FunctionName(nameof(ProjectDeleteActivity))]
-        public async Task<Project> RunActivity(
+        public async Task RunActivity(
             [ActivityTrigger] Project project)
         {
             if (project is null)
@@ -33,8 +33,6 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands.Activities
             _ = await projectsRepository
                 .RemoveAsync(project)
                 .ConfigureAwait(false);
-
-            return project;
         }
     }
 }

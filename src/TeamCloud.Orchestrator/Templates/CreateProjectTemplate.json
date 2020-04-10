@@ -115,7 +115,7 @@
   "outputs": {
     "resourceGroupId": {
       "type": "string",
-      "value": "[resourceId('Microsoft.Resources/resourceGroups/', variables('projectResourceGroupName'))]"
+      "value": "[concat(subscription().id, '/resourceGroups/', variables('projectResourceGroupName'))]"
     },
     "resourceGroupName": {
       "type": "string",

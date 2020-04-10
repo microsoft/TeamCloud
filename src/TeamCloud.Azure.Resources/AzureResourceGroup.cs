@@ -10,9 +10,6 @@ using System.Threading.Tasks;
 using Microsoft.Azure.Management.ResourceManager.Fluent;
 using Microsoft.Azure.Management.ResourceManager.Fluent.Models;
 using Microsoft.Rest.Azure.OData;
-using TeamCloud.Azure.Deployment;
-using TeamCloud.Azure.Deployment.Providers;
-using TeamCloud.Azure.Resources.Templates;
 
 namespace TeamCloud.Azure.Resources
 {
@@ -40,29 +37,14 @@ namespace TeamCloud.Azure.Resources
 
         public override async Task DeleteAsync(bool deleteLocks = false)
         {
-            var cleanupTask = CleanupAsync();
-
             if (deleteLocks)
             {
                 await DeleteLocksAsync(true)
                     .ConfigureAwait(false);
             }
 
-            await cleanupTask
-                .ContinueWith(task => base.DeleteAsync(false), TaskScheduler.Current)
-                .ConfigureAwait(false);
-        }
-
-        private async Task CleanupAsync()
-        {
-            var azureDeploymentService = new AzureDeploymentService(null, AzureResourceService.AzureSessionService, NullStorageArtifactsProvider.Instance);
-
-            var azureDeployment = await azureDeploymentService
-                .DeployResourceGroupTemplateAsync(new AzureResourceGroupCleanupTemplate(), ResourceId.SubscriptionId, ResourceId.ResourceGroup, true)
-                .ConfigureAwait(false);
-
-            await azureDeployment
-                .WaitAsync()
+            await base
+                .DeleteAsync(false)
                 .ConfigureAwait(false);
         }
 
