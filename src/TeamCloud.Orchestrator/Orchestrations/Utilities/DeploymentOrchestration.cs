@@ -38,7 +38,14 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                         .CallActivityWithRetryAsync<string>(deploymentActivityName, deploymentActivityInput)
                         .ConfigureAwait(true);
 
-                    functionContext.ContinueAsNew((deploymentActivityName, deploymentActivityInput, deploymentResourceId));
+                    if (string.IsNullOrEmpty(deploymentResourceId))
+                    {
+                        functionContext.SetOutput(null);
+                    }
+                    else
+                    {
+                        functionContext.ContinueAsNew((deploymentActivityName, deploymentActivityInput, deploymentResourceId));
+                    }
                 }
                 else
                 {

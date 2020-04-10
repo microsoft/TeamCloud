@@ -40,24 +40,24 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                     .SendCommandAsync<ProviderProjectDeleteCommand, ProviderProjectDeleteCommandResult>(new ProviderProjectDeleteCommand(command.User, project, command.CommandId))
                     .ConfigureAwait(true);
 
+
+                functionContext.SetCustomStatus("Deleting resources", log);
+
+                var tasks = new List<Task>();
+
                 if (!string.IsNullOrEmpty(project?.ResourceGroup?.ResourceGroupId))
-                {
-                    functionContext.SetCustomStatus("Deleting resources", log);
+                    tasks.Add(functionContext.ResetResourceGroupAsync(project.ResourceGroup.ResourceGroupId));
 
-                    var tasks = new List<Task>()
-                    {
-                        functionContext.ResetResourceGroupAsync(project.ResourceGroup.ResourceGroupId),
-                        functionContext.ResetResourceGroupAsync($"{project.ResourceGroup.ResourceGroupId}_Internal")
-                    };
+                if (!string.IsNullOrEmpty(project?.KeyVault?.VaultId))
+                    tasks.Add(functionContext.ResetResourceGroupAsync(project.KeyVault.VaultId));
 
-                    await Task
-                        .WhenAll(tasks)
-                        .ConfigureAwait(true);
+                await Task
+                    .WhenAll(tasks)
+                    .ConfigureAwait(true);
 
-                    await functionContext
-                        .CallActivityWithRetryAsync(nameof(ProjectResourcesDeleteActivity), project)
-                        .ConfigureAwait(true);
-                }
+                await functionContext
+                    .CallActivityWithRetryAsync(nameof(ProjectResourcesDeleteActivity), project)
+                    .ConfigureAwait(true);
 
                 functionContext.SetCustomStatus("Deleting project", log);
 

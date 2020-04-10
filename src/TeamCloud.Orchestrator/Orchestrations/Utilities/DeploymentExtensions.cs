@@ -25,7 +25,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                 if (string.IsNullOrEmpty(resourceGroupIdentifier.ResourceGroup))
                     throw new ArgumentException($"Argument '{nameof(resourceGroupId)}' must contain a resource group name", nameof(resourceGroupId));
 
-                return functionContext.GetDeploymentOutputAsync(nameof(ResetResourceGroupActivity), resourceGroupIdentifier.ToString(AzureResourceSegment.ResourceGroup));
+                return functionContext.GetDeploymentOutputAsync(nameof(ResourceGroupResetActivity), resourceGroupIdentifier.ToString(AzureResourceSegment.ResourceGroup));
             }
 
             throw new ArgumentException($"Invalid resource group Id: {resourceGroupId}", nameof(resourceGroupId));

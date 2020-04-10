@@ -16,16 +16,18 @@ using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
 {
-    public class ResetResourceGroupActivity
+    public class ResourceGroupResetActivity
     {
         private readonly IAzureDeploymentService azureDeploymentService;
+        private readonly IAzureResourceService azureResourceService;
 
-        public ResetResourceGroupActivity(IAzureDeploymentService azureDeploymentService)
+        public ResourceGroupResetActivity(IAzureDeploymentService azureDeploymentService, IAzureResourceService azureResourceService)
         {
             this.azureDeploymentService = azureDeploymentService ?? throw new ArgumentNullException(nameof(azureDeploymentService));
+            this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
         }
 
-        [FunctionName(nameof(ResetResourceGroupActivity))]
+        [FunctionName(nameof(ResourceGroupResetActivity))]
         [RetryOptions(3)]
         public async Task<string> RunActivity(
             [ActivityTrigger] IDurableActivityContext functionContext,
@@ -43,6 +45,13 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
                 if (string.IsNullOrEmpty(resourceGroupIdentifier.ResourceGroup))
                     throw new RetryCanceledException($"Resource id does not identify a resource group: {resourceGroupId}");
 
+                var resourceGroup = await azureResourceService
+                    .GetResourceGroupAsync(resourceGroupIdentifier.SubscriptionId, resourceGroupIdentifier.ResourceGroup)
+                    .ConfigureAwait(false);
+
+                if (resourceGroup is null)
+                    return default;
+
                 var deployment = await azureDeploymentService
                     .DeployResourceGroupTemplateAsync(new ResetResourceGroupTemplate(), resourceGroupIdentifier.SubscriptionId, resourceGroupIdentifier.ResourceGroup, completeMode: true)
                     .ConfigureAwait(false);
@@ -51,7 +60,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
             }
             catch (Exception exc) when (!exc.IsSerializable(out var serializableException))
             {
-                log.LogError(exc, $"Activity '{nameof(ResetResourceGroupActivity)} failed: {exc.Message}");
+                log.LogError(exc, $"Activity '{nameof(ResourceGroupResetActivity)} failed: {exc.Message}");
 
                 throw serializableException;
             }
