@@ -31,6 +31,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands.Activities
         }
 
         [FunctionName(nameof(ProjectResourcesAccessActivity))]
+        [RetryOptions(3)]
         public async Task RunActivity(
             [ActivityTrigger] IDurableActivityContext functionContext)
         {
