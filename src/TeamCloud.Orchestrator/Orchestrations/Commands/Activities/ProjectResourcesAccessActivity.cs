@@ -14,6 +14,7 @@ using TeamCloud.Azure.Resources;
 using TeamCloud.Azure.Resources.Typed;
 using TeamCloud.Data;
 using TeamCloud.Model.Data;
+using TeamCloud.Orchestration;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Commands.Activities
 {
