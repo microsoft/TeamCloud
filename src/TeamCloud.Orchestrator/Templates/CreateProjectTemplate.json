@@ -108,6 +108,11 @@
         "templateLink": {
           "uri": "[concat(uri(parameters('_artifactsLocation'), 'ProjectResources.json'), parameters('_artifactsLocationSasToken'))]",
           "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "providerIdentities": {
+            "value": "[parameters('providerIdentities')]"
+          }
         }
       }
     }
