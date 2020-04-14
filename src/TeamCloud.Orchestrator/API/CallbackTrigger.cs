@@ -24,6 +24,9 @@ namespace TeamCloud.Orchestrator
 {
     public static class CallbackTrigger
     {
+        private static string SanitizeInstanceId(string instanceId)
+            => instanceId?.Replace(":", "_", StringComparison.OrdinalIgnoreCase);
+
         private static async Task<string> GetCallbackToken(string instanceId)
         {
             var masterKey = await FunctionEnvironment
@@ -39,7 +42,7 @@ namespace TeamCloud.Orchestrator
                 .ConfigureAwait(false);
 
             return json
-                .SelectToken($"$.keys[?(@.name == '{instanceId}')].value")?
+                .SelectToken($"$.keys[?(@.name == '{SanitizeInstanceId(instanceId)}')].value")?
                 .ToString();
         }
 
@@ -58,7 +61,7 @@ namespace TeamCloud.Orchestrator
                     .AppendPathSegment("admin/functions")
                     .AppendPathSegment(nameof(CallbackTrigger))
                     .AppendPathSegment("keys")
-                    .AppendPathSegment(instanceId, true)
+                    .AppendPathSegment(SanitizeInstanceId(instanceId), true)
                     .SetQueryParam("code", masterKey)
                     .PostJsonAsync(null)
                     .ConfigureAwait(false);
@@ -92,7 +95,7 @@ namespace TeamCloud.Orchestrator
                     .AppendPathSegment("admin/functions")
                     .AppendPathSegment(nameof(CallbackTrigger))
                     .AppendPathSegment("keys")
-                    .AppendPathSegment(instanceId, true)
+                    .AppendPathSegment(SanitizeInstanceId(instanceId), true)
                     .SetQueryParam("code", masterKey)
                     .AllowAnyHttpStatus()
                     .DeleteAsync()
