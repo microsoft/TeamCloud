@@ -180,6 +180,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: client/dist/${{ build_tc_cli.whl_file }}
-          asset_name: ${{ build_tc_cli.whl_file }}
+          asset_path: client/dist/${{ steps.build_tc_cli.whl_file }}
+          asset_name: ${{ steps.build_tc_cli.whl_file }}
           asset_content_type: application/zip
