@@ -5,6 +5,7 @@ on:
     branches: [master]
 
 env:
+  TC_CLI_VERSION: 0.3.3
   BUILD_CONFIGURATION: Release
   SOURCE_DIRECTORY: ./src
 
@@ -113,8 +114,7 @@ jobs:
           source env/bin/activate
           azdev extension build tc
           deactivate
-
-          echo ::set-output name=whl_file::$(ls dist)
+          # echo ::set-output name=whl_file::$(ls dist)
 
       - name: Create Release
         id: create_release
@@ -173,6 +173,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: client/dist/${{ steps.build_tc_cli.whl_file }}
-          asset_name: ${{ steps.build_tc_cli.whl_file }}
+          asset_path: dist/tc-${{ env.TC_CLI_VERSION }}-py2.py3-none-any.whl
+          asset_name: tc-${{ env.TC_CLI_VERSION }}-py2.py3-none-any.whl
           asset_content_type: application/zip
