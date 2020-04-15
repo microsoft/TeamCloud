@@ -6,29 +6,13 @@ This file contains the configuration for generating client SDKs for the TeamClou
 
 ## Getting Started
 
-To generate the client SDKs for the TeamCloud API:
-
-### 1. Install AutoRest
-
-Normally, you'd simply install AutoRest via `npm` (`npm install -g autorest`). However, TeamCloud API is based on OpenAPI v3.0.1, which requires AutoRest v3 to generate the SDKs. AutoRest v3 is [currently in preview](https://github.com/Azure/autorest/tree/v3#new-autorest-version-30). Prerelease builds can be installed directly from a GitHub release (using the command below).
-
-```shell
-$ (sudo) npm install -g  https://github.com/Azure/autorest/releases/download/autorest-3.0.6182/autorest-3.0.6182.tgz
-$ autorest --reset
-```
-
-The most recent version of the TeamCloud Client SDKs were generated using prerelease build [3.0.6182](https://github.com/Azure/autorest/releases/tag/autorest-3.0.6182).
-
-This is only necessary until the AutoRest v3 is promoted to GA (soon). More info on managing AutoRest versions can be found [here](https://github.com/Azure/autorest/blob/v3/docs/autorest-versioning.md).
-
-### 2. Run AutoRest
-
-Next step is to run `autorest` in this (client) folder:
+To generate the client SDKs for the TeamCloud API, simply install AutoRest via `npm` (`[sudo] npm install -g autorest`) and then run:
 
 ```shell
 $ cd path/to/TeamCloud/client
-$ autorest
+$ autorest --v3
 ```
+For other options on installation see [Installing AutoRest](https://aka.ms/autorest/install) on the AutoRest github page.
 
 ## Configuration
 
@@ -67,5 +51,7 @@ license-header: MICROSOFT_MIT_NO_VERSION
 
 ``` yaml
 python:
-  output-folder: Python
+  # output-folder: Python
+  no-namespace-folders: true
+  output-folder: tc/azext_tc/vendored_sdks/teamcloud
 ```

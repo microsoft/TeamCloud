@@ -1,0 +1,6 @@
+{
+    "azext.isPreview": true,
+    "azext.isExperimental": true,
+    "azext.minCliCoreVersion": "2.0.69",
+    "azext.maxCliCoreVersion": "3.0.0"
+}
