@@ -123,7 +123,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "nullable": true
             }
           }
         ],
@@ -175,7 +176,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "nullable": true
             }
           }
         ],
@@ -283,7 +285,7 @@
         "tags": [
           "ProjectTags"
         ],
-        "summary": "Creates a new Project Tag",
+        "summary": "Creates a new Project Tag.",
         "operationId": "CreateProjectTag",
         "parameters": [
           {
@@ -302,7 +304,8 @@
                 "type": "object",
                 "additionalProperties": {
                   "type": "string"
-                }
+                },
+                "nullable": true
               }
             }
           }
@@ -386,7 +389,8 @@
                 "type": "object",
                 "additionalProperties": {
                   "type": "string"
-                }
+                },
+                "nullable": true
               }
             }
           }
@@ -443,7 +447,7 @@
         "tags": [
           "ProjectTags"
         ],
-        "summary": "Gets a Project Tag by Key or email address.",
+        "summary": "Gets a Project Tag by Key.",
         "operationId": "GetProjectTagByKey",
         "parameters": [
           {
@@ -451,7 +455,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "nullable": true
             }
           },
           {
@@ -521,7 +526,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "nullable": true
             }
           },
           {
@@ -665,7 +671,7 @@
         "tags": [
           "ProjectTypes"
         ],
-        "summary": "Updates an existing ProjectType.",
+        "summary": "Updates an existing Project Type.",
         "operationId": "UpdateProjectType",
         "requestBody": {
           "content": {
@@ -736,7 +742,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "nullable": true
             }
           }
         ],
@@ -780,7 +787,7 @@
         "tags": [
           "ProjectTypes"
         ],
-        "summary": "Deletes a ProjectType.",
+        "summary": "Deletes a Project Type.",
         "operationId": "DeleteProjectType",
         "parameters": [
           {
@@ -788,7 +795,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "nullable": true
             }
           }
         ],
@@ -1058,7 +1066,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "nullable": true
             }
           },
           {
@@ -1128,7 +1137,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "nullable": true
             }
           },
           {
@@ -1376,7 +1386,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "nullable": true
             }
           }
         ],
@@ -1428,7 +1439,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "nullable": true
             }
           }
         ],
@@ -1474,7 +1486,7 @@
         "tags": [
           "Status"
         ],
-        "summary": "Gets the status of a long-running opertation.",
+        "summary": "Gets the status of a long-running operation.",
         "operationId": "GetStatus",
         "parameters": [
           {
@@ -1549,7 +1561,7 @@
         "tags": [
           "Status"
         ],
-        "summary": "Gets the status of a long-running opertation.",
+        "summary": "Gets the status of a long-running operation.",
         "operationId": "GetProjectStatus",
         "parameters": [
           {
@@ -1788,7 +1800,7 @@
         "tags": [
           "TeamCloudTags"
         ],
-        "summary": "Creates a new TeamCloud Tag",
+        "summary": "Creates a new TeamCloud Tag.",
         "operationId": "CreateTeamCloudTag",
         "requestBody": {
           "content": {
@@ -1797,7 +1809,8 @@
                 "type": "object",
                 "additionalProperties": {
                   "type": "string"
-                }
+                },
+                "nullable": true
               }
             }
           }
@@ -1871,7 +1884,8 @@
                 "type": "object",
                 "additionalProperties": {
                   "type": "string"
-                }
+                },
+                "nullable": true
               }
             }
           }
@@ -1928,7 +1942,7 @@
         "tags": [
           "TeamCloudTags"
         ],
-        "summary": "Gets a TeamCloud Tag by Key or email address.",
+        "summary": "Gets a TeamCloud Tag by Key.",
         "operationId": "GetTeamCloudTagByKey",
         "parameters": [
           {
@@ -1936,7 +1950,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "nullable": true
             }
           }
         ],
@@ -1998,7 +2013,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "nullable": true
             }
           }
         ],
@@ -2238,7 +2254,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "nullable": true
             }
           }
         ],
@@ -2290,7 +2307,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "nullable": true
             }
           }
         ],
@@ -2365,8 +2383,7 @@
             },
             "nullable": true
           }
-        },
-        "additionalProperties": false
+        }
       },
       "ProjectType": {
         "type": "object",
@@ -2424,8 +2441,7 @@
             },
             "nullable": true
           }
-        },
-        "additionalProperties": false
+        }
       },
       "ProjectIdentity": {
         "type": "object",
@@ -2442,8 +2458,7 @@
             "type": "string",
             "nullable": true
           }
-        },
-        "additionalProperties": false
+        }
       },
       "AzureResourceGroup": {
         "type": "object",
@@ -2464,8 +2479,7 @@
             "type": "string",
             "nullable": true
           }
-        },
-        "additionalProperties": false
+        }
       },
       "AzureKeyVault": {
         "type": "object",
@@ -2482,8 +2496,7 @@
             "type": "string",
             "nullable": true
           }
-        },
-        "additionalProperties": false
+        }
       },
       "User": {
         "type": "object",
@@ -2503,8 +2516,7 @@
             },
             "nullable": true
           }
-        },
-        "additionalProperties": false
+        }
       },
       "Project": {
         "type": "object",
@@ -2523,36 +2535,16 @@
             "nullable": true
           },
           "type": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ProjectType"
-              }
-            ],
-            "nullable": true
+            "$ref": "#/components/schemas/ProjectType"
           },
           "identity": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ProjectIdentity"
-              }
-            ],
-            "nullable": true
+            "$ref": "#/components/schemas/ProjectIdentity"
           },
           "resourceGroup": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/AzureResourceGroup"
-              }
-            ],
-            "nullable": true
+            "$ref": "#/components/schemas/AzureResourceGroup"
           },
           "keyVault": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/AzureKeyVault"
-              }
-            ],
-            "nullable": true
+            "$ref": "#/components/schemas/AzureKeyVault"
           },
           "teamCloudId": {
             "type": "string",
@@ -2579,8 +2571,7 @@
             },
             "nullable": true
           }
-        },
-        "additionalProperties": false
+        }
       },
       "ProjectListDataResult": {
         "type": "object",
@@ -2605,8 +2596,7 @@
             "type": "string",
             "nullable": true
           }
-        },
-        "additionalProperties": false
+        }
       },
       "UserDefinition": {
         "type": "object",
@@ -2626,8 +2616,7 @@
             },
             "nullable": true
           }
-        },
-        "additionalProperties": false
+        }
       },
       "ProjectDefinition": {
         "type": "object",
@@ -2654,8 +2643,7 @@
             },
             "nullable": true
           }
-        },
-        "additionalProperties": false
+        }
       },
       "ValidationError": {
         "type": "object",
@@ -2668,8 +2656,7 @@
             "type": "string",
             "nullable": true
           }
-        },
-        "additionalProperties": false
+        }
       },
       "ResultError": {
         "type": "object",
@@ -2698,8 +2685,7 @@
             },
             "nullable": true
           }
-        },
-        "additionalProperties": false
+        }
       },
       "StatusResult": {
         "type": "object",
@@ -2736,8 +2722,7 @@
             "type": "string",
             "nullable": true
           }
-        },
-        "additionalProperties": false
+        }
       },
       "ErrorResult": {
         "type": "object",
@@ -2757,8 +2742,7 @@
             },
             "nullable": true
           }
-        },
-        "additionalProperties": false
+        }
       },
       "ProjectDataResult": {
         "type": "object",
@@ -2772,20 +2756,13 @@
             "nullable": true
           },
           "data": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/Project"
-              }
-            ],
-            "nullable": true,
-            "readOnly": true
+            "$ref": "#/components/schemas/Project"
           },
           "location": {
             "type": "string",
             "nullable": true
           }
-        },
-        "additionalProperties": false
+        }
       },
       "StringStringDictionaryDataResult": {
         "type": "object",
@@ -2810,8 +2787,7 @@
             "type": "string",
             "nullable": true
           }
-        },
-        "additionalProperties": false
+        }
       },
       "ProjectTypeListDataResult": {
         "type": "object",
@@ -2836,8 +2812,7 @@
             "type": "string",
             "nullable": true
           }
-        },
-        "additionalProperties": false
+        }
       },
       "ProjectTypeDataResult": {
         "type": "object",
@@ -2851,20 +2826,13 @@
             "nullable": true
           },
           "data": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ProjectType"
-              }
-            ],
-            "nullable": true,
-            "readOnly": true
+            "$ref": "#/components/schemas/ProjectType"
           },
           "location": {
             "type": "string",
             "nullable": true
           }
-        },
-        "additionalProperties": false
+        }
       },
       "UserListDataResult": {
         "type": "object",
@@ -2889,8 +2857,7 @@
             "type": "string",
             "nullable": true
           }
-        },
-        "additionalProperties": false
+        }
       },
       "UserDataResult": {
         "type": "object",
@@ -2904,20 +2871,13 @@
             "nullable": true
           },
           "data": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/User"
-              }
-            ],
-            "nullable": true,
-            "readOnly": true
+            "$ref": "#/components/schemas/User"
           },
           "location": {
             "type": "string",
             "nullable": true
           }
-        },
-        "additionalProperties": false
+        }
       },
       "Provider": {
         "type": "object",
@@ -2966,8 +2926,7 @@
             "type": "integer",
             "format": "int32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "ProviderListDataResult": {
         "type": "object",
@@ -2992,8 +2951,7 @@
             "type": "string",
             "nullable": true
           }
-        },
-        "additionalProperties": false
+        }
       },
       "ProviderDataResult": {
         "type": "object",
@@ -3007,20 +2965,13 @@
             "nullable": true
           },
           "data": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/Provider"
-              }
-            ],
-            "nullable": true,
-            "readOnly": true
+            "$ref": "#/components/schemas/Provider"
           },
           "location": {
             "type": "string",
             "nullable": true
           }
-        },
-        "additionalProperties": false
+        }
       }
     }
   },

@@ -25,13 +25,13 @@ class Project(Model):
     :param name:
     :type name: str
     :param type:
-    :type type: ~teamcloud.models.ProjectTypeModel
+    :type type: ~teamcloud.models.ProjectType
     :param identity:
-    :type identity: ~teamcloud.models.ProjectIdentityModel
+    :type identity: ~teamcloud.models.ProjectIdentity
     :param resource_group:
-    :type resource_group: ~teamcloud.models.ProjectResourceGroup
+    :type resource_group: ~teamcloud.models.AzureResourceGroup
     :param key_vault:
-    :type key_vault: ~teamcloud.models.ProjectKeyVault
+    :type key_vault: ~teamcloud.models.AzureKeyVault
     :param team_cloud_id:
     :type team_cloud_id: str
     :param users:
@@ -50,10 +50,10 @@ class Project(Model):
         'partition_key': {'key': 'partitionKey', 'type': 'str'},
         'id': {'key': 'id', 'type': 'str'},
         'name': {'key': 'name', 'type': 'str'},
-        'type': {'key': 'type', 'type': 'ProjectTypeModel'},
-        'identity': {'key': 'identity', 'type': 'ProjectIdentityModel'},
-        'resource_group': {'key': 'resourceGroup', 'type': 'ProjectResourceGroup'},
-        'key_vault': {'key': 'keyVault', 'type': 'ProjectKeyVault'},
+        'type': {'key': 'type', 'type': 'ProjectType'},
+        'identity': {'key': 'identity', 'type': 'ProjectIdentity'},
+        'resource_group': {'key': 'resourceGroup', 'type': 'AzureResourceGroup'},
+        'key_vault': {'key': 'keyVault', 'type': 'AzureKeyVault'},
         'team_cloud_id': {'key': 'teamCloudId', 'type': 'str'},
         'users': {'key': 'users', 'type': '[User]'},
         'tags': {'key': 'tags', 'type': '{str}'},

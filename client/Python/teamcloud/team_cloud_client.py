@@ -464,7 +464,7 @@ class TeamCloudClient(SDKClient):
 
     def get_project_tag_by_key(
             self, tag_key, project_id, custom_headers=None, raw=False, **operation_config):
-        """Gets a Project Tag by Key or email address.
+        """Gets a Project Tag by Key.
 
         :param tag_key:
         :type tag_key: str
@@ -684,7 +684,7 @@ class TeamCloudClient(SDKClient):
 
     def update_project_type(
             self, body=None, custom_headers=None, raw=False, **operation_config):
-        """Updates an existing ProjectType.
+        """Updates an existing Project Type.
 
         :param body:
         :type body: ~teamcloud.models.ProjectType
@@ -795,7 +795,7 @@ class TeamCloudClient(SDKClient):
 
     def delete_project_type(
             self, project_type_id, custom_headers=None, raw=False, **operation_config):
-        """Deletes a ProjectType.
+        """Deletes a Project Type.
 
         :param project_type_id:
         :type project_type_id: str
@@ -1420,7 +1420,7 @@ class TeamCloudClient(SDKClient):
 
     def get_status(
             self, tracking_id, custom_headers=None, raw=False, **operation_config):
-        """Gets the status of a long-running opertation.
+        """Gets the status of a long-running operation.
 
         :param tracking_id:
         :type tracking_id: str
@@ -1477,7 +1477,7 @@ class TeamCloudClient(SDKClient):
 
     def get_project_status(
             self, project_id, tracking_id, custom_headers=None, raw=False, **operation_config):
-        """Gets the status of a long-running opertation.
+        """Gets the status of a long-running operation.
 
         :param project_id:
         :type project_id: str
@@ -1762,7 +1762,7 @@ class TeamCloudClient(SDKClient):
 
     def get_team_cloud_tag_by_key(
             self, tag_key, custom_headers=None, raw=False, **operation_config):
-        """Gets a TeamCloud Tag by Key or email address.
+        """Gets a TeamCloud Tag by Key.
 
         :param tag_key:
         :type tag_key: str
