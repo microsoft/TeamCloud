@@ -67,13 +67,13 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands.Activities
                  .GetResourceGroupAsync(project.ResourceGroup.SubscriptionId, project.ResourceGroup.ResourceGroupName, throwIfNotExists: true)
                  .ConfigureAwait(false);
 
-            await resourceGroup
-                .AddRoleAssignmentAsync(principalId, AzureRoleDefinition.Contributor)
-                .ConfigureAwait(false);
+            //await resourceGroup
+            //    .AddRoleAssignmentAsync(principalId, AzureRoleDefinition.Contributor)
+            //    .ConfigureAwait(false);
 
-            await resourceGroup
-                .AddRoleAssignmentAsync(principalId, AzureRoleDefinition.UserAccessAdministrator)
-                .ConfigureAwait(false);
+            //await resourceGroup
+            //    .AddRoleAssignmentAsync(principalId, AzureRoleDefinition.UserAccessAdministrator)
+            //    .ConfigureAwait(false);
         }
 
         private async Task EnsureKeyVaultAccessAsync(Project project, Guid principalId)
