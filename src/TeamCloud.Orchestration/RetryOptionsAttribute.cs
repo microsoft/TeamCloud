@@ -67,11 +67,11 @@ namespace TeamCloud.Orchestration
             set => firstRetryInterval = TimeSpan.Parse(value, CultureInfo.InvariantCulture.DateTimeFormat);
         }
 
-        private TimeSpan maxRetryInterval = TimeSpan.FromHours(1);
+        private TimeSpan maxRetryInterval = TimeSpan.FromMinutes(5);
 
         /// <summary>
         /// Gets or sets the max retry interval
-        /// defaults to 1 hour
+        /// defaults to 5 minutes
         /// </summary>
         public string MaxRetryInterval
         {
@@ -79,11 +79,11 @@ namespace TeamCloud.Orchestration
             set => maxRetryInterval = TimeSpan.Parse(value, CultureInfo.InvariantCulture.DateTimeFormat);
         }
 
-        private TimeSpan retryTimeout = TimeSpan.FromDays(1);
+        private TimeSpan retryTimeout = TimeSpan.FromHours(1);
 
         /// <summary>
         /// Gets or sets the timeout for retries
-        /// defaults to 1 day
+        /// defaults to 1 hour
         /// </summary>
         public string RetryTimeout
         {
@@ -95,7 +95,7 @@ namespace TeamCloud.Orchestration
         /// Gets or sets the back-off coefficient
         /// defaults to 1, used to determine rate of increase of back-off
         /// </summary>
-        public double BackoffCoefficient { get; set; } = 1;
+        public double BackoffCoefficient { get; set; } = 1.5;
 
 
         /// <summary>
