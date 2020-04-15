@@ -114,8 +114,7 @@ jobs:
           azdev extension build tc
           deactivate
 
-          TC_WHL_FILE=$(ls dist)
-          echo "::set-output name=whl_file::$TC_WHL_FILE"
+          echo ::set-output name=whl_file::$(ls dist)
 
       - name: Create Release
         id: create_release
