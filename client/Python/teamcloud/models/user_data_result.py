@@ -15,27 +15,20 @@ from msrest.serialization import Model
 class UserDataResult(Model):
     """UserDataResult.
 
-    Variables are only populated by the server, and will be ignored when
-    sending a request.
-
     :param code:
     :type code: int
     :param status:
     :type status: str
-    :ivar data:
-    :vartype data: ~teamcloud.models.UserDataResultData
+    :param data:
+    :type data: ~teamcloud.models.User
     :param location:
     :type location: str
     """
 
-    _validation = {
-        'data': {'readonly': True},
-    }
-
     _attribute_map = {
         'code': {'key': 'code', 'type': 'int'},
         'status': {'key': 'status', 'type': 'str'},
-        'data': {'key': 'data', 'type': 'UserDataResultData'},
+        'data': {'key': 'data', 'type': 'User'},
         'location': {'key': 'location', 'type': 'str'},
     }
 
@@ -43,5 +36,5 @@ class UserDataResult(Model):
         super(UserDataResult, self).__init__(**kwargs)
         self.code = kwargs.get('code', None)
         self.status = kwargs.get('status', None)
-        self.data = None
+        self.data = kwargs.get('data', None)
         self.location = kwargs.get('location', None)

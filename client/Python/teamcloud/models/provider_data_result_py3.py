@@ -15,33 +15,26 @@ from msrest.serialization import Model
 class ProviderDataResult(Model):
     """ProviderDataResult.
 
-    Variables are only populated by the server, and will be ignored when
-    sending a request.
-
     :param code:
     :type code: int
     :param status:
     :type status: str
-    :ivar data:
-    :vartype data: ~teamcloud.models.ProviderDataResultData
+    :param data:
+    :type data: ~teamcloud.models.Provider
     :param location:
     :type location: str
     """
 
-    _validation = {
-        'data': {'readonly': True},
-    }
-
     _attribute_map = {
         'code': {'key': 'code', 'type': 'int'},
         'status': {'key': 'status', 'type': 'str'},
-        'data': {'key': 'data', 'type': 'ProviderDataResultData'},
+        'data': {'key': 'data', 'type': 'Provider'},
         'location': {'key': 'location', 'type': 'str'},
     }
 
-    def __init__(self, *, code: int=None, status: str=None, location: str=None, **kwargs) -> None:
+    def __init__(self, *, code: int=None, status: str=None, data=None, location: str=None, **kwargs) -> None:
         super(ProviderDataResult, self).__init__(**kwargs)
         self.code = code
         self.status = status
-        self.data = None
+        self.data = data
         self.location = location
