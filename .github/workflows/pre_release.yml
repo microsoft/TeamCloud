@@ -73,12 +73,12 @@ jobs:
           popd
 
       - name: Setup Node
-      - uses: actions/setup-node@v1
+        uses: actions/setup-node@v1
         with:
           node-version: '10.x'
 
       - name: Setup Python
-      - uses: actions/setup-python@v1
+        uses: actions/setup-python@v1
         with:
           python-version: '3.x'
 
