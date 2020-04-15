@@ -93,34 +93,28 @@ jobs:
 
       - name: Setup Azure CLI Dev Tools (azdev)
         run: |
-          pushd client
-            python -m venv env
-            source env/bin/activate
-            pip install azdev
-            azdev setup -r $PWD -e tc
-            deactivate
-          popd
+          python -m venv env
+          source env/bin/activate
+          pip install azdev
+          azdev setup -r $PWD -e tc
+          deactivate
 
       - name: TeamCloud CLI Lint & Style checks
         run: |
-          pushd client
-            source env/bin/activate
-            # pending fix for https://github.com/Azure/azure-cli/issues/13024
-            # azdev linter tc
-            azdev style tc
-            deactivate
-          popd
+          source env/bin/activate
+          # pending fix for https://github.com/Azure/azure-cli/issues/13024
+          # azdev linter tc
+          azdev style tc
+          deactivate
 
       - name: Build TeamCloud CLI
         id: build_tc_cli
         run: |
-          pushd client
-            source env/bin/activate
-            azdev extension build tc
-            deactivate
-          popd
+          source env/bin/activate
+          azdev extension build tc
+          deactivate
 
-          TC_WHL_FILE=$(ls client/dist)
+          TC_WHL_FILE=$(ls dist)
           echo "::set-output name=whl_file::$TC_WHL_FILE"
 
       - name: Create Release
