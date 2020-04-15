@@ -46,6 +46,26 @@ namespace TeamCloud.Orchestrator
                 .ToString();
         }
 
+        private static async Task SynchronizeCallbackUrlsAsync()
+        {
+            try
+            {
+                var masterKey = await FunctionEnvironment
+                    .GetAdminKeyAsync()
+                    .ConfigureAwait(false);
+
+                _ = await FunctionEnvironment.HostUrl
+                        .AppendPathSegment("admin/host/synctriggers/")
+                        .SetQueryParam("code", masterKey)
+                        .AllowAnyHttpStatus()
+                        .PostJsonAsync(null)
+                        .ConfigureAwait(false);
+            }
+            catch
+            {
+                // we swallow all exceptions
+            }
+        }
         internal static async Task<string> AcquireCallbackUrlAsync(string instanceId, ICommand command)
         {
             var functionKey = await GetCallbackToken(instanceId)
@@ -57,22 +77,30 @@ namespace TeamCloud.Orchestrator
                     .GetAdminKeyAsync()
                     .ConfigureAwait(false);
 
-                var response = await FunctionEnvironment.HostUrl
-                    .AppendPathSegment("admin/functions")
-                    .AppendPathSegment(nameof(CallbackTrigger))
-                    .AppendPathSegment("keys")
-                    .AppendPathSegment(SanitizeInstanceId(instanceId), true)
-                    .SetQueryParam("code", masterKey)
-                    .PostJsonAsync(null)
-                    .ConfigureAwait(false);
+                try
+                {
+                    var response = await FunctionEnvironment.HostUrl
+                        .AppendPathSegment("admin/functions")
+                        .AppendPathSegment(nameof(CallbackTrigger))
+                        .AppendPathSegment("keys")
+                        .AppendPathSegment(SanitizeInstanceId(instanceId), true)
+                        .SetQueryParam("code", masterKey)
+                        .PostJsonAsync(null)
+                        .ConfigureAwait(false);
 
-                var functionKeysJson = await response.Content
-                    .ReadAsJsonAsync()
-                    .ConfigureAwait(false);
+                    var functionKeysJson = await response.Content
+                        .ReadAsJsonAsync()
+                        .ConfigureAwait(false);
 
-                functionKey = functionKeysJson
-                    .SelectToken($"$.value")?
-                    .ToString();
+                    functionKey = functionKeysJson
+                        .SelectToken($"$.value")?
+                        .ToString();
+                }
+                finally
+                {
+                    await SynchronizeCallbackUrlsAsync()
+                        .ConfigureAwait(false);
+                }
             }
 
             return FunctionEnvironment.HostUrl
@@ -82,7 +110,6 @@ namespace TeamCloud.Orchestrator
                 .SetQueryParam("code", functionKey)
                 .ToString();
         }
-
         internal static async Task InvalidateCallbackUrlAsync(string instanceId)
         {
             var masterKey = await FunctionEnvironment
@@ -108,6 +135,11 @@ namespace TeamCloud.Orchestrator
 
                 if (!string.IsNullOrEmpty(functionKey))
                     throw;
+            }
+            finally
+            {
+                await SynchronizeCallbackUrlsAsync()
+                    .ConfigureAwait(false);
             }
         }
 
