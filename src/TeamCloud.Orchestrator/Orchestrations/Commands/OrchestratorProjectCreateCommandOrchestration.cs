@@ -160,11 +160,23 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 .CallActivityWithRetryAsync<User>(nameof(TeamCloudUserActivity), null)
                 .ConfigureAwait(true);
 
-            var deleteCommand = new OrchestratorProjectDeleteCommand(systemUser, command.Payload);
-            var deleteCommandMessage = new OrchestratorCommandMessage(deleteCommand);
+            try
+            {
+                var deleteCommand = new OrchestratorProjectDeleteCommand(systemUser, command.Payload);
+                var deleteCommandMessage = new OrchestratorCommandMessage(deleteCommand);
 
-            functionContext
-                .StartNewOrchestration(nameof(OrchestratorProjectDeleteCommandOrchestration), deleteCommandMessage);
+                await functionContext
+                    .CallSubOrchestratorAsync(nameof(OrchestratorProjectDeleteCommandOrchestration), deleteCommandMessage)
+                    .ConfigureAwait(true);
+            }
+            catch
+            {
+                var deleteCommand = new OrchestratorProjectDeleteCommand(systemUser, command.Payload);
+                var deleteCommandMessage = new OrchestratorCommandMessage(deleteCommand);
+
+                functionContext
+                    .StartNewOrchestration(nameof(OrchestratorProjectDeleteCommandOrchestration), deleteCommandMessage);
+            }
         }
     }
 }
