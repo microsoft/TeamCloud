@@ -17,6 +17,7 @@ using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Orchestrations.Commands;
 using TeamCloud.Orchestrator.Orchestrations.Commands.Activities;
 using TeamCloud.Orchestrator.Orchestrations.Utilities.Activities;
+using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 {
@@ -58,22 +59,28 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                 => command.ProjectId.HasValue && !(command is IProviderCommand<Project>);
         }
 
-        private static Task RegisterProviderAsync(IDurableOrchestrationContext functionContext, IProviderCommand providerCommand, Provider provider)
+        private static async Task<bool> RegisterProviderAsync(IDurableOrchestrationContext functionContext, IProviderCommand providerCommand, Provider provider)
         {
             if (providerCommand is ProviderRegisterCommand || provider.Registered.HasValue)
-                return Task.CompletedTask;
+                return false;
 
-            return functionContext
-                .RegisterProviderAsync(provider, true);
+            await functionContext
+                .RegisterProviderAsync(provider, true)
+                .ConfigureAwait(true);
+
+            return true;
         }
 
-        private static Task EnableProviderAsync(IDurableOrchestrationContext functionContext, IProviderCommand providerCommand, Provider provider)
+        private static async Task<bool> EnableProviderAsync(IDurableOrchestrationContext functionContext, IProviderCommand providerCommand, Provider provider)
         {
             if (!providerCommand.ProjectId.HasValue || !provider.PrincipalId.HasValue)
-                return Task.CompletedTask;
+                return false;
 
-            return functionContext
-                .CallActivityWithRetryAsync(nameof(ProjectResourcesAccessActivity), (providerCommand.ProjectId.Value, provider.PrincipalId.Value));
+            await functionContext
+                .CallActivityWithRetryAsync(nameof(ProjectResourcesAccessActivity), (providerCommand.ProjectId.Value, provider.PrincipalId.Value))
+                .ConfigureAwait(true);
+
+            return true;
         }
 
 
@@ -121,7 +128,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 
             try
             {
-                functionContext.SetCustomStatus($"Acquire callback url for command '{command.CommandId}'", log);
+                functionContext.SetCustomStatus($"Acquire callback url", log);
 
                 commandCallback = await functionContext
                     .CallActivityWithRetryAsync<string>(nameof(CallbackAcquireActivity), (functionContext.InstanceId, command))
@@ -129,13 +136,15 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 
                 commandMessage = new ProviderCommandMessage(command, commandCallback);
 
-                functionContext.SetCustomStatus($"Prepare sending command '{command.CommandId}'", log);
+                functionContext.SetCustomStatus($"Prepare provider {provider.Id}", log);
 
-                await RegisterProviderAsync(functionContext, command, provider)
-                    .ConfigureAwait(true);
+                if (await RegisterProviderAsync(functionContext, command, provider).ConfigureAwait(true))
+                    log.LogInformation($"Registered provider {provider.Id} for command {command.CommandId}");
 
-                await EnableProviderAsync(functionContext, command, provider)
-                    .ConfigureAwait(true);
+                if (await EnableProviderAsync(functionContext, command, provider).ConfigureAwait(true))
+                    log.LogInformation($"Enabled provider {provider.Id} for command {command.CommandId}");
+
+                functionContext.SetCustomStatus($"Augmenting command", log);
 
                 command = await AugmentCommandAsync(functionContext, provider, command)
                     .ConfigureAwait(true);
@@ -179,11 +188,21 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 
                     if (commandResult is null)
                     {
+                        // provider ran into a timeout
+                        // lets give our provider a last
+                        // chance to return a command result
+
                         commandResult = await functionContext
                             .CallActivityWithRetryAsync<ICommandResult>(nameof(CommandResultActivity), (provider, commandMessage))
                             .ConfigureAwait(true);
 
-                        throw new TimeoutException($"Provider '{provider.Id}' ran into timeout ({commandTimeout})");
+                        if (commandResult.RuntimeStatus.IsFinal())
+                        {
+                            // the last change result still doesn't report a final runtime status
+                            // escalate the timeout by throwing an appropriate exception
+
+                            throw new TimeoutException($"Provider '{provider.Id}' ran into timeout ({commandTimeout})");
+                        }
                     }
                 }
             }
@@ -191,12 +210,8 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
             {
                 functionContext.SetCustomStatus($"Sending command '{command.CommandId}' failed: {exc.Message}", log, exc);
 
-                // ensure we always have a command result
-                // to add our exception so we won't break
-                // our command auditing in the finally block
-
                 commandResult ??= command.CreateResult();
-                commandResult.Errors.Add(exc);
+                commandResult.Errors.Add(exc.AsSerializable());
             }
             finally
             {

@@ -4,7 +4,7 @@
  */
 
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.Management.KeyVault.Fluent.Models;
 using Microsoft.Azure.WebJobs;
@@ -48,17 +48,11 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands.Activities
             if (project is null)
                 throw new RetryCanceledException($"Could not find project '{projectId}'");
 
-            var tasks = new List<Task>();
-
             if (!string.IsNullOrEmpty(project.ResourceGroup?.ResourceGroupId))
-                tasks.Add(EnsureResourceGroupAccessAsync(project, principalId));
+                await EnsureResourceGroupAccessAsync(project, principalId).ConfigureAwait(false);
 
             if (!string.IsNullOrEmpty(project.KeyVault?.VaultId))
-                tasks.Add(EnsureKeyVaultAccessAsync(project, principalId));
-
-            await Task
-                .WhenAll(tasks)
-                .ConfigureAwait(false);
+                await EnsureKeyVaultAccessAsync(project, principalId).ConfigureAwait(false);
         }
 
         private async Task EnsureResourceGroupAccessAsync(Project project, Guid principalId)
@@ -67,13 +61,23 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands.Activities
                  .GetResourceGroupAsync(project.ResourceGroup.SubscriptionId, project.ResourceGroup.ResourceGroupName, throwIfNotExists: true)
                  .ConfigureAwait(false);
 
-            //await resourceGroup
-            //    .AddRoleAssignmentAsync(principalId, AzureRoleDefinition.Contributor)
-            //    .ConfigureAwait(false);
+            var roleAssignments = await resourceGroup
+                .GetRoleAssignmentsAsync(principalId)
+                .ConfigureAwait(false);
 
-            //await resourceGroup
-            //    .AddRoleAssignmentAsync(principalId, AzureRoleDefinition.UserAccessAdministrator)
-            //    .ConfigureAwait(false);
+            if (!roleAssignments.Contains(AzureRoleDefinition.Contributor))
+            {
+                await resourceGroup
+                    .AddRoleAssignmentAsync(principalId, AzureRoleDefinition.Contributor)
+                    .ConfigureAwait(false);
+            }
+
+            if (!roleAssignments.Contains(AzureRoleDefinition.UserAccessAdministrator))
+            {
+                await resourceGroup
+                    .AddRoleAssignmentAsync(principalId, AzureRoleDefinition.UserAccessAdministrator)
+                    .ConfigureAwait(false);
+            }
         }
 
         private async Task EnsureKeyVaultAccessAsync(Project project, Guid principalId)
