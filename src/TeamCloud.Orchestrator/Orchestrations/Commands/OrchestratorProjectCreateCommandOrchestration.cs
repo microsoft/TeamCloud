@@ -14,6 +14,7 @@ using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Orchestrations.Commands.Activities;
 using TeamCloud.Orchestrator.Orchestrations.Utilities;
+using TeamCloud.Orchestrator.Orchestrations.Utilities.Activities;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Commands
 {
@@ -31,8 +32,13 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
             var command = (OrchestratorProjectCreateCommand)commandMessage.Command;
             var commandResult = command.CreateResult();
 
+            var project = commandResult.Result = command.Payload;
+
             try
             {
+                await functionContext.AuditAsync(command, commandResult)
+                    .ConfigureAwait(true);
+
                 try
                 {
                     commandResult = await ProvisionAsync(functionContext, command, log)
@@ -48,6 +54,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
             }
             catch (Exception exc)
             {
+                commandResult ??= command.CreateResult();
                 commandResult.Errors.Add(exc);
 
                 throw;
@@ -60,6 +67,9 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                     functionContext.SetCustomStatus($"Command succeeded", log);
                 else
                     functionContext.SetCustomStatus($"Command failed: {commandException.Message}", log, commandException);
+
+                await functionContext.AuditAsync(command, commandResult)
+                    .ConfigureAwait(true);
 
                 functionContext.SetOutput(commandResult);
             }

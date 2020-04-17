@@ -13,6 +13,7 @@ using TeamCloud.Model.Commands;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Orchestrations.Commands.Activities;
 using TeamCloud.Orchestrator.Orchestrations.Utilities;
+using TeamCloud.Orchestrator.Orchestrations.Utilities.Activities;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Commands
 {
@@ -30,50 +31,59 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
             var command = (OrchestratorProjectDeleteCommand)commandMessage.Command;
             var commandResult = command.CreateResult();
 
-            var project = command.Payload;
+            var project = commandResult.Result = command.Payload;
 
             try
             {
-                functionContext.SetCustomStatus("Sending commands", log);
-
-                var providerResults = await functionContext
-                    .SendCommandAsync<ProviderProjectDeleteCommand, ProviderProjectDeleteCommandResult>(new ProviderProjectDeleteCommand(command.User, project, command.CommandId))
+                await functionContext.AuditAsync(command, commandResult)
                     .ConfigureAwait(true);
 
+                try
+                {
+                    functionContext.SetCustomStatus("Sending commands", log);
 
-                functionContext.SetCustomStatus("Deleting resources", log);
+                    var providerResults = await functionContext
+                        .SendCommandAsync<ProviderProjectDeleteCommand, ProviderProjectDeleteCommandResult>(new ProviderProjectDeleteCommand(command.User, project, command.CommandId))
+                        .ConfigureAwait(true);
+                }
+                finally
+                {
+                    functionContext.SetCustomStatus("Deleting project", log);
 
-                var tasks = new List<Task>();
+                    await functionContext
+                        .CallActivityWithRetryAsync(nameof(ProjectDeleteActivity), project)
+                        .ConfigureAwait(true);
+                }
 
-                if (!string.IsNullOrEmpty(project?.ResourceGroup?.ResourceGroupId))
-                    tasks.Add(functionContext.ResetResourceGroupAsync(project.ResourceGroup.ResourceGroupId));
+                try
+                {
+                    functionContext.SetCustomStatus("Deleting resources", log);
 
-                if (!string.IsNullOrEmpty(project?.KeyVault?.VaultId))
-                    tasks.Add(functionContext.ResetResourceGroupAsync(project.KeyVault.VaultId));
+                    var tasks = new List<Task>();
 
-                await Task
-                    .WhenAll(tasks)
-                    .ConfigureAwait(true);
+                    if (!string.IsNullOrEmpty(project?.ResourceGroup?.ResourceGroupId))
+                        tasks.Add(functionContext.ResetResourceGroupAsync(project.ResourceGroup.ResourceGroupId));
 
-                functionContext.SetCustomStatus("Deleting resource groups", log);
+                    if (!string.IsNullOrEmpty(project?.KeyVault?.VaultId))
+                        tasks.Add(functionContext.ResetResourceGroupAsync(project.KeyVault.VaultId));
 
-                await functionContext
-                    .CallActivityWithRetryAsync(nameof(ProjectResourcesDeleteActivity), project)
-                    .ConfigureAwait(true);
+                    await Task
+                        .WhenAll(tasks)
+                        .ConfigureAwait(true);
+                }
+                finally
+                {
+                    functionContext.SetCustomStatus("Deleting resource groups", log);
 
-                functionContext.SetCustomStatus("Deleting project", log);
-
-                await functionContext
-                    .CallActivityWithRetryAsync(nameof(ProjectDeleteActivity), project)
-                    .ConfigureAwait(true);
-
-                commandResult.Result = project;
-
-                functionContext.SetCustomStatus("Project deleted", log);
+                    await functionContext
+                        .CallActivityWithRetryAsync(nameof(ProjectResourcesDeleteActivity), project)
+                        .ConfigureAwait(true);
+                }
             }
-            catch (Exception ex)
+            catch (Exception exc)
             {
-                commandResult.Errors.Add(ex);
+                commandResult ??= command.CreateResult();
+                commandResult.Errors.Add(exc);
 
                 throw;
             }
@@ -85,6 +95,9 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                     functionContext.SetCustomStatus($"Command succeeded", log);
                 else
                     functionContext.SetCustomStatus($"Command failed: {commandException.Message}", log, commandException);
+
+                await functionContext.AuditAsync(command, commandResult)
+                    .ConfigureAwait(true);
 
                 functionContext.SetOutput(commandResult);
             }

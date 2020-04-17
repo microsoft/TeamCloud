@@ -13,6 +13,7 @@ using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Orchestrations.Commands.Activities;
 using TeamCloud.Orchestrator.Orchestrations.Utilities;
+using TeamCloud.Orchestrator.Orchestrations.Utilities.Activities;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Commands
 {
@@ -27,14 +28,16 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 throw new ArgumentNullException(nameof(functionContext));
 
             var commandMessage = functionContext.GetInput<OrchestratorCommandMessage>();
-
             var command = (OrchestratorProjectUpdateCommand)commandMessage.Command;
             var commandResult = command.CreateResult();
 
-            var project = command.Payload;
+            var project = commandResult.Result = command.Payload;
 
             try
             {
+                await functionContext.AuditAsync(command, commandResult)
+                    .ConfigureAwait(true);
+
                 functionContext.SetCustomStatus($"Updating project.", log);
 
                 project = await functionContext
@@ -46,21 +49,26 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 var providerResults = await functionContext
                     .SendCommandAsync<ProviderProjectUpdateCommand, ProviderProjectUpdateCommandResult>(new ProviderProjectUpdateCommand(command.User, project, command.CommandId))
                     .ConfigureAwait(true);
-
-                functionContext.SetCustomStatus("Project updated.", log);
-
-                commandResult.Result = project;
             }
-            catch (Exception ex)
+            catch (Exception exc)
             {
-                functionContext.SetCustomStatus("Failed to update project.", log, ex);
-
-                commandResult.Errors.Add(ex);
+                commandResult ??= command.CreateResult();
+                commandResult.Errors.Add(exc);
 
                 throw;
             }
             finally
             {
+                var commandException = commandResult.GetException();
+
+                if (commandException is null)
+                    functionContext.SetCustomStatus($"Command succeeded", log);
+                else
+                    functionContext.SetCustomStatus($"Command failed: {commandException.Message}", log, commandException);
+
+                await functionContext.AuditAsync(command, commandResult)
+                    .ConfigureAwait(true);
+
                 functionContext.SetOutput(commandResult);
             }
 

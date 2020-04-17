@@ -6,12 +6,14 @@
 using System;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Microsoft.WindowsAzure.Storage.Table;
 using TeamCloud.Model.Auditing;
+using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 
@@ -19,6 +21,8 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
 {
     public static class CommandAuditActivity
     {
+        private static string DefaultProviderName = Assembly.GetCallingAssembly().GetName().Name;
+
         [FunctionName(nameof(CommandAuditActivity))]
         public static async Task RunActivity(
             [ActivityTrigger] IDurableActivityContext functionContext,
@@ -39,7 +43,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
                 var entity = new CommandAuditEntity()
                 {
                     CommandId = command.CommandId.ToString(),
-                    ProviderId = provider.Id
+                    ProviderId = command is IProviderCommand ? provider.Id : DefaultProviderName
                 };
 
                 var entityResult = await commandTable
@@ -75,9 +79,13 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
             {
                 entity.Status = commandResult.RuntimeStatus;
 
-                if (commandResult.RuntimeStatus.IsFinal())
+                if (command is IProviderCommand && !commandResult.RuntimeStatus.IsUnknown())
                 {
                     entity.Sent ??= timestamp;
+                }
+
+                if (commandResult.RuntimeStatus.IsFinal())
+                {
                     entity.Processed ??= timestamp;
 
                     if (commandResult.RuntimeStatus == CommandRuntimeStatus.Failed)
@@ -86,13 +94,12 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
                         entity.Errors = commandResult.Errors.Select(err => err.Message).ToArray();
                     }
                 }
-                else if (commandResult.RuntimeStatus.IsActive())
+                else if (command is IProviderCommand && commandResult.RuntimeStatus.IsActive())
                 {
                     // the provider returned an active state
                     // so we could set the sent state and 
                     // tace the timeout returned by the provider
 
-                    entity.Sent ??= timestamp;
                     entity.Timeout ??= timestamp + commandResult.Timeout;
                 }
             }
