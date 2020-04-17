@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
+using TeamCloud.Model;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
@@ -27,51 +28,57 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
 
+            if (log is null)
+                throw new ArgumentNullException(nameof(log));
+
             var commandMessage = functionContext.GetInput<OrchestratorCommandMessage>();
             var command = (OrchestratorProjectUpdateCommand)commandMessage.Command;
             var commandResult = command.CreateResult();
 
-            var project = commandResult.Result = command.Payload;
-
-            try
+            using (log.BeginCommandScope(command))
             {
-                await functionContext.AuditAsync(command, commandResult)
-                    .ConfigureAwait(true);
 
-                functionContext.SetCustomStatus($"Updating project.", log);
+                var project = commandResult.Result = command.Payload;
 
-                project = await functionContext
-                    .CallActivityWithRetryAsync<Project>(nameof(ProjectSetActivity), project)
-                    .ConfigureAwait(true);
+                try
+                {
+                    await functionContext.AuditAsync(command, commandResult)
+                        .ConfigureAwait(true);
 
-                functionContext.SetCustomStatus("Waiting on providers to update project resources.", log);
+                    functionContext.SetCustomStatus($"Updating project.", log);
 
-                var providerResults = await functionContext
-                    .SendCommandAsync<ProviderProjectUpdateCommand, ProviderProjectUpdateCommandResult>(new ProviderProjectUpdateCommand(command.User, project, command.CommandId))
-                    .ConfigureAwait(true);
+                    project = await functionContext
+                        .CallActivityWithRetryAsync<Project>(nameof(ProjectSetActivity), project)
+                        .ConfigureAwait(true);
+
+                    functionContext.SetCustomStatus("Waiting on providers to update project resources.", log);
+
+                    var providerResults = await functionContext
+                        .SendCommandAsync<ProviderProjectUpdateCommand, ProviderProjectUpdateCommandResult>(new ProviderProjectUpdateCommand(command.User, project, command.CommandId))
+                        .ConfigureAwait(true);
+                }
+                catch (Exception exc)
+                {
+                    commandResult ??= command.CreateResult();
+                    commandResult.Errors.Add(exc);
+
+                    throw;
+                }
+                finally
+                {
+                    var commandException = commandResult.GetException();
+
+                    if (commandException is null)
+                        functionContext.SetCustomStatus($"Command succeeded", log);
+                    else
+                        functionContext.SetCustomStatus($"Command failed: {commandException.Message}", log, commandException);
+
+                    await functionContext.AuditAsync(command, commandResult)
+                        .ConfigureAwait(true);
+
+                    functionContext.SetOutput(commandResult);
+                }
             }
-            catch (Exception exc)
-            {
-                commandResult ??= command.CreateResult();
-                commandResult.Errors.Add(exc);
-
-                throw;
-            }
-            finally
-            {
-                var commandException = commandResult.GetException();
-
-                if (commandException is null)
-                    functionContext.SetCustomStatus($"Command succeeded", log);
-                else
-                    functionContext.SetCustomStatus($"Command failed: {commandException.Message}", log, commandException);
-
-                await functionContext.AuditAsync(command, commandResult)
-                    .ConfigureAwait(true);
-
-                functionContext.SetOutput(commandResult);
-            }
-
         }
     }
 }

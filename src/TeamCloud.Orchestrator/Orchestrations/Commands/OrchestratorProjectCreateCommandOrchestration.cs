@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
+using TeamCloud.Model;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
@@ -28,50 +29,56 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
 
+            if (log is null)
+                throw new ArgumentNullException(nameof(log));
+
             var commandMessage = functionContext.GetInput<OrchestratorCommandMessage>();
             var command = (OrchestratorProjectCreateCommand)commandMessage.Command;
             var commandResult = command.CreateResult();
 
-            var project = commandResult.Result = command.Payload;
-
-            try
+            using (log.BeginCommandScope(command))
             {
-                await functionContext.AuditAsync(command, commandResult)
-                    .ConfigureAwait(true);
+                var project = commandResult.Result = command.Payload;
 
                 try
                 {
-                    commandResult = await ProvisionAsync(functionContext, command, log)
+                    await functionContext.AuditAsync(command, commandResult)
                         .ConfigureAwait(true);
+
+                    try
+                    {
+                        commandResult = await ProvisionAsync(functionContext, command, log)
+                            .ConfigureAwait(true);
+                    }
+                    catch
+                    {
+                        await RollbackAsync(functionContext, command, log)
+                            .ConfigureAwait(true);
+
+                        throw;
+                    }
                 }
-                catch
+                catch (Exception exc)
                 {
-                    await RollbackAsync(functionContext, command, log)
-                        .ConfigureAwait(true);
+                    commandResult ??= command.CreateResult();
+                    commandResult.Errors.Add(exc);
 
                     throw;
                 }
-            }
-            catch (Exception exc)
-            {
-                commandResult ??= command.CreateResult();
-                commandResult.Errors.Add(exc);
+                finally
+                {
+                    var commandException = commandResult.GetException();
 
-                throw;
-            }
-            finally
-            {
-                var commandException = commandResult.GetException();
+                    if (commandException is null)
+                        functionContext.SetCustomStatus($"Command succeeded", log);
+                    else
+                        functionContext.SetCustomStatus($"Command failed: {commandException.Message}", log, commandException);
 
-                if (commandException is null)
-                    functionContext.SetCustomStatus($"Command succeeded", log);
-                else
-                    functionContext.SetCustomStatus($"Command failed: {commandException.Message}", log, commandException);
+                    await functionContext.AuditAsync(command, commandResult)
+                        .ConfigureAwait(true);
 
-                await functionContext.AuditAsync(command, commandResult)
-                    .ConfigureAwait(true);
-
-                functionContext.SetOutput(commandResult);
+                    functionContext.SetOutput(commandResult);
+                }
             }
         }
 
