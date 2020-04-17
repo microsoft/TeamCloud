@@ -79,11 +79,11 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                     }
                 }
             }
-            catch (Exception exc) when (!exc.IsSerializable(out var serializableException))
+            catch (Exception exc)
             {
                 log.LogError(exc, $"Orchestration '{nameof(DeploymentOrchestration)}' failed: {exc.Message}");
 
-                throw serializableException;
+                throw exc.AsSerializable();
             }
         }
     }

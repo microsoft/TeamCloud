@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
+using TeamCloud.Model;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestrator.Orchestrations.Commands.Activities;
@@ -25,59 +26,63 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
 
-            var orchestratorCommand = functionContext.GetInput<OrchestratorCommandMessage>();
+            if (log is null)
+                throw new ArgumentNullException(nameof(log));
 
-            var command = (OrchestratorTeamCloudUserCreateCommand)orchestratorCommand.Command;
+            var commandMessage = functionContext.GetInput<OrchestratorCommandMessage>();
+            var command = (OrchestratorTeamCloudUserCreateCommand)commandMessage.Command;
             var commandResult = command.CreateResult();
-
             var user = command.Payload;
 
-            try
+            using (log.BeginCommandScope(command))
             {
-                functionContext.SetCustomStatus($"Creating user.", log);
-
-                using (await functionContext.LockAsync<TeamCloudInstance>(TeamCloudInstance.DefaultId).ConfigureAwait(true))
+                try
                 {
-                    var teamCloud = await functionContext
-                        .GetTeamCloudAsync()
+                    functionContext.SetCustomStatus($"Creating user.", log);
+
+                    using (await functionContext.LockAsync<TeamCloudInstance>(TeamCloudInstance.DefaultId).ConfigureAwait(true))
+                    {
+                        var teamCloud = await functionContext
+                            .GetTeamCloudAsync()
+                            .ConfigureAwait(true);
+
+                        if (teamCloud.Users.Any(u => u.Id == user.Id))
+                            throw new OrchestratorCommandException($"User '{user.Id}' already exists.", command);
+
+                        teamCloud.Users.Add(user);
+
+                        teamCloud = await functionContext
+                            .SetTeamCloudAsync(teamCloud)
+                            .ConfigureAwait(true);
+                    }
+
+                    var projects = await functionContext
+                        .ListProjectsAsync()
                         .ConfigureAwait(true);
 
-                    if (teamCloud.Users.Any(u => u.Id == user.Id))
-                        throw new OrchestratorCommandException($"User '{user.Id}' already exists.", command);
+                    foreach (var project in projects)
+                    {
+                        var projectUpdateCommand = new OrchestratorProjectUpdateCommand(command.User, project);
 
-                    teamCloud.Users.Add(user);
+                        functionContext.StartNewOrchestration(nameof(OrchestratorProjectUpdateCommand), new OrchestratorCommandMessage(projectUpdateCommand));
+                    }
 
-                    teamCloud = await functionContext
-                        .SetTeamCloudAsync(teamCloud)
-                        .ConfigureAwait(true);
+                    commandResult.Result = user;
+
+                    functionContext.SetCustomStatus($"User created.", log);
                 }
-
-                var projects = await functionContext
-                    .ListProjectsAsync()
-                    .ConfigureAwait(true);
-
-                foreach (var project in projects)
+                catch (Exception ex)
                 {
-                    var projectUpdateCommand = new OrchestratorProjectUpdateCommand(command.User, project);
+                    functionContext.SetCustomStatus("Failed to create user.", log, ex);
 
-                    functionContext.StartNewOrchestration(nameof(OrchestratorProjectUpdateCommand), new OrchestratorCommandMessage(projectUpdateCommand));
+                    commandResult.Errors.Add(ex);
+
+                    throw;
                 }
-
-                commandResult.Result = user;
-
-                functionContext.SetCustomStatus($"User created.", log);
-            }
-            catch (Exception ex)
-            {
-                functionContext.SetCustomStatus("Failed to create user.", log, ex);
-
-                commandResult.Errors.Add(ex);
-
-                throw;
-            }
-            finally
-            {
-                functionContext.SetOutput(commandResult);
+                finally
+                {
+                    functionContext.SetOutput(commandResult);
+                }
             }
         }
     }

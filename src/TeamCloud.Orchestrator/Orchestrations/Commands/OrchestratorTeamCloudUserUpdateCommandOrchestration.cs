@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
+using TeamCloud.Model;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestrator.Orchestrations.Commands.Activities;
@@ -25,62 +26,66 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
 
-            var orchestratorCommand = functionContext.GetInput<OrchestratorCommandMessage>();
+            if (log is null)
+                throw new ArgumentNullException(nameof(log));
 
-            var command = (OrchestratorTeamCloudUserUpdateCommand)orchestratorCommand.Command;
+            var commandMessage = functionContext.GetInput<OrchestratorCommandMessage>();
+            var command = (OrchestratorTeamCloudUserUpdateCommand)commandMessage.Command;
             var commandResult = command.CreateResult();
-
             var user = command.Payload;
 
-            try
+            using (log.BeginCommandScope(command))
             {
-                functionContext.SetCustomStatus($"Updating user.", log);
-
-                using (await functionContext.LockAsync<TeamCloudInstance>(TeamCloudInstance.DefaultId).ConfigureAwait(true))
+                try
                 {
-                    var teamCloud = await functionContext
-                        .GetTeamCloudAsync()
+                    functionContext.SetCustomStatus($"Updating user.", log);
+
+                    using (await functionContext.LockAsync<TeamCloudInstance>(TeamCloudInstance.DefaultId).ConfigureAwait(true))
+                    {
+                        var teamCloud = await functionContext
+                            .GetTeamCloudAsync()
+                            .ConfigureAwait(true);
+
+                        var userDelete = teamCloud.Users.SingleOrDefault(u => u.Id == user.Id);
+
+                        if (userDelete is null)
+                            throw new OrchestratorCommandException($"User '{user.Id}' does not exist.", command);
+                        else
+                            teamCloud.Users.Remove(userDelete);
+
+                        teamCloud.Users.Add(user);
+
+                        teamCloud = await functionContext
+                            .SetTeamCloudAsync(teamCloud)
+                            .ConfigureAwait(true);
+                    }
+
+                    var projects = await functionContext
+                        .ListProjectsAsync()
                         .ConfigureAwait(true);
 
-                    var userDelete = teamCloud.Users.SingleOrDefault(u => u.Id == user.Id);
+                    foreach (var project in projects)
+                    {
+                        var projectUpdateCommand = new OrchestratorProjectUpdateCommand(command.User, project);
 
-                    if (userDelete is null)
-                        throw new OrchestratorCommandException($"User '{user.Id}' does not exist.", command);
-                    else
-                        teamCloud.Users.Remove(userDelete);
+                        functionContext.StartNewOrchestration(nameof(OrchestratorProjectUpdateCommand), new OrchestratorCommandMessage(projectUpdateCommand));
+                    }
+                    commandResult.Result = user;
 
-                    teamCloud.Users.Add(user);
-
-                    teamCloud = await functionContext
-                        .SetTeamCloudAsync(teamCloud)
-                        .ConfigureAwait(true);
+                    functionContext.SetCustomStatus($"User updated.", log);
                 }
-
-                var projects = await functionContext
-                    .ListProjectsAsync()
-                    .ConfigureAwait(true);
-
-                foreach (var project in projects)
+                catch (Exception ex)
                 {
-                    var projectUpdateCommand = new OrchestratorProjectUpdateCommand(command.User, project);
+                    functionContext.SetCustomStatus("Failed to update user.", log, ex);
 
-                    functionContext.StartNewOrchestration(nameof(OrchestratorProjectUpdateCommand), new OrchestratorCommandMessage(projectUpdateCommand));
+                    commandResult.Errors.Add(ex);
+
+                    throw;
                 }
-                commandResult.Result = user;
-
-                functionContext.SetCustomStatus($"User updated.", log);
-            }
-            catch (Exception ex)
-            {
-                functionContext.SetCustomStatus("Failed to update user.", log, ex);
-
-                commandResult.Errors.Add(ex);
-
-                throw;
-            }
-            finally
-            {
-                functionContext.SetOutput(commandResult);
+                finally
+                {
+                    functionContext.SetOutput(commandResult);
+                }
             }
         }
     }

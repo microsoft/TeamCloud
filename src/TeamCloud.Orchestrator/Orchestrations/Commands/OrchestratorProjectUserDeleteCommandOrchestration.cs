@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
+using TeamCloud.Model;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestrator.Orchestrations.Commands.Activities;
@@ -25,69 +26,74 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
 
+            if (log is null)
+                throw new ArgumentNullException(nameof(log));
+
             var commandMessage = functionContext.GetInput<OrchestratorCommandMessage>();
             var command = (OrchestratorProjectUserDeleteCommand)commandMessage.Command;
             var commandResult = command.CreateResult();
             var commandProject = default(Project);
 
-            try
+            using (log.BeginCommandScope(command))
             {
-                functionContext.SetCustomStatus($"Deleting user", log);
-
-                using (await functionContext.LockAsync<Project>(command.ProjectId.ToString()).ConfigureAwait(true))
+                try
                 {
-                    commandProject = await functionContext
-                        .GetProjectAsync(command.ProjectId.GetValueOrDefault())
-                        .ConfigureAwait(true);
+                    functionContext.SetCustomStatus($"Deleting user", log);
 
-                    if (commandProject.Users.Remove(command.Payload))
+                    using (await functionContext.LockAsync<Project>(command.ProjectId.ToString()).ConfigureAwait(true))
                     {
                         commandProject = await functionContext
-                            .SetProjectAsync(commandProject)
+                            .GetProjectAsync(command.ProjectId.GetValueOrDefault())
                             .ConfigureAwait(true);
+
+                        if (commandProject.Users.Remove(command.Payload))
+                        {
+                            commandProject = await functionContext
+                                .SetProjectAsync(commandProject)
+                                .ConfigureAwait(true);
+                        }
                     }
+
+                    functionContext.SetCustomStatus("Sending commands", log);
+
+                    var providerCommand = new ProviderProjectUserDeleteCommand
+                    (
+                        command.User,
+                        command.Payload,
+                        commandProject.Id,
+                        command.CommandId
+                    );
+
+                    var providerResults = await functionContext
+                        .SendCommandAsync<ProviderProjectUserDeleteCommand>(providerCommand, commandProject)
+                        .ConfigureAwait(true);
+
+                    var providerException = providerResults.Values?
+                        .GetException();
+
+                    if (providerException != null)
+                        throw providerException;
                 }
+                catch (Exception exc)
+                {
+                    commandResult.Errors.Add(exc);
 
-                functionContext.SetCustomStatus("Sending commands", log);
+                    throw;
+                }
+                finally
+                {
+                    var commandException = commandResult.GetException();
 
-                var providerCommand = new ProviderProjectUserDeleteCommand
-                (
-                    command.User,
-                    command.Payload,
-                    commandProject.Id,
-                    command.CommandId
-                );
+                    if (commandException is null)
+                        functionContext.SetCustomStatus($"Command succeeded", log);
+                    else
+                        functionContext.SetCustomStatus($"Command failed", log, commandException);
 
-                var providerResults = await functionContext
-                    .SendCommandAsync<ProviderProjectUserDeleteCommand>(providerCommand, commandProject)
-                    .ConfigureAwait(true);
+                    commandResult.Result = command.Payload;
 
-                var providerException = providerResults.Values?
-                    .GetException();
-
-                if (providerException != null)
-                    throw providerException;
-            }
-            catch (Exception exc)
-            {
-                commandResult.Errors.Add(exc);
-
-                throw;
-            }
-            finally
-            {
-                var commandException = commandResult.GetException();
-
-                if (commandException is null)
-                    functionContext.SetCustomStatus($"Command succeeded", log);
-                else
-                    functionContext.SetCustomStatus($"Command failed", log, commandException);
-
-                commandResult.Result = command.Payload;
-
-                functionContext.SetOutput(commandResult);
+                    functionContext.SetOutput(commandResult);
+                }
             }
         }
-
     }
 }

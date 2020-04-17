@@ -7,12 +7,13 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Model.Commands.Core;
+using TeamCloud.Model.Data;
 
 namespace TeamCloud.Model
 {
     public static class Extensions
     {
-        public static IDisposable BeginCommandScope(this ILogger logger, ICommand command)
+        public static IDisposable BeginCommandScope(this ILogger logger, ICommand command, Provider provider = default)
         {
             if (logger is null)
                 throw new ArgumentNullException(nameof(logger));
@@ -24,7 +25,8 @@ namespace TeamCloud.Model
             {
                 { "commandId", command.CommandId },
                 { "commandType", command.GetType().Name },
-                { "projectId", command.ProjectId }
+                { "projectId", command.ProjectId },
+                { "providerId", provider?.Id }
             });
         }
     }

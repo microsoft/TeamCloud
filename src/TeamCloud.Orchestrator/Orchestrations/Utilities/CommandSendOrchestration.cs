@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
+using TeamCloud.Model;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
@@ -31,23 +32,28 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
 
-            var (command, provider) = functionContext.GetInput<(IProviderCommand, Provider)>();
+            if (log is null)
+                throw new ArgumentNullException(nameof(log));
 
+            var (command, provider) = functionContext.GetInput<(IProviderCommand, Provider)>();
             var commandResult = command.CreateResult();
 
-            // if the provider to use only supports the simple command mode
-            // we can not send commands like add, update, or delete project users. 
-            // instead we need to send a full project update to process the command!
+            using (log.BeginCommandScope(command, provider))
+            {
+                // if the provider to use only supports the simple command mode
+                // we can not send commands like add, update, or delete project users. 
+                // instead we need to send a full project update to process the command!
 
-            if (provider.CommandMode == ProviderCommandMode.Simple && IsExtendedProjectCommand())
-            {
-                commandResult = await SwitchCommandAsync(functionContext, provider, command, commandResult, log)
-                    .ConfigureAwait(true);
-            }
-            else
-            {
-                commandResult = await ProcessCommandAsync(functionContext, provider, command, commandResult, log)
-                    .ConfigureAwait(true);
+                if (provider.CommandMode == ProviderCommandMode.Simple && IsExtendedProjectCommand())
+                {
+                    commandResult = await SwitchCommandAsync(functionContext, provider, command, commandResult, log)
+                        .ConfigureAwait(true);
+                }
+                else
+                {
+                    commandResult = await ProcessCommandAsync(functionContext, provider, command, commandResult, log)
+                        .ConfigureAwait(true);
+                }
             }
 
             return commandResult;
