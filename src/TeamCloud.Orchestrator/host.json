@@ -8,11 +8,27 @@
             }
         }
     },
-    "watchDirectories": [
-        "Orchestrations",
-        "Activities",
-        "API",
-        "Options",
-        "Services"
-    ]
+  "watchDirectories": [
+    "Orchestrations",
+    "Activities",
+    "API",
+    "Options",
+    "Services"
+  ],
+  "logging": {
+    "fileLoggingMode": "debugOnly",
+    "logLevel": {
+      "default": "Information"
+    },
+    "applicationInsights": {
+      "enableLiveMetrics": true,
+      "enableDependencyTracking": true,
+      "enablePerformanceCountersCollection": true,
+      "httpAutoCollectionOptions": {
+        "enableHttpTriggerExtendedInfoCollection": true,
+        "enableW3CDistributedTracing": true,
+        "enableResponseHeaderInjection": true
+      }
+    }
+  }
 }
