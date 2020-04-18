@@ -10,8 +10,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
@@ -187,23 +185,5 @@ namespace TeamCloud.Orchestrator
 
         internal static DateTime NextHour(this DateTime dateTime)
              => dateTime.Date.AddHours(dateTime.Hour + 1);
-
-
-        internal static void SetCustomStatus(this IDurableOrchestrationContext durableOrchestrationContext, object customStatusObject, ILogger log, Exception exception = null)
-        {
-            durableOrchestrationContext.SetCustomStatus(customStatusObject);
-
-            var customStatusMessage = customStatusObject is string
-                ? customStatusObject.ToString()
-                : JsonConvert.SerializeObject(customStatusObject, Formatting.None);
-
-            if (log != null)
-            {
-                if (exception is null)
-                    durableOrchestrationContext.CreateReplaySafeLogger(log).LogInformation($"{durableOrchestrationContext.InstanceId} - CUSTOM STATUS: {customStatusMessage}");
-                else
-                    durableOrchestrationContext.CreateReplaySafeLogger(log).LogError(exception, $"{durableOrchestrationContext.InstanceId} - CUSTOM STATUS: {customStatusMessage}");
-            }
-        }
     }
 }

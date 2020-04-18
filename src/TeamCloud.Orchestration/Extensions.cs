@@ -7,6 +7,9 @@ using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using Newtonsoft.Json;
 
 namespace TeamCloud.Orchestration
 {
@@ -47,6 +50,26 @@ namespace TeamCloud.Orchestration
                 Debug.WriteLine($"Function '{functionName}': Calling with a maximum of {options.MaxNumberOfAttempts} attempt/s.");
 
             return options;
+        }
+
+        public static void SetCustomStatus(this IDurableOrchestrationContext durableOrchestrationContext, object customStatusObject, ILogger log, Exception exception = null)
+        {
+            if (durableOrchestrationContext is null)
+                throw new ArgumentNullException(nameof(durableOrchestrationContext));
+
+            durableOrchestrationContext.SetCustomStatus(customStatusObject);
+
+            var customStatusMessage = customStatusObject is string customStatusString
+                ? customStatusString
+                : JsonConvert.SerializeObject(customStatusObject, Formatting.None);
+
+            var message = $"{durableOrchestrationContext.InstanceId}: CUSTOM STATUS -> {customStatusMessage ?? "NULL"}";
+            var safeLog = durableOrchestrationContext.CreateReplaySafeLogger(log ?? NullLogger.Instance);
+
+            if (exception is null)
+                safeLog.LogInformation(message);
+            else
+                safeLog.LogError(exception, message);
         }
 
         public static Task CallActivityWithRetryAsync(this IDurableOrchestrationContext orchestration, string functionName, object input)
