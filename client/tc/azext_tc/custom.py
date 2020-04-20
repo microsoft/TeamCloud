@@ -1055,13 +1055,15 @@ def _get_github_latest_release(cli_ctx, repo, org='microsoft', prerelease=False)
             raise CLIError('--pre no prerelease versions found for {}/{}'.format(org, repo))
 
         return version_prerelease['tag_name']
-    else:
-        url = url + '/latest'
-        version_res = requests.get(url, verify=not should_disable_connection_verify())
 
-        if version_res.status_code == 404:
-            raise CLIError(
-                'No release version exists for {}/{}. Specify a specific prerelease version with --version or use latest prerelease with --pre'.format(org, repo))
+    url = url + '/latest'
+    version_res = requests.get(url, verify=not should_disable_connection_verify())
 
-        version_json = version_res.json()
-        return version_json['tag_name']
+    if version_res.status_code == 404:
+        raise CLIError(
+            'No release version exists for {}/{}. '
+            'Specify a specific prerelease version with --version '
+            'or use latest prerelease with --pre'.format(org, repo))
+
+    version_json = version_res.json()
+    return version_json['tag_name']
