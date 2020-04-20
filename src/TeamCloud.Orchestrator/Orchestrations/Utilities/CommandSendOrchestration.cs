@@ -226,7 +226,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                     functionContext.SetCustomStatus($"Invalidating callback url for command '{command.CommandId}'", log);
 
                     await functionContext
-                        .CallActivityWithRetryAsync(nameof(CallbackInvalidateActivity), functionContext.InstanceId)
+                        .CallActivityWithRetryAsync(nameof(CallbackInvalidateActivity), (functionContext.InstanceId, command))
                         .ConfigureAwait(true);
                 }
 

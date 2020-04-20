@@ -8,7 +8,8 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using TeamCloud.Serialization;
+using TeamCloud.Model;
+using TeamCloud.Model.Commands.Core;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
 {
@@ -16,23 +17,32 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
     {
         [FunctionName(nameof(CallbackInvalidateActivity))]
         public static async Task RunActivity(
-            [ActivityTrigger] IDurableActivityContext functionContext)
+            [ActivityTrigger] IDurableActivityContext functionContext,
+            ILogger log)
         {
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
 
-            var instanceId =
-                functionContext.GetInput<string>();
+            var (instanceId, command) =
+                functionContext.GetInput<(string, ICommand)>();
 
-            try
+            using (log.BeginCommandScope(command))
             {
-                await CallbackTrigger
-                     .InvalidateCallbackUrlAsync(instanceId)
-                     .ConfigureAwait(false);
-            }
-            catch (Exception exc) when (!exc.IsSerializable(out var serializableExc))
-            {
-                throw serializableExc;
+                try
+                {
+                    await CallbackTrigger
+                         .InvalidateCallbackUrlAsync(instanceId)
+                         .ConfigureAwait(false);
+                }
+                catch (Exception exc)
+                {
+                    log.LogWarning(exc, $"Failed to invlidate callback url for instance '{instanceId}' of command {command.GetType().Name} ({command.CommandId}): {exc.Message}");
+
+                    // we are not going to bubble this exception as it doesn't affect the command processing directly. 
+                    // TODO: find a good way to handle this case from a security perspective as it leaves a apikey active in a worst case
+
+                    // throw exc.AsSerializable(); 
+                }
             }
         }
     }

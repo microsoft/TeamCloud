@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
+using TeamCloud.Model;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Orchestration;
 using TeamCloud.Serialization;
@@ -19,7 +20,8 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
         [FunctionName(nameof(CallbackAcquireActivity))]
         [RetryOptions(3)]
         public static async Task<string> RunActivity(
-            [ActivityTrigger] IDurableActivityContext functionContext)
+            [ActivityTrigger] IDurableActivityContext functionContext,
+            ILogger log)
         {
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
@@ -27,17 +29,22 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
             var (instanceId, command) =
                 functionContext.GetInput<(string, ICommand)>();
 
-            try
+            using (log.BeginCommandScope(command))
             {
-                var callbackUrl = await CallbackTrigger
-                     .AcquireCallbackUrlAsync(instanceId, command)
-                     .ConfigureAwait(false);
+                try
+                {
+                    var callbackUrl = await CallbackTrigger
+                         .AcquireCallbackUrlAsync(instanceId, command)
+                         .ConfigureAwait(false);
 
-                return callbackUrl;
-            }
-            catch (Exception exc) when (!exc.IsSerializable(out var serializableExc))
-            {
-                throw serializableExc;
+                    return callbackUrl;
+                }
+                catch (Exception exc)
+                {
+                    log.LogError(exc, $"Failed to acquire callback url for instance '{instanceId}' of command {command.GetType().Name} ({command.CommandId}): {exc.Message}");
+
+                    throw exc.AsSerializable();
+                }
             }
         }
     }
