@@ -14,7 +14,7 @@ from ._validators import (
     project_name_validator, project_name_or_id_validator, user_name_validator, user_name_or_id_validator,
     tracking_id_validator, project_type_id_validator, project_type_id_validator_name, provider_id_validator,
     subscriptions_list_validator, provider_event_list_validator, url_validator, base_url_validator,
-    source_version_validator, auth_code_validator, properties_validator)
+    teamcloud_source_version_validator, providers_source_version_validator, auth_code_validator, properties_validator)
 
 from ._completers import (
     get_project_completion_list, get_project_type_completion_list, get_provider_completion_list)
@@ -91,6 +91,8 @@ def load_arguments(self, _):
         c.argument('tags', tags_type)
         c.argument('version', options_list=['--version', '-v'],
                    help='TeamCloud version. Default: latest stable.')
+        c.argument('prerelease', options_list=['--pre'], action='store_true',
+                   help='Deploy latest prerelease version.')
         c.argument('skip_app_deployment', action='store_true',
                    help="Only create Azure resources, skip deploying the TeamCloud API and Orchestrator apps.")
         c.argument('skip_name_validation', action='store_true',
@@ -101,7 +103,9 @@ def load_arguments(self, _):
     with self.argument_context('tc upgrade') as c:
         c.argument('resource_group_name', resource_group_name_type, default='TeamCloud')
         c.argument('version', options_list=['--version', '-v'], help='TeamCloud version. Default: latest stable.',
-                   validator=source_version_validator)
+                   validator=teamcloud_source_version_validator)
+        c.argument('prerelease', options_list=['--pre'], action='store_true',
+                   help='Deploy latest prerelease version.')
 
     with self.argument_context('tc status') as c:
         c.argument('project', project_name_or_id_type)
@@ -221,7 +225,9 @@ def load_arguments(self, _):
                        help='Name of resource group.')
             c.argument('version', options_list=['--version', '-v'],
                        type=str, help='Provider version. Default: latest stable.',
-                       validator=source_version_validator)
+                       validator=providers_source_version_validator)
+            c.argument('prerelease', options_list=['--pre'], action='store_true',
+                       help='Deploy latest prerelease version.')
 
     with self.argument_context('tc provider deploy') as c:
         c.argument('location', get_location_type(self.cli_ctx))

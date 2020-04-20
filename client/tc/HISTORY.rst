@@ -3,6 +3,12 @@
 Release History
 ===============
 
+0.3.4
+++++++
+* Preview release
+* az tc [provider] deploy/upgrade: Validate version numbers against repo releases
+* az tc [provider] deploy/upgrade: Add --pre flag to use the latest prerelease
+
 0.3.3
 ++++++
 * Preview release
