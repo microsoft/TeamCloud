@@ -30,13 +30,15 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
             {
                 try
                 {
+                    log.LogInformation($"Invalidate callback url for instance '{instanceId}' of command {command.GetType().Name} ({command.CommandId})");
+
                     await CallbackTrigger
                          .InvalidateCallbackUrlAsync(instanceId)
                          .ConfigureAwait(false);
                 }
                 catch (Exception exc)
                 {
-                    log.LogWarning(exc, $"Failed to invlidate callback url for instance '{instanceId}' of command {command.GetType().Name} ({command.CommandId}): {exc.Message}");
+                    log.LogWarning(exc, $"Failed to invalidate callback url for instance '{instanceId}' of command {command.GetType().Name} ({command.CommandId}): {exc.Message}");
 
                     // we are not going to bubble this exception as it doesn't affect the command processing directly. 
                     // TODO: find a good way to handle this case from a security perspective as it leaves a apikey active in a worst case

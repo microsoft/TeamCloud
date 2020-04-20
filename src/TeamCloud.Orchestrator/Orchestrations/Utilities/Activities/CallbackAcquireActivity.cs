@@ -33,6 +33,8 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
             {
                 try
                 {
+                    log.LogInformation($"Acquire callback url for instance '{instanceId}' of command {command.GetType().Name} ({command.CommandId})");
+
                     var callbackUrl = await CallbackTrigger
                          .AcquireCallbackUrlAsync(instanceId, command)
                          .ConfigureAwait(false);
