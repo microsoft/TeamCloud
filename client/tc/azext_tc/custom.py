@@ -21,9 +21,13 @@ STATUS_POLLING_SLEEP_INTERVAL = 2
 
 def teamcloud_deploy(cmd, client, name, location, resource_group_name='TeamCloud',  # pylint: disable=too-many-statements, too-many-locals
                      principal_name=None, principal_password=None, tags=None, version=None,
-                     skip_app_deployment=False, skip_name_validation=False, skip_admin_user=False):
+                     skip_app_deployment=False, skip_name_validation=False, skip_admin_user=False,
+                     prerelease=False):
     from azure.cli.core._profile import Profile
     from .vendored_sdks.teamcloud.models import UserDefinition
+
+    if version is None:
+        version = _get_github_latest_release(cmd.cli_ctx, 'TeamCloud', prerelease=prerelease)
 
     cli_ctx = cmd.cli_ctx
 
@@ -155,8 +159,11 @@ def teamcloud_deploy(cmd, client, name, location, resource_group_name='TeamCloud
     return result
 
 
-def teamcloud_upgrade(cmd, client, base_url, resource_group_name='TeamCloud', version=None):
+def teamcloud_upgrade(cmd, client, base_url, resource_group_name='TeamCloud', version=None, prerelease=False):
     from re import match
+
+    if version is None:
+        version = _get_github_latest_release(cmd.cli_ctx, 'TeamCloud', prerelease=prerelease)
 
     logger.warning("Getting resource group '%s'...", resource_group_name)
     rg, _ = _get_resource_group_by_name(cmd.cli_ctx, resource_group_name)
@@ -391,7 +398,7 @@ def provider_get(cmd, client, base_url, provider):
 
 
 def provider_deploy(cmd, client, base_url, provider, location, resource_group_name=None,
-                    events=None, properties=None, version=None, tags=None):
+                    events=None, properties=None, version=None, prerelease=False, tags=None):
     from azure.cli.core.util import random_string
     client._client.config.base_url = base_url
     cli_ctx = cmd.cli_ctx
@@ -410,6 +417,10 @@ def provider_deploy(cmd, client, base_url, provider, location, resource_group_na
 
     if resource_group_name is None:
         resource_group_name = zip_name
+
+    if version is None:
+        version = _get_github_latest_release(
+            cmd.cli_ctx, 'TeamCloud-Providers', prerelease=prerelease)
 
     logger.warning("Getting resource group '%s'...", resource_group_name)
     rg, _ = _get_resource_group_by_name(cli_ctx, resource_group_name)
@@ -439,7 +450,7 @@ def provider_deploy(cmd, client, base_url, provider, location, resource_group_na
     return provider_create(cmd, client, base_url, provider, url, host_key, events, properties)
 
 
-def provider_upgrade(cmd, client, base_url, provider, resource_group_name=None, version=None):
+def provider_upgrade(cmd, client, base_url, provider, resource_group_name=None, version=None, prerelease=False):
     from re import match
     client._client.config.base_url = base_url
     cli_ctx = cmd.cli_ctx
@@ -458,6 +469,10 @@ def provider_upgrade(cmd, client, base_url, provider, resource_group_name=None, 
 
     if resource_group_name is None:
         resource_group_name = zip_name
+
+    if version is None:
+        version = _get_github_latest_release(
+            cmd.cli_ctx, 'TeamCloud-Providers', prerelease=prerelease)
 
     logger.warning("Getting resource group '%s'...", resource_group_name)
     rg, _ = _get_resource_group_by_name(cli_ctx, resource_group_name)
@@ -1023,3 +1038,30 @@ def _get_webapp(cli_ctx, resource_group_name, name, slot=None, app_instance=None
         pass
 
     return webapp
+
+
+def _get_github_latest_release(cli_ctx, repo, org='microsoft', prerelease=False):
+    import requests
+    from azure.cli.core.util import should_disable_connection_verify
+
+    url = 'https://api.github.com/repos/{}/{}/releases'.format(org, repo)
+
+    if prerelease:
+        version_res = requests.get(url, verify=not should_disable_connection_verify())
+        version_json = version_res.json()
+
+        version_prerelease = next((v for v in version_json if v['prerelease']), None)
+        if not version_prerelease:
+            raise CLIError('--pre no prerelease versions found for {}/{}'.format(org, repo))
+
+        return version_prerelease['tag_name']
+    else:
+        url = url + '/latest'
+        version_res = requests.get(url, verify=not should_disable_connection_verify())
+
+        if version_res.status_code == 404:
+            raise CLIError(
+                'No release version exists for {}/{}. Specify a specific prerelease version with --version or use latest prerelease with --pre'.format(org, repo))
+
+        version_json = version_res.json()
+        return version_json['tag_name']
