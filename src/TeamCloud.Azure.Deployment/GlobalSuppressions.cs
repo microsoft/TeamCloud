@@ -9,10 +9,7 @@
 // a specific target and scoped to a namespace, type, member, etc.
 
 using System.Diagnostics.CodeAnalysis;
-/**
-*  Copyright (c) Microsoft Corporation.
-*  Licensed under the MIT License.
-*/
+
 [assembly: SuppressMessage("Code Quality", "IDE0052:Remove unread private members")]
 [assembly: SuppressMessage("Design", "CA1056:Uri properties should not be strings")]
 [assembly: SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters")]
