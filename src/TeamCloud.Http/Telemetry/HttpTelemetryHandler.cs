@@ -44,6 +44,9 @@ namespace TeamCloud.Http.Telemetry
                     InstrumentationKey = telemetryConfiguration.InstrumentationKey
                 };
 
+                // the tracked rate limits are explained here:
+                // https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/request-limits-and-throttling#remaining-requests
+
                 TrackRateLimit("remaining-subscription-reads");
                 TrackRateLimit("remaining-subscription-writes");
                 TrackRateLimit("remaining-tenant-reads");
@@ -64,7 +67,7 @@ namespace TeamCloud.Http.Telemetry
                         .ToUpperInvariant());
 
                     telemetryClient
-                        .GetMetric($"Azure {metricName}")
+                        .GetMetric($"Azure Rate Limit {metricName}")
                         .TrackValue(rateLimit);
                 }
             }
