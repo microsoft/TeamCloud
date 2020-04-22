@@ -23,23 +23,12 @@ namespace TeamCloud.API.Controllers
     [Produces("application/json")]
     public class TeamCloudTagsController : ControllerBase
     {
-        readonly UserService userService;
-        readonly Orchestrator orchestrator;
         readonly ITeamCloudRepositoryReadOnly teamCloudRepository;
 
-        public TeamCloudTagsController(UserService userService, Orchestrator orchestrator, ITeamCloudRepositoryReadOnly teamCloudRepository)
+        public TeamCloudTagsController(ITeamCloudRepositoryReadOnly teamCloudRepository)
         {
-            this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
-            this.orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
             this.teamCloudRepository = teamCloudRepository ?? throw new ArgumentNullException(nameof(teamCloudRepository));
         }
-
-        private User CurrentUser => new User()
-        {
-            Id = userService.CurrentUserId,
-            Role = UserRoles.Project.Owner
-        };
-
 
         [HttpGet]
         [Authorize(Policy = "admin")]

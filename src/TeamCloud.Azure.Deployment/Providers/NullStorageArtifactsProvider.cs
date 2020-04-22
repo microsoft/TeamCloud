@@ -25,9 +25,9 @@ namespace TeamCloud.Azure.Deployment.Providers
         {
             public static readonly IAzureDeploymentArtifactsContainer Instance = new Container();
 
-            public string Location => default(string);
+            public string Location => default;
 
-            public string Token => default(string);
+            public string Token => default;
         }
     }
 }

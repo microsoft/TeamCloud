@@ -15,6 +15,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 {
     public static class DeploymentExtensions
     {
+
         internal static Task ResetResourceGroupAsync(this IDurableOrchestrationContext functionContext, string resourceGroupId)
         {
             if (string.IsNullOrWhiteSpace(resourceGroupId))
@@ -32,8 +33,10 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
         }
 
 
+
         internal static Task<IReadOnlyDictionary<string, object>> GetDeploymentOutputAsync(this IDurableOrchestrationContext functionContext, string deploymentResourceId)
             => functionContext.CallSubOrchestratorWithRetryAsync<IReadOnlyDictionary<string, object>>(nameof(DeploymentOrchestration), (default(string), default(object), deploymentResourceId));
+
 
         internal static Task<IReadOnlyDictionary<string, object>> GetDeploymentOutputAsync(this IDurableOrchestrationContext functionContext, string deploymentActivityName, object deploymentActivityInput = default)
             => functionContext.CallSubOrchestratorWithRetryAsync<IReadOnlyDictionary<string, object>>(nameof(DeploymentOrchestration), (deploymentActivityName, deploymentActivityInput, default(string)));

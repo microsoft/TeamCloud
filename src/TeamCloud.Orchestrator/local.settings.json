@@ -5,7 +5,7 @@
     "DurableFunctionsHubStorage": "UseDevelopmentStorage=true",
     "FUNCTIONS_WORKER_RUNTIME": "dotnet",
     "AzureWebJobsSecretStorageType": "files",
-    "APPINSIGHTS_INSTRUMENTATIONKEY": "783744ba-16af-44be-bb2d-9f153addc3ab"
+    "APPINSIGHTS_INSTRUMENTATIONKEY": "9dd4879d-1014-4ae1-b429-578041493a8d"
 
   },
   "ConnectionStrings": {

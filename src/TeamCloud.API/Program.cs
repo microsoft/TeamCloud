@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Azure.KeyVault;
 using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.AzureKeyVault;
 using Microsoft.Extensions.Hosting;
 using TeamCloud.Configuration;
 
@@ -40,14 +41,9 @@ namespace TeamCloud.API
 
                 var azureServiceTokenProvider = new AzureServiceTokenProvider();
 
-                var keyVaultClient = new KeyVaultClient(
-                    new KeyVaultClient.AuthenticationCallback(
-                        azureServiceTokenProvider.KeyVaultTokenCallback));
+                using var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
 
-                //configurationBuilder.AddAzureKeyVault(
-                //    $"https://{keyVaultName}.vault.azure.net/",
-                //    keyVaultClient,
-                //    new DefaultKeyVaultSecretManager());
+                configurationBuilder.AddAzureKeyVault($"https://{keyVaultName}.vault.azure.net/", keyVaultClient, new DefaultKeyVaultSecretManager());
             }
             else if (hostingEnvironment.IsDevelopment())
             {

@@ -4,34 +4,22 @@
  */
 
 using System;
-using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.Extensions.Logging;
-using TeamCloud.Data;
 using TeamCloud.Http;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 
 namespace TeamCloud.Orchestrator
 {
-    public class CommandTrigger
+    public static class CommandTrigger
     {
-        private readonly IProjectsRepository projectsRepository;
-        private readonly ITeamCloudRepository teamCloudRepository;
-
-        public CommandTrigger(IProjectsRepository projectsRepository, ITeamCloudRepository teamCloudRepository)
-        {
-            this.projectsRepository = projectsRepository ?? throw new ArgumentNullException(nameof(projectsRepository));
-            this.teamCloudRepository = teamCloudRepository ?? throw new ArgumentNullException(nameof(teamCloudRepository));
-        }
-
         [FunctionName(nameof(CommandTrigger))]
-        public async Task<IActionResult> RunTrigger(
+        public static async Task<IActionResult> RunTrigger(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = "command")] HttpRequestMessage httpRequest,
             [DurableClient] IDurableClient durableClient)
         {
@@ -40,10 +28,6 @@ namespace TeamCloud.Orchestrator
 
             if (durableClient is null)
                 throw new ArgumentNullException(nameof(durableClient));
-
-            var teamCloud = await teamCloudRepository
-                .GetAsync()
-                .ConfigureAwait(false);
 
             var orchestratorCommand = await httpRequest.Content
                 .ReadAsJsonAsync<IOrchestratorCommand>()

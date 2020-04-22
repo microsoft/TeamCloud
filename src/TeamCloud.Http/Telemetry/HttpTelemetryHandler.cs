@@ -37,8 +37,12 @@ namespace TeamCloud.Http.Telemetry
 
             if (!string.IsNullOrEmpty(telemetryConfiguration?.InstrumentationKey))
             {
-                var telemetryClient = new TelemetryClient(telemetryConfiguration);
-                var telemetryMetric = telemetryClient.GetMetric("RateLimits", "RateScope");
+                var telemetryClient = new TelemetryClient(telemetryConfiguration)
+                {
+                    InstrumentationKey = telemetryConfiguration.InstrumentationKey
+                };
+
+                var telemetryMetric = telemetryClient.GetMetric("Azure Rate Limits", "Azure Rate Scope");
 
                 TrackRateLimit("remaining-subscription-reads");
                 TrackRateLimit("remaining-subscription-writes");

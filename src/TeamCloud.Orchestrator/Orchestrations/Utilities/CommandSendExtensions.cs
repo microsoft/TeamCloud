@@ -19,9 +19,11 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 {
     public static class CommandSendExtensions
     {
+
         internal static Task<ICommandResult> SendCommandAsync<TCommand>(this IDurableOrchestrationContext functionContext, TCommand command, Provider provider)
             where TCommand : IProviderCommand
             => functionContext.SendCommandAsync<TCommand>(command, provider);
+
 
         internal static async Task<TCommandResult> SendCommandAsync<TCommand, TCommandResult>(this IDurableOrchestrationContext functionContext, TCommand command, Provider provider)
             where TCommand : IProviderCommand
@@ -46,9 +48,11 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
             return providerResult;
         }
 
+
         internal static Task<IDictionary<string, ICommandResult>> SendCommandAsync<TCommand>(this IDurableOrchestrationContext functionContext, TCommand command, Project project = null, bool failFast = false)
             where TCommand : IProviderCommand
             => functionContext.SendCommandAsync<TCommand, ICommandResult>(command, project, failFast);
+
 
         internal static async Task<IDictionary<string, TCommandResult>> SendCommandAsync<TCommand, TCommandResult>(this IDurableOrchestrationContext functionContext, TCommand command, Project project = null, bool failFast = false)
             where TCommand : IProviderCommand

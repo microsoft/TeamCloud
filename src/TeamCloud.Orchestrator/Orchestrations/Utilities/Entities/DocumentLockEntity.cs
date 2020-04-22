@@ -6,13 +6,16 @@
 using System;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Extensions.Logging;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Entities
 {
-    public static class DocumentEntityLock
+    public static class DocumentLockEntity
     {
-        [FunctionName(nameof(DocumentEntityLock))]
-        public static void Run([EntityTrigger] IDurableEntityContext entityContext)
+        [FunctionName(nameof(DocumentLockEntity))]
+        public static void Run(
+            [EntityTrigger] IDurableEntityContext entityContext,
+            ILogger log)
         {
             // this entity represents a lock instance for critical sections
             // related to model classes implementing IContainerDocument.
@@ -22,6 +25,11 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Entities
 
             if (entityContext is null)
                 throw new ArgumentNullException(nameof(entityContext));
+
+            if (log is null)
+                throw new ArgumentNullException(nameof(log));
+
+            log.LogInformation($"Lock acquired for document {entityContext.EntityKey}");
         }
     }
 }

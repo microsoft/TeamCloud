@@ -66,6 +66,8 @@ namespace TeamCloud.Orchestrator
                 // we swallow all exceptions
             }
         }
+
+
         internal static async Task<string> AcquireCallbackUrlAsync(string instanceId, ICommand command)
         {
             var functionKey = await GetCallbackToken(instanceId)
@@ -110,6 +112,8 @@ namespace TeamCloud.Orchestrator
                 .SetQueryParam("code", functionKey)
                 .ToString();
         }
+
+
         internal static async Task InvalidateCallbackUrlAsync(string instanceId)
         {
             var masterKey = await FunctionEnvironment

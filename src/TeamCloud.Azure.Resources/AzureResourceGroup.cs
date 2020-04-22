@@ -80,7 +80,7 @@ namespace TeamCloud.Azure.Resources
         }
 
         public IAsyncEnumerable<AzureResource> GetResourcesAsync()
-            => GetResourcesAsync(default(ODataQuery<GenericResourceFilter>));
+            => GetResourcesAsync(default);
 
         public IAsyncEnumerable<AzureResource> GetResourcesByTypeAsync(string resourceType)
         {

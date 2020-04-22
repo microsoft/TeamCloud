@@ -14,7 +14,6 @@ using Swashbuckle.AspNetCore.Annotations;
 using TeamCloud.API.Data;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
-using TeamCloud.Model.Data;
 
 namespace TeamCloud.API.Controllers
 {
@@ -23,14 +22,10 @@ namespace TeamCloud.API.Controllers
     [Produces("application/json")]
     public class ProjectTagsController : ControllerBase
     {
-        readonly UserService userService;
-        readonly Orchestrator orchestrator;
         readonly IProjectsRepositoryReadOnly projectsRepository;
 
-        public ProjectTagsController(UserService userService, Orchestrator orchestrator, IProjectsRepositoryReadOnly projectsRepository)
+        public ProjectTagsController(IProjectsRepositoryReadOnly projectsRepository)
         {
-            this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
-            this.orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
             this.projectsRepository = projectsRepository ?? throw new ArgumentNullException(nameof(projectsRepository));
         }
 
@@ -43,13 +38,6 @@ namespace TeamCloud.API.Controllers
                 return string.IsNullOrEmpty(projectId) ? null : (Guid?)Guid.Parse(projectId);
             }
         }
-
-        private User CurrentUser => new User()
-        {
-            Id = userService.CurrentUserId,
-            Role = UserRoles.Project.Owner
-        };
-
 
         [HttpGet]
         [Authorize(Policy = "projectRead")]

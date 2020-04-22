@@ -21,7 +21,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
 {
     public static class CommandAuditActivity
     {
-        private static string DefaultProviderName = Assembly.GetCallingAssembly().GetName().Name;
+        private static readonly string DefaultProviderName = Assembly.GetCallingAssembly().GetName().Name;
 
         [FunctionName(nameof(CommandAuditActivity))]
         public static async Task RunActivity(
