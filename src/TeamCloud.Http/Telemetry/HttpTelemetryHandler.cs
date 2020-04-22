@@ -3,7 +3,9 @@
  *  Licensed under the MIT License.
  */
 
+using System;
 using System.Net.Http;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Flurl.Http;
@@ -42,8 +44,6 @@ namespace TeamCloud.Http.Telemetry
                     InstrumentationKey = telemetryConfiguration.InstrumentationKey
                 };
 
-                var telemetryMetric = telemetryClient.GetMetric("Azure Rate Limits", "Azure Rate Scope");
-
                 TrackRateLimit("remaining-subscription-reads");
                 TrackRateLimit("remaining-subscription-writes");
                 TrackRateLimit("remaining-tenant-reads");
@@ -58,7 +58,14 @@ namespace TeamCloud.Http.Telemetry
                     var headerValue = response.GetHeaderValue($"{headerPrefix}-{headerName}");
                     if (headerValue is null || !double.TryParse(headerValue, out double rateLimit)) return;
 
-                    telemetryMetric.TrackValue(rateLimit, headerName);
+                    var metricName = Regex.Replace(headerName, "(^|-)([a-z])",
+                        match => match.Value
+                        .Replace("-", " ", StringComparison.OrdinalIgnoreCase)
+                        .ToUpperInvariant());
+
+                    telemetryClient
+                        .GetMetric($"Azure {metricName}")
+                        .TrackValue(rateLimit);
                 }
             }
 
