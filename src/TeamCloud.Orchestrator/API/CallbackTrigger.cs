@@ -5,6 +5,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Flurl;
@@ -24,10 +25,10 @@ namespace TeamCloud.Orchestrator
 {
     public static class CallbackTrigger
     {
-        private static string SanitizeInstanceId(string instanceId)
-            => instanceId?.Replace(":", "_", StringComparison.OrdinalIgnoreCase);
+        private static string SanitizeTokenName(string tokenName)
+            => new string(tokenName?.ToCharArray().Where(char.IsLetterOrDigit).ToArray() ?? throw new ArgumentNullException(nameof(tokenName)));
 
-        private static async Task<string> GetCallbackToken(string instanceId)
+        private static async Task<string> GetCallbackToken(string tokenName)
         {
             var masterKey = await FunctionEnvironment
                 .GetAdminKeyAsync()
@@ -42,7 +43,7 @@ namespace TeamCloud.Orchestrator
                 .ConfigureAwait(false);
 
             return json
-                .SelectToken($"$.keys[?(@.name == '{SanitizeInstanceId(instanceId)}')].value")?
+                .SelectToken($"$.keys[?(@.name == '{SanitizeTokenName(tokenName)}')].value")?
                 .ToString();
         }
 
@@ -67,41 +68,49 @@ namespace TeamCloud.Orchestrator
             }
         }
 
-
-        internal static async Task<string> AcquireCallbackUrlAsync(string instanceId, ICommand command)
+        internal static async Task<string> AcquireCallbackUrlAsync(string instanceId, ICommand command, bool useCommandTypeTokenFactory = false)
         {
             var functionKey = await GetCallbackToken(instanceId)
                 .ConfigureAwait(false);
 
             if (string.IsNullOrEmpty(functionKey))
             {
-                var masterKey = await FunctionEnvironment
-                    .GetAdminKeyAsync()
-                    .ConfigureAwait(false);
-
-                try
+                if (useCommandTypeTokenFactory)
                 {
-                    var response = await FunctionEnvironment.HostUrl
-                        .AppendPathSegment("admin/functions")
-                        .AppendPathSegment(nameof(CallbackTrigger))
-                        .AppendPathSegment("keys")
-                        .AppendPathSegment(SanitizeInstanceId(instanceId), true)
-                        .SetQueryParam("code", masterKey)
-                        .PostJsonAsync(null)
-                        .ConfigureAwait(false);
-
-                    var functionKeysJson = await response.Content
-                        .ReadAsJsonAsync()
-                        .ConfigureAwait(false);
-
-                    functionKey = functionKeysJson
-                        .SelectToken($"$.value")?
-                        .ToString();
+                    functionKey = await GetCallbackToken(command.GetType().Name).ConfigureAwait(false)
+                        ?? await GetCallbackToken("default").ConfigureAwait(false)
+                        ?? throw new NotSupportedException($"Function '{nameof(CallbackTrigger)}' must have a 'default' APIKey.");
                 }
-                finally
+                else
                 {
-                    await SynchronizeCallbackUrlsAsync()
+                    var masterKey = await FunctionEnvironment
+                        .GetAdminKeyAsync()
                         .ConfigureAwait(false);
+
+                    try
+                    {
+                        var response = await FunctionEnvironment.HostUrl
+                            .AppendPathSegment("admin/functions")
+                            .AppendPathSegment(nameof(CallbackTrigger))
+                            .AppendPathSegment("keys")
+                            .AppendPathSegment(SanitizeTokenName(instanceId), true)
+                            .SetQueryParam("code", masterKey)
+                            .PostJsonAsync(null)
+                            .ConfigureAwait(false);
+
+                        var functionKeysJson = await response.Content
+                            .ReadAsJsonAsync()
+                            .ConfigureAwait(false);
+
+                        functionKey = functionKeysJson
+                            .SelectToken($"$.value")?
+                            .ToString();
+                    }
+                    finally
+                    {
+                        await SynchronizeCallbackUrlsAsync()
+                            .ConfigureAwait(false);
+                    }
                 }
             }
 
@@ -126,7 +135,7 @@ namespace TeamCloud.Orchestrator
                     .AppendPathSegment("admin/functions")
                     .AppendPathSegment(nameof(CallbackTrigger))
                     .AppendPathSegment("keys")
-                    .AppendPathSegment(SanitizeInstanceId(instanceId), true)
+                    .AppendPathSegment(SanitizeTokenName(instanceId), true)
                     .SetQueryParam("code", masterKey)
                     .AllowAnyHttpStatus()
                     .DeleteAsync()
