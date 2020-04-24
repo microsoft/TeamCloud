@@ -12,9 +12,9 @@ using TeamCloud.Model;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
-using TeamCloud.Orchestrator.Orchestrations.Commands.Activities;
+using TeamCloud.Orchestration.Auditing;
+using TeamCloud.Orchestrator.Activities;
 using TeamCloud.Orchestrator.Orchestrations.Utilities;
-using TeamCloud.Orchestrator.Orchestrations.Utilities.Activities;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Commands
 {

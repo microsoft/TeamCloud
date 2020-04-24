@@ -16,10 +16,10 @@ using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
+using TeamCloud.Orchestration.Auditing;
+using TeamCloud.Orchestrator.Activities;
+using TeamCloud.Orchestrator.Entities;
 using TeamCloud.Orchestrator.Orchestrations.Commands;
-using TeamCloud.Orchestrator.Orchestrations.Commands.Activities;
-using TeamCloud.Orchestrator.Orchestrations.Utilities.Activities;
-using TeamCloud.Orchestrator.Orchestrations.Utilities.Entities;
 using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Utilities
@@ -130,7 +130,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                     .ConfigureAwait(true);
 
                 await functionContext
-                    .AuditAsync(provider, command, commandResult)
+                    .AuditAsync(command, provider, commandResult)
                     .ConfigureAwait(true);
 
                 try
@@ -150,7 +150,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                 finally
                 {
                     await functionContext
-                        .AuditAsync(provider, command, commandResult)
+                        .AuditAsync(command, provider, commandResult)
                         .ConfigureAwait(true);
                 }
 
@@ -205,7 +205,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                 }
 
                 await functionContext
-                    .AuditAsync(provider, command, commandResult)
+                    .AuditAsync(command, provider, commandResult)
                     .ConfigureAwait(true);
 
                 await ProcessOutputAsync(functionContext, provider, command, commandResult)
@@ -221,7 +221,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
             try
             {
                 await functionContext
-                    .AuditAsync(provider, command, commandResult)
+                    .AuditAsync(command, provider, commandResult)
                     .ConfigureAwait(true);
 
                 functionContext.SetCustomStatus($"Switching command", log);

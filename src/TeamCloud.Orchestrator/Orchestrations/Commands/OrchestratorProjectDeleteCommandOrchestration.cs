@@ -9,12 +9,14 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
+using TeamCloud.Azure.Resources;
 using TeamCloud.Model;
 using TeamCloud.Model.Commands;
 using TeamCloud.Orchestration;
-using TeamCloud.Orchestrator.Orchestrations.Commands.Activities;
+using TeamCloud.Orchestration.Auditing;
+using TeamCloud.Orchestration.Deployment;
+using TeamCloud.Orchestrator.Activities;
 using TeamCloud.Orchestrator.Orchestrations.Utilities;
-using TeamCloud.Orchestrator.Orchestrations.Utilities.Activities;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Commands
 {
@@ -69,10 +71,10 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                         var tasks = new List<Task>();
 
                         if (!string.IsNullOrEmpty(project?.ResourceGroup?.ResourceGroupId))
-                            tasks.Add(functionContext.ResetResourceGroupAsync(project.ResourceGroup.ResourceGroupId));
+                            tasks.Add(ResetResourceGroup(functionContext, project.ResourceGroup.ResourceGroupId));
 
                         if (!string.IsNullOrEmpty(project?.KeyVault?.VaultId))
-                            tasks.Add(functionContext.ResetResourceGroupAsync(project.KeyVault.VaultId));
+                            tasks.Add(ResetResourceGroup(functionContext, project.KeyVault.VaultId));
 
                         await Task
                             .WhenAll(tasks)
@@ -109,6 +111,25 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                     functionContext.SetOutput(commandResult);
                 }
             }
+        }
+
+        private static Task ResetResourceGroup(IDurableOrchestrationContext functionContext, string resourceGroupId)
+        {
+            if (functionContext is null)
+                throw new ArgumentNullException(nameof(functionContext));
+
+            if (resourceGroupId is null)
+                throw new ArgumentNullException(nameof(resourceGroupId));
+
+            if (AzureResourceIdentifier.TryParse(resourceGroupId, out var resourceGroupIdentifier))
+            {
+                if (string.IsNullOrEmpty(resourceGroupIdentifier.ResourceGroup))
+                    throw new ArgumentException($"Argument '{nameof(resourceGroupId)}' must contain a resource group name", nameof(resourceGroupId));
+
+                return functionContext.GetDeploymentOutputAsync(nameof(ResourceGroupResetActivity), resourceGroupIdentifier.ToString(AzureResourceSegment.ResourceGroup));
+            }
+
+            throw new ArgumentException($"Invalid resource group Id: {resourceGroupId}", nameof(resourceGroupId));
         }
     }
 }

@@ -12,8 +12,8 @@ using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
-using TeamCloud.Orchestrator.Orchestrations.Commands.Activities;
-using TeamCloud.Orchestrator.Orchestrations.Utilities.Activities;
+using TeamCloud.Orchestration.Auditing;
+using TeamCloud.Orchestrator.Activities;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 {
@@ -73,10 +73,6 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 
             var providerBatches = await functionContext
                 .CallActivityWithRetryAsync<IEnumerable<IEnumerable<Provider>>>(nameof(CommandProviderActivity), project)
-                .ConfigureAwait(true);
-
-            await functionContext
-                .AuditAsync(providerBatches.SelectMany(batch => batch), command)
                 .ConfigureAwait(true);
 
             var commandResults = Enumerable.Empty<KeyValuePair<string, TCommandResult>>();

@@ -12,8 +12,8 @@ using Microsoft.Extensions.Logging;
 using TeamCloud.Model;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
-using TeamCloud.Orchestrator.Orchestrations.Commands.Activities;
-using TeamCloud.Orchestrator.Orchestrations.Utilities.Entities;
+using TeamCloud.Orchestrator.Activities;
+using TeamCloud.Orchestrator.Entities;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Commands
 {

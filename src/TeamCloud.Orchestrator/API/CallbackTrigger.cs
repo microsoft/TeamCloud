@@ -30,11 +30,11 @@ namespace TeamCloud.Orchestrator
 
         private static async Task<string> GetCallbackToken(string tokenName)
         {
-            var masterKey = await FunctionEnvironment
+            var masterKey = await FunctionsEnvironment
                 .GetAdminKeyAsync()
                 .ConfigureAwait(false);
 
-            var json = await FunctionEnvironment.HostUrl
+            var json = await FunctionsEnvironment.HostUrl
                 .AppendPathSegment("admin/functions")
                 .AppendPathSegment(nameof(CallbackTrigger))
                 .AppendPathSegment("keys")
@@ -51,11 +51,11 @@ namespace TeamCloud.Orchestrator
         {
             try
             {
-                var masterKey = await FunctionEnvironment
+                var masterKey = await FunctionsEnvironment
                     .GetAdminKeyAsync()
                     .ConfigureAwait(false);
 
-                _ = await FunctionEnvironment.HostUrl
+                _ = await FunctionsEnvironment.HostUrl
                         .AppendPathSegment("admin/host/synctriggers/")
                         .SetQueryParam("code", masterKey)
                         .AllowAnyHttpStatus()
@@ -73,7 +73,7 @@ namespace TeamCloud.Orchestrator
             var functionKey = await GetCallbackToken(instanceId)
                 .ConfigureAwait(false);
 
-            if (string.IsNullOrEmpty(functionKey) && FunctionEnvironment.IsAzureEnvironment)
+            if (string.IsNullOrEmpty(functionKey) && FunctionsEnvironment.IsAzureEnvironment)
             {
                 if (useCommandTypeTokenFactory)
                 {
@@ -83,13 +83,13 @@ namespace TeamCloud.Orchestrator
                 }
                 else
                 {
-                    var masterKey = await FunctionEnvironment
+                    var masterKey = await FunctionsEnvironment
                         .GetAdminKeyAsync()
                         .ConfigureAwait(false);
 
                     try
                     {
-                        var response = await FunctionEnvironment.HostUrl
+                        var response = await FunctionsEnvironment.HostUrl
                             .AppendPathSegment("admin/functions")
                             .AppendPathSegment(nameof(CallbackTrigger))
                             .AppendPathSegment("keys")
@@ -114,7 +114,7 @@ namespace TeamCloud.Orchestrator
                 }
             }
 
-            return FunctionEnvironment.HostUrl
+            return FunctionsEnvironment.HostUrl
                 .AppendPathSegment("api/callback")
                 .AppendPathSegment(instanceId, true)
                 .AppendPathSegment(command.CommandId)
@@ -125,13 +125,13 @@ namespace TeamCloud.Orchestrator
 
         internal static async Task InvalidateCallbackUrlAsync(string instanceId)
         {
-            var masterKey = await FunctionEnvironment
+            var masterKey = await FunctionsEnvironment
                 .GetAdminKeyAsync()
                 .ConfigureAwait(false);
 
             try
             {
-                _ = await FunctionEnvironment.HostUrl
+                _ = await FunctionsEnvironment.HostUrl
                     .AppendPathSegment("admin/functions")
                     .AppendPathSegment(nameof(CallbackTrigger))
                     .AppendPathSegment("keys")

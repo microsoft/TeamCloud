@@ -40,4 +40,5 @@
     <ProjectReference Include="..\TeamCloud.Azure\TeamCloud.Azure.csproj" />
     <ProjectReference Include="..\TeamCloud.Serialization\TeamCloud.Serialization.csproj" />
   </ItemGroup>
+
 </Project>

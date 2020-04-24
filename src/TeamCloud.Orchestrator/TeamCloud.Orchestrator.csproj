@@ -5,6 +5,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AzureFunctionsVersion>v3</AzureFunctionsVersion>
+    <FunctionsInDependencies>true</FunctionsInDependencies>
     <!--<UserSecretsId></UserSecretsId>-->
   </PropertyGroup>
   
@@ -47,6 +48,8 @@
     <ProjectReference Include="..\TeamCloud.Http\TeamCloud.Http.csproj" />
     <ProjectReference Include="..\TeamCloud.Model.Internal\TeamCloud.Model.Internal.csproj" />
     <ProjectReference Include="..\TeamCloud.Model\TeamCloud.Model.csproj" />
+    <ProjectReference Include="..\TeamCloud.Orchestration.Auditing\TeamCloud.Orchestration.Auditing.csproj" />
+    <ProjectReference Include="..\TeamCloud.Orchestration.Deployment\TeamCloud.Orchestration.Deployment.csproj" />
     <ProjectReference Include="..\TeamCloud.Orchestration\TeamCloud.Orchestration.csproj" />
     <ProjectReference Include="..\TeamCloud.Serialization\TeamCloud.Serialization.csproj" />
   </ItemGroup>

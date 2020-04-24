@@ -22,7 +22,7 @@ namespace TeamCloud.Orchestration
 
             return Cache.GetOrAdd(functionName, (key) =>
             {
-                var functionMethod = FunctionEnvironment.GetFunctionMethod(functionName);
+                var functionMethod = FunctionsEnvironment.GetFunctionMethod(functionName);
 
                 if (functionMethod is null)
                     throw new ArgumentOutOfRangeException(nameof(functionName), $"Could not find function by name '{functionName}'");
