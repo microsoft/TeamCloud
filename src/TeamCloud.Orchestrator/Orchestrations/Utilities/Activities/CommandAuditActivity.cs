@@ -75,7 +75,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
                 .ConfigureAwait(false);
 
             var entityResult = await auditTable
-                .ExecuteAsync(TableOperation.Retrieve<CommandAuditEntity>(entity.TableEntity.PartitionKey, entity.TableEntity.RowKey))
+                .ExecuteAsync(TableOperation.Retrieve<OrchestratorAuditEntity>(entity.TableEntity.PartitionKey, entity.TableEntity.RowKey))
                 .ConfigureAwait(false);
 
             entity = entityResult.HttpStatusCode == (int)HttpStatusCode.OK
