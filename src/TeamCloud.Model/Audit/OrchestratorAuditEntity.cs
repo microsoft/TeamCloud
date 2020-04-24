@@ -9,9 +9,6 @@ namespace TeamCloud.Model.Audit
 {
     public sealed class OrchestratorAuditEntity : CommandAuditEntity
     {
-        public OrchestratorAuditEntity() : base()
-        { }
-
         [IgnoreProperty]
         public string ProviderId
         {

@@ -18,9 +18,12 @@ namespace TeamCloud.Model.Audit
 
             var timestamp = DateTime.UtcNow;
 
+            entity.CommandId = command.CommandId.ToString();
             entity.Command = command.GetType().Name;
+
             entity.ProjectId ??= command.ProjectId?.ToString();
             entity.Project ??= command.Payload is Project project ? project.Name : null;
+
             entity.Created ??= timestamp;
 
             if (commandResult != null)

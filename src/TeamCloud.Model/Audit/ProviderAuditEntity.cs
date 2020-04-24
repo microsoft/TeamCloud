@@ -4,9 +4,6 @@ namespace TeamCloud.Model.Audit
 {
     public sealed class ProviderAuditEntity : CommandAuditEntity
     {
-        public ProviderAuditEntity()
-        { }
-
         [IgnoreProperty]
         public override string ProjectId
         {

@@ -5,11 +5,6 @@ namespace TeamCloud.Model.Audit
 {
     public abstract class CommandAuditEntity : TableEntityBase
     {
-        protected CommandAuditEntity()
-        {
-            ProjectId = CommandId = Guid.Empty.ToString();
-        }
-
         public virtual string CommandId { get; set; }
         public string Command { get; set; }
 
