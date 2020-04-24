@@ -30,7 +30,7 @@ namespace TeamCloud.Serialization
             ClassNameOriginal = info.GetString(nameof(ClassNameOriginal));
         }
 
-        private string MessageSuffix => InnerException is null ? null : $" (CAUTION: This exception represents a {InnerException.GetType().FullName} that was transformed to be JSON serializable.)";
+        private string MessageSuffix => InnerException is null ? null : $" ({InnerException.GetType().FullName})";
 
         public override IDictionary Data => InnerException?.Data ?? base.Data;
 
