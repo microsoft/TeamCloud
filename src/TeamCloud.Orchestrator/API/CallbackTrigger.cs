@@ -73,7 +73,7 @@ namespace TeamCloud.Orchestrator
             var functionKey = await GetCallbackToken(instanceId)
                 .ConfigureAwait(false);
 
-            if (string.IsNullOrEmpty(functionKey))
+            if (string.IsNullOrEmpty(functionKey) && FunctionEnvironment.IsAzureEnvironment)
             {
                 if (useCommandTypeTokenFactory)
                 {

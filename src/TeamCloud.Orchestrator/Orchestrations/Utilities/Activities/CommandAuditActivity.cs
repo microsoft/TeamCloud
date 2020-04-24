@@ -4,15 +4,17 @@
  */
 
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
+using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage.Table;
-using TeamCloud.Model.Auditing;
+using Newtonsoft.Json;
+using TeamCloud.Model.Audit;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
@@ -24,84 +26,96 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities.Activities
         private static readonly string DefaultProviderName = Assembly.GetCallingAssembly().GetName().Name;
 
         [FunctionName(nameof(CommandAuditActivity))]
-        public static async Task RunActivity(
+        public static Task RunActivity(
             [ActivityTrigger] IDurableActivityContext functionContext,
-            [Table("AuditCommands")] CloudTable commandTable,
+            [DurableClient] IDurableClient durableClient,
+            IBinder binder,
             ILogger log)
         {
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
 
-            if (commandTable is null)
-                throw new ArgumentNullException(nameof(commandTable));
+            if (durableClient is null)
+                throw new ArgumentNullException(nameof(durableClient));
+
+            if (binder is null)
+                throw new ArgumentNullException(nameof(binder));
 
             var (provider, command, commandResult) =
                 functionContext.GetInput<(Provider, ICommand, ICommandResult)>();
 
             try
             {
-                var entity = new CommandAuditEntity()
-                {
-                    CommandId = command.CommandId.ToString(),
-                    ProviderId = command is IProviderCommand ? provider.Id : DefaultProviderName
-                };
+                var prefix = durableClient.GetTaskHubNameSanitized();
 
-                var entityResult = await commandTable
-                    .ExecuteAsync(TableOperation.Retrieve<CommandAuditEntity>(entity.TableEntity.PartitionKey, entity.TableEntity.RowKey))
-                    .ConfigureAwait(false);
-
-                entity = entityResult.HttpStatusCode == (int)HttpStatusCode.OK
-                    ? (CommandAuditEntity)entityResult.Result
-                    : entity;
-
-                AugmentEntity(entity, command, commandResult);
-
-                await commandTable
-                    .ExecuteAsync(TableOperation.InsertOrReplace(entity))
-                    .ConfigureAwait(false);
+                return Task.WhenAll
+                (
+                   WriteAuditTableAsync(binder, prefix, provider, command, commandResult),
+                   WriteAuditContainerAsync(binder, prefix, provider, command, commandResult)
+                );
             }
             catch (Exception exc)
             {
-                log.LogWarning(exc, $"Failed to audit command {command?.GetType().Name ?? "UNKNOWN"} ({command?.CommandId ?? Guid.Empty}) for provider {provider?.Id ?? "UNKNOWN"}");
+                log?.LogWarning(exc, $"Failed to audit command {command?.GetType().Name ?? "UNKNOWN"} ({command?.CommandId ?? Guid.Empty}) for provider {provider?.Id ?? "UNKNOWN"}");
+
+                return Task.CompletedTask;
             }
         }
 
-        private static void AugmentEntity(CommandAuditEntity entity, ICommand command, ICommandResult commandResult)
+        private static async Task WriteAuditTableAsync(IBinder binder, string prefix, Provider provider, ICommand command, ICommandResult commandResult)
         {
-            var timestamp = DateTime.UtcNow;
+            var entity = new OrchestratorAuditEntity()
+            {
+                CommandId = command.CommandId.ToString(),
+                ProviderId = command is IProviderCommand ? provider.Id : DefaultProviderName
+            };
 
-            entity.Command = command.GetType().Name;
-            entity.ProjectId ??= command.ProjectId?.ToString();
-            entity.Project ??= command.Payload is Project project ? project.Name : null;
-            entity.Created ??= timestamp;
+            var auditTable = await binder
+                .BindAsync<CloudTable>(new TableAttribute($"{prefix}Audit"))
+                .ConfigureAwait(false);
+
+            var entityResult = await auditTable
+                .ExecuteAsync(TableOperation.Retrieve<CommandAuditEntity>(entity.TableEntity.PartitionKey, entity.TableEntity.RowKey))
+                .ConfigureAwait(false);
+
+            entity = entityResult.HttpStatusCode == (int)HttpStatusCode.OK
+                ? (OrchestratorAuditEntity)entityResult.Result
+                : entity;
+
+            await auditTable
+                .ExecuteAsync(TableOperation.InsertOrReplace(entity.Augment(command, commandResult)))
+                .ConfigureAwait(false);
+        }
+
+        private static async Task WriteAuditContainerAsync(IBinder binder, string prefix, Provider provider, ICommand command, ICommandResult commandResult)
+        {
+            var tasks = new List<Task>()
+            {
+                WriteBlobAsync(command.CommandId, command)
+            };
 
             if (commandResult != null)
             {
-                entity.Status = commandResult.RuntimeStatus;
+                tasks.Add(WriteBlobAsync(command.CommandId, commandResult));
+            }
 
-                if (command is IProviderCommand && !commandResult.RuntimeStatus.IsUnknown())
-                {
-                    entity.Sent ??= timestamp;
-                }
+            await Task
+                .WhenAll(tasks)
+                .ConfigureAwait(false);
 
-                if (commandResult.RuntimeStatus.IsFinal())
-                {
-                    entity.Processed ??= timestamp;
+            async Task WriteBlobAsync(Guid commandId, object data)
+            {
+#pragma warning disable CA1308 // Normalize strings to uppercase
 
-                    if (commandResult.RuntimeStatus == CommandRuntimeStatus.Failed)
-                    {
-                        // the command ran into an error - trace the error in our audit log
-                        entity.Errors = commandResult.Errors.Select(err => err.Message).ToArray();
-                    }
-                }
-                else if (command is IProviderCommand && commandResult.RuntimeStatus.IsActive())
-                {
-                    // the provider returned an active state
-                    // so we could set the sent state and 
-                    // tace the timeout returned by the provider
+                var auditBlob = await binder
+                    .BindAsync<CloudBlockBlob>(new BlobAttribute($"{prefix.ToLowerInvariant()}-audit/{commandId}/{provider?.Id ?? "orchestrator"}/{data.GetType().Name}.json"))
+                    .ConfigureAwait(false);
 
-                    entity.Timeout ??= timestamp + commandResult.Timeout;
-                }
+                await auditBlob
+                    .UploadTextAsync(JsonConvert.SerializeObject(data, Formatting.Indented))
+                    .ConfigureAwait(false);
+
+#pragma warning restore CA1308 // Normalize strings to uppercase
             }
         }
     }
