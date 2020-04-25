@@ -37,8 +37,8 @@ namespace TeamCloud.Orchestration.Auditing
             if (binder is null)
                 throw new ArgumentNullException(nameof(binder));
 
-            var (provider, command, commandResult) =
-                functionContext.GetInput<(Provider, ICommand, ICommandResult)>();
+            var (command, commandResult, provider) =
+                functionContext.GetInput<(ICommand, ICommandResult, Provider)>();
 
             try
             {
@@ -46,8 +46,8 @@ namespace TeamCloud.Orchestration.Auditing
 
                 return Task.WhenAll
                 (
-                   WriteAuditTableAsync(binder, prefix, provider, command, commandResult),
-                   WriteAuditContainerAsync(binder, prefix, provider, command, commandResult)
+                   WriteAuditTableAsync(binder, prefix, command, commandResult, provider),
+                   WriteAuditContainerAsync(binder, prefix, command, commandResult, provider)
                 );
             }
             catch (Exception exc)
@@ -58,7 +58,7 @@ namespace TeamCloud.Orchestration.Auditing
             }
         }
 
-        private static async Task WriteAuditTableAsync(IBinder binder, string prefix, Provider provider, ICommand command, ICommandResult commandResult)
+        private static async Task WriteAuditTableAsync(IBinder binder, string prefix, ICommand command, ICommandResult commandResult, Provider provider)
         {
             var entity = new CommandAuditEntity(command, provider);
 
@@ -79,28 +79,30 @@ namespace TeamCloud.Orchestration.Auditing
                 .ConfigureAwait(false);
         }
 
-        private static async Task WriteAuditContainerAsync(IBinder binder, string prefix, Provider provider, ICommand command, ICommandResult commandResult)
+        private static async Task WriteAuditContainerAsync(IBinder binder, string prefix, ICommand command, ICommandResult commandResult, Provider provider)
         {
             var tasks = new List<Task>()
             {
-                WriteBlobAsync(command.CommandId, command)
+                WriteBlobAsync(command)
             };
 
             if (commandResult != null)
             {
-                tasks.Add(WriteBlobAsync(command.CommandId, commandResult));
+                tasks.Add(WriteBlobAsync(commandResult));
             }
 
             await Task
                 .WhenAll(tasks)
                 .ConfigureAwait(false);
 
-            async Task WriteBlobAsync(Guid commandId, object data)
+            async Task WriteBlobAsync(object data)
             {
 #pragma warning disable CA1308 // Normalize strings to uppercase
 
+                var auditPath = $"{prefix.ToLowerInvariant()}-audit/{command.ProjectId.GetValueOrDefault()}/{command.CommandId}/{provider?.Id}/{data.GetType().Name}.json";
+
                 var auditBlob = await binder
-                    .BindAsync<CloudBlockBlob>(new BlobAttribute($"{prefix.ToLowerInvariant()}-audit/{commandId}/{provider?.Id ?? "orchestrator"}/{data.GetType().Name}.json"))
+                    .BindAsync<CloudBlockBlob>(new BlobAttribute(auditPath.Replace("//", "/", StringComparison.OrdinalIgnoreCase)))
                     .ConfigureAwait(false);
 
                 await auditBlob

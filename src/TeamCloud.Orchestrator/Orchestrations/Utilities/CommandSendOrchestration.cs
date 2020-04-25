@@ -130,7 +130,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                     .ConfigureAwait(true);
 
                 await functionContext
-                    .AuditAsync(command, provider, commandResult)
+                    .AuditAsync(command, commandResult, provider)
                     .ConfigureAwait(true);
 
                 try
@@ -150,7 +150,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                 finally
                 {
                     await functionContext
-                        .AuditAsync(command, provider, commandResult)
+                        .AuditAsync(command, commandResult, provider)
                         .ConfigureAwait(true);
                 }
 
@@ -205,7 +205,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                 }
 
                 await functionContext
-                    .AuditAsync(command, provider, commandResult)
+                    .AuditAsync(command, commandResult, provider)
                     .ConfigureAwait(true);
 
                 await ProcessOutputAsync(functionContext, provider, command, commandResult)
@@ -221,7 +221,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
             try
             {
                 await functionContext
-                    .AuditAsync(command, provider, commandResult)
+                    .AuditAsync(command, commandResult, provider)
                     .ConfigureAwait(true);
 
                 functionContext.SetCustomStatus($"Switching command", log);
