@@ -31,8 +31,6 @@ namespace TeamCloud.Orchestration.Deployment
             var (deploymentActivityName, deploymentActivityInput, deploymentResourceId, deploymentDelete) = functionContext.GetInput<(string, object, string, bool)>();
             var deploymentLog = functionContext.CreateReplaySafeLogger(log ?? NullLogger.Instance);
 
-            IReadOnlyDictionary<string, object> deploymentOutput = null;
-
             try
             {
                 if (string.IsNullOrEmpty(deploymentResourceId))
@@ -125,10 +123,6 @@ namespace TeamCloud.Orchestration.Deployment
                 deploymentLog.LogError(exc, $"Orchestration '{nameof(AzureDeploymentOrchestration)}' failed: {exc.Message}");
 
                 throw exc.AsSerializable();
-            }
-            finally
-            {
-                functionContext.SetOutput(deploymentOutput);
             }
         }
     }
