@@ -5,7 +5,6 @@
 
 using System;
 using Microsoft.WindowsAzure.Storage.Table;
-using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 
@@ -20,9 +19,6 @@ namespace TeamCloud.Orchestration.Auditing.Model
         {
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
-
-            if (command is IProviderCommand && provider is null)
-                throw new ArgumentNullException(nameof(provider));
 
             TableEntity.PartitionKey = command.ProjectId.GetValueOrDefault().ToString();
             TableEntity.RowKey = $"{command.CommandId}@{provider?.Id}".TrimEnd('@');
