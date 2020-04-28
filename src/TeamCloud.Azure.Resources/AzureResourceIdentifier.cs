@@ -46,12 +46,12 @@ namespace TeamCloud.Azure.Resources
 
         public static bool TryParse(string resourceId, out AzureResourceIdentifier azureResourceIdentifier)
         {
+            azureResourceIdentifier = null;
+
             if (string.IsNullOrEmpty(resourceId))
-                throw new ArgumentException("The resource id to parse must not NULL or EMPTY.", nameof(resourceId));
+                return false;
 
             resourceId = SanitizeResourceId(resourceId, out bool addedTrailingSlash);
-
-            azureResourceIdentifier = null;
 
             foreach (var expression in new Regex[] { ResourceExpression, ResourceGroupExpression, SubscriptionExpression })
             {

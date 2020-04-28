@@ -17,7 +17,7 @@ using TeamCloud.Orchestrator.Activities;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 {
-    public static class CommandSendExtensions
+    public static class ProviderSendExtensions
     {
 
         internal static Task<ICommandResult> SendCommandAsync<TCommand>(this IDurableOrchestrationContext functionContext, TCommand command, Provider provider)
@@ -36,7 +36,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                 throw new ArgumentNullException(nameof(provider));
 
             var providerResult = (TCommandResult)await functionContext
-                .CallSubOrchestratorWithRetryAsync<ICommandResult>(nameof(CommandSendOrchestration), (command, provider))
+                .CallSubOrchestratorWithRetryAsync<ICommandResult>(nameof(ProviderSendOrchestration), (command, provider))
                 .ConfigureAwait(true);
 
             if (providerResult is null)

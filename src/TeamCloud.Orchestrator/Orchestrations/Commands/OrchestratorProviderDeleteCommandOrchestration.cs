@@ -30,8 +30,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
             if (log is null)
                 throw new ArgumentNullException(nameof(log));
 
-            var commandMessage = functionContext.GetInput<OrchestratorCommandMessage>();
-            var command = (OrchestratorProviderDeleteCommand)commandMessage.Command;
+            var command = functionContext.GetInput<OrchestratorProviderDeleteCommand>();
             var commandResult = command.CreateResult();
             var provider = command.Payload;
 

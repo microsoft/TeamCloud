@@ -10,13 +10,16 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Model;
 using TeamCloud.Model.Commands.Core;
+using TeamCloud.Orchestration;
+using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.Activities
 {
-    public static class CallbackInvalidateActivity
+    public static class CallbackUrlGetActivity
     {
-        [FunctionName(nameof(CallbackInvalidateActivity))]
-        public static async Task RunActivity(
+        [FunctionName(nameof(CallbackUrlGetActivity))]
+        [RetryOptions(3)]
+        public static async Task<string> RunActivity(
             [ActivityTrigger] IDurableActivityContext functionContext,
             ILogger log)
         {
@@ -30,20 +33,19 @@ namespace TeamCloud.Orchestrator.Activities
             {
                 try
                 {
-                    log.LogInformation($"Invalidate callback url for instance '{instanceId}' of command {command.GetType().Name} ({command.CommandId})");
+                    log.LogInformation($"Acquire callback url for instance '{instanceId}' of command {command.GetType().Name} ({command.CommandId})");
 
-                    await CallbackTrigger
-                         .InvalidateCallbackUrlAsync(instanceId)
+                    var callbackUrl = await CallbackTrigger
+                         .GetCallbackUrlAsync(instanceId, command)
                          .ConfigureAwait(false);
+
+                    return callbackUrl;
                 }
                 catch (Exception exc)
                 {
-                    log.LogWarning(exc, $"Failed to invalidate callback url for instance '{instanceId}' of command {command.GetType().Name} ({command.CommandId}): {exc.Message}");
+                    log.LogError(exc, $"Failed to acquire callback url for instance '{instanceId}' of command {command.GetType().Name} ({command.CommandId}): {exc.Message}");
 
-                    // we are not going to bubble this exception as it doesn't affect the command processing directly. 
-                    // TODO: find a good way to handle this case from a security perspective as it leaves a apikey active in a worst case
-
-                    // throw exc.AsSerializable(); 
+                    throw exc.AsSerializable();
                 }
             }
         }

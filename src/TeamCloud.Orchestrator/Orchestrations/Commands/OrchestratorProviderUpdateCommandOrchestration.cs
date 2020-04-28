@@ -14,6 +14,7 @@ using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestrator.Activities;
 using TeamCloud.Orchestrator.Entities;
+using TeamCloud.Orchestrator.Orchestrations.Utilities;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Commands
 {
@@ -30,8 +31,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
             if (log is null)
                 throw new ArgumentNullException(nameof(log));
 
-            var commandMessage = functionContext.GetInput<OrchestratorCommandMessage>();
-            var command = (OrchestratorProviderUpdateCommand)commandMessage.Command;
+            var command = functionContext.GetInput<OrchestratorProviderUpdateCommand>();
             var commandResult = command.CreateResult();
             var provider = command.Payload;
 

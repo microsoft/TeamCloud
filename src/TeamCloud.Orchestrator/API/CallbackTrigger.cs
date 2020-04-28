@@ -47,71 +47,15 @@ namespace TeamCloud.Orchestrator
                 .ToString();
         }
 
-        private static async Task SynchronizeCallbackUrlsAsync()
+        internal static async Task<string> GetCallbackUrlAsync(string instanceId, ICommand command)
         {
-            try
+            string functionKey = null;
+
+            if (FunctionsEnvironment.IsAzureEnvironment)
             {
-                var masterKey = await FunctionsEnvironment
-                    .GetAdminKeyAsync()
-                    .ConfigureAwait(false);
-
-                _ = await FunctionsEnvironment.HostUrl
-                        .AppendPathSegment("admin/host/synctriggers/")
-                        .SetQueryParam("code", masterKey)
-                        .AllowAnyHttpStatus()
-                        .PostJsonAsync(null)
-                        .ConfigureAwait(false);
-            }
-            catch
-            {
-                // we swallow all exceptions
-            }
-        }
-
-        internal static async Task<string> AcquireCallbackUrlAsync(string instanceId, ICommand command, bool useCommandTypeTokenFactory = false)
-        {
-            var functionKey = await GetCallbackToken(instanceId)
-                .ConfigureAwait(false);
-
-            if (string.IsNullOrEmpty(functionKey) && FunctionsEnvironment.IsAzureEnvironment)
-            {
-                if (useCommandTypeTokenFactory)
-                {
-                    functionKey = await GetCallbackToken(command.GetType().Name).ConfigureAwait(false)
-                        ?? await GetCallbackToken("default").ConfigureAwait(false)
-                        ?? throw new NotSupportedException($"Function '{nameof(CallbackTrigger)}' must have a 'default' APIKey.");
-                }
-                else
-                {
-                    var masterKey = await FunctionsEnvironment
-                        .GetAdminKeyAsync()
-                        .ConfigureAwait(false);
-
-                    try
-                    {
-                        var response = await FunctionsEnvironment.HostUrl
-                            .AppendPathSegment("admin/functions")
-                            .AppendPathSegment(nameof(CallbackTrigger))
-                            .AppendPathSegment("keys")
-                            .AppendPathSegment(SanitizeTokenName(instanceId), true)
-                            .SetQueryParam("code", masterKey)
-                            .PostJsonAsync(null)
-                            .ConfigureAwait(false);
-
-                        var functionKeysJson = await response.Content
-                            .ReadAsJsonAsync()
-                            .ConfigureAwait(false);
-
-                        functionKey = functionKeysJson
-                            .SelectToken($"$.value")?
-                            .ToString();
-                    }
-                    finally
-                    {
-                        await SynchronizeCallbackUrlsAsync()
-                            .ConfigureAwait(false);
-                    }
-                }
+                functionKey = await GetCallbackToken(command.GetType().Name).ConfigureAwait(false)
+                    ?? await GetCallbackToken("default").ConfigureAwait(false)
+                    ?? throw new NotSupportedException($"Function '{nameof(CallbackTrigger)}' must have a 'default' APIKey.");
             }
 
             return FunctionsEnvironment.HostUrl
@@ -120,40 +64,6 @@ namespace TeamCloud.Orchestrator
                 .AppendPathSegment(command.CommandId)
                 .SetQueryParam("code", functionKey)
                 .ToString();
-        }
-
-
-        internal static async Task InvalidateCallbackUrlAsync(string instanceId)
-        {
-            var masterKey = await FunctionsEnvironment
-                .GetAdminKeyAsync()
-                .ConfigureAwait(false);
-
-            try
-            {
-                _ = await FunctionsEnvironment.HostUrl
-                    .AppendPathSegment("admin/functions")
-                    .AppendPathSegment(nameof(CallbackTrigger))
-                    .AppendPathSegment("keys")
-                    .AppendPathSegment(SanitizeTokenName(instanceId), true)
-                    .SetQueryParam("code", masterKey)
-                    .AllowAnyHttpStatus()
-                    .DeleteAsync()
-                    .ConfigureAwait(false);
-            }
-            catch
-            {
-                var functionKey = await GetCallbackToken(instanceId)
-                    .ConfigureAwait(false);
-
-                if (!string.IsNullOrEmpty(functionKey))
-                    throw;
-            }
-            finally
-            {
-                await SynchronizeCallbackUrlsAsync()
-                    .ConfigureAwait(false);
-            }
         }
 
         [FunctionName(nameof(CallbackTrigger))]

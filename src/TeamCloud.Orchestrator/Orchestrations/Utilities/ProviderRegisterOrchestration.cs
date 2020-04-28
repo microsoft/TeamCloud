@@ -14,13 +14,12 @@ using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Activities;
 using TeamCloud.Orchestrator.Entities;
-using TeamCloud.Orchestrator.Orchestrations.Utilities;
 
-namespace TeamCloud.Orchestrator.Orchestrations.Commands
+namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 {
-    public static class OrchestratorProviderRegisterCommandOrchestration
+    public static class ProviderRegisterOrchestration
     {
-        [FunctionName(nameof(OrchestratorProviderRegisterCommandOrchestration) + "-Trigger")]
+        [FunctionName(nameof(ProviderRegisterOrchestration) + "-Trigger")]
         public static async Task RunTrigger(
             [TimerTrigger("0 0 * * * *", RunOnStartup = true)] TimerInfo timerInfo,
             [DurableClient] IDurableClient durableClient)
@@ -32,11 +31,11 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 throw new ArgumentNullException(nameof(durableClient));
 
             _ = await durableClient
-                .StartNewAsync(nameof(OrchestratorProviderRegisterCommandOrchestration), Guid.NewGuid().ToString(), (default(Provider), default(ProviderRegisterCommand)))
+                .StartNewAsync(nameof(ProviderRegisterOrchestration), Guid.NewGuid().ToString(), (default(Provider), default(ProviderRegisterCommand)))
                 .ConfigureAwait(false);
         }
 
-        [FunctionName(nameof(OrchestratorProviderRegisterCommandOrchestration))]
+        [FunctionName(nameof(ProviderRegisterOrchestration))]
         public static async Task RunOrchestration(
             [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
             ILogger log)
@@ -77,7 +76,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                         .ConfigureAwait(true);
 
                     var tasks = teamCloud.Providers
-                        .Select(provider => functionContext.CallSubOrchestratorWithRetryAsync(nameof(OrchestratorProviderRegisterCommandOrchestration), (provider, command)));
+                        .Select(provider => functionContext.CallSubOrchestratorWithRetryAsync(nameof(ProviderRegisterOrchestration), (provider, command)));
 
                     await Task
                         .WhenAll(tasks)

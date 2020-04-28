@@ -9,28 +9,24 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using TeamCloud.Azure.Deployment;
 using TeamCloud.Azure.Resources;
 using TeamCloud.Orchestration;
-using TeamCloud.Orchestrator.Templates;
 using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.Activities
 {
-    public class ResourceGroupResetActivity
+    public class ResourceGroupDeleteActivity
     {
-        private readonly IAzureDeploymentService azureDeploymentService;
         private readonly IAzureResourceService azureResourceService;
 
-        public ResourceGroupResetActivity(IAzureDeploymentService azureDeploymentService, IAzureResourceService azureResourceService)
+        public ResourceGroupDeleteActivity(IAzureResourceService azureResourceService)
         {
-            this.azureDeploymentService = azureDeploymentService ?? throw new ArgumentNullException(nameof(azureDeploymentService));
             this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
         }
 
-        [FunctionName(nameof(ResourceGroupResetActivity))]
+        [FunctionName(nameof(ResourceGroupDeleteActivity))]
         [RetryOptions(3)]
-        public async Task<string> RunActivity(
+        public async Task RunActivity(
             [ActivityTrigger] IDurableActivityContext functionContext,
             ILogger log)
         {
@@ -57,19 +53,13 @@ namespace TeamCloud.Orchestrator.Activities
                         .GetResourceGroupAsync(resourceIdentifier.SubscriptionId, resourceIdentifier.ResourceGroup)
                         .ConfigureAwait(false);
 
-                    if (resourceGroup is null)
-                        return default;
-
-                    var deployment = await azureDeploymentService
-                        .DeployResourceGroupTemplateAsync(new ResetResourceGroupTemplate(), resourceIdentifier.SubscriptionId, resourceIdentifier.ResourceGroup, completeMode: true)
+                    await (resourceGroup?.DeleteAsync(true) ?? Task.CompletedTask)
                         .ConfigureAwait(false);
-
-                    return deployment.ResourceId;
                 }
             }
             catch (Exception exc)
             {
-                log.LogError(exc, $"Activity '{nameof(ResourceGroupResetActivity)} failed: {exc.Message}");
+                log.LogError(exc, $"Activity '{nameof(ResourceGroupDeleteActivity)} failed: {exc.Message}");
 
                 throw exc.AsSerializable();
             }

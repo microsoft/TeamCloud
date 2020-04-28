@@ -54,7 +54,7 @@ namespace TeamCloud.Orchestrator
             }
             else if (orchestrationStatus.Input?.HasValues ?? false)
             {
-                var command = orchestrationStatus.Input.ToObject<OrchestratorCommandMessage>()?.Command;
+                var command = orchestrationStatus.Input.ToObject<IOrchestratorCommand>();
 
                 return command?.CreateResult(orchestrationStatus);
             }

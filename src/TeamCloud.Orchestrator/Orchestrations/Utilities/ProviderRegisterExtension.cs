@@ -9,9 +9,9 @@ using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
 
-namespace TeamCloud.Orchestrator.Orchestrations.Commands
+namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 {
-    internal static class OrchestratorProviderRegisterCommandExtension
+    internal static class ProviderRegisterExtension
     {
         public static Task RegisterProviderAsync(this IDurableOrchestrationContext functionContext, Provider provider = null, bool wait = true)
         {
@@ -22,11 +22,11 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 // orchestration instead of completely new one
 
                 return functionContext
-                    .CallSubOrchestratorWithRetryAsync(nameof(OrchestratorProviderRegisterCommandOrchestration), (provider, default(ProviderRegisterCommand)));
+                    .CallSubOrchestratorWithRetryAsync(nameof(ProviderRegisterOrchestration), (provider, default(ProviderRegisterCommand)));
             }
 
             functionContext
-                .StartNewOrchestration(nameof(OrchestratorProviderRegisterCommandOrchestration), (provider, default(ProviderRegisterCommand)));
+                .StartNewOrchestration(nameof(ProviderRegisterOrchestration), (provider, default(ProviderRegisterCommand)));
 
             return Task
                 .CompletedTask;

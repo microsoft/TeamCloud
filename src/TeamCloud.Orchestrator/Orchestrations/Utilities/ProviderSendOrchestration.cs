@@ -19,14 +19,13 @@ using TeamCloud.Orchestration;
 using TeamCloud.Orchestration.Auditing;
 using TeamCloud.Orchestrator.Activities;
 using TeamCloud.Orchestrator.Entities;
-using TeamCloud.Orchestrator.Orchestrations.Commands;
 using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 {
-    public static class CommandSendOrchestration
+    public static class ProviderSendOrchestration
     {
-        [FunctionName(nameof(CommandSendOrchestration))]
+        [FunctionName(nameof(ProviderSendOrchestration))]
         public static async Task<ICommandResult> RunOrchestrator(
             [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
             ILogger log)
@@ -101,7 +100,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                 functionContext.SetCustomStatus($"Acquire callback url", log);
 
                 commandCallback = await functionContext
-                    .CallActivityWithRetryAsync<string>(nameof(CallbackAcquireActivity), (functionContext.InstanceId, command))
+                    .CallActivityWithRetryAsync<string>(nameof(CallbackUrlGetActivity), (functionContext.InstanceId, command))
                     .ConfigureAwait(true);
 
                 commandMessage = new ProviderCommandMessage(command, commandCallback);
@@ -176,7 +175,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                             .CallActivityWithRetryAsync<ICommandResult>(nameof(CommandResultActivity), (provider, commandMessage))
                             .ConfigureAwait(true);
 
-                        if (commandResult.RuntimeStatus.IsFinal())
+                        if (commandResult.RuntimeStatus.IsActive())
                         {
                             // the last change result still doesn't report a final runtime status
                             // escalate the timeout by throwing an appropriate exception
@@ -195,15 +194,6 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
             }
             finally
             {
-                if (!string.IsNullOrEmpty(commandCallback))
-                {
-                    functionContext.SetCustomStatus($"Invalidating callback url for command '{command.CommandId}'", log);
-
-                    await functionContext
-                        .CallActivityWithRetryAsync(nameof(CallbackInvalidateActivity), (functionContext.InstanceId, command))
-                        .ConfigureAwait(true);
-                }
-
                 await functionContext
                     .AuditAsync(command, commandResult, provider)
                     .ConfigureAwait(true);

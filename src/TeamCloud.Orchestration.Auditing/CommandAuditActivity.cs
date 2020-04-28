@@ -70,9 +70,8 @@ namespace TeamCloud.Orchestration.Auditing
                 .ExecuteAsync(TableOperation.Retrieve<CommandAuditEntity>(entity.TableEntity.PartitionKey, entity.TableEntity.RowKey))
                 .ConfigureAwait(false);
 
-            entity = entityResult.HttpStatusCode == (int)HttpStatusCode.OK
-                ? (CommandAuditEntity)entityResult.Result
-                : entity;
+            if (entityResult.HttpStatusCode == (int)HttpStatusCode.OK)
+                entity = (entityResult.Result as CommandAuditEntity) ?? entity;
 
             await auditTable
                 .ExecuteAsync(TableOperation.InsertOrReplace(entity.Augment(command, commandResult)))

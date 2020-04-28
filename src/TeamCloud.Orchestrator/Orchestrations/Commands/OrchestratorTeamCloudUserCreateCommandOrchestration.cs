@@ -31,8 +31,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
             if (log is null)
                 throw new ArgumentNullException(nameof(log));
 
-            var commandMessage = functionContext.GetInput<OrchestratorCommandMessage>();
-            var command = (OrchestratorTeamCloudUserCreateCommand)commandMessage.Command;
+            var command = functionContext.GetInput<OrchestratorTeamCloudUserCreateCommand>();
             var commandResult = command.CreateResult();
             var user = command.Payload;
 
@@ -66,7 +65,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                     {
                         var projectUpdateCommand = new OrchestratorProjectUpdateCommand(command.User, project);
 
-                        functionContext.StartNewOrchestration(nameof(OrchestratorProjectUpdateCommand), new OrchestratorCommandMessage(projectUpdateCommand));
+                        functionContext.StartNewOrchestration(nameof(OrchestratorProjectUpdateCommand), projectUpdateCommand);
                     }
 
                     commandResult.Result = user;

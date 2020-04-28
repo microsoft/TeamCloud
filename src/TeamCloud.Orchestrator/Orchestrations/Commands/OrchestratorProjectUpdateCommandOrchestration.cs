@@ -12,7 +12,6 @@ using TeamCloud.Model;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
-using TeamCloud.Orchestration.Auditing;
 using TeamCloud.Orchestrator.Activities;
 using TeamCloud.Orchestrator.Orchestrations.Utilities;
 
@@ -31,8 +30,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
             if (log is null)
                 throw new ArgumentNullException(nameof(log));
 
-            var commandMessage = functionContext.GetInput<OrchestratorCommandMessage>();
-            var command = (OrchestratorProjectUpdateCommand)commandMessage.Command;
+            var command = functionContext.GetInput<OrchestratorProjectUpdateCommand>();
             var commandResult = command.CreateResult();
 
             using (log.BeginCommandScope(command))
@@ -42,9 +40,6 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
 
                 try
                 {
-                    await functionContext.AuditAsync(command, commandResult)
-                        .ConfigureAwait(true);
-
                     functionContext.SetCustomStatus($"Updating project.", log);
 
                     project = await functionContext
@@ -72,9 +67,6 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                         functionContext.SetCustomStatus($"Command succeeded", log);
                     else
                         functionContext.SetCustomStatus($"Command failed: {commandException.Message}", log, commandException);
-
-                    await functionContext.AuditAsync(command, commandResult)
-                        .ConfigureAwait(true);
 
                     functionContext.SetOutput(commandResult);
                 }

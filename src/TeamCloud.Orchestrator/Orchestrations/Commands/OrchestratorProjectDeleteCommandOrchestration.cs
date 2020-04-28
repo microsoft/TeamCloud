@@ -4,7 +4,6 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -13,8 +12,6 @@ using TeamCloud.Azure.Resources;
 using TeamCloud.Model;
 using TeamCloud.Model.Commands;
 using TeamCloud.Orchestration;
-using TeamCloud.Orchestration.Auditing;
-using TeamCloud.Orchestration.Deployment;
 using TeamCloud.Orchestrator.Activities;
 using TeamCloud.Orchestrator.Orchestrations.Utilities;
 
@@ -33,8 +30,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
             if (log is null)
                 throw new ArgumentNullException(nameof(log));
 
-            var commandMessage = functionContext.GetInput<OrchestratorCommandMessage>();
-            var command = (OrchestratorProjectDeleteCommand)commandMessage.Command;
+            var command = functionContext.GetInput<OrchestratorProjectDeleteCommand>();
             var commandResult = command.CreateResult();
 
             using (log.BeginCommandScope(command))
@@ -44,9 +40,6 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
 
                 try
                 {
-                    await functionContext.AuditAsync(command, commandResult)
-                        .ConfigureAwait(true);
-
                     try
                     {
                         functionContext.SetCustomStatus("Sending commands", log);
@@ -62,31 +55,16 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                         await functionContext
                             .CallActivityWithRetryAsync(nameof(ProjectDeleteActivity), project)
                             .ConfigureAwait(true);
-                    }
 
-                    try
-                    {
                         functionContext.SetCustomStatus("Deleting resources", log);
 
-                        var tasks = new List<Task>();
-
-                        if (!string.IsNullOrEmpty(project?.ResourceGroup?.ResourceGroupId))
-                            tasks.Add(ResetResourceGroup(functionContext, project.ResourceGroup.ResourceGroupId));
-
-                        if (!string.IsNullOrEmpty(project?.KeyVault?.VaultId))
-                            tasks.Add(ResetResourceGroup(functionContext, project.KeyVault.VaultId));
-
-                        await Task
-                            .WhenAll(tasks)
-                            .ConfigureAwait(true);
-                    }
-                    finally
-                    {
-                        functionContext.SetCustomStatus("Deleting resource groups", log);
-
-                        await functionContext
-                            .CallActivityWithRetryAsync(nameof(ProjectResourcesDeleteActivity), project)
-                            .ConfigureAwait(true);
+                        await functionContext.DeleteResourcesAsync
+                        (
+                            false, // we are not going to wait for this operation
+                            GetResourceGroupId(project?.ResourceGroup?.ResourceGroupId),
+                            GetResourceGroupId(project?.KeyVault?.VaultId)
+                        )
+                        .ConfigureAwait(true);
                     }
                 }
                 catch (Exception exc)
@@ -105,31 +83,17 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                     else
                         functionContext.SetCustomStatus($"Command failed: {commandException.Message}", log, commandException);
 
-                    await functionContext.AuditAsync(command, commandResult)
-                        .ConfigureAwait(true);
-
                     functionContext.SetOutput(commandResult);
                 }
             }
         }
 
-        private static Task ResetResourceGroup(IDurableOrchestrationContext functionContext, string resourceGroupId)
+        private static string GetResourceGroupId(string resourceId)
         {
-            if (functionContext is null)
-                throw new ArgumentNullException(nameof(functionContext));
+            if (AzureResourceIdentifier.TryParse(resourceId, out var resourceGroupIdentifier))
+                return resourceGroupIdentifier.ToString(AzureResourceSegment.ResourceGroup);
 
-            if (resourceGroupId is null)
-                throw new ArgumentNullException(nameof(resourceGroupId));
-
-            if (AzureResourceIdentifier.TryParse(resourceGroupId, out var resourceGroupIdentifier))
-            {
-                if (string.IsNullOrEmpty(resourceGroupIdentifier.ResourceGroup))
-                    throw new ArgumentException($"Argument '{nameof(resourceGroupId)}' must contain a resource group name", nameof(resourceGroupId));
-
-                return functionContext.GetDeploymentOutputAsync(nameof(ResourceGroupResetActivity), resourceGroupIdentifier.ToString(AzureResourceSegment.ResourceGroup));
-            }
-
-            throw new ArgumentException($"Invalid resource group Id: {resourceGroupId}", nameof(resourceGroupId));
+            return null;
         }
     }
 }
