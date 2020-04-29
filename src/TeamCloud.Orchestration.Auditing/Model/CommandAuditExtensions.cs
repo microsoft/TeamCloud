@@ -29,18 +29,17 @@ namespace TeamCloud.Orchestration.Auditing.Model
             {
                 entity.Status = commandResult.RuntimeStatus;
 
-                if (command is IProviderCommand && !commandResult.RuntimeStatus.IsUnknown())
+                if (!commandResult.RuntimeStatus.IsUnknown())
                 {
-                    entity.Sent ??= timestamp;
-                }
-
-                if (commandResult.RuntimeStatus.IsFinal())
-                {
-                    entity.Processed ??= timestamp;
-                }
-                else if (command is IProviderCommand && commandResult.RuntimeStatus.IsActive())
-                {
-                    entity.Timeout ??= timestamp + commandResult.Timeout;
+                    if (commandResult.RuntimeStatus.IsFinal())
+                    {
+                        entity.Processed ??= timestamp;
+                    }
+                    else if (command is IProviderCommand)
+                    {
+                        entity.Sent ??= timestamp;
+                        entity.Timeout ??= timestamp + commandResult.Timeout;
+                    }
                 }
             }
 
