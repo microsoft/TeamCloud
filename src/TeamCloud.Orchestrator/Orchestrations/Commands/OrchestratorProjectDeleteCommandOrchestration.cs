@@ -13,7 +13,6 @@ using TeamCloud.Model;
 using TeamCloud.Model.Commands;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Activities;
-using TeamCloud.Orchestrator.Entities;
 using TeamCloud.Orchestrator.Orchestrations.Utilities;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Commands
@@ -35,12 +34,11 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
             var commandResult = command.CreateResult();
 
             using (log.BeginCommandScope(command))
-            using (await functionContext.LockAsync(command.Payload).ConfigureAwait(true))
             {
                 functionContext.SetCustomStatus($"Refreshing project", log);
 
                 var project = commandResult.Result = (await functionContext
-                    .GetProjectAsync(command.ProjectId.GetValueOrDefault())
+                    .GetProjectAsync(command.ProjectId.GetValueOrDefault(), allowUnsafe: true)
                     .ConfigureAwait(true)) ?? command.Payload;
 
                 try
