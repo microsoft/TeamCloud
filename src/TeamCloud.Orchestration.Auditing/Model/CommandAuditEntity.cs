@@ -25,17 +25,14 @@ namespace TeamCloud.Orchestration.Auditing.Model
         }
 
         [IgnoreProperty]
-        public string AuditId => this.TableEntity.RowKey;
+        public string ProjectId => this.TableEntity.PartitionKey;
 
         [IgnoreProperty]
-        public string ProjectId => this.TableEntity.PartitionKey;
-        public string Project { get; set; }
+        public string AuditId => this.TableEntity.RowKey;
 
         public string CommandId { get; set; }
         public string Command { get; set; }
-
         public string Provider { get; set; }
-
         public CommandRuntimeStatus Status { get; set; } = CommandRuntimeStatus.Unknown;
 
         public DateTime? Created { get; set; }

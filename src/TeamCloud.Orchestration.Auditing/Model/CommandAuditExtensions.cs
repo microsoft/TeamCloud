@@ -6,7 +6,6 @@
 using System;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
-using TeamCloud.Model.Data;
 
 namespace TeamCloud.Orchestration.Auditing.Model
 {
@@ -24,8 +23,6 @@ namespace TeamCloud.Orchestration.Auditing.Model
 
             entity.CommandId = command.CommandId.ToString();
             entity.Command = command.GetType().Name;
-
-            entity.Project ??= command.Payload is Project project ? project.Name : null;
             entity.Created ??= timestamp;
 
             if (commandResult != null)

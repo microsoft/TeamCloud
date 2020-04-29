@@ -35,8 +35,11 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
 
             using (log.BeginCommandScope(command))
             {
+                functionContext.SetCustomStatus($"Updating project", log);
 
-                var project = commandResult.Result = command.Payload;
+                var project = commandResult.Result = (await functionContext
+                    .GetProjectAsync(command.ProjectId.GetValueOrDefault())
+                    .ConfigureAwait(true)) ?? command.Payload;
 
                 try
                 {
