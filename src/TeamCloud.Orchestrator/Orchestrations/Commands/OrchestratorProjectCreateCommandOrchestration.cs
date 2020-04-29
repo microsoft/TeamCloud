@@ -165,7 +165,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
 
         private static async Task RollbackAsync(IDurableOrchestrationContext functionContext, OrchestratorProjectCreateCommand command, ILogger log)
         {
-            functionContext.SetCustomStatus($"Updating project", log);
+            functionContext.SetCustomStatus($"Refreshing project", log);
 
             var project = (await functionContext
                 .GetProjectAsync(command.ProjectId.GetValueOrDefault())
