@@ -47,7 +47,7 @@
     "projectResourcesDeployment": "[concat(deployment().name, '-', 'ProjectResources')]",
     "internalResourceGroupName": "[concat(variables('projectResourceGroupName'), '_INTERNAL')]",
     "internalResourcesDeployment": "[concat(deployment().name, '-', 'InternalResources')]",
-    "eventGridName": "[if(empty(parameters('eventGridEndpoint')), '', concat('tc', uniqueString(toLower(take(parameters('eventGridEndpoint'), indexOf(parameters('eventGridEndpoint'), '?'))))))]"
+    "eventGridName": "[if(empty(parameters('eventGridEndpoint')), '', concat('TeamCloud-', uniqueString(toLower(take(parameters('eventGridEndpoint'), indexOf(parameters('eventGridEndpoint'), '?'))))))]"
   },
   "resources": [
     {
