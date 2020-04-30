@@ -18,9 +18,9 @@ using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.Activities
 {
-    public static class CommandResultActivity
+    public static class CommandResultFetchActivity
     {
-        [FunctionName(nameof(CommandResultActivity))]
+        [FunctionName(nameof(CommandResultFetchActivity))]
         [RetryOptions(3)]
         public static async Task<ICommandResult> RunActivity(
             [ActivityTrigger] IDurableActivityContext functionContext)

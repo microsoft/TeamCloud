@@ -143,7 +143,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                 catch (RetryCanceledException)
                 {
                     commandResult = await functionContext
-                        .CallActivityWithRetryAsync<ICommandResult>(nameof(CommandResultActivity), (provider, commandMessage))
+                        .CallActivityWithRetryAsync<ICommandResult>(nameof(CommandResultFetchActivity), (provider, commandMessage))
                         .ConfigureAwait(true);
                 }
                 finally
@@ -172,7 +172,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                         // chance to return a command result
 
                         commandResult = await functionContext
-                            .CallActivityWithRetryAsync<ICommandResult>(nameof(CommandResultActivity), (provider, commandMessage))
+                            .CallActivityWithRetryAsync<ICommandResult>(nameof(CommandResultFetchActivity), (provider, commandMessage))
                             .ConfigureAwait(true);
 
                         if (commandResult.RuntimeStatus.IsActive())

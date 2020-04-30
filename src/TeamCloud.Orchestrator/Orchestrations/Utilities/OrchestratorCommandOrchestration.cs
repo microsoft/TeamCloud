@@ -21,14 +21,10 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
         [FunctionName(nameof(OrchestratorCommandOrchestration))]
         public static async Task RunOrchestrator(
             [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
-            [DurableClient] IDurableClient durableClient,
             ILogger log)
         {
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
-
-            if (durableClient is null)
-                throw new ArgumentNullException(nameof(durableClient));
 
             var command = functionContext.GetInput<ICommand>();
             var commandResult = command.CreateResult();
@@ -47,12 +43,12 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                     .CallSubOrchestratorWithRetryAsync<ICommandResult>(commandOrchestration, command.CommandId.ToString(), command)
                     .ConfigureAwait(true);
 
-                var commandStatus = await durableClient
-                    .GetStatusAsync(command.CommandId.ToString(), false)
-                    .ConfigureAwait(true);
-
-                if (commandStatus != null)
-                    commandResult.ApplyStatus(commandStatus);
+                if (commandResult?.RuntimeStatus.IsUnknown() ?? false)
+                {
+                    commandResult = await functionContext
+                        .CallActivityWithRetryAsync<ICommandResult>(nameof(CommandResultAugmentActivity), commandResult)
+                        .ConfigureAwait(true);
+                }
             }
             catch (Exception exc)
             {

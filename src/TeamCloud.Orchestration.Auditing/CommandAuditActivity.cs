@@ -22,7 +22,7 @@ namespace TeamCloud.Orchestration.Auditing
     public static class CommandAuditActivity
     {
         [FunctionName(nameof(CommandAuditActivity))]
-        public static Task RunActivity(
+        public static async Task RunActivity(
             [ActivityTrigger] IDurableActivityContext functionContext,
             [DurableClient] IDurableClient durableClient,
             IBinder binder,
@@ -44,17 +44,16 @@ namespace TeamCloud.Orchestration.Auditing
             {
                 var prefix = durableClient.GetTaskHubName(true);
 
-                return Task.WhenAll
+                await Task.WhenAll
                 (
                    WriteAuditTableAsync(binder, prefix, command, commandResult, provider),
                    WriteAuditContainerAsync(binder, prefix, command, commandResult, provider)
-                );
+                )
+                .ConfigureAwait(false);
             }
             catch (Exception exc)
             {
                 log?.LogWarning(exc, $"Failed to audit command {command?.GetType().Name ?? "UNKNOWN"} ({command?.CommandId ?? Guid.Empty}) for provider {provider?.Id ?? "UNKNOWN"}");
-
-                return Task.CompletedTask;
             }
         }
 
