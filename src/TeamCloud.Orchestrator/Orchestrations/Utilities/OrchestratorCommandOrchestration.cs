@@ -32,7 +32,8 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 
             try
             {
-                await functionContext.AuditAsync(command, commandResult)
+                await functionContext
+                    .AuditAsync(command, commandResult)
                     .ConfigureAwait(true);
 
                 var commandOrchestration = await functionContext
@@ -42,13 +43,6 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                 commandResult = await functionContext
                     .CallSubOrchestratorWithRetryAsync<ICommandResult>(commandOrchestration, command.CommandId.ToString(), command)
                     .ConfigureAwait(true);
-
-                if (commandResult?.RuntimeStatus.IsUnknown() ?? false)
-                {
-                    commandResult = await functionContext
-                        .CallActivityWithRetryAsync<ICommandResult>(nameof(CommandResultAugmentActivity), commandResult)
-                        .ConfigureAwait(true);
-                }
             }
             catch (Exception exc)
             {
@@ -59,7 +53,15 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
             }
             finally
             {
-                await functionContext.AuditAsync(command, commandResult)
+                if (commandResult?.RuntimeStatus.IsUnknown() ?? false)
+                {
+                    commandResult = await functionContext
+                        .CallActivityWithRetryAsync<ICommandResult>(nameof(CommandResultAugmentActivity), commandResult)
+                        .ConfigureAwait(true);
+                }
+
+                await functionContext
+                    .AuditAsync(command, commandResult)
                     .ConfigureAwait(true);
 
                 functionContext.SetOutput(commandResult);

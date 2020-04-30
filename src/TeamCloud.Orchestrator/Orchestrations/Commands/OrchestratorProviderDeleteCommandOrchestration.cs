@@ -57,7 +57,10 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 }
                 catch (Exception exc)
                 {
+                    commandResult ??= command.CreateResult();
                     commandResult.Errors.Add(exc);
+
+                    throw;
                 }
                 finally
                 {

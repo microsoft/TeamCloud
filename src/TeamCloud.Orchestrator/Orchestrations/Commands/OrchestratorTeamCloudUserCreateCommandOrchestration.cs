@@ -76,6 +76,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 {
                     functionContext.SetCustomStatus("Failed to create user.", log, ex);
 
+                    commandResult ??= command.CreateResult();
                     commandResult.Errors.Add(ex);
 
                     throw;
