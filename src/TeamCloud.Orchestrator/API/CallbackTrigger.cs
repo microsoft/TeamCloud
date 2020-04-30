@@ -25,16 +25,17 @@ namespace TeamCloud.Orchestrator
 {
     public static class CallbackTrigger
     {
-        private static string SanitizeTokenName(string tokenName)
-            => new string(tokenName?.ToCharArray().Where(char.IsLetterOrDigit).ToArray() ?? throw new ArgumentNullException(nameof(tokenName)));
-
-        private static async Task<string> GetCallbackToken(string tokenName)
+        private static async Task<string> GetTokenAsync()
         {
             var masterKey = await FunctionsEnvironment
                 .GetAdminKeyAsync()
                 .ConfigureAwait(false);
 
-            var json = await FunctionsEnvironment.HostUrl
+            var hostUrl = await FunctionsEnvironment
+                .GetHostUrlAsync()
+                .ConfigureAwait(false);
+
+            var json = await hostUrl
                 .AppendPathSegment("admin/functions")
                 .AppendPathSegment(nameof(CallbackTrigger))
                 .AppendPathSegment("keys")
@@ -42,23 +43,42 @@ namespace TeamCloud.Orchestrator
                 .GetJObjectAsync()
                 .ConfigureAwait(false);
 
+            var tokens = json
+                .SelectTokens($"$.keys[?(@.name != 'default')].value")
+                .Select(token => token.ToString())
+                .ToArray();
+
+            if (tokens.Length == 1)
+            {
+                return tokens[0];
+            }
+            else if (tokens.Length > 1)
+            {
+                return tokens[new Random().Next(0, tokens.Length - 1)];
+            }
+
             return json
-                .SelectToken($"$.keys[?(@.name == '{SanitizeTokenName(tokenName)}')].value")?
+                .SelectToken($"$.keys[?(@.name == 'default')].value")?
                 .ToString();
         }
 
-        internal static async Task<string> GetCallbackUrlAsync(string instanceId, ICommand command)
+        internal static async Task<string> GetUrlAsync(string instanceId, ICommand command)
         {
             string functionKey = null;
 
             if (FunctionsEnvironment.IsAzureEnvironment)
             {
-                functionKey = await GetCallbackToken(command.GetType().Name).ConfigureAwait(false)
-                    ?? await GetCallbackToken("default").ConfigureAwait(false)
-                    ?? throw new NotSupportedException($"Function '{nameof(CallbackTrigger)}' must have a 'default' APIKey.");
+                functionKey = await GetTokenAsync().ConfigureAwait(false);
+
+                if (string.IsNullOrEmpty(functionKey))
+                    throw new NotSupportedException($"Function '{nameof(CallbackTrigger)}' must have a 'default' APIKey.");
             }
 
-            return FunctionsEnvironment.HostUrl
+            var hostUrl = await FunctionsEnvironment
+                .GetHostUrlAsync()
+                .ConfigureAwait(false);
+
+            return hostUrl
                 .AppendPathSegment("api/callback")
                 .AppendPathSegment(instanceId, true)
                 .AppendPathSegment(command.CommandId)

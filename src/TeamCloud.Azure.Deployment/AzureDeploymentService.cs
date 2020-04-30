@@ -18,6 +18,8 @@ namespace TeamCloud.Azure.Deployment
 {
     public interface IAzureDeploymentService
     {
+        IAzureDeploymentOptions Options { get; }
+
         Task<IAzureDeployment> GetAzureDeploymentAsync(string resourceId);
 
         Task<IAzureDeployment> GetAzureDeploymentAsync(Guid subscriptionId, Guid deploymentId);
@@ -45,6 +47,8 @@ namespace TeamCloud.Azure.Deployment
             this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
             this.azureDeploymentArtifactsStorage = azureDeploymentArtifactsStorage ?? throw new ArgumentNullException(nameof(azureDeploymentArtifactsStorage));
         }
+
+        public IAzureDeploymentOptions Options => azureDeploymentOptions;
 
         public async Task<IAzureDeployment> GetAzureDeploymentAsync(string resourceId)
         {

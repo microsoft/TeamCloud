@@ -9,17 +9,21 @@ using TeamCloud.Azure.Deployment.Providers;
 using TeamCloud.Configuration;
 using TeamCloud.Configuration.Options;
 
-namespace TeamCloud.API.Options
+namespace TeamCloud.Orchestrator.Options
 {
     [Options]
-    public sealed class AzureDeploymentOptions : IAzureDeploymentOptions, IAzureStorageArtifactsOptions
+    public sealed class OrchestratorAzureDeploymentOptions : IAzureDeploymentOptions, IAzureStorageArtifactsOptions
     {
+        private readonly AzureDeploymentOptions azureDeploymentOptions;
         private readonly AzureDeploymentStorageOptions azureDeploymentStorageOptions;
 
-        public AzureDeploymentOptions(AzureDeploymentStorageOptions azureDeploymentStorageOptions)
+        public OrchestratorAzureDeploymentOptions(AzureDeploymentOptions azureDeploymentOptions, AzureDeploymentStorageOptions azureDeploymentStorageOptions)
         {
+            this.azureDeploymentOptions = azureDeploymentOptions ?? throw new ArgumentNullException(nameof(azureDeploymentOptions));
             this.azureDeploymentStorageOptions = azureDeploymentStorageOptions ?? throw new ArgumentNullException(nameof(azureDeploymentStorageOptions));
         }
+
+        string IAzureDeploymentOptions.DefaultLocation => azureDeploymentOptions.DefaultLocation;
 
         string IAzureStorageArtifactsOptions.BaseUrlOverride => azureDeploymentStorageOptions.BaseUrlOverride;
 

@@ -56,18 +56,36 @@ namespace TeamCloud.Orchestration
         public static bool IsLocalEnvironment
             => string.IsNullOrEmpty(Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID"));
 
-        public static string HostUrl
+        public static async Task<string> GetHostUrlAsync()
         {
-            get
+            var hostName = Environment.GetEnvironmentVariable("WEBSITE_HOSTNAME");
+            var hostUrl = $"http{(hostName.StartsWith("localhost", StringComparison.OrdinalIgnoreCase) ? "" : "s")}://{hostName}";
+
+            if (IsLocalEnvironment)
             {
-                var hostScheme = "http";
-                var hostName = Environment.GetEnvironmentVariable("WEBSITE_HOSTNAME");
+                try
+                {
+                    var json = await "http://localhost:4040/api/tunnels"
+                        .GetJObjectAsync()
+                        .ConfigureAwait(false);
 
-                if (!hostName.StartsWith("localhost", StringComparison.OrdinalIgnoreCase))
-                    hostScheme += "s";
+                    var exposedAddr = json
+                        .SelectTokens("$.tunnels[?(@.proto == 'https')].config.addr")
+                        .Select(token => token.ToString())
+                        .Where(addr => addr.Equals(hostUrl, StringComparison.OrdinalIgnoreCase))
+                        .FirstOrDefault();
 
-                return $"{hostScheme}://{hostName}";
+                    hostUrl = json
+                        .SelectToken($"$.tunnels[?(@.proto == 'https' && @.config.addr =='{exposedAddr}')].public_url")?
+                        .ToString() ?? hostUrl;
+                }
+                catch (FlurlHttpException)
+                {
+                    // swallow exceptions
+                }
             }
+
+            return hostUrl;
         }
 
         private static string GetResourceId(string token)

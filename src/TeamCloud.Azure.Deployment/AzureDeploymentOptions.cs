@@ -3,18 +3,21 @@
  *  Licensed under the MIT License.
  */
 
-using System.Diagnostics.CodeAnalysis;
+using System;
 
 namespace TeamCloud.Azure.Deployment
 {
-    [SuppressMessage("Design", "CA1040:Avoid empty interfaces")]
     public interface IAzureDeploymentOptions
-    { }
+    {
+        string DefaultLocation { get; }
+    }
 
-    public sealed class AzureDeploymentOptions : IAzureDeploymentOptions
+    internal sealed class AzureDeploymentOptions : IAzureDeploymentOptions
     {
         public static IAzureDeploymentOptions Default => new AzureDeploymentOptions();
 
         private AzureDeploymentOptions() { }
+
+        public string DefaultLocation { get; } = Environment.GetEnvironmentVariable("REGION_NAME");
     }
 }

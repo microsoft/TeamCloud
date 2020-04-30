@@ -54,19 +54,27 @@ namespace TeamCloud.Orchestration.Deployment
                         .CallActivityWithRetryAsync<AzureDeploymentState>(nameof(AzureDeploymentStateActivity), deploymentResourceId)
                         .ConfigureAwait(true);
 
+                    // by default we keep deployments for one day
+                    // this should give users enough time to check
+                    // details of the deployment on one hand and
+                    // should prevents us from reaching the maximum
+                    // of 800 per resource scope on the other hand
+
+                    var schedule = functionContext.CurrentUtcDateTime.AddDays(1).Date;
+
                     if (state.IsErrorState())
                     {
                         // deployments ended up in an error state will stay 
-                        // alive for seven days to investigate the issue
+                        // alive for five days to investigate the issue
 
-                        var schedule = functionContext.CurrentUtcDateTime.AddDays(7).Date;
-
-                        functionContext.SetCustomStatus($"Deployment delete scheduled for '{schedule}'", deploymentLog);
-
-                        await functionContext
-                            .CreateTimer(schedule, CancellationToken.None)
-                            .ConfigureAwait(true);
+                        schedule = functionContext.CurrentUtcDateTime.AddDays(5).Date;
                     }
+
+                    functionContext.SetCustomStatus($"Deployment delete scheduled for '{schedule}'", deploymentLog);
+
+                    await functionContext
+                        .CreateTimer(schedule, CancellationToken.None)
+                        .ConfigureAwait(true);
 
                     functionContext.SetCustomStatus($"Deleting deployment '{deploymentResourceId}'", deploymentLog);
 

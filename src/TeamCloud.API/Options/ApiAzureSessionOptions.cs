@@ -7,22 +7,22 @@ using TeamCloud.Azure;
 using TeamCloud.Configuration;
 using TeamCloud.Configuration.Options;
 
-namespace TeamCloud.Orchestrator.Options
+namespace TeamCloud.API.Options
 {
     [Options]
-    public class AzureSessionOptions : IAzureSessionOptions
+    public sealed class ApiAzureSessionOptions : IAzureSessionOptions
     {
         private readonly AzureResourceManagerOptions azureRMOptions;
 
-        public AzureSessionOptions(AzureResourceManagerOptions azureRMOptions)
+        public ApiAzureSessionOptions(AzureResourceManagerOptions azureRMOptions)
         {
             this.azureRMOptions = azureRMOptions ?? throw new System.ArgumentNullException(nameof(azureRMOptions));
         }
 
-        public string TenantId => azureRMOptions.TenantId;
+        string IAzureSessionOptions.TenantId => azureRMOptions.TenantId;
 
-        public string ClientId => azureRMOptions.ClientId;
+        string IAzureSessionOptions.ClientId => azureRMOptions.ClientId;
 
-        public string ClientSecret => azureRMOptions.ClientSecret;
+        string IAzureSessionOptions.ClientSecret => azureRMOptions.ClientSecret;
     }
 }
