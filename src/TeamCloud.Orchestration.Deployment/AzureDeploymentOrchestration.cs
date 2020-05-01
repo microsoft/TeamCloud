@@ -102,11 +102,14 @@ namespace TeamCloud.Orchestration.Deployment
                         {
                             if (state.IsErrorState())
                             {
-                                var errors = await functionContext
+                                var errors = (await functionContext
                                     .CallActivityWithRetryAsync<IEnumerable<string>>(nameof(AzureDeploymentErrorsActivity), deploymentResourceId)
-                                    .ConfigureAwait(true);
+                                    .ConfigureAwait(true)) ?? Enumerable.Empty<string>();
 
-                                throw new AzureDeploymentException($"Deployment '{deploymentResourceId}' failed", deploymentResourceId, errors?.ToArray() ?? Array.Empty<string>());
+                                foreach (var error in errors)
+                                    deploymentLog.LogError($"Deployment '{deploymentResourceId}' reported error: {error}");
+
+                                throw new AzureDeploymentException($"Deployment '{deploymentResourceId}' failed", deploymentResourceId, errors.ToArray());
                             }
                             else
                             {
