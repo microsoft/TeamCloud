@@ -25,6 +25,14 @@
     "providerIdentities": {
       "type": "array"
     },
+    "eventGridLocation": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "eventGridEndpoint": {
+      "type": "string",
+      "defaultValue": ""
+    },
     "_artifactsLocation": {
       "type": "string",
       "defaultValue": ""
@@ -42,6 +50,45 @@
     "eventGridName": "[if(empty(parameters('eventGridEndpoint')), '', concat('TeamCloud-', uniqueString(toLower(take(parameters('eventGridEndpoint'), indexOf(parameters('eventGridEndpoint'), '?'))))))]"
   },
   "resources": [
+    {
+      "name": "default",
+      "type": "Microsoft.Resources/tags",
+      "apiVersion": "2019-10-01",
+      "properties": {
+        "tags": {
+          "TeamCloud-Version": "[deployment().properties.template.contentVersion]"
+        }
+      }
+    },
+    {
+      "condition": "[not(empty(variables('eventGridName')))]",
+      "type": "Microsoft.EventGrid/eventSubscriptions",
+      "name": "[variables('eventGridName')]",
+      "apiVersion": "2018-01-01",
+      "location": "[parameters('eventGridLocation')]",
+      "properties": {
+        "destination": {
+          "endpointType": "WebHook",
+          "properties": {
+            "endpointUrl": "[parameters('eventGridEndpoint')]"
+          }
+        },
+        "filter": {
+          "includedEventTypes": [
+            "Microsoft.Resources.ResourceDeleteSuccess",
+            "Microsoft.Resources.ResourceWriteSuccess"
+          ],
+          "subjectBeginsWith": "[concat('/subscriptions/', subscription().subscriptionId, '/resourcegroups/')]"
+        },
+        "eventDeliverySchema": "EventGridSchema",
+        "labels": [
+        ],
+        "retryPolicy": {
+          "eventTimeToLiveInMinutes": 60,
+          "maxDeliveryAttempts": 5
+        }
+      }
+    },
     {
       "type": "Microsoft.Resources/resourceGroups",
       "apiVersion": "2018-05-01",
