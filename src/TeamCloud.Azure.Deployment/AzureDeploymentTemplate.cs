@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json.Linq;
 
 namespace TeamCloud.Azure.Deployment
 {
@@ -37,7 +38,26 @@ namespace TeamCloud.Azure.Deployment
             return template;
         }
 
+        private static Version GetTemplateVersion(string template)
+        {
+            if (string.IsNullOrEmpty(template))
+                return null;
+
+            var templateVersion = JObject
+                .Parse(template)
+                .SelectToken("$.contentVersion")?
+                .ToString();
+
+            if (Version.TryParse(templateVersion, out Version version))
+                return version;
+
+            return null;
+        }
+
+
         public string Template { get; protected set; }
+
+        public Version TemplateVersion => GetTemplateVersion(Template);
 
         public IDictionary<string, object> Parameters { get; protected set; } = new Dictionary<string, object>();
 

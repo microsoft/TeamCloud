@@ -6,9 +6,18 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AzureFunctionsVersion>v3</AzureFunctionsVersion>
     <FunctionsInDependencies>true</FunctionsInDependencies>
-    <!--<UserSecretsId></UserSecretsId>-->
   </PropertyGroup>
   
+  <PropertyGroup Condition="'$(Configuration)' == 'DEBUG'">
+    <!-- 
+    Deterministric builds is disabled for 
+    DEBUG builds to enable support for 
+    wildcards in the assembly version pattern.
+    -->
+    <AssemblyVersion>1.0.0.*</AssemblyVersion>
+    <Deterministic>false</Deterministic>
+  </PropertyGroup>
+
   <ItemGroup>
     <None Remove="Templates\CreateProjectTemplate.json" />
     <None Remove="Templates\CreateProjectTemplate_InternalResources.json" />
@@ -76,4 +85,5 @@
     <Warning Text="= Remove the UserSecretsId element from the project file or set it to EMPTY! =" />
     <Warning Text="==============================================================================" />
   </Target>
+  
 </Project>

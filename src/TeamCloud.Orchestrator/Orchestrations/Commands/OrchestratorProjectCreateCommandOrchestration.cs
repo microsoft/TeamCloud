@@ -106,13 +106,19 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 .CallActivityWithRetryAsync<Guid>(nameof(ProjectSubscriptionSelectActivity), project)
                 .ConfigureAwait(true);
 
+            functionContext.SetCustomStatus($"Initializing subscription", log);
+
+            await functionContext
+                .InitializeSubscriptionAsync(subscriptionId)
+                .ConfigureAwait(true);
+
             functionContext.SetCustomStatus($"Provisioning resources", log);
 
             var deploymentOutput = await functionContext
-                .GetDeploymentOutputAsync(nameof(ProjectResourcesCreateActivity), (project, subscriptionId))
+                .CallDeploymentAsync(nameof(ProjectResourcesCreateActivity), (project, subscriptionId))
                 .ConfigureAwait(true);
 
-            using (await functionContext.LockAsync(project).ConfigureAwait(true))
+            using (await functionContext.LockContainerDocumentAsync(project).ConfigureAwait(true))
             {
                 functionContext.SetCustomStatus($"Updating project", log);
 
@@ -168,7 +174,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
             functionContext.SetCustomStatus($"Refreshing project", log);
 
             var project = (await functionContext
-                .GetProjectAsync(command.ProjectId.GetValueOrDefault(), allowDirtyRead: true)
+                .GetProjectAsync(command.ProjectId.GetValueOrDefault(), allowUnsafe: true)
                 .ConfigureAwait(true)) ?? command.Payload;
 
             functionContext.SetCustomStatus($"Rolling back project", log);

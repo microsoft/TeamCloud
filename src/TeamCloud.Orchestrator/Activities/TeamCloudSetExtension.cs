@@ -19,7 +19,7 @@ namespace TeamCloud.Orchestrator.Activities
             if (teamCloud is null)
                 throw new ArgumentNullException(nameof(teamCloud));
 
-            if (functionContext.IsLockedBy(teamCloud))
+            if (functionContext.IsLockedByContainerDocument(teamCloud))
             {
                 return functionContext
                     .CallActivityWithRetryAsync<TeamCloudInstance>(nameof(TeamCloudSetActivity), teamCloud);

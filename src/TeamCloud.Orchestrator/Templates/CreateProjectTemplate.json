@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
-  "contentVersion": "1.0.0.0",
+  "contentVersion": "0.0.0.0",
   "parameters": {
     "projectId": {
       "type": "string"
@@ -38,8 +38,7 @@
     "projectResourceGroupName": "[parameters('resourceGroupName')]",
     "projectResourcesDeployment": "[concat(deployment().name, '-', 'ProjectResources')]",
     "internalResourceGroupName": "[concat(variables('projectResourceGroupName'), '_INTERNAL')]",
-    "internalResourcesDeployment": "[concat(deployment().name, '-', 'InternalResources')]",
-    "eventGridName": "[if(empty(parameters('eventGridEndpoint')), '', concat('TeamCloud-', uniqueString(toLower(take(parameters('eventGridEndpoint'), indexOf(parameters('eventGridEndpoint'), '?'))))))]"
+    "internalResourcesDeployment": "[concat(deployment().name, '-', 'InternalResources')]"
   },
   "resources": [
     {

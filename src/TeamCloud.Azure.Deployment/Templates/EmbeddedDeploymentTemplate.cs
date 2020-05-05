@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace TeamCloud.Azure.Deployment.Templates
@@ -23,7 +24,7 @@ namespace TeamCloud.Azure.Deployment.Templates
         }
 
         private static string GetMainTemplate(Type templateType)
-            => GetResourceJson(templateType, $"{templateType.FullName}.json");
+            => GetResourceJson(templateType, $"{templateType.FullName}.json", true);
 
         private static IDictionary<string, string> GetLinkedTemplates(Type templateType)
         {
@@ -35,7 +36,7 @@ namespace TeamCloud.Azure.Deployment.Templates
                 .ToDictionary(name => name.Substring(templatePrefix.Length), name => GetResourceJson(templateType, name));
         }
 
-        private static string GetResourceJson(Type templateType, string resourceName)
+        private static string GetResourceJson(Type templateType, string resourceName, bool enforceVersionUpdate = false)
         {
             using var stream = templateType.Assembly.GetManifestResourceStream(resourceName);
 
@@ -50,8 +51,24 @@ namespace TeamCloud.Azure.Deployment.Templates
             }
 
             using var streamReader = new StreamReader(stream);
+            using var jsonReader = new JsonTextReader(streamReader);
 
-            return streamReader.ReadToEnd();
+            var content = JObject.Load(jsonReader);
+            var contentVersion = content.SelectToken("$.contentVersion") as JValue;
+
+            if (contentVersion is null)
+            {
+                content.Children().First().AddAfterSelf(new JProperty("contentVersion", "0.0.0.0"));
+
+                contentVersion = content.SelectToken("$.contentVersion") as JValue;
+            }
+
+            if (enforceVersionUpdate || contentVersion.ToString().Equals("0.0.0.0", StringComparison.OrdinalIgnoreCase))
+            {
+                contentVersion.Value = templateType.Assembly.GetName().Version.ToString(4);
+            }
+
+            return content.ToString();
         }
 
         private static IDictionary<string, object> GetParameters(string template)

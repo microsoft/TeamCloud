@@ -63,7 +63,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
             if (command.ProjectId.HasValue)
             {
                 var project = await functionContext
-                    .GetProjectAsync(command.ProjectId.Value, allowDirtyRead: true)
+                    .GetProjectAsync(command.ProjectId.Value, allowUnsafe: true)
                     .ConfigureAwait(true);
 
                 var providerReference = project.Type.Providers
@@ -217,7 +217,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                 functionContext.SetCustomStatus($"Switching command", log);
 
                 var project = await functionContext
-                    .GetProjectAsync(command.ProjectId.Value, allowDirtyRead: true)
+                    .GetProjectAsync(command.ProjectId.Value, allowUnsafe: true)
                     .ConfigureAwait(true);
 
                 functionContext.ContinueAsNew((

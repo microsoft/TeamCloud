@@ -6,6 +6,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using TeamCloud.Orchestration.Deployment.Activities;
 
 namespace TeamCloud.Orchestration.Deployment
 {
@@ -20,11 +21,10 @@ namespace TeamCloud.Orchestration.Deployment
                 throw new System.ArgumentException("message", nameof(deploymentResourceId));
 
             return functionContext
-                .CallSubOrchestratorWithRetryAsync<IReadOnlyDictionary<string, object>>(nameof(AzureDeploymentOrchestration), (default(string), default(object), deploymentResourceId, false));
+                .CallActivityWithRetryAsync<IReadOnlyDictionary<string, object>>(nameof(AzureDeploymentOutputActivity), deploymentResourceId);
         }
 
-
-        public static Task<IReadOnlyDictionary<string, object>> GetDeploymentOutputAsync(this IDurableOrchestrationContext functionContext, string deploymentActivityName, object deploymentActivityInput = default)
+        public static Task<IReadOnlyDictionary<string, object>> CallDeploymentAsync(this IDurableOrchestrationContext functionContext, string deploymentActivityName, object deploymentActivityInput = default)
         {
             if (functionContext is null)
                 throw new System.ArgumentNullException(nameof(functionContext));
@@ -33,7 +33,21 @@ namespace TeamCloud.Orchestration.Deployment
                 throw new System.ArgumentException("message", nameof(deploymentActivityName));
 
             return functionContext
-                .CallSubOrchestratorWithRetryAsync<IReadOnlyDictionary<string, object>>(nameof(AzureDeploymentOrchestration), (deploymentActivityName, deploymentActivityInput, default(string), false));
+                .CallSubOrchestratorWithRetryAsync<IReadOnlyDictionary<string, object>>(nameof(AzureDeploymentOrchestration), (functionContext.InstanceId, deploymentActivityName, deploymentActivityInput, default(string), default(string)));
+        }
+
+        public static Task<string> StartDeploymentAsync(this IDurableOrchestrationContext functionContext, string deploymentActivityName, object deploymentActivityInput = default, string deploymentOutputEventName = default)
+        {
+            if (functionContext is null)
+                throw new System.ArgumentNullException(nameof(functionContext));
+
+            if (string.IsNullOrEmpty(deploymentActivityName))
+                throw new System.ArgumentException("message", nameof(deploymentActivityName));
+
+            var instanceId = functionContext
+                .StartNewOrchestration(nameof(AzureDeploymentOrchestration), (functionContext.InstanceId, deploymentActivityName, deploymentActivityInput, default(string), deploymentOutputEventName));
+
+            return Task.FromResult(instanceId);
         }
     }
 }

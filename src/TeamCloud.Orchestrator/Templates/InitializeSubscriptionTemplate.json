@@ -1,37 +1,12 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
-  "contentVersion": "1.0.0.0",
+  "contentVersion": "0.0.0.0",
   "parameters": {
-    "projectId": {
-      "type": "string"
-    },
-    "projectName": {
-      "type": "string"
-    },
-    "projectPrefix": {
-      "type": "string",
-      "defaultValue": ""
-    },
-    "resourceGroupName": {
-      "type": "string",
-      "defaultValue": "[concat(parameters('projectPrefix'), replace(parameters('projectName'), ' ', '_'), '_', uniqueString(parameters('projectId')))]"
-    },
-    "resourceGroupLocation": {
-      "type": "string"
-    },
-    "orchestratorIdentity": {
-      "type": "string"
-    },
-    "providerIdentities": {
-      "type": "array"
-    },
     "eventGridLocation": {
-      "type": "string",
-      "defaultValue": ""
+      "type": "string"
     },
     "eventGridEndpoint": {
-      "type": "string",
-      "defaultValue": ""
+      "type": "string"
     },
     "_artifactsLocation": {
       "type": "string",
@@ -43,23 +18,9 @@
     }
   },
   "variables": {
-    "projectResourceGroupName": "[parameters('resourceGroupName')]",
-    "projectResourcesDeployment": "[concat(deployment().name, '-', 'ProjectResources')]",
-    "internalResourceGroupName": "[concat(variables('projectResourceGroupName'), '_INTERNAL')]",
-    "internalResourcesDeployment": "[concat(deployment().name, '-', 'InternalResources')]",
-    "eventGridName": "[if(empty(parameters('eventGridEndpoint')), '', concat('TeamCloud-', uniqueString(toLower(take(parameters('eventGridEndpoint'), indexOf(parameters('eventGridEndpoint'), '?'))))))]"
+    "eventGridName": "[concat('TeamCloud-', uniqueString(toLower(take(parameters('eventGridEndpoint'), indexOf(parameters('eventGridEndpoint'), '?')))))]"
   },
   "resources": [
-    {
-      "name": "default",
-      "type": "Microsoft.Resources/tags",
-      "apiVersion": "2019-10-01",
-      "properties": {
-        "tags": {
-          "TeamCloud-Version": "[deployment().properties.template.contentVersion]"
-        }
-      }
-    },
     {
       "condition": "[not(empty(variables('eventGridName')))]",
       "type": "Microsoft.EventGrid/eventSubscriptions",
@@ -88,103 +49,8 @@
           "maxDeliveryAttempts": 5
         }
       }
-    },
-    {
-      "type": "Microsoft.Resources/resourceGroups",
-      "apiVersion": "2018-05-01",
-      "location": "[parameters('resourceGroupLocation')]",
-      "name": "[variables('internalResourceGroupName')]",
-      "tags": {
-        "hidden-TeamCloud.ProjectId": "[parameters('projectId')]",
-        "hidden-TeamCloud.ProjectName": "[parameters('projectName')]"
-      },
-      "properties": {
-      }
-    },
-    {
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2018-05-01",
-      "name": "[variables('internalResourcesDeployment')]",
-      "resourceGroup": "[variables('internalResourceGroupName')]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Resources/resourceGroups/', variables('internalResourceGroupName'))]"
-      ],
-      "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[concat(uri(parameters('_artifactsLocation'), 'InternalResources.json'), parameters('_artifactsLocationSasToken'))]",
-          "contentVersion": "1.0.0.0"
-        },
-        "parameters": {
-          "projectId": {
-            "value": "[parameters('projectId')]"
-          },
-          "projectName": {
-            "value": "[parameters('projectName')]"
-          },
-          "orchestratorIdentity": {
-            "value": "[parameters('orchestratorIdentity')]"
-          },
-          "providerIdentities": {
-            "value": "[parameters('providerIdentities')]"
-          }
-        }
-      }
-    },
-    {
-      "type": "Microsoft.Resources/resourceGroups",
-      "apiVersion": "2018-05-01",
-      "location": "[parameters('resourceGroupLocation')]",
-      "name": "[variables('projectResourceGroupName')]",
-      "tags": {
-        "hidden-TeamCloud.ProjectId": "[parameters('projectId')]",
-        "hidden-TeamCloud.ProjectName": "[parameters('projectName')]"
-      },
-      "properties": {
-      }
-    },
-    {
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2018-05-01",
-      "name": "[variables('projectResourcesDeployment')]",
-      "resourceGroup": "[variables('projectResourceGroupName')]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Resources/resourceGroups/', variables('projectResourceGroupName'))]"
-      ],
-      "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[concat(uri(parameters('_artifactsLocation'), 'ProjectResources.json'), parameters('_artifactsLocationSasToken'))]",
-          "contentVersion": "1.0.0.0"
-        },
-        "parameters": {
-          "providerIdentities": {
-            "value": "[parameters('providerIdentities')]"
-          }
-        }
-      }
     }
   ],
   "outputs": {
-    "resourceGroupId": {
-      "type": "string",
-      "value": "[concat(subscription().id, '/resourceGroups/', variables('projectResourceGroupName'))]"
-    },
-    "resourceGroupName": {
-      "type": "string",
-      "value": "[variables('projectResourceGroupName')]"
-    },
-    "vaultId": {
-      "type": "string",
-      "value": "[reference(variables('internalResourcesDeployment')).outputs.vaultId.value]"
-    },
-    "vaultName": {
-      "type": "string",
-      "value": "[reference(variables('internalResourcesDeployment')).outputs.vaultName.value]"
-    },
-    "vaultUrl": {
-      "type": "string",
-      "value": "[reference(variables('internalResourcesDeployment')).outputs.vaultUrl.value]"
-    }
   }
 }

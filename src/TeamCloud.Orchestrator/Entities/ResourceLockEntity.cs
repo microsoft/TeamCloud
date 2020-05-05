@@ -10,9 +10,9 @@ using Microsoft.Extensions.Logging;
 
 namespace TeamCloud.Orchestrator.Entities
 {
-    public static class DocumentLockEntity
+    public static class ResourceLockEntity
     {
-        [FunctionName(nameof(DocumentLockEntity))]
+        [FunctionName(nameof(ResourceLockEntity))]
         public static void Run(
             [EntityTrigger] IDurableEntityContext entityContext,
             ILogger log)

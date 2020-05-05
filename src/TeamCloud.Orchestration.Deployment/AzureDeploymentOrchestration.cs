@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using TeamCloud.Azure.Deployment;
 using TeamCloud.Orchestration.Deployment.Activities;
+using TeamCloud.Orchestration.Eventing;
 using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestration.Deployment
@@ -23,12 +24,15 @@ namespace TeamCloud.Orchestration.Deployment
         [FunctionName(nameof(AzureDeploymentOrchestration)), RetryOptions(3)]
         public static async Task RunOrchestrator(
             [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
+
             ILogger log)
         {
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
 
-            var (deploymentActivityName, deploymentActivityInput, deploymentResourceId, deploymentDelete) = functionContext.GetInput<(string, object, string, bool)>();
+            (string deploymentOwnerInstanceId, string deploymentActivityName, object deploymentActivityInput, string deploymentResourceId, string deploymentOutputEventName)
+                = functionContext.GetInput<(string, string, object, string, string)>();
+
             var deploymentLog = functionContext.CreateReplaySafeLogger(log ?? NullLogger.Instance);
 
             try
@@ -45,42 +49,8 @@ namespace TeamCloud.Orchestration.Deployment
                     {
                         functionContext.SetCustomStatus($"Monitoring deployment '{deploymentResourceId}'", deploymentLog);
 
-                        functionContext.ContinueAsNew((deploymentActivityName, deploymentActivityInput, deploymentResourceId, false));
+                        functionContext.ContinueAsNew((deploymentOwnerInstanceId, deploymentActivityName, deploymentActivityInput, deploymentResourceId, deploymentOutputEventName));
                     }
-                }
-                else if (deploymentDelete)
-                {
-                    var state = await functionContext
-                        .CallActivityWithRetryAsync<AzureDeploymentState>(nameof(AzureDeploymentStateActivity), deploymentResourceId)
-                        .ConfigureAwait(true);
-
-                    // by default we keep deployments for one day
-                    // this should give users enough time to check
-                    // details of the deployment on one hand and
-                    // should prevents us from reaching the maximum
-                    // of 800 per resource scope on the other hand
-
-                    var schedule = functionContext.CurrentUtcDateTime.AddDays(1).Date;
-
-                    if (state.IsErrorState())
-                    {
-                        // deployments ended up in an error state will stay 
-                        // alive for five days to investigate the issue
-
-                        schedule = functionContext.CurrentUtcDateTime.AddDays(5).Date;
-                    }
-
-                    functionContext.SetCustomStatus($"Deployment delete scheduled for '{schedule}'", deploymentLog);
-
-                    await functionContext
-                        .CreateTimer(schedule, CancellationToken.None)
-                        .ConfigureAwait(true);
-
-                    functionContext.SetCustomStatus($"Deleting deployment '{deploymentResourceId}'", deploymentLog);
-
-                    await functionContext
-                        .CallActivityWithRetryAsync(nameof(AzureDeploymentDeleteActivity), deploymentResourceId)
-                        .ConfigureAwait(true);
                 }
                 else
                 {
@@ -94,38 +64,34 @@ namespace TeamCloud.Orchestration.Deployment
 
                     if (state.IsProgressState())
                     {
-                        functionContext.ContinueAsNew((deploymentActivityName, deploymentActivityInput, deploymentResourceId));
+                        functionContext
+                            .ContinueAsNew((deploymentOwnerInstanceId, deploymentActivityName, deploymentActivityInput, deploymentResourceId, deploymentOutputEventName));
+                    }
+                    else if (state.IsErrorState())
+                    {
+                        var errors = (await functionContext
+                            .CallActivityWithRetryAsync<IEnumerable<string>>(nameof(AzureDeploymentErrorsActivity), deploymentResourceId)
+                            .ConfigureAwait(true)) ?? Enumerable.Empty<string>();
+
+                        foreach (var error in errors)
+                            deploymentLog.LogError($"Deployment '{deploymentResourceId}' reported error: {error}");
+
+                        throw new AzureDeploymentException($"Deployment '{deploymentResourceId}' failed", deploymentResourceId, errors.ToArray());
                     }
                     else
                     {
-                        try
+                        var output = await functionContext
+                            .GetDeploymentOutputAsync(deploymentResourceId)
+                            .ConfigureAwait(true);
+
+                        if (!string.IsNullOrEmpty(deploymentOutputEventName))
                         {
-                            if (state.IsErrorState())
-                            {
-                                var errors = (await functionContext
-                                    .CallActivityWithRetryAsync<IEnumerable<string>>(nameof(AzureDeploymentErrorsActivity), deploymentResourceId)
-                                    .ConfigureAwait(true)) ?? Enumerable.Empty<string>();
-
-                                foreach (var error in errors)
-                                    deploymentLog.LogError($"Deployment '{deploymentResourceId}' reported error: {error}");
-
-                                throw new AzureDeploymentException($"Deployment '{deploymentResourceId}' failed", deploymentResourceId, errors.ToArray());
-                            }
-                            else
-                            {
-                                var output = await functionContext
-                                    .CallActivityWithRetryAsync<IReadOnlyDictionary<string, object>>(nameof(AzureDeploymentOutputActivity), deploymentResourceId)
-                                    .ConfigureAwait(true);
-
-                                functionContext.SetOutput(output);
-                            }
+                            await functionContext
+                                .RaiseEventAsync(deploymentOwnerInstanceId, deploymentOutputEventName, output)
+                                .ConfigureAwait(true);
                         }
-                        finally
-                        {
-                            functionContext.SetCustomStatus($"Initiate deployment clean up for '{deploymentResourceId}'", deploymentLog);
 
-                            functionContext.StartNewOrchestration(nameof(AzureDeploymentOrchestration), (deploymentActivityName, deploymentActivityInput, deploymentResourceId, true));
-                        }
+                        functionContext.SetOutput(output);
                     }
                 }
             }
