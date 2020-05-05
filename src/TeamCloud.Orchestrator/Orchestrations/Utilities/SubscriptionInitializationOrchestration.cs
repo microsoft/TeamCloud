@@ -20,7 +20,6 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
     public static class SubscriptionInitializationOrchestration
     {
         private static readonly Version TargetSubscriptionVersion = new InitializeSubscriptionTemplate().TemplateVersion;
-        private static object project;
 
         [FunctionName(nameof(SubscriptionInitializationOrchestration))]
         public static async Task RunOrchestrator(
