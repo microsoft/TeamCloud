@@ -1,4 +1,9 @@
-﻿using TeamCloud.Azure.Deployment.Templates;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
+
+using TeamCloud.Azure.Deployment.Templates;
 
 namespace TeamCloud.Orchestrator.Templates
 {
