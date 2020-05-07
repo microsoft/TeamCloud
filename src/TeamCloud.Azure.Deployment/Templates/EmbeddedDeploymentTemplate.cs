@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
@@ -63,7 +64,7 @@ namespace TeamCloud.Azure.Deployment.Templates
                 contentVersion = content.SelectToken("$.contentVersion") as JValue;
             }
 
-            if (enforceVersionUpdate || contentVersion.ToString().Equals("0.0.0.0", StringComparison.OrdinalIgnoreCase))
+            if (enforceVersionUpdate || contentVersion.ToString(CultureInfo.InvariantCulture).Equals("0.0.0.0", StringComparison.OrdinalIgnoreCase))
             {
                 contentVersion.Value = templateType.Assembly.GetName().Version.ToString(4);
             }

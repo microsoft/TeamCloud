@@ -71,7 +71,7 @@ namespace TeamCloud.Http
             return response;
         }
 
-        private async Task TraceErrorAsync(HttpRequestMessage request, HttpResponseMessage response)
+        private static async Task TraceErrorAsync(HttpRequestMessage request, HttpResponseMessage response)
         {
             if (response != null)
             {

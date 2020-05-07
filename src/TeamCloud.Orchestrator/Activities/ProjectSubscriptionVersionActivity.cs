@@ -24,6 +24,7 @@ namespace TeamCloud.Orchestrator.Activities
         public async Task<string> RunActivity(
             [ActivityTrigger] IDurableActivityContext functionContext)
         {
+            const string SubscriptionVersionDefault = "0.0.0.0";
             const string SubscriptionVersionTag = "TeamCloudVersion";
 
             if (functionContext is null)
@@ -53,9 +54,10 @@ namespace TeamCloud.Orchestrator.Activities
                     .GetTagAsync(SubscriptionVersionTag)
                     .ConfigureAwait(false);
 
-                Version.TryParse(subscriptionVersionTag, out var version);
+                if (Version.TryParse(subscriptionVersionTag, out var version))
+                    return version.ToString(4);
 
-                return (version ?? new Version(0, 0, 0, 0)).ToString(4);
+                return SubscriptionVersionDefault;
             }
         }
 
