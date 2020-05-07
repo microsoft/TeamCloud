@@ -5,12 +5,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Model;
 using TeamCloud.Model.Commands;
+using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestration.Deployment;
@@ -64,7 +66,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 }
                 finally
                 {
-                    var commandException = commandResult.GetException();
+                    var commandException = commandResult.Errors?.ToException();
 
                     if (commandException is null)
                         functionContext.SetCustomStatus($"Command succeeded", log);
@@ -161,12 +163,13 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 .ConfigureAwait(true);
 
             var providerException = providerResults.Values?
-                .GetException();
+                .SelectMany(result => result.Errors ?? new List<CommandError>())
+                .ToException();
 
-            if (providerException is null)
-                return commandResult;
+            if (providerException != null)
+                throw providerException;
 
-            throw providerException;
+            return commandResult;
         }
 
         private static async Task RollbackAsync(IDurableOrchestrationContext functionContext, OrchestratorProjectCreateCommand command, ILogger log)

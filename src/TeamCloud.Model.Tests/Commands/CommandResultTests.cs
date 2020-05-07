@@ -38,17 +38,15 @@ namespace TeamCloud.Model
         [SuppressMessage("Naming", "CA1707:Identifiers should not contain underscores", Justification = "<Pending>")]
         public async Task Serialize_WithErrorsAsync()
         {
-            var flurlHttpException = await CreateFlurlHttpExceptionAsync().ConfigureAwait(false);
-            var notSupportedException = new NotSupportedException();
+            var errors = new List<CommandError>();
+
+            errors.Add(await CreateFlurlHttpExceptionAsync().ConfigureAwait(false));
+            errors.Add(new NotSupportedException());
 
             var result = new MockCommandResult()
             {
                 Result = new MockCommandEntity(),
-                Errors = new List<Exception>()
-                {
-                    flurlHttpException,
-                    notSupportedException
-                }
+                Errors = errors
             };
 
             var json = JsonConvert.SerializeObject(result);
@@ -60,17 +58,15 @@ namespace TeamCloud.Model
         [SuppressMessage("Naming", "CA1707:Identifiers should not contain underscores", Justification = "<Pending>")]
         public async Task Deserialize_WithExceptionErrorsAsync()
         {
-            var flurlHttpException = await CreateFlurlHttpExceptionAsync().ConfigureAwait(false);
-            var notSupportedException = new NotSupportedException();
+            var errors = new List<CommandError>();
+
+            errors.Add(await CreateFlurlHttpExceptionAsync().ConfigureAwait(false));
+            errors.Add(new NotSupportedException());
 
             var result1 = new MockCommandResult()
             {
                 Result = new MockCommandEntity(),
-                Errors = new List<Exception>()
-                {
-                    flurlHttpException,
-                    notSupportedException
-                }
+                Errors = errors
             };
 
             var json1 = JsonConvert.SerializeObject(result1);
