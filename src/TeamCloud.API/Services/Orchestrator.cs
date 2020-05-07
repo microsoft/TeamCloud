@@ -16,13 +16,6 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.API.Services
 {
-    public interface IOrchestratorOptions
-    {
-        public string Url { get; set; }
-
-        public string AuthCode { get; set; }
-    }
-
     public class Orchestrator
     {
         private readonly IOrchestratorOptions options;
