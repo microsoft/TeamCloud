@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Azure.KeyVault;
 using Microsoft.Azure.Services.AppAuthentication;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.AzureKeyVault;
 using Microsoft.Extensions.Configuration.UserSecrets;
@@ -48,9 +49,13 @@ namespace TeamCloud.Orchestrator
                 .AddSingleton(GetConfiguration(builder.Services))
                 .AddTeamCloudOptions(Assembly.GetExecutingAssembly())
                 .AddTeamCloudOptionsShared()
-                .AddTeamCloudHttp()
+                .AddTeamCloudHttp()                
                 .AddMvcCore()
                 .AddNewtonsoftJson();
+
+            builder.Services
+                .AddMemoryCache()
+                .AddSingleton<IMemoryCache, MemoryCache>();
 
             builder.Services
                 .AddSingleton<IProjectsRepository, CosmosDbProjectsRepository>()

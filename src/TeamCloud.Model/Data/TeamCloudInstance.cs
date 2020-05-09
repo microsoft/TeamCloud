@@ -17,6 +17,8 @@ namespace TeamCloud.Model.Data
 
         public string Id => DefaultId;
 
+        string IContainerDocument.ETag { get; set; }
+
         public string PartitionKey => Constants.CosmosDb.DatabaseName;
 
         [JsonIgnore]
@@ -29,5 +31,6 @@ namespace TeamCloud.Model.Data
         public IDictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
 
         public IList<Provider> Providers { get; set; } = new List<Provider>();
+
     }
 }

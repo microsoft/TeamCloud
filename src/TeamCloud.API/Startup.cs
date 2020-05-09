@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Azure.Management.ResourceManager.Fluent;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -90,6 +91,9 @@ namespace TeamCloud.API
         {
             services
                 .AddMemoryCache()
+                .AddSingleton<IMemoryCache, MemoryCache>();
+
+            services
                 .AddTeamCloudOptions(Assembly.GetExecutingAssembly())
                 .AddTeamCloudOptionsShared()
                 .AddTeamCloudAzure(configuration =>
