@@ -5,7 +5,6 @@
 
 using System;
 using System.Diagnostics;
-using System.Globalization;
 using System.Net;
 using System.Threading.Tasks;
 using Azure.Cosmos;
@@ -46,7 +45,7 @@ namespace TeamCloud.Data.CosmosDb
                 .ConfigureAwait(false);
 
             if (!refresh && this.cache != null && this.cache.TryGetValue<TeamCloudInstance>(nameof(TeamCloudInstance), out var teamCloud))
-            { 
+            {
                 var currentTeamCloud = await FetchAsync((teamCloud as IContainerDocument)?.ETag)
                     .ConfigureAwait(false);
 
@@ -83,18 +82,18 @@ namespace TeamCloud.Data.CosmosDb
                 }
                 catch (CosmosException exc) when (exc.StatusCode == HttpStatusCode.NotFound)
                 {
-                    return null;
+                    return null; // the requested document does not exist - return null instead of bubbling the exception
                 }
                 catch (CosmosException exc) when (exc.StatusCode == HttpStatusCode.NotModified)
                 {
-                    return null;
+                    return null; // the requested document exist but the provided etag is still equal to the current version in the db - return null instead of bubbling the exception
                 }
                 finally
                 {
-                    Debug.WriteLine($"Fetching '{nameof(TeamCloudInstance)}' took {measure.ElapsedMilliseconds} msec.");
+                    Debug.WriteLine($"Fetching '{nameof(TeamCloudInstance)}' ({currentETag ?? "CURRENTVERSION"}) took {measure.ElapsedMilliseconds} msec.");
                 }
             }
-       }
+        }
 
         public async Task<TeamCloudInstance> SetAsync(TeamCloudInstance teamCloudInstance)
         {
