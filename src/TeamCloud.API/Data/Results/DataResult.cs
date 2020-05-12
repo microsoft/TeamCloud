@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace TeamCloud.API.Data
+namespace TeamCloud.API.Data.Results
 {
     public interface IDataResult : ISuccessResult
     { }

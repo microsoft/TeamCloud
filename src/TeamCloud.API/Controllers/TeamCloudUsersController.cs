@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TeamCloud.API.Data;
+using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands;
@@ -28,19 +29,15 @@ namespace TeamCloud.API
         readonly UserService userService;
         readonly Orchestrator orchestrator;
         readonly ITeamCloudRepositoryReadOnly teamCloudRepository;
+        readonly IUsersRepositoryReadOnly usersRepository;
 
-        public TeamCloudUsersController(UserService userService, Orchestrator orchestrator, ITeamCloudRepositoryReadOnly teamCloudRepository)
+        public TeamCloudUsersController(UserService userService, Orchestrator orchestrator, ITeamCloudRepositoryReadOnly teamCloudRepository, IUsersRepositoryReadOnly usersRepository)
         {
             this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
             this.orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
             this.teamCloudRepository = teamCloudRepository ?? throw new ArgumentNullException(nameof(teamCloudRepository));
+            this.usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
         }
-
-        private User CurrentUser => new User()
-        {
-            Id = userService.CurrentUserId,
-            Role = UserRoles.Project.Owner
-        };
 
 
         [HttpGet]
@@ -50,19 +47,13 @@ namespace TeamCloud.API
         [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Get()
         {
-            var teamCloudInstance = await teamCloudRepository
-                .GetAsync()
+            var users = await usersRepository
+                .ListAsync()
+                .ToListAsync()
                 .ConfigureAwait(false);
 
-            if (teamCloudInstance is null)
-                return ErrorResult
-                    .NotFound($"No TeamCloud Instance was found.")
-                    .ActionResult();
-
-            var users = teamCloudInstance?.Users ?? new List<User>();
-
             return DataResult<List<User>>
-                .Ok(users.ToList())
+                .Ok(users)
                 .ActionResult();
         }
 
@@ -79,15 +70,6 @@ namespace TeamCloud.API
                     .BadRequest($"The identifier '{userNameOrId}' provided in the url path is invalid.  Must be a valid email address or GUID.", ResultErrorCode.ValidationError)
                     .ActionResult();
 
-            var teamCloudInstance = await teamCloudRepository
-                .GetAsync()
-                .ConfigureAwait(false);
-
-            if (teamCloudInstance is null)
-                return ErrorResult
-                    .NotFound($"No TeamCloud Instance was found.")
-                    .ActionResult();
-
             if (!Guid.TryParse(userNameOrId, out var userId))
             {
                 var idLookup = await userService
@@ -102,7 +84,9 @@ namespace TeamCloud.API
                 userId = idLookup.Value;
             }
 
-            var user = teamCloudInstance.Users?.FirstOrDefault(u => u.Id == userId);
+            var user = await usersRepository
+                .GetAsync(userId)
+                .ConfigureAwait(false);
 
             if (user is null)
                 return ErrorResult
@@ -128,24 +112,15 @@ namespace TeamCloud.API
             if (userDefinition is null)
                 throw new ArgumentNullException(nameof(userDefinition));
 
-            var validation = new UserDefinitionValidator().Validate(userDefinition);
+            var validation = new TeamCloudUserDefinitionValidator().Validate(userDefinition);
 
             if (!validation.IsValid)
                 return ErrorResult
                     .BadRequest(validation)
                     .ActionResult();
 
-            var teamCloudInstance = await teamCloudRepository
-                .GetAsync()
-                .ConfigureAwait(false);
-
-            if (teamCloudInstance is null)
-                return ErrorResult
-                    .NotFound($"No TeamCloud Instance was found.")
-                    .ActionResult();
-
             var newUser = await userService
-                .GetUserAsync(userDefinition)
+                .ResolveUserAsync(userDefinition)
                 .ConfigureAwait(false);
 
             if (newUser is null)
@@ -153,12 +128,20 @@ namespace TeamCloud.API
                     .NotFound($"A User with the Email '{userDefinition.Email}' could not be found.")
                     .ActionResult();
 
-            if (teamCloudInstance.Users.Contains(newUser))
+            var existingUser = await usersRepository
+                .GetAsync(newUser.Id)
+                .ConfigureAwait(false);
+
+            if (existingUser != null)
                 return ErrorResult
                     .Conflict($"A User with the Email '{userDefinition.Email}' already exists on this TeamCloud Instance. Please try your request again with a unique email or call PUT to update the existing User.")
                     .ActionResult();
 
-            var command = new OrchestratorTeamCloudUserCreateCommand(CurrentUser, newUser);
+            var currentUserForCommand = await userService
+                .CurrentUserAsync()
+                .ConfigureAwait(false);
+
+            var command = new OrchestratorTeamCloudUserCreateCommand(currentUserForCommand, newUser);
 
             var commandResult = await orchestrator
                 .InvokeAsync(command)
@@ -192,28 +175,33 @@ namespace TeamCloud.API
                     .BadRequest(validation)
                     .ActionResult();
 
-            var teamCloudInstance = await teamCloudRepository
-                .GetAsync()
+            var oldUser = await usersRepository
+                .GetAsync(user.Id)
                 .ConfigureAwait(false);
-
-            if (teamCloudInstance is null)
-                return ErrorResult
-                    .NotFound($"No TeamCloud Instance was found.")
-                    .ActionResult();
-
-            var oldUser = teamCloudInstance.Users?.FirstOrDefault(u => u.Id == user.Id);
 
             if (oldUser is null)
                 return ErrorResult
                     .NotFound($"A User with the ID '{oldUser.Id}' could not be found on this TeamCloud Instance.")
                     .ActionResult();
 
-            if (oldUser.IsAdmin() && !user.IsAdmin() && teamCloudInstance.Users.Count(u => u.IsAdmin()) == 1)
-                return ErrorResult
-                    .BadRequest($"The TeamCloud instance must have at least one Admin user. To change this user's role you must first add another Admin user.", ResultErrorCode.ValidationError)
-                    .ActionResult();
+            if (oldUser.IsAdmin() && !user.IsAdmin())
+            {
+                var otherAdmins = await usersRepository
+                    .ListAdminsAsync()
+                    .AnyAsync(a => a.Id != user.Id)
+                    .ConfigureAwait(false);
 
-            var command = new OrchestratorTeamCloudUserUpdateCommand(CurrentUser, user);
+                if (!otherAdmins)
+                    return ErrorResult
+                        .BadRequest($"The TeamCloud instance must have at least one Admin user. To change this user's role you must first add another Admin user.", ResultErrorCode.ValidationError)
+                        .ActionResult();
+            }
+
+            var currentUserForCommand = await userService
+                .CurrentUserAsync()
+                .ConfigureAwait(false);
+
+            var command = new OrchestratorTeamCloudUserUpdateCommand(currentUserForCommand, user);
 
             var commandResult = await orchestrator
                 .InvokeAsync(command)
@@ -263,19 +251,33 @@ namespace TeamCloud.API
                 userId = idLookup.Value;
             }
 
-            var user = teamCloudInstance.Users?.FirstOrDefault(u => u.Id == userId);
+            var user = await usersRepository
+                .GetAsync(userId)
+                .ConfigureAwait(false);
 
             if (user is null)
                 return ErrorResult
                     .NotFound($"The specified User could not be found in this TeamCloud Instance.")
                     .ActionResult();
 
-            if (user.IsAdmin() && teamCloudInstance.Users.Count(u => u.IsAdmin()) == 1)
-                return ErrorResult
-                    .BadRequest($"The TeamCloud instance must have at least one Admin user. To delete this user you must first add another Admin user.", ResultErrorCode.ValidationError)
-                    .ActionResult();
+            if (user.IsAdmin())
+            {
+                var otherAdmins = await usersRepository
+                    .ListAdminsAsync()
+                    .AnyAsync(a => a.Id != user.Id)
+                    .ConfigureAwait(false);
 
-            var command = new OrchestratorTeamCloudUserDeleteCommand(CurrentUser, user);
+                if (!otherAdmins)
+                    return ErrorResult
+                        .BadRequest($"The TeamCloud instance must have at least one Admin user. To delete this user you must first add another Admin user.", ResultErrorCode.ValidationError)
+                        .ActionResult();
+            }
+
+            var currentUserForCommand = await userService
+                .CurrentUserAsync()
+                .ConfigureAwait(false);
+
+            var command = new OrchestratorTeamCloudUserDeleteCommand(currentUserForCommand, user);
 
             var commandResult = await orchestrator
                 .InvokeAsync(command)

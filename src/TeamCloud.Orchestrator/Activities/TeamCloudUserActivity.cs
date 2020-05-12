@@ -35,9 +35,9 @@ namespace TeamCloud.Orchestrator.Activities
             return new User()
             {
                 Id = systemIdentity.ObjectId,
-                Role = UserRoles.TeamCloud.Admin
+                Role = TeamCloudUserRole.Admin,
+                UserType = UserType.System
             };
         }
-
     }
 }

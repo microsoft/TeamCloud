@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 
 namespace TeamCloud.Model.Data
 {
-    public sealed class ProjectType : IContainerDocument, IEquatable<ProjectType>
+    public sealed class ProjectType : IContainerDocument, IEquatable<ProjectType>, ITags, IProperties
     {
         [JsonIgnore]
         public IList<string> UniqueKeys => new List<string> { };

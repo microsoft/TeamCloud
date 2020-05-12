@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TeamCloud.API.Data;
+using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
 
@@ -52,13 +53,15 @@ namespace TeamCloud.API.Controllers
                     .BadRequest($"Project Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCode.ValidationError)
                     .ActionResult();
 
+            var projectId = ProjectId.Value;
+
             var project = await projectsRepository
-                .GetAsync(ProjectId.Value)
+                .GetAsync(projectId)
                 .ConfigureAwait(false);
 
             if (project is null)
                 return ErrorResult
-                    .NotFound($"A Project with the ID '{ProjectId.Value}' could not be found in this TeamCloud Instance.")
+                    .NotFound($"A Project with the ID '{projectId}' could not be found in this TeamCloud Instance.")
                     .ActionResult();
 
             var tags = project?.Tags is null ? new Dictionary<string, string>() : new Dictionary<string, string>(project.Tags);
@@ -82,18 +85,20 @@ namespace TeamCloud.API.Controllers
                     .BadRequest($"Project Id provided in the url path is invalid.  Must be a non-empty string.", ResultErrorCode.ValidationError)
                     .ActionResult();
 
+            var projectId = ProjectId.Value;
+
             if (string.IsNullOrWhiteSpace(tagKey))
                 return ErrorResult
                     .BadRequest($"The key provided in the url path is invalid.  Must be a non-empty string.", ResultErrorCode.ValidationError)
                     .ActionResult();
 
             var project = await projectsRepository
-                .GetAsync(ProjectId.Value)
+                .GetAsync(projectId)
                 .ConfigureAwait(false);
 
             if (project is null)
                 return ErrorResult
-                    .NotFound($"A Project with the ID '{ProjectId.Value}' could not be found in this TeamCloud Instance.")
+                    .NotFound($"A Project with the ID '{projectId}' could not be found in this TeamCloud Instance.")
                     .ActionResult();
 
             if (!project.Tags.TryGetValue(tagKey, out var tagValue))
@@ -122,6 +127,8 @@ namespace TeamCloud.API.Controllers
                     .BadRequest($"Project Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCode.ValidationError)
                     .ActionResult();
 
+            var projectId = ProjectId.Value;
+
             var tag = tags.FirstOrDefault();
 
             if (tag.Key is null)
@@ -130,12 +137,12 @@ namespace TeamCloud.API.Controllers
                     .ActionResult();
 
             var project = await projectsRepository
-            .GetAsync(ProjectId.Value)
+            .GetAsync(projectId)
             .ConfigureAwait(false);
 
             if (project is null)
                 return ErrorResult
-                    .NotFound($"A Project with the ID '{ProjectId.Value}' could not be found in this TeamCloud Instance.")
+                    .NotFound($"A Project with the ID '{projectId}' could not be found in this TeamCloud Instance.")
                     .ActionResult();
 
             if (project.Tags.ContainsKey(tag.Key))
@@ -145,7 +152,7 @@ namespace TeamCloud.API.Controllers
 
             // TODO:
             return new OkResult();
-            // var command = new ProjectUserCreateCommand(CurrentUser, newUser, ProjectId.Value);
+            // var command = new ProjectUserCreateCommand(CurrentUser, newUser, projectId);
 
             // var commandResult = await orchestrator
             //     .InvokeAsync(command)
@@ -174,6 +181,8 @@ namespace TeamCloud.API.Controllers
                     .BadRequest($"Project Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCode.ValidationError)
                     .ActionResult();
 
+            var projectId = ProjectId.Value;
+
             var tag = tags.FirstOrDefault();
 
             if (tag.Key is null)
@@ -182,12 +191,12 @@ namespace TeamCloud.API.Controllers
                     .ActionResult();
 
             var project = await projectsRepository
-                .GetAsync(ProjectId.Value)
+                .GetAsync(projectId)
                 .ConfigureAwait(false);
 
             if (project is null)
                 return ErrorResult
-                    .NotFound($"A Project with the ID '{ProjectId.Value}' could not be found in this TeamCloud Instance.")
+                    .NotFound($"A Project with the ID '{projectId}' could not be found in this TeamCloud Instance.")
                     .ActionResult();
 
 
@@ -199,7 +208,7 @@ namespace TeamCloud.API.Controllers
 
             // TODO:
             return new OkResult();
-            // var command = new ProjectUserUpdateCommand(CurrentUser, user, ProjectId.Value);
+            // var command = new ProjectUserUpdateCommand(CurrentUser, user, projectId);
 
             // var commandResult = await orchestrator
             //     .InvokeAsync(command)
@@ -227,18 +236,20 @@ namespace TeamCloud.API.Controllers
                     .BadRequest($"Project Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCode.ValidationError)
                     .ActionResult();
 
+            var projectId = ProjectId.Value;
+
             if (string.IsNullOrWhiteSpace(tagKey))
                 return ErrorResult
                     .BadRequest($"The key provided in the url path is invalid.  Must be a non-empty string.", ResultErrorCode.ValidationError)
                     .ActionResult();
 
             var project = await projectsRepository
-                .GetAsync(ProjectId.Value)
+                .GetAsync(projectId)
                 .ConfigureAwait(false);
 
             if (project is null)
                 return ErrorResult
-                    .NotFound($"A Project with the ID '{ProjectId.Value}' could not be found in this TeamCloud Instance.")
+                    .NotFound($"A Project with the ID '{projectId}' could not be found in this TeamCloud Instance.")
                     .ActionResult();
             if (!project.Tags.TryGetValue(tagKey, out _))
                 return ErrorResult
@@ -247,7 +258,7 @@ namespace TeamCloud.API.Controllers
 
             // TODO:
             return new NoContentResult();
-            // var command = new ProjectUserDeleteCommand(CurrentUser, user, ProjectId.Value);
+            // var command = new ProjectUserDeleteCommand(CurrentUser, user, projectId);
 
             // var commandResult = await orchestrator
             //     .InvokeAsync(command)

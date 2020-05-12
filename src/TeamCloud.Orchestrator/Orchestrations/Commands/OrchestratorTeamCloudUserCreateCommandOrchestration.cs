@@ -41,20 +41,21 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 {
                     functionContext.SetCustomStatus($"Creating user.", log);
 
+                    // TODO: Lock on user?
                     using (await functionContext.LockAsync<TeamCloudInstance>(TeamCloudInstance.DefaultId).ConfigureAwait(true))
                     {
-                        var teamCloud = await functionContext
-                            .GetTeamCloudAsync()
-                            .ConfigureAwait(true);
+                        // var teamCloud = await functionContext
+                        //     .GetTeamCloudAsync()
+                        //     .ConfigureAwait(true);
 
-                        if (teamCloud.Users.Any(u => u.Id == user.Id))
-                            throw new OrchestratorCommandException($"User '{user.Id}' already exists.", command);
+                        // if (teamCloud.Users.Any(u => u.Id == user.Id))
+                            // throw new OrchestratorCommandException($"User '{user.Id}' already exists.", command);
 
-                        teamCloud.Users.Add(user);
+                        // teamCloud.Users.Add(user);
 
-                        teamCloud = await functionContext
-                            .SetTeamCloudAsync(teamCloud)
-                            .ConfigureAwait(true);
+                        // teamCloud = await functionContext
+                        //     .SetTeamCloudAsync(teamCloud)
+                        //     .ConfigureAwait(true);
                     }
 
                     var projects = await functionContext

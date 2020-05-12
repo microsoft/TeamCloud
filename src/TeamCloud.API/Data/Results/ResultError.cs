@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 
-namespace TeamCloud.API.Data
+namespace TeamCloud.API.Data.Results
 {
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy), ItemNullValueHandling = NullValueHandling.Ignore)]
     public class ResultError

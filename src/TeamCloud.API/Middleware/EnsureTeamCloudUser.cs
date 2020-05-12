@@ -12,6 +12,7 @@ using TeamCloud.Data;
 using Newtonsoft.Json;
 using System.Linq;
 using TeamCloud.Model.Data;
+using TeamCloud.API.Data.Results;
 
 namespace TeamCloud.API.Middleware
 {
@@ -19,11 +20,11 @@ namespace TeamCloud.API.Middleware
     {
         private static bool HasAdmin = false;
 
-        readonly ITeamCloudRepositoryReadOnly teamCloudRepository;
+        readonly IUsersRepositoryReadOnly usersRepository;
 
-        public EnsureTeamCloudUserMiddleware(ITeamCloudRepositoryReadOnly teamCloudRepository)
+        public EnsureTeamCloudUserMiddleware(IUsersRepositoryReadOnly usersRepository)
         {
-            this.teamCloudRepository = teamCloudRepository ?? throw new ArgumentNullException(nameof(teamCloudRepository));
+            this.usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
         }
 
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
@@ -37,10 +38,10 @@ namespace TeamCloud.API.Middleware
             // teamcloud needs a at least one admin user to work properly.
             // to avoid calls that will fail because of a missing user
             // we will check its existance in this middleware and block
-            // calls until an admin user is in place.
+            // calls until at least one admin user is in place.
 
             // as we ensure there is at least one admin user in the delete
-            // and update apis we can keep the hasadmin state once it is
+            // and update apis we can keep the HasAdmin state once it is
             // evaluated to true to avoid unnecessary request to the
             // teamcloud repository in the future.
 
@@ -64,11 +65,10 @@ namespace TeamCloud.API.Middleware
 
             async Task<bool> AdminExistsAsync()
             {
-                var teamCloudInstance = await teamCloudRepository
-                    .GetAsync()
+                return await usersRepository
+                    .ListAdminsAsync()
+                    .AnyAsync()
                     .ConfigureAwait(false);
-
-                return teamCloudInstance.Users?.Any(u => u.IsAdmin()) ?? false;
             }
         }
     }

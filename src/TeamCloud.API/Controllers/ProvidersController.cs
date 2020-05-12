@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TeamCloud.API.Data;
+using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands;
@@ -39,12 +40,6 @@ namespace TeamCloud.API.Controllers
             this.teamCloudRepository = teamCloudRepository ?? throw new ArgumentNullException(nameof(teamCloudRepository));
             this.projectTypesRepository = projectTypesRepository ?? throw new ArgumentNullException(nameof(projectTypesRepository));
         }
-
-        private User CurrentUser => new User()
-        {
-            Id = userService.CurrentUserId,
-            Role = UserRoles.Project.Owner
-        };
 
 
         [HttpGet]
@@ -135,7 +130,11 @@ namespace TeamCloud.API.Controllers
                     .Conflict($"A Provider with the ID '{provider.Id}' already exists on this TeamCloud Instance. Please try your request again with a unique ID or call PUT to update the existing Provider.")
                     .ActionResult();
 
-            var command = new OrchestratorProviderCreateCommand(CurrentUser, provider);
+            var currentUserForCommand = await userService
+                .CurrentUserAsync()
+                .ConfigureAwait(false);
+
+            var command = new OrchestratorProviderCreateCommand(currentUserForCommand, provider);
 
             var commandResult = await orchestrator
                 .InvokeAsync(command)
@@ -185,7 +184,11 @@ namespace TeamCloud.API.Controllers
                     .NotFound($"A Provider with the ID '{provider.Id}' could not be found on this TeamCloud Instance.")
                     .ActionResult();
 
-            var command = new OrchestratorProviderUpdateCommand(CurrentUser, provider);
+            var currentUserForCommand = await userService
+                .CurrentUserAsync()
+                .ConfigureAwait(false);
+
+            var command = new OrchestratorProviderUpdateCommand(currentUserForCommand, provider);
 
             var commandResult = await orchestrator
                 .InvokeAsync(command)
@@ -246,7 +249,11 @@ namespace TeamCloud.API.Controllers
                         .BadRequest("Cannot delete Providers being used by existing Projects", ResultErrorCode.ValidationError)
                         .ActionResult();
 
-            var command = new OrchestratorProviderDeleteCommand(CurrentUser, provider);
+            var currentUserForCommand = await userService
+                .CurrentUserAsync()
+                .ConfigureAwait(false);
+
+            var command = new OrchestratorProviderDeleteCommand(currentUserForCommand, provider);
 
             var commandResult = await orchestrator
                 .InvokeAsync(command)

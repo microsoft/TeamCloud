@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace TeamCloud.API.Data
+namespace TeamCloud.API.Data.Results
 {
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy), ItemNullValueHandling = NullValueHandling.Ignore)]
     public interface IReturnResult

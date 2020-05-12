@@ -3,26 +3,29 @@
  *  Licensed under the MIT License.
  */
 
-using System.Diagnostics.CodeAnalysis;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace TeamCloud.Model.Data
 {
-    public static class UserRoles
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum TeamCloudUserRole
     {
-        [SuppressMessage("Design", "CA1034:Nested types should not be visible", Justification = "Provides constants only")]
-        public static class TeamCloud
-        {
-            public const string Creator = nameof(Creator);
+        None, Creator, Admin
+    }
 
-            public const string Admin = nameof(Admin);
-        }
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum ProjectUserRole
+    {
+        None, Member, Owner
+    }
 
-        [SuppressMessage("Design", "CA1034:Nested types should not be visible", Justification = "Provides constants only")]
-        public static class Project
-        {
-            public const string Member = nameof(Member);
+    public static class UserRoleExtensions
+    {
+        public static string PolicyRoleName(this TeamCloudUserRole role)
+            => $"TeamCloud_{role}";
 
-            public const string Owner = nameof(Owner);
-        }
+        public static string PolicyRoleName(this ProjectUserRole role)
+            => $"Project_{role}";
     }
 }

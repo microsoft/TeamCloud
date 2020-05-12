@@ -216,6 +216,20 @@ namespace TeamCloud.Model.Validation
                 .Must(BeUserRole)
                     .WithMessage("'{PropertyName}' must be a valid Role. Valid roles for Project users are 'Owner' and 'Member'. Valid roles for TeamCloud users are 'Admin' and 'Creator'.");
 
+        public static IRuleBuilderOptions<T, string> MustBeProjectUserRole<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
+            => ruleBuilder
+                .Cascade(CascadeMode.StopOnFirstFailure)
+                .NotEmpty()
+                .Must(BeProjectUserRole)
+                    .WithMessage("'{PropertyName}' must be a valid Role. Valid roles for Project users are 'Owner' and 'Member'.");
+
+        public static IRuleBuilderOptions<T, string> MustBeTeamCloudUserRole<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
+            => ruleBuilder
+                .Cascade(CascadeMode.StopOnFirstFailure)
+                .NotEmpty()
+                .Must(BeTeamCloudUserRole)
+                    .WithMessage("'{PropertyName}' must be a valid Role. Valid roles for TeamCloud users are 'Admin' and 'Creator'.");
+
         public static IRuleBuilderOptions<T, string> MustBeProviderId<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
             => ruleBuilder
                 .Cascade(CascadeMode.StopOnFirstFailure)
@@ -238,37 +252,75 @@ namespace TeamCloud.Model.Validation
                     .WithMessage("'{PropertyName}' must contain only base-64 digits [A-Za-z0-9/] (excluding the plus sign (+)), ending in = or ==");
 
         private static bool BeGuid(string guid)
-            => !string.IsNullOrEmpty(guid) && Guid.TryParse(guid, out var outGuid) && !outGuid.Equals(Guid.Empty);
+            => !string.IsNullOrEmpty(guid)
+            && Guid.TryParse(guid, out var outGuid)
+            && !outGuid.Equals(Guid.Empty);
 
         private static bool BeUrl(string url)
-            => !string.IsNullOrEmpty(url) && Uri.TryCreate(url, UriKind.Absolute, out var _);
+            => !string.IsNullOrEmpty(url)
+            && Uri.TryCreate(url, UriKind.Absolute, out var _);
 
         private static bool BeUserRole(string role)
-            => !string.IsNullOrEmpty(role) && ValidUserRoles.Contains(role.ToUpperInvariant());
+            => !string.IsNullOrEmpty(role)
+            && (Enum.TryParse<TeamCloudUserRole>(role, true, out _)
+                || Enum.TryParse<ProjectUserRole>(role, true, out _));
+
+        private static bool BeProjectUserRole(string role)
+            => !string.IsNullOrEmpty(role)
+            && Enum.TryParse<ProjectUserRole>(role, true, out _);
+
+        private static bool BeTeamCloudUserRole(string role)
+            => !string.IsNullOrEmpty(role)
+            && Enum.TryParse<TeamCloudUserRole>(role, true, out _);
 
         private static bool BeAzureRegion(string region)
-            => !string.IsNullOrEmpty(region) && AzureRegion.IsValid(region);
+            => !string.IsNullOrEmpty(region)
+            && AzureRegion.IsValid(region);
 
+        // https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/tag-resources#limitations
         private static bool BeValidResourceId(string id)
-            => !(string.IsNullOrEmpty(id) || id.Length >= 255 || id.Contains('/', StringComparison.OrdinalIgnoreCase) || id.Contains(@"\\", StringComparison.OrdinalIgnoreCase) || id.Contains('?', StringComparison.OrdinalIgnoreCase) || id.Contains('#', StringComparison.OrdinalIgnoreCase));
+            => !(string.IsNullOrEmpty(id)
+            || id.Length >= 255
+            || id.Contains('/', StringComparison.OrdinalIgnoreCase)
+            || id.Contains(@"\\", StringComparison.OrdinalIgnoreCase)
+            || id.Contains('?', StringComparison.OrdinalIgnoreCase)
+            || id.Contains('#', StringComparison.OrdinalIgnoreCase));
+
+        private static bool BeValidTagName(string key)
+            => !(string.IsNullOrEmpty(key)
+            || key.Length >= 512
+            || key.Contains('<', StringComparison.OrdinalIgnoreCase)
+            || key.Contains('>', StringComparison.OrdinalIgnoreCase)
+            || key.Contains('%', StringComparison.OrdinalIgnoreCase)
+            || key.Contains('&', StringComparison.OrdinalIgnoreCase)
+            || key.Contains(@"\\", StringComparison.OrdinalIgnoreCase)
+            || key.Contains('?', StringComparison.OrdinalIgnoreCase)
+            || key.Contains('/', StringComparison.OrdinalIgnoreCase));
+
+        private static bool BeValidTagValue(string value)
+            => !(string.IsNullOrEmpty(value)
+            || value.Length >= 256);
+
+        private static readonly Regex validProviderOrProjectTypeId = new Regex(@"^(?:[a-z][a-z0-9]+(?:\.[a-z0-9]+)+)$");
 
         private static bool BeValidProviderId(string id)
-            => !string.IsNullOrEmpty(id) && id.Length > 4 && id.Length < 255 && new Regex(@"^(?:[a-z][a-z0-9]+(?:\.[a-z0-9]+)+)$").IsMatch(id);
+            => !string.IsNullOrEmpty(id)
+            && id.Length > 4
+            && id.Length < 255
+            && validProviderOrProjectTypeId.IsMatch(id);
 
         private static bool BeValidProjectTypeId(string id)
-            => !string.IsNullOrEmpty(id) && id.Length > 4 && id.Length < 255 && new Regex(@"^(?:[a-z][a-z0-9]+(?:\.[a-z0-9]+)+)$").IsMatch(id);
+            => !string.IsNullOrEmpty(id)
+            && id.Length > 4
+            && id.Length < 255
+            && validProviderOrProjectTypeId.IsMatch(id);
 
         // https://github.com/Azure/azure-functions-host/blob/dev/src/WebJobs.Script.WebHost/Security/KeyManagement/SecretManager.cs#L592-L603
-        private static bool BeValidFunctionAuthCode(string code)
-            => !string.IsNullOrEmpty(code) && new Regex(@"^([A-Za-z0-9/]{4})*([A-Za-z0-9/]{3}=|[A-Za-z0-9/]{2}==)?$").IsMatch(code);
+        private static readonly Regex validFunctionAuthCode = new Regex(@"^([A-Za-z0-9/]{4})*([A-Za-z0-9/]{3}=|[A-Za-z0-9/]{2}==)?$");
 
-        private static readonly string[] ValidUserRoles = new string[]
-        {
-            UserRoles.Project.Owner.ToUpperInvariant(),
-            UserRoles.Project.Member.ToUpperInvariant(),
-            UserRoles.TeamCloud.Admin.ToUpperInvariant(),
-            UserRoles.TeamCloud.Creator.ToUpperInvariant()
-        };
+        private static bool BeValidFunctionAuthCode(string code)
+            => !string.IsNullOrEmpty(code)
+            && validFunctionAuthCode.IsMatch(code);
     }
 
     internal class AzureRegion

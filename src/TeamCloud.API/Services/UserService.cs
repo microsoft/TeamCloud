@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using TeamCloud.API.Data;
 using TeamCloud.Azure.Directory;
+using TeamCloud.Data;
+using TeamCloud.Model;
 using TeamCloud.Model.Data;
 
 namespace TeamCloud.API.Services
@@ -18,16 +20,27 @@ namespace TeamCloud.API.Services
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly IAzureDirectoryService azureDirectoryService;
         private readonly IMemoryCache cache;
+        readonly IUsersRepositoryReadOnly usersRepository;
 
-        public UserService(IHttpContextAccessor httpContextAccessor, IAzureDirectoryService azureDirectoryService, IMemoryCache cache)
+        public UserService(IHttpContextAccessor httpContextAccessor, IAzureDirectoryService azureDirectoryService, IMemoryCache cache, IUsersRepositoryReadOnly usersRepository)
         {
             this.httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             this.azureDirectoryService = azureDirectoryService ?? throw new ArgumentNullException(nameof(azureDirectoryService));
-            this.cache = cache;
+            this.cache = cache ?? throw new ArgumentNullException(nameof(cache));
+            this.usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
         }
 
         public Guid CurrentUserId
             => httpContextAccessor.HttpContext.User.GetObjectId();
+
+        public async Task<User> CurrentUserAsync()
+        {
+            var user = await usersRepository
+                .GetAsync(CurrentUserId)
+                .ConfigureAwait(false);
+
+            return user;
+        }
 
         public async Task<Guid?> GetUserIdAsync(string identifier)
         {
@@ -51,7 +64,7 @@ namespace TeamCloud.API.Services
             return val;
         }
 
-        public async Task<User> GetUserAsync(UserDefinition userDefinition)
+        public async Task<User> ResolveUserAsync(UserDefinition userDefinition, Guid? projectId = null, UserType userType = UserType.User)
         {
             if (userDefinition is null)
                 throw new ArgumentNullException(nameof(userDefinition));
@@ -59,14 +72,26 @@ namespace TeamCloud.API.Services
             var userId = await GetUserIdAsync(userDefinition.Email)
                 .ConfigureAwait(false);
 
-            if (!userId.HasValue) return null;
+            if (!userId.HasValue || userId.Value == Guid.Empty)
+                return null;
 
-            return new User
+            var user = await usersRepository
+                .GetAsync(userId.Value)
+                .ConfigureAwait(false);
+
+            user ??= new User
             {
                 Id = userId.Value,
-                Role = userDefinition.Role,
                 Tags = userDefinition.Tags
             };
+
+            if (projectId.HasValue && Enum.TryParse<ProjectUserRole>(userDefinition.Role, true, out var projectRole))
+                user.EnsureProjectMembership(projectId.Value, projectRole);
+
+            // TODO: Do we overried tags here?
+            user.MergeTags(userDefinition.Tags, overwriteExistingValues: true);
+
+            return user;
         }
     }
 }

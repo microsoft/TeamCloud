@@ -184,7 +184,7 @@
 					"cwd": "${workspaceFolder:Azure}"
 				},
 				"presentation": {
-					"group": "buildAll",
+					"group": "cleanAll",
 					"showReuseMessage": false
 				}
 			},
@@ -203,7 +203,7 @@
 					"cwd": "${workspaceFolder:Azure.Deployment}"
 				},
 				"presentation": {
-					"group": "buildAll",
+					"group": "cleanAll",
 					"showReuseMessage": false
 				}
 			},
@@ -222,7 +222,7 @@
 					"cwd": "${workspaceFolder:Azure.Directory}"
 				},
 				"presentation": {
-					"group": "buildAll",
+					"group": "cleanAll",
 					"showReuseMessage": false
 				}
 			},
@@ -241,7 +241,7 @@
 					"cwd": "${workspaceFolder:Azure.Resources}"
 				},
 				"presentation": {
-					"group": "buildAll",
+					"group": "cleanAll",
 					"showReuseMessage": false
 				}
 			},
@@ -260,7 +260,7 @@
 					"cwd": "${workspaceFolder:Configuration}"
 				},
 				"presentation": {
-					"group": "buildAll",
+					"group": "cleanAll",
 					"showReuseMessage": false
 				}
 			},
@@ -279,7 +279,7 @@
 					"cwd": "${workspaceFolder:Configuration.Options}"
 				},
 				"presentation": {
-					"group": "buildAll",
+					"group": "cleanAll",
 					"showReuseMessage": false
 				}
 			},
@@ -298,7 +298,7 @@
 					"cwd": "${workspaceFolder:Data}"
 				},
 				"presentation": {
-					"group": "buildAll",
+					"group": "cleanAll",
 					"showReuseMessage": false
 				}
 			},
@@ -317,7 +317,7 @@
 					"cwd": "${workspaceFolder:Http}"
 				},
 				"presentation": {
-					"group": "buildAll",
+					"group": "cleanAll",
 					"showReuseMessage": false
 				}
 			},
@@ -336,7 +336,7 @@
 					"cwd": "${workspaceFolder:Model}"
 				},
 				"presentation": {
-					"group": "buildAll",
+					"group": "cleanAll",
 					"showReuseMessage": false
 				}
 			},
@@ -355,7 +355,7 @@
 					"cwd": "${workspaceFolder:Model.Internal}"
 				},
 				"presentation": {
-					"group": "buildAll",
+					"group": "cleanAll",
 					"showReuseMessage": false
 				}
 			},
@@ -374,7 +374,7 @@
 					"cwd": "${workspaceFolder:Model.Validation}"
 				},
 				"presentation": {
-					"group": "buildAll",
+					"group": "cleanAll",
 					"showReuseMessage": false
 				}
 			},
@@ -393,7 +393,7 @@
 					"cwd": "${workspaceFolder:Orchestration}"
 				},
 				"presentation": {
-					"group": "buildAll",
+					"group": "cleanAll",
 					"showReuseMessage": false
 				}
 			},
@@ -402,7 +402,7 @@
 				"command": "dotnet",
 				"args": [
 					"clean",
-					"${workspaceFolder:Orchestration}/TeamCloud.Orchestration.Auditing.csproj",
+					"${workspaceFolder:Orchestration.Auditing}/TeamCloud.Orchestration.Auditing.csproj",
 					"/property:GenerateFullPaths=true",
 					"/consoleloggerparameters:NoSummary",
 				],
@@ -412,7 +412,7 @@
 					"cwd": "${workspaceFolder:Orchestration.Auditing}"
 				},
 				"presentation": {
-					"group": "buildAll",
+					"group": "cleanAll",
 					"showReuseMessage": false
 				}
 			},
@@ -421,17 +421,17 @@
 				"command": "dotnet",
 				"args": [
 					"clean",
-					"${workspaceFolder:Orchestration}/TeamCloud.Orchestration.Deployment.csproj",
+					"${workspaceFolder:Orchestration.Deployment}/TeamCloud.Orchestration.Deployment.csproj",
 					"/property:GenerateFullPaths=true",
 					"/consoleloggerparameters:NoSummary",
 				],
 				"type": "process",
 				"problemMatcher": "$msCompile",
 				"options": {
-					"cwd": "${workspaceFolder:Orchestration.Deployment.}"
+					"cwd": "${workspaceFolder:Orchestration.Deployment}"
 				},
 				"presentation": {
-					"group": "buildAll",
+					"group": "cleanAll",
 					"showReuseMessage": false
 				}
 			},
@@ -450,7 +450,7 @@
 					"cwd": "${workspaceFolder:Serialization}"
 				},
 				"presentation": {
-					"group": "buildAll",
+					"group": "cleanAll",
 					"showReuseMessage": false
 				}
 			},
@@ -469,7 +469,7 @@
 					"cwd": "${workspaceFolder:[Providers] Core}"
 				},
 				"presentation": {
-					"group": "buildAll",
+					"group": "cleanAll",
 					"showReuseMessage": false
 				}
 			},
@@ -484,7 +484,6 @@
 					"/consoleloggerparameters:NoSummary"
 				],
 				"type": "process",
-				// "dependsOn": "cleanAzure",
 				"group": {
 					"kind": "build",
 					"isDefault": true
@@ -509,7 +508,6 @@
 					"/consoleloggerparameters:NoSummary"
 				],
 				"type": "process",
-				// "dependsOn": "cleanAzureDeployment",
 				"group": {
 					"kind": "build",
 					"isDefault": true
@@ -534,7 +532,6 @@
 					"/consoleloggerparameters:NoSummary"
 				],
 				"type": "process",
-				// "dependsOn": "cleanAzureDirectory",
 				"group": {
 					"kind": "build",
 					"isDefault": true
@@ -559,7 +556,6 @@
 					"/consoleloggerparameters:NoSummary"
 				],
 				"type": "process",
-				// "dependsOn": "cleanAzureResources",
 				"group": {
 					"kind": "build",
 					"isDefault": true
@@ -584,7 +580,6 @@
 					"/consoleloggerparameters:NoSummary"
 				],
 				"type": "process",
-				// "dependsOn": "cleanConfig",
 				"group": {
 					"kind": "build",
 					"isDefault": true
@@ -609,7 +604,6 @@
 					"/consoleloggerparameters:NoSummary"
 				],
 				"type": "process",
-				// "dependsOn": "cleanConfigOptions",
 				"group": {
 					"kind": "build",
 					"isDefault": true
@@ -658,7 +652,6 @@
 					"/consoleloggerparameters:NoSummary"
 				],
 				"type": "process",
-				// "dependsOn": "cleanHttp",
 				"group": {
 					"kind": "build",
 					"isDefault": true
@@ -773,7 +766,7 @@
 				"command": "dotnet",
 				"args": [
 					"build",
-					"${workspaceFolder:Orchestration}/TeamCloud.Orchestration.Auditing.csproj",
+					"${workspaceFolder:Orchestration.Auditing}/TeamCloud.Orchestration.Auditing.csproj",
 					"--no-dependencies",
 					"/property:GenerateFullPaths=true",
 					"/consoleloggerparameters:NoSummary"
@@ -797,7 +790,7 @@
 				"command": "dotnet",
 				"args": [
 					"build",
-					"${workspaceFolder:Orchestration}/TeamCloud.Orchestration.Deployment.csproj",
+					"${workspaceFolder:Orchestration.Deployment}/TeamCloud.Orchestration.Deployment.csproj",
 					"--no-dependencies",
 					"/property:GenerateFullPaths=true",
 					"/consoleloggerparameters:NoSummary"
@@ -974,7 +967,7 @@
 				"label": "buildConfigDependents",
 				"command": "echo",
 				"args": [
-					"buildAzureDependents"
+					"buildConfigDependents"
 				],
 				"type": "process",
 				"dependsOn": [
@@ -992,7 +985,7 @@
 				"label": "buildAllDependents",
 				"command": "echo",
 				"args": [
-					"buildAll"
+					"buildAllDependents"
 				],
 				"type": "process",
 				"dependsOn": [
@@ -1017,7 +1010,7 @@
 					"buildAllDependents",
 					"buildOrchestrationDeployment"
 				],
-				"dependsOrder": "parallel",
+				"dependsOrder": "sequence",
 				"presentation": {
 					"group": "buildAll",
 					"showReuseMessage": false
