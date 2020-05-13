@@ -6,22 +6,21 @@
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Microsoft.Extensions.Logging;
 using TeamCloud.Azure;
 using TeamCloud.Model.Data;
 
 namespace TeamCloud.Orchestrator.Activities
 {
-    public class TeamCloudUserActivity
+    public class TeamCloudSystemUserActivity
     {
         private readonly IAzureSessionService azureSessionService;
 
-        public TeamCloudUserActivity(IAzureSessionService azureSessionService)
+        public TeamCloudSystemUserActivity(IAzureSessionService azureSessionService)
         {
             this.azureSessionService = azureSessionService ?? throw new System.ArgumentNullException(nameof(azureSessionService));
         }
 
-        [FunctionName(nameof(TeamCloudUserActivity))]
+        [FunctionName(nameof(TeamCloudSystemUserActivity))]
         public async Task<User> RunActivity(
             [ActivityTrigger] IDurableActivityContext functionContext)
         {

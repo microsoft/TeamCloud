@@ -47,16 +47,16 @@ namespace TeamCloud.API.Services
             if (string.IsNullOrWhiteSpace(identifier))
                 throw new ArgumentNullException(nameof(identifier));
 
-            // Generate unique key for this identifier
+            // handle passing in the id as a string
+            if (Guid.TryParse(identifier, out var userId))
+                return userId;
+
             string key = $"{nameof(UserService)}_{nameof(GetUserIdAsync)}_{identifier}";
 
-            // See if the cache has this key value
             if (!cache.TryGetValue(key, out Guid? val))
             {
-                // Key doesn't exist, query for UserID
                 val = await azureDirectoryService.GetUserIdAsync(identifier).ConfigureAwait(false);
 
-                // Set value to cache so long as it's a valid Guid
                 if (val.HasValue && val.Value != Guid.Empty)
                     cache.Set(key, val, TimeSpan.FromMinutes(5)); // Cached value only for certain amount of time
             }
@@ -64,12 +64,12 @@ namespace TeamCloud.API.Services
             return val;
         }
 
-        public async Task<User> ResolveUserAsync(UserDefinition userDefinition, Guid? projectId = null, UserType userType = UserType.User)
+        public async Task<User> ResolveUserAsync(UserDefinition userDefinition)
         {
             if (userDefinition is null)
                 throw new ArgumentNullException(nameof(userDefinition));
 
-            var userId = await GetUserIdAsync(userDefinition.Email)
+            var userId = await GetUserIdAsync(userDefinition.Identifier)
                 .ConfigureAwait(false);
 
             if (!userId.HasValue || userId.Value == Guid.Empty)
@@ -82,14 +82,8 @@ namespace TeamCloud.API.Services
             user ??= new User
             {
                 Id = userId.Value,
-                Tags = userDefinition.Tags
+                UserType = UserType.User
             };
-
-            if (projectId.HasValue && Enum.TryParse<ProjectUserRole>(userDefinition.Role, true, out var projectRole))
-                user.EnsureProjectMembership(projectId.Value, projectRole);
-
-            // TODO: Do we overried tags here?
-            user.MergeTags(userDefinition.Tags, overwriteExistingValues: true);
 
             return user;
         }

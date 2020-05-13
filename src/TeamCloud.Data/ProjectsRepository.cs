@@ -14,7 +14,7 @@ namespace TeamCloud.Data
     {
         Task<Project> GetAsync(Guid id, bool populateUsers = true);
 
-        Task<Project> GetAsync(string name, bool populateUsers = true);
+        Task<Project> GetAsync(string nameOrId, bool populateUsers = true);
 
         IAsyncEnumerable<Project> ListAsync(bool populateUsers = true);
 

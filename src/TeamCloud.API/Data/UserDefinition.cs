@@ -16,18 +16,18 @@ namespace TeamCloud.API.Data
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public sealed class UserDefinition
     {
-        public string Email { get; set; }
+        public string Identifier { get; set; }
 
         public string Role { get; set; }
 
-        public Dictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();
+        public Dictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
     }
 
     public sealed class ProjectUserDefinitionValidator : AbstractValidator<UserDefinition>
     {
         public ProjectUserDefinitionValidator()
         {
-            RuleFor(obj => obj.Email).MustBeEmail();
+            RuleFor(obj => obj.Identifier).MustBeEmail();
             RuleFor(obj => obj.Role).MustBeProjectUserRole();
         }
     }
@@ -36,7 +36,7 @@ namespace TeamCloud.API.Data
     {
         public TeamCloudUserDefinitionValidator()
         {
-            RuleFor(obj => obj.Email).MustBeEmail();
+            RuleFor(obj => obj.Identifier).MustBeEmail();
             RuleFor(obj => obj.Role).MustBeTeamCloudUserRole();
         }
     }
@@ -45,7 +45,7 @@ namespace TeamCloud.API.Data
     {
         public TeamCloudUserDefinitionAdminValidator()
         {
-            RuleFor(obj => obj.Email).MustBeEmail();
+            RuleFor(obj => obj.Identifier).MustBeEmail();
             RuleFor(obj => obj.Role)
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .NotEmpty()

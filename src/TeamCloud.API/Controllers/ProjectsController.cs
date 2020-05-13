@@ -46,27 +46,36 @@ namespace TeamCloud.API.Controllers
         {
             var users = new List<User>();
 
-            if (projectDefinition.Users != null && projectDefinition.Users.Any())
+            if (projectDefinition.Users?.Any() ?? false)
             {
-                var tasks = projectDefinition.Users.Select(user => userService.ResolveUserAsync(user, projectId));
+                var tasks = projectDefinition.Users.Select(user => ResolveUserAndEnsureMembershipAsync(user, projectId));
                 users = (await Task.WhenAll(tasks).ConfigureAwait(false)).ToList();
             }
 
-            var currentUser = users.FirstOrDefault(u => u.Id == userService.CurrentUserId);
-
-            if (currentUser is null)
+            if (!users.Any(u => u.Id == userService.CurrentUserId))
             {
-                currentUser = await usersRepository
-                    .GetAsync(userService.CurrentUserId)
+                var currentUser = await userService
+                    .CurrentUserAsync()
                     .ConfigureAwait(false);
+
+                currentUser.EnsureProjectMembership(projectId, ProjectUserRole.Owner);
 
                 users.Add(currentUser);
             }
 
-            // ensure current user and owner role
-            currentUser.EnsureProjectMembership(projectId, ProjectUserRole.Owner);
-
             return users;
+
+            async Task<User> ResolveUserAndEnsureMembershipAsync(UserDefinition userDefinition, Guid projectId)
+            {
+                var user = await userService
+                    .ResolveUserAsync(userDefinition)
+                    .ConfigureAwait(false);
+
+                var role = user.Id == userService.CurrentUserId ? ProjectUserRole.Owner : Enum.Parse<ProjectUserRole>(userDefinition.Role, true);
+                user.EnsureProjectMembership(projectId, role, userDefinition.Properties);
+
+                return user;
+            }
         }
 
 
@@ -99,20 +108,9 @@ namespace TeamCloud.API.Controllers
                     .BadRequest($"The identifier '{projectNameOrId}' provided in the url path is invalid.  Must be a valid project name or GUID.", ResultErrorCode.ValidationError)
                     .ActionResult();
 
-            Project project;
-
-            if (Guid.TryParse(projectNameOrId, out var projectId))
-            {
-                project = await projectsRepository
-                    .GetAsync(projectId)
-                    .ConfigureAwait(false);
-            }
-            else
-            {
-                project = await projectsRepository
-                    .GetAsync(projectNameOrId)
-                    .ConfigureAwait(false);
-            }
+            var project = await projectsRepository
+                .GetAsync(projectNameOrId)
+                .ConfigureAwait(false);
 
             if (project is null)
                 return ErrorResult
@@ -218,20 +216,9 @@ namespace TeamCloud.API.Controllers
                     .BadRequest($"The identifier '{projectNameOrId}' provided in the url path is invalid.  Must be a valid project name or GUID.", ResultErrorCode.ValidationError)
                     .ActionResult();
 
-            Project project;
-
-            if (Guid.TryParse(projectNameOrId, out var projectId))
-            {
-                project = await projectsRepository
-                    .GetAsync(projectId)
-                    .ConfigureAwait(false);
-            }
-            else
-            {
-                project = await projectsRepository
-                    .GetAsync(projectNameOrId)
-                    .ConfigureAwait(false);
-            }
+            var project = await projectsRepository
+                .GetAsync(projectNameOrId)
+                .ConfigureAwait(false);
 
             if (project is null)
                 return ErrorResult

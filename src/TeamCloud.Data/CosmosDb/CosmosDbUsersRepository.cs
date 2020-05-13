@@ -5,12 +5,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Azure.Cosmos;
-using Newtonsoft.Json;
 using TeamCloud.Model;
 using TeamCloud.Model.Data;
 
@@ -94,6 +92,23 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
+        public async IAsyncEnumerable<User> ListOwnersAsync(Guid projectId)
+        {
+            var container = await GetContainerAsync<User>()
+                .ConfigureAwait(false);
+
+            var query = new QueryDefinition("SELECT VALUE u FROM u WHERE EXISTS(SELECT VALUE m FROM m IN u.projectMemberships WHERE m.projectId = @projectId AND m.role = @projectRole)")
+                .WithParameter("@projectId", projectId)
+                .WithParameter("@projectRole", ProjectUserRole.Owner);
+
+            var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Constants.CosmosDb.TenantName) });
+
+            await foreach (var user in queryIterator)
+            {
+                yield return user;
+            }
+        }
+
         public async IAsyncEnumerable<User> ListAdminsAsync()
         {
             var container = await GetContainerAsync<User>()
@@ -136,7 +151,7 @@ namespace TeamCloud.Data.CosmosDb
             return response.Value;
         }
 
-        public async Task RemoveProjectMembershipAsync(Guid projectId)
+        public async Task RemoveProjectMembershipsAsync(Guid projectId)
         {
             var container = await GetContainerAsync<User>()
                 .ConfigureAwait(false);
@@ -151,8 +166,28 @@ namespace TeamCloud.Data.CosmosDb
                     .ConfigureAwait(false);
         }
 
+        public async Task<User> RemoveProjectMembershipAsync(User user, Guid projectId)
+        {
+            if (user is null) throw new ArgumentNullException(nameof(user));
+
+            var container = await GetContainerAsync<User>()
+                .ConfigureAwait(false);
+
+            var etag = user.ETag;
+
+            if (string.IsNullOrEmpty(etag))
+                user = await container
+                    .ReadItemAsync<User>(user.Id.ToString(), new PartitionKey(Constants.CosmosDb.TenantName))
+                    .ConfigureAwait(false);
+
+            return await RemoveProjectMembershipSafeAsync(container, user, projectId)
+                .ConfigureAwait(false);
+        }
+
         public async Task<User> AddProjectMembershipAsync(User user, Guid projectId, ProjectUserRole role)
         {
+            if (user is null) throw new ArgumentNullException(nameof(user));
+
             var container = await GetContainerAsync<User>()
                 .ConfigureAwait(false);
 

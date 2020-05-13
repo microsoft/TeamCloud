@@ -43,14 +43,9 @@ namespace TeamCloud.Model.Data
         {
             if (user is null) throw new ArgumentNullException(nameof(user));
 
-            return user.RoleFor(projectId) == ProjectUserRole.Member;
-        }
+            var role = user.RoleFor(projectId);
 
-        public static bool IsOwnerOrMember(this User user, Guid projectId)
-        {
-            if (user is null) throw new ArgumentNullException(nameof(user));
-
-            return user.IsOwner(projectId) || user.IsMember(projectId);
+            return role == ProjectUserRole.Owner || role == ProjectUserRole.Member;
         }
 
         public static ProjectUserRole RoleFor(this User user, Guid projectId)
@@ -67,16 +62,33 @@ namespace TeamCloud.Model.Data
             return user.ProjectMemberships.FirstOrDefault(m => m.ProjectId == projectId);
         }
 
-        public static void EnsureProjectMembership(this User user, Guid projectId, ProjectUserRole role)
+        public static void EnsureProjectMembership(this User user, Guid projectId, ProjectUserRole role, IDictionary<string, string> properties = null)
         {
             if (user is null) throw new ArgumentNullException(nameof(user));
 
             var membership = user.ProjectMembership(projectId);
 
             if (membership is null)
-                user.ProjectMemberships.Add(new ProjectMembership { ProjectId = projectId, Role = role });
+                user.ProjectMemberships.Add(new ProjectMembership
+                {
+                    ProjectId = projectId,
+                    Role = role,
+                    Properties = properties ?? new Dictionary<string, string>()
+                });
             else
+            {
                 membership.Role = role;
+                if (properties != null)
+                    membership.MergeProperties(properties, overwriteExistingValues: true);
+            }
+        }
+
+        public static bool HasEqualMemberships(this User user, User other)
+        {
+            if (user is null) throw new ArgumentNullException(nameof(user));
+            if (other is null) throw new ArgumentNullException(nameof(other));
+
+            return user.ProjectMemberships.SequenceEqual(other.ProjectMemberships, new ProjectMembershipComparer());
         }
     }
 }

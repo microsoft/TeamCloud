@@ -14,12 +14,10 @@ namespace TeamCloud.Orchestrator.Activities
 {
     public class ProjectCreateActivity
     {
-        private readonly ITeamCloudRepository teamCloudRepository;
         private readonly IProjectsRepository projectsRepository;
 
-        public ProjectCreateActivity(ITeamCloudRepository teamCloudRepository, IProjectsRepository projectsRepository)
+        public ProjectCreateActivity(IProjectsRepository projectsRepository)
         {
-            this.teamCloudRepository = teamCloudRepository ?? throw new ArgumentNullException(nameof(teamCloudRepository));
             this.projectsRepository = projectsRepository ?? throw new ArgumentNullException(nameof(projectsRepository));
         }
 

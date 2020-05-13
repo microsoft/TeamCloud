@@ -77,24 +77,29 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async Task<Project> GetAsync(string name, bool populateUsers = true)
+        public async Task<Project> GetAsync(string nameOrId, bool populateUsers = true)
         {
             var container = await GetContainerAsync<Project>()
                 .ConfigureAwait(false);
 
-            var query = new QueryDefinition($"SELECT * FROM c WHERE c.name = \"{name}\"");
+            if (Guid.TryParse(nameOrId, out var projectId))
+            {
+                return await GetAsync(projectId, populateUsers)
+                    .ConfigureAwait(false);
+            }
+
+            var query = new QueryDefinition($"SELECT * FROM c WHERE c.name = @name")
+                .WithParameter("@name", nameOrId);
             var queryIterator = container.GetItemQueryIterator<Project>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Constants.CosmosDb.TenantName) });
             var project = await queryIterator
                 .FirstOrDefaultAsync()
                 .ConfigureAwait(false);
 
             if (populateUsers)
-            {
                 project.Users = await usersRepository
                     .ListAsync(project.Id)
                     .ToListAsync()
                     .ConfigureAwait(false);
-            }
 
             return project;
         }
@@ -135,7 +140,7 @@ namespace TeamCloud.Data.CosmosDb
             await foreach (var project in queryIterator)
             {
                 if (populateUsers)
-                    project.Users = users.Where(u => u.IsAdmin() || u.IsOwnerOrMember(project.Id)).ToList();
+                    project.Users = users.Where(u => u.IsAdmin() || u.IsMember(project.Id)).ToList();
                 yield return project;
             }
         }

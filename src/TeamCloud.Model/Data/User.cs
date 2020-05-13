@@ -5,18 +5,21 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public sealed class User : IIdentifiable, IContainerDocument, IEquatable<User>, ITags, IProperties
+    public sealed class User : IIdentifiable, IContainerDocument, IEquatable<User>, IProperties
     {
         [JsonIgnore]
         public IList<string> UniqueKeys => new List<string> { };
 
         [JsonProperty(PropertyName = "_etag")]
+        [SuppressMessage("Design", "CA1044: Properties should not be write only", Justification = "Prevent property from being serialized to JSON")]
         public string ETagInternal { internal get; set; }   // for CosmosDB so we can get the ETag but doesn't get serialized to CosmosDB
 
         [JsonIgnore]
@@ -33,8 +36,6 @@ namespace TeamCloud.Model.Data
         public TeamCloudUserRole Role { get; set; }
 
         public IList<ProjectMembership> ProjectMemberships { get; set; } = new List<ProjectMembership>();
-
-        public IDictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();
 
         public IDictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
 

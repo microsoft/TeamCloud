@@ -280,10 +280,10 @@ namespace TeamCloud.API
         {
             var claims = new List<Claim>();
 
-            var userReepository = httpContext.RequestServices
+            var usersRepository = httpContext.RequestServices
                 .GetRequiredService<IUsersRepositoryReadOnly>();
 
-            var user = await userReepository
+            var user = await usersRepository
                 .GetAsync(userId)
                 .ConfigureAwait(false);
 
@@ -295,9 +295,7 @@ namespace TeamCloud.API
                     .Values.GetValueOrDefault("ProjectId", StringComparison.OrdinalIgnoreCase)?.ToString();
 
                 if (Guid.TryParse(projectIdRouteValue, out Guid projectId))
-                {
                     claims.Add(new Claim(ClaimTypes.Role, user.RoleFor(projectId).PolicyRoleName()));
-                }
             }
 
             return claims;

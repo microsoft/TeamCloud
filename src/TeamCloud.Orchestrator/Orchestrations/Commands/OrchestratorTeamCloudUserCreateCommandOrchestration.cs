@@ -42,9 +42,18 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 {
                     functionContext.SetCustomStatus($"Creating user.", log);
 
-                    // TODO: Lock on user?
-                    using (await functionContext.LockAsync<TeamCloudInstance>(TeamCloudInstance.DefaultId).ConfigureAwait(true))
+                    using (await functionContext.LockAsync<User>(user.Id.ToString()).ConfigureAwait(true))
                     {
+                        var existingUser = await functionContext
+                            .GetUserAsync(user.Id)
+                            .ConfigureAwait(true);
+
+                        if (existingUser is null)
+                        {
+                            // _ await functionContext
+                            //     .
+                        }
+
                         // var teamCloud = await functionContext
                         //     .GetTeamCloudAsync()
                         //     .ConfigureAwait(true);
