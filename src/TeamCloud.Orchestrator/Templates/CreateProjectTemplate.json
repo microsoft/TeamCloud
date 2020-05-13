@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
-  "contentVersion": "1.0.0.0",
+  "contentVersion": "0.0.0.0",
   "parameters": {
     "projectId": {
       "type": "string"
@@ -25,14 +25,6 @@
     "providerIdentities": {
       "type": "array"
     },
-    "eventGridLocation": {
-      "type": "string",
-      "defaultValue": ""
-    },
-    "eventGridEndpoint": {
-      "type": "string",
-      "defaultValue": ""
-    },
     "_artifactsLocation": {
       "type": "string",
       "defaultValue": ""
@@ -46,39 +38,9 @@
     "projectResourceGroupName": "[parameters('resourceGroupName')]",
     "projectResourcesDeployment": "[concat(deployment().name, '-', 'ProjectResources')]",
     "internalResourceGroupName": "[concat(variables('projectResourceGroupName'), '_INTERNAL')]",
-    "internalResourcesDeployment": "[concat(deployment().name, '-', 'InternalResources')]",
-    "eventGridName": "[if(empty(parameters('eventGridEndpoint')), '', concat('TeamCloud-', uniqueString(toLower(take(parameters('eventGridEndpoint'), indexOf(parameters('eventGridEndpoint'), '?'))))))]"
+    "internalResourcesDeployment": "[concat(deployment().name, '-', 'InternalResources')]"
   },
   "resources": [
-    {
-      "condition": "[not(empty(variables('eventGridName')))]",
-      "type": "Microsoft.EventGrid/eventSubscriptions",
-      "name": "[variables('eventGridName')]",
-      "apiVersion": "2018-01-01",
-      "location": "[parameters('eventGridLocation')]",
-      "properties": {
-        "destination": {
-          "endpointType": "WebHook",
-          "properties": {
-            "endpointUrl": "[parameters('eventGridEndpoint')]"
-          }
-        },
-        "filter": {
-          "includedEventTypes": [
-            "Microsoft.Resources.ResourceDeleteSuccess",
-            "Microsoft.Resources.ResourceWriteSuccess"
-          ],
-          "subjectBeginsWith": "[concat('/subscriptions/', subscription().subscriptionId, '/resourcegroups/')]"
-        },
-        "eventDeliverySchema": "EventGridSchema",
-        "labels": [
-        ],
-        "retryPolicy": {
-          "eventTimeToLiveInMinutes": 1440,
-          "maxDeliveryAttempts": 30
-        }
-      }
-    },
     {
       "type": "Microsoft.Resources/resourceGroups",
       "apiVersion": "2018-05-01",

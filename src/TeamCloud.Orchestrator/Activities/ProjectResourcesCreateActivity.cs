@@ -14,7 +14,6 @@ using TeamCloud.Azure.Deployment;
 using TeamCloud.Data;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
-using TeamCloud.Orchestrator.API;
 using TeamCloud.Orchestrator.Templates;
 using TeamCloud.Serialization;
 
@@ -74,16 +73,6 @@ namespace TeamCloud.Orchestrator.Activities
 
             subscriptionId = project.ResourceGroup?.SubscriptionId ?? subscriptionId;
 
-            var location = azureDeploymentService.Options.DefaultLocation;
-
-            if (string.IsNullOrEmpty(location))
-            {
-                // we are unable to provision an event 
-                // grid subscription without a location
-
-                throw new RetryCanceledException($"Missing a default location for Azure deployments");
-            }
-
             var template = new CreateProjectTemplate();
 
             template.Parameters["projectId"] = project.Id;
@@ -93,8 +82,9 @@ namespace TeamCloud.Orchestrator.Activities
             template.Parameters["resourceGroupLocation"] = project.ResourceGroup?.Region ?? project.Type.Region;
             template.Parameters["orchestratorIdentity"] = await GetOrchestratorIdentityAsync().ConfigureAwait(false);
             template.Parameters["providerIdentities"] = await GetProviderIdentitiesAsync(project).ConfigureAwait(false);
-            template.Parameters["eventGridLocation"] = location;
-            template.Parameters["eventGridEndpoint"] = await EventTrigger.GetUrlAsync().ConfigureAwait(false);
+
+            //template.Parameters["eventGridLocation"] = location;
+            //template.Parameters["eventGridEndpoint"] = await EventTrigger.GetUrlAsync().ConfigureAwait(false);
 
             try
             {

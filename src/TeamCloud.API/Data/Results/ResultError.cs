@@ -10,6 +10,7 @@ using FluentValidation.Results;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
+using TeamCloud.Model.Commands.Core;
 
 namespace TeamCloud.API.Data.Results
 {
@@ -33,6 +34,18 @@ namespace TeamCloud.API.Data.Results
             {
                 Code = ResultErrorCode.Failed,
                 Message = $"Operation Failed: {exception.Message}"
+            };
+        }
+
+        public static ResultError Failed(CommandError error)
+        {
+            if (error is null)
+                throw new ArgumentNullException(nameof(error));
+
+            return new ResultError
+            {
+                Code = ResultErrorCode.Failed,
+                Message = $"Operation Failed: {error.Message}"
             };
         }
 

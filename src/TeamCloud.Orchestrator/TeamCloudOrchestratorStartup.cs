@@ -30,6 +30,8 @@ using TeamCloud.Orchestration.Deployment;
 using TeamCloud.Orchestrator;
 
 [assembly: FunctionsStartup(typeof(TeamCloudOrchestratorStartup))]
+
+[assembly: FunctionsImport(typeof(TeamCloudOrchestrationStartup))]
 [assembly: FunctionsImport(typeof(TeamCloudOrchestrationAuditingStartup))]
 [assembly: FunctionsImport(typeof(TeamCloudOrchestrationDeploymentStartup))]
 

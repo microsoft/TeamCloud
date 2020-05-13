@@ -14,9 +14,8 @@ namespace TeamCloud.Orchestrator.Activities
 {
     internal static class ProjectSetExtension
     {
-
         public static Task<Project> SetProjectAsync(this IDurableOrchestrationContext functionContext, Project project, bool allowUnsafe = false)
-            => functionContext.IsLockedBy(project) || allowUnsafe
+            => functionContext.IsLockedByContainerDocument(project) || allowUnsafe
             ? functionContext.CallActivityWithRetryAsync<Project>(nameof(ProjectSetActivity), project)
             : throw new NotSupportedException($"Unable to set project '{project.Id}' without acquired lock");
     }

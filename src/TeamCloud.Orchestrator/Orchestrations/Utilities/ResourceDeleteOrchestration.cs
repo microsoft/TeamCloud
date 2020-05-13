@@ -43,7 +43,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                     {
                         functionLog.LogInformation($"Resetting resource group: {resourceId}");
 
-                        return functionContext.GetDeploymentOutputAsync(nameof(ResourceGroupResetActivity), resourceId);
+                        return functionContext.CallDeploymentAsync(nameof(ResourceGroupResetActivity), resourceId);
                     }
                     else
                     {

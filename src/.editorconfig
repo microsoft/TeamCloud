@@ -6,3 +6,6 @@ dotnet_diagnostic.DF0106.severity = error
 
 # DF0109: Activity function named 'nameof(TeamCloudCreateActivity)' does not exist. Did you mean 'TeamCloudCreateActivity'?
 dotnet_diagnostic.DF0109.severity = none
+
+# CS7035: The specified version string does not conform to the recommended format - major.minor.build.revision
+dotnet_diagnostic.CS7035.severity = none

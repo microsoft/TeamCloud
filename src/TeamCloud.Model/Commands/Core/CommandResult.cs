@@ -27,7 +27,7 @@ namespace TeamCloud.Model.Commands.Core
 
 
         [SuppressMessage("Usage", "CA2227:Collection properties should be read only")]
-        IList<Exception> Errors { get; set; }
+        IList<CommandError> Errors { get; set; }
 
         [JsonProperty(Order = int.MaxValue, PropertyName = "_links")]
         Dictionary<string, string> Links { get; }
@@ -64,7 +64,7 @@ namespace TeamCloud.Model.Commands.Core
 
         public string CustomStatus { get; set; }
 
-        public IList<Exception> Errors { get; set; } = new List<Exception>();
+        public IList<CommandError> Errors { get; set; } = new List<CommandError>();
 
         public Dictionary<string, string> Links { get; private set; } = new Dictionary<string, string>();
 

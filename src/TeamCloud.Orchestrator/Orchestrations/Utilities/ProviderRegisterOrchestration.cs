@@ -102,7 +102,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 
                     if (commandResult?.Result != null)
                     {
-                        using (await functionContext.LockAsync(teamCloud).ConfigureAwait(true))
+                        using (await functionContext.LockContainerDocumentAsync(teamCloud).ConfigureAwait(true))
                         {
                             teamCloud = await functionContext
                                 .GetTeamCloudAsync()

@@ -1,0 +1,56 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "contentVersion": "0.0.0.0",
+  "parameters": {
+    "eventGridLocation": {
+      "type": "string"
+    },
+    "eventGridEndpoint": {
+      "type": "string"
+    },
+    "_artifactsLocation": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "_artifactsLocationSasToken": {
+      "type": "securestring",
+      "defaultValue": ""
+    }
+  },
+  "variables": {
+    "eventGridName": "[concat('TeamCloud-', uniqueString(toLower(take(parameters('eventGridEndpoint'), indexOf(parameters('eventGridEndpoint'), '?')))))]"
+  },
+  "resources": [
+    {
+      "condition": "[not(empty(variables('eventGridName')))]",
+      "type": "Microsoft.EventGrid/eventSubscriptions",
+      "name": "[variables('eventGridName')]",
+      "apiVersion": "2018-01-01",
+      "location": "[parameters('eventGridLocation')]",
+      "properties": {
+        "destination": {
+          "endpointType": "WebHook",
+          "properties": {
+            "endpointUrl": "[parameters('eventGridEndpoint')]"
+          }
+        },
+        "filter": {
+          "includedEventTypes": [
+            "Microsoft.Resources.ResourceDeleteSuccess",
+            "Microsoft.Resources.ResourceWriteSuccess"
+          ],
+          "subjectBeginsWith": "[concat('/subscriptions/', subscription().subscriptionId, '/resourcegroups/')]"
+        },
+        "eventDeliverySchema": "EventGridSchema",
+        "labels": [
+        ],
+        "retryPolicy": {
+          "eventTimeToLiveInMinutes": 60,
+          "maxDeliveryAttempts": 5
+        }
+      }
+    }
+  ],
+  "outputs": {
+  }
+}

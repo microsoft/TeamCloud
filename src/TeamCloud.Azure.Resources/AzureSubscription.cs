@@ -4,9 +4,14 @@
  */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Flurl;
+using Flurl.Http;
 using Microsoft.Rest.Azure;
+using TeamCloud.Http;
 
 namespace TeamCloud.Azure.Resources
 {
@@ -39,6 +44,63 @@ namespace TeamCloud.Azure.Resources
             {
                 return false;
             }
+        }
+
+        public override async Task<IDictionary<string, string>> GetTagsAsync(bool includeHidden = false)
+        {
+            var token = await AzureResourceService.AzureSessionService
+                .AcquireTokenAsync()
+                .ConfigureAwait(false);
+
+            var json = await AzureResourceService.AzureSessionService.Environment.ResourceManagerEndpoint
+                .AppendPathSegment($"subscriptions/{this.ResourceId.SubscriptionId}/providers/Microsoft.Resources/tags/default")
+                .SetQueryParam("api-version", "2019-10-01")
+                .WithOAuthBearerToken(token)
+                .GetJObjectAsync()
+                .ConfigureAwait(false);
+
+            var tags = json
+                .SelectToken("$.properties.tags")?
+                .ToObject<Dictionary<string, string>>()
+                ?? new Dictionary<string, string>();
+
+            return tags
+                .Where(kvp => includeHidden || !kvp.Key.StartsWith("hidden-", StringComparison.OrdinalIgnoreCase))
+                .ToDictionary();
+        }
+
+        public override async Task SetTagsAsync(IDictionary<string, string> tags, bool merge = false)
+        {
+            if (merge && !(tags?.Any() ?? false))
+                return; // nothing to merge
+
+            if (merge)
+            {
+                var existingTags = await GetTagsAsync(true)
+                    .ConfigureAwait(false);
+
+                tags = existingTags.Override(tags);
+            }
+
+            var token = await AzureResourceService.AzureSessionService
+                .AcquireTokenAsync()
+                .ConfigureAwait(false);
+
+            var payload = new
+            {
+                operation = "Replace",
+                properties = new
+                {
+                    tags = tags.Where(tag => tag.Value != null).ToDictionary()
+                }
+            };
+
+            await AzureResourceService.AzureSessionService.Environment.ResourceManagerEndpoint
+                .AppendPathSegment($"subscriptions/{this.ResourceId.SubscriptionId}/providers/Microsoft.Resources/tags/default")
+                .SetQueryParam("api-version", "2019-10-01")
+                .WithOAuthBearerToken(token)
+                .PatchJsonAsync(payload)
+                .ConfigureAwait(false);
         }
     }
 }

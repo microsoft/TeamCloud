@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using TeamCloud.Model.Commands.Core;
 
 namespace TeamCloud.API.Data.Results
 {
@@ -88,7 +89,7 @@ namespace TeamCloud.API.Data.Results
                 StateMessage = string.IsNullOrWhiteSpace(stateMessage) ? null : stateMessage,
             };
 
-        public static StatusResult Failed(IList<ResultError> errors = null, string commandId = null, string state = null, string stateMessage = null)
+        public static StatusResult Failed(IEnumerable<ResultError> errors = null, string commandId = null, string state = null, string stateMessage = null)
             => new StatusResult
             {
                 CommandId = commandId,
@@ -96,10 +97,10 @@ namespace TeamCloud.API.Data.Results
                 Status = "Failed",
                 State = string.IsNullOrWhiteSpace(state) ? null : state,
                 StateMessage = string.IsNullOrWhiteSpace(stateMessage) ? null : stateMessage,
-                Errors = errors ?? new List<ResultError>()
+                Errors = errors?.ToList() ?? new List<ResultError>()
             };
 
-        public static StatusResult Failed(IList<Exception> exceptions, string commandId = null, string state = null, string stateMessage = null)
+        public static StatusResult Failed(IEnumerable<CommandError> errors, string commandId = null, string state = null, string stateMessage = null)
             => new StatusResult
             {
                 CommandId = commandId,
@@ -107,10 +108,9 @@ namespace TeamCloud.API.Data.Results
                 Status = "Failed",
                 State = string.IsNullOrWhiteSpace(state) ? null : state,
                 StateMessage = string.IsNullOrWhiteSpace(stateMessage) ? null : stateMessage,
-                Errors = exceptions?.Select(e => ResultError.Failed(e)).ToList() ?? new List<ResultError>()
+                Errors = errors?.Select(error => ResultError.Failed(error)).ToList() ?? new List<ResultError>()
             };
-
-    }
+   }
 
     public static class StatusResultExtensions
     {

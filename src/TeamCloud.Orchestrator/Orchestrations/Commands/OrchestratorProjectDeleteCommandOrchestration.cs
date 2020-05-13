@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using TeamCloud.Azure.Resources;
 using TeamCloud.Model;
 using TeamCloud.Model.Commands;
+using TeamCloud.Model.Commands.Core;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Activities;
 using TeamCloud.Orchestrator.Orchestrations.Utilities;
@@ -38,7 +39,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 functionContext.SetCustomStatus($"Refreshing project", log);
 
                 var project = commandResult.Result = (await functionContext
-                    .GetProjectAsync(command.ProjectId.GetValueOrDefault(), allowDirtyRead: true)
+                    .GetProjectAsync(command.ProjectId.GetValueOrDefault(), allowUnsafe: true)
                     .ConfigureAwait(true)) ?? command.Payload;
 
                 try
@@ -79,7 +80,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 }
                 finally
                 {
-                    var commandException = commandResult.GetException();
+                    var commandException = commandResult.Errors?.ToException();
 
                     if (commandException is null)
                         functionContext.SetCustomStatus($"Command succeeded", log);

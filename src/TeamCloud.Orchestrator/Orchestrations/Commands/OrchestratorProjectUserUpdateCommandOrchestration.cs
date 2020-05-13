@@ -4,12 +4,15 @@
  */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Model;
 using TeamCloud.Model.Commands;
+using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Activities;
@@ -70,7 +73,8 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                         .ConfigureAwait(true);
 
                     var providerException = providerResults.Values?
-                        .GetException();
+                        .SelectMany(result => result.Errors ?? new List<CommandError>())
+                        .ToException();
 
                     if (providerException != null)
                         throw providerException;
@@ -84,7 +88,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 }
                 finally
                 {
-                    var commandException = commandResult.GetException();
+                    var commandException = commandResult.Errors?.ToException();
 
                     if (commandException is null)
                         functionContext.SetCustomStatus($"Command succeeded", log);

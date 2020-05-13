@@ -194,13 +194,16 @@ namespace TeamCloud.Azure.Resources
             var apiVersion = await GetLatestApiVersionAsync()
                 .ConfigureAwait(false);
 
-            // we need to ensure that the update call doesn't contain
-            // a provisioning state information - otherwise the update
-            // call will end up in a BAD REQUEST error
+            if (resource.Properties != null)
+            {
+                // we need to ensure that the update call doesn't contain
+                // a provisioning state information - otherwise the update
+                // call will end up in a BAD REQUEST error
 
-            var properties = JObject.FromObject(resource.Properties);
-            properties.SelectToken("$.provisioningState")?.Parent.Remove();
-            resource.Properties = properties;
+                var properties = JObject.FromObject(resource.Properties);
+                properties.SelectToken("$.provisioningState")?.Parent?.Remove();
+                resource.Properties = properties;
+            }
 
             return await resourceManagementClient.Resources
                 .UpdateByIdAsync(this.ResourceId.ToString(), apiVersion, resource)
@@ -227,27 +230,36 @@ namespace TeamCloud.Azure.Resources
             var resource = await GetResourceAsync()
                 .ConfigureAwait(false);
 
-            // we treat hidden tags like system settings
-            // and won't delete them - overriding them is OK
+            resource.Tags ??= new Dictionary<string, string>();
 
-            var hiddenTags = resource.Tags
-                .Where(kvp => kvp.Key.StartsWith("hidden-", StringComparison.Ordinal))
-                .ToDictionary();
-
-            if (merge)
+            if (tags?.Any() ?? false)
             {
-                resource.Tags = resource.Tags.Override(tags);
+                if (merge)
+                {
+                    resource.Tags = resource.Tags
+                        .Override(tags)
+                        .Where(kvp => kvp.Value != null)
+                        .ToDictionary();
+                }
+                else
+                {
+                    resource.Tags = tags
+                        .Where(kvp => kvp.Value != null)
+                        .ToDictionary();
+                }
             }
             else
             {
-                resource.Tags = hiddenTags.Override(tags);
+                if (merge) return;
+
+                resource.Tags.Clear();
             }
 
             _ = await SetResourceAsync(resource)
                 .ConfigureAwait(false);
         }
 
-        public virtual async Task<string> GetTagAsync(string key)
+        public async Task<string> GetTagAsync(string key)
         {
             var tags = await GetTagsAsync(true)
                 .ConfigureAwait(false);
@@ -258,39 +270,22 @@ namespace TeamCloud.Azure.Resources
             return default;
         }
 
-        public virtual async Task AddTagAsync(string key, string value)
+        public async Task SetTagAsync(string key, string value = default)
         {
-            var resource = await GetResourceAsync()
+            var tags = await GetTagsAsync(true)
                 .ConfigureAwait(false);
 
-            if (resource.Tags is null)
-                resource.Tags = new Dictionary<string, string>();
-
-            resource.Tags.Add(key, value);
-
-            _ = await SetResourceAsync(resource)
-                .ConfigureAwait(false);
-        }
-
-        public virtual async Task DeleteTagAsync(string key)
-        {
-            var resource = await GetResourceAsync()
-                .ConfigureAwait(false);
-
-            if (resource.Tags?.Any() ?? false)
+            if (tags.TryGetValue(key, out string currentValue) && currentValue == value)
             {
-                var tagCount = resource.Tags.Count;
-
-                resource.Tags = resource.Tags
-                    .Where(kvp => kvp.Key.Equals(key, StringComparison.Ordinal))
-                    .ToDictionary();
-
-                if (tagCount != resource.Tags.Count)
-                {
-                    _ = await SetResourceAsync(resource)
-                        .ConfigureAwait(false);
-                }
+                return; // no need to update or delete
             }
+            else
+            {
+                tags[key] = value;
+            }
+
+            await SetTagsAsync(tags)
+                .ConfigureAwait(false);
         }
 
         public virtual async Task AddRoleAssignmentAsync(Guid userObjectId, Guid roleDefinitionId)
