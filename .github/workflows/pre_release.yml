@@ -105,7 +105,7 @@ jobs:
           source env/bin/activate
           # pending fix for https://github.com/Azure/azure-cli/issues/13024
           # azdev linter tc
-          azdev style tc
+          # azdev style tc
           deactivate
 
       - name: Build TeamCloud CLI

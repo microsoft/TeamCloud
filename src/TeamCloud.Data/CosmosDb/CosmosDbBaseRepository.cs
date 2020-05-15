@@ -5,26 +5,31 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
-using Azure.Cosmos;
-using Azure.Cosmos.Fluent;
+using Microsoft.Azure.Cosmos;
 using TeamCloud.Model.Data;
+using static Microsoft.Azure.Cosmos.Container;
 
 namespace TeamCloud.Data.CosmosDb
 {
-    public abstract class CosmosDbBaseRepository
+    public abstract class CosmosDbBaseRepository<T>
+        where T : IContainerDocument, new()
     {
         private readonly ICosmosDbOptions cosmosOptions;
         private readonly Lazy<CosmosClient> cosmosClient;
         private readonly ConcurrentDictionary<Type, Lazy<Container>> cosmosContainers = new ConcurrentDictionary<Type, Lazy<Container>>();
+        private readonly ConcurrentDictionary<Type, Lazy<ChangeFeedProcessor>> cosmosProcessors = new ConcurrentDictionary<Type, Lazy<ChangeFeedProcessor>>();
 
         protected CosmosDbBaseRepository(ICosmosDbOptions cosmosOptions)
         {
             this.cosmosOptions = cosmosOptions ?? throw new ArgumentNullException(nameof(cosmosOptions));
 
-            cosmosClient = new Lazy<CosmosClient>(() => new CosmosClientBuilder(cosmosOptions.ConnectionString)
-                .WithSerializerOptions(new CosmosSerializationOptions { PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase })
-                .Build());
+            cosmosClient = new Lazy<CosmosClient>(() => new CosmosClient(cosmosOptions.ConnectionString, new CosmosClientOptions()
+            {
+                SerializerOptions = new CosmosSerializationOptions { PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase }
+            }));
         }
 
         protected async Task<Database> GetDatabaseAsync()
@@ -39,38 +44,90 @@ namespace TeamCloud.Data.CosmosDb
             return response.Database;
         }
 
-        protected async Task<Container> GetContainerAsync<T>()
-            where T : IContainerDocument, new()
+        protected async Task<Container> GetContainerAsync()
         {
             var database = await GetDatabaseAsync().ConfigureAwait(false);
 
-            var container = cosmosContainers.GetOrAdd(typeof(T), containerType
+            var containerFactory = cosmosContainers.GetOrAdd(typeof(T), containerType
                 => new Lazy<Container>(() => database.GetContainer(containerType.Name)));
 
-            if (!container.IsValueCreated)
+            var container = await containerFactory.InitializeAsync(async (container) =>
             {
-                var containerProperties = new ContainerProperties(typeof(T).Name, IContainerDocument.PartitionKeyPath);
+                var containerBuilder = database.DefineContainer(typeof(T).Name, IContainerDocument.PartitionKeyPath);
+                var containerKeys = (new T()).UniqueKeys;
 
-                var uniqueKeys = (new T()).UniqueKeys;
-
-                if (uniqueKeys.Count > 0)
+                if (containerKeys.Any())
                 {
-                    containerProperties.UniqueKeyPolicy = new UniqueKeyPolicy();
-
-                    foreach (var key in uniqueKeys)
+                    foreach (var containerKey in containerKeys)
                     {
-                        var uniqueKey = new UniqueKey();
-                        uniqueKey.Paths.Add(key);
-                        containerProperties.UniqueKeyPolicy.UniqueKeys.Add(uniqueKey);
+                        containerBuilder = containerBuilder
+                            .WithUniqueKey()
+                            .Path(containerKey)
+                            .Attach();
                     }
                 }
 
-                await database
-                    .CreateContainerIfNotExistsAsync(containerProperties)
+                _ = await containerBuilder
+                    .CreateIfNotExistsAsync()
+                    .ConfigureAwait(false);
+
+                if (HandleChangesAsync is null)
+                {
+                    // unfortunately the SDK doesn't offer a 
+                    // function to check if a container exists
+                    // in an elegant way. so we do it brute force
+
+                    try
+                    {
+                        _ = await database
+                            .GetContainer($"{typeof(T).Name}-leases")
+                            .DeleteContainerAsync()
+                            .ConfigureAwait(false);
+                    }
+                    catch
+                    {
+                        // swallow any exception
+                    }
+                }
+                else
+                {
+                    // create the leases container that is 
+                    // needed by the change feed processor
+
+                    _ = await database
+                        .DefineContainer($"{typeof(T).Name}-leases", "/id")
+                        .CreateIfNotExistsAsync()
+                        .ConfigureAwait(false);
+                }
+
+            }).ConfigureAwait(false);
+
+
+            if (HandleChangesAsync != null)
+            {
+                // create the change feed processor
+
+                var processorInstance = Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID")
+                    ?? $"{Environment.MachineName}-{Process.GetCurrentProcess().Id}";
+
+                var processorFactory = cosmosProcessors.GetOrAdd(typeof(T), containerType
+                    => new Lazy<ChangeFeedProcessor>(() => container
+                    .GetChangeFeedProcessorBuilder<T>(this.GetType().Name, HandleChangesAsync)
+                    .WithInstanceName($"{this.GetType().Name}-{processorInstance}")
+                    .WithLeaseContainer(database.GetContainer($"{typeof(T).Name}-leases"))
+                    .WithStartTime(DateTime.UtcNow)
+                    .Build()));
+
+                // initialiaze the change feed processor
+
+                _ = await processorFactory
+                    .InitializeAsync((processor) => processor.StartAsync())
                     .ConfigureAwait(false);
             }
 
-            return container.Value;
+            return container;
         }
+
+        protected virtual ChangesHandler<T> HandleChangesAsync { get; }
     }
 }
