@@ -111,7 +111,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
             functionContext.SetCustomStatus($"Initializing subscription", log);
 
             await functionContext
-                .InitializeSubscriptionAsync(subscriptionId)
+                .InitializeSubscriptionAsync(subscriptionId, waitFor: false)
                 .ConfigureAwait(true);
 
             functionContext.SetCustomStatus($"Provisioning resources", log);
