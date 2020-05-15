@@ -768,7 +768,7 @@ def _create_function_app(cli_ctx, name, resource_group_name, location, wj_storag
     regions = web_client.list_geo_regions(sku='Dynamic')
     locations = [{'name': x.name.lower().replace(' ', '')} for x in regions]
 
-    deploy_location = next((for l in locations if l['name'].lower() == location.lower()), None)
+    deploy_location = next((l for l in locations if l['name'].lower() == location.lower()), None)
     if deploy_location is None:
         raise CLIError('Location is invalid. Use: az functionapp list-consumption-locations')
 
