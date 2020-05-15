@@ -1,21 +1,59 @@
-﻿using Azure.Cosmos;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using TeamCloud.Model.Data;
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace TeamCloud.Data.CosmosDb
 {
     internal static class CosmosDbExtensions
     {
-        internal static T ToContainerDocument<T>(this ItemResponse<T> response)
-            where T: class, IContainerDocument, new()
+        private static readonly SemaphoreSlim lazyInitSemaphore = new SemaphoreSlim(1, 1);
+
+        internal static T Initialize<T>(this Lazy<T> lazy, Action<T> initialize)
         {
-            var containerDocument = response.Value;
+            if (lazy is null)
+                throw new ArgumentNullException(nameof(lazy));
 
-            containerDocument.ETag = response.ETag;
+            if (initialize is null)
+                throw new ArgumentNullException(nameof(initialize));
 
-            return containerDocument;
+            lazyInitSemaphore.Wait();
+
+            try
+            {
+                if (!lazy.IsValueCreated)
+                    initialize(lazy.Value);
+
+                return lazy.Value;
+            }
+            finally
+            {
+                lazyInitSemaphore.Release();
+            }
+        }
+
+        internal static async Task<T> InitializeAsync<T>(this Lazy<T> lazy, Func<T, Task> initialize)
+        {
+            if (lazy is null)
+                throw new ArgumentNullException(nameof(lazy));
+
+            if (initialize is null)
+                throw new ArgumentNullException(nameof(initialize));
+
+            await lazyInitSemaphore
+                .WaitAsync()
+                .ConfigureAwait(false);
+
+            try
+            {
+                if (!lazy.IsValueCreated)
+                    await initialize(lazy.Value).ConfigureAwait(false);
+
+                return lazy.Value;
+            }
+            finally
+            {
+                lazyInitSemaphore.Release();
+            }
         }
     }
 }

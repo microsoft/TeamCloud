@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Azure.KeyVault;
 using Microsoft.Azure.Services.AppAuthentication;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.AzureKeyVault;
 using Microsoft.Extensions.Configuration.UserSecrets;
@@ -23,6 +22,7 @@ using TeamCloud.Azure.Resources;
 using TeamCloud.Configuration;
 using TeamCloud.Configuration.Options;
 using TeamCloud.Data;
+using TeamCloud.Data.Caching;
 using TeamCloud.Data.CosmosDb;
 using TeamCloud.Http;
 using TeamCloud.Orchestration;
@@ -45,17 +45,28 @@ namespace TeamCloud.Orchestrator
             if (builder is null)
                 throw new ArgumentNullException(nameof(builder));
 
+            var configuration = GetConfiguration(builder.Services);
+
             builder.Services
-                .AddSingleton(GetConfiguration(builder.Services))
+                .AddSingleton(configuration)
                 .AddTeamCloudOptions(Assembly.GetExecutingAssembly())
                 .AddTeamCloudOptionsShared()
-                .AddTeamCloudHttp()                
+                .AddTeamCloudHttp()
                 .AddMvcCore()
                 .AddNewtonsoftJson();
 
-            builder.Services
-                .AddMemoryCache()
-                .AddSingleton<IMemoryCache, MemoryCache>();
+            if (string.IsNullOrEmpty(configuration.GetValue<string>("Cache:Configuration")))
+            {
+                builder.Services
+                    .AddDistributedMemoryCache()
+                    .AddSingleton<IContainerDocumentCache, ContainerDocumentCache>();
+            }
+            else
+            {
+                builder.Services
+                    .AddDistributedRedisCache(options => configuration.Bind("Cache", options))
+                    .AddSingleton<IContainerDocumentCache, ContainerDocumentCache>();
+            }
 
             builder.Services
                 .AddSingleton<IProjectsRepository, CosmosDbProjectsRepository>()

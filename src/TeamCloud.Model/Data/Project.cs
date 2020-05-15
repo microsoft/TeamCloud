@@ -21,8 +21,6 @@ namespace TeamCloud.Model.Data
 
         string IContainerDocument.Id => this.Id.ToString();
 
-        string IContainerDocument.ETag { get; set; }
-
         public string Name { get; set; }
 
         public ProjectType Type { get; set; }

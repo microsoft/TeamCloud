@@ -13,8 +13,6 @@ namespace TeamCloud.Model.Data
     {
         public IList<string> UniqueKeys => new List<string> { };
 
-        string IContainerDocument.ETag { get; set; }
-
         public string PartitionKey => Constants.CosmosDb.TenantName;
 
         public string Id { get; set; }

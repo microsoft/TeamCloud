@@ -1,8 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using System.Collections.Generic;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace TeamCloud.Model.Data
 {
@@ -17,8 +15,5 @@ namespace TeamCloud.Model.Data
 
         [JsonIgnore]
         IList<string> UniqueKeys { get; }
-
-        [JsonIgnore]
-        string ETag { get; set; }
     }
 }

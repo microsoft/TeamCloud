@@ -8,22 +8,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using Azure.Cosmos;
+using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Linq;
 using TeamCloud.Model;
 using TeamCloud.Model.Data;
 
 namespace TeamCloud.Data.CosmosDb
 {
 
-    public class CosmosDbProjectTypesRepository : CosmosDbBaseRepository, IProjectTypesRepository
+    public class CosmosDbProjectTypesRepository : CosmosDbBaseRepository<ProjectType>, IProjectTypesRepository
     {
-        public CosmosDbProjectTypesRepository(ICosmosDbOptions cosmosOptions)
+        private readonly IProjectsRepositoryReadOnly projectRepository;
+
+        public CosmosDbProjectTypesRepository(ICosmosDbOptions cosmosOptions, IProjectsRepositoryReadOnly projectRepository)
             : base(cosmosOptions)
-        { }
+        {
+            this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
+        }
 
         public async Task<ProjectType> AddAsync(ProjectType projectType)
         {
-            var container = await GetContainerAsync<ProjectType>()
+            var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
             try
@@ -32,18 +37,17 @@ namespace TeamCloud.Data.CosmosDb
                     .CreateItemAsync(projectType)
                     .ConfigureAwait(false);
 
-                return response.Value;
+                return response.Resource;
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.Conflict)
             {
-                // Indicates a name conflict (already a ProjectType with name)
-                throw;
+                throw; // Indicates a name conflict (already a ProjectType with name)
             }
         }
 
         public async Task<ProjectType> GetAsync(string id)
         {
-            var container = await GetContainerAsync<ProjectType>()
+            var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
             try
@@ -52,7 +56,7 @@ namespace TeamCloud.Data.CosmosDb
                     .ReadItemAsync<ProjectType>(id, new PartitionKey(Constants.CosmosDb.TenantName))
                     .ConfigureAwait(false);
 
-                return response.Value;
+                return response.Resource;
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
             {
@@ -62,34 +66,29 @@ namespace TeamCloud.Data.CosmosDb
 
         public async Task<int> GetInstanceCountAsync(string id, Guid? subscriptionId = null)
         {
-            var container = await GetContainerAsync<Project>()
-                .ConfigureAwait(false);
-
-            var instances = container.GetItemQueryIterator<Project>()
-                .Where(project => project.Type.Id.Equals(id, StringComparison.Ordinal));
-
-            if (subscriptionId.HasValue)
-                instances = instances.Where(project => project.ResourceGroup?.SubscriptionId == subscriptionId.GetValueOrDefault());
-
-            return await instances
+            return await projectRepository.ListAsync()
+                .Where(project => project.Type.Id.Equals(id, StringComparison.Ordinal))
+                .Where(project => !subscriptionId.HasValue || project.ResourceGroup?.SubscriptionId == subscriptionId.GetValueOrDefault())
                 .CountAsync()
                 .ConfigureAwait(false);
         }
 
         public async Task<ProjectType> GetDefaultAsync()
         {
-            var container = await GetContainerAsync<ProjectType>()
+            var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
             try
             {
-                var query = new QueryDefinition($"SELECT * FROM t WHERE t.default");
-                var queryIterator = container.GetItemQueryIterator<ProjectType>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Constants.CosmosDb.TenantName) });
-                var defaultType = await queryIterator
-                    .FirstOrDefaultAsync(t => t.Default)
+                var queryIterator = container.GetItemLinqQueryable<ProjectType>()
+                    .Where(projectType => projectType.Default)
+                    .ToFeedIterator();
+
+                var queryResults = await queryIterator
+                    .ReadNextAsync()
                     .ConfigureAwait(false);
 
-                return defaultType;
+                return queryResults.FirstOrDefault();
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
             {
@@ -99,28 +98,34 @@ namespace TeamCloud.Data.CosmosDb
 
         public async Task<ProjectType> SetAsync(ProjectType projectType)
         {
-            var container = await GetContainerAsync<ProjectType>()
+            var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
             var response = await container
                 .UpsertItemAsync<ProjectType>(projectType, new PartitionKey(Constants.CosmosDb.TenantName))
                 .ConfigureAwait(false);
 
-            return response.Value;
+            return response.Resource;
         }
 
         public async IAsyncEnumerable<ProjectType> ListAsync()
         {
-            var container = await GetContainerAsync<ProjectType>()
+            var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
             var query = new QueryDefinition($"SELECT * FROM c");
-            var queryIterator = container
-                .GetItemQueryIterator<ProjectType>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Constants.CosmosDb.TenantName) });
+            var queryIterator = container.GetItemQueryIterator<ProjectType>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Constants.CosmosDb.TenantName) });
 
-            await foreach (var queryResult in queryIterator)
+            while (queryIterator.HasMoreResults)
             {
-                yield return queryResult;
+                var queryResponse = await queryIterator
+                    .ReadNextAsync()
+                    .ConfigureAwait(false);
+
+                foreach (var queryResult in queryResponse)
+                {
+                    yield return queryResult;
+                }
             }
         }
 
@@ -129,14 +134,14 @@ namespace TeamCloud.Data.CosmosDb
             if (projectType is null)
                 throw new ArgumentNullException(nameof(projectType));
 
-            var container = await GetContainerAsync<ProjectType>()
+            var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
             var response = await container
                 .DeleteItemAsync<ProjectType>(projectType.Id, new PartitionKey(Constants.CosmosDb.TenantName))
                 .ConfigureAwait(false);
 
-            return response.Value;
+            return response.Resource;
         }
     }
 }

@@ -3,7 +3,6 @@
  *  Licensed under the MIT License.
  */
 
-using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -16,8 +15,6 @@ namespace TeamCloud.Model.Data
         public static string DefaultId => Constants.CosmosDb.TenantName;
 
         public string Id => DefaultId;
-
-        string IContainerDocument.ETag { get; set; }
 
         public string PartitionKey => Constants.CosmosDb.DatabaseName;
 

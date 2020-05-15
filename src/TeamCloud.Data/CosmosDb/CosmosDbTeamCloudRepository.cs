@@ -4,66 +4,81 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
-using Azure.Cosmos;
-using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Azure.Cosmos;
+using TeamCloud.Data.Caching;
 using TeamCloud.Model;
 using TeamCloud.Model.Data;
 
 namespace TeamCloud.Data.CosmosDb
 {
-    public class CosmosDbTeamCloudRepository : CosmosDbBaseRepository, ITeamCloudRepository
+    public class CosmosDbTeamCloudRepository : CosmosDbBaseRepository<TeamCloudInstance>, ITeamCloudRepository
     {
-        private readonly IMemoryCache cache;
+        private readonly IContainerDocumentCache cache;
 
-        public CosmosDbTeamCloudRepository(ICosmosDbOptions cosmosOptions, IMemoryCache cache)
+        public CosmosDbTeamCloudRepository(ICosmosDbOptions cosmosOptions, IContainerDocumentCache cache)
             : base(cosmosOptions)
         {
             this.cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }
 
-        private TeamCloudInstance SetCache(TeamCloudInstance teamCloud)
+        private async Task<ContainerDocumentCacheEntry<TeamCloudInstance>> SetCacheAsync(ItemResponse<TeamCloudInstance> response)
         {
-            if (teamCloud is null)
+            if (response is null)
             {
-                cache.Remove(nameof(TeamCloudInstance));
+                await cache
+                    .RemoveAsync(nameof(TeamCloudInstance))
+                    .ConfigureAwait(false);
 
                 return null;
             }
-
-            return cache.Set(nameof(TeamCloudInstance), teamCloud, new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5)));
+            else
+            {
+                return await cache
+                    .SetAsync(nameof(TeamCloudInstance), new ContainerDocumentCacheEntry<TeamCloudInstance>(response), new ContainerDocumentCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) })
+                    .ConfigureAwait(false);
+            }
         }
+
+        protected override Container.ChangesHandler<TeamCloudInstance> HandleChangesAsync
+            => cache.InMemory
+            ? base.HandleChangesAsync // in case we deal with an InMemory cache, we fall back to the default implementation
+            : (IReadOnlyCollection<TeamCloudInstance> changes, CancellationToken cancellationToken) => SetCacheAsync(null);
 
         public Task<TeamCloudInstance> GetAsync()
             => GetAsync(false);
 
         public async Task<TeamCloudInstance> GetAsync(bool refresh)
         {
-            var container = await GetContainerAsync<TeamCloudInstance>()
+            var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
-            if (!refresh && this.cache != null && this.cache.TryGetValue<TeamCloudInstance>(nameof(TeamCloudInstance), out var teamCloud))
+            ContainerDocumentCacheEntry<TeamCloudInstance> cacheEntry = null;
+
+            if (cache != null && !refresh)
             {
-                var currentTeamCloud = await FetchAsync((teamCloud as IContainerDocument)?.ETag)
+                var created = false;
+
+                cacheEntry = await cache
+                    .GetOrCreateAsync(nameof(TeamCloudInstance), (key) => { created = true; return FetchAsync(); })
                     .ConfigureAwait(false);
 
-                return currentTeamCloud is null
-                    ? teamCloud
-                    : currentTeamCloud;
-            }
-            else
-            {
-                teamCloud = await FetchAsync()
-                    .ConfigureAwait(false);
+                if (!created && cache.InMemory)
+                {
+                    var cacheEntryCurrent = await FetchAsync(cacheEntry.ETag)
+                        .ConfigureAwait(false);
 
-                return teamCloud is null
-                    ? await SetAsync(new TeamCloudInstance()).ConfigureAwait(false)
-                    : SetCache(teamCloud);
+                    return (cacheEntryCurrent ?? cacheEntry)?.Value;
+                }
             }
 
-            async Task<TeamCloudInstance> FetchAsync(string currentETag = default)
+            return (cacheEntry ?? await FetchAsync().ConfigureAwait(false))?.Value;
+
+            async Task<ContainerDocumentCacheEntry<TeamCloudInstance>> FetchAsync(string currentETag = default)
             {
                 var measure = Stopwatch.StartNew();
 
@@ -78,7 +93,8 @@ namespace TeamCloud.Data.CosmosDb
                         .ReadItemAsync<TeamCloudInstance>(Constants.CosmosDb.TenantName, new PartitionKey(Constants.CosmosDb.TenantName), options)
                         .ConfigureAwait(false);
 
-                    return response.ToContainerDocument();
+                    return await SetCacheAsync(response)
+                        .ConfigureAwait(false);
                 }
                 catch (CosmosException exc) when (exc.StatusCode == HttpStatusCode.NotFound)
                 {
@@ -90,21 +106,25 @@ namespace TeamCloud.Data.CosmosDb
                 }
                 finally
                 {
-                    Debug.WriteLine($"Fetching '{nameof(TeamCloudInstance)}' ({currentETag ?? "CURRENTVERSION"}) took {measure.ElapsedMilliseconds} msec.");
+                    Debug.WriteLine($"Fetching '{nameof(TeamCloudInstance)}' (ETag: {currentETag ?? "EMPTY"}) took {measure.ElapsedMilliseconds} msec.");
                 }
             }
         }
 
         public async Task<TeamCloudInstance> SetAsync(TeamCloudInstance teamCloudInstance)
         {
-            var container = await GetContainerAsync<TeamCloudInstance>()
+            var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
             var response = await container
                 .UpsertItemAsync(teamCloudInstance, new PartitionKey(Constants.CosmosDb.TenantName))
                 .ConfigureAwait(false);
 
-            return SetCache(response.ToContainerDocument());
+            var cacheEntry = await SetCacheAsync(response)
+                .ConfigureAwait(false);
+
+            return cacheEntry.Value;
         }
+
     }
 }
