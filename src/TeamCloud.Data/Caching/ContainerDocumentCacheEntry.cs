@@ -1,4 +1,9 @@
-﻿using Microsoft.Azure.Cosmos;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
+
+using Microsoft.Azure.Cosmos;
 using Newtonsoft.Json;
 using TeamCloud.Model.Data;
 

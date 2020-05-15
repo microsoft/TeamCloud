@@ -1,4 +1,9 @@
-﻿using System;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
+
+using System;
 using Microsoft.Extensions.Caching.Distributed;
 
 namespace TeamCloud.Data.Caching
