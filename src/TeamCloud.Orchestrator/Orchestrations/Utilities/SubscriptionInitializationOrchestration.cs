@@ -33,8 +33,9 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 
             var subscriptionId = functionContext.GetInput<Guid>();
             var resourceId = new AzureResourceIdentifier(subscriptionId);
+            var initializationTimeout = TimeSpan.FromMinutes(5);
 
-            using (await functionContext.LockAzureResourceAsync(resourceId).ConfigureAwait(true))
+            try
             {
                 var currentSubscriptionVersion = await functionContext
                     .GetSubscriptionVersionAsync(subscriptionId)
@@ -42,25 +43,43 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 
                 if (currentSubscriptionVersion != TargetSubscriptionVersion)
                 {
-                    // we have to offload the subscription initialization deployment to
-                    // an independant orchestration (StartDeploymentAsync) as we initiate
-                    // the deployment inside a critical section. this doesn't allow us
-                    // to run the deploy as a nested orchestration (CallDeploymentAsync).
+                    using (await functionContext.LockAzureResourceAsync(resourceId).ConfigureAwait(true))
+                    {
+                        currentSubscriptionVersion = await functionContext
+                            .GetSubscriptionVersionAsync(subscriptionId)
+                            .ConfigureAwait(true);
 
-                    var deploymentOutputEventName = subscriptionId.ToString();
+                        if (currentSubscriptionVersion != TargetSubscriptionVersion)
+                        {
+                            // we have to offload the subscription initialization deployment to
+                            // an independant orchestration (StartDeploymentAsync) as we initiate
+                            // the deployment inside a critical section. this doesn't allow us
+                            // to run the deploy as a nested orchestration (CallDeploymentAsync).
 
-                    _ = await functionContext
-                        .StartDeploymentAsync(nameof(ProjectSubscriptonInitializeActivity), subscriptionId, deploymentOutputEventName)
-                        .ConfigureAwait(true);
+                            var deploymentOutputEventName = subscriptionId.ToString();
 
-                    await functionContext
-                        .WaitForExternalEvent(deploymentOutputEventName, TimeSpan.FromMinutes(30))
-                        .ConfigureAwait(true);
+                            _ = await functionContext
+                                .StartDeploymentAsync(nameof(ProjectSubscriptonInitializeActivity), subscriptionId, deploymentOutputEventName)
+                                .ConfigureAwait(true);
 
-                    _ = await functionContext
-                        .SetSubscriptionVersionAsync(subscriptionId, TargetSubscriptionVersion)
-                        .ConfigureAwait(true);
+                            await functionContext
+                                .WaitForExternalEvent(deploymentOutputEventName, initializationTimeout)
+                                .ConfigureAwait(true);
+
+                            _ = await functionContext
+                                .SetSubscriptionVersionAsync(subscriptionId, TargetSubscriptionVersion)
+                                .ConfigureAwait(true);
+                        }
+                    }
                 }
+            }
+            catch (TimeoutException exc)
+            {
+                functionLog.LogError(exc, $"Failed to initialize subscription '{subscriptionId}' within a {initializationTimeout} timeout");
+            }
+            catch (Exception exc)
+            {
+                functionLog.LogError(exc, $"Failed to initialize subscription '{subscriptionId}': {exc.Message}");
             }
         }
     }
