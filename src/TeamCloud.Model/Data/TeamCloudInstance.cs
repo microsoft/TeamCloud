@@ -3,7 +3,6 @@
  *  Licensed under the MIT License.
  */
 
-using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -29,5 +28,6 @@ namespace TeamCloud.Model.Data
         public IDictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
 
         public IList<Provider> Providers { get; set; } = new List<Provider>();
+
     }
 }
