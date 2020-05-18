@@ -49,17 +49,41 @@ namespace TeamCloud.Model.Data
         }
 
         public static ProjectUserRole RoleFor(this User user, Guid projectId)
-        {
-            if (user is null) throw new ArgumentNullException(nameof(user));
-
-            return user.ProjectMembership(projectId)?.Role ?? ProjectUserRole.None;
-        }
+            => user?.ProjectMembership(projectId)?.Role ?? ProjectUserRole.None;
 
         public static ProjectMembership ProjectMembership(this User user, Guid projectId)
-        {
-            if (user is null) throw new ArgumentNullException(nameof(user));
+            => user?.ProjectMemberships.FirstOrDefault(m => m.ProjectId == projectId);
 
-            return user.ProjectMemberships.FirstOrDefault(m => m.ProjectId == projectId);
+        public static IDictionary<string, string> ProjectProperties(this User user, Guid projectId, bool overwriteExistingValues = true)
+        {
+            if (user is null)
+                throw new ArgumentNullException(nameof(user));
+
+            if (user.Properties is null)
+                user.Properties = new Dictionary<string, string>();
+
+            var properties = user.Properties;
+
+            if (overwriteExistingValues)
+            {
+                user.ProjectMembership(projectId)
+                    .Properties
+                    .ToList()
+                    .ForEach(t => properties[t.Key] = t.Value);
+            }
+            else
+            {
+                var keyValuePairs = user.ProjectMembership(projectId)
+                    .Properties
+                    .Concat(properties);
+
+                properties = keyValuePairs
+                    .GroupBy(kvp => kvp.Key)
+                    .Where(kvp => kvp.First().Value != null)
+                    .ToDictionary(kvp => kvp.Key, kvp => kvp.First().Value);
+            }
+
+            return properties;
         }
 
         public static void EnsureProjectMembership(this User user, ProjectMembership membership)

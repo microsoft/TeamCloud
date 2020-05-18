@@ -28,7 +28,4 @@ namespace TeamCloud.Model.Data
     {
         IDictionary<string, string> Tags { get; set; }
     }
-
-
-
 }

@@ -9,7 +9,6 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
-using Microsoft.Azure.Cosmos.Linq;
 using TeamCloud.Model;
 using TeamCloud.Model.Data;
 
@@ -18,7 +17,13 @@ namespace TeamCloud.Data.CosmosDb
 
     public class CosmosDbProjectsRepository : CosmosDbBaseRepository<Project>, IProjectsRepository
     {
-        private readonly IUsersRepository usersRepository;
+        private readonly IUsersRepositoryReadOnly usersRepository;
+
+        public CosmosDbProjectsRepository(ICosmosDbOptions cosmosOptions, IUsersRepositoryReadOnly usersRepository)
+            : base(cosmosOptions)
+        {
+            this.usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
+        }
 
         public CosmosDbProjectsRepository(ICosmosDbOptions cosmosOptions, IUsersRepository usersRepository)
             : base(cosmosOptions)
@@ -191,7 +196,7 @@ namespace TeamCloud.Data.CosmosDb
                     .DeleteItemAsync<Project>(project.Id.ToString(), new PartitionKey(Constants.CosmosDb.TenantName))
                     .ConfigureAwait(false);
 
-                await usersRepository
+                await (usersRepository as IUsersRepository)
                     .RemoveProjectMembershipsAsync(project.Id)
                     .ConfigureAwait(false);
 
