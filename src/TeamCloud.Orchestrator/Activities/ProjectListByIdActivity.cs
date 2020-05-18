@@ -4,6 +4,8 @@
  */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -12,24 +14,24 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Orchestrator.Activities
 {
-    public class ProjectDeleteActivity
+    public class ProjectListByIdActivity
     {
         private readonly IProjectsRepository projectsRepository;
 
-        public ProjectDeleteActivity(IProjectsRepository projectsRepository)
+        public ProjectListByIdActivity(IProjectsRepository projectsRepository)
         {
             this.projectsRepository = projectsRepository ?? throw new ArgumentNullException(nameof(projectsRepository));
         }
 
-        [FunctionName(nameof(ProjectDeleteActivity))]
-        public async Task RunActivity(
-            [ActivityTrigger] Project project)
+        [FunctionName(nameof(ProjectListByIdActivity))]
+        public async Task<IEnumerable<Project>> RunActivity(
+            [ActivityTrigger] IList<Guid> projectIds)
         {
-            if (project is null)
-                throw new ArgumentNullException(nameof(project));
+            var projects = projectsRepository
+                .ListAsync(projectIds);
 
-            _ = await projectsRepository
-                .RemoveAsync(project)
+            return await projects
+                .ToListAsync()
                 .ConfigureAwait(false);
         }
     }

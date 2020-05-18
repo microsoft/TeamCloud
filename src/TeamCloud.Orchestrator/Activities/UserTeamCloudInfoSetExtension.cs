@@ -12,11 +12,11 @@ using TeamCloud.Orchestrator.Entities;
 
 namespace TeamCloud.Orchestrator.Activities
 {
-    internal static class UserSetExtension
+    internal static class UserTeamCloudDetailsSetExtension
     {
-        public static Task<User> SetUserAsync(this IDurableOrchestrationContext functionContext, User user, bool allowUnsafe = false)
+        public static Task<User> SetUserTeamCloudInfoAsync(this IDurableOrchestrationContext functionContext, User user, bool allowUnsafe = false)
             => functionContext.IsLockedByContainerDocument(user) || allowUnsafe
-            ? functionContext.CallActivityWithRetryAsync<User>(nameof(UserSetActivity), user)
+            ? functionContext.CallActivityWithRetryAsync<User>(nameof(UserTeamCloudInfoSetActivity), user)
             : throw new NotSupportedException($"Unable to set user '{user.Id}' without acquired lock");
     }
 }

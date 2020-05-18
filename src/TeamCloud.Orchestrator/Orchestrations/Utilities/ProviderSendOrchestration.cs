@@ -41,7 +41,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
             using (functionContext.TrackCommandMetrics(command))
             {
                 // if the provider to use only supports the simple command mode
-                // we can not send commands like add, update, or delete project users. 
+                // we can not send commands like add, update, or delete project users.
                 // instead we need to send a full project update to process the command!
 
                 commandResult = (provider.CommandMode == ProviderCommandMode.Simple && command.ProjectId.HasValue && !(command is IProviderCommand<Project>))
@@ -157,7 +157,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                 {
                     var commandTimeout = (commandResult.Timeout > TimeSpan.Zero && commandResult.Timeout < CommandResult.MaximumTimeout)
                         ? commandResult.Timeout         // use the timeout reported back by the provider
-                        : CommandResult.MaximumTimeout; // use the defined maximum timeout 
+                        : CommandResult.MaximumTimeout; // use the defined maximum timeout
 
                     functionContext.SetCustomStatus($"Waiting for command result", log);
 

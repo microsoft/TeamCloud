@@ -12,27 +12,25 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Orchestrator.Activities
 {
-    public class UserTeamCloudInfoSetActivity
+    public class UserDeleteActivity
     {
         private readonly IUsersRepository usersRepository;
 
-        public UserTeamCloudInfoSetActivity(IUsersRepository usersRepository)
+        public UserDeleteActivity(IUsersRepository usersRepository)
         {
             this.usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
         }
 
-        [FunctionName(nameof(UserTeamCloudInfoSetActivity))]
-        public async Task<User> RunActivity(
+        [FunctionName(nameof(UserDeleteActivity))]
+        public async Task RunActivity(
             [ActivityTrigger] User user)
         {
             if (user is null)
                 throw new ArgumentNullException(nameof(user));
 
-            var newUser = await usersRepository
-                .SetTeamCloudInfoAsync(user)
+            _ = await usersRepository
+                .RemoveAsync(user)
                 .ConfigureAwait(false);
-
-            return newUser;
         }
     }
 }

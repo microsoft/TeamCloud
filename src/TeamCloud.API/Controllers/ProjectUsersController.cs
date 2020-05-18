@@ -232,7 +232,19 @@ namespace TeamCloud.API.Controllers
                         .ActionResult();
             }
 
-            oldUser.EnsureProjectMembership(projectId, user.Role, user.Properties);
+            var membership = new ProjectMembership
+            {
+                ProjectId = projectId,
+                Role = user.Role,
+                Properties = user.Properties
+            };
+
+            if (!oldUser.HasEqualMembership(membership))
+                return ErrorResult
+                    .BadRequest(new ValidationError { Field = "projectMemberships", Message = $"User's project memberships did not change." })
+                    .ActionResult();
+
+            oldUser.EnsureProjectMembership(membership);
 
             var currentUserForCommand = await userService
                 .CurrentUserAsync()

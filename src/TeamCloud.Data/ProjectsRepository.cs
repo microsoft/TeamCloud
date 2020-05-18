@@ -18,6 +18,8 @@ namespace TeamCloud.Data
 
         IAsyncEnumerable<Project> ListAsync(bool populateUsers = true);
 
+        IAsyncEnumerable<Project> ListAsync(IList<Guid> projectIds, bool populateUsers = true);
+
         Task<bool> NameExistsAsync(string name);
     }
 

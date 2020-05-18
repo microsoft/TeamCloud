@@ -246,8 +246,12 @@ namespace TeamCloud.Data.CosmosDb
 
                 // user doesn't exist yet, create it
                 if (existingUser is null)
-                    existingUser = await AddAsync(user)
+                {
+                    user.EnsureProjectMembership(membership);
+
+                    return await AddAsync(user)
                         .ConfigureAwait(false);
+                }
 
                 user = existingUser;
             }
@@ -284,6 +288,65 @@ namespace TeamCloud.Data.CosmosDb
 
                     // TODO: add some safety here to prevent infinate recursion
                     return await AddProjectMembershipSafeAsync(container, refreshedUser, membership)
+                        .ConfigureAwait(false);
+                }
+            }
+        }
+
+        public async Task<User> SetTeamCloudInfoAsync(User user)
+        {
+            if (user is null) throw new ArgumentNullException(nameof(user));
+
+            var container = await GetContainerAsync<User>()
+                .ConfigureAwait(false);
+
+            var etag = user.ETag;
+
+            if (string.IsNullOrEmpty(etag))
+            {
+                var existingUser = await GetAsync(user.Id)
+                    .ConfigureAwait(false);
+
+                // user doesn't exist yet, create it
+                if (existingUser is null)
+                {
+                    return await AddAsync(user)
+                        .ConfigureAwait(false);
+                }
+
+                user = existingUser;
+            }
+
+            return await SetTeamCloudInfoSafeAsync(container, user)
+                .ConfigureAwait(false);
+
+
+            async Task<User> SetTeamCloudInfoSafeAsync(Container container, User user)
+            {
+                try
+                {
+                    var updatedUser = await container
+                        .ReplaceItemAsync(
+                            user, user.Id.ToString(),
+                            new PartitionKey(Constants.CosmosDb.TenantName),
+                            new ItemRequestOptions { IfMatchEtag = user.ETag }
+                        ).ConfigureAwait(false);
+
+                    return updatedUser;
+                }
+                catch (CosmosException exc) when (exc.StatusCode == HttpStatusCode.NotFound)
+                {
+                    return null; // the requested user does not exist anymore - continue
+                    // return user;
+                }
+                catch (CosmosException exc) when (exc.StatusCode == HttpStatusCode.PreconditionFailed)
+                {
+                    // the requested user has changed, get it again before proceeding
+                    var refreshedUser = await GetAsync(user.Id)
+                        .ConfigureAwait(false);
+
+                    // TODO: add some safety here to prevent infinate recursion
+                    return await SetTeamCloudInfoSafeAsync(container, refreshedUser)
                         .ConfigureAwait(false);
                 }
             }

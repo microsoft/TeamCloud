@@ -98,6 +98,22 @@ namespace TeamCloud.Model.Data
             return user.ProjectMemberships.SequenceEqual(other.ProjectMemberships, new ProjectMembershipComparer());
         }
 
+        public static bool HasEqualMembership(this User user, User other, Guid projectId)
+        {
+            if (user is null) throw new ArgumentNullException(nameof(user));
+            if (other is null) throw new ArgumentNullException(nameof(other));
+
+            return new ProjectMembershipComparer().Equals(user.ProjectMembership(projectId), other.ProjectMembership(projectId));
+        }
+
+        public static bool HasEqualMembership(this User user, ProjectMembership membership)
+        {
+            if (user is null) throw new ArgumentNullException(nameof(user));
+            if (membership is null) throw new ArgumentNullException(nameof(membership));
+
+            return new ProjectMembershipComparer().Equals(user.ProjectMembership(membership.ProjectId), membership);
+        }
+
         public static void EnsureTeamCloudInfo(this User user, TeamCloudUserRole role, IDictionary<string, string> properties = null)
         {
             if (user is null) throw new ArgumentNullException(nameof(user));
@@ -105,6 +121,15 @@ namespace TeamCloud.Model.Data
             user.Role = role;
             if (properties != null)
                 user.MergeProperties(properties, overwriteExistingValues: true);
+        }
+
+        public static bool HasEqualTeamCloudInfo(this User user, User other)
+        {
+            if (user is null) throw new ArgumentNullException(nameof(user));
+            if (other is null) throw new ArgumentNullException(nameof(other));
+
+            return user.Role == other.Role
+                && user.Properties.SequenceEqual(other.Properties);
         }
     }
 }

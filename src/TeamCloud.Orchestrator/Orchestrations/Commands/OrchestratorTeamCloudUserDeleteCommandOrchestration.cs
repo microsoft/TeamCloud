@@ -4,6 +4,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
@@ -42,33 +43,37 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 {
                     functionContext.SetCustomStatus($"Deleting user.", log);
 
-                    using (await functionContext.LockAsync<TeamCloudInstance>(TeamCloudInstance.DefaultId).ConfigureAwait(true))
+                    using (await functionContext.LockAsync<User>(user.Id.ToString()).ConfigureAwait(true))
                     {
-                        var teamCloud = await functionContext
-                            .GetTeamCloudAsync()
-                            .ConfigureAwait(true);
-
-                        var userDelete = teamCloud.Users.SingleOrDefault(u => u.Id == user.Id);
-
-                        if (userDelete is null)
-                            throw new OrchestratorCommandException($"User '{user.Id}' does not exist.", command);
-
-                        teamCloud.Users.Remove(userDelete);
-
-                        teamCloud = await functionContext
-                            .SetTeamCloudAsync(teamCloud)
+                        await functionContext
+                            .DeleteUserAsync(user.Id)
                             .ConfigureAwait(true);
                     }
 
-                    var projects = await functionContext
-                        .ListProjectsAsync()
-                        .ConfigureAwait(true);
+                    var projects = default(IEnumerable<Project>);
 
-                    foreach (var project in projects)
+                    // only update all projects if user was an admin
+                    if (user.IsAdmin())
                     {
-                        var projectUpdateCommand = new OrchestratorProjectUpdateCommand(command.User, project);
+                        projects = await functionContext
+                            .ListProjectsAsync()
+                            .ConfigureAwait(true);
+                    }
+                    else if (user.ProjectMemberships.Any())
+                    {
+                        projects = await functionContext
+                            .ListProjectsAsync(user.ProjectMemberships.Select(m => m.ProjectId).ToList())
+                            .ConfigureAwait(true);
+                    }
 
-                        functionContext.StartNewOrchestration(nameof(OrchestratorProjectUpdateCommand), projectUpdateCommand);
+                    if (projects?.Any() ?? false)
+                    {
+                        foreach (var project in projects)
+                        {
+                            var projectUpdateCommand = new OrchestratorProjectUpdateCommand(command.User, project);
+
+                            functionContext.StartNewOrchestration(nameof(OrchestratorProjectUpdateCommand), projectUpdateCommand);
+                        }
                     }
 
                     commandResult.Result = user;

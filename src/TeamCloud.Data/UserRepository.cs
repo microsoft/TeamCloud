@@ -38,5 +38,7 @@ namespace TeamCloud.Data
         Task<User> AddProjectMembershipAsync(User user, ProjectMembership membership);
 
         Task<User> AddProjectMembershipAsync(User user, Guid projectId, ProjectUserRole role, IDictionary<string, string> properties);
+
+        Task<User> SetTeamCloudInfoAsync(User user);
     }
 }
