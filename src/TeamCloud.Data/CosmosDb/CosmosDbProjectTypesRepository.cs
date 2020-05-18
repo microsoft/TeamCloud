@@ -36,8 +36,7 @@ namespace TeamCloud.Data.CosmosDb
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.Conflict)
             {
-                // Indicates a name conflict (already a ProjectType with name)
-                throw;
+                throw; // Indicates a name conflict (already a ProjectType with name)
             }
         }
 
@@ -103,7 +102,7 @@ namespace TeamCloud.Data.CosmosDb
                 .ConfigureAwait(false);
 
             var response = await container
-                .UpsertItemAsync<ProjectType>(projectType, new PartitionKey(Constants.CosmosDb.TenantName))
+                .UpsertItemAsync(projectType, new PartitionKey(Constants.CosmosDb.TenantName))
                 .ConfigureAwait(false);
 
             return response.Value;
@@ -119,9 +118,7 @@ namespace TeamCloud.Data.CosmosDb
                 .GetItemQueryIterator<ProjectType>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Constants.CosmosDb.TenantName) });
 
             await foreach (var queryResult in queryIterator)
-            {
                 yield return queryResult;
-            }
         }
 
         public async Task<ProjectType> RemoveAsync(ProjectType projectType)
@@ -132,11 +129,18 @@ namespace TeamCloud.Data.CosmosDb
             var container = await GetContainerAsync<ProjectType>()
                 .ConfigureAwait(false);
 
-            var response = await container
-                .DeleteItemAsync<ProjectType>(projectType.Id, new PartitionKey(Constants.CosmosDb.TenantName))
-                .ConfigureAwait(false);
+            try
+            {
+                var response = await container
+                    .DeleteItemAsync<ProjectType>(projectType.Id, new PartitionKey(Constants.CosmosDb.TenantName))
+                    .ConfigureAwait(false);
 
-            return response.Value;
+                return response.Value;
+            }
+            catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
+            {
+                return null; // already deleted
+            }
         }
     }
 }

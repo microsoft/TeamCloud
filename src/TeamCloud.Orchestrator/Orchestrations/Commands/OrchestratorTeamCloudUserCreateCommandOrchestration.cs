@@ -48,10 +48,17 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                             .GetUserAsync(user.Id)
                             .ConfigureAwait(true);
 
+
+
                         if (existingUser is null)
                         {
-                            // _ await functionContext
-                            //     .
+                            var newUser = await functionContext
+                                .SetUserAsync(user)
+                                .ConfigureAwait(false);
+                        }
+                        else
+                        {
+
                         }
 
                         // var teamCloud = await functionContext

@@ -43,7 +43,7 @@ namespace TeamCloud.Data.CosmosDb
                 .ConfigureAwait(false);
 
             var response = await container
-                .UpsertItemAsync<TeamCloudInstance>(teamCloudInstance, new PartitionKey(Constants.CosmosDb.TenantName))
+                .UpsertItemAsync(teamCloudInstance, new PartitionKey(Constants.CosmosDb.TenantName))
                 .ConfigureAwait(false);
 
             return response.Value;

@@ -39,8 +39,7 @@ namespace TeamCloud.Data.CosmosDb
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.Conflict)
             {
-                // Indicates a name conflict (already a project with name)
-                throw;
+                throw; // Indicates a name conflict (already a project with name)
             }
         }
 
@@ -58,22 +57,16 @@ namespace TeamCloud.Data.CosmosDb
                 var project = response.Value;
 
                 if (populateUsers)
-                {
                     project.Users = await usersRepository
                         .ListAsync(project.Id)
                         .ToListAsync()
                         .ConfigureAwait(false);
-                }
 
                 return project;
             }
-            catch (CosmosException cosmosEx)
+            catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
             {
-                if (cosmosEx.Status == (int)HttpStatusCode.NotFound)
-                {
-                    return null;
-                }
-                throw;
+                return null;
             }
         }
 
@@ -83,13 +76,12 @@ namespace TeamCloud.Data.CosmosDb
                 .ConfigureAwait(false);
 
             if (Guid.TryParse(nameOrId, out var projectId))
-            {
                 return await GetAsync(projectId, populateUsers)
                     .ConfigureAwait(false);
-            }
 
             var query = new QueryDefinition($"SELECT * FROM c WHERE c.name = @name")
                 .WithParameter("@name", nameOrId);
+
             var queryIterator = container.GetItemQueryIterator<Project>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Constants.CosmosDb.TenantName) });
             var project = await queryIterator
                 .FirstOrDefaultAsync()
@@ -118,7 +110,7 @@ namespace TeamCloud.Data.CosmosDb
                 .ConfigureAwait(false);
 
             var response = await container
-                .UpsertItemAsync<Project>(project, new PartitionKey(Constants.CosmosDb.TenantName))
+                .UpsertItemAsync(project, new PartitionKey(Constants.CosmosDb.TenantName))
                 .ConfigureAwait(false);
 
             return response.Value;
@@ -153,11 +145,18 @@ namespace TeamCloud.Data.CosmosDb
             var container = await GetContainerAsync<Project>()
                 .ConfigureAwait(false);
 
-            var response = await container
-                .DeleteItemAsync<Project>(project.Id.ToString(), new PartitionKey(Constants.CosmosDb.TenantName))
-                .ConfigureAwait(false);
+            try
+            {
+                var response = await container
+                    .DeleteItemAsync<Project>(project.Id.ToString(), new PartitionKey(Constants.CosmosDb.TenantName))
+                    .ConfigureAwait(false);
 
-            return response.Value;
+                return response.Value;
+            }
+            catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
+            {
+                return null; // already deleted
+            }
         }
     }
 }

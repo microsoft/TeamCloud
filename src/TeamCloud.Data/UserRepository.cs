@@ -35,6 +35,8 @@ namespace TeamCloud.Data
 
         Task<User> RemoveProjectMembershipAsync(User user, Guid projectId);
 
-        Task<User> AddProjectMembershipAsync(User user, Guid projectId, ProjectUserRole role);
+        Task<User> AddProjectMembershipAsync(User user, ProjectMembership membership);
+
+        Task<User> AddProjectMembershipAsync(User user, Guid projectId, ProjectUserRole role, IDictionary<string, string> properties);
     }
 }

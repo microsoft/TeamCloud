@@ -62,25 +62,32 @@ namespace TeamCloud.Model.Data
             return user.ProjectMemberships.FirstOrDefault(m => m.ProjectId == projectId);
         }
 
+        public static void EnsureProjectMembership(this User user, ProjectMembership membership)
+        {
+            if (user is null) throw new ArgumentNullException(nameof(user));
+            if (membership is null) throw new ArgumentNullException(nameof(membership));
+
+            var existingMembership = user.ProjectMemberships.FirstOrDefault(m => m.ProjectId == membership.ProjectId);
+
+            if (existingMembership is null)
+                user.ProjectMemberships.Add(membership);
+            else
+            {
+                existingMembership.Role = membership.Role;
+                existingMembership.MergeProperties(membership.Properties, overwriteExistingValues: true);
+            }
+        }
+
         public static void EnsureProjectMembership(this User user, Guid projectId, ProjectUserRole role, IDictionary<string, string> properties = null)
         {
             if (user is null) throw new ArgumentNullException(nameof(user));
 
-            var membership = user.ProjectMembership(projectId);
-
-            if (membership is null)
-                user.ProjectMemberships.Add(new ProjectMembership
-                {
-                    ProjectId = projectId,
-                    Role = role,
-                    Properties = properties ?? new Dictionary<string, string>()
-                });
-            else
+            user.EnsureProjectMembership(new ProjectMembership
             {
-                membership.Role = role;
-                if (properties != null)
-                    membership.MergeProperties(properties, overwriteExistingValues: true);
-            }
+                ProjectId = projectId,
+                Role = role,
+                Properties = properties ?? new Dictionary<string, string>()
+            });
         }
 
         public static bool HasEqualMemberships(this User user, User other)
@@ -89,6 +96,15 @@ namespace TeamCloud.Model.Data
             if (other is null) throw new ArgumentNullException(nameof(other));
 
             return user.ProjectMemberships.SequenceEqual(other.ProjectMemberships, new ProjectMembershipComparer());
+        }
+
+        public static void EnsureTeamCloudInfo(this User user, TeamCloudUserRole role, IDictionary<string, string> properties = null)
+        {
+            if (user is null) throw new ArgumentNullException(nameof(user));
+
+            user.Role = role;
+            if (properties != null)
+                user.MergeProperties(properties, overwriteExistingValues: true);
         }
     }
 }
