@@ -11,11 +11,10 @@ using Newtonsoft.Json.Serialization;
 namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public sealed class Project : IIdentifiable, IContainerDocument, IEquatable<Project>, ITags, IProperties
+    public sealed class Project : IContainerDocument, IIdentifiable, IEquatable<Project>, ITags, IProperties
     {
         public string PartitionKey => TeamCloudId;
 
-        [JsonIgnore]
         public IList<string> UniqueKeys => new List<string> { "/name" };
 
         public Guid Id { get; set; }

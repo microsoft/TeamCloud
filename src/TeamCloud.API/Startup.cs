@@ -34,6 +34,7 @@ using TeamCloud.Azure.Directory;
 using TeamCloud.Configuration;
 using TeamCloud.Configuration.Options;
 using TeamCloud.Data;
+using TeamCloud.Data.Caching;
 using TeamCloud.Data.CosmosDb;
 using TeamCloud.Http;
 using TeamCloud.Model.Data;
@@ -59,7 +60,8 @@ namespace TeamCloud.API
             }
             else
             {
-                app.UseHsts();
+                app.UseHsts()
+                   .UseHttpsRedirection();
             }
 
             app.UseWhen(context => !(context.Request.Path.StartsWithSegments("/api/admin/users", StringComparison.OrdinalIgnoreCase)
@@ -69,18 +71,15 @@ namespace TeamCloud.API
                 appBuilder.UseMiddleware<EnsureTeamCloudUserMiddleware>();
             });
 
-            // Enable middleware to serve generated Swagger as a JSON endpoint.
-            app.UseSwagger();
+            // Enable middleware to serve generated Swagger as a JSON endpoint
+            // plus serve swagger-ui (HTML, JS, CSS, etc.), specifying the Swagger JSON endpoint.
+            app.UseSwagger()
+               .UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "TeamCloud API v1");
+                });
 
-            // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
-            // specifying the Swagger JSON endpoint.
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "TeamCloud API v1");
-            });
-
-            app.UseHttpsRedirection()
-               .UseRouting()
+            app.UseRouting()
                .UseAuthentication()
                .UseAuthorization()
                .UseEndpoints(endpoints => endpoints.MapControllers());
@@ -89,7 +88,6 @@ namespace TeamCloud.API
         public void ConfigureServices(IServiceCollection services)
         {
             services
-                .AddMemoryCache()
                 .AddTeamCloudOptions(Assembly.GetExecutingAssembly())
                 .AddTeamCloudOptionsShared()
                 .AddTeamCloudAzure(configuration =>
@@ -103,6 +101,19 @@ namespace TeamCloud.API
                 {
                     // nothing to configure
                 });
+
+            if (string.IsNullOrEmpty(Configuration.GetValue<string>("Cache:Configuration")))
+            {
+                services
+                    .AddDistributedMemoryCache()
+                    .AddSingleton<IContainerDocumentCache, ContainerDocumentCache>();
+            }
+            else
+            {
+                services
+                    .AddDistributedRedisCache(options => Configuration.Bind("Cache", options))
+                    .AddSingleton<IContainerDocumentCache, ContainerDocumentCache>();
+            }
 
             services
                 .AddSingleton<IHttpContextAccessor, HttpContextAccessor>()

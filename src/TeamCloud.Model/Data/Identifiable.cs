@@ -30,15 +30,5 @@ namespace TeamCloud.Model.Data
     }
 
 
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public interface IContainerDocument
-    {
-        const string PartitionKeyPath = "/partitionKey";
 
-        string Id { get; }
-
-        string PartitionKey { get; }
-
-        IList<string> UniqueKeys { get; }
-    }
 }

@@ -16,7 +16,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
     {
         private static readonly Version TargetSubscriptionVersion = new InitializeSubscriptionTemplate().TemplateVersion;
 
-        internal static async Task InitializeSubscriptionAsync(this IDurableOrchestrationContext functionContext, Guid subscriptionId)
+        internal static async Task InitializeSubscriptionAsync(this IDurableOrchestrationContext functionContext, Guid subscriptionId, bool waitFor = false)
         {
             var currentSubscriptionVersion = await functionContext
                 .GetSubscriptionVersionAsync(subscriptionId)
@@ -24,9 +24,16 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 
             if (currentSubscriptionVersion != TargetSubscriptionVersion)
             {
-                await functionContext
-                    .CallSubOrchestratorWithRetryAsync(nameof(SubscriptionInitializationOrchestration), subscriptionId)
-                    .ConfigureAwait(true);
+                if (waitFor)
+                {
+                    await functionContext
+                        .CallSubOrchestratorWithRetryAsync(nameof(SubscriptionInitializationOrchestration), subscriptionId)
+                        .ConfigureAwait(true);
+                }
+                else
+                {
+                    functionContext.StartNewOrchestration(nameof(SubscriptionInitializationOrchestration), subscriptionId);
+                }
             }
         }
     }

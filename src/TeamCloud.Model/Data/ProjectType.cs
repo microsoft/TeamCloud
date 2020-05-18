@@ -11,7 +11,6 @@ namespace TeamCloud.Model.Data
 {
     public sealed class ProjectType : IContainerDocument, IEquatable<ProjectType>, ITags, IProperties
     {
-        [JsonIgnore]
         public IList<string> UniqueKeys => new List<string> { };
 
         public string PartitionKey => Constants.CosmosDb.TenantName;
