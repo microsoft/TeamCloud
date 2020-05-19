@@ -23,6 +23,8 @@ class Provider(Model):
     :type auth_code: str
     :param principal_id:
     :type principal_id: str
+    :param resource_group:
+    :type resource_group: ~teamcloud.models.AzureResourceGroup
     :param events:
     :type events: list[str]
     :param properties:
@@ -38,18 +40,20 @@ class Provider(Model):
         'url': {'key': 'url', 'type': 'str'},
         'auth_code': {'key': 'authCode', 'type': 'str'},
         'principal_id': {'key': 'principalId', 'type': 'str'},
+        'resource_group': {'key': 'resourceGroup', 'type': 'AzureResourceGroup'},
         'events': {'key': 'events', 'type': '[str]'},
         'properties': {'key': 'properties', 'type': '{str}'},
         'registered': {'key': 'registered', 'type': 'iso-8601'},
         'command_mode': {'key': 'commandMode', 'type': 'int'},
     }
 
-    def __init__(self, *, id: str=None, url: str=None, auth_code: str=None, principal_id: str=None, events=None, properties=None, registered=None, command_mode: int=None, **kwargs) -> None:
+    def __init__(self, *, id: str=None, url: str=None, auth_code: str=None, principal_id: str=None, resource_group=None, events=None, properties=None, registered=None, command_mode: int=None, **kwargs) -> None:
         super(Provider, self).__init__(**kwargs)
         self.id = id
         self.url = url
         self.auth_code = auth_code
         self.principal_id = principal_id
+        self.resource_group = resource_group
         self.events = events
         self.properties = properties
         self.registered = registered
