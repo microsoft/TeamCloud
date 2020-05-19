@@ -1001,7 +1001,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/User"
+                "$ref": "#/components/schemas/ProjectUser"
               }
             }
           }
@@ -2498,18 +2498,71 @@
           }
         }
       },
-      "User": {
+      "ProjectMembership": {
         "type": "object",
         "properties": {
-          "id": {
+          "projectId": {
             "type": "string",
             "format": "uuid"
           },
           "role": {
+            "enum": [
+              "None",
+              "Member",
+              "Owner"
+            ],
+            "type": "string"
+          },
+          "properties": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "_etag": {
             "type": "string",
             "nullable": true
           },
-          "tags": {
+          "partitionKey": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userType": {
+            "enum": [
+              "User",
+              "System",
+              "Provider",
+              "Application"
+            ],
+            "type": "string"
+          },
+          "role": {
+            "enum": [
+              "None",
+              "Creator",
+              "Admin"
+            ],
+            "type": "string"
+          },
+          "projectMemberships": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProjectMembership"
+            },
+            "nullable": true
+          },
+          "properties": {
             "type": "object",
             "additionalProperties": {
               "type": "string"
@@ -2601,7 +2654,7 @@
       "UserDefinition": {
         "type": "object",
         "properties": {
-          "email": {
+          "identifier": {
             "type": "string",
             "nullable": true
           },
@@ -2609,7 +2662,7 @@
             "type": "string",
             "nullable": true
           },
-          "tags": {
+          "properties": {
             "type": "object",
             "additionalProperties": {
               "type": "string"
@@ -2855,6 +2908,30 @@
           },
           "location": {
             "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ProjectUser": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "role": {
+            "enum": [
+              "None",
+              "Member",
+              "Owner"
+            ],
+            "type": "string"
+          },
+          "properties": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
             "nullable": true
           }
         }

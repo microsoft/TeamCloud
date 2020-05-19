@@ -974,7 +974,7 @@ class TeamCloudClient(SDKClient):
         :param project_id:
         :type project_id: str
         :param body:
-        :type body: ~teamcloud.models.User
+        :type body: ~teamcloud.models.ProjectUser
         :param dict custom_headers: headers that will be added to the request
         :param bool raw: returns the direct response alongside the
          deserialized response
@@ -1004,7 +1004,7 @@ class TeamCloudClient(SDKClient):
 
         # Construct body
         if body is not None:
-            body_content = self._serialize.body(body, 'User')
+            body_content = self._serialize.body(body, 'ProjectUser')
         else:
             body_content = None
 

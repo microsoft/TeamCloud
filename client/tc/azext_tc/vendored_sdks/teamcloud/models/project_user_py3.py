@@ -12,25 +12,25 @@
 from msrest.serialization import Model
 
 
-class UserDefinition(Model):
-    """UserDefinition.
+class ProjectUser(Model):
+    """ProjectUser.
 
-    :param identifier:
-    :type identifier: str
-    :param role:
-    :type role: str
+    :param id:
+    :type id: str
+    :param role: Possible values include: 'None', 'Member', 'Owner'
+    :type role: str or ~teamcloud.models.enum
     :param properties:
     :type properties: dict[str, str]
     """
 
     _attribute_map = {
-        'identifier': {'key': 'identifier', 'type': 'str'},
+        'id': {'key': 'id', 'type': 'str'},
         'role': {'key': 'role', 'type': 'str'},
         'properties': {'key': 'properties', 'type': '{str}'},
     }
 
-    def __init__(self, *, identifier: str=None, role: str=None, properties=None, **kwargs) -> None:
-        super(UserDefinition, self).__init__(**kwargs)
-        self.identifier = identifier
+    def __init__(self, *, id: str=None, role=None, properties=None, **kwargs) -> None:
+        super(ProjectUser, self).__init__(**kwargs)
+        self.id = id
         self.role = role
         self.properties = properties

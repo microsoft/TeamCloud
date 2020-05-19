@@ -15,6 +15,7 @@ try:
     from .project_identity_py3 import ProjectIdentity
     from .azure_resource_group_py3 import AzureResourceGroup
     from .azure_key_vault_py3 import AzureKeyVault
+    from .project_membership_py3 import ProjectMembership
     from .user_py3 import User
     from .project_py3 import Project
     from .project_list_data_result_py3 import ProjectListDataResult
@@ -29,6 +30,7 @@ try:
     from .project_type_list_data_result_py3 import ProjectTypeListDataResult
     from .project_type_data_result_py3 import ProjectTypeDataResult
     from .user_list_data_result_py3 import UserListDataResult
+    from .project_user_py3 import ProjectUser
     from .user_data_result_py3 import UserDataResult
     from .provider_py3 import Provider
     from .provider_list_data_result_py3 import ProviderListDataResult
@@ -39,6 +41,7 @@ except (SyntaxError, ImportError):
     from .project_identity import ProjectIdentity
     from .azure_resource_group import AzureResourceGroup
     from .azure_key_vault import AzureKeyVault
+    from .project_membership import ProjectMembership
     from .user import User
     from .project import Project
     from .project_list_data_result import ProjectListDataResult
@@ -53,6 +56,7 @@ except (SyntaxError, ImportError):
     from .project_type_list_data_result import ProjectTypeListDataResult
     from .project_type_data_result import ProjectTypeDataResult
     from .user_list_data_result import UserListDataResult
+    from .project_user import ProjectUser
     from .user_data_result import UserDataResult
     from .provider import Provider
     from .provider_list_data_result import ProviderListDataResult
@@ -64,6 +68,7 @@ __all__ = [
     'ProjectIdentity',
     'AzureResourceGroup',
     'AzureKeyVault',
+    'ProjectMembership',
     'User',
     'Project',
     'ProjectListDataResult',
@@ -78,6 +83,7 @@ __all__ = [
     'ProjectTypeListDataResult',
     'ProjectTypeDataResult',
     'UserListDataResult',
+    'ProjectUser',
     'UserDataResult',
     'Provider',
     'ProviderListDataResult',

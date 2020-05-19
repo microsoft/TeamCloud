@@ -15,22 +15,46 @@ from msrest.serialization import Model
 class User(Model):
     """User.
 
+    Variables are only populated by the server, and will be ignored when
+    sending a request.
+
+    :param _etag:
+    :type _etag: str
+    :ivar partition_key:
+    :vartype partition_key: str
     :param id:
     :type id: str
-    :param role:
-    :type role: str
-    :param tags:
-    :type tags: dict[str, str]
+    :param user_type: Possible values include: 'User', 'System', 'Provider',
+     'Application'
+    :type user_type: str or ~teamcloud.models.enum
+    :param role: Possible values include: 'None', 'Creator', 'Admin'
+    :type role: str or ~teamcloud.models.enum
+    :param project_memberships:
+    :type project_memberships: list[~teamcloud.models.ProjectMembership]
+    :param properties:
+    :type properties: dict[str, str]
     """
 
+    _validation = {
+        'partition_key': {'readonly': True},
+    }
+
     _attribute_map = {
+        '_etag': {'key': '_etag', 'type': 'str'},
+        'partition_key': {'key': 'partitionKey', 'type': 'str'},
         'id': {'key': 'id', 'type': 'str'},
+        'user_type': {'key': 'userType', 'type': 'str'},
         'role': {'key': 'role', 'type': 'str'},
-        'tags': {'key': 'tags', 'type': '{str}'},
+        'project_memberships': {'key': 'projectMemberships', 'type': '[ProjectMembership]'},
+        'properties': {'key': 'properties', 'type': '{str}'},
     }
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
+        self._etag = kwargs.get('_etag', None)
+        self.partition_key = None
         self.id = kwargs.get('id', None)
+        self.user_type = kwargs.get('user_type', None)
         self.role = kwargs.get('role', None)
-        self.tags = kwargs.get('tags', None)
+        self.project_memberships = kwargs.get('project_memberships', None)
+        self.properties = kwargs.get('properties', None)
