@@ -56,6 +56,26 @@ namespace TeamCloud.Orchestration
         public static bool IsLocalEnvironment
             => string.IsNullOrEmpty(Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID"));
 
+        public static async Task<string> GetFunctionUrlAsync(string functionName)
+        {
+            var functionJson = await GetFunctionJsonAsync(functionName)
+                .ConfigureAwait(false);
+
+            var functionRoute = functionJson?
+                .SelectToken("$..bindings[?(@.type == 'httpTrigger')].route")?
+                .ToString();
+
+            if (string.IsNullOrEmpty(functionRoute))
+                return null;
+
+            var hostUrl = await GetHostUrlAsync()
+                .ConfigureAwait(false);
+
+            return hostUrl
+                .AppendPathSegment(functionRoute)
+                .ToString();
+        }
+
         public static async Task<string> GetHostUrlAsync()
         {
             var hostName = Environment.GetEnvironmentVariable("WEBSITE_HOSTNAME");
@@ -97,6 +117,28 @@ namespace TeamCloud.Orchestration
                 return value.ToString();
 
             throw new NotSupportedException($"The acquired token does not contain any resource id information.");
+        }
+
+        private static async Task<JObject> GetFunctionJsonAsync(string functionName)
+        {
+            if (!TryGetFunctionMethod(functionName, out var functionMethod))
+                return null;
+
+            if (!functionMethod.GetParameters().Any(p => p.GetCustomAttribute<HttpTriggerAttribute>() != null))
+                return null;
+
+            var hostUrl = await GetHostUrlAsync()
+                .ConfigureAwait(false);
+
+            var adminKey = await GetAdminKeyAsync()
+                .ConfigureAwait(false);
+
+            return await hostUrl
+                .AppendPathSegment("/admin/functions")
+                .AppendPathSegment(functionName)
+                .SetQueryParam("code", adminKey)
+                .GetJObjectAsync()
+                .ConfigureAwait(false);
         }
 
         private static async Task<JObject> GetKeyJsonAsync()
