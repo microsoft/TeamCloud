@@ -128,8 +128,8 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 {
                     SubscriptionId = subscriptionId,
                     Region = project.Type.Region,
-                    ResourceGroupId = (string)deploymentOutput.GetValueOrDefault("resourceGroupId", default(string)),
-                    ResourceGroupName = (string)deploymentOutput.GetValueOrDefault("resourceGroupName", default(string))
+                    Id = (string)deploymentOutput.GetValueOrDefault("resourceGroupId", default(string)),
+                    Name = (string)deploymentOutput.GetValueOrDefault("resourceGroupName", default(string))
                 };
 
                 project.KeyVault = new AzureKeyVault()

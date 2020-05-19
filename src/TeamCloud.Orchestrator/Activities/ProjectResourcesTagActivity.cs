@@ -30,15 +30,15 @@ namespace TeamCloud.Orchestrator.Activities
             if (project == null)
                 throw new ArgumentNullException(nameof(project));
 
-            if (!string.IsNullOrEmpty(project.ResourceGroup?.ResourceGroupId))
+            if (!string.IsNullOrEmpty(project.ResourceGroup?.Id))
             {
                 var resourceGroup = await azureResourceService
-                    .GetResourceGroupAsync(project.ResourceGroup.SubscriptionId, project.ResourceGroup.ResourceGroupName)
+                    .GetResourceGroupAsync(project.ResourceGroup.SubscriptionId, project.ResourceGroup.Name)
                     .ConfigureAwait(false);
 
                 if (resourceGroup is null)
                 {
-                    log.LogWarning($"Could not find resource group '{project.ResourceGroup.ResourceGroupName}' in subscription '{project.ResourceGroup.SubscriptionId}' for tagging.");
+                    log.LogWarning($"Could not find resource group '{project.ResourceGroup.Name}' in subscription '{project.ResourceGroup.SubscriptionId}' for tagging.");
                 }
                 else
                 {

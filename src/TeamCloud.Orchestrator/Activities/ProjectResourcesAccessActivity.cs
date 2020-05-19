@@ -48,7 +48,7 @@ namespace TeamCloud.Orchestrator.Activities
             if (project is null)
                 throw new RetryCanceledException($"Could not find project '{projectId}'");
 
-            if (!string.IsNullOrEmpty(project.ResourceGroup?.ResourceGroupId))
+            if (!string.IsNullOrEmpty(project.ResourceGroup?.Id))
                 await EnsureResourceGroupAccessAsync(project, principalId).ConfigureAwait(false);
 
             if (!string.IsNullOrEmpty(project.KeyVault?.VaultId))
@@ -58,7 +58,7 @@ namespace TeamCloud.Orchestrator.Activities
         private async Task EnsureResourceGroupAccessAsync(Project project, Guid principalId)
         {
             var resourceGroup = await azureResourceService
-                 .GetResourceGroupAsync(project.ResourceGroup.SubscriptionId, project.ResourceGroup.ResourceGroupName, throwIfNotExists: true)
+                 .GetResourceGroupAsync(project.ResourceGroup.SubscriptionId, project.ResourceGroup.Name, throwIfNotExists: true)
                  .ConfigureAwait(false);
 
             if (resourceGroup != null)

@@ -15,10 +15,10 @@ from msrest.serialization import Model
 class AzureResourceGroup(Model):
     """AzureResourceGroup.
 
-    :param resource_group_id:
-    :type resource_group_id: str
-    :param resource_group_name:
-    :type resource_group_name: str
+    :param id:
+    :type id: str
+    :param name:
+    :type name: str
     :param subscription_id:
     :type subscription_id: str
     :param region:
@@ -26,15 +26,15 @@ class AzureResourceGroup(Model):
     """
 
     _attribute_map = {
-        'resource_group_id': {'key': 'resourceGroupId', 'type': 'str'},
-        'resource_group_name': {'key': 'resourceGroupName', 'type': 'str'},
+        'id': {'key': 'id', 'type': 'str'},
+        'name': {'key': 'name', 'type': 'str'},
         'subscription_id': {'key': 'subscriptionId', 'type': 'str'},
         'region': {'key': 'region', 'type': 'str'},
     }
 
     def __init__(self, **kwargs):
         super(AzureResourceGroup, self).__init__(**kwargs)
-        self.resource_group_id = kwargs.get('resource_group_id', None)
-        self.resource_group_name = kwargs.get('resource_group_name', None)
+        self.id = kwargs.get('id', None)
+        self.name = kwargs.get('name', None)
         self.subscription_id = kwargs.get('subscription_id', None)
         self.region = kwargs.get('region', None)

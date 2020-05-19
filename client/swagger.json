@@ -2463,11 +2463,11 @@
       "AzureResourceGroup": {
         "type": "object",
         "properties": {
-          "resourceGroupId": {
+          "id": {
             "type": "string",
             "nullable": true
           },
-          "resourceGroupName": {
+          "name": {
             "type": "string",
             "nullable": true
           },
@@ -2975,6 +2975,9 @@
             "type": "string",
             "format": "uuid",
             "nullable": true
+          },
+          "resourceGroup": {
+            "$ref": "#/components/schemas/AzureResourceGroup"
           },
           "events": {
             "type": "array",

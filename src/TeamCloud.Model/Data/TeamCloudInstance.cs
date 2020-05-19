@@ -21,11 +21,12 @@ namespace TeamCloud.Model.Data
         [JsonIgnore]
         public IList<string> UniqueKeys => new List<string> { };
 
+        public AzureResourceGroup ResourceGroup { get; set; }
+
         public IDictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();
 
         public IDictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
 
         public IList<Provider> Providers { get; set; } = new List<Provider>();
-
     }
 }

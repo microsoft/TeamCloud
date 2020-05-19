@@ -78,7 +78,7 @@ namespace TeamCloud.Orchestrator.Activities
             template.Parameters["projectId"] = project.Id;
             template.Parameters["projectName"] = project.Name;
             template.Parameters["projectPrefix"] = project.Type.ResourceGroupNamePrefix; // if null - the template uses its default value
-            template.Parameters["resourceGroupName"] = project.ResourceGroup?.ResourceGroupName; // if null - the template generates a unique name
+            template.Parameters["resourceGroupName"] = project.ResourceGroup?.Name; // if null - the template generates a unique name
             template.Parameters["resourceGroupLocation"] = project.ResourceGroup?.Region ?? project.Type.Region;
             template.Parameters["orchestratorIdentity"] = await GetOrchestratorIdentityAsync().ConfigureAwait(false);
             template.Parameters["providerIdentities"] = await GetProviderIdentitiesAsync(project).ConfigureAwait(false);
