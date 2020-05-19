@@ -13,7 +13,7 @@ namespace TeamCloud.Model.Validation.Data
         public AzureResourceGroupValidator()
         {
             RuleFor(obj => obj.SubscriptionId).MustBeGuid();
-            RuleFor(obj => obj.ResourceGroupName).NotEmpty();
+            RuleFor(obj => obj.Name).NotEmpty();
             RuleFor(obj => obj.Region).MustBeAzureRegion();
         }
     }

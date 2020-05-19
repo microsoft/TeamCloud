@@ -65,7 +65,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                         await functionContext.DeleteResourcesAsync
                         (
                             false, // we are not going to wait for this operation
-                            GetResourceGroupId(project?.ResourceGroup?.ResourceGroupId),
+                            GetResourceGroupId(project?.ResourceGroup?.Id),
                             GetResourceGroupId(project?.KeyVault?.VaultId)
                         )
                         .ConfigureAwait(true);
