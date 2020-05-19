@@ -860,7 +860,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserListDataResult"
+                  "$ref": "#/components/schemas/ProjectUserListDataResult"
                 }
               }
             }
@@ -1085,7 +1085,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserDataResult"
+                  "$ref": "#/components/schemas/ProjectUserDataResult"
                 }
               }
             }
@@ -2887,31 +2887,6 @@
           }
         }
       },
-      "UserListDataResult": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "status": {
-            "type": "string",
-            "nullable": true
-          },
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/User"
-            },
-            "nullable": true,
-            "readOnly": true
-          },
-          "location": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
       "ProjectUser": {
         "type": "object",
         "properties": {
@@ -2936,7 +2911,7 @@
           }
         }
       },
-      "UserDataResult": {
+      "ProjectUserListDataResult": {
         "type": "object",
         "properties": {
           "code": {
@@ -2948,7 +2923,32 @@
             "nullable": true
           },
           "data": {
-            "$ref": "#/components/schemas/User"
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProjectUser"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ProjectUserDataResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/ProjectUser"
           },
           "location": {
             "type": "string",
@@ -3043,6 +3043,51 @@
           },
           "data": {
             "$ref": "#/components/schemas/Provider"
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "UserListDataResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/User"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "UserDataResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/User"
           },
           "location": {
             "type": "string",

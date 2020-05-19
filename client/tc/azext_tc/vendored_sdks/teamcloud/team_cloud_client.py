@@ -888,7 +888,7 @@ class TeamCloudClient(SDKClient):
         deserialized = None
 
         if response.status_code == 200:
-            deserialized = self._deserialize('UserListDataResult', response)
+            deserialized = self._deserialize('ProjectUserListDataResult', response)
         if response.status_code == 400:
             deserialized = self._deserialize('ErrorResult', response)
         if response.status_code == 404:
@@ -1076,7 +1076,7 @@ class TeamCloudClient(SDKClient):
         deserialized = None
 
         if response.status_code == 200:
-            deserialized = self._deserialize('UserDataResult', response)
+            deserialized = self._deserialize('ProjectUserDataResult', response)
         if response.status_code == 400:
             deserialized = self._deserialize('ErrorResult', response)
         if response.status_code == 404:

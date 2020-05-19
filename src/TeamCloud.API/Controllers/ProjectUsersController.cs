@@ -50,7 +50,7 @@ namespace TeamCloud.API.Controllers
         [HttpGet]
         [Authorize(Policy = "projectRead")]
         [SwaggerOperation(OperationId = "GetProjectUsers", Summary = "Gets all Users for a Project.")]
-        [SwaggerResponse(StatusCodes.Status200OK, "Returns all Project Users", typeof(DataResult<List<User>>))]
+        [SwaggerResponse(StatusCodes.Status200OK, "Returns all Project Users", typeof(DataResult<List<ProjectUser>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "The projectId provided in the path was invalid.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Get()
@@ -79,7 +79,7 @@ namespace TeamCloud.API.Controllers
         [HttpGet("{userNameOrId:userNameOrId}")]
         [Authorize(Policy = "projectRead")]
         [SwaggerOperation(OperationId = "GetProjectUserByNameOrId", Summary = "Gets a Project User by ID or email address.")]
-        [SwaggerResponse(StatusCodes.Status200OK, "Returns Project User", typeof(DataResult<User>))]
+        [SwaggerResponse(StatusCodes.Status200OK, "Returns Project User", typeof(DataResult<ProjectUser>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "The projectId provided in the path was invalid.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a User with the provided identifier was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Get([FromRoute] string userNameOrId)
