@@ -95,13 +95,6 @@ def project_name_or_id_validator(cmd, namespace):
             pass
 
 
-def user_name_validator(cmd, namespace):
-    if namespace.user_name:
-        if not _has_basic_email_format(namespace.user_name):
-            raise CLIError(
-                '--name should be a user name in eamil format')
-
-
 def user_name_or_id_validator(cmd, namespace):
     if namespace.user:
         if _is_valid_uuid(namespace.user):

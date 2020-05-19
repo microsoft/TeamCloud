@@ -3,6 +3,12 @@
 Release History
 ===============
 
+0.3.5
+++++++
+* Preview release
+* az tc [project] user: Accept user email or id in all commands
+* az tc [project] user: Replace tags with properties
+
 0.3.4
 ++++++
 * Preview release
