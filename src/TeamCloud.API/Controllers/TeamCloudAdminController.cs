@@ -24,9 +24,9 @@ namespace TeamCloud.API.Controllers
     {
         readonly UserService userService;
         readonly Orchestrator orchestrator;
-        readonly IUsersRepositoryReadOnly usersRepository;
+        readonly IUsersRepository usersRepository;
 
-        public TeamCloudAdminController(UserService userService, Orchestrator orchestrator, IUsersRepositoryReadOnly usersRepository)
+        public TeamCloudAdminController(UserService userService, Orchestrator orchestrator, IUsersRepository usersRepository)
         {
             this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
             this.orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));

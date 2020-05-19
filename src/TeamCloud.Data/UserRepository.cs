@@ -10,7 +10,7 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Data
 {
-    public interface IUsersRepositoryReadOnly
+    public interface IUsersRepository
     {
         Task<User> GetAsync(Guid id);
 
@@ -21,10 +21,7 @@ namespace TeamCloud.Data
         IAsyncEnumerable<User> ListOwnersAsync(Guid projectId);
 
         IAsyncEnumerable<User> ListAdminsAsync();
-    }
 
-    public interface IUsersRepository : IUsersRepositoryReadOnly
-    {
         Task<User> AddAsync(User user);
 
         Task<User> SetAsync(User user);

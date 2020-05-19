@@ -23,9 +23,9 @@ namespace TeamCloud.API.Controllers
     [Produces("application/json")]
     public class ProjectTagsController : ControllerBase
     {
-        readonly IProjectsRepositoryReadOnly projectsRepository;
+        readonly IProjectsRepository projectsRepository;
 
-        public ProjectTagsController(IProjectsRepositoryReadOnly projectsRepository)
+        public ProjectTagsController(IProjectsRepository projectsRepository)
         {
             this.projectsRepository = projectsRepository ?? throw new ArgumentNullException(nameof(projectsRepository));
         }
@@ -229,7 +229,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts deleting the Project Tag. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "The projectId or key provided in the path was invalid.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a Tag with the provided key was not found.", typeof(ErrorResult))]
-        public async Task<IActionResult> Delete([FromRoute]string tagKey)
+        public async Task<IActionResult> Delete([FromRoute] string tagKey)
         {
             if (!ProjectId.HasValue)
                 return ErrorResult

@@ -7,11 +7,9 @@ using System;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using TeamCloud.API.Data;
 using TeamCloud.Data;
 using Newtonsoft.Json;
 using System.Linq;
-using TeamCloud.Model.Data;
 using TeamCloud.API.Data.Results;
 
 namespace TeamCloud.API.Middleware
@@ -20,9 +18,9 @@ namespace TeamCloud.API.Middleware
     {
         private static bool HasAdmin = false;
 
-        readonly IUsersRepositoryReadOnly usersRepository;
+        readonly IUsersRepository usersRepository;
 
-        public EnsureTeamCloudUserMiddleware(IUsersRepositoryReadOnly usersRepository)
+        public EnsureTeamCloudUserMiddleware(IUsersRepository usersRepository)
         {
             this.usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
         }

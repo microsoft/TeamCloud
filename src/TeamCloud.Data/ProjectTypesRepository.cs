@@ -10,7 +10,7 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Data
 {
-    public interface IProjectTypesRepositoryReadOnly
+    public interface IProjectTypesRepository
     {
         Task<ProjectType> GetAsync(string id);
 
@@ -19,10 +19,7 @@ namespace TeamCloud.Data
         Task<int> GetInstanceCountAsync(string id, Guid? subscriptionId = null);
 
         Task<ProjectType> GetDefaultAsync();
-    }
 
-    public interface IProjectTypesRepository : IProjectTypesRepositoryReadOnly
-    {
         Task<ProjectType> AddAsync(ProjectType projectType);
 
         Task<ProjectType> SetAsync(ProjectType projectType);

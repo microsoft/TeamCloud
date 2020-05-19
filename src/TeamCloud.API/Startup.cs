@@ -115,10 +115,10 @@ namespace TeamCloud.API
 
             services
                 .AddSingleton<IHttpContextAccessor, HttpContextAccessor>()
-                .AddSingleton<IUsersRepositoryReadOnly, CosmosDbUsersRepository>()
-                .AddSingleton<IProjectsRepositoryReadOnly, CosmosDbProjectsRepository>()
-                .AddSingleton<ITeamCloudRepositoryReadOnly, CosmosDbTeamCloudRepository>()
-                .AddSingleton<IProjectTypesRepositoryReadOnly, CosmosDbProjectTypesRepository>()
+                .AddSingleton<IUsersRepository, CosmosDbUsersRepository>()
+                .AddSingleton<IProjectsRepository, CosmosDbProjectsRepository>()
+                .AddSingleton<ITeamCloudRepository, CosmosDbTeamCloudRepository>()
+                .AddSingleton<IProjectTypesRepository, CosmosDbProjectTypesRepository>()
                 .AddSingleton<IClientErrorFactory, ClientErrorFactory>()
                 .AddSingleton<Orchestrator>()
                 .AddSingleton<UserService>()
@@ -290,7 +290,7 @@ namespace TeamCloud.API
             var claims = new List<Claim>();
 
             var usersRepository = httpContext.RequestServices
-                .GetRequiredService<IUsersRepositoryReadOnly>();
+                .GetRequiredService<IUsersRepository>();
 
             var user = await usersRepository
                 .GetAsync(userId)

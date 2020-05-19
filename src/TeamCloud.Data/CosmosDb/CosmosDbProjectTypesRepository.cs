@@ -18,9 +18,9 @@ namespace TeamCloud.Data.CosmosDb
 
     public class CosmosDbProjectTypesRepository : CosmosDbBaseRepository<ProjectType>, IProjectTypesRepository
     {
-        private readonly IProjectsRepositoryReadOnly projectRepository;
+        private readonly IProjectsRepository projectRepository;
 
-        public CosmosDbProjectTypesRepository(ICosmosDbOptions cosmosOptions, IProjectsRepositoryReadOnly projectRepository)
+        public CosmosDbProjectTypesRepository(ICosmosDbOptions cosmosOptions, IProjectsRepository projectRepository)
             : base(cosmosOptions)
         {
             this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));

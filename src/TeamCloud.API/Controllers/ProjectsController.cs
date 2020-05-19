@@ -29,17 +29,15 @@ namespace TeamCloud.API.Controllers
     {
         readonly UserService userService;
         readonly Orchestrator orchestrator;
-        readonly IProjectsRepositoryReadOnly projectsRepository;
-        readonly IProjectTypesRepositoryReadOnly projectTypesRepository;
-        readonly IUsersRepositoryReadOnly usersRepository;
+        readonly IProjectsRepository projectsRepository;
+        readonly IProjectTypesRepository projectTypesRepository;
 
-        public ProjectsController(UserService userService, Orchestrator orchestrator, IProjectsRepositoryReadOnly projectsRepository, IProjectTypesRepositoryReadOnly projectTypesRepository, IUsersRepositoryReadOnly usersRepository)
+        public ProjectsController(UserService userService, Orchestrator orchestrator, IProjectsRepository projectsRepository, IProjectTypesRepository projectTypesRepository)
         {
             this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
             this.orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
             this.projectsRepository = projectsRepository ?? throw new ArgumentNullException(nameof(projectsRepository));
             this.projectTypesRepository = projectTypesRepository ?? throw new ArgumentNullException(nameof(projectTypesRepository));
-            this.usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
         }
 
         private async Task<List<User>> ResolveUsersAsync(ProjectDefinition projectDefinition, Guid projectId)
