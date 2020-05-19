@@ -83,5 +83,19 @@ namespace TeamCloud.API
             => !result.RuntimeStatus.IsFinal() && result.Links.TryGetValue("status", out var statusUrl)
                ? new AcceptedResult(statusUrl, result)
                : new OkObjectResult(result) as IActionResult;
+
+        public static bool RequiresAdminUserSet(this HttpRequest httpRequest)
+        {
+            if (httpRequest.IsAdminUserPost() || httpRequest.IsSwaggerGet())
+                return false;
+
+            return true;
+        }
+
+        public static bool IsSwaggerGet(this HttpRequest httpRequest)
+            => httpRequest.Path.StartsWithSegments("/swagger", StringComparison.OrdinalIgnoreCase) && HttpMethods.IsGet(httpRequest.Method);
+
+        public static bool IsAdminUserPost(this HttpRequest httpRequest)
+            => httpRequest.Path.StartsWithSegments("/api/admin/users", StringComparison.OrdinalIgnoreCase) && HttpMethods.IsPost(httpRequest.Method);
     }
 }
