@@ -3,6 +3,11 @@
 Release History
 ===============
 
+0.3.6
+++++++
+* Preview release
+* Help and linter fixes
+
 0.3.5
 ++++++
 * Preview release
