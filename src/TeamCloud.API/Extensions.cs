@@ -84,16 +84,18 @@ namespace TeamCloud.API
                ? new AcceptedResult(statusUrl, result)
                : new OkObjectResult(result) as IActionResult;
 
-        public static bool IsAdmin(this User user)
-            => !string.IsNullOrEmpty(user.Role) && user.Role.ToUpperInvariant() == UserRoles.TeamCloud.Admin.ToUpperInvariant();
+        public static bool RequiresAdminUserSet(this HttpRequest httpRequest)
+        {
+            if (httpRequest.IsAdminUserPost() || httpRequest.IsSwaggerGet())
+                return false;
 
-        public static bool IsOwner(this User user)
-            => !string.IsNullOrEmpty(user.Role) && user.Role.ToUpperInvariant() == UserRoles.Project.Owner.ToUpperInvariant();
+            return true;
+        }
 
-        public static bool IsAdmin(this UserDefinition user)
-            => !string.IsNullOrEmpty(user.Role) && user.Role.ToUpperInvariant() == UserRoles.TeamCloud.Admin.ToUpperInvariant();
+        public static bool IsSwaggerGet(this HttpRequest httpRequest)
+            => httpRequest.Path.StartsWithSegments("/swagger", StringComparison.OrdinalIgnoreCase) && HttpMethods.IsGet(httpRequest.Method);
 
-        public static bool IsOwner(this UserDefinition user)
-            => !string.IsNullOrEmpty(user.Role) && user.Role.ToUpperInvariant() == UserRoles.Project.Owner.ToUpperInvariant();
+        public static bool IsAdminUserPost(this HttpRequest httpRequest)
+            => httpRequest.Path.StartsWithSegments("/api/admin/users", StringComparison.OrdinalIgnoreCase) && HttpMethods.IsPost(httpRequest.Method);
     }
 }

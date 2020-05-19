@@ -8,13 +8,10 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Data
 {
-    public interface ITeamCloudRepositoryReadOnly
+    public interface ITeamCloudRepository
     {
         Task<TeamCloudInstance> GetAsync();
-    }
 
-    public interface ITeamCloudRepository : ITeamCloudRepositoryReadOnly
-    {
         Task<TeamCloudInstance> SetAsync(TeamCloudInstance teamCloudInstance);
     }
 }

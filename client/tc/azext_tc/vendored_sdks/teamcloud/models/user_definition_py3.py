@@ -15,22 +15,22 @@ from msrest.serialization import Model
 class UserDefinition(Model):
     """UserDefinition.
 
-    :param email:
-    :type email: str
+    :param identifier:
+    :type identifier: str
     :param role:
     :type role: str
-    :param tags:
-    :type tags: dict[str, str]
+    :param properties:
+    :type properties: dict[str, str]
     """
 
     _attribute_map = {
-        'email': {'key': 'email', 'type': 'str'},
+        'identifier': {'key': 'identifier', 'type': 'str'},
         'role': {'key': 'role', 'type': 'str'},
-        'tags': {'key': 'tags', 'type': '{str}'},
+        'properties': {'key': 'properties', 'type': '{str}'},
     }
 
-    def __init__(self, *, email: str=None, role: str=None, tags=None, **kwargs) -> None:
+    def __init__(self, *, identifier: str=None, role: str=None, properties=None, **kwargs) -> None:
         super(UserDefinition, self).__init__(**kwargs)
-        self.email = email
+        self.identifier = identifier
         self.role = role
-        self.tags = tags
+        self.properties = properties

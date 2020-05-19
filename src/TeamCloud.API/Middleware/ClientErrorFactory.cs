@@ -6,7 +6,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
-using TeamCloud.API.Data;
+using TeamCloud.API.Data.Results;
 
 namespace TeamCloud.API.Middleware
 {

@@ -61,7 +61,6 @@ namespace TeamCloud.Orchestrator
 
             try
             {
-
                 switch (requestMessage)
                 {
                     case HttpRequestMessage msg when msg.Method == HttpMethod.Get:
@@ -87,7 +86,7 @@ namespace TeamCloud.Orchestrator
             {
                 log.LogError(exc, $"Processing request failed: {requestMessage.Method.ToString().ToUpperInvariant()} {requestMessage.RequestUri}");
 
-                throw; // re-throw exception and use the default InternalServerError behaviour 
+                throw; // re-throw exception and use the default InternalServerError behaviour
             }
 
             return actionResult;

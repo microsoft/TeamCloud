@@ -3,6 +3,7 @@
  *  Licensed under the MIT License.
  */
 
+using System;
 using System.Collections.Generic;
 using FluentValidation;
 using Newtonsoft.Json;
@@ -15,27 +16,36 @@ namespace TeamCloud.API.Data
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public sealed class UserDefinition
     {
-        public string Email { get; set; }
+        public string Identifier { get; set; }
 
         public string Role { get; set; }
 
-        public Dictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();
+        public Dictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
     }
 
-    public sealed class UserDefinitionValidator : AbstractValidator<UserDefinition>
+    public sealed class ProjectUserDefinitionValidator : AbstractValidator<UserDefinition>
     {
-        public UserDefinitionValidator()
+        public ProjectUserDefinitionValidator()
         {
-            RuleFor(obj => obj.Email).MustBeEmail();
-            RuleFor(obj => obj.Role).MustBeUserRole();
+            RuleFor(obj => obj.Identifier).MustBeEmail();
+            RuleFor(obj => obj.Role).MustBeProjectUserRole();
         }
     }
 
-    public sealed class UserDefinitionAdminValidator : AbstractValidator<UserDefinition>
+    public sealed class TeamCloudUserDefinitionValidator : AbstractValidator<UserDefinition>
     {
-        public UserDefinitionAdminValidator()
+        public TeamCloudUserDefinitionValidator()
         {
-            RuleFor(obj => obj.Email).MustBeEmail();
+            RuleFor(obj => obj.Identifier).MustBeEmail();
+            RuleFor(obj => obj.Role).MustBeTeamCloudUserRole();
+        }
+    }
+
+    public sealed class TeamCloudUserDefinitionAdminValidator : AbstractValidator<UserDefinition>
+    {
+        public TeamCloudUserDefinitionAdminValidator()
+        {
+            RuleFor(obj => obj.Identifier).MustBeEmail();
             RuleFor(obj => obj.Role)
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .NotEmpty()
@@ -44,6 +54,8 @@ namespace TeamCloud.API.Data
         }
 
         private static bool BeAdminUserRole(string role)
-            => !string.IsNullOrEmpty(role) && role.ToUpperInvariant() == UserRoles.TeamCloud.Admin.ToUpperInvariant();
+            => !string.IsNullOrEmpty(role)
+            && Enum.TryParse<TeamCloudUserRole>(role, true, out var tcRole)
+            && tcRole == TeamCloudUserRole.Admin;
     }
 }

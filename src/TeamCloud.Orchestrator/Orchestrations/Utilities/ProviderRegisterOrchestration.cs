@@ -52,12 +52,12 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
             {
                 if (command is null)
                 {
-                    // no command was given !!! 
+                    // no command was given !!!
                     // restart the orchestration
-                    // with a new command instance. 
+                    // with a new command instance.
 
                     var systemUser = await functionContext
-                        .CallActivityWithRetryAsync<User>(nameof(TeamCloudUserActivity), null)
+                        .CallActivityWithRetryAsync<User>(nameof(TeamCloudSystemUserActivity), null)
                         .ConfigureAwait(true);
 
                     functionContext
@@ -65,9 +65,9 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                 }
                 else if (provider is null)
                 {
-                    // no provider was given !!! 
+                    // no provider was given !!!
                     // fan out registration with
-                    // one orchestration per provider. 
+                    // one orchestration per provider.
 
                     functionContext.SetCustomStatus($"Register providers ...", log);
 

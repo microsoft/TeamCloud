@@ -1,4 +1,4 @@
-﻿/**
+/**
  *  Copyright (c) Microsoft Corporation.
  *  Licensed under the MIT License.
  */
@@ -12,11 +12,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TeamCloud.API.Data;
+using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
-using TeamCloud.Model.Validation.Data;
 
 namespace TeamCloud.API.Controllers
 {
@@ -27,13 +27,13 @@ namespace TeamCloud.API.Controllers
     {
         readonly UserService userService;
         readonly Orchestrator orchestrator;
-        readonly IProjectsRepositoryReadOnly projectsRepository;
+        readonly IUsersRepository usersRepository;
 
-        public ProjectUsersController(UserService userService, Orchestrator orchestrator, IProjectsRepositoryReadOnly projectsRepository)
+        public ProjectUsersController(UserService userService, Orchestrator orchestrator, IUsersRepository usersRepository)
         {
             this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
             this.orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
-            this.projectsRepository = projectsRepository ?? throw new ArgumentNullException(nameof(projectsRepository));
+            this.usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
         }
 
         public Guid? ProjectId
@@ -42,21 +42,15 @@ namespace TeamCloud.API.Controllers
             {
                 var projectId = RouteData.Values.GetValueOrDefault(nameof(ProjectId), StringComparison.OrdinalIgnoreCase)?.ToString();
 
-                return (string.IsNullOrEmpty(projectId) ? null : (Guid?)Guid.Parse(projectId));
+                return string.IsNullOrEmpty(projectId) ? null : (Guid?)Guid.Parse(projectId);
             }
         }
-
-        private User CurrentUser => new User()
-        {
-            Id = userService.CurrentUserId,
-            Role = UserRoles.Project.Owner
-        };
 
 
         [HttpGet]
         [Authorize(Policy = "projectRead")]
         [SwaggerOperation(OperationId = "GetProjectUsers", Summary = "Gets all Users for a Project.")]
-        [SwaggerResponse(StatusCodes.Status200OK, "Returns all Project Users", typeof(DataResult<List<User>>))]
+        [SwaggerResponse(StatusCodes.Status200OK, "Returns all Project Users", typeof(DataResult<List<ProjectUser>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "The projectId provided in the path was invalid.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Get()
@@ -66,19 +60,18 @@ namespace TeamCloud.API.Controllers
                     .BadRequest($"Project Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCode.ValidationError)
                     .ActionResult();
 
-            var project = await projectsRepository
-                .GetAsync(ProjectId.Value)
+            var projectId = ProjectId.Value;
+
+            var users = await usersRepository
+                .ListAsync(projectId)
+                .ToListAsync()
                 .ConfigureAwait(false);
 
-            if (project is null)
-                return ErrorResult
-                    .NotFound($"A Project with the ID '{ProjectId.Value}' could not be found in this TeamCloud Instance")
-                    .ActionResult();
+            var projectUsers = (users ?? new List<User>())
+                .Select(u => new ProjectUser(u, projectId));
 
-            var users = project?.Users ?? new List<User>();
-
-            return DataResult<List<User>>
-                .Ok(users.ToList())
+            return DataResult<List<ProjectUser>>
+                .Ok(projectUsers.ToList())
                 .ActionResult();
         }
 
@@ -86,7 +79,7 @@ namespace TeamCloud.API.Controllers
         [HttpGet("{userNameOrId:userNameOrId}")]
         [Authorize(Policy = "projectRead")]
         [SwaggerOperation(OperationId = "GetProjectUserByNameOrId", Summary = "Gets a Project User by ID or email address.")]
-        [SwaggerResponse(StatusCodes.Status200OK, "Returns Project User", typeof(DataResult<User>))]
+        [SwaggerResponse(StatusCodes.Status200OK, "Returns Project User", typeof(DataResult<ProjectUser>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "The projectId provided in the path was invalid.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a User with the provided identifier was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Get([FromRoute] string userNameOrId)
@@ -96,45 +89,38 @@ namespace TeamCloud.API.Controllers
                     .BadRequest($"Project Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCode.ValidationError)
                     .ActionResult();
 
+            var projectId = ProjectId.Value;
+
             if (string.IsNullOrWhiteSpace(userNameOrId))
                 return ErrorResult
                     .BadRequest($"The identifier '{userNameOrId}' provided in the url path is invalid.  Must be a valid email address or GUID.", ResultErrorCode.ValidationError)
                     .ActionResult();
 
-            var project = await projectsRepository
-                .GetAsync(ProjectId.Value)
+            var userId = await userService
+                .GetUserIdAsync(userNameOrId)
                 .ConfigureAwait(false);
 
-            if (project is null)
+            if (!userId.HasValue || userId.Value == Guid.Empty)
                 return ErrorResult
-                    .NotFound($"A Project with the ID '{ProjectId.Value}' could not be found in this TeamCloud Instance.")
+                    .NotFound($"The user '{userNameOrId}' could not be found.")
                     .ActionResult();
 
-            if (!Guid.TryParse(userNameOrId, out var userId))
-            {
-                var idLookup = await userService
-                    .GetUserIdAsync(userNameOrId)
-                    .ConfigureAwait(false);
+            var user = await usersRepository
+                .GetAsync(userId.Value)
+                .ConfigureAwait(false);
 
-                if (!idLookup.HasValue || idLookup.Value == Guid.Empty)
-                    return ErrorResult
-                        .NotFound($"A User with the email '{userNameOrId}' could not be found.")
-                        .ActionResult();
-
-                userId = idLookup.Value;
-            }
-
-            var user = project?.Users?.FirstOrDefault(u => u.Id == userId);
-
-            if (user is null)
+            if (user is null || !user.IsMember(projectId))
                 return ErrorResult
                     .NotFound($"The specified User could not be found in this Project.")
                     .ActionResult();
 
-            return DataResult<User>
-                .Ok(user)
+            var projectUser = new ProjectUser(user, projectId);
+
+            return DataResult<ProjectUser>
+                .Ok(projectUser)
                 .ActionResult();
         }
+
 
         [HttpPost]
         [Authorize(Policy = "projectCreate")]
@@ -154,37 +140,36 @@ namespace TeamCloud.API.Controllers
                     .BadRequest($"Project Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCode.ValidationError)
                     .ActionResult();
 
-            var validation = new UserDefinitionValidator().Validate(userDefinition);
+            var projectId = ProjectId.Value;
+
+            var validation = new ProjectUserDefinitionValidator().Validate(userDefinition);
 
             if (!validation.IsValid)
                 return ErrorResult
                     .BadRequest(validation)
                     .ActionResult();
 
-            var project = await projectsRepository
-                .GetAsync(ProjectId.Value)
+            var user = await userService
+                .ResolveUserAsync(userDefinition)
                 .ConfigureAwait(false);
 
-            if (project is null)
+            if (user is null)
                 return ErrorResult
-                    .NotFound($"A Project with the ID '{ProjectId.Value}' could not be found in this TeamCloud Instance.")
+                    .NotFound($"The user '{userDefinition.Identifier}' could not be found.")
                     .ActionResult();
 
-            var newUser = await userService
-                .GetUserAsync(userDefinition)
+            if (user.IsMember(projectId))
+                return ErrorResult
+                    .Conflict($"The user '{userDefinition.Identifier}' already exists on this Project. Please try your request again with a unique user or call PUT to update the existing User.")
+                    .ActionResult();
+
+            user.EnsureProjectMembership(projectId, Enum.Parse<ProjectUserRole>(userDefinition.Role, true), userDefinition.Properties);
+
+            var currentUserForCommand = await userService
+                .CurrentUserAsync()
                 .ConfigureAwait(false);
 
-            if (newUser is null)
-                return ErrorResult
-                    .NotFound($"A User with the Email '{userDefinition.Email}' could not be found.")
-                    .ActionResult();
-
-            if (project.Users.Contains(newUser))
-                return ErrorResult
-                    .Conflict($"A User with the Email '{userDefinition.Email}' already exists on this Project. Please try your request again with a unique email or call PUT to update the existing User.")
-                    .ActionResult();
-
-            var command = new OrchestratorProjectUserCreateCommand(CurrentUser, newUser, project.Id);
+            var command = new OrchestratorProjectUserCreateCommand(currentUserForCommand, user, projectId);
 
             var commandResult = await orchestrator
                 .InvokeAsync(command)
@@ -197,7 +182,6 @@ namespace TeamCloud.API.Controllers
 
             throw new Exception("This shouldn't happen, but we need to decide to do when it does.");
         }
-
 
 
         [HttpPut]
@@ -207,7 +191,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts updating the Project UserProject. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "The projectId provided in the path was invalid, or the User provided in the request body did not pass validation.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a User with the ID provided in the request body was not found.", typeof(ErrorResult))]
-        public async Task<IActionResult> Put([FromBody] User user)
+        public async Task<IActionResult> Put([FromBody] ProjectUser user)
         {
             if (user is null)
                 throw new ArgumentNullException(nameof(user));
@@ -217,35 +201,56 @@ namespace TeamCloud.API.Controllers
                     .BadRequest($"Project Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCode.ValidationError)
                     .ActionResult();
 
-            var validation = new UserValidator().Validate(user);
+            var projectId = ProjectId.Value;
+
+            var validation = new ProjectUserValidator().Validate(user);
 
             if (!validation.IsValid)
                 return ErrorResult
                     .BadRequest(validation)
                     .ActionResult();
 
-            var project = await projectsRepository
-                .GetAsync(ProjectId.Value)
+            var oldUser = await usersRepository
+                .GetAsync(user.Id)
                 .ConfigureAwait(false);
 
-            if (project is null)
+            if (oldUser is null || !oldUser.IsMember(projectId))
                 return ErrorResult
-                    .NotFound($"A Project with the ID '{ProjectId.Value}' could not be found in this TeamCloud Instance.")
+                    .NotFound($"The user '{user.Id}' could not be found in this project.")
                     .ActionResult();
 
-            var oldUser = project?.Users?.FirstOrDefault(u => u.Id == user.Id);
+            if (oldUser.IsOwner(projectId) && !user.IsOwner())
+            {
+                var otherOwners = await usersRepository
+                    .ListOwnersAsync(projectId)
+                    .AnyAsync(o => o.Id != user.Id)
+                    .ConfigureAwait(false);
 
-            if (oldUser is null)
+                if (!otherOwners)
+                    return ErrorResult
+                        .BadRequest($"Projects must have at least one Owner. To change this user's role you must first add another Owner.", ResultErrorCode.ValidationError)
+                        .ActionResult();
+            }
+
+            var membership = new ProjectMembership
+            {
+                ProjectId = projectId,
+                Role = user.Role,
+                Properties = user.Properties
+            };
+
+            if (!oldUser.HasEqualMembership(membership))
                 return ErrorResult
-                    .NotFound($"A User with the ID '{oldUser.Id}' could not be found on this Project.")
+                    .BadRequest(new ValidationError { Field = "projectMemberships", Message = $"User's project memberships did not change." })
                     .ActionResult();
 
-            if (oldUser.IsOwner() && !user.IsOwner() && project.Users.Count(u => u.IsOwner()) == 1)
-                return ErrorResult
-                    .BadRequest($"Projects must have at least one Owner. To change this user's role you must first add another Owner.", ResultErrorCode.ValidationError)
-                    .ActionResult();
+            oldUser.EnsureProjectMembership(membership);
 
-            var command = new OrchestratorProjectUserUpdateCommand(CurrentUser, user, ProjectId.Value);
+            var currentUserForCommand = await userService
+                .CurrentUserAsync()
+                .ConfigureAwait(false);
+
+            var command = new OrchestratorProjectUserUpdateCommand(currentUserForCommand, oldUser, projectId);
 
             var commandResult = await orchestrator
                 .InvokeAsync(command)
@@ -260,61 +265,62 @@ namespace TeamCloud.API.Controllers
         }
 
 
-
         [HttpDelete("{userNameOrId:userNameOrId}")]
         [Authorize(Policy = "projectCreate")]
         [SwaggerOperation(OperationId = "DeleteProjectUser", Summary = "Deletes an existing Project User.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts deleting the Project User. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "The projectId provided in the path was invalid.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a User with the provided identifier was not found.", typeof(ErrorResult))]
-        public async Task<IActionResult> Delete([FromRoute]string userNameOrId)
+        public async Task<IActionResult> Delete([FromRoute] string userNameOrId)
         {
             if (!ProjectId.HasValue)
                 return ErrorResult
                     .BadRequest($"Project Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCode.ValidationError)
                     .ActionResult();
 
+            var projectId = ProjectId.Value;
+
             if (string.IsNullOrWhiteSpace(userNameOrId))
                 return ErrorResult
                     .BadRequest($"The identifier '{userNameOrId}' provided in the url path is invalid.  Must be a valid email address or GUID.", ResultErrorCode.ValidationError)
                     .ActionResult();
 
-            var project = await projectsRepository
-                .GetAsync(ProjectId.Value)
+            var userId = await userService
+                .GetUserIdAsync(userNameOrId)
                 .ConfigureAwait(false);
 
-            if (project is null)
+            if (!userId.HasValue || userId.Value == Guid.Empty)
                 return ErrorResult
-                    .NotFound($"A Project with the ID '{ProjectId.Value}' could not be found in this TeamCloud Instance.")
+                    .NotFound($"The user '{userNameOrId}' could not be found.")
                     .ActionResult();
 
-            if (!Guid.TryParse(userNameOrId, out var userId))
-            {
-                var idLookup = await userService
-                    .GetUserIdAsync(userNameOrId)
-                    .ConfigureAwait(false);
+            var user = await usersRepository
+                .GetAsync(userId.Value)
+                .ConfigureAwait(false);
 
-                if (!idLookup.HasValue || idLookup.Value == Guid.Empty)
-                    return ErrorResult
-                        .NotFound($"A User with the email '{userNameOrId}' could not be found.")
-                        .ActionResult();
-
-                userId = idLookup.Value;
-            }
-
-            var user = project?.Users?.FirstOrDefault(u => u.Id == userId);
-
-            if (user is null)
+            if (user is null || !user.IsMember(projectId))
                 return ErrorResult
                     .NotFound($"The specified User could not be found in this Project.")
                     .ActionResult();
 
-            if (user.IsOwner() && project.Users.Count(u => u.IsOwner()) == 1)
-                return ErrorResult
-                    .BadRequest($"Projects must have at least one Owner. To delete this user you must first add another Owner.", ResultErrorCode.ValidationError)
-                    .ActionResult();
+            if (user.IsOwner(projectId))
+            {
+                var otherOwners = await usersRepository
+                    .ListOwnersAsync(projectId)
+                    .AnyAsync(o => o.Id != userId)
+                    .ConfigureAwait(false);
 
-            var command = new OrchestratorProjectUserDeleteCommand(CurrentUser, user, ProjectId.Value);
+                if (!otherOwners)
+                    return ErrorResult
+                        .BadRequest($"Projects must have at least one Owner. To delete this user you must first add another Owner.", ResultErrorCode.ValidationError)
+                        .ActionResult();
+            }
+
+            var currentUserForCommand = await userService
+                .CurrentUserAsync()
+                .ConfigureAwait(false);
+
+            var command = new OrchestratorProjectUserDeleteCommand(currentUserForCommand, user, projectId);
 
             var commandResult = await orchestrator
                 .InvokeAsync(command)

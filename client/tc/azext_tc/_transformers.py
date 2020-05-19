@@ -54,8 +54,11 @@ def transform_user_table_output(result):
     for item in result:
         resultList.append(OrderedDict([
             ('User ID', item['id']),
+            ('Type', item['userType']),
             ('Role', item['role']),
-            ('Tags', str(item['tags']))
+            ('Project Memberships', '\n'.join([p['projectId']
+                                               for p in item['projectMemberships']])),
+            ('Properties', str(item['properties']))
         ]))
 
     return resultList

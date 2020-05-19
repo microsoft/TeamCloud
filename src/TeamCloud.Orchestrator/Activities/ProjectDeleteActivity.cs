@@ -15,12 +15,10 @@ namespace TeamCloud.Orchestrator.Activities
     public class ProjectDeleteActivity
     {
         private readonly IProjectsRepository projectsRepository;
-        private readonly ITeamCloudRepository teamCloudRepository;
 
-        public ProjectDeleteActivity(ITeamCloudRepository teamCloudRepository, IProjectsRepository projectsRepository)
+        public ProjectDeleteActivity(IProjectsRepository projectsRepository)
         {
             this.projectsRepository = projectsRepository ?? throw new ArgumentNullException(nameof(projectsRepository));
-            this.teamCloudRepository = teamCloudRepository ?? throw new ArgumentNullException(nameof(teamCloudRepository));
         }
 
         [FunctionName(nameof(ProjectDeleteActivity))]

@@ -11,7 +11,7 @@ from azure.cli.core.commands.parameters import (
     tags_type, get_enum_type, get_location_type, resource_group_name_type)
 
 from ._validators import (
-    project_name_validator, project_name_or_id_validator, user_name_validator, user_name_or_id_validator,
+    project_name_validator, project_name_or_id_validator, user_name_or_id_validator,
     tracking_id_validator, project_type_id_validator, project_type_id_validator_name, provider_id_validator,
     subscriptions_list_validator, provider_event_list_validator, url_validator, base_url_validator,
     teamcloud_source_version_validator, providers_source_version_validator, auth_code_validator, properties_validator)
@@ -32,11 +32,6 @@ def load_arguments(self, _):
              'to configure a default.',
         configured_default='tc-base-url',
         validator=base_url_validator)
-
-    user_name_type = CLIArgumentType(
-        options_list=['--name', '-n'],
-        help='User email.',
-        validator=user_name_validator)
 
     user_name_or_id_type = CLIArgumentType(
         options_list=['--name', '-n'],
@@ -116,12 +111,11 @@ def load_arguments(self, _):
     # TeamCloud Users
 
     with self.argument_context('tc user create') as c:
-        c.argument('user_name', user_name_type)
-        c.argument('user_role', get_enum_type(['Admin', 'Creator'], default='Creator'),
+        c.argument('role', get_enum_type(['None', 'Creator', 'Admin'], default='Creator'),
                    options_list=['--role', '-r'], help='User role.')
-        c.argument('tags', tags_type)
+        c.argument('properties', properties_type)
 
-    for scope in ['tc user show', 'tc user delete']:
+    for scope in ['tc user create', 'tc user show', 'tc user delete']:
         with self.argument_context(scope) as c:
             c.argument('user', user_name_or_id_type)
 
@@ -149,12 +143,11 @@ def load_arguments(self, _):
         c.argument('project', project_name_or_id_type)
 
     with self.argument_context('tc project user create') as c:
-        c.argument('user_name', user_name_type)
-        c.argument('user_role', get_enum_type(['Owner', 'Member'], default='Member'),
+        c.argument('role', get_enum_type(['None', 'Member', 'Owner'], default='Member'),
                    options_list=['--role', '-r'], help='User role.')
-        c.argument('tags', tags_type)
+        c.argument('properties', properties_type)
 
-    for scope in ['tc project user show', 'tc project user delete']:
+    for scope in ['tc project user create', 'tc project user show', 'tc project user delete']:
         with self.argument_context(scope) as c:
             c.argument('user', user_name_or_id_type)
 

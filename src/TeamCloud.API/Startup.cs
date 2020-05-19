@@ -64,10 +64,8 @@ namespace TeamCloud.API
                    .UseHttpsRedirection();
             }
 
-            app.UseWhen(context => !(context.Request.Path.StartsWithSegments("/api/admin/users", StringComparison.OrdinalIgnoreCase)
-                                     && HttpMethods.IsPost(context.Request.Method)), appBuilder =>
+            app.UseWhen(context => context.Request.RequiresAdminUserSet(), appBuilder =>
             {
-                // ensure TeamCloud to be configured for all paths other than /api/admin/users
                 appBuilder.UseMiddleware<EnsureTeamCloudUserMiddleware>();
             });
 
@@ -117,9 +115,10 @@ namespace TeamCloud.API
 
             services
                 .AddSingleton<IHttpContextAccessor, HttpContextAccessor>()
-                .AddSingleton<IProjectsRepositoryReadOnly, CosmosDbProjectsRepository>()
-                .AddSingleton<ITeamCloudRepositoryReadOnly, CosmosDbTeamCloudRepository>()
-                .AddSingleton<IProjectTypesRepositoryReadOnly, CosmosDbProjectTypesRepository>()
+                .AddSingleton<IUsersRepository, CosmosDbUsersRepository>()
+                .AddSingleton<IProjectsRepository, CosmosDbProjectsRepository>()
+                .AddSingleton<ITeamCloudRepository, CosmosDbTeamCloudRepository>()
+                .AddSingleton<IProjectTypesRepository, CosmosDbProjectTypesRepository>()
                 .AddSingleton<IClientErrorFactory, ClientErrorFactory>()
                 .AddSingleton<Orchestrator>()
                 .AddSingleton<UserService>()
@@ -262,46 +261,42 @@ namespace TeamCloud.API
 
                     options.AddPolicy("admin", policy =>
                     {
-                        policy.RequireRole(UserRoles.TeamCloud.Admin);
+                        policy.RequireRole(TeamCloudUserRole.Admin.PolicyRoleName());
                     });
 
                     options.AddPolicy("projectCreate", policy =>
                     {
-                        policy.RequireRole(UserRoles.TeamCloud.Admin, UserRoles.TeamCloud.Creator);
+                        policy.RequireRole(TeamCloudUserRole.Admin.PolicyRoleName(),
+                                           TeamCloudUserRole.Creator.PolicyRoleName());
                     });
 
                     options.AddPolicy("projectRead", policy =>
                     {
-                        policy.RequireRole(UserRoles.TeamCloud.Admin, UserRoles.Project.Owner, UserRoles.Project.Member);
+                        policy.RequireRole(TeamCloudUserRole.Admin.PolicyRoleName(),
+                                           ProjectUserRole.Owner.PolicyRoleName(),
+                                           ProjectUserRole.Member.PolicyRoleName());
                     });
 
                     options.AddPolicy("projectDelete", policy =>
                     {
-                        policy.RequireRole(UserRoles.TeamCloud.Admin, UserRoles.Project.Owner);
+                        policy.RequireRole(TeamCloudUserRole.Admin.PolicyRoleName(),
+                                           ProjectUserRole.Owner.PolicyRoleName());
                     });
                 });
         }
 
         private static async Task<IEnumerable<Claim>> ResolveClaimsAsync(Guid userId, HttpContext httpContext)
         {
-            // TODO: Try to cache this so every API call doesn't perform two DB calls
-
             var claims = new List<Claim>();
 
-            var teamCloudRepository = httpContext.RequestServices
-                .GetRequiredService<ITeamCloudRepositoryReadOnly>();
+            var usersRepository = httpContext.RequestServices
+                .GetRequiredService<IUsersRepository>();
 
-            var teamCloudInstance = await teamCloudRepository
-                .GetAsync()
+            var user = await usersRepository
+                .GetAsync(userId)
                 .ConfigureAwait(false);
 
-            var teamCloudClaims = teamCloudInstance?.Users?
-                .Where(u => u.Id.Equals(userId))
-                .Select(u => new Claim(ClaimTypes.Role, u.Role));
-
-            if (teamCloudClaims != null)
-                claims.AddRange(teamCloudClaims);
-
+            claims.Add(new Claim(ClaimTypes.Role, user.Role.PolicyRoleName()));
 
             if (httpContext.Request.Path.StartsWithSegments("/api/projects", StringComparison.OrdinalIgnoreCase))
             {
@@ -309,21 +304,7 @@ namespace TeamCloud.API
                     .Values.GetValueOrDefault("ProjectId", StringComparison.OrdinalIgnoreCase)?.ToString();
 
                 if (Guid.TryParse(projectIdRouteValue, out Guid projectId))
-                {
-                    var projectRepository = httpContext.RequestServices
-                        .GetRequiredService<IProjectsRepositoryReadOnly>();
-
-                    var project = await projectRepository
-                        .GetAsync(projectId)
-                        .ConfigureAwait(false);
-
-                    var projectClaims = project?.Users?
-                        .Where(u => u.Id == userId)
-                        .Select(u => new Claim(ClaimTypes.Role, u.Role));
-
-                    if (projectClaims != null)
-                        claims.AddRange(projectClaims);
-                }
+                    claims.Add(new Claim(ClaimTypes.Role, user.RoleFor(projectId).PolicyRoleName()));
             }
 
             return claims;

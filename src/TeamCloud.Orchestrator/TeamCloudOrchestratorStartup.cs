@@ -69,12 +69,10 @@ namespace TeamCloud.Orchestrator
             }
 
             builder.Services
+                .AddSingleton<IUsersRepository, CosmosDbUsersRepository>()
                 .AddSingleton<IProjectsRepository, CosmosDbProjectsRepository>()
-                .AddTransient<IProjectsRepositoryReadOnly>(provider => provider.GetRequiredService<IProjectsRepository>())
                 .AddSingleton<ITeamCloudRepository, CosmosDbTeamCloudRepository>()
-                .AddTransient<ITeamCloudRepositoryReadOnly>(provider => provider.GetRequiredService<ITeamCloudRepository>())
-                .AddSingleton<IProjectTypesRepository, CosmosDbProjectTypesRepository>()
-                .AddTransient<IProjectTypesRepositoryReadOnly>(provider => provider.GetRequiredService<IProjectTypesRepository>());
+                .AddSingleton<IProjectTypesRepository, CosmosDbProjectTypesRepository>();
 
             builder.Services
                 .AddTeamCloudAzure(configuration =>

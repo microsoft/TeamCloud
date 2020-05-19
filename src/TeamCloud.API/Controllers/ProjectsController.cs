@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TeamCloud.API.Data;
+using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands;
@@ -28,11 +29,10 @@ namespace TeamCloud.API.Controllers
     {
         readonly UserService userService;
         readonly Orchestrator orchestrator;
-        readonly IProjectsRepositoryReadOnly projectsRepository;
-        readonly IProjectTypesRepositoryReadOnly projectTypesRepository;
+        readonly IProjectsRepository projectsRepository;
+        readonly IProjectTypesRepository projectTypesRepository;
 
-
-        public ProjectsController(UserService userService, Orchestrator orchestrator, IProjectsRepositoryReadOnly projectsRepository, IProjectTypesRepositoryReadOnly projectTypesRepository)
+        public ProjectsController(UserService userService, Orchestrator orchestrator, IProjectsRepository projectsRepository, IProjectTypesRepository projectTypesRepository)
         {
             this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
             this.orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
@@ -40,36 +40,40 @@ namespace TeamCloud.API.Controllers
             this.projectTypesRepository = projectTypesRepository ?? throw new ArgumentNullException(nameof(projectTypesRepository));
         }
 
-        private User CurrentUser => new User()
+        private async Task<List<User>> ResolveUsersAsync(ProjectDefinition projectDefinition, Guid projectId)
         {
-            Id = userService.CurrentUserId,
-            Role = UserRoles.Project.Owner
-        };
+            var users = new List<User>();
 
-        private async Task<List<User>> ResolveUsersAsync(ProjectDefinition projectDefinition)
-        {
-            if (projectDefinition.Users is null || !projectDefinition.Users.Any())
-                return new List<User> { CurrentUser };
+            if (projectDefinition.Users?.Any() ?? false)
+            {
+                var tasks = projectDefinition.Users.Select(user => ResolveUserAndEnsureMembershipAsync(user, projectId));
+                users = (await Task.WhenAll(tasks).ConfigureAwait(false)).ToList();
+            }
 
-            var tasks = projectDefinition.Users.Select(user => userService.GetUserAsync(user));
-            var users = await Task.WhenAll(tasks).ConfigureAwait(false);
-            var owners = users.Where(user => user.Role == UserRoles.Project.Owner);
+            if (!users.Any(u => u.Id == userService.CurrentUserId))
+            {
+                var currentUser = await userService
+                    .CurrentUserAsync()
+                    .ConfigureAwait(false);
 
-            var filteredUsers = users
-                .Where(user => user.Role == UserRoles.Project.Member)
-                .Except(owners, new UserComparer()) // filter out owners
-                .Union(owners) // union members and owners
-                .ToList();
+                currentUser.EnsureProjectMembership(projectId, ProjectUserRole.Owner);
 
-            // ensure current user and owner role
-            var currentUser = filteredUsers.FirstOrDefault(u => u.Id.Equals(CurrentUser.Id));
+                users.Add(currentUser);
+            }
 
-            if (currentUser is null)
-                filteredUsers.Add(CurrentUser);
-            else if (currentUser.Role != UserRoles.Project.Owner)
-                currentUser.Role = UserRoles.Project.Owner;
+            return users;
 
-            return filteredUsers;
+            async Task<User> ResolveUserAndEnsureMembershipAsync(UserDefinition userDefinition, Guid projectId)
+            {
+                var user = await userService
+                    .ResolveUserAsync(userDefinition)
+                    .ConfigureAwait(false);
+
+                var role = user.Id == userService.CurrentUserId ? ProjectUserRole.Owner : Enum.Parse<ProjectUserRole>(userDefinition.Role, true);
+                user.EnsureProjectMembership(projectId, role, userDefinition.Properties);
+
+                return user;
+            }
         }
 
 
@@ -102,20 +106,9 @@ namespace TeamCloud.API.Controllers
                     .BadRequest($"The identifier '{projectNameOrId}' provided in the url path is invalid.  Must be a valid project name or GUID.", ResultErrorCode.ValidationError)
                     .ActionResult();
 
-            Project project;
-
-            if (Guid.TryParse(projectNameOrId, out var projectId))
-            {
-                project = await projectsRepository
-                    .GetAsync(projectId)
-                    .ConfigureAwait(false);
-            }
-            else
-            {
-                project = await projectsRepository
-                    .GetAsync(projectNameOrId)
-                    .ConfigureAwait(false);
-            }
+            var project = await projectsRepository
+                .GetAsync(projectNameOrId)
+                .ConfigureAwait(false);
 
             if (project is null)
                 return ErrorResult
@@ -147,9 +140,6 @@ namespace TeamCloud.API.Controllers
                     .BadRequest(validation)
                     .ActionResult();
 
-            var users = await ResolveUsersAsync(projectDefinition)
-                .ConfigureAwait(false);
-
             var nameExists = await projectsRepository
                 .NameExistsAsync(projectDefinition.Name)
                 .ConfigureAwait(false);
@@ -159,9 +149,14 @@ namespace TeamCloud.API.Controllers
                     .Conflict($"A Project with name '{projectDefinition.Name}' already exists. Project names must be unique. Please try your request again with a unique name.")
                     .ActionResult();
 
+            var projectId = Guid.NewGuid();
+
+            var users = await ResolveUsersAsync(projectDefinition, projectId)
+                .ConfigureAwait(false);
+
             var project = new Project
             {
-                Id = Guid.NewGuid(),
+                Id = projectId,
                 Users = users,
                 Name = projectDefinition.Name,
                 Tags = projectDefinition.Tags
@@ -190,7 +185,9 @@ namespace TeamCloud.API.Controllers
                         .ActionResult();
             }
 
-            var command = new OrchestratorProjectCreateCommand(CurrentUser, project);
+            var currentUserForCommand = users.FirstOrDefault(u => u.Id == userService.CurrentUserId);
+
+            var command = new OrchestratorProjectCreateCommand(currentUserForCommand, project);
 
             var commandResult = await orchestrator
                 .InvokeAsync(command)
@@ -217,27 +214,20 @@ namespace TeamCloud.API.Controllers
                     .BadRequest($"The identifier '{projectNameOrId}' provided in the url path is invalid.  Must be a valid project name or GUID.", ResultErrorCode.ValidationError)
                     .ActionResult();
 
-            Project project;
-
-            if (Guid.TryParse(projectNameOrId, out var projectId))
-            {
-                project = await projectsRepository
-                    .GetAsync(projectId)
-                    .ConfigureAwait(false);
-            }
-            else
-            {
-                project = await projectsRepository
-                    .GetAsync(projectNameOrId)
-                    .ConfigureAwait(false);
-            }
+            var project = await projectsRepository
+                .GetAsync(projectNameOrId)
+                .ConfigureAwait(false);
 
             if (project is null)
                 return ErrorResult
                     .NotFound($"A Project with the identifier '{projectNameOrId}' could not be found in this TeamCloud Instance")
                     .ActionResult();
 
-            var command = new OrchestratorProjectDeleteCommand(CurrentUser, project);
+            var currentUserForCommand = await userService
+                .CurrentUserAsync()
+                .ConfigureAwait(false);
+
+            var command = new OrchestratorProjectDeleteCommand(currentUserForCommand, project);
 
             var commandResult = await orchestrator
                 .InvokeAsync(command)

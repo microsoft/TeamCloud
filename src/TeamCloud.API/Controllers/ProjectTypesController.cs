@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
-using TeamCloud.API.Data;
+using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
 using TeamCloud.Model.Data;
@@ -25,10 +25,10 @@ namespace TeamCloud.API.Controllers
     public class ProjectTypesController : ControllerBase
     {
         readonly Orchestrator orchestrator;
-        readonly ITeamCloudRepositoryReadOnly teamCloudRepository;
-        readonly IProjectTypesRepositoryReadOnly projectTypesRepository;
+        readonly ITeamCloudRepository teamCloudRepository;
+        readonly IProjectTypesRepository projectTypesRepository;
 
-        public ProjectTypesController(Orchestrator orchestrator, ITeamCloudRepositoryReadOnly teamCloudRepository, IProjectTypesRepositoryReadOnly projectTypesRepository)
+        public ProjectTypesController(Orchestrator orchestrator, ITeamCloudRepository teamCloudRepository, IProjectTypesRepository projectTypesRepository)
         {
             this.orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
             this.teamCloudRepository = teamCloudRepository ?? throw new ArgumentNullException(nameof(teamCloudRepository));

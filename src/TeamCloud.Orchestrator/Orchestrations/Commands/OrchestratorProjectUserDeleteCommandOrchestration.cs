@@ -16,7 +16,6 @@ using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Activities;
-using TeamCloud.Orchestrator.Entities;
 using TeamCloud.Orchestrator.Orchestrations.Utilities;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Commands
@@ -37,6 +36,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
             var command = functionContext.GetInput<OrchestratorProjectUserDeleteCommand>();
             var commandResult = command.CreateResult();
             var commandProject = default(Project);
+            var user = command.Payload;
 
             using (log.BeginCommandScope(command))
             {
@@ -44,26 +44,20 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 {
                     functionContext.SetCustomStatus($"Deleting user", log);
 
-                    using (await functionContext.LockAsync<Project>(command.ProjectId.ToString()).ConfigureAwait(true))
-                    {
-                        commandProject = await functionContext
-                            .GetProjectAsync(command.ProjectId.GetValueOrDefault())
-                            .ConfigureAwait(true);
+                    user = await functionContext
+                        .DeleteUserProjectMembershipAsync(user, commandProject.Id)
+                        .ConfigureAwait(true);
 
-                        if (commandProject.Users.Remove(command.Payload))
-                        {
-                            commandProject = await functionContext
-                                .SetProjectAsync(commandProject)
-                                .ConfigureAwait(true);
-                        }
-                    }
+                    commandProject = await functionContext
+                        .GetProjectAsync(command.ProjectId.GetValueOrDefault())
+                        .ConfigureAwait(true);
 
                     functionContext.SetCustomStatus("Sending commands", log);
 
                     var providerCommand = new ProviderProjectUserDeleteCommand
                     (
                         command.User,
-                        command.Payload,
+                        user,
                         commandProject.Id,
                         command.CommandId
                     );
@@ -95,7 +89,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                     else
                         functionContext.SetCustomStatus($"Command failed", log, commandException);
 
-                    commandResult.Result = command.Payload;
+                    commandResult.Result = user;
 
                     functionContext.SetOutput(commandResult);
                 }

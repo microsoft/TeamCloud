@@ -18,9 +18,9 @@ namespace TeamCloud.Data.CosmosDb
 
     public class CosmosDbProjectTypesRepository : CosmosDbBaseRepository<ProjectType>, IProjectTypesRepository
     {
-        private readonly IProjectsRepositoryReadOnly projectRepository;
+        private readonly IProjectsRepository projectRepository;
 
-        public CosmosDbProjectTypesRepository(ICosmosDbOptions cosmosOptions, IProjectsRepositoryReadOnly projectRepository)
+        public CosmosDbProjectTypesRepository(ICosmosDbOptions cosmosOptions, IProjectsRepository projectRepository)
             : base(cosmosOptions)
         {
             this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
@@ -102,7 +102,7 @@ namespace TeamCloud.Data.CosmosDb
                 .ConfigureAwait(false);
 
             var response = await container
-                .UpsertItemAsync<ProjectType>(projectType, new PartitionKey(Constants.CosmosDb.TenantName))
+                .UpsertItemAsync(projectType, new PartitionKey(Constants.CosmosDb.TenantName))
                 .ConfigureAwait(false);
 
             return response.Resource;
@@ -137,11 +137,18 @@ namespace TeamCloud.Data.CosmosDb
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
-            var response = await container
-                .DeleteItemAsync<ProjectType>(projectType.Id, new PartitionKey(Constants.CosmosDb.TenantName))
-                .ConfigureAwait(false);
+            try
+            {
+                var response = await container
+                    .DeleteItemAsync<ProjectType>(projectType.Id, new PartitionKey(Constants.CosmosDb.TenantName))
+                    .ConfigureAwait(false);
 
-            return response.Resource;
+                return response.Resource;
+            }
+            catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
+            {
+                return null; // already deleted
+            }
         }
     }
 }

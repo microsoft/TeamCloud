@@ -10,19 +10,18 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Data
 {
-    public interface IProjectsRepositoryReadOnly
+    public interface IProjectsRepository
     {
-        Task<Project> GetAsync(Guid id);
+        Task<Project> GetAsync(Guid id, bool populateUsers = true);
 
-        Task<Project> GetAsync(string name);
+        Task<Project> GetAsync(string nameOrId, bool populateUsers = true);
 
-        IAsyncEnumerable<Project> ListAsync(Guid? userId = null);
+        IAsyncEnumerable<Project> ListAsync(bool populateUsers = true);
+
+        IAsyncEnumerable<Project> ListAsync(IList<Guid> projectIds, bool populateUsers = true);
 
         Task<bool> NameExistsAsync(string name);
-    }
 
-    public interface IProjectsRepository : IProjectsRepositoryReadOnly
-    {
         Task<Project> AddAsync(Project project);
 
         Task<Project> SetAsync(Project project);

@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using TeamCloud.API.Data;
 using TeamCloud.Azure.Directory;
+using TeamCloud.Data;
+using TeamCloud.Model;
 using TeamCloud.Model.Data;
 
 namespace TeamCloud.API.Services
@@ -18,32 +20,43 @@ namespace TeamCloud.API.Services
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly IAzureDirectoryService azureDirectoryService;
         private readonly IMemoryCache cache;
+        readonly IUsersRepository usersRepository;
 
-        public UserService(IHttpContextAccessor httpContextAccessor, IAzureDirectoryService azureDirectoryService, IMemoryCache cache)
+        public UserService(IHttpContextAccessor httpContextAccessor, IAzureDirectoryService azureDirectoryService, IMemoryCache cache, IUsersRepository usersRepository)
         {
             this.httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             this.azureDirectoryService = azureDirectoryService ?? throw new ArgumentNullException(nameof(azureDirectoryService));
-            this.cache = cache;
+            this.cache = cache ?? throw new ArgumentNullException(nameof(cache));
+            this.usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
         }
 
         public Guid CurrentUserId
             => httpContextAccessor.HttpContext.User.GetObjectId();
+
+        public async Task<User> CurrentUserAsync()
+        {
+            var user = await usersRepository
+                .GetAsync(CurrentUserId)
+                .ConfigureAwait(false);
+
+            return user;
+        }
 
         public async Task<Guid?> GetUserIdAsync(string identifier)
         {
             if (string.IsNullOrWhiteSpace(identifier))
                 throw new ArgumentNullException(nameof(identifier));
 
-            // Generate unique key for this identifier
+            // handle passing in the id as a string
+            if (Guid.TryParse(identifier, out var userId))
+                return userId;
+
             string key = $"{nameof(UserService)}_{nameof(GetUserIdAsync)}_{identifier}";
 
-            // See if the cache has this key value
             if (!cache.TryGetValue(key, out Guid? val))
             {
-                // Key doesn't exist, query for UserID
                 val = await azureDirectoryService.GetUserIdAsync(identifier).ConfigureAwait(false);
 
-                // Set value to cache so long as it's a valid Guid
                 if (val.HasValue && val.Value != Guid.Empty)
                     cache.Set(key, val, TimeSpan.FromMinutes(5)); // Cached value only for certain amount of time
             }
@@ -51,22 +64,28 @@ namespace TeamCloud.API.Services
             return val;
         }
 
-        public async Task<User> GetUserAsync(UserDefinition userDefinition)
+        public async Task<User> ResolveUserAsync(UserDefinition userDefinition)
         {
             if (userDefinition is null)
                 throw new ArgumentNullException(nameof(userDefinition));
 
-            var userId = await GetUserIdAsync(userDefinition.Email)
+            var userId = await GetUserIdAsync(userDefinition.Identifier)
                 .ConfigureAwait(false);
 
-            if (!userId.HasValue) return null;
+            if (!userId.HasValue || userId.Value == Guid.Empty)
+                return null;
 
-            return new User
+            var user = await usersRepository
+                .GetAsync(userId.Value)
+                .ConfigureAwait(false);
+
+            user ??= new User
             {
                 Id = userId.Value,
-                Role = userDefinition.Role,
-                Tags = userDefinition.Tags
+                UserType = UserType.User
             };
+
+            return user;
         }
     }
 }

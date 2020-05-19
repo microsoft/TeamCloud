@@ -888,7 +888,7 @@ class TeamCloudClient(SDKClient):
         deserialized = None
 
         if response.status_code == 200:
-            deserialized = self._deserialize('UserListDataResult', response)
+            deserialized = self._deserialize('ProjectUserListDataResult', response)
         if response.status_code == 400:
             deserialized = self._deserialize('ErrorResult', response)
         if response.status_code == 404:
@@ -974,7 +974,7 @@ class TeamCloudClient(SDKClient):
         :param project_id:
         :type project_id: str
         :param body:
-        :type body: ~teamcloud.models.User
+        :type body: ~teamcloud.models.ProjectUser
         :param dict custom_headers: headers that will be added to the request
         :param bool raw: returns the direct response alongside the
          deserialized response
@@ -1004,7 +1004,7 @@ class TeamCloudClient(SDKClient):
 
         # Construct body
         if body is not None:
-            body_content = self._serialize.body(body, 'User')
+            body_content = self._serialize.body(body, 'ProjectUser')
         else:
             body_content = None
 
@@ -1076,7 +1076,7 @@ class TeamCloudClient(SDKClient):
         deserialized = None
 
         if response.status_code == 200:
-            deserialized = self._deserialize('UserDataResult', response)
+            deserialized = self._deserialize('ProjectUserDataResult', response)
         if response.status_code == 400:
             deserialized = self._deserialize('ErrorResult', response)
         if response.status_code == 404:

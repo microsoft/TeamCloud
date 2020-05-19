@@ -15,22 +15,46 @@ from msrest.serialization import Model
 class User(Model):
     """User.
 
+    Variables are only populated by the server, and will be ignored when
+    sending a request.
+
+    :param _etag:
+    :type _etag: str
+    :ivar partition_key:
+    :vartype partition_key: str
     :param id:
     :type id: str
-    :param role:
-    :type role: str
-    :param tags:
-    :type tags: dict[str, str]
+    :param user_type: Possible values include: 'User', 'System', 'Provider',
+     'Application'
+    :type user_type: str or ~teamcloud.models.enum
+    :param role: Possible values include: 'None', 'Creator', 'Admin'
+    :type role: str or ~teamcloud.models.enum
+    :param project_memberships:
+    :type project_memberships: list[~teamcloud.models.ProjectMembership]
+    :param properties:
+    :type properties: dict[str, str]
     """
 
-    _attribute_map = {
-        'id': {'key': 'id', 'type': 'str'},
-        'role': {'key': 'role', 'type': 'str'},
-        'tags': {'key': 'tags', 'type': '{str}'},
+    _validation = {
+        'partition_key': {'readonly': True},
     }
 
-    def __init__(self, *, id: str=None, role: str=None, tags=None, **kwargs) -> None:
+    _attribute_map = {
+        '_etag': {'key': '_etag', 'type': 'str'},
+        'partition_key': {'key': 'partitionKey', 'type': 'str'},
+        'id': {'key': 'id', 'type': 'str'},
+        'user_type': {'key': 'userType', 'type': 'str'},
+        'role': {'key': 'role', 'type': 'str'},
+        'project_memberships': {'key': 'projectMemberships', 'type': '[ProjectMembership]'},
+        'properties': {'key': 'properties', 'type': '{str}'},
+    }
+
+    def __init__(self, *, _etag: str=None, id: str=None, user_type=None, role=None, project_memberships=None, properties=None, **kwargs) -> None:
         super(User, self).__init__(**kwargs)
+        self._etag = _etag
+        self.partition_key = None
         self.id = id
+        self.user_type = user_type
         self.role = role
-        self.tags = tags
+        self.project_memberships = project_memberships
+        self.properties = properties

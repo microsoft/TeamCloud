@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TeamCloud.API.Data;
+using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands;
@@ -23,20 +24,14 @@ namespace TeamCloud.API.Controllers
     {
         readonly UserService userService;
         readonly Orchestrator orchestrator;
-        readonly ITeamCloudRepositoryReadOnly teamCloudRepository;
+        readonly IUsersRepository usersRepository;
 
-        public TeamCloudAdminController(UserService userService, Orchestrator orchestrator, ITeamCloudRepositoryReadOnly teamCloudRepository)
+        public TeamCloudAdminController(UserService userService, Orchestrator orchestrator, IUsersRepository usersRepository)
         {
             this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
             this.orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
-            this.teamCloudRepository = teamCloudRepository ?? throw new ArgumentNullException(nameof(teamCloudRepository));
+            this.usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
         }
-
-        private User CurrentUser => new User()
-        {
-            Id = userService.CurrentUserId,
-            Role = UserRoles.Project.Owner
-        };
 
 
         [HttpPost("api/admin/users")]
@@ -52,42 +47,44 @@ namespace TeamCloud.API.Controllers
             if (userDefinition is null)
                 throw new ArgumentNullException(nameof(userDefinition));
 
-            var validation = new UserDefinitionAdminValidator().Validate(userDefinition);
+            var validation = new TeamCloudUserDefinitionAdminValidator().Validate(userDefinition);
 
             if (!validation.IsValid)
                 return ErrorResult
                     .BadRequest(validation)
                     .ActionResult();
 
-            var teamCloudInstance = await teamCloudRepository
-                .GetAsync()
+            var adminUsers = await usersRepository
+                .ListAdminsAsync()
+                .AnyAsync()
                 .ConfigureAwait(false);
 
-            if (teamCloudInstance is null)
+            if (adminUsers)
                 return ErrorResult
-                    .NotFound($"No TeamCloud Instance was found.")
+                    .BadRequest($"The TeamCloud instance already has one or more Admin users. To add additional users to the TeamCloud instance POST to api/users.", ResultErrorCode.ValidationError)
                     .ActionResult();
 
-            if (teamCloudInstance.Users.Any(u => u.Role == UserRoles.TeamCloud.Admin))
-                return ErrorResult
-                    .BadRequest($"The TeamCloud instance already has an Admin user. To add additional users to the TeamCloud instance POST to api/users.", ResultErrorCode.ValidationError)
-                    .ActionResult();
-
-            var newUser = await userService
-                .GetUserAsync(userDefinition)
+            var userId = await userService
+                .GetUserIdAsync(userDefinition.Identifier)
                 .ConfigureAwait(false);
 
-            if (newUser is null)
+            if (!userId.HasValue || userId.Value == Guid.Empty)
                 return ErrorResult
-                    .NotFound($"A User with the Email '{userDefinition.Email}' could not be found.")
+                    .NotFound($"The user '{userDefinition.Identifier}' could not be found.")
                     .ActionResult();
 
-            if (teamCloudInstance.Users.Contains(newUser))
-                return ErrorResult
-                    .Conflict($"A User with the Email '{userDefinition.Email}' already exists on this TeamCloud Instance. Please try your request again with a unique email or call PUT to update the existing User.")
-                    .ActionResult();
+            var user = new User
+            {
+                Id = userId.Value,
+                Role = Enum.Parse<TeamCloudUserRole>(userDefinition.Role, true),
+                Properties = userDefinition.Properties,
+                UserType = UserType.User
+            };
 
-            var command = new OrchestratorTeamCloudUserCreateCommand(CurrentUser, newUser);
+            // no users exist in the database yet and the cli calls this api implicitly immediatly
+            // after the teamcloud instance is created to add the instance creator as an admin user
+            // thus, we can assume the calling user and the user from the payload are the same
+            var command = new OrchestratorTeamCloudUserCreateCommand(user, user);
 
             var commandResult = await orchestrator
                 .InvokeAsync(command)

@@ -42,31 +42,33 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 {
                     functionContext.SetCustomStatus($"Creating user.", log);
 
-                    using (await functionContext.LockAsync<TeamCloudInstance>(TeamCloudInstance.DefaultId).ConfigureAwait(true))
+                    using (await functionContext.LockAsync<User>(user.Id.ToString()).ConfigureAwait(true))
                     {
-                        var teamCloud = await functionContext
-                            .GetTeamCloudAsync()
+                        var existingUser = await functionContext
+                            .GetUserAsync(user.Id)
                             .ConfigureAwait(true);
 
-                        if (teamCloud.Users.Any(u => u.Id == user.Id))
-                            throw new OrchestratorCommandException($"User '{user.Id}' already exists.", command);
+                        if (existingUser != null)
+                            throw new OrchestratorCommandException($"User '{user.Id}' already exist.", command);
 
-                        teamCloud.Users.Add(user);
-
-                        teamCloud = await functionContext
-                            .SetTeamCloudAsync(teamCloud)
+                        user = await functionContext
+                            .SetUserTeamCloudInfoAsync(user)
                             .ConfigureAwait(true);
                     }
 
-                    var projects = await functionContext
-                        .ListProjectsAsync()
-                        .ConfigureAwait(true);
-
-                    foreach (var project in projects)
+                    // only update all projects if the new user is an admin
+                    if (user.IsAdmin())
                     {
-                        var projectUpdateCommand = new OrchestratorProjectUpdateCommand(command.User, project);
+                        var projects = await functionContext
+                            .ListProjectsAsync()
+                            .ConfigureAwait(true);
 
-                        functionContext.StartNewOrchestration(nameof(OrchestratorProjectUpdateCommand), projectUpdateCommand);
+                        foreach (var project in projects)
+                        {
+                            var projectUpdateCommand = new OrchestratorProjectUpdateCommand(command.User, project);
+
+                            functionContext.StartNewOrchestration(nameof(OrchestratorProjectUpdateCommand), projectUpdateCommand);
+                        }
                     }
 
                     commandResult.Result = user;

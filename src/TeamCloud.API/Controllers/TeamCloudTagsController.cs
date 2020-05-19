@@ -11,10 +11,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
-using TeamCloud.API.Data;
-using TeamCloud.API.Services;
+using TeamCloud.API.Data.Results;
 using TeamCloud.Data;
-using TeamCloud.Model.Data;
 
 namespace TeamCloud.API.Controllers
 {
@@ -23,9 +21,9 @@ namespace TeamCloud.API.Controllers
     [Produces("application/json")]
     public class TeamCloudTagsController : ControllerBase
     {
-        readonly ITeamCloudRepositoryReadOnly teamCloudRepository;
+        readonly ITeamCloudRepository teamCloudRepository;
 
-        public TeamCloudTagsController(ITeamCloudRepositoryReadOnly teamCloudRepository)
+        public TeamCloudTagsController(ITeamCloudRepository teamCloudRepository)
         {
             this.teamCloudRepository = teamCloudRepository ?? throw new ArgumentNullException(nameof(teamCloudRepository));
         }
@@ -189,7 +187,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts deleting the TeamCloud Tag. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "The key provided in the path was invalid.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found, or a Tag with the provided key was not found.", typeof(ErrorResult))]
-        public async Task<IActionResult> Delete([FromRoute]string tagKey)
+        public async Task<IActionResult> Delete([FromRoute] string tagKey)
         {
             if (string.IsNullOrWhiteSpace(tagKey))
                 return ErrorResult

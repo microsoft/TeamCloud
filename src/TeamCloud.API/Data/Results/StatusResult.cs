@@ -12,7 +12,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using TeamCloud.Model.Commands.Core;
 
-namespace TeamCloud.API.Data
+namespace TeamCloud.API.Data.Results
 {
     public interface IStatusResult : ISuccessResult, IErrorResult
     {

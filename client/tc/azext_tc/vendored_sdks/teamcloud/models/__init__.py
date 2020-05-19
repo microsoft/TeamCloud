@@ -10,12 +10,13 @@
 # --------------------------------------------------------------------------
 
 try:
+    from .project_membership_py3 import ProjectMembership
+    from .user_py3 import User
     from .provider_reference_py3 import ProviderReference
     from .project_type_py3 import ProjectType
     from .project_identity_py3 import ProjectIdentity
     from .azure_resource_group_py3 import AzureResourceGroup
     from .azure_key_vault_py3 import AzureKeyVault
-    from .user_py3 import User
     from .project_py3 import Project
     from .project_list_data_result_py3 import ProjectListDataResult
     from .user_definition_py3 import UserDefinition
@@ -28,18 +29,22 @@ try:
     from .string_string_dictionary_data_result_py3 import StringStringDictionaryDataResult
     from .project_type_list_data_result_py3 import ProjectTypeListDataResult
     from .project_type_data_result_py3 import ProjectTypeDataResult
-    from .user_list_data_result_py3 import UserListDataResult
-    from .user_data_result_py3 import UserDataResult
+    from .project_user_py3 import ProjectUser
+    from .project_user_list_data_result_py3 import ProjectUserListDataResult
+    from .project_user_data_result_py3 import ProjectUserDataResult
     from .provider_py3 import Provider
     from .provider_list_data_result_py3 import ProviderListDataResult
     from .provider_data_result_py3 import ProviderDataResult
+    from .user_list_data_result_py3 import UserListDataResult
+    from .user_data_result_py3 import UserDataResult
 except (SyntaxError, ImportError):
+    from .project_membership import ProjectMembership
+    from .user import User
     from .provider_reference import ProviderReference
     from .project_type import ProjectType
     from .project_identity import ProjectIdentity
     from .azure_resource_group import AzureResourceGroup
     from .azure_key_vault import AzureKeyVault
-    from .user import User
     from .project import Project
     from .project_list_data_result import ProjectListDataResult
     from .user_definition import UserDefinition
@@ -52,19 +57,23 @@ except (SyntaxError, ImportError):
     from .string_string_dictionary_data_result import StringStringDictionaryDataResult
     from .project_type_list_data_result import ProjectTypeListDataResult
     from .project_type_data_result import ProjectTypeDataResult
-    from .user_list_data_result import UserListDataResult
-    from .user_data_result import UserDataResult
+    from .project_user import ProjectUser
+    from .project_user_list_data_result import ProjectUserListDataResult
+    from .project_user_data_result import ProjectUserDataResult
     from .provider import Provider
     from .provider_list_data_result import ProviderListDataResult
     from .provider_data_result import ProviderDataResult
+    from .user_list_data_result import UserListDataResult
+    from .user_data_result import UserDataResult
 
 __all__ = [
+    'ProjectMembership',
+    'User',
     'ProviderReference',
     'ProjectType',
     'ProjectIdentity',
     'AzureResourceGroup',
     'AzureKeyVault',
-    'User',
     'Project',
     'ProjectListDataResult',
     'UserDefinition',
@@ -77,9 +86,12 @@ __all__ = [
     'StringStringDictionaryDataResult',
     'ProjectTypeListDataResult',
     'ProjectTypeDataResult',
-    'UserListDataResult',
-    'UserDataResult',
+    'ProjectUser',
+    'ProjectUserListDataResult',
+    'ProjectUserDataResult',
     'Provider',
     'ProviderListDataResult',
     'ProviderDataResult',
+    'UserListDataResult',
+    'UserDataResult',
 ]

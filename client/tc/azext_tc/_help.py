@@ -59,7 +59,7 @@ type: command
 short-summary: Create a new TeamCloud user.
 examples:
   - name: Create a new TeamCloud user with Admin role.
-    text: az tc user create --name 'user@microsoft.com' --role Admin --tags tag=value
+    text: az tc user create --name 'user@microsoft.com' --role Admin --properties prop=value
 """
 
 helps['tc user delete'] = """
@@ -196,7 +196,7 @@ type: command
 short-summary: Create a new project user.
 examples:
   - name: Create a new project user with Owner role.
-    text: az tc project user create --project myProjectId --name 'user@microsoft.com' --role Owner --tags tag=value
+    text: az tc project user create --project myProjectId --name 'user@microsoft.com' --role Owner --properties prop=value
 """
 
 helps['tc project user delete'] = """

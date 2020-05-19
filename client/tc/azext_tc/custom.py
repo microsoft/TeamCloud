@@ -128,7 +128,7 @@ def teamcloud_deploy(cmd, client, name, location, resource_group_name='TeamCloud
         me = profile.get_current_account_user()
 
         client._client.config.base_url = base_url
-        user_definition = UserDefinition(email=me, role='Admin', tags=None)
+        user_definition = UserDefinition(identifier=me, role='Admin', properties=None)
         _ = client.create_team_cloud_admin_user(user_definition)
 
     logger.warning('TeamCloud instance successfully created at: %s', base_url)
@@ -215,10 +215,10 @@ def status_get(cmd, client, base_url, tracking_id, project=None):
 
 # TeamCloud Users
 
-def teamcloud_user_create(cmd, client, base_url, user_name, user_role='Creator', tags=None, no_wait=False):
+def teamcloud_user_create(cmd, client, base_url, user, role='Creator', properties=None, no_wait=False):
     from .vendored_sdks.teamcloud.models import UserDefinition
 
-    payload = UserDefinition(email=user_name, role=user_role, tags=tags)
+    payload = UserDefinition(identifier=user, role=role, properties=properties)
 
     return sdk_no_wait(no_wait, _create_with_status, cmd, client, base_url,
                        payload, client.create_team_cloud_user)
@@ -291,10 +291,10 @@ def project_get(cmd, client, base_url, project):
 
 # Project Users
 
-def project_user_create(cmd, client, base_url, project, user_name, user_role='Member', tags=None, no_wait=False):
+def project_user_create(cmd, client, base_url, project, user, role='Member', properties=None, no_wait=False):
     from .vendored_sdks.teamcloud.models import UserDefinition
 
-    payload = UserDefinition(email=user_name, role=user_role, tags=tags)
+    payload = UserDefinition(identifier=user, role=role, properties=properties)
 
     return sdk_no_wait(no_wait, _create_with_status, cmd, client, base_url,
                        payload, client.create_project_user, project_id=project)
@@ -768,7 +768,7 @@ def _create_function_app(cli_ctx, name, resource_group_name, location, wj_storag
     regions = web_client.list_geo_regions(sku='Dynamic')
     locations = [{'name': x.name.lower().replace(' ', '')} for x in regions]
 
-    deploy_location = next((l for l in locations if l['name'].lower() == location.lower()), None)
+    deploy_location = next((r for r in locations if r['name'].lower() == location.lower()), None)
     if deploy_location is None:
         raise CLIError('Location is invalid. Use: az functionapp list-consumption-locations')
 
