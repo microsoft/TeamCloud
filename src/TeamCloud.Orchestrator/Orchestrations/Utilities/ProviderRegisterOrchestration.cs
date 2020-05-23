@@ -75,12 +75,15 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                         .GetTeamCloudAsync()
                         .ConfigureAwait(true);
 
-                    var tasks = teamCloud.Providers
-                        .Select(provider => functionContext.CallSubOrchestratorWithRetryAsync(nameof(ProviderRegisterOrchestration), (provider, command)));
+                    if (teamCloud != null)
+                    {
+                        var tasks = teamCloud.Providers
+                            .Select(provider => functionContext.CallSubOrchestratorWithRetryAsync(nameof(ProviderRegisterOrchestration), (provider, command)));
 
-                    await Task
-                        .WhenAll(tasks)
-                        .ConfigureAwait(true);
+                        await Task
+                            .WhenAll(tasks)
+                            .ConfigureAwait(true);
+                    }
                 }
                 else
                 {

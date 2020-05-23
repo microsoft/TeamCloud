@@ -13,6 +13,6 @@ using TeamCloud.Serialization.Resolver;
 
 namespace TeamCloud.Model.Commands.Serialization
 {
-    internal class CommandContractResolver : SuppressConverterContractResolver<CommandConverter>
+    internal class CommandContractResolver : SuppressContractResolver<CommandConverter>
     { }
 }

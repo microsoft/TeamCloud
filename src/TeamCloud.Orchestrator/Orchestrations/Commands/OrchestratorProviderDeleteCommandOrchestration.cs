@@ -15,13 +15,21 @@ using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestrator.Activities;
 using TeamCloud.Orchestrator.Entities;
+using TeamCloud.Orchestrator.Options;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Commands
 {
-    public static class OrchestratorProviderDeleteCommandOrchestration
+    public class OrchestratorProviderDeleteCommandOrchestration
     {
+        private readonly OrchestratorDatabaseOptions orchestratorDatabaseOptions;
+
+        public OrchestratorProviderDeleteCommandOrchestration(OrchestratorDatabaseOptions orchestratorDatabaseOptions)
+        {
+            this.orchestratorDatabaseOptions = orchestratorDatabaseOptions ?? throw new ArgumentNullException(nameof(orchestratorDatabaseOptions));
+        }
+
         [FunctionName(nameof(OrchestratorProviderDeleteCommandOrchestration))]
-        public static async Task RunOrchestration(
+        public async Task RunOrchestration(
             [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
             ILogger log)
         {
@@ -39,7 +47,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
             {
                 try
                 {
-                    using (await functionContext.LockAsync<TeamCloudInstance>(TeamCloudInstance.DefaultId).ConfigureAwait(true))
+                    using (await functionContext.LockAsync<TeamCloudInstance>(orchestratorDatabaseOptions.TenantName).ConfigureAwait(true))
                     {
                         var teamCloud = await functionContext
                             .GetTeamCloudAsync()

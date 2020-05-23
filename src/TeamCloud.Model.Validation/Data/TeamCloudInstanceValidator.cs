@@ -15,9 +15,6 @@ namespace TeamCloud.Model.Validation.Data
             RuleFor(obj => obj.Id)
                 .MustBeResourceId();
 
-            RuleFor(obj => obj.PartitionKey)
-                .NotEmpty();
-
             RuleFor(obj => obj.Providers)
                 .NotEmpty();
         }

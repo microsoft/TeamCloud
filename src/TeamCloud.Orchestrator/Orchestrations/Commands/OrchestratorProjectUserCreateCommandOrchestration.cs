@@ -58,7 +58,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                     (
                         command.User,
                         user,
-                        commandProject.Id,
+                        Guid.Parse(commandProject.Id),
                         command.CommandId
                     );
 

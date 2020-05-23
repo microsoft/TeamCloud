@@ -8,27 +8,19 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using TeamCloud.Model.Data.Core;
 
 namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public sealed class User : IIdentifiable, IContainerDocument, IEquatable<User>, IProperties
+    public sealed class User : ContainerDocument, IEquatable<User>, IProperties
     {
-        [JsonIgnore]
-        public IList<string> UniqueKeys => new List<string> { };
-
         [JsonProperty(PropertyName = "_etag")]
         [SuppressMessage("Design", "CA1044: Properties should not be write only", Justification = "Prevent property from being serialized to JSON")]
         public string ETagInternal { internal get; set; }   // for CosmosDB so we can get the ETag but doesn't get serialized to CosmosDB
 
         [JsonIgnore]
         public string ETag => ETagInternal;
-
-        public string PartitionKey => Constants.CosmosDb.TenantName;
-
-        public Guid Id { get; set; }
-
-        string IContainerDocument.Id => this.Id.ToString();
 
         public UserType UserType { get; set; }
 

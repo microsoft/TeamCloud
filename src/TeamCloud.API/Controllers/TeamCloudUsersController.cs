@@ -134,7 +134,7 @@ namespace TeamCloud.API
 
             user = new User
             {
-                Id = userId.Value,
+                Id = userId.Value.ToString(),
                 Role = Enum.Parse<TeamCloudUserRole>(userDefinition.Role, true),
                 Properties = userDefinition.Properties,
                 UserType = UserType.User
@@ -180,7 +180,7 @@ namespace TeamCloud.API
                     .ActionResult();
 
             var oldUser = await usersRepository
-                .GetAsync(user.Id)
+                .GetAsync(Guid.Parse(user.Id))
                 .ConfigureAwait(false);
 
             if (oldUser is null)

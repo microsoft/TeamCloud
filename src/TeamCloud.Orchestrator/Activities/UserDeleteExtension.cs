@@ -14,6 +14,8 @@ namespace TeamCloud.Orchestrator.Activities
 {
     internal static class UserDeleteExtension
     {
+        public static Task<User> DeleteUserAsync(this IDurableOrchestrationContext functionContext, string userId, bool allowUnsafe = false)
+            => DeleteUserAsync(functionContext, Guid.Parse(userId), allowUnsafe);
 
         public static Task<User> DeleteUserAsync(this IDurableOrchestrationContext functionContext, Guid userId, bool allowUnsafe = false)
             => functionContext.IsLockedBy<User>(userId.ToString()) || allowUnsafe

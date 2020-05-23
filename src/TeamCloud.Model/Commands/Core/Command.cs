@@ -55,7 +55,7 @@ namespace TeamCloud.Model.Commands.Core
 
         public virtual Guid? ProjectId
         {
-            get => Payload is Project project ? project?.Id : projectId;
+            get => Payload is Project project && Guid.TryParse(project?.Id, out var id) ? id : projectId;
             protected set => projectId = value;
         }
 

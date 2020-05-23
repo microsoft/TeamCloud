@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 
 namespace TeamCloud.Serialization.Resolver
 {
-    public class SuppressConverterContractResolver<TConverter> : DefaultConverterContractResolver
+    public class SuppressContractResolver<TConverter> : TeamCloudContractResolver
         where TConverter : JsonConverter
     {
         protected override JsonConverter ResolveContractConverter(Type objectType)

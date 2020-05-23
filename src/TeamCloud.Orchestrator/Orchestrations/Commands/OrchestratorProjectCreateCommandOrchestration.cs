@@ -93,7 +93,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
             // - Tags = ensure that every project starts with a set of tags defined by the team cloud instance
             // CAUTION: there is no need to populate any other data (e.g. properties) on the new project instance
 
-            project.TeamCloudId = teamCloud.Id;
+            project.TenantName = teamCloud.Id;
             project.Tags = teamCloud.Tags.Override(project.Tags);
 
             functionContext.SetCustomStatus($"Creating project", log);

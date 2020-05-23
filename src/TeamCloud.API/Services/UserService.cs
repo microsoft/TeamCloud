@@ -10,7 +10,6 @@ using Microsoft.Extensions.Caching.Memory;
 using TeamCloud.API.Data;
 using TeamCloud.Azure.Directory;
 using TeamCloud.Data;
-using TeamCloud.Model;
 using TeamCloud.Model.Data;
 
 namespace TeamCloud.API.Services
@@ -81,7 +80,7 @@ namespace TeamCloud.API.Services
 
             user ??= new User
             {
-                Id = userId.Value,
+                Id = userId.Value.ToString(),
                 UserType = UserType.User
             };
 

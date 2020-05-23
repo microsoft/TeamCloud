@@ -10,36 +10,47 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
 using TeamCloud.Data.Utilities;
-using TeamCloud.Model.Data;
+using TeamCloud.Model.Data.Core;
 using static Microsoft.Azure.Cosmos.Container;
 
-namespace TeamCloud.Data.CosmosDb
+namespace TeamCloud.Data.CosmosDb.Core
 {
-    public abstract class CosmosDbBaseRepository<T>
-        where T : IContainerDocument, new()
+    public interface ICosmosDbRepository
     {
-        private readonly ICosmosDbOptions cosmosOptions;
+        ICosmosDbOptions Options { get; }
+
+        Type ContainerDocumentType { get; }
+    }
+
+    public abstract class CosmosDbRepository<T> : ICosmosDbRepository
+        where T : class, IContainerDocument, new()
+    {
         private readonly Lazy<CosmosClient> cosmosClient;
 
         private readonly ConcurrentDictionary<Type, AsyncLazy<(Container, ChangeFeedProcessor)>> cosmosContainers = new ConcurrentDictionary<Type, AsyncLazy<(Container, ChangeFeedProcessor)>>();
 
-        protected CosmosDbBaseRepository(ICosmosDbOptions cosmosOptions)
+        protected CosmosDbRepository(ICosmosDbOptions options)
         {
-            this.cosmosOptions = cosmosOptions ?? throw new ArgumentNullException(nameof(cosmosOptions));
+            Options = options ?? throw new ArgumentNullException(nameof(options));
 
-            cosmosClient = new Lazy<CosmosClient>(() => new CosmosClient(cosmosOptions.ConnectionString, new CosmosClientOptions()
+            cosmosClient = new Lazy<CosmosClient>(() => new CosmosClient(options.ConnectionString, new CosmosClientOptions()
             {
-                SerializerOptions = new CosmosSerializationOptions { PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase }
-            }));
+                Serializer = new CosmosDbSerializer()
+                //SerializerOptions = new CosmosSerializationOptions { PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase }
+            })); ;
         }
+
+        public ICosmosDbOptions Options { get; }
+
+        public Type ContainerDocumentType { get; } = typeof(T);
 
         protected async Task<Database> GetDatabaseAsync()
         {
             if (cosmosClient.IsValueCreated)
-                return cosmosClient.Value.GetDatabase(cosmosOptions.DatabaseName);
+                return cosmosClient.Value.GetDatabase(Options.DatabaseName);
 
             var response = await cosmosClient.Value
-                .CreateDatabaseIfNotExistsAsync(cosmosOptions.DatabaseName)
+                .CreateDatabaseIfNotExistsAsync(Options.DatabaseName)
                 .ConfigureAwait(false);
 
             return response.Database;
@@ -61,8 +72,8 @@ namespace TeamCloud.Data.CosmosDb
 
         private static async Task<(Container, ChangeFeedProcessor)> CreateContainerAsync(Database database, Type containerType, ChangesHandler<T> changesHandler)
         {
-            var containerBuilder = database.DefineContainer(typeof(T).Name, IContainerDocument.PartitionKeyPath);
-            var containerKeys = (new T()).UniqueKeys;
+            var containerBuilder = database.DefineContainer(typeof(T).Name, IContainerDocument.GetPartitionKeyPath<T>(true));
+            var containerKeys = IContainerDocument.GetUniqueKeyPaths<T>(true);
 
             if (containerKeys.Any())
             {
@@ -96,7 +107,7 @@ namespace TeamCloud.Data.CosmosDb
                 ?? $"{Environment.MachineName}-{Process.GetCurrentProcess().Id}";
 
             var processor = database.GetContainer(containerType.Name)
-                .GetChangeFeedProcessorBuilder<T>(containerType.Name, changesHandler)
+                .GetChangeFeedProcessorBuilder(containerType.Name, changesHandler)
                 .WithInstanceName($"{containerType.Name}-{processorInstance}")
                 .WithLeaseContainer(database.GetContainer($"{typeof(T).Name}-leases"))
                 .WithStartTime(DateTime.UtcNow)

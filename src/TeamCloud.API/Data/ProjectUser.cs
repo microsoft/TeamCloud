@@ -15,7 +15,7 @@ namespace TeamCloud.API.Data
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public sealed class ProjectUser
     {
-        public Guid Id { get; set; }
+        public string Id { get; set; }
 
         public ProjectUserRole Role { get; set; }
 
@@ -43,7 +43,8 @@ namespace TeamCloud.API.Data
     {
         public ProjectUserValidator()
         {
-            RuleFor(obj => obj.Id).NotEqual(Guid.Empty)
+            RuleFor(obj => obj.Id)
+                .Must(id => Guid.TryParse(id, out var result) && result != Guid.Empty)
                 .WithMessage("'{PropertyName}' must be a valid, non-empty GUID.");
             //RuleFor(obj => obj.Role).MustBeUserRole();
         }

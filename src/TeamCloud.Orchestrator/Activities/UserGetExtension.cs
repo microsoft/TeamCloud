@@ -14,6 +14,8 @@ namespace TeamCloud.Orchestrator.Activities
 {
     internal static class UserGetExtension
     {
+        public static Task<User> GetUserAsync(this IDurableOrchestrationContext functionContext, string userId, bool allowUnsafe = false)
+            => GetUserAsync(functionContext, Guid.Parse(userId), allowUnsafe);
 
         public static Task<User> GetUserAsync(this IDurableOrchestrationContext functionContext, Guid userId, bool allowUnsafe = false)
             => functionContext.IsLockedBy<User>(userId.ToString()) || allowUnsafe

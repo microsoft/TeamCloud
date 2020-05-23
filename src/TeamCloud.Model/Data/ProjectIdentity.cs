@@ -6,13 +6,14 @@
 using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using TeamCloud.Model.Data.Core;
 
 namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public sealed class ProjectIdentity : IIdentifiable, IEquatable<ProjectIdentity>
     {
-        public Guid Id { get; set; }
+        public string Id { get; set; }
 
         public Guid ApplicationId { get; set; }
 

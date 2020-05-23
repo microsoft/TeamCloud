@@ -13,7 +13,7 @@ using TeamCloud.Serialization.Converter;
 
 namespace TeamCloud.Serialization.Resolver
 {
-    public class DefaultConverterContractResolver : DefaultContractResolver
+    public class TeamCloudContractResolver : CamelCasePropertyNamesContractResolver
     {
         protected override JsonConverter ResolveContractConverter(Type objectType)
         {
