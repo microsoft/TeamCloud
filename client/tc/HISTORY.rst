@@ -3,6 +3,11 @@
 Release History
 ===============
 
+0.4.0
+++++++
+* Preview release
+* Deploy and upgrade TeamCloud instances and Providers using dynamic ARM templates and index.json
+
 0.3.6
 ++++++
 * Preview release
