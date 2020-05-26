@@ -100,3 +100,4 @@ def load_command_table(self, _):
         g.custom_show_command('show', 'provider_get', transform=transform_output)
         g.custom_command('deploy', 'provider_deploy')
         g.custom_command('upgrade', 'provider_upgrade')
+        g.custom_command('list-available', 'provider_list_available')

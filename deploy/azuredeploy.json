@@ -8,35 +8,16 @@
                 "description": "The name of the TeamCloud instance that you wish to create. This will also be used as the subdomain of your service endpoint (i.e. myteamcloud.azurewebsites.net)."
             }
         },
-        "activeDirectoryIdentityClientId": {
-            "type": "string",
-            "metadata": {
-                "description": "The ClientId of the service principals used to authenticate users."
-            }
-        },
-        "activeDirectoryIdentityClientSecret": {
-            "type": "string",
-            "metadata": {
-                "description": "The ClientSecret of the service principals used to authenticate users."
-            }
-        },
         "resourceManagerIdentityClientId": {
             "type": "string",
             "metadata": {
-                "description": "The ClientId of the service principals used to create new resource groups for Projecs."
+                "description": "The ClientId of the service principals used to authenticate users and create new Resource Groups for Projecs."
             }
         },
         "resourceManagerIdentityClientSecret": {
             "type": "string",
             "metadata": {
-                "description": "The ClientSecret of the service principals used to create new resource groups for Projecs."
-            }
-        },
-        "deployTeamCloudSource": {
-            "type": "bool",
-            "defaultValue": true,
-            "metadata": {
-                "description": "Select true to the Azure Resources and the TeamCloud source code from GitHub.  Select false to only deploy the Azure Resources."
+                "description": "The ClientSecret of the service principals used to authenticate users and create new Resource Groups for Projecs."
             }
         }
     },
@@ -49,10 +30,24 @@
         "deploymentStorageAccountName": "[concat('depstorage', uniqueString(resourceGroup().id))]",
         "keyVaultName": "[concat('keyvault', uniqueString(resourceGroup().id))]",
         "appConfigurationName": "[concat(toLower(parameters('webAppName')), '-config')]",
-        "sourceRepoUrl": "https://github.com/microsoft/TeamCloud.git",
-        "sourceBranch": "master"
+        "functionAppRoleAssignmentId": "[guid(concat(resourceGroup().id, variables('functionAppNameLower'), 'contributor'))]",
+        "contributorRoleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]"
     },
     "resources": [
+        {
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2018-09-01-preview",
+            "name": "[variables('functionAppRoleAssignmentId')]",
+            "properties": {
+                "roleDefinitionId": "[variables('contributorRoleDefinitionId')]",
+                "principalId": "[reference(resourceId('Microsoft.Web/sites', variables('functionAppNameLower')), '2018-11-01', 'Full').identity.principalId]",
+                "scope": "[resourceGroup().id]",
+                "principalType": "ServicePrincipal"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', variables('functionAppNameLower'))]"
+            ]
+        },
         {
             "type": "Microsoft.Web/serverfarms",
             "kind": "app",
@@ -111,7 +106,6 @@
                     "properties": {
                         "PROJECT": "src/TeamCloud.API/TeamCloud.API.csproj",
                         "AppConfiguration:ConnectionString": "[listKeys(resourceId('Microsoft.AppConfiguration/configurationStores', variables('appConfigurationName')), '2019-10-01').value[0].connectionString]",
-                        "TeamCloudConfig:ConnectionString": "[listKeys(resourceId('Microsoft.AppConfiguration/configurationStores', variables('appConfigurationName')), '2019-10-01').value[0].connectionString]",
                         "APPINSIGHTS_INSTRUMENTATIONKEY": "[reference(resourceId('Microsoft.Insights/components', variables('webAppNameLower')), '2015-05-01').InstrumentationKey]",
                         "APPINSIGHTS_PROFILERFEATURE_VERSION": "disabled",
                         "APPINSIGHTS_SNAPSHOTFEATURE_VERSION": "disabled",
@@ -120,29 +114,29 @@
                         "InstrumentationEngine_EXTENSION_VERSION": "disabled",
                         "SnapshotDebugger_EXTENSION_VERSION": "disabled",
                         "XDT_MicrosoftApplicationInsights_BaseExtensions": "disabled",
-                        "XDT_MicrosoftApplicationInsights_Mode": "default"
+                        "XDT_MicrosoftApplicationInsights_Mode": "default",
+                        "WEBSITE_NODE_DEFAULT_VERSION": "10.14",
+                        "ANCM_ADDITIONAL_ERROR_PAGE_LINK": "[concat('https://', variables('webAppNameLower'), '.scm.azurewebsites.net/detectors')]"
                     },
                     "dependsOn": [
                         "[resourceId('Microsoft.Web/sites', variables('webAppNameLower'))]",
-                        "[resourceId('Microsoft.Web/sites', variables('functionAppNameLower'))]"
+                        "[resourceId('Microsoft.Web/sites', variables('functionAppNameLower'))]",
+                        "[resourceId('Microsoft.Insights/components', variables('webAppNameLower'))]"
                     ]
                 },
                 {
-                    "condition": "[parameters('deployTeamCloudSource')]",
-                    "type": "sourcecontrols",
+                    "type": "config",
                     "name": "web",
-                    "apiVersion": "2019-08-01",
+                    "apiVersion": "2018-02-01",
                     "properties": {
-                        "repoUrl": "[variables('sourceRepoUrl')]",
-                        "branch": "[variables('sourceBranch')]",
-                        "isManualIntegration": true,
-                        "deploymentRollbackEnabled": false,
-                        "isMercurial": false
-                    },
-                    "dependsOn": [
-                        "[resourceId('Microsoft.Web/sites', variables('webAppNameLower'))]",
-                        "[resourceId('Microsoft.Web/sites/config', variables('webAppNameLower'), 'appsettings')]"
-                    ]
+                        "connectionStrings": [
+                            {
+                                "name": "ConfigurationService",
+                                "connectionString": "[listKeys(resourceId('Microsoft.AppConfiguration/configurationStores', variables('appConfigurationName')), '2019-10-01').value[0].connectionString]",
+                                "type": "Custom"
+                            }
+                        ]
+                    }
                 }
             ]
         },
@@ -176,7 +170,7 @@
                 "siteConfig": {
                     "phpVersion": "off",
                     "clientAffinityEnabled": false
-                }
+                },
             },
             "dependsOn": [
                 "[resourceId('Microsoft.Web/serverfarms', variables('functionAppNameLower'))]",
@@ -193,7 +187,6 @@
                     "properties": {
                         "PROJECT": "src/TeamCloud.Orchestrator/TeamCloud.Orchestrator.csproj",
                         "AppConfiguration:ConnectionString": "[listKeys(resourceId('Microsoft.AppConfiguration/configurationStores', variables('appConfigurationName')), '2019-10-01').value[0].connectionString]",
-                        "TeamCloudConfig:ConnectionString": "[listKeys(resourceId('Microsoft.AppConfiguration/configurationStores', variables('appConfigurationName')), '2019-10-01').value[0].connectionString]",
                         "AzureWebJobsStorage": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('webjobsStorageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('webjobsStorageAccountName')), '2017-06-01').keys[0].value)]",
                         "DurableFunctionsHubStorage": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('taskhubStorageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('taskhubStorageAccountName')), '2017-06-01').keys[0].value)]",
                         "FUNCTION_APP_EDIT_MODE": "readonly",
@@ -201,28 +194,26 @@
                         "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('webjobsStorageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('webjobsStorageAccountName')), '2017-06-01').keys[0].value)]",
                         "WEBSITE_CONTENTSHARE": "[variables('functionAppNameLower')]",
                         "WEBSITE_NODE_DEFAULT_VERSION": "~12",
-                        "APPINSIGHTS_INSTRUMENTATIONKEY": "[reference(resourceId('Microsoft.Insights/components', variables('functionAppNameLower')), '2015-05-01').InstrumentationKey]"
-                    },
-                    "dependsOn": [
-                        "[resourceId('Microsoft.Web/sites', variables('functionAppNameLower'))]"
-                    ]
-                },
-                {
-                    "condition": "[parameters('deployTeamCloudSource')]",
-                    "type": "sourcecontrols",
-                    "name": "web",
-                    "apiVersion": "2019-08-01",
-                    "properties": {
-                        "repoUrl": "[variables('sourceRepoUrl')]",
-                        "branch": "[variables('sourceBranch')]",
-                        "isManualIntegration": true,
-                        "deploymentRollbackEnabled": false,
-                        "isMercurial": false
+                        "APPINSIGHTS_INSTRUMENTATIONKEY": "[reference(resourceId('Microsoft.Insights/components', variables('webAppNameLower')), '2015-05-01').InstrumentationKey]"
                     },
                     "dependsOn": [
                         "[resourceId('Microsoft.Web/sites', variables('functionAppNameLower'))]",
-                        "[resourceId('Microsoft.Web/sites/config', variables('functionAppNameLower'), 'appsettings')]"
+                        "[resourceId('Microsoft.Insights/components', variables('webAppNameLower'))]"
                     ]
+                },
+                {
+                    "type": "config",
+                    "name": "web",
+                    "apiVersion": "2018-02-01",
+                    "properties": {
+                        "connectionStrings": [
+                            {
+                                "name": "ConfigurationService",
+                                "connectionString": "[listKeys(resourceId('Microsoft.AppConfiguration/configurationStores', variables('appConfigurationName')), '2019-10-01').value[0].connectionString]",
+                                "type": "Custom"
+                            }
+                        ]
+                    }
                 }
             ]
         },
@@ -337,7 +328,8 @@
             "apiVersion": "2014-04-01",
             "location": "[resourceGroup().location]",
             "properties": {
-                "ApplicationId": "[variables('webAppNameLower')]"
+                "ApplicationId": "[variables('webAppNameLower')]",
+                "Application_Type": "web"
             },
             "tags": {
                 "[concat('hidden-link:', resourceId('Microsoft.Web/sites', variables('webAppNameLower')))]": "Resource"
@@ -348,27 +340,11 @@
             ]
         },
         {
-            "type": "Microsoft.Insights/components",
-            "kind": "web",
-            "name": "[variables('functionAppNameLower')]",
-            "apiVersion": "2014-04-01",
-            "location": "[resourceGroup().location]",
-            "properties": {
-                "ApplicationId": "[variables('functionAppNameLower')]"
-            },
-            "tags": {
-                "[concat('hidden-link:', resourceId('Microsoft.Web/sites', variables('functionAppNameLower')))]": "Resource"
-            },
-            "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', variables('functionAppNameLower'))]",
-                "[resourceId('Microsoft.Web/serverfarms', variables('functionAppNameLower'))]"
-            ]
-        },
-        {
             "type": "Microsoft.DocumentDB/databaseAccounts",
             "name": "[variables('cosmosDbName')]",
-            "apiVersion": "2015-04-08",
+            "apiVersion": "2020-03-01",
             "location": "[resourceGroup().location]",
+            "kind": "GlobalDocumentDB",
             "tags": {
                 "defaultExperience": "DocumentDB"
             },
@@ -387,11 +363,10 @@
             "type": "Microsoft.Storage/storageAccounts",
             "name": "[variables('webjobsStorageAccountName')]",
             "apiVersion": "2019-04-01",
-            "kind": "Storage",
+            "kind": "StorageV2",
             "location": "[resourceGroup().location]",
             "sku": {
-                "name": "Standard_GRS",
-                "tier": "Standard"
+                "name": "Standard_RAGRS"
             },
             "properties": {
                 "name": "[variables('webjobsStorageAccountName')]"
@@ -401,11 +376,10 @@
             "type": "Microsoft.Storage/storageAccounts",
             "name": "[variables('taskhubStorageAccountName')]",
             "apiVersion": "2019-04-01",
-            "kind": "Storage",
+            "kind": "StorageV2",
             "location": "[resourceGroup().location]",
             "sku": {
-                "name": "Standard_GRS",
-                "tier": "Standard"
+                "name": "Standard_RAGRS"
             },
             "properties": {
                 "name": "[variables('taskhubStorageAccountName')]"
@@ -415,11 +389,10 @@
             "type": "Microsoft.Storage/storageAccounts",
             "name": "[variables('deploymentStorageAccountName')]",
             "apiVersion": "2019-04-01",
-            "kind": "Storage",
+            "kind": "StorageV2",
             "location": "[resourceGroup().location]",
             "sku": {
-                "name": "Standard_GRS",
-                "tier": "Standard"
+                "name": "Standard_RAGRS"
             },
             "properties": {
                 "name": "[variables('deploymentStorageAccountName')]"
@@ -427,9 +400,12 @@
         },
         {
             "type": "Microsoft.AppConfiguration/configurationStores",
-            "apiVersion": "2019-02-01-preview",
+            "apiVersion": "2019-11-01-preview",
             "name": "[variables('appConfigurationName')]",
             "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "Standard"
+            },
             "properties": {
                 "name": "[variables('appConfigurationName')]"
             }
@@ -440,44 +416,36 @@
             "type": "string",
             "value": "[concat('https://', variables('webAppNameLower'), '.azurewebsites.net')]"
         },
-        "configServiceName": {
+        "orchestratorUrl": {
             "type": "string",
-            "value": "[variables('appConfigurationName')]"
+            "value": "[concat('https://', variables('functionAppNameLower'), '.azurewebsites.net')]"
+        },
+        "configServiceConnectionString": {
+            "type": "string",
+            "value": "[listKeys(resourceId('Microsoft.AppConfiguration/configurationStores', variables('appConfigurationName')), '2019-10-01').value[0].connectionString]"
+        },
+        "apiAppName": {
+            "type": "string",
+            "value": "[variables('webAppNameLower')]"
+        },
+        "orchestratorAppName": {
+            "type": "string",
+            "value": "[variables('functionAppNameLower')]"
         },
         "configServiceImport": {
             "type": "object",
             "value": {
-                "Azure": {
-                    "SubscriptionId": "[subscription().SubscriptionId]",
-                    "TenantId": "[subscription().tenantId]",
-                    "ResourceManager": {
-                        "ClientId": "[parameters('resourceManagerIdentityClientId')]",
-                        "ClientSecret": "[parameters('resourceManagerIdentityClientSecret')]",
-                        "TenantId": "[subscription().tenantId]",
-                        "Region": "[resourceGroup().location]"
-                    },
-                    "ActiveDirectory": {
-                        "ClientId": "[parameters('activeDirectoryIdentityClientId')]",
-                        "ClientSecret": "[parameters('activeDirectoryIdentityClientSecret')]",
-                        "TenantId": "[subscription().tenantId]"
-                    },
-                    "DeploymentStorage": {
-                        "BaseUrl": "",
-                        "ConnectionString": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('deploymentStorageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('deploymentStorageAccountName')), '2017-06-01').keys[0].value)]"
-                    },
-                    "CosmosDb": {
-                        "DatabaseName": "TeamCloud",
-                        "ConnectionString": "[concat('AccountEndpoint=', reference(concat('Microsoft.DocumentDb/databaseAccounts/', variables('cosmosDbName'))).documentEndpoint, ';AccountKey=', listKeys(resourceId('Microsoft.DocumentDb/databaseAccounts', variables('cosmosDbName')), '2015-04-08').primaryMasterKey)]"
-                    },
-                    "KeyVault": {
-                        "Name": "[variables('keyVaultName')]",
-                        "Url": "[concat('https://', variables('keyVaultName'), '.vault.azure.net')]"
-                    }
-                },
-                "Orchestrator": {
-                    "Url": "[concat('https://', variables('functionAppNameLower'), '.azurewebsites.net')]",
-                    "AuthCode": "[listkeys(concat(resourceId('Microsoft.Web/sites', variables('functionAppNameLower')), '/host/default/'),'2016-08-01').functionKeys.default]"
-                }
+                "Azure:SubscriptionId": "[subscription().subscriptionId]",
+                "Azure:TenantId": "[subscription().tenantId]",
+                "Azure:ResourceManager:ClientId": "[parameters('resourceManagerIdentityClientId')]",
+                "Azure:ResourceManager:ClientSecret": "[parameters('resourceManagerIdentityClientSecret')]",
+                "Azure:ResourceManager:TenantId": "[subscription().tenantId]",
+                "Azure:CosmosDb:TenantName": "TeamCloud",
+                "Azure:CosmosDb:DatabaseName": "TeamCloud",
+                "Azure:CosmosDb:ConnectionString": "[concat('AccountEndpoint=', reference(concat('Microsoft.DocumentDb/databaseAccounts/', variables('cosmosDbName'))).documentEndpoint, ';AccountKey=', listKeys(resourceId('Microsoft.DocumentDb/databaseAccounts', variables('cosmosDbName')), '2015-04-08').primaryMasterKey)]",
+                "Azure:DeploymentStorage:ConnectionString": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('deploymentStorageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('deploymentStorageAccountName')), '2017-06-01').keys[0].value)]",
+                "Orchestrator:Url": "[concat('https://', variables('functionAppNameLower'), '.azurewebsites.net')]",
+                "Orchestrator:AuthCode": "[listkeys(concat(resourceId('Microsoft.Web/sites', variables('functionAppNameLower')), '/host/default/'),'2016-08-01').functionKeys.default]"
             }
         }
     }

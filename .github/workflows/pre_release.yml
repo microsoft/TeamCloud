@@ -73,6 +73,20 @@ jobs:
             dotnet swagger tofile --output ../../client/swagger.json ../../TeamCloud.API/TeamCloud.API.dll v1
           popd
 
+      - name: Generate index.json
+        shell: python
+        run: |
+          import json
+          index = {}
+          index['teamcloud'] = {
+              'version': 'v${{ steps.gitversion.outputs.majorMinorPatch }}',
+              'deployUrl': 'https://github.com/microsoft/TeamCloud/releases/download/v${{ steps.gitversion.outputs.majorMinorPatch }}/azuredeploy.json',
+              'apiZipUrl': 'https://github.com/microsoft/TeamCloud/releases/download/v${{ steps.gitversion.outputs.majorMinorPatch }}/TeamCloud.API.zip',
+              'orchestratorZipUrl': 'https://github.com/microsoft/TeamCloud/releases/download/v${{ steps.gitversion.outputs.majorMinorPatch }}/TeamCloud.Orchestrator.zip',
+          }
+          with open('index.json', 'w') as f:
+              json.dump(index, f, ensure_ascii=False, indent=4, sort_keys=True)
+
       - name: Setup Node
         uses: actions/setup-node@v1
         with:
@@ -126,7 +140,7 @@ jobs:
           body: 'Pre-release build.'
           prerelease: true
 
-      - name: Upload Release Asset - NuGet
+      - name: Upload Release Asset - NuGet.zip
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -136,7 +150,7 @@ jobs:
           asset_name: NuGet.zip
           asset_content_type: application/zip
 
-      - name: Upload Release Asset - TeamCloud.API
+      - name: Upload Release Asset - TeamCloud.API.zip
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -146,7 +160,7 @@ jobs:
           asset_name: TeamCloud.API.zip
           asset_content_type: application/zip
 
-      - name: Upload Release Asset - TeamCloud.Orchestrator
+      - name: Upload Release Asset - TeamCloud.Orchestrator.zip
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -155,6 +169,26 @@ jobs:
           asset_path: TeamCloud.Orchestrator.zip
           asset_name: TeamCloud.Orchestrator.zip
           asset_content_type: application/zip
+
+      - name: Upload Release Asset - azuredeploy.json
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: deploy/azuredeploy.json
+          asset_name: azuredeploy.json
+          asset_content_type: application/json
+
+      - name: Upload Release Asset - index.json
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: index.json
+          asset_name: index.json
+          asset_content_type: application/json
 
       - name: Upload Release Asset - swagger.json
         uses: actions/upload-release-asset@v1

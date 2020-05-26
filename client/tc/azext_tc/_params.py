@@ -58,6 +58,13 @@ def load_arguments(self, _):
             c.ignore('_subscription')
             c.argument('base_url', tc_url_type)
 
+    with self.argument_context('tc provider list-available') as c:
+        c.ignore('base_url')
+
+    for scope in ['tc deploy', 'tc upgrade', 'tc provider deploy', 'tc provider upgrade']:
+        with self.argument_context(scope) as c:
+            c.argument('index_url', help='URL to custom index.json file.')
+
     # Tags
 
     for scope in ['tc tag create', 'tc tag show', 'tc tag delete',
@@ -94,6 +101,7 @@ def load_arguments(self, _):
                    help="Skip name validaiton. Useful when attempting to redeploy a partial or failed deployment.")
         c.argument('skip_admin_user', action='store_true',
                    help="Skip adding Admin user.")
+        c.argument('index_url', help='URL to custom index.json file.')
 
     with self.argument_context('tc upgrade') as c:
         c.argument('resource_group_name', resource_group_name_type, default='TeamCloud')
@@ -101,6 +109,7 @@ def load_arguments(self, _):
                    validator=teamcloud_source_version_validator)
         c.argument('prerelease', options_list=['--pre'], action='store_true',
                    help='Deploy latest prerelease version.')
+        c.argument('index_url', help='URL to custom index.json file.')
 
     with self.argument_context('tc status') as c:
         c.argument('project', project_name_or_id_type)
@@ -214,14 +223,20 @@ def load_arguments(self, _):
         with self.argument_context(scope) as c:
             c.argument('provider', get_enum_type(['azure.appinsights', 'azure.devops', 'azure.devtestlabs']),
                        options_list=['--name', '-n'], help='Provider id.')
-            c.argument('resource_group_name', resource_group_name_type,
-                       help='Name of resource group.')
             c.argument('version', options_list=['--version', '-v'],
                        type=str, help='Provider version. Default: latest stable.',
                        validator=providers_source_version_validator)
             c.argument('prerelease', options_list=['--pre'], action='store_true',
                        help='Deploy latest prerelease version.')
+            c.argument('index_url', help='URL to custom index.json file.')
 
     with self.argument_context('tc provider deploy') as c:
+        c.argument('resource_group_name', resource_group_name_type,
+                   help='Name of resource group.')
         c.argument('location', get_location_type(self.cli_ctx))
         c.argument('tags', tags_type)
+
+    with self.argument_context('tc provider list-available') as c:
+        c.argument('show_details', action='store_true', options_list=['--show-details', '-d'],
+                   help='Show the raw data from the providers index.')
+        c.argument('index_url', help='URL to custom index.json file.')
