@@ -170,7 +170,7 @@
                 "siteConfig": {
                     "phpVersion": "off",
                     "clientAffinityEnabled": false
-                },
+                }
             },
             "dependsOn": [
                 "[resourceId('Microsoft.Web/serverfarms', variables('functionAppNameLower'))]",
