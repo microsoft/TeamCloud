@@ -104,7 +104,6 @@
                     "name": "appsettings",
                     "apiVersion": "2018-02-01",
                     "properties": {
-                        "PROJECT": "src/TeamCloud.API/TeamCloud.API.csproj",
                         "AppConfiguration:ConnectionString": "[listKeys(resourceId('Microsoft.AppConfiguration/configurationStores', variables('appConfigurationName')), '2019-10-01').value[0].connectionString]",
                         "APPINSIGHTS_INSTRUMENTATIONKEY": "[reference(resourceId('Microsoft.Insights/components', variables('webAppNameLower')), '2015-05-01').InstrumentationKey]",
                         "APPINSIGHTS_PROFILERFEATURE_VERSION": "disabled",
@@ -189,7 +188,6 @@
                     "name": "appsettings",
                     "apiVersion": "2018-02-01",
                     "properties": {
-                        "PROJECT": "src/TeamCloud.Orchestrator/TeamCloud.Orchestrator.csproj",
                         "AppConfiguration:ConnectionString": "[listKeys(resourceId('Microsoft.AppConfiguration/configurationStores', variables('appConfigurationName')), '2019-10-01').value[0].connectionString]",
                         "AzureWebJobsStorage": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('webjobsStorageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('webjobsStorageAccountName')), '2017-06-01').keys[0].value)]",
                         "DurableFunctionsHubStorage": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('taskhubStorageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('taskhubStorageAccountName')), '2017-06-01').keys[0].value)]",

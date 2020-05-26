@@ -80,7 +80,7 @@ def teamcloud_deploy(cmd, client, name, location, resource_group_name='TeamCloud
     parameters.append('resourceManagerIdentityClientSecret={}'.format(
         resource_manager_sp['password']))
 
-    logger.warning('Deploying arm template...')
+    logger.warning('Deploying ARM template. This may take several minutes to complete...')
     outputs = deploy_arm_template_at_resource_group(
         cmd, resource_group_name, template_uri=deploy_url, parameters=[parameters])
 
