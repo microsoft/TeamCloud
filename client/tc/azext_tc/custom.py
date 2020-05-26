@@ -74,15 +74,15 @@ def teamcloud_deploy(cmd, client, name, location, resource_group_name='TeamCloud
             'tenant': tenant_id
         }
 
-    parameters = {
-        'webAppName': name,
-        'resourceManagerIdentityClientId': resource_manager_sp['appId'],
-        'resourceManagerIdentityClientSecret': resource_manager_sp['password']
-    }
+    parameters = []
+    parameters.append('webAppName={}'.format(name))
+    parameters.append('resourceManagerIdentityClientId={}'.format(resource_manager_sp['appId']))
+    parameters.append('resourceManagerIdentityClientSecret={}'.format(
+        resource_manager_sp['password']))
 
     logger.warning('Deploying arm template...')
     outputs = deploy_arm_template_at_resource_group(
-        cmd, resource_group_name, template_uri=deploy_url, parameters=parameters)
+        cmd, resource_group_name, template_uri=deploy_url, parameters=[parameters])
 
     api_url = outputs['apiUrl']['value']
     orchestrator_url = outputs['orchestratorUrl']['value']
