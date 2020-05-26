@@ -15,7 +15,7 @@ namespace TeamCloud.Model.Data
     public sealed class Project : ContainerDocument, IEquatable<Project>, ITags, IProperties
     {
         [PartitionKey]
-        public string TenantName { get; set; }
+        public string Tenant { get; set; }
 
         [UniqueKey]
         public string Name { get; set; }

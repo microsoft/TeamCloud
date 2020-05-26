@@ -1,5 +1,12 @@
-﻿using System;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
+
+using System;
 using Microsoft.Azure.Cosmos;
+using TeamCloud.Model.Data.Core;
+using Xunit;
 
 namespace TeamCloud.Data.CosmosDb.Core
 {
@@ -18,7 +25,14 @@ namespace TeamCloud.Data.CosmosDb.Core
             Dispose(disposing: false);
         }
 
-        public T Repository { get; }
+        protected T Repository { get; }
+
+        protected void AssertContainerDocumentMetadata(IContainerDocument containerDocument)
+        {
+            Assert.NotNull(containerDocument);
+            Assert.NotNull(containerDocument.ETag);
+            Assert.NotNull(containerDocument.Timestamp);
+        }
 
         protected virtual void Dispose(bool disposing)
         {
@@ -32,6 +46,10 @@ namespace TeamCloud.Data.CosmosDb.Core
                         .GetContainer(Repository.Options.DatabaseName, Repository.ContainerDocumentType.Name)
                         .DeleteContainerAsync()
                         .Wait();
+                }
+                catch
+                {
+                    // swallow
                 }
                 finally
                 {

@@ -1,4 +1,9 @@
-﻿using System;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -43,7 +48,7 @@ namespace TeamCloud.Model.Data.Core
 
     public abstract class ContainerDocument : IContainerDocument
     {
-        public virtual string Id { get; set; }
+        public virtual string Id { get; set; } = Guid.NewGuid().ToString();
 
         DateTime? IContainerDocument.Timestamp { get; set; }
 

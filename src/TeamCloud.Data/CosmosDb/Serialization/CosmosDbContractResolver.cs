@@ -1,4 +1,9 @@
-﻿using System;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -17,6 +22,13 @@ namespace TeamCloud.Data.CosmosDb.Serialization
             { nameof(IContainerDocument.ETag), ("_etag", null) },
             { nameof(IContainerDocument.Timestamp), ("_ts", new CosmosDbTimestampConverter()) }
         };
+
+        private readonly string partitionKey;
+
+        public CosmosDbContractResolver(string partitionKey)
+        {
+            this.partitionKey = partitionKey;
+        }
 
         protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)
         {
@@ -50,7 +62,16 @@ namespace TeamCloud.Data.CosmosDb.Serialization
         {
             var property = base.CreateProperty(member, memberSerialization);
 
-            if (member.GetCustomAttribute<DatabaseIgnoreAttribute>() != null)
+            if (member.GetCustomAttribute<PartitionKeyAttribute>() != null)
+            {
+                // properties marked with the PartitionKeyAttribute
+                // must use a special converter to ensure the partionkey
+                // matches the given partionkey (see ctor) on read and write
+
+                property.NullValueHandling = NullValueHandling.Include;
+                property.ValueProvider = new CosmosDbPartitionKeyProvider(partitionKey);
+            }
+            else if (member.GetCustomAttribute<DatabaseIgnoreAttribute>() != null)
             {
                 // properties marked with the DatabaseIgnoreAttribute
                 // must not be serialized and persisted to the database

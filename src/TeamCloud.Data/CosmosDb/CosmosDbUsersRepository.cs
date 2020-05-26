@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
 using TeamCloud.Data.CosmosDb.Core;
 using TeamCloud.Model.Data;
-
+using TeamCloud.Model.Data.Core;
 using User = TeamCloud.Model.Data.User;
 
 namespace TeamCloud.Data.CosmosDb
@@ -203,9 +203,9 @@ namespace TeamCloud.Data.CosmosDb
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
-            var etag = user.ETag;
+            var document = (IContainerDocument)user;
 
-            if (string.IsNullOrEmpty(etag))
+            if (string.IsNullOrEmpty(document.ETag))
             {
                 var existingUser = await GetAsync(user.Id)
                     .ConfigureAwait(false);
@@ -219,7 +219,6 @@ namespace TeamCloud.Data.CosmosDb
 
             return await RemoveProjectMembershipSafeAsync(container, user, projectId)
                 .ConfigureAwait(false);
-
 
             async Task<User> RemoveProjectMembershipSafeAsync(Container container, User user, Guid projectId)
             {
@@ -236,7 +235,7 @@ namespace TeamCloud.Data.CosmosDb
                         .ReplaceItemAsync(
                             user, user.Id.ToString(),
                             new PartitionKey(Options.TenantName),
-                            new ItemRequestOptions { IfMatchEtag = user.ETag }
+                            new ItemRequestOptions { IfMatchEtag = document.ETag }
                         ).ConfigureAwait(false);
 
                     return updatedUser;
@@ -276,9 +275,9 @@ namespace TeamCloud.Data.CosmosDb
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
-            var etag = user.ETag;
+            var document = (IContainerDocument)user;
 
-            if (string.IsNullOrEmpty(etag))
+            if (string.IsNullOrEmpty(document.ETag))
             {
                 var existingUser = await GetAsync(user.Id)
                     .ConfigureAwait(false);
@@ -309,7 +308,7 @@ namespace TeamCloud.Data.CosmosDb
                         .ReplaceItemAsync(
                             user, user.Id.ToString(),
                             new PartitionKey(Options.TenantName),
-                            new ItemRequestOptions { IfMatchEtag = user.ETag }
+                            new ItemRequestOptions { IfMatchEtag = document.ETag }
                         ).ConfigureAwait(false);
 
                     return updatedUser;
@@ -339,9 +338,9 @@ namespace TeamCloud.Data.CosmosDb
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
-            var etag = user.ETag;
+            var document = (IContainerDocument)user;
 
-            if (string.IsNullOrEmpty(etag))
+            if (string.IsNullOrEmpty(document.ETag))
             {
                 var existingUser = await GetAsync(user.Id)
                     .ConfigureAwait(false);
@@ -368,7 +367,7 @@ namespace TeamCloud.Data.CosmosDb
                         .ReplaceItemAsync(
                             user, user.Id.ToString(),
                             new PartitionKey(Options.TenantName),
-                            new ItemRequestOptions { IfMatchEtag = user.ETag }
+                            new ItemRequestOptions { IfMatchEtag = document.ETag }
                         ).ConfigureAwait(false);
 
                     return updatedUser;

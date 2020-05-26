@@ -1,4 +1,9 @@
-﻿using System.Diagnostics;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
+
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -13,12 +18,17 @@ namespace TeamCloud.Data.CosmosDb.Core
     {
         private static readonly Encoding DefaultEncoding = new UTF8Encoding(false, true);
 
-        private readonly JsonSerializerSettings SerializerSettings = new JsonSerializerSettings()
+        private readonly JsonSerializerSettings SerializerSettings;
+
+        public CosmosDbSerializer(string partitionKey = default)
         {
-            NullValueHandling = NullValueHandling.Ignore,
-            Formatting = Formatting.None,
-            ContractResolver = new CosmosDbContractResolver()
-        };
+            SerializerSettings = new JsonSerializerSettings()
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                Formatting = Formatting.None,
+                ContractResolver = new CosmosDbContractResolver(partitionKey)
+            };
+        }
 
         private JsonSerializer GetSerializer()
              => JsonSerializer.Create(SerializerSettings);

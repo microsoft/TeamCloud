@@ -12,7 +12,7 @@ namespace TeamCloud.Model.Data
     public sealed class ProjectType : ContainerDocument, IEquatable<ProjectType>, ITags, IProperties
     {
         [PartitionKey]
-        public string TenantName { get; set; }
+        public string Tenant { get; set; }
 
         public bool Default { get; set; }
 

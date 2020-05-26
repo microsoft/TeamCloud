@@ -1,10 +1,13 @@
-﻿using System;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
+
+using System;
 using System.Threading.Tasks;
 using TeamCloud.Data.Conditional;
 using TeamCloud.Data.CosmosDb.Core;
 using TeamCloud.Model.Data;
-using TeamCloud.Model.Data.Core;
-using Xunit;
 
 namespace TeamCloud.Data.CosmosDb
 {
@@ -14,24 +17,20 @@ namespace TeamCloud.Data.CosmosDb
             : base(new CosmosDbTeamCloudRepository(CosmosDbTestOptions.Default, CosmosDbTestCache.Default))
         { }
 
+
         [ConditionalFact(ConditionalFactPlatforms.Windows)]
         public async Task GetInstance()
         {
             var instance = await Repository.GetAsync().ConfigureAwait(false);
 
-            Assert.NotNull(instance);
-
-            var document = instance as IContainerDocument;
-
-            Assert.NotNull(document);
-            Assert.NotNull(document.ETag);
-            Assert.NotNull(document.Timestamp);
+            AssertContainerDocumentMetadata(instance);
         }
 
         [ConditionalFact(ConditionalFactPlatforms.Windows)]
         public async Task AddProvider()
         {
             var instance1 = await Repository.GetAsync().ConfigureAwait(false);
+            AssertContainerDocumentMetadata(instance1);
 
             instance1.Providers.Add(new Provider()
             {
@@ -39,14 +38,7 @@ namespace TeamCloud.Data.CosmosDb
             });
 
             var instance2 = await Repository.SetAsync(instance1).ConfigureAwait(false);
-
-            Assert.NotNull(instance2);
-
-            var document = instance2 as IContainerDocument;
-
-            Assert.NotNull(document);
-            Assert.NotNull(document.ETag);
-            Assert.NotNull(document.Timestamp);
+            AssertContainerDocumentMetadata(instance2);
         }
     }
 }

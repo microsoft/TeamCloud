@@ -30,8 +30,6 @@ namespace TeamCloud.Data.CosmosDb
             if (project is null)
                 throw new ArgumentNullException(nameof(project));
 
-            project.TenantName ??= Options.TenantName;
-
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
@@ -118,8 +116,6 @@ namespace TeamCloud.Data.CosmosDb
         {
             if (project is null)
                 throw new ArgumentNullException(nameof(project));
-
-            project.TenantName ??= Options.TenantName;
 
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);

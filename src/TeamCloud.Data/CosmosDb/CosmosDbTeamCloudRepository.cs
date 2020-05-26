@@ -117,8 +117,6 @@ namespace TeamCloud.Data.CosmosDb
             if (teamCloudInstance is null)
                 throw new ArgumentNullException(nameof(teamCloudInstance));
 
-            teamCloudInstance.Id ??= Options.TenantName;
-
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
