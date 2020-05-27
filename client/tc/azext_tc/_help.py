@@ -364,6 +364,16 @@ examples:
     text: az tc provider list --base-url https://myurl -o table
 """
 
+helps['tc provider list-available'] = """
+type: command
+short-summary: List available providers.
+examples:
+  - name: List available providers.
+    text: az tc provider list-available
+  - name: List details on a particular provider.
+    text: az tc provider list-available --show-details --query github
+"""
+
 helps['tc provider show'] = """
 type: command
 short-summary: Get a provider.
