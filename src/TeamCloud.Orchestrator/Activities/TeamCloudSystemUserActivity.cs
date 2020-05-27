@@ -33,7 +33,7 @@ namespace TeamCloud.Orchestrator.Activities
 
             return new User()
             {
-                Id = systemIdentity.ObjectId,
+                Id = systemIdentity.ObjectId.ToString(),
                 Role = TeamCloudUserRole.Admin,
                 UserType = UserType.System
             };

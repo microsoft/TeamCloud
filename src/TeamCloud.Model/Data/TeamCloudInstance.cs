@@ -6,20 +6,15 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using TeamCloud.Model.Data.Core;
 
 namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public sealed class TeamCloudInstance : IContainerDocument, ITags
+    public sealed class TeamCloudInstance : ContainerDocument, ITags
     {
-        public static string DefaultId => Constants.CosmosDb.TenantName;
-
-        public string Id => DefaultId;
-
-        public string PartitionKey => Constants.CosmosDb.DatabaseName;
-
-        [JsonIgnore]
-        public IList<string> UniqueKeys => new List<string> { };
+        [PartitionKey]
+        public override string Id { get; set; }
 
         public AzureResourceGroup ResourceGroup { get; set; }
 

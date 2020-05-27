@@ -11,12 +11,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
 using TeamCloud.Data.Caching;
-using TeamCloud.Model;
+using TeamCloud.Data.CosmosDb.Core;
 using TeamCloud.Model.Data;
+using TeamCloud.Model.Validation;
 
 namespace TeamCloud.Data.CosmosDb
 {
-    public class CosmosDbTeamCloudRepository : CosmosDbBaseRepository<TeamCloudInstance>, ITeamCloudRepository
+    public class CosmosDbTeamCloudRepository : CosmosDbRepository<TeamCloudInstance>, ITeamCloudRepository
     {
         private readonly IContainerDocumentCache cache;
 
@@ -76,7 +77,8 @@ namespace TeamCloud.Data.CosmosDb
                 }
             }
 
-            return (cacheEntry ?? await FetchAsync().ConfigureAwait(false))?.Value;
+            return (cacheEntry ?? await FetchAsync().ConfigureAwait(false))?.Value
+                ?? await SetAsync(new TeamCloudInstance() { Id = Options.TenantName }).ConfigureAwait(false);
 
             async Task<ContainerDocumentCacheEntry<TeamCloudInstance>> FetchAsync(string currentETag = default)
             {
@@ -90,7 +92,7 @@ namespace TeamCloud.Data.CosmosDb
                     };
 
                     var response = await container
-                        .ReadItemAsync<TeamCloudInstance>(Constants.CosmosDb.TenantName, new PartitionKey(Constants.CosmosDb.TenantName), options)
+                        .ReadItemAsync<TeamCloudInstance>(Options.TenantName, new PartitionKey(Options.TenantName), options)
                         .ConfigureAwait(false);
 
                     return await SetCacheAsync(response)
@@ -113,11 +115,18 @@ namespace TeamCloud.Data.CosmosDb
 
         public async Task<TeamCloudInstance> SetAsync(TeamCloudInstance teamCloudInstance)
         {
+            if (teamCloudInstance is null)
+                throw new ArgumentNullException(nameof(teamCloudInstance));
+
+            await teamCloudInstance
+                .ValidateAsync(throwOnValidationError: true)
+                .ConfigureAwait(false);
+
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
             var response = await container
-                .UpsertItemAsync(teamCloudInstance, new PartitionKey(Constants.CosmosDb.TenantName))
+                .UpsertItemAsync(teamCloudInstance, new PartitionKey(Options.TenantName))
                 .ConfigureAwait(false);
 
             var cacheEntry = await SetCacheAsync(response)

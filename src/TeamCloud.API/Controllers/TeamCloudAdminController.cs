@@ -75,7 +75,7 @@ namespace TeamCloud.API.Controllers
 
             var user = new User
             {
-                Id = userId.Value,
+                Id = userId.Value.ToString(),
                 Role = Enum.Parse<TeamCloudUserRole>(userDefinition.Role, true),
                 Properties = userDefinition.Properties,
                 UserType = UserType.User

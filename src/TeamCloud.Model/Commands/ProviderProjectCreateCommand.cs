@@ -11,6 +11,6 @@ namespace TeamCloud.Model.Commands
     public class ProviderProjectCreateCommand : ProviderCommand<Project, ProviderProjectCreateCommandResult>
     {
         public ProviderProjectCreateCommand(User user, Project payload, Guid? commandId = null) : base(user, payload, commandId)
-            => ProjectId = payload?.Id ?? throw new ArgumentNullException(nameof(payload));
+            => ProjectId = Guid.TryParse(payload?.Id, out var projectId) ? projectId : throw new ArgumentNullException(nameof(payload));
     }
 }

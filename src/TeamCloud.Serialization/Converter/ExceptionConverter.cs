@@ -16,7 +16,7 @@ namespace TeamCloud.Serialization.Converter
         {
             TypeNameHandling = TypeNameHandling.Auto,
             NullValueHandling = NullValueHandling.Ignore,
-            ContractResolver = new SuppressConverterContractResolver<ExceptionConverter>() { NamingStrategy = new CamelCaseNamingStrategy() }
+            ContractResolver = new SuppressContractResolver<ExceptionConverter>() { NamingStrategy = new CamelCaseNamingStrategy() }
         });
 
         public override Exception ReadJson(JsonReader reader, Type objectType, Exception existingValue, bool hasExistingValue, JsonSerializer serializer)

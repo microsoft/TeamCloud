@@ -13,13 +13,7 @@ namespace TeamCloud.Model.Validation.Data
         public TeamCloudInstanceValidator()
         {
             RuleFor(obj => obj.Id)
-                .MustBeResourceId();
-
-            RuleFor(obj => obj.PartitionKey)
-                .NotEmpty();
-
-            RuleFor(obj => obj.Providers)
-                .NotEmpty();
+                .NotNull();
         }
     }
 }

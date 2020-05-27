@@ -211,7 +211,7 @@ namespace TeamCloud.API.Controllers
                     .ActionResult();
 
             var oldUser = await usersRepository
-                .GetAsync(user.Id)
+                .GetAsync(Guid.Parse(user.Id))
                 .ConfigureAwait(false);
 
             if (oldUser is null || !oldUser.IsMember(projectId))
@@ -223,7 +223,7 @@ namespace TeamCloud.API.Controllers
             {
                 var otherOwners = await usersRepository
                     .ListOwnersAsync(projectId)
-                    .AnyAsync(o => o.Id != user.Id)
+                    .AnyAsync(o => o.Id.Equals(user.Id.ToString(), StringComparison.OrdinalIgnoreCase))
                     .ConfigureAwait(false);
 
                 if (!otherOwners)
@@ -307,7 +307,7 @@ namespace TeamCloud.API.Controllers
             {
                 var otherOwners = await usersRepository
                     .ListOwnersAsync(projectId)
-                    .AnyAsync(o => o.Id != userId)
+                    .AnyAsync(o => o.Id.Equals(userId.ToString(), StringComparison.OrdinalIgnoreCase))
                     .ConfigureAwait(false);
 
                 if (!otherOwners)

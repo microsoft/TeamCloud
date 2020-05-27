@@ -6,6 +6,7 @@
 using TeamCloud.Configuration;
 using TeamCloud.Configuration.Options;
 using TeamCloud.Data.CosmosDb;
+using TeamCloud.Data.CosmosDb.Core;
 
 namespace TeamCloud.API.Options
 {
@@ -19,8 +20,10 @@ namespace TeamCloud.API.Options
             this.cosmosDbOptions = cosmosDbOptions;
         }
 
-        string ICosmosDbOptions.DatabaseName => cosmosDbOptions.DatabaseName;
+        public string TenantName => DatabaseName;
 
-        string ICosmosDbOptions.ConnectionString => cosmosDbOptions.ConnectionString;
+        public string DatabaseName => cosmosDbOptions.DatabaseName;
+
+        public string ConnectionString => cosmosDbOptions.ConnectionString;
     }
 }

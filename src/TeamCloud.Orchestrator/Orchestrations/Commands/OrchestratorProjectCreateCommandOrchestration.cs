@@ -85,15 +85,8 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 .ConfigureAwait(true);
 
             var commandResult = command.CreateResult();
+
             var project = commandResult.Result = command.Payload;
-
-            // initialize the new project with some data
-            // from the teamcloud instance:
-            // - TeamCloudId = ensure that the new project belongs to a team cloud instance
-            // - Tags = ensure that every project starts with a set of tags defined by the team cloud instance
-            // CAUTION: there is no need to populate any other data (e.g. properties) on the new project instance
-
-            project.TeamCloudId = teamCloud.Id;
             project.Tags = teamCloud.Tags.Override(project.Tags);
 
             functionContext.SetCustomStatus($"Creating project", log);

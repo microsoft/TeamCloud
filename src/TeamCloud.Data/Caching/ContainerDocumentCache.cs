@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Redis;
 using TeamCloud.Model.Data;
+using TeamCloud.Model.Data.Core;
 
 namespace TeamCloud.Data.Caching
 {
