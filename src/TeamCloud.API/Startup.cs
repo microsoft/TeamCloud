@@ -296,6 +296,9 @@ namespace TeamCloud.API
                 .GetAsync(userId)
                 .ConfigureAwait(false);
 
+            if (user is null)
+                return claims;
+
             claims.Add(new Claim(ClaimTypes.Role, user.Role.PolicyRoleName()));
 
             if (httpContext.Request.Path.StartsWithSegments("/api/projects", StringComparison.OrdinalIgnoreCase))
