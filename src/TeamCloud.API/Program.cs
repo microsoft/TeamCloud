@@ -33,7 +33,7 @@ namespace TeamCloud.API
                 .AddConfigurationService()
                 .Build(); // refresh configuration root to get configuration service settings
 
-            var keyVaultName = configurationRoot["Azure:KeyVault:Name"];
+            var keyVaultName = configurationRoot["KeyVaultName"];
 
             if (!string.IsNullOrEmpty(keyVaultName))
             {

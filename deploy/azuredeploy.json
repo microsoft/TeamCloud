@@ -458,7 +458,7 @@
                 "Azure:CosmosDb:DatabaseName": "TeamCloud",
                 "Azure:CosmosDb:ConnectionString": "[concat('AccountEndpoint=', reference(concat('Microsoft.DocumentDb/databaseAccounts/', variables('cosmosDbName'))).documentEndpoint, ';AccountKey=', listKeys(resourceId('Microsoft.DocumentDb/databaseAccounts', variables('cosmosDbName')), '2015-04-08').primaryMasterKey)]",
                 "Azure:DeploymentStorage:ConnectionString": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('deploymentStorageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('deploymentStorageAccountName')), '2017-06-01').keys[0].value)]",
-                "Azure:KeyVault:Name": "[variables('keyVaultName')]",
+                "KeyVaultName": "[variables('keyVaultName')]",
                 "Orchestrator:Url": "[concat('https://', variables('functionAppNameLower'), '.azurewebsites.net')]",
                 "Orchestrator:AuthCode": "[listkeys(concat(resourceId('Microsoft.Web/sites', variables('functionAppNameLower')), '/host/default/'),'2016-08-01').functionKeys.default]"
             }
