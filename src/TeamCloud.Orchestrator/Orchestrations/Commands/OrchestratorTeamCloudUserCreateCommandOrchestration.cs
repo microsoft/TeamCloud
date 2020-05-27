@@ -4,7 +4,6 @@
  */
 
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -42,7 +41,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 {
                     functionContext.SetCustomStatus($"Creating user.", log);
 
-                    using (await functionContext.LockAsync<User>(user.Id.ToString()).ConfigureAwait(true))
+                    using (await functionContext.LockContainerDocumentAsync(user).ConfigureAwait(true))
                     {
                         var existingUser = await functionContext
                             .GetUserAsync(user.Id)

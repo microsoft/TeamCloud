@@ -9,15 +9,16 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
-using TeamCloud.Model;
+using TeamCloud.Data.CosmosDb.Core;
 using TeamCloud.Model.Data;
-
+using TeamCloud.Model.Data.Core;
+using TeamCloud.Model.Validation;
 using User = TeamCloud.Model.Data.User;
 
 namespace TeamCloud.Data.CosmosDb
 {
 
-    public class CosmosDbUsersRepository : CosmosDbBaseRepository<User>, IUsersRepository
+    public class CosmosDbUsersRepository : CosmosDbRepository<User>, IUsersRepository
     {
         public CosmosDbUsersRepository(ICosmosDbOptions cosmosOptions)
             : base(cosmosOptions)
@@ -25,15 +26,25 @@ namespace TeamCloud.Data.CosmosDb
 
         public async Task<User> AddAsync(User user)
         {
+            if (user is null)
+                throw new ArgumentNullException(nameof(user));
+
+            await user
+                .ValidateAsync(throwOnValidationError: true)
+                .ConfigureAwait(false);
+
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
             var response = await container
-                .CreateItemAsync(user, new PartitionKey(Constants.CosmosDb.TenantName))
+                .CreateItemAsync(user, new PartitionKey(Options.TenantName))
                 .ConfigureAwait(false);
 
             return response.Resource;
         }
+
+        private Task<User> GetAsync(string id)
+            => GetAsync(Guid.Parse(id));
 
         public async Task<User> GetAsync(Guid id)
         {
@@ -43,7 +54,7 @@ namespace TeamCloud.Data.CosmosDb
             try
             {
                 var response = await container
-                    .ReadItemAsync<User>(id.ToString(), new PartitionKey(Constants.CosmosDb.TenantName))
+                    .ReadItemAsync<User>(id.ToString(), new PartitionKey(Options.TenantName))
                     .ConfigureAwait(false);
 
                 return response.Resource;
@@ -60,7 +71,7 @@ namespace TeamCloud.Data.CosmosDb
                 .ConfigureAwait(false);
 
             var query = new QueryDefinition($"SELECT * FROM u");
-            var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Constants.CosmosDb.TenantName) });
+            var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
 
             while (queryIterator.HasMoreResults)
             {
@@ -81,7 +92,7 @@ namespace TeamCloud.Data.CosmosDb
             var query = new QueryDefinition("SELECT VALUE u FROM u WHERE EXISTS(SELECT VALUE m FROM m IN u.projectMemberships WHERE m.projectId = @projectId)")
                 .WithParameter("@projectId", projectId);
 
-            var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Constants.CosmosDb.TenantName) });
+            var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
 
             while (queryIterator.HasMoreResults)
             {
@@ -103,7 +114,7 @@ namespace TeamCloud.Data.CosmosDb
                 .WithParameter("@projectId", projectId)
                 .WithParameter("@projectRole", ProjectUserRole.Owner);
 
-            var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Constants.CosmosDb.TenantName) });
+            var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
 
             while (queryIterator.HasMoreResults)
             {
@@ -123,7 +134,7 @@ namespace TeamCloud.Data.CosmosDb
 
             var query = new QueryDefinition($"SELECT * FROM u WHERE u.role = @role")
                 .WithParameter("@role", TeamCloudUserRole.Admin);
-            var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Constants.CosmosDb.TenantName) });
+            var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
 
             while (queryIterator.HasMoreResults)
             {
@@ -138,11 +149,18 @@ namespace TeamCloud.Data.CosmosDb
 
         public async Task<User> SetAsync(User user)
         {
+            if (user is null)
+                throw new ArgumentNullException(nameof(user));
+
+            await user
+                .ValidateAsync(throwOnValidationError: true)
+                .ConfigureAwait(false);
+
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
             var response = await container
-                .UpsertItemAsync<User>(user, new PartitionKey(Constants.CosmosDb.TenantName))
+                .UpsertItemAsync<User>(user, new PartitionKey(Options.TenantName))
                 .ConfigureAwait(false);
 
             return response.Resource;
@@ -159,7 +177,7 @@ namespace TeamCloud.Data.CosmosDb
             try
             {
                 var response = await container
-                    .DeleteItemAsync<User>(user.Id.ToString(), new PartitionKey(Constants.CosmosDb.TenantName))
+                    .DeleteItemAsync<User>(user.Id.ToString(), new PartitionKey(Options.TenantName))
                     .ConfigureAwait(false);
 
                 return response.Resource;
@@ -178,7 +196,7 @@ namespace TeamCloud.Data.CosmosDb
             var query = new QueryDefinition("SELECT VALUE u FROM u WHERE EXISTS(SELECT VALUE m FROM m IN u.projectMemberships WHERE m.projectId = @projectId)")
                 .WithParameter("@projectId", projectId);
 
-            var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Constants.CosmosDb.TenantName) });
+            var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
 
 
             while (queryIterator.HasMoreResults)
@@ -200,9 +218,9 @@ namespace TeamCloud.Data.CosmosDb
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
-            var etag = user.ETag;
+            var document = (IContainerDocument)user;
 
-            if (string.IsNullOrEmpty(etag))
+            if (string.IsNullOrEmpty(document.ETag))
             {
                 var existingUser = await GetAsync(user.Id)
                     .ConfigureAwait(false);
@@ -216,7 +234,6 @@ namespace TeamCloud.Data.CosmosDb
 
             return await RemoveProjectMembershipSafeAsync(container, user, projectId)
                 .ConfigureAwait(false);
-
 
             async Task<User> RemoveProjectMembershipSafeAsync(Container container, User user, Guid projectId)
             {
@@ -232,8 +249,8 @@ namespace TeamCloud.Data.CosmosDb
                     var updatedUser = await container
                         .ReplaceItemAsync(
                             user, user.Id.ToString(),
-                            new PartitionKey(Constants.CosmosDb.TenantName),
-                            new ItemRequestOptions { IfMatchEtag = user.ETag }
+                            new PartitionKey(Options.TenantName),
+                            new ItemRequestOptions { IfMatchEtag = document.ETag }
                         ).ConfigureAwait(false);
 
                     return updatedUser;
@@ -273,9 +290,9 @@ namespace TeamCloud.Data.CosmosDb
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
-            var etag = user.ETag;
+            var document = (IContainerDocument)user;
 
-            if (string.IsNullOrEmpty(etag))
+            if (string.IsNullOrEmpty(document.ETag))
             {
                 var existingUser = await GetAsync(user.Id)
                     .ConfigureAwait(false);
@@ -305,8 +322,8 @@ namespace TeamCloud.Data.CosmosDb
                     var updatedUser = await container
                         .ReplaceItemAsync(
                             user, user.Id.ToString(),
-                            new PartitionKey(Constants.CosmosDb.TenantName),
-                            new ItemRequestOptions { IfMatchEtag = user.ETag }
+                            new PartitionKey(Options.TenantName),
+                            new ItemRequestOptions { IfMatchEtag = document.ETag }
                         ).ConfigureAwait(false);
 
                     return updatedUser;
@@ -336,9 +353,9 @@ namespace TeamCloud.Data.CosmosDb
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
-            var etag = user.ETag;
+            var document = (IContainerDocument)user;
 
-            if (string.IsNullOrEmpty(etag))
+            if (string.IsNullOrEmpty(document.ETag))
             {
                 var existingUser = await GetAsync(user.Id)
                     .ConfigureAwait(false);
@@ -364,8 +381,8 @@ namespace TeamCloud.Data.CosmosDb
                     var updatedUser = await container
                         .ReplaceItemAsync(
                             user, user.Id.ToString(),
-                            new PartitionKey(Constants.CosmosDb.TenantName),
-                            new ItemRequestOptions { IfMatchEtag = user.ETag }
+                            new PartitionKey(Options.TenantName),
+                            new ItemRequestOptions { IfMatchEtag = document.ETag }
                         ).ConfigureAwait(false);
 
                     return updatedUser;

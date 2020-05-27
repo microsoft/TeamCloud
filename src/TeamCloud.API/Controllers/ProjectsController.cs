@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -50,7 +49,7 @@ namespace TeamCloud.API.Controllers
                 users = (await Task.WhenAll(tasks).ConfigureAwait(false)).ToList();
             }
 
-            if (!users.Any(u => u.Id == userService.CurrentUserId))
+            if (!users.Any(u => u.Id == userService.CurrentUserId.ToString()))
             {
                 var currentUser = await userService
                     .CurrentUserAsync()
@@ -69,7 +68,7 @@ namespace TeamCloud.API.Controllers
                     .ResolveUserAsync(userDefinition)
                     .ConfigureAwait(false);
 
-                var role = user.Id == userService.CurrentUserId ? ProjectUserRole.Owner : Enum.Parse<ProjectUserRole>(userDefinition.Role, true);
+                var role = user.Id == userService.CurrentUserId.ToString() ? ProjectUserRole.Owner : Enum.Parse<ProjectUserRole>(userDefinition.Role, true);
                 user.EnsureProjectMembership(projectId, role, userDefinition.Properties);
 
                 return user;
@@ -156,7 +155,7 @@ namespace TeamCloud.API.Controllers
 
             var project = new Project
             {
-                Id = projectId,
+                Id = projectId.ToString(),
                 Users = users,
                 Name = projectDefinition.Name,
                 Tags = projectDefinition.Tags
@@ -185,7 +184,7 @@ namespace TeamCloud.API.Controllers
                         .ActionResult();
             }
 
-            var currentUserForCommand = users.FirstOrDefault(u => u.Id == userService.CurrentUserId);
+            var currentUserForCommand = users.FirstOrDefault(u => u.Id == userService.CurrentUserId.ToString());
 
             var command = new OrchestratorProjectCreateCommand(currentUserForCommand, project);
 

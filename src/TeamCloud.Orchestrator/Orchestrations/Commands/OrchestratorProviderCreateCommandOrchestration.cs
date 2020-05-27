@@ -15,14 +15,22 @@ using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestrator.Activities;
 using TeamCloud.Orchestrator.Entities;
+using TeamCloud.Orchestrator.Options;
 using TeamCloud.Orchestrator.Orchestrations.Utilities;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Commands
 {
-    public static class OrchestratorProviderCreateCommandOrchestration
+    public class OrchestratorProviderCreateCommandOrchestration
     {
+        private readonly OrchestratorDatabaseOptions orchestratorDatabaseOptions;
+
+        public OrchestratorProviderCreateCommandOrchestration(OrchestratorDatabaseOptions orchestratorDatabaseOptions)
+        {
+            this.orchestratorDatabaseOptions = orchestratorDatabaseOptions ?? throw new ArgumentNullException(nameof(orchestratorDatabaseOptions));
+        }
+
         [FunctionName(nameof(OrchestratorProviderCreateCommandOrchestration))]
-        public static async Task RunOrchestration(
+        public async Task RunOrchestration(
             [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
             ILogger log)
         {
@@ -47,7 +55,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
 
                     provider.Registered = null;
 
-                    using (await functionContext.LockAsync<TeamCloudInstance>(TeamCloudInstance.DefaultId).ConfigureAwait(true))
+                    using (await functionContext.LockAsync<TeamCloudInstance>(orchestratorDatabaseOptions.TenantName).ConfigureAwait(true))
                     {
                         var teamCloud = await functionContext
                             .GetTeamCloudAsync()
