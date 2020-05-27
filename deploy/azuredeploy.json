@@ -87,60 +87,70 @@
                 "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('webAppNameLower'))]",
                 "siteConfig": {
                     "phpVersion": "off",
-                    "clientAffinityEnabled": false
+                    "clientAffinityEnabled": false,
+                    "appSettings": [
+                        {
+                            "name": "AppConfiguration:ConnectionString",
+                            "value": "[listKeys(resourceId('Microsoft.AppConfiguration/configurationStores', variables('appConfigurationName')), '2019-10-01').value[0].connectionString]"
+                        },
+                        {
+                            "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                            "value": "[reference(resourceId('Microsoft.Insights/components', variables('webAppNameLower')), '2015-05-01').InstrumentationKey]"
+                        },
+                        {
+                            "name": "APPINSIGHTS_PROFILERFEATURE_VERSION",
+                            "value": "disabled"
+                        },
+                        {
+                            "name": "APPINSIGHTS_SNAPSHOTFEATURE_VERSION",
+                            "value": "disabled"
+                        },
+                        {
+                            "name": "ApplicationInsightsAgent_EXTENSION_VERSION",
+                            "value": "~2"
+                        },
+                        {
+                            "name": "DiagnosticServices_EXTENSION_VERSION",
+                            "value": "disabled"
+                        },
+                        {
+                            "name": "InstrumentationEngine_EXTENSION_VERSION",
+                            "value": "disabled"
+                        },
+                        {
+                            "name": "SnapshotDebugger_EXTENSION_VERSION",
+                            "value": "disabled"
+                        },
+                        {
+                            "name": "XDT_MicrosoftApplicationInsights_BaseExtensions",
+                            "value": "disabled"
+                        },
+                        {
+                            "name": "XDT_MicrosoftApplicationInsights_Mode",
+                            "value": "default"
+                        },
+                        {
+                            "name": "WEBSITE_NODE_DEFAULT_VERSION",
+                            "value": "10.14"
+                        },
+                        {
+                            "name": "ANCM_ADDITIONAL_ERROR_PAGE_LINK",
+                            "value": "[concat('https://', variables('webAppNameLower'), '.scm.azurewebsites.net/detectors')]"
+                        }
+                    ],
+                    "connectionStrings": [
+                        {
+                            "name": "ConfigurationService",
+                            "connectionString": "[listKeys(resourceId('Microsoft.AppConfiguration/configurationStores', variables('appConfigurationName')), '2019-10-01').value[0].connectionString]",
+                            "type": "Custom"
+                        }
+                    ]
                 }
             },
             "dependsOn": [
                 "[resourceId('Microsoft.Web/serverfarms', variables('webAppNameLower'))]",
-                "[resourceId('Microsoft.Web/sites', variables('functionAppNameLower'))]",
-                "[resourceId('Microsoft.Storage/storageAccounts', variables('webjobsStorageAccountName'))]",
-                "[resourceId('Microsoft.Storage/storageAccounts', variables('taskhubStorageAccountName'))]",
-                "[resourceId('Microsoft.DocumentDb/databaseAccounts', variables('cosmosDbName'))]",
-                "[resourceId('Microsoft.AppConfiguration/configurationStores', variables('appConfigurationName'))]"
-            ],
-            "resources": [
-                {
-                    "type": "config",
-                    "name": "appsettings",
-                    "apiVersion": "2018-02-01",
-                    "properties": {
-                        "AppConfiguration:ConnectionString": "[listKeys(resourceId('Microsoft.AppConfiguration/configurationStores', variables('appConfigurationName')), '2019-10-01').value[0].connectionString]",
-                        "APPINSIGHTS_INSTRUMENTATIONKEY": "[reference(resourceId('Microsoft.Insights/components', variables('webAppNameLower')), '2015-05-01').InstrumentationKey]",
-                        "APPINSIGHTS_PROFILERFEATURE_VERSION": "disabled",
-                        "APPINSIGHTS_SNAPSHOTFEATURE_VERSION": "disabled",
-                        "ApplicationInsightsAgent_EXTENSION_VERSION": "~2",
-                        "DiagnosticServices_EXTENSION_VERSION": "disabled",
-                        "InstrumentationEngine_EXTENSION_VERSION": "disabled",
-                        "SnapshotDebugger_EXTENSION_VERSION": "disabled",
-                        "XDT_MicrosoftApplicationInsights_BaseExtensions": "disabled",
-                        "XDT_MicrosoftApplicationInsights_Mode": "default",
-                        "WEBSITE_NODE_DEFAULT_VERSION": "10.14",
-                        "ANCM_ADDITIONAL_ERROR_PAGE_LINK": "[concat('https://', variables('webAppNameLower'), '.scm.azurewebsites.net/detectors')]"
-                    },
-                    "dependsOn": [
-                        "[resourceId('Microsoft.Web/sites', variables('webAppNameLower'))]",
-                        "[resourceId('Microsoft.Web/sites', variables('functionAppNameLower'))]",
-                        "[resourceId('Microsoft.Insights/components', variables('webAppNameLower'))]"
-                    ]
-                },
-                {
-                    "type": "config",
-                    "name": "web",
-                    "apiVersion": "2018-02-01",
-                    "properties": {
-                        "connectionStrings": [
-                            {
-                                "name": "ConfigurationService",
-                                "connectionString": "[listKeys(resourceId('Microsoft.AppConfiguration/configurationStores', variables('appConfigurationName')), '2019-10-01').value[0].connectionString]",
-                                "type": "Custom"
-                            }
-                        ]
-                    },
-                    "dependsOn": [
-                        "[resourceId('Microsoft.Web/sites', variables('webAppNameLower'))]",
-                        "[resourceId('Microsoft.AppConfiguration/configurationStores', variables('appConfigurationName'))]"
-                    ]
-                }
+                "[resourceId('Microsoft.AppConfiguration/configurationStores', variables('appConfigurationName'))]",
+                "[resourceId('Microsoft.Insights/components', variables('webAppNameLower'))]"
             ]
         },
         {
@@ -162,7 +172,7 @@
             "type": "Microsoft.Web/sites",
             "kind": "functionapp",
             "name": "[variables('functionAppNameLower')]",
-            "apiVersion": "2018-02-01",
+            "apiVersion": "2018-11-01",
             "location": "[resourceGroup().location]",
             "identity": {
                 "type": "SystemAssigned"
@@ -172,55 +182,60 @@
                 "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('functionAppNameLower'))]",
                 "siteConfig": {
                     "phpVersion": "off",
-                    "clientAffinityEnabled": false
+                    "clientAffinityEnabled": false,
+                    "appSettings": [
+                        {
+                            "name": "AppConfiguration:ConnectionString",
+                            "value": "[listKeys(resourceId('Microsoft.AppConfiguration/configurationStores', variables('appConfigurationName')), '2019-10-01').value[0].connectionString]"
+                        },
+                        {
+                            "name": "AzureWebJobsStorage",
+                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('webjobsStorageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('webjobsStorageAccountName')), '2017-06-01').keys[0].value)]"
+                        },
+                        {
+                            "name": "DurableFunctionsHubStorage",
+                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('taskhubStorageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('taskhubStorageAccountName')), '2017-06-01').keys[0].value)]"
+                        },
+                        {
+                            "name": "FUNCTION_APP_EDIT_MODE",
+                            "value": "readonly"
+                        },
+                        {
+                            "name": "FUNCTIONS_EXTENSION_VERSION",
+                            "value": "~3"
+                        },
+                        {
+                            "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
+                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('webjobsStorageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('webjobsStorageAccountName')), '2017-06-01').keys[0].value)]"
+                        },
+                        {
+                            "name": "WEBSITE_CONTENTSHARE",
+                            "value": "[variables('functionAppNameLower')]"
+                        },
+                        {
+                            "name": "WEBSITE_NODE_DEFAULT_VERSION",
+                            "value": "~12"
+                        },
+                        {
+                            "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                            "value": "[reference(resourceId('Microsoft.Insights/components', variables('webAppNameLower')), '2015-05-01').InstrumentationKey]"
+                        }
+                    ],
+                    "connectionStrings": [
+                        {
+                            "name": "ConfigurationService",
+                            "connectionString": "[listKeys(resourceId('Microsoft.AppConfiguration/configurationStores', variables('appConfigurationName')), '2019-10-01').value[0].connectionString]",
+                            "type": "Custom"
+                        }
+                    ]
                 }
             },
             "dependsOn": [
                 "[resourceId('Microsoft.Web/serverfarms', variables('functionAppNameLower'))]",
                 "[resourceId('Microsoft.Storage/storageAccounts', variables('webjobsStorageAccountName'))]",
                 "[resourceId('Microsoft.Storage/storageAccounts', variables('taskhubStorageAccountName'))]",
-                "[resourceId('Microsoft.DocumentDb/databaseAccounts', variables('cosmosDbName'))]",
-                "[resourceId('Microsoft.AppConfiguration/configurationStores', variables('appConfigurationName'))]"
-            ],
-            "resources": [
-                {
-                    "type": "config",
-                    "name": "appsettings",
-                    "apiVersion": "2018-02-01",
-                    "properties": {
-                        "AppConfiguration:ConnectionString": "[listKeys(resourceId('Microsoft.AppConfiguration/configurationStores', variables('appConfigurationName')), '2019-10-01').value[0].connectionString]",
-                        "AzureWebJobsStorage": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('webjobsStorageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('webjobsStorageAccountName')), '2017-06-01').keys[0].value)]",
-                        "DurableFunctionsHubStorage": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('taskhubStorageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('taskhubStorageAccountName')), '2017-06-01').keys[0].value)]",
-                        "FUNCTION_APP_EDIT_MODE": "readonly",
-                        "FUNCTIONS_EXTENSION_VERSION": "~3",
-                        "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('webjobsStorageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('webjobsStorageAccountName')), '2017-06-01').keys[0].value)]",
-                        "WEBSITE_CONTENTSHARE": "[variables('functionAppNameLower')]",
-                        "WEBSITE_NODE_DEFAULT_VERSION": "~12",
-                        "APPINSIGHTS_INSTRUMENTATIONKEY": "[reference(resourceId('Microsoft.Insights/components', variables('webAppNameLower')), '2015-05-01').InstrumentationKey]"
-                    },
-                    "dependsOn": [
-                        "[resourceId('Microsoft.Web/sites', variables('functionAppNameLower'))]",
-                        "[resourceId('Microsoft.Insights/components', variables('webAppNameLower'))]"
-                    ]
-                },
-                {
-                    "type": "config",
-                    "name": "web",
-                    "apiVersion": "2018-02-01",
-                    "properties": {
-                        "connectionStrings": [
-                            {
-                                "name": "ConfigurationService",
-                                "connectionString": "[listKeys(resourceId('Microsoft.AppConfiguration/configurationStores', variables('appConfigurationName')), '2019-10-01').value[0].connectionString]",
-                                "type": "Custom"
-                            }
-                        ]
-                    },
-                    "dependsOn": [
-                        "[resourceId('Microsoft.Web/sites', variables('functionAppNameLower'))]",
-                        "[resourceId('Microsoft.AppConfiguration/configurationStores', variables('appConfigurationName'))]"
-                    ]
-                }
+                "[resourceId('Microsoft.AppConfiguration/configurationStores', variables('appConfigurationName'))]",
+                "[resourceId('Microsoft.Insights/components', variables('webAppNameLower'))]"
             ]
         },
         {
@@ -336,14 +351,7 @@
             "properties": {
                 "ApplicationId": "[variables('webAppNameLower')]",
                 "Application_Type": "web"
-            },
-            "tags": {
-                "[concat('hidden-link:', resourceId('Microsoft.Web/sites', variables('webAppNameLower')))]": "Resource"
-            },
-            "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', variables('webAppNameLower'))]",
-                "[resourceId('Microsoft.Web/serverfarms', variables('webAppNameLower'))]"
-            ]
+            }
         },
         {
             "type": "Microsoft.DocumentDB/databaseAccounts",
