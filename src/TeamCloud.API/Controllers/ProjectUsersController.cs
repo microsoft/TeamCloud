@@ -51,7 +51,7 @@ namespace TeamCloud.API.Controllers
         [Authorize(Policy = "projectRead")]
         [SwaggerOperation(OperationId = "GetProjectUsers", Summary = "Gets all Users for a Project.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all Project Users", typeof(DataResult<List<ProjectUser>>))]
-        [SwaggerResponse(StatusCodes.Status400BadRequest, "The projectId provided in the path was invalid.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Get()
         {
@@ -80,7 +80,7 @@ namespace TeamCloud.API.Controllers
         [Authorize(Policy = "projectRead")]
         [SwaggerOperation(OperationId = "GetProjectUserByNameOrId", Summary = "Gets a Project User by ID or email address.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns Project User", typeof(DataResult<ProjectUser>))]
-        [SwaggerResponse(StatusCodes.Status400BadRequest, "The projectId provided in the path was invalid.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a User with the provided identifier was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Get([FromRoute] string userNameOrId)
         {
@@ -127,7 +127,7 @@ namespace TeamCloud.API.Controllers
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "CreateProjectUser", Summary = "Creates a new Project User")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts creating the new Project User. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
-        [SwaggerResponse(StatusCodes.Status400BadRequest, "The projectId provided in the path was invalid.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a User with the email address provided in the request body was not found.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status409Conflict, "A Project User already exists with the email address provided in the request body.", typeof(ErrorResult))]
         public async Task<IActionResult> Post([FromBody] UserDefinition userDefinition)
@@ -189,7 +189,7 @@ namespace TeamCloud.API.Controllers
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "UpdateProjectUser", Summary = "Updates an existing Project User.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts updating the Project UserProject. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
-        [SwaggerResponse(StatusCodes.Status400BadRequest, "The projectId provided in the path was invalid, or the User provided in the request body did not pass validation.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a User with the ID provided in the request body was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Put([FromBody] ProjectUser user)
         {
@@ -269,7 +269,7 @@ namespace TeamCloud.API.Controllers
         [Authorize(Policy = "projectCreate")]
         [SwaggerOperation(OperationId = "DeleteProjectUser", Summary = "Deletes an existing Project User.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts deleting the Project User. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
-        [SwaggerResponse(StatusCodes.Status400BadRequest, "The projectId provided in the path was invalid.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a User with the provided identifier was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Delete([FromRoute] string userNameOrId)
         {

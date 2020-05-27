@@ -44,6 +44,7 @@ namespace TeamCloud.API
         [Authorize(Policy = "admin")]
         [SwaggerOperation(OperationId = "GetTeamCloudUsers", Summary = "Gets all TeamCloud Users.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all TeamCloud Users.", typeof(DataResult<List<User>>))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Get()
         {
@@ -62,6 +63,7 @@ namespace TeamCloud.API
         [Authorize(Policy = "admin")]
         [SwaggerOperation(OperationId = "GetTeamCloudUserByNameOrId", Summary = "Gets a TeamCloud User by ID or email address.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns TeamCloud User.", typeof(DataResult<User>))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found, or a User with the provided identifier was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Get([FromRoute] string userNameOrId)
         {
@@ -99,7 +101,7 @@ namespace TeamCloud.API
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "CreateTeamCloudUser", Summary = "Creates a new TeamCloud User.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts creating the new TeamCloud User. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
-        [SwaggerResponse(StatusCodes.Status400BadRequest, "The User provided in the request body did not pass validation.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found, or a User with the email address provided in the request body was not found.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status409Conflict, "A TeamCloud User already exists with the email address provided in the request body.", typeof(ErrorResult))]
         public async Task<IActionResult> Post([FromBody] UserDefinition userDefinition)
@@ -165,7 +167,7 @@ namespace TeamCloud.API
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "UpdateTeamCloudUser", Summary = "Updates an existing TeamCloud User.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts updating the TeamCloud User. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
-        [SwaggerResponse(StatusCodes.Status400BadRequest, "The User provided in the request body did not pass validation.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found, or a User with the ID provided in the request body was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Put([FromBody] User user)
         {
