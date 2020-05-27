@@ -71,8 +71,8 @@ namespace TeamCloud.Data.CosmosDb.Core
 
         private static async Task<(Container, ChangeFeedProcessor)> CreateContainerAsync(Database database, Type containerType, ChangesHandler<T> changesHandler)
         {
-            var containerBuilder = database.DefineContainer(typeof(T).Name, IContainerDocument.GetPartitionKeyPath<T>(true));
-            var containerKeys = IContainerDocument.GetUniqueKeyPaths<T>(true);
+            var containerBuilder = database.DefineContainer(typeof(T).Name, PartitionKeyAttribute.GetPath<T>(true));
+            var containerKeys = UniqueKeyAttribute.GetPaths<T>(true);
 
             if (containerKeys.Any())
             {

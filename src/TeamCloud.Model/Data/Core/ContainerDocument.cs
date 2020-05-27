@@ -4,9 +4,6 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using TeamCloud.Model.Data.Serialization;
@@ -16,29 +13,6 @@ namespace TeamCloud.Model.Data.Core
     [JsonConverter(typeof(ContainerDocumentConverter))]
     public interface IContainerDocument : IIdentifiable, IValidatable
     {
-        public static string GetPartitionKeyPath<T>(bool camelCase = false)
-            where T : class, IContainerDocument
-        {
-            var name = typeof(T).GetProperties()
-                .Where(p => p.GetCustomAttribute<PartitionKeyAttribute>() != null)
-                .Single().Name;
-
-            if (camelCase)
-                name = new CamelCasePropertyNamesContractResolver().GetResolvedPropertyName(name);
-
-            return $"/{name}";
-        }
-
-        public static IEnumerable<string> GetUniqueKeyPaths<T>(bool camelCase = false)
-            where T : class, IContainerDocument
-        {
-            var resolver = new CamelCasePropertyNamesContractResolver();
-
-            return typeof(T).GetProperties()
-                .Where(p => p.GetCustomAttribute<UniqueKeyAttribute>() != null)
-                .Select(p => $"/{(camelCase ? resolver.GetResolvedPropertyName(p.Name) : p.Name)}");
-        }
-
         [DatabaseIgnore]
         [JsonProperty("_timestamp")]
         DateTime? Timestamp { get; set; }
