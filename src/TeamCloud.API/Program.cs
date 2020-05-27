@@ -33,7 +33,7 @@ namespace TeamCloud.API
                 .AddConfigurationService()
                 .Build(); // refresh configuration root to get configuration service settings
 
-            var keyVaultName = configurationRoot["KeyVaultName"];
+            var keyVaultName = configurationRoot["Azure:KeyVault:Name"];
 
             if (!string.IsNullOrEmpty(keyVaultName))
             {
@@ -47,7 +47,7 @@ namespace TeamCloud.API
             }
             else if (hostingEnvironment.IsDevelopment())
             {
-                // for development we use the local secret store as a fallback if not KeyVaultName is provided 
+                // for development we use the local secret store as a fallback if not KeyVaultName is provided
                 // see: https://docs.microsoft.com/en-us/aspnet/core/security/app-secrets?view=aspnetcore-3.1
 
                 configurationBuilder.AddUserSecrets<Startup>();

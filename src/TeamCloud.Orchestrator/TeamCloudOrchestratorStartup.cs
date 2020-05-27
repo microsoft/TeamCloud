@@ -104,7 +104,7 @@ namespace TeamCloud.Orchestrator
                 .AddConfigurationService()
                 .Build(); // refresh configuration root to get configuration service settings
 
-            var keyVaultName = configuration["KeyVaultName"];
+            var keyVaultName = configuration["Azure:KeyVault:Name"];
 
             if (!string.IsNullOrEmpty(keyVaultName))
             {
