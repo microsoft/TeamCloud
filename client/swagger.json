@@ -33,6 +33,16 @@
               }
             }
           },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized"
           },
@@ -75,7 +85,7 @@
             }
           },
           "400": {
-            "description": "The projectDefinition specified in the request body did not pass validation.",
+            "description": "A validation error occured.",
             "content": {
               "application/json": {
                 "schema": {
@@ -139,6 +149,16 @@
               }
             }
           },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
           "404": {
             "description": "A Project with the specified Name or ID was not found.",
             "content": {
@@ -188,6 +208,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/StatusResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
                 }
               }
             }
@@ -247,7 +277,7 @@
             }
           },
           "400": {
-            "description": "The projectId provided in the path was invalid.",
+            "description": "A validation error occured.",
             "content": {
               "application/json": {
                 "schema": {
@@ -322,7 +352,7 @@
             }
           },
           "400": {
-            "description": "The projectId provided in the path was invalid, or the key provided in the request body was invalid.",
+            "description": "A validation error occured.",
             "content": {
               "application/json": {
                 "schema": {
@@ -407,7 +437,7 @@
             }
           },
           "400": {
-            "description": "The projectId provided in the path was invalid, or the Tag provided in the request body did not pass validation.",
+            "description": "A validation error occured.",
             "content": {
               "application/json": {
                 "schema": {
@@ -480,7 +510,7 @@
             }
           },
           "400": {
-            "description": "The projectId provided in the path was invalid.",
+            "description": "A validation error occured.",
             "content": {
               "application/json": {
                 "schema": {
@@ -551,7 +581,7 @@
             }
           },
           "400": {
-            "description": "The projectId or key provided in the path was invalid.",
+            "description": "A validation error occured.",
             "content": {
               "application/json": {
                 "schema": {
@@ -603,6 +633,16 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
           }
         }
       },
@@ -633,7 +673,7 @@
             }
           },
           "400": {
-            "description": "The ProjectType did not pass validation.",
+            "description": "A validation error occured.",
             "content": {
               "application/json": {
                 "schema": {
@@ -694,7 +734,7 @@
             }
           },
           "400": {
-            "description": "The ProjectType did not pass validation.",
+            "description": "A validation error occured.",
             "content": {
               "application/json": {
                 "schema": {
@@ -758,6 +798,16 @@
               }
             }
           },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
           "404": {
             "description": "A ProjectType with the projectTypeId provided was not found.",
             "content": {
@@ -807,6 +857,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProjectTypeDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
                 }
               }
             }
@@ -866,7 +926,7 @@
             }
           },
           "400": {
-            "description": "The projectId provided in the path was invalid.",
+            "description": "A validation error occured.",
             "content": {
               "application/json": {
                 "schema": {
@@ -937,7 +997,7 @@
             }
           },
           "400": {
-            "description": "The projectId provided in the path was invalid.",
+            "description": "A validation error occured.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1018,7 +1078,7 @@
             }
           },
           "400": {
-            "description": "The projectId provided in the path was invalid, or the User provided in the request body did not pass validation.",
+            "description": "A validation error occured.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1091,7 +1151,7 @@
             }
           },
           "400": {
-            "description": "The projectId provided in the path was invalid.",
+            "description": "A validation error occured.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1162,7 +1222,7 @@
             }
           },
           "400": {
-            "description": "The projectId provided in the path was invalid.",
+            "description": "A validation error occured.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1211,6 +1271,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProviderListDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
                 }
               }
             }
@@ -1267,7 +1337,7 @@
             }
           },
           "400": {
-            "description": "The Provider provided in the request body did not pass validation.",
+            "description": "A validation error occured.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1338,7 +1408,7 @@
             }
           },
           "400": {
-            "description": "The Provider provided in the request body did not pass validation.",
+            "description": "A validation error occured.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1402,6 +1472,16 @@
               }
             }
           },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
           "404": {
             "description": "The TeamCloud instance was not found, or a Provider with the providerId provided was not found.",
             "content": {
@@ -1451,6 +1531,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/StatusResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
                 }
               }
             }
@@ -1526,6 +1616,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/StatusResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
                 }
               }
             }
@@ -1614,6 +1714,16 @@
               }
             }
           },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
           "404": {
             "description": "The long-running operation with the trackingId provided was not found.",
             "content": {
@@ -1678,7 +1788,7 @@
             }
           },
           "400": {
-            "description": "The User provided in the request body did not pass validation.",
+            "description": "A validation error occured.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -1771,6 +1881,16 @@
               }
             }
           },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
           "404": {
             "description": "The TeamCloud instance was not found.",
             "content": {
@@ -1827,7 +1947,7 @@
             }
           },
           "400": {
-            "description": "The key provided in the request body was invalid.",
+            "description": "A validation error occured.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1902,7 +2022,7 @@
             }
           },
           "400": {
-            "description": "The Tag provided in the request body did not pass validation.",
+            "description": "A validation error occured.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1967,7 +2087,7 @@
             }
           },
           "400": {
-            "description": "The key provided in the path was invalid.",
+            "description": "A validation error occured.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2030,7 +2150,7 @@
             }
           },
           "400": {
-            "description": "The key provided in the path was invalid.",
+            "description": "A validation error occured.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2079,6 +2199,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/UserListDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
                 }
               }
             }
@@ -2135,7 +2265,7 @@
             }
           },
           "400": {
-            "description": "The User provided in the request body did not pass validation.",
+            "description": "A validation error occured.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2206,7 +2336,7 @@
             }
           },
           "400": {
-            "description": "The User provided in the request body did not pass validation.",
+            "description": "A validation error occured.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2266,6 +2396,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/UserDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
                 }
               }
             }
@@ -2388,12 +2528,7 @@
       "ProjectType": {
         "type": "object",
         "properties": {
-          "partitionKey": {
-            "type": "string",
-            "nullable": true,
-            "readOnly": true
-          },
-          "id": {
+          "tenant": {
             "type": "string",
             "nullable": true
           },
@@ -2440,6 +2575,10 @@
               "type": "string"
             },
             "nullable": true
+          },
+          "id": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
@@ -2448,7 +2587,7 @@
         "properties": {
           "id": {
             "type": "string",
-            "format": "uuid"
+            "nullable": true
           },
           "applicationId": {
             "type": "string",
@@ -2525,18 +2664,9 @@
       "User": {
         "type": "object",
         "properties": {
-          "_etag": {
+          "tenant": {
             "type": "string",
             "nullable": true
-          },
-          "partitionKey": {
-            "type": "string",
-            "nullable": true,
-            "readOnly": true
-          },
-          "id": {
-            "type": "string",
-            "format": "uuid"
           },
           "userType": {
             "enum": [
@@ -2568,20 +2698,19 @@
               "type": "string"
             },
             "nullable": true
+          },
+          "id": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
       "Project": {
         "type": "object",
         "properties": {
-          "partitionKey": {
+          "tenant": {
             "type": "string",
-            "nullable": true,
-            "readOnly": true
-          },
-          "id": {
-            "type": "string",
-            "format": "uuid"
+            "nullable": true
           },
           "name": {
             "type": "string",
@@ -2598,10 +2727,6 @@
           },
           "keyVault": {
             "$ref": "#/components/schemas/AzureKeyVault"
-          },
-          "teamCloudId": {
-            "type": "string",
-            "nullable": true
           },
           "users": {
             "type": "array",
@@ -2622,6 +2747,10 @@
             "additionalProperties": {
               "type": "string"
             },
+            "nullable": true
+          },
+          "id": {
+            "type": "string",
             "nullable": true
           }
         }
@@ -2647,6 +2776,68 @@
           },
           "location": {
             "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ValidationError": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ResultError": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "enum": [
+              "Unknown",
+              "Failed",
+              "Conflict",
+              "NotFound",
+              "ServerError",
+              "ValidationError",
+              "Unauthorized",
+              "Forbidden"
+            ],
+            "type": "string"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "nullable": true
+          }
+        }
+      },
+      "ErrorResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResultError"
+            },
             "nullable": true
           }
         }
@@ -2698,48 +2889,6 @@
           }
         }
       },
-      "ValidationError": {
-        "type": "object",
-        "properties": {
-          "field": {
-            "type": "string",
-            "nullable": true
-          },
-          "message": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "ResultError": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "enum": [
-              "Unknown",
-              "Failed",
-              "Conflict",
-              "NotFound",
-              "ServerError",
-              "ValidationError",
-              "Unauthorized",
-              "Forbidden"
-            ],
-            "type": "string"
-          },
-          "message": {
-            "type": "string",
-            "nullable": true
-          },
-          "errors": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ValidationError"
-            },
-            "nullable": true
-          }
-        }
-      },
       "StatusResult": {
         "type": "object",
         "properties": {
@@ -2773,26 +2922,6 @@
           },
           "_trackingId": {
             "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "ErrorResult": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "status": {
-            "type": "string",
-            "nullable": true
-          },
-          "errors": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ResultError"
-            },
             "nullable": true
           }
         }
@@ -2892,7 +3021,7 @@
         "properties": {
           "id": {
             "type": "string",
-            "format": "uuid"
+            "nullable": true
           },
           "role": {
             "enum": [

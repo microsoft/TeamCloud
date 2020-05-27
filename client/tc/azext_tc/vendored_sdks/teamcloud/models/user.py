@@ -15,15 +15,8 @@ from msrest.serialization import Model
 class User(Model):
     """User.
 
-    Variables are only populated by the server, and will be ignored when
-    sending a request.
-
-    :param _etag:
-    :type _etag: str
-    :ivar partition_key:
-    :vartype partition_key: str
-    :param id:
-    :type id: str
+    :param tenant:
+    :type tenant: str
     :param user_type: Possible values include: 'User', 'System', 'Provider',
      'Application'
     :type user_type: str or ~teamcloud.models.enum
@@ -33,28 +26,24 @@ class User(Model):
     :type project_memberships: list[~teamcloud.models.ProjectMembership]
     :param properties:
     :type properties: dict[str, str]
+    :param id:
+    :type id: str
     """
 
-    _validation = {
-        'partition_key': {'readonly': True},
-    }
-
     _attribute_map = {
-        '_etag': {'key': '_etag', 'type': 'str'},
-        'partition_key': {'key': 'partitionKey', 'type': 'str'},
-        'id': {'key': 'id', 'type': 'str'},
+        'tenant': {'key': 'tenant', 'type': 'str'},
         'user_type': {'key': 'userType', 'type': 'str'},
         'role': {'key': 'role', 'type': 'str'},
         'project_memberships': {'key': 'projectMemberships', 'type': '[ProjectMembership]'},
         'properties': {'key': 'properties', 'type': '{str}'},
+        'id': {'key': 'id', 'type': 'str'},
     }
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
-        self._etag = kwargs.get('_etag', None)
-        self.partition_key = None
-        self.id = kwargs.get('id', None)
+        self.tenant = kwargs.get('tenant', None)
         self.user_type = kwargs.get('user_type', None)
         self.role = kwargs.get('role', None)
         self.project_memberships = kwargs.get('project_memberships', None)
         self.properties = kwargs.get('properties', None)
+        self.id = kwargs.get('id', None)

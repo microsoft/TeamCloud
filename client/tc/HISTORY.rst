@@ -3,6 +3,11 @@
 Release History
 ===============
 
+0.4.1
+++++++
+* Preview release
+* Updated models
+
 0.4.0
 ++++++
 * Preview release
