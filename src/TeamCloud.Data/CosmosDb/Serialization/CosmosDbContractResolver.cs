@@ -30,6 +30,18 @@ namespace TeamCloud.Data.CosmosDb.Serialization
             this.partitionKey = partitionKey;
         }
 
+        protected override JsonObjectContract CreateObjectContract(Type objectType)
+        {
+            var contract = base.CreateObjectContract(objectType);
+
+            if (typeof(IContainerDocument).IsAssignableFrom(objectType))
+            {
+                contract.Converter = null;
+            }
+
+            return contract;
+        }
+
         protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)
         {
             var properties = base.CreateProperties(type, memberSerialization);
@@ -68,7 +80,6 @@ namespace TeamCloud.Data.CosmosDb.Serialization
                 // must use a special converter to ensure the partionkey
                 // matches the given partionkey (see ctor) on read and write
 
-                property.NullValueHandling = NullValueHandling.Include;
                 property.ValueProvider = new CosmosDbPartitionKeyProvider(partitionKey);
             }
             else if (member.GetCustomAttribute<DatabaseIgnoreAttribute>() != null)

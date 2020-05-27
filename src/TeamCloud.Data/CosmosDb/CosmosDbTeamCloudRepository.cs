@@ -13,6 +13,7 @@ using Microsoft.Azure.Cosmos;
 using TeamCloud.Data.Caching;
 using TeamCloud.Data.CosmosDb.Core;
 using TeamCloud.Model.Data;
+using TeamCloud.Model.Validation;
 
 namespace TeamCloud.Data.CosmosDb
 {
@@ -77,7 +78,7 @@ namespace TeamCloud.Data.CosmosDb
             }
 
             return (cacheEntry ?? await FetchAsync().ConfigureAwait(false))?.Value
-                ?? await SetAsync(new TeamCloudInstance()).ConfigureAwait(false);
+                ?? await SetAsync(new TeamCloudInstance() { Id = Options.TenantName }).ConfigureAwait(false);
 
             async Task<ContainerDocumentCacheEntry<TeamCloudInstance>> FetchAsync(string currentETag = default)
             {
@@ -116,6 +117,10 @@ namespace TeamCloud.Data.CosmosDb
         {
             if (teamCloudInstance is null)
                 throw new ArgumentNullException(nameof(teamCloudInstance));
+
+            await teamCloudInstance
+                .ValidateAsync(throwOnValidationError: true)
+                .ConfigureAwait(false);
 
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);

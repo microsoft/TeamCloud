@@ -17,6 +17,7 @@
   </ItemGroup>
   
   <ItemGroup>
+    <ProjectReference Include="..\TeamCloud.Model.Validation\TeamCloud.Model.Validation.csproj" />
     <ProjectReference Include="..\TeamCloud.Model\TeamCloud.Model.csproj" />
     <ProjectReference Include="..\TeamCloud.Serialization\TeamCloud.Serialization.csproj" />
   </ItemGroup>

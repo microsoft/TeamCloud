@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
 using TeamCloud.Data.CosmosDb.Core;
 using TeamCloud.Model.Data;
+using TeamCloud.Model.Validation;
 
 namespace TeamCloud.Data.CosmosDb
 {
@@ -29,6 +30,10 @@ namespace TeamCloud.Data.CosmosDb
         {
             if (project is null)
                 throw new ArgumentNullException(nameof(project));
+
+            await project
+                .ValidateAsync(throwOnValidationError: true)
+                .ConfigureAwait(false);
 
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
@@ -116,6 +121,10 @@ namespace TeamCloud.Data.CosmosDb
         {
             if (project is null)
                 throw new ArgumentNullException(nameof(project));
+
+            await project
+                .ValidateAsync(throwOnValidationError: true)
+                .ConfigureAwait(false);
 
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);

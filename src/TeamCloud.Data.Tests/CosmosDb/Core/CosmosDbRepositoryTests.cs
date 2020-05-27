@@ -4,25 +4,24 @@
  */
 
 using System;
-using Microsoft.Azure.Cosmos;
 using TeamCloud.Model.Data.Core;
 using Xunit;
 
 namespace TeamCloud.Data.CosmosDb.Core
 {
-    public abstract class CosmosDbRepositoryTests<T> : IDisposable
+    public abstract class CosmosDbRepositoryTests<T>
         where T : class, ICosmosDbRepository
     {
-        private bool disposedValue;
+        private CosmosDbRepositoryFixture fixture;
 
         protected CosmosDbRepositoryTests(T repository)
         {
-            Repository = repository ?? throw new System.ArgumentNullException(nameof(repository));
+            Repository = repository ?? throw new ArgumentNullException(nameof(repository));
         }
 
-        ~CosmosDbRepositoryTests()
+        protected CosmosDbRepositoryTests(CosmosDbRepositoryFixture fixture)
         {
-            Dispose(disposing: false);
+            this.fixture = fixture;
         }
 
         protected T Repository { get; }
@@ -32,37 +31,6 @@ namespace TeamCloud.Data.CosmosDb.Core
             Assert.NotNull(containerDocument);
             Assert.NotNull(containerDocument.ETag);
             Assert.NotNull(containerDocument.Timestamp);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposedValue)
-            {
-                try
-                {
-                    using var client = new CosmosClient(Repository.Options.ConnectionString);
-
-                    client
-                        .GetContainer(Repository.Options.DatabaseName, Repository.ContainerDocumentType.Name)
-                        .DeleteContainerAsync()
-                        .Wait();
-                }
-                catch
-                {
-                    // swallow
-                }
-                finally
-                {
-                    disposedValue = true;
-                }
-            }
-        }
-
-        public void Dispose()
-        {
-            Dispose(disposing: true);
-
-            GC.SuppressFinalize(this);
         }
     }
 }

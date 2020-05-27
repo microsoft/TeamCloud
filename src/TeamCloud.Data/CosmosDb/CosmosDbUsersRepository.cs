@@ -12,6 +12,7 @@ using Microsoft.Azure.Cosmos;
 using TeamCloud.Data.CosmosDb.Core;
 using TeamCloud.Model.Data;
 using TeamCloud.Model.Data.Core;
+using TeamCloud.Model.Validation;
 using User = TeamCloud.Model.Data.User;
 
 namespace TeamCloud.Data.CosmosDb
@@ -25,6 +26,13 @@ namespace TeamCloud.Data.CosmosDb
 
         public async Task<User> AddAsync(User user)
         {
+            if (user is null)
+                throw new ArgumentNullException(nameof(user));
+
+            await user
+                .ValidateAsync(throwOnValidationError: true)
+                .ConfigureAwait(false);
+
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
@@ -141,6 +149,13 @@ namespace TeamCloud.Data.CosmosDb
 
         public async Task<User> SetAsync(User user)
         {
+            if (user is null)
+                throw new ArgumentNullException(nameof(user));
+
+            await user
+                .ValidateAsync(throwOnValidationError: true)
+                .ConfigureAwait(false);
+
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 

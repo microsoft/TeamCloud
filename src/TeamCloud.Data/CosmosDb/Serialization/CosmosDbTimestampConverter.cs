@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 
 namespace TeamCloud.Data.CosmosDb.Serialization
 {
-    public sealed class CosmosDbTimestampConverter : JsonConverter
+    internal sealed class CosmosDbTimestampConverter : JsonConverter
     {
         public override bool CanConvert(Type objectType)
             => objectType == typeof(DateTime);

@@ -40,8 +40,4 @@
 	  <ProjectReference Include="..\TeamCloud.Serialization\TeamCloud.Serialization.csproj" />
 	</ItemGroup>
 	
-	<ItemGroup>
-	  <Folder Include="Data\Serialization\" />
-	</ItemGroup>
-	
 </Project>

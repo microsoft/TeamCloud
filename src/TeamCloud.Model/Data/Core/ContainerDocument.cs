@@ -9,10 +9,12 @@ using System.Linq;
 using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using TeamCloud.Model.Data.Serialization;
 
 namespace TeamCloud.Model.Data.Core
 {
-    public interface IContainerDocument : IIdentifiable
+    [JsonConverter(typeof(ContainerDocumentConverter))]
+    public interface IContainerDocument : IIdentifiable, IValidatable
     {
         public static string GetPartitionKeyPath<T>(bool camelCase = false)
             where T : class, IContainerDocument

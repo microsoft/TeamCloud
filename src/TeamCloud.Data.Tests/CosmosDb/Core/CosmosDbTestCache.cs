@@ -11,7 +11,10 @@ namespace TeamCloud.Data.CosmosDb.Core
 {
     public sealed class CosmosDbTestCache : IContainerDocumentCache
     {
-        public static readonly IContainerDocumentCache Default = new CosmosDbTestCache();
+        public static readonly IContainerDocumentCache Instance = new CosmosDbTestCache();
+
+        private CosmosDbTestCache()
+        { }
 
         public bool InMemory => true;
 
