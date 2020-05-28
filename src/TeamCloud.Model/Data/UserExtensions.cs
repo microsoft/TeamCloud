@@ -32,14 +32,14 @@ namespace TeamCloud.Model.Data
             return user.IsAdmin() || user.IsCreator();
         }
 
-        public static bool IsOwner(this User user, Guid projectId)
+        public static bool IsOwner(this User user, string projectId)
         {
             if (user is null) throw new ArgumentNullException(nameof(user));
 
             return user.RoleFor(projectId) == ProjectUserRole.Owner;
         }
 
-        public static bool IsMember(this User user, Guid projectId)
+        public static bool IsMember(this User user, string projectId)
         {
             if (user is null) throw new ArgumentNullException(nameof(user));
 
@@ -48,13 +48,13 @@ namespace TeamCloud.Model.Data
             return role == ProjectUserRole.Owner || role == ProjectUserRole.Member;
         }
 
-        public static ProjectUserRole RoleFor(this User user, Guid projectId)
+        public static ProjectUserRole RoleFor(this User user, string projectId)
             => user?.ProjectMembership(projectId)?.Role ?? ProjectUserRole.None;
 
-        public static ProjectMembership ProjectMembership(this User user, Guid projectId)
+        public static ProjectMembership ProjectMembership(this User user, string projectId)
             => user?.ProjectMemberships.FirstOrDefault(m => m.ProjectId == projectId);
 
-        public static IDictionary<string, string> ProjectProperties(this User user, Guid projectId, bool overwriteExistingValues = true)
+        public static IDictionary<string, string> ProjectProperties(this User user, string projectId, bool overwriteExistingValues = true)
         {
             if (user is null)
                 throw new ArgumentNullException(nameof(user));
@@ -102,7 +102,7 @@ namespace TeamCloud.Model.Data
             }
         }
 
-        public static void EnsureProjectMembership(this User user, Guid projectId, ProjectUserRole role, IDictionary<string, string> properties = null)
+        public static void EnsureProjectMembership(this User user, string projectId, ProjectUserRole role, IDictionary<string, string> properties = null)
         {
             if (user is null) throw new ArgumentNullException(nameof(user));
 
@@ -122,7 +122,7 @@ namespace TeamCloud.Model.Data
             return user.ProjectMemberships.SequenceEqual(other.ProjectMemberships, new ProjectMembershipComparer());
         }
 
-        public static bool HasEqualMembership(this User user, User other, Guid projectId)
+        public static bool HasEqualMembership(this User user, User other, string projectId)
         {
             if (user is null) throw new ArgumentNullException(nameof(user));
             if (other is null) throw new ArgumentNullException(nameof(other));
