@@ -36,12 +36,12 @@ namespace TeamCloud.Model.Data
         public IDictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
 
         public bool Equals(Project other)
-            => Id.Equals(other?.Id);
+            => Id.Equals(other?.Id, StringComparison.Ordinal);
 
         public override bool Equals(object obj)
             => base.Equals(obj) || Equals(obj as Project);
 
         public override int GetHashCode()
-            => Id.GetHashCode();
+            => Id.GetHashCode(StringComparison.Ordinal);
     }
 }

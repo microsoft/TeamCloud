@@ -28,7 +28,7 @@ namespace TeamCloud.Orchestrator.Activities
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
 
-            var (user, projectId) = functionContext.GetInput<(User, Guid)>();
+            var (user, projectId) = functionContext.GetInput<(User, string)>();
 
             var updatedUser = await usersRepository
                 .RemoveProjectMembershipAsync(user, projectId)

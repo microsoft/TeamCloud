@@ -39,7 +39,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 functionContext.SetCustomStatus($"Refreshing project", log);
 
                 var project = commandResult.Result = (await functionContext
-                    .GetProjectAsync(command.ProjectId.GetValueOrDefault(), allowUnsafe: true)
+                    .GetProjectAsync(command.ProjectId, allowUnsafe: true)
                     .ConfigureAwait(true)) ?? command.Payload;
 
                 try

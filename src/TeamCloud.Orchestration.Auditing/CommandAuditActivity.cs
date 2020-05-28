@@ -97,7 +97,7 @@ namespace TeamCloud.Orchestration.Auditing
             {
 #pragma warning disable CA1308 // Normalize strings to uppercase
 
-                var auditPath = $"{prefix.ToLowerInvariant()}-audit/{command.ProjectId.GetValueOrDefault()}/{command.CommandId}/{provider?.Id}/{data.GetType().Name}.json";
+                var auditPath = $"{prefix.ToLowerInvariant()}-audit/{command.ProjectId}/{command.CommandId}/{provider?.Id}/{data.GetType().Name}.json";
 
                 var auditBlob = await binder
                     .BindAsync<CloudBlockBlob>(new BlobAttribute(auditPath.Replace("//", "/", StringComparison.OrdinalIgnoreCase)))

@@ -3,7 +3,6 @@
  *  Licensed under the MIT License.
  */
 
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using TeamCloud.Model.Data;
@@ -12,13 +11,13 @@ namespace TeamCloud.Data
 {
     public interface IUsersRepository
     {
-        Task<User> GetAsync(Guid id);
+        Task<User> GetAsync(string id);
 
         IAsyncEnumerable<User> ListAsync();
 
-        IAsyncEnumerable<User> ListAsync(Guid projectId);
+        IAsyncEnumerable<User> ListAsync(string projectId);
 
-        IAsyncEnumerable<User> ListOwnersAsync(Guid projectId);
+        IAsyncEnumerable<User> ListOwnersAsync(string projectId);
 
         IAsyncEnumerable<User> ListAdminsAsync();
 
@@ -28,13 +27,13 @@ namespace TeamCloud.Data
 
         Task<User> RemoveAsync(User user);
 
-        Task RemoveProjectMembershipsAsync(Guid projectId);
+        Task RemoveProjectMembershipsAsync(string projectId);
 
-        Task<User> RemoveProjectMembershipAsync(User user, Guid projectId);
+        Task<User> RemoveProjectMembershipAsync(User user, string projectId);
 
         Task<User> AddProjectMembershipAsync(User user, ProjectMembership membership);
 
-        Task<User> AddProjectMembershipAsync(User user, Guid projectId, ProjectUserRole role, IDictionary<string, string> properties);
+        Task<User> AddProjectMembershipAsync(User user, string projectId, ProjectUserRole role, IDictionary<string, string> properties);
 
         Task<User> SetTeamCloudInfoAsync(User user);
     }

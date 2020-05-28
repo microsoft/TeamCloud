@@ -285,7 +285,7 @@ namespace TeamCloud.API
                 });
         }
 
-        private static async Task<IEnumerable<Claim>> ResolveClaimsAsync(Guid userId, HttpContext httpContext)
+        private static async Task<IEnumerable<Claim>> ResolveClaimsAsync(string userId, HttpContext httpContext)
         {
             var claims = new List<Claim>();
 
@@ -306,8 +306,8 @@ namespace TeamCloud.API
                 var projectIdRouteValue = httpContext.GetRouteData()
                     .Values.GetValueOrDefault("ProjectId", StringComparison.OrdinalIgnoreCase)?.ToString();
 
-                if (Guid.TryParse(projectIdRouteValue, out Guid projectId))
-                    claims.Add(new Claim(ClaimTypes.Role, user.RoleFor(projectId).PolicyRoleName()));
+                if (!string.IsNullOrEmpty(projectIdRouteValue))
+                    claims.Add(new Claim(ClaimTypes.Role, user.RoleFor(projectIdRouteValue).PolicyRoleName()));
             }
 
             return claims;

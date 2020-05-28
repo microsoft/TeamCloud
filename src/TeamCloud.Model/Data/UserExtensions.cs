@@ -35,6 +35,7 @@ namespace TeamCloud.Model.Data
         public static bool IsOwner(this User user, string projectId)
         {
             if (user is null) throw new ArgumentNullException(nameof(user));
+            if (projectId is null) throw new ArgumentNullException(nameof(projectId));
 
             return user.RoleFor(projectId) == ProjectUserRole.Owner;
         }
@@ -42,6 +43,7 @@ namespace TeamCloud.Model.Data
         public static bool IsMember(this User user, string projectId)
         {
             if (user is null) throw new ArgumentNullException(nameof(user));
+            if (projectId is null) throw new ArgumentNullException(nameof(projectId));
 
             var role = user.RoleFor(projectId);
 
@@ -56,8 +58,8 @@ namespace TeamCloud.Model.Data
 
         public static IDictionary<string, string> ProjectProperties(this User user, string projectId, bool overwriteExistingValues = true)
         {
-            if (user is null)
-                throw new ArgumentNullException(nameof(user));
+            if (user is null) throw new ArgumentNullException(nameof(user));
+            if (projectId is null) throw new ArgumentNullException(nameof(projectId));
 
             if (user.Properties is null)
                 user.Properties = new Dictionary<string, string>();
@@ -105,6 +107,7 @@ namespace TeamCloud.Model.Data
         public static void EnsureProjectMembership(this User user, string projectId, ProjectUserRole role, IDictionary<string, string> properties = null)
         {
             if (user is null) throw new ArgumentNullException(nameof(user));
+            if (projectId is null) throw new ArgumentNullException(nameof(projectId));
 
             user.EnsureProjectMembership(new ProjectMembership
             {
@@ -126,6 +129,7 @@ namespace TeamCloud.Model.Data
         {
             if (user is null) throw new ArgumentNullException(nameof(user));
             if (other is null) throw new ArgumentNullException(nameof(other));
+            if (projectId is null) throw new ArgumentNullException(nameof(projectId));
 
             return new ProjectMembershipComparer().Equals(user.ProjectMembership(projectId), other.ProjectMembership(projectId));
         }

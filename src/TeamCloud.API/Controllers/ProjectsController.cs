@@ -39,7 +39,7 @@ namespace TeamCloud.API.Controllers
             this.projectTypesRepository = projectTypesRepository ?? throw new ArgumentNullException(nameof(projectTypesRepository));
         }
 
-        private async Task<List<User>> ResolveUsersAsync(ProjectDefinition projectDefinition, Guid projectId)
+        private async Task<List<User>> ResolveUsersAsync(ProjectDefinition projectDefinition, string projectId)
         {
             var users = new List<User>();
 
@@ -49,7 +49,7 @@ namespace TeamCloud.API.Controllers
                 users = (await Task.WhenAll(tasks).ConfigureAwait(false)).ToList();
             }
 
-            if (!users.Any(u => u.Id == userService.CurrentUserId.ToString()))
+            if (!users.Any(u => u.Id == userService.CurrentUserId))
             {
                 var currentUser = await userService
                     .CurrentUserAsync()
@@ -62,13 +62,13 @@ namespace TeamCloud.API.Controllers
 
             return users;
 
-            async Task<User> ResolveUserAndEnsureMembershipAsync(UserDefinition userDefinition, Guid projectId)
+            async Task<User> ResolveUserAndEnsureMembershipAsync(UserDefinition userDefinition, string projectId)
             {
                 var user = await userService
                     .ResolveUserAsync(userDefinition)
                     .ConfigureAwait(false);
 
-                var role = user.Id == userService.CurrentUserId.ToString() ? ProjectUserRole.Owner : Enum.Parse<ProjectUserRole>(userDefinition.Role, true);
+                var role = user.Id == userService.CurrentUserId ? ProjectUserRole.Owner : Enum.Parse<ProjectUserRole>(userDefinition.Role, true);
                 user.EnsureProjectMembership(projectId, role, userDefinition.Properties);
 
                 return user;
@@ -150,14 +150,14 @@ namespace TeamCloud.API.Controllers
                     .Conflict($"A Project with name '{projectDefinition.Name}' already exists. Project names must be unique. Please try your request again with a unique name.")
                     .ActionResult();
 
-            var projectId = Guid.NewGuid();
+            var projectId = Guid.NewGuid().ToString();
 
             var users = await ResolveUsersAsync(projectDefinition, projectId)
                 .ConfigureAwait(false);
 
             var project = new Project
             {
-                Id = projectId.ToString(),
+                Id = projectId,
                 Users = users,
                 Name = projectDefinition.Name,
                 Tags = projectDefinition.Tags
@@ -186,7 +186,7 @@ namespace TeamCloud.API.Controllers
                         .ActionResult();
             }
 
-            var currentUserForCommand = users.FirstOrDefault(u => u.Id == userService.CurrentUserId.ToString());
+            var currentUserForCommand = users.FirstOrDefault(u => u.Id == userService.CurrentUserId);
 
             var command = new OrchestratorProjectCreateCommand(currentUserForCommand, project);
 

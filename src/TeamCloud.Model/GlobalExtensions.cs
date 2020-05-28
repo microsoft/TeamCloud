@@ -43,7 +43,7 @@ namespace TeamCloud.Model
             {
                 { "commandId", command.CommandId },
                 { "commandType", command.GetType().Name },
-                { "projectId", project?.Id ?? command.ProjectId.GetValueOrDefault().ToString() },
+                { "projectId", project?.Id ?? command.ProjectId },
                 { "projectName", project?.Name },
                 { "providerId", provider?.Id }
             });

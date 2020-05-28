@@ -28,11 +28,13 @@ namespace TeamCloud.Data.CosmosDb.Serialization
 
         public object GetValue(object target)
         {
+            if (target is null) throw new ArgumentNullException(nameof(target));
             return GetPartitionKeyProperty(target.GetType())?.GetValue(target) ?? partitionkey;
         }
 
         public void SetValue(object target, object value)
         {
+            if (target is null) throw new ArgumentNullException(nameof(target));
             GetPartitionKeyProperty(target.GetType()).SetValue(target, value ?? partitionkey);
         }
     }

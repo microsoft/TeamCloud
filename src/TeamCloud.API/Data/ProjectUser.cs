@@ -23,7 +23,7 @@ namespace TeamCloud.API.Data
 
         public ProjectUser() { }
 
-        public ProjectUser(User user, Guid projectId)
+        public ProjectUser(User user, string projectId)
         {
             if (user is null)
                 throw new ArgumentNullException(nameof(user));
@@ -44,7 +44,7 @@ namespace TeamCloud.API.Data
         public ProjectUserValidator()
         {
             RuleFor(obj => obj.Id)
-                .Must(id => Guid.TryParse(id, out var result) && result != Guid.Empty)
+                .NotNull()
                 .WithMessage("'{PropertyName}' must be a valid, non-empty GUID.");
             //RuleFor(obj => obj.Role).MustBeUserRole();
         }
@@ -59,5 +59,4 @@ namespace TeamCloud.API.Data
             return user.Role == ProjectUserRole.Owner;
         }
     }
-
 }

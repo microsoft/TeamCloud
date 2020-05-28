@@ -64,7 +64,7 @@ namespace TeamCloud.Orchestrator.Activities
                 .ConfigureAwait(false);
 
             var hasOwnership = await subscription
-                .HasRoleAssignmentAsync(identity.ObjectId, AzureRoleDefinition.Owner)
+                .HasRoleAssignmentAsync(identity.ObjectId.ToString(), AzureRoleDefinition.Owner)
                 .ConfigureAwait(false);
 
             if (hasOwnership)

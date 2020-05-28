@@ -12,7 +12,7 @@ namespace TeamCloud.Model.Validation.Data
     {
         public UserValidator()
         {
-            RuleFor(obj => obj.Id).MustBeGuid();
+            RuleFor(obj => obj.Id).NotNull();
             //RuleFor(obj => obj.Role).MustBeUserRole();
         }
     }

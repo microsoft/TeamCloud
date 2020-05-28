@@ -170,7 +170,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
             functionContext.SetCustomStatus($"Refreshing project", log);
 
             var project = (await functionContext
-                .GetProjectAsync(command.ProjectId.GetValueOrDefault(), allowUnsafe: true)
+                .GetProjectAsync(command.ProjectId, allowUnsafe: true)
                 .ConfigureAwait(true)) ?? command.Payload;
 
             functionContext.SetCustomStatus($"Rolling back project", log);

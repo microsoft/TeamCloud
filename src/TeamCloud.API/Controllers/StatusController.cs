@@ -54,7 +54,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status302Found, "The long-running operation completed.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "The long-running operation with the trackingId provided was not found.", typeof(ErrorResult))]
-        public async Task<IActionResult> Get(Guid projectId, Guid trackingId)
+        public async Task<IActionResult> Get(string projectId, Guid trackingId)
         {
             var result = await orchestrator
                 .QueryAsync(trackingId, projectId)

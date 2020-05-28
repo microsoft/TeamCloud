@@ -43,10 +43,7 @@ namespace TeamCloud.Data.CosmosDb
             return response.Resource;
         }
 
-        private Task<User> GetAsync(string id)
-            => GetAsync(Guid.Parse(id));
-
-        public async Task<User> GetAsync(Guid id)
+        public async Task<User> GetAsync(string id)
         {
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
@@ -54,7 +51,7 @@ namespace TeamCloud.Data.CosmosDb
             try
             {
                 var response = await container
-                    .ReadItemAsync<User>(id.ToString(), new PartitionKey(Options.TenantName))
+                    .ReadItemAsync<User>(id, new PartitionKey(Options.TenantName))
                     .ConfigureAwait(false);
 
                 return response.Resource;
@@ -84,7 +81,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async IAsyncEnumerable<User> ListAsync(Guid projectId)
+        public async IAsyncEnumerable<User> ListAsync(string projectId)
         {
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
@@ -105,7 +102,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async IAsyncEnumerable<User> ListOwnersAsync(Guid projectId)
+        public async IAsyncEnumerable<User> ListOwnersAsync(string projectId)
         {
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
@@ -188,7 +185,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async Task RemoveProjectMembershipsAsync(Guid projectId)
+        public async Task RemoveProjectMembershipsAsync(string projectId)
         {
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
@@ -211,7 +208,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async Task<User> RemoveProjectMembershipAsync(User user, Guid projectId)
+        public async Task<User> RemoveProjectMembershipAsync(User user, string projectId)
         {
             if (user is null) throw new ArgumentNullException(nameof(user));
 
@@ -235,7 +232,7 @@ namespace TeamCloud.Data.CosmosDb
             return await RemoveProjectMembershipSafeAsync(container, user, projectId)
                 .ConfigureAwait(false);
 
-            async Task<User> RemoveProjectMembershipSafeAsync(Container container, User user, Guid projectId)
+            async Task<User> RemoveProjectMembershipSafeAsync(Container container, User user, string projectId)
             {
                 var membership = user.ProjectMemberships.FirstOrDefault(m => m.ProjectId == projectId);
 
@@ -273,7 +270,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public Task<User> AddProjectMembershipAsync(User user, Guid projectId, ProjectUserRole role, IDictionary<string, string> properties)
+        public Task<User> AddProjectMembershipAsync(User user, string projectId, ProjectUserRole role, IDictionary<string, string> properties)
             => AddProjectMembershipAsync(user, new ProjectMembership
             {
                 ProjectId = projectId,

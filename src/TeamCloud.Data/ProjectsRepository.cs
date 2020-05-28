@@ -12,13 +12,11 @@ namespace TeamCloud.Data
 {
     public interface IProjectsRepository
     {
-        Task<Project> GetAsync(Guid id, bool populateUsers = true);
-
         Task<Project> GetAsync(string nameOrId, bool populateUsers = true);
 
         IAsyncEnumerable<Project> ListAsync(bool populateUsers = true);
 
-        IAsyncEnumerable<Project> ListAsync(IEnumerable<Guid> projectIds, bool populateUsers = true);
+        IAsyncEnumerable<Project> ListAsync(IEnumerable<string> projectIds, bool populateUsers = true);
 
         Task<bool> NameExistsAsync(string name);
 

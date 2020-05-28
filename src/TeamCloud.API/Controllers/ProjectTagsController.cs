@@ -30,15 +30,8 @@ namespace TeamCloud.API.Controllers
             this.projectsRepository = projectsRepository ?? throw new ArgumentNullException(nameof(projectsRepository));
         }
 
-        public Guid? ProjectId
-        {
-            get
-            {
-                var projectId = RouteData.Values.GetValueOrDefault(nameof(ProjectId), StringComparison.OrdinalIgnoreCase)?.ToString();
-
-                return string.IsNullOrEmpty(projectId) ? null : (Guid?)Guid.Parse(projectId);
-            }
-        }
+        public string ProjectId
+            => RouteData.Values.GetValueOrDefault(nameof(ProjectId), StringComparison.OrdinalIgnoreCase)?.ToString();
 
         [HttpGet]
         [Authorize(Policy = "projectRead")]
@@ -48,20 +41,18 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Get()
         {
-            if (!ProjectId.HasValue)
+            if (string.IsNullOrEmpty(ProjectId))
                 return ErrorResult
                     .BadRequest($"Project Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCode.ValidationError)
                     .ActionResult();
 
-            var projectId = ProjectId.Value;
-
             var project = await projectsRepository
-                .GetAsync(projectId)
+                .GetAsync(ProjectId)
                 .ConfigureAwait(false);
 
             if (project is null)
                 return ErrorResult
-                    .NotFound($"A Project with the ID '{projectId}' could not be found in this TeamCloud Instance.")
+                    .NotFound($"A Project with the ID '{ProjectId}' could not be found in this TeamCloud Instance.")
                     .ActionResult();
 
             var tags = project?.Tags is null ? new Dictionary<string, string>() : new Dictionary<string, string>(project.Tags);
@@ -80,12 +71,10 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a Tag with the provided key was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Get([FromRoute] string tagKey)
         {
-            if (!ProjectId.HasValue)
+            if (string.IsNullOrEmpty(ProjectId))
                 return ErrorResult
                     .BadRequest($"Project Id provided in the url path is invalid.  Must be a non-empty string.", ResultErrorCode.ValidationError)
                     .ActionResult();
-
-            var projectId = ProjectId.Value;
 
             if (string.IsNullOrWhiteSpace(tagKey))
                 return ErrorResult
@@ -93,12 +82,12 @@ namespace TeamCloud.API.Controllers
                     .ActionResult();
 
             var project = await projectsRepository
-                .GetAsync(projectId)
+                .GetAsync(ProjectId)
                 .ConfigureAwait(false);
 
             if (project is null)
                 return ErrorResult
-                    .NotFound($"A Project with the ID '{projectId}' could not be found in this TeamCloud Instance.")
+                    .NotFound($"A Project with the ID '{ProjectId}' could not be found in this TeamCloud Instance.")
                     .ActionResult();
 
             if (!project.Tags.TryGetValue(tagKey, out var tagValue))
@@ -122,12 +111,10 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status409Conflict, "A Project Tag already exists with the key provided in the request body.", typeof(ErrorResult))]
         public async Task<IActionResult> Post([FromBody] Dictionary<string, string> tags)
         {
-            if (!ProjectId.HasValue)
+            if (string.IsNullOrEmpty(ProjectId))
                 return ErrorResult
                     .BadRequest($"Project Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCode.ValidationError)
                     .ActionResult();
-
-            var projectId = ProjectId.Value;
 
             var tag = tags.FirstOrDefault();
 
@@ -137,12 +124,12 @@ namespace TeamCloud.API.Controllers
                     .ActionResult();
 
             var project = await projectsRepository
-            .GetAsync(projectId)
+            .GetAsync(ProjectId)
             .ConfigureAwait(false);
 
             if (project is null)
                 return ErrorResult
-                    .NotFound($"A Project with the ID '{projectId}' could not be found in this TeamCloud Instance.")
+                    .NotFound($"A Project with the ID '{ProjectId}' could not be found in this TeamCloud Instance.")
                     .ActionResult();
 
             if (project.Tags.ContainsKey(tag.Key))
@@ -176,12 +163,10 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a Tag with the key provided in the request body was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Put([FromBody] Dictionary<string, string> tags)
         {
-            if (!ProjectId.HasValue)
+            if (string.IsNullOrEmpty(ProjectId))
                 return ErrorResult
                     .BadRequest($"Project Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCode.ValidationError)
                     .ActionResult();
-
-            var projectId = ProjectId.Value;
 
             var tag = tags.FirstOrDefault();
 
@@ -191,12 +176,12 @@ namespace TeamCloud.API.Controllers
                     .ActionResult();
 
             var project = await projectsRepository
-                .GetAsync(projectId)
+                .GetAsync(ProjectId)
                 .ConfigureAwait(false);
 
             if (project is null)
                 return ErrorResult
-                    .NotFound($"A Project with the ID '{projectId}' could not be found in this TeamCloud Instance.")
+                    .NotFound($"A Project with the ID '{ProjectId}' could not be found in this TeamCloud Instance.")
                     .ActionResult();
 
 
@@ -231,12 +216,10 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a Tag with the provided key was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Delete([FromRoute] string tagKey)
         {
-            if (!ProjectId.HasValue)
+            if (string.IsNullOrEmpty(ProjectId))
                 return ErrorResult
                     .BadRequest($"Project Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCode.ValidationError)
                     .ActionResult();
-
-            var projectId = ProjectId.Value;
 
             if (string.IsNullOrWhiteSpace(tagKey))
                 return ErrorResult
@@ -244,12 +227,12 @@ namespace TeamCloud.API.Controllers
                     .ActionResult();
 
             var project = await projectsRepository
-                .GetAsync(projectId)
+                .GetAsync(ProjectId)
                 .ConfigureAwait(false);
 
             if (project is null)
                 return ErrorResult
-                    .NotFound($"A Project with the ID '{projectId}' could not be found in this TeamCloud Instance.")
+                    .NotFound($"A Project with the ID '{ProjectId}' could not be found in this TeamCloud Instance.")
                     .ActionResult();
             if (!project.Tags.TryGetValue(tagKey, out _))
                 return ErrorResult

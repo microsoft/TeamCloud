@@ -27,17 +27,17 @@ namespace TeamCloud.API.Services
             this.httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         }
 
-        private void SetResultLinks(ICommandResult commandResult, Guid? projectId)
+        private void SetResultLinks(ICommandResult commandResult, string projectId)
         {
             var baseUrl = httpContextAccessor.HttpContext.GetApplicationBaseUrl();
 
-            if (projectId.HasValue)
+            if (string.IsNullOrEmpty(projectId))
             {
-                commandResult.Links.Add("status", new Uri(baseUrl, $"api/projects/{projectId}/status/{commandResult.CommandId}").ToString());
+                commandResult.Links.Add("status", new Uri(baseUrl, $"api/status/{commandResult.CommandId}").ToString());
             }
             else
             {
-                commandResult.Links.Add("status", new Uri(baseUrl, $"api/status/{commandResult.CommandId}").ToString());
+                commandResult.Links.Add("status", new Uri(baseUrl, $"api/projects/{projectId}/status/{commandResult.CommandId}").ToString());
             }
 
             if (IsDeleteCommandResult(commandResult))
@@ -49,13 +49,13 @@ namespace TeamCloud.API.Services
                 if (userCommandResult.Result is null)
                     return;
 
-                if (projectId.HasValue)
+                if (string.IsNullOrEmpty(projectId))
                 {
-                    commandResult.Links.Add("location", new Uri(baseUrl, $"api/projects/{projectId}/users/{userCommandResult.Result.Id}").ToString());
+                    commandResult.Links.Add("location", new Uri(baseUrl, $"api/users/{userCommandResult.Result.Id}").ToString());
                 }
                 else
                 {
-                    commandResult.Links.Add("location", new Uri(baseUrl, $"api/users/{userCommandResult.Result.Id}").ToString());
+                    commandResult.Links.Add("location", new Uri(baseUrl, $"api/projects/{projectId}/users/{userCommandResult.Result.Id}").ToString());
                 }
             }
             else if (commandResult is ICommandResult<Provider> providerCommandResult)
@@ -65,7 +65,7 @@ namespace TeamCloud.API.Services
 
                 commandResult.Links.Add("location", new Uri(baseUrl, $"api/providers/{providerCommandResult.Result.Id}").ToString());
             }
-            else if (projectId.HasValue)
+            else if (!string.IsNullOrEmpty(projectId))
             {
                 commandResult.Links.Add("location", new Uri(baseUrl, $"api/projects/{projectId}").ToString());
             }
@@ -77,7 +77,7 @@ namespace TeamCloud.API.Services
                 || result is OrchestratorTeamCloudUserDeleteCommandResult;
         }
 
-        public async Task<ICommandResult> QueryAsync(Guid commandId, Guid? projectId)
+        public async Task<ICommandResult> QueryAsync(Guid commandId, string projectId)
         {
             var resultJson = await options.Url
                 .AppendPathSegment($"api/command/{commandId}")

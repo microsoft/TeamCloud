@@ -68,14 +68,14 @@ namespace TeamCloud.API.Controllers
                 .GetUserIdAsync(userDefinition.Identifier)
                 .ConfigureAwait(false);
 
-            if (!userId.HasValue || userId.Value == Guid.Empty)
+            if (string.IsNullOrEmpty(userId))
                 return ErrorResult
                     .NotFound($"The user '{userDefinition.Identifier}' could not be found.")
                     .ActionResult();
 
             var user = new User
             {
-                Id = userId.Value.ToString(),
+                Id = userId,
                 Role = Enum.Parse<TeamCloudUserRole>(userDefinition.Role, true),
                 Properties = userDefinition.Properties,
                 UserType = UserType.User

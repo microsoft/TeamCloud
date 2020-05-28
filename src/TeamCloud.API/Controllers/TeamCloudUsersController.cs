@@ -76,13 +76,13 @@ namespace TeamCloud.API
                 .GetUserIdAsync(userNameOrId)
                 .ConfigureAwait(false);
 
-            if (!userId.HasValue || userId.Value == Guid.Empty)
+            if (string.IsNullOrEmpty(userId))
                 return ErrorResult
                     .NotFound($"The user '{userNameOrId}' could not be found.")
                     .ActionResult();
 
             var user = await usersRepository
-                .GetAsync(userId.Value)
+                .GetAsync(userId)
                 .ConfigureAwait(false);
 
             if (user is null)
@@ -120,13 +120,13 @@ namespace TeamCloud.API
                 .GetUserIdAsync(userDefinition.Identifier)
                 .ConfigureAwait(false);
 
-            if (!userId.HasValue || userId.Value == Guid.Empty)
+            if (string.IsNullOrEmpty(userId))
                 return ErrorResult
                     .NotFound($"The user '{userDefinition.Identifier}' could not be found.")
                     .ActionResult();
 
             var user = await usersRepository
-                .GetAsync(userId.Value)
+                .GetAsync(userId)
                 .ConfigureAwait(false);
 
             if (user != null)
@@ -136,7 +136,7 @@ namespace TeamCloud.API
 
             user = new User
             {
-                Id = userId.Value.ToString(),
+                Id = userId,
                 Role = Enum.Parse<TeamCloudUserRole>(userDefinition.Role, true),
                 Properties = userDefinition.Properties,
                 UserType = UserType.User
@@ -182,7 +182,7 @@ namespace TeamCloud.API
                     .ActionResult();
 
             var oldUser = await usersRepository
-                .GetAsync(Guid.Parse(user.Id))
+                .GetAsync(user.Id)
                 .ConfigureAwait(false);
 
             if (oldUser is null)
@@ -252,13 +252,13 @@ namespace TeamCloud.API
                 .GetUserIdAsync(userNameOrId)
                 .ConfigureAwait(false);
 
-            if (!userId.HasValue || userId.Value == Guid.Empty)
+            if (string.IsNullOrEmpty(userId))
                 return ErrorResult
                     .NotFound($"The user '{userNameOrId}' could not be found.")
                     .ActionResult();
 
             var user = await usersRepository
-                .GetAsync(userId.Value)
+                .GetAsync(userId)
                 .ConfigureAwait(false);
 
             if (user is null)

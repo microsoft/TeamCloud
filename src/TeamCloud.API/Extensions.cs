@@ -47,13 +47,13 @@ namespace TeamCloud.API
             return result.Key is null ? defaultValue : result.Value;
         }
 
-        public static Guid GetObjectId(this ClaimsPrincipal claimsPrincipal)
+        public static string GetObjectId(this ClaimsPrincipal claimsPrincipal)
         {
             const string ObjectIdentifierClaimType = "http://schemas.microsoft.com/identity/claims/objectidentifier";
 
             var objectIdenifier = claimsPrincipal.FindFirstValue(ObjectIdentifierClaimType);
 
-            return Guid.Parse(objectIdenifier);
+            return objectIdenifier;
         }
 
         public static Task<T> ReadAsAsync<T>(this HttpContent httpContent, JsonSerializerSettings serializerSettings = null)

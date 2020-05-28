@@ -74,7 +74,7 @@ namespace TeamCloud.Data.CosmosDb.Core
         }
 
         [Conditional("DEBUG")]
-        private void TraceStream(Stream stream, [CallerMemberName] string memberName = default)
+        private static void TraceStream(Stream stream, [CallerMemberName] string memberName = default)
         {
             try
             {

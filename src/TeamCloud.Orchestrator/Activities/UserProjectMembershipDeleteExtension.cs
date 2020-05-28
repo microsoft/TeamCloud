@@ -13,7 +13,7 @@ namespace TeamCloud.Orchestrator.Activities
 {
     internal static class UserProjectMembershipDeleteExtension
     {
-        public static Task<User> DeleteUserProjectMembershipAsync(this IDurableOrchestrationContext functionContext, User user, Guid projectId)
+        public static Task<User> DeleteUserProjectMembershipAsync(this IDurableOrchestrationContext functionContext, User user, string projectId)
             => functionContext.CallActivityWithRetryAsync<User>(nameof(UserProjectMembershipDeleteActivity), (user, projectId));
     }
 }

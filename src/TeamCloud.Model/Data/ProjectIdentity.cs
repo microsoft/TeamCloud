@@ -20,12 +20,12 @@ namespace TeamCloud.Model.Data
         public string Secret { get; set; }
 
         public bool Equals(ProjectIdentity other)
-            => Id.Equals(other?.Id);
+            => Id.Equals(other?.Id, StringComparison.Ordinal);
 
         public override bool Equals(object obj)
             => base.Equals(obj) || Equals(obj as ProjectIdentity);
 
         public override int GetHashCode()
-            => Id.GetHashCode();
+            => Id.GetHashCode(StringComparison.Ordinal);
     }
 }

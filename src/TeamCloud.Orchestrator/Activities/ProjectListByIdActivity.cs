@@ -25,7 +25,7 @@ namespace TeamCloud.Orchestrator.Activities
 
         [FunctionName(nameof(ProjectListByIdActivity))]
         public async Task<IEnumerable<Project>> RunActivity(
-            [ActivityTrigger] IList<Guid> projectIds)
+            [ActivityTrigger] IList<string> projectIds)
         {
             var projects = projectsRepository
                 .ListAsync(projectIds);

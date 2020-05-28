@@ -30,7 +30,7 @@ namespace TeamCloud.Serialization.Comparer
         public override int GetHashCode(JsonProperty obj)
             => compareBy switch
             {
-                JsonPropertyCompareBy.PropertyName => obj.PropertyName.GetHashCode(),
+                JsonPropertyCompareBy.PropertyName => obj?.PropertyName.GetHashCode(StringComparison.Ordinal) ?? throw new ArgumentNullException(nameof(obj)),
                 _ => throw new NotImplementedException()
             };
 
