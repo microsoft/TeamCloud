@@ -23,7 +23,7 @@ namespace TeamCloud.Orchestrator.Activities
 
         [FunctionName(nameof(UserGetActivity))]
         public async Task<User> RunActivity(
-            [ActivityTrigger] Guid userId)
+            [ActivityTrigger] string userId)
         {
             return await usersRepository
                 .GetAsync(userId)

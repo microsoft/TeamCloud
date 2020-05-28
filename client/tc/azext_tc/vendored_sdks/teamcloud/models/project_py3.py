@@ -15,13 +15,8 @@ from msrest.serialization import Model
 class Project(Model):
     """Project.
 
-    Variables are only populated by the server, and will be ignored when
-    sending a request.
-
-    :ivar partition_key:
-    :vartype partition_key: str
-    :param id:
-    :type id: str
+    :param tenant:
+    :type tenant: str
     :param name:
     :type name: str
     :param type:
@@ -32,44 +27,38 @@ class Project(Model):
     :type resource_group: ~teamcloud.models.AzureResourceGroup
     :param key_vault:
     :type key_vault: ~teamcloud.models.AzureKeyVault
-    :param team_cloud_id:
-    :type team_cloud_id: str
     :param users:
     :type users: list[~teamcloud.models.User]
     :param tags:
     :type tags: dict[str, str]
     :param properties:
     :type properties: dict[str, str]
+    :param id:
+    :type id: str
     """
 
-    _validation = {
-        'partition_key': {'readonly': True},
-    }
-
     _attribute_map = {
-        'partition_key': {'key': 'partitionKey', 'type': 'str'},
-        'id': {'key': 'id', 'type': 'str'},
+        'tenant': {'key': 'tenant', 'type': 'str'},
         'name': {'key': 'name', 'type': 'str'},
         'type': {'key': 'type', 'type': 'ProjectType'},
         'identity': {'key': 'identity', 'type': 'ProjectIdentity'},
         'resource_group': {'key': 'resourceGroup', 'type': 'AzureResourceGroup'},
         'key_vault': {'key': 'keyVault', 'type': 'AzureKeyVault'},
-        'team_cloud_id': {'key': 'teamCloudId', 'type': 'str'},
         'users': {'key': 'users', 'type': '[User]'},
         'tags': {'key': 'tags', 'type': '{str}'},
         'properties': {'key': 'properties', 'type': '{str}'},
+        'id': {'key': 'id', 'type': 'str'},
     }
 
-    def __init__(self, *, id: str=None, name: str=None, type=None, identity=None, resource_group=None, key_vault=None, team_cloud_id: str=None, users=None, tags=None, properties=None, **kwargs) -> None:
+    def __init__(self, *, tenant: str=None, name: str=None, type=None, identity=None, resource_group=None, key_vault=None, users=None, tags=None, properties=None, id: str=None, **kwargs) -> None:
         super(Project, self).__init__(**kwargs)
-        self.partition_key = None
-        self.id = id
+        self.tenant = tenant
         self.name = name
         self.type = type
         self.identity = identity
         self.resource_group = resource_group
         self.key_vault = key_vault
-        self.team_cloud_id = team_cloud_id
         self.users = users
         self.tags = tags
         self.properties = properties
+        self.id = id

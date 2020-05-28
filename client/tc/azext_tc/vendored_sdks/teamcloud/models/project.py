@@ -15,13 +15,8 @@ from msrest.serialization import Model
 class Project(Model):
     """Project.
 
-    Variables are only populated by the server, and will be ignored when
-    sending a request.
-
-    :ivar partition_key:
-    :vartype partition_key: str
-    :param id:
-    :type id: str
+    :param tenant:
+    :type tenant: str
     :param name:
     :type name: str
     :param type:
@@ -32,44 +27,38 @@ class Project(Model):
     :type resource_group: ~teamcloud.models.AzureResourceGroup
     :param key_vault:
     :type key_vault: ~teamcloud.models.AzureKeyVault
-    :param team_cloud_id:
-    :type team_cloud_id: str
     :param users:
     :type users: list[~teamcloud.models.User]
     :param tags:
     :type tags: dict[str, str]
     :param properties:
     :type properties: dict[str, str]
+    :param id:
+    :type id: str
     """
 
-    _validation = {
-        'partition_key': {'readonly': True},
-    }
-
     _attribute_map = {
-        'partition_key': {'key': 'partitionKey', 'type': 'str'},
-        'id': {'key': 'id', 'type': 'str'},
+        'tenant': {'key': 'tenant', 'type': 'str'},
         'name': {'key': 'name', 'type': 'str'},
         'type': {'key': 'type', 'type': 'ProjectType'},
         'identity': {'key': 'identity', 'type': 'ProjectIdentity'},
         'resource_group': {'key': 'resourceGroup', 'type': 'AzureResourceGroup'},
         'key_vault': {'key': 'keyVault', 'type': 'AzureKeyVault'},
-        'team_cloud_id': {'key': 'teamCloudId', 'type': 'str'},
         'users': {'key': 'users', 'type': '[User]'},
         'tags': {'key': 'tags', 'type': '{str}'},
         'properties': {'key': 'properties', 'type': '{str}'},
+        'id': {'key': 'id', 'type': 'str'},
     }
 
     def __init__(self, **kwargs):
         super(Project, self).__init__(**kwargs)
-        self.partition_key = None
-        self.id = kwargs.get('id', None)
+        self.tenant = kwargs.get('tenant', None)
         self.name = kwargs.get('name', None)
         self.type = kwargs.get('type', None)
         self.identity = kwargs.get('identity', None)
         self.resource_group = kwargs.get('resource_group', None)
         self.key_vault = kwargs.get('key_vault', None)
-        self.team_cloud_id = kwargs.get('team_cloud_id', None)
         self.users = kwargs.get('users', None)
         self.tags = kwargs.get('tags', None)
         self.properties = kwargs.get('properties', None)
+        self.id = kwargs.get('id', None)

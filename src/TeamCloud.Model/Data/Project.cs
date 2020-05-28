@@ -7,20 +7,17 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using TeamCloud.Model.Data.Core;
 
 namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public sealed class Project : IContainerDocument, IIdentifiable, IEquatable<Project>, ITags, IProperties
+    public sealed class Project : ContainerDocument, IEquatable<Project>, ITags, IProperties
     {
-        public string PartitionKey => TeamCloudId;
+        [PartitionKey]
+        public string Tenant { get; set; }
 
-        public IList<string> UniqueKeys => new List<string> { "/name" };
-
-        public Guid Id { get; set; }
-
-        string IContainerDocument.Id => this.Id.ToString();
-
+        [UniqueKey]
         public string Name { get; set; }
 
         public ProjectType Type { get; set; }
@@ -31,8 +28,7 @@ namespace TeamCloud.Model.Data
 
         public AzureKeyVault KeyVault { get; set; }
 
-        public string TeamCloudId { get; set; }
-
+        [DatabaseIgnore]
         public IList<User> Users { get; set; } = new List<User>();
 
         public IDictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();
@@ -40,12 +36,12 @@ namespace TeamCloud.Model.Data
         public IDictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
 
         public bool Equals(Project other)
-            => Id.Equals(other?.Id);
+            => Id.Equals(other?.Id, StringComparison.OrdinalIgnoreCase);
 
         public override bool Equals(object obj)
             => base.Equals(obj) || Equals(obj as Project);
 
         public override int GetHashCode()
-            => Id.GetHashCode();
+            => Id.GetHashCode(StringComparison.OrdinalIgnoreCase);
     }
 }

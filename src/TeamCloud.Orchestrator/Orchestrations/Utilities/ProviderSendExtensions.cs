@@ -12,7 +12,6 @@ using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
-using TeamCloud.Orchestration.Auditing;
 using TeamCloud.Orchestrator.Activities;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Utilities
@@ -64,10 +63,10 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
             if (command is ICommand<Project> projectCommand)
                 project = projectCommand.Payload ?? project;
 
-            if (command is null && command.ProjectId.HasValue)
+            if (project is null && !string.IsNullOrEmpty(command.ProjectId))
             {
                 project = await functionContext
-                    .CallActivityWithRetryAsync<Project>(nameof(ProjectGetActivity), command.ProjectId.Value)
+                    .CallActivityWithRetryAsync<Project>(nameof(ProjectGetActivity), command.ProjectId)
                     .ConfigureAwait(true);
             }
 

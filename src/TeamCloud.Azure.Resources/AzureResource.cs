@@ -288,14 +288,14 @@ namespace TeamCloud.Azure.Resources
                 .ConfigureAwait(false);
         }
 
-        public virtual async Task AddRoleAssignmentAsync(Guid userObjectId, Guid roleDefinitionId)
+        public virtual async Task AddRoleAssignmentAsync(string userObjectId, Guid roleDefinitionId)
         {
             using var authClient = AzureResourceService.AzureSessionService
                 .CreateClient<AuthorizationManagementClient>();
 
             var parameters = new RoleAssignmentCreateParameters
             {
-                PrincipalId = userObjectId.ToString(),
+                PrincipalId = userObjectId,
                 RoleDefinitionId = $"/subscriptions/{ResourceId.SubscriptionId}/providers/Microsoft.Authorization/roleDefinitions/{roleDefinitionId}"
             };
 
@@ -312,7 +312,7 @@ namespace TeamCloud.Azure.Resources
             }
         }
 
-        public virtual async Task DeleteRoleAssignmentAsync(Guid userObjectId, Guid? roleDefinitionId = null)
+        public virtual async Task DeleteRoleAssignmentAsync(string userObjectId, Guid? roleDefinitionId = null)
         {
             var assignments = await GetRoleAssignmentsInternalAsync(userObjectId)
                 .ConfigureAwait(false);
@@ -332,7 +332,7 @@ namespace TeamCloud.Azure.Resources
             }
         }
 
-        public virtual async Task<bool> HasRoleAssignmentAsync(Guid userObjectId, Guid roleDefinitionId)
+        public virtual async Task<bool> HasRoleAssignmentAsync(string userObjectId, Guid roleDefinitionId)
         {
             var assignments = await GetRoleAssignmentsAsync(userObjectId)
                 .ConfigureAwait(false);
@@ -340,7 +340,7 @@ namespace TeamCloud.Azure.Resources
             return assignments.Contains(roleDefinitionId);
         }
 
-        public virtual async Task<IEnumerable<Guid>> GetRoleAssignmentsAsync(Guid userObjectId)
+        public virtual async Task<IEnumerable<Guid>> GetRoleAssignmentsAsync(string userObjectId)
         {
             var assignments = await GetRoleAssignmentsInternalAsync(userObjectId)
                 .ConfigureAwait(false);
@@ -351,7 +351,7 @@ namespace TeamCloud.Azure.Resources
             return Enumerable.Empty<Guid>();
         }
 
-        public virtual async Task SetRoleAssignmentsAsync(IDictionary<Guid, IEnumerable<Guid>> roleAssignments)
+        public virtual async Task SetRoleAssignmentsAsync(IDictionary<string, IEnumerable<Guid>> roleAssignments)
         {
             if (roleAssignments is null)
                 throw new ArgumentNullException(nameof(roleAssignments));
@@ -398,15 +398,15 @@ namespace TeamCloud.Azure.Resources
             Task.WaitAll(tasks.ToArray());
         }
 
-        public virtual async Task<IDictionary<Guid, IEnumerable<Guid>>> GetRoleAssignmentsAsync()
+        public virtual async Task<IDictionary<string, IEnumerable<Guid>>> GetRoleAssignmentsAsync()
         {
-            var assignments = await GetRoleAssignmentsInternalAsync()
+            var assignments = await GetRoleAssignmentsInternalAsync(null)
                 .ConfigureAwait(false);
 
             return assignments.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Select(assignment => assignment.GetRoleDefinitionId()));
         }
 
-        private async Task<IDictionary<Guid, IEnumerable<RoleAssignmentInner>>> GetRoleAssignmentsInternalAsync(Guid? userObjectId = null)
+        private async Task<IDictionary<string, IEnumerable<RoleAssignmentInner>>> GetRoleAssignmentsInternalAsync(string userObjectId)
         {
             using var authClient = AzureResourceService.AzureSessionService
                 .CreateClient<AuthorizationManagementClient>();
@@ -414,8 +414,8 @@ namespace TeamCloud.Azure.Resources
             var roles = new List<RoleAssignmentInner>();
             var query = new ODataQuery<RoleAssignmentFilter>();
 
-            if (userObjectId.HasValue)
-                query.SetFilter(filter => filter.PrincipalId.Equals(userObjectId.Value.ToString(), StringComparison.OrdinalIgnoreCase));
+            if (!string.IsNullOrEmpty(userObjectId))
+                query.SetFilter(filter => filter.PrincipalId.Equals(userObjectId, StringComparison.OrdinalIgnoreCase));
 
             var page = await authClient.RoleAssignments
                 .ListForScopeAsync(ResourceId.ToString().TrimStart('/'))
@@ -438,7 +438,7 @@ namespace TeamCloud.Azure.Resources
 
             return roles
                 .Where(role => role.Scope.Equals(ResourceId.ToString(), StringComparison.OrdinalIgnoreCase))
-                .GroupBy(role => Guid.Parse(role.PrincipalId))
+                .GroupBy(role => role.PrincipalId)
                 .ToDictionary(grp => grp.Key, grp => grp.AsEnumerable());
         }
     }

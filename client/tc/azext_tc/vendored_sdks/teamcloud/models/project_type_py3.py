@@ -15,13 +15,8 @@ from msrest.serialization import Model
 class ProjectType(Model):
     """ProjectType.
 
-    Variables are only populated by the server, and will be ignored when
-    sending a request.
-
-    :ivar partition_key:
-    :vartype partition_key: str
-    :param id:
-    :type id: str
+    :param tenant:
+    :type tenant: str
     :param default:
     :type default: bool
     :param region:
@@ -38,15 +33,12 @@ class ProjectType(Model):
     :type tags: dict[str, str]
     :param properties:
     :type properties: dict[str, str]
+    :param id:
+    :type id: str
     """
 
-    _validation = {
-        'partition_key': {'readonly': True},
-    }
-
     _attribute_map = {
-        'partition_key': {'key': 'partitionKey', 'type': 'str'},
-        'id': {'key': 'id', 'type': 'str'},
+        'tenant': {'key': 'tenant', 'type': 'str'},
         'default': {'key': 'default', 'type': 'bool'},
         'region': {'key': 'region', 'type': 'str'},
         'subscriptions': {'key': 'subscriptions', 'type': '[str]'},
@@ -55,12 +47,12 @@ class ProjectType(Model):
         'providers': {'key': 'providers', 'type': '[ProviderReference]'},
         'tags': {'key': 'tags', 'type': '{str}'},
         'properties': {'key': 'properties', 'type': '{str}'},
+        'id': {'key': 'id', 'type': 'str'},
     }
 
-    def __init__(self, *, id: str=None, default: bool=None, region: str=None, subscriptions=None, subscription_capacity: int=None, resource_group_name_prefix: str=None, providers=None, tags=None, properties=None, **kwargs) -> None:
+    def __init__(self, *, tenant: str=None, default: bool=None, region: str=None, subscriptions=None, subscription_capacity: int=None, resource_group_name_prefix: str=None, providers=None, tags=None, properties=None, id: str=None, **kwargs) -> None:
         super(ProjectType, self).__init__(**kwargs)
-        self.partition_key = None
-        self.id = id
+        self.tenant = tenant
         self.default = default
         self.region = region
         self.subscriptions = subscriptions
@@ -69,3 +61,4 @@ class ProjectType(Model):
         self.providers = providers
         self.tags = tags
         self.properties = properties
+        self.id = id

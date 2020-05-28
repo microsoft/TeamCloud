@@ -55,9 +55,8 @@ namespace TeamCloud.Azure.Deployment.Templates
             using var jsonReader = new JsonTextReader(streamReader);
 
             var content = JObject.Load(jsonReader);
-            var contentVersion = content.SelectToken("$.contentVersion") as JValue;
 
-            if (contentVersion is null)
+            if (!(content.SelectToken("$.contentVersion") is JValue contentVersion))
             {
                 content.Children().First().AddAfterSelf(new JProperty("contentVersion", "0.0.0.0"));
 

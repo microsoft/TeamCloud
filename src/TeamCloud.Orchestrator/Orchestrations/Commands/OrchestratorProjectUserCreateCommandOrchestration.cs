@@ -45,11 +45,11 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                     functionContext.SetCustomStatus($"Creating user", log);
 
                     user = await functionContext
-                        .SetUserProjectMembershipAsync(user, command.ProjectId.GetValueOrDefault())
+                        .SetUserProjectMembershipAsync(user, command.ProjectId)
                         .ConfigureAwait(true);
 
                     commandProject = await functionContext
-                        .GetProjectAsync(command.ProjectId.GetValueOrDefault())
+                        .GetProjectAsync(command.ProjectId)
                         .ConfigureAwait(true);
 
                     functionContext.SetCustomStatus("Sending commands", log);

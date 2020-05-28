@@ -20,7 +20,7 @@ namespace TeamCloud.Orchestration.Auditing.Model
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
 
-            TableEntity.PartitionKey = command.ProjectId.GetValueOrDefault().ToString();
+            TableEntity.PartitionKey = command.ProjectId;
             TableEntity.RowKey = $"{command.CommandId}@{provider?.Id}".TrimEnd('@');
         }
 

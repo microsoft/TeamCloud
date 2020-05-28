@@ -45,11 +45,11 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                     functionContext.SetCustomStatus($"Deleting user", log);
 
                     user = await functionContext
-                        .DeleteUserProjectMembershipAsync(user, commandProject.Id)
+                        .DeleteUserProjectMembershipAsync(user, command.ProjectId)
                         .ConfigureAwait(true);
 
                     commandProject = await functionContext
-                        .GetProjectAsync(command.ProjectId.GetValueOrDefault())
+                        .GetProjectAsync(command.ProjectId)
                         .ConfigureAwait(true);
 
                     functionContext.SetCustomStatus("Sending commands", log);

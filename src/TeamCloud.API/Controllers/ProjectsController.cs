@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -40,7 +39,7 @@ namespace TeamCloud.API.Controllers
             this.projectTypesRepository = projectTypesRepository ?? throw new ArgumentNullException(nameof(projectTypesRepository));
         }
 
-        private async Task<List<User>> ResolveUsersAsync(ProjectDefinition projectDefinition, Guid projectId)
+        private async Task<List<User>> ResolveUsersAsync(ProjectDefinition projectDefinition, string projectId)
         {
             var users = new List<User>();
 
@@ -63,7 +62,7 @@ namespace TeamCloud.API.Controllers
 
             return users;
 
-            async Task<User> ResolveUserAndEnsureMembershipAsync(UserDefinition userDefinition, Guid projectId)
+            async Task<User> ResolveUserAndEnsureMembershipAsync(UserDefinition userDefinition, string projectId)
             {
                 var user = await userService
                     .ResolveUserAsync(userDefinition)
@@ -81,6 +80,7 @@ namespace TeamCloud.API.Controllers
         [Authorize(Policy = "projectRead")]
         [SwaggerOperation(OperationId = "GetProjects", Summary = "Gets all Projects.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all Projects.", typeof(DataResult<List<Project>>))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         public async Task<IActionResult> Get()
         {
             var projects = await projectsRepository
@@ -98,6 +98,7 @@ namespace TeamCloud.API.Controllers
         [Authorize(Policy = "projectRead")]
         [SwaggerOperation(OperationId = "GetProjectByNameOrId", Summary = "Gets a Project by Name or ID.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns a Project.", typeof(DataResult<Project>))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the specified Name or ID was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Get(string projectNameOrId)
         {
@@ -126,7 +127,7 @@ namespace TeamCloud.API.Controllers
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "CreateProject", Summary = "Creates a new Project.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Started creating the new Project. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
-        [SwaggerResponse(StatusCodes.Status400BadRequest, "The projectDefinition specified in the request body did not pass validation.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status409Conflict, "A Project already exists with the name specified in the request body.", typeof(ErrorResult))]
         public async Task<IActionResult> Post([FromBody] ProjectDefinition projectDefinition)
         {
@@ -149,7 +150,7 @@ namespace TeamCloud.API.Controllers
                     .Conflict($"A Project with name '{projectDefinition.Name}' already exists. Project names must be unique. Please try your request again with a unique name.")
                     .ActionResult();
 
-            var projectId = Guid.NewGuid();
+            var projectId = Guid.NewGuid().ToString();
 
             var users = await ResolveUsersAsync(projectDefinition, projectId)
                 .ConfigureAwait(false);
@@ -206,6 +207,7 @@ namespace TeamCloud.API.Controllers
         [Authorize(Policy = "projectDelete")]
         [SwaggerOperation(OperationId = "DeleteProject", Summary = "Deletes a Project.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts deleting the specified Project. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the specified name or ID was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Delete(string projectNameOrId)
         {

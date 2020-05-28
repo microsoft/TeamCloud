@@ -15,6 +15,7 @@ using TeamCloud.Model;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
+using TeamCloud.Model.Data.Core;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestration.Auditing;
 using TeamCloud.Orchestrator.Activities;
@@ -44,7 +45,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                 // we can not send commands like add, update, or delete project users.
                 // instead we need to send a full project update to process the command!
 
-                commandResult = (provider.CommandMode == ProviderCommandMode.Simple && command.ProjectId.HasValue && !(command is IProviderCommand<Project>))
+                commandResult = (provider.CommandMode == ProviderCommandMode.Simple && !string.IsNullOrEmpty(command.ProjectId) && !(command is IProviderCommand<Project>))
                     ? await SwitchCommandAsync(functionContext, provider, command, commandResult, commandLog).ConfigureAwait(true)
                     : await ProcessCommandAsync(functionContext, provider, command, commandResult, commandLog).ConfigureAwait(true);
             }
@@ -60,10 +61,10 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 
             var providerProperties = teamCloud.Properties;
 
-            if (command.ProjectId.HasValue)
+            if (!string.IsNullOrEmpty(command.ProjectId))
             {
                 var project = await functionContext
-                    .GetProjectAsync(command.ProjectId.Value, allowUnsafe: true)
+                    .GetProjectAsync(command.ProjectId, allowUnsafe: true)
                     .ConfigureAwait(true);
 
                 var providerReference = project.Type.Providers
@@ -114,12 +115,12 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                         .ConfigureAwait(true);
                 }
 
-                if (command.ProjectId.HasValue && provider.PrincipalId.HasValue)
+                if (!string.IsNullOrEmpty(command.ProjectId) && provider.PrincipalId.HasValue)
                 {
                     log.LogInformation($"Enable provider {provider.Id} for command {command.CommandId}");
 
                     await functionContext
-                        .CallActivityWithRetryAsync(nameof(ProjectResourcesAccessActivity), (command.ProjectId.Value, provider.PrincipalId.Value))
+                        .CallActivityWithRetryAsync(nameof(ProjectResourcesAccessActivity), (command.ProjectId, provider.PrincipalId.Value))
                         .ConfigureAwait(true);
                 }
 
@@ -217,7 +218,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                 functionContext.SetCustomStatus($"Switching command", log);
 
                 var project = await functionContext
-                    .GetProjectAsync(command.ProjectId.Value, allowUnsafe: true)
+                    .GetProjectAsync(command.ProjectId, allowUnsafe: true)
                     .ConfigureAwait(true);
 
                 functionContext.ContinueAsNew((
@@ -239,12 +240,12 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 
         private static async Task ProcessOutputAsync(IDurableOrchestrationContext functionContext, Provider provider, IProviderCommand command, ICommandResult commandResult)
         {
-            if (command.ProjectId.HasValue && commandResult is ICommandResult<ProviderOutput> providerOutputResult)
+            if (!string.IsNullOrEmpty(command.ProjectId) && commandResult is ICommandResult<ProviderOutput> providerOutputResult)
             {
-                using (await functionContext.LockAsync<Project>(command.ProjectId.Value.ToString()).ConfigureAwait(true))
+                using (await functionContext.LockAsync<Project>(command.ProjectId).ConfigureAwait(true))
                 {
                     var project = await functionContext
-                        .GetProjectAsync(command.ProjectId.Value)
+                        .GetProjectAsync(command.ProjectId)
                         .ConfigureAwait(true);
 
                     var providerReference = project.Type.Providers

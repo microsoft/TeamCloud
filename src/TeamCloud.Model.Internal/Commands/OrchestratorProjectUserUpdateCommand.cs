@@ -10,7 +10,7 @@ namespace TeamCloud.Model.Commands
 {
     public class OrchestratorProjectUserUpdateCommand : OrchestratorCommand<User, OrchestratorProjectUserUpdateCommandResult, ProviderProjectUserUpdateCommand>
     {
-        public OrchestratorProjectUserUpdateCommand(User user, User payload, Guid projectId) : base(user, payload)
+        public OrchestratorProjectUserUpdateCommand(User user, User payload, string projectId) : base(user, payload)
             => ProjectId = projectId;
     }
 }

@@ -5,17 +5,14 @@
 
 using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using TeamCloud.Model.Data.Core;
 
 namespace TeamCloud.Model.Data
 {
-    public sealed class ProjectType : IContainerDocument, IEquatable<ProjectType>, ITags, IProperties
+    public sealed class ProjectType : ContainerDocument, IEquatable<ProjectType>, ITags, IProperties
     {
-        public IList<string> UniqueKeys => new List<string> { };
-
-        public string PartitionKey => Constants.CosmosDb.TenantName;
-
-        public string Id { get; set; }
+        [PartitionKey]
+        public string Tenant { get; set; }
 
         public bool Default { get; set; }
 

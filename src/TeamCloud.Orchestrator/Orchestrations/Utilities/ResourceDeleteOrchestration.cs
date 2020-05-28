@@ -70,7 +70,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 
             })).ConfigureAwait(true);
 
-            bool IsResourceGroup(AzureResourceIdentifier azureResourceIdentifier)
+            static bool IsResourceGroup(AzureResourceIdentifier azureResourceIdentifier)
                 => !(azureResourceIdentifier.ResourceTypes?.Any() ?? false);
         }
     }

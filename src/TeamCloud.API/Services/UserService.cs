@@ -10,7 +10,6 @@ using Microsoft.Extensions.Caching.Memory;
 using TeamCloud.API.Data;
 using TeamCloud.Azure.Directory;
 using TeamCloud.Data;
-using TeamCloud.Model;
 using TeamCloud.Model.Data;
 
 namespace TeamCloud.API.Services
@@ -30,7 +29,7 @@ namespace TeamCloud.API.Services
             this.usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
         }
 
-        public Guid CurrentUserId
+        public string CurrentUserId
             => httpContextAccessor.HttpContext.User.GetObjectId();
 
         public async Task<User> CurrentUserAsync()
@@ -42,22 +41,23 @@ namespace TeamCloud.API.Services
             return user;
         }
 
-        public async Task<Guid?> GetUserIdAsync(string identifier)
+        public async Task<string> GetUserIdAsync(string identifier)
         {
             if (string.IsNullOrWhiteSpace(identifier))
                 throw new ArgumentNullException(nameof(identifier));
 
             // handle passing in the id as a string
             if (Guid.TryParse(identifier, out var userId))
-                return userId;
+                return userId.ToString();
 
             string key = $"{nameof(UserService)}_{nameof(GetUserIdAsync)}_{identifier}";
 
-            if (!cache.TryGetValue(key, out Guid? val))
+            if (!cache.TryGetValue(key, out string val))
             {
-                val = await azureDirectoryService.GetUserIdAsync(identifier).ConfigureAwait(false);
+                var guid = await azureDirectoryService.GetUserIdAsync(identifier).ConfigureAwait(false);
+                val = guid?.ToString();
 
-                if (val.HasValue && val.Value != Guid.Empty)
+                if (!string.IsNullOrEmpty(val))
                     cache.Set(key, val, TimeSpan.FromMinutes(5)); // Cached value only for certain amount of time
             }
 
@@ -72,16 +72,16 @@ namespace TeamCloud.API.Services
             var userId = await GetUserIdAsync(userDefinition.Identifier)
                 .ConfigureAwait(false);
 
-            if (!userId.HasValue || userId.Value == Guid.Empty)
+            if (string.IsNullOrEmpty(userId))
                 return null;
 
             var user = await usersRepository
-                .GetAsync(userId.Value)
+                .GetAsync(userId)
                 .ConfigureAwait(false);
 
             user ??= new User
             {
-                Id = userId.Value,
+                Id = userId,
                 UserType = UserType.User
             };
 

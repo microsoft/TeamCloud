@@ -128,8 +128,8 @@ def teamcloud_deploy(cmd, client, name, location, resource_group_name='TeamCloud
         logger.warning(
             'IMPORTANT: --redeploy prevented adding you as an Admin user to the TeamCloud instance deployment.')
     else:
-        logger.warning('Creating admin user...')
         me = profile.get_current_account_user()
+        logger.warning("Adding '%s' as an admin user...", me)
 
         client._client.config.base_url = api_url
         user_definition = UserDefinition(identifier=me, role='Admin', properties=None)

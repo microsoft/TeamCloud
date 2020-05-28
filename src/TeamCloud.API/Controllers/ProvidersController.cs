@@ -46,6 +46,7 @@ namespace TeamCloud.API.Controllers
         [Authorize(Policy = "admin")]
         [SwaggerOperation(OperationId = "GetProviders", Summary = "Gets all Providers.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all Providers.", typeof(DataResult<List<Provider>>))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Get()
         {
@@ -71,6 +72,7 @@ namespace TeamCloud.API.Controllers
         [Authorize(Policy = "admin")]
         [SwaggerOperation(OperationId = "GetProviderById", Summary = "Gets a Provider by ID.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns a DataResult with the Provider as the data value.", typeof(DataResult<Provider>))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found, or a Provider with the providerId provided was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Get(string providerId)
         {
@@ -101,7 +103,7 @@ namespace TeamCloud.API.Controllers
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "CreateProvider", Summary = "Creates a new Provider.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts creating the new Provider. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
-        [SwaggerResponse(StatusCodes.Status400BadRequest, "The Provider provided in the request body did not pass validation.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status409Conflict, "A Provider already exists with the ID provided in the request body.", typeof(ErrorResult))]
         public async Task<IActionResult> Post([FromBody] Provider provider)
@@ -154,7 +156,7 @@ namespace TeamCloud.API.Controllers
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "UpdateProvider", Summary = "Updates an existing Provider.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts updating the provided Provider. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
-        [SwaggerResponse(StatusCodes.Status400BadRequest, "The Provider provided in the request body did not pass validation.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found, or a Provider with the ID provided in the reques body was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Put([FromBody] Provider provider)
         {
@@ -207,6 +209,7 @@ namespace TeamCloud.API.Controllers
         [Authorize(Policy = "admin")]
         [SwaggerOperation(OperationId = "DeleteProvider", Summary = "Deletes an existing Provider.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts deleting the provided Provider. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found, or a Provider with the provided providerId was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Delete(string providerId)
         {

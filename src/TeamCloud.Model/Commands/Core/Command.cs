@@ -15,7 +15,7 @@ namespace TeamCloud.Model.Commands.Core
     {
         Guid CommandId { get; }
 
-        Guid? ProjectId { get; }
+        string ProjectId { get; }
 
         User User { get; set; }
 
@@ -51,11 +51,11 @@ namespace TeamCloud.Model.Commands.Core
 
         public Guid CommandId { get; private set; }
 
-        private Guid? projectId = default;
+        private string projectId = default;
 
-        public virtual Guid? ProjectId
+        public virtual string ProjectId
         {
-            get => Payload is Project project ? project?.Id : projectId;
+            get => Payload is Project project && !string.IsNullOrEmpty(project.Id) ? project.Id : projectId;
             protected set => projectId = value;
         }
 

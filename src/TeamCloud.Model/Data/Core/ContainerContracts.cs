@@ -8,12 +8,12 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace TeamCloud.Model.Data
+namespace TeamCloud.Model.Data.Core
 {
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public interface IIdentifiable
     {
-        Guid Id { get; set; }
+        string Id { get; set; }
     }
 
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]

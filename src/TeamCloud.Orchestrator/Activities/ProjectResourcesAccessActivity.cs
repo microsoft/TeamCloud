@@ -39,7 +39,7 @@ namespace TeamCloud.Orchestrator.Activities
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
 
-            var (projectId, principalId) = functionContext.GetInput<(Guid, Guid)>();
+            var (projectId, principalId) = functionContext.GetInput<(string, Guid)>();
 
             var project = await projectsRepository
                 .GetAsync(projectId)
@@ -64,20 +64,20 @@ namespace TeamCloud.Orchestrator.Activities
             if (resourceGroup != null)
             {
                 var roleAssignments = await resourceGroup
-                    .GetRoleAssignmentsAsync(principalId)
+                    .GetRoleAssignmentsAsync(principalId.ToString())
                     .ConfigureAwait(false);
 
                 if (!roleAssignments.Contains(AzureRoleDefinition.Contributor))
                 {
                     await resourceGroup
-                        .AddRoleAssignmentAsync(principalId, AzureRoleDefinition.Contributor)
+                        .AddRoleAssignmentAsync(principalId.ToString(), AzureRoleDefinition.Contributor)
                         .ConfigureAwait(false);
                 }
 
                 if (!roleAssignments.Contains(AzureRoleDefinition.UserAccessAdministrator))
                 {
                     await resourceGroup
-                        .AddRoleAssignmentAsync(principalId, AzureRoleDefinition.UserAccessAdministrator)
+                        .AddRoleAssignmentAsync(principalId.ToString(), AzureRoleDefinition.UserAccessAdministrator)
                         .ConfigureAwait(false);
                 }
             }

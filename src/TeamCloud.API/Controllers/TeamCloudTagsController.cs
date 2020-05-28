@@ -32,6 +32,7 @@ namespace TeamCloud.API.Controllers
         [Authorize(Policy = "admin")]
         [SwaggerOperation(OperationId = "GetTeamCloudTags", Summary = "Gets all Tags for a TeamCloud Instance.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all TeamCloud Tags", typeof(DataResult<Dictionary<string, string>>))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Get()
         {
@@ -56,7 +57,7 @@ namespace TeamCloud.API.Controllers
         [Authorize(Policy = "admin")]
         [SwaggerOperation(OperationId = "GetTeamCloudTagByKey", Summary = "Gets a TeamCloud Tag by Key.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns TeamCloud Tag", typeof(DataResult<Dictionary<string, string>>))]
-        [SwaggerResponse(StatusCodes.Status400BadRequest, "The key provided in the path was invalid.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found, or a Tag with the provided key was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Get([FromRoute] string tagKey)
         {
@@ -90,7 +91,7 @@ namespace TeamCloud.API.Controllers
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "CreateTeamCloudTag", Summary = "Creates a new TeamCloud Tag.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts creating the new TeamCloud Tag. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
-        [SwaggerResponse(StatusCodes.Status400BadRequest, "The key provided in the request body was invalid.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status409Conflict, "A TeamCloud Tag already exists with the key provided in the request body.", typeof(ErrorResult))]
         public async Task<IActionResult> Post([FromBody] Dictionary<string, string> tags)
@@ -138,7 +139,7 @@ namespace TeamCloud.API.Controllers
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "UpdateTeamCloudTag", Summary = "Updates an existing TeamCloud Tag.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts updating the TeamCloud Tag. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
-        [SwaggerResponse(StatusCodes.Status400BadRequest, "The Tag provided in the request body did not pass validation.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found, or a Tag with the key provided in the request body was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Put([FromBody] Dictionary<string, string> tags)
         {
@@ -185,7 +186,7 @@ namespace TeamCloud.API.Controllers
         [Authorize(Policy = "admin")]
         [SwaggerOperation(OperationId = "DeleteTeamCloudTag", Summary = "Deletes an existing TeamCloud Tag.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts deleting the TeamCloud Tag. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
-        [SwaggerResponse(StatusCodes.Status400BadRequest, "The key provided in the path was invalid.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found, or a Tag with the provided key was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Delete([FromRoute] string tagKey)
         {
