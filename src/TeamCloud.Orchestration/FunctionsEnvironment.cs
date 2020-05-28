@@ -61,18 +61,21 @@ namespace TeamCloud.Orchestration
             var functionJson = await GetFunctionJsonAsync(functionName)
                 .ConfigureAwait(false);
 
-            var functionRoute = functionJson?
-                .SelectToken("$..bindings[?(@.type == 'httpTrigger')].route")?
+            var functionUrl = functionJson?
+                .SelectToken("$.invoke_url_template")?
                 .ToString();
 
-            if (string.IsNullOrEmpty(functionRoute))
+            if (string.IsNullOrEmpty(functionUrl))
                 return null;
 
             var hostUrl = await GetHostUrlAsync()
                 .ConfigureAwait(false);
 
+            if (functionUrl.StartsWith(hostUrl, StringComparison.OrdinalIgnoreCase))
+                return functionUrl;
+
             return hostUrl
-                .AppendPathSegment(functionRoute)
+                .AppendPathSegment(new Uri(functionUrl).AbsolutePath)
                 .ToString();
         }
 
