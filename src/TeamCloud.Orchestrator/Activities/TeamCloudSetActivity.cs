@@ -9,6 +9,8 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Data;
 using TeamCloud.Model.Data;
+using TeamCloud.Orchestration;
+using TeamCloud.Orchestrator.Entities;
 
 namespace TeamCloud.Orchestrator.Activities
 {
@@ -33,6 +35,23 @@ namespace TeamCloud.Orchestrator.Activities
                 .ConfigureAwait(false);
 
             return teamCloudInstance;
+        }
+    }
+
+    internal static class TeamCloudSetExtension
+    {
+        public static Task<TeamCloudInstance> SetTeamCloudAsync(this IDurableOrchestrationContext functionContext, TeamCloudInstance teamCloud)
+        {
+            if (teamCloud is null)
+                throw new ArgumentNullException(nameof(teamCloud));
+
+            if (functionContext.IsLockedByContainerDocument(teamCloud))
+            {
+                return functionContext
+                    .CallActivityWithRetryAsync<TeamCloudInstance>(nameof(TeamCloudSetActivity), teamCloud);
+            }
+
+            throw new NotSupportedException($"Unable to set '{typeof(TeamCloudInstance)}' without acquired lock");
         }
     }
 }

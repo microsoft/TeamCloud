@@ -9,6 +9,8 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Data;
 using TeamCloud.Model.Data;
+using TeamCloud.Orchestration;
+using TeamCloud.Orchestrator.Entities;
 
 namespace TeamCloud.Orchestrator.Activities
 {
@@ -34,5 +36,13 @@ namespace TeamCloud.Orchestrator.Activities
 
             return newUser;
         }
+    }
+
+    internal static class UserTeamCloudDetailsSetExtension
+    {
+        public static Task<User> SetUserTeamCloudInfoAsync(this IDurableOrchestrationContext functionContext, User user, bool allowUnsafe = false)
+            => functionContext.IsLockedByContainerDocument(user) || allowUnsafe
+            ? functionContext.CallActivityWithRetryAsync<User>(nameof(UserTeamCloudInfoSetActivity), user)
+            : throw new NotSupportedException($"Unable to set user '{user.Id}' without acquired lock");
     }
 }

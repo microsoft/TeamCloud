@@ -9,6 +9,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Data;
 using TeamCloud.Model.Data;
+using TeamCloud.Orchestration;
 
 namespace TeamCloud.Orchestrator.Activities
 {
@@ -36,5 +37,11 @@ namespace TeamCloud.Orchestrator.Activities
 
             return updatedUser;
         }
+    }
+
+    internal static class UserProjectMembershipDeleteExtension
+    {
+        public static Task<User> DeleteUserProjectMembershipAsync(this IDurableOrchestrationContext functionContext, User user, string projectId)
+            => functionContext.CallActivityWithRetryAsync<User>(nameof(UserProjectMembershipDeleteActivity), (user, projectId));
     }
 }

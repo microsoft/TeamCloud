@@ -18,7 +18,6 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 {
     public static class ProviderSendExtensions
     {
-
         internal static Task<ICommandResult> SendCommandAsync<TCommand>(this IDurableOrchestrationContext functionContext, TCommand command, Provider provider)
             where TCommand : IProviderCommand
             => functionContext.SendCommandAsync<TCommand>(command, provider);

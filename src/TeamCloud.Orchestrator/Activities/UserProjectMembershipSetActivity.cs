@@ -9,6 +9,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Data;
 using TeamCloud.Model.Data;
+using TeamCloud.Orchestration;
 
 namespace TeamCloud.Orchestrator.Activities
 {
@@ -42,5 +43,11 @@ namespace TeamCloud.Orchestrator.Activities
 
             return updatedUser;
         }
+    }
+
+    internal static class UserProjectMembershipSetExtension
+    {
+        public static Task<User> SetUserProjectMembershipAsync(this IDurableOrchestrationContext functionContext, User user, string projectId)
+            => functionContext.CallActivityWithRetryAsync<User>(nameof(UserProjectMembershipSetActivity), (user, projectId));
     }
 }
