@@ -4,7 +4,7 @@
  */
 
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
+using Newtonsoft.Json.Converters;
 
 namespace TeamCloud.Model.Data
 {
