@@ -16,6 +16,7 @@ using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Activities;
+using TeamCloud.Orchestrator.Entities;
 using TeamCloud.Orchestrator.Orchestrations.Utilities;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Commands
@@ -44,12 +45,15 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 {
                     functionContext.SetCustomStatus($"Deleting user", log);
 
-                    user = await functionContext
-                        .DeleteUserProjectMembershipAsync(user, command.ProjectId)
-                        .ConfigureAwait(true);
+                    using (await functionContext.LockContainerDocumentAsync<User>(user).ConfigureAwait(true))
+                    {
+                        user = await functionContext
+                            .DeleteUserProjectMembershipAsync(user, command.ProjectId)
+                            .ConfigureAwait(true);
+                    }
 
                     commandProject = await functionContext
-                        .GetProjectAsync(command.ProjectId)
+                        .GetProjectAsync(command.ProjectId, true)
                         .ConfigureAwait(true);
 
                     functionContext.SetCustomStatus("Sending commands", log);
