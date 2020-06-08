@@ -31,17 +31,22 @@ namespace TeamCloud.Orchestrator.Activities
 
             var (user, projectId) = functionContext.GetInput<(User, string)>();
 
-            // the project membership should already be on the user at this point
             var membership = user.ProjectMembership(projectId);
 
             if (membership is null)
-                throw new ArgumentException("User must have a ProjectMembership for the project before calling this activity");
+            {
+                user = await usersRepository
+                    .GetAsync(user.Id)
+                    .ConfigureAwait(false);
+            }
+            else
+            {
+                user = await usersRepository
+                    .AddProjectMembershipAsync(user, membership)
+                    .ConfigureAwait(false);
+            }
 
-            var updatedUser = await usersRepository
-                .AddProjectMembershipAsync(user, membership)
-                .ConfigureAwait(false);
-
-            return updatedUser;
+            return user;
         }
     }
 

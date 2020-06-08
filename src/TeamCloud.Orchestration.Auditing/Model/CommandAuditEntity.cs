@@ -12,6 +12,8 @@ namespace TeamCloud.Orchestration.Auditing.Model
 {
     public sealed class CommandAuditEntity : TableEntityBase
     {
+        private static readonly string NoneProjectPartitionKey = Guid.Empty.ToString();
+
         public CommandAuditEntity()
         { }
 
@@ -20,7 +22,7 @@ namespace TeamCloud.Orchestration.Auditing.Model
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
 
-            TableEntity.PartitionKey = command.ProjectId;
+            TableEntity.PartitionKey = command.ProjectId ?? NoneProjectPartitionKey;
             TableEntity.RowKey = $"{command.CommandId}@{provider?.Id}".TrimEnd('@');
         }
 

@@ -3,7 +3,6 @@
  *  Licensed under the MIT License.
  */
 
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using TeamCloud.Model.Data;
@@ -12,11 +11,11 @@ namespace TeamCloud.Data
 {
     public interface IProjectsRepository
     {
-        Task<Project> GetAsync(string nameOrId, bool populateUsers = true);
+        Task<Project> GetAsync(string nameOrId);
 
-        IAsyncEnumerable<Project> ListAsync(bool populateUsers = true);
+        IAsyncEnumerable<Project> ListAsync();
 
-        IAsyncEnumerable<Project> ListAsync(IEnumerable<string> projectIds, bool populateUsers = true);
+        IAsyncEnumerable<Project> ListAsync(IEnumerable<string> nameOrIds);
 
         Task<bool> NameExistsAsync(string name);
 
