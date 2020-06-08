@@ -56,8 +56,8 @@ def transform_user_table_output(result):
             ('User ID', item['id']),
             ('Type', item['userType']),
             ('Role', item['role']),
-            ('Project Memberships', '\n'.join([p['projectId']
-                                               for p in item['projectMemberships']])),
+            # ('Project Memberships', '\n'.join([p['projectId']
+            #                                    for p in item['projectMemberships']])),
             ('Properties', str(item['properties']))
         ]))
 

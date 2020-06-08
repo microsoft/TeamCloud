@@ -3,6 +3,12 @@
 Release History
 ===============
 
+0.4.3
+++++++
+* Preview release
+* Fix bug in tc upgrade
+* Fix bug in user table output
+
 0.4.2
 ++++++
 * Preview release

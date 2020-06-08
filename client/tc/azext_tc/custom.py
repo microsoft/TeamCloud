@@ -209,15 +209,14 @@ def teamcloud_upgrade(cmd, client, base_url, resource_group_name='TeamCloud', ve
     if name is None or '':
         raise CLIError("Unable to get app name from base url.")
 
-    parameters = {
-        'webAppName': name,
-        'resourceManagerIdentityClientId': '',
-        'resourceManagerIdentityClientSecret': ''
-    }
+    parameters = []
+    parameters.append('webAppName={}'.format(name))
+    parameters.append('resourceManagerIdentityClientId=')
+    parameters.append('resourceManagerIdentityClientSecret=')
 
     logger.warning('Deploying arm template...')
     outputs = deploy_arm_template_at_resource_group(
-        cmd, resource_group_name, template_uri=deploy_url, parameters=parameters)
+        cmd, resource_group_name, template_uri=deploy_url, parameters=[parameters])
 
     api_app_name = outputs['apiAppName']['value']
     orchestrator_app_name = outputs['orchestratorAppName']['value']
