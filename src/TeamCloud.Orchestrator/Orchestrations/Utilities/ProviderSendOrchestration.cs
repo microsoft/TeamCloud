@@ -45,7 +45,11 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                 // we can not send commands like add, update, or delete project users.
                 // instead we need to send a full project update to process the command!
 
-                commandResult = (provider.CommandMode == ProviderCommandMode.Simple && !string.IsNullOrEmpty(command.ProjectId) && !(command is IProviderCommand<Project>))
+                var isNotProjectCommandWithProjectId = provider.CommandMode == ProviderCommandMode.Simple
+                                                    && !string.IsNullOrEmpty(command.ProjectId)
+                                                    && !(command is IProviderCommand<Project>);
+
+                commandResult = isNotProjectCommandWithProjectId
                     ? await SwitchCommandAsync(functionContext, provider, command, commandResult, commandLog).ConfigureAwait(true)
                     : await ProcessCommandAsync(functionContext, provider, command, commandResult, commandLog).ConfigureAwait(true);
             }

@@ -57,6 +57,9 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                         if (user.HasEqualTeamCloudInfo(existingUser))
                             throw new OrchestratorCommandException($"User '{user.Id}' TeamCloud details have not changed.", command);
 
+                        if (!user.HasEqualMemberships(existingUser))
+                            throw new OrchestratorCommandException($"User '{user.Id}' Project Memberships cannot be changed using the TeamCloudUserUpdateCommand. Project Memebership details must be changed using the ProjectUserUpdateCommand.", command);
+
                         user = await functionContext
                             .SetUserTeamCloudInfoAsync(user)
                             .ConfigureAwait(true);
@@ -66,7 +69,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
 
                     // only update all projects if the updated user is an admin
                     // or the user was an admin before the update, otherwise
-                    // only update member projects if users' properties changed
+                    // only update member projects if user's teamcloud level properties changed
                     if (user.IsAdmin() || existingUser.IsAdmin())
                     {
                         projects = await functionContext
@@ -86,7 +89,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                         {
                             var projectUpdateCommand = new OrchestratorProjectUpdateCommand(command.User, project);
 
-                            functionContext.StartNewOrchestration(nameof(OrchestratorProjectUpdateCommand), projectUpdateCommand);
+                            functionContext.StartNewOrchestration(nameof(OrchestratorProjectUpdateCommandOrchestration), projectUpdateCommand);
                         }
                     }
 

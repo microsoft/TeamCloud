@@ -52,6 +52,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
 
                     var projects = default(IEnumerable<Project>);
 
+                    // TODO: this is totally wrong
                     // only update all projects if user was an admin
                     if (user.IsAdmin())
                     {
@@ -72,7 +73,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                         {
                             var projectUpdateCommand = new OrchestratorProjectUpdateCommand(command.User, project);
 
-                            functionContext.StartNewOrchestration(nameof(OrchestratorProjectUpdateCommand), projectUpdateCommand);
+                            functionContext.StartNewOrchestration(nameof(OrchestratorProjectUpdateCommandOrchestration), projectUpdateCommand);
                         }
                     }
 

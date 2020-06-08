@@ -4,6 +4,7 @@
  */
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -55,18 +56,23 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                             .ConfigureAwait(true);
                     }
 
-                    // only update all projects if the new user is an admin
+                    // this will only be called on a newly created user with teamcloud (system)
+                    // properties. providers only care if the user is an admin, so we check if
+                    // the user is an admin, and if so, we send the providers teamcloud user created
+                    // commands (or project update connamds depending on the provider's mode)
+
                     if (user.IsAdmin())
                     {
                         var projects = await functionContext
                             .ListProjectsAsync()
                             .ConfigureAwait(true);
 
+                        // TODO: change this
                         foreach (var project in projects)
                         {
                             var projectUpdateCommand = new OrchestratorProjectUpdateCommand(command.User, project);
 
-                            functionContext.StartNewOrchestration(nameof(OrchestratorProjectUpdateCommand), projectUpdateCommand);
+                            functionContext.StartNewOrchestration(nameof(OrchestratorProjectUpdateCommandOrchestration), projectUpdateCommand);
                         }
                     }
 
