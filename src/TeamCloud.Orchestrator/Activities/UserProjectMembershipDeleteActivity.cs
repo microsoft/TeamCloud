@@ -10,6 +10,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Data;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
+using TeamCloud.Orchestrator.Entities;
 
 namespace TeamCloud.Orchestrator.Activities
 {
@@ -41,7 +42,9 @@ namespace TeamCloud.Orchestrator.Activities
 
     internal static class UserProjectMembershipDeleteExtension
     {
-        public static Task<User> DeleteUserProjectMembershipAsync(this IDurableOrchestrationContext functionContext, User user, string projectId)
-            => functionContext.CallActivityWithRetryAsync<User>(nameof(UserProjectMembershipDeleteActivity), (user, projectId));
+        public static Task<User> DeleteUserProjectMembershipAsync(this IDurableOrchestrationContext functionContext, User user, string projectId, bool allowUnsafe = false)
+            => functionContext.IsLockedBy<User>(user.Id) || allowUnsafe
+            ? functionContext.CallActivityWithRetryAsync<User>(nameof(UserProjectMembershipDeleteActivity), (user, projectId))
+            : throw new NotSupportedException($"Unable to delete project membership without acquired for user {user.Id} lock");
     }
 }

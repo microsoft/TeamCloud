@@ -36,7 +36,7 @@ namespace TeamCloud.Orchestrator.Activities
     internal static class ProjectGetExtension
     {
         public static Task<Project> GetProjectAsync(this IDurableOrchestrationContext functionContext, string projectId, bool allowUnsafe = false)
-            => functionContext.IsLockedBy<Project>(projectId.ToString()) || allowUnsafe
+            => functionContext.IsLockedBy<Project>(projectId) || allowUnsafe
             ? functionContext.CallActivityWithRetryAsync<Project>(nameof(ProjectGetActivity), projectId)
             : throw new NotSupportedException($"Unable to get project '{projectId}' without acquired lock");
     }

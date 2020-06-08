@@ -3,6 +3,13 @@
 Release History
 ===============
 
+0.4.2
+++++++
+* Preview release
+* Tab completion for providers using index.json
+* Additional arg validation
+* az tc provider deploy: Open setup url in browser after deployment
+
 0.4.1
 ++++++
 * Preview release
