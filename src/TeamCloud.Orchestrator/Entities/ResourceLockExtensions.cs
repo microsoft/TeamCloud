@@ -14,36 +14,36 @@ namespace TeamCloud.Orchestrator.Entities
 {
     public static class ResourceLockExtensions
     {
-        private static EntityId GetEntityId<T>(this IDurableOrchestrationContext functionContext, string identifier)
-            where T : class
+        private static EntityId GetEntityId(this IDurableOrchestrationContext functionContext, Type entityType, string identifier)
         {
+            if (entityType is null)
+                throw new ArgumentNullException(nameof(entityType));
+
             if (string.IsNullOrWhiteSpace(identifier))
                 throw new ArgumentException("Identifier must not NULL, EMPTY, or WHITESPACE", nameof(identifier));
 
-            return new EntityId(nameof(ResourceLockEntity), $"{typeof(T)}|{identifier}");
+            return new EntityId(nameof(ResourceLockEntity), $"{entityType}|{identifier}");
         }
 
         internal static bool IsLockedBy<T>(this IDurableOrchestrationContext functionContext, string identifier)
             where T : class
-            => functionContext.IsLocked(out var locks) && locks.Contains(functionContext.GetEntityId<T>(identifier));
+            => functionContext.IsLocked(out var locks) && locks.Contains(functionContext.GetEntityId(typeof(T), identifier));
 
         internal static Task<IDisposable> LockAsync<T>(this IDurableOrchestrationContext functionContext, string identifier)
             where T : class
-            => functionContext.LockAsync(functionContext.GetEntityId<T>(identifier));
+            => functionContext.LockAsync(functionContext.GetEntityId(typeof(T), identifier));
 
-        internal static bool IsLockedByContainerDocument<T>(this IDurableOrchestrationContext functionContext, T containerDocument)
-            where T : class, IContainerDocument
-            => functionContext.IsLocked(out var locks) && locks.Contains(functionContext.GetEntityId<T>(containerDocument?.Id));
+        internal static bool IsLockedByContainerDocument(this IDurableOrchestrationContext functionContext, IContainerDocument containerDocument)
+            => functionContext.IsLocked(out var locks) && locks.Contains(functionContext.GetEntityId(containerDocument?.GetType(), containerDocument?.Id));
 
-        internal static Task<IDisposable> LockContainerDocumentAsync<T>(this IDurableOrchestrationContext functionContext, T containerDocument)
-            where T : class, IContainerDocument
-            => functionContext.LockAsync(functionContext.GetEntityId<T>(containerDocument?.Id));
+        internal static Task<IDisposable> LockContainerDocumentAsync(this IDurableOrchestrationContext functionContext, params IContainerDocument[] containerDocuments)
+            => functionContext.LockAsync(containerDocuments.Select(containerDocument => functionContext.GetEntityId(containerDocument?.GetType(), containerDocument?.Id)).ToArray());
 
         internal static bool IsLockedByAzureResource(this IDurableOrchestrationContext functionContext, AzureResourceIdentifier resourceId)
-            => functionContext.IsLocked(out var locks) && locks.Contains(functionContext.GetEntityId<AzureResourceIdentifier>(resourceId?.ToString()));
+            => functionContext.IsLocked(out var locks) && locks.Contains(functionContext.GetEntityId(typeof(AzureResourceIdentifier), resourceId?.ToString()));
 
         internal static Task<IDisposable> LockAzureResourceAsync(this IDurableOrchestrationContext functionContext, AzureResourceIdentifier resourceId)
-            => functionContext.LockAsync(functionContext.GetEntityId<AzureResourceIdentifier>(resourceId?.ToString()));
+            => functionContext.LockAsync(functionContext.GetEntityId(typeof(AzureResourceIdentifier), resourceId?.ToString()));
 
 
     }
