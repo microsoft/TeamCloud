@@ -5,12 +5,13 @@
 # pylint: disable=protected-access, too-few-public-methods
 
 import argparse
-from re import match
 
 from knack.log import get_logger
 from knack.util import CLIError
 
 from .vendored_sdks.teamcloud.models import ProviderReference
+
+from ._validators import _is_valid_provider_id
 
 logger = get_logger(__name__)
 
@@ -25,12 +26,11 @@ class CreateProviderReference(argparse._AppendAction):
         try:
             provider_id = values.pop(0)
 
-            if 4 > len(provider_id) > 255 or match(
-                    r'^(?:[a-z][a-z0-9]+(?:\.[a-z0-9]+)+)$', provider_id) is None:
+            if not _is_valid_provider_id(provider_id):
                 raise CLIError(
                     'usage error: {} PROVIDER_ID [KEY=VALUE ...] PROVIDER_ID should start with '
                     'a lowercase and contain only lowercase, numbers, and periods [.] '
-                    'with length [4,254]'.format(option_string or '--provider'))
+                    'with length [5,254]'.format(option_string or '--provider'))
 
             provider_depends_on = []
             provider_properties = {}
@@ -38,6 +38,11 @@ class CreateProviderReference(argparse._AppendAction):
             for item in values:
                 key, value = item.split('=', 1)
                 if key.lower() == 'depends-on' or key.lower() == 'dependson' or key.lower() == 'depends_on':
+                    if not _is_valid_provider_id(value):
+                        raise CLIError(
+                            'usage error: {} PROVIDER_ID [KEY=VALUE ...] DEPENDS_ON must be a valid '
+                            'provider id, start with a lowercase and contain only lowercase, numbers, '
+                            'and periods [.] with length [5,254]'.format(option_string or '--provider'))
                     provider_depends_on.append(value)
                 else:
                     provider_properties[key] = value

@@ -3,6 +3,11 @@
 Release History
 ===============
 
+0.4.4
+++++++
+* Preview release
+* az project-type create: Fix provider id validation bug
+
 0.4.3
 ++++++
 * Preview release
