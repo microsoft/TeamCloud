@@ -20,8 +20,6 @@ namespace TeamCloud.Model.Data
 
         public IDictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();
 
-        public IDictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
-
         public IList<Provider> Providers { get; set; } = new List<Provider>();
     }
 }
