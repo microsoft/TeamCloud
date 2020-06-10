@@ -14,6 +14,7 @@ using TeamCloud.Model;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
+using TeamCloud.Model.Data.Core;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestration.Deployment;
 using TeamCloud.Orchestrator.Activities;
@@ -89,11 +90,29 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
             var project = commandResult.Result = command.Payload;
             project.Tags = teamCloud.Tags.Override(project.Tags);
 
-            functionContext.SetCustomStatus($"Creating project", log);
+            // we need to materialize the project's users
+            // to a dedicated variable as they represent a
+            // container document on their own and need to
+            // be locked by a critical section before assigning
+            // them to the persisted project.
+            
+            var projectUsers = project.Users.ToList();
+            var projectLocks = projectUsers.OfType<IContainerDocument>().Append(project).ToArray();
 
-            project = commandResult.Result = await functionContext
-                .CallActivityWithRetryAsync<Project>(nameof(ProjectCreateActivity), project)
-                .ConfigureAwait(true);
+            using (await functionContext.LockContainerDocumentAsync(projectLocks).ConfigureAwait(true))
+            {
+                functionContext.SetCustomStatus($"Creating project", log);
+
+                project = commandResult.Result = await functionContext
+                    .CallActivityWithRetryAsync<Project>(nameof(ProjectCreateActivity), project)
+                    .ConfigureAwait(true);
+
+                functionContext.SetCustomStatus($"Adding users", log);
+
+                project.Users = await Task
+                    .WhenAll(projectUsers.Select(user => functionContext.SetUserProjectMembershipAsync(user, project.Id)))
+                    .ConfigureAwait(true);
+            }
 
             functionContext.SetCustomStatus($"Allocating subscription", log);
 
@@ -135,19 +154,19 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 project = commandResult.Result = await functionContext
                     .SetProjectAsync(project)
                     .ConfigureAwait(true);
+
+                functionContext.SetCustomStatus($"Tagging resources", log);
+
+                await functionContext
+                    .CallActivityWithRetryAsync(nameof(ProjectResourcesTagActivity), project)
+                    .ConfigureAwait(true);
+
+                functionContext.SetCustomStatus($"Creating project identity", log);
+
+                await functionContext
+                    .CallActivityWithRetryAsync(nameof(ProjectIdentityCreateActivity), project)
+                    .ConfigureAwait(true);
             }
-
-            functionContext.SetCustomStatus($"Tagging resources", log);
-
-            await functionContext
-                .CallActivityWithRetryAsync(nameof(ProjectResourcesTagActivity), project)
-                .ConfigureAwait(true);
-
-            functionContext.SetCustomStatus($"Creating project identity", log);
-
-            await functionContext
-                .CallActivityWithRetryAsync(nameof(ProjectIdentityCreateActivity), project)
-                .ConfigureAwait(true);
 
             functionContext.SetCustomStatus($"Sending provider commands", log);
 

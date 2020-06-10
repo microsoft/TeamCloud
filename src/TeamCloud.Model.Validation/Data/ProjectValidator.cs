@@ -17,6 +17,9 @@ namespace TeamCloud.Model.Validation.Data
 
             RuleFor(obj => obj.Type)
                 .NotEmpty();
+
+            RuleFor(obj => obj.Users)
+                .NotEmpty();
         }
     }
 }

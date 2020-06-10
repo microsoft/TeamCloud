@@ -97,7 +97,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                         .ConfigureAwait(true);
 
                     command.Payload
-                        .Properties = teamCloud.Properties.Override(provider.Properties);
+                        .Properties = provider.Properties;
 
                     var commandResult = await functionContext
                         .SendCommandAsync<ProviderRegisterCommand, ProviderRegisterCommandResult>(command, provider)

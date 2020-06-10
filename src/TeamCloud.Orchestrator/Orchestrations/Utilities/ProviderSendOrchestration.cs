@@ -59,12 +59,6 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 
         private static async Task<IProviderCommand> AugmentCommandAsync(IDurableOrchestrationContext functionContext, Provider provider, IProviderCommand command)
         {
-            var teamCloud = await functionContext
-                .GetTeamCloudAsync()
-                .ConfigureAwait(true);
-
-            var providerProperties = teamCloud.Properties;
-
             if (!string.IsNullOrEmpty(command.ProjectId))
             {
                 var project = await functionContext
@@ -74,7 +68,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                 var providerReference = project.Type.Providers
                     .Single(pr => pr.Id == provider.Id);
 
-                command.Properties = providerProperties.Resolve(project)
+                command.Properties = provider.Properties.Resolve(project)
                     .Override(project.Type.Properties.Resolve(project))
                     .Override(project.Properties.Resolve(project))
                     .Override(provider.Properties.Resolve(project))
@@ -82,8 +76,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
             }
             else
             {
-                command.Properties = providerProperties.Resolve()
-                    .Override(provider.Properties.Resolve());
+                command.Properties = provider.Properties.Resolve();
             }
 
             if (command.Payload is IProperties payloadWithProperties)
