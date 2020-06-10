@@ -31,8 +31,8 @@ class Provider(Model):
     :type properties: dict[str, str]
     :param registered:
     :type registered: datetime
-    :param command_mode:
-    :type command_mode: int
+    :param command_mode: Possible values include: 'Simple', 'Extended'
+    :type command_mode: str or ~teamcloud.models.enum
     """
 
     _attribute_map = {
@@ -44,7 +44,7 @@ class Provider(Model):
         'events': {'key': 'events', 'type': '[str]'},
         'properties': {'key': 'properties', 'type': '{str}'},
         'registered': {'key': 'registered', 'type': 'iso-8601'},
-        'command_mode': {'key': 'commandMode', 'type': 'int'},
+        'command_mode': {'key': 'commandMode', 'type': 'str'},
     }
 
     def __init__(self, **kwargs):

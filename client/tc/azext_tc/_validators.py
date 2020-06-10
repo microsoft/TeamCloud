@@ -24,8 +24,9 @@ def tc_deploy_validator(cmd, namespace):
             raise CLIError(
                 '--principal-name must be have a value if --principal-password is specified')
 
-    if namespace.version and namespace.prerelease:
-        raise CLIError('Invalid argument usage: --version | --pre')
+    if sum(1 for ct in [namespace.version, namespace.prerelease, namespace.index_url] if ct) > 1:
+        raise CLIError(
+            'Invalid argument usage: can only use one of --index-url | --version | --pre')
 
     if namespace.version:
         namespace.version = namespace.version.lower()
@@ -35,13 +36,15 @@ def tc_deploy_validator(cmd, namespace):
             raise CLIError(
                 '--version should be in format v0.0.0 do not include -pre suffix')
 
-        import requests
-        from azure.cli.core.util import should_disable_connection_verify
+        from ._deploy_utils import github_release_version_exists
 
-        version_url = 'https://api.github.com/repos/microsoft/TeamCloud/releases/tags/' + namespace.version
-        version_res = requests.get(version_url, verify=not should_disable_connection_verify())
-        if version_res.status_code == 404:
+        if not github_release_version_exists(cmd.cli_ctx, namespace.version, 'TeamCloud'):
             raise CLIError('--version {} does not exist'.format(namespace.version))
+
+    if namespace.index_url:
+        if not _is_valid_url(namespace.index_url):
+            raise CLIError(
+                '--index-url should be a valid url')
 
     if namespace.name is not None:
         name_clean = ''
@@ -181,6 +184,16 @@ def base_url_validator(cmd, namespace):
                 '--base-url should be a valid url')
 
 
+def index_url_validator(cmd, namespace):
+    if namespace.index_url:
+        if namespace.prerelease or namespace.version:
+            raise CLIError(
+                'Invalid argument usage: can only use one of --index-url | --version | --pre')
+        if not _is_valid_url(namespace.index_url):
+            raise CLIError(
+                '--index-url should be a valid url')
+
+
 def auth_code_validator(cmd, namespace):
     if namespace.auth_code:
         if not _is_valid_functions_auth_code(namespace.auth_code):
@@ -191,8 +204,9 @@ def auth_code_validator(cmd, namespace):
 
 def source_version_validator(cmd, namespace):
     if namespace.version:
-        if namespace.prerelease:
-            raise CLIError('--version | --pre')
+        if namespace.prerelease or namespace.index_url:
+            raise CLIError(
+                'Invalid argument usage: can only use one of --index-url | --version | --pre')
         namespace.version = namespace.version.lower()
         if namespace.version[:1].isdigit():
             namespace.version = 'v' + namespace.version
@@ -203,8 +217,9 @@ def source_version_validator(cmd, namespace):
 
 def teamcloud_source_version_validator(cmd, namespace):
     if namespace.version:
-        if namespace.prerelease:
-            raise CLIError('Invalid argument usage: --version | --pre')
+        if namespace.prerelease or namespace.index_url:
+            raise CLIError(
+                'Invalid argument usage: can only use one of --index-url | --version | --pre')
         namespace.version = namespace.version.lower()
         if namespace.version[:1].isdigit():
             namespace.version = 'v' + namespace.version
@@ -212,19 +227,17 @@ def teamcloud_source_version_validator(cmd, namespace):
             raise CLIError(
                 '--version should be in format v0.0.0 do not include -pre suffix')
 
-        import requests
-        from azure.cli.core.util import should_disable_connection_verify
+        from ._deploy_utils import github_release_version_exists
 
-        version_url = 'https://api.github.com/repos/microsoft/TeamCloud/releases/tags/' + namespace.version
-        version_res = requests.get(version_url, verify=not should_disable_connection_verify())
-        if version_res.status_code == 404:
+        if not github_release_version_exists(cmd.cli_ctx, namespace.version, 'TeamCloud'):
             raise CLIError('--version {} does not exist'.format(namespace.version))
 
 
 def providers_source_version_validator(cmd, namespace):
     if namespace.version:
-        if namespace.prerelease:
-            raise CLIError('Invalid argument usage: --version | --pre')
+        if namespace.prerelease or namespace.index_url:
+            raise CLIError(
+                'Invalid argument usage: can only use one of --index-url | --version | --pre')
         namespace.version = namespace.version.lower()
         if namespace.version[:1].isdigit():
             namespace.version = 'v' + namespace.version
@@ -232,12 +245,9 @@ def providers_source_version_validator(cmd, namespace):
             raise CLIError(
                 '--version should be in format v0.0.0 do not include -pre suffix')
 
-        import requests
-        from azure.cli.core.util import should_disable_connection_verify
+        from ._deploy_utils import github_release_version_exists
 
-        version_url = 'https://api.github.com/repos/microsoft/TeamCloud-Providers/releases/tags/' + namespace.version
-        version_res = requests.get(version_url, verify=not should_disable_connection_verify())
-        if version_res.status_code == 404:
+        if not github_release_version_exists(cmd.cli_ctx, namespace.version, 'TeamCloud-Providers'):
             raise CLIError('--version {} does not exist'.format(namespace.version))
 
 

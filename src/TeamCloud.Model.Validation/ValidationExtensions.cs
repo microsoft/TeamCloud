@@ -301,7 +301,7 @@ namespace TeamCloud.Model.Validation
             => !(string.IsNullOrEmpty(value)
             || value.Length >= 256);
 
-        private static readonly Regex validProviderOrProjectTypeId = new Regex(@"^(?:[a-z][a-z0-9]+(?:\.[a-z0-9]+)+)$");
+        private static readonly Regex validProviderOrProjectTypeId = new Regex(@"^(?:[a-z][a-z0-9]+(?:\.?[a-z0-9]+)+)$");
 
         private static bool BeValidProviderId(string id)
             => !string.IsNullOrEmpty(id)

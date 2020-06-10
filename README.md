@@ -2,8 +2,8 @@
 
 TeamCloud is a tool that enables enterprise IT organizations to provide application development teams "self-serve" access to secure compliant cloud development environments.
 
-![TeamCloud - Build & Packaging](https://github.com/microsoft/TeamCloud/workflows/TeamCloud%20-%20Build%20&%20Packaging/badge.svg)
-![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/microsoft/teamcloud?label=Release%20%28main%29)
+![Create Pre-release](https://github.com/microsoft/TeamCloud/workflows/Create%20Pre-release/badge.svg)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/microsoft/teamcloud?label=Release%20%28main%29)
 ![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/microsoft/teamcloud?include_prereleases&label=Release%20%28dev%29)
 
 There are several components that make up the TeamCloud solution.

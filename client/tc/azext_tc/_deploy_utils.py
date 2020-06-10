@@ -55,6 +55,14 @@ def get_github_latest_release(cli_ctx, repo, org='microsoft', prerelease=False):
     return version_json['tag_name']
 
 
+def github_release_version_exists(cli_ctx, version, repo, org='microsoft'):
+    import requests
+
+    version_url = 'https://api.github.com/repos/{}/{}/releases/tags/{}'.format(org, repo, version)
+    version_res = requests.get(version_url, verify=not should_disable_connection_verify())
+    return version_res.status_code < 400
+
+
 def get_resource_group_by_name(cli_ctx, resource_group_name):
     from ._client_factory import resource_client_factory
 

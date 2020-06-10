@@ -12,6 +12,8 @@ namespace TeamCloud.Model.Data
     {
         public Guid? PrincipalId { get; set; }
 
+        public ProviderCommandMode CommandMode { get; set; } = ProviderCommandMode.Simple;
+
         public IDictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
     }
 }

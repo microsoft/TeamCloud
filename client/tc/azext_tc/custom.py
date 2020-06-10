@@ -209,15 +209,14 @@ def teamcloud_upgrade(cmd, client, base_url, resource_group_name='TeamCloud', ve
     if name is None or '':
         raise CLIError("Unable to get app name from base url.")
 
-    parameters = {
-        'webAppName': name,
-        'resourceManagerIdentityClientId': '',
-        'resourceManagerIdentityClientSecret': ''
-    }
+    parameters = []
+    parameters.append('webAppName={}'.format(name))
+    parameters.append('resourceManagerIdentityClientId=')
+    parameters.append('resourceManagerIdentityClientSecret=')
 
     logger.warning('Deploying arm template...')
     outputs = deploy_arm_template_at_resource_group(
-        cmd, resource_group_name, template_uri=deploy_url, parameters=parameters)
+        cmd, resource_group_name, template_uri=deploy_url, parameters=[parameters])
 
     api_app_name = outputs['apiAppName']['value']
     orchestrator_app_name = outputs['orchestratorAppName']['value']
@@ -440,11 +439,11 @@ def provider_get(cmd, client, base_url, provider):
     return client.get_provider_by_id(provider)
 
 
-def provider_deploy(cmd, client, base_url, provider, location, resource_group_name=None,  # pylint: disable=too-many-locals
+def provider_deploy(cmd, client, base_url, provider, location, resource_group_name=None,  # pylint: disable=too-many-locals, too-many-statements
                     events=None, properties=None, version=None, prerelease=False, index_url=None, tags=None):
     from ._deploy_utils import (
         get_github_latest_release, get_resource_group_by_name, create_resource_group_name,
-        zip_deploy_app, deploy_arm_template_at_resource_group, get_index_providers)
+        zip_deploy_app, deploy_arm_template_at_resource_group, get_index_providers, open_url_in_browser)
     from .vendored_sdks.teamcloud.models import Provider, AzureResourceGroup
 
     client._client.config.base_url = base_url
@@ -486,10 +485,27 @@ def provider_deploy(cmd, client, base_url, provider, location, resource_group_na
     outputs = deploy_arm_template_at_resource_group(
         cmd, resource_group_name, template_uri=deploy_url)
 
-    name = outputs["name"]["value"]
-    url = outputs["url"]["value"]
-    auth_code = outputs["authCode"]["value"]
-    principal_id = outputs["principalId"]["value"]
+    try:
+        name = outputs["name"]["value"]
+    except KeyError:
+        raise CLIError("A value for 'name' was not provided in the ARM template outputs")
+    try:
+        url = outputs["url"]["value"]
+    except KeyError:
+        raise CLIError("A value for 'url' was not provided in the ARM template outputs")
+    try:
+        auth_code = outputs["authCode"]["value"]
+    except KeyError:
+        raise CLIError("A value for 'authCode' was not provided in the ARM template outputs")
+    try:
+        principal_id = outputs["principalId"]["value"]
+    except KeyError:
+        raise CLIError("A value for 'principalId' was not provided in the ARM template outputs")
+
+    try:
+        setup_url = outputs["setupUrl"]["value"]
+    except KeyError:
+        setup_url = None
 
     logger.warning('Deploying provider source code...')
     zip_deploy_app(cli_ctx, resource_group_name, name, zip_url)
@@ -498,15 +514,22 @@ def provider_deploy(cmd, client, base_url, provider, location, resource_group_na
         id=rg.id, name=rg.name, region=location, subscription_id=sub_id)
     payload = Provider(id=provider, url=url, auth_code=auth_code, resource_group=resource_group,
                        principal_id=principal_id, events=events, properties=properties)
-    # return payload
-    return _create_with_status(cmd, client, base_url, payload, client.create_provider)
+
+    provider_output = _create_with_status(cmd, client, base_url, payload, client.create_provider)
+
+    if setup_url:
+        logger.warning('IMPORTANT: Opening a url in your browser to complete setup.')
+        open_url_in_browser(setup_url)
+
+    return provider_output
 
 
-def provider_upgrade(cmd, client, base_url, provider, version=None, prerelease=False, index_url=None):
+def provider_upgrade(cmd, client, base_url, provider, version=None, prerelease=False,  # pylint: disable=too-many-locals
+                     index_url=None):
     from re import match
     from ._deploy_utils import (
         get_github_latest_release, get_resource_group_by_name, zip_deploy_app, get_index_providers,
-        deploy_arm_template_at_resource_group)
+        deploy_arm_template_at_resource_group, open_url_in_browser)
 
     client._client.config.base_url = base_url
     cli_ctx = cmd.cli_ctx
@@ -561,14 +584,23 @@ def provider_upgrade(cmd, client, base_url, provider, version=None, prerelease=F
             "Resource group '{}' must exist in current subscription.".format(resource_group_name))
 
     logger.warning('Deploying provider arm template...')
-    _ = deploy_arm_template_at_resource_group(
+    outputs = deploy_arm_template_at_resource_group(
         cmd, resource_group_name, template_uri=deploy_url)
+
+    try:
+        setup_url = outputs["setupUrl"]["value"]
+    except KeyError:
+        setup_url = None
 
     logger.warning('Deploying provider source code...')
     zip_deploy_app(cli_ctx, resource_group_name, name, zip_url)
 
     version_string = version or 'the latest version'
     logger.warning("Provider '%s' was successfully upgraded to %s.", name, version_string)
+
+    if setup_url:
+        logger.warning('IMPORTANT: Opening a url in your browser to complete setup.')
+        open_url_in_browser(setup_url)
 
     return provider_result.data
 

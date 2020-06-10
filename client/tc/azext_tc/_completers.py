@@ -4,9 +4,7 @@
 # --------------------------------------------------------------------------------------------
 
 from azure.cli.core.decorators import Completer
-
 from knack.log import get_logger
-
 from ._client_factory import teamcloud_client_factory
 
 logger = get_logger(__name__)
@@ -54,4 +52,30 @@ def get_provider_completion_list(cmd, prefix, namespace, **kwargs):  # pylint: d
     try:
         return [p.id for p in result.data]
     except AttributeError:
+        return []
+
+
+@Completer
+def get_provider_index_completion_list(cmd, prefix, namespace, **kwargs):  # pylint: disable=unused-argument
+    from ._deploy_utils import get_index_providers, get_github_latest_release
+    # logger.warning('Completing...')
+
+    if namespace.version or namespace.prerelease:
+        if namespace.index_url:
+            return []
+
+    if namespace.index_url is None:
+        version = namespace.version or get_github_latest_release(
+            cmd.cli_ctx, 'TeamCloud-Providers', prerelease=namespace.prerelease)
+        index_url = 'https://github.com/microsoft/TeamCloud-Providers/releases/download/{}/index.json'.format(
+            version)
+
+    index_providers = get_index_providers(index_url=index_url)
+
+    if not index_providers:
+        return []
+
+    try:
+        return [p for p in index_providers]
+    except (AttributeError, ValueError):
         return []
