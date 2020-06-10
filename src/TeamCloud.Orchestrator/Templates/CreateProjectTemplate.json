@@ -23,7 +23,9 @@
       "type": "string"
     },
     "providerIdentities": {
-      "type": "array"
+      "type": "array",
+      "defaultValue": [
+      ]
     },
     "_artifactsLocation": {
       "type": "string",
