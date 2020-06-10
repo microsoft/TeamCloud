@@ -12,7 +12,9 @@
       "type": "string"
     },
     "providerIdentities": {
-      "type": "array"
+      "type": "array",
+      "defaultValue": [
+      ]
     }
   },
   "variables": {
@@ -70,6 +72,7 @@
           "contentVersion": "1.0.0.0",
           "resources": [
             {
+              "condition": "[not(empty(parameters('providerIdentities')))]",
               "name": "[concat(variables('vaultName'), '/add')]",
               "type": "Microsoft.KeyVault/vaults/accessPolicies",
               "apiVersion": "2018-02-14",
