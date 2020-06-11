@@ -362,11 +362,13 @@ def project_user_create(cmd, client, base_url, project, user, role='Member', pro
 
     payload = UserDefinition(identifier=user, role=role, properties=properties)
 
-    return _create_with_status(cmd, client, base_url, payload, client.create_project_user, project_id=project, no_wait=no_wait)
+    return _create_with_status(cmd, client, base_url, payload, client.create_project_user,
+                               project_id=project, no_wait=no_wait)
 
 
 def project_user_delete(cmd, client, base_url, project, user, no_wait=False):
-    return _delete_with_status(cmd, client, base_url, user, client.delete_project_user, project_id=project, no_wait=no_wait)
+    return _delete_with_status(cmd, client, base_url, user, client.delete_project_user,
+                               project_id=project, no_wait=no_wait)
 
 
 def project_user_list(cmd, client, base_url, project):
@@ -384,11 +386,13 @@ def project_user_get(cmd, client, base_url, project, user):
 def project_tag_create(cmd, client, base_url, project, tag_key, tag_value, no_wait=False):
     payload = {tag_key, tag_value}
 
-    return _create_with_status(cmd, client, base_url, payload, client.create_project_tag, project_id=project, no_wait=no_wait)
+    return _create_with_status(cmd, client, base_url, payload, client.create_project_tag,
+                               project_id=project, no_wait=no_wait)
 
 
 def project_tag_delete(cmd, client, base_url, project, tag_key, no_wait=False):
-    return _delete_with_status(cmd, client, base_url, tag_key, client.delete_project_tag, project_id=project, no_wait=no_wait)
+    return _delete_with_status(cmd, client, base_url, tag_key, client.delete_project_tag,
+                               project_id=project, no_wait=no_wait)
 
 
 def project_tag_list(cmd, client, base_url, project):
