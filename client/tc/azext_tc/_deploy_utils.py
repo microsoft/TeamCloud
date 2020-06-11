@@ -143,7 +143,6 @@ def zip_deploy_app(cli_ctx, resource_group_name, name, zip_url, slot=None, app_i
     authorization = urllib3.util.make_headers(basic_auth='{}:{}'.format(
         creds.publishing_user_name, creds.publishing_password))
 
-    logger.warning('Starting zip deployment. This may take several minutes to complete...')
     res = requests.put(zipdeploy_url, headers=authorization,
                        json={'packageUri': zip_url}, verify=not should_disable_connection_verify())
 
@@ -172,7 +171,8 @@ def deploy_arm_template_at_resource_group(cmd, resource_group_name=None, templat
                                              template_uri, parameters, deployment_name,
                                              mode='incremental', no_wait=no_wait)
 
-    deployment = LongRunningOperation(cmd.cli_ctx)(deployment_poller)
+    deployment = LongRunningOperation(cmd.cli_ctx, start_msg='Deploying ARM template',
+                                      finish_msg='Finished deploying ARM template')(deployment_poller)
 
     properties = getattr(deployment, 'properties', None)
     # provisioning_state = getattr(properties, 'provisioning_state', None)
@@ -277,7 +277,7 @@ def _configure_default_logging(cli_ctx, resource_group_name, name, slot=None, ap
     from azure.mgmt.web.models import (FileSystemApplicationLogsConfig, ApplicationLogsConfig,
                                        SiteLogsConfig, HttpLogsConfig, FileSystemHttpLogsConfig)
 
-    logger.warning('Configuring default logging for the app, if not already enabled...')
+    # logger.warning('Configuring default logging for the app, if not already enabled...')
 
     site = _get_webapp(cli_ctx, resource_group_name, name, slot=slot, app_instance=app_instance)
 

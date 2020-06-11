@@ -245,7 +245,12 @@ def load_arguments(self, _):
         c.argument('tags', tags_type)
 
     with self.argument_context('tc provider list-available') as c:
-        c.argument('show_details', action='store_true', options_list=['--show-details', '-d'],
-                   help='Show the raw data from the providers index.')
         c.argument('index_url', help='URL to custom index.json file.',
                    validator=index_url_validator)
+        c.argument('version', options_list=['--version', '-v'],
+                   type=str, help='Release version. Default: latest stable.',
+                   validator=providers_source_version_validator)
+        c.argument('prerelease', options_list=['--pre'], action='store_true',
+                   help='Show latest prerelease version.')
+        c.argument('show_details', action='store_true', options_list=['--show-details', '-d'],
+                   help='Show the raw data from the providers index.')

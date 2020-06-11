@@ -3,6 +3,13 @@
 Release History
 ===============
 
+0.4.5
+++++++
+* Preview release
+* az tc [provider] upgrade: update the config/provider data object
+* ac tc provider list-available: Fix bug
+* Replace log warnings with temporary status output
+
 0.4.4
 ++++++
 * Preview release

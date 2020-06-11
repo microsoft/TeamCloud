@@ -31,6 +31,8 @@ def teamcloud_deploy(cmd, client, name, location, resource_group_name='TeamCloud
     cli_ctx = cmd.cli_ctx
     location = location.lower()
 
+    hook = cli_ctx.get_progress_controller()
+
     if version or prerelease:
         if index_url:
             raise CLIError('--index-url can not be used with --version or --pre.')
@@ -40,6 +42,8 @@ def teamcloud_deploy(cmd, client, name, location, resource_group_name='TeamCloud
             cmd.cli_ctx, 'TeamCloud', prerelease=prerelease)
         index_url = 'https://github.com/microsoft/TeamCloud/releases/download/{}/index.json'.format(
             version)
+
+    hook.add(message='Fetching index.json from GitHub')
 
     index_teamcloud = get_index_teamcloud(index_url=index_url)
 
@@ -53,17 +57,18 @@ def teamcloud_deploy(cmd, client, name, location, resource_group_name='TeamCloud
     if not orchestrator_zip_url:
         raise CLIError('No zip url for the orchestrator found found in index')
 
-    logger.warning("Getting resource group '%s'...", resource_group_name)
+    hook.add(message='Getting resource group {}'.format(resource_group_name))
+
     rg, _ = get_resource_group_by_name(cli_ctx, resource_group_name)
     if rg is None:
-        logger.warning("Resource group '%s' not found.", resource_group_name)
-        logger.warning("Creating resource group '%s'...", resource_group_name)
+        hook.add(message="Resource group '{}' not found".format(resource_group_name))
+        hook.add(message="Creating resource group '{}'".format(resource_group_name))
         rg, _ = create_resource_group_name(cli_ctx, resource_group_name, location)
 
     profile = Profile(cli_ctx=cli_ctx)
 
     if principal_name is None and principal_password is None:
-        logger.warning('Creating aad app registration...')
+        hook.add(message='Creating AAD app registration')
         resource_manager_sp = create_resource_manager_sp(cmd)
     else:
         _, _, tenant_id = profile.get_login_credentials(
@@ -80,7 +85,7 @@ def teamcloud_deploy(cmd, client, name, location, resource_group_name='TeamCloud
     parameters.append('resourceManagerIdentityClientSecret={}'.format(
         resource_manager_sp['password']))
 
-    logger.warning('Deploying ARM template. This may take several minutes to complete...')
+    hook.add(message='Deploying ARM template')
     outputs = deploy_arm_template_at_resource_group(
         cmd, resource_group_name, template_uri=deploy_url, parameters=[parameters])
 
@@ -109,6 +114,7 @@ def teamcloud_deploy(cmd, client, name, location, resource_group_name='TeamCloud
     for k, v in config_service_imports.items():
         config_kvs.append({'key': k, 'value': v})
 
+    hook.add(message='Adding ARM template outputs to App Configuration service')
     set_appconfig_keys(cli_ctx, config_service_conn_string, config_kvs)
 
     if skip_app_deployment:
@@ -116,25 +122,27 @@ def teamcloud_deploy(cmd, client, name, location, resource_group_name='TeamCloud
             'IMPORTANT: --skip-deploy prevented source code for the TeamCloud instance deployment. '
             'To deploy the applications use `az tc upgrade`.')
     else:
-        logger.warning('Deploying Orchestrator source code...')
+        hook.add(message='Deploying Orchestrator source code')
         zip_deploy_app(cli_ctx, resource_group_name, orchestrator_app_name, orchestrator_zip_url)
 
-        logger.warning('Deploying API source code...')
+        hook.add(message='Deploying API source code')
         zip_deploy_app(cli_ctx, resource_group_name, api_app_name, api_zip_url)
 
-        logger.warning('Successfully created TeamCloud instance.')
+        version_string = version or 'the latest version'
+        hook.add(message='Successfully created TeamCloud instance ({})'.format(version_string))
 
     if skip_admin_user:
         logger.warning(
             'IMPORTANT: --redeploy prevented adding you as an Admin user to the TeamCloud instance deployment.')
     else:
         me = profile.get_current_account_user()
-        logger.warning("Adding '%s' as an admin user...", me)
+        hook.add(message="Adding '{}' as an admin user".format(me))
 
         client._client.config.base_url = api_url
         user_definition = UserDefinition(identifier=me, role='Admin', properties=None)
         _ = client.create_team_cloud_admin_user(user_definition)
 
+    hook.end(message='')
     logger.warning('TeamCloud instance successfully created at: %s', api_url)
     logger.warning('Use `az configure --defaults tc-base-url=%s` to configure '
                    'this as your default TeamCloud instance', api_url)
@@ -163,12 +171,16 @@ def teamcloud_deploy(cmd, client, name, location, resource_group_name='TeamCloud
     return result
 
 
-def teamcloud_upgrade(cmd, client, base_url, resource_group_name='TeamCloud', version=None,  # pylint: disable=too-many-locals
+def teamcloud_upgrade(cmd, client, base_url, resource_group_name='TeamCloud', version=None,  # pylint: disable=too-many-statements, too-many-locals
                       prerelease=False, index_url=None):
     from re import match
     from ._deploy_utils import (
         get_github_latest_release, get_index_teamcloud, deploy_arm_template_at_resource_group,
-        get_resource_group_by_name, zip_deploy_app)
+        get_resource_group_by_name, set_appconfig_keys, zip_deploy_app)
+
+    cli_ctx = cmd.cli_ctx
+
+    hook = cli_ctx.get_progress_controller()
 
     if version or prerelease:
         if index_url:
@@ -176,9 +188,11 @@ def teamcloud_upgrade(cmd, client, base_url, resource_group_name='TeamCloud', ve
 
     if index_url is None:
         version = version or get_github_latest_release(
-            cmd.cli_ctx, 'TeamCloud', prerelease=prerelease)
+            cli_ctx, 'TeamCloud', prerelease=prerelease)
         index_url = 'https://github.com/microsoft/TeamCloud/releases/download/{}/index.json'.format(
             version)
+
+    hook.add(message='Fetching index.json from GitHub')
 
     index_teamcloud = get_index_teamcloud(index_url=index_url)
 
@@ -192,10 +206,10 @@ def teamcloud_upgrade(cmd, client, base_url, resource_group_name='TeamCloud', ve
     if not orchestrator_zip_url:
         raise CLIError('No zip url for the orchestrator found found in index')
 
-    logger.warning("Getting resource group '%s'...", resource_group_name)
-    rg, _ = get_resource_group_by_name(cmd.cli_ctx, resource_group_name)
+    hook.add(message='Getting resource group {}'.format(resource_group_name))
+
+    rg, _ = get_resource_group_by_name(cli_ctx, resource_group_name)
     if rg is None:
-        logger.warning("Resource group '%s' not found.", resource_group_name)
         raise CLIError(
             "Resource group '{}' must exist in current subscription.".format(resource_group_name))
 
@@ -207,33 +221,49 @@ def teamcloud_upgrade(cmd, client, base_url, resource_group_name='TeamCloud', ve
         pass
 
     if name is None or '':
-        raise CLIError("Unable to get app name from base url.")
+        raise CLIError('Unable to get app name from base url.')
 
     parameters = []
     parameters.append('webAppName={}'.format(name))
     parameters.append('resourceManagerIdentityClientId=')
     parameters.append('resourceManagerIdentityClientSecret=')
 
-    logger.warning('Deploying arm template...')
+    hook.add(message='Deploying ARM template')
     outputs = deploy_arm_template_at_resource_group(
         cmd, resource_group_name, template_uri=deploy_url, parameters=[parameters])
 
     api_app_name = outputs['apiAppName']['value']
     orchestrator_app_name = outputs['orchestratorAppName']['value']
+    config_service_conn_string = outputs['configServiceConnectionString']['value']
+    config_service_imports = outputs['configServiceImport']['value']
 
     if not api_app_name:
         raise CLIError('ARM template outputs did not include a value for apiAppName')
     if not orchestrator_app_name:
         raise CLIError('ARM template outputs did not include a value for orchestratorAppName')
+    if not config_service_conn_string:
+        raise CLIError(
+            'ARM template outputs did not include a value for configServiceConnectionString')
+    if not config_service_imports:
+        raise CLIError('ARM template outputs did not include a value for configServiceImport')
 
-    logger.warning('Deploying Orchestrator source code...')
-    zip_deploy_app(cmd.cli_ctx, resource_group_name, orchestrator_app_name, orchestrator_zip_url)
+    config_kvs = []
+    for k, v in config_service_imports.items():
+        if v:
+            config_kvs.append({'key': k, 'value': v})
 
-    logger.warning('Deploying API source code...')
-    zip_deploy_app(cmd.cli_ctx, resource_group_name, api_app_name, api_zip_url)
+    hook.add(message='Adding ARM template outputs to App Configuration service')
+    set_appconfig_keys(cli_ctx, config_service_conn_string, config_kvs)
+
+    hook.add(message='Deploying Orchestrator source code')
+    zip_deploy_app(cli_ctx, resource_group_name, orchestrator_app_name, orchestrator_zip_url)
+
+    hook.add(message='Deploying API source code')
+    zip_deploy_app(cli_ctx, resource_group_name, api_app_name, api_zip_url)
 
     version_string = version or 'the latest version'
-    logger.warning("TeamCloud instance '%s' was successfully upgraded to %s.", name, version_string)
+    hook.end(message='')
+    logger.warning('Successfully upgraded TeamCloud instance to %s', version_string)
 
     result = {
         'version': version or 'latest',
@@ -449,6 +479,8 @@ def provider_deploy(cmd, client, base_url, provider, location, resource_group_na
     client._client.config.base_url = base_url
     cli_ctx = cmd.cli_ctx
 
+    hook = cli_ctx.get_progress_controller()
+
     if version or prerelease:
         if index_url:
             raise CLIError('--index-url can not be used with --version or --pre.')
@@ -459,6 +491,7 @@ def provider_deploy(cmd, client, base_url, provider, location, resource_group_na
         index_url = 'https://github.com/microsoft/TeamCloud-Providers/releases/download/{}/index.json'.format(
             version)
 
+    hook.add(message='Fetching index.json from GitHub')
     index_provider = get_index_providers(index_url=index_url).get(provider)
 
     if not index_provider:
@@ -474,14 +507,14 @@ def provider_deploy(cmd, client, base_url, provider, location, resource_group_na
 
     resource_group_name = resource_group_name or provider_name
 
-    logger.warning("Getting resource group '%s'...", resource_group_name)
+    hook.add(message='Getting resource group {}'.format(resource_group_name))
     rg, sub_id = get_resource_group_by_name(cli_ctx, resource_group_name)
     if rg is None:
-        logger.warning("Resource group '%s' not found.", resource_group_name)
-        logger.warning("Creating resource group '%s'...", resource_group_name)
+        hook.add(message="Resource group '{}' not found".format(resource_group_name))
+        hook.add(message="Creating resource group '{}'".format(resource_group_name))
         rg, sub_id = create_resource_group_name(cli_ctx, resource_group_name, location)
 
-    logger.warning('Deploying provider arm template...')
+    hook.add(message='Deploying ARM template')
     outputs = deploy_arm_template_at_resource_group(
         cmd, resource_group_name, template_uri=deploy_url)
 
@@ -507,7 +540,7 @@ def provider_deploy(cmd, client, base_url, provider, location, resource_group_na
     except KeyError:
         setup_url = None
 
-    logger.warning('Deploying provider source code...')
+    hook.add(message='Deploying provider source code')
     zip_deploy_app(cli_ctx, resource_group_name, name, zip_url)
 
     resource_group = AzureResourceGroup(
@@ -524,7 +557,7 @@ def provider_deploy(cmd, client, base_url, provider, location, resource_group_na
     return provider_output
 
 
-def provider_upgrade(cmd, client, base_url, provider, version=None, prerelease=False,  # pylint: disable=too-many-locals
+def provider_upgrade(cmd, client, base_url, provider, version=None, prerelease=False,  # pylint: disable=too-many-locals, too-many-statements
                      index_url=None):
     from re import match
     from ._deploy_utils import (
@@ -533,6 +566,8 @@ def provider_upgrade(cmd, client, base_url, provider, version=None, prerelease=F
 
     client._client.config.base_url = base_url
     cli_ctx = cmd.cli_ctx
+
+    hook = cli_ctx.get_progress_controller()
 
     if version or prerelease:
         if index_url:
@@ -544,6 +579,7 @@ def provider_upgrade(cmd, client, base_url, provider, version=None, prerelease=F
         index_url = 'https://github.com/microsoft/TeamCloud-Providers/releases/download/{}/index.json'.format(
             version)
 
+    hook.add(message='Fetching index.json from GitHub')
     index_provider = get_index_providers(index_url=index_url).get(provider)
 
     if not index_provider:
@@ -557,6 +593,7 @@ def provider_upgrade(cmd, client, base_url, provider, version=None, prerelease=F
         raise CLIError("No deploy url found found in index for provider id '{}'".format(provider))
 
     # get the provider from teamcloud
+    hook.add(message='Getting existing provider')
     provider_result = client.get_provider_by_id(provider)
 
     url = provider_result.data.url
@@ -576,54 +613,65 @@ def provider_upgrade(cmd, client, base_url, provider, version=None, prerelease=F
     if not resource_group_name:
         raise CLIError('TODO provider was not deployed by the cli')
 
-    logger.warning("Getting resource group '%s'...", resource_group_name)
+    hook.add(message='Getting resource group {}'.format(resource_group_name))
     rg, _ = get_resource_group_by_name(cli_ctx, resource_group_name)
     if rg is None:
-        logger.warning("Resource group '%s' not found.", resource_group_name)
         raise CLIError(
             "Resource group '{}' must exist in current subscription.".format(resource_group_name))
 
-    logger.warning('Deploying provider arm template...')
+    hook.add(message='Deploying ARM template')
     outputs = deploy_arm_template_at_resource_group(
         cmd, resource_group_name, template_uri=deploy_url)
+
+    try:
+        auth_code = outputs["authCode"]["value"]
+    except KeyError:
+        raise CLIError("A value for 'authCode' was not provided in the ARM template outputs")
 
     try:
         setup_url = outputs["setupUrl"]["value"]
     except KeyError:
         setup_url = None
 
-    logger.warning('Deploying provider source code...')
+    hook.add(message='Deploying provider source code')
     zip_deploy_app(cli_ctx, resource_group_name, name, zip_url)
 
-    version_string = version or 'the latest version'
-    logger.warning("Provider '%s' was successfully upgraded to %s.", name, version_string)
+    payload = provider_result.data
+    payload.auth_code = auth_code
+
+    provider_output = _update_with_status(cmd, client, base_url, payload, client.update_provider)
+
+    # version_string = version or 'the latest version'
+    # logger.warning("Successfully upgraded provider '%s' %s.", name, version_string)
 
     if setup_url:
         logger.warning('IMPORTANT: Opening a url in your browser to complete setup.')
         open_url_in_browser(setup_url)
 
-    return provider_result.data
+    return provider_output
 
 
-def provider_list_available(cmd, index_url=None, show_details=False):
-    from collections import OrderedDict
-    from ._deploy_utils import get_index_providers
+def provider_list_available(cmd, index_url=None, version=None, prerelease=False, show_details=False):
+    from ._deploy_utils import get_index_providers, get_github_latest_release
 
-    index_data = get_index_providers(index_url=index_url)
+    if index_url is None:
+        version = version or get_github_latest_release(
+            cmd.cli_ctx, 'TeamCloud-Providers', prerelease=prerelease)
+        index_url = 'https://github.com/microsoft/TeamCloud-Providers/releases/download/{}/index.json'.format(
+            version)
+
+    index_providers = get_index_providers(index_url=index_url)
+
     if show_details:
-        return index_data
+        return index_providers or []
 
-    results = []
-    for provider_id, versions in OrderedDict(sorted(index_data.items())).items():
-        latest = max(versions, key=lambda c: c['version'])
-        results.append({
-            'id': provider_id,
-            'name': latest['name'],
-            'description': latest['description'],
-            'version': latest['version'],
-            # 'installed': installed
-        })
-    return results
+    if not index_providers:
+        return []
+
+    try:
+        return [p for p in index_providers]
+    except (AttributeError, ValueError):
+        return []
 
 
 def _create_with_status(cmd, client, base_url, payload, create_func, project_id=None):
@@ -640,7 +688,8 @@ def _create_with_status(cmd, client, base_url, payload, create_func, project_id=
 
     while isinstance(result, StatusResult):
         if result.code == 200:
-            hook.end(message='Finished.')
+            hook.end(message='')
+
             return result
 
         if result.code == 202:
@@ -661,7 +710,47 @@ def _create_with_status(cmd, client, base_url, payload, create_func, project_id=
             else:
                 result = client.get_status(result._tracking_id)
 
-    hook.end(message='Finished.')
+    hook.end(message='')
+
+    return result
+
+
+def _update_with_status(cmd, client, base_url, payload, update_func, project_id=None):
+    from .vendored_sdks.teamcloud.models import StatusResult
+    client._client.config.base_url = base_url
+
+    type_name = update_func.metadata['url'].split('/')[-1][:-1].capitalize()
+
+    hook = cmd.cli_ctx.get_progress_controller()
+
+    hook.add(message='Starting: Updating {}'.format(type_name))
+
+    result = update_func(project_id, payload) if project_id else update_func(payload)
+
+    while isinstance(result, StatusResult):
+        if result.code == 200:
+            hook.end(message='')
+            return result
+
+        if result.code == 202:
+            for _ in range(STATUS_POLLING_SLEEP_INTERVAL * 2):
+                hook.add(message='{}: {}'.format(
+                    result.state, result.state_message or 'Updating {}'.format(type_name)))
+                sleep(0.5)
+
+            # status for project children
+            if project_id:
+                result = client.get_project_status(project_id, result._tracking_id)
+            # status for project
+            elif 'projects' in result.location:
+                paths = urlparse(result.location).path.split('/')
+                p_id = paths[paths.index('projects') + 1]
+                result = client.get_project_status(p_id, result._tracking_id)
+            # status for teamcloud children
+            else:
+                result = client.get_status(result._tracking_id)
+
+    hook.end(message='')
 
     return result
 
@@ -680,7 +769,7 @@ def _delete_with_status(cmd, client, base_url, item_id, delete_func, project_id=
 
     while isinstance(result, StatusResult):
         if result.code == 200:
-            hook.end(messag='Finished.')
+            hook.end(message='')
             return result
 
         if result.code == 202:
@@ -701,6 +790,6 @@ def _delete_with_status(cmd, client, base_url, item_id, delete_func, project_id=
             else:
                 result = client.get_status(result._tracking_id)
 
-    hook.end(messag='Finished.')
+    hook.end(message='')
 
     return result
