@@ -35,17 +35,11 @@ namespace TeamCloud.Orchestrator.Activities
             var membership = user.ProjectMembership(projectId);
 
             if (membership is null)
-            {
-                user = await usersRepository
-                    .GetAsync(user.Id)
-                    .ConfigureAwait(false);
-            }
-            else
-            {
-                user = await usersRepository
-                    .AddProjectMembershipAsync(user, membership)
-                    .ConfigureAwait(false);
-            }
+                throw new InvalidOperationException($"User must contain a ProjectMembership for Project '{projectId}'");
+
+            user = await usersRepository
+                .AddProjectMembershipAsync(user, membership)
+                .ConfigureAwait(false);
 
             return user;
         }

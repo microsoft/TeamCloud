@@ -52,12 +52,13 @@ def transform_user_table_output(result):
     resultList = []
 
     for item in result:
+        pm = item['projectMemberships']
         resultList.append(OrderedDict([
             ('User ID', item['id']),
             ('Type', item['userType']),
             ('Role', item['role']),
-            # ('Project Memberships', '\n'.join([p['projectId']
-            #                                    for p in item['projectMemberships']])),
+            ('Project Memberships', '' if pm is None else '\n'.join(
+                ["{} : {}".format(p['role'], p['projectId']) for p in pm])),
             ('Properties', str(item['properties']))
         ]))
 
@@ -76,7 +77,7 @@ def transform_project_table_output(result):
             ('Project ID', item['id']),
             ('Name', item['name']),
             ('Type', item['type']['id']),
-            ('Resource Group', '' if rg is None else rg['resourceGroupName']),
+            ('Resource Group', '' if rg is None else rg['name']),
             ('Subscription', '' if rg is None else rg['subscriptionId']),
             ('Region', '' if rg is None else rg['region']),
             ('Tags', str(item['tags'])),

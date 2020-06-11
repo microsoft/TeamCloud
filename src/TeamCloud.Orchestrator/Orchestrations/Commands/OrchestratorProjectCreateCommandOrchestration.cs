@@ -90,16 +90,9 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
             var project = commandResult.Result = command.Payload;
             project.Tags = teamCloud.Tags.Override(project.Tags);
 
-            // we need to materialize the project's users
-            // to a dedicated variable as they represent a
-            // container document on their own and need to
-            // be locked by a critical section before assigning
-            // them to the persisted project.
-            
             var projectUsers = project.Users.ToList();
-            var projectLocks = projectUsers.OfType<IContainerDocument>().Append(project).ToArray();
 
-            using (await functionContext.LockContainerDocumentAsync(projectLocks).ConfigureAwait(true))
+            using (await functionContext.LockContainerDocumentAsync(project).ConfigureAwait(true))
             {
                 functionContext.SetCustomStatus($"Creating project", log);
 

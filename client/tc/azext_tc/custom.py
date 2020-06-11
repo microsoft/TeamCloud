@@ -292,13 +292,11 @@ def teamcloud_user_create(cmd, client, base_url, user, role='Creator', propertie
 
     payload = UserDefinition(identifier=user, role=role, properties=properties)
 
-    return sdk_no_wait(no_wait, _create_with_status, cmd, client, base_url,
-                       payload, client.create_team_cloud_user)
+    return _create_with_status(cmd, client, base_url, payload, client.create_team_cloud_user, no_wait=no_wait)
 
 
 def teamcloud_user_delete(cmd, client, base_url, user, no_wait=False):
-    return sdk_no_wait(no_wait, _delete_with_status, cmd, client, base_url,
-                       user, client.delete_team_cloud_user)
+    return _delete_with_status(cmd, client, base_url, user, client.delete_team_cloud_user, no_wait=no_wait)
 
 
 def teamcloud_user_list(cmd, client, base_url):
@@ -316,13 +314,11 @@ def teamcloud_user_get(cmd, client, base_url, user):
 def teamcloud_tag_create(cmd, client, base_url, tag_key, tag_value, no_wait=False):
     payload = {tag_key, tag_value}
 
-    return sdk_no_wait(no_wait, _create_with_status, cmd, client, base_url,
-                       payload, client.create_team_cloud_tag)
+    return _create_with_status(cmd, client, base_url, payload, client.create_team_cloud_tag, no_wait=no_wait)
 
 
 def teamcloud_tag_delete(cmd, client, base_url, tag_key, no_wait=False):
-    return sdk_no_wait(no_wait, _delete_with_status, cmd, client, base_url,
-                       tag_key, client.delete_team_cloud_tag)
+    return _delete_with_status(cmd, client, base_url, tag_key, client.delete_team_cloud_tag, no_wait=no_wait)
 
 
 def teamcloud_tag_list(cmd, client, base_url):
@@ -342,13 +338,11 @@ def project_create(cmd, client, base_url, name, project_type=None, tags=None, no
 
     payload = ProjectDefinition(name=name, project_type=project_type, tags=tags)
 
-    return sdk_no_wait(no_wait, _create_with_status, cmd, client, base_url,
-                       payload, client.create_project)
+    return _create_with_status(cmd, client, base_url, payload, client.create_project, no_wait=no_wait)
 
 
 def project_delete(cmd, client, base_url, project, no_wait=False):
-    return sdk_no_wait(no_wait, _delete_with_status, cmd, client, base_url,
-                       project, client.delete_project)
+    return _delete_with_status(cmd, client, base_url, project, client.delete_project, no_wait=no_wait)
 
 
 def project_list(cmd, client, base_url):
@@ -368,13 +362,11 @@ def project_user_create(cmd, client, base_url, project, user, role='Member', pro
 
     payload = UserDefinition(identifier=user, role=role, properties=properties)
 
-    return sdk_no_wait(no_wait, _create_with_status, cmd, client, base_url,
-                       payload, client.create_project_user, project_id=project)
+    return _create_with_status(cmd, client, base_url, payload, client.create_project_user, project_id=project, no_wait=no_wait)
 
 
 def project_user_delete(cmd, client, base_url, project, user, no_wait=False):
-    return sdk_no_wait(no_wait, _delete_with_status, cmd, client, base_url,
-                       user, client.delete_project_user, project_id=project)
+    return _delete_with_status(cmd, client, base_url, user, client.delete_project_user, project_id=project, no_wait=no_wait)
 
 
 def project_user_list(cmd, client, base_url, project):
@@ -392,13 +384,11 @@ def project_user_get(cmd, client, base_url, project, user):
 def project_tag_create(cmd, client, base_url, project, tag_key, tag_value, no_wait=False):
     payload = {tag_key, tag_value}
 
-    return sdk_no_wait(no_wait, _create_with_status, cmd, client, base_url,
-                       payload, client.create_project_tag, project_id=project)
+    return _create_with_status(cmd, client, base_url, payload, client.create_project_tag, project_id=project, no_wait=no_wait)
 
 
 def project_tag_delete(cmd, client, base_url, project, tag_key, no_wait=False):
-    return sdk_no_wait(no_wait, _delete_with_status, cmd, client, base_url,
-                       tag_key, client.delete_project_tag, project_id=project)
+    return _delete_with_status(cmd, client, base_url, tag_key, client.delete_project_tag, project_id=project, no_wait=no_wait)
 
 
 def project_tag_list(cmd, client, base_url, project):
@@ -450,13 +440,11 @@ def provider_create(cmd, client, base_url, provider, url, auth_code, events=None
     payload = Provider(id=provider, url=url, auth_code=auth_code,
                        events=events, properties=properties)
 
-    return sdk_no_wait(no_wait, _create_with_status, cmd, client, base_url,
-                       payload, client.create_provider)
+    return _create_with_status(cmd, client, base_url, payload, client.create_provider, no_wait=no_wait)
 
 
 def provider_delete(cmd, client, base_url, provider, no_wait=False):
-    return sdk_no_wait(no_wait, _delete_with_status, cmd, client, base_url,
-                       provider, client.delete_provider)
+    return _delete_with_status(cmd, client, base_url, provider, client.delete_provider, no_wait=no_wait)
 
 
 def provider_list(cmd, client, base_url):
@@ -674,14 +662,17 @@ def provider_list_available(cmd, index_url=None, version=None, prerelease=False,
         return []
 
 
-def _create_with_status(cmd, client, base_url, payload, create_func, project_id=None):
+def _create_with_status(cmd, client, base_url, payload, create_func, project_id=None, no_wait=False):
     from .vendored_sdks.teamcloud.models import StatusResult
     client._client.config.base_url = base_url
+
+    if no_wait:
+        return sdk_no_wait(no_wait, create_func, project_id, payload) if project_id else sdk_no_wait(
+            no_wait, create_func, payload)
 
     type_name = create_func.metadata['url'].split('/')[-1][:-1].capitalize()
 
     hook = cmd.cli_ctx.get_progress_controller()
-
     hook.add(message='Starting: Creating new {}'.format(type_name))
 
     result = create_func(project_id, payload) if project_id else create_func(payload)
@@ -715,14 +706,17 @@ def _create_with_status(cmd, client, base_url, payload, create_func, project_id=
     return result
 
 
-def _update_with_status(cmd, client, base_url, payload, update_func, project_id=None):
+def _update_with_status(cmd, client, base_url, payload, update_func, project_id=None, no_wait=False):
     from .vendored_sdks.teamcloud.models import StatusResult
     client._client.config.base_url = base_url
+
+    if no_wait:
+        return sdk_no_wait(no_wait, update_func, project_id, payload) if project_id else sdk_no_wait(
+            no_wait, update_func, payload)
 
     type_name = update_func.metadata['url'].split('/')[-1][:-1].capitalize()
 
     hook = cmd.cli_ctx.get_progress_controller()
-
     hook.add(message='Starting: Updating {}'.format(type_name))
 
     result = update_func(project_id, payload) if project_id else update_func(payload)
@@ -755,14 +749,17 @@ def _update_with_status(cmd, client, base_url, payload, update_func, project_id=
     return result
 
 
-def _delete_with_status(cmd, client, base_url, item_id, delete_func, project_id=None, **kwargs):
+def _delete_with_status(cmd, client, base_url, item_id, delete_func, project_id=None, no_wait=False):
     from .vendored_sdks.teamcloud.models import StatusResult
     client._client.config.base_url = base_url
+
+    if no_wait:
+        return sdk_no_wait(no_wait, delete_func, item_id, project_id) if project_id else sdk_no_wait(
+            no_wait, delete_func, item_id)
 
     type_name = delete_func.metadata['url'].split('/')[-2][:-1].capitalize()
 
     hook = cmd.cli_ctx.get_progress_controller()
-
     hook.add(message='Starting: Delete {}'.format(type_name))
 
     result = delete_func(item_id, project_id) if project_id else delete_func(item_id)

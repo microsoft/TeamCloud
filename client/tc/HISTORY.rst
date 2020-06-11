@@ -3,6 +3,12 @@
 Release History
 ===============
 
+0.4.6
+++++++
+* Preview release
+* Fix table output for projects and users
+* Fix --no-wait
+
 0.4.5
 ++++++
 * Preview release
