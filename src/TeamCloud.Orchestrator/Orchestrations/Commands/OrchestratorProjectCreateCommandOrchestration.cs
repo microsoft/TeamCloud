@@ -103,7 +103,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 functionContext.SetCustomStatus($"Adding users", log);
 
                 project.Users = await Task
-                    .WhenAll(projectUsers.Select(user => functionContext.SetUserProjectMembershipAsync(user, project.Id)))
+                    .WhenAll(projectUsers.Select(user => functionContext.SetUserProjectMembershipAsync(user, project.Id, allowUnsafe: true)))
                     .ConfigureAwait(true);
             }
 
