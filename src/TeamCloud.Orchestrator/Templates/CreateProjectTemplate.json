@@ -57,7 +57,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2018-05-01",
+      "apiVersion": "2019-08-01",
       "name": "[variables('internalResourcesDeployment')]",
       "resourceGroup": "[variables('internalResourceGroupName')]",
       "dependsOn": [
@@ -99,7 +99,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2018-05-01",
+      "apiVersion": "2019-08-01",
       "name": "[variables('projectResourcesDeployment')]",
       "resourceGroup": "[variables('projectResourceGroupName')]",
       "dependsOn": [

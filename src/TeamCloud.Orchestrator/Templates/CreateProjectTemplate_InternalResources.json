@@ -18,15 +18,7 @@
     }
   },
   "variables": {
-    "vaultName": "[concat('tc', uniqueString(parameters('projectId')))]",
-    "empty": {
-    },
-    "copy": {
-      "name": "accessPoliciesCopy",
-      "count": "[length(parameters('providerIdentities'))]",
-      "mode": "serial",
-      "batchSize": 1
-    }
+    "vaultName": "[concat('tc', uniqueString(parameters('projectId')))]"
   },
   "resources": [
     {
@@ -69,21 +61,21 @@
       "condition": "[not(empty(parameters('providerIdentities')))]",
       "name": "[concat(deployment().name, '-AP', copyIndex())]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2017-05-10",
+      "apiVersion": "2019-08-01",
       "dependsOn": [
         "[resourceId('Microsoft.KeyVault/vaults',variables('vaultName'))]"
       ],
       "properties": {
         "mode": "Incremental",
         "template": {
-          "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
           "resources": [
             {
               "condition": "[not(empty(parameters('providerIdentities')))]",
               "name": "[concat(variables('vaultName'), '/add')]",
               "type": "Microsoft.KeyVault/vaults/accessPolicies",
-              "apiVersion": "2018-02-14",
+              "apiVersion": "2016-10-01",
               "location": "[resourceGroup().location]",
               "properties": {
                 "accessPolicies": [
@@ -115,7 +107,12 @@
           ]
         }
       },
-      "accessPoliciesCopy": "[if(not(empty(parameters('providerIdentities'))), variables('accessPoliciesCopy'), variables('empty'))]"
+      "copy": {
+        "name": "accessPoliciesCopy",
+        "count": "[length(parameters('providerIdentities'))]",
+        "mode": "serial",
+        "batchSize": 1
+      }
     }
   ],
   "outputs": {
