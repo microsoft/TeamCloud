@@ -111,7 +111,7 @@
         "name": "accessPoliciesCopy",
         "count": "[length(parameters('providerIdentities'))]",
         "mode": "serial",
-        "batchSize": 1
+        "batchSize": "[if(not(empty(parameters('providerIdentities'))), 1, 0)]"
       }
     }
   ],
