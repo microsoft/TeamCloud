@@ -64,7 +64,6 @@ namespace TeamCloud.API.Controllers
             return DataResult<List<Provider>>
                 .Ok(providers.ToList())
                 .ActionResult();
-
         }
 
 

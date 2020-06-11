@@ -10,7 +10,13 @@
   },
   "variables": {
     "roleDefinition_Contributor": "[concat(subscription().id, '/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c')]",
-    "roleDefinition_UserAccessAdministrator": "[concat(subscription().id, '/providers/Microsoft.Authorization/roleDefinitions/18d7d88d-d35e-4fb5-a5c3-7773c20a72d9')]"
+    "roleDefinition_UserAccessAdministrator": "[concat(subscription().id, '/providers/Microsoft.Authorization/roleDefinitions/18d7d88d-d35e-4fb5-a5c3-7773c20a72d9')]",
+    "empty": {
+    },
+    "copy": {
+      "name": "providerIdentitiesCopy",
+      "count": "[length(parameters('providerIdentities'))]"
+    }
   },
   "resources": [
     {
@@ -23,10 +29,7 @@
         "principalId": "[parameters('providerIdentities')[copyIndex()]]",
         "scope": "[resourceGroup().Id]"
       },
-      "copy": {
-        "name": "contributorCopy",
-        "count": "[length(parameters('providerIdentities'))]"
-      }
+      "providerIdentitiesCopy": "[if(not(empty(parameters('providerIdentities'))), variables('providerIdentitiesCopy'), variables('empty'))]"
     },
     {
       "condition": "[not(empty(parameters('providerIdentities')))]",
@@ -38,10 +41,7 @@
         "principalId": "[parameters('providerIdentities')[copyIndex()]]",
         "scope": "[resourceGroup().Id]"
       },
-      "copy": {
-        "name": "userAccessAdministratorCopy",
-        "count": "[length(parameters('providerIdentities'))]"
-      }
+      "providerIdentitiesCopy": "[if(not(empty(parameters('providerIdentities'))), variables('providerIdentitiesCopy'), variables('empty'))]"
     }
   ],
   "outputs": {

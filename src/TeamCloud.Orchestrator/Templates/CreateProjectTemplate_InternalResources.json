@@ -18,7 +18,15 @@
     }
   },
   "variables": {
-    "vaultName": "[concat('tc', uniqueString(parameters('projectId')))]"
+    "vaultName": "[concat('tc', uniqueString(parameters('projectId')))]",
+    "empty": {
+    },
+    "copy": {
+      "name": "accessPoliciesCopy",
+      "count": "[length(parameters('providerIdentities'))]",
+      "mode": "serial",
+      "batchSize": 1
+    }
   },
   "resources": [
     {
@@ -107,12 +115,7 @@
           ]
         }
       },
-      "copy": {
-        "name": "accessPoliciesCopy",
-        "count": "[length(parameters('providerIdentities'))]",
-        "mode": "serial",
-        "batchSize": 1
-      }
+      "accessPoliciesCopy": "[if(not(empty(parameters('providerIdentities'))), variables('accessPoliciesCopy'), variables('empty'))]"
     }
   ],
   "outputs": {
