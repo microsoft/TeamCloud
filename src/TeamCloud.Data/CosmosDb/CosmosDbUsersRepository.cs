@@ -282,26 +282,21 @@ namespace TeamCloud.Data.CosmosDb
         // other changes to the user object will be overwitten
         public async Task<User> AddProjectMembershipAsync(User user, ProjectMembership membership)
         {
-            if (user is null) throw new ArgumentNullException(nameof(user));
+            if (user is null)
+                throw new ArgumentNullException(nameof(user));
+
+            if (membership is null)
+                throw new ArgumentNullException(nameof(membership));
 
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
-            var document = (IContainerDocument)user;
-
-            if (string.IsNullOrEmpty(document.ETag))
+            if (string.IsNullOrEmpty(((IContainerDocument)user).ETag))
             {
-                var existingUser = await GetAsync(user.Id)
-                    .ConfigureAwait(false);
+                var existingUser = await GetAsync(user.Id).ConfigureAwait(false)
+                    ?? await AddAsync(user).ConfigureAwait(false);
 
-                // user doesn't exist yet, create it
-                if (existingUser is null)
-                {
-                    user.EnsureProjectMembership(membership);
-
-                    return await AddAsync(user)
-                        .ConfigureAwait(false);
-                }
+                existingUser.EnsureProjectMembership(membership);
 
                 user = existingUser;
             }
@@ -309,36 +304,30 @@ namespace TeamCloud.Data.CosmosDb
             return await AddProjectMembershipSafeAsync(container, user, membership)
                 .ConfigureAwait(false);
 
-
             async Task<User> AddProjectMembershipSafeAsync(Container container, User user, ProjectMembership membership)
             {
-                user.EnsureProjectMembership(membership);
-
-                try
+                while (true)
                 {
-                    var updatedUser = await container
-                        .ReplaceItemAsync(
-                            user, user.Id.ToString(),
+                    try
+                    {
+                        user.EnsureProjectMembership(membership);
+
+                        return await container.ReplaceItemAsync(
+                            user,
+                            user.Id.ToString(),
                             new PartitionKey(Options.TenantName),
-                            new ItemRequestOptions { IfMatchEtag = document.ETag }
-                        ).ConfigureAwait(false);
-
-                    return updatedUser;
-                }
-                catch (CosmosException exc) when (exc.StatusCode == HttpStatusCode.NotFound)
-                {
-                    return null; // the requested user does not exist anymore - continue
-                    // return user;
-                }
-                catch (CosmosException exc) when (exc.StatusCode == HttpStatusCode.PreconditionFailed)
-                {
-                    // the requested user has changed, get it again before proceeding
-                    var refreshedUser = await GetAsync(user.Id)
-                        .ConfigureAwait(false);
-
-                    // TODO: add some safety here to prevent infinate recursion
-                    return await AddProjectMembershipSafeAsync(container, refreshedUser, membership)
-                        .ConfigureAwait(false);
+                            new ItemRequestOptions { IfMatchEtag = ((IContainerDocument)user).ETag }).ConfigureAwait(false);
+                    }
+                    catch (CosmosException exc) when (exc.StatusCode == HttpStatusCode.NotFound)
+                    {
+                        // the requested user does not exist anymore - continue
+                        return null;
+                    }
+                    catch (CosmosException exc) when (exc.StatusCode == HttpStatusCode.PreconditionFailed)
+                    {
+                        // the requested user has changed, get it again before proceeding
+                        user = await GetAsync(user.Id).ConfigureAwait(false);
+                    }
                 }
             }
         }

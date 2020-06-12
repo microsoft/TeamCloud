@@ -50,6 +50,6 @@ namespace TeamCloud.Orchestrator.Activities
         public static Task<User> SetUserProjectMembershipAsync(this IDurableOrchestrationContext functionContext, User user, string projectId, bool allowUnsafe = false)
             => functionContext.IsLockedBy<User>(user.Id) || allowUnsafe
             ? functionContext.CallActivityWithRetryAsync<User>(nameof(UserProjectMembershipSetActivity), (user, projectId))
-            : throw new NotSupportedException($"Unable to create or update project membership without acquired for user {user.Id} lock");
+            : throw new NotSupportedException($"Unable to create or update project membership without acquired lock for user {user.Id}");
     }
 }
