@@ -176,7 +176,7 @@
 					"clean",
 					"${workspaceFolder:Azure}/TeamCloud.Azure.csproj",
 					"/property:GenerateFullPaths=true",
-					"/consoleloggerparameters:NoSummary",
+					"/consoleloggerparameters:NoSummary"
 				],
 				"type": "process",
 				"problemMatcher": "$msCompile",
@@ -195,7 +195,7 @@
 					"clean",
 					"${workspaceFolder:Azure.Deployment}/TeamCloud.Azure.Deployment.csproj",
 					"/property:GenerateFullPaths=true",
-					"/consoleloggerparameters:NoSummary",
+					"/consoleloggerparameters:NoSummary"
 				],
 				"type": "process",
 				"problemMatcher": "$msCompile",
@@ -214,7 +214,7 @@
 					"clean",
 					"${workspaceFolder:Azure.Directory}/TeamCloud.Azure.Directory.csproj",
 					"/property:GenerateFullPaths=true",
-					"/consoleloggerparameters:NoSummary",
+					"/consoleloggerparameters:NoSummary"
 				],
 				"type": "process",
 				"problemMatcher": "$msCompile",
@@ -233,7 +233,7 @@
 					"clean",
 					"${workspaceFolder:Azure.Resources}/TeamCloud.Azure.Resources.csproj",
 					"/property:GenerateFullPaths=true",
-					"/consoleloggerparameters:NoSummary",
+					"/consoleloggerparameters:NoSummary"
 				],
 				"type": "process",
 				"problemMatcher": "$msCompile",
@@ -252,7 +252,7 @@
 					"clean",
 					"${workspaceFolder:Configuration}/TeamCloud.Configuration.csproj",
 					"/property:GenerateFullPaths=true",
-					"/consoleloggerparameters:NoSummary",
+					"/consoleloggerparameters:NoSummary"
 				],
 				"type": "process",
 				"problemMatcher": "$msCompile",
@@ -271,7 +271,7 @@
 					"clean",
 					"${workspaceFolder:Configuration.Options}/TeamCloud.Configuration.Options.csproj",
 					"/property:GenerateFullPaths=true",
-					"/consoleloggerparameters:NoSummary",
+					"/consoleloggerparameters:NoSummary"
 				],
 				"type": "process",
 				"problemMatcher": "$msCompile",
@@ -290,7 +290,7 @@
 					"clean",
 					"${workspaceFolder:Data}/TeamCloud.Data.csproj",
 					"/property:GenerateFullPaths=true",
-					"/consoleloggerparameters:NoSummary",
+					"/consoleloggerparameters:NoSummary"
 				],
 				"type": "process",
 				"problemMatcher": "$msCompile",
@@ -309,7 +309,7 @@
 					"clean",
 					"${workspaceFolder:Http}/TeamCloud.Http.csproj",
 					"/property:GenerateFullPaths=true",
-					"/consoleloggerparameters:NoSummary",
+					"/consoleloggerparameters:NoSummary"
 				],
 				"type": "process",
 				"problemMatcher": "$msCompile",
@@ -328,7 +328,7 @@
 					"clean",
 					"${workspaceFolder:Model}/TeamCloud.Model.csproj",
 					"/property:GenerateFullPaths=true",
-					"/consoleloggerparameters:NoSummary",
+					"/consoleloggerparameters:NoSummary"
 				],
 				"type": "process",
 				"problemMatcher": "$msCompile",
@@ -347,7 +347,7 @@
 					"clean",
 					"${workspaceFolder:Model.Internal}/TeamCloud.Model.Internal.csproj",
 					"/property:GenerateFullPaths=true",
-					"/consoleloggerparameters:NoSummary",
+					"/consoleloggerparameters:NoSummary"
 				],
 				"type": "process",
 				"problemMatcher": "$msCompile",
@@ -366,7 +366,7 @@
 					"clean",
 					"${workspaceFolder:Model.Validation}/TeamCloud.Model.Validation.csproj",
 					"/property:GenerateFullPaths=true",
-					"/consoleloggerparameters:NoSummary",
+					"/consoleloggerparameters:NoSummary"
 				],
 				"type": "process",
 				"problemMatcher": "$msCompile",
@@ -385,7 +385,7 @@
 					"clean",
 					"${workspaceFolder:Orchestration}/TeamCloud.Orchestration.csproj",
 					"/property:GenerateFullPaths=true",
-					"/consoleloggerparameters:NoSummary",
+					"/consoleloggerparameters:NoSummary"
 				],
 				"type": "process",
 				"problemMatcher": "$msCompile",
@@ -404,7 +404,7 @@
 					"clean",
 					"${workspaceFolder:Orchestration.Auditing}/TeamCloud.Orchestration.Auditing.csproj",
 					"/property:GenerateFullPaths=true",
-					"/consoleloggerparameters:NoSummary",
+					"/consoleloggerparameters:NoSummary"
 				],
 				"type": "process",
 				"problemMatcher": "$msCompile",
@@ -423,7 +423,7 @@
 					"clean",
 					"${workspaceFolder:Orchestration.Deployment}/TeamCloud.Orchestration.Deployment.csproj",
 					"/property:GenerateFullPaths=true",
-					"/consoleloggerparameters:NoSummary",
+					"/consoleloggerparameters:NoSummary"
 				],
 				"type": "process",
 				"problemMatcher": "$msCompile",
@@ -442,7 +442,7 @@
 					"clean",
 					"${workspaceFolder:Serialization}/TeamCloud.Serialization.csproj",
 					"/property:GenerateFullPaths=true",
-					"/consoleloggerparameters:NoSummary",
+					"/consoleloggerparameters:NoSummary"
 				],
 				"type": "process",
 				"problemMatcher": "$msCompile",
@@ -461,7 +461,7 @@
 					"clean",
 					"${workspaceFolder:[Providers] Core}/TeamCloud.Providers.Core.csproj",
 					"/property:GenerateFullPaths=true",
-					"/consoleloggerparameters:NoSummary",
+					"/consoleloggerparameters:NoSummary"
 				],
 				"type": "process",
 				"problemMatcher": "$msCompile",
@@ -910,7 +910,7 @@
 				"type": "process",
 				"dependsOn": [
 					"cleanConfig",
-					"cleanConfigOptions",
+					"cleanConfigOptions"
 				],
 				"dependsOrder": "parallel",
 				"presentation": {
@@ -973,7 +973,7 @@
 				"dependsOn": [
 					"cleanConfigDependents",
 					"buildConfig",
-					"buildConfigOptions",
+					"buildConfigOptions"
 				],
 				"dependsOrder": "sequence",
 				"presentation": {
@@ -1014,7 +1014,10 @@
 				"presentation": {
 					"group": "buildAll",
 					"showReuseMessage": false
-				}
+				},
+				"problemMatcher": [
+					"$msCompile"
+				]
 			}
 		]
 	}

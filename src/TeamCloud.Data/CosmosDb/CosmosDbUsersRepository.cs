@@ -174,7 +174,7 @@ namespace TeamCloud.Data.CosmosDb
             try
             {
                 var response = await container
-                    .DeleteItemAsync<User>(user.Id.ToString(), new PartitionKey(Options.TenantName))
+                    .DeleteItemAsync<User>(user.Id, new PartitionKey(Options.TenantName))
                     .ConfigureAwait(false);
 
                 return response.Resource;
@@ -215,9 +215,7 @@ namespace TeamCloud.Data.CosmosDb
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
-            var document = (IContainerDocument)user;
-
-            if (string.IsNullOrEmpty(document.ETag))
+            if (string.IsNullOrEmpty(((IContainerDocument)user).ETag))
             {
                 var existingUser = await GetAsync(user.Id)
                     .ConfigureAwait(false);
@@ -239,33 +237,28 @@ namespace TeamCloud.Data.CosmosDb
                 if (membership is null)
                     return user;
 
-                user.ProjectMemberships.Remove(membership);
-
-                try
+                while (true)
                 {
-                    var updatedUser = await container
-                        .ReplaceItemAsync(
-                            user, user.Id.ToString(),
-                            new PartitionKey(Options.TenantName),
-                            new ItemRequestOptions { IfMatchEtag = document.ETag }
-                        ).ConfigureAwait(false);
+                    try
+                    {
+                        user.ProjectMemberships.Remove(membership);
 
-                    return updatedUser;
-                }
-                catch (CosmosException exc) when (exc.StatusCode == HttpStatusCode.NotFound)
-                {
-                    return null; // the requested user does not exist anymore - continue
-                    // return user;
-                }
-                catch (CosmosException exc) when (exc.StatusCode == HttpStatusCode.PreconditionFailed)
-                {
-                    // the requested user has changed, get it again before proceeding
-                    var refreshedUser = await GetAsync(user.Id)
-                        .ConfigureAwait(false);
-
-                    // TODO: add some safety here to prevent infinate recursion
-                    return await RemoveProjectMembershipSafeAsync(container, refreshedUser, projectId)
-                        .ConfigureAwait(false);
+                        return await container.ReplaceItemAsync(
+                                user,
+                                user.Id,
+                                new PartitionKey(Options.TenantName),
+                                new ItemRequestOptions { IfMatchEtag = ((IContainerDocument)user).ETag }).ConfigureAwait(false);
+                    }
+                    catch (CosmosException exc) when (exc.StatusCode == HttpStatusCode.NotFound)
+                    {
+                        // the requested user does not exist anymore - continue
+                        return null;
+                    }
+                    catch (CosmosException exc) when (exc.StatusCode == HttpStatusCode.PreconditionFailed)
+                    {
+                        // the requested user has changed, get it again before proceeding
+                        user = await GetAsync(user.Id).ConfigureAwait(false);
+                    }
                 }
             }
         }
@@ -296,8 +289,6 @@ namespace TeamCloud.Data.CosmosDb
                 var existingUser = await GetAsync(user.Id).ConfigureAwait(false)
                     ?? await AddAsync(user).ConfigureAwait(false);
 
-                existingUser.EnsureProjectMembership(membership);
-
                 user = existingUser;
             }
 
@@ -314,7 +305,7 @@ namespace TeamCloud.Data.CosmosDb
 
                         return await container.ReplaceItemAsync(
                             user,
-                            user.Id.ToString(),
+                            user.Id,
                             new PartitionKey(Options.TenantName),
                             new ItemRequestOptions { IfMatchEtag = ((IContainerDocument)user).ETag }).ConfigureAwait(false);
                     }
@@ -339,19 +330,10 @@ namespace TeamCloud.Data.CosmosDb
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
-            var document = (IContainerDocument)user;
-
-            if (string.IsNullOrEmpty(document.ETag))
+            if (string.IsNullOrEmpty(((IContainerDocument)user).ETag))
             {
-                var existingUser = await GetAsync(user.Id)
-                    .ConfigureAwait(false);
-
-                // user doesn't exist yet, create it
-                if (existingUser is null)
-                {
-                    return await AddAsync(user)
-                        .ConfigureAwait(false);
-                }
+                var existingUser = await GetAsync(user.Id).ConfigureAwait(false)
+                    ?? await AddAsync(user).ConfigureAwait(false);
 
                 user = existingUser;
             }
@@ -362,31 +344,26 @@ namespace TeamCloud.Data.CosmosDb
 
             async Task<User> SetTeamCloudInfoSafeAsync(Container container, User user)
             {
-                try
+                while (true)
                 {
-                    var updatedUser = await container
-                        .ReplaceItemAsync(
-                            user, user.Id.ToString(),
+                    try
+                    {
+                        return await container.ReplaceItemAsync(
+                            user,
+                            user.Id,
                             new PartitionKey(Options.TenantName),
-                            new ItemRequestOptions { IfMatchEtag = document.ETag }
-                        ).ConfigureAwait(false);
-
-                    return updatedUser;
-                }
-                catch (CosmosException exc) when (exc.StatusCode == HttpStatusCode.NotFound)
-                {
-                    return null; // the requested user does not exist anymore - continue
-                    // return user;
-                }
-                catch (CosmosException exc) when (exc.StatusCode == HttpStatusCode.PreconditionFailed)
-                {
-                    // the requested user has changed, get it again before proceeding
-                    var refreshedUser = await GetAsync(user.Id)
-                        .ConfigureAwait(false);
-
-                    // TODO: add some safety here to prevent infinate recursion
-                    return await SetTeamCloudInfoSafeAsync(container, refreshedUser)
-                        .ConfigureAwait(false);
+                            new ItemRequestOptions { IfMatchEtag = ((IContainerDocument)user).ETag }).ConfigureAwait(false);
+                    }
+                    catch (CosmosException exc) when (exc.StatusCode == HttpStatusCode.NotFound)
+                    {
+                        // the requested user does not exist anymore - continue
+                        return null;
+                    }
+                    catch (CosmosException exc) when (exc.StatusCode == HttpStatusCode.PreconditionFailed)
+                    {
+                        // the requested user has changed, get it again before proceeding
+                        user = await GetAsync(user.Id).ConfigureAwait(false);
+                    }
                 }
             }
         }

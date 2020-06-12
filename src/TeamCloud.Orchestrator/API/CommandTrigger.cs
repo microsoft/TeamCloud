@@ -205,7 +205,7 @@ namespace TeamCloud.Orchestrator
                     log.LogInformation($"Waiting for command orchestration '{command.CommandId}' ...");
 
                     await Task
-                        .Delay(5000)
+                        .Delay(5000) // 5 sec
                         .ConfigureAwait(false);
                 }
                 else
