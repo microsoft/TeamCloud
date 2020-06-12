@@ -49,7 +49,7 @@ namespace TeamCloud.Data.CosmosDb.Core
                 return cosmosClient.Value.GetDatabase(Options.DatabaseName);
 
             var response = await cosmosClient.Value
-                .CreateDatabaseIfNotExistsAsync(Options.DatabaseName)
+                .CreateDatabaseIfNotExistsAsync(Options.DatabaseName, ThroughputProperties.CreateAutoscaleThroughput(4000))
                 .ConfigureAwait(false);
 
             return response.Database;
