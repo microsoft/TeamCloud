@@ -17,11 +17,11 @@ namespace TeamCloud.Orchestrator.Activities
 {
     public class CommandProviderActivity
     {
-        private readonly ITeamCloudRepository teamCloudRepository;
+        private readonly IProvidersRepository providersRepository;
 
-        public CommandProviderActivity(ITeamCloudRepository teamCloudRepository)
+        public CommandProviderActivity(IProvidersRepository providersRepository)
         {
-            this.teamCloudRepository = teamCloudRepository ?? throw new ArgumentNullException(nameof(teamCloudRepository));
+            this.providersRepository = providersRepository ?? throw new ArgumentNullException(nameof(providersRepository));
         }
 
         [FunctionName(nameof(CommandProviderActivity))]
@@ -32,19 +32,25 @@ namespace TeamCloud.Orchestrator.Activities
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
 
-            var teamCloud = await teamCloudRepository
-                .GetAsync()
-                .ConfigureAwait(false);
-
             var project = functionContext.GetInput<Project>();
 
             if (project is null)
             {
-                return Enumerable.Repeat(teamCloud.Providers, 1);
+                var providers = await providersRepository
+                    .ListAsync()
+                    .ToListAsync()
+                    .ConfigureAwait(false);
+
+                return Enumerable.Repeat(providers, 1);
             }
             else
             {
-                return project.Type.Providers.Resolve(teamCloud);
+                var providers = await providersRepository
+                    .ListAsync(project.Type.Providers.Select(p => p.Id))
+                    .ToListAsync()
+                    .ConfigureAwait(false);
+
+                return project.Type.Providers.Resolve(providers);
             }
         }
     }

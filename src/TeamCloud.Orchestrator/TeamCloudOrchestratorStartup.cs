@@ -72,6 +72,7 @@ namespace TeamCloud.Orchestrator
                 .AddSingleton<IUsersRepository, CosmosDbUsersRepository>()
                 .AddSingleton<IProjectsRepository, CosmosDbProjectsRepository>()
                 .AddSingleton<ITeamCloudRepository, CosmosDbTeamCloudRepository>()
+                .AddSingleton<IProvidersRepository, CosmosDbProvidersRepository>()
                 .AddSingleton<IProjectTypesRepository, CosmosDbProjectTypesRepository>();
 
             builder.Services

@@ -46,8 +46,6 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
             var (provider, command) = functionContext
                 .GetInput<(Provider, ProviderRegisterCommand)>();
 
-            TeamCloudInstance teamCloud = null;
-
             try
             {
                 if (command is null)
@@ -69,15 +67,15 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                     // fan out registration with
                     // one orchestration per provider.
 
-                    functionContext.SetCustomStatus($"Register providers ...", log);
+                    functionContext.SetCustomStatus($"Register providers", log);
 
-                    teamCloud = await functionContext
-                        .GetTeamCloudAsync()
+                    var providers = await functionContext
+                        .ListProvidersAsync()
                         .ConfigureAwait(true);
 
-                    if (teamCloud != null)
+                    if (providers.Any())
                     {
-                        var tasks = teamCloud.Providers
+                        var tasks = providers
                             .Select(provider => functionContext.CallSubOrchestratorWithRetryAsync(nameof(ProviderRegisterOrchestration), (provider, command)));
 
                         await Task
@@ -87,10 +85,6 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                 }
                 else
                 {
-                    teamCloud = await functionContext
-                        .GetTeamCloudAsync()
-                        .ConfigureAwait(true);
-
                     command.Payload
                         .TeamCloudApplicationInsightsKey = await functionContext
                         .GetInstrumentationKeyAsync()
@@ -105,14 +99,11 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 
                     if (commandResult?.Result != null)
                     {
-                        using (await functionContext.LockContainerDocumentAsync(teamCloud).ConfigureAwait(true))
+                        using (await functionContext.LockContainerDocumentAsync(provider).ConfigureAwait(true))
                         {
-                            teamCloud = await functionContext
-                                .GetTeamCloudAsync()
+                            provider = await functionContext
+                                .GetProviderAsync(provider.Id)
                                 .ConfigureAwait(true);
-
-                            provider = teamCloud.Providers
-                                .FirstOrDefault(p => p.Id == provider.Id);
 
                             if (provider is null)
                             {
@@ -125,8 +116,8 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                                 provider.Registered = functionContext.CurrentUtcDateTime;
                                 provider.Properties = provider.Properties.Override(commandResult.Result.Properties);
 
-                                teamCloud = await functionContext
-                                    .SetTeamCloudAsync(teamCloud)
+                                provider = await functionContext
+                                    .SetProviderAsync(provider)
                                     .ConfigureAwait(true);
 
                                 functionContext.SetCustomStatus($"Provider '{provider.Id}' registration succeeded", log);

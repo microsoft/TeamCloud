@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 using TeamCloud.Model;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
-using TeamCloud.Model.Data;
+using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Activities;
 using TeamCloud.Orchestrator.Entities;
 using TeamCloud.Orchestrator.Options;
@@ -30,7 +30,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
         }
 
         [FunctionName(nameof(OrchestratorProviderUpdateCommandOrchestration))]
-        public async Task RunOrchestration(
+        public static async Task RunOrchestration(
             [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
             ILogger log)
         {
@@ -55,27 +55,16 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
 
                     provider.Registered = null;
 
-                    using (await functionContext.LockAsync<TeamCloudInstance>(orchestratorDatabaseOptions.TenantName).ConfigureAwait(true))
+                    using (await functionContext.LockContainerDocumentAsync(provider).ConfigureAwait(true))
                     {
-                        var teamCloud = await functionContext
-                            .GetTeamCloudAsync()
+                        functionContext.SetCustomStatus($"Updating provider", log);
+
+                        provider = commandResult.Result = await functionContext
+                            .SetProviderAsync(provider)
                             .ConfigureAwait(true);
-
-                        var existingProvider = teamCloud.Providers
-                            .SingleOrDefault(p => p.Id.Equals(provider.Id, StringComparison.Ordinal));
-
-                        if (existingProvider != null)
-                            teamCloud.Providers.Remove(existingProvider);
-
-                        teamCloud.Providers.Add(provider);
-
-                        teamCloud = await functionContext
-                            .SetTeamCloudAsync(teamCloud)
-                            .ConfigureAwait(true);
-
-                        provider = commandResult.Result = teamCloud.Providers
-                            .Single(p => p.Id.Equals(provider.Id, StringComparison.Ordinal));
                     }
+
+                    functionContext.SetCustomStatus($"Registering provider", log);
 
                     await functionContext
                         .RegisterProviderAsync(provider)
@@ -90,6 +79,13 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 }
                 finally
                 {
+                    var commandException = commandResult.Errors?.ToException();
+
+                    if (commandException is null)
+                        functionContext.SetCustomStatus($"Command succeeded", log);
+                    else
+                        functionContext.SetCustomStatus($"Command failed: {commandException.Message}", log, commandException);
+
                     functionContext.SetOutput(commandResult);
                 }
             }

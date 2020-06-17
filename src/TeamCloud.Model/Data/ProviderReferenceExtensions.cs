@@ -11,18 +11,18 @@ namespace TeamCloud.Model.Data
 {
     public static class ProviderReferenceExtensions
     {
-        public static IEnumerable<IEnumerable<Provider>> Resolve(this IList<ProviderReference> providerReferences, TeamCloudInstance teamCloud)
-            => providerReferences.AsEnumerable().Resolve(teamCloud);
+        public static IEnumerable<IEnumerable<Provider>> Resolve(this IList<ProviderReference> providerReferences, IList<Provider> providers)
+            => providerReferences.AsEnumerable().Resolve(providers);
 
-        public static IEnumerable<IEnumerable<Provider>> Resolve(this IEnumerable<ProviderReference> providerReferences, TeamCloudInstance teamCloud)
+        public static IEnumerable<IEnumerable<Provider>> Resolve(this IEnumerable<ProviderReference> providerReferences, IList<Provider> providers)
         {
             if (providerReferences is null)
                 throw new ArgumentNullException(nameof(providerReferences));
 
-            if (teamCloud is null)
-                throw new ArgumentNullException(nameof(teamCloud));
+            if (providers is null)
+                throw new ArgumentNullException(nameof(providers));
 
-            var providerDictionary = teamCloud.Providers
+            var providerDictionary = providers
                 .ToDictionary((provider) => provider.Id);
 
             var providerBatches = new Dictionary<int, List<Provider>>()
@@ -97,7 +97,6 @@ namespace TeamCloud.Model.Data
                     ? 0 // at least one dependency was not resolved
                     : batchMatches.Values.Max() + 1;
             }
-
         }
     }
 }

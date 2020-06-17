@@ -4,7 +4,6 @@
  */
 
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -12,7 +11,7 @@ using Microsoft.Extensions.Logging;
 using TeamCloud.Model;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
-using TeamCloud.Model.Data;
+using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Activities;
 using TeamCloud.Orchestrator.Entities;
 using TeamCloud.Orchestrator.Options;
@@ -29,7 +28,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
         }
 
         [FunctionName(nameof(OrchestratorProviderDeleteCommandOrchestration))]
-        public async Task RunOrchestration(
+        public static async Task RunOrchestration(
             [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
             ILogger log)
         {
@@ -47,21 +46,12 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
             {
                 try
                 {
-                    using (await functionContext.LockAsync<TeamCloudInstance>(orchestratorDatabaseOptions.TenantName).ConfigureAwait(true))
+                    using (await functionContext.LockContainerDocumentAsync(provider).ConfigureAwait(true))
                     {
-                        var teamCloud = await functionContext
-                            .GetTeamCloudAsync()
-                            .ConfigureAwait(true);
-
-                        provider = commandResult.Result = teamCloud.Providers
-                            .SingleOrDefault(p => p.Id.Equals(provider.Id, StringComparison.Ordinal));
-
-                        if (provider != null)
-                            teamCloud.Providers.Remove(provider);
-
-                        teamCloud = await functionContext
-                            .SetTeamCloudAsync(teamCloud)
-                            .ConfigureAwait(true);
+                        if (!(provider is null))
+                            await functionContext
+                                .DeleteProviderAsync(provider)
+                                .ConfigureAwait(true);
                     }
                 }
                 catch (Exception exc)
@@ -73,6 +63,13 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 }
                 finally
                 {
+                    var commandException = commandResult.Errors?.ToException();
+
+                    if (commandException is null)
+                        functionContext.SetCustomStatus($"Command succeeded", log);
+                    else
+                        functionContext.SetCustomStatus($"Command failed: {commandException.Message}", log, commandException);
+
                     functionContext.SetOutput(commandResult);
                 }
             }

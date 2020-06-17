@@ -23,32 +23,33 @@ namespace TeamCloud.Orchestrator.Activities
     {
         private readonly IAzureDeploymentService azureDeploymentService;
         private readonly IAzureSessionService azureSessionService;
-        private readonly ITeamCloudRepository teamCloudRepository;
+        private readonly IProvidersRepository providersRepository;
 
-        public ProjectResourcesCreateActivity(IAzureDeploymentService azureDeploymentService, IAzureSessionService azureSessionService, ITeamCloudRepository teamCloudRepository)
+        public ProjectResourcesCreateActivity(IAzureDeploymentService azureDeploymentService, IAzureSessionService azureSessionService, IProvidersRepository providersRepository)
         {
             this.azureDeploymentService = azureDeploymentService ?? throw new ArgumentNullException(nameof(azureDeploymentService));
             this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
-            this.teamCloudRepository = teamCloudRepository ?? throw new ArgumentNullException(nameof(teamCloudRepository));
+            this.providersRepository = providersRepository ?? throw new ArgumentNullException(nameof(providersRepository));
         }
 
         private async Task<string> GetOrchestratorIdentityAsync()
         {
             var identity = await azureSessionService
                 .GetIdentityAsync()
-                .ConfigureAwait(true);
+                .ConfigureAwait(false);
 
             return identity.ObjectId.ToString();
         }
 
         private async Task<string[]> GetProviderIdentitiesAsync(Project project)
         {
-            var teamCloud = await teamCloudRepository
-                .GetAsync()
-                .ConfigureAwait(true);
+            var providers = await providersRepository
+                .ListAsync(project.Type.Providers.Select(p => p.Id))
+                .ToListAsync()
+                .ConfigureAwait(false);
 
             return project.Type.Providers
-                .Select(pr => teamCloud.Providers.Single(p => p.Id.Equals(pr.Id, StringComparison.Ordinal)))
+                .Select(pr => providers.Single(p => p.Id.Equals(pr.Id, StringComparison.Ordinal)))
                 .Where(p => p.PrincipalId.HasValue && p.Registered.HasValue)
                 .Select(p => p.PrincipalId.Value.ToString())
                 .Distinct().ToArray();
