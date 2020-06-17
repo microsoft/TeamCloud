@@ -29,16 +29,14 @@ namespace TeamCloud.API.Controllers
         readonly UserService userService;
         readonly Orchestrator orchestrator;
         readonly IProjectsRepository projectsRepository;
-        readonly ITeamCloudRepository teamCloudRepository;
         readonly IProvidersRepository providersRepository;
         readonly IProjectTypesRepository projectTypesRepository;
 
-        public ProvidersController(UserService userService, Orchestrator orchestrator, IProjectsRepository projectsRepository, ITeamCloudRepository teamCloudRepository, IProvidersRepository providersRepository, IProjectTypesRepository projectTypesRepository)
+        public ProvidersController(UserService userService, Orchestrator orchestrator, IProjectsRepository projectsRepository, IProvidersRepository providersRepository, IProjectTypesRepository projectTypesRepository)
         {
             this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
             this.orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
             this.projectsRepository = projectsRepository ?? throw new ArgumentNullException(nameof(projectsRepository));
-            this.teamCloudRepository = teamCloudRepository ?? throw new ArgumentNullException(nameof(teamCloudRepository));
             this.providersRepository = providersRepository ?? throw new ArgumentNullException(nameof(providersRepository));
             this.projectTypesRepository = projectTypesRepository ?? throw new ArgumentNullException(nameof(projectTypesRepository));
         }
