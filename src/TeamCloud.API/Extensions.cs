@@ -17,6 +17,9 @@ using Newtonsoft.Json;
 using TeamCloud.Model.Data;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.API.Data;
+using TeamCloud.API.Data.Results;
+using TeamCloud.API.Services;
+using TeamCloud.Model.Commands;
 
 namespace TeamCloud.API
 {
@@ -74,15 +77,19 @@ namespace TeamCloud.API
         public static bool IsEMail(this string value)
             => new EmailAddressAttribute().IsValid(value);
 
-        public static IActionResult ActionResult(this ICommandResult result)
-            => result.Links.TryGetValue("status", out var statusUrl)
-               ? new AcceptedResult(statusUrl, result)
-               : new OkObjectResult(result) as IActionResult;
+        public static async Task<IActionResult> InvokeAndReturnAccepted(this Orchestrator orchestrator, IOrchestratorCommand command)
+        {
+            var commandResult = await orchestrator
+                .InvokeAsync(command)
+                .ConfigureAwait(false);
 
-        public static IActionResult StatusResult(this ICommandResult result)
-            => !result.RuntimeStatus.IsFinal() && result.Links.TryGetValue("status", out var statusUrl)
-               ? new AcceptedResult(statusUrl, result)
-               : new OkObjectResult(result) as IActionResult;
+            if (commandResult.Links.TryGetValue("status", out var url) || commandResult.Links.TryGetValue("location", out url))
+                return StatusResult
+                    .Accepted(commandResult.CommandId.ToString(), url, commandResult.RuntimeStatus.ToString(), commandResult.CustomStatus)
+                    .ActionResult();
+
+            throw new Exception($"We tried to retrun an Accepted (202) result but the Orchestrator service didn't return a status url or a location url for the Orchestrator command of type '{command.GetType().Name}'. This shouldn't happen, but we need to decide to do when it does.");
+        }
 
         public static bool RequiresAdminUserSet(this HttpRequest httpRequest)
         {

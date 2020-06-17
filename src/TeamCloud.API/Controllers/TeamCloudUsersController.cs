@@ -148,16 +148,9 @@ namespace TeamCloud.API
 
             var command = new OrchestratorTeamCloudUserCreateCommand(currentUserForCommand, user);
 
-            var commandResult = await orchestrator
-                .InvokeAsync(command)
+            return await orchestrator
+                .InvokeAndReturnAccepted(command)
                 .ConfigureAwait(false);
-
-            if (commandResult.Links.TryGetValue("status", out var statusUrl))
-                return StatusResult
-                    .Accepted(commandResult.CommandId.ToString(), statusUrl, commandResult.RuntimeStatus.ToString(), commandResult.CustomStatus)
-                    .ActionResult();
-
-            throw new Exception("This shouldn't happen, but we need to decide to do when it does.");
         }
 
 
@@ -214,16 +207,9 @@ namespace TeamCloud.API
 
             var command = new OrchestratorTeamCloudUserUpdateCommand(currentUserForCommand, user);
 
-            var commandResult = await orchestrator
-                .InvokeAsync(command)
+            return await orchestrator
+                .InvokeAndReturnAccepted(command)
                 .ConfigureAwait(false);
-
-            if (commandResult.Links.TryGetValue("status", out var statusUrl))
-                return StatusResult
-                    .Accepted(commandResult.CommandId.ToString(), statusUrl, commandResult.RuntimeStatus.ToString(), commandResult.CustomStatus)
-                    .ActionResult();
-
-            throw new Exception("This shouldn't happen, but we need to decide to do when it does.");
         }
 
 
@@ -285,16 +271,9 @@ namespace TeamCloud.API
 
             var command = new OrchestratorTeamCloudUserDeleteCommand(currentUserForCommand, user);
 
-            var commandResult = await orchestrator
-                .InvokeAsync(command)
+            return await orchestrator
+                .InvokeAndReturnAccepted(command)
                 .ConfigureAwait(false);
-
-            if (commandResult.Links.TryGetValue("status", out var statusUrl))
-                return StatusResult
-                    .Accepted(commandResult.CommandId.ToString(), statusUrl, commandResult.RuntimeStatus.ToString(), commandResult.CustomStatus)
-                    .ActionResult();
-
-            throw new Exception("This shouldn't happen, but we need to decide to do when it does.");
         }
     }
 }

@@ -121,16 +121,9 @@ namespace TeamCloud.API.Controllers
             return new OkResult();
             // var command = new ProjectUserCreateCommand(CurrentUser, newUser, ProjectId.Value);
 
-            // var commandResult = await orchestrator
-            //     .InvokeAsync(command)
+            // return await orchestrator
+            //     .InvokeAndReturnAccepted(command)
             //     .ConfigureAwait(false);
-
-            // if (commandResult.Links.TryGetValue("status", out var statusUrl))
-            //     return StatusResult
-            //         .Accepted(commandResult.CommandId.ToString(), statusUrl, commandResult.RuntimeStatus.ToString(), commandResult.CustomStatus)
-            //         .ActionResult();
-
-            throw new Exception("This shouldn't happen, but we need to decide to do when it does.");
         }
 
 
@@ -169,16 +162,9 @@ namespace TeamCloud.API.Controllers
             return new OkResult();
             // var command = new ProjectUserUpdateCommand(CurrentUser, user, ProjectId.Value);
 
-            // var commandResult = await orchestrator
-            //     .InvokeAsync(command)
+            // return await orchestrator
+            //     .InvokeAndReturnAccepted(command)
             //     .ConfigureAwait(false);
-
-            // if (commandResult.Links.TryGetValue("status", out var statusUrl))
-            //     return StatusResult
-            //         .Accepted(commandResult.CommandId.ToString(), statusUrl, commandResult.RuntimeStatus.ToString(), commandResult.CustomStatus)
-            //         .ActionResult();
-
-            throw new Exception("This shouldn't happen, but we need to decide to do when it does.");
         }
 
 
@@ -212,16 +198,9 @@ namespace TeamCloud.API.Controllers
             return new NoContentResult();
             // var command = new ProjectUserDeleteCommand(CurrentUser, user, ProjectId.Value);
 
-            // var commandResult = await orchestrator
-            //     .InvokeAsync(command)
+            // return await orchestrator
+            //     .InvokeAndReturnAccepted(command)
             //     .ConfigureAwait(false);
-
-            // if (commandResult.Links.TryGetValue("status", out var statusUrl))
-            //     return StatusResult
-            //         .Accepted(commandResult.CommandId.ToString(), statusUrl, commandResult.RuntimeStatus.ToString(), commandResult.CustomStatus)
-            //         .ActionResult();
-
-            throw new Exception("This shouldn't happen, but we need to decide to do when it does.");
         }
     }
 }

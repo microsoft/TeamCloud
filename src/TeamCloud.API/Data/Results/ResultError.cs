@@ -111,7 +111,6 @@ namespace TeamCloud.API.Data.Results
                 Code = ResultErrorCode.Unknown,
                 Message = "An unknown error occured."
             };
-
     }
 
     public class ValidationError

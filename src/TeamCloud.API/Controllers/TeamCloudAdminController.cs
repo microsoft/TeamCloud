@@ -86,16 +86,9 @@ namespace TeamCloud.API.Controllers
             // thus, we can assume the calling user and the user from the payload are the same
             var command = new OrchestratorTeamCloudUserCreateCommand(user, user);
 
-            var commandResult = await orchestrator
-                .InvokeAsync(command)
+            return await orchestrator
+                .InvokeAndReturnAccepted(command)
                 .ConfigureAwait(false);
-
-            if (commandResult.Links.TryGetValue("status", out var statusUrl))
-                return StatusResult
-                    .Accepted(commandResult.CommandId.ToString(), statusUrl, commandResult.RuntimeStatus.ToString(), commandResult.CustomStatus)
-                    .ActionResult();
-
-            throw new Exception("This shouldn't happen, but we need to decide to do when it does.");
         }
     }
 }
