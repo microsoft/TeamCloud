@@ -118,6 +118,7 @@ namespace TeamCloud.API
                 .AddSingleton<IUsersRepository, CosmosDbUsersRepository>()
                 .AddSingleton<IProjectsRepository, CosmosDbProjectsRepository>()
                 .AddSingleton<ITeamCloudRepository, CosmosDbTeamCloudRepository>()
+                .AddSingleton<IProvidersRepository, CosmosDbProvidersRepository>()
                 .AddSingleton<IProjectTypesRepository, CosmosDbProjectTypesRepository>()
                 .AddSingleton<IClientErrorFactory, ClientErrorFactory>()
                 .AddSingleton<Orchestrator>()

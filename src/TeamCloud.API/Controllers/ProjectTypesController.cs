@@ -25,13 +25,13 @@ namespace TeamCloud.API.Controllers
     public class ProjectTypesController : ControllerBase
     {
         readonly Orchestrator orchestrator;
-        readonly ITeamCloudRepository teamCloudRepository;
+        readonly IProvidersRepository providersRepository;
         readonly IProjectTypesRepository projectTypesRepository;
 
-        public ProjectTypesController(Orchestrator orchestrator, ITeamCloudRepository teamCloudRepository, IProjectTypesRepository projectTypesRepository)
+        public ProjectTypesController(Orchestrator orchestrator, IProvidersRepository providersRepository, IProjectTypesRepository projectTypesRepository)
         {
             this.orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
-            this.teamCloudRepository = teamCloudRepository ?? throw new ArgumentNullException(nameof(teamCloudRepository));
+            this.providersRepository = providersRepository ?? throw new ArgumentNullException(nameof(providersRepository));
             this.projectTypesRepository = projectTypesRepository ?? throw new ArgumentNullException(nameof(projectTypesRepository));
         }
 
@@ -104,16 +104,17 @@ namespace TeamCloud.API.Controllers
                     .Conflict($"A ProjectType with id '{projectType.Id}' already exists.  Please try your request again with a unique id or call PUT to update the existing ProjectType.")
                     .ActionResult();
 
-            var teamCloud = await teamCloudRepository
-                .GetAsync()
+            var providers = await providersRepository
+                .ListAsync()
+                .ToListAsync()
                 .ConfigureAwait(false);
 
             var validProviders = projectType.Providers
-                .All(projectTypeProvider => teamCloud.Providers.Any(teamCloudProvider => teamCloudProvider.Id == projectTypeProvider.Id));
+                .All(p => providers.Any(provider => provider.Id == p.Id));
 
             if (!validProviders)
             {
-                var validProviderIds = string.Join(", ", teamCloud.Providers.Select(p => p.Id));
+                var validProviderIds = string.Join(", ", providers.Select(p => p.Id));
                 return ErrorResult
                     .BadRequest(new ValidationError { Field = "projectType", Message = $"All provider ids on a ProjectType must match the id of a registered Provider on the TeamCloud instance. Valid provider ids are: {validProviderIds}" })
                     .ActionResult();
@@ -160,16 +161,17 @@ namespace TeamCloud.API.Controllers
                     .NotFound($"A ProjectType with the ID '{projectType.Id}' could not be found in this TeamCloud Instance")
                     .ActionResult();
 
-            var teamCloud = await teamCloudRepository
-                .GetAsync()
+            var providers = await providersRepository
+                .ListAsync()
+                .ToListAsync()
                 .ConfigureAwait(false);
 
             var validProviders = projectType.Providers
-                .All(tp => teamCloud.Providers.Any(p => p.Id == tp.Id));
+                .All(p => providers.Any(provider => provider.Id == p.Id));
 
             if (!validProviders)
             {
-                var validProviderIds = string.Join(", ", teamCloud.Providers.Select(p => p.Id));
+                var validProviderIds = string.Join(", ", providers.Select(p => p.Id));
                 return ErrorResult
                     .BadRequest(new ValidationError { Field = "projectType", Message = $"All provider ids on a ProjectType must match the id of a registered Provider on the TeamCloud instance. Valid provider ids are: {validProviderIds}" })
                     .ActionResult();
