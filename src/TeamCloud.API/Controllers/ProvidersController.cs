@@ -182,28 +182,25 @@ namespace TeamCloud.API.Controllers
                     .NotFound($"A Provider with the ID '{providerId}' could not be found on this TeamCloud Instance.")
                     .ActionResult();
 
-            // TODO: Query via the database query instead of getting all
             var projectTypes = await projectTypesRepository
-                .ListAsync()
+                .ListByProviderAsync(providerId)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
-            if (projectTypes.Any(pt => pt.Providers.Any(pr => pr.Id == providerId)))
+            if (projectTypes.Any())
                 return ErrorResult
                     .BadRequest("Cannot delete Providers referenced in existing ProjectType definitions", ResultErrorCode.ValidationError)
                     .ActionResult();
 
-            // TODO: Query via the database query instead of getting all
             var projects = await projectsRepository
-                .ListAsync()
+                .ListByProviderAsync(providerId)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
-            if (projects.Any(p => p.Type.Providers.Any(pr => pr.Id == providerId)))
-                if (projectTypes.Any(pt => pt.Providers.Any(pr => pr.Id == providerId)))
-                    return ErrorResult
-                        .BadRequest("Cannot delete Providers being used by existing Projects", ResultErrorCode.ValidationError)
-                        .ActionResult();
+            if (projects.Any())
+                return ErrorResult
+                    .BadRequest("Cannot delete Providers being used by existing Projects", ResultErrorCode.ValidationError)
+                    .ActionResult();
 
             var currentUserForCommand = await userService
                 .CurrentUserAsync()

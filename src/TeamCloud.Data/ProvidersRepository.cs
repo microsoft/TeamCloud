@@ -16,6 +16,8 @@ namespace TeamCloud.Data
 
         IAsyncEnumerable<Provider> ListAsync();
 
+        IAsyncEnumerable<Provider> ListAsync(IEnumerable<string> ids);
+
         Task<Provider> AddAsync(Provider provider);
 
         Task<Provider> SetAsync(Provider provider);

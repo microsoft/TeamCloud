@@ -101,6 +101,30 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
+        public async IAsyncEnumerable<Provider> ListAsync(IEnumerable<string> ids)
+        {
+            var container = await GetContainerAsync()
+                .ConfigureAwait(false);
+
+            var query = new QueryDefinition($"SELECT * FROM p WHERE p.id IN (@ids)")
+                .WithParameter("@ids", ids);
+
+            var queryIterator = container
+                .GetItemQueryIterator<Provider>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
+
+            while (queryIterator.HasMoreResults)
+            {
+                var queryResponse = await queryIterator
+                    .ReadNextAsync()
+                    .ConfigureAwait(false);
+
+                foreach (var queryResult in queryResponse)
+                {
+                    yield return queryResult;
+                }
+            }
+        }
+
         public async Task<Provider> RemoveAsync(Provider provider)
         {
             if (provider is null)
