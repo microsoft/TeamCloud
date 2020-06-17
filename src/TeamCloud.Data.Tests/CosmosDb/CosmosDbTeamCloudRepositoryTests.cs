@@ -30,23 +30,5 @@ namespace TeamCloud.Data.CosmosDb
             var instance = await Repository.GetAsync().ConfigureAwait(false);
             AssertContainerDocumentMetadata(instance);
         }
-
-        [ConditionalFact(ConditionalFactPlatforms.Windows)]
-        public async Task AddProvider()
-        {
-            var instance1 = await Repository.GetAsync().ConfigureAwait(false);
-            var instance1json = JsonConvert.SerializeObject(instance1);
-            AssertContainerDocumentMetadata(instance1);
-
-            instance1.Providers.Add(new Provider()
-            {
-                Id = Guid.NewGuid().ToString()
-            });
-
-            var instance2 = await Repository.SetAsync(instance1).ConfigureAwait(false);
-            var instance2json = JsonConvert.SerializeObject(instance2);
-            AssertContainerDocumentMetadata(instance2);
-
-        }
     }
 }

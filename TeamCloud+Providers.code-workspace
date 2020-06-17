@@ -93,6 +93,10 @@
 			"path": "src/TeamCloud.Azure.Tests"
 		},
 		{
+			"name": "[Tests] Data",
+			"path": "src/TeamCloud.Data.Tests"
+		},
+		{
 			"name": "[Tests] Model",
 			"path": "src/TeamCloud.Model.Tests"
 		},

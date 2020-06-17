@@ -16,6 +16,7 @@ namespace TeamCloud.Model.Data
         [InlineData(typeof(TeamCloudInstance))]
         [InlineData(typeof(Project))]
         [InlineData(typeof(ProjectType))]
+        [InlineData(typeof(Provider))]
         [InlineData(typeof(User))]
         public void Serialize(Type type)
         {
@@ -38,6 +39,7 @@ namespace TeamCloud.Model.Data
         [InlineData(typeof(TeamCloudInstance))]
         [InlineData(typeof(Project))]
         [InlineData(typeof(ProjectType))]
+        [InlineData(typeof(Provider))]
         [InlineData(typeof(User))]
         public void SerializeWithMetadata(Type type)
         {
