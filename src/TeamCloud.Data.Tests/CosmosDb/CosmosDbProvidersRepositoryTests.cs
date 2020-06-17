@@ -21,9 +21,7 @@ namespace TeamCloud.Data.CosmosDb
         private readonly CosmosDbRepositoryFixture fixture;
 
         public CosmosDbProvidersRepositoryTests(CosmosDbRepositoryFixture fixture)
-            : base(new CosmosDbProvidersRepository(CosmosDbTestOptions.Instance,
-                new CosmosDbProjectsRepository(CosmosDbTestOptions.Instance,
-                    new CosmosDbUsersRepository(CosmosDbTestOptions.Instance))))
+            : base(new CosmosDbProvidersRepository(CosmosDbTestOptions.Instance))
         {
             this.fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
         }
@@ -81,7 +79,7 @@ namespace TeamCloud.Data.CosmosDb
             Assert.Equal(providerId, provider.Id);
             AssertContainerDocumentMetadata(provider);
 
-            var registered = DateTime.UtcNow();
+            var registered = DateTime.UtcNow;
 
             provider.Registered = registered;
 
@@ -100,7 +98,7 @@ namespace TeamCloud.Data.CosmosDb
         {
             var provider = await Repository.AddAsync(new Provider()
             {
-                Id = SanitizeName(nameof(Removeprovider)),
+                Id = SanitizeName(nameof(RemoveProvider)),
                 Url = "https://www.foo.com",
                 AuthCode = "3iexLbySHolb0Tsm5PErwg=="
 
