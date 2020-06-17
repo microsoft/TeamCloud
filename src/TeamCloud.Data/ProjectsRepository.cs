@@ -17,7 +17,7 @@ namespace TeamCloud.Data
 
         IAsyncEnumerable<Project> ListAsync(IEnumerable<string> nameOrIds);
 
-        IAsyncEnumerable<ProjectType> ListByProviderAsync(string providerId);
+        IAsyncEnumerable<Project> ListByProviderAsync(string providerId);
 
         Task<bool> NameExistsAsync(string name);
 
