@@ -7,13 +7,15 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using TeamCloud.Model.Data.Core;
 
 namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public sealed class Provider
+    public sealed class Provider : ContainerDocument, IEquatable<Provider>, IProperties
     {
-        public string Id { get; set; }
+        [PartitionKey]
+        public string Tenant { get; set; }
 
         public string Url { get; set; }
 
@@ -30,5 +32,14 @@ namespace TeamCloud.Model.Data
         public DateTime? Registered { get; set; }
 
         public ProviderCommandMode CommandMode { get; set; } = ProviderCommandMode.Simple;
+
+        public bool Equals(Provider other)
+            => Id.Equals(other?.Id, StringComparison.Ordinal);
+
+        public override bool Equals(object obj)
+            => base.Equals(obj) || Equals(obj as Provider);
+
+        public override int GetHashCode()
+            => Id?.GetHashCode(StringComparison.Ordinal) ?? base.GetHashCode();
     }
 }

@@ -38,6 +38,6 @@ namespace TeamCloud.Model.Data
             => base.Equals(obj) || Equals(obj as ProjectType);
 
         public override int GetHashCode()
-            => Id is null ? base.GetHashCode() : Id.GetHashCode(StringComparison.Ordinal);
+            => Id?.GetHashCode(StringComparison.Ordinal) ?? base.GetHashCode();
     }
 }
