@@ -164,6 +164,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
+
         public async IAsyncEnumerable<Project> ListByProviderAsync(string providerId)
         {
             var container = await GetContainerAsync()
