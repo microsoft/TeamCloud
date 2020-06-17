@@ -16,7 +16,6 @@ using TeamCloud.Model.Validation;
 
 namespace TeamCloud.Data.CosmosDb
 {
-
     public class CosmosDbProjectTypesRepository : CosmosDbRepository<ProjectType>, IProjectTypesRepository
     {
         private readonly IProjectsRepository projectRepository;
