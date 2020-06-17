@@ -30,14 +30,16 @@ namespace TeamCloud.API.Controllers
         readonly Orchestrator orchestrator;
         readonly IProjectsRepository projectsRepository;
         readonly ITeamCloudRepository teamCloudRepository;
+        readonly IProvidersRepository providersRepository;
         readonly IProjectTypesRepository projectTypesRepository;
 
-        public ProvidersController(UserService userService, Orchestrator orchestrator, IProjectsRepository projectsRepository, ITeamCloudRepository teamCloudRepository, IProjectTypesRepository projectTypesRepository)
+        public ProvidersController(UserService userService, Orchestrator orchestrator, IProjectsRepository projectsRepository, ITeamCloudRepository teamCloudRepository, IProvidersRepository providersRepository, IProjectTypesRepository projectTypesRepository)
         {
             this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
             this.orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
             this.projectsRepository = projectsRepository ?? throw new ArgumentNullException(nameof(projectsRepository));
             this.teamCloudRepository = teamCloudRepository ?? throw new ArgumentNullException(nameof(teamCloudRepository));
+            this.providersRepository = providersRepository ?? throw new ArgumentNullException(nameof(providersRepository));
             this.projectTypesRepository = projectTypesRepository ?? throw new ArgumentNullException(nameof(projectTypesRepository));
         }
 
@@ -47,22 +49,15 @@ namespace TeamCloud.API.Controllers
         [SwaggerOperation(OperationId = "GetProviders", Summary = "Gets all Providers.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all Providers.", typeof(DataResult<List<Provider>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
-        [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Get()
         {
-            var teamCloudInstance = await teamCloudRepository
-                .GetAsync()
+            var providers = await providersRepository
+                .ListAsync()
+                .ToListAsync()
                 .ConfigureAwait(false);
 
-            if (teamCloudInstance is null)
-                return ErrorResult
-                    .NotFound($"No TeamCloud Instance was found.")
-                    .ActionResult();
-
-            var providers = teamCloudInstance?.Providers ?? new List<Provider>();
-
             return DataResult<List<Provider>>
-                .Ok(providers.ToList())
+                .Ok(providers)
                 .ActionResult();
         }
 
@@ -72,19 +67,12 @@ namespace TeamCloud.API.Controllers
         [SwaggerOperation(OperationId = "GetProviderById", Summary = "Gets a Provider by ID.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns a DataResult with the Provider as the data value.", typeof(DataResult<Provider>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
-        [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found, or a Provider with the providerId provided was not found.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "A Provider with the providerId provided was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Get(string providerId)
         {
-            var teamCloudInstance = await teamCloudRepository
-                .GetAsync()
+            var provider = await providersRepository
+                .GetAsync(providerId)
                 .ConfigureAwait(false);
-
-            if (teamCloudInstance is null)
-                return ErrorResult
-                    .NotFound($"No TeamCloud Instance was found.")
-                    .ActionResult();
-
-            var provider = teamCloudInstance.Providers?.FirstOrDefault(p => p.Id == providerId);
 
             if (provider is null)
                 return ErrorResult
@@ -103,7 +91,6 @@ namespace TeamCloud.API.Controllers
         [SwaggerOperation(OperationId = "CreateProvider", Summary = "Creates a new Provider.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts creating the new Provider. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
-        [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status409Conflict, "A Provider already exists with the ID provided in the request body.", typeof(ErrorResult))]
         public async Task<IActionResult> Post([FromBody] Provider provider)
         {
@@ -117,16 +104,11 @@ namespace TeamCloud.API.Controllers
                     .BadRequest(validation)
                     .ActionResult();
 
-            var teamCloudInstance = await teamCloudRepository
-                .GetAsync()
+            var existingProvider = await providersRepository
+                .GetAsync(provider.Id)
                 .ConfigureAwait(false);
 
-            if (teamCloudInstance is null)
-                return ErrorResult
-                    .NotFound($"No TeamCloud Instance was found.")
-                    .ActionResult();
-
-            if (teamCloudInstance.Providers.Contains(provider))
+            if (existingProvider != null)
                 return ErrorResult
                     .Conflict($"A Provider with the ID '{provider.Id}' already exists on this TeamCloud Instance. Please try your request again with a unique ID or call PUT to update the existing Provider.")
                     .ActionResult();
@@ -137,16 +119,9 @@ namespace TeamCloud.API.Controllers
 
             var command = new OrchestratorProviderCreateCommand(currentUserForCommand, provider);
 
-            var commandResult = await orchestrator
-                .InvokeAsync(command)
+            return await orchestrator
+                .InvokeAndReturnAccepted(command)
                 .ConfigureAwait(false);
-
-            if (commandResult.Links.TryGetValue("status", out var statusUrl))
-                return StatusResult
-                    .Accepted(commandResult.CommandId.ToString(), statusUrl, commandResult.RuntimeStatus.ToString(), commandResult.CustomStatus)
-                    .ActionResult();
-
-            throw new Exception("This shouldn't happen, but we need to decide to do when it does.");
         }
 
 
@@ -156,7 +131,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerOperation(OperationId = "UpdateProvider", Summary = "Updates an existing Provider.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts updating the provided Provider. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
-        [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found, or a Provider with the ID provided in the reques body was not found.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "A Provider with the ID provided in the reques body was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Put([FromBody] Provider provider)
         {
             if (provider is null)
@@ -169,16 +144,9 @@ namespace TeamCloud.API.Controllers
                     .BadRequest(validation)
                     .ActionResult();
 
-            var teamCloudInstance = await teamCloudRepository
-                .GetAsync()
+            var oldProvider = await providersRepository
+                .GetAsync(provider.Id)
                 .ConfigureAwait(false);
-
-            if (teamCloudInstance is null)
-                return ErrorResult
-                    .NotFound($"No TeamCloud Instance was found.")
-                    .ActionResult();
-
-            var oldProvider = teamCloudInstance.Providers?.FirstOrDefault(p => p.Id == provider.Id);
 
             if (oldProvider is null)
                 return ErrorResult
@@ -191,16 +159,9 @@ namespace TeamCloud.API.Controllers
 
             var command = new OrchestratorProviderUpdateCommand(currentUserForCommand, provider);
 
-            var commandResult = await orchestrator
-                .InvokeAsync(command)
+            return await orchestrator
+                .InvokeAndReturnAccepted(command)
                 .ConfigureAwait(false);
-
-            if (commandResult.Links.TryGetValue("status", out var statusUrl))
-                return StatusResult
-                    .Accepted(commandResult.CommandId.ToString(), statusUrl, commandResult.RuntimeStatus.ToString(), commandResult.CustomStatus)
-                    .ActionResult();
-
-            throw new Exception("This shouldn't happen, but we need to decide to do when it does.");
         }
 
 
@@ -209,19 +170,12 @@ namespace TeamCloud.API.Controllers
         [SwaggerOperation(OperationId = "DeleteProvider", Summary = "Deletes an existing Provider.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts deleting the provided Provider. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
-        [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found, or a Provider with the provided providerId was not found.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "A Provider with the provided providerId was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Delete(string providerId)
         {
-            var teamCloudInstance = await teamCloudRepository
-                .GetAsync()
+            var provider = await providersRepository
+                .GetAsync(providerId)
                 .ConfigureAwait(false);
-
-            if (teamCloudInstance is null)
-                return ErrorResult
-                    .NotFound($"No TeamCloud Instance was found.")
-                    .ActionResult();
-
-            var provider = teamCloudInstance.Providers?.FirstOrDefault(p => p.Id == providerId);
 
             if (provider is null)
                 return ErrorResult
@@ -257,16 +211,9 @@ namespace TeamCloud.API.Controllers
 
             var command = new OrchestratorProviderDeleteCommand(currentUserForCommand, provider);
 
-            var commandResult = await orchestrator
-                .InvokeAsync(command)
+            return await orchestrator
+                .InvokeAndReturnAccepted(command)
                 .ConfigureAwait(false);
-
-            if (commandResult.Links.TryGetValue("status", out var statusUrl))
-                return StatusResult
-                    .Accepted(commandResult.CommandId.ToString(), statusUrl, commandResult.RuntimeStatus.ToString(), commandResult.CustomStatus)
-                    .ActionResult();
-
-            throw new Exception("This shouldn't happen, but we need to decide to do when it does.");
         }
     }
 }
