@@ -116,12 +116,17 @@ def transform_provider_table_output(result):
     resultList = []
 
     for item in result:
+        rg = item['resourceGroup']
         resultList.append(OrderedDict([
             ('Provider ID', item['id']),
             ('Url', item['url']),
             ('Code', '************'),
+            ('Command Mode', item['commandMode'])
+            ('Resource Group', '' if rg is None else rg['name']),
+            ('Subscription', '' if rg is None else rg['subscriptionId']),
+            ('Region', '' if rg is None else rg['region']),
             ('Events', '\n'.join(item['events'])),
-            ('Properties', str(item['properties'])),
+            ('Properties', str(item['properties']))
         ]))
 
     return resultList
