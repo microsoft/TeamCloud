@@ -32,6 +32,7 @@ def teamcloud_deploy(cmd, client, name, location, resource_group_name='TeamCloud
     location = location.lower()
 
     hook = cli_ctx.get_progress_controller()
+    hook.begin()
 
     if version or prerelease:
         if index_url:
@@ -142,7 +143,7 @@ def teamcloud_deploy(cmd, client, name, location, resource_group_name='TeamCloud
         user_definition = UserDefinition(identifier=me, role='Admin', properties=None)
         _ = client.create_team_cloud_admin_user(user_definition)
 
-    hook.end(message='')
+    hook.end(message='\n')
     logger.warning('TeamCloud instance successfully created at: %s', api_url)
     logger.warning('Use `az configure --defaults tc-base-url=%s` to configure '
                    'this as your default TeamCloud instance', api_url)
@@ -181,6 +182,7 @@ def teamcloud_upgrade(cmd, client, base_url, resource_group_name='TeamCloud', ve
     cli_ctx = cmd.cli_ctx
 
     hook = cli_ctx.get_progress_controller()
+    hook.begin()
 
     if version or prerelease:
         if index_url:
@@ -262,7 +264,7 @@ def teamcloud_upgrade(cmd, client, base_url, resource_group_name='TeamCloud', ve
     zip_deploy_app(cli_ctx, resource_group_name, api_app_name, api_zip_url)
 
     version_string = version or 'the latest version'
-    hook.end(message='')
+    hook.end(message='\n')
     logger.warning('Successfully upgraded TeamCloud instance to %s', version_string)
 
     result = {
@@ -472,6 +474,7 @@ def provider_deploy(cmd, client, base_url, provider, location, resource_group_na
     cli_ctx = cmd.cli_ctx
 
     hook = cli_ctx.get_progress_controller()
+    hook.begin()
 
     if version or prerelease:
         if index_url:
@@ -540,7 +543,8 @@ def provider_deploy(cmd, client, base_url, provider, location, resource_group_na
     payload = Provider(id=provider, url=url, auth_code=auth_code, resource_group=resource_group,
                        principal_id=principal_id, events=events, properties=properties)
 
-    provider_output = _create_with_status(cmd, client, base_url, payload, client.create_provider)
+    provider_output = _create_with_status(cmd, client, base_url, payload,
+                                          client.create_provider, hook_start=False)
 
     if setup_url:
         logger.warning('IMPORTANT: Opening a url in your browser to complete setup.')
@@ -560,6 +564,7 @@ def provider_upgrade(cmd, client, base_url, provider, version=None, prerelease=F
     cli_ctx = cmd.cli_ctx
 
     hook = cli_ctx.get_progress_controller()
+    hook.begin()
 
     if version or prerelease:
         if index_url:
@@ -631,7 +636,8 @@ def provider_upgrade(cmd, client, base_url, provider, version=None, prerelease=F
     payload = provider_result.data
     payload.auth_code = auth_code
 
-    provider_output = _update_with_status(cmd, client, base_url, payload, client.update_provider)
+    provider_output = _update_with_status(cmd, client, base_url, payload,
+                                          client.update_provider, hook_start=False)
 
     # version_string = version or 'the latest version'
     # logger.warning("Successfully upgraded provider '%s' %s.", name, version_string)
@@ -666,7 +672,8 @@ def provider_list_available(cmd, index_url=None, version=None, prerelease=False,
         return []
 
 
-def _create_with_status(cmd, client, base_url, payload, create_func, project_id=None, no_wait=False):
+def _create_with_status(cmd, client, base_url, payload, create_func,
+                        project_id=None, no_wait=False, hook_start=True):
     from .vendored_sdks.teamcloud.models import StatusResult
     client._client.config.base_url = base_url
 
@@ -677,13 +684,15 @@ def _create_with_status(cmd, client, base_url, payload, create_func, project_id=
     type_name = create_func.metadata['url'].split('/')[-1][:-1].capitalize()
 
     hook = cmd.cli_ctx.get_progress_controller()
-    hook.add(message='Starting: Creating new {}'.format(type_name))
+    if hook_start:
+        hook.begin()
+    hook.add(message='Creating new {}'.format(type_name))
 
     result = create_func(project_id, payload) if project_id else create_func(payload)
 
     while isinstance(result, StatusResult):
         if result.code == 200:
-            hook.end(message='')
+            hook.end(message='\n')
 
             return result
 
@@ -705,12 +714,13 @@ def _create_with_status(cmd, client, base_url, payload, create_func, project_id=
             else:
                 result = client.get_status(result._tracking_id)
 
-    hook.end(message='')
+    hook.end(message='\n')
 
     return result
 
 
-def _update_with_status(cmd, client, base_url, payload, update_func, project_id=None, no_wait=False):
+def _update_with_status(cmd, client, base_url, payload, update_func,
+                        project_id=None, no_wait=False, hook_start=True):
     from .vendored_sdks.teamcloud.models import StatusResult
     client._client.config.base_url = base_url
 
@@ -721,13 +731,16 @@ def _update_with_status(cmd, client, base_url, payload, update_func, project_id=
     type_name = update_func.metadata['url'].split('/')[-1][:-1].capitalize()
 
     hook = cmd.cli_ctx.get_progress_controller()
-    hook.add(message='Starting: Updating {}'.format(type_name))
+    if hook_start:
+        hook.begin()
+
+    hook.add(message='Updating {}'.format(type_name))
 
     result = update_func(project_id, payload) if project_id else update_func(payload)
 
     while isinstance(result, StatusResult):
         if result.code == 200:
-            hook.end(message='')
+            hook.end(message='\n')
             return result
 
         if result.code == 202:
@@ -748,12 +761,13 @@ def _update_with_status(cmd, client, base_url, payload, update_func, project_id=
             else:
                 result = client.get_status(result._tracking_id)
 
-    hook.end(message='')
+    hook.end(message='\n')
 
     return result
 
 
-def _delete_with_status(cmd, client, base_url, item_id, delete_func, project_id=None, no_wait=False):
+def _delete_with_status(cmd, client, base_url, item_id, delete_func,
+                        project_id=None, no_wait=False, hook_start=True):
     from .vendored_sdks.teamcloud.models import StatusResult
     client._client.config.base_url = base_url
 
@@ -764,13 +778,15 @@ def _delete_with_status(cmd, client, base_url, item_id, delete_func, project_id=
     type_name = delete_func.metadata['url'].split('/')[-2][:-1].capitalize()
 
     hook = cmd.cli_ctx.get_progress_controller()
-    hook.add(message='Starting: Delete {}'.format(type_name))
+    if hook_start:
+        hook.begin()
+    hook.add(message='Deleting {}'.format(type_name))
 
     result = delete_func(item_id, project_id) if project_id else delete_func(item_id)
 
     while isinstance(result, StatusResult):
         if result.code == 200:
-            hook.end(message='')
+            hook.end(message='\n')
             return result
 
         if result.code == 202:
@@ -791,6 +807,6 @@ def _delete_with_status(cmd, client, base_url, item_id, delete_func, project_id=
             else:
                 result = client.get_status(result._tracking_id)
 
-    hook.end(message='')
+    hook.end(message='\n')
 
     return result

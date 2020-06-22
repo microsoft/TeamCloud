@@ -920,7 +920,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProjectUserListDataResult"
+                  "$ref": "#/components/schemas/UserListDataResult"
                 }
               }
             }
@@ -1061,7 +1061,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ProjectUser"
+                "$ref": "#/components/schemas/User"
               }
             }
           }
@@ -1145,7 +1145,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProjectUserDataResult"
+                  "$ref": "#/components/schemas/UserDataResult"
                 }
               }
             }
@@ -1285,16 +1285,6 @@
               }
             }
           },
-          "404": {
-            "description": "The TeamCloud instance was not found.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResult"
-                }
-              }
-            }
-          },
           "401": {
             "description": "Unauthorized"
           },
@@ -1338,16 +1328,6 @@
           },
           "400": {
             "description": "A validation error occured.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResult"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "The TeamCloud instance was not found.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1418,7 +1398,7 @@
             }
           },
           "404": {
-            "description": "The TeamCloud instance was not found, or a Provider with the ID provided in the reques body was not found.",
+            "description": "A Provider with the ID provided in the reques body was not found.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1483,7 +1463,7 @@
             }
           },
           "404": {
-            "description": "The TeamCloud instance was not found, or a Provider with the providerId provided was not found.",
+            "description": "A Provider with the providerId provided was not found.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1546,7 +1526,7 @@
             }
           },
           "404": {
-            "description": "The TeamCloud instance was not found, or a Provider with the provided providerId was not found.",
+            "description": "A Provider with the provided providerId was not found.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2285,7 +2265,7 @@
             }
           },
           "409": {
-            "description": "A TeamCloud User already exists with the email address provided in the request body.",
+            "description": "A User already exists with the email address provided in the request body.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2346,7 +2326,7 @@
             }
           },
           "404": {
-            "description": "The TeamCloud instance was not found, or a User with the ID provided in the request body was not found.",
+            "description": "A User with the ID provided in the request body was not found.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2411,7 +2391,7 @@
             }
           },
           "404": {
-            "description": "The TeamCloud instance was not found, or a User with the provided identifier was not found.",
+            "description": "A User with the provided identifier was not found.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2464,7 +2444,7 @@
             }
           },
           "404": {
-            "description": "The TeamCloud instance was not found, or a User with the identifier provided was not found.",
+            "description": "A User with the identifier provided was not found.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2492,113 +2472,6 @@
   },
   "components": {
     "schemas": {
-      "ProviderReference": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "nullable": true
-          },
-          "properties": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "string"
-            },
-            "nullable": true
-          },
-          "dependsOn": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "nullable": true
-          },
-          "metadata": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "object",
-              "additionalProperties": {
-                "type": "string"
-              }
-            },
-            "nullable": true
-          }
-        }
-      },
-      "ProjectType": {
-        "type": "object",
-        "properties": {
-          "tenant": {
-            "type": "string",
-            "nullable": true
-          },
-          "default": {
-            "type": "boolean"
-          },
-          "region": {
-            "type": "string",
-            "nullable": true
-          },
-          "subscriptions": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "nullable": true
-          },
-          "subscriptionCapacity": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "resourceGroupNamePrefix": {
-            "type": "string",
-            "nullable": true
-          },
-          "providers": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProviderReference"
-            },
-            "nullable": true
-          },
-          "tags": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "string"
-            },
-            "nullable": true
-          },
-          "properties": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "string"
-            },
-            "nullable": true
-          },
-          "id": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "ProjectIdentity": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "nullable": true
-          },
-          "applicationId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "secret": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
       "AzureResourceGroup": {
         "type": "object",
         "properties": {
@@ -2615,23 +2488,6 @@
             "format": "uuid"
           },
           "region": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "AzureKeyVault": {
-        "type": "object",
-        "properties": {
-          "vaultId": {
-            "type": "string",
-            "nullable": true
-          },
-          "vaultName": {
-            "type": "string",
-            "nullable": true
-          },
-          "vaultUrl": {
             "type": "string",
             "nullable": true
           }
@@ -2664,7 +2520,7 @@
       "User": {
         "type": "object",
         "properties": {
-          "tenant": {
+          "id": {
             "type": "string",
             "nullable": true
           },
@@ -2698,17 +2554,13 @@
               "type": "string"
             },
             "nullable": true
-          },
-          "id": {
-            "type": "string",
-            "nullable": true
           }
         }
       },
       "Project": {
         "type": "object",
         "properties": {
-          "tenant": {
+          "id": {
             "type": "string",
             "nullable": true
           },
@@ -2716,17 +2568,8 @@
             "type": "string",
             "nullable": true
           },
-          "type": {
-            "$ref": "#/components/schemas/ProjectType"
-          },
-          "identity": {
-            "$ref": "#/components/schemas/ProjectIdentity"
-          },
           "resourceGroup": {
             "$ref": "#/components/schemas/AzureResourceGroup"
-          },
-          "keyVault": {
-            "$ref": "#/components/schemas/AzureKeyVault"
           },
           "users": {
             "type": "array",
@@ -2747,10 +2590,6 @@
             "additionalProperties": {
               "type": "string"
             },
-            "nullable": true
-          },
-          "id": {
-            "type": "string",
             "nullable": true
           }
         }
@@ -2971,6 +2810,92 @@
           }
         }
       },
+      "ProviderReference": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "dependsOn": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "properties": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "nullable": true
+          }
+        }
+      },
+      "ProjectType": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "default": {
+            "type": "boolean"
+          },
+          "region": {
+            "type": "string",
+            "nullable": true
+          },
+          "subscriptions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "nullable": true
+          },
+          "subscriptionCapacity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "resourceGroupNamePrefix": {
+            "type": "string",
+            "nullable": true
+          },
+          "providers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProviderReference"
+            },
+            "nullable": true
+          },
+          "tags": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "properties": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        }
+      },
       "ProjectTypeListDataResult": {
         "type": "object",
         "properties": {
@@ -3016,31 +2941,7 @@
           }
         }
       },
-      "ProjectUser": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "nullable": true
-          },
-          "role": {
-            "enum": [
-              "None",
-              "Member",
-              "Owner"
-            ],
-            "type": "string"
-          },
-          "properties": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "string"
-            },
-            "nullable": true
-          }
-        }
-      },
-      "ProjectUserListDataResult": {
+      "UserListDataResult": {
         "type": "object",
         "properties": {
           "code": {
@@ -3054,7 +2955,7 @@
           "data": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ProjectUser"
+              "$ref": "#/components/schemas/User"
             },
             "nullable": true,
             "readOnly": true
@@ -3065,7 +2966,7 @@
           }
         }
       },
-      "ProjectUserDataResult": {
+      "UserDataResult": {
         "type": "object",
         "properties": {
           "code": {
@@ -3077,7 +2978,7 @@
             "nullable": true
           },
           "data": {
-            "$ref": "#/components/schemas/ProjectUser"
+            "$ref": "#/components/schemas/User"
           },
           "location": {
             "type": "string",
@@ -3174,51 +3075,6 @@
           },
           "data": {
             "$ref": "#/components/schemas/Provider"
-          },
-          "location": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "UserListDataResult": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "status": {
-            "type": "string",
-            "nullable": true
-          },
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/User"
-            },
-            "nullable": true,
-            "readOnly": true
-          },
-          "location": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "UserDataResult": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "status": {
-            "type": "string",
-            "nullable": true
-          },
-          "data": {
-            "$ref": "#/components/schemas/User"
           },
           "location": {
             "type": "string",

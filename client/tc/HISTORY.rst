@@ -3,6 +3,11 @@
 Release History
 ===============
 
+0.5.0
+++++++
+* Preview release
+* Update models to match API model overhaul (v0.2+)
+
 0.4.6
 ++++++
 * Preview release

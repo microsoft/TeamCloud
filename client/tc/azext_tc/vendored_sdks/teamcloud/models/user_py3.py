@@ -15,8 +15,8 @@ from msrest.serialization import Model
 class User(Model):
     """User.
 
-    :param tenant:
-    :type tenant: str
+    :param id:
+    :type id: str
     :param user_type: Possible values include: 'User', 'System', 'Provider',
      'Application'
     :type user_type: str or ~teamcloud.models.enum
@@ -26,24 +26,20 @@ class User(Model):
     :type project_memberships: list[~teamcloud.models.ProjectMembership]
     :param properties:
     :type properties: dict[str, str]
-    :param id:
-    :type id: str
     """
 
     _attribute_map = {
-        'tenant': {'key': 'tenant', 'type': 'str'},
+        'id': {'key': 'id', 'type': 'str'},
         'user_type': {'key': 'userType', 'type': 'str'},
         'role': {'key': 'role', 'type': 'str'},
         'project_memberships': {'key': 'projectMemberships', 'type': '[ProjectMembership]'},
         'properties': {'key': 'properties', 'type': '{str}'},
-        'id': {'key': 'id', 'type': 'str'},
     }
 
-    def __init__(self, *, tenant: str=None, user_type=None, role=None, project_memberships=None, properties=None, id: str=None, **kwargs) -> None:
+    def __init__(self, *, id: str=None, user_type=None, role=None, project_memberships=None, properties=None, **kwargs) -> None:
         super(User, self).__init__(**kwargs)
-        self.tenant = tenant
+        self.id = id
         self.user_type = user_type
         self.role = role
         self.project_memberships = project_memberships
         self.properties = properties
-        self.id = id

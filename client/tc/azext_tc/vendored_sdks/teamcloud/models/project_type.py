@@ -15,8 +15,8 @@ from msrest.serialization import Model
 class ProjectType(Model):
     """ProjectType.
 
-    :param tenant:
-    :type tenant: str
+    :param id:
+    :type id: str
     :param default:
     :type default: bool
     :param region:
@@ -33,12 +33,10 @@ class ProjectType(Model):
     :type tags: dict[str, str]
     :param properties:
     :type properties: dict[str, str]
-    :param id:
-    :type id: str
     """
 
     _attribute_map = {
-        'tenant': {'key': 'tenant', 'type': 'str'},
+        'id': {'key': 'id', 'type': 'str'},
         'default': {'key': 'default', 'type': 'bool'},
         'region': {'key': 'region', 'type': 'str'},
         'subscriptions': {'key': 'subscriptions', 'type': '[str]'},
@@ -47,12 +45,11 @@ class ProjectType(Model):
         'providers': {'key': 'providers', 'type': '[ProviderReference]'},
         'tags': {'key': 'tags', 'type': '{str}'},
         'properties': {'key': 'properties', 'type': '{str}'},
-        'id': {'key': 'id', 'type': 'str'},
     }
 
     def __init__(self, **kwargs):
         super(ProjectType, self).__init__(**kwargs)
-        self.tenant = kwargs.get('tenant', None)
+        self.id = kwargs.get('id', None)
         self.default = kwargs.get('default', None)
         self.region = kwargs.get('region', None)
         self.subscriptions = kwargs.get('subscriptions', None)
@@ -61,4 +58,3 @@ class ProjectType(Model):
         self.providers = kwargs.get('providers', None)
         self.tags = kwargs.get('tags', None)
         self.properties = kwargs.get('properties', None)
-        self.id = kwargs.get('id', None)

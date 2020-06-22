@@ -15,8 +15,8 @@ from msrest.serialization import Model
 class User(Model):
     """User.
 
-    :param tenant:
-    :type tenant: str
+    :param id:
+    :type id: str
     :param user_type: Possible values include: 'User', 'System', 'Provider',
      'Application'
     :type user_type: str or ~teamcloud.models.enum
@@ -26,24 +26,20 @@ class User(Model):
     :type project_memberships: list[~teamcloud.models.ProjectMembership]
     :param properties:
     :type properties: dict[str, str]
-    :param id:
-    :type id: str
     """
 
     _attribute_map = {
-        'tenant': {'key': 'tenant', 'type': 'str'},
+        'id': {'key': 'id', 'type': 'str'},
         'user_type': {'key': 'userType', 'type': 'str'},
         'role': {'key': 'role', 'type': 'str'},
         'project_memberships': {'key': 'projectMemberships', 'type': '[ProjectMembership]'},
         'properties': {'key': 'properties', 'type': '{str}'},
-        'id': {'key': 'id', 'type': 'str'},
     }
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
-        self.tenant = kwargs.get('tenant', None)
+        self.id = kwargs.get('id', None)
         self.user_type = kwargs.get('user_type', None)
         self.role = kwargs.get('role', None)
         self.project_memberships = kwargs.get('project_memberships', None)
         self.properties = kwargs.get('properties', None)
-        self.id = kwargs.get('id', None)

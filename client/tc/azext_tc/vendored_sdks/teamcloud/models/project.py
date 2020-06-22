@@ -15,50 +15,34 @@ from msrest.serialization import Model
 class Project(Model):
     """Project.
 
-    :param tenant:
-    :type tenant: str
+    :param id:
+    :type id: str
     :param name:
     :type name: str
-    :param type:
-    :type type: ~teamcloud.models.ProjectType
-    :param identity:
-    :type identity: ~teamcloud.models.ProjectIdentity
     :param resource_group:
     :type resource_group: ~teamcloud.models.AzureResourceGroup
-    :param key_vault:
-    :type key_vault: ~teamcloud.models.AzureKeyVault
     :param users:
     :type users: list[~teamcloud.models.User]
     :param tags:
     :type tags: dict[str, str]
     :param properties:
     :type properties: dict[str, str]
-    :param id:
-    :type id: str
     """
 
     _attribute_map = {
-        'tenant': {'key': 'tenant', 'type': 'str'},
+        'id': {'key': 'id', 'type': 'str'},
         'name': {'key': 'name', 'type': 'str'},
-        'type': {'key': 'type', 'type': 'ProjectType'},
-        'identity': {'key': 'identity', 'type': 'ProjectIdentity'},
         'resource_group': {'key': 'resourceGroup', 'type': 'AzureResourceGroup'},
-        'key_vault': {'key': 'keyVault', 'type': 'AzureKeyVault'},
         'users': {'key': 'users', 'type': '[User]'},
         'tags': {'key': 'tags', 'type': '{str}'},
         'properties': {'key': 'properties', 'type': '{str}'},
-        'id': {'key': 'id', 'type': 'str'},
     }
 
     def __init__(self, **kwargs):
         super(Project, self).__init__(**kwargs)
-        self.tenant = kwargs.get('tenant', None)
+        self.id = kwargs.get('id', None)
         self.name = kwargs.get('name', None)
-        self.type = kwargs.get('type', None)
-        self.identity = kwargs.get('identity', None)
         self.resource_group = kwargs.get('resource_group', None)
-        self.key_vault = kwargs.get('key_vault', None)
         self.users = kwargs.get('users', None)
         self.tags = kwargs.get('tags', None)
         self.properties = kwargs.get('properties', None)
-        self.id = kwargs.get('id', None)

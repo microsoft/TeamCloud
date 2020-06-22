@@ -15,50 +15,34 @@ from msrest.serialization import Model
 class Project(Model):
     """Project.
 
-    :param tenant:
-    :type tenant: str
+    :param id:
+    :type id: str
     :param name:
     :type name: str
-    :param type:
-    :type type: ~teamcloud.models.ProjectType
-    :param identity:
-    :type identity: ~teamcloud.models.ProjectIdentity
     :param resource_group:
     :type resource_group: ~teamcloud.models.AzureResourceGroup
-    :param key_vault:
-    :type key_vault: ~teamcloud.models.AzureKeyVault
     :param users:
     :type users: list[~teamcloud.models.User]
     :param tags:
     :type tags: dict[str, str]
     :param properties:
     :type properties: dict[str, str]
-    :param id:
-    :type id: str
     """
 
     _attribute_map = {
-        'tenant': {'key': 'tenant', 'type': 'str'},
+        'id': {'key': 'id', 'type': 'str'},
         'name': {'key': 'name', 'type': 'str'},
-        'type': {'key': 'type', 'type': 'ProjectType'},
-        'identity': {'key': 'identity', 'type': 'ProjectIdentity'},
         'resource_group': {'key': 'resourceGroup', 'type': 'AzureResourceGroup'},
-        'key_vault': {'key': 'keyVault', 'type': 'AzureKeyVault'},
         'users': {'key': 'users', 'type': '[User]'},
         'tags': {'key': 'tags', 'type': '{str}'},
         'properties': {'key': 'properties', 'type': '{str}'},
-        'id': {'key': 'id', 'type': 'str'},
     }
 
-    def __init__(self, *, tenant: str=None, name: str=None, type=None, identity=None, resource_group=None, key_vault=None, users=None, tags=None, properties=None, id: str=None, **kwargs) -> None:
+    def __init__(self, *, id: str=None, name: str=None, resource_group=None, users=None, tags=None, properties=None, **kwargs) -> None:
         super(Project, self).__init__(**kwargs)
-        self.tenant = tenant
+        self.id = id
         self.name = name
-        self.type = type
-        self.identity = identity
         self.resource_group = resource_group
-        self.key_vault = key_vault
         self.users = users
         self.tags = tags
         self.properties = properties
-        self.id = id
