@@ -16,7 +16,8 @@ using TeamCloud.API.Services;
 using TeamCloud.Data;
 using TeamCloud.Model.Internal.Commands;
 using TeamCloud.Model.Internal.Data;
-using TeamCloud.Model.Internal.Validation.Data;
+using TeamCloud.Model.Validation.Data;
+using Provider = TeamCloud.Model.Data.Provider;
 
 namespace TeamCloud.API.Controllers
 {
@@ -53,8 +54,10 @@ namespace TeamCloud.API.Controllers
                 .ToListAsync()
                 .ConfigureAwait(false);
 
+            var returnProviders = providers.Select(p => p.PopulateExternalModel()).ToList();
+
             return DataResult<List<Provider>>
-                .Ok(providers)
+                .Ok(returnProviders)
                 .ActionResult();
         }
 
@@ -76,8 +79,10 @@ namespace TeamCloud.API.Controllers
                     .NotFound($"A Provider with the ID '{providerId}' could not be found in this TeamCloud Instance")
                     .ActionResult();
 
+            var returnProvider = provider.PopulateExternalModel();
+
             return DataResult<Provider>
-                .Ok(provider)
+                .Ok(returnProvider)
                 .ActionResult();
         }
 
@@ -114,7 +119,10 @@ namespace TeamCloud.API.Controllers
                 .CurrentUserAsync()
                 .ConfigureAwait(false);
 
-            var command = new OrchestratorProviderCreateCommand(currentUserForCommand, provider);
+            var commandProvider = new TeamCloud.Model.Internal.Data.Provider();
+            commandProvider.PopulateFromExternalModel(provider);
+
+            var command = new OrchestratorProviderCreateCommand(currentUserForCommand, commandProvider);
 
             return await orchestrator
                 .InvokeAndReturnAccepted(command)
@@ -154,7 +162,9 @@ namespace TeamCloud.API.Controllers
                 .CurrentUserAsync()
                 .ConfigureAwait(false);
 
-            var command = new OrchestratorProviderUpdateCommand(currentUserForCommand, provider);
+            oldProvider.PopulateFromExternalModel(provider);
+
+            var command = new OrchestratorProviderUpdateCommand(currentUserForCommand, oldProvider);
 
             return await orchestrator
                 .InvokeAndReturnAccepted(command)

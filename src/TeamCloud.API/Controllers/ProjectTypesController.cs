@@ -15,7 +15,8 @@ using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
 using TeamCloud.Model.Internal.Data;
-using TeamCloud.Model.Internal.Validation.Data;
+using TeamCloud.Model.Validation.Data;
+using ProjectType = TeamCloud.Model.Data.ProjectType;
 
 namespace TeamCloud.API.Controllers
 {
@@ -47,8 +48,10 @@ namespace TeamCloud.API.Controllers
                 .ToListAsync()
                 .ConfigureAwait(false);
 
+            var returnProjectTypes = projectTypes.Select(p => p.PopulateExternalModel()).ToList();
+
             return DataResult<List<ProjectType>>
-                .Ok(projectTypes)
+                .Ok(returnProjectTypes)
                 .ActionResult();
         }
 
@@ -70,8 +73,10 @@ namespace TeamCloud.API.Controllers
                     .NotFound($"A ProjectType with the ID '{projectTypeId}' could not be found in this TeamCloud Instance")
                     .ActionResult();
 
+            var returnProjectType = projectType.PopulateExternalModel();
+
             return DataResult<ProjectType>
-                .Ok(projectType)
+                .Ok(returnProjectType)
                 .ActionResult();
         }
 
@@ -120,15 +125,20 @@ namespace TeamCloud.API.Controllers
                     .ActionResult();
             }
 
+            var newProjectType = new Model.Internal.Data.ProjectType();
+            newProjectType.PopulateFromExternalModel(projectType);
+
             var addResult = await orchestrator
-                .AddAsync(projectType)
+                .AddAsync(newProjectType)
                 .ConfigureAwait(false);
 
             var baseUrl = HttpContext.GetApplicationBaseUrl();
             var location = new Uri(baseUrl, $"api/projectTypes/{addResult.Id}").ToString();
 
+            var returnAddResult = addResult.PopulateExternalModel();
+
             return DataResult<ProjectType>
-                .Created(addResult, location)
+                .Created(returnAddResult, location)
                 .ActionResult();
         }
 
@@ -177,12 +187,16 @@ namespace TeamCloud.API.Controllers
                     .ActionResult();
             }
 
+            existingProjectType.PopulateFromExternalModel(projectType);
+
             var updateResult = await orchestrator
-                .UpdateAsync(projectType)
+                .UpdateAsync(existingProjectType)
                 .ConfigureAwait(false);
 
+            var returnUpdateResult = updateResult.PopulateExternalModel();
+
             return DataResult<ProjectType>
-                .Ok(updateResult)
+                .Ok(returnUpdateResult)
                 .ActionResult();
         }
 

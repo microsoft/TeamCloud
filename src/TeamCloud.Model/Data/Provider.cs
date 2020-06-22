@@ -18,6 +18,8 @@ namespace TeamCloud.Model.Data
 
         public string Url { get; set; }
 
+        public string AuthCode { get; set; }
+
         public Guid? PrincipalId { get; set; }
 
         public AzureResourceGroup ResourceGroup { get; set; }

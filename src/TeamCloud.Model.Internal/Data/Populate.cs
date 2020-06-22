@@ -205,6 +205,13 @@ namespace TeamCloud.Model.Internal.Data
         public static Model.Data.Project PopulateExternalModel(this Project source, Model.Data.Project target = null)
             => source.PopulateExternalModel<Project, Model.Data.Project>(target);
 
+        public static Model.Data.Provider PopulateExternalModel(this Provider source, Model.Data.Provider target = null)
+            => source.PopulateExternalModel<Provider, Model.Data.Provider>(target);
+
+        public static Model.Data.ProjectType PopulateExternalModel(this ProjectType source, Model.Data.ProjectType target = null)
+            => source.PopulateExternalModel<ProjectType, Model.Data.ProjectType>(target);
+
+
         public static void PopulateFromExternalModel<TInternal, TExternal>(this TInternal target, TExternal source = null)
             where TInternal : IPopulate<TExternal>
             where TExternal : class, new()
@@ -216,10 +223,11 @@ namespace TeamCloud.Model.Internal.Data
         public static void PopulateFromExternalModel(this Project target, Model.Data.Project source = null)
             => target.PopulateFromExternalModel<Project, Model.Data.Project>(source);
 
-        // public static Model.Data.Provider PopulateExternalModel(this Provider source, Model.Data.Provider target = null)
-        //     => source.PopulateExternalModel<Provider, Model.Data.Provider>(target);
+        public static void PopulateFromExternalModel(this Provider target, Model.Data.Provider source = null)
+            => target.PopulateFromExternalModel<Provider, Model.Data.Provider>(source);
 
-        // public static Model.Data.ProjectType PopulateExternalModel(this ProjectType source, Model.Data.ProjectType target = null)
-        //     => source.PopulateExternalModel<ProjectType, Model.Data.ProjectType>(target);
+        public static void PopulateFromExternalModel(this ProjectType target, Model.Data.ProjectType source = null)
+            => target.PopulateFromExternalModel<ProjectType, Model.Data.ProjectType>(source);
+
     }
 }
