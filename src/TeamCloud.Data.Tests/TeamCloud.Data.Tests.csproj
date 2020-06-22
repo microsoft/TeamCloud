@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TeamCloud.Data\TeamCloud.Data.csproj" />
+    <ProjectReference Include="..\TeamCloud.Model.Internal\TeamCloud.Model.Internal.csproj" />
   </ItemGroup>
 
 </Project>

@@ -4,8 +4,8 @@
  */
 
 using System.Threading.Tasks;
-using TeamCloud.Model.Commands;
-using TeamCloud.Model.Data;
+using TeamCloud.Model.Internal.Commands;
+using TeamCloud.Model.Internal.Data;
 using Xunit;
 
 namespace TeamCloud.Model.Validation.Tests.Commands

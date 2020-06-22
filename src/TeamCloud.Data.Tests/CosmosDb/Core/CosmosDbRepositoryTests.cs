@@ -4,7 +4,7 @@
  */
 
 using System;
-using TeamCloud.Model.Data.Core;
+using TeamCloud.Model.Internal.Data.Core;
 using Xunit;
 
 namespace TeamCloud.Data.CosmosDb.Core
