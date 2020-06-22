@@ -15,9 +15,11 @@ using TeamCloud.API.Data;
 using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
-using TeamCloud.Model.Commands;
-using TeamCloud.Model.Data;
+using TeamCloud.Model.Data.Core;
+using TeamCloud.Model.Internal.Commands;
+using TeamCloud.Model.Internal.Data;
 using TeamCloud.Model.Validation.Data;
+using User = TeamCloud.Model.Data.User;
 
 namespace TeamCloud.API
 {
@@ -51,8 +53,10 @@ namespace TeamCloud.API
                 .ToListAsync()
                 .ConfigureAwait(false);
 
+            var returnUsers = users.Select(u => u.PopulateExternalModel()).ToList();
+
             return DataResult<List<User>>
-                .Ok(users)
+                .Ok(returnUsers)
                 .ActionResult();
         }
 
@@ -88,8 +92,10 @@ namespace TeamCloud.API
                     .NotFound($"The specified User could not be found in this TeamCloud Instance.")
                     .ActionResult();
 
+            var returnUser = user.PopulateExternalModel();
+
             return DataResult<User>
-                .Ok(user)
+                .Ok(returnUser)
                 .ActionResult();
         }
 
@@ -107,7 +113,7 @@ namespace TeamCloud.API
             if (userDefinition is null)
                 throw new ArgumentNullException(nameof(userDefinition));
 
-            var validation = new TeamCloudUserDefinitionValidator().Validate(userDefinition);
+            var validation = new UserDefinitionTeamCloudValidator().Validate(userDefinition);
 
             if (!validation.IsValid)
                 return ErrorResult
@@ -132,7 +138,7 @@ namespace TeamCloud.API
                     .Conflict($"The user '{userDefinition.Identifier}' already exists on this TeamCloud Instance. Please try your request again with a unique user or call PUT to update the existing User.")
                     .ActionResult();
 
-            user = new User
+            user = new Model.Internal.Data.User
             {
                 Id = userId,
                 Role = Enum.Parse<TeamCloudUserRole>(userDefinition.Role, true),
@@ -203,7 +209,9 @@ namespace TeamCloud.API
                 .CurrentUserAsync()
                 .ConfigureAwait(false);
 
-            var command = new OrchestratorTeamCloudUserUpdateCommand(currentUserForCommand, user);
+            oldUser.PopulateFromExternalModel(user);
+
+            var command = new OrchestratorTeamCloudUserUpdateCommand(currentUserForCommand, oldUser);
 
             return await orchestrator
                 .InvokeAndReturnAccepted(command)

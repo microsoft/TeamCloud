@@ -8,7 +8,8 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Data;
-using TeamCloud.Model.Data;
+using TeamCloud.Model.Internal.Data;
+using TeamCloud.Orchestration;
 
 namespace TeamCloud.Orchestrator.Activities
 {
@@ -34,5 +35,11 @@ namespace TeamCloud.Orchestrator.Activities
 
             return project;
         }
+    }
+
+    internal static class ProjectCreateExtension
+    {
+        public static Task<Project> CreateProjectAsync(this IDurableOrchestrationContext functionContext, Project project)
+            => functionContext.CallActivityWithRetryAsync<Project>(nameof(ProjectCreateActivity), project);
     }
 }

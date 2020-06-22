@@ -6,16 +6,15 @@
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using TeamCloud.Model.Data.Core;
+using TeamCloud.Serialization;
 
 namespace TeamCloud.Model.Data
 {
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public sealed class User : ContainerDocument, IEquatable<User>, IProperties
+    [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
+    public sealed class User : IUser, IEquatable<User>
     {
-        [PartitionKey]
-        public string Tenant { get; set; }
+        public string Id { get; set; }
 
         public UserType UserType { get; set; }
 
@@ -24,6 +23,7 @@ namespace TeamCloud.Model.Data
         public IList<ProjectMembership> ProjectMemberships { get; set; } = new List<ProjectMembership>();
 
         public IDictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
+
 
         public bool Equals(User other)
             => Id.Equals(other?.Id, StringComparison.OrdinalIgnoreCase);

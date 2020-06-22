@@ -4,9 +4,8 @@
  */
 
 using System;
-using TeamCloud.Model.Commands.Core;
 
-namespace TeamCloud.Model.Commands
+namespace TeamCloud.Model.Commands.Core
 {
     public static class CommandExtensions
     {

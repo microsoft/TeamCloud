@@ -9,6 +9,7 @@ using FluentValidation;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using TeamCloud.Model.Data;
+using TeamCloud.Model.Data.Core;
 using TeamCloud.Model.Validation;
 
 namespace TeamCloud.API.Data
@@ -23,27 +24,27 @@ namespace TeamCloud.API.Data
         public Dictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
     }
 
-    public sealed class ProjectUserDefinitionValidator : AbstractValidator<UserDefinition>
+    public sealed class UserDefinitionProjectValidator : AbstractValidator<UserDefinition>
     {
-        public ProjectUserDefinitionValidator()
+        public UserDefinitionProjectValidator()
         {
             RuleFor(obj => obj.Identifier).MustBeEmail();
             RuleFor(obj => obj.Role).MustBeProjectUserRole();
         }
     }
 
-    public sealed class TeamCloudUserDefinitionValidator : AbstractValidator<UserDefinition>
+    public sealed class UserDefinitionTeamCloudValidator : AbstractValidator<UserDefinition>
     {
-        public TeamCloudUserDefinitionValidator()
+        public UserDefinitionTeamCloudValidator()
         {
             RuleFor(obj => obj.Identifier).MustBeEmail();
             RuleFor(obj => obj.Role).MustBeTeamCloudUserRole();
         }
     }
 
-    public sealed class TeamCloudUserDefinitionAdminValidator : AbstractValidator<UserDefinition>
+    public sealed class UserDefinitionTeamCloudAdminValidator : AbstractValidator<UserDefinition>
     {
-        public TeamCloudUserDefinitionAdminValidator()
+        public UserDefinitionTeamCloudAdminValidator()
         {
             RuleFor(obj => obj.Identifier).MustBeEmail();
             RuleFor(obj => obj.Role)

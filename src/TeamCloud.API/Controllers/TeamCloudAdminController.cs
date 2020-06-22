@@ -14,8 +14,9 @@ using TeamCloud.API.Data;
 using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
-using TeamCloud.Model.Commands;
-using TeamCloud.Model.Data;
+using TeamCloud.Model.Internal.Data;
+using TeamCloud.Model.Internal.Commands;
+using TeamCloud.Model.Data.Core;
 
 namespace TeamCloud.API.Controllers
 {
@@ -47,7 +48,7 @@ namespace TeamCloud.API.Controllers
             if (userDefinition is null)
                 throw new ArgumentNullException(nameof(userDefinition));
 
-            var validation = new TeamCloudUserDefinitionAdminValidator().Validate(userDefinition);
+            var validation = new UserDefinitionTeamCloudAdminValidator().Validate(userDefinition);
 
             if (!validation.IsValid)
                 return ErrorResult

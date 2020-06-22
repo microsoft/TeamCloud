@@ -101,6 +101,10 @@
 			"path": "src/TeamCloud.Model.Tests"
 		},
 		{
+			"name": "[Tests] Model.Internal",
+			"path": "src/TeamCloud.Model.Internal.Tests"
+		},
+		{
 			"name": "[Tests] Model.Validation",
 			"path": "src/TeamCloud.Model.Validation.Tests"
 		},
@@ -933,8 +937,8 @@
 					"cleanModelDependents",
 					"buildSerialization",
 					"buildModel",
-					"buildModelInternal",
 					"buildModelVal",
+					"buildModelInternal",
 					"buildOrchestration",
 					"buildOrchestrationAuditing",
 					"buildData",

@@ -11,16 +11,17 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using TeamCloud.Model;
-using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
-using TeamCloud.Model.Data;
+using TeamCloud.Model.Commands;
+using TeamCloud.Model.Internal;
+using TeamCloud.Model.Internal.Data;
 using TeamCloud.Model.Data.Core;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestration.Auditing;
 using TeamCloud.Orchestrator.Activities;
 using TeamCloud.Orchestrator.Entities;
 using TeamCloud.Serialization;
+using TeamCloud.Model;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 {
@@ -47,7 +48,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 
                 var isNotProjectCommandWithProjectId = provider.CommandMode == ProviderCommandMode.Simple
                                                     && !string.IsNullOrEmpty(command.ProjectId)
-                                                    && !(command is IProviderCommand<Project>);
+                                                    && !(command is IProviderCommand<Model.Data.Project>);
 
                 commandResult = isNotProjectCommandWithProjectId
                     ? await SwitchCommandAsync(functionContext, provider, command, commandResult, commandLog).ConfigureAwait(true)
@@ -219,9 +220,14 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                     .ConfigureAwait(true);
 
                 functionContext.ContinueAsNew((
-                    new ProviderProjectUpdateCommand(command.User, project, command.CommandId),
-                    provider
-                ));
+                    new ProviderProjectUpdateCommand
+                    (
+                        command.User as Model.Data.User,
+                        project.PopulateExternalModel(),
+                        command.CommandId),
+                        provider
+                    )
+                );
             }
             catch (Exception exc)
             {

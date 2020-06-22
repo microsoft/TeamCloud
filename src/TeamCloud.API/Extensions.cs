@@ -14,12 +14,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using TeamCloud.Model.Data;
-using TeamCloud.Model.Commands.Core;
-using TeamCloud.API.Data;
 using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
-using TeamCloud.Model.Commands;
+using TeamCloud.Model.Internal.Commands;
 
 namespace TeamCloud.API
 {

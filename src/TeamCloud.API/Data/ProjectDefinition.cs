@@ -28,7 +28,7 @@ namespace TeamCloud.API.Data
         {
             RuleFor(obj => obj.Name).NotEmpty();
             RuleFor(obj => obj.Users)
-                .ForEach(user => user.SetValidator(new ProjectUserDefinitionValidator()));
+                .ForEach(user => user.SetValidator(new UserDefinitionProjectValidator()));
         }
     }
 }

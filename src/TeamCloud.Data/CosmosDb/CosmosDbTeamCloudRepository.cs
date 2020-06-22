@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
 using TeamCloud.Data.Caching;
 using TeamCloud.Data.CosmosDb.Core;
-using TeamCloud.Model.Data;
+using TeamCloud.Model.Internal.Data;
 using TeamCloud.Model.Validation;
 
 namespace TeamCloud.Data.CosmosDb

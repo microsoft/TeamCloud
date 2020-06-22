@@ -14,7 +14,7 @@ using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage.Table;
 using Newtonsoft.Json;
 using TeamCloud.Model.Commands.Core;
-using TeamCloud.Model.Data;
+using TeamCloud.Model.Internal.Data;
 using TeamCloud.Orchestration.Auditing.Model;
 
 namespace TeamCloud.Orchestration.Auditing

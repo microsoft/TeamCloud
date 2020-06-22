@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentValidation;
 using TeamCloud.Model.Data;
+using TeamCloud.Model.Data.Core;
 
 namespace TeamCloud.Model.Validation.Data
 {

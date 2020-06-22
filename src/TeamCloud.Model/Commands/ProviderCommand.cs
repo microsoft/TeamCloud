@@ -17,16 +17,16 @@ namespace TeamCloud.Model.Commands
         IDictionary<string, IDictionary<string, string>> Results { get; set; }
     }
 
-    public interface IProviderCommand<TPayload> : ICommand<TPayload>, IProviderCommand
+    public interface IProviderCommand<TPayload> : ICommand<User, TPayload>, IProviderCommand
         where TPayload : new()
     { }
 
-    public interface IProviderCommand<TPayload, TCommandResult> : ICommand<TPayload, TCommandResult>, IProviderCommand<TPayload>
+    public interface IProviderCommand<TPayload, TCommandResult> : ICommand<User, TPayload, TCommandResult>, IProviderCommand<TPayload>
         where TPayload : class, new()
         where TCommandResult : ICommandResult
     { }
 
-    public abstract class ProviderCommand<TPayload, TCommandResult> : Command<TPayload, TCommandResult>, IProviderCommand<TPayload, TCommandResult>
+    public abstract class ProviderCommand<TPayload, TCommandResult> : Command<User, TPayload, TCommandResult>, IProviderCommand<TPayload, TCommandResult>
         where TPayload : class, new()
         where TCommandResult : ICommandResult, new()
     {

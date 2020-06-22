@@ -15,8 +15,11 @@ using TeamCloud.API.Data;
 using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
-using TeamCloud.Model.Commands;
-using TeamCloud.Model.Data;
+using TeamCloud.Model.Data.Core;
+using TeamCloud.Model.Internal.Commands;
+using TeamCloud.Model.Internal.Data;
+using TeamCloud.Model.Validation.Data;
+using User = TeamCloud.Model.Data.User;
 
 namespace TeamCloud.API.Controllers
 {
@@ -43,7 +46,7 @@ namespace TeamCloud.API.Controllers
         [HttpGet]
         [Authorize(Policy = "projectRead")]
         [SwaggerOperation(OperationId = "GetProjectUsers", Summary = "Gets all Users for a Project.")]
-        [SwaggerResponse(StatusCodes.Status200OK, "Returns all Project Users", typeof(DataResult<List<ProjectUser>>))]
+        [SwaggerResponse(StatusCodes.Status200OK, "Returns all Project Users", typeof(DataResult<List<User>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Get()
@@ -58,11 +61,10 @@ namespace TeamCloud.API.Controllers
                 .ToListAsync()
                 .ConfigureAwait(false);
 
-            var projectUsers = (users ?? new List<User>())
-                .Select(u => new ProjectUser(u, ProjectId));
+            var returnUsers = users.Select(u => u.PopulateExternalModel()).ToList();
 
-            return DataResult<List<ProjectUser>>
-                .Ok(projectUsers.ToList())
+            return DataResult<List<User>>
+                .Ok(returnUsers)
                 .ActionResult();
         }
 
@@ -70,7 +72,7 @@ namespace TeamCloud.API.Controllers
         [HttpGet("{userNameOrId:userNameOrId}")]
         [Authorize(Policy = "projectRead")]
         [SwaggerOperation(OperationId = "GetProjectUserByNameOrId", Summary = "Gets a Project User by ID or email address.")]
-        [SwaggerResponse(StatusCodes.Status200OK, "Returns Project User", typeof(DataResult<ProjectUser>))]
+        [SwaggerResponse(StatusCodes.Status200OK, "Returns Project User", typeof(DataResult<User>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a User with the provided identifier was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Get([FromRoute] string userNameOrId)
@@ -103,10 +105,10 @@ namespace TeamCloud.API.Controllers
                     .NotFound($"The specified User could not be found in this Project.")
                     .ActionResult();
 
-            var projectUser = new ProjectUser(user, ProjectId);
+            var returnUser = user.PopulateExternalModel(ProjectId);
 
-            return DataResult<ProjectUser>
-                .Ok(projectUser)
+            return DataResult<User>
+                .Ok(returnUser)
                 .ActionResult();
         }
 
@@ -129,7 +131,7 @@ namespace TeamCloud.API.Controllers
                     .BadRequest($"Project Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCode.ValidationError)
                     .ActionResult();
 
-            var validation = new ProjectUserDefinitionValidator().Validate(userDefinition);
+            var validation = new UserDefinitionProjectValidator().Validate(userDefinition);
 
             if (!validation.IsValid)
                 return ErrorResult
@@ -171,7 +173,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts updating the Project UserProject. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a User with the ID provided in the request body was not found.", typeof(ErrorResult))]
-        public async Task<IActionResult> Put([FromBody] ProjectUser user)
+        public async Task<IActionResult> Put([FromBody] User user)
         {
             if (user is null)
                 throw new ArgumentNullException(nameof(user));
@@ -181,7 +183,7 @@ namespace TeamCloud.API.Controllers
                     .BadRequest($"Project Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCode.ValidationError)
                     .ActionResult();
 
-            var validation = new ProjectUserValidator().Validate(user);
+            var validation = new UserValidator().Validate(user);
 
             if (!validation.IsValid)
                 return ErrorResult
@@ -197,7 +199,7 @@ namespace TeamCloud.API.Controllers
                     .NotFound($"The user '{user.Id}' could not be found in this project.")
                     .ActionResult();
 
-            if (oldUser.IsOwner(ProjectId) && !user.IsOwner())
+            if (oldUser.IsOwner(ProjectId) && !user.IsOwner(ProjectId))
             {
                 var otherOwners = await usersRepository
                     .ListOwnersAsync(ProjectId)
@@ -210,14 +212,9 @@ namespace TeamCloud.API.Controllers
                         .ActionResult();
             }
 
-            var membership = new ProjectMembership
-            {
-                ProjectId = ProjectId,
-                Role = user.Role,
-                Properties = user.Properties
-            };
+            var membership = user.ProjectMembership(ProjectId);
 
-            if (!oldUser.HasEqualMembership(membership))
+            if (oldUser.HasEqualMembership(membership))
                 return ErrorResult
                     .BadRequest(new ValidationError { Field = "projectMemberships", Message = $"User's project memberships did not change." })
                     .ActionResult();

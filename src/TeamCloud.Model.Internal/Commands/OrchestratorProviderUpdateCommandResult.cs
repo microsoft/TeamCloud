@@ -4,9 +4,9 @@
  */
 
 using TeamCloud.Model.Commands.Core;
-using TeamCloud.Model.Data;
+using TeamCloud.Model.Internal.Data;
 
-namespace TeamCloud.Model.Commands
+namespace TeamCloud.Model.Internal.Commands
 {
     public class OrchestratorProviderUpdateCommandResult : CommandResult<Provider> { }
 }

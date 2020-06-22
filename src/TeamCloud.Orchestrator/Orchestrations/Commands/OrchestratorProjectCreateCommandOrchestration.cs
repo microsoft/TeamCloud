@@ -10,16 +10,17 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using TeamCloud.Model;
 using TeamCloud.Model.Commands;
-using TeamCloud.Model.Commands.Core;
-using TeamCloud.Model.Data;
 using TeamCloud.Model.Data.Core;
+using TeamCloud.Model.Internal;
+using TeamCloud.Model.Internal.Data;
+using TeamCloud.Model.Internal.Commands;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestration.Deployment;
 using TeamCloud.Orchestrator.Activities;
 using TeamCloud.Orchestrator.Entities;
 using TeamCloud.Orchestrator.Orchestrations.Utilities;
+using TeamCloud.Model.Commands.Core;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Commands
 {
@@ -97,7 +98,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 functionContext.SetCustomStatus($"Creating project", log);
 
                 project = commandResult.Result = await functionContext
-                    .CallActivityWithRetryAsync<Project>(nameof(ProjectCreateActivity), project)
+                    .CreateProjectAsync(project)
                     .ConfigureAwait(true);
 
                 functionContext.SetCustomStatus($"Adding users", log);
@@ -163,8 +164,15 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
 
             functionContext.SetCustomStatus($"Sending provider commands", log);
 
+            var providerCommand = new ProviderProjectCreateCommand
+            (
+                command.User.PopulateExternalModel(),
+                project.PopulateExternalModel(),
+                command.CommandId
+            );
+
             var providerResults = await functionContext
-                .SendCommandAsync<ProviderProjectCreateCommand, ProviderProjectCreateCommandResult>(new ProviderProjectCreateCommand(command.User, project, command.CommandId), failFast: true)
+                .SendProviderCommandAsync<ProviderProjectCreateCommand, ProviderProjectCreateCommandResult>(providerCommand, project, failFast: true)
                 .ConfigureAwait(true);
 
             var providerException = providerResults.Values?

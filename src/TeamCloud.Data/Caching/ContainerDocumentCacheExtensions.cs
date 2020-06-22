@@ -6,7 +6,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using TeamCloud.Model.Data.Core;
+using TeamCloud.Model.Internal.Data.Core;
 
 namespace TeamCloud.Data.Caching
 {

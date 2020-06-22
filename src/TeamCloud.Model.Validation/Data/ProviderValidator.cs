@@ -14,7 +14,7 @@ namespace TeamCloud.Model.Validation.Data
         {
             RuleFor(obj => obj.Id).MustBeProviderId();
             RuleFor(obj => obj.Url).MustBeUrl();
-            RuleFor(obj => obj.AuthCode).MustBeFunctionAuthCode();
+            // RuleFor(obj => obj.AuthCode).MustBeFunctionAuthCode();
         }
     }
 }

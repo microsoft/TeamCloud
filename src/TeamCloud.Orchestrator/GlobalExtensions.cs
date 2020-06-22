@@ -10,8 +10,8 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Newtonsoft.Json.Linq;
-using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
+using TeamCloud.Model.Internal.Commands;
 
 namespace TeamCloud.Orchestrator
 {

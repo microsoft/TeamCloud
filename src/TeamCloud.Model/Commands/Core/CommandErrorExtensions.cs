@@ -7,7 +7,6 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace TeamCloud.Model.Commands.Core
 {
@@ -23,7 +22,7 @@ namespace TeamCloud.Model.Commands.Core
 
             if (exception is AggregateException aggregateException)
             {
-                foreach(var innerException in aggregateException.Flatten().InnerExceptions)
+                foreach (var innerException in aggregateException.Flatten().InnerExceptions)
                     errors.Add(innerException, severity);
 
             }
@@ -51,7 +50,7 @@ namespace TeamCloud.Model.Commands.Core
         public static Exception ToException(this IEnumerable<CommandError> errors, CommandErrorSeverity minSeverity = CommandErrorSeverity.Error)
         {
             if (errors is null)
-               throw new ArgumentNullException(nameof(errors));
+                throw new ArgumentNullException(nameof(errors));
 
             var affectedErrors = errors
                 .Where(error => error.Severity >= minSeverity);

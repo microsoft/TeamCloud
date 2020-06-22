@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using TeamCloud.Model;
 using TeamCloud.Model.Commands.Core;
+using TeamCloud.Model.Internal;
 using TeamCloud.Orchestration;
 using TeamCloud.Serialization;
 

@@ -10,7 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
 using TeamCloud.Data.Utilities;
-using TeamCloud.Model.Data.Core;
+using TeamCloud.Model.Internal.Data.Core;
 using static Microsoft.Azure.Cosmos.Container;
 
 namespace TeamCloud.Data.CosmosDb.Core

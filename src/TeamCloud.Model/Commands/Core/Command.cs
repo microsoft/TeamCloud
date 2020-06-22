@@ -6,7 +6,6 @@
 using System;
 using Newtonsoft.Json;
 using TeamCloud.Model.Commands.Serialization;
-using TeamCloud.Model.Data;
 
 namespace TeamCloud.Model.Commands.Core
 {
@@ -17,20 +16,24 @@ namespace TeamCloud.Model.Commands.Core
 
         string ProjectId { get; }
 
-        User User { get; set; }
+        object User { get; set; }
 
         ICommandResult CreateResult();
 
         object Payload { get; set; }
     }
 
-    public interface ICommand<TPayload> : ICommand
+    public interface ICommand<TUser, TPayload> : ICommand
+        where TUser : new() // TODO: IUser
         where TPayload : new()
     {
+        new TUser User { get; set; }
+
         new TPayload Payload { get; set; }
     }
 
-    public interface ICommand<TPayload, TCommandResult> : ICommand<TPayload>
+    public interface ICommand<TUser, TPayload, TCommandResult> : ICommand<TUser, TPayload>
+        where TUser : class, new()
         where TPayload : class, new()
         where TCommandResult : ICommandResult
     {
@@ -38,11 +41,12 @@ namespace TeamCloud.Model.Commands.Core
     }
 
 
-    public abstract class Command<TPayload, TCommandResult> : ICommand<TPayload, TCommandResult>
+    public abstract class Command<TUser, TPayload, TCommandResult> : ICommand<TUser, TPayload, TCommandResult>
+        where TUser : class, new()
         where TPayload : class, new()
         where TCommandResult : ICommandResult, new()
     {
-        protected Command(User user, TPayload payload = default, Guid? commandId = default)
+        protected Command(TUser user, TPayload payload = default, Guid? commandId = default)
         {
             User = user ?? throw new ArgumentNullException(nameof(user));
             Payload = payload;
@@ -55,11 +59,18 @@ namespace TeamCloud.Model.Commands.Core
 
         public virtual string ProjectId
         {
-            get => Payload is Project project && !string.IsNullOrEmpty(project.Id) ? project.Id : projectId;
+            get => /* Payload is Project project && !string.IsNullOrEmpty(project.Id) ? project.Id : */ projectId;
             protected set => projectId = value;
         }
 
-        public User User { get; set; }
+        public TUser User
+        {
+            get => ((ICommand)this).User as TUser;
+            set => ((ICommand)this).User = value;
+        }
+
+        object ICommand.User { get; set; }
+
 
         public TPayload Payload
         {

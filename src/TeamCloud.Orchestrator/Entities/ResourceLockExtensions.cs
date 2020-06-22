@@ -8,7 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Azure.Resources;
-using TeamCloud.Model.Data.Core;
+using TeamCloud.Model.Internal.Data.Core;
 
 namespace TeamCloud.Orchestrator.Entities
 {

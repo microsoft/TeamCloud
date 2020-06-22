@@ -7,9 +7,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.Caching.Redis;
-using TeamCloud.Model.Data;
-using TeamCloud.Model.Data.Core;
+using TeamCloud.Model.Internal.Data.Core;
 
 namespace TeamCloud.Data.Caching
 {

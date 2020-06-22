@@ -8,13 +8,16 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using TeamCloud.Model;
-using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
-using TeamCloud.Model.Data;
+using TeamCloud.Model.Commands;
+using TeamCloud.Model.Internal;
+using TeamCloud.Model.Internal.Data;
+using TeamCloud.Model.Internal.Commands;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Activities;
 using TeamCloud.Orchestrator.Orchestrations.Utilities;
+using TeamCloud.Orchestrator.Entities;
+using System.Linq;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Commands
 {
@@ -36,21 +39,38 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
 
             using (log.BeginCommandScope(command))
             {
-
                 var project = commandResult.Result = command.Payload;
 
                 try
                 {
-                    functionContext.SetCustomStatus($"Updating project.", log);
+                    var projectUsers = project.Users.ToList();
 
-                    project = await functionContext
-                        .CallActivityWithRetryAsync<Project>(nameof(ProjectSetActivity), project)
-                        .ConfigureAwait(true);
+                    using (await functionContext.LockContainerDocumentAsync(project).ConfigureAwait(true))
+                    {
+                        functionContext.SetCustomStatus($"Updating project", log);
+
+                        project = commandResult.Result = await functionContext
+                            .SetProjectAsync(project)
+                            .ConfigureAwait(true);
+
+                        functionContext.SetCustomStatus($"Adding users", log);
+
+                        project.Users = await Task
+                            .WhenAll(projectUsers.Select(user => functionContext.SetUserProjectMembershipAsync(user, project.Id, allowUnsafe: true)))
+                            .ConfigureAwait(true);
+                    }
 
                     functionContext.SetCustomStatus("Waiting on providers to update project resources.", log);
 
+                    var providerCommand = new ProviderProjectUpdateCommand
+                    (
+                        command.User.PopulateExternalModel(),
+                        project.PopulateExternalModel(),
+                        command.CommandId
+                    );
+
                     var providerResults = await functionContext
-                        .SendCommandAsync<ProviderProjectUpdateCommand, ProviderProjectUpdateCommandResult>(new ProviderProjectUpdateCommand(command.User, project, command.CommandId))
+                        .SendProviderCommandAsync<ProviderProjectUpdateCommand, ProviderProjectUpdateCommandResult>(providerCommand, project)
                         .ConfigureAwait(true);
                 }
                 catch (Exception exc)

@@ -10,7 +10,7 @@ using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using TeamCloud.Model.Data.Core;
+using TeamCloud.Model.Internal.Data.Core;
 using TeamCloud.Serialization.Resolver;
 
 namespace TeamCloud.Data.CosmosDb.Serialization

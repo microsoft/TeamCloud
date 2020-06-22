@@ -3,12 +3,12 @@
  *  Licensed under the MIT License.
  */
 
-using System;
-using TeamCloud.Model.Data;
+using TeamCloud.Model.Commands;
+using TeamCloud.Model.Internal.Data;
 
-namespace TeamCloud.Model.Commands
+namespace TeamCloud.Model.Internal.Commands
 {
-    public class OrchestratorProjectUserCreateCommand : OrchestratorCommand<User, OrchestratorProjectUserCreateCommandResult, ProviderProjectUserCreateCommand>
+    public class OrchestratorProjectUserCreateCommand : OrchestratorCommand<User, OrchestratorProjectUserCreateCommandResult, ProviderProjectUserCreateCommand, Model.Data.User>
     {
         public OrchestratorProjectUserCreateCommand(User user, User payload, string projectId) : base(user, payload)
             => ProjectId = projectId;

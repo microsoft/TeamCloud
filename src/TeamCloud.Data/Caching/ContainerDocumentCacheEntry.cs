@@ -5,7 +5,7 @@
 
 using Microsoft.Azure.Cosmos;
 using Newtonsoft.Json;
-using TeamCloud.Model.Data.Core;
+using TeamCloud.Model.Internal.Data.Core;
 
 namespace TeamCloud.Data.Caching
 {

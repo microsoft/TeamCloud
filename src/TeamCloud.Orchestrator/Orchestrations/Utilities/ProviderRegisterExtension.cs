@@ -6,7 +6,7 @@
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Model.Commands;
-using TeamCloud.Model.Data;
+using TeamCloud.Model.Internal.Data;
 using TeamCloud.Orchestration;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Utilities
@@ -18,7 +18,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
             if (wait)
             {
                 // if the caller request to wait for the provider registration
-                // we will kick off the corresponding orchestration as a sub 
+                // we will kick off the corresponding orchestration as a sub
                 // orchestration instead of completely new one
 
                 return functionContext

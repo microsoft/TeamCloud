@@ -5,14 +5,16 @@
 
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using TeamCloud.Model.Data.Core;
+using TeamCloud.Serialization;
 
 namespace TeamCloud.Model.Data
 {
-    public sealed class ProjectType : ContainerDocument, IEquatable<ProjectType>, ITags, IProperties
+    [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
+    public sealed class ProjectType : IEquatable<ProjectType>, ITags, IProperties
     {
-        [PartitionKey]
-        public string Tenant { get; set; }
+        public string Id { get; set; }
 
         public bool Default { get; set; }
 

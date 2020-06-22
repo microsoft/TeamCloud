@@ -8,9 +8,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
-using TeamCloud.Model.Data;
+using TeamCloud.Model.Commands;
+using TeamCloud.Model.Data.Core;
+using TeamCloud.Model.Internal.Data;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Activities;
 
@@ -18,12 +19,12 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 {
     public static class ProviderSendExtensions
     {
-        internal static Task<ICommandResult> SendCommandAsync<TCommand>(this IDurableOrchestrationContext functionContext, TCommand command, Provider provider)
-            where TCommand : IProviderCommand
-            => functionContext.SendCommandAsync<TCommand>(command, provider);
+        // internal static Task<ICommandResult> SendProviderCommandAsync<TCommand>(this IDurableOrchestrationContext functionContext, TCommand command, Provider provider)
+        //     where TCommand : IProviderCommand
+        //     => functionContext.SendProviderCommandAsync<TCommand>(command, provider);
 
 
-        internal static async Task<TCommandResult> SendCommandAsync<TCommand, TCommandResult>(this IDurableOrchestrationContext functionContext, TCommand command, Provider provider)
+        internal static async Task<TCommandResult> SendProviderCommandAsync<TCommand, TCommandResult>(this IDurableOrchestrationContext functionContext, TCommand command, Provider provider)
             where TCommand : IProviderCommand
             where TCommandResult : ICommandResult
         {
@@ -47,25 +48,25 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
         }
 
 
-        internal static Task<IDictionary<string, ICommandResult>> SendCommandAsync<TCommand>(this IDurableOrchestrationContext functionContext, TCommand command, Project project = null, bool failFast = false)
+        internal static Task<IDictionary<string, ICommandResult>> SendProviderCommandAsync<TCommand>(this IDurableOrchestrationContext functionContext, TCommand command, Project project, bool failFast = false)
             where TCommand : IProviderCommand
-            => functionContext.SendCommandAsync<TCommand, ICommandResult>(command, project, failFast);
+            => functionContext.SendProviderCommandAsync<TCommand, ICommandResult>(command, project, failFast);
 
 
-        internal static async Task<IDictionary<string, TCommandResult>> SendCommandAsync<TCommand, TCommandResult>(this IDurableOrchestrationContext functionContext, TCommand command, Project project = null, bool failFast = false)
+        internal static async Task<IDictionary<string, TCommandResult>> SendProviderCommandAsync<TCommand, TCommandResult>(this IDurableOrchestrationContext functionContext, TCommand command, Project project, bool failFast = false)
             where TCommand : IProviderCommand
             where TCommandResult : ICommandResult
         {
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
 
-            if (command is ICommand<Project> projectCommand)
-                project = projectCommand.Payload ?? project;
+            if (project is null && command is IProviderCommand<Model.Data.Project>)
+                throw new InvalidOperationException("Must pass original Project (internal) for ProviderCommands with a payload of type Project (external).");
 
             if (project is null && !string.IsNullOrEmpty(command.ProjectId))
             {
                 project = await functionContext
-                    .CallActivityWithRetryAsync<Project>(nameof(ProjectGetActivity), command.ProjectId)
+                    .GetProjectAsync(command.ProjectId, allowUnsafe: true)
                     .ConfigureAwait(true);
             }
 
@@ -87,7 +88,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                 var providerTasks = providerBatch.Select(async provider =>
                 {
                     var providerResult = await functionContext
-                        .SendCommandAsync<TCommand, TCommandResult>(command, provider)
+                        .SendProviderCommandAsync<TCommand, TCommandResult>(command, provider)
                         .ConfigureAwait(true);
 
                     return new KeyValuePair<string, TCommandResult>(provider.Id, providerResult);

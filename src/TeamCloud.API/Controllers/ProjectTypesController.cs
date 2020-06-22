@@ -14,8 +14,8 @@ using Swashbuckle.AspNetCore.Annotations;
 using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
-using TeamCloud.Model.Data;
-using TeamCloud.Model.Validation.Data;
+using TeamCloud.Model.Internal.Data;
+using TeamCloud.Model.Internal.Validation.Data;
 
 namespace TeamCloud.API.Controllers
 {

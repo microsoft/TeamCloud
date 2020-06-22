@@ -16,8 +16,10 @@ using TeamCloud.API.Data;
 using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
-using TeamCloud.Model.Commands;
-using TeamCloud.Model.Data;
+using TeamCloud.Model.Data.Core;
+using TeamCloud.Model.Internal.Commands;
+using TeamCloud.Model.Internal.Data;
+using Project = TeamCloud.Model.Data.Project;
 
 namespace TeamCloud.API.Controllers
 {
@@ -88,8 +90,10 @@ namespace TeamCloud.API.Controllers
                 .ToListAsync()
                 .ConfigureAwait(false);
 
+            var returnProjects = projects.Select(p => p.PopulateExternalModel()).ToList();
+
             return DataResult<List<Project>>
-                .Ok(projects)
+                .Ok(returnProjects)
                 .ActionResult();
         }
 
@@ -116,8 +120,10 @@ namespace TeamCloud.API.Controllers
                     .NotFound($"A Project with the identifier '{projectNameOrId}' could not be found in this TeamCloud Instance")
                     .ActionResult();
 
+            var returnProject = project.PopulateExternalModel();
+
             return DataResult<Project>
-                .Ok(project)
+                .Ok(returnProject)
                 .ActionResult();
         }
 
@@ -155,7 +161,7 @@ namespace TeamCloud.API.Controllers
             var users = await ResolveUsersAsync(projectDefinition, projectId)
                 .ConfigureAwait(false);
 
-            var project = new Project
+            var project = new Model.Internal.Data.Project
             {
                 Id = projectId,
                 Users = users,

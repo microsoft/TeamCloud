@@ -6,7 +6,7 @@
 using System;
 using Microsoft.WindowsAzure.Storage.Table;
 using TeamCloud.Model.Commands.Core;
-using TeamCloud.Model.Data;
+using TeamCloud.Model.Internal.Data;
 
 namespace TeamCloud.Orchestration.Auditing.Model
 {

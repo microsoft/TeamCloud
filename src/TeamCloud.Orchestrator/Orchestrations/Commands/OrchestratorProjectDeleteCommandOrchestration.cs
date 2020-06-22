@@ -9,9 +9,11 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Azure.Resources;
-using TeamCloud.Model;
-using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
+using TeamCloud.Model.Commands;
+using TeamCloud.Model.Internal;
+using TeamCloud.Model.Internal.Commands;
+using TeamCloud.Model.Internal.Data;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Activities;
 using TeamCloud.Orchestrator.Orchestrations.Utilities;
@@ -48,8 +50,15 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                     {
                         functionContext.SetCustomStatus("Sending commands", log);
 
+                        var providerCommand = new ProviderProjectDeleteCommand
+                        (
+                            command.User.PopulateExternalModel(),
+                            project.PopulateExternalModel(),
+                            command.CommandId
+                        );
+
                         var providerResults = await functionContext
-                            .SendCommandAsync<ProviderProjectDeleteCommand, ProviderProjectDeleteCommandResult>(new ProviderProjectDeleteCommand(command.User, project, command.CommandId))
+                            .SendProviderCommandAsync<ProviderProjectDeleteCommand, ProviderProjectDeleteCommandResult>(providerCommand, project)
                             .ConfigureAwait(true);
                     }
                     finally

@@ -15,6 +15,12 @@ namespace TeamCloud.Serialization.Resolver
 {
     public class TeamCloudContractResolver : CamelCasePropertyNamesContractResolver
     {
+        public TeamCloudContractResolver()
+        {
+            // prevent changing the case of dictionary keys
+            NamingStrategy = new TeamCloudNamingStrategy();
+        }
+
         protected override JsonConverter ResolveContractConverter(Type objectType)
         {
             if (objectType is null)

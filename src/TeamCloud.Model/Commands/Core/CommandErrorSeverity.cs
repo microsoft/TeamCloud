@@ -3,14 +3,10 @@
  *  Licensed under the MIT License.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace TeamCloud.Model.Commands.Core
 {
     // for now we only support the severity levels
-    // listed below. however the values of this 
+    // listed below. however the values of this
     // enumartion aligns with the severity levels
     // used by appinsights documented here:
     // https://docs.microsoft.com/en-us/dotnet/api/microsoft.applicationinsights.datacontracts.severitylevel?view=azure-dotnet

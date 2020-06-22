@@ -3,10 +3,6 @@
  *  Licensed under the MIT License.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace TeamCloud.Model.Commands.Core
 {
     public sealed class CommandError

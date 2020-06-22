@@ -13,7 +13,7 @@ using TeamCloud.Azure;
 using TeamCloud.Azure.Resources;
 using TeamCloud.Azure.Resources.Typed;
 using TeamCloud.Data;
-using TeamCloud.Model.Data;
+using TeamCloud.Model.Internal.Data;
 using TeamCloud.Orchestration;
 
 namespace TeamCloud.Orchestrator.Activities

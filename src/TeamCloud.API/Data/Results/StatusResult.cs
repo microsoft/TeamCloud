@@ -110,7 +110,7 @@ namespace TeamCloud.API.Data.Results
                 StateMessage = string.IsNullOrWhiteSpace(stateMessage) ? null : stateMessage,
                 Errors = errors?.Select(error => ResultError.Failed(error)).ToList() ?? new List<ResultError>()
             };
-   }
+    }
 
     public static class StatusResultExtensions
     {

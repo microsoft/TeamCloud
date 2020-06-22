@@ -3,11 +3,12 @@
  *  Licensed under the MIT License.
  */
 
-using TeamCloud.Model.Data;
+using TeamCloud.Model.Commands;
+using TeamCloud.Model.Internal.Data;
 
-namespace TeamCloud.Model.Commands
+namespace TeamCloud.Model.Internal.Commands
 {
-    public class OrchestratorProjectUpdateCommand : OrchestratorCommand<Project, OrchestratorProjectUpdateCommandResult, ProviderProjectUpdateCommand>
+    public class OrchestratorProjectUpdateCommand : OrchestratorCommand<Project, OrchestratorProjectUpdateCommandResult, ProviderProjectUpdateCommand, Model.Data.Project>
     {
         public OrchestratorProjectUpdateCommand(User user, Project payload) : base(user, payload) { }
     }

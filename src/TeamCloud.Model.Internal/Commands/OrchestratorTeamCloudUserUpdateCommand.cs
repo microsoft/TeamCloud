@@ -3,9 +3,9 @@
  *  Licensed under the MIT License.
  */
 
-using TeamCloud.Model.Data;
+using TeamCloud.Model.Internal.Data;
 
-namespace TeamCloud.Model.Commands
+namespace TeamCloud.Model.Internal.Commands
 {
     public class OrchestratorTeamCloudUserUpdateCommand : OrchestratorCommand<User, OrchestratorTeamCloudUserUpdateCommandResult>
     {

@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using TeamCloud.Data;
-using TeamCloud.Model.Data;
+using TeamCloud.Model.Internal.Data;
 
 namespace TeamCloud.Orchestrator.API.Data
 {

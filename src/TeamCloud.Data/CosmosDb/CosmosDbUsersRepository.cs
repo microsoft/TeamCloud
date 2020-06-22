@@ -10,10 +10,11 @@ using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
 using TeamCloud.Data.CosmosDb.Core;
-using TeamCloud.Model.Data;
 using TeamCloud.Model.Data.Core;
+using TeamCloud.Model.Internal.Data;
+using TeamCloud.Model.Internal.Data.Core;
 using TeamCloud.Model.Validation;
-using User = TeamCloud.Model.Data.User;
+using User = TeamCloud.Model.Internal.Data.User;
 
 namespace TeamCloud.Data.CosmosDb
 {
@@ -264,12 +265,14 @@ namespace TeamCloud.Data.CosmosDb
         }
 
         public Task<User> AddProjectMembershipAsync(User user, string projectId, ProjectUserRole role, IDictionary<string, string> properties)
-            => AddProjectMembershipAsync(user, new ProjectMembership
+        {
+            return AddProjectMembershipAsync(user, new ProjectMembership
             {
                 ProjectId = projectId,
                 Role = role,
                 Properties = properties ?? new Dictionary<string, string>()
             });
+        }
 
         // this method can only change project memberships
         // other changes to the user object will be overwitten

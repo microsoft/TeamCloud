@@ -3,10 +3,9 @@
  *  Licensed under the MIT License.
  */
 
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using TeamCloud.Model.Data;
+using TeamCloud.Model.Internal.Data;
 
 namespace TeamCloud.Data
 {

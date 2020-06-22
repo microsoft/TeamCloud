@@ -5,7 +5,8 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using TeamCloud.Model.Data;
+using TeamCloud.Model.Data.Core;
+using TeamCloud.Model.Internal.Data;
 
 namespace TeamCloud.Data
 {

@@ -10,7 +10,8 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Model.Commands;
-using TeamCloud.Model.Data;
+using TeamCloud.Model.Data.Core;
+using TeamCloud.Model.Internal.Data;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Activities;
 using TeamCloud.Orchestrator.Entities;
@@ -58,8 +59,14 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                         .CallActivityWithRetryAsync<User>(nameof(TeamCloudSystemUserActivity), null)
                         .ConfigureAwait(true);
 
+                    var providerCommand = new ProviderRegisterCommand
+                    (
+                        systemUser.PopulateExternalModel(),
+                        new ProviderConfiguration()
+                    );
+
                     functionContext
-                        .ContinueAsNew((provider, new ProviderRegisterCommand(systemUser, new ProviderConfiguration())));
+                        .ContinueAsNew((provider, providerCommand));
                 }
                 else if (provider is null)
                 {
@@ -94,7 +101,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                         .Properties = provider.Properties;
 
                     var commandResult = await functionContext
-                        .SendCommandAsync<ProviderRegisterCommand, ProviderRegisterCommandResult>(command, provider)
+                        .SendProviderCommandAsync<ProviderRegisterCommand, ProviderRegisterCommandResult>(command, provider)
                         .ConfigureAwait(true);
 
                     if (commandResult?.Result != null)

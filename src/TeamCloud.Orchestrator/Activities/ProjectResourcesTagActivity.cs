@@ -9,7 +9,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Azure.Resources;
-using TeamCloud.Model.Data;
+using TeamCloud.Model.Internal.Data;
 
 namespace TeamCloud.Orchestrator.Activities
 {

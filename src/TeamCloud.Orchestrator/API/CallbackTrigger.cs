@@ -17,8 +17,8 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using TeamCloud.Http;
 using TeamCloud.Model.Commands.Core;
+using TeamCloud.Http;
 using TeamCloud.Orchestration;
 
 namespace TeamCloud.Orchestrator
@@ -134,7 +134,7 @@ namespace TeamCloud.Orchestrator
                 if (status?.RuntimeStatus.IsFinal() ?? true)
                 {
                     // the orchestration does not exist or reached
-                    // a final state - raising an external event 
+                    // a final state - raising an external event
                     // doesn't make sense, but we need to response
                     // with an status code that indicates that
                     // another retry doesn't make sense.
