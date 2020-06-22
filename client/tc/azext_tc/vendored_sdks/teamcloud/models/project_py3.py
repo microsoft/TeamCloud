@@ -19,6 +19,8 @@ class Project(Model):
     :type id: str
     :param name:
     :type name: str
+    :param type:
+    :type type: ~teamcloud.models.ProjectType
     :param resource_group:
     :type resource_group: ~teamcloud.models.AzureResourceGroup
     :param users:
@@ -32,16 +34,18 @@ class Project(Model):
     _attribute_map = {
         'id': {'key': 'id', 'type': 'str'},
         'name': {'key': 'name', 'type': 'str'},
+        'type': {'key': 'type', 'type': 'ProjectType'},
         'resource_group': {'key': 'resourceGroup', 'type': 'AzureResourceGroup'},
         'users': {'key': 'users', 'type': '[User]'},
         'tags': {'key': 'tags', 'type': '{str}'},
         'properties': {'key': 'properties', 'type': '{str}'},
     }
 
-    def __init__(self, *, id: str=None, name: str=None, resource_group=None, users=None, tags=None, properties=None, **kwargs) -> None:
+    def __init__(self, *, id: str=None, name: str=None, type=None, resource_group=None, users=None, tags=None, properties=None, **kwargs) -> None:
         super(Project, self).__init__(**kwargs)
         self.id = id
         self.name = name
+        self.type = type
         self.resource_group = resource_group
         self.users = users
         self.tags = tags

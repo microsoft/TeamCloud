@@ -10,6 +10,8 @@
 # --------------------------------------------------------------------------
 
 try:
+    from .provider_reference_py3 import ProviderReference
+    from .project_type_py3 import ProjectType
     from .azure_resource_group_py3 import AzureResourceGroup
     from .project_membership_py3 import ProjectMembership
     from .user_py3 import User
@@ -23,8 +25,6 @@ try:
     from .status_result_py3 import StatusResult
     from .project_data_result_py3 import ProjectDataResult
     from .string_string_dictionary_data_result_py3 import StringStringDictionaryDataResult
-    from .provider_reference_py3 import ProviderReference
-    from .project_type_py3 import ProjectType
     from .project_type_list_data_result_py3 import ProjectTypeListDataResult
     from .project_type_data_result_py3 import ProjectTypeDataResult
     from .user_list_data_result_py3 import UserListDataResult
@@ -33,6 +33,8 @@ try:
     from .provider_list_data_result_py3 import ProviderListDataResult
     from .provider_data_result_py3 import ProviderDataResult
 except (SyntaxError, ImportError):
+    from .provider_reference import ProviderReference
+    from .project_type import ProjectType
     from .azure_resource_group import AzureResourceGroup
     from .project_membership import ProjectMembership
     from .user import User
@@ -46,8 +48,6 @@ except (SyntaxError, ImportError):
     from .status_result import StatusResult
     from .project_data_result import ProjectDataResult
     from .string_string_dictionary_data_result import StringStringDictionaryDataResult
-    from .provider_reference import ProviderReference
-    from .project_type import ProjectType
     from .project_type_list_data_result import ProjectTypeListDataResult
     from .project_type_data_result import ProjectTypeDataResult
     from .user_list_data_result import UserListDataResult
@@ -57,6 +57,8 @@ except (SyntaxError, ImportError):
     from .provider_data_result import ProviderDataResult
 
 __all__ = [
+    'ProviderReference',
+    'ProjectType',
     'AzureResourceGroup',
     'ProjectMembership',
     'User',
@@ -70,8 +72,6 @@ __all__ = [
     'StatusResult',
     'ProjectDataResult',
     'StringStringDictionaryDataResult',
-    'ProviderReference',
-    'ProjectType',
     'ProjectTypeListDataResult',
     'ProjectTypeDataResult',
     'UserListDataResult',
