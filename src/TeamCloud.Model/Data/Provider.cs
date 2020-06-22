@@ -12,7 +12,7 @@ using TeamCloud.Serialization;
 namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public sealed class Provider : IEquatable<Provider>, IProperties
+    public sealed class Provider : IProvider, IEquatable<Provider>
     {
         public string Id { get; set; }
 

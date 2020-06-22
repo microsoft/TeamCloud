@@ -14,7 +14,7 @@ using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage.Table;
 using Newtonsoft.Json;
 using TeamCloud.Model.Commands.Core;
-using TeamCloud.Model.Internal.Data;
+using TeamCloud.Model.Data.Core;
 using TeamCloud.Orchestration.Auditing.Model;
 
 namespace TeamCloud.Orchestration.Auditing
@@ -38,7 +38,7 @@ namespace TeamCloud.Orchestration.Auditing
                 throw new ArgumentNullException(nameof(binder));
 
             var (command, commandResult, provider) =
-                functionContext.GetInput<(ICommand, ICommandResult, Provider)>();
+                functionContext.GetInput<(ICommand, ICommandResult, IProvider)>();
 
             try
             {
@@ -57,7 +57,7 @@ namespace TeamCloud.Orchestration.Auditing
             }
         }
 
-        private static async Task WriteAuditTableAsync(IBinder binder, string prefix, ICommand command, ICommandResult commandResult, Provider provider)
+        private static async Task WriteAuditTableAsync(IBinder binder, string prefix, ICommand command, ICommandResult commandResult, IProvider provider)
         {
             var entity = new CommandAuditEntity(command, provider);
 
@@ -77,7 +77,7 @@ namespace TeamCloud.Orchestration.Auditing
                 .ConfigureAwait(false);
         }
 
-        private static async Task WriteAuditContainerAsync(IBinder binder, string prefix, ICommand command, ICommandResult commandResult, Provider provider)
+        private static async Task WriteAuditContainerAsync(IBinder binder, string prefix, ICommand command, ICommandResult commandResult, IProvider provider)
         {
             var tasks = new List<Task>()
             {

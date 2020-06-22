@@ -6,7 +6,7 @@
 using System;
 using Microsoft.WindowsAzure.Storage.Table;
 using TeamCloud.Model.Commands.Core;
-using TeamCloud.Model.Internal.Data;
+using TeamCloud.Model.Data.Core;
 
 namespace TeamCloud.Orchestration.Auditing.Model
 {
@@ -17,7 +17,7 @@ namespace TeamCloud.Orchestration.Auditing.Model
         public CommandAuditEntity()
         { }
 
-        public CommandAuditEntity(ICommand command, Provider provider = default) : this()
+        public CommandAuditEntity(ICommand command, IProvider provider = default) : this()
         {
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
