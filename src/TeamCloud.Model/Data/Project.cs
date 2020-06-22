@@ -18,6 +18,8 @@ namespace TeamCloud.Model.Data
 
         public string Name { get; set; }
 
+        public ProjectType Type { get; set; }
+
         public AzureResourceGroup ResourceGroup { get; set; }
 
         public IList<User> Users { get; set; } = new List<User>();
