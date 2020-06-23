@@ -166,7 +166,8 @@ namespace TeamCloud.API.Controllers
                 Id = projectId,
                 Users = users,
                 Name = projectDefinition.Name,
-                Tags = projectDefinition.Tags
+                Tags = projectDefinition.Tags,
+                Properties = projectDefinition.Properties
             };
 
             if (!string.IsNullOrEmpty(projectDefinition.ProjectType))

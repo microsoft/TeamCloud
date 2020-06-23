@@ -20,6 +20,8 @@ namespace TeamCloud.API.Data
         public List<UserDefinition> Users { get; set; } = new List<UserDefinition>();
 
         public Dictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();
+
+        public Dictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
     }
 
     public sealed class ProjectDefinitionValidator : AbstractValidator<ProjectDefinition>
