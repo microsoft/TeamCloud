@@ -57,8 +57,7 @@ namespace TeamCloud.Data.CosmosDb
                         .CreateTransactionalBatch(new PartitionKey(Options.TenantName))
                         .CreateItem(projectType);
 
-                    var query = new QueryDefinition($"SELECT * FROM c WHERE c.default = true and c.id != @id")
-                        .WithParameter("@id", projectType.Id);
+                    var query = new QueryDefinition($"SELECT * FROM c WHERE c.default = true and c.id != '{projectType.Id}'");
 
                     var queryIterator = container
                         .GetItemQueryIterator<ProjectType>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
@@ -201,8 +200,7 @@ namespace TeamCloud.Data.CosmosDb
                     .CreateTransactionalBatch(new PartitionKey(Options.TenantName))
                     .UpsertItem(projectType);
 
-                var query = new QueryDefinition($"SELECT * FROM c WHERE c.default = true and c.id != @id")
-                    .WithParameter("@id", projectType.Id);
+                var query = new QueryDefinition($"SELECT * FROM c WHERE c.default = true and c.id != '{projectType.Id}'");
 
                 var queryIterator = container
                     .GetItemQueryIterator<ProjectType>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
@@ -263,8 +261,7 @@ namespace TeamCloud.Data.CosmosDb
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
-            var query = new QueryDefinition("SELECT VALUE t FROM t WHERE EXISTS(SELECT VALUE p FROM p IN t.providers WHERE p.id = @providerId)")
-                .WithParameter("@providerId", providerId);
+            var query = new QueryDefinition($"SELECT VALUE t FROM t WHERE EXISTS(SELECT VALUE p FROM p IN t.providers WHERE p.id = '{providerId}')");
 
             var queryIterator = container
                 .GetItemQueryIterator<ProjectType>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });

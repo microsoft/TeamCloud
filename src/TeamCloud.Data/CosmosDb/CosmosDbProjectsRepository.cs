@@ -70,8 +70,7 @@ namespace TeamCloud.Data.CosmosDb
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
             {
-                var query = new QueryDefinition($"SELECT * FROM c WHERE c.name = @name")
-                    .WithParameter("@name", nameOrId);
+                var query = new QueryDefinition($"SELECT * FROM c WHERE c.name = '{nameOrId}'");
 
                 var queryIterator = container
                     .GetItemQueryIterator<Project>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
@@ -144,8 +143,8 @@ namespace TeamCloud.Data.CosmosDb
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
-            var query = new QueryDefinition($"SELECT * FROM p WHERE p.id IN (@nameOrIds) OR p.name in (@nameOrIds)")
-                .WithParameter("@nameOrIds", nameOrIds);
+            var search = "'" + string.Join(", '", nameOrIds) + "'";
+            var query = new QueryDefinition($"SELECT * FROM p WHERE p.id IN ({search}) OR p.name in ({search})");
 
             var queryIterator = container
                 .GetItemQueryIterator<Project>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
@@ -170,8 +169,7 @@ namespace TeamCloud.Data.CosmosDb
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
-            var query = new QueryDefinition("SELECT VALUE p FROM p WHERE EXISTS(SELECT VALUE t FROM t IN p.type.providers WHERE t.id = @providerId)")
-                .WithParameter("@providerId", providerId);
+            var query = new QueryDefinition($"SELECT VALUE p FROM p WHERE EXISTS(SELECT VALUE t FROM t IN p.type.providers WHERE t.id = '{providerId}')");
 
             var queryIterator = container
                 .GetItemQueryIterator<Project>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });

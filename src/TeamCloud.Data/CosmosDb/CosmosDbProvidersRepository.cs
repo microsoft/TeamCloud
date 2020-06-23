@@ -106,8 +106,8 @@ namespace TeamCloud.Data.CosmosDb
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
-            var query = new QueryDefinition($"SELECT * FROM p WHERE p.id IN (@ids)")
-                .WithParameter("@ids", ids);
+            var search = "'" + string.Join(", '", ids) + "'";
+            var query = new QueryDefinition($"SELECT * FROM p WHERE p.id IN ({search})");
 
             var queryIterator = container
                 .GetItemQueryIterator<Provider>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });

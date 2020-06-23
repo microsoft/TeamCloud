@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
 using TeamCloud.Data.CosmosDb.Core;
 using TeamCloud.Model.Data.Core;
-using TeamCloud.Model.Internal.Data;
 using TeamCloud.Model.Internal.Data.Core;
 using TeamCloud.Model.Validation;
 using User = TeamCloud.Model.Internal.Data.User;
@@ -87,8 +86,7 @@ namespace TeamCloud.Data.CosmosDb
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
-            var query = new QueryDefinition("SELECT VALUE u FROM u WHERE EXISTS(SELECT VALUE m FROM m IN u.projectMemberships WHERE m.projectId = @projectId)")
-                .WithParameter("@projectId", projectId);
+            var query = new QueryDefinition($"SELECT VALUE u FROM u WHERE EXISTS(SELECT VALUE m FROM m IN u.projectMemberships WHERE m.projectId = '{projectId}')");
 
             var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
 
@@ -108,9 +106,7 @@ namespace TeamCloud.Data.CosmosDb
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
-            var query = new QueryDefinition("SELECT VALUE u FROM u WHERE EXISTS(SELECT VALUE m FROM m IN u.projectMemberships WHERE m.projectId = @projectId AND m.role = @projectRole)")
-                .WithParameter("@projectId", projectId)
-                .WithParameter("@projectRole", ProjectUserRole.Owner);
+            var query = new QueryDefinition($"SELECT VALUE u FROM u WHERE EXISTS(SELECT VALUE m FROM m IN u.projectMemberships WHERE m.projectId = '{projectId}' AND m.role = '{ProjectUserRole.Owner}')");
 
             var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
 
@@ -130,8 +126,8 @@ namespace TeamCloud.Data.CosmosDb
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
-            var query = new QueryDefinition($"SELECT * FROM u WHERE u.role = @role")
-                .WithParameter("@role", TeamCloudUserRole.Admin);
+            var query = new QueryDefinition($"SELECT * FROM u WHERE u.role = '{TeamCloudUserRole.Admin}'");
+
             var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
 
             while (queryIterator.HasMoreResults)
@@ -191,8 +187,7 @@ namespace TeamCloud.Data.CosmosDb
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
-            var query = new QueryDefinition("SELECT VALUE u FROM u WHERE EXISTS(SELECT VALUE m FROM m IN u.projectMemberships WHERE m.projectId = @projectId)")
-                .WithParameter("@projectId", projectId);
+            var query = new QueryDefinition($"SELECT VALUE u FROM u WHERE EXISTS(SELECT VALUE m FROM m IN u.projectMemberships WHERE m.projectId = '{projectId}')");
 
             var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
 
