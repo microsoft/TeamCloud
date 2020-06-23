@@ -6,6 +6,7 @@
 using System;
 using Newtonsoft.Json;
 using TeamCloud.Model.Commands.Serialization;
+using TeamCloud.Model.Data.Core;
 
 namespace TeamCloud.Model.Commands.Core
 {
@@ -24,7 +25,7 @@ namespace TeamCloud.Model.Commands.Core
     }
 
     public interface ICommand<TUser, TPayload> : ICommand
-        where TUser : new() // TODO: IUser
+        where TUser : IUser, new()
         where TPayload : new()
     {
         new TUser User { get; set; }
@@ -33,7 +34,7 @@ namespace TeamCloud.Model.Commands.Core
     }
 
     public interface ICommand<TUser, TPayload, TCommandResult> : ICommand<TUser, TPayload>
-        where TUser : class, new()
+        where TUser : class, IUser, new()
         where TPayload : class, new()
         where TCommandResult : ICommandResult
     {
@@ -42,7 +43,7 @@ namespace TeamCloud.Model.Commands.Core
 
 
     public abstract class Command<TUser, TPayload, TCommandResult> : ICommand<TUser, TPayload, TCommandResult>
-        where TUser : class, new()
+        where TUser : class, IUser, new()
         where TPayload : class, new()
         where TCommandResult : ICommandResult, new()
     {
@@ -59,7 +60,7 @@ namespace TeamCloud.Model.Commands.Core
 
         public virtual string ProjectId
         {
-            get => /* Payload is Project project && !string.IsNullOrEmpty(project.Id) ? project.Id : */ projectId;
+            get => Payload is IProject project && !string.IsNullOrEmpty(project.Id) ? project.Id : projectId;
             protected set => projectId = value;
         }
 
