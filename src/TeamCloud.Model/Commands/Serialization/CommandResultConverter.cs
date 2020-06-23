@@ -6,19 +6,19 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using TeamCloud.Model.Commands.Core;
+using TeamCloud.Serialization;
 
 namespace TeamCloud.Model.Commands.Serialization
 {
     [SuppressMessage("Microsoft.Performance", "CA1812:Avoid Uninstantiated Internal Classes", Justification = "Dynamically instatiated")]
     internal class CommandResultConverter : JsonConverter<ICommandResult>
     {
-        private static readonly JsonSerializer InnerSerializer = JsonSerializer.CreateDefault(new JsonSerializerSettings()
+        private static readonly JsonSerializer InnerSerializer = JsonSerializer.CreateDefault(new JsonSerializerSettings
         {
             TypeNameHandling = TypeNameHandling.Auto,
             NullValueHandling = NullValueHandling.Ignore,
-            ContractResolver = new CommandResultContractResolver { NamingStrategy = new CamelCaseNamingStrategy() }
+            ContractResolver = new CommandResultContractResolver { NamingStrategy = new TeamCloudNamingStrategy() }
         });
 
         public override ICommandResult ReadJson(JsonReader reader, Type objectType, ICommandResult existingValue, bool hasExistingValue, JsonSerializer serializer)
