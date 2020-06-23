@@ -203,7 +203,12 @@ namespace TeamCloud.Model.Internal.Data
         }
 
         public static Model.Data.Project PopulateExternalModel(this Project source, Model.Data.Project target = null)
-            => source.PopulateExternalModel<Project, Model.Data.Project>(target);
+        {
+            var project = source.PopulateExternalModel<Project, Model.Data.Project>(target);
+            foreach (var user in project.Users)
+                user.ProjectMemberships = user.ProjectMemberships.TakeWhile(m => m.ProjectId == project.Id).ToList();
+            return project;
+        }
 
         public static Model.Data.Provider PopulateExternalModel(this Provider source, Model.Data.Provider target = null)
             => source.PopulateExternalModel<Provider, Model.Data.Provider>(target);
