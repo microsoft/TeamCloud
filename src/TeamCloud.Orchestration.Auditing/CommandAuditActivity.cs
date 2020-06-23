@@ -14,7 +14,6 @@ using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage.Table;
 using Newtonsoft.Json;
 using TeamCloud.Model.Commands.Core;
-using TeamCloud.Model.Data.Core;
 using TeamCloud.Orchestration.Auditing.Model;
 
 namespace TeamCloud.Orchestration.Auditing
@@ -37,8 +36,8 @@ namespace TeamCloud.Orchestration.Auditing
             if (binder is null)
                 throw new ArgumentNullException(nameof(binder));
 
-            var (command, commandResult, provider) =
-                functionContext.GetInput<(ICommand, ICommandResult, IProvider)>();
+            var (command, commandResult, providerId) =
+                functionContext.GetInput<(ICommand, ICommandResult, string)>();
 
             try
             {
@@ -46,20 +45,20 @@ namespace TeamCloud.Orchestration.Auditing
 
                 await Task.WhenAll
                 (
-                   WriteAuditTableAsync(binder, prefix, command, commandResult, provider),
-                   WriteAuditContainerAsync(binder, prefix, command, commandResult, provider)
+                   WriteAuditTableAsync(binder, prefix, command, commandResult, providerId),
+                   WriteAuditContainerAsync(binder, prefix, command, commandResult, providerId)
                 )
                 .ConfigureAwait(false);
             }
             catch (Exception exc)
             {
-                log?.LogWarning(exc, $"Failed to audit command {command?.GetType().Name ?? "UNKNOWN"} ({command?.CommandId ?? Guid.Empty}) for provider {provider?.Id ?? "UNKNOWN"}");
+                log?.LogWarning(exc, $"Failed to audit command {command?.GetType().Name ?? "UNKNOWN"} ({command?.CommandId ?? Guid.Empty}) for provider {providerId ?? "UNKNOWN"}");
             }
         }
 
-        private static async Task WriteAuditTableAsync(IBinder binder, string prefix, ICommand command, ICommandResult commandResult, IProvider provider)
+        private static async Task WriteAuditTableAsync(IBinder binder, string prefix, ICommand command, ICommandResult commandResult, string providerId)
         {
-            var entity = new CommandAuditEntity(command, provider);
+            var entity = new CommandAuditEntity(command, providerId);
 
             var auditTable = await binder
                 .BindAsync<CloudTable>(new TableAttribute($"{prefix}Audit"))
@@ -77,7 +76,7 @@ namespace TeamCloud.Orchestration.Auditing
                 .ConfigureAwait(false);
         }
 
-        private static async Task WriteAuditContainerAsync(IBinder binder, string prefix, ICommand command, ICommandResult commandResult, IProvider provider)
+        private static async Task WriteAuditContainerAsync(IBinder binder, string prefix, ICommand command, ICommandResult commandResult, string providerId)
         {
             var tasks = new List<Task>()
             {
@@ -97,7 +96,7 @@ namespace TeamCloud.Orchestration.Auditing
             {
 #pragma warning disable CA1308 // Normalize strings to uppercase
 
-                var auditPath = $"{prefix.ToLowerInvariant()}-audit/{command.ProjectId}/{command.CommandId}/{provider?.Id}/{data.GetType().Name}.json";
+                var auditPath = $"{prefix.ToLowerInvariant()}-audit/{command.ProjectId}/{command.CommandId}/{providerId}/{data.GetType().Name}.json";
 
                 var auditBlob = await binder
                     .BindAsync<CloudBlockBlob>(new BlobAttribute(auditPath.Replace("//", "/", StringComparison.OrdinalIgnoreCase)))

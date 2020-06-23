@@ -6,7 +6,6 @@
 using System;
 using Microsoft.WindowsAzure.Storage.Table;
 using TeamCloud.Model.Commands.Core;
-using TeamCloud.Model.Data.Core;
 
 namespace TeamCloud.Orchestration.Auditing.Model
 {
@@ -17,13 +16,13 @@ namespace TeamCloud.Orchestration.Auditing.Model
         public CommandAuditEntity()
         { }
 
-        public CommandAuditEntity(ICommand command, IProvider provider = default) : this()
+        public CommandAuditEntity(ICommand command, string providerId = null) : this()
         {
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
 
             TableEntity.PartitionKey = command.ProjectId ?? NoneProjectPartitionKey;
-            TableEntity.RowKey = $"{command.CommandId}@{provider?.Id}".TrimEnd('@');
+            TableEntity.RowKey = $"{command.CommandId}@{providerId}".TrimEnd('@');
         }
 
         [IgnoreProperty]

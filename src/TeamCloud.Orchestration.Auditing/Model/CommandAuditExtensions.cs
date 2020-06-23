@@ -45,6 +45,5 @@ namespace TeamCloud.Orchestration.Auditing.Model
 
             return entity;
         }
-
     }
 }

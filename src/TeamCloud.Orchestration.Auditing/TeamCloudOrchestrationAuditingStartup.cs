@@ -17,7 +17,6 @@ namespace TeamCloud.Orchestration.Auditing
         {
             if (builder is null)
                 throw new ArgumentNullException(nameof(builder));
-
         }
     }
 }

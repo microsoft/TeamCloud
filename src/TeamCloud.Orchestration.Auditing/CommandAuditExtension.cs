@@ -20,7 +20,7 @@ namespace TeamCloud.Orchestration.Auditing
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
 
-            return functionContext.CallActivityWithRetryAsync(nameof(CommandAuditActivity), (command, commandResult, provider));
+            return functionContext.CallActivityWithRetryAsync(nameof(CommandAuditActivity), (command, commandResult, provider?.Id));
         }
 
         internal static string GetTaskHubName(this IDurableClient client, bool sanitized)
