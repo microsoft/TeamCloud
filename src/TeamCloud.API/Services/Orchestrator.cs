@@ -46,7 +46,7 @@ namespace TeamCloud.API.Services
             }
             else if (commandResult is ICommandResult<User> userCommandResult)
             {
-                if (userCommandResult.Result is null)
+                if (userCommandResult.Result?.Id is null)
                     return;
 
                 if (string.IsNullOrEmpty(projectId))
@@ -60,14 +60,17 @@ namespace TeamCloud.API.Services
             }
             else if (commandResult is ICommandResult<Provider> providerCommandResult)
             {
-                if (providerCommandResult.Result is null)
+                if (providerCommandResult.Result?.Id is null)
                     return;
 
                 commandResult.Links.Add("location", new Uri(baseUrl, $"api/providers/{providerCommandResult.Result.Id}").ToString());
             }
-            else if (!string.IsNullOrEmpty(projectId))
+            else if (commandResult is ICommandResult<Project> projectCommandResult)
             {
-                commandResult.Links.Add("location", new Uri(baseUrl, $"api/projects/{projectId}").ToString());
+                if (projectCommandResult.Result?.Id is null)
+                    return;
+
+                commandResult.Links.Add("location", new Uri(baseUrl, $"api/projects/{projectCommandResult.Result.Id}").ToString());
             }
 
             static bool IsDeleteCommandResult(ICommandResult result)
