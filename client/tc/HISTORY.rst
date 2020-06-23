@@ -3,6 +3,12 @@
 Release History
 ===============
 
+0.5.1
+++++++
+* Preview release
+* az tc provider upgrade/deploy: Fix output format
+* az tc project create: Add properties param
+
 0.5.0
 ++++++
 * Preview release
@@ -24,7 +30,7 @@ Release History
 0.4.4
 ++++++
 * Preview release
-* az project-type create: Fix provider id validation bug
+* az tc project-type create: Fix provider id validation bug
 
 0.4.3
 ++++++

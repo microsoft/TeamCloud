@@ -335,10 +335,12 @@ def teamcloud_tag_get(cmd, client, base_url, tag_key):
 
 # Projects
 
-def project_create(cmd, client, base_url, name, project_type=None, tags=None, no_wait=False):
+def project_create(cmd, client, base_url, name, project_type=None, tags=None,
+                   properties=None, no_wait=False):
     from .vendored_sdks.teamcloud.models import ProjectDefinition
 
-    payload = ProjectDefinition(name=name, project_type=project_type, tags=tags)
+    payload = ProjectDefinition(name=name, project_type=project_type,
+                                tags=tags, properties=properties)
 
     return _create_with_status(cmd, client, base_url, payload, client.create_project, no_wait=no_wait)
 
@@ -693,7 +695,6 @@ def _create_with_status(cmd, client, base_url, payload, create_func,
     while isinstance(result, StatusResult):
         if result.code == 200:
             hook.end(message='\n')
-
             return result
 
         if result.code == 202:

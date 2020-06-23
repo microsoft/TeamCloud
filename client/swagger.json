@@ -2814,6 +2814,13 @@
               "type": "string"
             },
             "nullable": true
+          },
+          "properties": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "nullable": true
           }
         }
       },

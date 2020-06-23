@@ -147,9 +147,9 @@ type: command
 short-summary: Create a new project.
 examples:
   - name: Create a new project using the default project type.
-    text: az tc project create --base-url https://myurl --name MyProject1 --tags tag=value
+    text: az tc project create --base-url https://myurl --name MyProject1 --tags tag=value --properties prop=value
   - name: Create a new project using a specific project type.
-    text: az tc project create --base-url https://myurl --name MyProject2 --project-type my.project.type --tags tag=value
+    text: az tc project create --base-url https://myurl --name MyProject2 --project-type my.project.type --tags tag=value --properties prop=value
 """
 
 helps['tc project delete'] = """

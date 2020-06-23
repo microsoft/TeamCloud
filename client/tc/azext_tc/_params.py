@@ -141,6 +141,7 @@ def load_arguments(self, _):
                    type=str, help='Project type id. Use `az tc project-type list` to get available project types',
                    validator=project_type_id_validator)
         c.argument('tags', tags_type)
+        c.argument('properties', properties_type)
 
     for scope in ['tc project show', 'tc project delete']:
         with self.argument_context(scope) as c:

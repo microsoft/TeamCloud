@@ -18,8 +18,7 @@ def load_command_table(self, _):
         pass
 
     with self.command_group('tc', client_factory=teamcloud_client_factory) as g:
-        g.custom_command('deploy', 'teamcloud_deploy', transform=transform_output,
-                         validator=tc_deploy_validator)
+        g.custom_command('deploy', 'teamcloud_deploy', validator=tc_deploy_validator)
         g.custom_command('upgrade', 'teamcloud_upgrade')
         g.custom_command('status', 'status_get', transform=transform_output)
 
@@ -98,6 +97,6 @@ def load_command_table(self, _):
         g.custom_command('list', 'provider_list', transform=transform_output,
                          table_transformer=transform_provider_table_output)
         g.custom_show_command('show', 'provider_get', transform=transform_output)
-        g.custom_command('deploy', 'provider_deploy')
-        g.custom_command('upgrade', 'provider_upgrade')
+        g.custom_command('deploy', 'provider_deploy', transform=transform_output)
+        g.custom_command('upgrade', 'provider_upgrade', transform=transform_output)
         g.custom_command('list-available', 'provider_list_available')

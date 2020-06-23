@@ -23,6 +23,8 @@ class ProjectDefinition(Model):
     :type users: list[~teamcloud.models.UserDefinition]
     :param tags:
     :type tags: dict[str, str]
+    :param properties:
+    :type properties: dict[str, str]
     """
 
     _attribute_map = {
@@ -30,6 +32,7 @@ class ProjectDefinition(Model):
         'project_type': {'key': 'projectType', 'type': 'str'},
         'users': {'key': 'users', 'type': '[UserDefinition]'},
         'tags': {'key': 'tags', 'type': '{str}'},
+        'properties': {'key': 'properties', 'type': '{str}'},
     }
 
     def __init__(self, **kwargs):
@@ -38,3 +41,4 @@ class ProjectDefinition(Model):
         self.project_type = kwargs.get('project_type', None)
         self.users = kwargs.get('users', None)
         self.tags = kwargs.get('tags', None)
+        self.properties = kwargs.get('properties', None)
