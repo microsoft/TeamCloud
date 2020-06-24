@@ -127,9 +127,14 @@ def load_arguments(self, _):
                    options_list=['--role', '-r'], help='User role.')
         c.argument('properties', properties_type)
 
-    for scope in ['tc user create', 'tc user show', 'tc user delete']:
+    for scope in ['tc user create', 'tc user show', 'tc user delete', 'tc user update']:
         with self.argument_context(scope) as c:
             c.argument('user', user_name_or_id_type)
+
+    with self.argument_context('tc user update') as c:
+        c.argument('role', get_enum_type(['None', 'Creator', 'Admin']),
+                   options_list=['--role', '-r'], help='User role.')
+        c.argument('properties', properties_type)
 
     # Projects
 
@@ -160,9 +165,15 @@ def load_arguments(self, _):
                    options_list=['--role', '-r'], help='User role.')
         c.argument('properties', properties_type)
 
-    for scope in ['tc project user create', 'tc project user show', 'tc project user delete']:
+    for scope in ['tc project user create', 'tc project user show',
+                  'tc project user delete', 'tc project user update']:
         with self.argument_context(scope) as c:
             c.argument('user', user_name_or_id_type)
+
+    with self.argument_context('tc project user update') as c:
+        c.argument('role', get_enum_type(['None', 'Member', 'Owner']),
+                   options_list=['--role', '-r'], help='User role.')
+        c.argument('properties', properties_type)
 
     # Project Types
 

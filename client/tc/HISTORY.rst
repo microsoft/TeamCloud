@@ -3,6 +3,11 @@
 Release History
 ===============
 
+0.5.2
+++++++
+* Preview release
+* Add az tc [project] user update commands
+
 0.5.1
 ++++++
 * Preview release

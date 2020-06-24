@@ -3,6 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for license information.
 # --------------------------------------------------------------------------------------------
 
+from azure.cli.core.commands import CliCommandType
 from ._client_factory import teamcloud_client_factory
 from ._transformers import (transform_output, transform_user_table_output, transform_project_table_output,
                             transform_project_type_table_output, transform_provider_table_output,
@@ -11,6 +12,10 @@ from ._validators import tc_deploy_validator
 
 
 def load_command_table(self, _):
+
+    tc_custom = CliCommandType(
+        operations_tmpl='azext_tc.custom#{}',
+        client_factory=teamcloud_client_factory)
 
     # TeamCloud
 
@@ -32,6 +37,11 @@ def load_command_table(self, _):
         g.custom_command('list', 'teamcloud_user_list', transform=transform_output,
                          table_transformer=transform_user_table_output)
         g.custom_show_command('show', 'teamcloud_user_get', transform=transform_output)
+        g.generic_update_command('update', getter_type=tc_custom, setter_type=tc_custom,
+                                 getter_name='teamcloud_user_get_for_update',
+                                 setter_name='teamcloud_user_set_for_update', setter_arg_name='payload',
+                                 custom_func_name='teamcloud_user_update',
+                                 custom_command_type=tc_custom)
 
     # TeamCloud Tags
 
@@ -65,6 +75,11 @@ def load_command_table(self, _):
         g.custom_command('list', 'project_user_list', transform=transform_output,
                          table_transformer=transform_user_table_output)
         g.custom_show_command('show', 'project_user_get', transform=transform_output)
+        g.generic_update_command('update', getter_type=tc_custom, setter_type=tc_custom,
+                                 getter_name='project_user_get_for_update',
+                                 setter_name='project_user_set_for_update', setter_arg_name='payload',
+                                 custom_func_name='project_user_update',
+                                 custom_command_type=tc_custom)
 
     # Project Tags
 

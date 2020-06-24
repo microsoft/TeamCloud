@@ -5,7 +5,7 @@ on:
     branches: [master]
 
 env:
-  TC_CLI_VERSION: 0.5.1
+  TC_CLI_VERSION: 0.5.2
   BUILD_CONFIGURATION: Release
   SOURCE_DIRECTORY: ./src
 

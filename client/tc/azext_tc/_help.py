@@ -30,9 +30,9 @@ type: command
 short-summary: Upgrade a TeamCloud instance version.
 examples:
   - name: Upgrade a TeamCloud instance to the latest release.
-    text: az tc upgrade --base-url https://myurl
+    text: az tc upgrade --base-url url
   - name: Upgrade a TeamCloud instance to a specific pre-release.
-    text: az tc upgrade --base-url https://myurl --version v0.1.1
+    text: az tc upgrade --base-url url --version v0.1.1
 """
 
 helps['tc status'] = """
@@ -40,9 +40,9 @@ type: command
 short-summary: Get the status of a long-running operation.
 examples:
   - name: Get the status of a TeamCloud operation like creating a new provider.
-    text: az tc status --base-url https://myurl --tracking-id myTrackingIdGuid
+    text: az tc status --base-url url --tracking-id trackingId
   - name: Get the status of a Project operation like creating a new project user.
-    text: az tc status --base-url https://myurl --project myProjectId --tracking-id myTrackingIdGuid
+    text: az tc status --base-url url --project project --tracking-id trackingId
 """
 
 # ----------------
@@ -59,7 +59,7 @@ type: command
 short-summary: Create a new TeamCloud user.
 examples:
   - name: Create a new TeamCloud user with Admin role.
-    text: az tc user create --base-url https://myurl --name 'user@microsoft.com' --role Admin --properties prop=value
+    text: az tc user create --base-url url --name user --role Admin --properties prop=value
 """
 
 helps['tc user delete'] = """
@@ -67,9 +67,9 @@ type: command
 short-summary: Delete a TeamCloud user.
 examples:
   - name: Delete a user by email address.
-    text: az tc user delete --base-url https://myurl --name 'user@microsoft.com'
+    text: az tc user delete --base-url url --name user
   - name: Delete a user by id.
-    text: az tc user delete --base-url https://myurl --name userId
+    text: az tc user delete --base-url url --name userId
 """
 
 helps['tc user list'] = """
@@ -77,9 +77,9 @@ type: command
 short-summary: List all TeamCloud users.
 examples:
   - name: List all users.
-    text: az tc user list --base-url https://myurl
+    text: az tc user list --base-url url
   - name: List all users in table format.
-    text: az tc user list --base-url https://myurl -o table
+    text: az tc user list --base-url url -o table
 """
 
 helps['tc user show'] = """
@@ -87,9 +87,21 @@ type: command
 short-summary: Get a TeamCloud user.
 examples:
   - name: Get a user by email address.
-    text: az tc user show --base-url https://myurl --name 'user@microsoft.com'
+    text: az tc user show --base-url url --name user
   - name: Get a user by id.
-    text: az tc user show --base-url https://myurl --name userId
+    text: az tc user show --base-url url --name userId
+"""
+
+helps['tc user update'] = """
+type: command
+short-summary: Update a TeamCloud user.
+examples:
+  - name: Update a user's role.
+    text: az tc user update --base-url url --name user --role Creator
+  - name: Add a property to a user.
+    text: az tc user update --base-url url --name user --properties prop=value
+  - name: Add a property to a user using generic set.
+    text: az tc user update --base-url url --name user --set properties.prop=value
 """
 
 # ----------------
@@ -106,7 +118,7 @@ type: command
 short-summary: Create a new TeamCloud tag.
 examples:
   - name: Create a new TeamCloud tag.
-    text: az tc tag create --base-url https://myurl --key myTag --value myTagValue
+    text: az tc tag create --base-url url --key key --value value
 """
 
 helps['tc tag delete'] = """
@@ -114,7 +126,7 @@ type: command
 short-summary: Delete a TeamCloud tag.
 examples:
   - name: Delete a TeamCloud tag by key.
-    text: az tc tag delete --base-url https://myurl --key myTag
+    text: az tc tag delete --base-url url --key key
 """
 
 helps['tc tag list'] = """
@@ -122,7 +134,7 @@ type: command
 short-summary: List all TeamCloud tags.
 examples:
   - name: List all TeamCloud tags in table format.
-    text: az tc tag list --base-url https://myurl -o table
+    text: az tc tag list --base-url url -o table
 """
 
 helps['tc tag show'] = """
@@ -130,7 +142,7 @@ type: command
 short-summary: Get a TeamCloud tag.
 examples:
   - name: Get a TeamCloud tag by key.
-    text: az tc tag show --base-url https://myurl --key myTag
+    text: az tc tag show --base-url url --key key
 """
 
 # ----------------
@@ -147,19 +159,17 @@ type: command
 short-summary: Create a new project.
 examples:
   - name: Create a new project using the default project type.
-    text: az tc project create --base-url https://myurl --name MyProject1 --tags tag=value --properties prop=value
+    text: az tc project create --base-url url --name project --tags tag=value --properties prop=value
   - name: Create a new project using a specific project type.
-    text: az tc project create --base-url https://myurl --name MyProject2 --project-type my.project.type --tags tag=value --properties prop=value
+    text: az tc project create --base-url url --name project --project-type type --tags tag=value --properties prop=value
 """
 
 helps['tc project delete'] = """
 type: command
 short-summary: Delete a project.
 examples:
-  - name: Delete a project by name.
-    text: az tc project delete --base-url https://myurl --name MyProject1
-  - name: Delete a project by id.
-    text: az tc project delete --base-url https://myurl --name myProjectId
+  - name: Delete a project by name or id.
+    text: az tc project delete --base-url url --name project
 """
 
 helps['tc project list'] = """
@@ -167,19 +177,17 @@ type: command
 short-summary: List all projects.
 examples:
   - name: List all projects.
-    text: az tc project list --base-url https://myurl
+    text: az tc project list --base-url url
   - name: List all projects in table format.
-    text: az tc project list --base-url https://myurl -o table
+    text: az tc project list --base-url url -o table
 """
 
 helps['tc project show'] = """
 type: command
 short-summary: Get a project.
 examples:
-  - name: Get a project by name.
-    text: az tc project show --base-url https://myurl --name MyProject1
-  - name: Get a project by id.
-    text: az tc project show --base-url https://myurl --name myProjectId
+  - name: Get a project by name or id.
+    text: az tc project show --base-url url --name project
 """
 
 # ----------------
@@ -196,17 +204,15 @@ type: command
 short-summary: Create a new project user.
 examples:
   - name: Create a new project user with Owner role.
-    text: az tc project user create --base-url https://myurle --project myProjectId --name 'user@microsoft.com' --role Owner --properties prop=value
+    text: az tc project user create --base-url urle --project project --name user --role Owner --properties prop=value
 """
 
 helps['tc project user delete'] = """
 type: command
 short-summary: Delete a project user.
 examples:
-  - name: Delete a project user by email address.
-    text: az tc project user delete --base-url https://myurl --project myProjectId --name 'user@microsoft.com'
-  - name: Delete a project user by id.
-    text: az tc project user delete --base-url https://myurl --project myProjectId --name userId
+  - name: Delete a project user by email address or id.
+    text: az tc project user delete --base-url url --project project --name user
 """
 
 helps['tc project user list'] = """
@@ -214,19 +220,29 @@ type: command
 short-summary: List all project users.
 examples:
   - name: List all project users.
-    text: az tc project user list --base-url https://myurl --project myProjectId
+    text: az tc project user list --base-url url --project project
   - name: List all project users in table format.
-    text: az tc project user list --base-url https://myurl --project myProjectId -o table
+    text: az tc project user list --base-url url --project project -o table
 """
 
 helps['tc project user show'] = """
 type: command
 short-summary: Get a project user.
 examples:
-  - name: Get a project user by email address.
-    text: az tc project user show --base-url https://myurl --project myProjectId --name 'user@microsoft.com'
-  - name: Get a project user by id.
-    text: az tc project user show --base-url https://myurl --project myProjectId --name userId
+  - name: Get a project user by email address or id.
+    text: az tc project user show --base-url url --project project --name user
+"""
+
+helps['tc project user update'] = """
+type: command
+short-summary: Update a project user.
+examples:
+  - name: Update a user's role.
+    text: az tc project user update --base-url url --project project --name user --role Owner
+  - name: Add a property to a user.
+    text: az tc project user update --base-url url --project project --name user --properties prop=value
+  - name: Add a property to a user using generic set.
+    text: az tc project user update --base-url url --project project --name user --set properties.prop=value
 """
 
 # ----------------
@@ -243,7 +259,7 @@ type: command
 short-summary: Create a new project tag.
 examples:
   - name: Create a new project tag.
-    text: az tc project tag create --base-url https://myurl --project myProjectId --key myTag --value myTagValue
+    text: az tc project tag create --base-url url --project project --key key --value value
 """
 
 helps['tc project tag delete'] = """
@@ -251,7 +267,7 @@ type: command
 short-summary: Delete a project tag.
 examples:
   - name: Delete a project tag by key.
-    text: az tc project tag delete --base-url https://myurl --project myProjectId --key myTag
+    text: az tc project tag delete --base-url url --project project --key key
 """
 
 helps['tc project tag list'] = """
@@ -259,7 +275,7 @@ type: command
 short-summary: List all project tags.
 examples:
   - name: List all project tags in table format.
-    text: az tc project tag list --base-url https://myurl --project myProjectId -o table
+    text: az tc project tag list --base-url url --project project -o table
 """
 
 helps['tc project tag show'] = """
@@ -267,7 +283,7 @@ type: command
 short-summary: Get a project tag.
 examples:
   - name: Get a project tag by key.
-    text: az tc project tag show --base-url https://myurl --project myProjectId --key myTag
+    text: az tc project tag show --base-url url --project project --key key
 """
 
 # ----------------
@@ -286,14 +302,14 @@ examples:
   - name: Create a new default project type.
     text: |
       az tc project-type create \\
-        --base-url https://myurl \\
-        --name my.project.type \\
+        --base-url url \\
+        --name type \\
         --location eastus \\
-        --subscriptions subsciptionId1 subsciptionId2 subsciptionId3 \\
+        --subscriptions subscriptionId1 subscriptionId2 subscriptionId3 \\
         --subscription-capacity 5 \\
         --resource-group-name-prefix TC_ \\
-        --provider my.provider.id.one prop1=val1 prop2=val2 \\
-        --provider my.provider.id.two prop3=val3 prop4=val4 depends_on=my.provider.id.one \\
+        --provider provider.one prop1=val1 prop2=val2 \\
+        --provider provider.two prop3=val3 prop4=val4 depends_on=provider.one \\
         --default
 """
 
@@ -302,7 +318,7 @@ type: command
 short-summary: Delete a project type.
 examples:
   - name: Delete a project type.
-    text: az tc project-type delete --base-url https://myurl --name my.project.type
+    text: az tc project-type delete --base-url url --name type
 """
 
 helps['tc project-type list'] = """
@@ -310,9 +326,9 @@ type: command
 short-summary: List all project types.
 examples:
   - name: List all project types.
-    text: az tc project-type list --base-url https://myurl
+    text: az tc project-type list --base-url url
   - name: List all project types in table format.
-    text: az tc project-type list --base-url https://myurl -o table
+    text: az tc project-type list --base-url url -o table
 """
 
 helps['tc project-type show'] = """
@@ -320,7 +336,7 @@ type: command
 short-summary: Get a project type.
 examples:
   - name: Get a project-type.
-    text: az tc project-type show --base-url https://myurl --name my.project.type
+    text: az tc project-type show --base-url url --name type
 """
 
 # ----------------
@@ -339,7 +355,7 @@ examples:
   - name: Create a new provider.
     text: |
       az tc provider create \\
-        --base-url https://myurl \\
+        --base-url url \\
         --name azure.devtestlabs \\
         --url https://my-provider.azurewebsites.net \\
         --auth-code cmFuZG9tcmFuZG9tcmFuZG9tcmFuZG9tcmFuZG9tcmFuZG9tcmFuZA== \\
@@ -351,7 +367,7 @@ type: command
 short-summary: Delete a provider.
 examples:
   - name: Delete a provider.
-    text: az tc provider delete --base-url https://myurl --name my.provider.id
+    text: az tc provider delete --base-url url --name provider
 """
 
 helps['tc provider list'] = """
@@ -359,9 +375,9 @@ type: command
 short-summary: List all providers.
 examples:
   - name: List all providers.
-    text: az tc provider list --base-url https://myurl
+    text: az tc provider list --base-url url
   - name: List all providers in table format.
-    text: az tc provider list --base-url https://myurl -o table
+    text: az tc provider list --base-url url -o table
 """
 
 helps['tc provider list-available'] = """
@@ -379,7 +395,7 @@ type: command
 short-summary: Get a provider.
 examples:
   - name: Get a provider.
-    text: az tc provider show --base-url https://myurl --name my.provider.id
+    text: az tc provider show --base-url url --name provider
 """
 
 helps['tc provider deploy'] = """
@@ -387,9 +403,9 @@ type: command
 short-summary: Deploy a provider.
 examples:
   - name: Deploy a provider.
-    text: az tc provider deploy --base-url https://myurl --location eastus --name azure.devtestlabs
+    text: az tc provider deploy --base-url url --location eastus --name azure.devtestlabs
   - name: Deploy a provider to a specific pre-release.
-    text: az tc provider deploy --base-url https://myurl --location eastus --name azure.devtestlabs --version v0.1.1
+    text: az tc provider deploy --base-url url --location eastus --name azure.devtestlabs --version v0.1.1
 """
 
 helps['tc provider upgrade'] = """
@@ -397,7 +413,7 @@ type: command
 short-summary: Upgrade a provider version.
 examples:
   - name: Upgrade provider to the latest version.
-    text: az tc provider upgrade --base-url https://myurl --name azure.devtestlabs
+    text: az tc provider upgrade --base-url url --name azure.devtestlabs
   - name: Upgrade provider to a specific pre-release.
-    text: az tc provider upgrade --base-url https://myurl --name azure.devtestlabs --version v0.1.1
+    text: az tc provider upgrade --base-url url --name azure.devtestlabs --version v0.1.1
 """

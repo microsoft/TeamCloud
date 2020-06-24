@@ -143,7 +143,8 @@ def teamcloud_deploy(cmd, client, name, location, resource_group_name='TeamCloud
         user_definition = UserDefinition(identifier=me, role='Admin', properties=None)
         _ = client.create_team_cloud_admin_user(user_definition)
 
-    hook.end(message='\n')
+    hook.end(message=' ')
+    logger.warning(' ')
     logger.warning('TeamCloud instance successfully created at: %s', api_url)
     logger.warning('Use `az configure --defaults tc-base-url=%s` to configure '
                    'this as your default TeamCloud instance', api_url)
@@ -264,7 +265,8 @@ def teamcloud_upgrade(cmd, client, base_url, resource_group_name='TeamCloud', ve
     zip_deploy_app(cli_ctx, resource_group_name, api_app_name, api_zip_url)
 
     version_string = version or 'the latest version'
-    hook.end(message='\n')
+    hook.end(message=' ')
+    logger.warning(' ')
     logger.warning('Successfully upgraded TeamCloud instance to %s', version_string)
 
     result = {
@@ -311,7 +313,32 @@ def teamcloud_user_get(cmd, client, base_url, user):
     return client.get_team_cloud_user_by_name_or_id(user)
 
 
+def teamcloud_user_update(cmd, client, base_url, user, instance, role=None, properties=None):
+    if role:
+        instance.role = role
+    if properties:
+        instance.properties = instance.properties or {}
+        instance.properties.update(properties)
+        for key in [k for k, v in instance.properties.items() if not v]:
+            instance.properties.pop(key)
+    return instance
+
+
+def teamcloud_user_get_for_update(cmd, client, base_url, user):
+    from ._transformers import transform_output
+    client._client.config.base_url = base_url
+    instance = client.get_team_cloud_user_by_name_or_id(user)
+    return transform_output(instance)
+
+
+def teamcloud_user_set_for_update(cmd, client, base_url, payload):
+    from ._transformers import transform_output
+    instance = _update_with_status(cmd, client, base_url, payload, client.update_team_cloud_user)
+    return transform_output(instance)
+
+
 # TeamCloud Tags
+
 
 def teamcloud_tag_create(cmd, client, base_url, tag_key, tag_value, no_wait=False):
     payload = {tag_key, tag_value}
@@ -383,6 +410,34 @@ def project_user_list(cmd, client, base_url, project):
 def project_user_get(cmd, client, base_url, project, user):
     client._client.config.base_url = base_url
     return client.get_project_user_by_name_or_id(user, project)
+
+
+def project_user_update(cmd, client, base_url, project, user, instance, role=None, properties=None):
+    index = next((i for i, m in enumerate(instance.project_memberships)
+                  if m.project_id == project), None)
+    if role:
+        instance.project_memberships[index].role = role
+    if properties:
+        instance.project_memberships[index].properties = instance.project_memberships[
+            index].properties or {}
+        instance.project_memberships[index].properties.update(properties)
+        for key in [k for k, v in instance.project_memberships[index].properties.items() if not v]:
+            instance.project_memberships[index].properties.pop(key)
+    return instance
+
+
+def project_user_get_for_update(cmd, client, base_url, project, user):
+    from ._transformers import transform_output
+    client._client.config.base_url = base_url
+    instance = client.get_project_user_by_name_or_id(user, project)
+    return transform_output(instance)
+
+
+def project_user_set_for_update(cmd, client, base_url, project, payload):
+    from ._transformers import transform_output
+    instance = _update_with_status(cmd, client, base_url, payload, client.update_project_user,
+                                   project_id=project)
+    return transform_output(instance)
 
 
 # Project Tags
@@ -687,14 +742,15 @@ def _create_with_status(cmd, client, base_url, payload, create_func,
 
     hook = cmd.cli_ctx.get_progress_controller()
     if hook_start:
-        hook.begin()
-    hook.add(message='Creating new {}'.format(type_name))
+        hook.begin(message='Starting: Creating new {}'.format(type_name))
+    hook.add(message='Starting: Creating new {}'.format(type_name))
 
     result = create_func(project_id, payload) if project_id else create_func(payload)
 
     while isinstance(result, StatusResult):
         if result.code == 200:
-            hook.end(message='\n')
+            hook.end(message=' ')
+            logger.warning(' ')
             return result
 
         if result.code == 202:
@@ -715,7 +771,8 @@ def _create_with_status(cmd, client, base_url, payload, create_func,
             else:
                 result = client.get_status(result._tracking_id)
 
-    hook.end(message='\n')
+    hook.end(message=' ')
+    logger.warning(' ')
 
     return result
 
@@ -733,15 +790,15 @@ def _update_with_status(cmd, client, base_url, payload, update_func,
 
     hook = cmd.cli_ctx.get_progress_controller()
     if hook_start:
-        hook.begin()
-
-    hook.add(message='Updating {}'.format(type_name))
+        hook.begin(message='Starting: Updating {}'.format(type_name))
+    hook.add(message='Starting: Updating {}'.format(type_name))
 
     result = update_func(project_id, payload) if project_id else update_func(payload)
 
     while isinstance(result, StatusResult):
         if result.code == 200:
-            hook.end(message='\n')
+            hook.end(message=' ')
+            logger.warning(' ')
             return result
 
         if result.code == 202:
@@ -762,7 +819,8 @@ def _update_with_status(cmd, client, base_url, payload, update_func,
             else:
                 result = client.get_status(result._tracking_id)
 
-    hook.end(message='\n')
+    hook.end(message=' ')
+    logger.warning(' ')
 
     return result
 
@@ -780,14 +838,15 @@ def _delete_with_status(cmd, client, base_url, item_id, delete_func,
 
     hook = cmd.cli_ctx.get_progress_controller()
     if hook_start:
-        hook.begin()
-    hook.add(message='Deleting {}'.format(type_name))
+        hook.begin(message='Starting: Deleting {}'.format(type_name))
+    hook.add(message='Starting: Deleting {}'.format(type_name))
 
     result = delete_func(item_id, project_id) if project_id else delete_func(item_id)
 
     while isinstance(result, StatusResult):
         if result.code == 200:
-            hook.end(message='\n')
+            hook.end(message=' ')
+            logger.warning(' ')
             return result
 
         if result.code == 202:
@@ -808,6 +867,7 @@ def _delete_with_status(cmd, client, base_url, item_id, delete_func,
             else:
                 result = client.get_status(result._tracking_id)
 
-    hook.end(message='\n')
+    hook.end(message=' ')
+    logger.warning(' ')
 
     return result
