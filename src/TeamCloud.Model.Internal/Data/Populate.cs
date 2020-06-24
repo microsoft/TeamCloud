@@ -91,7 +91,12 @@ namespace TeamCloud.Model.Internal.Data
 
                             var targetValue = targetProperty.GetValue(this) ?? Activator.CreateInstance(targetProperty.PropertyType);
 
-                            populateInterfaceMethod.Invoke(sourceValue, new[] { targetValue });
+                            Console.WriteLine(populateInterfaceType);
+                            Console.WriteLine(populateInterfaceMethod);
+                            Console.WriteLine(sourceValue);
+                            Console.WriteLine(targetValue);
+
+                            populateInterfaceMethod.Invoke(targetValue, new[] { sourceValue });
 
                             targetProperty.SetValue(this, targetValue);
                         }
@@ -217,22 +222,9 @@ namespace TeamCloud.Model.Internal.Data
             => source.PopulateExternalModel<ProjectType, Model.Data.ProjectType>(target);
 
 
-        public static void PopulateFromExternalModel<TInternal, TExternal>(this TInternal target, TExternal source = null)
+        public static void PopulateFromExternalModel<TInternal, TExternal>(this TInternal target, TExternal source)
             where TInternal : IPopulate<TExternal>
             where TExternal : class, new()
             => target.PopulateFromExternalModel(source);
-
-        public static void PopulateFromExternalModel(this User target, Model.Data.User source = null)
-            => target.PopulateFromExternalModel<User, Model.Data.User>(source);
-
-        public static void PopulateFromExternalModel(this Project target, Model.Data.Project source = null)
-            => target.PopulateFromExternalModel<Project, Model.Data.Project>(source);
-
-        public static void PopulateFromExternalModel(this Provider target, Model.Data.Provider source = null)
-            => target.PopulateFromExternalModel<Provider, Model.Data.Provider>(source);
-
-        public static void PopulateFromExternalModel(this ProjectType target, Model.Data.ProjectType source = null)
-            => target.PopulateFromExternalModel<ProjectType, Model.Data.ProjectType>(source);
-
     }
 }

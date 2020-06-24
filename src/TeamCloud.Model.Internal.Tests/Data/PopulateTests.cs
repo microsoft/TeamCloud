@@ -5,224 +5,176 @@
 
 using System;
 using System.Collections.Generic;
-using TeamCloud.Model.Data.Core;
+using System.Linq;
 using Xunit;
 
 namespace TeamCloud.Model.Internal.Data
 {
     public class PopulateTests
     {
-        static Dictionary<string, string> GetProperties(string type)
-            => new Dictionary<string, string> {
-                { $"{type}PropertyOne", $"{type}PropertyOneValue" },
-                { $"{type}PropertyTwo", $"{type}PropertyTwoValue" }
-            };
-
-        static Dictionary<string, string> GetTags(string type)
-            => new Dictionary<string, string> {
-                { $"{type}TagOne", $"{type}TagOneValue" },
-                { $"{type}TagTwo", $"{type}TagTwoValue" }
-            };
-
-        static User GetUser(string projectId)
+        public class InternalModelA : IPopulate<ExternalModelA>
         {
-            return new User
-            {
-                Id = Guid.NewGuid().ToString(),
-                Role = TeamCloudUserRole.Admin,
-                UserType = UserType.User,
-                ProjectMemberships = new List<ProjectMembership> {
-                    new ProjectMembership {
-                        ProjectId = projectId,
-                        Role = ProjectUserRole.Member,
-                        Properties = GetProperties("ProjectMembership")
-                    }
-                },
-                Properties = GetProperties("User")
-            };
-        }
-
-        static AzureResourceGroup GetResourceGroup()
-        {
-            return new AzureResourceGroup
-            {
-                Id = Guid.NewGuid().ToString(),
-                Name = Guid.NewGuid().ToString(),
-                Region = "eastus",
-                SubscriptionId = Guid.NewGuid(),
-            };
-        }
-
-        static Provider GetProvider()
-        {
-            return new Provider
-            {
-                Id = "test.provider",
-                AuthCode = Guid.NewGuid().ToString(),
-                PrincipalId = Guid.NewGuid(),
-                Registered = DateTime.UtcNow,
-                Properties = GetProperties("Provider"),
-                ResourceGroup = GetResourceGroup(),
-                Url = "https://example.com"
-            };
-        }
-
-        static ProjectType GetProjectType()
-        {
-            var provider = GetProvider();
-
-            return new ProjectType
-            {
-                Id = "test.type",
-                Default = true,
-                Properties = GetProperties("ProjectType"),
-                Providers = new List<ProviderReference> {
-                    new ProviderReference {
-                        Id = provider.Id,
-                        Properties = provider.Properties
-                    }
-                },
-                Region = "eastus",
-                Subscriptions = new List<Guid> { Guid.NewGuid() },
-                Tags = GetTags("ProjectType")
-            };
-        }
-
-        static Project GetProject()
-        {
-            var projectId = Guid.NewGuid().ToString();
-
-            return new Project
-            {
-                Id = projectId,
-                Name = Guid.NewGuid().ToString(),
-                Users = new List<User> {
-                    GetUser(projectId),
-                    GetUser(projectId)
-                },
-                Properties = GetProperties("Project"),
-                ResourceGroup = GetResourceGroup(),
-                Type = GetProjectType(),
-                Tags = GetTags("Project")
-            };
-        }
-
-        static Model.Data.User GetExternalUser(string projectId)
-        {
-            return new Model.Data.User
-            {
-                Id = Guid.NewGuid().ToString(),
-                Role = TeamCloudUserRole.Admin,
-                UserType = UserType.User,
-                ProjectMemberships = new List<ProjectMembership> {
-                    new ProjectMembership {
-                        ProjectId = projectId,
-                        Role = ProjectUserRole.Member,
-                        Properties = GetProperties("ProjectMembership")
-                    }
-                },
-                Properties = GetProperties("User")
-            };
-        }
-
-        static Model.Data.Project GetExternalProject()
-        {
-            var projectId = Guid.NewGuid().ToString();
-
-            return new Model.Data.Project
-            {
-                Id = projectId,
-                Name = Guid.NewGuid().ToString(),
-                Users = new List<Model.Data.User> {
-                    GetExternalUser(projectId),
-                    GetExternalUser(projectId)
-                },
-                Properties = GetProperties("Project"),
-                ResourceGroup = GetResourceGroup(),
-                // Type = GetProjectType(),
-                Tags = GetTags("Project")
-            };
-        }
-
-
-        [Fact]
-        public void ProjectPopulateExternalModel()
-        {
-            var source = GetProject();
-            var target = source.PopulateExternalModel();
-
-            Assert.Equal(target.Id, source.Id);
-            Assert.Equal(target.Name, source.Name);
-            Assert.Equal(target.Properties, source.Properties);
-            Assert.Equal(target.ResourceGroup, source.ResourceGroup);
-            Assert.Equal(target.Tags, source.Tags);
-
-            foreach (var user in source.Users)
-            {
-                Assert.Contains(new Model.Data.User
+            public string StringProp { get; set; }
+            public int IntProp { get; set; }
+            public double DoubleProp { get; set; }
+            public string StringPropExtra { get; set; }
+            public int IntPropExtra { get; set; }
+            public double DoublePropExtra { get; set; }
+            public IDictionary<string, string> StringDict { get; set; }
+            public InternalModelB ModelB { get; set; }
+            public IList<InternalModelB> ModelBList { get; set; }
+            public static InternalModelA Create(int intProp, double doubleProp)
+                => new InternalModelA
                 {
-                    Id = user.Id,
-                    ProjectMemberships = user.ProjectMemberships,
-                    Properties = user.Properties,
-                    Role = user.Role,
-                    UserType = user.UserType
-                }, target.Users);
-            }
+                    StringProp = "A Internal String",
+                    IntProp = intProp,
+                    DoubleProp = doubleProp,
+                    StringPropExtra = "Another String",
+                    IntPropExtra = intProp,
+                    DoublePropExtra = doubleProp,
+                    StringDict = GetDictionary("InternalModelA"),
+                    ModelB = InternalModelB.Create(intProp, doubleProp),
+                    ModelBList = new List<InternalModelB> {
+                        InternalModelB.Create(intProp, doubleProp),
+                        InternalModelB.Create(intProp, doubleProp),
+                        InternalModelB.Create(intProp, doubleProp)
+                    }
+                };
+        }
+
+        public class InternalModelB : IPopulate<ExternalModelB>
+        {
+            public string StringProp { get; set; }
+            public int IntProp { get; set; }
+            public double DoubleProp { get; set; }
+            public string StringPropExtra { get; set; }
+            public int IntPropExtra { get; set; }
+            public double DoublePropExtra { get; set; }
+            public static InternalModelB Create(int intProp, double doubleProp)
+                => new InternalModelB
+                {
+                    StringProp = "A Internal String",
+                    IntProp = intProp,
+                    DoubleProp = doubleProp,
+                    StringPropExtra = "Another String",
+                    IntPropExtra = intProp,
+                    DoublePropExtra = doubleProp,
+                };
+        }
+
+        public class ExternalModelA
+        {
+            public string StringProp { get; set; }
+            public int IntProp { get; set; }
+            public double DoubleProp { get; set; }
+            public IDictionary<string, string> StringDict { get; set; }
+            public ExternalModelB ModelB { get; set; }
+            public IList<ExternalModelB> ModelBList { get; set; }
+            public static ExternalModelA Create(int intProp, double doubleProp)
+                => new ExternalModelA
+                {
+                    StringProp = "A External String",
+                    IntProp = intProp,
+                    DoubleProp = doubleProp,
+                    StringDict = GetDictionary("ExternalModelA"),
+                    ModelB = ExternalModelB.Create(intProp, doubleProp),
+                    ModelBList = new List<ExternalModelB> {
+                        ExternalModelB.Create(intProp, doubleProp),
+                        ExternalModelB.Create(intProp, doubleProp),
+                        ExternalModelB.Create(intProp, doubleProp)
+                    }
+                };
+        }
+
+        public class ExternalModelB
+        {
+            public string StringProp { get; set; }
+            public int IntProp { get; set; }
+            public double DoubleProp { get; set; }
+            public static ExternalModelB Create(int intProp, double doubleProp)
+                => new ExternalModelB
+                {
+                    StringProp = "A External String",
+                    IntProp = intProp,
+                    DoubleProp = doubleProp
+                };
+        }
+
+        static Dictionary<string, string> GetDictionary(string type)
+            => new Dictionary<string, string> {
+                { $"{type}DictOne", $"{type}DictOneValue" },
+                { $"{type}DictTwo", $"{type}DictTwoValue" }
+            };
+
+
+        [Fact]
+        public void PopulateExternalModel()
+        {
+            var random = new Random();
+
+            var intProp = random.Next();
+            var doubleProp = random.NextDouble();
+
+            var source = InternalModelA.Create(intProp, doubleProp);
+            var target = source.PopulateExternalModel<InternalModelA, ExternalModelA>();
+
+            Assert.Equal(target.StringProp, source.StringProp);
+            Assert.Equal(target.IntProp, source.IntProp);
+            Assert.Equal(target.DoubleProp, source.DoubleProp);
+            Assert.Equal(target.StringDict, source.StringDict);
+
+            Assert.Equal(target.ModelB.StringProp, source.ModelB.StringProp);
+            Assert.Equal(target.ModelB.IntProp, source.ModelB.IntProp);
+            Assert.Equal(target.ModelB.DoubleProp, source.ModelB.DoubleProp);
+
+            foreach (var model in source.ModelBList)
+                Assert.Contains(target.ModelBList, m => m.StringProp == model.StringProp
+                                                     && m.IntProp == model.IntProp
+                                                     && m.DoubleProp == model.DoubleProp);
         }
 
         [Fact]
-        public void ProjectPopulateFromExternalModel()
+        public void PopulateFromExternalModel()
         {
-            var source = GetExternalProject();
-            var target = new Project();
+            var random = new Random();
+
+            var sourceIntProp = random.Next();
+            var sourceDoubleProp = random.NextDouble();
+
+            var targetIntProp = random.Next();
+            var targetDoubleProp = random.NextDouble();
+
+            var source = ExternalModelA.Create(sourceIntProp, sourceDoubleProp);
+            var target = InternalModelA.Create(targetIntProp, targetDoubleProp);
+
             target.PopulateFromExternalModel(source);
 
-            Assert.Equal(target.Id, source.Id);
-            Assert.Equal(target.Name, source.Name);
-            Assert.Equal(target.Properties, source.Properties);
-            Assert.Equal(target.ResourceGroup, source.ResourceGroup);
-            Assert.Equal(target.Tags, source.Tags);
+            Assert.Equal(target.StringProp, source.StringProp);
+            Assert.Equal(target.IntProp, source.IntProp);
+            Assert.Equal(target.DoubleProp, source.DoubleProp);
+            Assert.Equal(target.StringPropExtra, "Another String");
+            Assert.Equal(target.IntPropExtra, targetIntProp);
+            Assert.Equal(target.DoublePropExtra, targetDoubleProp);
 
-            foreach (var user in source.Users)
+            Assert.Equal(target.StringDict, source.StringDict);
+
+            Assert.Equal(target.ModelB.StringProp, source.ModelB.StringProp);
+            Assert.Equal(target.ModelB.IntProp, source.ModelB.IntProp);
+            Assert.Equal(target.ModelB.DoubleProp, source.ModelB.DoubleProp);
+
+            Assert.Equal(target.ModelB.StringPropExtra, "Another String");
+            Assert.Equal(target.ModelB.IntPropExtra, targetIntProp);
+            Assert.Equal(target.ModelB.DoublePropExtra, targetDoubleProp);
+
+            foreach (var model in source.ModelBList)
             {
-                Assert.Contains(new User
-                {
-                    Id = user.Id,
-                    ProjectMemberships = user.ProjectMemberships,
-                    Properties = user.Properties,
-                    Role = user.Role,
-                    UserType = user.UserType
-                }, target.Users);
+                Assert.Contains(target.ModelBList, m => m.StringProp == model.StringProp
+                                                     && m.IntProp == model.IntProp
+                                                     && m.DoubleProp == model.DoubleProp);
+                //  && m.StringPropExtra == "Another String"
+                //  && m.IntPropExtra == targetIntProp
+                //  && m.DoublePropExtra == targetDoubleProp);
             }
-        }
-
-        [Fact]
-        public void UserPopulateExternalModel()
-        {
-            var projectId = Guid.NewGuid().ToString();
-            var source = GetUser(projectId);
-            var target = source.PopulateExternalModel();
-
-            Assert.Equal(target.Id, source.Id);
-            Assert.Equal(target.ProjectMemberships, source.ProjectMemberships);
-            Assert.Equal(target.Properties, source.Properties);
-            Assert.Equal(target.Role, source.Role);
-            Assert.Equal(target.UserType, source.UserType);
-        }
-
-        [Fact]
-        public void UserPopulateFromExternalModel()
-        {
-            var projectId = Guid.NewGuid().ToString();
-            var source = GetExternalUser(projectId);
-            var target = new User();
-            target.PopulateFromExternalModel(source);
-
-            Assert.Equal(target.Id, source.Id);
-            Assert.Equal(target.ProjectMemberships, source.ProjectMemberships);
-            Assert.Equal(target.Properties, source.Properties);
-            Assert.Equal(target.Role, source.Role);
-            Assert.Equal(target.UserType, source.UserType);
         }
     }
 }
