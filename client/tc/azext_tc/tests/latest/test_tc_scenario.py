@@ -17,221 +17,203 @@ class TeamCloudScenarioTest(ScenarioTest):
 
     @AllowLargeResponse()
     @ResourceGroupPreparer(parameter_name='tc_group', parameter_name_for_location='location', location='eastus')
-    @ResourceGroupPreparer(parameter_name='provider_group_appinsights', location='eastus')
-    @ResourceGroupPreparer(parameter_name='provider_group_devtestlabs', location='eastus')
-    def test_tc(self, tc_group, provider_group_appinsights, provider_group_devtestlabs, location):
+    @ResourceGroupPreparer(parameter_name='ai_group', location='eastus')
+    @ResourceGroupPreparer(parameter_name='dtl_group', location='eastus')
+    def test_tc(self, tc_group, ai_group, dtl_group, location):
 
-        subs = self.cmd('az account show').get_output_in_json()
-        subscription = subs['id']
-        user_email = subs['user']['name']
+        subs = self.cmd('az account show', checks=[
+            self.exists('id'),
+            self.exists('user.name')
+        ]).get_output_in_json()
 
-        tc_name = self.create_random_name(prefix='cli', length=11)
+        self.kwargs.update({
+            'tc': self.create_random_name(prefix='cli', length=11),
+            'loc': location,
+            'rg': tc_group,
+            'rg_ai': ai_group,
+            'rg_dtl': dtl_group,
+            'sub': subs['id'],
+            'email': subs['user']['name'],
+            'prop_k': 'CLIProperty',
+            'prop_v': 'CLIPropertyValue',
+            'proj_type': 'cli.test',
+            'proj': self.create_random_name(prefix='cli', length=11),
+            'ai_provider': 'azure.appinsights',
+            'dtl_provider': 'azure.devtestlabs'
+        })
 
-        # cmd = 'tc deploy -n {tc_name} -g {tc_group} -l {location}'.format(**locals())
-        cmd = 'tc deploy -n {tc_name} -g {tc_group} -l {location} --pre'.format(**locals())
-        result = self.cmd(cmd).get_output_in_json()
-        self.assertEqual(result['location'], location)
-        self.assertIsNotNone(result['base_url'])
+        result = self.cmd('tc deploy -n {tc} -g {rg} -l {loc} --pre', checks=[
+            self.check('location', '{loc}'),
+            self.exists('base_url')
+        ]).get_output_in_json()
 
-        base_url = result['base_url']
+        self.kwargs.update({'url': result['base_url']})
 
         # add admin user may not be complete
         if self.is_live:
             import time
             time.sleep(120)  # wait 2 minutes before continuing
 
-        cmd = 'tc user show -u {base_url} -n {user_email}'.format(**locals())
-        result = self.cmd(cmd).get_output_in_json()
-        self.assertIsNotNone(result['id'])
-        self.assertEqual(result['role'], 'Admin')
+        result = self.cmd('tc user show -u {url} -n {email}', checks=[
+            self.exists('id'),
+            self.check('role', 'Admin')
+        ]).get_output_in_json()
 
-        user = result['id']
-        user_prop_key = 'CLIProperty'
-        user_prop_val = 'CLIPropertyValue'
+        self.kwargs.update({'user': result['id']})
 
-        cmd = 'tc user list -u {base_url}'.format(**locals())
-        result = self.cmd(cmd).get_output_in_json()
-        self.assertGreaterEqual(len(result), 1)
-        index = next((i for i, p in enumerate(result) if p['id'] == user), None)
-        self.assertIsNotNone(index)
+        self.cmd('tc user list -u {url}', checks=[
+            self.check('type(@)', 'array'),
+            self.check('length(@)', 1),
+            self.check('[0].id', '{user}'),
+            self.check('[0].role', 'Admin'),
+        ])
 
-        cmd = 'tc user update -u {base_url} -n {user_email} --properties {user_prop_key}={user_prop_val}'.format(
-            **locals())
-        result = self.cmd(cmd).get_output_in_json()
-        self.assertIsNotNone(result['id'])
-        self.assertEqual(result['role'], 'Admin')
-        self.assertEqual(result['properties'][user_prop_key], user_prop_val)
+        self.cmd('tc user update -u {url} -n {email} --properties {prop_k}={prop_v}', checks=[
+            self.check('id', '{user}'),
+            self.check('role', 'Admin'),
+            self.check('properties.{prop_k}', '{prop_v}')
+        ])
 
-        appinsights_provider = 'azure.appinsights'
+        self.cmd('tc provider deploy -u {url} -n {ai_provider} -g {rg_ai} --pre', checks=[
+            self.check('id', '{ai_provider}'),
+            self.exists('url'),
+            self.exists('registered')
+        ])
 
-        cmd = 'tc provider deploy -u {base_url} -n {appinsights_provider} -g {provider_group_appinsights} --pre'.format(
-            **locals())
-        result = self.cmd(cmd).get_output_in_json()
-        self.assertEqual(result['id'], appinsights_provider)
-        self.assertIsNotNone(result['url'])
+        self.cmd('tc provider show -u {url} -n {ai_provider}', checks=[
+            self.check('id', '{ai_provider}'),
+            self.exists('url'),
+            self.exists('registered')
+        ])
 
-        cmd = 'tc provider show -u {base_url} -n {appinsights_provider}'.format(**locals())
-        result = self.cmd(cmd).get_output_in_json()
-        self.assertEqual(result['id'], appinsights_provider)
-        self.assertIsNotNone(result['url'])
+        self.cmd('tc provider deploy -u {url} -n {dtl_provider} -g {rg_dtl} --pre', checks=[
+            self.check('id', '{dtl_provider}'),
+            self.exists('url'),
+            self.exists('registered')
+        ])
 
-        devtestlabs_provider = 'azure.devtestlabs'
+        self.cmd('tc provider show -u {url} -n {dtl_provider}', checks=[
+            self.check('id', '{dtl_provider}'),
+            self.exists('url'),
+            self.exists('registered')
+        ])
 
-        cmd = 'tc provider deploy -u {base_url} -n {devtestlabs_provider} -g {provider_group_devtestlabs} --pre'.format(
-            **locals())
-        result = self.cmd(cmd).get_output_in_json()
-        self.assertEqual(result['id'], devtestlabs_provider)
-        self.assertIsNotNone(result['url'])
+        self.cmd('tc provider list -u {url}', checks=[
+            self.check('type(@)', 'array'),
+            self.check('length(@)', 2),
+            self.check("contains([].id, '{ai_provider}')", True),
+            self.exists("[?id=='{ai_provider}'] | [0].url"),
+            self.exists("[?id=='{ai_provider}'] | [0].registered"),
+            self.check("contains([].id, '{dtl_provider}')", True),
+            self.exists("[?id=='{dtl_provider}'] | [0].url"),
+            self.exists("[?id=='{dtl_provider}'] | [0].registered"),
+        ])
 
-        cmd = 'tc provider show -u {base_url} -n {devtestlabs_provider}'.format(**locals())
-        result = self.cmd(cmd).get_output_in_json()
-        self.assertEqual(result['id'], devtestlabs_provider)
-        self.assertIsNotNone(result['url'])
+        self.cmd('tc project-type create -u {url} -n {proj_type} -l {loc} '
+                 '--subscriptions {sub} --resource-group-name-prefix clitest.rg '
+                 '--provider {ai_provider} --provider {dtl_provider}', checks=[
+                     self.check('id', '{proj_type}'),
+                     self.check('region', '{loc}'),
+                     self.check('length(providers)', 2),
+                     self.check("contains(providers[].id, '{ai_provider}')", True),
+                     self.check("contains(providers[].id, '{dtl_provider}')", True),
+                 ])
 
-        cmd = 'tc provider list -u {base_url}'.format(**locals())
-        result = self.cmd(cmd).get_output_in_json()
-        self.assertGreaterEqual(len(result), 1)
-        index = next((i for i, p in enumerate(result)
-                      if p['id'] == appinsights_provider), None)
-        self.assertIsNotNone(index)
-        self.assertIsNotNone(result[index]['url'])
-        index = next((i for i, p in enumerate(result)
-                      if p['id'] == devtestlabs_provider), None)
-        self.assertIsNotNone(index)
-        self.assertIsNotNone(result[index]['url'])
+        self.cmd('tc project-type show -u {url} -n {proj_type}', checks=[
+            self.check('id', '{proj_type}'),
+            self.check('region', '{loc}'),
+            self.check('length(providers)', 2),
+            self.check("contains(providers[].id, '{ai_provider}')", True),
+            self.check("contains(providers[].id, '{dtl_provider}')", True),
+        ])
 
-        project_type = 'cli.test'
+        self.cmd('tc project-type list -u {url}', checks=[
+            self.check('type(@)', 'array'),
+            self.check('length(@)', 1),
+            self.check('[0].id', '{proj_type}'),
+            self.check('[0].region', '{loc}'),
+            self.check('length([0].providers)', 2),
+            self.check("contains([0].providers[].id, '{ai_provider}')", True),
+            self.check("contains([0].providers[].id, '{dtl_provider}')", True),
+        ])
 
-        cmd = 'tc project-type create -u {base_url} -n {project_type} -l {location} --subscriptions {subscription} --resource-group-name-prefix clitest.rg --provider {appinsights_provider} --provider {devtestlabs_provider}'.format(
-            **locals())
-        result = self.cmd(cmd).get_output_in_json()
-        self.assertEqual(result['id'], project_type)
-        self.assertEqual(result['region'], location)
-        self.assertGreaterEqual(len(result['providers']), 1)
-        index = next((i for i, p in enumerate(result['providers'])
-                      if p['id'] == appinsights_provider), None)
-        self.assertIsNotNone(index)
-        index = next((i for i, p in enumerate(result['providers'])
-                      if p['id'] == devtestlabs_provider), None)
-        self.assertIsNotNone(index)
+        result = self.cmd('tc project create -u {url} -n {proj} -t {proj_type}', checks=[
+            self.exists('id'),
+            self.check('name', '{proj}'),
+            self.check('type.id', '{proj_type}'),
+            self.check('length(type.providers)', 2),
+            self.check("contains(type.providers[].id, '{ai_provider}')", True),
+            self.check("contains(type.providers[].id, '{dtl_provider}')", True),
+            self.check('length(users)', 1),
+            self.check('users[0].id', '{user}'),
+            self.check('length(users[0].projectMemberships)', 1),
+            self.exists('users[0].projectMemberships[0].projectId'),
+            self.check('users[0].projectMemberships[0].role', 'Owner')
+        ]).get_output_in_json()
 
-        cmd = 'tc project-type show -u {base_url} -n {project_type}'.format(**locals())
-        result = self.cmd(cmd).get_output_in_json()
-        self.assertEqual(result['id'], project_type)
-        self.assertEqual(result['region'], location)
-        self.assertGreaterEqual(len(result['providers']), 1)
-        index = next((i for i, p in enumerate(result['providers'])
-                      if p['id'] == appinsights_provider), None)
-        self.assertIsNotNone(index)
-        index = next((i for i, p in enumerate(result['providers'])
-                      if p['id'] == devtestlabs_provider), None)
-        self.assertIsNotNone(index)
+        self.kwargs.update({'proj_id': result['id']})
 
-        cmd = 'tc project-type list -u {base_url}'.format(**locals())
-        result = self.cmd(cmd).get_output_in_json()
-        self.assertGreaterEqual(len(result), 1)
-        index = next((i for i, p in enumerate(result) if p['id'] == project_type), None)
-        self.assertIsNotNone(index)
-        self.assertEqual(result[index]['region'], location)
-        self.assertGreaterEqual(len(result[index]['providers']), 1)
-        sub_index = next((i for i, p in enumerate(result[index]['providers'])
-                          if p['id'] == appinsights_provider), None)
-        self.assertIsNotNone(sub_index)
-        sub_index = next((i for i, p in enumerate(result[index]['providers'])
-                          if p['id'] == devtestlabs_provider), None)
-        self.assertIsNotNone(sub_index)
+        self.cmd('tc project show -u {url} -n {proj}', checks=[
+            self.check('id', '{proj_id}'),
+            self.check('name', '{proj}'),
+            self.check('type.id', '{proj_type}'),
+            self.check('length(type.providers)', 2),
+            self.check("contains(type.providers[].id, '{ai_provider}')", True),
+            self.check("contains(type.providers[].id, '{dtl_provider}')", True),
+            self.check('length(users)', 1),
+            self.check('users[0].id', '{user}'),
+            self.check('length(users[0].projectMemberships)', 1),
+            self.check('users[0].projectMemberships[0].projectId', '{proj_id}'),
+            self.check('users[0].projectMemberships[0].role', 'Owner')
+        ])
 
-        project = self.create_random_name(prefix='cli', length=11)
+        self.cmd('tc project list -u {url}', checks=[
+            self.check('type(@)', 'array'),
+            self.check('length(@)', 1),
+            self.check('[0].id', '{proj_id}'),
+            self.check('[0].name', '{proj}'),
+            self.check('[0].type.id', '{proj_type}'),
+            self.check('length([0].type.providers)', 2),
+            self.check("contains([0].type.providers[].id, '{ai_provider}')", True),
+            self.check("contains([0].type.providers[].id, '{dtl_provider}')", True),
+            self.check('length([0].users)', 1),
+            self.check('[0].users[0].id', '{user}'),
+            self.check('length([0].users[0].projectMemberships)', 1),
+            self.check('[0].users[0].projectMemberships[0].projectId', '{proj_id}'),
+            self.check('[0].users[0].projectMemberships[0].role', 'Owner')
+        ])
 
-        cmd = 'tc project create -u {base_url} -n {project} -t {project_type}'.format(**locals())
-        result = self.cmd(cmd).get_output_in_json()
-        self.assertIsNotNone(result['id'])
-        self.assertEqual(result['name'], project)
-        self.assertEqual(result['type']['id'], project_type)
-        self.assertGreaterEqual(len(result['type']['providers']), 1)
-        index = next((i for i, p in enumerate(result['type']['providers'])
-                      if p['id'] == appinsights_provider), None)
-        self.assertIsNotNone(index)
-        index = next((i for i, p in enumerate(result['type']['providers'])
-                      if p['id'] == devtestlabs_provider), None)
-        self.assertIsNotNone(index)
-        self.assertGreaterEqual(len(result['users']), 1)
-        index = next((i for i, p in enumerate(result['users']) if p['id'] == user), None)
-        self.assertIsNotNone(index)
-        sub_index = next((i for i, p in enumerate(result['users'][index]['projectMemberships'])
-                          if p['projectId'] == result['id']), None)
-        self.assertIsNotNone(sub_index)
-        self.assertEqual(result['users'][index]['projectMemberships'][sub_index]['role'], 'Owner')
+        self.cmd('tc project user update -u {url} -p {proj} -n {email} '
+                 '--properties {prop_k}={prop_v}', checks=[
+                     self.check('id', '{user}'),
+                     self.check('role', 'Admin'),
+                     self.check('properties.{prop_k}', '{prop_v}'),
+                     self.check('length(projectMemberships)', 1),
+                     self.check('projectMemberships[0].projectId', '{proj_id}'),
+                     self.check('projectMemberships[0].role', 'Owner'),
+                     self.check('projectMemberships[0].properties.{prop_k}', '{prop_v}')
+                 ])
 
-        project_id = result['id']
+        self.cmd('tc project delete -u {url} -n {proj} -y', checks=[
+            self.check('code', 200),
+            self.check('state', 'Completed'),
+            self.check('status', 'Ok'),
+        ])
 
-        cmd = 'tc project show -u {base_url} -n {project}'.format(**locals())
-        result = self.cmd(cmd).get_output_in_json()
-        self.assertEqual(result['name'], project)
-        self.assertEqual(result['type']['id'], project_type)
-        self.assertGreaterEqual(len(result['type']['providers']), 1)
-        index = next((i for i, p in enumerate(result['type']['providers'])
-                      if p['id'] == appinsights_provider), None)
-        self.assertIsNotNone(index)
-        index = next((i for i, p in enumerate(result['type']['providers'])
-                      if p['id'] == devtestlabs_provider), None)
-        self.assertIsNotNone(index)
-        self.assertGreaterEqual(len(result['users']), 1)
-        index = next((i for i, p in enumerate(result['users']) if p['id'] == user), None)
-        self.assertIsNotNone(index)
-        sub_index = next((i for i, p in enumerate(result['users'][index]['projectMemberships'])
-                          if p['projectId'] == project_id), None)
-        self.assertIsNotNone(sub_index)
-        self.assertEqual(result['users'][index]['projectMemberships'][sub_index]['role'], 'Owner')
+        self.cmd('tc project list -u {url}', checks=self.is_empty())
 
-        cmd = 'tc project list -u {base_url}'.format(**locals())
-        result = self.cmd(cmd).get_output_in_json()
-        self.assertGreaterEqual(len(result), 1)
-        index = next((i for i, p in enumerate(result) if p['name'] == project), None)
-        self.assertIsNotNone(index)
-        self.assertEqual(result[index]['name'], project)
-        self.assertEqual(result[index]['type']['id'], project_type)
-        self.assertGreaterEqual(len(result[index]['type']['providers']), 1)
-        sub_index = next((i for i, p in enumerate(result[index]['type']['providers'])
-                          if p['id'] == appinsights_provider), None)
-        self.assertIsNotNone(sub_index)
-        sub_index = next((i for i, p in enumerate(result[index]['type']['providers'])
-                          if p['id'] == devtestlabs_provider), None)
-        self.assertIsNotNone(sub_index)
-        sub_index = next((i for i, p in enumerate(result[index]['users'])
-                          if p['id'] == user), None)
-        self.assertIsNotNone(sub_index)
-        sub_sub_index = next((i for i, p in enumerate(result[index]['users'][sub_index]['projectMemberships'])
-                              if p['projectId'] == project_id), None)
-        self.assertIsNotNone(sub_sub_index)
-        self.assertEqual(result[index]['users'][sub_index]
-                         ['projectMemberships'][sub_sub_index]['role'], 'Owner')
+        self.cmd('tc user show -u {url} -n {email}', checks=[
+            self.check('id', '{user}'),
+            self.check('role', 'Admin'),
+            self.check('properties.{prop_k}', '{prop_v}'),
+            self.check('length(projectMemberships)', 0),
+        ])
 
-        cmd = 'tc project user update -u {base_url} -p {project} -n {user_email} --properties {user_prop_key}={user_prop_val}'.format(
-            **locals())
-        result = self.cmd(cmd).get_output_in_json()
-        self.assertIsNotNone(result['id'])
-        self.assertEqual(result['role'], 'Admin')
-        self.assertEqual(result['properties'][user_prop_key], user_prop_val)
-        index = next((i for i, p in enumerate(result['projectMemberships'])
-                      if p['projectId'] == project_id), None)
-        self.assertIsNotNone(index)
-        self.assertEqual(result['projectMemberships'][index]['role'], 'Owner')
-        self.assertEqual(result['projectMemberships'][index]
-                         ['properties'][user_prop_key], user_prop_val)
+        self.cmd('tc project-type delete -u {url} -n {proj_type} -y', checks=self.is_empty())
 
-        cmd = 'tc project delete -u {base_url} -n {project} -y'.format(**locals())
-        result = self.cmd(cmd).get_output_in_json()
+        self.cmd('tc project-type list -u {url}', checks=self.is_empty())
 
-        cmd = 'tc project list -u {base_url}'.format(**locals())
-        result = self.cmd(cmd).get_output_in_json()
-        index = next((i for i, p in enumerate(result) if p['name'] == project), None)
-        self.assertIsNone(index)
-
-        cmd = 'tc project-type delete -u {base_url} -n {project_type} -y'.format(**locals())
-        result = self.cmd(cmd)
-
-        cmd = 'tc project-type list -u {base_url}'.format(**locals())
-        result = self.cmd(cmd).get_output_in_json()
-        index = next((i for i, p in enumerate(result) if p['id'] == project_type), None)
-        self.assertIsNone(index)
+        # give the orchestrator time to clean up project rgs
+        if self.is_live:
+            import time
+            time.sleep(300)  # wait 5 minutes before completing
