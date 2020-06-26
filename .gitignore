@@ -367,3 +367,4 @@ venv/
 ENV/
 env/
 env27/
+client/tc/azext_tc/tests/latest/recordings/test_tc.yaml
