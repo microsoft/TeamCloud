@@ -12,9 +12,6 @@ logger = get_logger(__name__)
 
 @Completer
 def get_project_completion_list(cmd, prefix, namespace, **kwargs):  # pylint: disable=unused-argument
-
-    # logger.warning('Completing...')
-
     client = teamcloud_client_factory(cmd.cli_ctx)
     client._client.config.base_url = namespace.base_url  # pylint: disable=protected-access
     result = client.get_projects()
@@ -27,9 +24,6 @@ def get_project_completion_list(cmd, prefix, namespace, **kwargs):  # pylint: di
 
 @Completer
 def get_project_type_completion_list(cmd, prefix, namespace, **kwargs):  # pylint: disable=unused-argument
-
-    # logger.warning('Completing...')
-
     client = teamcloud_client_factory(cmd.cli_ctx)
     client._client.config.base_url = namespace.base_url  # pylint: disable=protected-access
     result = client.get_project_types()
@@ -42,9 +36,6 @@ def get_project_type_completion_list(cmd, prefix, namespace, **kwargs):  # pylin
 
 @Completer
 def get_provider_completion_list(cmd, prefix, namespace, **kwargs):  # pylint: disable=unused-argument
-
-    # logger.warning('Completing...')
-
     client = teamcloud_client_factory(cmd.cli_ctx)
     client._client.config.base_url = namespace.base_url  # pylint: disable=protected-access
     result = client.get_providers()
@@ -58,7 +49,6 @@ def get_provider_completion_list(cmd, prefix, namespace, **kwargs):  # pylint: d
 @Completer
 def get_provider_index_completion_list(cmd, prefix, namespace, **kwargs):  # pylint: disable=unused-argument
     from ._deploy_utils import get_index_providers, get_github_latest_release
-    # logger.warning('Completing...')
 
     if namespace.version or namespace.prerelease:
         if namespace.index_url:
