@@ -162,6 +162,12 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                     .ConfigureAwait(true);
             }
 
+            functionContext.SetCustomStatus($"Registering required resource providers", log);
+
+            await functionContext
+                .RegisterResourceProvidersAsync(project)
+                .ConfigureAwait(true);
+
             functionContext.SetCustomStatus($"Sending provider commands", log);
 
             var providerCommand = new ProviderProjectCreateCommand

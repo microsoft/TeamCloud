@@ -121,6 +121,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                                 provider.PrincipalId = commandResult.Result.PrincipalId;
                                 provider.CommandMode = commandResult.Result.CommandMode;
                                 provider.Registered = functionContext.CurrentUtcDateTime;
+                                provider.ResourceProviders = commandResult.Result.ResourceProviders;
                                 provider.Properties = provider.Properties.Override(commandResult.Result.Properties);
 
                                 provider = await functionContext

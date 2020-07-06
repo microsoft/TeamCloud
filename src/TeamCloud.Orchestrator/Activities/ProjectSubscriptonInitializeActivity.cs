@@ -58,7 +58,7 @@ namespace TeamCloud.Orchestrator.Activities
             }
             catch (Exception exc)
             {
-                log.LogError(exc, $"Activity '{nameof(ProjectResourcesCreateActivity)} failed: {exc.Message}");
+                log.LogError(exc, $"Activity '{nameof(ProjectSubscriptonInitializeActivity)} failed: {exc.Message}");
 
                 throw exc.AsSerializable();
             }

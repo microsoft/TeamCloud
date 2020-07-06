@@ -34,6 +34,7 @@ namespace TeamCloud.Model.Internal.Data
 
         public ProviderCommandMode CommandMode { get; set; } = ProviderCommandMode.Simple;
 
+        public IList<string> ResourceProviders { get; set; } = new List<string>();
 
         public bool Equals(Provider other)
             => Id.Equals(other?.Id, StringComparison.Ordinal);

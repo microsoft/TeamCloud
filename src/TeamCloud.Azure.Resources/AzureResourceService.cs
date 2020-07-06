@@ -9,9 +9,9 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using Flurl;
 using Flurl.Http;
-using TeamCloud.Http;
+using Microsoft.Azure.Management.ResourceManager.Fluent;
+using Microsoft.Azure.Management.ResourceManager.Fluent.Models;
 
 namespace TeamCloud.Azure.Resources
 {
@@ -28,6 +28,10 @@ namespace TeamCloud.Azure.Resources
 
         Task<TAzureResource> GetResourceAsync<TAzureResource>(string resourceId, bool throwIfNotExists = false)
             where TAzureResource : AzureResource;
+
+        Task RegisterProviderAsync(Guid subscriptionId, string resourceNamespace);
+
+        Task RegisterProvidersAsync(Guid subscriptionId, IEnumerable<string> resourceNamespaces);
 
         Task<IEnumerable<string>> GetApiVersionsAsync(Guid subscriptionId, string resourceNamespace, string resourceType, bool includePreviewVersions = false);
     }
@@ -59,6 +63,43 @@ namespace TeamCloud.Azure.Resources
             return AzureResource.InitializeAsync(resource, this, throwIfNotExists);
         }
 
+        private async Task<ProviderInner> GetProviderAsync(Guid subscriptionId, string resourceNamespace)
+        {
+            if (resourceNamespace is null)
+                throw new ArgumentNullException(nameof(resourceNamespace));
+
+            using var resourceManagementClient = AzureSessionService
+                .CreateClient<ResourceManagementClient>(subscriptionId: subscriptionId);
+
+            return await resourceManagementClient.Providers
+                .GetAsync(resourceNamespace)
+                .ConfigureAwait(false);
+        }
+
+        public async Task RegisterProviderAsync(Guid subscriptionId, string resourceNamespace)
+        {
+            if (resourceNamespace is null)
+                throw new ArgumentNullException(nameof(resourceNamespace));
+
+            using var resourceManagementClient = AzureSessionService
+                .CreateClient<ResourceManagementClient>(subscriptionId: subscriptionId);
+
+            var provider = await resourceManagementClient.Providers
+                .GetAsync(resourceNamespace)
+                .ConfigureAwait(false);
+
+            if (provider.RegistrationState.Equals("NotRegistered", StringComparison.OrdinalIgnoreCase)
+                && provider.RegistrationPolicy.Equals("RegistrationRequired", StringComparison.OrdinalIgnoreCase))
+            {
+                await resourceManagementClient.Providers
+                    .RegisterAsync(provider.NamespaceProperty)
+                    .ConfigureAwait(false);
+            }
+        }
+
+        public Task RegisterProvidersAsync(Guid subscriptionId, IEnumerable<string> resourceNamespaces)
+            => Task.WhenAll(resourceNamespaces.Distinct().Select(n => RegisterProviderAsync(subscriptionId, n)));
+
         public async Task<IEnumerable<string>> GetApiVersionsAsync(Guid subscriptionId, string resourceNamespace, string resourceType, bool includePreviewVersions = false)
         {
             if (resourceNamespace is null)
@@ -67,40 +108,16 @@ namespace TeamCloud.Azure.Resources
             if (resourceType is null)
                 throw new ArgumentNullException(nameof(resourceType));
 
-            var token = await AzureSessionService
-                .AcquireTokenAsync()
+            var provider = await GetProviderAsync(subscriptionId, resourceNamespace)
                 .ConfigureAwait(false);
 
-            var json = await AzureSessionService.Environment.ResourceManagerEndpoint
-                .AppendPathSegment("subscriptions")
-                .AppendPathSegment(subscriptionId)
-                .AppendPathSegment("providers")
-                .AppendPathSegment(resourceNamespace)
-                .SetQueryParam("api-version", "2019-10-01")
-                .WithOAuthBearerToken(token)
-                .WithAzureResourceException(AzureSessionService.Environment)
-                .GetJObjectAsync()
-                .ConfigureAwait(false);
+            var resourceTypeMatch = provider.ResourceTypes
+                .FirstOrDefault(t => t.ResourceType.Equals(resourceType, StringComparison.OrdinalIgnoreCase));
 
-            var resourceTypeMatch = json
-                .SelectTokens("$..resourceType")
-                .Select(t => t.ToString())
-                .FirstOrDefault(rt => rt.Equals(resourceType, StringComparison.OrdinalIgnoreCase));
-
-            if (string.IsNullOrEmpty(resourceTypeMatch))
+            if (string.IsNullOrEmpty(resourceTypeMatch?.ResourceType))
                 throw new ArgumentOutOfRangeException(nameof(resourceType));
 
-            var apiVersions = json
-                .SelectTokens($"$..resourceTypes[?(@.resourceType == '{resourceType}')].apiVersions[*]")
-                .Select(t => t.ToString());
-
-            if (includePreviewVersions)
-                return apiVersions;
-
-            return apiVersions
-                .Where(v => !v.EndsWith("-preview", StringComparison.OrdinalIgnoreCase));
+            return includePreviewVersions ? resourceTypeMatch.ApiVersions.Where(v => !v.EndsWith("-preview", StringComparison.OrdinalIgnoreCase)) : resourceTypeMatch.ApiVersions;
         }
-
-
     }
 }

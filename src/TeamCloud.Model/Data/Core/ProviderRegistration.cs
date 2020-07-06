@@ -17,6 +17,8 @@ namespace TeamCloud.Model.Data.Core
 
         public ProviderCommandMode CommandMode { get; set; } = ProviderCommandMode.Simple;
 
+        public IList<string> ResourceProviders { get; set; } = new List<string>();
+
         public IDictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
     }
 }
