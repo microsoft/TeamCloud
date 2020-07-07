@@ -17,6 +17,10 @@ namespace TeamCloud.Azure.Directory
         internal static bool IsEMail(this string value)
             => new EmailAddressAttribute().IsValid(value);
 
+        internal static bool StartsWithHttp(this string value)
+            => value.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
+            || value.StartsWith("https://", StringComparison.OrdinalIgnoreCase);
+
         internal static string EncodeBase64(this Encoding encoding, string text)
         {
             if (text is null)

@@ -47,19 +47,18 @@ namespace TeamCloud.API.Services
             if (string.IsNullOrWhiteSpace(identifier))
                 throw new ArgumentNullException(nameof(identifier));
 
-            // handle passing in the id as a string
-            if (Guid.TryParse(identifier, out var userId))
-                return userId.ToString();
-
             string key = $"{nameof(UserService)}_{nameof(GetUserIdAsync)}_{identifier}";
 
             if (!cache.TryGetValue(key, out string val))
             {
-                var guid = await azureDirectoryService.GetUserIdAsync(identifier).ConfigureAwait(false);
+                var guid = await azureDirectoryService
+                    .GetUserIdAsync(identifier)
+                    .ConfigureAwait(false);
+
                 val = guid?.ToString();
 
                 if (!string.IsNullOrEmpty(val))
-                    cache.Set(key, val, TimeSpan.FromMinutes(5)); // Cached value only for certain amount of time
+                    cache.Set(key, val, TimeSpan.FromMinutes(5));
             }
 
             return val;

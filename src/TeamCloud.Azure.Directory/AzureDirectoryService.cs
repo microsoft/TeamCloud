@@ -12,6 +12,8 @@ using System.Threading.Tasks;
 using Flurl;
 using Flurl.Http;
 using Microsoft.Azure.Management.Graph.RBAC.Fluent;
+using Microsoft.Azure.Management.Graph.RBAC.Fluent.Models;
+using Microsoft.Rest.Azure.OData;
 using TeamCloud.Http;
 
 namespace TeamCloud.Azure.Directory
@@ -38,72 +40,64 @@ namespace TeamCloud.Azure.Directory
             this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
         }
 
-        private async Task<string> GetDefaultDomainAsync()
-        {
-            var token = await azureSessionService
-                .AcquireTokenAsync(AzureEndpoint.GraphEndpoint)
-                .ConfigureAwait(false);
-
-            var json = await azureSessionService.Environment.GraphEndpoint
-                .AppendPathSegment($"{azureSessionService.Options.TenantId}/tenantDetails")
-                .SetQueryParam("api-version", "1.6")
-                .WithOAuthBearerToken(token)
-                .GetJObjectAsync()
-                .ConfigureAwait(false);
-
-            return json.SelectToken("$.value[0].verifiedDomains[?(@.default == true)].name")?.ToString();
-        }
-
-        private async Task<IEnumerable<string>> GetVerifiedDomainsAsync()
-        {
-            var token = await azureSessionService
-                .AcquireTokenAsync(AzureEndpoint.GraphEndpoint)
-                .ConfigureAwait(false);
-
-            var json = await azureSessionService.Environment.GraphEndpoint
-                .AppendPathSegment($"{azureSessionService.Options.TenantId}/tenantDetails")
-                .SetQueryParam("api-version", "1.6")
-                .WithOAuthBearerToken(token)
-                .GetJObjectAsync()
-                .ConfigureAwait(false);
-
-            return json.SelectTokens("$.value[0].verifiedDomains[*].name").Select(name => name.ToString());
-        }
-
         public async Task<Guid?> GetUserIdAsync(string identifier)
         {
             if (identifier is null)
                 throw new ArgumentNullException(nameof(identifier));
 
-            var azureSession = azureSessionService.CreateSession();
-            var azureUser = default(IActiveDirectoryUser);
+            using var graphRbacManagementClient = azureSessionService
+                .CreateClient<GraphRbacManagementClient>(AzureEndpoint.GraphEndpoint);
 
             if (identifier.IsEMail())
             {
-                var verifiedDomains = await GetVerifiedDomainsAsync()
+                var domains = await graphRbacManagementClient.Domains
+                    .ListAsync()
                     .ConfigureAwait(false);
 
-                if (!verifiedDomains.Any(domain => identifier.EndsWith($"@{domain}", StringComparison.OrdinalIgnoreCase)))
+                var hasVerifiedDomain = domains
+                    .Where(d => d.IsVerified.HasValue && d.IsVerified.Value)
+                    .Any(d => identifier.EndsWith($"@{d.Name}", StringComparison.OrdinalIgnoreCase));
+
+                if (!hasVerifiedDomain)
                 {
-                    var defaultDomain = await GetDefaultDomainAsync().ConfigureAwait(false);
+                    var defaultDomain = domains
+                        .First(d => d.IsDefault.HasValue && d.IsDefault.Value);
 
-                    identifier = $"{identifier.Replace("@", "_", StringComparison.OrdinalIgnoreCase)}#EXT#@{defaultDomain}";
+                    identifier = $"{identifier.Replace("@", "_", StringComparison.OrdinalIgnoreCase)}#EXT#@{defaultDomain.Name}";
                 }
-
-                azureUser = await azureSession.ActiveDirectoryUsers
-                    .GetByNameAsync(identifier)
-                    .ConfigureAwait(false);
             }
-            else if (identifier.IsGuid())
+
+            // assume user first
+            var userInner = await graphRbacManagementClient.Users
+                .GetAsync(identifier)
+                .ConfigureAwait(false);
+
+            if (!string.IsNullOrEmpty(userInner?.ObjectId))
+                return Guid.Parse(userInner.ObjectId);
+
+            // otherwise try to find a service pricipal
+            var principalPage = await graphRbacManagementClient.ServicePrincipals
+                .ListAsync(new ODataQuery<ServicePrincipalInner>(sp => sp.ObjectId == identifier || sp.ServicePrincipalNames.Contains(identifier)))
+                .ConfigureAwait(false);
+
+            var principalInner = principalPage
+                .FirstOrDefault(sp => sp.ObjectId == identifier || sp.ServicePrincipalNames.Any(n => n.Equals(identifier, StringComparison.OrdinalIgnoreCase)));
+
+            while (principalInner is null && !string.IsNullOrEmpty(principalPage?.NextPageLink))
             {
-                azureUser = await azureSession.ActiveDirectoryUsers
-                    .GetByIdAsync(identifier)
+                principalPage = await graphRbacManagementClient.ServicePrincipals
+                    .ListNextAsync(principalPage.NextPageLink)
                     .ConfigureAwait(false);
+
+                principalInner = principalPage
+                    .FirstOrDefault(sp => sp.ObjectId == identifier || sp.ServicePrincipalNames.Any(n => n.Equals(identifier, StringComparison.OrdinalIgnoreCase)));
             }
 
-            if (azureUser is null) return null;
+            if (!string.IsNullOrEmpty(principalInner?.ObjectId))
+                return Guid.Parse(principalInner.ObjectId);
 
-            return Guid.Parse(azureUser.Inner.ObjectId);
+            // not a user name or objectId, and not a service pricipal name, appId, or objectId
+            return null;
         }
 
         public Task<Guid?> GetGroupIdAsync(string identifier)
@@ -132,6 +126,74 @@ namespace TeamCloud.Azure.Directory
 
             return servicePrincipalName.Replace(" ", string.Empty, StringComparison.OrdinalIgnoreCase);
         }
+
+        // public async Task<AzureServicePrincipal> CreateServicePrincipalAsync(string servicePrincipalName, string password = null)
+        // {
+        //     if (string.IsNullOrWhiteSpace(servicePrincipalName))
+        //         throw new ArgumentException("Must not NULL or WHITESPACE", nameof(servicePrincipalName));
+
+        //     servicePrincipalName = SanitizeServicePrincipalName(servicePrincipalName);
+
+        //     using var graphRbacManagementClient = azureSessionService
+        //         .CreateClient<GraphRbacManagementClient>(AzureEndpoint.GraphEndpoint);
+
+        //     password ??= CreateServicePrincipalPassword();
+
+        //     var applicationCreateParameters = new ApplicationCreateParameters()
+        //     {
+        //         DisplayName = servicePrincipalName,
+        //         IdentifierUris = new List<string> { $"http://{servicePrincipalName}" },
+        //         Homepage = $"http://{servicePrincipalName}",
+        //         PasswordCredentials = new List<PasswordCredential> {
+        //             new PasswordCredential {
+        //                 StartDate = DateTime.UtcNow,
+        //                 EndDate = DateTime.UtcNow.AddYears(1),
+        //                 KeyId = Guid.NewGuid().ToString(),
+        //                 Value = password,
+        //                 // CustomKeyIdentifier = Convert.ToBase64String(servicePrincipal.ObjectId.ToByteArray())
+        //             }
+        //         },
+        //         RequiredResourceAccess = new List<RequiredResourceAccess> {
+        //             new RequiredResourceAccess {
+        //                 ResourceAppId = "00000003-0000-0000-c000-000000000000",
+        //                 ResourceAccess = new List<ResourceAccess> {
+        //                     new ResourceAccess {
+        //                         Id = "e1fe6dd8-ba31-4d61-89e7-88639da4683d",
+        //                         Type = "Scope"
+        //                     }
+        //                 }
+        //             }
+        //         }
+        //     };
+
+        //     var application = await graphRbacManagementClient.Applications
+        //         .CreateAsync(applicationCreateParameters)
+        //         .ConfigureAwait(false);
+
+        //     var servicePrincipalId = await graphRbacManagementClient.Applications
+        //         .GetServicePrincipalsIdByAppIdAsync(application.AppId)
+        //         .ConfigureAwait(false);
+
+        //     var servicePrincipal = await graphRbacManagementClient.ServicePrincipals
+        //         .GetAsync(servicePrincipalId.Value)
+        //         .ConfigureAwait(false);
+
+        //     var azureServicePrincipal = new AzureServicePrincipal()
+        //     {
+        //         ObjectId = Guid.Parse(servicePrincipal.ObjectId),
+        //         ApplicationId = Guid.Parse(servicePrincipal.AppId),
+        //         Name = servicePrincipal.ServicePrincipalNames.FirstOrDefault(),
+        //         Password = password
+        //     };
+
+        //     var expiresOn = servicePrincipal.PasswordCredentials.FirstOrDefault()?.EndDate;
+
+        //     if (expiresOn.HasValue)
+        //         azureServicePrincipal.ExpiresOn = expiresOn;
+
+        //     return azureServicePrincipal;
+        // }
+
 
         public async Task<AzureServicePrincipal> CreateServicePrincipalAsync(string servicePrincipalName, string password = null)
         {
@@ -327,6 +389,7 @@ namespace TeamCloud.Azure.Directory
         {
             if (string.IsNullOrWhiteSpace(servicePrincipalName))
                 throw new ArgumentException("Must not NULL or WHITESPACE", nameof(servicePrincipalName));
+
 
             var session = azureSessionService.CreateSession();
 
