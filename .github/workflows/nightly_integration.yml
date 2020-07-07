@@ -3,90 +3,94 @@ name: Nightly Integration Tests
 on:
   schedule:
     # run daily at 12am
-    # - cron: '0 0 * * *'
-    - cron: '*/5 * * * *'
+    - cron: '0 0 * * *'
 
 env:
-  TC_CLI_VERSION: 0.5.2
   BUILD_CONFIGURATION: Release
   SOURCE_DIRECTORY: ./src
 
 jobs:
   build:
     name: 'Integration Test'
-    # if:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Test failure
-        run: exit 1
+      - name: Checkout Code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
-      - name: Test run always
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '3.1.300'
+
+      - name: Build TeamCloud.API
+        run: |
+          dotnet publish ${{ env.SOURCE_DIRECTORY }}/TeamCloud.API/TeamCloud.API.csproj -o TeamCloud.API -c ${{ env.BUILD_CONFIGURATION }} -p:IncludeSymbols=true
+
+      - name: Generate OpenAPI definition
+        run: |
+          pushd ${{ env.SOURCE_DIRECTORY }}/TeamCloud.API
+            dotnet tool restore
+            dotnet swagger tofile --output ../../client/swagger.json ../../TeamCloud.API/TeamCloud.API.dll v1
+          popd
+
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '10.x'
+
+      - name: Setup Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.x'
+
+      - name: Install Autorest
+        run: npm install -g autorest
+
+      - name: Generate Python SDK
+        run: |
+          pushd client
+            autorest --v3
+          popd
+
+      - name: Setup Azure CLI Dev Tools (azdev)
+        run: |
+          python -m venv env
+          source env/bin/activate
+          pip install azdev
+          azdev setup -r $PWD -e tc
+          deactivate
+
+      - name: TeamCloud CLI Lint & Style checks
+        run: |
+          source env/bin/activate
+          azdev linter tc
+          azdev style tc
+          deactivate
+
+      - name: Login to Azure CLI
+        run: |
+          source env/bin/activate
+          az login --service-principal -u '${{ secrets.AZURE_SP_NAME }}' -p '${{ secrets.AZURE_SP_PASSWORD }}' -t '${{ secrets.AZURE_SP_TENANT }}'
+          deactivate
+
+      - name: TeamCloud CLI Integration tests
+        id: build_tc_cli
+        run: |
+          source env/bin/activate
+          azdev test tc --live --series
+          deactivate
+
+      - name: az logout (azdev)
         if: ${{ always() }}
-        run: echo 'still ran'
-      # - name: Checkout Code
-      #   uses: actions/checkout@v2
-      #   with:
-      #     fetch-depth: 0
-      # - name: Setup .NET Core
-      #   uses: actions/setup-dotnet@v1
-      #   with:
-      #     dotnet-version: '3.1.300'
-      # - name: Build TeamCloud.API
-      #   run: |
-      #     dotnet publish ${{ env.SOURCE_DIRECTORY }}/TeamCloud.API/TeamCloud.API.csproj -o TeamCloud.API -c ${{ env.BUILD_CONFIGURATION }} -p:IncludeSymbols=true
-      # - name: Generate OpenAPI definition
-      #   run: |
-      #     pushd ${{ env.SOURCE_DIRECTORY }}/TeamCloud.API
-      #       dotnet tool restore
-      #       dotnet swagger tofile --output ../../client/swagger.json ../../TeamCloud.API/TeamCloud.API.dll v1
-      #     popd
-      # - name: Setup Node
-      #   uses: actions/setup-node@v1
-      #   with:
-      #     node-version: '10.x'
-      # - name: Setup Python
-      #   uses: actions/setup-python@v1
-      #   with:
-      #     python-version: '3.x'
-      # - name: Install Autorest
-      #   run: npm install -g autorest
-      # - name: Generate Python SDK
-      #   run: |
-      #     pushd client
-      #       autorest --v3
-      #     popd
-      # - name: Setup Azure CLI Dev Tools (azdev)
-      #   run: |
-      #     python -m venv env
-      #     source env/bin/activate
-      #     pip install azdev
-      #     azdev setup -r $PWD -e tc
-      #     deactivate
-      # - name: TeamCloud CLI Lint & Style checks
-      #   run: |
-      #     source env/bin/activate
-      #     azdev linter tc
-      #     azdev style tc
-      #     deactivate
-      # - name: Login to Azure CLI
-      #   run: |
-      #     source env/bin/activate
-      #     az login --service-principal -u '${{ secrets.AZURE_SP_NAME }}' -p '${{ secrets.AZURE_SP_PASSWORD }}' -t '${{ secrets.AZURE_SP_TENANT }}'
-      #     deactivate
-      # - name: TeamCloud CLI Integration tests
-      #   id: build_tc_cli
-      #   run: |
-      #     source env/bin/activate
-      #     azdev test tc --live --series
-      #     deactivate
-      # - name: az logout (azdev)
-      #   if: ${{ always() }}
-      #   run: |
-      #     source env/bin/activate
-      #     az logout
-      #     deactivate
-      # - name: az logout
-      #   if: ${{ always() }}
-      #   run: |
-      #     az logout
+        run: |
+          source env/bin/activate
+          az logout
+          deactivate
+
+      - name: az logout
+        if: ${{ always() }}
+        run: |
+          az logout

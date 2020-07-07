@@ -7,7 +7,8 @@ import os
 import unittest
 
 from azure_devtools.scenario_tests import AllowLargeResponse
-from azure.cli.testsdk import (ScenarioTest, ResourceGroupPreparer)
+from azure.cli.testsdk import (ScenarioTest, ResourceGroupPreparer,
+                               RoleBasedServicePrincipalPreparer)
 
 
 TEST_DIR = os.path.abspath(os.path.join(os.path.abspath(__file__), '..'))
@@ -16,10 +17,12 @@ TEST_DIR = os.path.abspath(os.path.join(os.path.abspath(__file__), '..'))
 class TeamCloudScenarioTest(ScenarioTest):
 
     @AllowLargeResponse()
-    @ResourceGroupPreparer(parameter_name='tc_group', parameter_name_for_location='location', location='eastus')
-    @ResourceGroupPreparer(parameter_name='ai_group', location='eastus')
-    @ResourceGroupPreparer(parameter_name='dtl_group', location='eastus')
-    def test_tc(self, tc_group, ai_group, dtl_group, location):
+    @ResourceGroupPreparer(parameter_name='tc_group', parameter_name_for_location='location', location='eastus', key='rg')
+    @ResourceGroupPreparer(parameter_name='ai_group', location='eastus', key='rg_ai')
+    @ResourceGroupPreparer(parameter_name='dtl_group', location='eastus', key='rg_dtl')
+    @ResourceGroupPreparer(parameter_name='ado_group', location='eastus', key='rg_ado')
+    @ResourceGroupPreparer(parameter_name='gh_group', location='eastus', key='rg_gh')
+    def test_tc(self, tc_group, ai_group, dtl_group, ado_group, gh_group, location):
 
         subs = self.cmd('az account show', checks=[
             self.exists('id'),
@@ -28,18 +31,17 @@ class TeamCloudScenarioTest(ScenarioTest):
 
         self.kwargs.update({
             'tc': self.create_random_name(prefix='cli', length=11),
+            'proj': self.create_random_name(prefix='cli', length=11),
             'loc': location,
-            'rg': tc_group,
-            'rg_ai': ai_group,
-            'rg_dtl': dtl_group,
             'sub': subs['id'],
-            'email': subs['user']['name'],
+            'username': subs['user']['name'],
             'prop_k': 'CLIProperty',
             'prop_v': 'CLIPropertyValue',
             'proj_type': 'cli.test',
-            'proj': self.create_random_name(prefix='cli', length=11),
             'ai_provider': 'azure.appinsights',
-            'dtl_provider': 'azure.devtestlabs'
+            'dtl_provider': 'azure.devtestlabs',
+            'ado_provider': 'azure.devops',
+            'gh_provider': 'github'
         })
 
         result = self.cmd('tc deploy -n {tc} -g {rg} -l {loc} --pre', checks=[
@@ -54,7 +56,7 @@ class TeamCloudScenarioTest(ScenarioTest):
             import time
             time.sleep(120)  # wait 2 minutes before continuing
 
-        result = self.cmd('tc user show -u {url} -n {email}', checks=[
+        result = self.cmd('tc user show -u {url} -n {username}', checks=[
             self.exists('id'),
             self.check('role', 'Admin')
         ]).get_output_in_json()
@@ -68,7 +70,7 @@ class TeamCloudScenarioTest(ScenarioTest):
             self.check('[0].role', 'Admin'),
         ])
 
-        self.cmd('tc user update -u {url} -n {email} --properties {prop_k}={prop_v}', checks=[
+        self.cmd('tc user update -u {url} -n {username} --properties {prop_k}={prop_v}', checks=[
             self.check('id', '{user}'),
             self.check('role', 'Admin'),
             self.check('properties.{prop_k}', '{prop_v}')
@@ -98,6 +100,30 @@ class TeamCloudScenarioTest(ScenarioTest):
             self.exists('registered')
         ])
 
+        self.cmd('tc provider deploy -u {url} -n {ado_provider} -g {rg_ado} --pre', checks=[
+            self.check('id', '{ado_provider}'),
+            self.exists('url'),
+            self.exists('registered')
+        ])
+
+        self.cmd('tc provider show -u {url} -n {ado_provider}', checks=[
+            self.check('id', '{ado_provider}'),
+            self.exists('url'),
+            self.exists('registered')
+        ])
+
+        self.cmd('tc provider deploy -u {url} -n {gh_provider} -g {rg_gh} --pre', checks=[
+            self.check('id', '{gh_provider}'),
+            self.exists('url'),
+            self.exists('registered')
+        ])
+
+        self.cmd('tc provider show -u {url} -n {gh_provider}', checks=[
+            self.check('id', '{gh_provider}'),
+            self.exists('url'),
+            self.exists('registered')
+        ])
+
         self.cmd('tc provider list -u {url}', checks=[
             self.check('type(@)', 'array'),
             self.check('length(@)', 2),
@@ -107,6 +133,12 @@ class TeamCloudScenarioTest(ScenarioTest):
             self.check("contains([].id, '{dtl_provider}')", True),
             self.exists("[?id=='{dtl_provider}'] | [0].url"),
             self.exists("[?id=='{dtl_provider}'] | [0].registered"),
+            self.check("contains([].id, '{ado_provider}')", True),
+            self.exists("[?id=='{ado_provider}'] | [0].url"),
+            self.exists("[?id=='{ado_provider}'] | [0].registered"),
+            self.check("contains([].id, '{gh_provider}')", True),
+            self.exists("[?id=='{gh_provider}'] | [0].url"),
+            self.exists("[?id=='{gh_provider}'] | [0].registered"),
         ])
 
         self.cmd('tc project-type create -u {url} -n {proj_type} -l {loc} '
@@ -183,7 +215,7 @@ class TeamCloudScenarioTest(ScenarioTest):
             self.check('[0].users[0].projectMemberships[0].role', 'Owner')
         ])
 
-        self.cmd('tc project user update -u {url} -p {proj} -n {email} '
+        self.cmd('tc project user update -u {url} -p {proj} -n {username} '
                  '--properties {prop_k}={prop_v}', checks=[
                      self.check('id', '{user}'),
                      self.check('role', 'Admin'),
@@ -202,7 +234,7 @@ class TeamCloudScenarioTest(ScenarioTest):
 
         self.cmd('tc project list -u {url}', checks=self.is_empty())
 
-        self.cmd('tc user show -u {url} -n {email}', checks=[
+        self.cmd('tc user show -u {url} -n {username}', checks=[
             self.check('id', '{user}'),
             self.check('role', 'Admin'),
             self.check('properties.{prop_k}', '{prop_v}'),

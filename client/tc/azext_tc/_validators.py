@@ -18,15 +18,15 @@ def tc_deploy_validator(cmd, namespace):
     if namespace.principal_name is not None:
         if namespace.principal_password is None:
             raise CLIError(
-                '--principal-password must be have a value if --principal-name is specified')
+                'usage error: --principal-password must be have a value if --principal-name is specified')
     if namespace.principal_password is not None:
         if namespace.principal_name is None:
             raise CLIError(
-                '--principal-name must be have a value if --principal-password is specified')
+                'usage error: --principal-name must be have a value if --principal-password is specified')
 
     if sum(1 for ct in [namespace.version, namespace.prerelease, namespace.index_url] if ct) > 1:
         raise CLIError(
-            'Invalid argument usage: can only use one of --index-url | --version | --pre')
+            'usage error: can only use one of --index-url | --version | --pre')
 
     if namespace.version:
         namespace.version = namespace.version.lower()
@@ -188,7 +188,7 @@ def index_url_validator(cmd, namespace):
     if namespace.index_url:
         if namespace.prerelease or namespace.version:
             raise CLIError(
-                'Invalid argument usage: can only use one of --index-url | --version | --pre')
+                'usage error: can only use one of --index-url | --version | --pre')
         if not _is_valid_url(namespace.index_url):
             raise CLIError(
                 '--index-url should be a valid url')
@@ -206,7 +206,7 @@ def source_version_validator(cmd, namespace):
     if namespace.version:
         if namespace.prerelease or namespace.index_url:
             raise CLIError(
-                'Invalid argument usage: can only use one of --index-url | --version | --pre')
+                'usage error: can only use one of --index-url | --version | --pre')
         namespace.version = namespace.version.lower()
         if namespace.version[:1].isdigit():
             namespace.version = 'v' + namespace.version
@@ -219,7 +219,7 @@ def teamcloud_source_version_validator(cmd, namespace):
     if namespace.version:
         if namespace.prerelease or namespace.index_url:
             raise CLIError(
-                'Invalid argument usage: can only use one of --index-url | --version | --pre')
+                'usage error: can only use one of --index-url | --version | --pre')
         namespace.version = namespace.version.lower()
         if namespace.version[:1].isdigit():
             namespace.version = 'v' + namespace.version
@@ -237,7 +237,7 @@ def providers_source_version_validator(cmd, namespace):
     if namespace.version:
         if namespace.prerelease or namespace.index_url:
             raise CLIError(
-                'Invalid argument usage: can only use one of --index-url | --version | --pre')
+                'usage error: can only use one of --index-url | --version | --pre')
         namespace.version = namespace.version.lower()
         if namespace.version[:1].isdigit():
             namespace.version = 'v' + namespace.version
