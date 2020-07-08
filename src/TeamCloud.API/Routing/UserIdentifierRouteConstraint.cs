@@ -29,7 +29,7 @@ namespace TeamCloud.API.Routing
             if (values.TryGetValue(routeKey, out var routeValue))
             {
                 var routeValueString = Convert.ToString(routeValue, CultureInfo.InvariantCulture);
-                return routeValueString.IsGuid() || routeValueString.IsEMail();
+                return routeValueString.IsUserIdentifier();
             }
 
             return false;

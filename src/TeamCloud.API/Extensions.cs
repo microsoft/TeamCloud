@@ -74,6 +74,12 @@ namespace TeamCloud.API
         public static bool IsEMail(this string value)
             => new EmailAddressAttribute().IsValid(value);
 
+        public static bool IsUserIdentifier(this string identifier)
+            => !string.IsNullOrEmpty(identifier)
+            && ((Guid.TryParse(identifier, out var outGuid) && !outGuid.Equals(Guid.Empty))
+                || new EmailAddressAttribute().IsValid(identifier)
+                || new UrlAttribute().IsValid(identifier));
+
         public static async Task<IActionResult> InvokeAndReturnAccepted(this Orchestrator orchestrator, IOrchestratorCommand command)
         {
             var commandResult = await orchestrator

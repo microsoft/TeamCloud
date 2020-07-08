@@ -188,6 +188,12 @@ namespace TeamCloud.Model.Validation
                 .EmailAddress()
                     .WithMessage("'{PropertyName}' must be a valid email address.");
 
+        public static IRuleBuilderOptions<T, string> MustBeUserIdentifier<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
+            => ruleBuilder
+                .Cascade(CascadeMode.StopOnFirstFailure)
+                .NotEmpty()
+                .Must(BeUserIdentifier)
+                    .WithMessage("'{PropertyName}' must be a valid email address, non-empty GUID, or url.");
 
         public static IRuleBuilderOptions<T, string> MustBeGuid<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
             => ruleBuilder
@@ -259,6 +265,12 @@ namespace TeamCloud.Model.Validation
         private static bool BeUrl(string url)
             => !string.IsNullOrEmpty(url)
             && Uri.TryCreate(url, UriKind.Absolute, out var _);
+
+        private static bool BeUserIdentifier(string identifier)
+            => !string.IsNullOrEmpty(identifier)
+            && ((Guid.TryParse(identifier, out var outGuid) && !outGuid.Equals(Guid.Empty))
+                || new System.ComponentModel.DataAnnotations.EmailAddressAttribute().IsValid(identifier)
+                || new System.ComponentModel.DataAnnotations.UrlAttribute().IsValid(identifier));
 
         private static bool BeUserRole(string role)
             => !string.IsNullOrEmpty(role)

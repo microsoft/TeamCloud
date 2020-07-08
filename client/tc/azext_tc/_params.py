@@ -37,7 +37,7 @@ def load_arguments(self, _):
 
     user_name_or_id_type = CLIArgumentType(
         options_list=['--name', '-n'],
-        help='User id (uuid) or email.',
+        help='User id (uuid) or name.',
         validator=user_name_or_id_validator)
 
     project_name_or_id_type = CLIArgumentType(

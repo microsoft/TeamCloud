@@ -27,7 +27,7 @@ namespace TeamCloud.API.Data
     {
         public UserDefinitionProjectValidator()
         {
-            RuleFor(obj => obj.Identifier).MustBeEmail();
+            RuleFor(obj => obj.Identifier).MustBeUserIdentifier();
             RuleFor(obj => obj.Role).MustBeProjectUserRole();
         }
     }
@@ -36,7 +36,7 @@ namespace TeamCloud.API.Data
     {
         public UserDefinitionTeamCloudValidator()
         {
-            RuleFor(obj => obj.Identifier).MustBeEmail();
+            RuleFor(obj => obj.Identifier).MustBeUserIdentifier();
             RuleFor(obj => obj.Role).MustBeTeamCloudUserRole();
         }
     }
@@ -45,7 +45,7 @@ namespace TeamCloud.API.Data
     {
         public UserDefinitionTeamCloudAdminValidator()
         {
-            RuleFor(obj => obj.Identifier).MustBeEmail();
+            RuleFor(obj => obj.Identifier).MustBeUserIdentifier();
             RuleFor(obj => obj.Role)
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .NotEmpty()
