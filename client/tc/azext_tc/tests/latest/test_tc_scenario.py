@@ -17,12 +17,13 @@ TEST_DIR = os.path.abspath(os.path.join(os.path.abspath(__file__), '..'))
 class TeamCloudScenarioTest(ScenarioTest):
 
     @AllowLargeResponse()
+    @RoleBasedServicePrincipalPreparer()
     @ResourceGroupPreparer(parameter_name='tc_group', parameter_name_for_location='location', location='eastus', key='rg')
     @ResourceGroupPreparer(parameter_name='ai_group', location='eastus', key='rg_ai')
     @ResourceGroupPreparer(parameter_name='dtl_group', location='eastus', key='rg_dtl')
     @ResourceGroupPreparer(parameter_name='ado_group', location='eastus', key='rg_ado')
     @ResourceGroupPreparer(parameter_name='gh_group', location='eastus', key='rg_gh')
-    def test_tc(self, tc_group, ai_group, dtl_group, ado_group, gh_group, location):
+    def test_tc(self, sp_name, sp_password, tc_group, ai_group, dtl_group, ado_group, gh_group, location):
 
         subs = self.cmd('az account show', checks=[
             self.exists('id'),
@@ -44,10 +45,14 @@ class TeamCloudScenarioTest(ScenarioTest):
             'gh_provider': 'github'
         })
 
-        result = self.cmd('tc deploy -n {tc} -g {rg} -l {loc} --pre', checks=[
-            self.check('location', '{loc}'),
-            self.exists('base_url')
-        ]).get_output_in_json()
+        ci = os.environ.get('AZURE_CLI_TEST_DEV_SP_NAME', None)
+
+        result = self.cmd('tc deploy -n {tc} -g {rg} -l {loc} --pre' +
+                          (' --principal-name {sp} --principal-password {sp_pass}' if ci else ''),
+                          checks=[
+                              self.check('location', '{loc}'),
+                              self.exists('base_url')
+                          ]).get_output_in_json()
 
         self.kwargs.update({'url': result['base_url']})
 
