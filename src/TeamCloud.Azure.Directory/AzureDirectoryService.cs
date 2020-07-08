@@ -67,13 +67,16 @@ namespace TeamCloud.Azure.Directory
                 }
             }
 
-            // assume user first
-            var userInner = await graphRbacManagementClient.Users
-                .GetAsync(identifier)
-                .ConfigureAwait(false);
+            // assume user first as long as it's not a url
+            if (!identifier.StartsWithHttp())
+            {
+                var userInner = await graphRbacManagementClient.Users
+                    .GetAsync(identifier)
+                    .ConfigureAwait(false);
 
-            if (!string.IsNullOrEmpty(userInner?.ObjectId))
-                return Guid.Parse(userInner.ObjectId);
+                if (!string.IsNullOrEmpty(userInner?.ObjectId))
+                    return Guid.Parse(userInner.ObjectId);
+            }
 
             // otherwise try to find a service pricipal
             var principalPage = await graphRbacManagementClient.ServicePrincipals
