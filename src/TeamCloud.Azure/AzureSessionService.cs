@@ -224,6 +224,10 @@ namespace TeamCloud.Azure
                     && propertyInfo.PropertyType == typeof(string))
                     propertyInfo.SetValue(client, subscriptionId.Value.ToString());
 
+                if (typeof(T).TryGetProperty("TenantID", out PropertyInfo tenantPropertyInfo)
+                    && tenantPropertyInfo.PropertyType == typeof(string))
+                    tenantPropertyInfo.SetValue(client, azureSessionOptions.TenantId);
+
                 return client;
             }
             catch (TypeInitializationException)
