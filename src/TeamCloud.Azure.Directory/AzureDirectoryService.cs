@@ -79,8 +79,15 @@ namespace TeamCloud.Azure.Directory
             }
 
             // otherwise try to find a service pricipal
+            var principalQuery = new ODataQuery<ServicePrincipalInner>();
+
+            if (identifier.IsGuid())
+                principalQuery.SetFilter(sp => sp.ObjectId == identifier || sp.ServicePrincipalNames.Contains(identifier));
+            else
+                principalQuery.SetFilter(sp => sp.ServicePrincipalNames.Contains(identifier));
+
             var principalPage = await graphRbacManagementClient.ServicePrincipals
-                .ListAsync(new ODataQuery<ServicePrincipalInner>(sp => sp.ObjectId == identifier || sp.ServicePrincipalNames.Contains(identifier)))
+                .ListAsync(principalQuery)
                 .ConfigureAwait(false);
 
             var principalInner = principalPage
