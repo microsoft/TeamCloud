@@ -91,7 +91,7 @@ def load_arguments(self, _):
                         'for the TeamCloud instance service endpoint.')
         c.argument('resource_group_name', resource_group_name_type,
                    default='TeamCloud')
-        c.argument('principal_name', help='Service principal name, or object id.')
+        c.argument('principal_name', help='Service principal app (client) id.')
         c.argument('principal_password', help="Service principal password, aka 'client secret'.")
         c.argument('tags', tags_type)
         c.argument('version', options_list=['--version', '-v'],

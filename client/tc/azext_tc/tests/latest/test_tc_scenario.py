@@ -27,6 +27,9 @@ class TeamCloudScenarioTest(ScenarioTest):
     @ResourceGroupPreparer(parameter_name='gh_group', location='eastus', key='rg_gh')
     def test_tc(self, sp_name, sp_password, tc_group, ai_group, dtl_group, ado_group, gh_group, location):
 
+        if os.environ.get('TEMP_AZURE_CLI_TEST_DEV_RESOURCE_GROUP_NAME', None):
+            self.kwargs.update({'rg': tc_group})
+
         subs = self.cmd('az account show', checks=[
             self.exists('id'),
             self.exists('user.name')
