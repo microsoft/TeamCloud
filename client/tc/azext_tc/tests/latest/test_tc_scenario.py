@@ -18,7 +18,9 @@ class TeamCloudScenarioTest(ScenarioTest):
 
     @AllowLargeResponse()
     @RoleBasedServicePrincipalPreparer()
-    @ResourceGroupPreparer(parameter_name='tc_group', parameter_name_for_location='location', location='eastus', key='rg')
+    @ResourceGroupPreparer(parameter_name='tc_group', parameter_name_for_location='location', location='eastus', key='rg',
+                           dev_setting_name='TEMP_AZURE_CLI_TEST_DEV_RESOURCE_GROUP_NAME',
+                           dev_setting_location='AZURE_CLI_TEST_DEV_RESOURCE_GROUP_LOCATION')
     @ResourceGroupPreparer(parameter_name='ai_group', location='eastus', key='rg_ai')
     @ResourceGroupPreparer(parameter_name='dtl_group', location='eastus', key='rg_dtl')
     @ResourceGroupPreparer(parameter_name='ado_group', location='eastus', key='rg_ado')

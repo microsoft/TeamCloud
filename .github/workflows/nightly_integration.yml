@@ -79,11 +79,13 @@ jobs:
       - name: TeamCloud CLI Integration tests
         run: |
           source env/bin/activate
-          azdev test tc --live --series
+          azdev test tc --live --series --debug
           deactivate
         env:
           AZURE_CLI_TEST_DEV_SP_NAME: ${{ secrets.TEAMCLOUD_SP_NAME }}
           AZURE_CLI_TEST_DEV_SP_PASSWORD: ${{ secrets.TEAMCLOUD_SP_PASSWORD }}
+          TEMP_AZURE_CLI_TEST_DEV_RESOURCE_GROUP_NAME: TempTeamCloudCi
+          AZURE_CLI_TEST_DEV_RESOURCE_GROUP_LOCATION: eastus
 
       - name: az logout (azdev)
         if: ${{ always() }}
