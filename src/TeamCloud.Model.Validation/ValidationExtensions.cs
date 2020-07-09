@@ -267,10 +267,25 @@ namespace TeamCloud.Model.Validation
             && Uri.TryCreate(url, UriKind.Absolute, out var _);
 
         private static bool BeUserIdentifier(string identifier)
-            => !string.IsNullOrEmpty(identifier)
-            && ((Guid.TryParse(identifier, out var outGuid) && !outGuid.Equals(Guid.Empty))
-                || new System.ComponentModel.DataAnnotations.EmailAddressAttribute().IsValid(identifier)
-                || new System.ComponentModel.DataAnnotations.UrlAttribute().IsValid(identifier));
+        {
+            if (string.IsNullOrEmpty(identifier))
+                return false;
+
+            if (Guid.TryParse(identifier, out var outGuid) && !outGuid.Equals(Guid.Empty))
+                return true;
+
+            if (new System.ComponentModel.DataAnnotations.EmailAddressAttribute().IsValid(identifier))
+                return true;
+
+            identifier = identifier
+                .Replace("%3A", ":", StringComparison.OrdinalIgnoreCase)
+                .Replace("%2F", "/", StringComparison.OrdinalIgnoreCase);
+
+            if (new System.ComponentModel.DataAnnotations.UrlAttribute().IsValid(identifier))
+                return true;
+
+            return false;
+        }
 
         private static bool BeUserRole(string role)
             => !string.IsNullOrEmpty(role)
