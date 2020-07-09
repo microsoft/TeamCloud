@@ -2,8 +2,8 @@ name: Nightly Integration Tests
 
 on:
   schedule:
-    # run daily at 12am
-    - cron: '0 0 * * *'
+    # run daily at 12am PDT
+    - cron: '0 7 * * *'
 
 env:
   BUILD_CONFIGURATION: Release

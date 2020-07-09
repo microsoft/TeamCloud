@@ -75,10 +75,25 @@ namespace TeamCloud.API
             => new EmailAddressAttribute().IsValid(value);
 
         public static bool IsUserIdentifier(this string identifier)
-            => !string.IsNullOrEmpty(identifier)
-            && ((Guid.TryParse(identifier, out var outGuid) && !outGuid.Equals(Guid.Empty))
-                || new EmailAddressAttribute().IsValid(identifier)
-                || new UrlAttribute().IsValid(identifier));
+        {
+            if (string.IsNullOrEmpty(identifier))
+                return false;
+
+            if (Guid.TryParse(identifier, out var outGuid) && !outGuid.Equals(Guid.Empty))
+                return true;
+
+            if (new EmailAddressAttribute().IsValid(identifier))
+                return true;
+
+            identifier = identifier
+                .Replace("%3A", ":", StringComparison.OrdinalIgnoreCase)
+                .Replace("%2F", "/", StringComparison.OrdinalIgnoreCase);
+
+            if (new UrlAttribute().IsValid(identifier))
+                return true;
+
+            return false;
+        }
 
         public static async Task<IActionResult> InvokeAndReturnAccepted(this Orchestrator orchestrator, IOrchestratorCommand command)
         {

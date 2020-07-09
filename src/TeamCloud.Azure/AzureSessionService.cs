@@ -22,6 +22,7 @@ using RMFluent = Microsoft.Azure.Management.ResourceManager.Fluent;
 
 namespace TeamCloud.Azure
 {
+
     public interface IAzureSessionService
     {
         AzureEnvironment Environment { get; }

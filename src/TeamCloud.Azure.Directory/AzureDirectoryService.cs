@@ -67,6 +67,10 @@ namespace TeamCloud.Azure.Directory
                 }
             }
 
+            identifier = identifier
+                .Replace("%3A", ":", StringComparison.OrdinalIgnoreCase)
+                .Replace("%2F", "/", StringComparison.OrdinalIgnoreCase);
+
             // assume user first as long as it's not a url
             if (!identifier.StartsWithHttp())
             {
