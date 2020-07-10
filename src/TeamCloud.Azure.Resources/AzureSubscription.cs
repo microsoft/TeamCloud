@@ -46,6 +46,20 @@ namespace TeamCloud.Azure.Resources
             }
         }
 
+        public async Task<AzureResourceGroup> CreateResourceGroupAsync(string name, string region = default)
+        {
+            var session = AzureResourceService.AzureSessionService
+                .CreateSession(this.ResourceId.SubscriptionId);
+
+            _ = await session.ResourceGroups
+                .Define(name)
+                .WithRegion(region ?? AzureResourceService.AzureSessionService.Environment.Name)
+                .CreateAsync()
+                .ConfigureAwait(false);
+
+            return new AzureResourceGroup(this.ResourceId.SubscriptionId, name, this.AzureResourceService);
+        }
+
         public override async Task<IDictionary<string, string>> GetTagsAsync(bool includeHidden = false)
         {
             var token = await AzureResourceService.AzureSessionService
