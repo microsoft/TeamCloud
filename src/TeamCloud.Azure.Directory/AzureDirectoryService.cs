@@ -8,13 +8,11 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
-using Flurl;
-using Flurl.Http;
 using Microsoft.Azure.Management.Graph.RBAC.Fluent;
 using Microsoft.Azure.Management.Graph.RBAC.Fluent.Models;
 using Microsoft.Rest.Azure.OData;
-using TeamCloud.Http;
 
 namespace TeamCloud.Azure.Directory
 {
@@ -24,11 +22,11 @@ namespace TeamCloud.Azure.Directory
 
         Task<Guid?> GetGroupIdAsync(string identifier);
 
-        Task<AzureServicePrincipal> CreateServicePrincipalAsync(string servicePrincipalName, string password = null);
+        Task<AzureServicePrincipal> CreateServicePrincipalAsync(string name, string password = null);
 
-        Task<AzureServicePrincipal> GetServicePrincipalAsync(string servicePrincipalName);
+        Task<AzureServicePrincipal> GetServicePrincipalAsync(string name);
 
-        Task DeleteServicePrincipalAsync(string servicePrincipalName);
+        Task DeleteServicePrincipalAsync(string name);
     }
 
     public class AzureDirectoryService : IAzureDirectoryService
@@ -45,12 +43,47 @@ namespace TeamCloud.Azure.Directory
             if (identifier is null)
                 throw new ArgumentNullException(nameof(identifier));
 
-            using var graphRbacManagementClient = azureSessionService
+            using var client = azureSessionService
                 .CreateClient<GraphRbacManagementClient>(AzureEndpoint.GraphEndpoint);
+
+            identifier = identifier
+                .Replace("%3A", ":", StringComparison.OrdinalIgnoreCase)
+                .Replace("%2F", "/", StringComparison.OrdinalIgnoreCase);
+
+            // assume user first
+            var userInner = await GetUserInnerAsync(client, identifier)
+                .ConfigureAwait(false);
+
+            if (!string.IsNullOrEmpty(userInner?.ObjectId))
+                return Guid.Parse(userInner.ObjectId);
+
+            // otherwise try to find a service pricipal
+            var principalInner = await GetServicePrincipalInnerAsync(client, identifier)
+                .ConfigureAwait(false);
+
+            if (!string.IsNullOrEmpty(principalInner?.ObjectId))
+                return Guid.Parse(principalInner.ObjectId);
+
+            // not a user name or objectId, and not a service pricipal name, appId, or objectId
+            return null;
+        }
+
+        public Task<Guid?> GetGroupIdAsync(string identifier)
+        {
+            throw new NotImplementedException();
+        }
+
+        private static async Task<UserInner> GetUserInnerAsync(GraphRbacManagementClient client, string identifier)
+        {
+            if (identifier.StartsWithHttp())
+                return null;
+
+            if (!(identifier.IsGuid() || identifier.IsEMail()))
+                return null;
 
             if (identifier.IsEMail())
             {
-                var domains = await graphRbacManagementClient.Domains
+                var domains = await client.Domains
                     .ListAsync()
                     .ConfigureAwait(false);
 
@@ -67,56 +100,96 @@ namespace TeamCloud.Azure.Directory
                 }
             }
 
-            identifier = identifier
-                .Replace("%3A", ":", StringComparison.OrdinalIgnoreCase)
-                .Replace("%2F", "/", StringComparison.OrdinalIgnoreCase);
-
-            // assume user first as long as it's not a url
-            if (!identifier.StartsWithHttp())
+            try
             {
-                var userInner = await graphRbacManagementClient.Users
+                return await client.Users
                     .GetAsync(identifier)
                     .ConfigureAwait(false);
-
-                if (!string.IsNullOrEmpty(userInner?.ObjectId))
-                    return Guid.Parse(userInner.ObjectId);
             }
-
-            // otherwise try to find a service pricipal
-            var principalQuery = new ODataQuery<ServicePrincipalInner>();
-
-            if (identifier.IsGuid())
-                principalQuery.SetFilter(sp => sp.ObjectId == identifier || sp.ServicePrincipalNames.Contains(identifier));
-            else
-                principalQuery.SetFilter(sp => sp.ServicePrincipalNames.Contains(identifier));
-
-            var principalPage = await graphRbacManagementClient.ServicePrincipals
-                .ListAsync(principalQuery)
-                .ConfigureAwait(false);
-
-            var principalInner = principalPage
-                .FirstOrDefault(sp => sp.ObjectId == identifier || sp.ServicePrincipalNames.Any(n => n.Equals(identifier, StringComparison.OrdinalIgnoreCase)));
-
-            while (principalInner is null && !string.IsNullOrEmpty(principalPage?.NextPageLink))
+            catch (GraphErrorException)
             {
-                principalPage = await graphRbacManagementClient.ServicePrincipals
-                    .ListNextAsync(principalPage.NextPageLink)
-                    .ConfigureAwait(false);
-
-                principalInner = principalPage
-                    .FirstOrDefault(sp => sp.ObjectId == identifier || sp.ServicePrincipalNames.Any(n => n.Equals(identifier, StringComparison.OrdinalIgnoreCase)));
+                return null;
             }
-
-            if (!string.IsNullOrEmpty(principalInner?.ObjectId))
-                return Guid.Parse(principalInner.ObjectId);
-
-            // not a user name or objectId, and not a service pricipal name, appId, or objectId
-            return null;
         }
 
-        public Task<Guid?> GetGroupIdAsync(string identifier)
+        private static async Task<ServicePrincipalInner> GetServicePrincipalInnerAsync(GraphRbacManagementClient client, string identifier)
         {
-            throw new NotImplementedException();
+            var query = new ODataQuery<ServicePrincipalInner>();
+
+            var httpIdentifier = $"http://{identifier}";
+            var httpsIdentifier = $"https://{identifier}";
+
+            if (identifier.IsGuid())
+                query.SetFilter(sp => sp.ObjectId == identifier || sp.AppId == identifier || sp.ServicePrincipalNames.Contains(identifier));
+            else if (!identifier.StartsWithHttp())
+                query.SetFilter(sp => sp.ServicePrincipalNames.Contains(identifier) || sp.ServicePrincipalNames.Contains(httpIdentifier) || sp.ServicePrincipalNames.Contains(httpsIdentifier));
+            else
+                query.SetFilter(sp => sp.ServicePrincipalNames.Contains(identifier));
+
+            try
+            {
+                var page = await client.ServicePrincipals
+                    .ListAsync(query)
+                    .ConfigureAwait(false);
+
+                var principal = page.FirstOrDefault();
+
+                while (principal is null && !string.IsNullOrEmpty(page?.NextPageLink))
+                {
+                    page = await client.ServicePrincipals
+                        .ListNextAsync(page.NextPageLink)
+                        .ConfigureAwait(false);
+
+                    principal = page.FirstOrDefault();
+                }
+
+                return principal;
+
+            }
+            catch (GraphErrorException)
+            {
+                return null;
+            }
+        }
+
+        private static async Task<ApplicationInner> GetServiceApplicationInnerAsync(GraphRbacManagementClient client, string identifier)
+        {
+            var query = new ODataQuery<ApplicationInner>();
+
+            var httpIdentifier = $"http://{identifier}";
+            var httpsIdentifier = $"https://{identifier}";
+
+            if (identifier.IsGuid())
+                query.SetFilter(a => a.ObjectId == identifier || a.AppId == identifier);
+            else if (!identifier.StartsWithHttp())
+                query.SetFilter(a => a.IdentifierUris.Contains(httpIdentifier) || a.IdentifierUris.Contains(httpsIdentifier));
+            else
+                query.SetFilter(a => a.IdentifierUris.Contains(identifier));
+
+            try
+            {
+                var page = await client.Applications
+                    .ListAsync(query)
+                    .ConfigureAwait(false);
+
+                var application = page.FirstOrDefault();
+
+                while (application is null && !string.IsNullOrEmpty(page?.NextPageLink))
+                {
+                    page = await client.Applications
+                        .ListNextAsync(page.NextPageLink)
+                        .ConfigureAwait(false);
+
+                    application = page.FirstOrDefault();
+                }
+
+                return application;
+
+            }
+            catch (GraphErrorException)
+            {
+                return null;
+            }
         }
 
         private static string CreateServicePrincipalPassword()
@@ -129,296 +202,143 @@ namespace TeamCloud.Azure.Directory
             return Convert.ToBase64String(tokenBuffer);
         }
 
-        private static string SanitizeServicePrincipalName(string servicePrincipalName)
+        private static string SanitizeServicePrincipalName(string name)
         {
             const string ServicePrincipalNamePrefix = "TeamCloud/";
 
-            if (servicePrincipalName.StartsWith(ServicePrincipalNamePrefix, StringComparison.OrdinalIgnoreCase))
-                servicePrincipalName = ServicePrincipalNamePrefix + servicePrincipalName.Substring(ServicePrincipalNamePrefix.Length);
+            if (name.StartsWith(ServicePrincipalNamePrefix, StringComparison.OrdinalIgnoreCase))
+                name = ServicePrincipalNamePrefix + name.Substring(ServicePrincipalNamePrefix.Length);
             else
-                servicePrincipalName = ServicePrincipalNamePrefix + servicePrincipalName;
+                name = ServicePrincipalNamePrefix + name;
 
-            return servicePrincipalName.Replace(" ", string.Empty, StringComparison.OrdinalIgnoreCase);
+            return name.Replace(" ", string.Empty, StringComparison.OrdinalIgnoreCase);
         }
 
-        // public async Task<AzureServicePrincipal> CreateServicePrincipalAsync(string servicePrincipalName, string password = null)
-        // {
-        //     if (string.IsNullOrWhiteSpace(servicePrincipalName))
-        //         throw new ArgumentException("Must not NULL or WHITESPACE", nameof(servicePrincipalName));
-
-        //     servicePrincipalName = SanitizeServicePrincipalName(servicePrincipalName);
-
-        //     using var graphRbacManagementClient = azureSessionService
-        //         .CreateClient<GraphRbacManagementClient>(AzureEndpoint.GraphEndpoint);
-
-        //     password ??= CreateServicePrincipalPassword();
-
-        //     var applicationCreateParameters = new ApplicationCreateParameters()
-        //     {
-        //         DisplayName = servicePrincipalName,
-        //         IdentifierUris = new List<string> { $"http://{servicePrincipalName}" },
-        //         Homepage = $"http://{servicePrincipalName}",
-        //         PasswordCredentials = new List<PasswordCredential> {
-        //             new PasswordCredential {
-        //                 StartDate = DateTime.UtcNow,
-        //                 EndDate = DateTime.UtcNow.AddYears(1),
-        //                 KeyId = Guid.NewGuid().ToString(),
-        //                 Value = password,
-        //                 // CustomKeyIdentifier = Convert.ToBase64String(servicePrincipal.ObjectId.ToByteArray())
-        //             }
-        //         },
-        //         RequiredResourceAccess = new List<RequiredResourceAccess> {
-        //             new RequiredResourceAccess {
-        //                 ResourceAppId = "00000003-0000-0000-c000-000000000000",
-        //                 ResourceAccess = new List<ResourceAccess> {
-        //                     new ResourceAccess {
-        //                         Id = "e1fe6dd8-ba31-4d61-89e7-88639da4683d",
-        //                         Type = "Scope"
-        //                     }
-        //                 }
-        //             }
-        //         }
-        //     };
-
-        //     var application = await graphRbacManagementClient.Applications
-        //         .CreateAsync(applicationCreateParameters)
-        //         .ConfigureAwait(false);
-
-        //     var servicePrincipalId = await graphRbacManagementClient.Applications
-        //         .GetServicePrincipalsIdByAppIdAsync(application.AppId)
-        //         .ConfigureAwait(false);
-
-        //     var servicePrincipal = await graphRbacManagementClient.ServicePrincipals
-        //         .GetAsync(servicePrincipalId.Value)
-        //         .ConfigureAwait(false);
-
-        //     var azureServicePrincipal = new AzureServicePrincipal()
-        //     {
-        //         ObjectId = Guid.Parse(servicePrincipal.ObjectId),
-        //         ApplicationId = Guid.Parse(servicePrincipal.AppId),
-        //         Name = servicePrincipal.ServicePrincipalNames.FirstOrDefault(),
-        //         Password = password
-        //     };
-
-        //     var expiresOn = servicePrincipal.PasswordCredentials.FirstOrDefault()?.EndDate;
-
-        //     if (expiresOn.HasValue)
-        //         azureServicePrincipal.ExpiresOn = expiresOn;
-
-        //     return azureServicePrincipal;
-        // }
-
-
-        public async Task<AzureServicePrincipal> CreateServicePrincipalAsync(string servicePrincipalName, string password = null)
+        public async Task<AzureServicePrincipal> CreateServicePrincipalAsync(string name, string password = null)
         {
-            if (string.IsNullOrWhiteSpace(servicePrincipalName))
-                throw new ArgumentException("Must not NULL or WHITESPACE", nameof(servicePrincipalName));
+            if (name is null)
+                throw new ArgumentNullException(nameof(name));
 
-            servicePrincipalName = SanitizeServicePrincipalName(servicePrincipalName);
+            name = SanitizeServicePrincipalName(name);
 
-            try
+            using var client = azureSessionService
+                .CreateClient<GraphRbacManagementClient>(AzureEndpoint.GraphEndpoint);
+
+            password ??= CreateServicePrincipalPassword();
+
+            var expiresOn = DateTime.UtcNow.AddYears(1);
+
+            var parameters = new ApplicationCreateParameters()
             {
-                var servicePrincipal = await azureSessionService.CreateSession()
-                    .ServicePrincipals
-                    .Define(servicePrincipalName)
-                        .WithNewApplication($"http://{servicePrincipalName}")
-                        .CreateAsync()
-                        .ConfigureAwait(false);
-
-                return await ResetServicePrincipalAsync(servicePrincipalName, password)
-                    .ConfigureAwait(false);
-            }
-            catch
-            {
-                // we created the service principal as part of this call
-                // as the password set operation failed we will try
-                // to clean up our mess
-
-                await DeleteServicePrincipalAsync(servicePrincipalName)
-                    .ConfigureAwait(false);
-
-                throw;
-            }
-        }
-
-        public async Task<AzureServicePrincipal> ResetServicePrincipalAsync(string servicePrincipalName, string password = null)
-        {
-            if (string.IsNullOrWhiteSpace(servicePrincipalName))
-                throw new ArgumentException("Must not NULL or WHITESPACE", nameof(servicePrincipalName));
-
-            var serviceApplication = await GetServiceApplicationInternalAsync(servicePrincipalName)
-                .ConfigureAwait(false);
-
-            if (serviceApplication is null)
-                throw new ArgumentOutOfRangeException(nameof(servicePrincipalName));
-
-            var servicePrincipal = await GetServicePrincipalAsync(servicePrincipalName)
-                .ConfigureAwait(false);
-
-            var token = await azureSessionService
-                .AcquireTokenAsync(AzureEndpoint.GraphEndpoint)
-                .ConfigureAwait(false);
-
-            if (string.IsNullOrEmpty(password))
-                password = CreateServicePrincipalPassword();
-
-            var startDate = DateTime.UtcNow;
-            var endDate = startDate.AddYears(1);
-
-            var patchPayloads = new List<object>()
-            {
-                new
-                {
-                    passwordCredentials = new[]
-                    {
-                        new
-                        {
-                            startDate,
-                            endDate,
-                            keyId = Guid.NewGuid(),
-                            value = password,
-                            customKeyIdentifier = Convert.ToBase64String(servicePrincipal.ObjectId.ToByteArray())
-                        }
+                DisplayName = name,
+                IdentifierUris = new List<string> { $"http://{name}" },
+                Homepage = $"http://{name}",
+                PasswordCredentials = new List<PasswordCredential> {
+                    new PasswordCredential {
+                        StartDate = DateTime.UtcNow,
+                        EndDate = expiresOn,
+                        KeyId = Guid.NewGuid().ToString(),
+                        Value = password,
+                        CustomKeyIdentifier = Encoding.ASCII.GetBytes(name)
                     }
                 },
-                new
-                {
-                    requiredResourceAccess = new[]
-                    {
-                        new
-                        {
-                            resourceAppId = "00000003-0000-0000-c000-000000000000",
-                            resourceAccess = new[]
-                            {
-                                new
-                                {
-                                    id = "e1fe6dd8-ba31-4d61-89e7-88639da4683d",
-                                    type = "Scope"
-                                }
+                RequiredResourceAccess = new List<RequiredResourceAccess> {
+                    new RequiredResourceAccess {
+                        ResourceAppId = "00000003-0000-0000-c000-000000000000",
+                        ResourceAccess = new List<ResourceAccess> {
+                            new ResourceAccess {
+                                Id = "e1fe6dd8-ba31-4d61-89e7-88639da4683d",
+                                Type = "Scope"
                             }
                         }
                     }
                 }
             };
 
-            var patchTasks = patchPayloads
-                .Select(payload => $"https://graph.windows.net/{azureSessionService.Options.TenantId}/applications/{serviceApplication.Inner.ObjectId}"
-                                    .SetQueryParam("api-version", "1.6")
-                                    .WithOAuthBearerToken(token)
-                                    .PatchJsonAsync(payload));
-
-            await Task
-                .WhenAll(patchTasks)
+            var application = await client.Applications
+                .CreateAsync(parameters)
                 .ConfigureAwait(false);
 
-            servicePrincipal.Password = password;
-
-            return servicePrincipal;
-        }
-
-        public async Task<AzureServicePrincipal> GetServicePrincipalAsync(string servicePrincipalName)
-        {
-            if (string.IsNullOrWhiteSpace(servicePrincipalName))
-                throw new ArgumentException("Must not NULL or WHITESPACE", nameof(servicePrincipalName));
-
-            var servicePrincipal = await GetServicePrincipalInternalAsync(servicePrincipalName)
+            var principalId = await client.Applications
+                .GetServicePrincipalsIdByAppIdAsync(application.AppId)
                 .ConfigureAwait(false);
 
-            if (servicePrincipal is null)
-                return null;
-
-            var serviceApplication = await GetServiceApplicationInternalAsync(servicePrincipalName)
+            var principal = await client.ServicePrincipals
+                .GetAsync(principalId.Value)
                 .ConfigureAwait(false);
-
-            if (serviceApplication is null)
-                return null;
 
             var azureServicePrincipal = new AzureServicePrincipal()
             {
-                ObjectId = Guid.Parse(servicePrincipal.Id),
-                ApplicationId = Guid.Parse(servicePrincipal.ApplicationId),
-                Name = servicePrincipal.Name
+                ObjectId = Guid.Parse(principal.ObjectId),
+                ApplicationId = Guid.Parse(principal.AppId),
+                Name = principal.ServicePrincipalNames.FirstOrDefault(),
+                Password = password,
+                ExpiresOn = expiresOn
             };
-
-            var token = await azureSessionService
-                .AcquireTokenAsync(AzureEndpoint.GraphEndpoint)
-                .ConfigureAwait(false);
-
-            var json = await $"https://graph.windows.net/{azureSessionService.Options.TenantId}/applications/{serviceApplication.Inner.ObjectId}"
-                .SetQueryParam("api-version", "1.6")
-                .WithOAuthBearerToken(token)
-                .GetJObjectAsync()
-                .ConfigureAwait(false);
-
-            var identifier = Convert.ToBase64String(azureServicePrincipal.ObjectId.ToByteArray());
-            var expiresOn = json.SelectToken($"$.value[?(@.customKeyIdentifier == '{identifier}')].endDate")?.ToString();
-
-            if (!string.IsNullOrEmpty(expiresOn) && DateTime.TryParse(expiresOn, out var expiresOnDateTime))
-                azureServicePrincipal.ExpiresOn = expiresOnDateTime;
 
             return azureServicePrincipal;
         }
 
-        private async Task<IServicePrincipal> GetServicePrincipalInternalAsync(string servicePrincipalName)
+
+        public async Task<AzureServicePrincipal> GetServicePrincipalAsync(string name)
         {
-            if (string.IsNullOrWhiteSpace(servicePrincipalName))
-                throw new ArgumentException("Must not NULL or WHITESPACE", nameof(servicePrincipalName));
+            if (name is null)
+                throw new ArgumentNullException(nameof(name));
 
-            servicePrincipalName = SanitizeServicePrincipalName(servicePrincipalName);
+            name = SanitizeServicePrincipalName(name);
 
-            try
-            {
-                return await azureSessionService.CreateSession()
-                    .ServicePrincipals
-                    .GetByNameAsync(servicePrincipalName)
-                    .ConfigureAwait(false);
-            }
-            catch
-            {
-                return null;
-            }
-        }
+            using var client = azureSessionService
+                .CreateClient<GraphRbacManagementClient>(AzureEndpoint.GraphEndpoint);
 
-        private async Task<IActiveDirectoryApplication> GetServiceApplicationInternalAsync(string servicePrincipalName)
-        {
-            if (string.IsNullOrWhiteSpace(servicePrincipalName))
-                throw new ArgumentException("Must not NULL or WHITESPACE", nameof(servicePrincipalName));
-
-            servicePrincipalName = SanitizeServicePrincipalName(servicePrincipalName);
-
-            try
-            {
-                return await azureSessionService.CreateSession()
-                    .ActiveDirectoryApplications
-                    .GetByNameAsync(servicePrincipalName)
-                    .ConfigureAwait(false);
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-        public async Task DeleteServicePrincipalAsync(string servicePrincipalName)
-        {
-            if (string.IsNullOrWhiteSpace(servicePrincipalName))
-                throw new ArgumentException("Must not NULL or WHITESPACE", nameof(servicePrincipalName));
-
-
-            var session = azureSessionService.CreateSession();
-
-            var tasks = new List<Task>()
-            {
-                GetServicePrincipalInternalAsync(servicePrincipalName)
-                    .ContinueWith((task) => task.Result is null ? Task.CompletedTask : session.ServicePrincipals.DeleteByIdAsync(task.Result.Id), default, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.Current),
-
-                GetServiceApplicationInternalAsync(servicePrincipalName)
-                    .ContinueWith((task) => task.Result is null ? Task.CompletedTask : session.ActiveDirectoryApplications.DeleteByIdAsync(task.Result.Id), default, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.Current)
-            };
-
-            await Task
-                .WhenAll(tasks)
+            var principal = await GetServicePrincipalInnerAsync(client, name)
                 .ConfigureAwait(false);
+
+            if (principal is null)
+                return null;
+
+            var application = await GetServiceApplicationInnerAsync(client, principal.AppId)
+                .ConfigureAwait(false);
+
+            if (application is null)
+                return null;
+
+            return new AzureServicePrincipal
+            {
+                ObjectId = Guid.Parse(principal.ObjectId),
+                ApplicationId = Guid.Parse(principal.AppId),
+                Name = principal.ServicePrincipalNames.FirstOrDefault(),
+                ExpiresOn = application.PasswordCredentials.FirstOrDefault(c => c.CustomKeyIdentifier == Encoding.ASCII.GetBytes(name))?.EndDate
+            };
+        }
+
+
+        public async Task DeleteServicePrincipalAsync(string name)
+        {
+            if (name is null)
+                throw new ArgumentNullException(nameof(name));
+
+            name = SanitizeServicePrincipalName(name);
+
+            using var client = azureSessionService
+                .CreateClient<GraphRbacManagementClient>(AzureEndpoint.GraphEndpoint);
+
+            var principal = await GetServicePrincipalInnerAsync(client, name)
+                .ConfigureAwait(false);
+
+            if (!(principal is null))
+            {
+                var application = await GetServiceApplicationInnerAsync(client, principal.AppId)
+                    .ConfigureAwait(false);
+
+                if (!(application is null))
+                    await client.Applications
+                        .DeleteAsync(application.ObjectId)
+                        .ConfigureAwait(false);
+
+                await client.ServicePrincipals
+                    .DeleteAsync(principal.ObjectId)
+                    .ConfigureAwait(false);
+            }
         }
     }
 }

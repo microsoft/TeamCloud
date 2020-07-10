@@ -3,7 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for license information.
 # --------------------------------------------------------------------------------------------
 
-from re import match
+from re import match, sub
 from uuid import UUID
 from azure.cli.core.util import CLIError
 from knack.log import get_logger
@@ -100,9 +100,10 @@ def project_name_or_id_validator(cmd, namespace):
 
 def user_name_or_id_validator(cmd, namespace):
     if namespace.user:
-        if _is_valid_uuid(namespace.user) or _has_basic_email_format(
-                namespace.user) or _is_valid_url(namespace.user):
+        if _is_valid_uuid(namespace.user) or _has_basic_email_format(namespace.user):
             return
+        if _is_valid_url(namespace.user):
+            namespace.name = sub('http[s]?://', '', namespace.name)
         raise CLIError(
             '--user should be a valid uuid or a user name')
 

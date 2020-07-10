@@ -21,6 +21,7 @@ def teamcloud_deploy(cmd, client, name, location, resource_group_name='TeamCloud
                      principal_name=None, principal_password=None, tags=None, version=None,
                      skip_app_deployment=False, skip_name_validation=False, skip_admin_user=False,
                      prerelease=False, index_url=None):
+    from re import sub
     from azure.cli.core._profile import Profile
     from .vendored_sdks.teamcloud.models import UserDefinition
     from ._deploy_utils import (
@@ -137,6 +138,7 @@ def teamcloud_deploy(cmd, client, name, location, resource_group_name='TeamCloud
             'IMPORTANT: --redeploy prevented adding you as an Admin user to the TeamCloud instance deployment.')
     else:
         me = profile.get_current_account_user()
+        me = sub('http[s]?://', '', me)
         hook.add(message="Adding '{}' as an admin user".format(me))
 
         client._client.config.base_url = api_url

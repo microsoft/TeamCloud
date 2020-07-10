@@ -90,6 +90,7 @@ namespace TeamCloud.API.Controllers
                 .ToListAsync()
                 .ConfigureAwait(false);
 
+
             var returnProjects = projects.Select(p => p.PopulateExternalModel()).ToList();
 
             return DataResult<List<Project>>
