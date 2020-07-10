@@ -136,7 +136,7 @@ class TeamCloudScenarioTest(ScenarioTest):
 
         self.cmd('tc provider list -u {url}', checks=[
             self.check('type(@)', 'array'),
-            self.check('length(@)', 2),
+            self.check('length(@)', 4),
             self.check("contains([].id, '{ai_provider}')", True),
             self.exists("[?id=='{ai_provider}'] | [0].url"),
             self.exists("[?id=='{ai_provider}'] | [0].registered"),
@@ -256,6 +256,6 @@ class TeamCloudScenarioTest(ScenarioTest):
         self.cmd('tc project-type list -u {url}', checks=self.is_empty())
 
         # give the orchestrator time to clean up project rgs
-        if self.is_live:
-            import time
-            time.sleep(300)  # wait 5 minutes before completing
+        # if self.is_live:
+        #     import time
+        #     time.sleep(300)  # wait 5 minutes before completing
