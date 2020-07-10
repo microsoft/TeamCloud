@@ -143,7 +143,7 @@ namespace TeamCloud.Azure
             return identity;
         }
 
-        public Task<string> AcquireTokenAsync(AzureEndpoint azureEndpoint = AzureEndpoint.ResourceManagerEndpoint)
+        public async Task<string> AcquireTokenAsync(AzureEndpoint azureEndpoint = AzureEndpoint.ResourceManagerEndpoint)
         {
             if (string.IsNullOrEmpty(azureSessionOptions.ClientId))
             {
@@ -164,21 +164,27 @@ namespace TeamCloud.Azure
                     tokenProvider = new AzureServiceTokenProvider("RunAs=Developer;DeveloperTool=AzureCLI");
                 }
 
-                return tokenProvider.GetAccessTokenAsync(this.Environment.GetEndpointUrl(azureEndpoint));
+                return await tokenProvider
+                    .GetAccessTokenAsync(this.Environment.GetEndpointUrl(azureEndpoint))
+                    .ConfigureAwait(false);
             }
             else if (string.IsNullOrEmpty(azureSessionOptions.ClientSecret))
             {
                 var tokenProvider = new AzureServiceTokenProvider($"RunAs=App;AppId={azureSessionOptions.ClientId}");
 
-                return tokenProvider.GetAccessTokenAsync(this.Environment.GetEndpointUrl(azureEndpoint));
+                return await tokenProvider
+                    .GetAccessTokenAsync(this.Environment.GetEndpointUrl(azureEndpoint))
+                    .ConfigureAwait(false);
             }
             else
             {
                 var authenticationContext = new AuthenticationContext($"{this.Environment.AuthenticationEndpoint}{azureSessionOptions.TenantId}/", true);
 
-                return authenticationContext
+                var authenticationResult = await authenticationContext
                     .AcquireTokenAsync(this.Environment.GetEndpointUrl(azureEndpoint), new ClientCredential(azureSessionOptions.ClientId, azureSessionOptions.ClientSecret))
-                    .ContinueWith(task => task.Result.AccessToken, default, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.Current);
+                    .ConfigureAwait(false);
+
+                return authenticationResult.AccessToken;
             }
         }
 
