@@ -469,36 +469,36 @@ namespace TeamCloud.Azure.Directory
                 }
             };
 
-            try
+            // try
+            // {
+            var application = await client.Applications
+                .CreateAsync(parameters)
+                .ConfigureAwait(false);
+
+            var principalId = await client.Applications
+                .GetServicePrincipalsIdByAppIdAsync(application.AppId)
+                .ConfigureAwait(false);
+
+            var principal = await client.ServicePrincipals
+                .GetAsync(principalId.Value)
+                .ConfigureAwait(false);
+
+            var azureServicePrincipal = new AzureServicePrincipal()
             {
-                var application = await client.Applications
-                    .CreateAsync(parameters)
-                    .ConfigureAwait(false);
+                ObjectId = Guid.Parse(principal.ObjectId),
+                ApplicationId = Guid.Parse(principal.AppId),
+                Name = principal.ServicePrincipalNames.FirstOrDefault(),
+                Password = password,
+                ExpiresOn = expiresOn
+            };
 
-                var principalId = await client.Applications
-                    .GetServicePrincipalsIdByAppIdAsync(application.AppId)
-                    .ConfigureAwait(false);
-
-                var principal = await client.ServicePrincipals
-                    .GetAsync(principalId.Value)
-                    .ConfigureAwait(false);
-
-                var azureServicePrincipal = new AzureServicePrincipal()
-                {
-                    ObjectId = Guid.Parse(principal.ObjectId),
-                    ApplicationId = Guid.Parse(principal.AppId),
-                    Name = principal.ServicePrincipalNames.FirstOrDefault(),
-                    Password = password,
-                    ExpiresOn = expiresOn
-                };
-
-                return azureServicePrincipal;
-            }
-            catch (GraphErrorException ex)
-            {
-                throw new Exception(ex.Body.Message);
-                // throw;
-            }
+            return azureServicePrincipal;
+            // }
+            // catch (GraphErrorException ex)
+            // {
+            //     throw new Exception(ex.Body.Message);
+            //     // throw;
+            // }
         }
 
 
