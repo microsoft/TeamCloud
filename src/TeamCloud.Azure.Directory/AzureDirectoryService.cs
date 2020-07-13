@@ -445,8 +445,9 @@ namespace TeamCloud.Azure.Directory
             var parameters = new ApplicationCreateParameters()
             {
                 DisplayName = name,
+                AvailableToOtherTenants = false,
                 // IdentifierUris = new List<string> { $"http://{name}" },
-                Homepage = $"http://{name}",
+                // Homepage = $"http://{name}",
                 PasswordCredentials = new List<PasswordCredential> {
                     new PasswordCredential {
                         StartDate = DateTime.UtcNow,
