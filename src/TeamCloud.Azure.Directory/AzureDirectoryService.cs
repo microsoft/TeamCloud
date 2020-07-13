@@ -448,15 +448,15 @@ namespace TeamCloud.Azure.Directory
                 AvailableToOtherTenants = false,
                 // IdentifierUris = new List<string> { $"http://{name}" },
                 // Homepage = $"http://{name}",
-                PasswordCredentials = new List<PasswordCredential> {
-                    new PasswordCredential {
-                        StartDate = DateTime.UtcNow,
-                        EndDate = expiresOn,
-                        KeyId = Guid.NewGuid().ToString(),
-                        Value = password,
-                        CustomKeyIdentifier = Encoding.ASCII.GetBytes(name)
-                    }
-                },
+                // PasswordCredentials = new List<PasswordCredential> {
+                //     new PasswordCredential {
+                //         StartDate = DateTime.UtcNow,
+                //         EndDate = expiresOn,
+                //         KeyId = Guid.NewGuid().ToString(),
+                //         Value = password,
+                //         CustomKeyIdentifier = Encoding.ASCII.GetBytes(name)
+                //     }
+                // },
                 RequiredResourceAccess = new List<RequiredResourceAccess> {
                     new RequiredResourceAccess {
                         ResourceAppId = "00000003-0000-0000-c000-000000000000",
@@ -479,6 +479,17 @@ namespace TeamCloud.Azure.Directory
             var principalId = await client.Applications
                 .GetServicePrincipalsIdByAppIdAsync(application.AppId)
                 .ConfigureAwait(false);
+
+            await client.Applications
+                .UpdatePasswordCredentialsAsync(application.ObjectId, new List<PasswordCredential> {
+                    new PasswordCredential {
+                        StartDate = DateTime.UtcNow,
+                        EndDate = expiresOn,
+                        KeyId = Guid.NewGuid().ToString(),
+                        Value = password,
+                        CustomKeyIdentifier = Guid.Parse(principalId.Value).ToByteArray()
+                    }
+                }).ConfigureAwait(false);
 
             var principal = await client.ServicePrincipals
                 .GetAsync(principalId.Value)
@@ -530,7 +541,7 @@ namespace TeamCloud.Azure.Directory
                 ObjectId = Guid.Parse(principal.ObjectId),
                 ApplicationId = Guid.Parse(principal.AppId),
                 Name = principal.ServicePrincipalNames.FirstOrDefault(),
-                ExpiresOn = application.PasswordCredentials.FirstOrDefault(c => c.CustomKeyIdentifier == Encoding.ASCII.GetBytes(name))?.EndDate
+                ExpiresOn = application.PasswordCredentials.FirstOrDefault(c => c.CustomKeyIdentifier == Guid.Parse(principal.ObjectId).ToByteArray())?.EndDate
             };
         }
 
