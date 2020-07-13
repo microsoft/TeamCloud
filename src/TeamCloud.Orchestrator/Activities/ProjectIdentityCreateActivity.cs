@@ -7,6 +7,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using TeamCloud.Azure.Directory;
 using TeamCloud.Azure.Resources;
@@ -29,48 +30,57 @@ namespace TeamCloud.Orchestrator.Activities
 
         [FunctionName(nameof(ProjectIdentityCreateActivity)), RetryOptions(3)]
         public async Task RunActivity(
-            [ActivityTrigger] IDurableActivityContext functionContext)
+            [ActivityTrigger] IDurableActivityContext functionContext,
+            ILogger log)
         {
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
 
-            var project = functionContext.GetInput<Project>();
-
-            var keyVault = await azureResourceService
-                .GetResourceAsync<AzureKeyVaultResource>(project.KeyVault.VaultId, throwIfNotExists: true)
-                .ConfigureAwait(false);
-
-            var projectIdentityJson = await keyVault
-                .GetSecretAsync(nameof(ProjectIdentity))
-                .ConfigureAwait(false);
-
-            if (string.IsNullOrEmpty(projectIdentityJson))
+            try
             {
-                var servicePrincipal = await azureDirectoryService
-                    .CreateServicePrincipalAsync(project.Id.ToString())
+                var project = functionContext.GetInput<Project>();
+
+                var keyVault = await azureResourceService
+                    .GetResourceAsync<AzureKeyVaultResource>(project.KeyVault.VaultId, throwIfNotExists: true)
                     .ConfigureAwait(false);
 
-                try
+                var projectIdentityJson = await keyVault
+                    .GetSecretAsync(nameof(ProjectIdentity))
+                    .ConfigureAwait(false);
+
+                if (string.IsNullOrEmpty(projectIdentityJson))
                 {
-                    var projectIdentity = new ProjectIdentity()
+                    var servicePrincipal = await azureDirectoryService
+                        .CreateServicePrincipalAsync(project.Id.ToString())
+                        .ConfigureAwait(false);
+
+                    try
                     {
-                        Id = servicePrincipal.ObjectId.ToString(),
-                        ApplicationId = servicePrincipal.ApplicationId,
-                        Secret = servicePrincipal.Password
-                    };
+                        var projectIdentity = new ProjectIdentity()
+                        {
+                            Id = servicePrincipal.ObjectId.ToString(),
+                            ApplicationId = servicePrincipal.ApplicationId,
+                            Secret = servicePrincipal.Password
+                        };
 
-                    projectIdentityJson = JsonConvert.SerializeObject(projectIdentity);
+                        projectIdentityJson = JsonConvert.SerializeObject(projectIdentity);
 
-                    await keyVault
-                        .SetSecretAsync(nameof(ProjectIdentity), projectIdentityJson)
-                        .ConfigureAwait(false);
+                        await keyVault
+                            .SetSecretAsync(nameof(ProjectIdentity), projectIdentityJson)
+                            .ConfigureAwait(false);
+                    }
+                    catch
+                    {
+                        await azureDirectoryService
+                            .DeleteServicePrincipalAsync(project.Id.ToString())
+                            .ConfigureAwait(false);
+                    }
                 }
-                catch
-                {
-                    await azureDirectoryService
-                        .DeleteServicePrincipalAsync(project.Id.ToString())
-                        .ConfigureAwait(false);
-                }
+            }
+            catch (Exception ex)
+            {
+                log.LogError(ex, $"{nameof(ProjectIdentityCreateActivity)} failed with error: {ex.Message}");
+                throw;
             }
         }
     }
