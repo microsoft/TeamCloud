@@ -59,7 +59,7 @@ def teamcloud_deploy(cmd, client, name, location=None, resource_group_name='Team
     if rg is None:
         if location is None:
             raise CLIError(
-                "--location is required if resource group '{}' does not exist".format(resource_group_name))
+                "--location/-l is required if resource group '{}' does not exist".format(resource_group_name))
         hook.add(message="Resource group '{}' not found".format(resource_group_name))
         hook.add(message="Creating resource group '{}'".format(resource_group_name))
         rg, _ = create_resource_group_name(cli_ctx, resource_group_name, location)
@@ -184,10 +184,6 @@ def teamcloud_upgrade(cmd, client, base_url, resource_group_name='TeamCloud', ve
     hook = cli_ctx.get_progress_controller()
     hook.begin()
 
-    if version or prerelease:
-        if index_url:
-            raise CLIError('--index-url can not be used with --version or --pre.')
-
     if index_url is None:
         version = version or get_github_latest_release(
             cli_ctx, 'TeamCloud', prerelease=prerelease)
@@ -213,7 +209,7 @@ def teamcloud_upgrade(cmd, client, base_url, resource_group_name='TeamCloud', ve
     rg, _ = get_resource_group_by_name(cli_ctx, resource_group_name)
     if rg is None:
         raise CLIError(
-            "Resource group '{}' must exist in current subscription.".format(resource_group_name))
+            "--resource-group/-g '{}' must exist in current subscription.".format(resource_group_name))
 
     name = ''
     m = match(r'^https?://(?P<name>[a-zA-Z0-9-]+)\.azurewebsites\.net[/a-zA-Z0-9.\:]*$', base_url)
@@ -532,10 +528,6 @@ def provider_deploy(cmd, client, base_url, provider, location=None, resource_gro
     hook = cli_ctx.get_progress_controller()
     hook.begin()
 
-    if version or prerelease:
-        if index_url:
-            raise CLIError('--index-url can not be used with --version or --pre.')
-
     if index_url is None:
         version = version or get_github_latest_release(
             cmd.cli_ctx, 'TeamCloud-Providers', prerelease=prerelease)
@@ -546,7 +538,7 @@ def provider_deploy(cmd, client, base_url, provider, location=None, resource_gro
     index_provider = get_index_providers(index_url=index_url).get(provider)
 
     if not index_provider:
-        raise CLIError("--provider no provider found in index with id '{}'".format(provider))
+        raise CLIError("--name/-n no provider found in index with id '{}'".format(provider))
 
     zip_url, deploy_url, provider_name = index_provider.get(
         'zipUrl'), index_provider.get('deployUrl'), index_provider.get('name')
@@ -563,7 +555,7 @@ def provider_deploy(cmd, client, base_url, provider, location=None, resource_gro
     if rg is None:
         if location is None:
             raise CLIError(
-                "--location is required if resource group '{}' does not exist".format(resource_group_name))
+                "--location/-l is required if resource group '{}' does not exist".format(resource_group_name))
         hook.add(message="Resource group '{}' not found".format(resource_group_name))
         hook.add(message="Creating resource group '{}'".format(resource_group_name))
         rg, sub_id = create_resource_group_name(cli_ctx, resource_group_name, location)
@@ -625,10 +617,6 @@ def provider_upgrade(cmd, client, base_url, provider, version=None, prerelease=F
     hook = cli_ctx.get_progress_controller()
     hook.begin()
 
-    if version or prerelease:
-        if index_url:
-            raise CLIError('--index-url can not be used with --version or --pre.')
-
     if index_url is None:
         version = version or get_github_latest_release(
             cmd.cli_ctx, 'TeamCloud-Providers', prerelease=prerelease)
@@ -639,7 +627,7 @@ def provider_upgrade(cmd, client, base_url, provider, version=None, prerelease=F
     index_provider = get_index_providers(index_url=index_url).get(provider)
 
     if not index_provider:
-        raise CLIError("--provider No provider found in index with id '{}'".format(provider))
+        raise CLIError("--name/-n No provider found in index with id '{}'".format(provider))
 
     zip_url, deploy_url = index_provider.get('zipUrl'), index_provider.get('deployUrl')
 
@@ -673,7 +661,7 @@ def provider_upgrade(cmd, client, base_url, provider, version=None, prerelease=F
     rg, _ = get_resource_group_by_name(cli_ctx, resource_group_name)
     if rg is None:
         raise CLIError(
-            "Resource group '{}' must exist in current subscription.".format(resource_group_name))
+            "--resource-group/-g '{}' must exist in current subscription.".format(resource_group_name))
 
     hook.add(message='Deploying ARM template')
     outputs = deploy_arm_template_at_resource_group(
@@ -697,9 +685,6 @@ def provider_upgrade(cmd, client, base_url, provider, version=None, prerelease=F
 
     provider_output = _update_with_status(cmd, client, base_url, payload,
                                           client.update_provider, hook_start=False)
-
-    # version_string = version or 'the latest version'
-    # logger.warning("Successfully upgraded provider '%s' %s.", name, version_string)
 
     if setup_url:
         logger.warning('IMPORTANT: Opening a url in your browser to complete setup.')

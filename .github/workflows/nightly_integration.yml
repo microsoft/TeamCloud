@@ -3,7 +3,7 @@ name: Nightly Integration Tests
 on:
   schedule:
     # run daily at 12am PDT
-    - cron: '15 18 * * *'
+    - cron: '0 4 * * *'
 
 env:
   BUILD_CONFIGURATION: Release
@@ -85,7 +85,7 @@ jobs:
           AZURE_CLI_TEST_DEV_SP_NAME: ${{ secrets.TEAMCLOUD_SP_NAME }}
           AZURE_CLI_TEST_DEV_SP_PASSWORD: ${{ secrets.TEAMCLOUD_SP_PASSWORD }}
 
-      - name: az logout (azdev)
+      - name: Logout Azure CLI
         if: ${{ always() }}
         run: |
           source env/bin/activate

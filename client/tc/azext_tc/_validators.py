@@ -26,7 +26,7 @@ def tc_deploy_validator(cmd, namespace):
 
     if sum(1 for ct in [namespace.version, namespace.prerelease, namespace.index_url] if ct) > 1:
         raise CLIError(
-            'usage error: can only use one of --index-url | --version | --pre')
+            'usage error: can only use one of --index-url | --version/-v | --pre')
 
     if namespace.version:
         namespace.version = namespace.version.lower()
@@ -34,12 +34,12 @@ def tc_deploy_validator(cmd, namespace):
             namespace.version = 'v' + namespace.version
         if not _is_valid_version(namespace.version):
             raise CLIError(
-                '--version should be in format v0.0.0 do not include -pre suffix')
+                '--version/-v should be in format v0.0.0 do not include -pre suffix')
 
         from ._deploy_utils import github_release_version_exists
 
         if not github_release_version_exists(cmd.cli_ctx, namespace.version, 'TeamCloud'):
-            raise CLIError('--version {} does not exist'.format(namespace.version))
+            raise CLIError('--version/-v {} does not exist'.format(namespace.version))
 
     if namespace.index_url:
         if not _is_valid_url(namespace.index_url):
@@ -63,7 +63,7 @@ def tc_deploy_validator(cmd, namespace):
             availability = web_client.check_name_availability(namespace.name, 'Site')
             if not availability.name_available:
                 raise CLIError(
-                    '--name {}'.format(availability.message))
+                    '--name/-n {}'.format(availability.message))
 
 
 def project_name_validator(cmd, namespace):
@@ -72,7 +72,7 @@ def project_name_validator(cmd, namespace):
             return
         if not _is_valid_project_name(namespace.name):
             raise CLIError(
-                '--project should be a valid uuid or a project name string with length [4,31]')
+                '--name/-n should be a valid uuid or a project name string with length [4,31]')
 
 
 def project_name_or_id_validator(cmd, namespace):
@@ -81,7 +81,7 @@ def project_name_or_id_validator(cmd, namespace):
             return
         if not _is_valid_project_name(namespace.project):
             raise CLIError(
-                '--project should be a valid uuid or a project name string with length [4,31]')
+                '--project/-p should be a valid uuid or a project name string with length [4,31]')
 
         from ._client_factory import teamcloud_client_factory
 
@@ -91,7 +91,30 @@ def project_name_or_id_validator(cmd, namespace):
 
         if isinstance(result, ErrorResult):
             raise CLIError(
-                '--project no project found matching provided project name')
+                '--project/-p no project found matching provided project name')
+        try:
+            namespace.project = result.data.id
+        except AttributeError:
+            pass
+
+
+def project_name_or_id_validator_name(cmd, namespace):
+    if namespace.project:
+        if _is_valid_uuid(namespace.project):
+            return
+        if not _is_valid_project_name(namespace.project):
+            raise CLIError(
+                '--name/-n should be a valid uuid or a project name string with length [4,31]')
+
+        from ._client_factory import teamcloud_client_factory
+
+        client = teamcloud_client_factory(cmd.cli_ctx)
+        client._client.config.base_url = namespace.base_url
+        result = client.get_project_by_name_or_id(namespace.project)
+
+        if isinstance(result, ErrorResult):
+            raise CLIError(
+                '--name/-n no project found matching provided project name')
         try:
             namespace.project = result.data.id
         except AttributeError:
@@ -109,7 +132,7 @@ def project_type_id_validator(cmd, namespace):
     if namespace.project_type:
         if not _is_valid_project_type_id(namespace.project_type):
             raise CLIError(
-                '--project-type should start with a lowercase and contain only lowercase, numbers, '
+                '--project-type/-t should start with a lowercase and contain only lowercase, numbers, '
                 'and periods [.] with length [5,254]')
 
 
@@ -117,7 +140,7 @@ def project_type_id_validator_name(cmd, namespace):
     if namespace.project_type:
         if not _is_valid_project_type_id(namespace.project_type):
             raise CLIError(
-                '--name should start with a lowercase and contain only lowercase, numbers, '
+                '--name/-n should start with a lowercase and contain only lowercase, numbers, '
                 'and periods [.] with length [5,254]')
 
 
@@ -125,7 +148,7 @@ def provider_id_validator(cmd, namespace):
     if namespace.provider:
         if not _is_valid_provider_id(namespace.provider):
             raise CLIError(
-                '--name should start with a lowercase and contain only lowercase, numbers, '
+                '--name/-n should start with a lowercase and contain only lowercase, numbers, '
                 'and periods [.] with length [5,254]')
 
 
@@ -145,27 +168,11 @@ def provider_event_list_validator(cmd, namespace):
                 'and periods [.] with length [5,254]')
 
 
-def provider_depends_on_validator(cmd, namespace):
-    if namespace.depends_on:
-        if not all(_is_valid_provider_id(x) for x in namespace.depends_on):
-            raise CLIError(
-                '--depends-on should be a space-separated list of valid provider ids, '
-                'provider ids should start with a lowercase and contain only lowercase, numbers, '
-                'and periods [.] with length [5,254]')
-
-
-def tc_resource_name_validator(cmd, namespace):
-    if namespace.name:
-        if match(r'^[^\\/\?#]{2,254}$', namespace.name) is None:
-            raise CLIError(
-                r"--name should have length [2,254] and not include characters [ '\\', '/', '?', '#' ]")
-
-
 def tracking_id_validator(cmd, namespace):
     if namespace.tracking_id:
         if not _is_valid_uuid(namespace.tracking_id):
             raise CLIError(
-                '--tracking-id should be a valid uuid')
+                '--tracking-id/-t should be a valid uuid')
 
 
 def url_validator(cmd, namespace):
@@ -179,14 +186,14 @@ def base_url_validator(cmd, namespace):
     if namespace.base_url:
         if not _is_valid_url(namespace.base_url):
             raise CLIError(
-                '--base-url should be a valid url')
+                '--base-url/-u should be a valid url')
 
 
 def index_url_validator(cmd, namespace):
     if namespace.index_url:
         if namespace.prerelease or namespace.version:
             raise CLIError(
-                'usage error: can only use one of --index-url | --version | --pre')
+                'usage error: can only use one of --index-url | --version/-v | --pre')
         if not _is_valid_url(namespace.index_url):
             raise CLIError(
                 '--index-url should be a valid url')
@@ -204,49 +211,49 @@ def source_version_validator(cmd, namespace):
     if namespace.version:
         if namespace.prerelease or namespace.index_url:
             raise CLIError(
-                'usage error: can only use one of --index-url | --version | --pre')
+                'usage error: can only use one of --index-url | --version/-v | --pre')
         namespace.version = namespace.version.lower()
         if namespace.version[:1].isdigit():
             namespace.version = 'v' + namespace.version
         if not _is_valid_version(namespace.version):
             raise CLIError(
-                '--version should be in format v0.0.0 do not include -pre suffix')
+                '--version/-v should be in format v0.0.0 do not include -pre suffix')
 
 
 def teamcloud_source_version_validator(cmd, namespace):
     if namespace.version:
         if namespace.prerelease or namespace.index_url:
             raise CLIError(
-                'usage error: can only use one of --index-url | --version | --pre')
+                'usage error: can only use one of --index-url | --version/-v | --pre')
         namespace.version = namespace.version.lower()
         if namespace.version[:1].isdigit():
             namespace.version = 'v' + namespace.version
         if not _is_valid_version(namespace.version):
             raise CLIError(
-                '--version should be in format v0.0.0 do not include -pre suffix')
+                '--version/-v should be in format v0.0.0 do not include -pre suffix')
 
         from ._deploy_utils import github_release_version_exists
 
         if not github_release_version_exists(cmd.cli_ctx, namespace.version, 'TeamCloud'):
-            raise CLIError('--version {} does not exist'.format(namespace.version))
+            raise CLIError('--version/-v {} does not exist'.format(namespace.version))
 
 
 def providers_source_version_validator(cmd, namespace):
     if namespace.version:
         if namespace.prerelease or namespace.index_url:
             raise CLIError(
-                'usage error: can only use one of --index-url | --version | --pre')
+                'usage error: can only use one of --index-url | --version/-v | --pre')
         namespace.version = namespace.version.lower()
         if namespace.version[:1].isdigit():
             namespace.version = 'v' + namespace.version
         if not _is_valid_version(namespace.version):
             raise CLIError(
-                '--version should be in format v0.0.0 do not include -pre suffix')
+                '--version/-v should be in format v0.0.0 do not include -pre suffix')
 
         from ._deploy_utils import github_release_version_exists
 
         if not github_release_version_exists(cmd.cli_ctx, namespace.version, 'TeamCloud-Providers'):
-            raise CLIError('--version {} does not exist'.format(namespace.version))
+            raise CLIError('--version/-v {} does not exist'.format(namespace.version))
 
 
 def properties_validator(cmd, namespace):
