@@ -30,14 +30,12 @@ def teamcloud_deploy(cmd, client, name, location=None, resource_group_name='Team
         set_appconfig_keys, zip_deploy_app)
 
     cli_ctx = cmd.cli_ctx
-    location = location.lower()
-
     hook = cli_ctx.get_progress_controller()
     hook.begin()
 
     if index_url is None:
         version = version or get_github_latest_release(
-            cmd.cli_ctx, 'TeamCloud', prerelease=prerelease)
+            cli_ctx, 'TeamCloud', prerelease=prerelease)
         index_url = 'https://github.com/microsoft/TeamCloud/releases/download/{}/index.json'.format(
             version)
 
@@ -64,7 +62,7 @@ def teamcloud_deploy(cmd, client, name, location=None, resource_group_name='Team
                 "--location is required if resource group '{}' does not exist".format(resource_group_name))
         hook.add(message="Resource group '{}' not found".format(resource_group_name))
         hook.add(message="Creating resource group '{}'".format(resource_group_name))
-        rg, _ = create_resource_group_name(cli_ctx, resource_group_name, location)
+        rg, _ = create_resource_group_name(cli_ctx, resource_group_name, location.lower())
 
     profile = Profile(cli_ctx=cli_ctx)
 
