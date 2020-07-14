@@ -60,14 +60,14 @@ namespace TeamCloud.Azure.Directory
             if (!string.IsNullOrEmpty(userInner?.ObjectId))
                 return Guid.Parse(userInner.ObjectId);
 
-            // otherwise try to find a service pricipal
+            // otherwise try to find a service principal
             var principalInner = await GetServicePrincipalInnerAsync(client, identifier)
                 .ConfigureAwait(false);
 
             if (!string.IsNullOrEmpty(principalInner?.ObjectId))
                 return Guid.Parse(principalInner.ObjectId);
 
-            // not a user name or objectId, and not a service pricipal name, appId, or objectId
+            // not a user name or objectId, and not a service principal name, appId, or objectId
             return null;
         }
 
@@ -446,17 +446,7 @@ namespace TeamCloud.Azure.Directory
             {
                 DisplayName = name,
                 AvailableToOtherTenants = false,
-                // IdentifierUris = new List<string> { $"http://{name}" },
-                // Homepage = $"http://{name}",
-                // PasswordCredentials = new List<PasswordCredential> {
-                //     new PasswordCredential {
-                //         StartDate = DateTime.UtcNow,
-                //         EndDate = expiresOn,
-                //         KeyId = Guid.NewGuid().ToString(),
-                //         Value = password,
-                //         CustomKeyIdentifier = Encoding.ASCII.GetBytes(name)
-                //     }
-                // },
+                IdentifierUris = new List<string> { $"http://{name}" },
                 RequiredResourceAccess = new List<RequiredResourceAccess> {
                     new RequiredResourceAccess {
                         ResourceAppId = "00000003-0000-0000-c000-000000000000",
@@ -470,14 +460,12 @@ namespace TeamCloud.Azure.Directory
                 }
             };
 
-            // try
-            // {
             var application = await client.Applications
                 .CreateAsync(parameters)
                 .ConfigureAwait(false);
 
-            var principalId = await client.Applications
-                .GetServicePrincipalsIdByAppIdAsync(application.AppId)
+            var principal = await client.ServicePrincipals
+                .CreateAsync(new ServicePrincipalCreateParameters { AppId = application.AppId })
                 .ConfigureAwait(false);
 
             await client.Applications
@@ -487,13 +475,9 @@ namespace TeamCloud.Azure.Directory
                         EndDate = expiresOn,
                         KeyId = Guid.NewGuid().ToString(),
                         Value = password,
-                        CustomKeyIdentifier = Guid.Parse(principalId.Value).ToByteArray()
+                        CustomKeyIdentifier = Guid.Parse(principal.ObjectId).ToByteArray()
                     }
                 }).ConfigureAwait(false);
-
-            var principal = await client.ServicePrincipals
-                .GetAsync(principalId.Value)
-                .ConfigureAwait(false);
 
             var azureServicePrincipal = new AzureServicePrincipal()
             {
@@ -505,12 +489,6 @@ namespace TeamCloud.Azure.Directory
             };
 
             return azureServicePrincipal;
-            // }
-            // catch (GraphErrorException ex)
-            // {
-            //     throw new Exception(ex.Body.Message);
-            //     // throw;
-            // }
         }
 
 
