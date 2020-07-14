@@ -66,7 +66,13 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                         functionContext.SetCustomStatus("Deleting project", log);
 
                         await functionContext
-                            .CallActivityWithRetryAsync(nameof(ProjectDeleteActivity), project)
+                            .DeleteProjectAsync(project)
+                            .ConfigureAwait(true);
+
+                        functionContext.SetCustomStatus($"Deleting project identity", log);
+
+                        await functionContext
+                            .CallActivityWithRetryAsync(nameof(ProjectIdentityDeleteActivity), project)
                             .ConfigureAwait(true);
 
                         functionContext.SetCustomStatus("Deleting resources", log);
