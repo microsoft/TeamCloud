@@ -82,7 +82,7 @@ def create_resource_group_name(cli_ctx, resource_group_name, location, tags=None
     ResourceGroup = get_sdk(cli_ctx, ResourceType.MGMT_RESOURCE_RESOURCES,
                             'ResourceGroup', mod='models')
     resource_client = resource_client_factory(cli_ctx).resource_groups
-    parameters = ResourceGroup(location=location, tags=tags)
+    parameters = ResourceGroup(location=location.lower(), tags=tags)
     return resource_client.create_or_update(resource_group_name, parameters), resource_client.config.subscription_id
 
 

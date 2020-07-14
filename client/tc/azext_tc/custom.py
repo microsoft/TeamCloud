@@ -62,7 +62,7 @@ def teamcloud_deploy(cmd, client, name, location=None, resource_group_name='Team
                 "--location is required if resource group '{}' does not exist".format(resource_group_name))
         hook.add(message="Resource group '{}' not found".format(resource_group_name))
         hook.add(message="Creating resource group '{}'".format(resource_group_name))
-        rg, _ = create_resource_group_name(cli_ctx, resource_group_name, location.lower())
+        rg, _ = create_resource_group_name(cli_ctx, resource_group_name, location)
 
     profile = Profile(cli_ctx=cli_ctx)
 

@@ -3,7 +3,7 @@ name: Nightly Integration Tests
 on:
   schedule:
     # run daily at 12am PDT
-    - cron: '0 18 * * *'
+    - cron: '15 18 * * *'
 
 env:
   BUILD_CONFIGURATION: Release
