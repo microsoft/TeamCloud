@@ -80,9 +80,6 @@ namespace TeamCloud.Orchestrator.Activities
             catch (Exception ex)
             {
                 log.LogError(ex, $"{nameof(ProjectIdentityCreateActivity)} failed with error: {ex.Message}");
-                log.LogTrace($"{nameof(ProjectIdentityCreateActivity)} failed with error: {ex.Message}" + "\n" + (ex.InnerException?.Message ?? ""));
-                log.LogWarning($"{nameof(ProjectIdentityCreateActivity)} failed with error: {ex.Message}" + "\n" + (ex.InnerException?.Message ?? ""));
-
                 throw;
             }
         }

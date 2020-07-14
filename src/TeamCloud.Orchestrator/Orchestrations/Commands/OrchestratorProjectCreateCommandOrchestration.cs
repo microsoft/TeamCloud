@@ -64,10 +64,6 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                     commandResult ??= command.CreateResult();
                     commandResult.Errors.Add(exc);
 
-                    functionContext.CreateReplaySafeLogger(log).LogTrace(exc.Message + "\n" + (exc.InnerException?.Message ?? ""));
-                    functionContext.CreateReplaySafeLogger(log).LogWarning(exc.Message + "\n" + (exc.InnerException?.Message ?? ""));
-                    functionContext.CreateReplaySafeLogger(log).LogError(exc.Message + "\n" + (exc.InnerException?.Message ?? "", exc));
-
                     throw;
                 }
                 finally
