@@ -56,7 +56,7 @@ namespace TeamCloud.Orchestrator.Activities
 
                     try
                     {
-                        var projectIdentity = new ProjectIdentity()
+                        var projectIdentity = new ProjectIdentity
                         {
                             Id = servicePrincipal.ObjectId.ToString(),
                             ApplicationId = servicePrincipal.ApplicationId,

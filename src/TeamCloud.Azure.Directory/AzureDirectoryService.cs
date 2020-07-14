@@ -331,10 +331,6 @@ namespace TeamCloud.Azure.Directory
                     await client.Applications
                         .DeleteAsync(application.ObjectId)
                         .ConfigureAwait(false);
-
-                await client.ServicePrincipals
-                    .DeleteAsync(principal.ObjectId)
-                    .ConfigureAwait(false);
             }
         }
     }
