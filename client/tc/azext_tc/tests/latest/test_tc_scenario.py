@@ -47,7 +47,7 @@ class TeamCloudScenarioTest(ScenarioTest):
 
         ci = os.environ.get('AZURE_CLI_TEST_DEV_SP_NAME', None)
 
-        result = self.cmd('tc deploy -n {tc} -g {rg} -l {loc} --pre' +
+        result = self.cmd('tc deploy -n {tc} -g {rg} --pre' +
                           (' --principal-name {sp} --principal-password {sp_pass}' if ci else ''),
                           checks=[
                               self.check('location', '{loc}'),

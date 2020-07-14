@@ -17,7 +17,7 @@ STATUS_POLLING_SLEEP_INTERVAL = 2
 
 # TeamCloud
 
-def teamcloud_deploy(cmd, client, name, location, resource_group_name='TeamCloud',  # pylint: disable=too-many-statements, too-many-locals
+def teamcloud_deploy(cmd, client, name, location=None, resource_group_name='TeamCloud',  # pylint: disable=too-many-statements, too-many-locals
                      principal_name=None, principal_password=None, tags=None, version=None,
                      skip_app_deployment=False, skip_name_validation=False, skip_admin_user=False,
                      prerelease=False, index_url=None):
@@ -34,10 +34,6 @@ def teamcloud_deploy(cmd, client, name, location, resource_group_name='TeamCloud
 
     hook = cli_ctx.get_progress_controller()
     hook.begin()
-
-    if version or prerelease:
-        if index_url:
-            raise CLIError('--index-url can not be used with --version or --pre.')
 
     if index_url is None:
         version = version or get_github_latest_release(
@@ -63,6 +59,9 @@ def teamcloud_deploy(cmd, client, name, location, resource_group_name='TeamCloud
 
     rg, _ = get_resource_group_by_name(cli_ctx, resource_group_name)
     if rg is None:
+        if location is None:
+            raise CLIError(
+                "--location is required if resource group '{}' does not exist".format(resource_group_name))
         hook.add(message="Resource group '{}' not found".format(resource_group_name))
         hook.add(message="Creating resource group '{}'".format(resource_group_name))
         rg, _ = create_resource_group_name(cli_ctx, resource_group_name, location)
@@ -156,7 +155,7 @@ def teamcloud_deploy(cmd, client, name, location, resource_group_name='TeamCloud
         'version': version or 'latest',
         'name': name,
         'base_url': api_url,
-        'location': location,
+        'location': rg.location,
         'api': {
             'name': api_app_name,
             'url': api_url
@@ -522,7 +521,7 @@ def provider_get(cmd, client, base_url, provider):
     return client.get_provider_by_id(provider)
 
 
-def provider_deploy(cmd, client, base_url, provider, location, resource_group_name=None,  # pylint: disable=too-many-locals, too-many-statements
+def provider_deploy(cmd, client, base_url, provider, location=None, resource_group_name=None,  # pylint: disable=too-many-locals, too-many-statements
                     events=None, properties=None, version=None, prerelease=False, index_url=None, tags=None):
     from ._deploy_utils import (
         get_github_latest_release, get_resource_group_by_name, create_resource_group_name,
@@ -564,6 +563,9 @@ def provider_deploy(cmd, client, base_url, provider, location, resource_group_na
     hook.add(message='Getting resource group {}'.format(resource_group_name))
     rg, sub_id = get_resource_group_by_name(cli_ctx, resource_group_name)
     if rg is None:
+        if location is None:
+            raise CLIError(
+                "--location is required if resource group '{}' does not exist".format(resource_group_name))
         hook.add(message="Resource group '{}' not found".format(resource_group_name))
         hook.add(message="Creating resource group '{}'".format(resource_group_name))
         rg, sub_id = create_resource_group_name(cli_ctx, resource_group_name, location)
@@ -598,7 +600,7 @@ def provider_deploy(cmd, client, base_url, provider, location, resource_group_na
     zip_deploy_app(cli_ctx, resource_group_name, name, zip_url)
 
     resource_group = AzureResourceGroup(
-        id=rg.id, name=rg.name, region=location, subscription_id=sub_id)
+        id=rg.id, name=rg.name, region=rg.location, subscription_id=sub_id)
     payload = Provider(id=provider, url=url, auth_code=auth_code, resource_group=resource_group,
                        principal_id=principal_id, events=events, properties=properties)
 

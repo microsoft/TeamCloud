@@ -7,8 +7,7 @@
 import platform
 
 from knack.arguments import CLIArgumentType
-from azure.cli.core.commands.parameters import (
-    tags_type, get_enum_type, get_location_type, resource_group_name_type)
+from azure.cli.core.commands.parameters import (tags_type, get_enum_type)
 
 from ._validators import (
     project_name_validator, project_name_or_id_validator, user_name_or_id_validator,
@@ -89,8 +88,6 @@ def load_arguments(self, _):
         c.argument('name', options_list=['--name', '-n'],
                    help='Name of app. Must be globally unique and will be the subdomain '
                         'for the TeamCloud instance service endpoint.')
-        c.argument('resource_group_name', resource_group_name_type,
-                   default='TeamCloud')
         c.argument('principal_name', help='Service principal app (client) id.')
         c.argument('principal_password', help="Service principal password, aka 'client secret'.")
         c.argument('tags', tags_type)
@@ -107,7 +104,6 @@ def load_arguments(self, _):
         c.argument('index_url', help='URL to custom index.json file.')
 
     with self.argument_context('tc upgrade') as c:
-        c.argument('resource_group_name', resource_group_name_type, default='TeamCloud')
         c.argument('version', options_list=['--version', '-v'], help='TeamCloud version. Default: latest stable.',
                    validator=teamcloud_source_version_validator)
         c.argument('prerelease', options_list=['--pre'], action='store_true',
@@ -181,8 +177,6 @@ def load_arguments(self, _):
         c.argument('project_type', options_list=['--name', '-n'],
                    type=str, help='Project type id.',
                    validator=project_type_id_validator_name)
-        c.argument('location', get_location_type(self.cli_ctx),
-                   help='Project type region.')
         c.argument('subscriptions', nargs='+',
                    help='Space-seperated subscription ids (uuids).',
                    validator=subscriptions_list_validator)
@@ -251,9 +245,6 @@ def load_arguments(self, _):
                    type=str, help='Provider id.',
                    validator=provider_id_validator,
                    completer=get_provider_index_completion_list)
-        c.argument('resource_group_name', resource_group_name_type,
-                   help='Name of resource group.')
-        c.argument('location', get_location_type(self.cli_ctx))
         c.argument('tags', tags_type)
 
     with self.argument_context('tc provider list-available') as c:

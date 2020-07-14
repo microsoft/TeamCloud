@@ -3,6 +3,11 @@
 Release History
 ===============
 
+0.5.3
+++++++
+* Preview release
+* az tc [provider] deploy: don't require a location if an existing resource group is provided
+
 0.5.2
 ++++++
 * Preview release
