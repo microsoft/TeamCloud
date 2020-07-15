@@ -467,7 +467,7 @@ def project_type_create(cmd, client, base_url, project_type, subscriptions, prov
     from .vendored_sdks.teamcloud.models import ProjectType
     client._client.config.base_url = base_url
 
-    payload = ProjectType(id=project_type, default=default, region=location,
+    payload = ProjectType(id=project_type, is_default=default, region=location,
                           subscriptions=subscriptions, subscription_capacity=subscription_capacity,
                           resource_group_name_prefix=resource_group_name_prefix, providers=providers,
                           tags=tags, properties=properties)

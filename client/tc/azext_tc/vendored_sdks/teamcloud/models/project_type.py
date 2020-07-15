@@ -17,8 +17,8 @@ class ProjectType(Model):
 
     :param id:
     :type id: str
-    :param default:
-    :type default: bool
+    :param is_default:
+    :type is_default: bool
     :param region:
     :type region: str
     :param subscriptions:
@@ -37,7 +37,7 @@ class ProjectType(Model):
 
     _attribute_map = {
         'id': {'key': 'id', 'type': 'str'},
-        'default': {'key': 'default', 'type': 'bool'},
+        'is_default': {'key': 'isDefault', 'type': 'bool'},
         'region': {'key': 'region', 'type': 'str'},
         'subscriptions': {'key': 'subscriptions', 'type': '[str]'},
         'subscription_capacity': {'key': 'subscriptionCapacity', 'type': 'int'},
@@ -50,7 +50,7 @@ class ProjectType(Model):
     def __init__(self, **kwargs):
         super(ProjectType, self).__init__(**kwargs)
         self.id = kwargs.get('id', None)
-        self.default = kwargs.get('default', None)
+        self.is_default = kwargs.get('is_default', None)
         self.region = kwargs.get('region', None)
         self.subscriptions = kwargs.get('subscriptions', None)
         self.subscription_capacity = kwargs.get('subscription_capacity', None)

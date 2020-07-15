@@ -727,7 +727,7 @@ class TeamCloudClient(SDKClient):
         request = self._client.put(url, query_parameters, header_parameters, body_content)
         response = self._client.send(request, stream=False, **operation_config)
 
-        if response.status_code not in [200, 400, 401, 403, 409]:
+        if response.status_code not in [200, 400, 401, 403, 404]:
             raise HttpOperationError(self._deserialize, response)
 
         deserialized = None
@@ -736,7 +736,7 @@ class TeamCloudClient(SDKClient):
             deserialized = self._deserialize('ProjectTypeDataResult', response)
         if response.status_code == 400:
             deserialized = self._deserialize('ErrorResult', response)
-        if response.status_code == 409:
+        if response.status_code == 404:
             deserialized = self._deserialize('ErrorResult', response)
 
         if raw:

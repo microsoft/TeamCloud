@@ -743,8 +743,8 @@
               }
             }
           },
-          "409": {
-            "description": "A Project Type already exists with the ID provided in the reques body.",
+          "404": {
+            "description": "A Project Type with the ID provided in the request body could not be found.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2512,7 +2512,7 @@
             "type": "string",
             "nullable": true
           },
-          "default": {
+          "isDefault": {
             "type": "boolean"
           },
           "region": {

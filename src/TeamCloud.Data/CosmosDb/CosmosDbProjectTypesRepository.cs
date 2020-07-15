@@ -46,18 +46,18 @@ namespace TeamCloud.Data.CosmosDb
                 // ensure we have a default
                 // project type if none is defined
 
-                projectType.Default = true;
+                projectType.IsDefault = true;
             }
 
             try
             {
-                if (projectType.Default)
+                if (projectType.IsDefault)
                 {
                     var batch = container
                         .CreateTransactionalBatch(new PartitionKey(Options.TenantName))
                         .CreateItem(projectType);
 
-                    var query = new QueryDefinition($"SELECT * FROM c WHERE c.default = true and c.id != '{projectType.Id}'");
+                    var query = new QueryDefinition($"SELECT * FROM c WHERE c.isDefault = true and c.id != '{projectType.Id}'");
 
                     var queryIterator = container
                         .GetItemQueryIterator<ProjectType>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
@@ -69,7 +69,7 @@ namespace TeamCloud.Data.CosmosDb
                             .ConfigureAwait(false);
 
                         queryResults
-                            .Select(qr => { qr.Default = false; return qr; })
+                            .Select(qr => { qr.IsDefault = false; return qr; })
                             .ToList()
                             .ForEach(qr => batch.UpsertItem(qr));
                     }
@@ -131,7 +131,7 @@ namespace TeamCloud.Data.CosmosDb
 
             try
             {
-                var query = new QueryDefinition($"SELECT * FROM c WHERE c.default = true");
+                var query = new QueryDefinition($"SELECT * FROM c WHERE c.isDefault = true");
 
                 var queryIterator = container
                     .GetItemQueryIterator<ProjectType>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
@@ -151,7 +151,7 @@ namespace TeamCloud.Data.CosmosDb
                         .Where(pt => pt.Id != defaultProjectType?.Id)
                         .Select(pt =>
                         {
-                            pt.Default = false;
+                            pt.IsDefault = false;
                             return pt;
                         })
                         .ToList()
@@ -182,7 +182,7 @@ namespace TeamCloud.Data.CosmosDb
                 .ValidateAsync(throwOnValidationError: true)
                 .ConfigureAwait(false);
 
-            if (!projectType.Default)
+            if (!projectType.IsDefault)
             {
                 var defaultProjectType = await GetDefaultAsync()
                     .ConfigureAwait(false);
@@ -194,13 +194,13 @@ namespace TeamCloud.Data.CosmosDb
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
-            if (projectType.Default)
+            if (projectType.IsDefault)
             {
                 var batch = container
                     .CreateTransactionalBatch(new PartitionKey(Options.TenantName))
                     .UpsertItem(projectType);
 
-                var query = new QueryDefinition($"SELECT * FROM c WHERE c.default = true and c.id != '{projectType.Id}'");
+                var query = new QueryDefinition($"SELECT * FROM c WHERE c.isDefault = true and c.id != '{projectType.Id}'");
 
                 var queryIterator = container
                     .GetItemQueryIterator<ProjectType>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
@@ -212,7 +212,7 @@ namespace TeamCloud.Data.CosmosDb
                         .ConfigureAwait(false);
 
                     queryResults
-                        .Select(qr => { qr.Default = false; return qr; })
+                        .Select(qr => { qr.IsDefault = false; return qr; })
                         .ToList()
                         .ForEach(qr => batch.UpsertItem(qr));
                 }

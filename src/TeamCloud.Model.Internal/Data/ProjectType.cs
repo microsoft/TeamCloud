@@ -18,7 +18,7 @@ namespace TeamCloud.Model.Internal.Data
         [PartitionKey]
         public string Tenant { get; set; }
 
-        public bool Default { get; set; }
+        public bool IsDefault { get; set; }
 
         public string Region { get; set; }
 

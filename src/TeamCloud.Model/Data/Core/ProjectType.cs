@@ -14,7 +14,7 @@ namespace TeamCloud.Model.Data.Core
     {
         string Id { get; set; }
 
-        bool Default { get; set; }
+        bool IsDefault { get; set; }
 
         string Region { get; set; }
 

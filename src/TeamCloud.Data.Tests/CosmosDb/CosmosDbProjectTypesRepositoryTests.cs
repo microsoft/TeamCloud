@@ -46,7 +46,7 @@ namespace TeamCloud.Data.CosmosDb
 
         private IEnumerable<ProviderReference> GetProviderReferences()
         {
-            yield return new ProviderReference()
+            yield return new ProviderReference
             {
                 Id = SanitizeName(nameof(CosmosDbProjectTypesRepositoryTests))
             };
@@ -55,7 +55,7 @@ namespace TeamCloud.Data.CosmosDb
         [ConditionalFact(ConditionalFactPlatforms.Windows)]
         public async Task AddProjectType()
         {
-            var projectType = await Repository.AddAsync(new ProjectType()
+            var projectType = await Repository.AddAsync(new ProjectType
             {
                 Id = SanitizeName(nameof(AddProjectType)),
                 Region = "EastUS",
@@ -71,7 +71,7 @@ namespace TeamCloud.Data.CosmosDb
         {
             var projectTypeId = SanitizeName(nameof(UpdateProjectType));
 
-            var projectType = await Repository.AddAsync(new ProjectType()
+            var projectType = await Repository.AddAsync(new ProjectType
             {
                 Id = projectTypeId,
                 Region = "EastUS",
@@ -97,7 +97,7 @@ namespace TeamCloud.Data.CosmosDb
         [ConditionalFact(ConditionalFactPlatforms.Windows)]
         public async Task RemoveProjectType()
         {
-            var projectType = await Repository.AddAsync(new ProjectType()
+            var projectType = await Repository.AddAsync(new ProjectType
             {
                 Id = SanitizeName(nameof(RemoveProjectType)),
                 Region = "EastUS",
@@ -115,7 +115,7 @@ namespace TeamCloud.Data.CosmosDb
         [ConditionalFact(ConditionalFactPlatforms.Windows)]
         public async Task GetDefaultProjectType()
         {
-            var projectIds = new List<string>()
+            var projectIds = new List<string>
             {
                 SanitizeName(nameof(GetDefaultProjectType)),
                 SanitizeName(nameof(GetDefaultProjectType)),
@@ -127,10 +127,10 @@ namespace TeamCloud.Data.CosmosDb
 
             foreach (var projectId in projectIds)
             {
-                var projectType = await Repository.AddAsync(new ProjectType()
+                var projectType = await Repository.AddAsync(new ProjectType
                 {
                     Id = projectId,
-                    Default = true,
+                    IsDefault = true,
                     Region = "EastUS",
                     Providers = GetProviderReferences().ToList()
 
@@ -155,7 +155,7 @@ namespace TeamCloud.Data.CosmosDb
 
                 AssertContainerDocumentMetadata(projectType);
 
-                projectType.Default = true;
+                projectType.IsDefault = true;
 
                 projectType = await Repository
                     .SetAsync(projectType)

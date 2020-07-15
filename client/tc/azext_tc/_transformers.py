@@ -96,7 +96,7 @@ def transform_project_type_table_output(result):
     for item in result:
         resultList.append(OrderedDict([
             ('Project Type ID', item['id']),
-            ('Default', item['default']),
+            ('Default', item['isDefault']),
             ('Region', item['region']),
             ('Subscriptions', '\n'.join(item['subscriptions'])),
             ('Subscription Capacity', item['subscriptionCapacity']),

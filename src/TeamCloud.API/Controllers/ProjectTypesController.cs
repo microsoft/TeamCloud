@@ -149,7 +149,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerOperation(OperationId = "UpdateProjectType", Summary = "Updates an existing Project Type.")]
         [SwaggerResponse(StatusCodes.Status200OK, "The ProjectType was updated.", typeof(DataResult<ProjectType>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
-        [SwaggerResponse(StatusCodes.Status409Conflict, "A Project Type already exists with the ID provided in the reques body.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "A Project Type with the ID provided in the request body could not be found.", typeof(ErrorResult))]
         public async Task<IActionResult> Put([FromBody] ProjectType projectType)
         {
             if (projectType is null)
