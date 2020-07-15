@@ -23,6 +23,8 @@ class Provider(Model):
     :type auth_code: str
     :param principal_id:
     :type principal_id: str
+    :param version:
+    :type version: str
     :param resource_group:
     :type resource_group: ~teamcloud.models.AzureResourceGroup
     :param events:
@@ -40,6 +42,7 @@ class Provider(Model):
         'url': {'key': 'url', 'type': 'str'},
         'auth_code': {'key': 'authCode', 'type': 'str'},
         'principal_id': {'key': 'principalId', 'type': 'str'},
+        'version': {'key': 'version', 'type': 'str'},
         'resource_group': {'key': 'resourceGroup', 'type': 'AzureResourceGroup'},
         'events': {'key': 'events', 'type': '[str]'},
         'properties': {'key': 'properties', 'type': '{str}'},
@@ -53,6 +56,7 @@ class Provider(Model):
         self.url = kwargs.get('url', None)
         self.auth_code = kwargs.get('auth_code', None)
         self.principal_id = kwargs.get('principal_id', None)
+        self.version = kwargs.get('version', None)
         self.resource_group = kwargs.get('resource_group', None)
         self.events = kwargs.get('events', None)
         self.properties = kwargs.get('properties', None)

@@ -19,6 +19,8 @@ namespace TeamCloud.Model.Data.Core
 
         Guid? PrincipalId { get; set; }
 
+        string Version { get; set; }
+
         AzureResourceGroup ResourceGroup { get; set; }
 
         IList<string> Events { get; set; }

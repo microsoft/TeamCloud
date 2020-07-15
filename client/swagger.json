@@ -3016,6 +3016,10 @@
             "format": "uuid",
             "nullable": true
           },
+          "version": {
+            "type": "string",
+            "nullable": true
+          },
           "resourceGroup": {
             "$ref": "#/components/schemas/AzureResourceGroup"
           },

@@ -23,6 +23,8 @@ class Provider(Model):
     :type auth_code: str
     :param principal_id:
     :type principal_id: str
+    :param version:
+    :type version: str
     :param resource_group:
     :type resource_group: ~teamcloud.models.AzureResourceGroup
     :param events:
@@ -40,6 +42,7 @@ class Provider(Model):
         'url': {'key': 'url', 'type': 'str'},
         'auth_code': {'key': 'authCode', 'type': 'str'},
         'principal_id': {'key': 'principalId', 'type': 'str'},
+        'version': {'key': 'version', 'type': 'str'},
         'resource_group': {'key': 'resourceGroup', 'type': 'AzureResourceGroup'},
         'events': {'key': 'events', 'type': '[str]'},
         'properties': {'key': 'properties', 'type': '{str}'},
@@ -47,12 +50,13 @@ class Provider(Model):
         'command_mode': {'key': 'commandMode', 'type': 'str'},
     }
 
-    def __init__(self, *, id: str=None, url: str=None, auth_code: str=None, principal_id: str=None, resource_group=None, events=None, properties=None, registered=None, command_mode=None, **kwargs) -> None:
+    def __init__(self, *, id: str=None, url: str=None, auth_code: str=None, principal_id: str=None, version: str=None, resource_group=None, events=None, properties=None, registered=None, command_mode=None, **kwargs) -> None:
         super(Provider, self).__init__(**kwargs)
         self.id = id
         self.url = url
         self.auth_code = auth_code
         self.principal_id = principal_id
+        self.version = version
         self.resource_group = resource_group
         self.events = events
         self.properties = properties

@@ -22,6 +22,8 @@ namespace TeamCloud.Model.Data
 
         public Guid? PrincipalId { get; set; }
 
+        public string Version { get; set; }
+
         public AzureResourceGroup ResourceGroup { get; set; }
 
         public IList<string> Events { get; set; } = new List<string>();
