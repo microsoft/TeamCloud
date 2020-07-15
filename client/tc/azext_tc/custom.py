@@ -153,7 +153,7 @@ def teamcloud_deploy(cmd, client, name, location=None, resource_group_name='Team
         id=rg.id, name=rg.name, region=rg.location, subscription_id=sub_id)
     teamcloud_instance = TeamCloudInstance(
         version=version, resource_group=resource_group, tags=tags)
-    tci = client.create_team_cloud_instance(teamcloud_instance)
+    _ = client.create_team_cloud_instance(teamcloud_instance)
 
     hook.end(message=' ')
     logger.warning(' ')

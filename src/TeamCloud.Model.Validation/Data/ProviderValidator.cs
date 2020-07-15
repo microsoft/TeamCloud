@@ -14,7 +14,15 @@ namespace TeamCloud.Model.Validation.Data
         {
             RuleFor(obj => obj.Id).MustBeProviderId();
             RuleFor(obj => obj.Url).MustBeUrl();
-            // RuleFor(obj => obj.AuthCode).MustBeFunctionAuthCode();
+
+            RuleFor(obj => obj.Version)
+                .MustBeVersionString()
+                .When(obj => !string.IsNullOrEmpty(obj.Version));
+
+            RuleFor(obj => obj.ResourceGroup)
+                .SetValidator(new AzureResourceGroupValidator())
+                .When(obj => !(obj.ResourceGroup is null));
+
         }
     }
 }

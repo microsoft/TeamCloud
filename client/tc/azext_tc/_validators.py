@@ -6,7 +6,6 @@
 from re import match, sub
 from uuid import UUID
 from azure.cli.core.util import CLIError
-from azure.cli.core.commands.validators import validate_tags
 from knack.log import get_logger
 from .vendored_sdks.teamcloud.models import ErrorResult
 
