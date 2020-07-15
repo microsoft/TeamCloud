@@ -93,7 +93,7 @@ namespace TeamCloud.API
 
         public static bool RequiresAdminUserSet(this HttpRequest httpRequest)
         {
-            if (httpRequest.IsAdminUserPost() || httpRequest.IsSwaggerGet())
+            if (httpRequest.IsAdminUserPost() || httpRequest.IsSwaggerGet() || httpRequest.IsAdminTeamCloudInstancePost())
                 return false;
 
             return true;
@@ -104,5 +104,8 @@ namespace TeamCloud.API
 
         public static bool IsAdminUserPost(this HttpRequest httpRequest)
             => httpRequest.Path.StartsWithSegments("/api/admin/users", StringComparison.OrdinalIgnoreCase) && HttpMethods.IsPost(httpRequest.Method);
+
+        public static bool IsAdminTeamCloudInstancePost(this HttpRequest httpRequest)
+            => httpRequest.Path.StartsWithSegments("/api/admin/teamCloudInstance", StringComparison.OrdinalIgnoreCase) && HttpMethods.IsPost(httpRequest.Method);
     }
 }

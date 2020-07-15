@@ -257,6 +257,18 @@ namespace TeamCloud.Model.Validation
                 .Must(BeValidFunctionAuthCode)
                     .WithMessage("'{PropertyName}' must contain only base-64 digits [A-Za-z0-9/] (excluding the plus sign (+)), ending in = or ==");
 
+        public static IRuleBuilderOptions<T, string> MustBeVersionString<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
+            => ruleBuilder
+                .Cascade(CascadeMode.StopOnFirstFailure)
+                .NotEmpty()
+                .Must(BeValidVersionString)
+                    .WithMessage("'{PropertyName}' be in format v0.0.0 and not include -pre suffix");
+
+        public static IRuleBuilderOptions<T, KeyValuePair<string, string>> MustBeValidTag<T>(this IRuleBuilderInitialCollection<T, KeyValuePair<string, string>> ruleBuilder)
+            => ruleBuilder
+                .Must(BeValidTag)
+                    .WithMessage("'{PropertyName}' must contain valid tag name/values");
+
         private static bool BeGuid(string guid)
             => !string.IsNullOrEmpty(guid)
             && Guid.TryParse(guid, out var outGuid)
@@ -295,6 +307,9 @@ namespace TeamCloud.Model.Validation
             || id.Contains('?', StringComparison.OrdinalIgnoreCase)
             || id.Contains('#', StringComparison.OrdinalIgnoreCase));
 
+        private static bool BeValidTag(KeyValuePair<string, string> tag)
+            => BeValidTagName(tag.Key) && BeValidTagValue(tag.Value);
+
         private static bool BeValidTagName(string key)
             => !(string.IsNullOrEmpty(key)
             || key.Length >= 512
@@ -330,6 +345,12 @@ namespace TeamCloud.Model.Validation
         private static bool BeValidFunctionAuthCode(string code)
             => !string.IsNullOrEmpty(code)
             && validFunctionAuthCode.IsMatch(code);
+
+        private static readonly Regex validVersionString = new Regex(@"^v[0-9]+\.[0-9]+\.[0-9]+$");
+
+        private static bool BeValidVersionString(string version)
+            => !string.IsNullOrEmpty(version)
+            && validVersionString.IsMatch(version);
     }
 
     internal class AzureRegion

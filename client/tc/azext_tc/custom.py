@@ -17,13 +17,18 @@ STATUS_POLLING_SLEEP_INTERVAL = 2
 
 # TeamCloud
 
+def teamcloud_info(cmd, client, base_url):
+    client._client.config.base_url = base_url
+    return client.get_team_cloud_instance()
+
+
 def teamcloud_deploy(cmd, client, name, location=None, resource_group_name='TeamCloud',  # pylint: disable=too-many-statements, too-many-locals
                      principal_name=None, principal_password=None, tags=None, version=None,
                      skip_app_deployment=False, skip_name_validation=False, skip_admin_user=False,
                      prerelease=False, index_url=None):
     from re import sub
     from azure.cli.core._profile import Profile
-    from .vendored_sdks.teamcloud.models import UserDefinition
+    from .vendored_sdks.teamcloud.models import UserDefinition, TeamCloudInstance, AzureResourceGroup
     from ._deploy_utils import (
         get_github_latest_release, get_index_teamcloud, deploy_arm_template_at_resource_group,
         get_resource_group_by_name, create_resource_group_name, create_resource_manager_sp,
@@ -55,14 +60,14 @@ def teamcloud_deploy(cmd, client, name, location=None, resource_group_name='Team
 
     hook.add(message='Getting resource group {}'.format(resource_group_name))
 
-    rg, _ = get_resource_group_by_name(cli_ctx, resource_group_name)
+    rg, sub_id = get_resource_group_by_name(cli_ctx, resource_group_name)
     if rg is None:
         if location is None:
             raise CLIError(
                 "--location/-l is required if resource group '{}' does not exist".format(resource_group_name))
         hook.add(message="Resource group '{}' not found".format(resource_group_name))
         hook.add(message="Creating resource group '{}'".format(resource_group_name))
-        rg, _ = create_resource_group_name(cli_ctx, resource_group_name, location)
+        rg, sub_id = create_resource_group_name(cli_ctx, resource_group_name, location)
 
     profile = Profile(cli_ctx=cli_ctx)
 
@@ -142,6 +147,13 @@ def teamcloud_deploy(cmd, client, name, location=None, resource_group_name='Team
         user_definition = UserDefinition(identifier=me, role='Admin', properties=None)
         _ = client.create_team_cloud_admin_user(user_definition)
 
+        hook.add(message='Adding TeamCloud instance information')
+        resource_group = AzureResourceGroup(
+            id=rg.id, name=rg.name, region=rg.location, subscription_id=sub_id)
+        teamcloud_instance = TeamCloudInstance(
+            version=version, resource_group=resource_group, tags=tags)
+        _ = client.create_team_cloud_instance(teamcloud_instance)
+
     hook.end(message=' ')
     logger.warning(' ')
     logger.warning('TeamCloud instance successfully created at: %s', api_url)
@@ -172,13 +184,13 @@ def teamcloud_deploy(cmd, client, name, location=None, resource_group_name='Team
     return result
 
 
-def teamcloud_upgrade(cmd, client, base_url, resource_group_name='TeamCloud', version=None,  # pylint: disable=too-many-statements, too-many-locals
-                      prerelease=False, index_url=None):
+def teamcloud_upgrade(cmd, client, base_url, version=None, prerelease=False, index_url=None):  # pylint: disable=too-many-statements, too-many-locals
     from re import match
     from ._deploy_utils import (
         get_github_latest_release, get_index_teamcloud, deploy_arm_template_at_resource_group,
         get_resource_group_by_name, set_appconfig_keys, zip_deploy_app)
 
+    client._client.config.base_url = base_url
     cli_ctx = cmd.cli_ctx
 
     hook = cli_ctx.get_progress_controller()
@@ -204,12 +216,11 @@ def teamcloud_upgrade(cmd, client, base_url, resource_group_name='TeamCloud', ve
     if not orchestrator_zip_url:
         raise CLIError('No zip url for the orchestrator found found in index')
 
-    hook.add(message='Getting resource group {}'.format(resource_group_name))
+    hook.add(message='Getting TeamCloud instance information')
+    tc_instance_result = client.get_team_cloud_instance()
 
-    rg, _ = get_resource_group_by_name(cli_ctx, resource_group_name)
-    if rg is None:
-        raise CLIError(
-            "--resource-group/-g '{}' must exist in current subscription.".format(resource_group_name))
+    if version and tc_instance_result.data.version and version == tc_instance_result.data.version:
+        raise CLIError("TeamCloud instance is already using version {}".format(version))
 
     name = ''
     m = match(r'^https?://(?P<name>[a-zA-Z0-9-]+)\.azurewebsites\.net[/a-zA-Z0-9.\:]*$', base_url)
@@ -220,6 +231,17 @@ def teamcloud_upgrade(cmd, client, base_url, resource_group_name='TeamCloud', ve
 
     if name is None or '':
         raise CLIError('Unable to get app name from base url.')
+
+    resource_group_name = tc_instance_result.data.resource_group.name
+
+    if not resource_group_name:
+        raise CLIError('TODO TeamCloud instance was not deployed by the cli')
+
+    hook.add(message='Getting resource group {}'.format(resource_group_name))
+    rg, _ = get_resource_group_by_name(cli_ctx, resource_group_name)
+    if rg is None:
+        raise CLIError(
+            "Resource Group '{}' must exist in current subscription.".format(resource_group_name))
 
     parameters = []
     parameters.append('webAppName={}'.format(name))
@@ -259,10 +281,15 @@ def teamcloud_upgrade(cmd, client, base_url, resource_group_name='TeamCloud', ve
     hook.add(message='Deploying API source code')
     zip_deploy_app(cli_ctx, resource_group_name, api_app_name, api_zip_url)
 
-    version_string = version or 'the latest version'
+    hook.add(message='Updating TeamCloud instance information')
+    payload = tc_instance_result.data
+    payload.version = version
+
+    _ = client.update_team_cloud_instance(payload)
+
     hook.end(message=' ')
     logger.warning(' ')
-    logger.warning('Successfully upgraded TeamCloud instance to %s', version_string)
+    logger.warning('Successfully upgraded TeamCloud instance to %s', version or '')
 
     result = {
         'version': version or 'latest',
@@ -591,8 +618,9 @@ def provider_deploy(cmd, client, base_url, provider, location=None, resource_gro
 
     resource_group = AzureResourceGroup(
         id=rg.id, name=rg.name, region=rg.location, subscription_id=sub_id)
-    payload = Provider(id=provider, url=url, auth_code=auth_code, resource_group=resource_group,
-                       principal_id=principal_id, events=events, properties=properties)
+    payload = Provider(id=provider, url=url, auth_code=auth_code, principal_id=principal_id,
+                       version=version, resource_group=resource_group, events=events,
+                       properties=properties)
 
     provider_output = _create_with_status(cmd, client, base_url, payload,
                                           client.create_provider, hook_start=False)
@@ -640,6 +668,9 @@ def provider_upgrade(cmd, client, base_url, provider, version=None, prerelease=F
     hook.add(message='Getting existing provider')
     provider_result = client.get_provider_by_id(provider)
 
+    if version and provider_result.data.version and version == provider_result.data.version:
+        raise CLIError("Provider '{}' is already using version {}".format(provider, version))
+
     url = provider_result.data.url
 
     name = ''
@@ -661,7 +692,7 @@ def provider_upgrade(cmd, client, base_url, provider, version=None, prerelease=F
     rg, _ = get_resource_group_by_name(cli_ctx, resource_group_name)
     if rg is None:
         raise CLIError(
-            "--resource-group/-g '{}' must exist in current subscription.".format(resource_group_name))
+            "Resource Group '{}' must exist in current subscription.".format(resource_group_name))
 
     hook.add(message='Deploying ARM template')
     outputs = deploy_arm_template_at_resource_group(
@@ -682,6 +713,7 @@ def provider_upgrade(cmd, client, base_url, provider, version=None, prerelease=F
 
     payload = provider_result.data
     payload.auth_code = auth_code
+    payload.version = version
 
     provider_output = _update_with_status(cmd, client, base_url, payload,
                                           client.update_provider, hook_start=False)

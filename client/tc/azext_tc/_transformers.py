@@ -122,6 +122,7 @@ def transform_provider_table_output(result):
             ('Url', item['url']),
             ('Code', '************'),
             ('Command Mode', item['commandMode']),
+            ('Version', item['version']),
             ('Resource Group', '' if rg is None else rg['name']),
             ('Subscription', '' if rg is None else rg['subscriptionId']),
             ('Region', '' if rg is None else rg['region']),

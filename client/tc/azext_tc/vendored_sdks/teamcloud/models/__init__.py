@@ -32,6 +32,8 @@ try:
     from .provider_py3 import Provider
     from .provider_list_data_result_py3 import ProviderListDataResult
     from .provider_data_result_py3 import ProviderDataResult
+    from .team_cloud_instance_py3 import TeamCloudInstance
+    from .team_cloud_instance_data_result_py3 import TeamCloudInstanceDataResult
 except (SyntaxError, ImportError):
     from .provider_reference import ProviderReference
     from .project_type import ProjectType
@@ -55,6 +57,8 @@ except (SyntaxError, ImportError):
     from .provider import Provider
     from .provider_list_data_result import ProviderListDataResult
     from .provider_data_result import ProviderDataResult
+    from .team_cloud_instance import TeamCloudInstance
+    from .team_cloud_instance_data_result import TeamCloudInstanceDataResult
 
 __all__ = [
     'ProviderReference',
@@ -79,4 +83,6 @@ __all__ = [
     'Provider',
     'ProviderListDataResult',
     'ProviderDataResult',
+    'TeamCloudInstance',
+    'TeamCloudInstanceDataResult',
 ]

@@ -15,6 +15,14 @@ type: group
 short-summary: Manage TeamCloud instances.
 """
 
+helps['tc info'] = """
+type: command
+short-summary: Get TeamCloud instance information.
+examples:
+  - name: Get TeamCloud instance information.
+    text: az tc info --base-url url
+"""
+
 helps['tc deploy'] = """
 type: command
 short-summary: Deploy a new TeamCloud instance.

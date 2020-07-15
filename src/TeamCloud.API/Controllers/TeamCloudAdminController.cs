@@ -14,9 +14,11 @@ using TeamCloud.API.Data;
 using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
+using TeamCloud.Model;
 using TeamCloud.Model.Internal.Data;
 using TeamCloud.Model.Internal.Commands;
 using TeamCloud.Model.Data.Core;
+using TeamCloud.Model.Internal.Validation.Data;
 
 namespace TeamCloud.API.Controllers
 {
@@ -26,12 +28,14 @@ namespace TeamCloud.API.Controllers
         readonly UserService userService;
         readonly Orchestrator orchestrator;
         readonly IUsersRepository usersRepository;
+        readonly ITeamCloudRepository teamCloudRepository;
 
-        public TeamCloudAdminController(UserService userService, Orchestrator orchestrator, IUsersRepository usersRepository)
+        public TeamCloudAdminController(UserService userService, Orchestrator orchestrator, IUsersRepository usersRepository, ITeamCloudRepository teamCloudRepository)
         {
             this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
             this.orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
             this.usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
+            this.teamCloudRepository = teamCloudRepository ?? throw new ArgumentNullException(nameof(teamCloudRepository));
         }
 
 
@@ -90,6 +94,127 @@ namespace TeamCloud.API.Controllers
             return await orchestrator
                 .InvokeAndReturnAccepted(command)
                 .ConfigureAwait(false);
+        }
+
+
+        [HttpGet("api/admin/teamCloudInstance")]
+        [Authorize(Policy = "admin")]
+        [SwaggerOperation(OperationId = "GetTeamCloudInstance", Summary = "Gets the TeamCloud instance.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Returns the TeamCloudInstance.", typeof(DataResult<TeamCloudInstance>))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found.", typeof(ErrorResult))]
+        public async Task<IActionResult> Get()
+        {
+            var teamCloudInstance = await teamCloudRepository
+                .GetAsync()
+                .ConfigureAwait(false);
+
+            if (teamCloudInstance is null)
+                return ErrorResult
+                    .NotFound($"The TeamCloud instance could not be found.")
+                    .ActionResult();
+
+            return DataResult<TeamCloudInstance>
+                .Ok(teamCloudInstance)
+                .ActionResult();
+        }
+
+
+        [HttpPost("api/admin/teamCloudInstance")]
+        [Authorize(Policy = "default")]
+        [Consumes("application/json")]
+        [SwaggerOperation(OperationId = "CreateTeamCloudInstance", Summary = "Updates the TeamCloud instance.")]
+        [SwaggerResponse(StatusCodes.Status201Created, "The TeamCloud instance was created.", typeof(DataResult<TeamCloudInstance>))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found.", typeof(ErrorResult))]
+        public async Task<IActionResult> Post([FromBody] TeamCloudInstance teamCloudInstance)
+        {
+            if (teamCloudInstance is null)
+                throw new ArgumentNullException(nameof(teamCloudInstance));
+
+            var validation = new TeamCloudInstanceValidator().Validate(teamCloudInstance);
+
+            if (!validation.IsValid)
+                return ErrorResult
+                    .BadRequest(validation)
+                    .ActionResult();
+
+            var existingTeamCloudInstance = await teamCloudRepository
+                .GetAsync()
+                .ConfigureAwait(false);
+
+            if (existingTeamCloudInstance is null)
+                return ErrorResult
+                    .NotFound("The TeamCloud instance could not be found.")
+                    .ActionResult();
+
+            if (existingTeamCloudInstance.ResourceGroup != null
+             || existingTeamCloudInstance.Version != null
+             || (existingTeamCloudInstance.Tags?.Any() ?? false))
+                return ErrorResult
+                    .Conflict($"The TeamCloud instance already exists.  Call PUT to update the existing instance.")
+                    .ActionResult();
+
+            existingTeamCloudInstance.Version = teamCloudInstance.Version;
+            existingTeamCloudInstance.ResourceGroup = teamCloudInstance.ResourceGroup;
+            existingTeamCloudInstance.Tags = teamCloudInstance.Tags;
+
+            var setResult = await orchestrator
+                .SetAsync(existingTeamCloudInstance)
+                .ConfigureAwait(false);
+
+            var baseUrl = HttpContext.GetApplicationBaseUrl();
+            var location = new Uri(baseUrl, $"api/admin/teamCloudInstance").ToString();
+
+            return DataResult<TeamCloudInstance>
+                .Created(setResult, location)
+                .ActionResult();
+        }
+
+
+        [HttpPut("api/admin/teamCloudInstance")]
+        [Authorize(Policy = "admin")]
+        [Consumes("application/json")]
+        [SwaggerOperation(OperationId = "UpdateTeamCloudInstance", Summary = "Updates the TeamCloud instance.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "The TeamCloud instance was updated.", typeof(DataResult<TeamCloudInstance>))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found.", typeof(ErrorResult))]
+        public async Task<IActionResult> Put([FromBody] TeamCloudInstance teamCloudInstance)
+        {
+            if (teamCloudInstance is null)
+                throw new ArgumentNullException(nameof(teamCloudInstance));
+
+            var validation = new TeamCloudInstanceValidator().Validate(teamCloudInstance);
+
+            if (!validation.IsValid)
+                return ErrorResult
+                    .BadRequest(validation)
+                    .ActionResult();
+
+            var existingTeamCloudInstance = await teamCloudRepository
+                .GetAsync()
+                .ConfigureAwait(false);
+
+            if (existingTeamCloudInstance is null)
+                return ErrorResult
+                    .NotFound("The TeamCloud instance could not be found.")
+                    .ActionResult();
+
+            if (!string.IsNullOrEmpty(teamCloudInstance.Version))
+                existingTeamCloudInstance.Version = teamCloudInstance.Version;
+
+            if (!(teamCloudInstance.ResourceGroup is null))
+                existingTeamCloudInstance.ResourceGroup = teamCloudInstance.ResourceGroup;
+
+            if (teamCloudInstance.Tags?.Any() ?? false)
+                existingTeamCloudInstance.MergeTags(teamCloudInstance.Tags);
+
+            var setResult = await orchestrator
+                .SetAsync(existingTeamCloudInstance)
+                .ConfigureAwait(false);
+
+            return DataResult<TeamCloudInstance>
+                .Ok(setResult)
+                .ActionResult();
         }
     }
 }

@@ -132,6 +132,21 @@ namespace TeamCloud.API.Services
             return commandResult;
         }
 
+        public async Task<TeamCloudInstance> SetAsync(TeamCloudInstance teamCloudInstance)
+        {
+            var response = await options.Url
+                .AppendPathSegment("api/data/teamCloudInstance")
+                .WithHeader("x-functions-key", options.AuthCode)
+                .PostJsonAsync(teamCloudInstance)
+                .ConfigureAwait(false);
+
+            var result = await response.Content
+                .ReadAsAsync<TeamCloudInstance>()
+                .ConfigureAwait(false);
+
+            return result;
+        }
+
         public async Task<ProjectType> AddAsync(ProjectType projectType)
         {
             var response = await options.Url

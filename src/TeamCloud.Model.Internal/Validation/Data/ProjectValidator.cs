@@ -5,6 +5,7 @@
 
 using FluentValidation;
 using TeamCloud.Model.Internal.Data;
+using TeamCloud.Model.Validation;
 
 namespace TeamCloud.Model.Internal.Validation.Data
 {
@@ -20,6 +21,8 @@ namespace TeamCloud.Model.Internal.Validation.Data
 
             // RuleFor(obj => obj.Users)
             //     .NotEmpty();
+
+            RuleForEach(obj => obj.Tags).MustBeValidTag();
         }
     }
 }

@@ -17,6 +17,8 @@ namespace TeamCloud.Model.Internal.Data
         [PartitionKey]
         public override string Id { get; set; }
 
+        public string Version { get; set; }
+
         public AzureResourceGroup ResourceGroup { get; set; }
 
         public IDictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();

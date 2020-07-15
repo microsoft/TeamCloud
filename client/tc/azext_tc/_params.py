@@ -54,7 +54,8 @@ def load_arguments(self, _):
     # Global
 
     # ignore global az arg --subscription and requre base_url for everything except `tc deploy`
-    for scope in ['tc status', 'tc upgrade', 'tc user', 'tc project', 'tc project-type', 'tc provider', 'tc tag']:
+    for scope in ['tc info', 'tc status', 'tc upgrade', 'tc user', 'tc project',
+                  'tc project-type', 'tc provider', 'tc tag']:
         with self.argument_context(scope, arg_group='TeamCloud') as c:
             c.ignore('_subscription')
             c.argument('base_url', tc_url_type)
