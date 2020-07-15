@@ -3345,10 +3345,6 @@
       "TeamCloudInstance": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "string",
-            "nullable": true
-          },
           "version": {
             "type": "string",
             "nullable": true

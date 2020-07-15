@@ -44,5 +44,6 @@
     <ProjectReference Include="..\TeamCloud.Http\TeamCloud.Http.csproj" />
     <ProjectReference Include="..\TeamCloud.Model\TeamCloud.Model.csproj" />
     <ProjectReference Include="..\TeamCloud.Model.Internal\TeamCloud.Model.Internal.csproj" />
+    <ProjectReference Include="..\TeamCloud.Model.Validation\TeamCloud.Model.Validation.csproj" />
   </ItemGroup>
 </Project>

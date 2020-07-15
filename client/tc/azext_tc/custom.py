@@ -123,7 +123,7 @@ def teamcloud_deploy(cmd, client, name, location=None, resource_group_name='Team
 
     if skip_app_deployment:
         logger.warning(
-            'IMPORTANT: --skip-deploy prevented source code for the TeamCloud instance deployment. '
+            'IMPORTANT: --skip-app-deployment prevented source code for the TeamCloud instance deployment. '
             'To deploy the applications use `az tc upgrade`.')
     else:
         hook.add(message='Deploying Orchestrator source code')
@@ -135,24 +135,25 @@ def teamcloud_deploy(cmd, client, name, location=None, resource_group_name='Team
         version_string = version or 'the latest version'
         hook.add(message='Successfully created TeamCloud instance ({})'.format(version_string))
 
+    client._client.config.base_url = api_url
+
     if skip_admin_user:
         logger.warning(
-            'IMPORTANT: --redeploy prevented adding you as an Admin user to the TeamCloud instance deployment.')
+            'IMPORTANT: --skip-admin-user prevented adding you as an Admin user to the TeamCloud instance deployment.')
     else:
         me = profile.get_current_account_user()
         me = sub('http[s]?://', '', me)
         hook.add(message="Adding '{}' as an admin user".format(me))
 
-        client._client.config.base_url = api_url
         user_definition = UserDefinition(identifier=me, role='Admin', properties=None)
         _ = client.create_team_cloud_admin_user(user_definition)
 
-        hook.add(message='Adding TeamCloud instance information')
-        resource_group = AzureResourceGroup(
-            id=rg.id, name=rg.name, region=rg.location, subscription_id=sub_id)
-        teamcloud_instance = TeamCloudInstance(
-            version=version, resource_group=resource_group, tags=tags)
-        _ = client.create_team_cloud_instance(teamcloud_instance)
+    hook.add(message='Adding TeamCloud instance information')
+    resource_group = AzureResourceGroup(
+        id=rg.id, name=rg.name, region=rg.location, subscription_id=sub_id)
+    teamcloud_instance = TeamCloudInstance(
+        version=version, resource_group=resource_group, tags=tags)
+    tci = client.create_team_cloud_instance(teamcloud_instance)
 
     hook.end(message=' ')
     logger.warning(' ')

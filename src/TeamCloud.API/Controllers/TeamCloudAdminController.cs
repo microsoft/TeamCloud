@@ -18,7 +18,8 @@ using TeamCloud.Model;
 using TeamCloud.Model.Internal.Data;
 using TeamCloud.Model.Internal.Commands;
 using TeamCloud.Model.Data.Core;
-using TeamCloud.Model.Internal.Validation.Data;
+using TeamCloud.Model.Validation.Data;
+using TeamCloudInstance = TeamCloud.Model.Data.TeamCloudInstance;
 
 namespace TeamCloud.API.Controllers
 {
@@ -113,8 +114,10 @@ namespace TeamCloud.API.Controllers
                     .NotFound($"The TeamCloud instance could not be found.")
                     .ActionResult();
 
+            var returnTeamCloudInstance = teamCloudInstance.PopulateExternalModel();
+
             return DataResult<TeamCloudInstance>
-                .Ok(teamCloudInstance)
+                .Ok(returnTeamCloudInstance)
                 .ActionResult();
         }
 
@@ -131,7 +134,7 @@ namespace TeamCloud.API.Controllers
             if (teamCloudInstance is null)
                 throw new ArgumentNullException(nameof(teamCloudInstance));
 
-            var validation = new TeamCloudInstanceValidator().Validate(teamCloudInstance);
+            var validation = new TeamCloudInstanceValidaor().Validate(teamCloudInstance);
 
             if (!validation.IsValid)
                 return ErrorResult
@@ -165,8 +168,10 @@ namespace TeamCloud.API.Controllers
             var baseUrl = HttpContext.GetApplicationBaseUrl();
             var location = new Uri(baseUrl, $"api/admin/teamCloudInstance").ToString();
 
+            var returnSetResult = setResult.PopulateExternalModel();
+
             return DataResult<TeamCloudInstance>
-                .Created(setResult, location)
+                .Created(returnSetResult, location)
                 .ActionResult();
         }
 
@@ -183,7 +188,7 @@ namespace TeamCloud.API.Controllers
             if (teamCloudInstance is null)
                 throw new ArgumentNullException(nameof(teamCloudInstance));
 
-            var validation = new TeamCloudInstanceValidator().Validate(teamCloudInstance);
+            var validation = new TeamCloudInstanceValidaor().Validate(teamCloudInstance);
 
             if (!validation.IsValid)
                 return ErrorResult
@@ -212,8 +217,10 @@ namespace TeamCloud.API.Controllers
                 .SetAsync(existingTeamCloudInstance)
                 .ConfigureAwait(false);
 
+            var returnSetResult = setResult.PopulateExternalModel();
+
             return DataResult<TeamCloudInstance>
-                .Ok(setResult)
+                .Ok(returnSetResult)
                 .ActionResult();
         }
     }

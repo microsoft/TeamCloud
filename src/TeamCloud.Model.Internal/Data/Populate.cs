@@ -221,6 +221,8 @@ namespace TeamCloud.Model.Internal.Data
         public static Model.Data.ProjectType PopulateExternalModel(this ProjectType source, Model.Data.ProjectType target = null)
             => source.PopulateExternalModel<ProjectType, Model.Data.ProjectType>(target);
 
+        public static Model.Data.TeamCloudInstance PopulateExternalModel(this TeamCloudInstance source, Model.Data.TeamCloudInstance target = null)
+            => source.PopulateExternalModel<TeamCloudInstance, Model.Data.TeamCloudInstance>(target);
 
         public static void PopulateFromExternalModel<TInternal, TExternal>(this TInternal target, TExternal source)
             where TInternal : IPopulate<TExternal>

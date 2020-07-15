@@ -15,8 +15,6 @@ from msrest.serialization import Model
 class TeamCloudInstance(Model):
     """TeamCloudInstance.
 
-    :param id:
-    :type id: str
     :param version:
     :type version: str
     :param resource_group:
@@ -26,15 +24,13 @@ class TeamCloudInstance(Model):
     """
 
     _attribute_map = {
-        'id': {'key': 'id', 'type': 'str'},
         'version': {'key': 'version', 'type': 'str'},
         'resource_group': {'key': 'resourceGroup', 'type': 'AzureResourceGroup'},
         'tags': {'key': 'tags', 'type': '{str}'},
     }
 
-    def __init__(self, *, id: str=None, version: str=None, resource_group=None, tags=None, **kwargs) -> None:
+    def __init__(self, *, version: str=None, resource_group=None, tags=None, **kwargs) -> None:
         super(TeamCloudInstance, self).__init__(**kwargs)
-        self.id = id
         self.version = version
         self.resource_group = resource_group
         self.tags = tags
