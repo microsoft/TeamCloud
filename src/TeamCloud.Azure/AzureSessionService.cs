@@ -68,6 +68,9 @@ namespace TeamCloud.Azure
         {
             try
             {
+                var tenantId = azureSessionOptions.TenantId ??
+                    GetIdentityAsync(AzureEndpoint.ResourceManagerEndpoint).Result.TenantId.ToString();
+
                 var credentialsFactory = new RMFluent.Authentication.AzureCredentialsFactory();
 
                 if (string.IsNullOrEmpty(azureSessionOptions.ClientId))
@@ -75,26 +78,26 @@ namespace TeamCloud.Azure
                     if (IsAzureEnvironment)
                     {
                         return credentialsFactory
-                            .FromSystemAssignedManagedServiceIdentity(MSIResourceType.AppService, Environment, azureSessionOptions.TenantId);
+                            .FromSystemAssignedManagedServiceIdentity(MSIResourceType.AppService, Environment, tenantId);
                     }
                     else
                     {
                         return new AzureCredentials(
                             new TokenCredentials(new DevelopmentTokenProvider(this, AzureEndpoint.ResourceManagerEndpoint)),
                             new TokenCredentials(new DevelopmentTokenProvider(this, AzureEndpoint.GraphEndpoint)),
-                            azureSessionOptions.TenantId,
+                            tenantId,
                             Environment);
                     }
                 }
                 else if (string.IsNullOrEmpty(azureSessionOptions.ClientSecret))
                 {
                     return credentialsFactory
-                        .FromUserAssigedManagedServiceIdentity(azureSessionOptions.ClientId, MSIResourceType.AppService, this.Environment, azureSessionOptions.TenantId);
+                        .FromUserAssigedManagedServiceIdentity(azureSessionOptions.ClientId, MSIResourceType.AppService, this.Environment, tenantId);
                 }
                 else
                 {
                     return credentialsFactory
-                        .FromServicePrincipal(azureSessionOptions.ClientId, azureSessionOptions.ClientSecret, azureSessionOptions.TenantId, this.Environment);
+                        .FromServicePrincipal(azureSessionOptions.ClientId, azureSessionOptions.ClientSecret, tenantId, this.Environment);
                 }
             }
             catch (Exception exc)
@@ -158,7 +161,6 @@ namespace TeamCloud.Azure
                     // ensure we disable SSL verfication for this process when using the Azure CLI to aqcuire MSI token.
                     // otherwise our code will fail in dev scenarios where a dev proxy like fiddler is running to sniff
                     // http traffix between our services or between service and other reset apis (e.g. Azure)
-
                     System.Environment.SetEnvironmentVariable("AZURE_CLI_DISABLE_CONNECTION_VERIFICATION", "1", EnvironmentVariableTarget.Process);
 
                     tokenProvider = new AzureServiceTokenProvider("RunAs=Developer;DeveloperTool=AzureCLI");

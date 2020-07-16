@@ -16,7 +16,8 @@ namespace TeamCloud.Azure
 
     public sealed class AzureSessionOptions : IAzureSessionOptions
     {
-        public static IAzureSessionOptions Default => new AzureSessionOptions();
+        public static readonly IAzureSessionOptions Default
+            = new AzureSessionOptions();
 
         private AzureSessionOptions()
         { }
