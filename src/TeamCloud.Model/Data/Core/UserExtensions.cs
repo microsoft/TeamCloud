@@ -88,10 +88,14 @@ namespace TeamCloud.Model.Data.Core
             return properties;
         }
 
-        public static void EnsureProjectMembership(this IUser user, ProjectMembership membership)
+        public static TUser EnsureProjectMembership<TUser>(this TUser user, ProjectMembership membership)
+            where TUser : class, IUser
         {
-            if (user is null) throw new ArgumentNullException(nameof(user));
-            if (membership is null) throw new ArgumentNullException(nameof(membership));
+            if (user is null)
+                throw new ArgumentNullException(nameof(user));
+
+            if (membership is null)
+                throw new ArgumentNullException(nameof(membership));
 
             var existingMembership = user.ProjectMemberships.FirstOrDefault(m => m.ProjectId == membership.ProjectId);
 
@@ -102,14 +106,17 @@ namespace TeamCloud.Model.Data.Core
                 existingMembership.Role = membership.Role;
                 existingMembership.MergeProperties(membership.Properties, overwriteExistingValues: true);
             }
+
+            return user;
         }
 
-        public static void EnsureProjectMembership(this IUser user, string projectId, ProjectUserRole role, IDictionary<string, string> properties = null)
+        public static TUser EnsureProjectMembership<TUser>(this TUser user, string projectId, ProjectUserRole role, IDictionary<string, string> properties = null)
+            where TUser : class, IUser
         {
             if (user is null) throw new ArgumentNullException(nameof(user));
             if (projectId is null) throw new ArgumentNullException(nameof(projectId));
 
-            user.EnsureProjectMembership(new ProjectMembership
+            return user.EnsureProjectMembership(new ProjectMembership
             {
                 ProjectId = projectId,
                 Role = role,
