@@ -219,7 +219,7 @@ namespace TeamCloud.API.Controllers
                     .BadRequest(new ValidationError { Field = "projectMemberships", Message = $"User's project memberships did not change." })
                     .ActionResult();
 
-            oldUser.EnsureProjectMembership(membership);
+            oldUser.UpdateProjectMembership(membership);
 
             var currentUserForCommand = await userService
                 .CurrentUserAsync()

@@ -117,6 +117,17 @@ namespace TeamCloud.Model.Data.Core
             });
         }
 
+        public static void UpdateProjectMembership(this IUser user, ProjectMembership membership)
+        {
+            if (user is null) throw new ArgumentNullException(nameof(user));
+            if (membership is null) throw new ArgumentNullException(nameof(membership));
+
+            var existingMembership = user.ProjectMemberships.FirstOrDefault(m => m.ProjectId == membership.ProjectId);
+
+            existingMembership.Role = membership.Role;
+            existingMembership.Properties = membership.Properties ?? new Dictionary<string, string>();
+        }
+
         public static bool HasEqualMemberships(this IUser user, IUser other)
         {
             if (user is null) throw new ArgumentNullException(nameof(user));
