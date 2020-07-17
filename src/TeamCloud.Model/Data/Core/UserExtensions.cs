@@ -124,7 +124,8 @@ namespace TeamCloud.Model.Data.Core
             });
         }
 
-        public static void UpdateProjectMembership(this IUser user, ProjectMembership membership)
+        public static TUser UpdateProjectMembership<TUser>(this TUser user, ProjectMembership membership)
+            where TUser : class, IUser
         {
             if (user is null) throw new ArgumentNullException(nameof(user));
             if (membership is null) throw new ArgumentNullException(nameof(membership));
@@ -133,6 +134,8 @@ namespace TeamCloud.Model.Data.Core
 
             existingMembership.Role = membership.Role;
             existingMembership.Properties = membership.Properties ?? new Dictionary<string, string>();
+
+            return user;
         }
 
         public static bool HasEqualMemberships(this IUser user, IUser other)
