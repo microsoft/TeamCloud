@@ -16,15 +16,16 @@ namespace TeamCloud.Azure
 
     public sealed class AzureSessionOptions : IAzureSessionOptions
     {
-        public static IAzureSessionOptions Default => new AzureSessionOptions();
+        public static readonly IAzureSessionOptions Default
+            = new AzureSessionOptions();
 
         private AzureSessionOptions()
         { }
 
-        public string TenantId => default;
+        public string TenantId { get; internal set; } = default;
 
-        public string ClientId => default;
+        public string ClientId { get; internal set; } = default;
 
-        public string ClientSecret => default;
+        public string ClientSecret { get; internal set; } = default;
     }
 }

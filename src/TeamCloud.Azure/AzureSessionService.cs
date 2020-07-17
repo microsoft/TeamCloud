@@ -68,6 +68,14 @@ namespace TeamCloud.Azure
         {
             try
             {
+                if (string.IsNullOrEmpty(azureSessionOptions.TenantId) && azureSessionOptions == AzureSessionOptions.Default)
+                {
+                    var tenantId = GetIdentityAsync(AzureEndpoint.ResourceManagerEndpoint).Result?.TenantId;
+
+                    if (tenantId.HasValue)
+                        ((AzureSessionOptions)azureSessionOptions).TenantId = tenantId.ToString();
+                }
+
                 var credentialsFactory = new RMFluent.Authentication.AzureCredentialsFactory();
 
                 if (string.IsNullOrEmpty(azureSessionOptions.ClientId))
@@ -158,7 +166,6 @@ namespace TeamCloud.Azure
                     // ensure we disable SSL verfication for this process when using the Azure CLI to aqcuire MSI token.
                     // otherwise our code will fail in dev scenarios where a dev proxy like fiddler is running to sniff
                     // http traffix between our services or between service and other reset apis (e.g. Azure)
-
                     System.Environment.SetEnvironmentVariable("AZURE_CLI_DISABLE_CONNECTION_VERIFICATION", "1", EnvironmentVariableTarget.Process);
 
                     tokenProvider = new AzureServiceTokenProvider("RunAs=Developer;DeveloperTool=AzureCLI");
@@ -226,13 +233,21 @@ namespace TeamCloud.Azure
                     CreateClient(azureEndpoint)
                 });
 
+                // if a subscription id was provided by the caller
+                // set the corresponding property on the client instance
+
                 if (subscriptionId.HasValue
-                    && typeof(T).TryGetProperty("SubscriptionId", out PropertyInfo propertyInfo)
-                    && propertyInfo.PropertyType == typeof(string))
-                    propertyInfo.SetValue(client, subscriptionId.Value.ToString());
+                    && typeof(T).TryGetProperty("SubscriptionId", out PropertyInfo subscriptionPropertyInfo)
+                    && subscriptionPropertyInfo.PropertyType == typeof(string))
+                    subscriptionPropertyInfo.SetValue(client, subscriptionId.Value.ToString());
+
+                // check if the client instance has a tenant id property
+                // which is not yet initialized - if so, use the tenant id
+                // provided by the session options and initialize the client
 
                 if (typeof(T).TryGetProperty("TenantID", out PropertyInfo tenantPropertyInfo)
-                    && tenantPropertyInfo.PropertyType == typeof(string))
+                    && tenantPropertyInfo.PropertyType == typeof(string)
+                    && string.IsNullOrEmpty(tenantPropertyInfo.GetValue(client) as string))
                     tenantPropertyInfo.SetValue(client, azureSessionOptions.TenantId);
 
                 return client;
