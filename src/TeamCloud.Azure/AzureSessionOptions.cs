@@ -22,10 +22,10 @@ namespace TeamCloud.Azure
         private AzureSessionOptions()
         { }
 
-        public string TenantId => default;
+        public string TenantId { get; internal set; } = default;
 
-        public string ClientId => default;
+        public string ClientId { get; internal set; } = default;
 
-        public string ClientSecret => default;
+        public string ClientSecret { get; internal set; } = default;
     }
 }
