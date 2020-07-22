@@ -47,7 +47,7 @@ namespace TeamCloud.Model.Data.Core
 
             var role = user.RoleFor(projectId);
 
-            return role == ProjectUserRole.Owner || role == ProjectUserRole.Member;
+            return role != ProjectUserRole.None;
         }
 
         public static ProjectUserRole RoleFor(this IUser user, string projectId)

@@ -122,7 +122,7 @@ namespace TeamCloud.API.Controllers
             var commandProvider = new TeamCloud.Model.Internal.Data.Provider();
             commandProvider.PopulateFromExternalModel(provider);
 
-            var command = new OrchestratorProviderCreateCommand(currentUserForCommand, commandProvider);
+            var command = new OrchestratorProviderCreateCommand(HttpContext.GetApplicationBaseUrl(), currentUserForCommand, commandProvider);
 
             return await orchestrator
                 .InvokeAndReturnAccepted(command)
@@ -164,7 +164,7 @@ namespace TeamCloud.API.Controllers
 
             oldProvider.PopulateFromExternalModel(provider);
 
-            var command = new OrchestratorProviderUpdateCommand(currentUserForCommand, oldProvider);
+            var command = new OrchestratorProviderUpdateCommand(HttpContext.GetApplicationBaseUrl(), currentUserForCommand, oldProvider);
 
             return await orchestrator
                 .InvokeAndReturnAccepted(command)
@@ -213,7 +213,7 @@ namespace TeamCloud.API.Controllers
                 .CurrentUserAsync()
                 .ConfigureAwait(false);
 
-            var command = new OrchestratorProviderDeleteCommand(currentUserForCommand, provider);
+            var command = new OrchestratorProviderDeleteCommand(HttpContext.GetApplicationBaseUrl(), currentUserForCommand, provider);
 
             return await orchestrator
                 .InvokeAndReturnAccepted(command)

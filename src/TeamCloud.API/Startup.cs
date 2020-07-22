@@ -120,6 +120,7 @@ namespace TeamCloud.API
                 .AddSingleton<IProjectsRepository, CosmosDbProjectsRepository>()
                 .AddSingleton<ITeamCloudRepository, CosmosDbTeamCloudRepository>()
                 .AddSingleton<IProvidersRepository, CosmosDbProvidersRepository>()
+                .AddSingleton<IProviderDataRepository, CosmosDbProviderDataRepository>()
                 .AddSingleton<IProjectTypesRepository, CosmosDbProjectTypesRepository>()
                 .AddSingleton<IClientErrorFactory, ClientErrorFactory>()
                 .AddSingleton<Orchestrator>()
@@ -140,6 +141,7 @@ namespace TeamCloud.API
                 {
                     options.ConstraintMap.Add("userNameOrId", typeof(UserIdentifierRouteConstraint));
                     options.ConstraintMap.Add("projectNameOrId", typeof(ProjectIdentifierRouteConstraint));
+                    options.ConstraintMap.Add("providerId", typeof(ProviderIdentifierRouteConstraint));
                 })
                 .AddControllers()
                 .AddNewtonsoftJson()
@@ -284,6 +286,19 @@ namespace TeamCloud.API
                         policy.RequireRole(TeamCloudUserRole.Admin.PolicyRoleName(),
                                            ProjectUserRole.Owner.PolicyRoleName());
                     });
+
+                    options.AddPolicy("providerDataRead", policy =>
+                    {
+                        policy.RequireRole(TeamCloudUserRole.Admin.PolicyRoleName(),
+                                           ProviderUserRoles.ProviderReadPolicyRoleName,
+                                           ProviderUserRoles.ProviderWritePolicyRoleName);
+                    });
+
+                    options.AddPolicy("providerDataWrite", policy =>
+                    {
+                        policy.RequireRole(TeamCloudUserRole.Admin.PolicyRoleName(),
+                                           ProviderUserRoles.ProviderWritePolicyRoleName);
+                    });
                 });
         }
 
@@ -309,7 +324,38 @@ namespace TeamCloud.API
                     .Values.GetValueOrDefault("ProjectId", StringComparison.OrdinalIgnoreCase)?.ToString();
 
                 if (!string.IsNullOrEmpty(projectIdRouteValue))
+                {
                     claims.Add(new Claim(ClaimTypes.Role, user.RoleFor(projectIdRouteValue).PolicyRoleName()));
+
+                    if (httpContext.Request.Path.StartsWithSegments($"/api/projects/{projectIdRouteValue}/providers", StringComparison.OrdinalIgnoreCase))
+                        claims.AddRange(await ResolveProviderClaimsAsync(user, httpContext).ConfigureAwait(false));
+                }
+            }
+            else if (httpContext.Request.Path.StartsWithSegments("/api/providers", StringComparison.OrdinalIgnoreCase))
+                claims.AddRange(await ResolveProviderClaimsAsync(user, httpContext).ConfigureAwait(false));
+
+            return claims;
+        }
+
+        private static async Task<IEnumerable<Claim>> ResolveProviderClaimsAsync(User user, HttpContext httpContext)
+        {
+            var claims = new List<Claim>();
+
+            var providerIdRouteValue = httpContext.GetRouteData()
+                .Values.GetValueOrDefault("ProviderId", StringComparison.OrdinalIgnoreCase)?.ToString();
+
+            if (!string.IsNullOrEmpty(providerIdRouteValue) && user.UserType == UserType.Provider)
+            {
+                var providersRepository = httpContext.RequestServices
+                    .GetRequiredService<IProvidersRepository>();
+
+                var provider = await providersRepository
+                    .GetAsync(providerIdRouteValue)
+                    .ConfigureAwait(false);
+
+                if (provider?.PrincipalId.HasValue ?? false
+                && provider.PrincipalId.Value.ToString().Equals(user.Id, StringComparison.OrdinalIgnoreCase))
+                    claims.Add(new Claim(ClaimTypes.Role, ProviderUserRoles.ProviderWritePolicyRoleName));
             }
 
             return claims;

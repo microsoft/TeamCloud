@@ -6,6 +6,7 @@
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Internal.Data;
+using System;
 
 namespace TeamCloud.Model.Internal.Commands
 {
@@ -26,7 +27,7 @@ namespace TeamCloud.Model.Internal.Commands
         where TPayload : class, new()
         where TCommandResult : ICommandResult, new()
     {
-        protected OrchestratorCommand(User user, TPayload payload) : base(user, payload)
+        protected OrchestratorCommand(Uri api, User user, TPayload payload) : base(api, user, payload)
         { }
     }
 
@@ -36,7 +37,7 @@ namespace TeamCloud.Model.Internal.Commands
         where TProviderPayload : class, new()
         where TProviderCommand : IProviderCommand<TProviderPayload>
     {
-        protected OrchestratorCommand(User user, TPayload payload) : base(user, payload)
+        protected OrchestratorCommand(Uri api, User user, TPayload payload) : base(api, user, payload)
         { }
     }
 }

@@ -72,7 +72,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                     {
                         foreach (var project in projects)
                         {
-                            var projectUpdateCommand = new OrchestratorProjectUpdateCommand(command.User, project);
+                            var projectUpdateCommand = new OrchestratorProjectUpdateCommand(command.Api, command.User, project);
 
                             functionContext.StartNewOrchestration(nameof(OrchestratorProjectUpdateCommandOrchestration), projectUpdateCommand);
                         }

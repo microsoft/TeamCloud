@@ -158,7 +158,7 @@ namespace TeamCloud.API.Controllers
                 .CurrentUserAsync()
                 .ConfigureAwait(false);
 
-            var command = new OrchestratorProjectUserCreateCommand(currentUserForCommand, user, ProjectId);
+            var command = new OrchestratorProjectUserCreateCommand(HttpContext.GetApplicationBaseUrl(), currentUserForCommand, user, ProjectId);
 
             return await orchestrator
                 .InvokeAndReturnAccepted(command)
@@ -225,7 +225,7 @@ namespace TeamCloud.API.Controllers
                 .CurrentUserAsync()
                 .ConfigureAwait(false);
 
-            var command = new OrchestratorProjectUserUpdateCommand(currentUserForCommand, oldUser, ProjectId);
+            var command = new OrchestratorProjectUserUpdateCommand(HttpContext.GetApplicationBaseUrl(), currentUserForCommand, oldUser, ProjectId);
 
             return await orchestrator
                 .InvokeAndReturnAccepted(command)
@@ -286,7 +286,7 @@ namespace TeamCloud.API.Controllers
                 .CurrentUserAsync()
                 .ConfigureAwait(false);
 
-            var command = new OrchestratorProjectUserDeleteCommand(currentUserForCommand, user, ProjectId);
+            var command = new OrchestratorProjectUserDeleteCommand(HttpContext.GetApplicationBaseUrl(), currentUserForCommand, user, ProjectId);
 
             return await orchestrator
                 .InvokeAndReturnAccepted(command)

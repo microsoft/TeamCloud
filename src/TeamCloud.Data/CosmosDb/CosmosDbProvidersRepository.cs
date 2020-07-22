@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
@@ -33,7 +34,6 @@ namespace TeamCloud.Data.CosmosDb
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
-
             var response = await container
                 .CreateItemAsync(provider, new PartitionKey(Options.TenantName))
                 .ConfigureAwait(false);
@@ -59,6 +59,31 @@ namespace TeamCloud.Data.CosmosDb
                 return null;
             }
         }
+
+        // public async Task<Provider> GetByUserAsync(string principalId)
+        // {
+        //     var container = await GetContainerAsync()
+        //         .ConfigureAwait(false);
+
+        //     var query = new QueryDefinition($"SELECT * FROM p WHERE p.principalId = '{principalId}'");
+
+        //     var queryIterator = container
+        //         .GetItemQueryIterator<Provider>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
+
+        //     var providerResults = new List<Provider>();
+
+        //     while (queryIterator.HasMoreResults)
+        //     {
+        //         var queryResponse = await queryIterator
+        //             .ReadNextAsync()
+        //             .ConfigureAwait(false);
+
+        //         foreach (var queryResult in queryResponse)
+        //             providerResults.Add(queryResult);
+        //     }
+
+        //     return providerResults.FirstOrDefault();
+        // }
 
         public async Task<Provider> SetAsync(Provider provider)
         {

@@ -250,9 +250,7 @@ namespace TeamCloud.Data.CosmosDb
                     .ConfigureAwait(false);
 
                 foreach (var queryResult in queryResponse)
-                {
                     yield return queryResult;
-                }
             }
         }
 
@@ -273,9 +271,7 @@ namespace TeamCloud.Data.CosmosDb
                     .ConfigureAwait(false);
 
                 foreach (var queryResult in queryResponse)
-                {
                     yield return queryResult;
-                }
             }
         }
 

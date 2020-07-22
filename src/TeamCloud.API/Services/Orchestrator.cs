@@ -191,5 +191,53 @@ namespace TeamCloud.API.Services
 
             return result;
         }
+
+        public async Task<ProviderData> AddAsync(ProviderData providerData)
+        {
+            var response = await options.Url
+                .AppendPathSegment("api/data/providerData")
+                .WithHeader("x-functions-key", options.AuthCode)
+                .PostJsonAsync(providerData)
+                .ConfigureAwait(false);
+
+            var result = await response.Content
+                .ReadAsAsync<ProviderData>()
+                .ConfigureAwait(false);
+
+            return result;
+        }
+
+        public async Task<ProviderData> UpdateAsync(ProviderData providerData)
+        {
+            var response = await options.Url
+                .AppendPathSegment("api/data/providerData")
+                .WithHeader("x-functions-key", options.AuthCode)
+                .PutJsonAsync(providerData)
+                .ConfigureAwait(false);
+
+            var result = await response.Content
+                .ReadAsAsync<ProviderData>()
+                .ConfigureAwait(false);
+
+            return result;
+        }
+
+        public async Task<ProviderData> DeleteAsync(ProviderData providerData)
+        {
+            if (providerData is null)
+                throw new ArgumentNullException(nameof(providerData));
+
+            var response = await options.Url
+                .AppendPathSegments($"api/data/providerData/{providerData.Id}")
+                .WithHeader("x-functions-key", options.AuthCode)
+                .DeleteAsync()
+                .ConfigureAwait(false);
+
+            var result = await response.Content
+                .ReadAsAsync<ProviderData>()
+                .ConfigureAwait(false);
+
+            return result;
+        }
     }
 }

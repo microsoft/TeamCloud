@@ -12,6 +12,12 @@ namespace TeamCloud.Model.Commands
 {
     public interface IProviderCommand : ICommand
     {
+        string ProviderId { get; set; }
+
+        string SystemDataApi { get; }
+
+        string ProjectDataApi { get; }
+
         IDictionary<string, string> Properties { get; set; }
 
         IDictionary<string, IDictionary<string, string>> Results { get; set; }
@@ -30,8 +36,14 @@ namespace TeamCloud.Model.Commands
         where TPayload : class, new()
         where TCommandResult : ICommandResult, new()
     {
-        protected ProviderCommand(User user, TPayload payload, Guid? commandId = default) : base(user, payload, commandId)
+        protected ProviderCommand(Uri api, User user, TPayload payload, Guid? commandId = default) : base(api, user, payload, commandId)
         { }
+
+        public string ProviderId { get; set; }
+
+        public string SystemDataApi => Api is null || string.IsNullOrEmpty(ProviderId) ? null : new Uri(Api, $"api/providers/{ProviderId}").ToString();
+
+        public string ProjectDataApi => Api is null || string.IsNullOrEmpty(ProviderId) || string.IsNullOrEmpty(ProjectId) ? null : new Uri(Api, $"api/projects/{ProjectId}/providers/{ProviderId}").ToString();
 
         public IDictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
 

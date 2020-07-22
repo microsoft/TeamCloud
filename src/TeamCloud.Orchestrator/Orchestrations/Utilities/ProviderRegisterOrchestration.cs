@@ -61,6 +61,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 
                     var providerCommand = new ProviderRegisterCommand
                     (
+                        null,
                         systemUser.PopulateExternalModel(),
                         new ProviderConfiguration()
                     );
@@ -127,6 +128,27 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                                 provider = await functionContext
                                     .SetProviderAsync(provider)
                                     .ConfigureAwait(true);
+
+                                if (provider.PrincipalId.HasValue)
+                                {
+                                    var providerUser = await functionContext
+                                        .GetUserAsync(provider.PrincipalId.Value.ToString(), allowUnsafe: true)
+                                        .ConfigureAwait(true);
+
+                                    if (providerUser is null)
+                                    {
+                                        providerUser = new User
+                                        {
+                                            Id = provider.PrincipalId.Value.ToString(),
+                                            Role = TeamCloudUserRole.Provider,
+                                            UserType = UserType.Provider
+                                        };
+
+                                        _ = await functionContext
+                                            .SetUserTeamCloudInfoAsync(providerUser, allowUnsafe: true)
+                                            .ConfigureAwait(false);
+                                    }
+                                }
 
                                 functionContext.SetCustomStatus($"Provider '{provider.Id}' registration succeeded", log);
                             }

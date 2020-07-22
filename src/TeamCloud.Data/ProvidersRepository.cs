@@ -13,6 +13,8 @@ namespace TeamCloud.Data
     {
         Task<Provider> GetAsync(string id);
 
+        // Task<Provider> GetByUserAsync(string principalId);
+
         IAsyncEnumerable<Provider> ListAsync();
 
         IAsyncEnumerable<Provider> ListAsync(IEnumerable<string> ids);

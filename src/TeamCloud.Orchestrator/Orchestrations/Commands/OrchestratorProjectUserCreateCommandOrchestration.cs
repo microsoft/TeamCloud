@@ -56,6 +56,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
 
                     var providerCommand = new ProviderProjectUserCreateCommand
                     (
+                        command.Api,
                         command.User.PopulateExternalModel(),
                         user.PopulateExternalModel(),
                         command.ProjectId,
