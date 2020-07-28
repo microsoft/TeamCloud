@@ -71,35 +71,17 @@ namespace TeamCloud.Http
         }
 
         [SuppressMessage("Design", "CA1068:CancellationToken parameters must come last", Justification = "Following the method syntax of Flurl")]
-        public static async Task<JObject> GetJObjectAsync(this IFlurlRequest request, CancellationToken cancellationToken = default, HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead)
-        {
-            var json = await request
-                .GetJsonAsync(cancellationToken, completionOption)
-                .ConfigureAwait(false);
-
-            return JObject.FromObject(json);
-        }
+        public static Task<JObject> GetJObjectAsync(this IFlurlRequest request, CancellationToken cancellationToken = default, HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead)
+            => request.GetJsonAsync<JObject>(cancellationToken, completionOption);
 
         [SuppressMessage("Design", "CA1068:CancellationToken parameters must come last", Justification = "Following the method syntax of Flurl")]
-        public static async Task<JObject> GetJObjectAsync(this Url url, CancellationToken cancellationToken = default, HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead)
-        {
-            var json = await url
-                .GetJsonAsync(cancellationToken, completionOption)
-                .ConfigureAwait(false);
-
-            return JObject.FromObject(json);
-        }
+        public static Task<JObject> GetJObjectAsync(this Url url, CancellationToken cancellationToken = default, HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead)
+            => url.GetJsonAsync<JObject>(cancellationToken, completionOption);
 
         [SuppressMessage("Design", "CA1068:CancellationToken parameters must come last", Justification = "Following the method syntax of Flurl")]
         [SuppressMessage("Design", "CA1054:Uri parameters should not be strings", Justification = "Following the method syntax of Flurl")]
-        public static async Task<JObject> GetJObjectAsync(this string url, CancellationToken cancellationToken = default, HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead)
-        {
-            var json = await url
-                .GetJsonAsync(cancellationToken, completionOption)
-                .ConfigureAwait(false);
-
-            return JObject.FromObject(json);
-        }
+        public static Task<JObject> GetJObjectAsync(this string url, CancellationToken cancellationToken = default, HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead)
+            => url.GetJsonAsync<JObject>(cancellationToken, completionOption);
 
         public static T WithHeaders<T>(this T clientOrRequest, HttpHeaders headers)
             where T : IHttpSettingsContainer
