@@ -14,6 +14,9 @@ namespace TeamCloud.Model.Validation.Commands
         {
             RuleFor(obj => obj.User)
                 .NotNull();
+
+            RuleFor(obj => obj.Payload)
+                .NotNull();
         }
     }
 }

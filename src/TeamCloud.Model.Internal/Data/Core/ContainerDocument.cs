@@ -24,7 +24,8 @@ namespace TeamCloud.Model.Internal.Data.Core
 
     public abstract class ContainerDocument : IContainerDocument
     {
-        public virtual string Id { get; set; } = Guid.NewGuid().ToString();
+        public virtual string Id { get; set; }
+            = Guid.NewGuid().ToString();
 
         DateTime? IContainerDocument.Timestamp { get; set; }
 
