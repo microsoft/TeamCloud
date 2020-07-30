@@ -35,7 +35,7 @@ namespace TeamCloud.Model.Internal.Data.Core
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Value must not NULL, EMPTY, or WHITESPACE", nameof(name));
 
-            Name = name.Replace(" ", string.Empty);
+            Name = name.Replace(" ", string.Empty, StringComparison.OrdinalIgnoreCase);
         }
 
         public string Name { get; }
