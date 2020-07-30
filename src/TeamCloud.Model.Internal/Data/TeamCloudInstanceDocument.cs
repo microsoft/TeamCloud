@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using TeamCloud.Model.Internal.Data.Core;
 using TeamCloud.Model.Data.Core;
 using TeamCloud.Serialization;
+using TeamCloud.Model.Data;
 
 namespace TeamCloud.Model.Internal.Data
 {
