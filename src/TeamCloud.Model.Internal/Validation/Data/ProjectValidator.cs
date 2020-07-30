@@ -9,7 +9,7 @@ using TeamCloud.Model.Validation;
 
 namespace TeamCloud.Model.Internal.Validation.Data
 {
-    public sealed class ProjectValidator : AbstractValidator<Project>
+    public sealed class ProjectValidator : AbstractValidator<ProjectDocument>
     {
         public ProjectValidator()
         {

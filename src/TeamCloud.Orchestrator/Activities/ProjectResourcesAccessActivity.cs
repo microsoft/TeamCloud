@@ -55,7 +55,7 @@ namespace TeamCloud.Orchestrator.Activities
                 await EnsureKeyVaultAccessAsync(project, principalId).ConfigureAwait(false);
         }
 
-        private async Task EnsureResourceGroupAccessAsync(Project project, Guid principalId)
+        private async Task EnsureResourceGroupAccessAsync(ProjectDocument project, Guid principalId)
         {
             var resourceGroup = await azureResourceService
                  .GetResourceGroupAsync(project.ResourceGroup.SubscriptionId, project.ResourceGroup.Name, throwIfNotExists: true)
@@ -83,7 +83,7 @@ namespace TeamCloud.Orchestrator.Activities
             }
         }
 
-        private async Task EnsureKeyVaultAccessAsync(Project project, Guid principalId)
+        private async Task EnsureKeyVaultAccessAsync(ProjectDocument project, Guid principalId)
         {
             var keyVault = await azureResourceService
                 .GetResourceAsync<AzureKeyVaultResource>(project.KeyVault.VaultId, throwIfNotExists: true)

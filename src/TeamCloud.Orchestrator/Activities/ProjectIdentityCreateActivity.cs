@@ -38,7 +38,7 @@ namespace TeamCloud.Orchestrator.Activities
 
             try
             {
-                var project = functionContext.GetInput<Project>();
+                var project = functionContext.GetInput<ProjectDocument>();
 
                 var keyVault = await azureResourceService
                     .GetResourceAsync<AzureKeyVaultResource>(project.KeyVault.VaultId, throwIfNotExists: true)

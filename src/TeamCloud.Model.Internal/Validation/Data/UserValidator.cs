@@ -8,7 +8,7 @@ using TeamCloud.Model.Internal.Data;
 
 namespace TeamCloud.Model.Internal.Validation.Data
 {
-    public sealed class UserValidator : AbstractValidator<User>
+    public sealed class UserValidator : AbstractValidator<UserDocument>
     {
         public UserValidator()
         {

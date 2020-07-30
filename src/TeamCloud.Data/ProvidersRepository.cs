@@ -11,16 +11,16 @@ namespace TeamCloud.Data
 {
     public interface IProvidersRepository
     {
-        Task<Provider> GetAsync(string id);
+        Task<ProviderDocument> GetAsync(string id);
 
-        IAsyncEnumerable<Provider> ListAsync();
+        IAsyncEnumerable<ProviderDocument> ListAsync();
 
-        IAsyncEnumerable<Provider> ListAsync(IEnumerable<string> ids);
+        IAsyncEnumerable<ProviderDocument> ListAsync(IEnumerable<string> ids);
 
-        Task<Provider> AddAsync(Provider provider);
+        Task<ProviderDocument> AddAsync(ProviderDocument provider);
 
-        Task<Provider> SetAsync(Provider provider);
+        Task<ProviderDocument> SetAsync(ProviderDocument provider);
 
-        Task<Provider> RemoveAsync(Provider provider);
+        Task<ProviderDocument> RemoveAsync(ProviderDocument provider);
     }
 }

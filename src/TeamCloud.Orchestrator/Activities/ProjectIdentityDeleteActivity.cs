@@ -33,7 +33,7 @@ namespace TeamCloud.Orchestrator.Activities
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
 
-            var project = functionContext.GetInput<Project>();
+            var project = functionContext.GetInput<ProjectDocument>();
 
             var keyVault = await azureResourceService
                 .GetResourceAsync<AzureKeyVaultResource>(project.KeyVault.VaultId, throwIfNotExists: true)

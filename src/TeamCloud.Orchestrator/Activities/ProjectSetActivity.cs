@@ -24,8 +24,8 @@ namespace TeamCloud.Orchestrator.Activities
         }
 
         [FunctionName(nameof(ProjectSetActivity))]
-        public async Task<Project> RunActivity(
-            [ActivityTrigger] Project project)
+        public async Task<ProjectDocument> RunActivity(
+            [ActivityTrigger] ProjectDocument project)
         {
             if (project is null)
                 throw new ArgumentNullException(nameof(project));
@@ -40,9 +40,9 @@ namespace TeamCloud.Orchestrator.Activities
 
     internal static class ProjectSetExtension
     {
-        public static Task<Project> SetProjectAsync(this IDurableOrchestrationContext functionContext, Project project, bool allowUnsafe = false)
+        public static Task<ProjectDocument> SetProjectAsync(this IDurableOrchestrationContext functionContext, ProjectDocument project, bool allowUnsafe = false)
             => functionContext.IsLockedByContainerDocument(project) || allowUnsafe
-            ? functionContext.CallActivityWithRetryAsync<Project>(nameof(ProjectSetActivity), project)
+            ? functionContext.CallActivityWithRetryAsync<ProjectDocument>(nameof(ProjectSetActivity), project)
             : throw new NotSupportedException($"Unable to set project '{project.Id}' without acquired lock");
     }
 }

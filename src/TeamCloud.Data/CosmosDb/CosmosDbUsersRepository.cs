@@ -13,18 +13,18 @@ using TeamCloud.Data.CosmosDb.Core;
 using TeamCloud.Model.Data.Core;
 using TeamCloud.Model.Internal.Data.Core;
 using TeamCloud.Model.Validation;
-using User = TeamCloud.Model.Internal.Data.User;
+using UserDocument = TeamCloud.Model.Internal.Data.UserDocument;
 
 namespace TeamCloud.Data.CosmosDb
 {
 
-    public class CosmosDbUsersRepository : CosmosDbRepository<User>, IUsersRepository
+    public class CosmosDbUsersRepository : CosmosDbRepository<UserDocument>, IUsersRepository
     {
         public CosmosDbUsersRepository(ICosmosDbOptions cosmosOptions)
             : base(cosmosOptions)
         { }
 
-        public async Task<User> AddAsync(User user)
+        public async Task<UserDocument> AddAsync(UserDocument user)
         {
             if (user is null)
                 throw new ArgumentNullException(nameof(user));
@@ -43,7 +43,7 @@ namespace TeamCloud.Data.CosmosDb
             return response.Resource;
         }
 
-        public async Task<User> GetAsync(string id)
+        public async Task<UserDocument> GetAsync(string id)
         {
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
@@ -51,7 +51,7 @@ namespace TeamCloud.Data.CosmosDb
             try
             {
                 var response = await container
-                    .ReadItemAsync<User>(id, new PartitionKey(Options.TenantName))
+                    .ReadItemAsync<UserDocument>(id, new PartitionKey(Options.TenantName))
                     .ConfigureAwait(false);
 
                 return response.Resource;
@@ -62,13 +62,13 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async IAsyncEnumerable<User> ListAsync()
+        public async IAsyncEnumerable<UserDocument> ListAsync()
         {
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
             var query = new QueryDefinition($"SELECT * FROM u");
-            var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
+            var queryIterator = container.GetItemQueryIterator<UserDocument>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
 
             while (queryIterator.HasMoreResults)
             {
@@ -81,14 +81,14 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async IAsyncEnumerable<User> ListAsync(string projectId)
+        public async IAsyncEnumerable<UserDocument> ListAsync(string projectId)
         {
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
             var query = new QueryDefinition($"SELECT VALUE u FROM u WHERE EXISTS(SELECT VALUE m FROM m IN u.projectMemberships WHERE m.projectId = '{projectId}')");
 
-            var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
+            var queryIterator = container.GetItemQueryIterator<UserDocument>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
 
             while (queryIterator.HasMoreResults)
             {
@@ -101,14 +101,14 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async IAsyncEnumerable<User> ListOwnersAsync(string projectId)
+        public async IAsyncEnumerable<UserDocument> ListOwnersAsync(string projectId)
         {
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
             var query = new QueryDefinition($"SELECT VALUE u FROM u WHERE EXISTS(SELECT VALUE m FROM m IN u.projectMemberships WHERE m.projectId = '{projectId}' AND m.role = '{ProjectUserRole.Owner}')");
 
-            var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
+            var queryIterator = container.GetItemQueryIterator<UserDocument>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
 
             while (queryIterator.HasMoreResults)
             {
@@ -121,14 +121,14 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async IAsyncEnumerable<User> ListAdminsAsync()
+        public async IAsyncEnumerable<UserDocument> ListAdminsAsync()
         {
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
             var query = new QueryDefinition($"SELECT * FROM u WHERE u.role = '{TeamCloudUserRole.Admin}'");
 
-            var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
+            var queryIterator = container.GetItemQueryIterator<UserDocument>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
 
             while (queryIterator.HasMoreResults)
             {
@@ -141,7 +141,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async Task<User> SetAsync(User user)
+        public async Task<UserDocument> SetAsync(UserDocument user)
         {
             if (user is null)
                 throw new ArgumentNullException(nameof(user));
@@ -154,13 +154,13 @@ namespace TeamCloud.Data.CosmosDb
                 .ConfigureAwait(false);
 
             var response = await container
-                .UpsertItemAsync<User>(user, new PartitionKey(Options.TenantName))
+                .UpsertItemAsync<UserDocument>(user, new PartitionKey(Options.TenantName))
                 .ConfigureAwait(false);
 
             return response.Resource;
         }
 
-        public async Task<User> RemoveAsync(User user)
+        public async Task<UserDocument> RemoveAsync(UserDocument user)
         {
             if (user is null)
                 throw new ArgumentNullException(nameof(user));
@@ -171,7 +171,7 @@ namespace TeamCloud.Data.CosmosDb
             try
             {
                 var response = await container
-                    .DeleteItemAsync<User>(user.Id, new PartitionKey(Options.TenantName))
+                    .DeleteItemAsync<UserDocument>(user.Id, new PartitionKey(Options.TenantName))
                     .ConfigureAwait(false);
 
                 return response.Resource;
@@ -189,7 +189,7 @@ namespace TeamCloud.Data.CosmosDb
 
             var query = new QueryDefinition($"SELECT VALUE u FROM u WHERE EXISTS(SELECT VALUE m FROM m IN u.projectMemberships WHERE m.projectId = '{projectId}')");
 
-            var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
+            var queryIterator = container.GetItemQueryIterator<UserDocument>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
 
 
             while (queryIterator.HasMoreResults)
@@ -204,7 +204,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async Task<User> RemoveProjectMembershipAsync(User user, string projectId)
+        public async Task<UserDocument> RemoveProjectMembershipAsync(UserDocument user, string projectId)
         {
             if (user is null) throw new ArgumentNullException(nameof(user));
 
@@ -226,7 +226,7 @@ namespace TeamCloud.Data.CosmosDb
             return await RemoveProjectMembershipSafeAsync(container, user, projectId)
                 .ConfigureAwait(false);
 
-            async Task<User> RemoveProjectMembershipSafeAsync(Container container, User user, string projectId)
+            async Task<UserDocument> RemoveProjectMembershipSafeAsync(Container container, UserDocument user, string projectId)
             {
                 var membership = user.ProjectMemberships.FirstOrDefault(m => m.ProjectId == projectId);
 
@@ -259,7 +259,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public Task<User> AddProjectMembershipAsync(User user, string projectId, ProjectUserRole role, IDictionary<string, string> properties)
+        public Task<UserDocument> AddProjectMembershipAsync(UserDocument user, string projectId, ProjectUserRole role, IDictionary<string, string> properties)
         {
             return AddProjectMembershipAsync(user, new ProjectMembership
             {
@@ -271,7 +271,7 @@ namespace TeamCloud.Data.CosmosDb
 
         // this method can only change project memberships
         // other changes to the user object will be overwitten
-        public async Task<User> AddProjectMembershipAsync(User user, ProjectMembership membership)
+        public async Task<UserDocument> AddProjectMembershipAsync(UserDocument user, ProjectMembership membership)
         {
             if (user is null)
                 throw new ArgumentNullException(nameof(user));
@@ -293,7 +293,7 @@ namespace TeamCloud.Data.CosmosDb
             return await AddProjectMembershipSafeAsync(container, user, membership)
                 .ConfigureAwait(false);
 
-            async Task<User> AddProjectMembershipSafeAsync(Container container, User user, ProjectMembership membership)
+            async Task<UserDocument> AddProjectMembershipSafeAsync(Container container, UserDocument user, ProjectMembership membership)
             {
                 while (true)
                 {
@@ -321,7 +321,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async Task<User> SetTeamCloudInfoAsync(User user)
+        public async Task<UserDocument> SetTeamCloudInfoAsync(UserDocument user)
         {
             if (user is null) throw new ArgumentNullException(nameof(user));
 
@@ -340,7 +340,7 @@ namespace TeamCloud.Data.CosmosDb
                 .ConfigureAwait(false);
 
 
-            async Task<User> SetTeamCloudInfoSafeAsync(Container container, User user)
+            async Task<UserDocument> SetTeamCloudInfoSafeAsync(Container container, UserDocument user)
             {
                 while (true)
                 {

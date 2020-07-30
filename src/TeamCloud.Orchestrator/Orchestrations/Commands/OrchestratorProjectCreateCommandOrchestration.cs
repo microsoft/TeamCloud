@@ -202,7 +202,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
             functionContext.SetCustomStatus($"Rolling back project", log);
 
             var systemUser = await functionContext
-                .CallActivityWithRetryAsync<User>(nameof(TeamCloudSystemUserActivity), null)
+                .CallActivityWithRetryAsync<UserDocument>(nameof(TeamCloudSystemUserActivity), null)
                 .ConfigureAwait(true);
 
             var deleteCommand = new OrchestratorProjectDeleteCommand(systemUser, project);

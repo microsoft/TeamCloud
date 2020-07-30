@@ -125,7 +125,7 @@ namespace TeamCloud.API.Controllers
                     .ActionResult();
             }
 
-            var newProjectType = new Model.Internal.Data.ProjectType();
+            var newProjectType = new Model.Internal.Data.ProjectTypeDocument();
             newProjectType.PopulateFromExternalModel(projectType);
 
             var addResult = await orchestrator

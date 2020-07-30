@@ -41,7 +41,7 @@ namespace TeamCloud.Orchestrator.Activities
             return identity.ObjectId.ToString();
         }
 
-        private async Task<string[]> GetProviderIdentitiesAsync(Project project)
+        private async Task<string[]> GetProviderIdentitiesAsync(ProjectDocument project)
         {
             var providers = await providersRepository
                 .ListAsync(project.Type.Providers.Select(p => p.Id))
@@ -64,7 +64,7 @@ namespace TeamCloud.Orchestrator.Activities
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
 
-            var (project, subscriptionId) = functionContext.GetInput<(Project, Guid)>();
+            var (project, subscriptionId) = functionContext.GetInput<(ProjectDocument, Guid)>();
 
             // if the provided project instance is already assigned
             // to a subscription we use this one instead of the provided

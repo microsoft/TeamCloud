@@ -12,7 +12,7 @@ using TeamCloud.Serialization;
 namespace TeamCloud.Model.Internal.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public sealed class TeamCloudInstance : ContainerDocument, ITeamCloudInstance, IPopulate<Model.Data.TeamCloudInstance>
+    public sealed class TeamCloudInstanceDocument : ContainerDocument, ITeamCloudInstance, IPopulate<Model.Data.TeamCloudInstance>
     {
         [PartitionKey]
         public override string Id { get; set; }

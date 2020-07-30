@@ -24,7 +24,7 @@ namespace TeamCloud.API.Data
 
         public ProjectUser() { }
 
-        public ProjectUser(User user, string projectId)
+        public ProjectUser(UserDocument user, string projectId)
         {
             if (user is null)
                 throw new ArgumentNullException(nameof(user));

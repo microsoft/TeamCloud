@@ -22,7 +22,7 @@ namespace TeamCloud.Orchestrator.Activities
         }
 
         [FunctionName(nameof(TeamCloudSystemUserActivity))]
-        public async Task<User> RunActivity(
+        public async Task<UserDocument> RunActivity(
             [ActivityTrigger] IDurableActivityContext functionContext)
         {
             if (functionContext is null)
@@ -32,7 +32,7 @@ namespace TeamCloud.Orchestrator.Activities
                 .GetIdentityAsync()
                 .ConfigureAwait(false);
 
-            return new User()
+            return new UserDocument()
             {
                 Id = systemIdentity.ObjectId.ToString(),
                 Role = TeamCloudUserRole.Admin,

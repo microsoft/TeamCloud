@@ -24,7 +24,7 @@ namespace TeamCloud.Orchestrator.API.Data
 
         [FunctionName(nameof(SetTeamCloudInstanceTrigger))]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "data/teamCloudInstance")] TeamCloudInstance teamCloudInstance
+            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "data/teamCloudInstance")] TeamCloudInstanceDocument teamCloudInstance
             /* ILogger log */)
         {
             if (teamCloudInstance is null)
