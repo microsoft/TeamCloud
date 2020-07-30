@@ -20,7 +20,6 @@
 
   <ItemGroup>
     <None Remove="Templates\CreateProjectTemplate.json" />
-    <None Remove="Templates\CreateProjectTemplate_InternalResources.json" />
     <None Remove="Templates\CreateProjectTemplate_ProjectResources.json" />
     <None Remove="Templates\InitializeSubscriptionTemplate.json" />
     <None Remove="Templates\ResetResourceGroupTemplate.json" />
@@ -29,8 +28,6 @@
   <ItemGroup>
     <EmbeddedResource Include="Templates\InitializeSubscriptionTemplate.json" />
     <EmbeddedResource Include="Templates\ResetResourceGroupTemplate.json" />
-    <EmbeddedResource Include="Templates\CreateProjectTemplate_InternalResources.json" />
-    <EmbeddedResource Include="Templates\CreateProjectTemplate_ProjectResources.json" />
     <EmbeddedResource Include="Templates\CreateProjectTemplate.json" />
   </ItemGroup>
 

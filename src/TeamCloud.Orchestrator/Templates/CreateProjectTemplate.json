@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "0.0.0.0",
   "parameters": {
     "projectId": {
@@ -19,72 +19,20 @@
     "resourceGroupLocation": {
       "type": "string"
     },
-    "orchestratorIdentity": {
-      "type": "string"
-    },
     "providerIdentities": {
       "type": "array",
       "defaultValue": [
       ]
-    },
-    "_artifactsLocation": {
-      "type": "string",
-      "defaultValue": ""
-    },
-    "_artifactsLocationSasToken": {
-      "type": "securestring",
-      "defaultValue": ""
     }
   },
   "variables": {
     "projectResourceGroupName": "[parameters('resourceGroupName')]",
     "projectResourcesDeployment": "[concat(deployment().name, '-', 'ProjectResources')]",
-    "internalResourceGroupName": "[concat(variables('projectResourceGroupName'), '_INTERNAL')]",
-    "internalResourcesDeployment": "[concat(deployment().name, '-', 'InternalResources')]"
+    "roleDefinition_Contributor": "[concat(subscription().id, '/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+    "roleDefinition_UserAccessAdministrator": "[concat(subscription().id, '/providers/Microsoft.Authorization/roleDefinitions/18d7d88d-d35e-4fb5-a5c3-7773c20a72d9')]"
+
   },
   "resources": [
-    {
-      "type": "Microsoft.Resources/resourceGroups",
-      "apiVersion": "2018-05-01",
-      "location": "[parameters('resourceGroupLocation')]",
-      "name": "[variables('internalResourceGroupName')]",
-      "tags": {
-        "hidden-TeamCloud.ProjectId": "[parameters('projectId')]",
-        "hidden-TeamCloud.ProjectName": "[parameters('projectName')]"
-      },
-      "properties": {
-      }
-    },
-    {
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-08-01",
-      "name": "[variables('internalResourcesDeployment')]",
-      "resourceGroup": "[variables('internalResourceGroupName')]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Resources/resourceGroups/', variables('internalResourceGroupName'))]"
-      ],
-      "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[concat(uri(parameters('_artifactsLocation'), 'InternalResources.json'), parameters('_artifactsLocationSasToken'))]",
-          "contentVersion": "1.0.0.0"
-        },
-        "parameters": {
-          "projectId": {
-            "value": "[parameters('projectId')]"
-          },
-          "projectName": {
-            "value": "[parameters('projectName')]"
-          },
-          "orchestratorIdentity": {
-            "value": "[parameters('orchestratorIdentity')]"
-          },
-          "providerIdentities": {
-            "value": "[parameters('providerIdentities')]"
-          }
-        }
-      }
-    },
     {
       "type": "Microsoft.Resources/resourceGroups",
       "apiVersion": "2018-05-01",
@@ -107,14 +55,41 @@
       ],
       "properties": {
         "mode": "Incremental",
-        "templateLink": {
-          "uri": "[concat(uri(parameters('_artifactsLocation'), 'ProjectResources.json'), parameters('_artifactsLocationSasToken'))]",
-          "contentVersion": "1.0.0.0"
-        },
-        "parameters": {
-          "providerIdentities": {
-            "value": "[parameters('providerIdentities')]"
-          }
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "resources": [
+            {
+              "condition": "[not(empty(parameters('providerIdentities')))]",
+              "type": "Microsoft.Authorization/roleAssignments",
+              "name": "[guid(resourceGroup().id, 'Contributor', string(copyIndex()))]",
+              "apiVersion": "2017-10-01-preview",
+              "properties": {
+                "roleDefinitionId": "[variables('roleDefinition_Contributor')]",
+                "principalId": "[parameters('providerIdentities')[copyIndex()]]",
+                "scope": "[resourceGroup().Id]"
+              },
+              "copy": {
+                "name": "contributorCopy",
+                "count": "[length(parameters('providerIdentities'))]"
+              }
+            },
+            {
+              "condition": "[not(empty(parameters('providerIdentities')))]",
+              "type": "Microsoft.Authorization/roleAssignments",
+              "name": "[guid(resourceGroup().id, 'UserAccessAdministrator', string(copyIndex()))]",
+              "apiVersion": "2017-10-01-preview",
+              "properties": {
+                "roleDefinitionId": "[variables('roleDefinition_UserAccessAdministrator')]",
+                "principalId": "[parameters('providerIdentities')[copyIndex()]]",
+                "scope": "[resourceGroup().Id]"
+              },
+              "copy": {
+                "name": "userAccessAdministratorCopy",
+                "count": "[length(parameters('providerIdentities'))]"
+              }
+            }
+          ]
         }
       }
     }
@@ -127,18 +102,6 @@
     "resourceGroupName": {
       "type": "string",
       "value": "[variables('projectResourceGroupName')]"
-    },
-    "vaultId": {
-      "type": "string",
-      "value": "[reference(variables('internalResourcesDeployment')).outputs.vaultId.value]"
-    },
-    "vaultName": {
-      "type": "string",
-      "value": "[reference(variables('internalResourcesDeployment')).outputs.vaultName.value]"
-    },
-    "vaultUrl": {
-      "type": "string",
-      "value": "[reference(variables('internalResourcesDeployment')).outputs.vaultUrl.value]"
     }
   }
 }

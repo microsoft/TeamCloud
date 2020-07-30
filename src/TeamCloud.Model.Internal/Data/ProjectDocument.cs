@@ -24,9 +24,9 @@ namespace TeamCloud.Model.Internal.Data
 
         public ProjectTypeDocument Type { get; set; }
 
-        public AzureResourceGroup ResourceGroup { get; set; }
+        public ProjectIdentity Identity { get; set; }
 
-        public AzureKeyVault KeyVault { get; set; }
+        public AzureResourceGroup ResourceGroup { get; set; }
 
         [DatabaseIgnore]
         public IList<UserDocument> Users { get; set; } = new List<UserDocument>();

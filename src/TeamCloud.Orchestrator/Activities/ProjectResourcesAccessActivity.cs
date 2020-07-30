@@ -49,82 +49,32 @@ namespace TeamCloud.Orchestrator.Activities
                 throw new RetryCanceledException($"Could not find project '{projectId}'");
 
             if (!string.IsNullOrEmpty(project.ResourceGroup?.Id))
-                await EnsureResourceGroupAccessAsync(project, principalId).ConfigureAwait(false);
-
-            if (!string.IsNullOrEmpty(project.KeyVault?.VaultId))
-                await EnsureKeyVaultAccessAsync(project, principalId).ConfigureAwait(false);
-        }
-
-        private async Task EnsureResourceGroupAccessAsync(ProjectDocument project, Guid principalId)
-        {
-            var resourceGroup = await azureResourceService
-                 .GetResourceGroupAsync(project.ResourceGroup.SubscriptionId, project.ResourceGroup.Name, throwIfNotExists: true)
-                 .ConfigureAwait(false);
-
-            if (resourceGroup != null)
             {
-                var roleAssignments = await resourceGroup
-                    .GetRoleAssignmentsAsync(principalId.ToString())
-                    .ConfigureAwait(false);
+                var resourceGroup = await azureResourceService
+                     .GetResourceGroupAsync(project.ResourceGroup.SubscriptionId, project.ResourceGroup.Name, throwIfNotExists: true)
+                     .ConfigureAwait(false);
 
-                if (!roleAssignments.Contains(AzureRoleDefinition.Contributor))
+                if (resourceGroup != null)
                 {
-                    await resourceGroup
-                        .AddRoleAssignmentAsync(principalId.ToString(), AzureRoleDefinition.Contributor)
+                    var roleAssignments = await resourceGroup
+                        .GetRoleAssignmentsAsync(principalId.ToString())
                         .ConfigureAwait(false);
-                }
 
-                if (!roleAssignments.Contains(AzureRoleDefinition.UserAccessAdministrator))
-                {
-                    await resourceGroup
-                        .AddRoleAssignmentAsync(principalId.ToString(), AzureRoleDefinition.UserAccessAdministrator)
-                        .ConfigureAwait(false);
+                    if (!roleAssignments.Contains(AzureRoleDefinition.Contributor))
+                    {
+                        await resourceGroup
+                            .AddRoleAssignmentAsync(principalId.ToString(), AzureRoleDefinition.Contributor)
+                            .ConfigureAwait(false);
+                    }
+
+                    if (!roleAssignments.Contains(AzureRoleDefinition.UserAccessAdministrator))
+                    {
+                        await resourceGroup
+                            .AddRoleAssignmentAsync(principalId.ToString(), AzureRoleDefinition.UserAccessAdministrator)
+                            .ConfigureAwait(false);
+                    }
                 }
             }
         }
-
-        private async Task EnsureKeyVaultAccessAsync(ProjectDocument project, Guid principalId)
-        {
-            var keyVault = await azureResourceService
-                .GetResourceAsync<AzureKeyVaultResource>(project.KeyVault.VaultId, throwIfNotExists: true)
-                .ConfigureAwait(false);
-
-            if (keyVault != null)
-            {
-                var systemIdentity = await azureSessionService
-                    .GetIdentityAsync()
-                    .ConfigureAwait(false);
-
-                if (systemIdentity.ObjectId == principalId)
-                {
-                    await keyVault
-                        .SetAllCertificatePermissionsAsync(principalId)
-                        .ConfigureAwait(false);
-
-                    await keyVault
-                        .SetAllKeyPermissionsAsync(principalId)
-                        .ConfigureAwait(false);
-
-                    await keyVault
-                        .SetAllSecretPermissionsAsync(principalId)
-                        .ConfigureAwait(false);
-                }
-                else
-                {
-                    await keyVault
-                        .SetCertificatePermissionsAsync(principalId, CertificatePermissions.Get, CertificatePermissions.List)
-                        .ConfigureAwait(false);
-
-                    await keyVault
-                        .SetKeyPermissionsAsync(principalId, KeyPermissions.Get, KeyPermissions.List)
-                        .ConfigureAwait(false);
-
-                    await keyVault
-                        .SetSecretPermissionsAsync(principalId, SecretPermissions.Get, SecretPermissions.List)
-                        .ConfigureAwait(false);
-                }
-            }
-        }
-
     }
 }

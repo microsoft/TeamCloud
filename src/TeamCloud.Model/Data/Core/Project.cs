@@ -17,8 +17,6 @@ namespace TeamCloud.Model.Data.Core
         string Name { get; set; }
 
         AzureResourceGroup ResourceGroup { get; set; }
-
-        AzureKeyVault KeyVault { get; set; }
     }
 
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]

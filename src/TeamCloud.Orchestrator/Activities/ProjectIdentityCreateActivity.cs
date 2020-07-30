@@ -8,10 +8,8 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using TeamCloud.Azure.Directory;
 using TeamCloud.Azure.Resources;
-using TeamCloud.Azure.Resources.Typed;
 using TeamCloud.Model.Internal.Data;
 using TeamCloud.Orchestration;
 
@@ -29,7 +27,7 @@ namespace TeamCloud.Orchestrator.Activities
         }
 
         [FunctionName(nameof(ProjectIdentityCreateActivity)), RetryOptions(3)]
-        public async Task RunActivity(
+        public async Task<ProjectIdentity> RunActivity(
             [ActivityTrigger] IDurableActivityContext functionContext,
             ILogger log)
         {
@@ -40,15 +38,7 @@ namespace TeamCloud.Orchestrator.Activities
             {
                 var project = functionContext.GetInput<ProjectDocument>();
 
-                var keyVault = await azureResourceService
-                    .GetResourceAsync<AzureKeyVaultResource>(project.KeyVault.VaultId, throwIfNotExists: true)
-                    .ConfigureAwait(false);
-
-                var projectIdentityJson = await keyVault
-                    .GetSecretAsync(nameof(ProjectIdentity))
-                    .ConfigureAwait(false);
-
-                if (string.IsNullOrEmpty(projectIdentityJson))
+                if (string.IsNullOrEmpty(project.Identity?.Id))
                 {
                     var servicePrincipal = await azureDirectoryService
                         .CreateServicePrincipalAsync(project.Id.ToString())
@@ -63,11 +53,7 @@ namespace TeamCloud.Orchestrator.Activities
                             Secret = servicePrincipal.Password
                         };
 
-                        projectIdentityJson = JsonConvert.SerializeObject(projectIdentity);
-
-                        await keyVault
-                            .SetSecretAsync(nameof(ProjectIdentity), projectIdentityJson)
-                            .ConfigureAwait(false);
+                        return projectIdentity;
                     }
                     catch
                     {
@@ -76,6 +62,8 @@ namespace TeamCloud.Orchestrator.Activities
                             .ConfigureAwait(false);
                     }
                 }
+
+                return project.Identity;
             }
             catch (Exception ex)
             {

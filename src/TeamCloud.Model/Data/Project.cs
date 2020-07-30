@@ -23,8 +23,6 @@ namespace TeamCloud.Model.Data
 
         public AzureResourceGroup ResourceGroup { get; set; }
 
-        public AzureKeyVault KeyVault { get; set; }
-
         public IList<User> Users { get; set; }
             = new List<User>();
 
