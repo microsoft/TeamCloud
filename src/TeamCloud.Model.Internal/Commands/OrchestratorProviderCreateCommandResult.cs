@@ -8,5 +8,5 @@ using TeamCloud.Model.Internal.Data;
 
 namespace TeamCloud.Model.Internal.Commands
 {
-    public class OrchestratorProviderCreateCommandResult : CommandResult<Provider> { }
+    public class OrchestratorProviderCreateCommandResult : CommandResult<ProviderDocument> { }
 }

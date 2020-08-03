@@ -52,7 +52,7 @@ namespace TeamCloud.Data.CosmosDb
         [ConditionalFact(ConditionalFactPlatforms.Windows)]
         public async Task AddProvider()
         {
-            var provider = await Repository.AddAsync(new Provider()
+            var provider = await Repository.AddAsync(new ProviderDocument()
             {
                 Id = SanitizeName(nameof(AddProvider)),
                 Url = "https://www.foo.com",
@@ -68,7 +68,7 @@ namespace TeamCloud.Data.CosmosDb
         {
             var providerId = SanitizeName(nameof(UpdateProvider));
 
-            var provider = await Repository.AddAsync(new Provider()
+            var provider = await Repository.AddAsync(new ProviderDocument()
             {
                 Id = providerId,
                 Url = "https://www.foo.com",
@@ -96,7 +96,7 @@ namespace TeamCloud.Data.CosmosDb
         [ConditionalFact(ConditionalFactPlatforms.Windows)]
         public async Task RemoveProvider()
         {
-            var provider = await Repository.AddAsync(new Provider()
+            var provider = await Repository.AddAsync(new ProviderDocument()
             {
                 Id = SanitizeName(nameof(RemoveProvider)),
                 Url = "https://www.foo.com",

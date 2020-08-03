@@ -13,7 +13,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 {
     internal static class ProviderRegisterExtension
     {
-        public static Task RegisterProviderAsync(this IDurableOrchestrationContext functionContext, Provider provider = null, bool wait = true)
+        public static Task RegisterProviderAsync(this IDurableOrchestrationContext functionContext, ProviderDocument provider = null, bool wait = true)
         {
             if (wait)
             {

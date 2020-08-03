@@ -23,8 +23,8 @@ namespace TeamCloud.Orchestrator.Activities
         }
 
         [FunctionName(nameof(ProjectCreateActivity))]
-        public async Task<Project> RunActivity(
-            [ActivityTrigger] Project project)
+        public async Task<ProjectDocument> RunActivity(
+            [ActivityTrigger] ProjectDocument project)
         {
             if (project is null)
                 throw new ArgumentNullException(nameof(project));
@@ -39,7 +39,7 @@ namespace TeamCloud.Orchestrator.Activities
 
     internal static class ProjectCreateExtension
     {
-        public static Task<Project> CreateProjectAsync(this IDurableOrchestrationContext functionContext, Project project)
-            => functionContext.CallActivityWithRetryAsync<Project>(nameof(ProjectCreateActivity), project);
+        public static Task<ProjectDocument> CreateProjectAsync(this IDurableOrchestrationContext functionContext, ProjectDocument project)
+            => functionContext.CallActivityWithRetryAsync<ProjectDocument>(nameof(ProjectCreateActivity), project);
     }
 }

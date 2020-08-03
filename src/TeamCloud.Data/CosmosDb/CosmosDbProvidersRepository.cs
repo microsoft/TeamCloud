@@ -15,13 +15,13 @@ using TeamCloud.Model.Validation;
 namespace TeamCloud.Data.CosmosDb
 {
 
-    public class CosmosDbProvidersRepository : CosmosDbRepository<Provider>, IProvidersRepository
+    public class CosmosDbProvidersRepository : CosmosDbRepository<ProviderDocument>, IProvidersRepository
     {
         public CosmosDbProvidersRepository(ICosmosDbOptions cosmosOptions)
             : base(cosmosOptions)
         { }
 
-        public async Task<Provider> AddAsync(Provider provider)
+        public async Task<ProviderDocument> AddAsync(ProviderDocument provider)
         {
             if (provider is null)
                 throw new ArgumentNullException(nameof(provider));
@@ -41,7 +41,7 @@ namespace TeamCloud.Data.CosmosDb
             return response.Resource;
         }
 
-        public async Task<Provider> GetAsync(string id)
+        public async Task<ProviderDocument> GetAsync(string id)
         {
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
@@ -49,7 +49,7 @@ namespace TeamCloud.Data.CosmosDb
             try
             {
                 var response = await container
-                    .ReadItemAsync<Provider>(id, new PartitionKey(Options.TenantName))
+                    .ReadItemAsync<ProviderDocument>(id, new PartitionKey(Options.TenantName))
                     .ConfigureAwait(false);
 
                 return response.Resource;
@@ -60,7 +60,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async Task<Provider> SetAsync(Provider provider)
+        public async Task<ProviderDocument> SetAsync(ProviderDocument provider)
         {
             if (provider is null)
                 throw new ArgumentNullException(nameof(provider));
@@ -79,14 +79,14 @@ namespace TeamCloud.Data.CosmosDb
             return response.Resource;
         }
 
-        public async IAsyncEnumerable<Provider> ListAsync()
+        public async IAsyncEnumerable<ProviderDocument> ListAsync()
         {
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
             var query = new QueryDefinition($"SELECT * FROM c");
             var queryIterator = container
-                .GetItemQueryIterator<Provider>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
+                .GetItemQueryIterator<ProviderDocument>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
 
             while (queryIterator.HasMoreResults)
             {
@@ -101,7 +101,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async IAsyncEnumerable<Provider> ListAsync(IEnumerable<string> ids)
+        public async IAsyncEnumerable<ProviderDocument> ListAsync(IEnumerable<string> ids)
         {
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
@@ -110,7 +110,7 @@ namespace TeamCloud.Data.CosmosDb
             var query = new QueryDefinition($"SELECT * FROM p WHERE p.id IN ({search})");
 
             var queryIterator = container
-                .GetItemQueryIterator<Provider>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
+                .GetItemQueryIterator<ProviderDocument>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
 
             while (queryIterator.HasMoreResults)
             {
@@ -125,7 +125,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async Task<Provider> RemoveAsync(Provider provider)
+        public async Task<ProviderDocument> RemoveAsync(ProviderDocument provider)
         {
             if (provider is null)
                 throw new ArgumentNullException(nameof(provider));
@@ -136,7 +136,7 @@ namespace TeamCloud.Data.CosmosDb
             try
             {
                 var response = await container
-                    .DeleteItemAsync<Provider>(provider.Id, new PartitionKey(Options.TenantName))
+                    .DeleteItemAsync<ProviderDocument>(provider.Id, new PartitionKey(Options.TenantName))
                     .ConfigureAwait(false);
 
                 return response.Resource;

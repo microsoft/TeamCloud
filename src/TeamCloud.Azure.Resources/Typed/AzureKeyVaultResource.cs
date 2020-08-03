@@ -10,6 +10,7 @@ using Microsoft.Azure.KeyVault;
 using Microsoft.Azure.KeyVault.Models;
 using Microsoft.Azure.Management.KeyVault.Fluent;
 using Microsoft.Azure.Management.KeyVault.Fluent.Models;
+using Newtonsoft.Json;
 using TeamCloud.Azure.Resources.Utilities;
 
 namespace TeamCloud.Azure.Resources.Typed
@@ -74,6 +75,25 @@ namespace TeamCloud.Azure.Resources.Typed
             }
         }
 
+        public async Task<T> SetSecretAsync<T>(string secretName, T secretValue)
+            where T : class, new()
+        {
+            if (secretValue is null)
+            {
+                await SetSecretAsync(secretName, null)
+                    .ConfigureAwait(false);
+
+                return secretValue;
+            }
+            else
+            {
+                var secretJson = await SetSecretAsync(secretName, JsonConvert.SerializeObject(secretValue))
+                    .ConfigureAwait(false);
+
+                return JsonConvert.DeserializeObject<T>(secretJson);
+            }
+        }
+
         public async Task<string> SetSecretAsync(string secretName, string secretValue)
         {
             var vault = await vaultInstance
@@ -95,6 +115,17 @@ namespace TeamCloud.Azure.Resources.Typed
 
                 return secret.Value;
             }
+        }
+
+        public async Task<T> GetSecretAsync<T>(string secretName)
+            where T : class, new()
+        {
+            var secretJson = await GetSecretAsync(secretName)
+                .ConfigureAwait(false);
+
+            return string.IsNullOrEmpty(secretJson)
+                ? default(T)
+                : JsonConvert.DeserializeObject<T>(secretJson);
         }
 
         public async Task<string> GetSecretAsync(string secretName)

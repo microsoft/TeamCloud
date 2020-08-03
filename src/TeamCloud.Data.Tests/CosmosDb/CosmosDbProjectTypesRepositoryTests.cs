@@ -55,7 +55,7 @@ namespace TeamCloud.Data.CosmosDb
         [ConditionalFact(ConditionalFactPlatforms.Windows)]
         public async Task AddProjectType()
         {
-            var projectType = await Repository.AddAsync(new ProjectType
+            var projectType = await Repository.AddAsync(new ProjectTypeDocument
             {
                 Id = SanitizeName(nameof(AddProjectType)),
                 Region = "EastUS",
@@ -71,7 +71,7 @@ namespace TeamCloud.Data.CosmosDb
         {
             var projectTypeId = SanitizeName(nameof(UpdateProjectType));
 
-            var projectType = await Repository.AddAsync(new ProjectType
+            var projectType = await Repository.AddAsync(new ProjectTypeDocument
             {
                 Id = projectTypeId,
                 Region = "EastUS",
@@ -97,7 +97,7 @@ namespace TeamCloud.Data.CosmosDb
         [ConditionalFact(ConditionalFactPlatforms.Windows)]
         public async Task RemoveProjectType()
         {
-            var projectType = await Repository.AddAsync(new ProjectType
+            var projectType = await Repository.AddAsync(new ProjectTypeDocument
             {
                 Id = SanitizeName(nameof(RemoveProjectType)),
                 Region = "EastUS",
@@ -127,7 +127,7 @@ namespace TeamCloud.Data.CosmosDb
 
             foreach (var projectId in projectIds)
             {
-                var projectType = await Repository.AddAsync(new ProjectType
+                var projectType = await Repository.AddAsync(new ProjectTypeDocument
                 {
                     Id = projectId,
                     IsDefault = true,

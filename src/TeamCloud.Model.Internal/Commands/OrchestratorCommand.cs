@@ -12,21 +12,21 @@ namespace TeamCloud.Model.Internal.Commands
     public interface IOrchestratorCommand : ICommand
     { }
 
-    public interface IOrchestratorCommand<TPayload> : ICommand<User, TPayload>, IOrchestratorCommand
+    public interface IOrchestratorCommand<TPayload> : ICommand<UserDocument, TPayload>, IOrchestratorCommand
         where TPayload : new()
     { }
 
-    public interface IOrchestratorCommand<TPayload, TCommandResult> : ICommand<User, TPayload, TCommandResult>, IOrchestratorCommand<TPayload>
+    public interface IOrchestratorCommand<TPayload, TCommandResult> : ICommand<UserDocument, TPayload, TCommandResult>, IOrchestratorCommand<TPayload>
         where TPayload : class, new()
         where TCommandResult : ICommandResult
     { }
 
 
-    public abstract class OrchestratorCommand<TPayload, TCommandResult> : Command<User, TPayload, TCommandResult>, IOrchestratorCommand<TPayload, TCommandResult>
+    public abstract class OrchestratorCommand<TPayload, TCommandResult> : Command<UserDocument, TPayload, TCommandResult>, IOrchestratorCommand<TPayload, TCommandResult>
         where TPayload : class, new()
         where TCommandResult : ICommandResult, new()
     {
-        protected OrchestratorCommand(User user, TPayload payload) : base(user, payload)
+        protected OrchestratorCommand(UserDocument user, TPayload payload) : base(user, payload)
         { }
     }
 
@@ -36,7 +36,7 @@ namespace TeamCloud.Model.Internal.Commands
         where TProviderPayload : class, new()
         where TProviderCommand : IProviderCommand<TProviderPayload>
     {
-        protected OrchestratorCommand(User user, TPayload payload) : base(user, payload)
+        protected OrchestratorCommand(UserDocument user, TPayload payload) : base(user, payload)
         { }
     }
 }

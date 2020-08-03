@@ -12,20 +12,20 @@ namespace TeamCloud.Data
 {
     public interface IProjectTypesRepository
     {
-        Task<ProjectType> GetAsync(string id);
+        Task<ProjectTypeDocument> GetAsync(string id);
 
-        IAsyncEnumerable<ProjectType> ListAsync();
+        IAsyncEnumerable<ProjectTypeDocument> ListAsync();
 
-        IAsyncEnumerable<ProjectType> ListByProviderAsync(string providerId);
+        IAsyncEnumerable<ProjectTypeDocument> ListByProviderAsync(string providerId);
 
         Task<int> GetInstanceCountAsync(string id, Guid? subscriptionId = null);
 
-        Task<ProjectType> GetDefaultAsync();
+        Task<ProjectTypeDocument> GetDefaultAsync();
 
-        Task<ProjectType> AddAsync(ProjectType projectType);
+        Task<ProjectTypeDocument> AddAsync(ProjectTypeDocument projectType);
 
-        Task<ProjectType> SetAsync(ProjectType projectType);
+        Task<ProjectTypeDocument> SetAsync(ProjectTypeDocument projectType);
 
-        Task<ProjectType> RemoveAsync(ProjectType projectType);
+        Task<ProjectTypeDocument> RemoveAsync(ProjectTypeDocument projectType);
     }
 }

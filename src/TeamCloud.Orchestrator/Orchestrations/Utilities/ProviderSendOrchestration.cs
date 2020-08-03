@@ -35,7 +35,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
 
-            var (command, provider) = functionContext.GetInput<(IProviderCommand, Provider)>();
+            var (command, provider) = functionContext.GetInput<(IProviderCommand, ProviderDocument)>();
             var commandResult = command.CreateResult();
             var commandLog = functionContext.CreateReplaySafeLogger(log ?? NullLogger.Instance);
 
@@ -58,7 +58,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
             return commandResult;
         }
 
-        private static async Task<IProviderCommand> AugmentCommandAsync(IDurableOrchestrationContext functionContext, Provider provider, IProviderCommand command)
+        private static async Task<IProviderCommand> AugmentCommandAsync(IDurableOrchestrationContext functionContext, ProviderDocument provider, IProviderCommand command)
         {
             if (!string.IsNullOrEmpty(command.ProjectId))
             {
@@ -89,7 +89,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
         }
 
 
-        private static async Task<ICommandResult> ProcessCommandAsync(IDurableOrchestrationContext functionContext, Provider provider, IProviderCommand command, ICommandResult commandResult, ILogger log)
+        private static async Task<ICommandResult> ProcessCommandAsync(IDurableOrchestrationContext functionContext, ProviderDocument provider, IProviderCommand command, ICommandResult commandResult, ILogger log)
         {
             var commandMessage = default(ICommandMessage);
             var commandCallback = default(string);
@@ -205,7 +205,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
         }
 
 
-        private static async Task<ICommandResult> SwitchCommandAsync(IDurableOrchestrationContext functionContext, Provider provider, IProviderCommand command, ICommandResult commandResult, ILogger log)
+        private static async Task<ICommandResult> SwitchCommandAsync(IDurableOrchestrationContext functionContext, ProviderDocument provider, IProviderCommand command, ICommandResult commandResult, ILogger log)
         {
             try
             {
@@ -241,11 +241,11 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
         }
 
 
-        private static async Task ProcessOutputAsync(IDurableOrchestrationContext functionContext, Provider provider, IProviderCommand command, ICommandResult commandResult)
+        private static async Task ProcessOutputAsync(IDurableOrchestrationContext functionContext, ProviderDocument provider, IProviderCommand command, ICommandResult commandResult)
         {
             if (!string.IsNullOrEmpty(command.ProjectId) && commandResult is ICommandResult<ProviderOutput> providerOutputResult)
             {
-                using (await functionContext.LockAsync<Project>(command.ProjectId).ConfigureAwait(true))
+                using (await functionContext.LockAsync<ProjectDocument>(command.ProjectId).ConfigureAwait(true))
                 {
                     var project = await functionContext
                         .GetProjectAsync(command.ProjectId)

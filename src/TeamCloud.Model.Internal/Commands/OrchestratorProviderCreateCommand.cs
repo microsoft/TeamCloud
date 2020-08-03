@@ -7,8 +7,8 @@ using TeamCloud.Model.Internal.Data;
 
 namespace TeamCloud.Model.Internal.Commands
 {
-    public class OrchestratorProviderCreateCommand : OrchestratorCommand<Provider, OrchestratorProviderCreateCommandResult>
+    public class OrchestratorProviderCreateCommand : OrchestratorCommand<ProviderDocument, OrchestratorProviderCreateCommandResult>
     {
-        public OrchestratorProviderCreateCommand(User user, Provider payload) : base(user, payload) { }
+        public OrchestratorProviderCreateCommand(UserDocument user, ProviderDocument payload) : base(user, payload) { }
     }
 }

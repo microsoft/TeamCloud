@@ -28,7 +28,7 @@ namespace TeamCloud.Orchestrator.Activities
 
         [FunctionName(nameof(ProjectSubscriptionSelectActivity))]
         public async Task<Guid> RunActivity(
-            [ActivityTrigger] Project project)
+            [ActivityTrigger] ProjectDocument project)
         {
             if (project is null)
                 throw new ArgumentNullException(nameof(project));
@@ -50,7 +50,7 @@ namespace TeamCloud.Orchestrator.Activities
             return subscription;
         }
 
-        private async Task<(Guid, int)> GetSubscriptionCapacityAsync(ProjectType projectType, Guid subscriptionId)
+        private async Task<(Guid, int)> GetSubscriptionCapacityAsync(ProjectTypeDocument projectType, Guid subscriptionId)
         {
             var subscription = await azureResourceService
                 .GetSubscriptionAsync(subscriptionId)

@@ -26,9 +26,9 @@ namespace TeamCloud.Data.CosmosDb
             this.fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
         }
 
-        private IEnumerable<User> GetUsers()
+        private IEnumerable<UserDocument> GetUsers()
         {
-            yield return new User()
+            yield return new UserDocument()
             {
                 Id = Guid.NewGuid().ToString()
             };
@@ -37,10 +37,10 @@ namespace TeamCloud.Data.CosmosDb
         [ConditionalFact(ConditionalFactPlatforms.Windows)]
         public async Task AddProject()
         {
-            var project = await Repository.AddAsync(new Project()
+            var project = await Repository.AddAsync(new ProjectDocument()
             {
                 Name = Guid.NewGuid().ToString(),
-                Type = new ProjectType()
+                Type = new ProjectTypeDocument()
                 {
                     Id = Guid.NewGuid().ToString()
                 },
@@ -54,10 +54,10 @@ namespace TeamCloud.Data.CosmosDb
         [ConditionalFact(ConditionalFactPlatforms.Windows)]
         public async Task UpdateProject()
         {
-            var project = await Repository.AddAsync(new Project()
+            var project = await Repository.AddAsync(new ProjectDocument()
             {
                 Name = Guid.NewGuid().ToString(),
-                Type = new ProjectType()
+                Type = new ProjectTypeDocument()
                 {
                     Id = Guid.NewGuid().ToString()
                 },
@@ -81,10 +81,10 @@ namespace TeamCloud.Data.CosmosDb
         [ConditionalFact(ConditionalFactPlatforms.Windows)]
         public async Task RemoveProject()
         {
-            var project = await Repository.AddAsync(new Project()
+            var project = await Repository.AddAsync(new ProjectDocument()
             {
                 Name = Guid.NewGuid().ToString(),
-                Type = new ProjectType()
+                Type = new ProjectTypeDocument()
                 {
                     Id = Guid.NewGuid().ToString()
                 },

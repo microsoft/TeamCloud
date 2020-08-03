@@ -15,6 +15,7 @@ namespace TeamCloud.Model.Data
     public sealed class Project : IProject<User>, IEquatable<Project>
     {
         public string Id { get; set; }
+            = Guid.NewGuid().ToString();
 
         public string Name { get; set; }
 
@@ -22,12 +23,14 @@ namespace TeamCloud.Model.Data
 
         public AzureResourceGroup ResourceGroup { get; set; }
 
-        public IList<User> Users { get; set; } = new List<User>();
+        public IList<User> Users { get; set; }
+            = new List<User>();
 
-        public IDictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();
+        public IDictionary<string, string> Tags { get; set; }
+            = new Dictionary<string, string>();
 
-        public IDictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
-
+        public IDictionary<string, string> Properties { get; set; }
+            = new Dictionary<string, string>();
 
         public bool Equals(Project other)
             => Id.Equals(other?.Id, StringComparison.OrdinalIgnoreCase);

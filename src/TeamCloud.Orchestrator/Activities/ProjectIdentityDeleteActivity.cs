@@ -9,7 +9,6 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Azure.Directory;
 using TeamCloud.Azure.Resources;
-using TeamCloud.Azure.Resources.Typed;
 using TeamCloud.Model.Internal.Data;
 using TeamCloud.Orchestration;
 
@@ -33,26 +32,14 @@ namespace TeamCloud.Orchestrator.Activities
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
 
-            var project = functionContext.GetInput<Project>();
+            var project = functionContext.GetInput<ProjectDocument>();
 
-            var keyVault = await azureResourceService
-                .GetResourceAsync<AzureKeyVaultResource>(project.KeyVault.VaultId, throwIfNotExists: true)
-                .ConfigureAwait(false);
-
-            var projectIdentityJson = await keyVault
-                .GetSecretAsync(nameof(ProjectIdentity))
-                .ConfigureAwait(false);
-
-            if (!string.IsNullOrEmpty(projectIdentityJson))
+            if (!string.IsNullOrEmpty(project.Identity?.Id))
             {
                 await azureDirectoryService
                     .DeleteServicePrincipalAsync(project.Id.ToString())
                     .ConfigureAwait(false);
             }
-
-            await keyVault
-                .SetSecretAsync(nameof(ProjectIdentity), null)
-                .ConfigureAwait(false);
         }
     }
 }

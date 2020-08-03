@@ -138,7 +138,7 @@ namespace TeamCloud.API
                     .Conflict($"The user '{userDefinition.Identifier}' already exists on this TeamCloud Instance. Please try your request again with a unique user or call PUT to update the existing User.")
                     .ActionResult();
 
-            user = new Model.Internal.Data.User
+            user = new Model.Internal.Data.UserDocument
             {
                 Id = userId,
                 Role = Enum.Parse<TeamCloudUserRole>(userDefinition.Role, true),

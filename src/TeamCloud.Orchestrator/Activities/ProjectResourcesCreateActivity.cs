@@ -41,7 +41,7 @@ namespace TeamCloud.Orchestrator.Activities
             return identity.ObjectId.ToString();
         }
 
-        private async Task<string[]> GetProviderIdentitiesAsync(Project project)
+        private async Task<string[]> GetProviderIdentitiesAsync(ProjectDocument project)
         {
             var providers = await providersRepository
                 .ListAsync(project.Type.Providers.Select(p => p.Id))
@@ -64,7 +64,7 @@ namespace TeamCloud.Orchestrator.Activities
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
 
-            var (project, subscriptionId) = functionContext.GetInput<(Project, Guid)>();
+            var (project, subscriptionId) = functionContext.GetInput<(ProjectDocument, Guid)>();
 
             // if the provided project instance is already assigned
             // to a subscription we use this one instead of the provided
@@ -81,7 +81,6 @@ namespace TeamCloud.Orchestrator.Activities
             template.Parameters["projectPrefix"] = project.Type.ResourceGroupNamePrefix; // if null - the template uses its default value
             template.Parameters["resourceGroupName"] = project.ResourceGroup?.Name; // if null - the template generates a unique name
             template.Parameters["resourceGroupLocation"] = project.ResourceGroup?.Region ?? project.Type.Region;
-            template.Parameters["orchestratorIdentity"] = await GetOrchestratorIdentityAsync().ConfigureAwait(false);
             template.Parameters["providerIdentities"] = await GetProviderIdentitiesAsync(project).ConfigureAwait(false);
 
             //template.Parameters["eventGridLocation"] = location;

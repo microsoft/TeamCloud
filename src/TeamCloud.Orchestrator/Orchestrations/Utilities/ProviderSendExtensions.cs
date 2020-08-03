@@ -24,7 +24,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
         //     => functionContext.SendProviderCommandAsync<TCommand>(command, provider);
 
 
-        internal static async Task<TCommandResult> SendProviderCommandAsync<TCommand, TCommandResult>(this IDurableOrchestrationContext functionContext, TCommand command, Provider provider)
+        internal static async Task<TCommandResult> SendProviderCommandAsync<TCommand, TCommandResult>(this IDurableOrchestrationContext functionContext, TCommand command, ProviderDocument provider)
             where TCommand : IProviderCommand
             where TCommandResult : ICommandResult
         {
@@ -48,12 +48,12 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
         }
 
 
-        internal static Task<IDictionary<string, ICommandResult>> SendProviderCommandAsync<TCommand>(this IDurableOrchestrationContext functionContext, TCommand command, Project project, bool failFast = false)
+        internal static Task<IDictionary<string, ICommandResult>> SendProviderCommandAsync<TCommand>(this IDurableOrchestrationContext functionContext, TCommand command, ProjectDocument project, bool failFast = false)
             where TCommand : IProviderCommand
             => functionContext.SendProviderCommandAsync<TCommand, ICommandResult>(command, project, failFast);
 
 
-        internal static async Task<IDictionary<string, TCommandResult>> SendProviderCommandAsync<TCommand, TCommandResult>(this IDurableOrchestrationContext functionContext, TCommand command, Project project, bool failFast = false)
+        internal static async Task<IDictionary<string, TCommandResult>> SendProviderCommandAsync<TCommand, TCommandResult>(this IDurableOrchestrationContext functionContext, TCommand command, ProjectDocument project, bool failFast = false)
             where TCommand : IProviderCommand
             where TCommandResult : ICommandResult
         {
@@ -71,7 +71,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
             }
 
             var providerBatches = await functionContext
-                .CallActivityWithRetryAsync<IEnumerable<IEnumerable<Provider>>>(nameof(CommandProviderActivity), project)
+                .CallActivityWithRetryAsync<IEnumerable<IEnumerable<ProviderDocument>>>(nameof(CommandProviderActivity), project)
                 .ConfigureAwait(true);
 
             var commandResults = Enumerable.Empty<KeyValuePair<string, TCommandResult>>();

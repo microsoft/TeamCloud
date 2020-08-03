@@ -7,7 +7,7 @@ using System;
 using Newtonsoft.Json;
 using TeamCloud.Serialization;
 
-namespace TeamCloud.Model.Data.Core
+namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
     public class AzureResourceGroup : IEquatable<AzureResourceGroup>

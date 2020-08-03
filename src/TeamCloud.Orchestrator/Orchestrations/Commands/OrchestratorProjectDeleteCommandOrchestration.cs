@@ -9,8 +9,8 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Azure.Resources;
-using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Commands;
+using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Internal;
 using TeamCloud.Model.Internal.Commands;
 using TeamCloud.Model.Internal.Data;
@@ -80,8 +80,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                         await functionContext.DeleteResourcesAsync
                         (
                             false, // we are not going to wait for this operation
-                            GetResourceGroupId(project?.ResourceGroup?.Id),
-                            GetResourceGroupId(project?.KeyVault?.VaultId)
+                            GetResourceGroupId(project?.ResourceGroup?.Id)
                         )
                         .ConfigureAwait(true);
                     }

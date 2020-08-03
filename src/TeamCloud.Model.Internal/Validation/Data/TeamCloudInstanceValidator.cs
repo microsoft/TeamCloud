@@ -10,7 +10,7 @@ using TeamCloud.Model.Validation.Data;
 
 namespace TeamCloud.Model.Internal.Validation.Data
 {
-    public sealed class TeamCloudInstanceValidator : AbstractValidator<TeamCloudInstance>
+    public sealed class TeamCloudInstanceValidator : AbstractValidator<TeamCloudInstanceDocument>
     {
         public TeamCloudInstanceValidator()
         {

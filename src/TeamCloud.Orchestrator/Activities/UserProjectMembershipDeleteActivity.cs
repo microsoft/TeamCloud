@@ -24,13 +24,13 @@ namespace TeamCloud.Orchestrator.Activities
         }
 
         [FunctionName(nameof(UserProjectMembershipDeleteActivity))]
-        public async Task<User> RunActivity(
+        public async Task<UserDocument> RunActivity(
             [ActivityTrigger] IDurableActivityContext functionContext)
         {
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
 
-            var (user, projectId) = functionContext.GetInput<(User, string)>();
+            var (user, projectId) = functionContext.GetInput<(UserDocument, string)>();
 
             var updatedUser = await usersRepository
                 .RemoveProjectMembershipAsync(user, projectId)
@@ -42,9 +42,9 @@ namespace TeamCloud.Orchestrator.Activities
 
     internal static class UserProjectMembershipDeleteExtension
     {
-        public static Task<User> DeleteUserProjectMembershipAsync(this IDurableOrchestrationContext functionContext, User user, string projectId, bool allowUnsafe = false)
-            => functionContext.IsLockedBy<User>(user.Id) || allowUnsafe
-            ? functionContext.CallActivityWithRetryAsync<User>(nameof(UserProjectMembershipDeleteActivity), (user, projectId))
+        public static Task<UserDocument> DeleteUserProjectMembershipAsync(this IDurableOrchestrationContext functionContext, UserDocument user, string projectId, bool allowUnsafe = false)
+            => functionContext.IsLockedBy<UserDocument>(user.Id) || allowUnsafe
+            ? functionContext.CallActivityWithRetryAsync<UserDocument>(nameof(UserProjectMembershipDeleteActivity), (user, projectId))
             : throw new NotSupportedException($"Unable to delete project membership without acquired for user {user.Id} lock");
     }
 }

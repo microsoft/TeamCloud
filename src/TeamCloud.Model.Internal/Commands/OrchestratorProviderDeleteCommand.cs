@@ -7,8 +7,8 @@ using TeamCloud.Model.Internal.Data;
 
 namespace TeamCloud.Model.Internal.Commands
 {
-    public class OrchestratorProviderDeleteCommand : OrchestratorCommand<Provider, OrchestratorProviderDeleteCommandResult>
+    public class OrchestratorProviderDeleteCommand : OrchestratorCommand<ProviderDocument, OrchestratorProviderDeleteCommandResult>
     {
-        public OrchestratorProviderDeleteCommand(User user, Provider payload) : base(user, payload) { }
+        public OrchestratorProviderDeleteCommand(UserDocument user, ProviderDocument payload) : base(user, payload) { }
     }
 }

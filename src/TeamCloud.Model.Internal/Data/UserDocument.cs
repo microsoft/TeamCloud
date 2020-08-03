@@ -13,7 +13,7 @@ using TeamCloud.Serialization;
 namespace TeamCloud.Model.Internal.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public sealed class User : ContainerDocument, IUser, IEquatable<User>, IPopulate<Model.Data.User>
+    public sealed class UserDocument : ContainerDocument, IUser, IEquatable<UserDocument>, IPopulate<Model.Data.User>
     {
         [PartitionKey]
         public string Tenant { get; set; }
@@ -27,19 +27,19 @@ namespace TeamCloud.Model.Internal.Data
         public IDictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
 
 
-        public bool Equals(User other)
+        public bool Equals(UserDocument other)
             => Id.Equals(other?.Id, StringComparison.OrdinalIgnoreCase);
 
         public override bool Equals(object obj)
-            => base.Equals(obj) || Equals(obj as User);
+            => base.Equals(obj) || Equals(obj as UserDocument);
 
         public override int GetHashCode()
             => Id.GetHashCode(StringComparison.OrdinalIgnoreCase);
     }
 
-    public class UserComparer : IEqualityComparer<User>
+    public class UserComparer : IEqualityComparer<UserDocument>
     {
-        public bool Equals(User x, User y)
+        public bool Equals(UserDocument x, UserDocument y)
         {
             if (ReferenceEquals(x, y))
                 return true;
@@ -51,7 +51,7 @@ namespace TeamCloud.Model.Internal.Data
                 return false;
         }
 
-        public int GetHashCode(User obj)
+        public int GetHashCode(UserDocument obj)
             => (obj ?? throw new ArgumentNullException(nameof(obj))).Id.GetHashCode(StringComparison.OrdinalIgnoreCase);
     }
 }

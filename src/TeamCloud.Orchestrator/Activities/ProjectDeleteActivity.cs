@@ -24,7 +24,7 @@ namespace TeamCloud.Orchestrator.Activities
 
         [FunctionName(nameof(ProjectDeleteActivity))]
         public async Task RunActivity(
-            [ActivityTrigger] Project project)
+            [ActivityTrigger] ProjectDocument project)
         {
             if (project is null)
                 throw new ArgumentNullException(nameof(project));
@@ -37,7 +37,7 @@ namespace TeamCloud.Orchestrator.Activities
 
     internal static class ProjectDeleteExtension
     {
-        public static Task<Project> DeleteProjectAsync(this IDurableOrchestrationContext functionContext, Project project)
-            => functionContext.CallActivityWithRetryAsync<Project>(nameof(ProjectDeleteActivity), project);
+        public static Task<ProjectDocument> DeleteProjectAsync(this IDurableOrchestrationContext functionContext, ProjectDocument project)
+            => functionContext.CallActivityWithRetryAsync<ProjectDocument>(nameof(ProjectDeleteActivity), project);
     }
 }
