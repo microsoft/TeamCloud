@@ -91,11 +91,6 @@ namespace TeamCloud.Model.Internal.Data
 
                             var targetValue = targetProperty.GetValue(this) ?? Activator.CreateInstance(targetProperty.PropertyType);
 
-                            Console.WriteLine(populateInterfaceType);
-                            Console.WriteLine(populateInterfaceMethod);
-                            Console.WriteLine(sourceValue);
-                            Console.WriteLine(targetValue);
-
                             populateInterfaceMethod.Invoke(targetValue, new[] { sourceValue });
 
                             targetProperty.SetValue(this, targetValue);
