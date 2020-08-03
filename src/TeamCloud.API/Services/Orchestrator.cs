@@ -192,7 +192,7 @@ namespace TeamCloud.API.Services
             return result;
         }
 
-        public async Task<ProviderData> AddAsync(ProviderData providerData)
+        public async Task<ProviderDataDocument> AddAsync(ProviderDataDocument providerData)
         {
             var response = await options.Url
                 .AppendPathSegment("api/data/providerData")
@@ -201,13 +201,13 @@ namespace TeamCloud.API.Services
                 .ConfigureAwait(false);
 
             var result = await response.Content
-                .ReadAsAsync<ProviderData>()
+                .ReadAsAsync<ProviderDataDocument>()
                 .ConfigureAwait(false);
 
             return result;
         }
 
-        public async Task<ProviderData> UpdateAsync(ProviderData providerData)
+        public async Task<ProviderDataDocument> UpdateAsync(ProviderDataDocument providerData)
         {
             var response = await options.Url
                 .AppendPathSegment("api/data/providerData")
@@ -216,13 +216,13 @@ namespace TeamCloud.API.Services
                 .ConfigureAwait(false);
 
             var result = await response.Content
-                .ReadAsAsync<ProviderData>()
+                .ReadAsAsync<ProviderDataDocument>()
                 .ConfigureAwait(false);
 
             return result;
         }
 
-        public async Task<ProviderData> DeleteAsync(ProviderData providerData)
+        public async Task<ProviderDataDocument> DeleteAsync(ProviderDataDocument providerData)
         {
             if (providerData is null)
                 throw new ArgumentNullException(nameof(providerData));
@@ -234,7 +234,7 @@ namespace TeamCloud.API.Services
                 .ConfigureAwait(false);
 
             var result = await response.Content
-                .ReadAsAsync<ProviderData>()
+                .ReadAsAsync<ProviderDataDocument>()
                 .ConfigureAwait(false);
 
             return result;

@@ -137,7 +137,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 
                                     if (providerUser is null)
                                     {
-                                        providerUser = new User
+                                        providerUser = new UserDocument
                                         {
                                             Id = provider.PrincipalId.Value.ToString(),
                                             Role = TeamCloudUserRole.Provider,

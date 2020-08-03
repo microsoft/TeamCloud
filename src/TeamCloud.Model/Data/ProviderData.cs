@@ -10,7 +10,7 @@ using TeamCloud.Model.Data.Core;
 namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public class ProviderData : IProviderData
+    public sealed class ProviderData : IProviderData
     {
         // public string ProviderId { get; set; }
 

@@ -24,7 +24,7 @@ namespace TeamCloud.Orchestrator.API.Data
 
         [FunctionName(nameof(UpdateProviderDataTrigger))]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "put", Route = "data/providerData")] ProviderData providerData
+            [HttpTrigger(AuthorizationLevel.Function, "put", Route = "data/providerData")] ProviderDataDocument providerData
             /* ILogger log */)
         {
             if (providerData is null)

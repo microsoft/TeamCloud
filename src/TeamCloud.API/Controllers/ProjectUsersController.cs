@@ -15,11 +15,11 @@ using TeamCloud.API.Data;
 using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
+using TeamCloud.Model.Data;
 using TeamCloud.Model.Data.Core;
 using TeamCloud.Model.Internal.Commands;
 using TeamCloud.Model.Internal.Data;
 using TeamCloud.Model.Validation.Data;
-using User = TeamCloud.Model.Data.User;
 
 namespace TeamCloud.API.Controllers
 {

@@ -10,7 +10,7 @@ using TeamCloud.Model.Validation;
 
 namespace TeamCloud.Model.Internal.Validation.Data
 {
-    public sealed class ProviderDataValidator : AbstractValidator<ProviderData>
+    public sealed class ProviderDataValidator : AbstractValidator<ProviderDataDocument>
     {
         public ProviderDataValidator()
         {

@@ -14,10 +14,10 @@ using Swashbuckle.AspNetCore.Annotations;
 using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
+using TeamCloud.Model.Data;
 using TeamCloud.Model.Data.Core;
 using TeamCloud.Model.Internal.Data;
 using TeamCloud.Model.Validation.Data;
-using ProviderData = TeamCloud.Model.Data.ProviderData;
 
 namespace TeamCloud.API.Controllers
 {
@@ -181,7 +181,7 @@ namespace TeamCloud.API.Controllers
                     .NotFound($"A Provider with the ID '{ProviderId}' could not be found on the Project '{ProjectId}'")
                     .ActionResult();
 
-            var newProviderData = new Model.Internal.Data.ProviderData
+            var newProviderData = new ProviderDataDocument
             {
                 ProviderId = provider.Id,
                 Scope = ProviderDataScope.Project,
@@ -256,7 +256,7 @@ namespace TeamCloud.API.Controllers
                     .NotFound($"The Provider Data '{providerData.Id}' could not be found..")
                     .ActionResult();
 
-            var newProviderData = new Model.Internal.Data.ProviderData
+            var newProviderData = new ProviderDataDocument
             {
                 ProviderId = provider.Id,
                 Scope = ProviderDataScope.Project,

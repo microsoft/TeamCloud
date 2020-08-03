@@ -280,7 +280,8 @@ namespace TeamCloud.API
                     {
                         policy.RequireRole(TeamCloudUserRole.Admin.PolicyRoleName(),
                                            ProjectUserRole.Owner.PolicyRoleName(),
-                                           ProjectUserRole.Member.PolicyRoleName());
+                                           ProjectUserRole.Member.PolicyRoleName(),
+                                           ProjectUserRole.Provider.PolicyRoleName());
                     });
 
                     options.AddPolicy("projectDelete", policy =>
@@ -339,7 +340,7 @@ namespace TeamCloud.API
             return claims;
         }
 
-        private static async Task<IEnumerable<Claim>> ResolveProviderClaimsAsync(User user, HttpContext httpContext)
+        private static async Task<IEnumerable<Claim>> ResolveProviderClaimsAsync(UserDocument user, HttpContext httpContext)
         {
             var claims = new List<Claim>();
 
