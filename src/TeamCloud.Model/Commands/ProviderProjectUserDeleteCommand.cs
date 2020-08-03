@@ -10,7 +10,7 @@ namespace TeamCloud.Model.Commands
 {
     public class ProviderProjectUserDeleteCommand : ProviderCommand<User, ProviderProjectUserDeleteCommandResult>
     {
-        public ProviderProjectUserDeleteCommand(Uri api, User user, User payload, string projectId, Guid? commandId = null) : base(api, user, payload, commandId)
+        public ProviderProjectUserDeleteCommand(Uri baseApi, User user, User payload, string projectId, Guid? commandId = null) : base(baseApi, user, payload, commandId)
             => ProjectId = projectId;
     }
 }

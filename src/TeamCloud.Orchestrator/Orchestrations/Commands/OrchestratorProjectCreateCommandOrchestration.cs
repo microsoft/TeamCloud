@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
+using TeamCloud.Model.Data.Core;
 using TeamCloud.Model.Internal;
 using TeamCloud.Model.Internal.Commands;
 using TeamCloud.Model.Internal.Data;
@@ -179,7 +180,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
 
             var providerCommand = new ProviderProjectCreateCommand
             (
-                command.Api,
+                command.BaseApi,
                 command.User.PopulateExternalModel(),
                 project.PopulateExternalModel(),
                 command.CommandId
@@ -213,7 +214,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 .CallActivityWithRetryAsync<UserDocument>(nameof(TeamCloudSystemUserActivity), null)
                 .ConfigureAwait(true);
 
-            var deleteCommand = new OrchestratorProjectDeleteCommand(command.Api, systemUser, project);
+            var deleteCommand = new OrchestratorProjectDeleteCommand(command.BaseApi, systemUser, project);
 
             await functionContext
                 .CallSubOrchestratorWithRetryAsync(nameof(OrchestratorProjectDeleteCommandOrchestration), deleteCommand)

@@ -11,7 +11,7 @@ namespace TeamCloud.Model.Commands
 {
     public class ProviderRegisterCommand : ProviderCommand<ProviderConfiguration, ProviderRegisterCommandResult>
     {
-        public ProviderRegisterCommand(Uri api, User user, ProviderConfiguration payload) : base(api, user, payload)
+        public ProviderRegisterCommand(Uri baseApi, User user, ProviderConfiguration payload) : base(baseApi, user, payload)
         { }
     }
 }

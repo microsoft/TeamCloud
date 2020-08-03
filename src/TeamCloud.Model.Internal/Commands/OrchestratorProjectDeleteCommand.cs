@@ -11,6 +11,6 @@ namespace TeamCloud.Model.Internal.Commands
 {
     public class OrchestratorProjectDeleteCommand : OrchestratorCommand<ProjectDocument, OrchestratorProjectDeleteCommandResult, ProviderProjectDeleteCommand, Model.Data.Project>
     {
-        public OrchestratorProjectDeleteCommand(Uri api, UserDocument user, ProjectDocument payload) : base(api, user, payload) { }
+        public OrchestratorProjectDeleteCommand(Uri baseApi, UserDocument user, ProjectDocument payload) : base(baseApi, user, payload) { }
     }
 }

@@ -10,6 +10,6 @@ namespace TeamCloud.Model.Internal.Commands
 {
     public class OrchestratorTeamCloudUserUpdateCommand : OrchestratorCommand<UserDocument, OrchestratorTeamCloudUserUpdateCommandResult>
     {
-        public OrchestratorTeamCloudUserUpdateCommand(Uri api, UserDocument user, UserDocument payload) : base(api, user, payload) { }
+        public OrchestratorTeamCloudUserUpdateCommand(Uri baseApi, UserDocument user, UserDocument payload) : base(baseApi, user, payload) { }
     }
 }

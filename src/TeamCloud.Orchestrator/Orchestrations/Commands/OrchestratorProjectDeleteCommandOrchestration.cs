@@ -52,7 +52,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
 
                         var providerCommand = new ProviderProjectDeleteCommand
                         (
-                            command.Api,
+                            command.BaseApi,
                             command.User.PopulateExternalModel(),
                             project.PopulateExternalModel(),
                             command.CommandId

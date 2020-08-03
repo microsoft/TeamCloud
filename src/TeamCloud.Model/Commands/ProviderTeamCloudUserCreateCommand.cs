@@ -10,7 +10,7 @@ namespace TeamCloud.Model.Commands
 {
     public class ProviderTeamCloudUserCreateCommand : ProviderCommand<User, ProviderTeamCloudUserCreateCommandResult>
     {
-        public ProviderTeamCloudUserCreateCommand(Uri api, User user, User payload, Guid? commandId = default) : base(api, user, payload, commandId)
+        public ProviderTeamCloudUserCreateCommand(Uri baseApi, User user, User payload, Guid? commandId = default) : base(baseApi, user, payload, commandId)
         { }
     }
 }
