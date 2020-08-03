@@ -13,11 +13,11 @@ namespace TeamCloud.Model.Internal.Data
     public class ContainerDocumentTests
     {
         [Theory]
-        [InlineData(typeof(TeamCloudInstance))]
-        [InlineData(typeof(Project))]
-        [InlineData(typeof(ProjectType))]
-        [InlineData(typeof(Provider))]
-        [InlineData(typeof(User))]
+        [InlineData(typeof(TeamCloudInstanceDocument))]
+        [InlineData(typeof(ProjectDocument))]
+        [InlineData(typeof(ProjectTypeDocument))]
+        [InlineData(typeof(ProviderDocument))]
+        [InlineData(typeof(UserDocument))]
         public void Serialize(Type type)
         {
             var containerDocument = (IContainerDocument)Activator.CreateInstance(type);
@@ -36,11 +36,12 @@ namespace TeamCloud.Model.Internal.Data
         }
 
         [Theory]
-        [InlineData(typeof(TeamCloudInstance))]
-        [InlineData(typeof(Project))]
-        [InlineData(typeof(ProjectType))]
-        [InlineData(typeof(Provider))]
-        [InlineData(typeof(User))]
+        [InlineData(typeof(TeamCloudInstanceDocument))]
+        [InlineData(typeof(ProjectDocument))]
+        [InlineData(typeof(ProjectTypeDocument))]
+        [InlineData(typeof(ProviderDocument))]
+        [InlineData(typeof(ProviderDataDocument))]
+        [InlineData(typeof(UserDocument))]
         public void SerializeWithMetadata(Type type)
         {
             var containerDocument = (IContainerDocument)Activator.CreateInstance(type);
