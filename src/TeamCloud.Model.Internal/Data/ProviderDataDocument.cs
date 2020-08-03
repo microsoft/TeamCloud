@@ -11,7 +11,7 @@ using TeamCloud.Model.Data.Core;
 namespace TeamCloud.Model.Internal.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public class ProviderData : ContainerDocument, IProviderData, IPopulate<Model.Data.ProviderData>
+    public class ProviderDataDocument : ContainerDocument, IProviderData, IPopulate<Model.Data.ProviderData>
     {
         public string ProviderId { get; set; }
 

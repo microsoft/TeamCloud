@@ -12,23 +12,23 @@ namespace TeamCloud.Data
     public interface IProviderDataRepository
     {
 
-        Task<ProviderData> AddAsync(ProviderData data);
+        Task<ProviderDataDocument> AddAsync(ProviderDataDocument data);
 
-        Task<ProviderData> GetAsync(string id);
+        Task<ProviderDataDocument> GetAsync(string id);
 
-        Task<ProviderData> GetAsync(string providerId, string nameOrId);
+        Task<ProviderDataDocument> GetAsync(string providerId, string nameOrId);
 
-        IAsyncEnumerable<ProviderData> GetByNameAsync(string providerId, string Name);
+        IAsyncEnumerable<ProviderDataDocument> GetByNameAsync(string providerId, string Name);
 
-        IAsyncEnumerable<ProviderData> GetByNameAsync(string providerId, string projectId, string name);
+        IAsyncEnumerable<ProviderDataDocument> GetByNameAsync(string providerId, string projectId, string name);
 
-        Task<ProviderData> SetAsync(ProviderData data);
+        Task<ProviderDataDocument> SetAsync(ProviderDataDocument data);
 
-        IAsyncEnumerable<ProviderData> ListAsync(string providerId, bool includeShared = false);
+        IAsyncEnumerable<ProviderDataDocument> ListAsync(string providerId, bool includeShared = false);
 
-        IAsyncEnumerable<ProviderData> ListAsync(string providerId, string projectId, bool includeShared = false);
+        IAsyncEnumerable<ProviderDataDocument> ListAsync(string providerId, string projectId, bool includeShared = false);
 
-        Task<ProviderData> RemoveAsync(ProviderData data);
+        Task<ProviderDataDocument> RemoveAsync(ProviderDataDocument data);
 
         Task RemoveAsync(string projectId);
     }
