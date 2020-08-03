@@ -32,7 +32,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpGet]
-        [Authorize(Policy = "projectRead")]
+        [Authorize(Policy = "projectIdentityRead")]
         [SwaggerOperation(OperationId = "GetProjectIdentity", Summary = "Gets the ProjectIdentity for a Project.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns ProjectIdentity", typeof(DataResult<ProjectIdentity>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]

@@ -290,6 +290,13 @@ namespace TeamCloud.API
                                            ProjectUserRole.Owner.PolicyRoleName());
                     });
 
+                    options.AddPolicy("projectIdentityRead", policy =>
+                    {
+                        policy.RequireRole(TeamCloudUserRole.Admin.PolicyRoleName(),
+                                           ProjectUserRole.Owner.PolicyRoleName(),
+                                           ProjectUserRole.Provider.PolicyRoleName());
+                    });
+
                     options.AddPolicy("providerDataRead", policy =>
                     {
                         policy.RequireRole(TeamCloudUserRole.Admin.PolicyRoleName(),
