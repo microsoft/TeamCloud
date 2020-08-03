@@ -15,7 +15,6 @@ using TeamCloud.Model.Validation;
 
 namespace TeamCloud.Data.CosmosDb
 {
-
     public class CosmosDbProjectsRepository : CosmosDbRepository<ProjectDocument>, IProjectsRepository
     {
         private readonly IUsersRepository usersRepository;
@@ -58,7 +57,7 @@ namespace TeamCloud.Data.CosmosDb
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
-            ProjectDocument project;
+            ProjectDocument project = null;
 
             try
             {
@@ -75,11 +74,14 @@ namespace TeamCloud.Data.CosmosDb
                 var queryIterator = container
                     .GetItemQueryIterator<ProjectDocument>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
 
-                var queryResults = await queryIterator
-                    .ReadNextAsync()
-                    .ConfigureAwait(false);
+                if (queryIterator.HasMoreResults)
+                {
+                    var queryResults = await queryIterator
+                        .ReadNextAsync()
+                        .ConfigureAwait(false);
 
-                project = queryResults.FirstOrDefault();
+                    project = queryResults.FirstOrDefault();
+                }
             }
 
             return await PopulateUsersAsync(project)
@@ -131,10 +133,8 @@ namespace TeamCloud.Data.CosmosDb
                     .ConfigureAwait(false);
 
                 foreach (var project in queryResponse)
-                {
                     yield return await PopulateUsersAsync(project)
                         .ConfigureAwait(false);
-                }
             }
         }
 
@@ -156,10 +156,8 @@ namespace TeamCloud.Data.CosmosDb
                     .ConfigureAwait(false);
 
                 foreach (var project in queryResponse)
-                {
                     yield return await PopulateUsersAsync(project)
                         .ConfigureAwait(false);
-                }
             }
         }
 
@@ -181,10 +179,8 @@ namespace TeamCloud.Data.CosmosDb
                     .ConfigureAwait(false);
 
                 foreach (var project in queryResponse)
-                {
                     yield return await PopulateUsersAsync(project)
                         .ConfigureAwait(false);
-                }
             }
         }
 
@@ -218,12 +214,10 @@ namespace TeamCloud.Data.CosmosDb
         private async Task<ProjectDocument> PopulateUsersAsync(ProjectDocument project)
         {
             if (project != null)
-            {
                 project.Users = await usersRepository
                     .ListAsync(project.Id)
                     .ToListAsync()
                     .ConfigureAwait(false);
-            }
 
             return project;
         }

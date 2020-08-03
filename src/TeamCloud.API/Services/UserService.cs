@@ -64,7 +64,7 @@ namespace TeamCloud.API.Services
             return val;
         }
 
-        public async Task<UserDocument> ResolveUserAsync(UserDefinition userDefinition)
+        public async Task<UserDocument> ResolveUserAsync(UserDefinition userDefinition, UserType userType = UserType.User)
         {
             if (userDefinition is null)
                 throw new ArgumentNullException(nameof(userDefinition));
@@ -82,7 +82,7 @@ namespace TeamCloud.API.Services
             user ??= new UserDocument
             {
                 Id = userId,
-                UserType = UserType.User
+                UserType = userType
             };
 
             return user;

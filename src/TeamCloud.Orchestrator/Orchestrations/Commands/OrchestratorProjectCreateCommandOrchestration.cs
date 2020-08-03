@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
+using TeamCloud.Model.Data.Core;
 using TeamCloud.Model.Internal;
 using TeamCloud.Model.Internal.Commands;
 using TeamCloud.Model.Internal.Data;
@@ -93,6 +94,22 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
 
             var projectUsers = project.Users.ToList();
 
+            var providers = await functionContext
+                .ListProvidersAsync(project.Type.Providers.Select(p => p.Id).ToList())
+                .ConfigureAwait(true);
+
+            var providerUserTasks = providers
+                .Where(p => p.PrincipalId.HasValue)
+                .Select(p => functionContext.GetUserAsync(p.PrincipalId.Value.ToString(), allowUnsafe: true));
+
+            var providerUsers = await Task.WhenAll(providerUserTasks)
+                .ConfigureAwait(true);
+
+            foreach (var u in providerUsers)
+                u.EnsureProjectMembership(project.Id, ProjectUserRole.Provider);
+
+            projectUsers.AddRange(providerUsers);
+
             using (await functionContext.LockContainerDocumentAsync(project).ConfigureAwait(true))
             {
                 functionContext.SetCustomStatus($"Creating project", log);
@@ -163,6 +180,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
 
             var providerCommand = new ProviderProjectCreateCommand
             (
+                command.BaseApi,
                 command.User.PopulateExternalModel(),
                 project.PopulateExternalModel(),
                 command.CommandId
@@ -196,7 +214,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 .CallActivityWithRetryAsync<UserDocument>(nameof(TeamCloudSystemUserActivity), null)
                 .ConfigureAwait(true);
 
-            var deleteCommand = new OrchestratorProjectDeleteCommand(systemUser, project);
+            var deleteCommand = new OrchestratorProjectDeleteCommand(command.BaseApi, systemUser, project);
 
             await functionContext
                 .CallSubOrchestratorWithRetryAsync(nameof(OrchestratorProjectDeleteCommandOrchestration), deleteCommand)

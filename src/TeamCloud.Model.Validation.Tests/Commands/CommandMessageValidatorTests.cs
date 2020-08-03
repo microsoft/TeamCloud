@@ -3,6 +3,7 @@
  *  Licensed under the MIT License.
  */
 
+using System;
 using System.Threading.Tasks;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
@@ -15,7 +16,7 @@ namespace TeamCloud.Model.Validation.Tests.Commands
         [Fact]
         public void Validate_Success()
         {
-            var command = new ProviderProjectCreateCommand(new User(), new Project());
+            var command = new ProviderProjectCreateCommand(new Uri("http://localhost/"), new User(), new Project());
             var message = new ProviderCommandMessage(command, "http://localhost/callback");
 
             var result = message.Validate();
@@ -26,7 +27,7 @@ namespace TeamCloud.Model.Validation.Tests.Commands
         [Fact]
         public async Task ValidateAsync_Success()
         {
-            var command = new ProviderProjectCreateCommand(new User(), new Project());
+            var command = new ProviderProjectCreateCommand(new Uri("http://localhost/"), new User(), new Project());
             var message = new ProviderCommandMessage(command, "http://localhost/callback");
 
             var result = await message.ValidateAsync().ConfigureAwait(false);
@@ -37,7 +38,7 @@ namespace TeamCloud.Model.Validation.Tests.Commands
         [Fact()]
         public void Validate_Error()
         {
-            var command = new ProviderProjectCreateCommand(new User(), new Project());
+            var command = new ProviderProjectCreateCommand(new Uri("http://localhost/"), new User(), new Project());
             var message = new ProviderCommandMessage(command, "http://localhost/callback");
 
             message.Command.Payload = null;
@@ -49,7 +50,7 @@ namespace TeamCloud.Model.Validation.Tests.Commands
         [Fact()]
         public async Task ValidateAsync_Error()
         {
-            var command = new ProviderProjectCreateCommand(new User(), new Project());
+            var command = new ProviderProjectCreateCommand(new Uri("http://localhost/"), new User(), new Project());
             var message = new ProviderCommandMessage(command, "http://localhost/callback");
 
             message.Command.Payload = null;

@@ -91,11 +91,6 @@ namespace TeamCloud.Model.Internal.Data
 
                             var targetValue = targetProperty.GetValue(this) ?? Activator.CreateInstance(targetProperty.PropertyType);
 
-                            Console.WriteLine(populateInterfaceType);
-                            Console.WriteLine(populateInterfaceMethod);
-                            Console.WriteLine(sourceValue);
-                            Console.WriteLine(targetValue);
-
                             populateInterfaceMethod.Invoke(targetValue, new[] { sourceValue });
 
                             targetProperty.SetValue(this, targetValue);
@@ -217,6 +212,9 @@ namespace TeamCloud.Model.Internal.Data
 
         public static Model.Data.Provider PopulateExternalModel(this ProviderDocument source, Model.Data.Provider target = null)
             => source.PopulateExternalModel<ProviderDocument, Model.Data.Provider>(target);
+
+        public static Model.Data.ProviderData PopulateExternalModel(this ProviderDataDocument source, Model.Data.ProviderData target = null)
+            => source.PopulateExternalModel<ProviderDataDocument, Model.Data.ProviderData>(target);
 
         public static Model.Data.ProjectType PopulateExternalModel(this ProjectTypeDocument source, Model.Data.ProjectType target = null)
             => source.PopulateExternalModel<ProjectTypeDocument, Model.Data.ProjectType>(target);

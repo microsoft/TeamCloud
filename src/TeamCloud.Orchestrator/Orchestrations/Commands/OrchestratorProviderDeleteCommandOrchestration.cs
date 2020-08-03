@@ -49,9 +49,18 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                     using (await functionContext.LockContainerDocumentAsync(provider).ConfigureAwait(true))
                     {
                         if (!(provider is null))
+                        {
                             await functionContext
                                 .DeleteProviderAsync(provider)
                                 .ConfigureAwait(true);
+
+                            if (provider.PrincipalId.HasValue)
+                            {
+                                await functionContext
+                                    .DeleteUserAsync(provider.PrincipalId.Value.ToString(), allowUnsafe: true)
+                                    .ConfigureAwait(true);
+                            }
+                        }
                     }
                 }
                 catch (Exception exc)

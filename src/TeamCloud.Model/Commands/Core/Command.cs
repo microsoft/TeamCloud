@@ -22,6 +22,8 @@ namespace TeamCloud.Model.Commands.Core
         ICommandResult CreateResult();
 
         object Payload { get; set; }
+
+        Uri BaseApi { get; }
     }
 
     public interface ICommand<TUser, TPayload> : ICommand
@@ -47,12 +49,15 @@ namespace TeamCloud.Model.Commands.Core
         where TPayload : class, new()
         where TCommandResult : ICommandResult, new()
     {
-        protected Command(TUser user, TPayload payload = default, Guid? commandId = default)
+        protected Command(Uri baseApi, TUser user, TPayload payload = default, Guid? commandId = default)
         {
+            BaseApi = baseApi;
             User = user ?? throw new ArgumentNullException(nameof(user));
             Payload = payload;
             CommandId = commandId.GetValueOrDefault(Guid.NewGuid());
         }
+
+        public Uri BaseApi { get; private set; }
 
         public Guid CommandId { get; private set; }
 
