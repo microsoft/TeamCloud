@@ -15,11 +15,11 @@ using TeamCloud.API.Data;
 using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
+using TeamCloud.Model.Data;
 using TeamCloud.Model.Data.Core;
 using TeamCloud.Model.Internal.Commands;
 using TeamCloud.Model.Internal.Data;
 using TeamCloud.Model.Validation.Data;
-using User = TeamCloud.Model.Data.User;
 
 namespace TeamCloud.API
 {
@@ -138,7 +138,7 @@ namespace TeamCloud.API
                     .Conflict($"The user '{userDefinition.Identifier}' already exists on this TeamCloud Instance. Please try your request again with a unique user or call PUT to update the existing User.")
                     .ActionResult();
 
-            user = new Model.Internal.Data.UserDocument
+            user = new UserDocument
             {
                 Id = userId,
                 Role = Enum.Parse<TeamCloudUserRole>(userDefinition.Role, true),
@@ -150,7 +150,7 @@ namespace TeamCloud.API
                 .CurrentUserAsync()
                 .ConfigureAwait(false);
 
-            var command = new OrchestratorTeamCloudUserCreateCommand(currentUserForCommand, user);
+            var command = new OrchestratorTeamCloudUserCreateCommand(HttpContext.GetApplicationBaseUrl(), currentUserForCommand, user);
 
             return await orchestrator
                 .InvokeAndReturnAccepted(command)
@@ -211,7 +211,7 @@ namespace TeamCloud.API
 
             oldUser.PopulateFromExternalModel(user);
 
-            var command = new OrchestratorTeamCloudUserUpdateCommand(currentUserForCommand, oldUser);
+            var command = new OrchestratorTeamCloudUserUpdateCommand(HttpContext.GetApplicationBaseUrl(), currentUserForCommand, oldUser);
 
             return await orchestrator
                 .InvokeAndReturnAccepted(command)
@@ -266,7 +266,7 @@ namespace TeamCloud.API
                 .CurrentUserAsync()
                 .ConfigureAwait(false);
 
-            var command = new OrchestratorTeamCloudUserDeleteCommand(currentUserForCommand, user);
+            var command = new OrchestratorTeamCloudUserDeleteCommand(HttpContext.GetApplicationBaseUrl(), currentUserForCommand, user);
 
             return await orchestrator
                 .InvokeAndReturnAccepted(command)

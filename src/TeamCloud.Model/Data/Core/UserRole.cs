@@ -11,12 +11,12 @@ namespace TeamCloud.Model.Data.Core
     [JsonConverter(typeof(StringEnumConverter))]
     public enum TeamCloudUserRole
     {
-        None, Creator, Admin
+        None, Provider, Creator, Admin
     }
 
     [JsonConverter(typeof(StringEnumConverter))]
     public enum ProjectUserRole
     {
-        None, Member, Owner
+        None, Provider, Member, Owner
     }
 }

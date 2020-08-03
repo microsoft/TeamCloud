@@ -15,4 +15,13 @@ namespace TeamCloud.Model.Internal.Data
         public static string PolicyRoleName(this ProjectUserRole role)
             => $"Project_{role}";
     }
+
+    public static class ProviderUserRoles
+    {
+        public static string ProviderReadPolicyRoleName
+            => $"Provider_Read";
+
+        public static string ProviderWritePolicyRoleName
+            => $"Provider_ReadWrite";
+    }
 }

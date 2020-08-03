@@ -19,11 +19,6 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 {
     public static class ProviderSendExtensions
     {
-        // internal static Task<ICommandResult> SendProviderCommandAsync<TCommand>(this IDurableOrchestrationContext functionContext, TCommand command, Provider provider)
-        //     where TCommand : IProviderCommand
-        //     => functionContext.SendProviderCommandAsync<TCommand>(command, provider);
-
-
         internal static async Task<TCommandResult> SendProviderCommandAsync<TCommand, TCommandResult>(this IDurableOrchestrationContext functionContext, TCommand command, ProviderDocument provider)
             where TCommand : IProviderCommand
             where TCommandResult : ICommandResult
@@ -33,6 +28,8 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 
             if (provider is null)
                 throw new ArgumentNullException(nameof(provider));
+
+            command.ProviderId = provider.Id;
 
             var providerResult = (TCommandResult)await functionContext
                 .CallSubOrchestratorWithRetryAsync<ICommandResult>(nameof(ProviderSendOrchestration), (command, provider))
@@ -61,7 +58,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                 throw new ArgumentNullException(nameof(command));
 
             if (project is null && command is IProviderCommand<Model.Data.Project>)
-                throw new InvalidOperationException("Must pass original Project (internal) for ProviderCommands with a payload of type Project (external).");
+                throw new InvalidOperationException("Must pass original ProjectDocument (internal) for ProviderCommands with a payload of type Project (external).");
 
             if (project is null && !string.IsNullOrEmpty(command.ProjectId))
             {

@@ -213,6 +213,9 @@ namespace TeamCloud.Model.Internal.Data
         public static Model.Data.Provider PopulateExternalModel(this ProviderDocument source, Model.Data.Provider target = null)
             => source.PopulateExternalModel<ProviderDocument, Model.Data.Provider>(target);
 
+        public static Model.Data.ProviderData PopulateExternalModel(this ProviderDataDocument source, Model.Data.ProviderData target = null)
+            => source.PopulateExternalModel<ProviderDataDocument, Model.Data.ProviderData>(target);
+
         public static Model.Data.ProjectType PopulateExternalModel(this ProjectTypeDocument source, Model.Data.ProjectType target = null)
             => source.PopulateExternalModel<ProjectTypeDocument, Model.Data.ProjectType>(target);
 

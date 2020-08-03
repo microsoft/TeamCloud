@@ -14,10 +14,10 @@ using Swashbuckle.AspNetCore.Annotations;
 using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
+using TeamCloud.Model.Data;
 using TeamCloud.Model.Internal.Commands;
 using TeamCloud.Model.Internal.Data;
 using TeamCloud.Model.Validation.Data;
-using Provider = TeamCloud.Model.Data.Provider;
 
 namespace TeamCloud.API.Controllers
 {
@@ -122,7 +122,7 @@ namespace TeamCloud.API.Controllers
             var commandProvider = new TeamCloud.Model.Internal.Data.ProviderDocument();
             commandProvider.PopulateFromExternalModel(provider);
 
-            var command = new OrchestratorProviderCreateCommand(currentUserForCommand, commandProvider);
+            var command = new OrchestratorProviderCreateCommand(HttpContext.GetApplicationBaseUrl(), currentUserForCommand, commandProvider);
 
             return await orchestrator
                 .InvokeAndReturnAccepted(command)
@@ -164,7 +164,7 @@ namespace TeamCloud.API.Controllers
 
             oldProvider.PopulateFromExternalModel(provider);
 
-            var command = new OrchestratorProviderUpdateCommand(currentUserForCommand, oldProvider);
+            var command = new OrchestratorProviderUpdateCommand(HttpContext.GetApplicationBaseUrl(), currentUserForCommand, oldProvider);
 
             return await orchestrator
                 .InvokeAndReturnAccepted(command)
@@ -213,7 +213,7 @@ namespace TeamCloud.API.Controllers
                 .CurrentUserAsync()
                 .ConfigureAwait(false);
 
-            var command = new OrchestratorProviderDeleteCommand(currentUserForCommand, provider);
+            var command = new OrchestratorProviderDeleteCommand(HttpContext.GetApplicationBaseUrl(), currentUserForCommand, provider);
 
             return await orchestrator
                 .InvokeAndReturnAccepted(command)

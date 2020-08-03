@@ -14,7 +14,6 @@ using TeamCloud.Model.Validation;
 
 namespace TeamCloud.Data.CosmosDb
 {
-
     public class CosmosDbProvidersRepository : CosmosDbRepository<ProviderDocument>, IProvidersRepository
     {
         public CosmosDbProvidersRepository(ICosmosDbOptions cosmosOptions)
@@ -32,7 +31,6 @@ namespace TeamCloud.Data.CosmosDb
 
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
-
 
             var response = await container
                 .CreateItemAsync(provider, new PartitionKey(Options.TenantName))

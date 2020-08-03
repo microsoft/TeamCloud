@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 
@@ -12,6 +13,11 @@ namespace TeamCloud.Model.Commands
 {
     public interface IProviderCommand : ICommand
     {
+        string ProviderId { get; set; }
+
+        [JsonIgnore]
+        ProviderApi Api { get; }
+
         IDictionary<string, string> Properties { get; set; }
 
         IDictionary<string, IDictionary<string, string>> Results { get; set; }
@@ -30,8 +36,12 @@ namespace TeamCloud.Model.Commands
         where TPayload : class, new()
         where TCommandResult : ICommandResult, new()
     {
-        protected ProviderCommand(User user, TPayload payload, Guid? commandId = default) : base(user, payload, commandId)
+        protected ProviderCommand(Uri baseApi, User user, TPayload payload, Guid? commandId = default) : base(baseApi, user, payload, commandId)
         { }
+
+        public string ProviderId { get; set; }
+
+        public ProviderApi Api => new ProviderApi(BaseApi, ProviderId, ProjectId);
 
         public IDictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
 
