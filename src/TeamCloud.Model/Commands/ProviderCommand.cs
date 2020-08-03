@@ -15,8 +15,7 @@ namespace TeamCloud.Model.Commands
     {
         string ProviderId { get; set; }
 
-        [JsonIgnore]
-        ProviderApi Api { get; }
+        ProviderLinks Links { get; }
 
         IDictionary<string, string> Properties { get; set; }
 
@@ -41,7 +40,8 @@ namespace TeamCloud.Model.Commands
 
         public string ProviderId { get; set; }
 
-        public ProviderApi Api => new ProviderApi(BaseApi, ProviderId, ProjectId);
+        [JsonProperty("_links")]
+        public ProviderLinks Links => new ProviderLinks(BaseApi, ProviderId, ProjectId);
 
         public IDictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
 

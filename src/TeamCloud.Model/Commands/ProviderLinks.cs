@@ -7,7 +7,7 @@ using System;
 
 namespace TeamCloud.Model.Commands
 {
-    public class ProviderApi
+    public class ProviderLinks
     {
         public string SystemData { get; private set; }
 
@@ -19,10 +19,7 @@ namespace TeamCloud.Model.Commands
 
         public string ProjectIdentity { get; private set; }
 
-        public string ProjectUser(string userId)
-            => string.IsNullOrEmpty(ProjectUsers) ? null : new Uri($"{ProjectUsers}/{userId}").ToString();
-
-        public ProviderApi(Uri api, string providerId = null, string projectId = null)
+        public ProviderLinks(Uri api, string providerId = null, string projectId = null)
         {
             if (api is null) return;
 
