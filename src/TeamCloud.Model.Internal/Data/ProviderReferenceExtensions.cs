@@ -12,10 +12,10 @@ namespace TeamCloud.Model.Internal.Data
 {
     public static class ProviderReferenceExtensions
     {
-        public static IEnumerable<IEnumerable<Provider>> Resolve(this IList<ProviderReference> providerReferences, IList<Provider> providers)
+        public static IEnumerable<IEnumerable<ProviderDocument>> Resolve(this IList<ProviderReference> providerReferences, IList<ProviderDocument> providers)
             => providerReferences.AsEnumerable().Resolve(providers);
 
-        public static IEnumerable<IEnumerable<Provider>> Resolve(this IEnumerable<ProviderReference> providerReferences, IList<Provider> providers)
+        public static IEnumerable<IEnumerable<ProviderDocument>> Resolve(this IEnumerable<ProviderReference> providerReferences, IList<ProviderDocument> providers)
         {
             if (providerReferences is null)
                 throw new ArgumentNullException(nameof(providerReferences));
@@ -26,13 +26,13 @@ namespace TeamCloud.Model.Internal.Data
             var providerDictionary = providers
                 .ToDictionary((provider) => provider.Id);
 
-            var providerBatches = new Dictionary<int, List<Provider>>()
-                {
-                    { 1, providerReferences
-                        .Where(pr => !pr.DependsOn.Any())
-                        .Select(pr => providerDictionary.GetValueOrDefault(pr.Id) ?? throw new NullReferenceException($"Could not find provider by id '{pr.Id}'"))
-                        .ToList() }
-                };
+            var providerBatches = new Dictionary<int, List<ProviderDocument>>()
+            {
+                { 1, providerReferences
+                    .Where(pr => !pr.DependsOn.Any())
+                    .Select(pr => providerDictionary.GetValueOrDefault(pr.Id) ?? throw new NullReferenceException($"Could not find provider by id '{pr.Id}'"))
+                    .ToList() }
+            };
 
             if (!providerBatches.SelectMany(pb => pb.Value).Any())
             {
@@ -66,7 +66,7 @@ namespace TeamCloud.Model.Internal.Data
                         }
                         else
                         {
-                            providerBatches.Add(providerBatchNumber, new List<Provider>() { provider });
+                            providerBatches.Add(providerBatchNumber, new List<ProviderDocument>() { provider });
                         }
 
                         providerReferencePickup = default;

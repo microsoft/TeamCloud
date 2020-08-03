@@ -33,7 +33,7 @@ namespace TeamCloud.API.Services
         public string CurrentUserId
             => httpContextAccessor.HttpContext.User.GetObjectId();
 
-        public async Task<User> CurrentUserAsync()
+        public async Task<UserDocument> CurrentUserAsync()
         {
             var user = await usersRepository
                 .GetAsync(CurrentUserId)
@@ -64,7 +64,7 @@ namespace TeamCloud.API.Services
             return val;
         }
 
-        public async Task<User> ResolveUserAsync(UserDefinition userDefinition, UserType userType = UserType.User)
+        public async Task<UserDocument> ResolveUserAsync(UserDefinition userDefinition, UserType userType = UserType.User)
         {
             if (userDefinition is null)
                 throw new ArgumentNullException(nameof(userDefinition));
@@ -79,7 +79,7 @@ namespace TeamCloud.API.Services
                 .GetAsync(userId)
                 .ConfigureAwait(false);
 
-            user ??= new User
+            user ??= new UserDocument
             {
                 Id = userId,
                 UserType = userType

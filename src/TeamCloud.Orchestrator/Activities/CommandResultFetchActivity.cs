@@ -28,7 +28,7 @@ namespace TeamCloud.Orchestrator.Activities
             if (functionContext is null)
                 throw new ArgumentNullException(nameof(functionContext));
 
-            var (provider, message) = functionContext.GetInput<(Provider, ProviderCommandMessage)>();
+            var (provider, message) = functionContext.GetInput<(ProviderDocument, ProviderCommandMessage)>();
 
             var providerUrl = new Url(provider.Url?.Trim());
 

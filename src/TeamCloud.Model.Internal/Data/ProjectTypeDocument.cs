@@ -13,7 +13,7 @@ using TeamCloud.Serialization;
 namespace TeamCloud.Model.Internal.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public sealed class ProjectType : ContainerDocument, IProjectType, IEquatable<ProjectType>, IPopulate<Model.Data.ProjectType>
+    public sealed class ProjectTypeDocument : ContainerDocument, IProjectType, IEquatable<ProjectTypeDocument>, IPopulate<Model.Data.ProjectType>
     {
         [PartitionKey]
         public string Tenant { get; set; }
@@ -35,11 +35,11 @@ namespace TeamCloud.Model.Internal.Data
         public IDictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
 
 
-        public bool Equals(ProjectType other)
+        public bool Equals(ProjectTypeDocument other)
             => Id.Equals(other?.Id, StringComparison.Ordinal);
 
         public override bool Equals(object obj)
-            => base.Equals(obj) || Equals(obj as ProjectType);
+            => base.Equals(obj) || Equals(obj as ProjectTypeDocument);
 
         public override int GetHashCode()
             => Id?.GetHashCode(StringComparison.Ordinal) ?? base.GetHashCode();

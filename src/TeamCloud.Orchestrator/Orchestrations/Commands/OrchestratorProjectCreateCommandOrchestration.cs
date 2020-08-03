@@ -11,16 +11,16 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Model.Commands;
-using TeamCloud.Model.Data.Core;
+using TeamCloud.Model.Commands.Core;
+using TeamCloud.Model.Data;
 using TeamCloud.Model.Internal;
-using TeamCloud.Model.Internal.Data;
 using TeamCloud.Model.Internal.Commands;
+using TeamCloud.Model.Internal.Data;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestration.Deployment;
 using TeamCloud.Orchestrator.Activities;
 using TeamCloud.Orchestrator.Entities;
 using TeamCloud.Orchestrator.Orchestrations.Utilities;
-using TeamCloud.Model.Commands.Core;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Commands
 {
@@ -144,7 +144,11 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
 
             using (await functionContext.LockContainerDocumentAsync(project).ConfigureAwait(true))
             {
-                functionContext.SetCustomStatus($"Updating project", log);
+                functionContext.SetCustomStatus($"Provisioning identity", log);
+
+                project.Identity = await functionContext
+                    .CallActivityWithRetryAsync<ProjectIdentity>(nameof(ProjectIdentityCreateActivity), project)
+                    .ConfigureAwait(true);
 
                 project.ResourceGroup = new AzureResourceGroup()
                 {
@@ -154,29 +158,16 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                     Name = (string)deploymentOutput.GetValueOrDefault("resourceGroupName", default(string))
                 };
 
-                project.KeyVault = new AzureKeyVault()
-                {
-                    VaultId = (string)deploymentOutput.GetValueOrDefault("vaultId", default(string)),
-                    VaultName = (string)deploymentOutput.GetValueOrDefault("vaultName", default(string)),
-                    VaultUrl = (string)deploymentOutput.GetValueOrDefault("vaultUrl", default(string))
-                };
-
                 project = commandResult.Result = await functionContext
                     .SetProjectAsync(project)
                     .ConfigureAwait(true);
-
-                functionContext.SetCustomStatus($"Tagging resources", log);
-
-                await functionContext
-                    .CallActivityWithRetryAsync(nameof(ProjectResourcesTagActivity), project)
-                    .ConfigureAwait(true);
-
-                functionContext.SetCustomStatus($"Creating project identity", log);
-
-                await functionContext
-                    .CallActivityWithRetryAsync(nameof(ProjectIdentityCreateActivity), project)
-                    .ConfigureAwait(true);
             }
+
+            functionContext.SetCustomStatus($"Tagging resources", log);
+
+            await functionContext
+                .CallActivityWithRetryAsync(nameof(ProjectResourcesTagActivity), project)
+                .ConfigureAwait(true);
 
             functionContext.SetCustomStatus($"Registering required resource providers", log);
 
@@ -219,7 +210,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
             functionContext.SetCustomStatus($"Rolling back project", log);
 
             var systemUser = await functionContext
-                .CallActivityWithRetryAsync<User>(nameof(TeamCloudSystemUserActivity), null)
+                .CallActivityWithRetryAsync<UserDocument>(nameof(TeamCloudSystemUserActivity), null)
                 .ConfigureAwait(true);
 
             var deleteCommand = new OrchestratorProjectDeleteCommand(command.Api, systemUser, project);

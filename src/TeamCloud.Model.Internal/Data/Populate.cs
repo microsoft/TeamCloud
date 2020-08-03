@@ -4,9 +4,9 @@
  */
 
 using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections;
 using System.Linq;
 using System.Reflection;
 
@@ -90,11 +90,6 @@ namespace TeamCloud.Model.Internal.Data
                             var sourceValue = sourceProperty.GetValue(source);
 
                             var targetValue = targetProperty.GetValue(this) ?? Activator.CreateInstance(targetProperty.PropertyType);
-
-                            Console.WriteLine(populateInterfaceType);
-                            Console.WriteLine(populateInterfaceMethod);
-                            Console.WriteLine(sourceValue);
-                            Console.WriteLine(targetValue);
 
                             populateInterfaceMethod.Invoke(targetValue, new[] { sourceValue });
 
@@ -197,35 +192,35 @@ namespace TeamCloud.Model.Internal.Data
             where TExternal : class, new()
             => source.PopulateExternalModel(target);
 
-        public static Model.Data.User PopulateExternalModel(this User source, Model.Data.User target = null)
-            => source.PopulateExternalModel<User, Model.Data.User>(target);
+        public static Model.Data.User PopulateExternalModel(this UserDocument source, Model.Data.User target = null)
+            => source.PopulateExternalModel<UserDocument, Model.Data.User>(target);
 
-        public static Model.Data.User PopulateExternalModel(this User source, string projectId, Model.Data.User target = null)
+        public static Model.Data.User PopulateExternalModel(this UserDocument source, string projectId, Model.Data.User target = null)
         {
-            var user = source.PopulateExternalModel<User, Model.Data.User>(target);
+            var user = source.PopulateExternalModel<UserDocument, Model.Data.User>(target);
             user.ProjectMemberships = user.ProjectMemberships.TakeWhile(m => m.ProjectId == projectId).ToList();
             return user;
         }
 
-        public static Model.Data.Project PopulateExternalModel(this Project source, Model.Data.Project target = null)
+        public static Model.Data.Project PopulateExternalModel(this ProjectDocument source, Model.Data.Project target = null)
         {
-            var project = source.PopulateExternalModel<Project, Model.Data.Project>(target);
+            var project = source.PopulateExternalModel<ProjectDocument, Model.Data.Project>(target);
             foreach (var user in project.Users)
                 user.ProjectMemberships = user.ProjectMemberships.TakeWhile(m => m.ProjectId == project.Id).ToList();
             return project;
         }
 
-        public static Model.Data.Provider PopulateExternalModel(this Provider source, Model.Data.Provider target = null)
-            => source.PopulateExternalModel<Provider, Model.Data.Provider>(target);
+        public static Model.Data.Provider PopulateExternalModel(this ProviderDocument source, Model.Data.Provider target = null)
+            => source.PopulateExternalModel<ProviderDocument, Model.Data.Provider>(target);
 
-        public static Model.Data.ProviderData PopulateExternalModel(this ProviderData source, Model.Data.ProviderData target = null)
-            => source.PopulateExternalModel<ProviderData, Model.Data.ProviderData>(target);
+        public static Model.Data.ProviderData PopulateExternalModel(this ProviderDataDocument source, Model.Data.ProviderData target = null)
+            => source.PopulateExternalModel<ProviderDataDocument, Model.Data.ProviderData>(target);
 
-        public static Model.Data.ProjectType PopulateExternalModel(this ProjectType source, Model.Data.ProjectType target = null)
-            => source.PopulateExternalModel<ProjectType, Model.Data.ProjectType>(target);
+        public static Model.Data.ProjectType PopulateExternalModel(this ProjectTypeDocument source, Model.Data.ProjectType target = null)
+            => source.PopulateExternalModel<ProjectTypeDocument, Model.Data.ProjectType>(target);
 
-        public static Model.Data.TeamCloudInstance PopulateExternalModel(this TeamCloudInstance source, Model.Data.TeamCloudInstance target = null)
-            => source.PopulateExternalModel<TeamCloudInstance, Model.Data.TeamCloudInstance>(target);
+        public static Model.Data.TeamCloudInstance PopulateExternalModel(this TeamCloudInstanceDocument source, Model.Data.TeamCloudInstance target = null)
+            => source.PopulateExternalModel<TeamCloudInstanceDocument, Model.Data.TeamCloudInstance>(target);
 
         public static void PopulateFromExternalModel<TInternal, TExternal>(this TInternal target, TExternal source)
             where TInternal : IPopulate<TExternal>

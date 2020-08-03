@@ -9,5 +9,5 @@ using TeamCloud.Model.Internal.Data;
 namespace TeamCloud.Model.Internal.Commands
 {
 
-    public class OrchestratorTeamCloudUserDeleteCommandResult : CommandResult<User> { }
+    public class OrchestratorTeamCloudUserDeleteCommandResult : CommandResult<UserDocument> { }
 }

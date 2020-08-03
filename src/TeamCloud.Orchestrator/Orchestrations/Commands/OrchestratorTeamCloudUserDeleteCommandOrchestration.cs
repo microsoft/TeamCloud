@@ -44,14 +44,14 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 {
                     functionContext.SetCustomStatus($"Deleting user.", log);
 
-                    using (await functionContext.LockAsync<User>(user.Id.ToString()).ConfigureAwait(true))
+                    using (await functionContext.LockAsync<UserDocument>(user.Id.ToString()).ConfigureAwait(true))
                     {
                         await functionContext
                             .DeleteUserAsync(user.Id)
                             .ConfigureAwait(true);
                     }
 
-                    var projects = default(IEnumerable<Project>);
+                    var projects = default(IEnumerable<ProjectDocument>);
 
                     // TODO: this is totally wrong
                     // only update all projects if user was an admin

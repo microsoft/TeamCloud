@@ -25,7 +25,7 @@ namespace TeamCloud.Orchestrator.Activities
 
         [FunctionName(nameof(ProviderDeleteActivity))]
         public async Task RunActivity(
-            [ActivityTrigger] Provider provider)
+            [ActivityTrigger] ProviderDocument provider)
         {
             if (provider is null)
                 throw new ArgumentNullException(nameof(provider));
@@ -38,9 +38,9 @@ namespace TeamCloud.Orchestrator.Activities
 
     internal static class ProviderDeleteExtension
     {
-        public static Task<Provider> DeleteProviderAsync(this IDurableOrchestrationContext functionContext, Provider provider, bool allowUnsafe = false)
-            => functionContext.IsLockedBy<Provider>(provider.Id) || allowUnsafe
-            ? functionContext.CallActivityWithRetryAsync<Provider>(nameof(ProviderDeleteActivity), provider)
+        public static Task<ProviderDocument> DeleteProviderAsync(this IDurableOrchestrationContext functionContext, ProviderDocument provider, bool allowUnsafe = false)
+            => functionContext.IsLockedBy<ProviderDocument>(provider.Id) || allowUnsafe
+            ? functionContext.CallActivityWithRetryAsync<ProviderDocument>(nameof(ProviderDeleteActivity), provider)
             : throw new NotSupportedException($"Unable to delete provider '{provider.Id}' without acquired lock");
     }
 }

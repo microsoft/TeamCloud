@@ -19,7 +19,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 {
     public static class ProviderSendExtensions
     {
-        internal static async Task<TCommandResult> SendProviderCommandAsync<TCommand, TCommandResult>(this IDurableOrchestrationContext functionContext, TCommand command, Provider provider)
+        internal static async Task<TCommandResult> SendProviderCommandAsync<TCommand, TCommandResult>(this IDurableOrchestrationContext functionContext, TCommand command, ProviderDocument provider)
             where TCommand : IProviderCommand
             where TCommandResult : ICommandResult
         {
@@ -45,12 +45,12 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
         }
 
 
-        internal static Task<IDictionary<string, ICommandResult>> SendProviderCommandAsync<TCommand>(this IDurableOrchestrationContext functionContext, TCommand command, Project project, bool failFast = false)
+        internal static Task<IDictionary<string, ICommandResult>> SendProviderCommandAsync<TCommand>(this IDurableOrchestrationContext functionContext, TCommand command, ProjectDocument project, bool failFast = false)
             where TCommand : IProviderCommand
             => functionContext.SendProviderCommandAsync<TCommand, ICommandResult>(command, project, failFast);
 
 
-        internal static async Task<IDictionary<string, TCommandResult>> SendProviderCommandAsync<TCommand, TCommandResult>(this IDurableOrchestrationContext functionContext, TCommand command, Project project, bool failFast = false)
+        internal static async Task<IDictionary<string, TCommandResult>> SendProviderCommandAsync<TCommand, TCommandResult>(this IDurableOrchestrationContext functionContext, TCommand command, ProjectDocument project, bool failFast = false)
             where TCommand : IProviderCommand
             where TCommandResult : ICommandResult
         {
@@ -58,7 +58,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                 throw new ArgumentNullException(nameof(command));
 
             if (project is null && command is IProviderCommand<Model.Data.Project>)
-                throw new InvalidOperationException("Must pass original Project (internal) for ProviderCommands with a payload of type Project (external).");
+                throw new InvalidOperationException("Must pass original ProjectDocument (internal) for ProviderCommands with a payload of type Project (external).");
 
             if (project is null && !string.IsNullOrEmpty(command.ProjectId))
             {
@@ -68,7 +68,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
             }
 
             var providerBatches = await functionContext
-                .CallActivityWithRetryAsync<IEnumerable<IEnumerable<Provider>>>(nameof(CommandProviderActivity), project)
+                .CallActivityWithRetryAsync<IEnumerable<IEnumerable<ProviderDocument>>>(nameof(CommandProviderActivity), project)
                 .ConfigureAwait(true);
 
             var commandResults = Enumerable.Empty<KeyValuePair<string, TCommandResult>>();

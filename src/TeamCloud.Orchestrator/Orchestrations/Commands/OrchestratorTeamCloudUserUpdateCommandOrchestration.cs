@@ -44,9 +44,9 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 {
                     functionContext.SetCustomStatus($"Updating user.", log);
 
-                    var existingUser = default(User);
+                    var existingUser = default(UserDocument);
 
-                    using (await functionContext.LockAsync<User>(user.Id.ToString()).ConfigureAwait(true))
+                    using (await functionContext.LockAsync<UserDocument>(user.Id.ToString()).ConfigureAwait(true))
                     {
                         existingUser = await functionContext
                             .GetUserAsync(user.Id)
@@ -66,7 +66,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                             .ConfigureAwait(true);
                     }
 
-                    var projects = default(IEnumerable<Project>);
+                    var projects = default(IEnumerable<ProjectDocument>);
 
                     // only update all projects if the updated user is an admin
                     // or the user was an admin before the update, otherwise

@@ -79,7 +79,7 @@ namespace TeamCloud.API.Controllers
                     .NotFound($"The user '{userDefinition.Identifier}' could not be found.")
                     .ActionResult();
 
-            var user = new User
+            var user = new UserDocument
             {
                 Id = userId,
                 Role = Enum.Parse<TeamCloudUserRole>(userDefinition.Role, true),

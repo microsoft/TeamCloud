@@ -25,7 +25,7 @@ namespace TeamCloud.Orchestrator.Activities
 
         [FunctionName(nameof(UserDeleteActivity))]
         public async Task RunActivity(
-            [ActivityTrigger] User user)
+            [ActivityTrigger] UserDocument user)
         {
             if (user is null)
                 throw new ArgumentNullException(nameof(user));
@@ -38,12 +38,12 @@ namespace TeamCloud.Orchestrator.Activities
 
     internal static class UserDeleteExtension
     {
-        public static Task<User> DeleteUserAsync(this IDurableOrchestrationContext functionContext, string userId, bool allowUnsafe = false)
+        public static Task<UserDocument> DeleteUserAsync(this IDurableOrchestrationContext functionContext, string userId, bool allowUnsafe = false)
             => DeleteUserAsync(functionContext, Guid.Parse(userId), allowUnsafe);
 
-        public static Task<User> DeleteUserAsync(this IDurableOrchestrationContext functionContext, Guid userId, bool allowUnsafe = false)
-            => functionContext.IsLockedBy<User>(userId.ToString()) || allowUnsafe
-            ? functionContext.CallActivityWithRetryAsync<User>(nameof(UserDeleteActivity), userId)
+        public static Task<UserDocument> DeleteUserAsync(this IDurableOrchestrationContext functionContext, Guid userId, bool allowUnsafe = false)
+            => functionContext.IsLockedBy<UserDocument>(userId.ToString()) || allowUnsafe
+            ? functionContext.CallActivityWithRetryAsync<UserDocument>(nameof(UserDeleteActivity), userId)
             : throw new NotSupportedException($"Unable to delete user '{userId}' without acquired lock");
     }
 }

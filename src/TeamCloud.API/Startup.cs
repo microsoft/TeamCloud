@@ -65,21 +65,23 @@ namespace TeamCloud.API
                    .UseHttpsRedirection();
             }
 
-            app.UseWhen(context => context.Request.RequiresAdminUserSet(), appBuilder =>
-            {
-                appBuilder.UseMiddleware<EnsureTeamCloudUserMiddleware>();
-            });
-
             // Enable middleware to serve generated Swagger as a JSON endpoint
             // plus serve swagger-ui (HTML, JS, CSS, etc.), specifying the Swagger JSON endpoint.
-            app.UseSwagger()
-               .UseSwaggerUI(c =>
+
+            app
+                .UseSwagger()
+                .UseSwaggerUI(c =>
                 {
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", "TeamCloud API v1");
                 });
 
-            app.UseRouting()
-               .UseAuthentication()
+            app
+                .UseRouting()
+                .UseAuthentication()
+                .UseWhen(context => context.Request.RequiresAdminUserSet(), appBuilder =>
+                {
+                    appBuilder.UseMiddleware<EnsureTeamCloudAdminMiddleware>();
+                })
                .UseAuthorization()
                .UseEndpoints(endpoints => endpoints.MapControllers());
         }
@@ -125,7 +127,7 @@ namespace TeamCloud.API
                 .AddSingleton<IClientErrorFactory, ClientErrorFactory>()
                 .AddSingleton<Orchestrator>()
                 .AddSingleton<UserService>()
-                .AddScoped<EnsureTeamCloudUserMiddleware>();
+                .AddScoped<EnsureTeamCloudAdminMiddleware>();
 
             ConfigureAuthentication(services);
             ConfigureAuthorization(services);

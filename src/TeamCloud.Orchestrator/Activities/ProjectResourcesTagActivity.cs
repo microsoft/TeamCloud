@@ -24,7 +24,7 @@ namespace TeamCloud.Orchestrator.Activities
 
         [FunctionName(nameof(ProjectResourcesTagActivity))]
         public async Task RunActivity(
-            [ActivityTrigger] Project project,
+            [ActivityTrigger] ProjectDocument project,
             ILogger log)
         {
             if (project == null)

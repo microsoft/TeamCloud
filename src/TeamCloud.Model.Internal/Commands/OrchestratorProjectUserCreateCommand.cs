@@ -9,9 +9,9 @@ using TeamCloud.Model.Internal.Data;
 
 namespace TeamCloud.Model.Internal.Commands
 {
-    public class OrchestratorProjectUserCreateCommand : OrchestratorCommand<User, OrchestratorProjectUserCreateCommandResult, ProviderProjectUserCreateCommand, Model.Data.User>
+    public class OrchestratorProjectUserCreateCommand : OrchestratorCommand<UserDocument, OrchestratorProjectUserCreateCommandResult, ProviderProjectUserCreateCommand, Model.Data.User>
     {
-        public OrchestratorProjectUserCreateCommand(Uri api, User user, User payload, string projectId) : base(api, user, payload)
+        public OrchestratorProjectUserCreateCommand(Uri api, UserDocument user, UserDocument payload, string projectId) : base(api, user, payload)
             => ProjectId = projectId;
     }
 }

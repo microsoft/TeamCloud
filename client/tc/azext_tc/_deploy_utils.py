@@ -111,9 +111,6 @@ def create_resource_manager_sp(cmd):
                    api_permissions=['7ab1d382-f21e-4acd-a863-ba3e13f7da61=Role',  # Directory.Read.All
                                     '18a4783c-866b-4cc7-a460-3d5e5662c884=Role'])  # Application.ReadWrite.OwnedBy
 
-    # 'e1fe6dd8-ba31-4d61-89e7-88639da4683d=Scope', # User.Read
-    # 'df021288-bdef-4463-88db-98f22de89214=Role', # User.Read
-
     admin_consent(cmd, identifier=sp['appId'])
 
     return sp
@@ -165,20 +162,33 @@ def deploy_arm_template_at_resource_group(cmd, resource_group_name=None, templat
     from azure.cli.command_modules.resource.custom import (  # pylint: disable=unused-import
         deploy_arm_template_at_resource_group as _deploy_arm_template, get_deployment_at_resource_group)
 
-    deployment_name = random_string(length=14, force_lower=True)
+    for try_number in range(TRIES):
+        try:
+            deployment_name = random_string(length=14, force_lower=True)
+            deployment_poller = _deploy_arm_template(cmd, resource_group_name, template_file,
+                                                     template_uri, parameters, deployment_name,
+                                                     mode='incremental', no_wait=no_wait)
 
-    deployment_poller = _deploy_arm_template(cmd, resource_group_name, template_file,
-                                             template_uri, parameters, deployment_name,
-                                             mode='incremental', no_wait=no_wait)
+            deployment = LongRunningOperation(cmd.cli_ctx, start_msg='Deploying ARM template',
+                                              finish_msg='Finished deploying ARM template')(deployment_poller)
 
-    deployment = LongRunningOperation(cmd.cli_ctx, start_msg='Deploying ARM template',
-                                      finish_msg='Finished deploying ARM template')(deployment_poller)
-
-    properties = getattr(deployment, 'properties', None)
-    # provisioning_state = getattr(properties, 'provisioning_state', None)
-    outputs = getattr(properties, 'outputs', None)
-
-    return outputs
+            properties = getattr(deployment, 'properties', None)
+            outputs = getattr(properties, 'outputs', None)
+            return outputs
+        except CLIError as err:
+            if try_number == TRIES - 1:
+                raise err
+            try:
+                import json
+                response = getattr(err, 'response', None)
+                message = json.loads(response.text)['error']['details'][0]['message']
+                if '(ServiceUnavailable)' not in message:
+                    raise err
+            except:
+                raise err
+            import time
+            time.sleep(5)
+            continue
 
 
 def open_url_in_browser(url):

@@ -8,8 +8,8 @@ using TeamCloud.Model.Internal.Data;
 
 namespace TeamCloud.Model.Internal.Commands
 {
-    public class OrchestratorTeamCloudUserDeleteCommand : OrchestratorCommand<User, OrchestratorTeamCloudUserDeleteCommandResult>
+    public class OrchestratorTeamCloudUserDeleteCommand : OrchestratorCommand<UserDocument, OrchestratorTeamCloudUserDeleteCommandResult>
     {
-        public OrchestratorTeamCloudUserDeleteCommand(Uri api, User user, User payload) : base(api, user, payload) { }
+        public OrchestratorTeamCloudUserDeleteCommand(Uri api, UserDocument user, UserDocument payload) : base(api, user, payload) { }
     }
 }

@@ -34,23 +34,25 @@ namespace TeamCloud.Model.Validation.Tests.Commands
             Assert.True(result.IsValid);
         }
 
-        [Fact(Skip = "Needs rework as command throws exception if user argument is NULL")]
+        [Fact()]
         public void Validate_Error()
         {
-            var command = new ProviderProjectCreateCommand(null, new Project());
+            var command = new ProviderProjectCreateCommand(new User(), new Project());
             var message = new ProviderCommandMessage(command, "http://localhost/callback");
 
+            message.Command.Payload = null;
             var result = message.Validate();
 
             Assert.False(result.IsValid);
         }
 
-        [Fact(Skip = "Needs rework as command throws exception if user argument is NULL")]
+        [Fact()]
         public async Task ValidateAsync_Error()
         {
-            var command = new ProviderProjectCreateCommand(null, new Project());
+            var command = new ProviderProjectCreateCommand(new User(), new Project());
             var message = new ProviderCommandMessage(command, "http://localhost/callback");
 
+            message.Command.Payload = null;
             var result = await message.ValidateAsync().ConfigureAwait(false);
 
             Assert.False(result.IsValid);

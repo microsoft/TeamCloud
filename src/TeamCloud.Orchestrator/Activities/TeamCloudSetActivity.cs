@@ -24,8 +24,8 @@ namespace TeamCloud.Orchestrator.Activities
         }
 
         [FunctionName(nameof(TeamCloudSetActivity))]
-        public async Task<TeamCloudInstance> RunActivity(
-            [ActivityTrigger] TeamCloudInstance teamCloudInstance)
+        public async Task<TeamCloudInstanceDocument> RunActivity(
+            [ActivityTrigger] TeamCloudInstanceDocument teamCloudInstance)
         {
             if (teamCloudInstance is null)
                 throw new ArgumentNullException(nameof(teamCloudInstance));
@@ -40,7 +40,7 @@ namespace TeamCloud.Orchestrator.Activities
 
     internal static class TeamCloudSetExtension
     {
-        public static Task<TeamCloudInstance> SetTeamCloudAsync(this IDurableOrchestrationContext functionContext, TeamCloudInstance teamCloud)
+        public static Task<TeamCloudInstanceDocument> SetTeamCloudAsync(this IDurableOrchestrationContext functionContext, TeamCloudInstanceDocument teamCloud)
         {
             if (teamCloud is null)
                 throw new ArgumentNullException(nameof(teamCloud));
@@ -48,10 +48,10 @@ namespace TeamCloud.Orchestrator.Activities
             if (functionContext.IsLockedByContainerDocument(teamCloud))
             {
                 return functionContext
-                    .CallActivityWithRetryAsync<TeamCloudInstance>(nameof(TeamCloudSetActivity), teamCloud);
+                    .CallActivityWithRetryAsync<TeamCloudInstanceDocument>(nameof(TeamCloudSetActivity), teamCloud);
             }
 
-            throw new NotSupportedException($"Unable to set '{typeof(TeamCloudInstance)}' without acquired lock");
+            throw new NotSupportedException($"Unable to set '{typeof(TeamCloudInstanceDocument)}' without acquired lock");
         }
     }
 }

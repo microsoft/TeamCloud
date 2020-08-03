@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using TeamCloud.Model.Data;
 using TeamCloud.Model.Data.Core;
 using TeamCloud.Model.Internal.Data.Core;
 using TeamCloud.Serialization;
@@ -13,7 +14,7 @@ using TeamCloud.Serialization;
 namespace TeamCloud.Model.Internal.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public sealed class Provider : ContainerDocument, IProvider, IEquatable<Provider>, IPopulate<Model.Data.Provider>
+    public sealed class ProviderDocument : ContainerDocument, IProvider, IEquatable<ProviderDocument>, IPopulate<Model.Data.Provider>
     {
         [PartitionKey]
         public string Tenant { get; set; }
@@ -38,11 +39,11 @@ namespace TeamCloud.Model.Internal.Data
 
         public IList<string> ResourceProviders { get; set; } = new List<string>();
 
-        public bool Equals(Provider other)
+        public bool Equals(ProviderDocument other)
             => Id.Equals(other?.Id, StringComparison.Ordinal);
 
         public override bool Equals(object obj)
-            => base.Equals(obj) || Equals(obj as Provider);
+            => base.Equals(obj) || Equals(obj as ProviderDocument);
 
         public override int GetHashCode()
             => Id?.GetHashCode(StringComparison.Ordinal) ?? base.GetHashCode();

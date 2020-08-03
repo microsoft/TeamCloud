@@ -25,7 +25,7 @@ namespace TeamCloud.Orchestrator.Activities
         }
 
         [FunctionName(nameof(ProviderListActivity))]
-        public async Task<IEnumerable<Provider>> RunActivity(
+        public async Task<IEnumerable<ProviderDocument>> RunActivity(
             [ActivityTrigger] IDurableActivityContext functionContext)
         {
             if (functionContext is null)
@@ -48,7 +48,7 @@ namespace TeamCloud.Orchestrator.Activities
         }
 
         [FunctionName(nameof(ProviderListByIdActivity))]
-        public async Task<IEnumerable<Provider>> RunActivity(
+        public async Task<IEnumerable<ProviderDocument>> RunActivity(
             [ActivityTrigger] IList<string> providerIds)
         {
             return await providersRepository
@@ -61,10 +61,10 @@ namespace TeamCloud.Orchestrator.Activities
 
     internal static class ProviderListExtension
     {
-        public static Task<IEnumerable<Provider>> ListProvidersAsync(this IDurableOrchestrationContext durableOrchestrationContext)
-            => durableOrchestrationContext.CallActivityWithRetryAsync<IEnumerable<Provider>>(nameof(ProviderListActivity), null);
+        public static Task<IEnumerable<ProviderDocument>> ListProvidersAsync(this IDurableOrchestrationContext durableOrchestrationContext)
+            => durableOrchestrationContext.CallActivityWithRetryAsync<IEnumerable<ProviderDocument>>(nameof(ProviderListActivity), null);
 
-        public static Task<IEnumerable<Provider>> ListProvidersAsync(this IDurableOrchestrationContext durableOrchestrationContext, IList<string> providerIds)
-            => durableOrchestrationContext.CallActivityWithRetryAsync<IEnumerable<Provider>>(nameof(ProviderListByIdActivity), providerIds);
+        public static Task<IEnumerable<ProviderDocument>> ListProvidersAsync(this IDurableOrchestrationContext durableOrchestrationContext, IList<string> providerIds)
+            => durableOrchestrationContext.CallActivityWithRetryAsync<IEnumerable<ProviderDocument>>(nameof(ProviderListByIdActivity), providerIds);
     }
 }

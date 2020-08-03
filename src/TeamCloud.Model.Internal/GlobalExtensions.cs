@@ -13,7 +13,7 @@ namespace TeamCloud.Model.Internal
 {
     public static class GlobalExtensions
     {
-        public static IDisposable BeginProjectScope(this ILogger logger, Project project)
+        public static IDisposable BeginProjectScope(this ILogger logger, ProjectDocument project)
         {
             if (logger is null)
                 throw new ArgumentNullException(nameof(logger));
@@ -28,7 +28,7 @@ namespace TeamCloud.Model.Internal
             });
         }
 
-        public static IDisposable BeginCommandScope(this ILogger logger, ICommand command, Provider provider = default)
+        public static IDisposable BeginCommandScope(this ILogger logger, ICommand command, ProviderDocument provider = default)
         {
             if (logger is null)
                 throw new ArgumentNullException(nameof(logger));
@@ -36,7 +36,7 @@ namespace TeamCloud.Model.Internal
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
 
-            var project = command.Payload as Project;
+            var project = command.Payload as ProjectDocument;
 
             return logger.BeginScope(new Dictionary<string, object>()
             {

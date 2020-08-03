@@ -32,7 +32,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                 throw new ArgumentNullException(nameof(durableClient));
 
             _ = await durableClient
-                .StartNewAsync(nameof(ProviderRegisterOrchestration), Guid.NewGuid().ToString(), (default(Provider), default(ProviderRegisterCommand)))
+                .StartNewAsync(nameof(ProviderRegisterOrchestration), Guid.NewGuid().ToString(), (default(ProviderDocument), default(ProviderRegisterCommand)))
                 .ConfigureAwait(false);
         }
 
@@ -45,7 +45,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                 throw new ArgumentNullException(nameof(functionContext));
 
             var (provider, command) = functionContext
-                .GetInput<(Provider, ProviderRegisterCommand)>();
+                .GetInput<(ProviderDocument, ProviderRegisterCommand)>();
 
             try
             {
@@ -56,7 +56,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                     // with a new command instance.
 
                     var systemUser = await functionContext
-                        .CallActivityWithRetryAsync<User>(nameof(TeamCloudSystemUserActivity), null)
+                        .CallActivityWithRetryAsync<UserDocument>(nameof(TeamCloudSystemUserActivity), null)
                         .ConfigureAwait(true);
 
                     var providerCommand = new ProviderRegisterCommand

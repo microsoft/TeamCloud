@@ -9,8 +9,8 @@ using TeamCloud.Model.Internal.Data;
 
 namespace TeamCloud.Model.Internal.Commands
 {
-    public class OrchestratorProjectUpdateCommand : OrchestratorCommand<Project, OrchestratorProjectUpdateCommandResult, ProviderProjectUpdateCommand, Model.Data.Project>
+    public class OrchestratorProjectUpdateCommand : OrchestratorCommand<ProjectDocument, OrchestratorProjectUpdateCommandResult, ProviderProjectUpdateCommand, Model.Data.Project>
     {
-        public OrchestratorProjectUpdateCommand(Uri api, User user, Project payload) : base(api, user, payload) { }
+        public OrchestratorProjectUpdateCommand(Uri api, UserDocument user, ProjectDocument payload) : base(api, user, payload) { }
     }
 }

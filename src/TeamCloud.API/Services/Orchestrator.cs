@@ -44,7 +44,7 @@ namespace TeamCloud.API.Services
             {
                 return;
             }
-            else if (commandResult is ICommandResult<User> userCommandResult)
+            else if (commandResult is ICommandResult<UserDocument> userCommandResult)
             {
                 if (userCommandResult.Result?.Id is null)
                     return;
@@ -58,14 +58,14 @@ namespace TeamCloud.API.Services
                     commandResult.Links.Add("location", new Uri(baseUrl, $"api/projects/{projectId}/users/{userCommandResult.Result.Id}").ToString());
                 }
             }
-            else if (commandResult is ICommandResult<Provider> providerCommandResult)
+            else if (commandResult is ICommandResult<ProviderDocument> providerCommandResult)
             {
                 if (providerCommandResult.Result?.Id is null)
                     return;
 
                 commandResult.Links.Add("location", new Uri(baseUrl, $"api/providers/{providerCommandResult.Result.Id}").ToString());
             }
-            else if (commandResult is ICommandResult<Project> projectCommandResult)
+            else if (commandResult is ICommandResult<ProjectDocument> projectCommandResult)
             {
                 if (projectCommandResult.Result?.Id is null)
                     return;
@@ -132,7 +132,7 @@ namespace TeamCloud.API.Services
             return commandResult;
         }
 
-        public async Task<TeamCloudInstance> SetAsync(TeamCloudInstance teamCloudInstance)
+        public async Task<TeamCloudInstanceDocument> SetAsync(TeamCloudInstanceDocument teamCloudInstance)
         {
             var response = await options.Url
                 .AppendPathSegment("api/data/teamCloudInstance")
@@ -141,13 +141,13 @@ namespace TeamCloud.API.Services
                 .ConfigureAwait(false);
 
             var result = await response.Content
-                .ReadAsAsync<TeamCloudInstance>()
+                .ReadAsAsync<TeamCloudInstanceDocument>()
                 .ConfigureAwait(false);
 
             return result;
         }
 
-        public async Task<ProjectType> AddAsync(ProjectType projectType)
+        public async Task<ProjectTypeDocument> AddAsync(ProjectTypeDocument projectType)
         {
             var response = await options.Url
                 .AppendPathSegment("api/data/projectTypes")
@@ -156,13 +156,13 @@ namespace TeamCloud.API.Services
                 .ConfigureAwait(false);
 
             var result = await response.Content
-                .ReadAsAsync<ProjectType>()
+                .ReadAsAsync<ProjectTypeDocument>()
                 .ConfigureAwait(false);
 
             return result;
         }
 
-        public async Task<ProjectType> UpdateAsync(ProjectType projectType)
+        public async Task<ProjectTypeDocument> UpdateAsync(ProjectTypeDocument projectType)
         {
             var response = await options.Url
                 .AppendPathSegment("api/data/projectTypes")
@@ -171,13 +171,13 @@ namespace TeamCloud.API.Services
                 .ConfigureAwait(false);
 
             var result = await response.Content
-                .ReadAsAsync<ProjectType>()
+                .ReadAsAsync<ProjectTypeDocument>()
                 .ConfigureAwait(false);
 
             return result;
         }
 
-        public async Task<ProjectType> DeleteAsync(string projectTypeId)
+        public async Task<ProjectTypeDocument> DeleteAsync(string projectTypeId)
         {
             var response = await options.Url
                 .AppendPathSegments($"api/data/projectTypes/{projectTypeId}")
@@ -186,7 +186,7 @@ namespace TeamCloud.API.Services
                 .ConfigureAwait(false);
 
             var result = await response.Content
-                .ReadAsAsync<ProjectType>()
+                .ReadAsAsync<ProjectTypeDocument>()
                 .ConfigureAwait(false);
 
             return result;

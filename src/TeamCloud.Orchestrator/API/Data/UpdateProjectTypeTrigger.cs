@@ -24,7 +24,7 @@ namespace TeamCloud.Orchestrator.API.Data
 
         [FunctionName(nameof(UpdateProjectTypeTrigger))]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "put", Route = "data/projectTypes")] ProjectType projectType
+            [HttpTrigger(AuthorizationLevel.Function, "put", Route = "data/projectTypes")] ProjectTypeDocument projectType
             /* ILogger log */)
         {
             if (projectType is null)

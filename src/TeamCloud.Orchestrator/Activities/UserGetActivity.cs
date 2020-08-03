@@ -24,7 +24,7 @@ namespace TeamCloud.Orchestrator.Activities
         }
 
         [FunctionName(nameof(UserGetActivity))]
-        public async Task<User> RunActivity(
+        public async Task<UserDocument> RunActivity(
             [ActivityTrigger] string userId)
         {
             return await usersRepository
@@ -35,9 +35,9 @@ namespace TeamCloud.Orchestrator.Activities
 
     internal static class UserGetExtension
     {
-        public static Task<User> GetUserAsync(this IDurableOrchestrationContext functionContext, string userId, bool allowUnsafe = false)
-            => functionContext.IsLockedBy<User>(userId) || allowUnsafe
-            ? functionContext.CallActivityWithRetryAsync<User>(nameof(UserGetActivity), userId)
+        public static Task<UserDocument> GetUserAsync(this IDurableOrchestrationContext functionContext, string userId, bool allowUnsafe = false)
+            => functionContext.IsLockedBy<UserDocument>(userId) || allowUnsafe
+            ? functionContext.CallActivityWithRetryAsync<UserDocument>(nameof(UserGetActivity), userId)
             : throw new NotSupportedException($"Unable to get user '{userId}' without acquired lock");
     }
 }

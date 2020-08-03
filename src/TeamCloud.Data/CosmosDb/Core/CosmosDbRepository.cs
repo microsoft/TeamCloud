@@ -71,16 +71,18 @@ namespace TeamCloud.Data.CosmosDb.Core
 
         private static async Task<(Container, ChangeFeedProcessor)> CreateContainerAsync(Database database, Type containerType, ChangesHandler<T> changesHandler)
         {
-            var containerBuilder = database.DefineContainer(typeof(T).Name, PartitionKeyAttribute.GetPath<T>(true));
-            var containerKeys = UniqueKeyAttribute.GetPaths<T>(true);
+            var containerName = ContainerNameAttribute.GetNameOrDefault(containerType);
+            var containerPartitionKey = PartitionKeyAttribute.GetPath(containerType, true);
+            var containerUniqueKeys = UniqueKeyAttribute.GetPaths(containerType, true);
+            var containerBuilder = database.DefineContainer(containerName, containerPartitionKey);
 
-            if (containerKeys.Any())
+            if (containerUniqueKeys.Any())
             {
-                foreach (var containerKey in containerKeys)
+                foreach (var containerUniqueKey in containerUniqueKeys)
                 {
                     containerBuilder = containerBuilder
                         .WithUniqueKey()
-                        .Path(containerKey)
+                        .Path(containerUniqueKey)
                         .Attach();
                 }
             }
@@ -94,21 +96,21 @@ namespace TeamCloud.Data.CosmosDb.Core
                 // no changes handler was provided. so we don't need to
                 // create change feed processor and return just the container
 
-                return (database.GetContainer(containerType.Name), null);
+                return (database.GetContainer(containerName), null);
             }
 
             _ = await database
-                .DefineContainer($"{typeof(T).Name}-leases", "/id")
+                .DefineContainer($"{containerName}-leases", "/id")
                 .CreateIfNotExistsAsync()
                 .ConfigureAwait(false);
 
             var processorInstance = Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID")
                 ?? $"{Environment.MachineName}-{Process.GetCurrentProcess().Id}";
 
-            var processor = database.GetContainer(containerType.Name)
-                .GetChangeFeedProcessorBuilder(containerType.Name, changesHandler)
-                .WithInstanceName($"{containerType.Name}-{processorInstance}")
-                .WithLeaseContainer(database.GetContainer($"{typeof(T).Name}-leases"))
+            var processor = database.GetContainer(containerName)
+                .GetChangeFeedProcessorBuilder(containerName, changesHandler)
+                .WithInstanceName($"{containerName}-{processorInstance}")
+                .WithLeaseContainer(database.GetContainer($"{containerName}-leases"))
                 .WithStartTime(DateTime.UtcNow)
                 .Build();
 
@@ -116,7 +118,7 @@ namespace TeamCloud.Data.CosmosDb.Core
                 .StartAsync()
                 .ConfigureAwait(false);
 
-            return (database.GetContainer(containerType.Name), processor);
+            return (database.GetContainer(containerName), processor);
         }
 
         protected virtual ChangesHandler<T> HandleChangesAsync { get; }

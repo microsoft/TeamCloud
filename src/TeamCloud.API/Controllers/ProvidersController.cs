@@ -119,7 +119,7 @@ namespace TeamCloud.API.Controllers
                 .CurrentUserAsync()
                 .ConfigureAwait(false);
 
-            var commandProvider = new TeamCloud.Model.Internal.Data.Provider();
+            var commandProvider = new TeamCloud.Model.Internal.Data.ProviderDocument();
             commandProvider.PopulateFromExternalModel(provider);
 
             var command = new OrchestratorProviderCreateCommand(HttpContext.GetApplicationBaseUrl(), currentUserForCommand, commandProvider);

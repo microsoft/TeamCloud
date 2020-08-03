@@ -41,9 +41,9 @@ namespace TeamCloud.API.Controllers
             this.projectTypesRepository = projectTypesRepository ?? throw new ArgumentNullException(nameof(projectTypesRepository));
         }
 
-        private async Task<List<User>> ResolveUsersAsync(ProjectDefinition projectDefinition, string projectId)
+        private async Task<List<UserDocument>> ResolveUsersAsync(ProjectDefinition projectDefinition, string projectId)
         {
-            var users = new List<User>();
+            var users = new List<UserDocument>();
 
             if (projectDefinition.Users?.Any() ?? false)
             {
@@ -64,7 +64,7 @@ namespace TeamCloud.API.Controllers
 
             return users;
 
-            async Task<User> ResolveUserAndEnsureMembershipAsync(UserDefinition userDefinition, string projectId)
+            async Task<UserDocument> ResolveUserAndEnsureMembershipAsync(UserDefinition userDefinition, string projectId)
             {
                 var user = await userService
                     .ResolveUserAsync(userDefinition)
@@ -162,7 +162,7 @@ namespace TeamCloud.API.Controllers
             var users = await ResolveUsersAsync(projectDefinition, projectId)
                 .ConfigureAwait(false);
 
-            var project = new Model.Internal.Data.Project
+            var project = new Model.Internal.Data.ProjectDocument
             {
                 Id = projectId,
                 Users = users,

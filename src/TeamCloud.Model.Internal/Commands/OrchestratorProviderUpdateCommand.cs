@@ -8,8 +8,8 @@ using TeamCloud.Model.Internal.Data;
 
 namespace TeamCloud.Model.Internal.Commands
 {
-    public class OrchestratorProviderUpdateCommand : OrchestratorCommand<Provider, OrchestratorProviderUpdateCommandResult>
+    public class OrchestratorProviderUpdateCommand : OrchestratorCommand<ProviderDocument, OrchestratorProviderUpdateCommandResult>
     {
-        public OrchestratorProviderUpdateCommand(Uri api, User user, Provider payload) : base(api, user, payload) { }
+        public OrchestratorProviderUpdateCommand(Uri api, UserDocument user, ProviderDocument payload) : base(api, user, payload) { }
     }
 }
