@@ -158,29 +158,42 @@ def zip_deploy_app(cli_ctx, resource_group_name, name, zip_url, slot=None, app_i
 
 def deploy_arm_template_at_resource_group(cmd, resource_group_name=None, template_file=None,
                                           template_uri=None, parameters=None, no_wait=False):
-    from azure.cli.core.util import random_string
-    from azure.cli.command_modules.resource.custom import (  # pylint: disable=unused-import
-        deploy_arm_template_at_resource_group as _deploy_arm_template, get_deployment_at_resource_group)
+    from azure.cli.core.util import random_string, sdk_no_wait
+    from azure.cli.command_modules.resource.custom import _prepare_deployment_properties_unmodified
+    from ._client_factory import resource_client_factory
+
+    properties = _prepare_deployment_properties_unmodified(cmd.cli_ctx, template_file=template_file,
+                                                           template_uri=template_uri, parameters=parameters,
+                                                           mode='Incremental')
+
+    client = resource_client_factory(cmd.cli_ctx).deployments
 
     for try_number in range(TRIES):
         try:
-            deployment_name = random_string(length=14, force_lower=True)
-            deployment_poller = _deploy_arm_template(cmd, resource_group_name, template_file,
-                                                     template_uri, parameters, deployment_name,
-                                                     mode='incremental', no_wait=no_wait)
+            deployment_name = random_string(length=14, force_lower=True) + str(try_number)
 
-            deployment = LongRunningOperation(cmd.cli_ctx, start_msg='Deploying ARM template',
-                                              finish_msg='Finished deploying ARM template')(deployment_poller)
+            if cmd.supported_api_version(min_api='2019-10-01', resource_type=ResourceType.MGMT_RESOURCE_RESOURCES):
+                Deployment = cmd.get_models(
+                    'Deployment', resource_type=ResourceType.MGMT_RESOURCE_RESOURCES)
 
-            properties = getattr(deployment, 'properties', None)
-            outputs = getattr(properties, 'outputs', None)
-            return outputs
+                deployment = Deployment(properties=properties)
+                deploy_poll = sdk_no_wait(no_wait, client.create_or_update, resource_group_name,
+                                          deployment_name, deployment)
+            else:
+                deploy_poll = sdk_no_wait(no_wait, client.create_or_update, resource_group_name,
+                                          deployment_name, properties)
+
+            result = LongRunningOperation(cmd.cli_ctx, start_msg='Deploying ARM template',
+                                          finish_msg='Finished deploying ARM template')(deploy_poll)
+
+            props = getattr(result, 'properties', None)
+            return getattr(props, 'outputs', None)
         except CLIError as err:
             if try_number == TRIES - 1:
                 raise err
             try:
-                import json
                 response = getattr(err, 'response', None)
+                import json
                 message = json.loads(response.text)['error']['details'][0]['message']
                 if '(ServiceUnavailable)' not in message:
                     raise err
