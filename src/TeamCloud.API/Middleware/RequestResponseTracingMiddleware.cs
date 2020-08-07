@@ -1,4 +1,9 @@
-﻿using System.Diagnostics;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
+
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
