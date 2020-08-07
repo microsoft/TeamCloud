@@ -36,6 +36,7 @@ using TeamCloud.Configuration.Options;
 using TeamCloud.Data;
 using TeamCloud.Data.Caching;
 using TeamCloud.Data.CosmosDb;
+using TeamCloud.Diagnostic;
 using TeamCloud.Http;
 using TeamCloud.Model.Data.Core;
 using TeamCloud.Model.Internal.Data;
@@ -76,6 +77,7 @@ namespace TeamCloud.API
                 });
 
             app
+                .UseTeamCloudDiagnostic()
                 .UseRouting()
                 .UseAuthentication()
                 .UseWhen(context => context.Request.RequiresAdminUserSet(), appBuilder =>
@@ -89,6 +91,7 @@ namespace TeamCloud.API
         public void ConfigureServices(IServiceCollection services)
         {
             services
+                .AddTeamCloudDiagnostic(false)
                 .AddTeamCloudOptions(Assembly.GetExecutingAssembly())
                 .AddTeamCloudOptionsShared()
                 .AddTeamCloudAzure(configuration =>

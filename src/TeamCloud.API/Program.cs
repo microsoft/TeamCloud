@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.AzureKeyVault;
 using Microsoft.Extensions.Hosting;
 using TeamCloud.Configuration;
+using TeamCloud.Diagnostic;
 
 namespace TeamCloud.API
 {
@@ -22,6 +23,7 @@ namespace TeamCloud.API
 
         public static IHostBuilder CreateHostBuilder(string[] args) => Host
             .CreateDefaultBuilder(args)
+            .UseTeamCloudDiagnostic()
             .ConfigureAppConfiguration((hostingContext, configurationBuilder) => ConfigureEnvironment(hostingContext.HostingEnvironment, configurationBuilder))
             .ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>());
 
