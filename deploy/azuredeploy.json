@@ -85,9 +85,13 @@
             "properties": {
                 "name": "[variables('webAppNameLower')]",
                 "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('webAppNameLower'))]",
+                "clientAffinityEnabled": false,
                 "siteConfig": {
+                    "cors": {
+                        "allowedOrigins": [ "*" ],
+                        "supportCredentials": true
+                    },
                     "phpVersion": "off",
-                    "clientAffinityEnabled": false,
                     "metadata": [
                         {
                             "name": "CURRENT_STACK",

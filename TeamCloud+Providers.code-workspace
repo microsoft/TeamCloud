@@ -127,6 +127,9 @@
 			"path": "client"
 		},
 		{
+			"path": "web"
+		},
+		{
 			"path": "docs"
 		},
 		{
