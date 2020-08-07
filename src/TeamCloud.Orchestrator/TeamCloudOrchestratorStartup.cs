@@ -24,7 +24,6 @@ using TeamCloud.Configuration.Options;
 using TeamCloud.Data;
 using TeamCloud.Data.Caching;
 using TeamCloud.Data.CosmosDb;
-using TeamCloud.Diagnostic;
 using TeamCloud.Http;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestration.Auditing;
@@ -50,7 +49,6 @@ namespace TeamCloud.Orchestrator
 
             builder.Services
                 .AddSingleton(configuration)
-                .AddTeamCloudDiagnostic(true)
                 .AddTeamCloudOptions(Assembly.GetExecutingAssembly())
                 .AddTeamCloudOptionsShared()
                 .AddTeamCloudHttp()
