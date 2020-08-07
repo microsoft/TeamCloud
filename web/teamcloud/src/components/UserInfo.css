@@ -1,0 +1,25 @@
+.user {
+    display: table-cell;
+    vertical-align: middle;
+    cursor: pointer;
+}
+
+.user .ms-Persona-details {
+    width: 100px;
+}
+
+.userPanel {
+    margin-top: 50px;
+}
+
+.userPanel .ms-Panel-commands {
+    height: 0;
+    visibility: hidden;
+}
+
+.userPanel .ms-Panel-main {
+    height: fit-content;
+}
+.userPanel .ms-Panel-content {
+    padding-top: 20px;
+}

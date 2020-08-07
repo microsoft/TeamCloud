@@ -178,10 +178,12 @@ def load_arguments(self, _):
                    help='Space-seperated subscription ids (uuids).',
                    validator=subscriptions_list_validator)
         c.argument('subscription_capacity', type=int, default=10,
+                   options_list=['--subscription-capacity', '-c'],
                    help='Maximum number of projects per subscription.')
         c.argument('default', action='store_true',
                    help='Set as the default project type.')
         c.argument('resource_group_name_prefix', type=str,
+                   options_list=['--resource-group-name-prefix', '-p'],
                    help='Prepended to all project resource group names.')
         c.argument('provider', nargs='+', action=CreateProviderReference,
                    help='Project type provider: provider_id [key=value ...]. '
