@@ -1,77 +1,55 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { initializeIcons } from '@uifabric/icons';
 import { BrowserRouter, Switch, Route, useParams } from "react-router-dom";
 import { HeaderBar } from './components';
 import { Error404, HomeView, ProjectView } from './view';
-import { } from './view/ProjectView';
-import './App.css'
+import { } from './view/ProjectView'
+import { Project } from './model';
 
 interface IAppProps {
-  onSignOut: () => void;
-  // tenantId: string;
+    onSignOut: () => void;
+    // onProjectSelected?: (project: Project) => void;
 }
 
-interface IAppState {
-}
-
-class App extends React.Component<IAppProps, IAppState> {
-
-  constructor(props: IAppProps) {
-    super(props);
+export const App: React.FunctionComponent<IAppProps> = (props) => {
     initializeIcons();
-  }
 
-  render() {
+    const [project, setProject] = useState<Project>();
+
+    const _onProjectSelected = (project: Project | undefined) => {
+        if (project)
+            console.log(project.id);
+        setProject(project);
+    }
+
     return (
-      <div>
         <BrowserRouter>
-          <Switch>
-            <Route path="/projects/:projectId">
-              <ProjectViewWrapper {...this.props} />
-            </Route>
-            <Route path="/" exact={true}>
-              <HomeViewWrapper {...this.props} />
-            </Route>
-            <Route path="*">
-              <Error404Wrapper {...this.props} />
-            </Route>
-          </Switch>
+            <Switch>
+                <Route path="/projects/:projectId">
+                    <HeaderBar onSignOut={props.onSignOut} project={project} />
+                    <ProjectViewWrapper {...{ project: project, onProjectSelected: _onProjectSelected }} />
+                </Route>
+                <Route path="/" exact={true}>
+                    <HeaderBar onSignOut={props.onSignOut} project={project} />
+                    <HomeView onProjectSelected={_onProjectSelected} />
+                </Route>
+                <Route path="*">
+                    <HeaderBar onSignOut={props.onSignOut} project={project} />
+                    <Error404 />;
+                    </Route>
+            </Switch>
         </BrowserRouter>
-      </div>
     );
-  }
 }
 
-function HeaderBarWrapper(props: IAppProps) {
-  return <header>
-    <HeaderBar onSignOut={props.onSignOut} />
-  </header>;
+interface IProjectViewWrapperProps {
+    project?: Project;
+    onProjectSelected?: (project: Project) => void;
 }
 
-function ProjectViewWrapper(props: IAppProps) {
-  let { projectId } = useParams();
-  return <>
-    <HeaderBarWrapper {...props} />
-    <ProjectView
-      projectId={projectId}
-    // tenantId={props.tenantId}
-    />
-  </>;
-}
-
-function HomeViewWrapper(props: IAppProps) {
-  // let { subscriptionId } = useParams();
-  return <>
-    <HeaderBarWrapper {...props} />
-    <HomeView />
-  </>;
-}
-
-function Error404Wrapper(props: IAppProps) {
-  return <>
-    <HeaderBarWrapper {...props} />
-    <Error404 />
-  </>;
+function ProjectViewWrapper(props: IProjectViewWrapperProps) {
+    let { projectId } = useParams();
+    return <ProjectView projectId={projectId} project={props.project} onProjectSelected={props.onProjectSelected} />;
 }
 
 export default App;

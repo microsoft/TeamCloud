@@ -1,98 +1,54 @@
 import React from 'react';
 import { Project } from '../model';
-
-import {
-    DocumentCard,
-    DocumentCardTitle,
-    IDocumentCardStyles,
-    // DocumentCardImage,
-    DocumentCardDetails,
-    IDocumentCardTitleStyles,
-    DocumentCardType,
-    // ImageFit
-} from '@fluentui/react';
-import { GraphUser } from '../Auth';
-
-// import { ImageFit } from "office-ui-fabric-react/lib/Image";
-// import { Tenant } from "../models/Tenant";
+import { Link, useHistory } from 'react-router-dom';
+import { ShimmeredDetailsList, DetailsListLayoutMode } from '@fluentui/react';
 
 export interface IProjectListProps {
-    user: GraphUser,
-    // tenant: Tenant,
-    projects: Project[],
-    resourceNameFilter?: string
+    projects: Project[] | undefined,
+    projectFilter?: string
+    onProjectSelected?: (project: Project) => void;
 }
 
-export interface IProjectListState {
+export const ProjectList: React.FunctionComponent<IProjectListProps> = (props) => {
 
-}
+    const history = useHistory();
 
-export class ProjectList extends React.Component<IProjectListProps, IProjectListState> {
+    const columns = [
+        { key: 'projectName', name: 'Project Name', data: 'string', onRender: (p: Project) => (<Link onClick={() => _onLinkClicked(p)} to={'/projects/' + p.id} style={{ textDecoration: 'none' }}>{p.name}</Link>), minWidth: 100, isResizable: true },
+        { key: 'projectId', name: 'ID', data: 'string', fieldName: 'id', minWidth: 240, isResizable: true },
+        { key: 'projectType', name: 'Type', data: 'string', onRender: (p: Project) => p.type.id, minWidth: 160, isResizable: true },
+        { key: 'projectGroup', name: 'ResourceGroup', data: 'string', onRender: (p: Project) => p.resourceGroup.name, minWidth: 220, isResizable: true },
+        { key: 'projectLocation', name: 'Location', data: 'string', onRender: (p: Project) => p.resourceGroup.region, minWidth: 100, isResizable: true },
+        { key: 'projectUserCount', name: 'Users', data: 'number', onRender: (p: Project) => p.users.length, minWidth: 160, isResizable: true }
+    ];
 
-    constructor(props: IProjectListProps) {
-        super(props);
-        this.state = this._getDefaultState();
+    const _applyProjectFilter = (project: Project): boolean => {
+        return props.projectFilter ? project.name.toUpperCase().includes(props.projectFilter.toUpperCase()) : true;
     }
 
-    private _getDefaultState(): IProjectListState {
-        return {}
+    const _onLinkClicked = (project: Project): void => {
+        if (props.onProjectSelected)
+            props.onProjectSelected(project);
     }
 
-    async componentDidMount() {
-    }
+    const _onItemInvoked = (project: Project): void => {
+        _onLinkClicked(project);
+        history.push('/projects/' + project.id)
+    };
 
-    render() {
+    const items = props.projects ? props.projects.filter(_applyProjectFilter) : new Array<Project>();
 
-        const cardStyles: IDocumentCardStyles = {
-            root: { display: 'inline-block', marginRight: 20, marginBottom: 20, width: 320 }
-        };
-
-        const titleStylesPrimary: IDocumentCardTitleStyles = {
-            root: { paddingTop: 30 }
-        }
-
-        const titleStylesSecondary: IDocumentCardTitleStyles = {
-            root: { paddingTop: 0 }
-        }
-
-        var projectCards: any[] = this.props.projects
-            .filter(this._applyLabFilter)
-            .map(project => {
-
-                var link = window.origin + '/projects/' + project.id;
-
-                return <DocumentCard
-                    key={project.id}
-                    styles={cardStyles}
-                    type={DocumentCardType.normal}
-                    onClickHref={link}
-                >
-                    {/* <DocumentCardImage height={100} imageFit={ImageFit.contain} imageSrc={LabLogo} /> */}
-                    <DocumentCardDetails>
-                        <DocumentCardTitle
-                            title={project.name}
-                            shouldTruncate={true}
-                            styles={titleStylesPrimary} />
-                        <DocumentCardTitle
-                            title={project.id}
-                            shouldTruncate={true}
-                            showAsSecondaryTitle={true}
-                            styles={titleStylesSecondary} />
-                    </DocumentCardDetails>
-                </DocumentCard>
-            });
-
-        return <div>{projectCards}</div>
-    }
-
-    private _applyLabFilter = (project: Project): boolean => {
-
-        var match = true;
-
-        if (this.props.resourceNameFilter) {
-            match = project.name.toUpperCase().includes(this.props.resourceNameFilter.toUpperCase());
-        }
-
-        return match;
-    }
+    return (
+        <ShimmeredDetailsList
+            items={items}
+            columns={columns}
+            layoutMode={DetailsListLayoutMode.justified}
+            enableShimmer={items.length === 0}
+            selectionPreservedOnEmptyClick={true}
+            ariaLabelForSelectionColumn="Toggle selection"
+            ariaLabelForSelectAllCheckbox="Toggle selection for all items"
+            checkButtonAriaLabel="Row checkbox"
+            onItemInvoked={_onItemInvoked}
+        />
+    );
 }

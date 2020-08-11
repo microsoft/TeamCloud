@@ -1,9 +1,9 @@
 import { getToken } from "./Auth";
-import { DataResult, StatusResult, ErrorResult, Project, User } from "./model";
+import { DataResult, StatusResult, ErrorResult, Project, User, ProjectType } from "./model";
 
 const scope = 'http://TeamCloud.Web/user_impersonation'
-const baseUrl = 'http://localhost:3000'
-
+// const baseUrl = 'http://localhost:3000'
+const baseUrl = 'https://aztcclitestone.azurewebsites.net'
 
 
 export const getProject = async (id: string) => {
@@ -29,7 +29,6 @@ export const getUser = async (id: string) => {
 
 export const getUsers = async () => {
     return getResource<Array<User>>(baseUrl + '/api/users');
-
 }
 
 export const createUser = async (user: User) => {
@@ -39,6 +38,12 @@ export const createUser = async (user: User) => {
 export const deleteUser = async (id: string) => {
     return getResource<User>(baseUrl + '/api/users/' + id);
 }
+
+export const getProjectTypes = async () => {
+    return getResource<Array<ProjectType>>(baseUrl + '/api/projectTypes');
+}
+
+
 
 export const getResource = async <T>(url: string): Promise<ErrorResult | DataResult<T>> => {
 
