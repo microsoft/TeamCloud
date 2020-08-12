@@ -59,7 +59,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamCloud.Orchestration.Dep
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamCloud.Orchestration.Auditing", "TeamCloud.Orchestration.Auditing\TeamCloud.Orchestration.Auditing.csproj", "{C565D19D-954B-4189-B0E3-D08858B3BDAC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeamCloud.Data.Tests", "TeamCloud.Data.Tests\TeamCloud.Data.Tests.csproj", "{3C57D479-B5B1-4667-A150-8BAA239F980D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamCloud.Data.Tests", "TeamCloud.Data.Tests\TeamCloud.Data.Tests.csproj", "{3C57D479-B5B1-4667-A150-8BAA239F980D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

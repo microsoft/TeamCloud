@@ -222,7 +222,16 @@ namespace TeamCloud.Azure.Deployment
             var state = await GetStateAsync()
                 .ConfigureAwait(false);
 
-            if (state.IsProgressState())
+            for (int i = 0; state == AzureDeploymentState.Unknown && i < 10; i++)
+            {
+                // in some cases Azure doesn't return the state immediately 
+                // this poor mans retry loop tries to solve this behaviour
+
+                state = await GetStateAsync()
+                    .ConfigureAwait(false);
+            }
+
+            if (state.IsProgressState() || state == AzureDeploymentState.Unknown)
                 throw new InvalidOperationException($"Deployment '{ResourceId}' cannot provide output in state '{state}'");
 
             var json = await GetDeploymentJsonAsync()

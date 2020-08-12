@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication;
@@ -23,6 +24,8 @@ using Microsoft.Azure.Management.ResourceManager.Fluent;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.ObjectPool;
+using Microsoft.IO;
 using Microsoft.OpenApi.Models;
 using TeamCloud.API.Middleware;
 using TeamCloud.API.Routing;
@@ -76,6 +79,7 @@ namespace TeamCloud.API
                 });
 
             app
+                .UseMiddleware<RequestResponseTracingMiddleware>()
                 .UseRouting()
                 .UseAuthentication()
                 .UseWhen(context => context.Request.RequiresAdminUserSet(), appBuilder =>
@@ -127,7 +131,13 @@ namespace TeamCloud.API
                 .AddSingleton<IClientErrorFactory, ClientErrorFactory>()
                 .AddSingleton<Orchestrator>()
                 .AddSingleton<UserService>()
+                .AddScoped<RequestResponseTracingMiddleware>()
                 .AddScoped<EnsureTeamCloudAdminMiddleware>();
+
+            services
+                .AddSingleton<RecyclableMemoryStreamManager>()
+                .AddSingleton<ObjectPoolProvider, DefaultObjectPoolProvider>()
+                .AddSingleton<ObjectPool<StringBuilder>>(provider => provider.GetRequiredService<ObjectPoolProvider>().Create(new StringBuilderPooledObjectPolicy()));
 
             ConfigureAuthentication(services);
             ConfigureAuthorization(services);
