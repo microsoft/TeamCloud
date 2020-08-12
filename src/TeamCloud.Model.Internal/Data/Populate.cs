@@ -198,7 +198,7 @@ namespace TeamCloud.Model.Internal.Data
         public static Model.Data.User PopulateExternalModel(this UserDocument source, string projectId, Model.Data.User target = null)
         {
             var user = source.PopulateExternalModel<UserDocument, Model.Data.User>(target);
-            user.ProjectMemberships = user.ProjectMemberships.TakeWhile(m => m.ProjectId == projectId).ToList();
+            user.ProjectMemberships = user.ProjectMemberships.Where(m => m.ProjectId == projectId).ToList();
             return user;
         }
 
@@ -206,7 +206,7 @@ namespace TeamCloud.Model.Internal.Data
         {
             var project = source.PopulateExternalModel<ProjectDocument, Model.Data.Project>(target);
             foreach (var user in project.Users)
-                user.ProjectMemberships = user.ProjectMemberships.TakeWhile(m => m.ProjectId == project.Id).ToList();
+                user.ProjectMemberships = user.ProjectMemberships.Where(m => m.ProjectId == project.Id).ToList();
             return project;
         }
 
