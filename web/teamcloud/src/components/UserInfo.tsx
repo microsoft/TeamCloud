@@ -1,86 +1,79 @@
-import React from 'react';
-import { DefaultButton, Stack, Panel, Persona, PersonaSize } from '@fluentui/react';
+import React, { useState, useEffect } from 'react';
+import { DefaultButton, Stack, Panel, Persona, PersonaSize, getTheme, IPersonaStyles, IPanelStyles } from '@fluentui/react';
 import { GraphUser, getGraphUser } from '../Auth';
-import './UserInfo.css';
-// import { Tenant, fetchTenant } from "../models/Tenant";
 
 export interface IUserInfoProps {
     onSignOut: () => void;
 }
 
-export interface IUserInfoState {
-    initialized: boolean;
-    user: GraphUser;
-    // tenant: Tenant;
-    panelVisible: boolean;
-}
+export const UserInfo: React.FunctionComponent<IUserInfoProps> = (props) => {
 
-export class UserInfo extends React.Component<IUserInfoProps, IUserInfoState> {
+    const [user, setUser] = useState<GraphUser>();
+    const [panelOpen, setPanelOpen] = useState(false);
 
-    constructor(props: any) {
-        super(props);
-        this.state = this._getDefaultState();
-    }
-
-    private _getDefaultState(): IUserInfoState {
-        return {
-            initialized: false,
-            user: {} as GraphUser,
-            // tenant: {} as Tenant,
-            panelVisible: false
-        };
-    }
-
-    async componentDidMount() {
-
-        var promises: any[] = [
-            getGraphUser(),
-            // fetchTenant(this.props.tenantId)
-        ]
-
-        var results = await Promise.all(promises);
-
-        this.setState({
-            initialized: true,
-            user: results[0],
-            // tenant: results[1]
-        });
-    }
-
-    render() {
-
-        if (this.state.initialized) {
-
-            return <div className="user">
-                <Persona
-                    text={this.state.user.displayName}
-                    // secondaryText={this.state.tenant.displayName || this.props.tenantId}
-                    size={PersonaSize.size40}
-                    onClick={this._showPanel}
-                />
-                <Panel isLightDismiss isOpen={this.state.panelVisible} onDismiss={this._hidePanel} className="userPanel">
-                    <Stack>
-                        <DefaultButton text="sign out" onClick={this._signOut} />
-                    </Stack>
-                </Panel>
-            </div>;
-
-        } else {
-
-            return <></>;
-
+    useEffect(() => {
+        if (user === undefined) {
+            const _setUser = async () => {
+                const result = await getGraphUser();
+                setUser(result);
+            };
+            _setUser();
         }
-    }
+    }, []);
 
-    private _hidePanel = () => {
-        this.setState({ panelVisible: false });
-    }
+    const theme = getTheme();
 
-    private _showPanel = () => {
-        this.setState({ panelVisible: true });
-    }
+    const personaStyles = {
+        root: {
+            minHeight: '56px',
+            paddingLeft: '10px',
+            selectors: {
+                ':hover': {
+                    cursor: 'pointer',
+                    background: theme.palette.themeDark
+                }
+            }
+        },
+        primaryText: {
+            color: theme.palette.white,
+            selectors: {
+                ':hover': {
+                    cursor: 'pointer',
+                    color: theme.palette.white,
+                    background: theme.palette.themeDark
+                }
+            }
+        }
+    };
 
-    private _signOut = () => {
-        this.props.onSignOut();
+    const panelStyles = {
+        root: { marginTop: '56px' },
+        content: { paddingTop: '20px' },
+        main: { height: 'fit-content' }
+    };
+
+
+    if (user) {
+        return <>
+            <Persona
+                text={user.displayName}
+                // secondaryText={this.state.tenant.displayName || this.props.tenantId}
+                size={PersonaSize.size40}
+                styles={personaStyles}
+                onClick={() => setPanelOpen(true)}
+            />
+            <Panel
+                isLightDismiss
+                styles={panelStyles}
+                isOpen={panelOpen}
+                hasCloseButton={false}
+                onDismiss={() => setPanelOpen(false)} >
+                <Stack>
+                    <DefaultButton text="Sign out" onClick={() => props.onSignOut} />
+                </Stack>
+            </Panel>
+        </>;
+    } else {
+        return <></>;
     }
 }
