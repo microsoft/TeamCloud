@@ -22,10 +22,6 @@ using TeamCloud.Model.Validation.Data;
 namespace TeamCloud.API.Controllers
 {
     [ApiController]
-
-    [Route("api/providers/{providerId:providerId}/data")]
-    [Route("api/providers/{providerId:providerId}/projects/{projectId:guid}/data")]
-    
     [Route("api/projects/{projectId:guid}/providers/{providerId:providerId}/data")]
     [Produces("application/json")]
     public class ProjectProviderDataController : ControllerBase
