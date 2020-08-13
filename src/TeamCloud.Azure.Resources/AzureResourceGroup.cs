@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Flurl.Http;
 using Microsoft.Azure.Management.ResourceManager.Fluent;
 using Microsoft.Azure.Management.ResourceManager.Fluent.Models;
 using Microsoft.Rest.Azure.OData;
@@ -43,9 +44,31 @@ namespace TeamCloud.Azure.Resources
                     .ConfigureAwait(false);
             }
 
-            await base
-                .DeleteAsync(false)
-                .ConfigureAwait(false);
+            var timeoutDuration = TimeSpan.FromMinutes(1);
+            var timeout = DateTime.UtcNow.Add(timeoutDuration);
+
+            while (DateTime.UtcNow < timeout)
+            {
+                try
+                {
+                    await base
+                        .DeleteAsync(false)
+                        .ConfigureAwait(false);
+
+                    break;
+                }
+                catch (FlurlHttpException exc) when (deleteLocks && exc.Call.HttpStatus == System.Net.HttpStatusCode.Conflict)
+                {
+                    // swallow exception take a rest and retry the delete call
+                    // there is a chance that the in a "delete locks" scenario
+                    // the delete operation is entirely done even if no lock
+                    // is reported back to the caller
+
+                    await Task
+                        .Delay(1000)
+                        .ConfigureAwait(false);
+                }
+            }
         }
 
         public override async Task DeleteLocksAsync(bool waitForDeletion = false)
