@@ -18,11 +18,11 @@ class TeamCloudScenarioTest(ScenarioTest):
 
     @AllowLargeResponse()
     @RoleBasedServicePrincipalPreparer()
-    @ResourceGroupPreparer(parameter_name='tc_group', parameter_name_for_location='location', location='eastus', key='rg')
-    @ResourceGroupPreparer(parameter_name='ai_group', location='eastus', key='rg_ai')
-    @ResourceGroupPreparer(parameter_name='dtl_group', location='eastus', key='rg_dtl')
-    @ResourceGroupPreparer(parameter_name='ado_group', location='eastus', key='rg_ado')
-    @ResourceGroupPreparer(parameter_name='gh_group', location='eastus', key='rg_gh')
+    @ResourceGroupPreparer(parameter_name='tc_group', parameter_name_for_location='location', location='eastus', key='rg', random_name_length=40)
+    @ResourceGroupPreparer(parameter_name='ai_group', location='eastus', key='rg_ai', random_name_length=40)
+    @ResourceGroupPreparer(parameter_name='dtl_group', location='eastus', key='rg_dtl', random_name_length=40)
+    @ResourceGroupPreparer(parameter_name='ado_group', location='eastus', key='rg_ado', random_name_length=40)
+    @ResourceGroupPreparer(parameter_name='gh_group', location='eastus', key='rg_gh', random_name_length=40)
     def test_tc(self, sp_name, sp_password, tc_group, ai_group, dtl_group, ado_group, gh_group, location):
 
         subs = self.cmd('az account show', checks=[
