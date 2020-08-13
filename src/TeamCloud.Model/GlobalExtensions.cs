@@ -13,6 +13,17 @@ namespace TeamCloud.Model
 {
     public static class GlobalExtensions
     {
+        public static Uri AppendPath(this Uri uri, string path)
+        {
+            if (uri is null)
+                throw new ArgumentNullException(nameof(uri));
+
+            if (string.IsNullOrEmpty(path))
+                return uri;
+
+            return new Uri(uri, path);
+        }
+
         public static IDisposable BeginProjectScope(this ILogger logger, Project project)
         {
             if (logger is null)

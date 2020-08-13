@@ -91,7 +91,7 @@ namespace TeamCloud.API.Middleware
                             UserType = UserType.User
                         };
 
-                        var command = new OrchestratorTeamCloudUserCreateCommand(context.GetApplicationBaseUrl(), user, user);
+                        var command = new OrchestratorTeamCloudUserCreateCommand(user, user);
 
                         _ = await orchestrator
                             .InvokeAsync(command)

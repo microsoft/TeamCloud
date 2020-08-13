@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -43,7 +44,7 @@ namespace TeamCloud.Serialization.Resolver
             {
                 if (!prop.Writable)
                 {
-                    // enable private property setter deserialization
+                    // enable private property setter deserialization for types with default constructor
                     prop.Writable = propertyInfo.GetSetMethod(true) != null;
                 }
 

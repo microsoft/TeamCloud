@@ -20,9 +20,9 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
 {
     public class OrchestratorProviderDeleteCommandOrchestration
     {
-        private readonly OrchestratorDatabaseOptions orchestratorDatabaseOptions;
+        private readonly TeamCloudDatabaseOptions orchestratorDatabaseOptions;
 
-        public OrchestratorProviderDeleteCommandOrchestration(OrchestratorDatabaseOptions orchestratorDatabaseOptions)
+        public OrchestratorProviderDeleteCommandOrchestration(TeamCloudDatabaseOptions orchestratorDatabaseOptions)
         {
             this.orchestratorDatabaseOptions = orchestratorDatabaseOptions ?? throw new ArgumentNullException(nameof(orchestratorDatabaseOptions));
         }

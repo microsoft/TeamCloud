@@ -10,6 +10,6 @@ namespace TeamCloud.Model.Internal.Commands
 {
     public class OrchestratorProviderCreateCommand : OrchestratorCommand<ProviderDocument, OrchestratorProviderCreateCommandResult>
     {
-        public OrchestratorProviderCreateCommand(Uri baseApi, UserDocument user, ProviderDocument payload) : base(baseApi, user, payload) { }
+        public OrchestratorProviderCreateCommand(UserDocument user, ProviderDocument payload) : base(user, payload) { }
     }
 }

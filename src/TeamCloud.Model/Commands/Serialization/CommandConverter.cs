@@ -22,7 +22,7 @@ namespace TeamCloud.Model.Commands.Serialization
         });
 
         public override ICommand ReadJson(JsonReader reader, Type objectType, ICommand existingValue, bool hasExistingValue, JsonSerializer serializer)
-        {
+        {            
             return (ICommand)InnerSerializer.Deserialize(reader, objectType);
         }
 

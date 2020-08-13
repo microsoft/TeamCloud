@@ -10,11 +10,11 @@ using TeamCloud.Data.CosmosDb.Core;
 namespace TeamCloud.Orchestrator.Options
 {
     [Options]
-    public sealed class OrchestratorDatabaseOptions : ICosmosDbOptions
+    public sealed class TeamCloudDatabaseOptions : ICosmosDbOptions
     {
         private readonly CosmosDbOptions cosmosDbOptions;
 
-        public OrchestratorDatabaseOptions(CosmosDbOptions cosmosDbOptions)
+        public TeamCloudDatabaseOptions(CosmosDbOptions cosmosDbOptions)
         {
             this.cosmosDbOptions = cosmosDbOptions ?? throw new System.ArgumentNullException(nameof(cosmosDbOptions));
         }

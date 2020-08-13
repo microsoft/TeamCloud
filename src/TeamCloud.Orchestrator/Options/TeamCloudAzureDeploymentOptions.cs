@@ -9,15 +9,15 @@ using TeamCloud.Azure.Deployment.Providers;
 using TeamCloud.Configuration;
 using TeamCloud.Configuration.Options;
 
-namespace TeamCloud.API.Options
+namespace TeamCloud.Orchestrator.Options
 {
     [Options]
-    public sealed class ApiAzureDeploymentOptions : IAzureDeploymentOptions, IAzureStorageArtifactsOptions
+    public sealed class TeamCloudAzureDeploymentOptions : IAzureDeploymentOptions, IAzureStorageArtifactsOptions
     {
         private readonly AzureDeploymentOptions azureDeploymentOptions;
         private readonly AzureDeploymentStorageOptions azureDeploymentStorageOptions;
 
-        public ApiAzureDeploymentOptions(AzureDeploymentOptions azureDeploymentOptions, AzureDeploymentStorageOptions azureDeploymentStorageOptions)
+        public TeamCloudAzureDeploymentOptions(AzureDeploymentOptions azureDeploymentOptions, AzureDeploymentStorageOptions azureDeploymentStorageOptions)
         {
             this.azureDeploymentOptions = azureDeploymentOptions ?? throw new ArgumentNullException(nameof(azureDeploymentOptions));
             this.azureDeploymentStorageOptions = azureDeploymentStorageOptions ?? throw new ArgumentNullException(nameof(azureDeploymentStorageOptions));

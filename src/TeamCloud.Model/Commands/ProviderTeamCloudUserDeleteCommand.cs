@@ -10,7 +10,7 @@ namespace TeamCloud.Model.Commands
 {
     public class ProviderTeamCloudUserDeleteCommand : ProviderCommand<User, ProviderTeamCloudUserDeleteCommandResult>
     {
-        public ProviderTeamCloudUserDeleteCommand(Uri baseApi, User user, User payload, Guid? commandId = null) : base(baseApi, user, payload, commandId)
+        public ProviderTeamCloudUserDeleteCommand(User user, User payload, Guid? commandId = null) : base(user, payload, commandId)
         { }
     }
 }

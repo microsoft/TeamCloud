@@ -180,7 +180,6 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
 
             var providerCommand = new ProviderProjectCreateCommand
             (
-                command.BaseApi,
                 command.User.PopulateExternalModel(),
                 project.PopulateExternalModel(),
                 command.CommandId
@@ -214,7 +213,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 .CallActivityWithRetryAsync<UserDocument>(nameof(TeamCloudSystemUserActivity), null)
                 .ConfigureAwait(true);
 
-            var deleteCommand = new OrchestratorProjectDeleteCommand(command.BaseApi, systemUser, project);
+            var deleteCommand = new OrchestratorProjectDeleteCommand(systemUser, project);
 
             await functionContext
                 .CallSubOrchestratorWithRetryAsync(nameof(OrchestratorProjectDeleteCommandOrchestration), deleteCommand)

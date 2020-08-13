@@ -222,7 +222,6 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                 functionContext.ContinueAsNew((
                     new ProviderProjectUpdateCommand
                     (
-                        command.BaseApi,
                         command.User as Model.Data.User,
                         project.PopulateExternalModel(),
                         command.CommandId),

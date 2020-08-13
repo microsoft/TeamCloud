@@ -11,7 +11,7 @@ namespace TeamCloud.Model.Internal.Commands
 {
     public class OrchestratorProjectUserCreateCommand : OrchestratorCommand<UserDocument, OrchestratorProjectUserCreateCommandResult, ProviderProjectUserCreateCommand, Model.Data.User>
     {
-        public OrchestratorProjectUserCreateCommand(Uri baseApi, UserDocument user, UserDocument payload, string projectId) : base(baseApi, user, payload)
+        public OrchestratorProjectUserCreateCommand(UserDocument user, UserDocument payload, string projectId) : base(user, payload)
             => ProjectId = projectId;
     }
 }

@@ -150,7 +150,7 @@ namespace TeamCloud.API
                 .CurrentUserAsync()
                 .ConfigureAwait(false);
 
-            var command = new OrchestratorTeamCloudUserCreateCommand(HttpContext.GetApplicationBaseUrl(), currentUserForCommand, user);
+            var command = new OrchestratorTeamCloudUserCreateCommand(currentUserForCommand, user);
 
             return await orchestrator
                 .InvokeAndReturnAccepted(command)
@@ -211,7 +211,7 @@ namespace TeamCloud.API
 
             oldUser.PopulateFromExternalModel(user);
 
-            var command = new OrchestratorTeamCloudUserUpdateCommand(HttpContext.GetApplicationBaseUrl(), currentUserForCommand, oldUser);
+            var command = new OrchestratorTeamCloudUserUpdateCommand(currentUserForCommand, oldUser);
 
             return await orchestrator
                 .InvokeAndReturnAccepted(command)
@@ -266,7 +266,7 @@ namespace TeamCloud.API
                 .CurrentUserAsync()
                 .ConfigureAwait(false);
 
-            var command = new OrchestratorTeamCloudUserDeleteCommand(HttpContext.GetApplicationBaseUrl(), currentUserForCommand, user);
+            var command = new OrchestratorTeamCloudUserDeleteCommand(currentUserForCommand, user);
 
             return await orchestrator
                 .InvokeAndReturnAccepted(command)

@@ -27,7 +27,7 @@ namespace TeamCloud.Model.Internal.Commands
         where TPayload : class, new()
         where TCommandResult : ICommandResult, new()
     {
-        protected OrchestratorCommand(Uri baseApi, UserDocument user, TPayload payload) : base(baseApi, user, payload)
+        protected OrchestratorCommand(UserDocument user, TPayload payload) : base(user, payload)
         { }
     }
 
@@ -37,7 +37,7 @@ namespace TeamCloud.Model.Internal.Commands
         where TProviderPayload : class, new()
         where TProviderCommand : IProviderCommand<TProviderPayload>
     {
-        protected OrchestratorCommand(Uri baseApi, UserDocument user, TPayload payload) : base(baseApi, user, payload)
+        protected OrchestratorCommand(UserDocument user, TPayload payload) : base(user, payload)
         { }
     }
 }

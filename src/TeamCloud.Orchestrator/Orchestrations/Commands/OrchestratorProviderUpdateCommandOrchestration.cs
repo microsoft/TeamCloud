@@ -21,9 +21,9 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
 {
     public class OrchestratorProviderUpdateCommandOrchestration
     {
-        private readonly OrchestratorDatabaseOptions orchestratorDatabaseOptions;
+        private readonly TeamCloudDatabaseOptions orchestratorDatabaseOptions;
 
-        public OrchestratorProviderUpdateCommandOrchestration(OrchestratorDatabaseOptions orchestratorDatabaseOptions)
+        public OrchestratorProviderUpdateCommandOrchestration(TeamCloudDatabaseOptions orchestratorDatabaseOptions)
         {
             this.orchestratorDatabaseOptions = orchestratorDatabaseOptions ?? throw new ArgumentNullException(nameof(orchestratorDatabaseOptions));
         }

@@ -9,7 +9,7 @@ using TeamCloud.Configuration;
 namespace TeamCloud.API.Options
 {
     [Options("Orchestrator")]
-    public class ApiOrchestratorOptions : IOrchestratorOptions
+    public class TeamCloudOrchestratorOptions : IOrchestratorOptions
     {
         public string Url { get; set; }
 

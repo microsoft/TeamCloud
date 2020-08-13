@@ -12,20 +12,30 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using TeamCloud.Model.Commands.Core;
 using TeamCloud.Http;
 using TeamCloud.Model.Commands;
+using TeamCloud.Model.Commands.Core;
+using TeamCloud.Model.Data.Core;
 using TeamCloud.Model.Internal.Data;
 using TeamCloud.Orchestration;
+using TeamCloud.Orchestrator.Services;
 using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.Activities
 {
-    public static class CommandSendActivity
+    public sealed class CommandSendActivity
     {
+        public CommandSendActivity(IApiOptions apiOptions)
+        {
+            if (apiOptions is null)
+                throw new ArgumentNullException(nameof(apiOptions));
+
+            ReferenceLink.BaseUrl = apiOptions.Url;
+        }
+
         [FunctionName(nameof(CommandSendActivity))]
         [RetryOptions(3)]
-        public static async Task<ICommandResult> RunActivity(
+        public async Task<ICommandResult> RunActivity(
             [ActivityTrigger] IDurableActivityContext functionContext,
             ILogger log)
         {

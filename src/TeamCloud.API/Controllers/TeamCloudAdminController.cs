@@ -17,8 +17,8 @@ using TeamCloud.Data;
 using TeamCloud.Model;
 using TeamCloud.Model.Data;
 using TeamCloud.Model.Data.Core;
-using TeamCloud.Model.Internal.Data;
 using TeamCloud.Model.Internal.Commands;
+using TeamCloud.Model.Internal.Data;
 using TeamCloud.Model.Validation.Data;
 
 namespace TeamCloud.API.Controllers
@@ -90,7 +90,7 @@ namespace TeamCloud.API.Controllers
             // no users exist in the database yet and the cli calls this api implicitly immediatly
             // after the teamcloud instance is created to add the instance creator as an admin user
             // thus, we can assume the calling user and the user from the payload are the same
-            var command = new OrchestratorTeamCloudUserCreateCommand(HttpContext.GetApplicationBaseUrl(), user, user);
+            var command = new OrchestratorTeamCloudUserCreateCommand(user, user);
 
             return await orchestrator
                 .InvokeAndReturnAccepted(command)

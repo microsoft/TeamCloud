@@ -10,6 +10,6 @@ namespace TeamCloud.Model.Internal.Commands
 {
     public class OrchestratorProviderDeleteCommand : OrchestratorCommand<ProviderDocument, OrchestratorProviderDeleteCommandResult>
     {
-        public OrchestratorProviderDeleteCommand(Uri baseApi, UserDocument user, ProviderDocument payload) : base(baseApi, user, payload) { }
+        public OrchestratorProviderDeleteCommand(UserDocument user, ProviderDocument payload) : base(user, payload) { }
     }
 }

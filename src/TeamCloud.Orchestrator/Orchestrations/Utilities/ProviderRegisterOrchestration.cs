@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data.Core;
 using TeamCloud.Model.Internal.Data;
@@ -61,10 +62,11 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 
                     var providerCommand = new ProviderRegisterCommand
                     (
-                        null,
                         systemUser.PopulateExternalModel(),
                         new ProviderConfiguration()
                     );
+
+                    log.LogInformation($"Created {providerCommand.GetType().Name} instance: {JsonConvert.SerializeObject(providerCommand)}");
 
                     functionContext
                         .ContinueAsNew((provider, providerCommand));
@@ -83,8 +85,12 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 
                     if (providers.Any())
                     {
-                        var tasks = providers
-                            .Select(provider => functionContext.CallSubOrchestratorWithRetryAsync(nameof(ProviderRegisterOrchestration), (provider, command)));
+                        var tasks = providers.Select(provider =>
+                        {
+                            log.LogInformation($"Initiate provider {provider.Id} registration: {JsonConvert.SerializeObject(command)}");
+
+                            return functionContext.CallSubOrchestratorWithRetryAsync(nameof(ProviderRegisterOrchestration), (provider, command));
+                        });
 
                         await Task
                             .WhenAll(tasks)

@@ -7,14 +7,14 @@ using TeamCloud.Azure;
 using TeamCloud.Configuration;
 using TeamCloud.Configuration.Options;
 
-namespace TeamCloud.Orchestrator.Options
+namespace TeamCloud.API.Options
 {
     [Options]
-    public sealed class OrchestratorAzureSessionOptions : IAzureSessionOptions
+    public sealed class TeamCloudAzureSessionOptions : IAzureSessionOptions
     {
         private readonly AzureResourceManagerOptions azureRMOptions;
 
-        public OrchestratorAzureSessionOptions(AzureResourceManagerOptions azureRMOptions)
+        public TeamCloudAzureSessionOptions(AzureResourceManagerOptions azureRMOptions)
         {
             this.azureRMOptions = azureRMOptions ?? throw new System.ArgumentNullException(nameof(azureRMOptions));
         }
