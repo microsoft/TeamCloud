@@ -1,25 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { DefaultButton, Stack, Panel, Persona, PersonaSize, getTheme, IPersonaStyles, IPanelStyles } from '@fluentui/react';
-import { GraphUser, getGraphUser } from '../Auth';
+import React, { useState } from 'react';
+import { DefaultButton, Stack, Panel, Persona, PersonaSize, getTheme } from '@fluentui/react';
+import { GraphUser } from '../MSGraph';
 
 export interface IUserInfoProps {
+    graphUser?: GraphUser;
     onSignOut: () => void;
 }
 
 export const UserInfo: React.FunctionComponent<IUserInfoProps> = (props) => {
 
-    const [user, setUser] = useState<GraphUser>();
     const [panelOpen, setPanelOpen] = useState(false);
-
-    useEffect(() => {
-        if (user === undefined) {
-            const _setUser = async () => {
-                const result = await getGraphUser();
-                setUser(result);
-            };
-            _setUser();
-        }
-    }, []);
 
     const theme = getTheme();
 
@@ -52,12 +42,12 @@ export const UserInfo: React.FunctionComponent<IUserInfoProps> = (props) => {
         main: { height: 'fit-content' }
     };
 
-
-    if (user) {
+    if (props.graphUser) {
         return <>
             <Persona
-                text={user.displayName}
+                text={props.graphUser.displayName}
                 // secondaryText={this.state.tenant.displayName || this.props.tenantId}
+                imageUrl={props.graphUser.imageUrl}
                 size={PersonaSize.size40}
                 styles={personaStyles}
                 onClick={() => setPanelOpen(true)}

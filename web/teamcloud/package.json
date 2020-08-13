@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@fluentui/react": "^7.126.3",
+    "@microsoft/microsoft-graph-client": "^2.0.0",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.5.0",
     "@testing-library/user-event": "^7.2.1",
@@ -41,6 +42,7 @@
     ]
   },
   "devDependencies": {
+    "@microsoft/microsoft-graph-types": "^1.14.1",
     "@types/react-router-dom": "^5.1.5"
   }
 }

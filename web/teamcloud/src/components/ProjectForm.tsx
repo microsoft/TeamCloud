@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { Stack, Label, TextField, Dropdown, IDropdownOption, Spinner } from "@fluentui/react";
+import { Stack, TextField, Dropdown, IDropdownOption, Spinner } from "@fluentui/react";
 import { ProjectType, DataResult } from "../model";
 import { getProjectTypes } from "../API";
 
 export interface IProjectFormProps {
-    // onProjectSelected?: (project: Project) => void;
+    fieldsEnabled: boolean;
+    onFormSubmit: () => void;
+    onNameChange: (val: string | undefined) => void;
+    onProjectTypeChange: (val: ProjectType | undefined) => void;
 }
 
 export const ProjectForm: React.FunctionComponent<IProjectFormProps> = (props) => {
 
-    const [name, setName] = useState<string>();
     const [projectTypes, setProjectTypes] = useState<ProjectType[]>();
 
     useEffect(() => {
@@ -21,27 +23,40 @@ export const ProjectForm: React.FunctionComponent<IProjectFormProps> = (props) =
             };
             _setProjectTypes();
         }
-    }, []);
+    }, [projectTypes]);
 
+    const handleSubmit = () => { }
 
-    const handleSubmit = () => {
+    const projectTypeOptions = (): IDropdownOption[] => {
+        if (!projectTypes) return [];
+        return projectTypes.map(pt => ({ key: pt.id, text: pt.id } as IDropdownOption));
+    };
 
-    }
+    const onDropdownChange = (event: React.FormEvent<HTMLDivElement>, option?: IDropdownOption, index?: number): void => {
+        if (!projectTypes || !option)
+            props.onProjectTypeChange(undefined);
+        else
+            props.onProjectTypeChange(projectTypes.find(pt => pt.id === option.key))
+    };
 
     if (projectTypes) {
-
-        const projectTypeOptions: IDropdownOption[] = projectTypes.map(pt => {
-            return { key: pt.id, text: pt.id } as IDropdownOption
-        });
-
         return (
             <Stack>
                 <form onSubmit={handleSubmit}>
-                    <TextField label='Name' onChange={(ev, val) => setName(val)} />
+                    <TextField
+                        label='Name'
+                        required
+                        // errorMessage='Name is required.'
+                        disabled={props.fieldsEnabled}
+                        onChange={(ev, val) => props.onNameChange(val)} />
                     <Dropdown
                         label='Project Type'
+                        required
+                        // errorMessage='Project Type is required.'
                         placeHolder='Select a Project Type'
-                        options={projectTypeOptions}></Dropdown>
+                        disabled={props.fieldsEnabled}
+                        options={projectTypeOptions()}
+                        onChange={onDropdownChange} />
                 </form>
             </Stack>
         );

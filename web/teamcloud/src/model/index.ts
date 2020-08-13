@@ -4,4 +4,4 @@ export * from './Project'
 export * from './ProjectType'
 export * from './User'
 export * from './Results'
-
+export * from './ModelDefinitions'

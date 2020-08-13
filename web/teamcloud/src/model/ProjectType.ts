@@ -13,4 +13,3 @@ export interface ProviderReference extends IIdentifiable, IProperties {
     dependsOn?: string[];
     metadata?: Record<string, Record<string, string>>;
 }
-
