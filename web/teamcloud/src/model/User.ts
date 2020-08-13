@@ -31,4 +31,3 @@ export enum UserType {
     Provider = 'Provider',
     Application = 'Application'
 }
-

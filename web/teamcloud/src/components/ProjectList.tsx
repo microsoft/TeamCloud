@@ -48,7 +48,6 @@ export const ProjectList: React.FunctionComponent<IProjectListProps> = (props) =
             ariaLabelForSelectionColumn="Toggle selection"
             ariaLabelForSelectAllCheckbox="Toggle selection for all items"
             checkButtonAriaLabel="Row checkbox"
-            onItemInvoked={_onItemInvoked}
-        />
+            onItemInvoked={_onItemInvoked} />
     );
 }
