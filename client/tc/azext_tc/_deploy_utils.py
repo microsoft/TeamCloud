@@ -97,10 +97,10 @@ def set_appconfig_keys(cli_ctx, appconfig_conn_string, kvs):
         azconfig_client.set_keyvalue(set_kv)
 
 
-def create_resource_manager_sp(cmd):
+def create_resource_manager_sp(cmd, app_name):
     from azure.cli.command_modules.role.custom import create_service_principal_for_rbac, add_permission, admin_consent
 
-    sp = create_service_principal_for_rbac(cmd, name='http://TeamCloud.ResourceManager',
+    sp = create_service_principal_for_rbac(cmd, name='http://TeamCloud.' + (app_name or 'ResourceManager'),
                                            years=10, role='Owner')
     # Azure Active Directory Graph permissions
     add_permission(cmd, identifier=sp['appId'], api='00000002-0000-0000-c000-000000000000',

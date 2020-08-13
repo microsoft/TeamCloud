@@ -73,7 +73,7 @@ def teamcloud_deploy(cmd, client, name, location=None, resource_group_name='Team
 
     if principal_name is None and principal_password is None:
         hook.add(message='Creating AAD app registration')
-        resource_manager_sp = create_resource_manager_sp(cmd)
+        resource_manager_sp = create_resource_manager_sp(cmd, name)
     else:
         _, _, tenant_id = profile.get_login_credentials(
             resource=cli_ctx.cloud.endpoints.active_directory_graph_resource_id)
