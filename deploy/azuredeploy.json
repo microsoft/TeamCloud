@@ -88,7 +88,8 @@
                 "clientAffinityEnabled": false,
                 "siteConfig": {
                     "cors": {
-                        "allowedOrigins": [ "*" ]
+                        "allowedOrigins": [ "http://localhost:3000" ],
+                        "supportCredentials": true
                     },
                     "phpVersion": "off",
                     "metadata": [
