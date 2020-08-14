@@ -14,20 +14,12 @@ using TeamCloud.Model.Internal.Commands;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Activities;
 using TeamCloud.Orchestrator.Entities;
-using TeamCloud.Orchestrator.Options;
 using TeamCloud.Orchestrator.Orchestrations.Utilities;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Commands
 {
-    public class OrchestratorProviderCreateCommandOrchestration
+    public static class OrchestratorProviderCreateCommandOrchestration
     {
-        private readonly TeamCloudDatabaseOptions orchestratorDatabaseOptions;
-
-        public OrchestratorProviderCreateCommandOrchestration(TeamCloudDatabaseOptions orchestratorDatabaseOptions)
-        {
-            this.orchestratorDatabaseOptions = orchestratorDatabaseOptions ?? throw new ArgumentNullException(nameof(orchestratorDatabaseOptions));
-        }
-
         [FunctionName(nameof(OrchestratorProviderCreateCommandOrchestration))]
         public static async Task RunOrchestration(
             [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
@@ -73,8 +65,10 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                     functionContext.SetCustomStatus($"Registering provider", log);
 
                     await functionContext
-                        .RegisterProviderAsync(provider)
+                        .RegisterProviderAsync(provider, true)
                         .ConfigureAwait(true);
+
+                    functionContext.SetCustomStatus($"Provider registered", log);
                 }
                 catch (Exception exc)
                 {
