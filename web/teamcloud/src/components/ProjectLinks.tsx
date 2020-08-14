@@ -1,85 +1,100 @@
-import React from 'react';
-import { User, ProjectMembership } from '../model';
-import { Stack, Facepile, IFacepilePersona, PersonaSize, IRenderFunction, HoverCard, HoverCardType, Persona, Shimmer, ShimmerElementsGroup, ShimmerElementType } from '@fluentui/react';
-import { GraphUser } from '../MSGraph';
+import React, { useState, useEffect } from 'react';
+import { ProjectLink, ProjectLinkType, Project } from '../model';
+import { Stack, Shimmer, Image, DefaultButton, IButtonStyles, getTheme } from '@fluentui/react';
 import { ProjectDetailCard } from './ProjectDetailCard';
+import { ExampleProjectLinks } from '../data/ExampleData';
+import AppInsights from '../img/appinsights.svg';
+import DevOps from '../img/devops.svg';
+import DevTestLabs from '../img/devtestlabs.svg';
+import GitHub from '../img/github.svg';
 
-export interface Member {
-    user: User;
-    graphUser?: GraphUser;
-    projectMembership?: ProjectMembership;
-}
 
 export interface IProjectLinksProps {
-    members?: Member[];
+    project: Project;
 }
 
 export const ProjectLinks: React.FunctionComponent<IProjectLinksProps> = (props) => {
 
-    const facepilePersonas = (): IFacepilePersona[] => props.members?.map(m => ({
-        personaName: m.graphUser?.displayName,
-        imageUrl: m.graphUser?.imageUrl,
-        data: m,
-    })) ?? [];
+    const [links, setLinks] = useState<ProjectLink[]>();
 
-    const _onRenderPersonaCoin: IRenderFunction<IFacepilePersona> = (props?: IFacepilePersona, defaultRender?: (props?: IFacepilePersona) => JSX.Element | null): JSX.Element | null => {
-        if (defaultRender) {
-            let element = defaultRender(props);
-            let _onRenderPlainCard = (): JSX.Element | null => {
-                if (!props?.data) return null;
-                let member: Member = props.data
-                console.log(member);
-                return (
-                    <Stack
-                        tokens={{ padding: 20 }}>
-                        <Persona
-                            text={member.graphUser?.displayName ?? member.user.id}
-                            secondaryText={`Role: ${member.projectMembership?.role}`}
-                            tertiaryText={`Type: ${member.user.userType}`}
-                            imageUrl={member.graphUser?.imageUrl}
-                            size={PersonaSize.size72}
-                        // styles={personaStyles}
-                        // onClick={() => setPanelOpen(true)}
-                        />
-                    </Stack>
-                );
+    // registerIcons({ icons: { AppInsights, DevOps, DevTestLabs, GitHub } });
+
+    useEffect(() => {
+        if (props.project) {
+            const _setLinks = async () => {
+                // let _links = await getProjectProviderLinks();
+                let _links = ExampleProjectLinks;
+                setLinks(_links);
             };
-
-            return (
-                <HoverCard
-                    instantOpenOnClick
-                    type={HoverCardType.plain}
-                    plainCardProps={{ onRenderPlainCard: _onRenderPlainCard }}>
-                    {element}
-                </HoverCard>
-            );
+            _setLinks();
         }
+    }, [props.project]);
 
-        return null;
-    };
 
-    const _getShimmerElements = (): JSX.Element => (
-        <ShimmerElementsGroup
-            shimmerElements={[
-                { type: ShimmerElementType.circle, height: 48 },
-                { type: ShimmerElementType.gap, width: 4 },
-                { type: ShimmerElementType.circle, height: 48 },
-                { type: ShimmerElementType.gap, width: 4 },
-                { type: ShimmerElementType.circle, height: 48 }
-            ]} />
-    );
+    const _findKnownProviderImage = (link: ProjectLink) => {
+        if (link.providerId) {
+            if (link.providerId.startsWith('azure.appinsights')) return AppInsights;
+            if (link.providerId.startsWith('azure.devops')) return DevOps;
+            if (link.providerId.startsWith('azure.devtestlabs')) return DevTestLabs;
+            if (link.providerId.startsWith('github')) return GitHub;
+        }
+        return undefined;
+    }
+
+    const _getLinkTypeIcon = (link: ProjectLink) => {
+        switch (link.dataType) { // VisualStudioIDELogo32
+            case ProjectLinkType.Link: return 'Link'; // Link12, FileSymlink, OpenInNewWindow, VSTSLogo
+            case ProjectLinkType.Readme: return 'PageList'; // Preview, Copy, FileHTML, FileCode, MarkDownLanguage, Document
+            case ProjectLinkType.Service: return 'Processing'; // Settings, Globe, Repair
+            case ProjectLinkType.Resource: return 'AzureLogo'; // AzureServiceEndpoint
+            case ProjectLinkType.Repository: return 'OpenSource';
+            default: return undefined;
+        }
+    }
+
+    const theme = getTheme();
+
+    const _linkButtonStyles: IButtonStyles = {
+        root: {
+            // border: 'none',
+            width: '100%',
+            textAlign: 'start',
+            borderBottom: '1px',
+            borderStyle: 'none none solid none',
+            borderRadius: '0',
+            borderColor: theme.palette.neutralLighter,
+            padding: '24px 6px'
+        }
+    }
+
+    const _linkTypes = [ProjectLinkType.Resource, ProjectLinkType.Service, ProjectLinkType.Repository, ProjectLinkType.Readme, ProjectLinkType.Link];
+
+    const _getLinkStacks = () => links?.sort((a, b) => _linkTypes.indexOf(a.dataType) - _linkTypes.indexOf(b.dataType)).map(l => (
+        <Stack horizontal tokens={{ childrenGap: '12px' }}>
+            < Stack.Item styles={{ root: { width: '100%' } }}>
+                <DefaultButton
+                    iconProps={{ iconName: _getLinkTypeIcon(l) }}
+                    text={l.name}
+                    href={l.value}
+                    target='_blank'
+                    styles={_linkButtonStyles} >
+                    <Image
+                        src={_findKnownProviderImage(l)}
+                        height={24} width={24} />
+                </DefaultButton>
+            </Stack.Item >
+        </Stack >
+    ));
 
     return (
-        <ProjectDetailCard title='Members'>
+        <ProjectDetailCard title='Resources' callout={links?.length.toString()}>
             <Shimmer
-                customElementsGroup={_getShimmerElements()}
-                isDataLoaded={props.members ? props.members.length > 0 : false}
+                // customElementsGroup={_getShimmerElements()}
+                isDataLoaded={links ? links.length > 0 : false}
                 width={152} >
-                <Facepile
-                    personas={facepilePersonas()}
-                    personaSize={PersonaSize.size48}
-                    onRenderPersonaCoin={_onRenderPersonaCoin}
-                ></Facepile>
+                <Stack tokens={{ childrenGap: '0' }} >
+                    {_getLinkStacks()}
+                </Stack>
             </Shimmer>
         </ProjectDetailCard>
     );

@@ -25,8 +25,6 @@ export const ProjectForm: React.FunctionComponent<IProjectFormProps> = (props) =
         }
     }, [projectTypes]);
 
-    const handleSubmit = () => { }
-
     const projectTypeOptions = (): IDropdownOption[] => {
         if (!projectTypes) return [];
         return projectTypes.map(pt => ({ key: pt.id, text: pt.id } as IDropdownOption));
@@ -42,22 +40,20 @@ export const ProjectForm: React.FunctionComponent<IProjectFormProps> = (props) =
     if (projectTypes) {
         return (
             <Stack>
-                <form onSubmit={handleSubmit}>
-                    <TextField
-                        label='Name'
-                        required
-                        // errorMessage='Name is required.'
-                        disabled={props.fieldsEnabled}
-                        onChange={(ev, val) => props.onNameChange(val)} />
-                    <Dropdown
-                        label='Project Type'
-                        required
-                        // errorMessage='Project Type is required.'
-                        placeHolder='Select a Project Type'
-                        disabled={props.fieldsEnabled}
-                        options={projectTypeOptions()}
-                        onChange={onDropdownChange} />
-                </form>
+                <TextField
+                    label='Name'
+                    required
+                    // errorMessage='Name is required.'
+                    disabled={props.fieldsEnabled}
+                    onChange={(ev, val) => props.onNameChange(val)} />
+                <Dropdown
+                    label='Project Type'
+                    required
+                    // errorMessage='Project Type is required.'
+                    placeHolder='Select a Project Type'
+                    disabled={props.fieldsEnabled}
+                    options={projectTypeOptions()}
+                    onChange={onDropdownChange} />
             </Stack>
         );
     } else {

@@ -1,5 +1,5 @@
 import { getToken } from "./Auth";
-import { DataResult, StatusResult, ErrorResult, Project, User, ProjectType, ProjectDefinition, UserDefinition } from "./model";
+import { DataResult, StatusResult, ErrorResult, Project, User, ProjectType, Provider, ProjectDefinition, UserDefinition } from "./model";
 
 const scope = 'http://TeamCloud.Web/user_impersonation'
 const baseUrl = 'http://localhost:3000'
@@ -65,6 +65,14 @@ export const getProjectTypes = async () => {
     return getResource<Array<ProjectType>>(`${baseUrl}/api/projectTypes`);
 }
 
+
+export const getProvider = async (id: string) => {
+    return getResource<Provider>(`${baseUrl}/api/providers/${id}`);
+}
+
+export const getProviders = async () => {
+    return getResource<Array<Provider>>(`${baseUrl}/api/providers`);
+}
 
 
 export const getResource = async <T>(url: string): Promise<ErrorResult | DataResult<T>> => {

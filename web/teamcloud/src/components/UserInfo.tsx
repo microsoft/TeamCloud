@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { DefaultButton, Stack, Panel, Persona, PersonaSize, getTheme } from '@fluentui/react';
+import { DefaultButton, Stack, Panel, Persona, PersonaSize, getTheme, Separator } from '@fluentui/react';
 import { GraphUser } from '../MSGraph';
 
 export interface IUserInfoProps {
@@ -38,7 +38,7 @@ export const UserInfo: React.FunctionComponent<IUserInfoProps> = (props) => {
 
     const panelStyles = {
         root: { marginTop: '56px' },
-        content: { paddingTop: '20px' },
+        content: { paddingTop: '12px' },
         main: { height: 'fit-content' }
     };
 
@@ -59,6 +59,13 @@ export const UserInfo: React.FunctionComponent<IUserInfoProps> = (props) => {
                 hasCloseButton={false}
                 onDismiss={() => setPanelOpen(false)} >
                 <Stack>
+                    <Persona
+                        text={props.graphUser?.displayName}
+                        secondaryText={props.graphUser?.jobTitle}
+                        tertiaryText={props.graphUser?.department}
+                        imageUrl={props.graphUser?.imageUrl}
+                        size={PersonaSize.size72} />
+                    <Separator />
                     <DefaultButton text="Sign out" onClick={() => props.onSignOut} />
                 </Stack>
             </Panel>

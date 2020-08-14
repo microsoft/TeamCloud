@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Project, User, DataResult, ProjectUserRole, UserDefinition, StatusResult, ErrorResult, UserType } from '../model';
-import { getProject, createProjectUser, deleteProjectUser } from '../API';
+import { Project, User, DataResult, ProjectUserRole, UserDefinition, StatusResult, ErrorResult } from '../model';
+import { getProject, createProjectUser } from '../API';
 import { Stack, Spinner, IBreadcrumbItem, ICommandBarItemProps, PrimaryButton, DefaultButton, Panel, Text, IStackStyles } from '@fluentui/react';
-import { IProjectViewDetailProps, ProjectViewDetail, SubheaderBar, UserForm, Member, ProjectMembers } from '../components';
-import { getGraphUser, getGraphDirectoryObject } from '../MSGraph';
+import { IProjectViewDetailProps, ProjectViewDetail, SubheaderBar, UserForm, ProjectMembers } from '../components';
+import { ProjectLinks } from '../components/ProjectLinks';
 
 export interface IProjectViewProps {
     user?: User;
@@ -14,7 +14,6 @@ export interface IProjectViewProps {
 export const ProjectView: React.FunctionComponent<IProjectViewProps> = (props) => {
 
     const [project, setProject] = useState(props.project);
-    const [members, setMembers] = useState<Member[]>();
     const [panelOpen, setPanelOpen] = useState(false);
 
     const [newUserFormEnabled, setNewUserFormEnabled] = useState<boolean>(true);
@@ -33,21 +32,6 @@ export const ProjectView: React.FunctionComponent<IProjectViewProps> = (props) =
         }
     }, [project, props.projectId]);
 
-    useEffect(() => {
-        if (project) {
-            const _setMembers = async () => {
-                let _members = await Promise.all(project.users.map(async u => ({
-                    user: u,
-                    graphUser: u.userType === UserType.User ? await getGraphUser(u.id) : u.userType === UserType.Provider ? await getGraphDirectoryObject(u.id) : undefined,
-                    projectMembership: u.projectMemberships?.find(m => m.projectId === project.id)
-                })));
-                setMembers(_members);
-            };
-            _setMembers();
-        }
-    }, [project]);
-
-
     const _refresh = async () => {
         let result = await getProject(project?.id ?? props.projectId);
         let data = (result as DataResult<Project>).data;
@@ -59,7 +43,7 @@ export const ProjectView: React.FunctionComponent<IProjectViewProps> = (props) =
 
     const _commandBarItems = (): ICommandBarItemProps[] => [
         { key: 'refresh', text: 'Refresh', iconProps: { iconName: 'Refresh' }, onClick: () => { _refresh() } },
-        { key: 'addUser', text: 'Add users', iconProps: { iconName: 'AddFriend' }, onClick: () => { setPanelOpen(true) }, disabled: !_userIsProjectOwner() },
+        { key: 'addUser', text: 'Add users', iconProps: { iconName: 'PeopleAdd' }, onClick: () => { setPanelOpen(true) }, disabled: !_userIsProjectOwner() },
     ];
 
     const _breadcrumbs: IBreadcrumbItem[] = [{ text: 'Projects', key: 'projects', href: '/' }];
@@ -101,13 +85,6 @@ export const ProjectView: React.FunctionComponent<IProjectViewProps> = (props) =
         }
     }
 
-    const _removeMemberFromProject = async (member: Member) => {
-        let result = await deleteProjectUser(project?.id ?? props.projectId, member.user.id);
-        if ((result as StatusResult).code !== 202 && (result as ErrorResult).errors) {
-            console.log(result as ErrorResult);
-        }
-    }
-
     const _resetUserFormAndDismiss = () => {
         setPanelOpen(false);
         setNewUserRole(undefined);
@@ -141,30 +118,17 @@ export const ProjectView: React.FunctionComponent<IProjectViewProps> = (props) =
                     { label: 'ID', value: project.type.id },
                     { label: 'Default', value: project.type.isDefault ? 'Yes' : 'No' },
                     { label: 'Location', value: project.type.region },
-                    { label: 'Providers', value: project.type.providers.map(p => p.id).join() },
+                    { label: 'Providers', value: project.type.providers.map(p => p.id).join(', ') },
                     { label: 'Subscription Capacity', value: project.type.subscriptionCapacity.toString() },
-                    { label: 'Subscriptions', value: project.type.subscriptions.join() },
+                    { label: 'Subscriptions', value: project.type.subscriptions.join(', ') },
                     { label: 'Resource Group Name Prefix', value: project.type.resourceGroupNamePrefix ?? '' },
                 ]
             }
-        ];
-        return _projectDetailStackProps;
-    };
-
-    const rightProjectDetailStackProps = (): IProjectViewDetailProps[] => {
-        if (!project) return [];
-
-        let _projectDetailStackProps: IProjectViewDetailProps[] = [
-            {
-                title: 'Links', details: [
-                    { label: 'GitHub Repository', value: 'https://github.com' },
-                    { label: 'Azure DevTestLabs', value: 'https://github.com' },
-                ]
-            }, {
+            , {
                 title: 'Resource Group', details: [
-                    { label: 'Name', value: project.resourceGroup.name },
-                    { label: 'Location', value: project.resourceGroup.region },
-                    { label: 'Subscription', value: project.resourceGroup.subscriptionId },
+                    { label: 'Name', value: project.resourceGroup?.name },
+                    { label: 'Location', value: project.resourceGroup?.region },
+                    { label: 'Subscription', value: project.resourceGroup?.subscriptionId },
                 ]
             }
         ];
@@ -205,13 +169,11 @@ export const ProjectView: React.FunctionComponent<IProjectViewProps> = (props) =
                         horizontalAlign='center'
                         verticalAlign='start'>
                         <Stack.Item grow styles={{ root: { minWidth: '367px', marginRight: '16px' } }}>
+                            <ProjectMembers project={project} />
                             {projectDetailStack(leftProjectDetailStackProps())}
                         </Stack.Item>
                         <Stack.Item grow styles={{ root: { minWidth: '367px', marginRight: '16px' } }}>
-                            {projectDetailStack(rightProjectDetailStackProps())}
-                        </Stack.Item>
-                        <Stack.Item grow styles={{ root: { minWidth: '367px', marginRight: '16px' } }}>
-                            <ProjectMembers members={members} removeMember={_removeMemberFromProject} />
+                            <ProjectLinks project={project} />
                         </Stack.Item>
                     </Stack>
                 </Stack>

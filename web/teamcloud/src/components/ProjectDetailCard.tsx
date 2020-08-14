@@ -3,6 +3,7 @@ import { Stack, IStackStyles, ITextStyles, getTheme, FontWeights, Text } from '@
 
 export interface IProjectDetailCardProps {
     title?: string;
+    callout?: string;
 }
 
 export const ProjectDetailCard: React.FunctionComponent<IProjectDetailCardProps> = (props) => {
@@ -25,20 +26,36 @@ export const ProjectDetailCard: React.FunctionComponent<IProjectDetailCardProps>
         }
     }
 
-    const _headingStyles: ITextStyles = {
+    const _titleStyles: ITextStyles = {
         root: {
-            fontSize: theme.fonts.large.fontSize,
+            fontSize: '21px',
             fontWeight: FontWeights.semibold,
             marginBottom: '12px'
         }
     }
 
-    const _getTitle = (): JSX.Element | null => props.title ? <Text styles={_headingStyles}>{props.title}</Text> : null;
+    const _calloutStyles: ITextStyles = {
+        root: {
+            fontSize: '13px',
+            fontWeight: FontWeights.regular,
+            color: 'rgb(102, 102, 102)',
+            backgroundColor: theme.palette.neutralLighter,
+            marginBottom: '14px',
+            marginTop: '5px',
+            padding: '2px 12px',
+            borderRadius: '14px',
+        }
+    }
+
+    const _getCallout = (): JSX.Element | null => props.callout ? <Text styles={_calloutStyles}>{props.callout}</Text> : null;
+
+    const _getTitle = (): JSX.Element | null => props.title ? <Text styles={_titleStyles}>{props.title}</Text> : null;
 
     return (
         <Stack verticalFill styles={_cardStackStyles}>
             <Stack styles={_cardStackContentStyles} >
-                {_getTitle()}
+                <Stack horizontal tokens={{ childrenGap: '5px' }}>{_getTitle()}{_getCallout()}</Stack>
+                {/* {_getTitle()} */}
                 {props.children}
             </Stack>
         </Stack>

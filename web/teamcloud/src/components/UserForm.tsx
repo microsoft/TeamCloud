@@ -16,8 +16,6 @@ export interface IGraphUserPersonaProps extends IPersonaProps {
 
 export const UserForm: React.FunctionComponent<IUserFormProps> = (props) => {
 
-    const _handleSubmit = () => { }
-
     const _projectRoleOptions = (): IDropdownOption[] => {
         return [ProjectUserRole.Member, ProjectUserRole.Owner].map(r => ({ key: r, text: r } as IDropdownOption));
     };
@@ -59,23 +57,21 @@ export const UserForm: React.FunctionComponent<IUserFormProps> = (props) => {
 
     return (
         <Stack>
-            <form onSubmit={_handleSubmit}>
-                <Dropdown
-                    required
-                    label='Role'
-                    placeHolder='Select a Role'
-                    disabled={props.fieldsEnabled}
-                    options={_projectRoleOptions()}
-                    onChange={_onUserRoleDropdownChange} />
-                <Label required>Users</Label>
-                <ListPeoplePicker
-                    resolveDelay={500}
-                    onResolveSuggestions={_onResolveSuggestions}
-                    getTextFromItem={_getTextForItem}
-                    onChange={_onItemsChanged}
-                    pickerSuggestionsProps={_suggestionProps}
-                    disabled={props.fieldsEnabled} />
-            </form>
+            <Dropdown
+                required
+                label='Role'
+                placeHolder='Select a Role'
+                disabled={props.fieldsEnabled}
+                options={_projectRoleOptions()}
+                onChange={_onUserRoleDropdownChange} />
+            <Label required>Users</Label>
+            <ListPeoplePicker
+                resolveDelay={500}
+                onResolveSuggestions={_onResolveSuggestions}
+                getTextFromItem={_getTextForItem}
+                onChange={_onItemsChanged}
+                pickerSuggestionsProps={_suggestionProps}
+                disabled={props.fieldsEnabled} />
         </Stack>
     );
 }

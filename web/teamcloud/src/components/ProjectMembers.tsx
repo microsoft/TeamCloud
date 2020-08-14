@@ -1,14 +1,13 @@
-import React from 'react';
-import { User, ProjectMembership, UserType } from '../model';
+import React, { useState, useEffect } from 'react';
+import { User, ProjectMembership, UserType, Project, StatusResult, ErrorResult } from '../model';
 import { Stack, Facepile, IFacepilePersona, PersonaSize, IRenderFunction, HoverCard, HoverCardType, Persona, Shimmer, ShimmerElementsGroup, ShimmerElementType, CommandBar, ICommandBarItemProps, Separator, Label, Text } from '@fluentui/react';
-import { GraphUser } from '../MSGraph';
+import { GraphUser, getGraphUser, getGraphDirectoryObject } from '../MSGraph';
 import { ProjectDetailCard } from './ProjectDetailCard';
 import AppInsights from '../img/appinsights.svg';
 import DevOps from '../img/devops.svg';
 import DevTestLabs from '../img/devtestlabs.svg';
 import GitHub from '../img/github.svg';
-
-
+import { deleteProjectUser } from '../API';
 
 export interface Member {
     user: User;
@@ -17,27 +16,45 @@ export interface Member {
 }
 
 export interface IProjectMembersProps {
-    members?: Member[];
-    removeMember: (member: Member) => void;
+    project: Project;
 }
 
 export const ProjectMembers: React.FunctionComponent<IProjectMembersProps> = (props) => {
 
+    const [members, setMembers] = useState<Member[]>();
+
+    useEffect(() => {
+        if (props.project) {
+            const _setMembers = async () => {
+                let _members = await Promise.all(props.project.users.map(async u => ({
+                    user: u,
+                    graphUser: u.userType === UserType.User ? await getGraphUser(u.id) : u.userType === UserType.Provider ? await getGraphDirectoryObject(u.id) : undefined,
+                    projectMembership: u.projectMemberships?.find(m => m.projectId === props.project.id)
+                })));
+                setMembers(_members);
+            };
+            _setMembers();
+        }
+    }, [props.project]);
+
+    const _removeMemberFromProject = async (member: Member) => {
+        let result = await deleteProjectUser(props.project.id, member.user.id);
+        if ((result as StatusResult).code !== 202 && (result as ErrorResult).errors) {
+            console.log(result as ErrorResult);
+        }
+    }
+
     const _findKnownProviderImage = (member: Member) => {
         if (member.graphUser?.displayName) {
-            if (member.graphUser.displayName.startsWith('appinsights'))
-                return AppInsights
-            if (member.graphUser.displayName.startsWith('devops'))
-                return DevOps
-            if (member.graphUser.displayName.startsWith('devtestlabs'))
-                return DevTestLabs
-            if (member.graphUser.displayName.startsWith('github'))
-                return GitHub
+            if (member.graphUser.displayName.startsWith('appinsights')) return AppInsights
+            if (member.graphUser.displayName.startsWith('devops')) return DevOps
+            if (member.graphUser.displayName.startsWith('devtestlabs')) return DevTestLabs
+            if (member.graphUser.displayName.startsWith('github')) return GitHub
         }
         return undefined;
     }
 
-    const _facepilePersonas = (): IFacepilePersona[] => props.members?.map(m => ({
+    const _facepilePersonas = (): IFacepilePersona[] => members?.map(m => ({
         personaName: m.graphUser?.displayName,
         imageUrl: m.graphUser?.imageUrl ?? _findKnownProviderImage(m),
         data: m,
@@ -45,7 +62,7 @@ export const ProjectMembers: React.FunctionComponent<IProjectMembersProps> = (pr
 
     const _getCommandBarItems = (member: Member): ICommandBarItemProps[] => [
         { key: 'edit', text: 'Edit', iconProps: { iconName: 'EditContact' } },
-        { key: 'remove', text: 'Remove', iconProps: { iconName: 'UserRemove' }, onClick: () => { props.removeMember(member) } },
+        { key: 'remove', text: 'Remove', iconProps: { iconName: 'UserRemove' }, onClick: () => { _removeMemberFromProject(member) } },
     ];
 
     const _onRenderPersonaCoin: IRenderFunction<IFacepilePersona> = (props?: IFacepilePersona, defaultRender?: (props?: IFacepilePersona) => JSX.Element | null): JSX.Element | null => {
@@ -130,10 +147,10 @@ export const ProjectMembers: React.FunctionComponent<IProjectMembersProps> = (pr
     }
 
     return (
-        <ProjectDetailCard title='Members'>
+        <ProjectDetailCard title='Members' callout={members?.length.toString()}>
             <Shimmer
                 customElementsGroup={_getShimmerElements()}
-                isDataLoaded={props.members ? props.members.length > 0 : false}
+                isDataLoaded={members ? members.length > 0 : false}
                 width={152} >
                 <Facepile
                     styles={{ itemButton: _personaCoinStyles }}

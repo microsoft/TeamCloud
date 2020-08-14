@@ -4,7 +4,7 @@ import { Text, ITextStyles, Stack, getTheme, IStackStyles } from '@fluentui/reac
 import { GraphUser } from '../MSGraph';
 
 export interface IHeaderBarProps {
-    graphUser: GraphUser | undefined;
+    graphUser?: GraphUser;
     onSignOut: () => void;
 }
 

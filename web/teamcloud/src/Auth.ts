@@ -6,13 +6,12 @@ export const authScopeAzure: string = 'https://management.core.windows.net//user
 export const authScopeUser: string = 'https://graph.microsoft.com/User.Read';
 export const authScopeProfile: string = 'https://graph.microsoft.com/User.Read';
 
-
 const authenticationConfiguration: Configuration = {
     auth: {
         authority: 'https://login.microsoftonline.com/common',
         clientId: '[your client id goes here]',
-        postLogoutRedirectUri: window.location.origin,
         redirectUri: window.location.origin,
+        postLogoutRedirectUri: window.location.origin,
         validateAuthority: false,
         navigateToLoginRequestUrl: true,
     },
@@ -24,11 +23,7 @@ const authenticationConfiguration: Configuration = {
 
 const authenticationParameters: AuthenticationParameters = {
     scopes: [
-        // 'user_impersonation',
-        'openid',
-        // authScopeAzure,
-        // authScopeAzure,
-        // authScopeUser,
+        'openid'
     ]
 }
 

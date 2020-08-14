@@ -21,7 +21,7 @@ export const SubheaderBar: React.FunctionComponent<ISubheaderBarProps> = (props)
     const _centerCommandBarStyles: ICommandBarStyles = {
         root: {
             paddingTop: '4px',
-            minWidth: '167px'
+            minWidth: '200px'
         },
         primarySet: {
             alignItems: 'center'
