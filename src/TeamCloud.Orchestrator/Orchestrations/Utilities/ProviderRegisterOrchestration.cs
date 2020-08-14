@@ -85,12 +85,8 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 
                     if (providers.Any())
                     {
-                        var tasks = providers.Select(provider =>
-                        {
-                            log.LogInformation($"Initiate provider {provider.Id} registration: {JsonConvert.SerializeObject(command)}");
-
-                            return functionContext.CallSubOrchestratorWithRetryAsync(nameof(ProviderRegisterOrchestration), (provider, command));
-                        });
+                        var tasks = providers
+                            .Select(provider => functionContext.CallSubOrchestratorWithRetryAsync(nameof(ProviderRegisterOrchestration), (provider, command)));
 
                         await Task
                             .WhenAll(tasks)
