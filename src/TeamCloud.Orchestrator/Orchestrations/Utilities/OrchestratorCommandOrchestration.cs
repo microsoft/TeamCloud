@@ -32,13 +32,19 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 
             try
             {
+                functionContext.SetCustomStatus("Auditing command", log);
+
                 await functionContext
                     .AuditAsync(command, commandResult)
                     .ConfigureAwait(true);
 
+                functionContext.SetCustomStatus("Dispatching command", log);
+
                 var commandOrchestration = await functionContext
                     .CallActivityWithRetryAsync<string>(nameof(OrchestratorCommandDispatchActivity), command)
                     .ConfigureAwait(true);
+
+                functionContext.SetCustomStatus("Processing command", log);
 
                 commandResult = await functionContext
                     .CallSubOrchestratorWithRetryAsync<ICommandResult>(commandOrchestration, command.CommandId.ToString(), command)
@@ -46,7 +52,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
             }
             catch (Exception exc)
             {
-                commandLog.LogError(exc, $"Processing command '{command.GetType().FullName}' ({command.CommandId}) Failed >>> {exc.Message}");
+                functionContext.SetCustomStatus($"Handling error: {exc.Message}", log, exc);
 
                 commandResult ??= command.CreateResult();
                 commandResult.Errors.Add(exc);
@@ -55,14 +61,25 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
             {
                 if (commandResult?.RuntimeStatus.IsUnknown() ?? false)
                 {
+                    functionContext.SetCustomStatus("Augmenting command result", log);
+
                     commandResult = await functionContext
                         .CallActivityWithRetryAsync<ICommandResult>(nameof(CommandResultAugmentActivity), commandResult)
                         .ConfigureAwait(true);
                 }
 
+                functionContext.SetCustomStatus("Auditing command result", log);
+
                 await functionContext
                     .AuditAsync(command, commandResult)
                     .ConfigureAwait(true);
+
+                var commandException = commandResult.Errors?.ToException();
+
+                if (commandException is null)
+                    functionContext.SetCustomStatus($"Command succeeded", log);
+                else
+                    functionContext.SetCustomStatus($"Command failed: {commandException.Message}", log, commandException);
 
                 functionContext.SetOutput(commandResult);
             }

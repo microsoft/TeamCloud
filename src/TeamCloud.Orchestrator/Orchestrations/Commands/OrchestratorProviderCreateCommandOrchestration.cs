@@ -67,15 +67,13 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                     await functionContext
                         .RegisterProviderAsync(provider, true)
                         .ConfigureAwait(true);
-
-                    functionContext.SetCustomStatus($"Provider registered", log);
                 }
                 catch (Exception exc)
                 {
+                    functionContext.SetCustomStatus($"Handling error: {exc.Message}", log, exc);
+
                     commandResult ??= command.CreateResult();
                     commandResult.Errors.Add(exc);
-
-                    throw;
                 }
                 finally
                 {
