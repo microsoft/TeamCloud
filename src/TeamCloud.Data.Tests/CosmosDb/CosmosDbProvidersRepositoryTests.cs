@@ -10,8 +10,8 @@ using System.Threading.Tasks;
 using TeamCloud.Data.Conditional;
 using TeamCloud.Data.CosmosDb.Core;
 using TeamCloud.Model.Internal.Data;
-using TeamCloud.Model.Data.Core;
 using Xunit;
+using TeamCloud.Model.Data;
 
 namespace TeamCloud.Data.CosmosDb
 {

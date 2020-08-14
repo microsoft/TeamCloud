@@ -5,6 +5,7 @@
 
 using System;
 using Newtonsoft.Json;
+using TeamCloud.Model.Common;
 using TeamCloud.Serialization;
 
 namespace TeamCloud.Model.Internal.Data

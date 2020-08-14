@@ -4,9 +4,9 @@
  */
 
 using Newtonsoft.Json;
-using TeamCloud.Serialization;
+using TeamCloud.Model.Data;
 using TeamCloud.Model.Internal.Data.Core;
-using TeamCloud.Model.Data.Core;
+using TeamCloud.Serialization;
 
 namespace TeamCloud.Model.Internal.Data
 {

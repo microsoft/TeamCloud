@@ -5,7 +5,6 @@
 
 using System;
 using TeamCloud.Model.Data;
-using TeamCloud.Model.Data.Core;
 
 namespace TeamCloud.Model.Commands
 {

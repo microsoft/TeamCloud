@@ -22,6 +22,8 @@ using TeamCloud.Orchestrator.Activities;
 using TeamCloud.Orchestrator.Entities;
 using TeamCloud.Serialization;
 using TeamCloud.Model;
+using TeamCloud.Model.Data;
+using TeamCloud.Model.Common;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 {

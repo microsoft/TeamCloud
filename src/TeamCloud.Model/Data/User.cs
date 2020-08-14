@@ -6,11 +6,11 @@
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
-using TeamCloud.Model.Data.Core;
 using TeamCloud.Serialization;
 
 namespace TeamCloud.Model.Data
 {
+
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
     public sealed class User : IUser, IEquatable<User>
     {
@@ -33,23 +33,5 @@ namespace TeamCloud.Model.Data
 
         public override int GetHashCode()
             => Id.GetHashCode(StringComparison.OrdinalIgnoreCase);
-    }
-
-    public class UserComparer : IEqualityComparer<User>
-    {
-        public bool Equals(User x, User y)
-        {
-            if (ReferenceEquals(x, y))
-                return true;
-            else if (x == null || y == null)
-                return false;
-            else if (x.Id == y.Id)
-                return true;
-            else
-                return false;
-        }
-
-        public int GetHashCode(User obj)
-            => (obj ?? throw new ArgumentNullException(nameof(obj))).Id.GetHashCode(StringComparison.OrdinalIgnoreCase);
     }
 }

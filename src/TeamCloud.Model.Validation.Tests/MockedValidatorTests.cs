@@ -6,6 +6,7 @@
 using System;
 using System.Threading.Tasks;
 using FluentValidation;
+using TeamCloud.Model.Common;
 using Xunit;
 
 namespace TeamCloud.Model.Validation.Tests

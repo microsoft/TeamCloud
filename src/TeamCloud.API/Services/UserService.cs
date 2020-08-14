@@ -10,7 +10,7 @@ using Microsoft.Extensions.Caching.Memory;
 using TeamCloud.API.Data;
 using TeamCloud.Azure.Directory;
 using TeamCloud.Data;
-using TeamCloud.Model.Data.Core;
+using TeamCloud.Model.Data;
 using TeamCloud.Model.Internal.Data;
 
 namespace TeamCloud.API.Services
