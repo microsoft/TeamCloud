@@ -11,8 +11,8 @@ using Flurl.Http;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using TeamCloud.Model.Commands.Core;
-using TeamCloud.Model.Internal.Data;
 using TeamCloud.Model.Internal.Commands;
+using TeamCloud.Model.Internal.Data;
 
 namespace TeamCloud.API.Services
 {
@@ -88,6 +88,9 @@ namespace TeamCloud.API.Services
                 .AllowHttpStatus(HttpStatusCode.NotFound)
                 .GetStringAsync()
                 .ConfigureAwait(false);
+
+            if (string.IsNullOrEmpty(resultJson))
+                return null;
 
             var result = JsonConvert.DeserializeObject<ICommandResult>(resultJson);
 
