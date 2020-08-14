@@ -14,11 +14,17 @@ namespace TeamCloud.Model.Commands
 
         public ProviderCommandLinks(IProviderCommand providerCommand = null) : base(providerCommand)
         {
+            bool HasProviderId()
+                => !string.IsNullOrEmpty(Context?.ProviderId);
+
+            bool HasProjectId()
+                => !string.IsNullOrEmpty(Context?.ProjectId);
+
             SetLink(nameof(SystemData), new ReferenceLink(()
-                => GetBaseUri()?.AppendPath($"api/providers/{Context.ProviderId}").ToString()));
+                => HasProviderId() ? GetBaseUri()?.AppendPath($"api/providers/{Context.ProviderId}").ToString() : null));
 
             SetLink(nameof(ProjectData), new ReferenceLink(()
-                => string.IsNullOrEmpty(Context.ProjectId) ? default : GetBaseUri()?.AppendPath($"api/providers/{Context.ProviderId}").ToString()));
+                => HasProviderId() && HasProjectId() ? GetBaseUri()?.AppendPath($"api/providers/{Context.ProviderId}").ToString() : null));
         }
 
         public ReferenceLink SystemData
