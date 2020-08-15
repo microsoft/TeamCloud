@@ -14,7 +14,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Internal;
-using TeamCloud.Model.Internal.Data;
+using TeamCloud.Model.Data;
 using TeamCloud.Model.Data.Core;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestration.Auditing;

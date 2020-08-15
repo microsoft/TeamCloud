@@ -10,7 +10,7 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json.Serialization;
 
-namespace TeamCloud.Model.Internal.Data.Core
+namespace TeamCloud.Model.Data.Core
 {
     [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
     public sealed class ContainerNameAttribute : Attribute

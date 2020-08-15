@@ -16,8 +16,8 @@ using TeamCloud.API.Services;
 using TeamCloud.Data;
 using TeamCloud.Model;
 using TeamCloud.Model.Data;
-using TeamCloud.Model.Internal.Commands;
-using TeamCloud.Model.Internal.Data;
+using TeamCloud.Model.Commands;
+using TeamCloud.Model.Data;
 using TeamCloud.Model.Validation.Data;
 
 namespace TeamCloud.API.Controllers

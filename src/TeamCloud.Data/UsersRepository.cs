@@ -6,7 +6,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using TeamCloud.Model.Data;
-using TeamCloud.Model.Internal.Data;
+using TeamCloud.Model.Data;
 
 namespace TeamCloud.Data
 {

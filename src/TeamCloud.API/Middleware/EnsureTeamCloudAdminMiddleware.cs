@@ -15,8 +15,8 @@ using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
 using TeamCloud.Model.Data;
-using TeamCloud.Model.Internal.Commands;
-using TeamCloud.Model.Internal.Data;
+using TeamCloud.Model.Commands;
+using TeamCloud.Model.Data;
 
 namespace TeamCloud.API.Middleware
 {

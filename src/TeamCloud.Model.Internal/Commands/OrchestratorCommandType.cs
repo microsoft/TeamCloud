@@ -5,9 +5,9 @@
 
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Commands;
-using TeamCloud.Model.Internal.Data;
+using TeamCloud.Model.Data;
 
-namespace TeamCloud.Model.Internal.Commands
+namespace TeamCloud.Model.Commands
 {
     public enum OrchestratorCommandType
     {

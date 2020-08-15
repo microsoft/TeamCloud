@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TeamCloud.Model.Data;
 
-namespace TeamCloud.Model.Internal.Data
+namespace TeamCloud.Model.Data
 {
     public static class ProviderReferenceExtensions
     {

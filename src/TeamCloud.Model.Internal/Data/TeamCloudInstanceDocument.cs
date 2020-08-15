@@ -5,11 +5,11 @@
 
 using System.Collections.Generic;
 using Newtonsoft.Json;
-using TeamCloud.Model.Internal.Data.Core;
+using TeamCloud.Model.Data.Core;
 using TeamCloud.Serialization;
 using TeamCloud.Model.Data;
 
-namespace TeamCloud.Model.Internal.Data
+namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
     public sealed class TeamCloudInstanceDocument : ContainerDocument, ITeamCloudInstance, IPopulate<Model.Data.TeamCloudInstance>

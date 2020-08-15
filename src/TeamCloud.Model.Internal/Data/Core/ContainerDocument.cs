@@ -7,9 +7,9 @@ using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using TeamCloud.Model.Common;
-using TeamCloud.Model.Internal.Data.Serialization;
+using TeamCloud.Model.Data.Serialization;
 
-namespace TeamCloud.Model.Internal.Data.Core
+namespace TeamCloud.Model.Data.Core
 {
     [JsonConverter(typeof(ContainerDocumentConverter))]
     public interface IContainerDocument : IIdentifiable, IValidatable

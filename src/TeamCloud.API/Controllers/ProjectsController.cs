@@ -17,8 +17,8 @@ using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
 using TeamCloud.Model.Data;
-using TeamCloud.Model.Internal.Commands;
-using TeamCloud.Model.Internal.Data;
+using TeamCloud.Model.Commands;
+using TeamCloud.Model.Data;
 
 namespace TeamCloud.API.Controllers
 {
@@ -161,7 +161,7 @@ namespace TeamCloud.API.Controllers
             var users = await ResolveUsersAsync(projectDefinition, projectId)
                 .ConfigureAwait(false);
 
-            var project = new Model.Internal.Data.ProjectDocument
+            var project = new ProjectDocument
             {
                 Id = projectId,
                 Users = users,

@@ -5,10 +5,10 @@
 
 using Newtonsoft.Json;
 using TeamCloud.Model.Data;
-using TeamCloud.Model.Internal.Data.Core;
+using TeamCloud.Model.Data.Core;
 using TeamCloud.Serialization;
 
-namespace TeamCloud.Model.Internal.Data
+namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
     public class ProviderDataDocument : ContainerDocument, IProviderData, IPopulate<Model.Data.ProviderData>
