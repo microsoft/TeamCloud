@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 using TeamCloud.Azure;
 using TeamCloud.Azure.Deployment;
 using TeamCloud.Data;
-using TeamCloud.Model.Internal.Data;
+using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Templates;
 using TeamCloud.Serialization;

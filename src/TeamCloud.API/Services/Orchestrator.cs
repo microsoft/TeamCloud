@@ -11,8 +11,8 @@ using Flurl.Http;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using TeamCloud.Model.Commands.Core;
-using TeamCloud.Model.Internal.Commands;
-using TeamCloud.Model.Internal.Data;
+using TeamCloud.Model.Commands;
+using TeamCloud.Model.Data;
 
 namespace TeamCloud.API.Services
 {

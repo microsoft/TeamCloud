@@ -3,9 +3,9 @@
  *  Licensed under the MIT License.
  */
 
-using TeamCloud.Model.Data.Core;
+using TeamCloud.Model.Data;
 
-namespace TeamCloud.Model.Internal.Data
+namespace TeamCloud.Model.Data
 {
     public static class UserRoleExtensions
     {

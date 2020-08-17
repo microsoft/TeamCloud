@@ -9,7 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Model.Commands.Core;
-using TeamCloud.Model.Data.Core;
+using TeamCloud.Model.Data;
 
 namespace TeamCloud.Orchestration.Auditing
 {

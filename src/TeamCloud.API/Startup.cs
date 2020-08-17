@@ -40,8 +40,8 @@ using TeamCloud.Data;
 using TeamCloud.Data.Caching;
 using TeamCloud.Data.CosmosDb;
 using TeamCloud.Http;
-using TeamCloud.Model.Data.Core;
-using TeamCloud.Model.Internal.Data;
+using TeamCloud.Model.Data;
+using TeamCloud.Model.Data;
 
 namespace TeamCloud.API
 {

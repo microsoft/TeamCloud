@@ -4,7 +4,7 @@
  */
 
 using System.Threading.Tasks;
-using TeamCloud.Model.Internal.Data;
+using TeamCloud.Model.Data;
 
 namespace TeamCloud.Data
 {

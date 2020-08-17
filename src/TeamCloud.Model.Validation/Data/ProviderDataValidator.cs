@@ -5,7 +5,6 @@
 
 using FluentValidation;
 using TeamCloud.Model.Data;
-using TeamCloud.Model.Data.Core;
 
 namespace TeamCloud.Model.Validation.Data
 {
@@ -27,7 +26,7 @@ namespace TeamCloud.Model.Validation.Data
 
             RuleFor(obj => obj.Name)
                 .NotEmpty();
-            // RuleFor(obj => obj.Value).
+
             RuleFor(obj => obj.Location)
                 .MustBeUrl()
                 .When(obj => obj.DataType == ProviderDataType.Service)

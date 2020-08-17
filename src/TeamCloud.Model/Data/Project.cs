@@ -11,6 +11,7 @@ using TeamCloud.Serialization;
 
 namespace TeamCloud.Model.Data
 {
+
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
     public sealed class Project : IProject<User>, IEquatable<Project>
     {

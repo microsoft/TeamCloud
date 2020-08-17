@@ -4,9 +4,9 @@
  */
 
 using System;
-using TeamCloud.Model.Internal.Data;
+using TeamCloud.Model.Data;
 
-namespace TeamCloud.Model.Internal.Commands
+namespace TeamCloud.Model.Commands
 {
     public class OrchestratorTeamCloudUserUpdateCommand : OrchestratorCommand<UserDocument, OrchestratorTeamCloudUserUpdateCommandResult>
     {

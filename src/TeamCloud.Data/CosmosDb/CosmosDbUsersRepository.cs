@@ -10,10 +10,9 @@ using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
 using TeamCloud.Data.CosmosDb.Core;
+using TeamCloud.Model.Data;
 using TeamCloud.Model.Data.Core;
-using TeamCloud.Model.Internal.Data.Core;
 using TeamCloud.Model.Validation;
-using UserDocument = TeamCloud.Model.Internal.Data.UserDocument;
 
 namespace TeamCloud.Data.CosmosDb
 {
