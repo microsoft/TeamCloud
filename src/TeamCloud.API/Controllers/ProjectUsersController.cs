@@ -114,6 +114,40 @@ namespace TeamCloud.API.Controllers
         }
 
 
+        [HttpGet("me")]
+        [Authorize(Policy = AuthPolicies.ProjectRead)]
+        [SwaggerOperation(OperationId = "GetProjectUserMe", Summary = "Gets a Project User for the calling user.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Returns Project User", typeof(DataResult<User>))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a User matching the current user was not found.", typeof(ErrorResult))]
+        public async Task<IActionResult> GetMe()
+        {
+            if (string.IsNullOrEmpty(ProjectId))
+                return ErrorResult
+                    .BadRequest($"Project Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCode.ValidationError)
+                    .ActionResult();
+
+            var me = await userService
+                .CurrentUserAsync()
+                .ConfigureAwait(false);
+
+            if (me is null)
+                return ErrorResult
+                    .NotFound($"A User matching the current user was not found in this TeamCloud instance.")
+                    .ActionResult();
+
+            if (!me.IsMember(ProjectId))
+                return ErrorResult
+                    .NotFound($"A User matching the current user was not found in this Project.")
+                    .ActionResult();
+
+            var returnUser = me.PopulateExternalModel(ProjectId);
+
+            return DataResult<User>
+                .Ok(returnUser)
+                .ActionResult();
+        }
+
         [HttpPost]
         [Authorize(Policy = AuthPolicies.ProjectUserWrite)]
         [Consumes("application/json")]
