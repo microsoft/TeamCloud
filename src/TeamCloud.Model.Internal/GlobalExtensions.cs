@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Model.Commands.Core;
-using TeamCloud.Model.Internal.Data;
+using TeamCloud.Model.Data;
 
 namespace TeamCloud.Model.Internal
 {

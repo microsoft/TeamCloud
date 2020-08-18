@@ -16,7 +16,6 @@ using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
 using TeamCloud.Model.Data;
-using TeamCloud.Model.Internal.Data;
 using TeamCloud.Model.Validation.Data;
 
 namespace TeamCloud.API.Controllers
@@ -127,8 +126,8 @@ namespace TeamCloud.API.Controllers
                     .ActionResult();
             }
 
-            var newProjectType = new Model.Internal.Data.ProjectTypeDocument();
-            newProjectType.PopulateFromExternalModel(projectType);
+            var newProjectType = new ProjectTypeDocument()
+                .PopulateFromExternalModel(projectType);
 
             var addResult = await orchestrator
                 .AddAsync(newProjectType)
@@ -199,7 +198,8 @@ namespace TeamCloud.API.Controllers
                     .ActionResult();
             }
 
-            existingProjectType.PopulateFromExternalModel(projectType);
+            existingProjectType
+                .PopulateFromExternalModel(projectType);
 
             var updateResult = await orchestrator
                 .UpdateAsync(existingProjectType)

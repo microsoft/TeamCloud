@@ -16,8 +16,6 @@ using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
 using TeamCloud.Model.Data;
-using TeamCloud.Model.Data.Core;
-using TeamCloud.Model.Internal.Data;
 using TeamCloud.Model.Validation.Data;
 
 namespace TeamCloud.API.Controllers
@@ -140,9 +138,8 @@ namespace TeamCloud.API.Controllers
             {
                 ProviderId = provider.Id,
                 Scope = ProviderDataScope.System
-            };
 
-            newProviderData.PopulateFromExternalModel(providerData);
+            }.PopulateFromExternalModel(providerData);
 
             var addResult = await orchestrator
                 .AddAsync(newProviderData)
@@ -210,9 +207,8 @@ namespace TeamCloud.API.Controllers
             {
                 ProviderId = provider.Id,
                 Scope = ProviderDataScope.System
-            };
 
-            newProviderData.PopulateFromExternalModel(providerData);
+            }.PopulateFromExternalModel(providerData);
 
             var updateResult = await orchestrator
                 .UpdateAsync(newProviderData)

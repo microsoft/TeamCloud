@@ -8,10 +8,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Commands;
-using TeamCloud.Model.Data.Core;
-using TeamCloud.Model.Internal.Data;
+using TeamCloud.Model.Commands.Core;
+using TeamCloud.Model.Data;
+using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Activities;
 

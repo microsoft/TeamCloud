@@ -8,7 +8,7 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
 using Newtonsoft.Json.Serialization;
-using TeamCloud.Model.Internal.Data.Core;
+using TeamCloud.Model.Data.Core;
 
 namespace TeamCloud.Data.CosmosDb.Serialization
 {

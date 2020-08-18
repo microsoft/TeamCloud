@@ -8,11 +8,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using TeamCloud.Model.Internal.Data.Core;
+using TeamCloud.Model.Data.Core;
 using TeamCloud.Serialization.Comparer;
 using TeamCloud.Serialization.Resolver;
 
-namespace TeamCloud.Model.Internal.Data.Serialization
+namespace TeamCloud.Model.Data.Serialization
 {
     internal class ContainerDocumentContractResolver : SuppressContractResolver<ContainerDocumentConverter>
     {

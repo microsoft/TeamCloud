@@ -6,11 +6,11 @@
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using TeamCloud.Model.Data;
 using TeamCloud.Model.Data.Core;
-using TeamCloud.Model.Internal.Data.Core;
 using TeamCloud.Serialization;
 
-namespace TeamCloud.Model.Internal.Data
+namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
     public sealed class ProjectTypeDocument : ContainerDocument, IProjectType, IEquatable<ProjectTypeDocument>, IPopulate<Model.Data.ProjectType>

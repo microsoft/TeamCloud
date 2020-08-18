@@ -1,5 +1,11 @@
-﻿using System;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
+
+using System;
 using Newtonsoft.Json;
+using TeamCloud.Model.Data;
 using TeamCloud.Model.Data.Core;
 using Xunit;
 
@@ -20,8 +26,8 @@ namespace TeamCloud.Model.Commands
             var user = new Data.User()
             {
                 Id = Guid.Empty.ToString(),
-                Role = Data.Core.TeamCloudUserRole.Admin,
-                UserType = Data.Core.UserType.User
+                Role = TeamCloudUserRole.Admin,
+                UserType = UserType.User
             };
 
             var command = new ProviderRegisterCommand(user, new ProviderConfiguration()) { ProviderId = "foo.provider" };

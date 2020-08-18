@@ -5,9 +5,10 @@
 
 using System;
 using System.Threading.Tasks;
+using TeamCloud.Model.Data;
 using TeamCloud.Model.Data.Core;
-using TeamCloud.Model.Internal.Commands;
-using TeamCloud.Model.Internal.Data;
+using TeamCloud.Model.Commands;
+using TeamCloud.Model.Data;
 using Xunit;
 
 namespace TeamCloud.Model.Validation.Tests.Commands

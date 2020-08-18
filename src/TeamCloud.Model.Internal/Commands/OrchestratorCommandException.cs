@@ -7,7 +7,7 @@ using System;
 using System.Runtime.Serialization;
 using TeamCloud.Model.Commands.Core;
 
-namespace TeamCloud.Model.Internal.Commands
+namespace TeamCloud.Model.Commands
 {
     [Serializable]
     public class OrchestratorCommandException : CommandException

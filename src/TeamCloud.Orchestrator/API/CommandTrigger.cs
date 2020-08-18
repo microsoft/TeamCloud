@@ -17,7 +17,7 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Http;
-using TeamCloud.Model.Internal.Commands;
+using TeamCloud.Model.Commands;
 using TeamCloud.Model.Validation;
 using TeamCloud.Orchestrator.Orchestrations.Utilities;
 
