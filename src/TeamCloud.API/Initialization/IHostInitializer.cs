@@ -1,4 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
+
+using System.Threading.Tasks;
 
 namespace TeamCloud.API.Initialization
 {
