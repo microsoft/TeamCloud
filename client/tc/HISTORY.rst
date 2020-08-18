@@ -6,6 +6,11 @@ Release History
 0.5.4
 ++++++
 * Preview release
+* model updates
+
+0.5.4
+++++++
+* Preview release
 * az tc [provider] upgrade: checks existing version before upgrading
 * Add tc info command
 

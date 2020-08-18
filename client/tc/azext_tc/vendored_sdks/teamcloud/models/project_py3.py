@@ -29,6 +29,8 @@ class Project(Model):
     :type tags: dict[str, str]
     :param properties:
     :type properties: dict[str, str]
+    :param _links:
+    :type _links: ~teamcloud.models.ProjectLinks
     """
 
     _attribute_map = {
@@ -39,9 +41,10 @@ class Project(Model):
         'users': {'key': 'users', 'type': '[User]'},
         'tags': {'key': 'tags', 'type': '{str}'},
         'properties': {'key': 'properties', 'type': '{str}'},
+        '_links': {'key': '_links', 'type': 'ProjectLinks'},
     }
 
-    def __init__(self, *, id: str=None, name: str=None, type=None, resource_group=None, users=None, tags=None, properties=None, **kwargs) -> None:
+    def __init__(self, *, id: str=None, name: str=None, type=None, resource_group=None, users=None, tags=None, properties=None, _links=None, **kwargs) -> None:
         super(Project, self).__init__(**kwargs)
         self.id = id
         self.name = name
@@ -50,3 +53,4 @@ class Project(Model):
         self.users = users
         self.tags = tags
         self.properties = properties
+        self._links = _links

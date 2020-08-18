@@ -67,6 +67,384 @@ class TeamCloudClient(SDKClient):
         self._deserialize = Deserializer(client_models)
 
 
+    def get_project_identity(
+            self, project_id, custom_headers=None, raw=False, **operation_config):
+        """Gets the ProjectIdentity for a Project.
+
+        :param project_id:
+        :type project_id: str
+        :param dict custom_headers: headers that will be added to the request
+        :param bool raw: returns the direct response alongside the
+         deserialized response
+        :param operation_config: :ref:`Operation configuration
+         overrides<msrest:optionsforoperations>`.
+        :return: object or ClientRawResponse if raw=true
+        :rtype: object or ~msrest.pipeline.ClientRawResponse
+        :raises:
+         :class:`HttpOperationError<msrest.exceptions.HttpOperationError>`
+        """
+        # Construct URL
+        url = self.get_project_identity.metadata['url']
+        path_format_arguments = {
+            'projectId': self._serialize.url("project_id", project_id, 'str')
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}
+
+        # Construct headers
+        header_parameters = {}
+        header_parameters['Accept'] = 'application/json'
+        if custom_headers:
+            header_parameters.update(custom_headers)
+
+        # Construct and send request
+        request = self._client.get(url, query_parameters, header_parameters)
+        response = self._client.send(request, stream=False, **operation_config)
+
+        if response.status_code not in [200, 400, 401, 403, 404]:
+            raise HttpOperationError(self._deserialize, response)
+
+        deserialized = None
+
+        if response.status_code == 200:
+            deserialized = self._deserialize('ProjectIdentityDataResult', response)
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', response)
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', response)
+
+        if raw:
+            client_raw_response = ClientRawResponse(deserialized, response)
+            return client_raw_response
+
+        return deserialized
+    get_project_identity.metadata = {'url': '/api/projects/{projectId}/identity'}
+
+    def get_project_provider_data(
+            self, project_id, provider_id, include_shared=None, custom_headers=None, raw=False, **operation_config):
+        """Gets the ProviderData items for a Project.
+
+        :param project_id:
+        :type project_id: str
+        :param provider_id:
+        :type provider_id: str
+        :param include_shared:
+        :type include_shared: bool
+        :param dict custom_headers: headers that will be added to the request
+        :param bool raw: returns the direct response alongside the
+         deserialized response
+        :param operation_config: :ref:`Operation configuration
+         overrides<msrest:optionsforoperations>`.
+        :return: object or ClientRawResponse if raw=true
+        :rtype: object or ~msrest.pipeline.ClientRawResponse
+        :raises:
+         :class:`HttpOperationError<msrest.exceptions.HttpOperationError>`
+        """
+        # Construct URL
+        url = self.get_project_provider_data.metadata['url']
+        path_format_arguments = {
+            'projectId': self._serialize.url("project_id", project_id, 'str'),
+            'providerId': self._serialize.url("provider_id", provider_id, 'str')
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}
+        if include_shared is not None:
+            query_parameters['includeShared'] = self._serialize.query("include_shared", include_shared, 'bool')
+
+        # Construct headers
+        header_parameters = {}
+        header_parameters['Accept'] = 'application/json'
+        if custom_headers:
+            header_parameters.update(custom_headers)
+
+        # Construct and send request
+        request = self._client.get(url, query_parameters, header_parameters)
+        response = self._client.send(request, stream=False, **operation_config)
+
+        if response.status_code not in [200, 400, 401, 403, 404]:
+            raise HttpOperationError(self._deserialize, response)
+
+        deserialized = None
+
+        if response.status_code == 200:
+            deserialized = self._deserialize('ProviderDataDataResult', response)
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', response)
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', response)
+
+        if raw:
+            client_raw_response = ClientRawResponse(deserialized, response)
+            return client_raw_response
+
+        return deserialized
+    get_project_provider_data.metadata = {'url': '/api/projects/{projectId}/providers/{providerId}/data'}
+
+    def create_project_provider_data(
+            self, project_id, provider_id, body=None, custom_headers=None, raw=False, **operation_config):
+        """Creates a new ProviderData.
+
+        :param project_id:
+        :type project_id: str
+        :param provider_id:
+        :type provider_id: str
+        :param body:
+        :type body: ~teamcloud.models.ProviderData
+        :param dict custom_headers: headers that will be added to the request
+        :param bool raw: returns the direct response alongside the
+         deserialized response
+        :param operation_config: :ref:`Operation configuration
+         overrides<msrest:optionsforoperations>`.
+        :return: object or ClientRawResponse if raw=true
+        :rtype: object or ~msrest.pipeline.ClientRawResponse
+        :raises:
+         :class:`HttpOperationError<msrest.exceptions.HttpOperationError>`
+        """
+        # Construct URL
+        url = self.create_project_provider_data.metadata['url']
+        path_format_arguments = {
+            'projectId': self._serialize.url("project_id", project_id, 'str'),
+            'providerId': self._serialize.url("provider_id", provider_id, 'str')
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}
+
+        # Construct headers
+        header_parameters = {}
+        header_parameters['Accept'] = 'application/json'
+        header_parameters['Content-Type'] = 'application/json; charset=utf-8'
+        if custom_headers:
+            header_parameters.update(custom_headers)
+
+        # Construct body
+        if body is not None:
+            body_content = self._serialize.body(body, 'ProviderData')
+        else:
+            body_content = None
+
+        # Construct and send request
+        request = self._client.post(url, query_parameters, header_parameters, body_content)
+        response = self._client.send(request, stream=False, **operation_config)
+
+        if response.status_code not in [201, 400, 401, 403, 404, 409]:
+            raise HttpOperationError(self._deserialize, response)
+
+        deserialized = None
+
+        if response.status_code == 201:
+            deserialized = self._deserialize('ProviderDataDataResult', response)
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', response)
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', response)
+        if response.status_code == 409:
+            deserialized = self._deserialize('ErrorResult', response)
+
+        if raw:
+            client_raw_response = ClientRawResponse(deserialized, response)
+            return client_raw_response
+
+        return deserialized
+    create_project_provider_data.metadata = {'url': '/api/projects/{projectId}/providers/{providerId}/data'}
+
+    def get_project_provider_data_by_id(
+            self, provider_data_id, project_id, provider_id, custom_headers=None, raw=False, **operation_config):
+        """Gets a ProviderData for a Project by ID.
+
+        :param provider_data_id:
+        :type provider_data_id: str
+        :param project_id:
+        :type project_id: str
+        :param provider_id:
+        :type provider_id: str
+        :param dict custom_headers: headers that will be added to the request
+        :param bool raw: returns the direct response alongside the
+         deserialized response
+        :param operation_config: :ref:`Operation configuration
+         overrides<msrest:optionsforoperations>`.
+        :return: object or ClientRawResponse if raw=true
+        :rtype: object or ~msrest.pipeline.ClientRawResponse
+        :raises:
+         :class:`HttpOperationError<msrest.exceptions.HttpOperationError>`
+        """
+        # Construct URL
+        url = self.get_project_provider_data_by_id.metadata['url']
+        path_format_arguments = {
+            'providerDataId': self._serialize.url("provider_data_id", provider_data_id, 'str'),
+            'projectId': self._serialize.url("project_id", project_id, 'str'),
+            'providerId': self._serialize.url("provider_id", provider_id, 'str')
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}
+
+        # Construct headers
+        header_parameters = {}
+        header_parameters['Accept'] = 'application/json'
+        if custom_headers:
+            header_parameters.update(custom_headers)
+
+        # Construct and send request
+        request = self._client.get(url, query_parameters, header_parameters)
+        response = self._client.send(request, stream=False, **operation_config)
+
+        if response.status_code not in [200, 400, 401, 403, 404]:
+            raise HttpOperationError(self._deserialize, response)
+
+        deserialized = None
+
+        if response.status_code == 200:
+            deserialized = self._deserialize('ProviderDataDataResult', response)
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', response)
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', response)
+
+        if raw:
+            client_raw_response = ClientRawResponse(deserialized, response)
+            return client_raw_response
+
+        return deserialized
+    get_project_provider_data_by_id.metadata = {'url': '/api/projects/{projectId}/providers/{providerId}/data/{providerDataId}'}
+
+    def update_project_provider_data(
+            self, provider_data_id, project_id, provider_id, body=None, custom_headers=None, raw=False, **operation_config):
+        """Updates an existing ProviderData.
+
+        :param provider_data_id:
+        :type provider_data_id: str
+        :param project_id:
+        :type project_id: str
+        :param provider_id:
+        :type provider_id: str
+        :param body:
+        :type body: ~teamcloud.models.ProviderData
+        :param dict custom_headers: headers that will be added to the request
+        :param bool raw: returns the direct response alongside the
+         deserialized response
+        :param operation_config: :ref:`Operation configuration
+         overrides<msrest:optionsforoperations>`.
+        :return: object or ClientRawResponse if raw=true
+        :rtype: object or ~msrest.pipeline.ClientRawResponse
+        :raises:
+         :class:`HttpOperationError<msrest.exceptions.HttpOperationError>`
+        """
+        # Construct URL
+        url = self.update_project_provider_data.metadata['url']
+        path_format_arguments = {
+            'providerDataId': self._serialize.url("provider_data_id", provider_data_id, 'str'),
+            'projectId': self._serialize.url("project_id", project_id, 'str'),
+            'providerId': self._serialize.url("provider_id", provider_id, 'str')
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}
+
+        # Construct headers
+        header_parameters = {}
+        header_parameters['Accept'] = 'application/json'
+        header_parameters['Content-Type'] = 'application/json; charset=utf-8'
+        if custom_headers:
+            header_parameters.update(custom_headers)
+
+        # Construct body
+        if body is not None:
+            body_content = self._serialize.body(body, 'ProviderData')
+        else:
+            body_content = None
+
+        # Construct and send request
+        request = self._client.put(url, query_parameters, header_parameters, body_content)
+        response = self._client.send(request, stream=False, **operation_config)
+
+        if response.status_code not in [200, 400, 401, 403, 404]:
+            raise HttpOperationError(self._deserialize, response)
+
+        deserialized = None
+
+        if response.status_code == 200:
+            deserialized = self._deserialize('ProviderDataDataResult', response)
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', response)
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', response)
+
+        if raw:
+            client_raw_response = ClientRawResponse(deserialized, response)
+            return client_raw_response
+
+        return deserialized
+    update_project_provider_data.metadata = {'url': '/api/projects/{projectId}/providers/{providerId}/data/{providerDataId}'}
+
+    def delete_project_provider_data(
+            self, provider_data_id, project_id, provider_id, custom_headers=None, raw=False, **operation_config):
+        """Deletes a ProviderData.
+
+        :param provider_data_id:
+        :type provider_data_id: str
+        :param project_id:
+        :type project_id: str
+        :param provider_id:
+        :type provider_id: str
+        :param dict custom_headers: headers that will be added to the request
+        :param bool raw: returns the direct response alongside the
+         deserialized response
+        :param operation_config: :ref:`Operation configuration
+         overrides<msrest:optionsforoperations>`.
+        :return: object or ClientRawResponse if raw=true
+        :rtype: object or ~msrest.pipeline.ClientRawResponse
+        :raises:
+         :class:`HttpOperationError<msrest.exceptions.HttpOperationError>`
+        """
+        # Construct URL
+        url = self.delete_project_provider_data.metadata['url']
+        path_format_arguments = {
+            'providerDataId': self._serialize.url("provider_data_id", provider_data_id, 'str'),
+            'projectId': self._serialize.url("project_id", project_id, 'str'),
+            'providerId': self._serialize.url("provider_id", provider_id, 'str')
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}
+
+        # Construct headers
+        header_parameters = {}
+        header_parameters['Accept'] = 'application/json'
+        if custom_headers:
+            header_parameters.update(custom_headers)
+
+        # Construct and send request
+        request = self._client.delete(url, query_parameters, header_parameters)
+        response = self._client.send(request, stream=False, **operation_config)
+
+        if response.status_code not in [204, 400, 401, 403, 404]:
+            raise HttpOperationError(self._deserialize, response)
+
+        deserialized = None
+
+        if response.status_code == 204:
+            deserialized = self._deserialize('ProviderDataDataResult', response)
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', response)
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', response)
+
+        if raw:
+            client_raw_response = ClientRawResponse(deserialized, response)
+            return client_raw_response
+
+        return deserialized
+    delete_project_provider_data.metadata = {'url': '/api/projects/{projectId}/providers/{providerId}/data/{providerDataId}'}
+
     def get_projects(
             self, custom_headers=None, raw=False, **operation_config):
         """Gets all Projects.
@@ -613,7 +991,7 @@ class TeamCloudClient(SDKClient):
         request = self._client.get(url, query_parameters, header_parameters)
         response = self._client.send(request, stream=False, **operation_config)
 
-        if response.status_code not in [200, 400]:
+        if response.status_code not in [200, 400, 401, 403]:
             raise HttpOperationError(self._deserialize, response)
 
         deserialized = None
@@ -688,64 +1066,6 @@ class TeamCloudClient(SDKClient):
         return deserialized
     create_project_type.metadata = {'url': '/api/projectTypes'}
 
-    def update_project_type(
-            self, body=None, custom_headers=None, raw=False, **operation_config):
-        """Updates an existing Project Type.
-
-        :param body:
-        :type body: ~teamcloud.models.ProjectType
-        :param dict custom_headers: headers that will be added to the request
-        :param bool raw: returns the direct response alongside the
-         deserialized response
-        :param operation_config: :ref:`Operation configuration
-         overrides<msrest:optionsforoperations>`.
-        :return: object or ClientRawResponse if raw=true
-        :rtype: object or ~msrest.pipeline.ClientRawResponse
-        :raises:
-         :class:`HttpOperationError<msrest.exceptions.HttpOperationError>`
-        """
-        # Construct URL
-        url = self.update_project_type.metadata['url']
-
-        # Construct parameters
-        query_parameters = {}
-
-        # Construct headers
-        header_parameters = {}
-        header_parameters['Accept'] = 'application/json'
-        header_parameters['Content-Type'] = 'application/json; charset=utf-8'
-        if custom_headers:
-            header_parameters.update(custom_headers)
-
-        # Construct body
-        if body is not None:
-            body_content = self._serialize.body(body, 'ProjectType')
-        else:
-            body_content = None
-
-        # Construct and send request
-        request = self._client.put(url, query_parameters, header_parameters, body_content)
-        response = self._client.send(request, stream=False, **operation_config)
-
-        if response.status_code not in [200, 400, 401, 403, 404]:
-            raise HttpOperationError(self._deserialize, response)
-
-        deserialized = None
-
-        if response.status_code == 200:
-            deserialized = self._deserialize('ProjectTypeDataResult', response)
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', response)
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', response)
-
-        if raw:
-            client_raw_response = ClientRawResponse(deserialized, response)
-            return client_raw_response
-
-        return deserialized
-    update_project_type.metadata = {'url': '/api/projectTypes'}
-
     def get_project_type_by_id(
             self, project_type_id, custom_headers=None, raw=False, **operation_config):
         """Gets a Project Type by ID.
@@ -800,6 +1120,70 @@ class TeamCloudClient(SDKClient):
 
         return deserialized
     get_project_type_by_id.metadata = {'url': '/api/projectTypes/{projectTypeId}'}
+
+    def update_project_type(
+            self, project_type_id, body=None, custom_headers=None, raw=False, **operation_config):
+        """Updates an existing Project Type.
+
+        :param project_type_id:
+        :type project_type_id: str
+        :param body:
+        :type body: ~teamcloud.models.ProjectType
+        :param dict custom_headers: headers that will be added to the request
+        :param bool raw: returns the direct response alongside the
+         deserialized response
+        :param operation_config: :ref:`Operation configuration
+         overrides<msrest:optionsforoperations>`.
+        :return: object or ClientRawResponse if raw=true
+        :rtype: object or ~msrest.pipeline.ClientRawResponse
+        :raises:
+         :class:`HttpOperationError<msrest.exceptions.HttpOperationError>`
+        """
+        # Construct URL
+        url = self.update_project_type.metadata['url']
+        path_format_arguments = {
+            'projectTypeId': self._serialize.url("project_type_id", project_type_id, 'str')
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}
+
+        # Construct headers
+        header_parameters = {}
+        header_parameters['Accept'] = 'application/json'
+        header_parameters['Content-Type'] = 'application/json; charset=utf-8'
+        if custom_headers:
+            header_parameters.update(custom_headers)
+
+        # Construct body
+        if body is not None:
+            body_content = self._serialize.body(body, 'ProjectType')
+        else:
+            body_content = None
+
+        # Construct and send request
+        request = self._client.put(url, query_parameters, header_parameters, body_content)
+        response = self._client.send(request, stream=False, **operation_config)
+
+        if response.status_code not in [200, 400, 401, 403, 404]:
+            raise HttpOperationError(self._deserialize, response)
+
+        deserialized = None
+
+        if response.status_code == 200:
+            deserialized = self._deserialize('ProjectTypeDataResult', response)
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', response)
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', response)
+
+        if raw:
+            client_raw_response = ClientRawResponse(deserialized, response)
+            return client_raw_response
+
+        return deserialized
+    update_project_type.metadata = {'url': '/api/projectTypes/{projectTypeId}'}
 
     def delete_project_type(
             self, project_type_id, custom_headers=None, raw=False, **operation_config):
@@ -977,70 +1361,6 @@ class TeamCloudClient(SDKClient):
         return deserialized
     create_project_user.metadata = {'url': '/api/projects/{projectId}/users'}
 
-    def update_project_user(
-            self, project_id, body=None, custom_headers=None, raw=False, **operation_config):
-        """Updates an existing Project User.
-
-        :param project_id:
-        :type project_id: str
-        :param body:
-        :type body: ~teamcloud.models.User
-        :param dict custom_headers: headers that will be added to the request
-        :param bool raw: returns the direct response alongside the
-         deserialized response
-        :param operation_config: :ref:`Operation configuration
-         overrides<msrest:optionsforoperations>`.
-        :return: object or ClientRawResponse if raw=true
-        :rtype: object or ~msrest.pipeline.ClientRawResponse
-        :raises:
-         :class:`HttpOperationError<msrest.exceptions.HttpOperationError>`
-        """
-        # Construct URL
-        url = self.update_project_user.metadata['url']
-        path_format_arguments = {
-            'projectId': self._serialize.url("project_id", project_id, 'str')
-        }
-        url = self._client.format_url(url, **path_format_arguments)
-
-        # Construct parameters
-        query_parameters = {}
-
-        # Construct headers
-        header_parameters = {}
-        header_parameters['Accept'] = 'application/json'
-        header_parameters['Content-Type'] = 'application/json; charset=utf-8'
-        if custom_headers:
-            header_parameters.update(custom_headers)
-
-        # Construct body
-        if body is not None:
-            body_content = self._serialize.body(body, 'User')
-        else:
-            body_content = None
-
-        # Construct and send request
-        request = self._client.put(url, query_parameters, header_parameters, body_content)
-        response = self._client.send(request, stream=False, **operation_config)
-
-        if response.status_code not in [202, 400, 401, 403, 404]:
-            raise HttpOperationError(self._deserialize, response)
-
-        deserialized = None
-
-        if response.status_code == 202:
-            deserialized = self._deserialize('StatusResult', response)
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', response)
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', response)
-
-        if raw:
-            client_raw_response = ClientRawResponse(deserialized, response)
-            return client_raw_response
-
-        return deserialized
-    update_project_user.metadata = {'url': '/api/projects/{projectId}/users'}
-
     def get_project_user_by_name_or_id(
             self, user_name_or_id, project_id, custom_headers=None, raw=False, **operation_config):
         """Gets a Project User by ID or email address.
@@ -1099,6 +1419,73 @@ class TeamCloudClient(SDKClient):
         return deserialized
     get_project_user_by_name_or_id.metadata = {'url': '/api/projects/{projectId}/users/{userNameOrId}'}
 
+    def update_project_user(
+            self, user_name_or_id, project_id, body=None, custom_headers=None, raw=False, **operation_config):
+        """Updates an existing Project User.
+
+        :param user_name_or_id:
+        :type user_name_or_id: str
+        :param project_id:
+        :type project_id: str
+        :param body:
+        :type body: ~teamcloud.models.User
+        :param dict custom_headers: headers that will be added to the request
+        :param bool raw: returns the direct response alongside the
+         deserialized response
+        :param operation_config: :ref:`Operation configuration
+         overrides<msrest:optionsforoperations>`.
+        :return: object or ClientRawResponse if raw=true
+        :rtype: object or ~msrest.pipeline.ClientRawResponse
+        :raises:
+         :class:`HttpOperationError<msrest.exceptions.HttpOperationError>`
+        """
+        # Construct URL
+        url = self.update_project_user.metadata['url']
+        path_format_arguments = {
+            'userNameOrId': self._serialize.url("user_name_or_id", user_name_or_id, 'str'),
+            'projectId': self._serialize.url("project_id", project_id, 'str')
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}
+
+        # Construct headers
+        header_parameters = {}
+        header_parameters['Accept'] = 'application/json'
+        header_parameters['Content-Type'] = 'application/json; charset=utf-8'
+        if custom_headers:
+            header_parameters.update(custom_headers)
+
+        # Construct body
+        if body is not None:
+            body_content = self._serialize.body(body, 'User')
+        else:
+            body_content = None
+
+        # Construct and send request
+        request = self._client.put(url, query_parameters, header_parameters, body_content)
+        response = self._client.send(request, stream=False, **operation_config)
+
+        if response.status_code not in [202, 400, 401, 403, 404]:
+            raise HttpOperationError(self._deserialize, response)
+
+        deserialized = None
+
+        if response.status_code == 202:
+            deserialized = self._deserialize('StatusResult', response)
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', response)
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', response)
+
+        if raw:
+            client_raw_response = ClientRawResponse(deserialized, response)
+            return client_raw_response
+
+        return deserialized
+    update_project_user.metadata = {'url': '/api/projects/{projectId}/users/{userNameOrId}'}
+
     def delete_project_user(
             self, user_name_or_id, project_id, custom_headers=None, raw=False, **operation_config):
         """Deletes an existing Project User.
@@ -1156,6 +1543,429 @@ class TeamCloudClient(SDKClient):
 
         return deserialized
     delete_project_user.metadata = {'url': '/api/projects/{projectId}/users/{userNameOrId}'}
+
+    def get_project_user_me(
+            self, project_id, custom_headers=None, raw=False, **operation_config):
+        """Gets a Project User for the calling user.
+
+        :param project_id:
+        :type project_id: str
+        :param dict custom_headers: headers that will be added to the request
+        :param bool raw: returns the direct response alongside the
+         deserialized response
+        :param operation_config: :ref:`Operation configuration
+         overrides<msrest:optionsforoperations>`.
+        :return: object or ClientRawResponse if raw=true
+        :rtype: object or ~msrest.pipeline.ClientRawResponse
+        :raises:
+         :class:`HttpOperationError<msrest.exceptions.HttpOperationError>`
+        """
+        # Construct URL
+        url = self.get_project_user_me.metadata['url']
+        path_format_arguments = {
+            'projectId': self._serialize.url("project_id", project_id, 'str')
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}
+
+        # Construct headers
+        header_parameters = {}
+        header_parameters['Accept'] = 'application/json'
+        if custom_headers:
+            header_parameters.update(custom_headers)
+
+        # Construct and send request
+        request = self._client.get(url, query_parameters, header_parameters)
+        response = self._client.send(request, stream=False, **operation_config)
+
+        if response.status_code not in [200, 400, 401, 403, 404]:
+            raise HttpOperationError(self._deserialize, response)
+
+        deserialized = None
+
+        if response.status_code == 200:
+            deserialized = self._deserialize('UserDataResult', response)
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', response)
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', response)
+
+        if raw:
+            client_raw_response = ClientRawResponse(deserialized, response)
+            return client_raw_response
+
+        return deserialized
+    get_project_user_me.metadata = {'url': '/api/projects/{projectId}/users/me'}
+
+    def update_project_user_me(
+            self, project_id, body=None, custom_headers=None, raw=False, **operation_config):
+        """Updates an existing Project User.
+
+        :param project_id:
+        :type project_id: str
+        :param body:
+        :type body: ~teamcloud.models.User
+        :param dict custom_headers: headers that will be added to the request
+        :param bool raw: returns the direct response alongside the
+         deserialized response
+        :param operation_config: :ref:`Operation configuration
+         overrides<msrest:optionsforoperations>`.
+        :return: object or ClientRawResponse if raw=true
+        :rtype: object or ~msrest.pipeline.ClientRawResponse
+        :raises:
+         :class:`HttpOperationError<msrest.exceptions.HttpOperationError>`
+        """
+        # Construct URL
+        url = self.update_project_user_me.metadata['url']
+        path_format_arguments = {
+            'projectId': self._serialize.url("project_id", project_id, 'str')
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}
+
+        # Construct headers
+        header_parameters = {}
+        header_parameters['Accept'] = 'application/json'
+        header_parameters['Content-Type'] = 'application/json; charset=utf-8'
+        if custom_headers:
+            header_parameters.update(custom_headers)
+
+        # Construct body
+        if body is not None:
+            body_content = self._serialize.body(body, 'User')
+        else:
+            body_content = None
+
+        # Construct and send request
+        request = self._client.put(url, query_parameters, header_parameters, body_content)
+        response = self._client.send(request, stream=False, **operation_config)
+
+        if response.status_code not in [202, 400, 401, 403, 404]:
+            raise HttpOperationError(self._deserialize, response)
+
+        deserialized = None
+
+        if response.status_code == 202:
+            deserialized = self._deserialize('StatusResult', response)
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', response)
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', response)
+
+        if raw:
+            client_raw_response = ClientRawResponse(deserialized, response)
+            return client_raw_response
+
+        return deserialized
+    update_project_user_me.metadata = {'url': '/api/projects/{projectId}/users/me'}
+
+    def get_provider_data(
+            self, provider_id, custom_headers=None, raw=False, **operation_config):
+        """Gets all ProviderData for a Provider.
+
+        :param provider_id:
+        :type provider_id: str
+        :param dict custom_headers: headers that will be added to the request
+        :param bool raw: returns the direct response alongside the
+         deserialized response
+        :param operation_config: :ref:`Operation configuration
+         overrides<msrest:optionsforoperations>`.
+        :return: object or ClientRawResponse if raw=true
+        :rtype: object or ~msrest.pipeline.ClientRawResponse
+        :raises:
+         :class:`HttpOperationError<msrest.exceptions.HttpOperationError>`
+        """
+        # Construct URL
+        url = self.get_provider_data.metadata['url']
+        path_format_arguments = {
+            'providerId': self._serialize.url("provider_id", provider_id, 'str')
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}
+
+        # Construct headers
+        header_parameters = {}
+        header_parameters['Accept'] = 'application/json'
+        if custom_headers:
+            header_parameters.update(custom_headers)
+
+        # Construct and send request
+        request = self._client.get(url, query_parameters, header_parameters)
+        response = self._client.send(request, stream=False, **operation_config)
+
+        if response.status_code not in [200, 400, 401, 403, 404]:
+            raise HttpOperationError(self._deserialize, response)
+
+        deserialized = None
+
+        if response.status_code == 200:
+            deserialized = self._deserialize('ProviderDataListDataResult', response)
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', response)
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', response)
+
+        if raw:
+            client_raw_response = ClientRawResponse(deserialized, response)
+            return client_raw_response
+
+        return deserialized
+    get_provider_data.metadata = {'url': '/api/providers/{providerId}/data'}
+
+    def create_provider_data(
+            self, provider_id, body=None, custom_headers=None, raw=False, **operation_config):
+        """Creates a new ProviderData item.
+
+        :param provider_id:
+        :type provider_id: str
+        :param body:
+        :type body: ~teamcloud.models.ProviderData
+        :param dict custom_headers: headers that will be added to the request
+        :param bool raw: returns the direct response alongside the
+         deserialized response
+        :param operation_config: :ref:`Operation configuration
+         overrides<msrest:optionsforoperations>`.
+        :return: object or ClientRawResponse if raw=true
+        :rtype: object or ~msrest.pipeline.ClientRawResponse
+        :raises:
+         :class:`HttpOperationError<msrest.exceptions.HttpOperationError>`
+        """
+        # Construct URL
+        url = self.create_provider_data.metadata['url']
+        path_format_arguments = {
+            'providerId': self._serialize.url("provider_id", provider_id, 'str')
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}
+
+        # Construct headers
+        header_parameters = {}
+        header_parameters['Accept'] = 'application/json'
+        header_parameters['Content-Type'] = 'application/json; charset=utf-8'
+        if custom_headers:
+            header_parameters.update(custom_headers)
+
+        # Construct body
+        if body is not None:
+            body_content = self._serialize.body(body, 'ProviderData')
+        else:
+            body_content = None
+
+        # Construct and send request
+        request = self._client.post(url, query_parameters, header_parameters, body_content)
+        response = self._client.send(request, stream=False, **operation_config)
+
+        if response.status_code not in [201, 400, 401, 403, 404, 409]:
+            raise HttpOperationError(self._deserialize, response)
+
+        deserialized = None
+
+        if response.status_code == 201:
+            deserialized = self._deserialize('ProviderDataDataResult', response)
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', response)
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', response)
+        if response.status_code == 409:
+            deserialized = self._deserialize('ErrorResult', response)
+
+        if raw:
+            client_raw_response = ClientRawResponse(deserialized, response)
+            return client_raw_response
+
+        return deserialized
+    create_provider_data.metadata = {'url': '/api/providers/{providerId}/data'}
+
+    def get_provider_data_by_id(
+            self, provider_data_id, provider_id, custom_headers=None, raw=False, **operation_config):
+        """Gets the ProviderData by ID.
+
+        :param provider_data_id:
+        :type provider_data_id: str
+        :param provider_id:
+        :type provider_id: str
+        :param dict custom_headers: headers that will be added to the request
+        :param bool raw: returns the direct response alongside the
+         deserialized response
+        :param operation_config: :ref:`Operation configuration
+         overrides<msrest:optionsforoperations>`.
+        :return: object or ClientRawResponse if raw=true
+        :rtype: object or ~msrest.pipeline.ClientRawResponse
+        :raises:
+         :class:`HttpOperationError<msrest.exceptions.HttpOperationError>`
+        """
+        # Construct URL
+        url = self.get_provider_data_by_id.metadata['url']
+        path_format_arguments = {
+            'providerDataId': self._serialize.url("provider_data_id", provider_data_id, 'str'),
+            'providerId': self._serialize.url("provider_id", provider_id, 'str')
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}
+
+        # Construct headers
+        header_parameters = {}
+        header_parameters['Accept'] = 'application/json'
+        if custom_headers:
+            header_parameters.update(custom_headers)
+
+        # Construct and send request
+        request = self._client.get(url, query_parameters, header_parameters)
+        response = self._client.send(request, stream=False, **operation_config)
+
+        if response.status_code not in [200, 400, 401, 403, 404]:
+            raise HttpOperationError(self._deserialize, response)
+
+        deserialized = None
+
+        if response.status_code == 200:
+            deserialized = self._deserialize('ProviderDataDataResult', response)
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', response)
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', response)
+
+        if raw:
+            client_raw_response = ClientRawResponse(deserialized, response)
+            return client_raw_response
+
+        return deserialized
+    get_provider_data_by_id.metadata = {'url': '/api/providers/{providerId}/data/{providerDataId}'}
+
+    def update_provider_data(
+            self, provider_data_id, provider_id, body=None, custom_headers=None, raw=False, **operation_config):
+        """Updates an existing ProviderData.
+
+        :param provider_data_id:
+        :type provider_data_id: str
+        :param provider_id:
+        :type provider_id: str
+        :param body:
+        :type body: ~teamcloud.models.ProviderData
+        :param dict custom_headers: headers that will be added to the request
+        :param bool raw: returns the direct response alongside the
+         deserialized response
+        :param operation_config: :ref:`Operation configuration
+         overrides<msrest:optionsforoperations>`.
+        :return: object or ClientRawResponse if raw=true
+        :rtype: object or ~msrest.pipeline.ClientRawResponse
+        :raises:
+         :class:`HttpOperationError<msrest.exceptions.HttpOperationError>`
+        """
+        # Construct URL
+        url = self.update_provider_data.metadata['url']
+        path_format_arguments = {
+            'providerDataId': self._serialize.url("provider_data_id", provider_data_id, 'str'),
+            'providerId': self._serialize.url("provider_id", provider_id, 'str')
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}
+
+        # Construct headers
+        header_parameters = {}
+        header_parameters['Accept'] = 'application/json'
+        header_parameters['Content-Type'] = 'application/json; charset=utf-8'
+        if custom_headers:
+            header_parameters.update(custom_headers)
+
+        # Construct body
+        if body is not None:
+            body_content = self._serialize.body(body, 'ProviderData')
+        else:
+            body_content = None
+
+        # Construct and send request
+        request = self._client.put(url, query_parameters, header_parameters, body_content)
+        response = self._client.send(request, stream=False, **operation_config)
+
+        if response.status_code not in [200, 400, 401, 403, 404]:
+            raise HttpOperationError(self._deserialize, response)
+
+        deserialized = None
+
+        if response.status_code == 200:
+            deserialized = self._deserialize('ProviderDataDataResult', response)
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', response)
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', response)
+
+        if raw:
+            client_raw_response = ClientRawResponse(deserialized, response)
+            return client_raw_response
+
+        return deserialized
+    update_provider_data.metadata = {'url': '/api/providers/{providerId}/data/{providerDataId}'}
+
+    def delete_provider_data(
+            self, provider_data_id, provider_id, custom_headers=None, raw=False, **operation_config):
+        """Deletes a ProviderData.
+
+        :param provider_data_id:
+        :type provider_data_id: str
+        :param provider_id:
+        :type provider_id: str
+        :param dict custom_headers: headers that will be added to the request
+        :param bool raw: returns the direct response alongside the
+         deserialized response
+        :param operation_config: :ref:`Operation configuration
+         overrides<msrest:optionsforoperations>`.
+        :return: object or ClientRawResponse if raw=true
+        :rtype: object or ~msrest.pipeline.ClientRawResponse
+        :raises:
+         :class:`HttpOperationError<msrest.exceptions.HttpOperationError>`
+        """
+        # Construct URL
+        url = self.delete_provider_data.metadata['url']
+        path_format_arguments = {
+            'providerDataId': self._serialize.url("provider_data_id", provider_data_id, 'str'),
+            'providerId': self._serialize.url("provider_id", provider_id, 'str')
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}
+
+        # Construct headers
+        header_parameters = {}
+        header_parameters['Accept'] = 'application/json'
+        if custom_headers:
+            header_parameters.update(custom_headers)
+
+        # Construct and send request
+        request = self._client.delete(url, query_parameters, header_parameters)
+        response = self._client.send(request, stream=False, **operation_config)
+
+        if response.status_code not in [204, 400, 401, 403, 404]:
+            raise HttpOperationError(self._deserialize, response)
+
+        deserialized = None
+
+        if response.status_code == 204:
+            deserialized = self._deserialize('ProviderDataDataResult', response)
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', response)
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', response)
+
+        if raw:
+            client_raw_response = ClientRawResponse(deserialized, response)
+            return client_raw_response
+
+        return deserialized
+    delete_provider_data.metadata = {'url': '/api/providers/{providerId}/data/{providerDataId}'}
 
     def get_providers(
             self, custom_headers=None, raw=False, **operation_config):
@@ -1262,64 +2072,6 @@ class TeamCloudClient(SDKClient):
         return deserialized
     create_provider.metadata = {'url': '/api/providers'}
 
-    def update_provider(
-            self, body=None, custom_headers=None, raw=False, **operation_config):
-        """Updates an existing Provider.
-
-        :param body:
-        :type body: ~teamcloud.models.Provider
-        :param dict custom_headers: headers that will be added to the request
-        :param bool raw: returns the direct response alongside the
-         deserialized response
-        :param operation_config: :ref:`Operation configuration
-         overrides<msrest:optionsforoperations>`.
-        :return: object or ClientRawResponse if raw=true
-        :rtype: object or ~msrest.pipeline.ClientRawResponse
-        :raises:
-         :class:`HttpOperationError<msrest.exceptions.HttpOperationError>`
-        """
-        # Construct URL
-        url = self.update_provider.metadata['url']
-
-        # Construct parameters
-        query_parameters = {}
-
-        # Construct headers
-        header_parameters = {}
-        header_parameters['Accept'] = 'application/json'
-        header_parameters['Content-Type'] = 'application/json; charset=utf-8'
-        if custom_headers:
-            header_parameters.update(custom_headers)
-
-        # Construct body
-        if body is not None:
-            body_content = self._serialize.body(body, 'Provider')
-        else:
-            body_content = None
-
-        # Construct and send request
-        request = self._client.put(url, query_parameters, header_parameters, body_content)
-        response = self._client.send(request, stream=False, **operation_config)
-
-        if response.status_code not in [202, 400, 401, 403, 404]:
-            raise HttpOperationError(self._deserialize, response)
-
-        deserialized = None
-
-        if response.status_code == 202:
-            deserialized = self._deserialize('StatusResult', response)
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', response)
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', response)
-
-        if raw:
-            client_raw_response = ClientRawResponse(deserialized, response)
-            return client_raw_response
-
-        return deserialized
-    update_provider.metadata = {'url': '/api/providers'}
-
     def get_provider_by_id(
             self, provider_id, custom_headers=None, raw=False, **operation_config):
         """Gets a Provider by ID.
@@ -1374,6 +2126,70 @@ class TeamCloudClient(SDKClient):
 
         return deserialized
     get_provider_by_id.metadata = {'url': '/api/providers/{providerId}'}
+
+    def update_provider(
+            self, provider_id, body=None, custom_headers=None, raw=False, **operation_config):
+        """Updates an existing Provider.
+
+        :param provider_id:
+        :type provider_id: str
+        :param body:
+        :type body: ~teamcloud.models.Provider
+        :param dict custom_headers: headers that will be added to the request
+        :param bool raw: returns the direct response alongside the
+         deserialized response
+        :param operation_config: :ref:`Operation configuration
+         overrides<msrest:optionsforoperations>`.
+        :return: object or ClientRawResponse if raw=true
+        :rtype: object or ~msrest.pipeline.ClientRawResponse
+        :raises:
+         :class:`HttpOperationError<msrest.exceptions.HttpOperationError>`
+        """
+        # Construct URL
+        url = self.update_provider.metadata['url']
+        path_format_arguments = {
+            'providerId': self._serialize.url("provider_id", provider_id, 'str')
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}
+
+        # Construct headers
+        header_parameters = {}
+        header_parameters['Accept'] = 'application/json'
+        header_parameters['Content-Type'] = 'application/json; charset=utf-8'
+        if custom_headers:
+            header_parameters.update(custom_headers)
+
+        # Construct body
+        if body is not None:
+            body_content = self._serialize.body(body, 'Provider')
+        else:
+            body_content = None
+
+        # Construct and send request
+        request = self._client.put(url, query_parameters, header_parameters, body_content)
+        response = self._client.send(request, stream=False, **operation_config)
+
+        if response.status_code not in [202, 400, 401, 403, 404]:
+            raise HttpOperationError(self._deserialize, response)
+
+        deserialized = None
+
+        if response.status_code == 202:
+            deserialized = self._deserialize('StatusResult', response)
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', response)
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', response)
+
+        if raw:
+            client_raw_response = ClientRawResponse(deserialized, response)
+            return client_raw_response
+
+        return deserialized
+    update_provider.metadata = {'url': '/api/providers/{providerId}'}
 
     def delete_provider(
             self, provider_id, custom_headers=None, raw=False, **operation_config):
@@ -2160,64 +2976,6 @@ class TeamCloudClient(SDKClient):
         return deserialized
     create_team_cloud_user.metadata = {'url': '/api/users'}
 
-    def update_team_cloud_user(
-            self, body=None, custom_headers=None, raw=False, **operation_config):
-        """Updates an existing TeamCloud User.
-
-        :param body:
-        :type body: ~teamcloud.models.User
-        :param dict custom_headers: headers that will be added to the request
-        :param bool raw: returns the direct response alongside the
-         deserialized response
-        :param operation_config: :ref:`Operation configuration
-         overrides<msrest:optionsforoperations>`.
-        :return: object or ClientRawResponse if raw=true
-        :rtype: object or ~msrest.pipeline.ClientRawResponse
-        :raises:
-         :class:`HttpOperationError<msrest.exceptions.HttpOperationError>`
-        """
-        # Construct URL
-        url = self.update_team_cloud_user.metadata['url']
-
-        # Construct parameters
-        query_parameters = {}
-
-        # Construct headers
-        header_parameters = {}
-        header_parameters['Accept'] = 'application/json'
-        header_parameters['Content-Type'] = 'application/json; charset=utf-8'
-        if custom_headers:
-            header_parameters.update(custom_headers)
-
-        # Construct body
-        if body is not None:
-            body_content = self._serialize.body(body, 'User')
-        else:
-            body_content = None
-
-        # Construct and send request
-        request = self._client.put(url, query_parameters, header_parameters, body_content)
-        response = self._client.send(request, stream=False, **operation_config)
-
-        if response.status_code not in [202, 400, 401, 403, 404]:
-            raise HttpOperationError(self._deserialize, response)
-
-        deserialized = None
-
-        if response.status_code == 202:
-            deserialized = self._deserialize('StatusResult', response)
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', response)
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', response)
-
-        if raw:
-            client_raw_response = ClientRawResponse(deserialized, response)
-            return client_raw_response
-
-        return deserialized
-    update_team_cloud_user.metadata = {'url': '/api/users'}
-
     def get_team_cloud_user_by_name_or_id(
             self, user_name_or_id, custom_headers=None, raw=False, **operation_config):
         """Gets a TeamCloud User by ID or email address.
@@ -2273,6 +3031,70 @@ class TeamCloudClient(SDKClient):
         return deserialized
     get_team_cloud_user_by_name_or_id.metadata = {'url': '/api/users/{userNameOrId}'}
 
+    def update_team_cloud_user(
+            self, user_name_or_id, body=None, custom_headers=None, raw=False, **operation_config):
+        """Updates an existing TeamCloud User.
+
+        :param user_name_or_id:
+        :type user_name_or_id: str
+        :param body:
+        :type body: ~teamcloud.models.User
+        :param dict custom_headers: headers that will be added to the request
+        :param bool raw: returns the direct response alongside the
+         deserialized response
+        :param operation_config: :ref:`Operation configuration
+         overrides<msrest:optionsforoperations>`.
+        :return: object or ClientRawResponse if raw=true
+        :rtype: object or ~msrest.pipeline.ClientRawResponse
+        :raises:
+         :class:`HttpOperationError<msrest.exceptions.HttpOperationError>`
+        """
+        # Construct URL
+        url = self.update_team_cloud_user.metadata['url']
+        path_format_arguments = {
+            'userNameOrId': self._serialize.url("user_name_or_id", user_name_or_id, 'str')
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}
+
+        # Construct headers
+        header_parameters = {}
+        header_parameters['Accept'] = 'application/json'
+        header_parameters['Content-Type'] = 'application/json; charset=utf-8'
+        if custom_headers:
+            header_parameters.update(custom_headers)
+
+        # Construct body
+        if body is not None:
+            body_content = self._serialize.body(body, 'User')
+        else:
+            body_content = None
+
+        # Construct and send request
+        request = self._client.put(url, query_parameters, header_parameters, body_content)
+        response = self._client.send(request, stream=False, **operation_config)
+
+        if response.status_code not in [202, 400, 401, 403, 404]:
+            raise HttpOperationError(self._deserialize, response)
+
+        deserialized = None
+
+        if response.status_code == 202:
+            deserialized = self._deserialize('StatusResult', response)
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', response)
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', response)
+
+        if raw:
+            client_raw_response = ClientRawResponse(deserialized, response)
+            return client_raw_response
+
+        return deserialized
+    update_team_cloud_user.metadata = {'url': '/api/users/{userNameOrId}'}
+
     def delete_team_cloud_user(
             self, user_name_or_id, custom_headers=None, raw=False, **operation_config):
         """Deletes an existing TeamCloud User.
@@ -2325,3 +3147,214 @@ class TeamCloudClient(SDKClient):
 
         return deserialized
     delete_team_cloud_user.metadata = {'url': '/api/users/{userNameOrId}'}
+
+    def get_team_cloud_user_me(
+            self, custom_headers=None, raw=False, **operation_config):
+        """Gets a TeamCloud User A User matching the current authenticated user.
+
+        :param dict custom_headers: headers that will be added to the request
+        :param bool raw: returns the direct response alongside the
+         deserialized response
+        :param operation_config: :ref:`Operation configuration
+         overrides<msrest:optionsforoperations>`.
+        :return: object or ClientRawResponse if raw=true
+        :rtype: object or ~msrest.pipeline.ClientRawResponse
+        :raises:
+         :class:`HttpOperationError<msrest.exceptions.HttpOperationError>`
+        """
+        # Construct URL
+        url = self.get_team_cloud_user_me.metadata['url']
+
+        # Construct parameters
+        query_parameters = {}
+
+        # Construct headers
+        header_parameters = {}
+        header_parameters['Accept'] = 'application/json'
+        if custom_headers:
+            header_parameters.update(custom_headers)
+
+        # Construct and send request
+        request = self._client.get(url, query_parameters, header_parameters)
+        response = self._client.send(request, stream=False, **operation_config)
+
+        if response.status_code not in [200, 400, 401, 403, 404]:
+            raise HttpOperationError(self._deserialize, response)
+
+        deserialized = None
+
+        if response.status_code == 200:
+            deserialized = self._deserialize('UserDataResult', response)
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', response)
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', response)
+
+        if raw:
+            client_raw_response = ClientRawResponse(deserialized, response)
+            return client_raw_response
+
+        return deserialized
+    get_team_cloud_user_me.metadata = {'url': '/api/me'}
+
+    def update_team_cloud_user_me(
+            self, body=None, custom_headers=None, raw=False, **operation_config):
+        """Updates an existing TeamCloud User.
+
+        :param body:
+        :type body: ~teamcloud.models.User
+        :param dict custom_headers: headers that will be added to the request
+        :param bool raw: returns the direct response alongside the
+         deserialized response
+        :param operation_config: :ref:`Operation configuration
+         overrides<msrest:optionsforoperations>`.
+        :return: object or ClientRawResponse if raw=true
+        :rtype: object or ~msrest.pipeline.ClientRawResponse
+        :raises:
+         :class:`HttpOperationError<msrest.exceptions.HttpOperationError>`
+        """
+        # Construct URL
+        url = self.update_team_cloud_user_me.metadata['url']
+
+        # Construct parameters
+        query_parameters = {}
+
+        # Construct headers
+        header_parameters = {}
+        header_parameters['Accept'] = 'application/json'
+        header_parameters['Content-Type'] = 'application/json; charset=utf-8'
+        if custom_headers:
+            header_parameters.update(custom_headers)
+
+        # Construct body
+        if body is not None:
+            body_content = self._serialize.body(body, 'User')
+        else:
+            body_content = None
+
+        # Construct and send request
+        request = self._client.put(url, query_parameters, header_parameters, body_content)
+        response = self._client.send(request, stream=False, **operation_config)
+
+        if response.status_code not in [202, 400, 401, 403, 404]:
+            raise HttpOperationError(self._deserialize, response)
+
+        deserialized = None
+
+        if response.status_code == 202:
+            deserialized = self._deserialize('StatusResult', response)
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', response)
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', response)
+
+        if raw:
+            client_raw_response = ClientRawResponse(deserialized, response)
+            return client_raw_response
+
+        return deserialized
+    update_team_cloud_user_me.metadata = {'url': '/api/me'}
+
+    def get_user_projects(
+            self, user_id, custom_headers=None, raw=False, **operation_config):
+        """Gets all Projects for a User.
+
+        :param user_id:
+        :type user_id: str
+        :param dict custom_headers: headers that will be added to the request
+        :param bool raw: returns the direct response alongside the
+         deserialized response
+        :param operation_config: :ref:`Operation configuration
+         overrides<msrest:optionsforoperations>`.
+        :return: object or ClientRawResponse if raw=true
+        :rtype: object or ~msrest.pipeline.ClientRawResponse
+        :raises:
+         :class:`HttpOperationError<msrest.exceptions.HttpOperationError>`
+        """
+        # Construct URL
+        url = self.get_user_projects.metadata['url']
+        path_format_arguments = {
+            'userId': self._serialize.url("user_id", user_id, 'str')
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}
+
+        # Construct headers
+        header_parameters = {}
+        header_parameters['Accept'] = 'application/json'
+        if custom_headers:
+            header_parameters.update(custom_headers)
+
+        # Construct and send request
+        request = self._client.get(url, query_parameters, header_parameters)
+        response = self._client.send(request, stream=False, **operation_config)
+
+        if response.status_code not in [200, 400, 401, 403, 404]:
+            raise HttpOperationError(self._deserialize, response)
+
+        deserialized = None
+
+        if response.status_code == 200:
+            deserialized = self._deserialize('ProjectListDataResult', response)
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', response)
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', response)
+
+        if raw:
+            client_raw_response = ClientRawResponse(deserialized, response)
+            return client_raw_response
+
+        return deserialized
+    get_user_projects.metadata = {'url': '/api/users/{userId}/projects'}
+
+    def get_user_projects_me(
+            self, custom_headers=None, raw=False, **operation_config):
+        """Gets all Projects for a User.
+
+        :param dict custom_headers: headers that will be added to the request
+        :param bool raw: returns the direct response alongside the
+         deserialized response
+        :param operation_config: :ref:`Operation configuration
+         overrides<msrest:optionsforoperations>`.
+        :return: object or ClientRawResponse if raw=true
+        :rtype: object or ~msrest.pipeline.ClientRawResponse
+        :raises:
+         :class:`HttpOperationError<msrest.exceptions.HttpOperationError>`
+        """
+        # Construct URL
+        url = self.get_user_projects_me.metadata['url']
+
+        # Construct parameters
+        query_parameters = {}
+
+        # Construct headers
+        header_parameters = {}
+        header_parameters['Accept'] = 'application/json'
+        if custom_headers:
+            header_parameters.update(custom_headers)
+
+        # Construct and send request
+        request = self._client.get(url, query_parameters, header_parameters)
+        response = self._client.send(request, stream=False, **operation_config)
+
+        if response.status_code not in [200, 400, 401, 403, 404]:
+            raise HttpOperationError(self._deserialize, response)
+
+        deserialized = None
+
+        if response.status_code == 200:
+            deserialized = self._deserialize('ProjectListDataResult', response)
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', response)
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', response)
+
+        if raw:
+            client_raw_response = ClientRawResponse(deserialized, response)
+            return client_raw_response
+
+        return deserialized
+    get_user_projects_me.metadata = {'url': '/api/me/projects'}

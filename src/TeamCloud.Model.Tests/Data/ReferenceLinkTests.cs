@@ -5,7 +5,6 @@
 
 using System;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using TeamCloud.Model.Data.Core;
 using Xunit;
 
@@ -119,7 +118,7 @@ namespace TeamCloud.Model.Data
                     => GetBaseUri()?.AppendPath($"api/foo/{{?ownerIdOrName}}").ToString()));
             }
 
-            [JsonProperty("_self")]
+            [JsonProperty("_self", Order = int.MinValue)]
             public ReferenceLink Self
             {
                 get => GetLink();

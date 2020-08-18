@@ -20,7 +20,8 @@ class User(Model):
     :param user_type: Possible values include: 'User', 'System', 'Provider',
      'Application'
     :type user_type: str or ~teamcloud.models.enum
-    :param role: Possible values include: 'None', 'Creator', 'Admin'
+    :param role: Possible values include: 'None', 'Provider', 'Creator',
+     'Admin'
     :type role: str or ~teamcloud.models.enum
     :param project_memberships:
     :type project_memberships: list[~teamcloud.models.ProjectMembership]
