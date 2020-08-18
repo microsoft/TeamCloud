@@ -253,6 +253,83 @@ namespace TeamCloud.API.Controllers
         }
 
 
+        [HttpPut("me")]
+        [Authorize(Policy = AuthPolicies.ProjectUserWrite)]
+        [Consumes("application/json")]
+        [SwaggerOperation(OperationId = "UpdateProjectUserMe", Summary = "Updates an existing Project User.")]
+        [SwaggerResponse(StatusCodes.Status202Accepted, "Starts updating the Project User. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a User matching the current user was not found.", typeof(ErrorResult))]
+        public async Task<IActionResult> PutMe([FromBody] User user)
+        {
+            if (user is null)
+                throw new ArgumentNullException(nameof(user));
+
+            if (string.IsNullOrEmpty(ProjectId))
+                return ErrorResult
+                    .BadRequest($"Project Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCode.ValidationError)
+                    .ActionResult();
+
+            var validation = new UserValidator().Validate(user);
+
+            if (!validation.IsValid)
+                return ErrorResult
+                    .BadRequest(validation)
+                    .ActionResult();
+
+            var me = await userService
+                .CurrentUserAsync()
+                .ConfigureAwait(false);
+
+            if (me is null)
+                return ErrorResult
+                    .NotFound($"A User matching the current user was not found in this TeamCloud instance.")
+                    .ActionResult();
+
+            if (!me.Id.Equals(user.Id, StringComparison.OrdinalIgnoreCase))
+                return ErrorResult
+                    .BadRequest(new ValidationError { Field = "id", Message = $"User's id does match the id of the current user." })
+                    .ActionResult();
+
+            if (!me.IsMember(ProjectId))
+                return ErrorResult
+                    .NotFound($"A User matching the current user was not found in this Project.")
+                    .ActionResult();
+
+            if (me.IsOwner(ProjectId) && !user.IsOwner(ProjectId))
+            {
+                var otherOwners = await usersRepository
+                    .ListOwnersAsync(ProjectId)
+                    .AnyAsync(o => o.Id.Equals(user.Id, StringComparison.OrdinalIgnoreCase))
+                    .ConfigureAwait(false);
+
+                if (!otherOwners)
+                    return ErrorResult
+                        .BadRequest($"Projects must have at least one Owner. To change this user's role you must first add another Owner.", ResultErrorCode.ValidationError)
+                        .ActionResult();
+            }
+
+            var membership = user.ProjectMembership(ProjectId);
+
+            if (me.HasEqualMembership(membership))
+                return ErrorResult
+                    .BadRequest(new ValidationError { Field = "projectMemberships", Message = $"User's project memberships did not change." })
+                    .ActionResult();
+
+            me.UpdateProjectMembership(membership);
+
+            var currentUserForCommand = await userService
+                .CurrentUserAsync()
+                .ConfigureAwait(false);
+
+            var command = new OrchestratorProjectUserUpdateCommand(currentUserForCommand, me, ProjectId);
+
+            return await orchestrator
+                .InvokeAndReturnAccepted(command)
+                .ConfigureAwait(false);
+        }
+
+
         [HttpDelete("{userNameOrId:userNameOrId}")]
         [Authorize(Policy = AuthPolicies.ProjectUserWrite)]
         [SwaggerOperation(OperationId = "DeleteProjectUser", Summary = "Deletes an existing Project User.")]
