@@ -130,7 +130,7 @@ namespace TeamCloud.API.Controllers
         }
 
 
-        [HttpDelete("{providerId}")]
+        [HttpPut("{providerId}")]
         [Authorize(Policy = AuthPolicies.Admin)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "UpdateProvider", Summary = "Updates an existing Provider.")]

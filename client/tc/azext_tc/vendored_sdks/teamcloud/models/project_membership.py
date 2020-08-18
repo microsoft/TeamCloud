@@ -17,7 +17,8 @@ class ProjectMembership(Model):
 
     :param project_id:
     :type project_id: str
-    :param role: Possible values include: 'None', 'Member', 'Owner'
+    :param role: Possible values include: 'None', 'Provider', 'Member',
+     'Owner'
     :type role: str or ~teamcloud.models.enum
     :param properties:
     :type properties: dict[str, str]

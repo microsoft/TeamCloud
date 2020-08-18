@@ -15,6 +15,486 @@
     "version": "v1"
   },
   "paths": {
+    "/api/projects/{projectId}/identity": {
+      "get": {
+        "tags": [
+          "ProjectIdentities"
+        ],
+        "summary": "Gets the ProjectIdentity for a Project.",
+        "operationId": "GetProjectIdentity",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns ProjectIdentity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectIdentityDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Project with the provided projectId was not found, or a ProjectIdentity was not found for the Project.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "projectIdentityRead"
+            ]
+          }
+        ]
+      }
+    },
+    "/api/projects/{projectId}/providers/{providerId}/data": {
+      "get": {
+        "tags": [
+          "ProjectProviderData"
+        ],
+        "summary": "Gets the ProviderData items for a Project.",
+        "operationId": "GetProjectProviderData",
+        "parameters": [
+          {
+            "name": "includeShared",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "providerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns ProviderData",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProviderDataDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Provider with the provided id was not found, or a Project with the provided identifier was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "providerDataRead"
+            ]
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "ProjectProviderData"
+        ],
+        "summary": "Creates a new ProviderData",
+        "operationId": "CreateProjectProviderData",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "providerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProviderData"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The ProviderData was created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProviderDataDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Provider with the provided provider ID was not found, or a Project with the id specified was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A Project User already exists with the email address provided in the request body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "providerDataWrite"
+            ]
+          }
+        ]
+      }
+    },
+    "/api/projects/{projectId}/providers/{providerId}/data/{providerDataId}": {
+      "get": {
+        "tags": [
+          "ProjectProviderData"
+        ],
+        "summary": "Gets a ProviderData for a Project by ID.",
+        "operationId": "GetProjectProviderDataById",
+        "parameters": [
+          {
+            "name": "providerDataId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "providerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns ProviderData",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProviderDataDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A ProviderData with the provided id was not found, or a Project with the provided identifier was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "providerDataRead"
+            ]
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "ProjectProviderData"
+        ],
+        "summary": "Updates an existing ProviderData.",
+        "operationId": "UpdateProjectProviderData",
+        "parameters": [
+          {
+            "name": "providerDataId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "providerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProviderData"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The ProviderData was updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProviderDataDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Project with the provided projectId was not found, or a User with the ID provided in the request body was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "providerDataWrite"
+            ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "ProjectProviderData"
+        ],
+        "summary": "Deletes a ProviderData.",
+        "operationId": "DeleteProjectProviderData",
+        "parameters": [
+          {
+            "name": "providerDataId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "providerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The ProviderData was deleted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProviderDataDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A ProviderData with the providerDataId provided was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "providerDataWrite"
+            ]
+          }
+        ]
+      }
+    },
     "/api/projects": {
       "get": {
         "tags": [
@@ -242,7 +722,7 @@
         "security": [
           {
             "oauth2": [
-              "projectDelete"
+              "projectWrite"
             ]
           }
         ]
@@ -391,7 +871,7 @@
         "security": [
           {
             "oauth2": [
-              "projectCreate"
+              "projectWrite"
             ]
           }
         ]
@@ -466,7 +946,7 @@
         "security": [
           {
             "oauth2": [
-              "projectCreate"
+              "projectWrite"
             ]
           }
         ]
@@ -610,7 +1090,7 @@
         "security": [
           {
             "oauth2": [
-              "projectCreate"
+              "projectWrite"
             ]
           }
         ]
@@ -643,8 +1123,21 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
-        }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "admin"
+            ]
+          }
+        ]
       },
       "post": {
         "tags": [
@@ -684,67 +1177,6 @@
           },
           "409": {
             "description": "A ProjectType already exists with the ID provided in the request body.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResult"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "admin"
-            ]
-          }
-        ]
-      },
-      "put": {
-        "tags": [
-          "ProjectTypes"
-        ],
-        "summary": "Updates an existing Project Type.",
-        "operationId": "UpdateProjectType",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ProjectType"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "The ProjectType was updated.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProjectTypeDataResult"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "A validation error occured.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResult"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "A Project Type with the ID provided in the request body could not be found.",
             "content": {
               "application/json": {
                 "schema": {
@@ -810,6 +1242,78 @@
           },
           "404": {
             "description": "A ProjectType with the projectTypeId provided was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "admin"
+            ]
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "ProjectTypes"
+        ],
+        "summary": "Updates an existing Project Type.",
+        "operationId": "UpdateProjectType",
+        "parameters": [
+          {
+            "name": "projectTypeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectType"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The ProjectType was updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectTypeDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Project Type with the ID provided in the request body could not be found.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1036,78 +1540,7 @@
         "security": [
           {
             "oauth2": [
-              "projectCreate"
-            ]
-          }
-        ]
-      },
-      "put": {
-        "tags": [
-          "ProjectUsers"
-        ],
-        "summary": "Updates an existing Project User.",
-        "operationId": "UpdateProjectUser",
-        "parameters": [
-          {
-            "name": "projectId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/User"
-              }
-            }
-          }
-        },
-        "responses": {
-          "202": {
-            "description": "Starts updating the Project UserProject. Returns a StatusResult object that can be used to track progress of the long-running operation.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StatusResult"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "A validation error occured.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResult"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "A Project with the provided projectId was not found, or a User with the ID provided in the request body was not found.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResult"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "projectCreate"
+              "projectUserWrite"
             ]
           }
         ]
@@ -1185,6 +1618,86 @@
           }
         ]
       },
+      "put": {
+        "tags": [
+          "ProjectUsers"
+        ],
+        "summary": "Updates an existing Project User.",
+        "operationId": "UpdateProjectUser",
+        "parameters": [
+          {
+            "name": "userNameOrId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Starts updating the Project UserProject. Returns a StatusResult object that can be used to track progress of the long-running operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Project with the provided projectId was not found, or a User with the ID provided in the request body was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "projectUserWrite"
+            ]
+          }
+        ]
+      },
       "delete": {
         "tags": [
           "ProjectUsers"
@@ -1251,7 +1764,511 @@
         "security": [
           {
             "oauth2": [
-              "projectCreate"
+              "projectUserWrite"
+            ]
+          }
+        ]
+      }
+    },
+    "/api/projects/{projectId}/users/me": {
+      "get": {
+        "tags": [
+          "ProjectUsers"
+        ],
+        "summary": "Gets a Project User for the calling user.",
+        "operationId": "GetProjectUserMe",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns Project User",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Project with the provided projectId was not found, or a User matching the current user was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "projectRead"
+            ]
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "ProjectUsers"
+        ],
+        "summary": "Updates an existing Project User.",
+        "operationId": "UpdateProjectUserMe",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Starts updating the Project User. Returns a StatusResult object that can be used to track progress of the long-running operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Project with the provided projectId was not found, or a User matching the current user was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "projectUserWrite"
+            ]
+          }
+        ]
+      }
+    },
+    "/api/providers/{providerId}/data": {
+      "get": {
+        "tags": [
+          "ProviderData"
+        ],
+        "summary": "Gets all ProviderData for a Provider.",
+        "operationId": "GetProviderData",
+        "parameters": [
+          {
+            "name": "providerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns all ProviderData",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProviderDataListDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Provider with the provided providerId was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "providerDataRead"
+            ]
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "ProviderData"
+        ],
+        "summary": "Creates a new ProviderData item",
+        "operationId": "CreateProviderData",
+        "parameters": [
+          {
+            "name": "providerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProviderData"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The new ProviderData was created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProviderDataDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Project with the provided projectId was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A Project User already exists with the email address provided in the request body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "providerDataWrite"
+            ]
+          }
+        ]
+      }
+    },
+    "/api/providers/{providerId}/data/{providerDataId}": {
+      "get": {
+        "tags": [
+          "ProviderData"
+        ],
+        "summary": "Gets the ProviderData by ID.",
+        "operationId": "GetProviderDataById",
+        "parameters": [
+          {
+            "name": "providerDataId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "providerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns a ProviderData",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProviderDataDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A ProviderData with the provided ID was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "providerDataRead"
+            ]
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "ProviderData"
+        ],
+        "summary": "Updates an existing ProviderData.",
+        "operationId": "UpdateProviderData",
+        "parameters": [
+          {
+            "name": "providerDataId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "providerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProviderData"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The ProviderData was updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProviderDataDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Project with the provided projectId was not found, or a User with the ID provided in the request body was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "providerDataWrite"
+            ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "ProviderData"
+        ],
+        "summary": "Deletes a ProviderData.",
+        "operationId": "DeleteProviderData",
+        "parameters": [
+          {
+            "name": "providerDataId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "providerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The ProviderData was deleted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProviderDataDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A ProviderData with the providerDataId provided was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "providerDataWrite"
             ]
           }
         ]
@@ -1360,67 +2377,6 @@
             ]
           }
         ]
-      },
-      "put": {
-        "tags": [
-          "Providers"
-        ],
-        "summary": "Updates an existing Provider.",
-        "operationId": "UpdateProvider",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Provider"
-              }
-            }
-          }
-        },
-        "responses": {
-          "202": {
-            "description": "Starts updating the provided Provider. Returns a StatusResult object that can be used to track progress of the long-running operation.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StatusResult"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "A validation error occured.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResult"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "A Provider with the ID provided in the reques body was not found.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResult"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "admin"
-            ]
-          }
-        ]
       }
     },
     "/api/providers/{providerId}": {
@@ -1464,6 +2420,78 @@
           },
           "404": {
             "description": "A Provider with the providerId provided was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "admin"
+            ]
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Providers"
+        ],
+        "summary": "Updates an existing Provider.",
+        "operationId": "UpdateProvider",
+        "parameters": [
+          {
+            "name": "providerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Provider"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Starts updating the provided Provider. Returns a StatusResult object that can be used to track progress of the long-running operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Provider with the ID provided in the reques body was not found.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2459,7 +3487,7 @@
         "security": [
           {
             "oauth2": [
-              "admin"
+              "userRead"
             ]
           }
         ]
@@ -2530,68 +3558,7 @@
         "security": [
           {
             "oauth2": [
-              "admin"
-            ]
-          }
-        ]
-      },
-      "put": {
-        "tags": [
-          "TeamCloudUsers"
-        ],
-        "summary": "Updates an existing TeamCloud User.",
-        "operationId": "UpdateTeamCloudUser",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/User"
-              }
-            }
-          }
-        },
-        "responses": {
-          "202": {
-            "description": "Starts updating the TeamCloud User. Returns a StatusResult object that can be used to track progress of the long-running operation.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StatusResult"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "A validation error occured.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResult"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "A User with the ID provided in the request body was not found.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResult"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "admin"
+              "userWrite"
             ]
           }
         ]
@@ -2656,7 +3623,79 @@
         "security": [
           {
             "oauth2": [
-              "admin"
+              "userRead"
+            ]
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "TeamCloudUsers"
+        ],
+        "summary": "Updates an existing TeamCloud User.",
+        "operationId": "UpdateTeamCloudUser",
+        "parameters": [
+          {
+            "name": "userNameOrId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Starts updating the TeamCloud User. Returns a StatusResult object that can be used to track progress of the long-running operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A User with the ID provided in the request body was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "userWrite"
             ]
           }
         ]
@@ -2709,7 +3748,240 @@
         "security": [
           {
             "oauth2": [
-              "admin"
+              "userWrite"
+            ]
+          }
+        ]
+      }
+    },
+    "/api/me": {
+      "get": {
+        "tags": [
+          "TeamCloudUsers"
+        ],
+        "summary": "Gets a TeamCloud User A User matching the current authenticated user.",
+        "operationId": "GetTeamCloudUserMe",
+        "responses": {
+          "200": {
+            "description": "Returns TeamCloud User.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A User matching the current user was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "userRead"
+            ]
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "TeamCloudUsers"
+        ],
+        "summary": "Updates an existing TeamCloud User.",
+        "operationId": "UpdateTeamCloudUserMe",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Starts updating the TeamCloud User. Returns a StatusResult object that can be used to track progress of the long-running operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A User with the ID provided in the request body was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "userWrite"
+            ]
+          }
+        ]
+      }
+    },
+    "/api/users/{userId}/projects": {
+      "get": {
+        "tags": [
+          "UserProjects"
+        ],
+        "summary": "Gets all Projects for a User.",
+        "operationId": "GetUserProjects",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns all User Projects",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectListDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A User with the provided userId was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "projectRead"
+            ]
+          }
+        ]
+      }
+    },
+    "/api/me/projects": {
+      "get": {
+        "tags": [
+          "UserProjects"
+        ],
+        "summary": "Gets all Projects for a User.",
+        "operationId": "GetUserProjectsMe",
+        "responses": {
+          "200": {
+            "description": "Returns all User Projects",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectListDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A User with the provided userId was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "projectRead"
             ]
           }
         ]
@@ -2718,6 +3990,173 @@
   },
   "components": {
     "schemas": {
+      "ProjectIdentity": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "applicationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "secret": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ProjectIdentityDataResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/ProjectIdentity"
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ValidationError": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ResultError": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "enum": [
+              "Unknown",
+              "Failed",
+              "Conflict",
+              "NotFound",
+              "ServerError",
+              "ValidationError",
+              "Unauthorized",
+              "Forbidden"
+            ],
+            "type": "string"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "nullable": true
+          }
+        }
+      },
+      "ErrorResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResultError"
+            },
+            "nullable": true
+          }
+        }
+      },
+      "ProviderData": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "value": {
+            "type": "object",
+            "nullable": true
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          },
+          "isSecret": {
+            "type": "boolean"
+          },
+          "isShared": {
+            "type": "boolean"
+          },
+          "scope": {
+            "enum": [
+              0,
+              1
+            ],
+            "type": "integer",
+            "format": "int32"
+          },
+          "dataType": {
+            "enum": [
+              0,
+              1
+            ],
+            "type": "integer",
+            "format": "int32"
+          },
+          "stringValue": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          }
+        }
+      },
+      "ProviderDataDataResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/ProviderData"
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
       "ProviderReference": {
         "type": "object",
         "properties": {
@@ -2835,6 +4274,7 @@
           "role": {
             "enum": [
               "None",
+              "Provider",
               "Member",
               "Owner"
             ],
@@ -2868,6 +4308,7 @@
           "role": {
             "enum": [
               "None",
+              "Provider",
               "Creator",
               "Admin"
             ],
@@ -2886,6 +4327,33 @@
               "type": "string"
             },
             "nullable": true
+          }
+        }
+      },
+      "ReferenceLink": {
+        "type": "object",
+        "properties": {
+          "href": {
+            "type": "string",
+            "nullable": true
+          },
+          "templated": {
+            "type": "boolean",
+            "readOnly": true
+          }
+        }
+      },
+      "ProjectLinks": {
+        "type": "object",
+        "properties": {
+          "_self": {
+            "$ref": "#/components/schemas/ReferenceLink"
+          },
+          "identity": {
+            "$ref": "#/components/schemas/ReferenceLink"
+          },
+          "users": {
+            "$ref": "#/components/schemas/ReferenceLink"
           }
         }
       },
@@ -2926,6 +4394,9 @@
               "type": "string"
             },
             "nullable": true
+          },
+          "_links": {
+            "$ref": "#/components/schemas/ProjectLinks"
           }
         }
       },
@@ -2950,68 +4421,6 @@
           },
           "location": {
             "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "ValidationError": {
-        "type": "object",
-        "properties": {
-          "field": {
-            "type": "string",
-            "nullable": true
-          },
-          "message": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "ResultError": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "enum": [
-              "Unknown",
-              "Failed",
-              "Conflict",
-              "NotFound",
-              "ServerError",
-              "ValidationError",
-              "Unauthorized",
-              "Forbidden"
-            ],
-            "type": "string"
-          },
-          "message": {
-            "type": "string",
-            "nullable": true
-          },
-          "errors": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ValidationError"
-            },
-            "nullable": true
-          }
-        }
-      },
-      "ErrorResult": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "status": {
-            "type": "string",
-            "nullable": true
-          },
-          "errors": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ResultError"
-            },
             "nullable": true
           }
         }
@@ -3235,6 +4644,31 @@
           },
           "data": {
             "$ref": "#/components/schemas/User"
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ProviderDataListDataResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProviderData"
+            },
+            "nullable": true,
+            "readOnly": true
           },
           "location": {
             "type": "string",

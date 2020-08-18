@@ -25,7 +25,7 @@ namespace TeamCloud.Model.Data
                 => GetBaseUri()?.AppendPath($"api/projects/{Context.Id}/users").ToString()));
         }
 
-        [JsonProperty("_self")]
+        [JsonProperty("_self", Order = int.MinValue)]
         public ReferenceLink Self
         {
             get => GetLink();
