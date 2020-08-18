@@ -5,7 +5,6 @@
 
 using System;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using TeamCloud.Model.Data.Core;
 using Xunit;
 
