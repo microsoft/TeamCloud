@@ -109,6 +109,7 @@ namespace TeamCloud.Model.Data
                     => GetBaseUri()?.AppendPath($"api/foo/{{?ownerIdOrName}}").ToString()));
             }
 
+            [JsonProperty("_self", Order = int.MinValue)]
             public ReferenceLink Self
             {
                 get => GetLink();

@@ -116,7 +116,7 @@ def load_arguments(self, _):
     # TeamCloud Users
 
     with self.argument_context('tc user create') as c:
-        c.argument('role', get_enum_type(['None', 'Creator', 'Admin'], default='Creator'),
+        c.argument('role', get_enum_type(['None', 'Provider', 'Creator', 'Admin'], default='Creator'),
                    options_list=['--role', '-r'], help='User role.')
         c.argument('properties', properties_type)
 
@@ -125,7 +125,7 @@ def load_arguments(self, _):
             c.argument('user', user_name_or_id_type)
 
     with self.argument_context('tc user update') as c:
-        c.argument('role', get_enum_type(['None', 'Creator', 'Admin']),
+        c.argument('role', get_enum_type(['None', 'Provider', 'Creator', 'Admin']),
                    options_list=['--role', '-r'], help='User role.')
         c.argument('properties', properties_type)
 
@@ -154,7 +154,7 @@ def load_arguments(self, _):
         c.argument('project', project_name_or_id_type)
 
     with self.argument_context('tc project user create') as c:
-        c.argument('role', get_enum_type(['None', 'Member', 'Owner'], default='Member'),
+        c.argument('role', get_enum_type(['None', 'Provider', 'Member', 'Owner'], default='Member'),
                    options_list=['--role', '-r'], help='User role.')
         c.argument('properties', properties_type)
 
@@ -164,7 +164,7 @@ def load_arguments(self, _):
             c.argument('user', user_name_or_id_type)
 
     with self.argument_context('tc project user update') as c:
-        c.argument('role', get_enum_type(['None', 'Member', 'Owner']),
+        c.argument('role', get_enum_type(['None', 'Provider', 'Member', 'Owner']),
                    options_list=['--role', '-r'], help='User role.')
         c.argument('properties', properties_type)
 

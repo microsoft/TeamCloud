@@ -3,6 +3,7 @@
  *  Licensed under the MIT License.
  */
 
+using Newtonsoft.Json;
 using TeamCloud.Model.Data.Core;
 
 namespace TeamCloud.Model.Data
@@ -24,6 +25,7 @@ namespace TeamCloud.Model.Data
                 => GetBaseUri()?.AppendPath($"api/projects/{Context.Id}/users").ToString()));
         }
 
+        [JsonProperty("_self", Order = int.MinValue)]
         public ReferenceLink Self
         {
             get => GetLink();
