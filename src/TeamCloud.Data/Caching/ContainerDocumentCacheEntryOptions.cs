@@ -23,5 +23,11 @@ namespace TeamCloud.Data.Caching
 
         public TimeSpan? SlidingExpiration { get; set; }
 
+        public static DistributedCacheEntryOptions ToDistributedCacheEntryOptions(ContainerDocumentCacheEntryOptions cosmosOptions) => cosmosOptions is null ? default : new DistributedCacheEntryOptions()
+        {
+            AbsoluteExpiration = cosmosOptions.AbsoluteExpiration,
+            AbsoluteExpirationRelativeToNow = cosmosOptions.AbsoluteExpirationRelativeToNow,
+            SlidingExpiration = cosmosOptions.SlidingExpiration
+        };
     }
 }

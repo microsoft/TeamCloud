@@ -15,7 +15,6 @@ using TeamCloud.Model.Commands;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Activities;
 using TeamCloud.Orchestrator.Entities;
-using TeamCloud.Model.Data;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Commands
 {

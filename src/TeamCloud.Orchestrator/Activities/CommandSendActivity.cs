@@ -16,7 +16,6 @@ using TeamCloud.Http;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
-using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Services;
 using TeamCloud.Serialization;
@@ -35,7 +34,7 @@ namespace TeamCloud.Orchestrator.Activities
 
         [FunctionName(nameof(CommandSendActivity))]
         [RetryOptions(3)]
-        public async Task<ICommandResult> RunActivity(
+        public static async Task<ICommandResult> RunActivity(
             [ActivityTrigger] IDurableActivityContext functionContext,
             ILogger log)
         {

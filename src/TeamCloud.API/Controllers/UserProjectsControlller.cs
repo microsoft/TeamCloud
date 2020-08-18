@@ -16,7 +16,6 @@ using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
 using TeamCloud.Model.Data;
-using TeamCloud.Model.Internal.Data;
 
 namespace TeamCloud.API.Controllers
 {

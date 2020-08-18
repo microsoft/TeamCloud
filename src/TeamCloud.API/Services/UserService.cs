@@ -11,7 +11,6 @@ using TeamCloud.API.Data;
 using TeamCloud.Azure.Directory;
 using TeamCloud.Data;
 using TeamCloud.Model.Data;
-using TeamCloud.Model.Data;
 
 namespace TeamCloud.API.Services
 {

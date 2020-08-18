@@ -12,8 +12,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
-using TeamCloud.Model.Data.Core;
-using TeamCloud.Model.Internal.Data;
+using TeamCloud.Model.Data;
 
 namespace TeamCloud.API.Auth
 {
