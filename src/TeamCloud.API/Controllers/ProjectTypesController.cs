@@ -145,23 +145,33 @@ namespace TeamCloud.API.Controllers
         }
 
 
-        [HttpPut]
+        [HttpPut("{projectTypeId}")]
         [Authorize(Policy = AuthPolicies.Admin)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "UpdateProjectType", Summary = "Updates an existing Project Type.")]
         [SwaggerResponse(StatusCodes.Status200OK, "The ProjectType was updated.", typeof(DataResult<ProjectType>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project Type with the ID provided in the request body could not be found.", typeof(ErrorResult))]
-        public async Task<IActionResult> Put([FromBody] ProjectType projectType)
+        public async Task<IActionResult> Put([FromRoute] string projectTypeId, [FromBody] ProjectType projectType)
         {
             if (projectType is null)
                 throw new ArgumentNullException(nameof(projectType));
+
+            if (string.IsNullOrWhiteSpace(projectTypeId))
+                return ErrorResult
+                    .BadRequest($"The identifier '{projectTypeId}' provided in the url path is invalid.  Must be a valid project type ID.", ResultErrorCode.ValidationError)
+                    .ActionResult();
 
             var validation = new ProjectTypeValidator().Validate(projectType);
 
             if (!validation.IsValid)
                 return ErrorResult
                     .BadRequest(validation)
+                    .ActionResult();
+
+            if (!projectTypeId.Equals(projectType.Id, StringComparison.OrdinalIgnoreCase))
+                return ErrorResult
+                    .BadRequest(new ValidationError { Field = "id", Message = $"ProjectType's id does match the identifier provided in the path." })
                     .ActionResult();
 
             var existingProjectType = await projectTypesRepository

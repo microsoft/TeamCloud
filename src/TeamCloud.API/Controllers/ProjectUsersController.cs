@@ -167,14 +167,14 @@ namespace TeamCloud.API.Controllers
         }
 
 
-        [HttpPut]
+        [HttpPut("{userNameOrId:userNameOrId}")]
         [Authorize(Policy = AuthPolicies.ProjectUserWrite)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "UpdateProjectUser", Summary = "Updates an existing Project User.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts updating the Project UserProject. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a User with the ID provided in the request body was not found.", typeof(ErrorResult))]
-        public async Task<IActionResult> Put([FromBody] User user)
+        public async Task<IActionResult> Put([FromRoute] string userNameOrId, [FromBody] User user)
         {
             if (user is null)
                 throw new ArgumentNullException(nameof(user));
@@ -184,11 +184,30 @@ namespace TeamCloud.API.Controllers
                     .BadRequest($"Project Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCode.ValidationError)
                     .ActionResult();
 
+            if (string.IsNullOrWhiteSpace(userNameOrId))
+                return ErrorResult
+                    .BadRequest($"The identifier '{userNameOrId}' provided in the url path is invalid.  Must be a valid email address or GUID.", ResultErrorCode.ValidationError)
+                    .ActionResult();
+
+            var userId = await userService
+                .GetUserIdAsync(userNameOrId)
+                .ConfigureAwait(false);
+
+            if (string.IsNullOrEmpty(userId))
+                return ErrorResult
+                    .NotFound($"The user '{userNameOrId}' could not be found.")
+                    .ActionResult();
+
             var validation = new UserValidator().Validate(user);
 
             if (!validation.IsValid)
                 return ErrorResult
                     .BadRequest(validation)
+                    .ActionResult();
+
+            if (!userId.Equals(user.Id, StringComparison.OrdinalIgnoreCase))
+                return ErrorResult
+                    .BadRequest(new ValidationError { Field = "id", Message = $"User's id does match the identifier provided in the path." })
                     .ActionResult();
 
             var oldUser = await usersRepository

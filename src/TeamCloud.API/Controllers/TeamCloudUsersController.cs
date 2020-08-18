@@ -160,17 +160,31 @@ namespace TeamCloud.API
 
 
 
-        [HttpPut]
+        [HttpPut("api/users/{userNameOrId:userNameOrId}")]
         [Authorize(Policy = AuthPolicies.UserWrite)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "UpdateTeamCloudUser", Summary = "Updates an existing TeamCloud User.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts updating the TeamCloud User. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A User with the ID provided in the request body was not found.", typeof(ErrorResult))]
-        public async Task<IActionResult> Put([FromBody] User user)
+        public async Task<IActionResult> Put([FromRoute] string userNameOrId, [FromBody] User user)
         {
             if (user is null)
                 throw new ArgumentNullException(nameof(user));
+
+            if (string.IsNullOrWhiteSpace(userNameOrId))
+                return ErrorResult
+                    .BadRequest($"The identifier '{userNameOrId}' provided in the url path is invalid.  Must be a valid email address or GUID.", ResultErrorCode.ValidationError)
+                    .ActionResult();
+
+            var userId = await userService
+                .GetUserIdAsync(userNameOrId)
+                .ConfigureAwait(false);
+
+            if (string.IsNullOrEmpty(userId))
+                return ErrorResult
+                    .NotFound($"The user '{userNameOrId}' could not be found.")
+                    .ActionResult();
 
             var validation = new UserValidator().Validate(user);
 
@@ -185,7 +199,7 @@ namespace TeamCloud.API
 
             if (oldUser is null)
                 return ErrorResult
-                    .NotFound($"The user '{oldUser.Id}' could not be found on this TeamCloud Instance.")
+                    .NotFound($"The user '{user.Id}' could not be found on this TeamCloud Instance.")
                     .ActionResult();
 
             if (oldUser.IsAdmin() && !user.IsAdmin())

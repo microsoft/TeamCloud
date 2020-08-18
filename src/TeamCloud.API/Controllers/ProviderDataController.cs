@@ -159,23 +159,33 @@ namespace TeamCloud.API.Controllers
         }
 
 
-        [HttpPut]
+        [HttpPut("{providerDataId:guid}")]
         [Authorize(Policy = AuthPolicies.ProviderDataWrite)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "UpdateProviderData", Summary = "Updates an existing ProviderData.")]
         [SwaggerResponse(StatusCodes.Status200OK, "The ProviderData was updated.", typeof(DataResult<ProviderData>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a User with the ID provided in the request body was not found.", typeof(ErrorResult))]
-        public async Task<IActionResult> Put([FromBody] ProviderData providerData)
+        public async Task<IActionResult> Put([FromRoute] string providerDataId, [FromBody] ProviderData providerData)
         {
             if (providerData is null)
                 throw new ArgumentNullException(nameof(providerData));
+
+            if (string.IsNullOrWhiteSpace(providerDataId))
+                return ErrorResult
+                    .BadRequest($"The identifier '{providerDataId}' provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCode.ValidationError)
+                    .ActionResult();
 
             var validation = new ProviderDataValidator().Validate(providerData);
 
             if (!validation.IsValid)
                 return ErrorResult
                     .BadRequest(validation)
+                    .ActionResult();
+
+            if (!providerDataId.Equals(providerData.Id, StringComparison.OrdinalIgnoreCase))
+                return ErrorResult
+                    .BadRequest(new ValidationError { Field = "id", Message = $"ProviderData's id does match the identifier provided in the path." })
                     .ActionResult();
 
             var provider = await providersRepository

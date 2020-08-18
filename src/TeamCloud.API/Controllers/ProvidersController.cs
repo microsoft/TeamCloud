@@ -131,23 +131,33 @@ namespace TeamCloud.API.Controllers
         }
 
 
-        [HttpPut]
+        [HttpDelete("{providerId}")]
         [Authorize(Policy = AuthPolicies.Admin)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "UpdateProvider", Summary = "Updates an existing Provider.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts updating the provided Provider. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Provider with the ID provided in the reques body was not found.", typeof(ErrorResult))]
-        public async Task<IActionResult> Put([FromBody] Provider provider)
+        public async Task<IActionResult> Put([FromRoute] string providerId, [FromBody] Provider provider)
         {
             if (provider is null)
                 throw new ArgumentNullException(nameof(provider));
+
+            if (string.IsNullOrWhiteSpace(providerId))
+                return ErrorResult
+                    .BadRequest($"The identifier '{providerId}' provided in the url path is invalid.  Must be a valid provider ID.", ResultErrorCode.ValidationError)
+                    .ActionResult();
 
             var validation = new ProviderValidator().Validate(provider);
 
             if (!validation.IsValid)
                 return ErrorResult
                     .BadRequest(validation)
+                    .ActionResult();
+
+            if (!providerId.Equals(provider.Id, StringComparison.OrdinalIgnoreCase))
+                return ErrorResult
+                    .BadRequest(new ValidationError { Field = "id", Message = $"Provider's id does match the identifier provided in the path." })
                     .ActionResult();
 
             var oldProvider = await providersRepository
