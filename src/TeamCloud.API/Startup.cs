@@ -27,6 +27,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.ObjectPool;
 using Microsoft.IO;
 using Microsoft.OpenApi.Models;
+using TeamCloud.API.Auth;
 using TeamCloud.API.Middleware;
 using TeamCloud.API.Routing;
 using TeamCloud.API.Services;
@@ -251,7 +252,7 @@ namespace TeamCloud.API
                         {
                             var userId = context.Principal.GetObjectId();
 
-                            var userClaims = await ResolveClaimsAsync(userId, context.HttpContext).ConfigureAwait(false);
+                            var userClaims = await context.HttpContext.ResolveClaimsAsync(userId).ConfigureAwait(false);
                             if (userClaims.Any()) context.Principal.AddIdentity(new ClaimsIdentity(userClaims));
                         }
                     };
@@ -260,125 +261,11 @@ namespace TeamCloud.API
 
         private static void ConfigureAuthorization(IServiceCollection services)
         {
-            services
-                .AddMvc(options =>
-                {
-                    // Requires authentication across the API
-                    options.Filters.Add(new AuthorizeFilter("default"));
-                });
+            services // Requires authentication across the API
+                .AddMvc(options => options.Filters.Add(new AuthorizeFilter(AuthPolicies.Default)));
 
             services
-                .AddAuthorization(options =>
-                {
-                    options.AddPolicy("default", policy =>
-                    {
-                        policy.RequireAuthenticatedUser();
-                    });
-
-                    options.AddPolicy("admin", policy =>
-                    {
-                        policy.RequireRole(TeamCloudUserRole.Admin.PolicyRoleName());
-                    });
-
-                    options.AddPolicy("projectCreate", policy =>
-                    {
-                        policy.RequireRole(TeamCloudUserRole.Admin.PolicyRoleName(),
-                                           TeamCloudUserRole.Creator.PolicyRoleName());
-                    });
-
-                    options.AddPolicy("projectRead", policy =>
-                    {
-                        policy.RequireRole(TeamCloudUserRole.Admin.PolicyRoleName(),
-                                           ProjectUserRole.Owner.PolicyRoleName(),
-                                           ProjectUserRole.Member.PolicyRoleName(),
-                                           ProjectUserRole.Provider.PolicyRoleName());
-                    });
-
-                    options.AddPolicy("projectDelete", policy =>
-                    {
-                        policy.RequireRole(TeamCloudUserRole.Admin.PolicyRoleName(),
-                                           ProjectUserRole.Owner.PolicyRoleName());
-                    });
-
-                    options.AddPolicy("projectIdentityRead", policy =>
-                    {
-                        policy.RequireRole(TeamCloudUserRole.Admin.PolicyRoleName(),
-                                           ProjectUserRole.Owner.PolicyRoleName(),
-                                           ProjectUserRole.Provider.PolicyRoleName());
-                    });
-
-                    options.AddPolicy("providerDataRead", policy =>
-                    {
-                        policy.RequireRole(TeamCloudUserRole.Admin.PolicyRoleName(),
-                                           ProviderUserRoles.ProviderReadPolicyRoleName,
-                                           ProviderUserRoles.ProviderWritePolicyRoleName);
-                    });
-
-                    options.AddPolicy("providerDataWrite", policy =>
-                    {
-                        policy.RequireRole(TeamCloudUserRole.Admin.PolicyRoleName(),
-                                           ProviderUserRoles.ProviderWritePolicyRoleName);
-                    });
-                });
-        }
-
-        private static async Task<IEnumerable<Claim>> ResolveClaimsAsync(string userId, HttpContext httpContext)
-        {
-            var claims = new List<Claim>();
-
-            var usersRepository = httpContext.RequestServices
-                .GetRequiredService<IUsersRepository>();
-
-            var user = await usersRepository
-                .GetAsync(userId)
-                .ConfigureAwait(false);
-
-            if (user is null)
-                return claims;
-
-            claims.Add(new Claim(ClaimTypes.Role, user.Role.PolicyRoleName()));
-
-            if (httpContext.Request.Path.StartsWithSegments("/api/projects", StringComparison.OrdinalIgnoreCase))
-            {
-                var projectIdRouteValue = httpContext.GetRouteData()
-                    .Values.GetValueOrDefault("ProjectId", StringComparison.OrdinalIgnoreCase)?.ToString();
-
-                if (!string.IsNullOrEmpty(projectIdRouteValue))
-                {
-                    claims.Add(new Claim(ClaimTypes.Role, user.RoleFor(projectIdRouteValue).PolicyRoleName()));
-
-                    if (httpContext.Request.Path.StartsWithSegments($"/api/projects/{projectIdRouteValue}/providers", StringComparison.OrdinalIgnoreCase))
-                        claims.AddRange(await ResolveProviderClaimsAsync(user, httpContext).ConfigureAwait(false));
-                }
-            }
-            else if (httpContext.Request.Path.StartsWithSegments("/api/providers", StringComparison.OrdinalIgnoreCase))
-                claims.AddRange(await ResolveProviderClaimsAsync(user, httpContext).ConfigureAwait(false));
-
-            return claims;
-        }
-
-        private static async Task<IEnumerable<Claim>> ResolveProviderClaimsAsync(UserDocument user, HttpContext httpContext)
-        {
-            var claims = new List<Claim>();
-
-            var providerIdRouteValue = httpContext.GetRouteData()
-                .Values.GetValueOrDefault("ProviderId", StringComparison.OrdinalIgnoreCase)?.ToString();
-
-            if (!string.IsNullOrEmpty(providerIdRouteValue) && user.UserType == UserType.Provider)
-            {
-                var providersRepository = httpContext.RequestServices
-                    .GetRequiredService<IProvidersRepository>();
-
-                var provider = await providersRepository
-                    .GetAsync(providerIdRouteValue)
-                    .ConfigureAwait(false);
-
-                if (provider?.PrincipalId.HasValue ?? false
-                && provider.PrincipalId.Value.ToString().Equals(user.Id, StringComparison.OrdinalIgnoreCase))
-                    claims.Add(new Claim(ClaimTypes.Role, ProviderUserRoles.ProviderWritePolicyRoleName));
-            }
-
-            return claims;
+                .AddTeamCloudAuthorization();
         }
     }
 }

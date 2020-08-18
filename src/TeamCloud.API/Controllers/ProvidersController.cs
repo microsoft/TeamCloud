@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using TeamCloud.API.Auth;
 using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
@@ -43,7 +44,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpGet]
-        [Authorize(Policy = "admin")]
+        [Authorize(Policy = AuthPolicies.Admin)]
         [SwaggerOperation(OperationId = "GetProviders", Summary = "Gets all Providers.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all Providers.", typeof(DataResult<List<Provider>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
@@ -63,7 +64,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpGet("{providerId}")]
-        [Authorize(Policy = "admin")]
+        [Authorize(Policy = AuthPolicies.Admin)]
         [SwaggerOperation(OperationId = "GetProviderById", Summary = "Gets a Provider by ID.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns a DataResult with the Provider as the data value.", typeof(DataResult<Provider>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
@@ -88,7 +89,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpPost]
-        [Authorize(Policy = "admin")]
+        [Authorize(Policy = AuthPolicies.Admin)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "CreateProvider", Summary = "Creates a new Provider.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts creating the new Provider. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
@@ -131,7 +132,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpPut]
-        [Authorize(Policy = "admin")]
+        [Authorize(Policy = AuthPolicies.Admin)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "UpdateProvider", Summary = "Updates an existing Provider.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts updating the provided Provider. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
@@ -173,7 +174,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpDelete("{providerId}")]
-        [Authorize(Policy = "admin")]
+        [Authorize(Policy = AuthPolicies.Admin)]
         [SwaggerOperation(OperationId = "DeleteProvider", Summary = "Deletes an existing Provider.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts deleting the provided Provider. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]

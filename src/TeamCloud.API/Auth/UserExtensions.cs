@@ -5,7 +5,7 @@
 
 using TeamCloud.Model.Data.Core;
 
-namespace TeamCloud.Model.Internal.Data
+namespace TeamCloud.API.Auth
 {
     public static class UserRoleExtensions
     {
@@ -14,6 +14,21 @@ namespace TeamCloud.Model.Internal.Data
 
         public static string PolicyRoleName(this ProjectUserRole role)
             => $"Project_{role}";
+    }
+
+    public static class UserRolePolicies
+    {
+        public static string UserReadPolicy
+            => $"User_Read";
+
+        public static string UserWritePolicy
+            => $"User_ReadWrite";
+
+        public static string ProviderReadPolicyRoleName
+            => $"Provider_Read";
+
+        public static string ProviderWritePolicyRoleName
+            => $"Provider_ReadWrite";
     }
 
     public static class ProviderUserRoles

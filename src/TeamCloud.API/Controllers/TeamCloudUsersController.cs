@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using TeamCloud.API.Auth;
 using TeamCloud.API.Data;
 using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
@@ -41,7 +42,7 @@ namespace TeamCloud.API
 
 
         [HttpGet]
-        [Authorize(Policy = "admin")]
+        [Authorize(Policy = AuthPolicies.UserRead)]
         [SwaggerOperation(OperationId = "GetTeamCloudUsers", Summary = "Gets all TeamCloud Users.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all TeamCloud Users.", typeof(DataResult<List<User>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
@@ -62,7 +63,7 @@ namespace TeamCloud.API
 
 
         [HttpGet("{userNameOrId:userNameOrId}")]
-        [Authorize(Policy = "admin")]
+        [Authorize(Policy = AuthPolicies.UserRead)]
         [SwaggerOperation(OperationId = "GetTeamCloudUserByNameOrId", Summary = "Gets a TeamCloud User by ID or email address.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns TeamCloud User.", typeof(DataResult<User>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
@@ -101,7 +102,7 @@ namespace TeamCloud.API
 
 
         [HttpPost]
-        [Authorize(Policy = "admin")]
+        [Authorize(Policy = AuthPolicies.UserWrite)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "CreateTeamCloudUser", Summary = "Creates a new TeamCloud User.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts creating the new TeamCloud User. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
@@ -160,7 +161,7 @@ namespace TeamCloud.API
 
 
         [HttpPut]
-        [Authorize(Policy = "admin")]
+        [Authorize(Policy = AuthPolicies.UserWrite)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "UpdateTeamCloudUser", Summary = "Updates an existing TeamCloud User.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts updating the TeamCloud User. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
@@ -220,7 +221,7 @@ namespace TeamCloud.API
 
 
         [HttpDelete("{userNameOrId:userNameOrId}")]
-        [Authorize(Policy = "admin")]
+        [Authorize(Policy = AuthPolicies.UserWrite)]
         [SwaggerOperation(OperationId = "DeleteTeamCloudUser", Summary = "Deletes an existing TeamCloud User.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts deleting the TeamCloud User. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A User with the identifier provided was not found.", typeof(ErrorResult))]

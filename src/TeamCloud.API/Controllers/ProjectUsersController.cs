@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using TeamCloud.API.Auth;
 using TeamCloud.API.Data;
 using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
@@ -44,7 +45,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpGet]
-        [Authorize(Policy = "projectRead")]
+        [Authorize(Policy = AuthPolicies.ProjectRead)]
         [SwaggerOperation(OperationId = "GetProjectUsers", Summary = "Gets all Users for a Project.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all Project Users", typeof(DataResult<List<User>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
@@ -70,7 +71,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpGet("{userNameOrId:userNameOrId}")]
-        [Authorize(Policy = "projectRead")]
+        [Authorize(Policy = AuthPolicies.ProjectRead)]
         [SwaggerOperation(OperationId = "GetProjectUserByNameOrId", Summary = "Gets a Project User by ID or email address.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns Project User", typeof(DataResult<User>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
@@ -114,7 +115,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpPost]
-        [Authorize(Policy = "projectCreate")]
+        [Authorize(Policy = AuthPolicies.ProjectUserWrite)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "CreateProjectUser", Summary = "Creates a new Project User")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts creating the new Project User. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
@@ -167,7 +168,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpPut]
-        [Authorize(Policy = "projectCreate")]
+        [Authorize(Policy = AuthPolicies.ProjectUserWrite)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "UpdateProjectUser", Summary = "Updates an existing Project User.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts updating the Project UserProject. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
@@ -234,7 +235,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpDelete("{userNameOrId:userNameOrId}")]
-        [Authorize(Policy = "projectCreate")]
+        [Authorize(Policy = AuthPolicies.ProjectUserWrite)]
         [SwaggerOperation(OperationId = "DeleteProjectUser", Summary = "Deletes an existing Project User.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts deleting the Project User. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
