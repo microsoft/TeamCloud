@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using TeamCloud.API.Auth;
 using TeamCloud.API.Data.Results;
 using TeamCloud.Data;
 
@@ -29,7 +30,7 @@ namespace TeamCloud.API.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = "admin")]
+        [Authorize(Policy = AuthPolicies.Admin)]
         [SwaggerOperation(OperationId = "GetTeamCloudTags", Summary = "Gets all Tags for a TeamCloud Instance.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all TeamCloud Tags", typeof(DataResult<Dictionary<string, string>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
@@ -54,7 +55,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpGet("{tagKey}")]
-        [Authorize(Policy = "admin")]
+        [Authorize(Policy = AuthPolicies.Admin)]
         [SwaggerOperation(OperationId = "GetTeamCloudTagByKey", Summary = "Gets a TeamCloud Tag by Key.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns TeamCloud Tag", typeof(DataResult<Dictionary<string, string>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
@@ -87,7 +88,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpPost]
-        [Authorize(Policy = "admin")]
+        [Authorize(Policy = AuthPolicies.Admin)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "CreateTeamCloudTag", Summary = "Creates a new TeamCloud Tag.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts creating the new TeamCloud Tag. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
@@ -128,7 +129,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpPut]
-        [Authorize(Policy = "admin")]
+        [Authorize(Policy = AuthPolicies.Admin)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "UpdateTeamCloudTag", Summary = "Updates an existing TeamCloud Tag.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts updating the TeamCloud Tag. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
@@ -169,7 +170,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpDelete("{tagKey}")]
-        [Authorize(Policy = "admin")]
+        [Authorize(Policy = AuthPolicies.Admin)]
         [SwaggerOperation(OperationId = "DeleteTeamCloudTag", Summary = "Deletes an existing TeamCloud Tag.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts deleting the TeamCloud Tag. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]

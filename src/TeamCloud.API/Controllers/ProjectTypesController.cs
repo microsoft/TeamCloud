@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using TeamCloud.API.Auth;
 using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
@@ -37,6 +38,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpGet]
+        [Authorize(Policy = AuthPolicies.Admin)]
         [SwaggerOperation(OperationId = "GetProjectTypes", Summary = "Gets all Project Types.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all ProjectTypes.", typeof(DataResult<List<ProjectType>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
@@ -56,7 +58,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpGet("{projectTypeId}")]
-        [Authorize(Policy = "admin")]
+        [Authorize(Policy = AuthPolicies.Admin)]
         [SwaggerOperation(OperationId = "GetProjectTypeById", Summary = "Gets a Project Type by ID.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns a ProjectType.", typeof(DataResult<ProjectType>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
@@ -81,7 +83,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpPost]
-        [Authorize(Policy = "admin")]
+        [Authorize(Policy = AuthPolicies.Admin)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "CreateProjectType", Summary = "Creates a new Project Type.")]
         [SwaggerResponse(StatusCodes.Status201Created, "The new ProjectType was created.", typeof(DataResult<ProjectType>))]
@@ -142,23 +144,33 @@ namespace TeamCloud.API.Controllers
         }
 
 
-        [HttpPut]
-        [Authorize(Policy = "admin")]
+        [HttpPut("{projectTypeId}")]
+        [Authorize(Policy = AuthPolicies.Admin)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "UpdateProjectType", Summary = "Updates an existing Project Type.")]
         [SwaggerResponse(StatusCodes.Status200OK, "The ProjectType was updated.", typeof(DataResult<ProjectType>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project Type with the ID provided in the request body could not be found.", typeof(ErrorResult))]
-        public async Task<IActionResult> Put([FromBody] ProjectType projectType)
+        public async Task<IActionResult> Put([FromRoute] string projectTypeId, [FromBody] ProjectType projectType)
         {
             if (projectType is null)
                 throw new ArgumentNullException(nameof(projectType));
+
+            if (string.IsNullOrWhiteSpace(projectTypeId))
+                return ErrorResult
+                    .BadRequest($"The identifier '{projectTypeId}' provided in the url path is invalid.  Must be a valid project type ID.", ResultErrorCode.ValidationError)
+                    .ActionResult();
 
             var validation = new ProjectTypeValidator().Validate(projectType);
 
             if (!validation.IsValid)
                 return ErrorResult
                     .BadRequest(validation)
+                    .ActionResult();
+
+            if (!projectTypeId.Equals(projectType.Id, StringComparison.OrdinalIgnoreCase))
+                return ErrorResult
+                    .BadRequest(new ValidationError { Field = "id", Message = $"ProjectType's id does match the identifier provided in the path." })
                     .ActionResult();
 
             var existingProjectType = await projectTypesRepository
@@ -202,7 +214,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpDelete("{projectTypeId}")]
-        [Authorize(Policy = "admin")]
+        [Authorize(Policy = AuthPolicies.Admin)]
         [SwaggerOperation(OperationId = "DeleteProjectType", Summary = "Deletes a Project Type.")]
         [SwaggerResponse(StatusCodes.Status204NoContent, "The ProjectType was deleted.", typeof(DataResult<ProjectType>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]

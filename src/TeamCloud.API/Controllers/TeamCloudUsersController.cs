@@ -11,11 +11,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using TeamCloud.API.Auth;
 using TeamCloud.API.Data;
 using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
-using TeamCloud.Model.Data;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
 using TeamCloud.Model.Validation.Data;
@@ -23,7 +23,6 @@ using TeamCloud.Model.Validation.Data;
 namespace TeamCloud.API
 {
     [ApiController]
-    [Route("api/users")]
     [Produces("application/json")]
     public class TeamCloudUsersController : ControllerBase
     {
@@ -39,8 +38,8 @@ namespace TeamCloud.API
         }
 
 
-        [HttpGet]
-        [Authorize(Policy = "admin")]
+        [HttpGet("api/users")]
+        [Authorize(Policy = AuthPolicies.UserRead)]
         [SwaggerOperation(OperationId = "GetTeamCloudUsers", Summary = "Gets all TeamCloud Users.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all TeamCloud Users.", typeof(DataResult<List<User>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
@@ -60,8 +59,8 @@ namespace TeamCloud.API
         }
 
 
-        [HttpGet("{userNameOrId:userNameOrId}")]
-        [Authorize(Policy = "admin")]
+        [HttpGet("api/users/{userNameOrId:userNameOrId}")]
+        [Authorize(Policy = AuthPolicies.UserRead)]
         [SwaggerOperation(OperationId = "GetTeamCloudUserByNameOrId", Summary = "Gets a TeamCloud User by ID or email address.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns TeamCloud User.", typeof(DataResult<User>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
@@ -98,9 +97,33 @@ namespace TeamCloud.API
                 .ActionResult();
         }
 
+        [HttpGet("api/me")]
+        [Authorize(Policy = AuthPolicies.UserRead)]
+        [SwaggerOperation(OperationId = "GetTeamCloudUserMe", Summary = "Gets a TeamCloud User A User matching the current authenticated user.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Returns TeamCloud User.", typeof(DataResult<User>))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "A User matching the current user was not found.", typeof(ErrorResult))]
+        public async Task<IActionResult> GetMe()
+        {
+            var me = await userService
+                .CurrentUserAsync()
+                .ConfigureAwait(false);
 
-        [HttpPost]
-        [Authorize(Policy = "admin")]
+            if (me is null)
+                return ErrorResult
+                    .NotFound($"A User matching the current authenticated user was not found in this TeamCloud instance.")
+                    .ActionResult();
+
+            var returnMe = me.PopulateExternalModel();
+
+            return DataResult<User>
+                .Ok(returnMe)
+                .ActionResult();
+        }
+
+
+        [HttpPost("api/users")]
+        [Authorize(Policy = AuthPolicies.UserWrite)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "CreateTeamCloudUser", Summary = "Creates a new TeamCloud User.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts creating the new TeamCloud User. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
@@ -157,18 +180,31 @@ namespace TeamCloud.API
         }
 
 
-
-        [HttpPut]
-        [Authorize(Policy = "admin")]
+        [HttpPut("api/users/{userNameOrId:userNameOrId}")]
+        [Authorize(Policy = AuthPolicies.UserWrite)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "UpdateTeamCloudUser", Summary = "Updates an existing TeamCloud User.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts updating the TeamCloud User. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A User with the ID provided in the request body was not found.", typeof(ErrorResult))]
-        public async Task<IActionResult> Put([FromBody] User user)
+        public async Task<IActionResult> Put([FromRoute] string userNameOrId, [FromBody] User user)
         {
             if (user is null)
                 throw new ArgumentNullException(nameof(user));
+
+            if (string.IsNullOrWhiteSpace(userNameOrId))
+                return ErrorResult
+                    .BadRequest($"The identifier '{userNameOrId}' provided in the url path is invalid.  Must be a valid email address or GUID.", ResultErrorCode.ValidationError)
+                    .ActionResult();
+
+            var userId = await userService
+                .GetUserIdAsync(userNameOrId)
+                .ConfigureAwait(false);
+
+            if (string.IsNullOrEmpty(userId))
+                return ErrorResult
+                    .NotFound($"The user '{userNameOrId}' could not be found.")
+                    .ActionResult();
 
             var validation = new UserValidator().Validate(user);
 
@@ -183,7 +219,7 @@ namespace TeamCloud.API
 
             if (oldUser is null)
                 return ErrorResult
-                    .NotFound($"The user '{oldUser.Id}' could not be found on this TeamCloud Instance.")
+                    .NotFound($"The user '{user.Id}' could not be found on this TeamCloud Instance.")
                     .ActionResult();
 
             if (oldUser.IsAdmin() && !user.IsAdmin())
@@ -218,8 +254,73 @@ namespace TeamCloud.API
         }
 
 
-        [HttpDelete("{userNameOrId:userNameOrId}")]
-        [Authorize(Policy = "admin")]
+        [HttpPut("api/me")]
+        [Authorize(Policy = AuthPolicies.UserWrite)]
+        [Consumes("application/json")]
+        [SwaggerOperation(OperationId = "UpdateTeamCloudUserMe", Summary = "Updates an existing TeamCloud User.")]
+        [SwaggerResponse(StatusCodes.Status202Accepted, "Starts updating the TeamCloud User. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "A User with the ID provided in the request body was not found.", typeof(ErrorResult))]
+        public async Task<IActionResult> PutMe([FromBody] User user)
+        {
+            if (user is null)
+                throw new ArgumentNullException(nameof(user));
+
+            var validation = new UserValidator().Validate(user);
+
+            if (!validation.IsValid)
+                return ErrorResult
+                    .BadRequest(validation)
+                    .ActionResult();
+
+            var me = await userService
+                .CurrentUserAsync()
+                .ConfigureAwait(false);
+
+            if (me is null)
+                return ErrorResult
+                    .NotFound($"A User matching the current authenticated user was not found in this TeamCloud instance.")
+                    .ActionResult();
+
+            if (!me.Id.Equals(user.Id, StringComparison.OrdinalIgnoreCase))
+                return ErrorResult
+                    .BadRequest(new ValidationError { Field = "id", Message = $"User's id does match the id of the current authenticated user." })
+                    .ActionResult();
+
+            if (me.IsAdmin() && !user.IsAdmin())
+            {
+                var otherAdmins = await usersRepository
+                    .ListAdminsAsync()
+                    .AnyAsync(a => a.Id != user.Id)
+                    .ConfigureAwait(false);
+
+                if (!otherAdmins)
+                    return ErrorResult
+                        .BadRequest($"The TeamCloud instance must have at least one Admin user. To change this user's role you must first add another Admin user.", ResultErrorCode.ValidationError)
+                        .ActionResult();
+            }
+
+            if (!me.HasEqualMemberships(user))
+                return ErrorResult
+                    .BadRequest(new ValidationError { Field = "projectMemberships", Message = $"User's project memberships can not be changed using the TeamCloud (system) users API. To update a user's project memberships use the project users API." })
+                    .ActionResult();
+
+            var currentUserForCommand = await userService
+                .CurrentUserAsync()
+                .ConfigureAwait(false);
+
+            me.PopulateFromExternalModel(user);
+
+            var command = new OrchestratorTeamCloudUserUpdateCommand(currentUserForCommand, me);
+
+            return await orchestrator
+                .InvokeAndReturnAccepted(command)
+                .ConfigureAwait(false);
+        }
+
+
+        [HttpDelete("api/users/{userNameOrId:userNameOrId}")]
+        [Authorize(Policy = AuthPolicies.UserWrite)]
         [SwaggerOperation(OperationId = "DeleteTeamCloudUser", Summary = "Deletes an existing TeamCloud User.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts deleting the TeamCloud User. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A User with the identifier provided was not found.", typeof(ErrorResult))]

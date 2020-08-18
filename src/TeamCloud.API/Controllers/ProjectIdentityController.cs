@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using TeamCloud.API.Auth;
 using TeamCloud.API.Data.Results;
 using TeamCloud.Data;
 using TeamCloud.Model.Data;
@@ -32,7 +33,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpGet]
-        [Authorize(Policy = "projectIdentityRead")]
+        [Authorize(Policy = AuthPolicies.ProjectIdentityRead)]
         [SwaggerOperation(OperationId = "GetProjectIdentity", Summary = "Gets the ProjectIdentity for a Project.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns ProjectIdentity", typeof(DataResult<ProjectIdentity>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]

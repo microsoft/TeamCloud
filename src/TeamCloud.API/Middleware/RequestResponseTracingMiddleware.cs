@@ -3,6 +3,7 @@
  *  Licensed under the MIT License.
  */
 
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -25,13 +26,19 @@ namespace TeamCloud.API.Middleware
 
         public RequestResponseTracingMiddleware(ILogger<RequestResponseTracingMiddleware> logger, RecyclableMemoryStreamManager streamManager, ObjectPool<StringBuilder> stringBuilderPool)
         {
-            this.logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
-            this.streamManager = streamManager ?? throw new System.ArgumentNullException(nameof(streamManager));
-            this.stringBuilderPool = stringBuilderPool ?? throw new System.ArgumentNullException(nameof(stringBuilderPool));
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            this.streamManager = streamManager ?? throw new ArgumentNullException(nameof(streamManager));
+            this.stringBuilderPool = stringBuilderPool ?? throw new ArgumentNullException(nameof(stringBuilderPool));
         }
 
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
+            if (context is null)
+                throw new ArgumentNullException(nameof(context));
+
+            if (next is null)
+                throw new ArgumentNullException(nameof(next));
+
             if (logger.IsEnabled(LOGLEVEL))
             {
                 var stopwatch = Stopwatch.StartNew();
@@ -97,7 +104,8 @@ namespace TeamCloud.API.Middleware
         {
             context.Response.Body.Seek(0, SeekOrigin.Begin);
 
-            var text = await new StreamReader(context.Response.Body)
+            using var reader = new StreamReader(context.Response.Body);
+            var text = await reader
                 .ReadToEndAsync()
                 .ConfigureAwait(false);
 

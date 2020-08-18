@@ -17,7 +17,7 @@ namespace TeamCloud.Model.Data.Core
         public TContainer Links
         {
             get => links ??= Activator.CreateInstance<TContainer>().SetContext(this as TContext);
-            set => links = value?.SetContext(this as TContext) ?? throw new ArgumentNullException();
+            set => links = value?.SetContext(this as TContext) ?? throw new ArgumentNullException(nameof(value));
         }
     }
 }

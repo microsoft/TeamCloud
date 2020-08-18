@@ -10,14 +10,13 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using TeamCloud.Model.Commands.Core;
-using TeamCloud.Model.Internal;
-using TeamCloud.Model.Data;
 using TeamCloud.Model.Commands;
+using TeamCloud.Model.Commands.Core;
+using TeamCloud.Model.Data;
+using TeamCloud.Model.Internal;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Activities;
 using TeamCloud.Orchestrator.Entities;
-using TeamCloud.Model.Data;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Commands
 {

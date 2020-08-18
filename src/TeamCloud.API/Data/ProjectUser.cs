@@ -9,7 +9,6 @@ using FluentValidation;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using TeamCloud.Model.Data;
-using TeamCloud.Model.Data;
 
 namespace TeamCloud.API.Data
 {

@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using TeamCloud.API.Auth;
 using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
 using TeamCloud.Model.Commands.Core;
@@ -28,7 +29,7 @@ namespace TeamCloud.API.Controllers
             this.orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
         }
 
-        [Authorize(Policy = "admin")]
+        [Authorize(Policy = AuthPolicies.Admin)]
         [HttpGet("api/status/{trackingId:guid}")]
         [SwaggerOperation(OperationId = "GetStatus", Summary = "Gets the status of a long-running operation.")]
         [SwaggerResponse(StatusCodes.Status200OK, "The long-running operation completed.", typeof(StatusResult))]
@@ -45,7 +46,7 @@ namespace TeamCloud.API.Controllers
             return GetStatusResult(result);
         }
 
-        [Authorize(Policy = "projectRead")]
+        [Authorize(Policy = AuthPolicies.ProjectRead)]
         [HttpGet("api/projects/{projectId:guid}/status/{trackingId:guid}")]
         [SwaggerOperation(OperationId = "GetProjectStatus", Summary = "Gets the status of a long-running operation.")]
         [SwaggerResponse(StatusCodes.Status200OK, "The long-running operation completed.", typeof(StatusResult))]

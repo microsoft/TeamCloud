@@ -14,6 +14,8 @@ using Microsoft.Extensions.Logging.Abstractions;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Internal;
+using TeamCloud.Model;
+using TeamCloud.Model.Common;
 using TeamCloud.Model.Data;
 using TeamCloud.Model.Data.Core;
 using TeamCloud.Orchestration;
@@ -21,9 +23,6 @@ using TeamCloud.Orchestration.Auditing;
 using TeamCloud.Orchestrator.Activities;
 using TeamCloud.Orchestrator.Entities;
 using TeamCloud.Serialization;
-using TeamCloud.Model;
-using TeamCloud.Model.Data;
-using TeamCloud.Model.Common;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 {

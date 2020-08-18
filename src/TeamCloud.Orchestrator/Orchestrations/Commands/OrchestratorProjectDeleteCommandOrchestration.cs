@@ -12,7 +12,6 @@ using TeamCloud.Azure.Resources;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Internal;
-using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Activities;

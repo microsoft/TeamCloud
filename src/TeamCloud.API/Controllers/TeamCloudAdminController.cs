@@ -10,12 +10,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using TeamCloud.API.Auth;
 using TeamCloud.API.Data;
 using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
 using TeamCloud.Model;
-using TeamCloud.Model.Data;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
 using TeamCloud.Model.Validation.Data;
@@ -40,7 +40,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpPost("api/admin/users")]
-        [Authorize(Policy = "default")]
+        [Authorize(Policy = AuthPolicies.Default)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "CreateTeamCloudAdminUser", Summary = "Creates a new TeamCloud User as an Admin.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts creating the new TeamCloud User as an Admin. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
@@ -98,7 +98,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpGet("api/admin/teamCloudInstance")]
-        [Authorize(Policy = "admin")]
+        [Authorize(Policy = AuthPolicies.Admin)]
         [SwaggerOperation(OperationId = "GetTeamCloudInstance", Summary = "Gets the TeamCloud instance.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns the TeamCloudInstance.", typeof(DataResult<TeamCloudInstance>))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found.", typeof(ErrorResult))]
@@ -122,7 +122,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpPost("api/admin/teamCloudInstance")]
-        [Authorize(Policy = "default")]
+        [Authorize(Policy = AuthPolicies.Default)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "CreateTeamCloudInstance", Summary = "Updates the TeamCloud instance.")]
         [SwaggerResponse(StatusCodes.Status201Created, "The TeamCloud instance was created.", typeof(DataResult<TeamCloudInstance>))]
@@ -176,7 +176,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpPut("api/admin/teamCloudInstance")]
-        [Authorize(Policy = "admin")]
+        [Authorize(Policy = AuthPolicies.Admin)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "UpdateTeamCloudInstance", Summary = "Updates the TeamCloud instance.")]
         [SwaggerResponse(StatusCodes.Status200OK, "The TeamCloud instance was updated.", typeof(DataResult<TeamCloudInstance>))]

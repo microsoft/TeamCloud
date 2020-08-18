@@ -6,11 +6,11 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
-using TeamCloud.Model.Data.Core;
 using TeamCloud.Serialization;
 
 namespace TeamCloud.Model.Data.Serialization
 {
+    [SuppressMessage("Microsoft.Performance", "CA1812:Avoid Uninstantiated Internal Classes", Justification = "Dynamically instatiated")]
     internal class ReferenceLinkConverter : JsonConverter<ReferenceLink>
     {
         private static readonly JsonSerializer InnerSerializer = JsonSerializer.CreateDefault(new JsonSerializerSettings

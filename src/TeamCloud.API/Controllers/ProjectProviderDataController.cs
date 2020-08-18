@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using TeamCloud.API.Auth;
 using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
@@ -45,7 +46,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpGet]
-        [Authorize(Policy = "providerDataRead")]
+        [Authorize(Policy = AuthPolicies.ProviderDataRead)]
         [SwaggerOperation(OperationId = "GetProjectProviderData", Summary = "Gets the ProviderData items for a Project.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns ProviderData", typeof(DataResult<ProviderData>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
@@ -89,7 +90,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpGet("{providerDataId:guid}")]
-        [Authorize(Policy = "providerDataRead")]
+        [Authorize(Policy = AuthPolicies.ProviderDataRead)]
         [SwaggerOperation(OperationId = "GetProjectProviderDataById", Summary = "Gets a ProviderData for a Project by ID.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns ProviderData", typeof(DataResult<ProviderData>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
@@ -137,7 +138,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpPost]
-        [Authorize(Policy = "providerDataWrite")]
+        [Authorize(Policy = AuthPolicies.ProviderDataWrite)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "CreateProjectProviderData", Summary = "Creates a new ProviderData")]
         [SwaggerResponse(StatusCodes.Status201Created, "The ProviderData was created.", typeof(DataResult<ProviderData>))]
@@ -202,23 +203,33 @@ namespace TeamCloud.API.Controllers
         }
 
 
-        [HttpPut]
-        [Authorize(Policy = "providerDataWrite")]
+        [HttpPut("{providerDataId:guid}")]
+        [Authorize(Policy = AuthPolicies.ProviderDataWrite)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "UpdateProjectProviderData", Summary = "Updates an existing ProviderData.")]
         [SwaggerResponse(StatusCodes.Status200OK, "The ProviderData was updated.", typeof(DataResult<ProviderData>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a User with the ID provided in the request body was not found.", typeof(ErrorResult))]
-        public async Task<IActionResult> Put([FromBody] ProviderData providerData)
+        public async Task<IActionResult> Put([FromRoute] string providerDataId, [FromBody] ProviderData providerData)
         {
             if (providerData is null)
                 throw new ArgumentNullException(nameof(providerData));
+
+            if (string.IsNullOrWhiteSpace(providerDataId))
+                return ErrorResult
+                    .BadRequest($"The identifier '{providerDataId}' provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCode.ValidationError)
+                    .ActionResult();
 
             var validation = new ProviderDataValidator().Validate(providerData);
 
             if (!validation.IsValid)
                 return ErrorResult
                     .BadRequest(validation)
+                    .ActionResult();
+
+            if (!providerDataId.Equals(providerData.Id, StringComparison.OrdinalIgnoreCase))
+                return ErrorResult
+                    .BadRequest(new ValidationError { Field = "id", Message = $"ProviderData's id does match the identifier provided in the path." })
                     .ActionResult();
 
             var provider = await providersRepository
@@ -274,7 +285,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpDelete("{providerDataId:guid}")]
-        [Authorize(Policy = "providerDataWrite")]
+        [Authorize(Policy = AuthPolicies.ProviderDataWrite)]
         [SwaggerOperation(OperationId = "DeleteProjectProviderData", Summary = "Deletes a ProviderData.")]
         [SwaggerResponse(StatusCodes.Status204NoContent, "The ProviderData was deleted.", typeof(DataResult<ProviderData>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]

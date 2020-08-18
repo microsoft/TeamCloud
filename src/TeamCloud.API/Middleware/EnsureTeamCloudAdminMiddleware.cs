@@ -13,6 +13,9 @@ using Newtonsoft.Json;
 using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
+using TeamCloud.Model.Data;
+using TeamCloud.Model.Commands;
+using TeamCloud.Model.Data;
 
 namespace TeamCloud.API.Middleware
 {
@@ -21,14 +24,10 @@ namespace TeamCloud.API.Middleware
         private static bool HasAdmin = false;
 
         private readonly IUsersRepository usersRepository;
-        private readonly IWebHostEnvironment hostingEnvironment;
-        private readonly Orchestrator orchestrator;
 
-        public EnsureTeamCloudAdminMiddleware(IUsersRepository usersRepository, IWebHostEnvironment hostingEnvironment, Orchestrator orchestrator)
+        public EnsureTeamCloudAdminMiddleware(IUsersRepository usersRepository)
         {
             this.usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
-            this.hostingEnvironment = hostingEnvironment ?? throw new ArgumentNullException(nameof(hostingEnvironment));
-            this.orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
         }
 
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
