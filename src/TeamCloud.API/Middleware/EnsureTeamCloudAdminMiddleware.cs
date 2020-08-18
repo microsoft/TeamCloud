@@ -9,14 +9,10 @@ using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
-using TeamCloud.Model.Data;
-using TeamCloud.Model.Commands;
-using TeamCloud.Model.Data;
 
 namespace TeamCloud.API.Middleware
 {
@@ -77,42 +73,6 @@ namespace TeamCloud.API.Middleware
                     .ListAdminsAsync()
                     .AnyAsync()
                     .ConfigureAwait(false);
-
-                if (!exists && hostingEnvironment.IsDevelopment())
-                {
-                    var objectId = context.User.GetObjectId();
-
-                    if (!string.IsNullOrEmpty(objectId))
-                    {
-                        var user = new UserDocument
-                        {
-                            Id = objectId,
-                            Role = TeamCloudUserRole.Admin,
-                            UserType = UserType.User
-                        };
-
-                        var command = new OrchestratorTeamCloudUserCreateCommand(user, user);
-
-                        _ = await orchestrator
-                            .InvokeAsync(command)
-                            .ConfigureAwait(false);
-
-                        for (int i = 0; i < 60; i++)
-                        {
-                            await Task
-                                .Delay(1000)
-                                .ConfigureAwait(false);
-
-                            exists = await usersRepository
-                                .ListAdminsAsync()
-                                .AnyAsync()
-                                .ConfigureAwait(false);
-
-                            if (exists)
-                                break;
-                        }
-                    }
-                }
 
                 return exists;
             }

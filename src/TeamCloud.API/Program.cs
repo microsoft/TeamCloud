@@ -3,6 +3,7 @@
  *  Licensed under the MIT License.
  */
 
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Azure.KeyVault;
 using Microsoft.Azure.Services.AppAuthentication;
@@ -15,9 +16,14 @@ namespace TeamCloud.API
 {
     public static class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            var host = await CreateHostBuilder(args)
+                .Build()
+                .InitializeAsync()
+                .ConfigureAwait(false);
+
+            host.Run();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) => Host

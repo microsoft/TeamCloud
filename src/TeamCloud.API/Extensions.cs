@@ -13,8 +13,11 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using TeamCloud.API.Data.Results;
+using TeamCloud.API.Initialization;
 using TeamCloud.API.Services;
 using TeamCloud.Model.Commands;
 
@@ -22,6 +25,21 @@ namespace TeamCloud.API
 {
     internal static class Extensions
     {
+        internal static async Task<T> InitializeAsync<T>(this T host)
+            where T : IHost
+        {
+            using var scope = host.Services.CreateScope();
+
+            var tasks = scope.ServiceProvider
+                .GetServices<IHostInitializer>()
+                .Select(initializer => initializer.InitializeAsync());
+
+            await Task.WhenAll(tasks)
+                .ConfigureAwait(false);
+
+            return host;
+        }
+
         public static Uri GetApplicationBaseUrl(this HttpContext httpContext)
         {
             var uriBuilder = new UriBuilder()
