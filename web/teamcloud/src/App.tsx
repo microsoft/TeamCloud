@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { initializeIcons } from '@uifabric/icons';
 import { BrowserRouter, Switch, Route, useParams } from "react-router-dom";
 import { HeaderBar } from './components';
-import { Error404, HomeView, ProjectView } from './view';
+import { Error404, ProjectView, ProjectsView, ProvidersView, ProjectTypesView } from './view';
 import { Project, User, DataResult } from './model';
 import { getUser } from './API';
 import { GraphUser, getMe } from './MSGraph';
@@ -52,7 +52,15 @@ export const App: React.FunctionComponent<IAppProps> = (props) => {
                 </Route>
                 <Route path="/" exact={true}>
                     <HeaderBar graphUser={graphUser} onSignOut={props.onSignOut} />
-                    <HomeView user={user} onProjectSelected={_onProjectSelected} />
+                    <ProjectsView user={user} onProjectSelected={_onProjectSelected} />
+                </Route>
+                <Route path="/projectTypes" exact={true}>
+                    <HeaderBar graphUser={graphUser} onSignOut={props.onSignOut} />
+                    <ProjectTypesView user={user} onProjectSelected={_onProjectSelected} />
+                </Route>
+                <Route path="/providers" exact={true}>
+                    <HeaderBar graphUser={graphUser} onSignOut={props.onSignOut} />
+                    <ProvidersView user={user} onProjectSelected={_onProjectSelected} />
                 </Route>
                 <Route path="*">
                     <HeaderBar graphUser={graphUser} onSignOut={props.onSignOut} />

@@ -49,7 +49,7 @@ export const ProjectView: React.FunctionComponent<IProjectViewProps> = (props) =
         { key: 'addUser', text: 'Add users', iconProps: { iconName: 'PeopleAdd' }, onClick: () => { setPanelOpen(true) }, disabled: !_userIsProjectOwner() },
     ];
 
-    const _breadcrumbs: IBreadcrumbItem[] = [{ text: 'Projects', key: 'projects', href: '/' }];
+    const _breadcrumbs: IBreadcrumbItem[] = [{ text: '', key: 'root', href: '/' }];
 
     const _ensureBreadcrumb = () => {
         if (project && _breadcrumbs.length === 1)
@@ -143,14 +143,7 @@ export const ProjectView: React.FunctionComponent<IProjectViewProps> = (props) =
 
     const _detailStackStyles: IStackStyles = {
         root: {
-            // position: 'absolute',
-            // right: '0',
-            // top: '0',
-            // left: '0',
-            // bottom: '0',
             padding: '0 24px',
-            // backgroundColor: 'rgb(248, 248, 248)',
-            // height: '100%'
         }
     }
 

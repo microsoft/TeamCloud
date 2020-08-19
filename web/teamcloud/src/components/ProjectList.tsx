@@ -17,12 +17,12 @@ export const ProjectList: React.FunctionComponent<IProjectListProps> = (props) =
     const history = useHistory();
 
     const columns: IColumn[] = [
-        { key: 'projectName', name: 'Project Name', data: 'string', onRender: (p: Project) => (<Link onClick={() => _onLinkClicked(p)} to={'/projects/' + p.id} style={{ textDecoration: 'none' }}>{p.name}</Link>), minWidth: 100, isResizable: true },
-        { key: 'projectId', name: 'ID', data: 'string', fieldName: 'id', minWidth: 240, isResizable: true },
-        { key: 'projectType', name: 'Type', data: 'string', onRender: (p: Project) => p.type.id, minWidth: 160, isResizable: true },
-        { key: 'projectGroup', name: 'ResourceGroup', data: 'string', onRender: (p: Project) => p.resourceGroup?.name, minWidth: 220, isResizable: true },
-        { key: 'projectLocation', name: 'Location', data: 'string', onRender: (p: Project) => p.resourceGroup?.region, minWidth: 100, isResizable: true },
-        { key: 'projectUserCount', name: 'Users', data: 'number', onRender: (p: Project) => p.users.length, minWidth: 160, isResizable: true }
+        { key: 'name', name: 'Project Name', onRender: (p: Project) => (<Link onClick={() => _onLinkClicked(p)} to={'/projects/' + p.id} style={{ textDecoration: 'none' }}>{p.name}</Link>), minWidth: 100, isResizable: true },
+        { key: 'id', name: 'ID', fieldName: 'id', minWidth: 260, isResizable: true },
+        { key: 'type', name: 'Type', onRender: (p: Project) => (<Link to={'/projectTypes/' + p.type.id} style={{ textDecoration: 'none' }}>{p.type.id}</Link>), minWidth: 100, isResizable: true },
+        { key: 'group', name: 'ResourceGroup', onRender: (p: Project) => p.resourceGroup?.name, minWidth: 220, isResizable: true },
+        { key: 'location', name: 'Location', onRender: (p: Project) => p.resourceGroup?.region, minWidth: 100, isResizable: true },
+        { key: 'userCount', name: 'Users', onRender: (p: Project) => p.users.length, minWidth: 100, isResizable: true }
     ];
 
     const _applyProjectFilter = (project: Project): boolean => {

@@ -15,7 +15,7 @@ export interface IProjectTypeFormProps {
     fieldsEnabled: boolean;
     onFormSubmit: () => void;
     onNameChange: (val: string | undefined) => void;
-    onProjectTypeChange: (val: ProjectType | undefined) => void;
+    // onProjectTypeChange: (val: ProjectType | undefined) => void;
 }
 
 export const ProjectTypeForm: React.FunctionComponent<IProjectTypeFormProps> = (props) => {

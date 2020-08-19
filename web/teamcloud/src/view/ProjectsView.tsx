@@ -1,24 +1,24 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import React, { useState, useEffect } from "react";
 import { ICommandBarItemProps, SearchBox, Stack, IBreadcrumbItem, Panel, PrimaryButton, DefaultButton, Spinner, Text } from '@fluentui/react';
 import { getProjects, createProject } from '../API'
 import { Project, DataResult, ProjectType, User, ProjectDefinition, ProjectUserRole, StatusResult, ErrorResult, TeamCloudUserRole } from '../model'
 import { ProjectList, ProjectForm, SubheaderBar } from "../components";
-import { ProjectTypeForm } from "../components/ProjectTypeForm";
 
-export interface IHomeViewProps {
+export interface IProjectsViewProps {
     user?: User;
     onProjectSelected?: (project: Project) => void;
 }
 
-export const HomeView: React.FunctionComponent<IHomeViewProps> = (props) => {
+export const ProjectsView: React.FunctionComponent<IProjectsViewProps> = (props) => {
 
     const [projects, setProjects] = useState<Project[]>();
     const [projectFilter, setProjectFilter] = useState<string>();
     const [newProjectPanelOpen, setNewProjectPanelOpen] = useState(false);
-    const [newProjectTypePanelOpen, setNewProjectTypePanelOpen] = useState(false);
 
     const [newProjectFormEnabled, setNewProjectFormEnabled] = useState<boolean>(true);
-    const [newProjectTypeFormEnabled, setNewProjectTypeFormEnabled] = useState<boolean>(true);
     const [newProjectName, setNewProjectName] = useState<string>();
     const [newProjectType, setNewProjectType] = useState<ProjectType>();
     const [newProjectErrorText, setNewProjectErrorText] = useState<string>();
@@ -44,10 +44,6 @@ export const HomeView: React.FunctionComponent<IHomeViewProps> = (props) => {
 
     const _onProjectFormNameChange = (val: string | undefined) => {
         setNewProjectName(val);
-    }
-
-    const _onProjectTypeFormNameChange = (val: string | undefined) => {
-        // setNewProjectName(val);
     }
 
     const _onProjectFormTypeChange = (val: ProjectType | undefined) => {
@@ -77,9 +73,6 @@ export const HomeView: React.FunctionComponent<IHomeViewProps> = (props) => {
         }
     }
 
-    const _onCreateNewProjectType = () => {
-
-    }
     const _onNewProjectFormReset = () => {
         setNewProjectPanelOpen(false);
         setNewProjectName(undefined);
@@ -87,18 +80,11 @@ export const HomeView: React.FunctionComponent<IHomeViewProps> = (props) => {
         setNewProjectFormEnabled(true);
     }
 
-    const _onNewProjectTypeFormReset = () => {
-        setNewProjectTypePanelOpen(false);
-        setNewProjectTypeFormEnabled(true);
-    }
-
     const _userCanCreateProjects = () => props.user?.role === TeamCloudUserRole.Admin || props.user?.role === TeamCloudUserRole.Creator;
-    const _userCanCreateProjectTypes = () => props.user?.role === TeamCloudUserRole.Admin;
 
     const _commandBarItems = (): ICommandBarItemProps[] => [
         { key: 'refresh', text: 'Refresh', iconProps: { iconName: 'refresh' }, onClick: () => { _refresh() } },
-        { key: 'newProject', text: 'New project', iconProps: { iconName: 'NewTeamProject' }, onClick: () => { setNewProjectPanelOpen(true) }, disabled: !_userCanCreateProjects() },
-        { key: 'newProjectType', text: 'New project type', iconProps: { iconName: 'NewTeamProject' }, onClick: () => { setNewProjectTypePanelOpen(true) }, disabled: !_userCanCreateProjectTypes() },
+        { key: 'newProject', text: 'New project', iconProps: { iconName: 'NewTeamProject' }, onClick: () => { setNewProjectPanelOpen(true) }, disabled: !_userCanCreateProjects() }
     ];
 
     const _centerCommandBarItems: ICommandBarItemProps[] = [
@@ -106,7 +92,7 @@ export const HomeView: React.FunctionComponent<IHomeViewProps> = (props) => {
     ];
 
     const _breadcrumbs: IBreadcrumbItem[] = [
-        { text: 'Projects', key: 'projects', href: '/', isCurrentItem: true }
+        { text: '', key: 'root', href: '/', isCurrentItem: true }
     ];
 
     const _onRenderNewProjectFormFooterContent = () => (
@@ -115,16 +101,6 @@ export const HomeView: React.FunctionComponent<IHomeViewProps> = (props) => {
                 Create project
             </PrimaryButton>
             <DefaultButton disabled={!newProjectFormEnabled} onClick={() => _onNewProjectFormReset()}>Cancel</DefaultButton>
-            <Spinner styles={{ root: { visibility: newProjectFormEnabled ? 'hidden' : 'visible' } }} />
-        </div>
-    );
-
-    const _onRenderNewProjectTypeFormFooterContent = () => (
-        <div>
-            <PrimaryButton disabled={!newProjectFormEnabled || !(newProjectName && newProjectType)} onClick={() => _onCreateNewProject()} styles={{ root: { marginRight: 8 } }}>
-                Create project type
-            </PrimaryButton>
-            <DefaultButton disabled={!newProjectFormEnabled} onClick={() => _onNewProjectTypeFormReset()}>Cancel</DefaultButton>
             <Spinner styles={{ root: { visibility: newProjectFormEnabled ? 'hidden' : 'visible' } }} />
         </div>
     );
@@ -151,18 +127,6 @@ export const HomeView: React.FunctionComponent<IHomeViewProps> = (props) => {
                     onNameChange={_onProjectFormNameChange}
                     onProjectTypeChange={_onProjectFormTypeChange}
                     onFormSubmit={() => _onCreateNewProject()} />
-                <Text>{newProjectErrorText}</Text>
-            </Panel>
-            <Panel
-                headerText='New project type'
-                isOpen={newProjectTypePanelOpen}
-                onDismiss={() => _onNewProjectTypeFormReset()}
-                onRenderFooterContent={_onRenderNewProjectTypeFormFooterContent}>
-                <ProjectTypeForm
-                    fieldsEnabled={!newProjectTypeFormEnabled}
-                    onNameChange={_onProjectTypeFormNameChange}
-                    onProjectTypeChange={_onProjectFormTypeChange}
-                    onFormSubmit={() => _onCreateNewProjectType()} />
                 <Text>{newProjectErrorText}</Text>
             </Panel>
         </>

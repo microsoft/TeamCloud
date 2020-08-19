@@ -45,7 +45,7 @@ export const ProjectMembers: React.FunctionComponent<IProjectMembersProps> = (pr
         if ((result as StatusResult).code !== 202 && (result as ErrorResult).errors) {
             console.log(result as ErrorResult);
         }
-    }
+    };
 
     const _findKnownProviderImage = (member: Member) => {
         if (member.graphUser?.displayName) {
@@ -55,18 +55,29 @@ export const ProjectMembers: React.FunctionComponent<IProjectMembersProps> = (pr
             if (member.graphUser.displayName.startsWith('github')) return GitHub
         }
         return undefined;
-    }
+    };
+
+    const _getCommandBarItems = (member: Member): ICommandBarItemProps[] => [
+        { key: 'edit', text: 'Edit', iconProps: { iconName: 'EditContact' } },
+        { key: 'remove', text: 'Remove', iconProps: { iconName: 'UserRemove' }, onClick: () => { _removeMemberFromProject(member) } },
+    ];
+
+    const _getShimmerElements = (): JSX.Element => (
+        <ShimmerElementsGroup
+            shimmerElements={[
+                { type: ShimmerElementType.circle, height: 48 },
+                { type: ShimmerElementType.gap, width: 4 },
+                { type: ShimmerElementType.circle, height: 48 },
+                { type: ShimmerElementType.gap, width: 4 },
+                { type: ShimmerElementType.circle, height: 48 }
+            ]} />
+    );
 
     const _facepilePersonas = (): IFacepilePersona[] => members?.map(m => ({
         personaName: m.graphUser?.displayName,
         imageUrl: m.graphUser?.imageUrl ?? _findKnownProviderImage(m),
         data: m,
     })) ?? [];
-
-    const _getCommandBarItems = (member: Member): ICommandBarItemProps[] => [
-        { key: 'edit', text: 'Edit', iconProps: { iconName: 'EditContact' } },
-        { key: 'remove', text: 'Remove', iconProps: { iconName: 'UserRemove' }, onClick: () => { _removeMemberFromProject(member) } },
-    ];
 
     const _onRenderPersonaCoin: IRenderFunction<IFacepilePersona> = (props?: IFacepilePersona, defaultRender?: (props?: IFacepilePersona) => JSX.Element | null): JSX.Element | null => {
         if (defaultRender && props?.data) {
@@ -129,17 +140,6 @@ export const ProjectMembers: React.FunctionComponent<IProjectMembersProps> = (pr
         return null;
     };
 
-    const _getShimmerElements = (): JSX.Element => (
-        <ShimmerElementsGroup
-            shimmerElements={[
-                { type: ShimmerElementType.circle, height: 48 },
-                { type: ShimmerElementType.gap, width: 4 },
-                { type: ShimmerElementType.circle, height: 48 },
-                { type: ShimmerElementType.gap, width: 4 },
-                { type: ShimmerElementType.circle, height: 48 }
-            ]} />
-    );
-
     const _personaCoinStyles = {
         cursor: 'pointer',
         selectors: {
@@ -159,6 +159,7 @@ export const ProjectMembers: React.FunctionComponent<IProjectMembersProps> = (pr
                     styles={{ itemButton: _personaCoinStyles }}
                     personas={_facepilePersonas()}
                     personaSize={PersonaSize.size48}
+                    maxDisplayablePersonas={20}
                     onRenderPersonaCoin={_onRenderPersonaCoin} />
             </Shimmer>
         </ProjectDetailCard>
