@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { IIdentifiable, IProperties, AzureResourceGroup } from "./index";
 
 export interface Provider extends IIdentifiable, IProperties {

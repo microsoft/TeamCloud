@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import React from "react";
 import { Stack, Dropdown, IDropdownOption, ListPeoplePicker, IPersonaProps, Label, IBasePickerSuggestionsProps } from "@fluentui/react";
 import { ProjectUserRole } from "../model";

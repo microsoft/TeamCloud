@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import React, { useState, useEffect } from "react";
 import { Stack, TextField, Dropdown, IDropdownOption, Spinner } from "@fluentui/react";
 import { ProjectType, DataResult } from "../model";

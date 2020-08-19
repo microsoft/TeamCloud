@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { IIdentifiable, ITags, IProperties } from './index'
 
 export interface ProjectType extends IIdentifiable, ITags, IProperties {

@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import React, { useState, useEffect } from "react";
 import { Stack, TextField, Spinner, DefaultButton, IButtonStyles, getTheme, Image, ButtonType, Text, Label, Checkbox, SpinButton } from "@fluentui/react";
 import { Position } from 'office-ui-fabric-react/lib/utilities/positioning';

@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import React from 'react';
 import { Stack, Text, Label } from '@fluentui/react';
 import { ProjectDetailCard } from './index';

@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { ProjectLink, ProjectLinkType } from '../model'
 
 export const ExampleProjectLinks: ProjectLink[] = [

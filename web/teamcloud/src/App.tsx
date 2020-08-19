@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import React, { useState, useEffect } from 'react';
 import { initializeIcons } from '@uifabric/icons';
 import { BrowserRouter, Switch, Route, useParams } from "react-router-dom";

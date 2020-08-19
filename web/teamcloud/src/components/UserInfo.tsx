@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import React, { useState } from 'react';
 import { DefaultButton, Stack, Panel, Persona, PersonaSize, getTheme, Separator } from '@fluentui/react';
 import { GraphUser } from '../MSGraph';

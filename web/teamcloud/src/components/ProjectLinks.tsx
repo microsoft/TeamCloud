@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import React, { useState, useEffect } from 'react';
 import { ProjectLink, ProjectLinkType, Project } from '../model';
 import { Stack, Shimmer, Image, DefaultButton, IButtonStyles, getTheme } from '@fluentui/react';

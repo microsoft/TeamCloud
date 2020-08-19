@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import React from 'react';
 import { Project } from '../model';
 import { Link, useHistory } from 'react-router-dom';

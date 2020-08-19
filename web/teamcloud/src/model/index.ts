@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 export * from './AzureResourceGroup'
 export * from './Common'
 export * from './Project'

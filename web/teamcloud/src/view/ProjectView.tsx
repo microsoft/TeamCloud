@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import React, { useState, useEffect } from 'react';
 import { Project, User, DataResult, ProjectUserRole, UserDefinition, StatusResult, ErrorResult } from '../model';
 import { getProject, createProjectUser } from '../API';

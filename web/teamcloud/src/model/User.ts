@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { IIdentifiable, IProperties } from './index'
 
 export interface User extends IIdentifiable, IProperties {
