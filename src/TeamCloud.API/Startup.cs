@@ -4,10 +4,12 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.AzureAD.UI;
@@ -24,6 +26,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.ObjectPool;
 using Microsoft.IO;
 using Microsoft.OpenApi.Models;
+using TeamCloud.API.Initialization;
 using TeamCloud.API.Auth;
 using TeamCloud.API.Middleware;
 using TeamCloud.API.Routing;
@@ -38,6 +41,7 @@ using TeamCloud.Data;
 using TeamCloud.Data.Caching;
 using TeamCloud.Data.CosmosDb;
 using TeamCloud.Http;
+using TeamCloud.Model.Data;
 
 namespace TeamCloud.API
 {
@@ -128,12 +132,13 @@ namespace TeamCloud.API
                 .AddSingleton<Orchestrator>()
                 .AddSingleton<UserService>()
                 .AddScoped<RequestResponseTracingMiddleware>()
-                .AddScoped<EnsureTeamCloudAdminMiddleware>();
+                .AddScoped<EnsureTeamCloudAdminMiddleware>()
+                .AddTransient<IHostInitializer, TeamCloudAdminInitializer>();
 
             services
                 .AddSingleton<RecyclableMemoryStreamManager>()
                 .AddSingleton<ObjectPoolProvider, DefaultObjectPoolProvider>()
-                .AddSingleton<ObjectPool<StringBuilder>>(provider => provider.GetRequiredService<ObjectPoolProvider>().Create(new StringBuilderPooledObjectPolicy()));
+                .AddSingleton(provider => provider.GetRequiredService<ObjectPoolProvider>().Create(new StringBuilderPooledObjectPolicy()));
 
             ConfigureAuthentication(services);
             ConfigureAuthorization(services);

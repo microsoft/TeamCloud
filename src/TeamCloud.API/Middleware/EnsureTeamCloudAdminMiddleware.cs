@@ -9,13 +9,13 @@ using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
 using TeamCloud.Model.Data;
 using TeamCloud.Model.Commands;
+using TeamCloud.Model.Data;
 
 namespace TeamCloud.API.Middleware
 {
@@ -24,14 +24,10 @@ namespace TeamCloud.API.Middleware
         private static bool HasAdmin = false;
 
         private readonly IUsersRepository usersRepository;
-        private readonly IWebHostEnvironment hostingEnvironment;
-        private readonly Orchestrator orchestrator;
 
-        public EnsureTeamCloudAdminMiddleware(IUsersRepository usersRepository, IWebHostEnvironment hostingEnvironment, Orchestrator orchestrator)
+        public EnsureTeamCloudAdminMiddleware(IUsersRepository usersRepository)
         {
             this.usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
-            this.hostingEnvironment = hostingEnvironment ?? throw new ArgumentNullException(nameof(hostingEnvironment));
-            this.orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
         }
 
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
@@ -76,42 +72,6 @@ namespace TeamCloud.API.Middleware
                     .ListAdminsAsync()
                     .AnyAsync()
                     .ConfigureAwait(false);
-
-                if (!exists && hostingEnvironment.IsDevelopment())
-                {
-                    var objectId = context.User.GetObjectId();
-
-                    if (!string.IsNullOrEmpty(objectId))
-                    {
-                        var user = new UserDocument
-                        {
-                            Id = objectId,
-                            Role = TeamCloudUserRole.Admin,
-                            UserType = UserType.User
-                        };
-
-                        var command = new OrchestratorTeamCloudUserCreateCommand(user, user);
-
-                        _ = await orchestrator
-                            .InvokeAsync(command)
-                            .ConfigureAwait(false);
-
-                        for (int i = 0; i < 60; i++)
-                        {
-                            await Task
-                                .Delay(1000)
-                                .ConfigureAwait(false);
-
-                            exists = await usersRepository
-                                .ListAdminsAsync()
-                                .AnyAsync()
-                                .ConfigureAwait(false);
-
-                            if (exists)
-                                break;
-                        }
-                    }
-                }
 
                 return exists;
             }

@@ -10,8 +10,8 @@ using Flurl;
 using Flurl.Http;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
-using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Commands;
+using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 
 namespace TeamCloud.API.Services
@@ -29,8 +29,12 @@ namespace TeamCloud.API.Services
 
         private void SetResultLinks(ICommandResult commandResult, string projectId)
         {
-            var baseUrl = httpContextAccessor.HttpContext.GetApplicationBaseUrl();
+            var baseUrl = httpContextAccessor.HttpContext?.GetApplicationBaseUrl();
 
+            if (baseUrl is null)
+            {
+                return; // as we couldn't resolve a base url, we can't generate status or location urls for our response object
+            }
             if (string.IsNullOrEmpty(projectId))
             {
                 commandResult.Links.Add("status", new Uri(baseUrl, $"api/status/{commandResult.CommandId}").ToString());
@@ -42,7 +46,7 @@ namespace TeamCloud.API.Services
 
             if (IsDeleteCommandResult(commandResult))
             {
-                return;
+                return; // delete command don't provide a status location endpoint
             }
             else if (commandResult is ICommandResult<UserDocument> userCommandResult)
             {
@@ -80,6 +84,14 @@ namespace TeamCloud.API.Services
                 || result is OrchestratorTeamCloudUserDeleteCommandResult;
         }
 
+        public Task<ICommandResult> QueryAsync(ICommand command)
+        {
+            if (command is null)
+                throw new ArgumentNullException(nameof(command));
+
+            return QueryAsync(command.CommandId, command.ProjectId);
+        }
+
         public async Task<ICommandResult> QueryAsync(Guid commandId, string projectId)
         {
             var resultJson = await options.Url
@@ -98,6 +110,27 @@ namespace TeamCloud.API.Services
                 SetResultLinks(result, projectId);
 
             return result;
+        }
+
+        public async Task<ICommandResult> ExecuteAsync(IOrchestratorCommand command)
+        {
+            if (command is null)
+                throw new ArgumentNullException(nameof(command));
+
+            var commandResult = await InvokeAsync(command)
+                .ConfigureAwait(false);
+
+            while (!commandResult.RuntimeStatus.IsFinal())
+            {
+                await Task
+                    .Delay(1000)
+                    .ConfigureAwait(false);
+
+                commandResult = await QueryAsync(command)
+                    .ConfigureAwait(false);
+            }
+
+            return commandResult;
         }
 
         public async Task<ICommandResult> InvokeAsync(IOrchestratorCommand command)

@@ -5,6 +5,7 @@
 
 using System;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using TeamCloud.Model.Data.Core;
 using Xunit;
 
@@ -77,12 +78,21 @@ namespace TeamCloud.Model.Data
             Assert.NotNull(ReferenceLink.BaseUrl);
 
             var mockOwner = new MockOwner();
-            var mockOwnerJson = JsonConvert.SerializeObject(mockOwner);
+            var mockOwnerJson = JObject.FromObject(mockOwner);
 
-            var mockOwner2 = JsonConvert.DeserializeObject<MockOwner>(mockOwnerJson);
-            var mockOwnerJson2 = JsonConvert.SerializeObject(mockOwner2);
+            AssertMockOwnerJson(mockOwnerJson);
+
+            var mockOwner2 = mockOwnerJson.ToObject<MockOwner>();
+            var mockOwnerJson2 = JObject.FromObject(mockOwner2);
+
+            AssertMockOwnerJson(mockOwnerJson2);
 
             Assert.Equal(mockOwnerJson, mockOwnerJson2);
+
+            void AssertMockOwnerJson(JObject json)
+            {
+                Assert.NotNull(json.SelectToken("$._links._self"));
+            }
         }
 
         public interface IMockOwner

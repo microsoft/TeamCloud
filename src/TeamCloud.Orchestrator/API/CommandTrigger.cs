@@ -15,9 +15,9 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using TeamCloud.Model.Commands.Core;
 using TeamCloud.Http;
 using TeamCloud.Model.Commands;
+using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Validation;
 using TeamCloud.Orchestrator.Orchestrations.Utilities;
 
@@ -112,12 +112,12 @@ namespace TeamCloud.Orchestrator
             if (command is null)
                 return new BadRequestResult();
 
-            var instanceId = GetCommandWrapperOrchestrationInstanceId(command.CommandId);
+            var wapperInstanceId = GetCommandWrapperOrchestrationInstanceId(command.CommandId);
 
             try
             {
                 _ = await durableClient
-                    .StartNewAsync(nameof(OrchestratorCommandOrchestration), instanceId, command)
+                    .StartNewAsync(nameof(OrchestratorCommandOrchestration), wapperInstanceId, command)
                     .ConfigureAwait(false);
             }
             catch (InvalidOperationException)
@@ -126,7 +126,7 @@ namespace TeamCloud.Orchestrator
                 // orchstrator command message is already in-flight
 
                 var commandWarpperStatus = await durableClient
-                    .GetStatusAsync(instanceId)
+                    .GetStatusAsync(wapperInstanceId)
                     .ConfigureAwait(false);
 
                 if (commandWarpperStatus is null)
@@ -135,10 +135,8 @@ namespace TeamCloud.Orchestrator
                 return new System.Web.Http.ConflictResult();
             }
 
-            var commandResult = await WaitForCommandResultAsync(durableClient, command, log)
+            return await HandleGetAsync(durableClient, command.CommandId)
                 .ConfigureAwait(false);
-
-            return CreateCommandResultResponse(command, commandResult);
         }
 
         private async Task<IActionResult> HandleGetAsync(IDurableClient durableClient, Guid commandId)
@@ -159,62 +157,18 @@ namespace TeamCloud.Orchestrator
                 .GetCommandResultAsync(command)
                 .ConfigureAwait(false);
 
-            return CreateCommandResultResponse(command, commandResult);
-        }
-
-        private IActionResult CreateCommandResultResponse(ICommand command, ICommandResult commandResult)
-        {
-            if (command is null)
-                throw new ArgumentNullException(nameof(command));
-
             if (commandResult is null)
-                throw new ArgumentNullException(nameof(commandResult));
+            {
+                commandResult = command.CreateResult(wrapperInstanceStatus);
+            }
 
             if (commandResult.RuntimeStatus.IsFinal())
-            {
-                // this was damned fast - the orchestration already
-                // finished it's work and we can return a final response.
-
                 return new OkObjectResult(commandResult);
-            }
-            else
-            {
-                // the usual behavior - the orchestration is in progress
-                // so we have to inform the caller that we accepted the command
 
-                var location = UriHelper.GetDisplayUrl(httpContextAccessor.HttpContext.Request)
-                    .AppendPathSegment(commandResult.CommandId);
+            var location = UriHelper.GetDisplayUrl(httpContextAccessor.HttpContext.Request)
+                .AppendPathSegment(commandResult.CommandId);
 
-                return new AcceptedResult(location, commandResult);
-            }
-        }
-
-        private static async Task<ICommandResult> WaitForCommandResultAsync(IDurableClient durableClient, ICommand command, ILogger log)
-        {
-            var timeoutDuration = TimeSpan.FromMinutes(5);
-            var timeout = DateTime.UtcNow.Add(timeoutDuration);
-
-            while (DateTime.UtcNow <= timeout)
-            {
-                var commandResult = await durableClient
-                    .GetCommandResultAsync(command)
-                    .ConfigureAwait(false);
-
-                if (commandResult?.RuntimeStatus.IsUnknown() ?? true)
-                {
-                    log.LogInformation($"Waiting for command orchestration '{command.CommandId}' ...");
-
-                    await Task
-                        .Delay(5000) // 5 sec
-                        .ConfigureAwait(false);
-                }
-                else
-                {
-                    return commandResult;
-                }
-            }
-
-            throw new TimeoutException($"Failed to get status for command {command.CommandId} within {timeoutDuration}");
+            return new AcceptedResult(location, commandResult);
         }
     }
 }

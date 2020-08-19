@@ -13,19 +13,18 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Orchestrator.API.Data
 {
-    public class SetTeamCloudInstanceTrigger
+    public class TeamCloudInstanceTrigger
     {
         readonly ITeamCloudRepository teamCloudRepository;
 
-        public SetTeamCloudInstanceTrigger(ITeamCloudRepository teamCloudRepository)
+        public TeamCloudInstanceTrigger(ITeamCloudRepository teamCloudRepository)
         {
             this.teamCloudRepository = teamCloudRepository ?? throw new ArgumentNullException(nameof(teamCloudRepository));
         }
 
-        [FunctionName(nameof(SetTeamCloudInstanceTrigger))]
-        public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "data/teamCloudInstance")] TeamCloudInstanceDocument teamCloudInstance
-            /* ILogger log */)
+        [FunctionName(nameof(TeamCloudInstanceTrigger) + nameof(Post))]
+        public async Task<IActionResult> Post(
+            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "data/teamCloudInstance")] TeamCloudInstanceDocument teamCloudInstance)
         {
             if (teamCloudInstance is null)
                 throw new ArgumentNullException(nameof(teamCloudInstance));
