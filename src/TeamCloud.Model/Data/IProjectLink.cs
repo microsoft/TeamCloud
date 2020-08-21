@@ -1,4 +1,9 @@
-﻿using TeamCloud.Model.Common;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
+
+using TeamCloud.Model.Common;
 
 namespace TeamCloud.Model.Data
 {
