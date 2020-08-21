@@ -29,6 +29,7 @@ using TeamCloud.Orchestration;
 using TeamCloud.Orchestration.Auditing;
 using TeamCloud.Orchestration.Deployment;
 using TeamCloud.Orchestrator;
+using TeamCloud.Orchestrator.Handlers;
 
 [assembly: FunctionsStartup(typeof(TeamCloudOrchestratorStartup))]
 
@@ -69,11 +70,20 @@ namespace TeamCloud.Orchestrator
             }
 
             builder.Services
-                .AddSingleton<IUsersRepository, CosmosDbUsersRepository>()
-                .AddSingleton<IProjectsRepository, CosmosDbProjectsRepository>()
+                .AddSingleton<IUserRepository, CosmosDbUserRepository>()
+                .AddSingleton<IProjectRepository, CosmosDbProjectRepository>()
                 .AddSingleton<ITeamCloudRepository, CosmosDbTeamCloudRepository>()
-                .AddSingleton<IProvidersRepository, CosmosDbProvidersRepository>()
-                .AddSingleton<IProjectTypesRepository, CosmosDbProjectTypesRepository>();
+                .AddSingleton<IProviderRepository, CosmosDbProviderRepository>()
+                .AddSingleton<IProjectTypeRepository, CosmosDbProjectTypeRepository>()
+                .AddSingleton<IProjectLinkRepository, CosmosDbProjectLinkRepository>();
+
+            // CAUTION - don't register an orchstrator command handler with the generic 
+            // IOrchestratorCommandHandler<> interface. purpose of this interface is the 
+            // command specific implementation login. to register and identifiy a command 
+            // handler use the non-generic IOrchestratorCommandHandler interface.
+
+            builder.Services
+                .AddScoped<IOrchestratorCommandHandler, OrchestratorProjectLinkCommandHandler>();
 
             builder.Services
                 .AddTeamCloudAzure(configuration =>

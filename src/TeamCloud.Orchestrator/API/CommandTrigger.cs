@@ -4,6 +4,7 @@
  */
 
 using System;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using FluentValidation;
@@ -14,11 +15,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Http;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Validation;
+using TeamCloud.Orchestrator.Handlers;
 using TeamCloud.Orchestrator.Orchestrations.Utilities;
 
 namespace TeamCloud.Orchestrator
@@ -110,33 +113,78 @@ namespace TeamCloud.Orchestrator
             }
 
             if (command is null)
+            {
                 return new BadRequestResult();
-
-            var wapperInstanceId = GetCommandWrapperOrchestrationInstanceId(command.CommandId);
-
-            try
+            }
+            else if (TryGetOrchestratorCommandHandler(command, out var commandHandler))
             {
-                _ = await durableClient
-                    .StartNewAsync(nameof(OrchestratorCommandOrchestration), wapperInstanceId, command)
+                ICommandResult commandResult;
+
+                try
+                {
+                    commandResult = await commandHandler
+                        .HandleAsync(command)
+                        .ConfigureAwait(false);
+                }
+                catch (Exception exc)
+                {
+                    commandResult = command.CreateResult();
+                    commandResult.Errors.Add(exc);
+                }
+
+                if (!commandResult.RuntimeStatus.IsFinal())
+                {
+                    log.LogWarning(string.Join(' ', new string[]
+                    {
+                        $"Orchestrator command handler of type '{commandHandler.GetType().Name}' returned a none final runtime status of '{commandResult.RuntimeStatus}'.",
+                        $"As no exception was thrown, we assume a successful operation and enforce a runtime status of '{CommandRuntimeStatus.Completed}'."
+                    }));
+
+                    commandResult.RuntimeStatus = CommandRuntimeStatus.Completed;
+                }
+
+                return CreateCommandResultResponse(commandResult);
+            }
+            else
+            {
+                var wapperInstanceId = GetCommandWrapperOrchestrationInstanceId(command.CommandId);
+
+                try
+                {
+                    _ = await durableClient
+                        .StartNewAsync(nameof(OrchestratorCommandOrchestration), wapperInstanceId, command)
+                        .ConfigureAwait(false);
+                }
+                catch (InvalidOperationException)
+                {
+                    // check if there is an orchestration for the given
+                    // orchstrator command message is already in-flight
+
+                    var commandWrapperStatus = await durableClient
+                        .GetStatusAsync(wapperInstanceId)
+                        .ConfigureAwait(false);
+
+                    if (commandWrapperStatus is null)
+                        throw; // bubble exception
+
+                    return new System.Web.Http.ConflictResult();
+                }
+
+                return await HandleGetAsync(durableClient, command.CommandId)
                     .ConfigureAwait(false);
             }
-            catch (InvalidOperationException)
+
+            bool TryGetOrchestratorCommandHandler(IOrchestratorCommand orchestratorCommand, out IOrchestratorCommandHandler orchestratorCommandHandler)
             {
-                // check if there is an orchestration for the given
-                // orchstrator command message is already in-flight
+                var scope = httpContextAccessor.HttpContext.RequestServices
+                    .CreateScope();
 
-                var commandWarpperStatus = await durableClient
-                    .GetStatusAsync(wapperInstanceId)
-                    .ConfigureAwait(false);
+                orchestratorCommandHandler = scope.ServiceProvider
+                    .GetServices<IOrchestratorCommandHandler>()
+                    .SingleOrDefault(handler => handler.CanHandle(orchestratorCommand));
 
-                if (commandWarpperStatus is null)
-                    throw; // bubble exception
-
-                return new System.Web.Http.ConflictResult();
+                return !(orchestratorCommandHandler is null);
             }
-
-            return await HandleGetAsync(durableClient, command.CommandId)
-                .ConfigureAwait(false);
         }
 
         private async Task<IActionResult> HandleGetAsync(IDurableClient durableClient, Guid commandId)
@@ -158,10 +206,13 @@ namespace TeamCloud.Orchestrator
                 .ConfigureAwait(false);
 
             if (commandResult is null)
-            {
                 commandResult = command.CreateResult(wrapperInstanceStatus);
-            }
 
+            return CreateCommandResultResponse(commandResult);
+        }
+
+        private IActionResult CreateCommandResultResponse(ICommandResult commandResult)
+        {
             if (commandResult.RuntimeStatus.IsFinal())
                 return new OkObjectResult(commandResult);
 

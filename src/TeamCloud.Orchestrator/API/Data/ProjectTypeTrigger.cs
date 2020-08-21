@@ -16,9 +16,9 @@ namespace TeamCloud.Orchestrator.API.Data
 {
     public sealed class ProjectTypeTrigger
     {
-        readonly IProjectTypesRepository projectTypesRepository;
+        readonly IProjectTypeRepository projectTypesRepository;
 
-        public ProjectTypeTrigger(IProjectTypesRepository projectTypesRepository)
+        public ProjectTypeTrigger(IProjectTypeRepository projectTypesRepository)
         {
             this.projectTypesRepository = projectTypesRepository ?? throw new ArgumentNullException(nameof(projectTypesRepository));
         }

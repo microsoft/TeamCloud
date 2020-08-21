@@ -23,9 +23,9 @@ namespace TeamCloud.Orchestrator.Activities
     {
         private readonly IAzureDeploymentService azureDeploymentService;
         private readonly IAzureSessionService azureSessionService;
-        private readonly IProvidersRepository providersRepository;
+        private readonly IProviderRepository providersRepository;
 
-        public ProjectResourcesCreateActivity(IAzureDeploymentService azureDeploymentService, IAzureSessionService azureSessionService, IProvidersRepository providersRepository)
+        public ProjectResourcesCreateActivity(IAzureDeploymentService azureDeploymentService, IAzureSessionService azureSessionService, IProviderRepository providersRepository)
         {
             this.azureDeploymentService = azureDeploymentService ?? throw new ArgumentNullException(nameof(azureDeploymentService));
             this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));

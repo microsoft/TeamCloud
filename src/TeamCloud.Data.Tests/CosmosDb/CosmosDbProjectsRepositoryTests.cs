@@ -15,13 +15,13 @@ using Xunit;
 namespace TeamCloud.Data.CosmosDb
 {
     [Collection(nameof(CosmosDbRepositoryCollection))]
-    public class CosmosDbProjectsRepositoryTests : CosmosDbRepositoryTests<CosmosDbProjectsRepository>
+    public class CosmosDbProjectsRepositoryTests : CosmosDbRepositoryTests<CosmosDbProjectRepository>
     {
         private readonly CosmosDbRepositoryFixture fixture;
 
         public CosmosDbProjectsRepositoryTests(CosmosDbRepositoryFixture fixture)
-            : base(new CosmosDbProjectsRepository(CosmosDbTestOptions.Instance,
-                new CosmosDbUsersRepository(CosmosDbTestOptions.Instance)))
+            : base(new CosmosDbProjectRepository(CosmosDbTestOptions.Instance,
+                new CosmosDbUserRepository(CosmosDbTestOptions.Instance)))
         {
             this.fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
         }

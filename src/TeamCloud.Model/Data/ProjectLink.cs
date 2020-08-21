@@ -1,0 +1,36 @@
+﻿using System;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using TeamCloud.Model.Common;
+using TeamCloud.Serialization;
+
+namespace TeamCloud.Model.Data
+{
+    [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
+    public sealed class ProjectLink : IProjectLink, IEquatable<ProjectLink>, IValidatable
+    {
+        public string Id { get; set; }
+            = Guid.NewGuid().ToString();
+
+        public string ProjectId { get; set; }
+            = Guid.Empty.ToString();
+
+        [JsonProperty("href")]
+        public string HRef { get; set; }
+
+        public string Title { get; set; }
+
+        [JsonConverter(typeof(StringEnumConverter))]
+        public ProjectLinkType Type { get; set; }
+            = ProjectLinkType.Undefined;
+
+        public bool Equals(ProjectLink other)
+            => Id.Equals(other?.Id);
+
+        public override bool Equals(object obj)
+            => base.Equals(obj) || Equals(obj as ProjectLink);
+
+        public override int GetHashCode()
+            => HashCode.Combine(Id, HRef);
+    }
+}

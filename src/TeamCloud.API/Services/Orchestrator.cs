@@ -5,11 +5,11 @@
 
 using System;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Flurl;
 using Flurl.Http;
 using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
@@ -27,7 +27,7 @@ namespace TeamCloud.API.Services
             this.httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         }
 
-        private void SetResultLinks(ICommandResult commandResult, string projectId)
+        private void SetResultLinks(HttpResponseMessage commandResponse, ICommandResult commandResult, string projectId)
         {
             var baseUrl = httpContextAccessor.HttpContext?.GetApplicationBaseUrl();
 
@@ -35,13 +35,17 @@ namespace TeamCloud.API.Services
             {
                 return; // as we couldn't resolve a base url, we can't generate status or location urls for our response object
             }
-            if (string.IsNullOrEmpty(projectId))
+
+            if (commandResponse.StatusCode == HttpStatusCode.Accepted)
             {
-                commandResult.Links.Add("status", new Uri(baseUrl, $"api/status/{commandResult.CommandId}").ToString());
-            }
-            else
-            {
-                commandResult.Links.Add("status", new Uri(baseUrl, $"api/projects/{projectId}/status/{commandResult.CommandId}").ToString());
+                if (string.IsNullOrEmpty(projectId))
+                {
+                    commandResult.Links.Add("status", new Uri(baseUrl, $"api/status/{commandResult.CommandId}").ToString());
+                }
+                else
+                {
+                    commandResult.Links.Add("status", new Uri(baseUrl, $"api/projects/{projectId}/status/{commandResult.CommandId}").ToString());
+                }
             }
 
             if (IsDeleteCommandResult(commandResult))
@@ -76,10 +80,18 @@ namespace TeamCloud.API.Services
 
                 commandResult.Links.Add("location", new Uri(baseUrl, $"api/projects/{projectCommandResult.Result.Id}").ToString());
             }
+            else if (commandResult is ICommandResult<ProjectLinkDocument> projectLinkCommandResult)
+            {
+                if (projectLinkCommandResult.Result?.Id is null)
+                    return;
+
+                commandResult.Links.Add("location", new Uri(baseUrl, $"api/projects/{projectId}/links/{projectLinkCommandResult.Result.Id}").ToString());
+            }
 
             static bool IsDeleteCommandResult(ICommandResult result)
                 => result is OrchestratorProjectDeleteCommandResult
                 || result is OrchestratorProjectUserDeleteCommandResult
+                || result is OrchestratorProjectLinkDeleteCommandResult
                 || result is OrchestratorProviderDeleteCommandResult
                 || result is OrchestratorTeamCloudUserDeleteCommandResult;
         }
@@ -94,41 +106,21 @@ namespace TeamCloud.API.Services
 
         public async Task<ICommandResult> QueryAsync(Guid commandId, string projectId)
         {
-            var resultJson = await options.Url
+            var commandResponse = await options.Url
                 .AppendPathSegment($"api/command/{commandId}")
                 .WithHeader("x-functions-key", options.AuthCode)
                 .AllowHttpStatus(HttpStatusCode.NotFound)
-                .GetStringAsync()
+                .GetAsync()
                 .ConfigureAwait(false);
 
-            if (string.IsNullOrEmpty(resultJson))
+            if (commandResponse.StatusCode == HttpStatusCode.NotFound)
                 return null;
 
-            var result = JsonConvert.DeserializeObject<ICommandResult>(resultJson);
-
-            if (result != null)
-                SetResultLinks(result, projectId);
-
-            return result;
-        }
-
-        public async Task<ICommandResult> ExecuteAsync(IOrchestratorCommand command)
-        {
-            if (command is null)
-                throw new ArgumentNullException(nameof(command));
-
-            var commandResult = await InvokeAsync(command)
+            var commandResult = await commandResponse.Content
+                .ReadAsAsync<ICommandResult>()
                 .ConfigureAwait(false);
 
-            while (!commandResult.RuntimeStatus.IsFinal())
-            {
-                await Task
-                    .Delay(1000)
-                    .ConfigureAwait(false);
-
-                commandResult = await QueryAsync(command)
-                    .ConfigureAwait(false);
-            }
+            SetResultLinks(commandResponse, commandResult, projectId);
 
             return commandResult;
         }
@@ -152,7 +144,7 @@ namespace TeamCloud.API.Services
                     .ReadAsAsync<ICommandResult>()
                     .ConfigureAwait(false);
 
-                SetResultLinks(commandResult, command.ProjectId);
+                SetResultLinks(commandResponse, commandResult, command.ProjectId);
             }
             catch (FlurlHttpTimeoutException timeoutExc)
             {

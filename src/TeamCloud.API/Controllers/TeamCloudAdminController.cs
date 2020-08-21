@@ -13,6 +13,7 @@ using Swashbuckle.AspNetCore.Annotations;
 using TeamCloud.API.Auth;
 using TeamCloud.API.Data;
 using TeamCloud.API.Data.Results;
+using TeamCloud.API.Data.Validators;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
 using TeamCloud.Model;
@@ -23,14 +24,14 @@ using TeamCloud.Model.Validation.Data;
 namespace TeamCloud.API.Controllers
 {
     [ApiController]
-    public class TeamCloudAdminController : ControllerBase
+    public class TeamCloudAdminController : ApiController
     {
         readonly UserService userService;
         readonly Orchestrator orchestrator;
-        readonly IUsersRepository usersRepository;
+        readonly IUserRepository usersRepository;
         readonly ITeamCloudRepository teamCloudRepository;
 
-        public TeamCloudAdminController(UserService userService, Orchestrator orchestrator, IUsersRepository usersRepository, ITeamCloudRepository teamCloudRepository)
+        public TeamCloudAdminController(UserService userService, Orchestrator orchestrator, IUserRepository usersRepository, ITeamCloudRepository teamCloudRepository)
         {
             this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
             this.orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
@@ -57,7 +58,7 @@ namespace TeamCloud.API.Controllers
             if (!validation.IsValid)
                 return ErrorResult
                     .BadRequest(validation)
-                    .ActionResult();
+                    .ToActionResult();
 
             var adminUsers = await usersRepository
                 .ListAdminsAsync()
@@ -67,7 +68,7 @@ namespace TeamCloud.API.Controllers
             if (adminUsers)
                 return ErrorResult
                     .BadRequest($"The TeamCloud instance already has one or more Admin users. To add additional users to the TeamCloud instance POST to api/users.", ResultErrorCode.ValidationError)
-                    .ActionResult();
+                    .ToActionResult();
 
             var userId = await userService
                 .GetUserIdAsync(userDefinition.Identifier)
@@ -76,7 +77,7 @@ namespace TeamCloud.API.Controllers
             if (string.IsNullOrEmpty(userId))
                 return ErrorResult
                     .NotFound($"The user '{userDefinition.Identifier}' could not be found.")
-                    .ActionResult();
+                    .ToActionResult();
 
             var user = new UserDocument
             {
@@ -92,7 +93,7 @@ namespace TeamCloud.API.Controllers
             var command = new OrchestratorTeamCloudUserCreateCommand(user, user);
 
             return await orchestrator
-                .InvokeAndReturnAccepted(command)
+                .InvokeAndReturnActionResultAsync<UserDocument, User>(command, Request)
                 .ConfigureAwait(false);
         }
 
@@ -111,13 +112,13 @@ namespace TeamCloud.API.Controllers
             if (teamCloudInstance is null)
                 return ErrorResult
                     .NotFound($"The TeamCloud instance could not be found.")
-                    .ActionResult();
+                    .ToActionResult();
 
             var returnTeamCloudInstance = teamCloudInstance.PopulateExternalModel();
 
             return DataResult<TeamCloudInstance>
                 .Ok(returnTeamCloudInstance)
-                .ActionResult();
+                .ToActionResult();
         }
 
 
@@ -138,7 +139,7 @@ namespace TeamCloud.API.Controllers
             if (!validation.IsValid)
                 return ErrorResult
                     .BadRequest(validation)
-                    .ActionResult();
+                    .ToActionResult();
 
             var existingTeamCloudInstance = await teamCloudRepository
                 .GetAsync()
@@ -147,14 +148,14 @@ namespace TeamCloud.API.Controllers
             if (existingTeamCloudInstance is null)
                 return ErrorResult
                     .NotFound("The TeamCloud instance could not be found.")
-                    .ActionResult();
+                    .ToActionResult();
 
             if (existingTeamCloudInstance.ResourceGroup != null
              || existingTeamCloudInstance.Version != null
              || (existingTeamCloudInstance.Tags?.Any() ?? false))
                 return ErrorResult
                     .Conflict($"The TeamCloud instance already exists.  Call PUT to update the existing instance.")
-                    .ActionResult();
+                    .ToActionResult();
 
             existingTeamCloudInstance.Version = teamCloudInstance.Version;
             existingTeamCloudInstance.ResourceGroup = teamCloudInstance.ResourceGroup;
@@ -171,7 +172,7 @@ namespace TeamCloud.API.Controllers
 
             return DataResult<TeamCloudInstance>
                 .Created(returnSetResult, location)
-                .ActionResult();
+                .ToActionResult();
         }
 
 
@@ -192,7 +193,7 @@ namespace TeamCloud.API.Controllers
             if (!validation.IsValid)
                 return ErrorResult
                     .BadRequest(validation)
-                    .ActionResult();
+                    .ToActionResult();
 
             var existingTeamCloudInstance = await teamCloudRepository
                 .GetAsync()
@@ -201,7 +202,7 @@ namespace TeamCloud.API.Controllers
             if (existingTeamCloudInstance is null)
                 return ErrorResult
                     .NotFound("The TeamCloud instance could not be found.")
-                    .ActionResult();
+                    .ToActionResult();
 
             if (!string.IsNullOrEmpty(teamCloudInstance.Version))
                 existingTeamCloudInstance.Version = teamCloudInstance.Version;
@@ -220,7 +221,7 @@ namespace TeamCloud.API.Controllers
 
             return DataResult<TeamCloudInstance>
                 .Ok(returnSetResult)
-                .ActionResult();
+                .ToActionResult();
         }
     }
 }

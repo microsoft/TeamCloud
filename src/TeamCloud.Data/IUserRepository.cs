@@ -9,7 +9,7 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Data
 {
-    public interface IUsersRepository
+    public interface IUserRepository
     {
         Task<UserDocument> GetAsync(string id);
 

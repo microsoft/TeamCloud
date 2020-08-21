@@ -14,35 +14,39 @@ namespace TeamCloud.Model.Data
             where TExternal : class, new()
             => source.PopulateExternalModel(target);
 
-        public static Model.Data.User PopulateExternalModel(this UserDocument source, Model.Data.User target = null)
-            => source.PopulateExternalModel<UserDocument, Model.Data.User>(target);
+        public static User PopulateExternalModel(this UserDocument source, User target = null)
+            => source.PopulateExternalModel<UserDocument, User>(target);
 
-        public static Model.Data.User PopulateExternalModel(this UserDocument source, string projectId, Model.Data.User target = null)
+        public static User PopulateExternalModel(this UserDocument source, string projectId, User target = null)
         {
-            var user = source.PopulateExternalModel<UserDocument, Model.Data.User>(target);
+            var user = source.PopulateExternalModel<UserDocument, User>(target);
             user.ProjectMemberships = user.ProjectMemberships.Where(m => m.ProjectId == projectId).ToList();
             return user;
         }
 
-        public static Model.Data.Project PopulateExternalModel(this ProjectDocument source, Model.Data.Project target = null)
+        public static Project PopulateExternalModel(this ProjectDocument source, Project target = null)
         {
-            var project = source.PopulateExternalModel<ProjectDocument, Model.Data.Project>(target);
+            var project = source.PopulateExternalModel<ProjectDocument, Project>(target);
             foreach (var user in project.Users)
                 user.ProjectMemberships = user.ProjectMemberships.Where(m => m.ProjectId == project.Id).ToList();
             return project;
         }
 
-        public static Model.Data.Provider PopulateExternalModel(this ProviderDocument source, Model.Data.Provider target = null)
-            => source.PopulateExternalModel<ProviderDocument, Model.Data.Provider>(target);
+        public static Provider PopulateExternalModel(this ProviderDocument source, Provider target = null)
+            => source.PopulateExternalModel<ProviderDocument, Provider>(target);
 
-        public static Model.Data.ProviderData PopulateExternalModel(this ProviderDataDocument source, Model.Data.ProviderData target = null)
-            => source.PopulateExternalModel<ProviderDataDocument, Model.Data.ProviderData>(target);
+        public static ProviderData PopulateExternalModel(this ProviderDataDocument source, ProviderData target = null)
+            => source.PopulateExternalModel<ProviderDataDocument, ProviderData>(target);
 
-        public static Model.Data.ProjectType PopulateExternalModel(this ProjectTypeDocument source, Model.Data.ProjectType target = null)
-            => source.PopulateExternalModel<ProjectTypeDocument, Model.Data.ProjectType>(target);
+        public static ProjectType PopulateExternalModel(this ProjectTypeDocument source, ProjectType target = null)
+            => source.PopulateExternalModel<ProjectTypeDocument, ProjectType>(target);
 
-        public static Model.Data.TeamCloudInstance PopulateExternalModel(this TeamCloudInstanceDocument source, Model.Data.TeamCloudInstance target = null)
-            => source.PopulateExternalModel<TeamCloudInstanceDocument, Model.Data.TeamCloudInstance>(target);
+        public static ProjectLink PopulateExternalModel(this ProjectLinkDocument source, ProjectLink target = null)
+            => source.PopulateExternalModel<ProjectLinkDocument, ProjectLink>(target);
+
+
+        public static TeamCloudInstance PopulateExternalModel(this TeamCloudInstanceDocument source, TeamCloudInstance target = null)
+            => source.PopulateExternalModel<TeamCloudInstanceDocument, TeamCloudInstance>(target);
 
         public static TInternal PopulateFromExternalModel<TInternal, TExternal>(this TInternal target, TExternal source)
             where TInternal : IPopulate<TExternal>

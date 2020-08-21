@@ -21,6 +21,13 @@ namespace TeamCloud.Model.Validation
 {
     public static class ValidatorExtensions
     {
+        public static bool TryValidate(this IValidatable validatable, out ValidationResult validationResult, IValidatorFactory validatorFactory = null, IServiceProvider serviceProvider = null)
+        {
+            validationResult = validatable.Validate(validatorFactory, serviceProvider);
+
+            return validationResult.IsValid;
+        }
+
         public static ValidationResult Validate(this IValidatable validatable, IValidatorFactory validatorFactory = null, IServiceProvider serviceProvider = null, bool throwOnNoValidatorFound = false, bool throwOnValidationError = false)
         {
             if (validatable is null)
@@ -44,6 +51,14 @@ namespace TeamCloud.Model.Validation
                 throw new NotSupportedException($"Validation of type {validatable.GetType()} is not supported");
 
             return new ValidationResult();
+        }
+
+        public static bool TryValidate<T>(this IValidatable validatable, out ValidationResult validationResult, IServiceProvider serviceProvider = null)
+            where T : class, IValidator
+        {
+            validationResult = validatable.Validate<T>(serviceProvider);
+
+            return validationResult.IsValid;
         }
 
         public static ValidationResult Validate<T>(this IValidatable validatable, IServiceProvider serviceProvider = null, bool throwOnNotValidable = false, bool throwOnValidationError = false)

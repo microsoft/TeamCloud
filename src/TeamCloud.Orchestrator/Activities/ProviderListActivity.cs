@@ -17,9 +17,9 @@ namespace TeamCloud.Orchestrator.Activities
 {
     public class ProviderListActivity
     {
-        private readonly IProvidersRepository providersRepository;
+        private readonly IProviderRepository providersRepository;
 
-        public ProviderListActivity(IProvidersRepository providersRepository)
+        public ProviderListActivity(IProviderRepository providersRepository)
         {
             this.providersRepository = providersRepository ?? throw new ArgumentNullException(nameof(providersRepository));
         }
@@ -40,9 +40,9 @@ namespace TeamCloud.Orchestrator.Activities
 
     public class ProviderListByIdActivity
     {
-        private readonly IProvidersRepository providersRepository;
+        private readonly IProviderRepository providersRepository;
 
-        public ProviderListByIdActivity(IProvidersRepository providersRepository)
+        public ProviderListByIdActivity(IProviderRepository providersRepository)
         {
             this.providersRepository = providersRepository ?? throw new ArgumentNullException(nameof(providersRepository));
         }

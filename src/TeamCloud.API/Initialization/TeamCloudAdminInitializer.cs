@@ -23,12 +23,12 @@ namespace TeamCloud.API.Initialization
     public class TeamCloudAdminInitializer : IHostInitializer
     {
         private readonly IAzureSessionService sessionService;
-        private readonly IUsersRepository usersRepository;
+        private readonly IUserRepository usersRepository;
         private readonly IWebHostEnvironment hostingEnvironment;
         private readonly Orchestrator orchestrator;
         private readonly ILoggerFactory loggerFactory;
 
-        public TeamCloudAdminInitializer(IAzureSessionService sessionService, IUsersRepository usersRepository, IWebHostEnvironment hostingEnvironment, Orchestrator orchestrator, ILoggerFactory loggerFactory)
+        public TeamCloudAdminInitializer(IAzureSessionService sessionService, IUserRepository usersRepository, IWebHostEnvironment hostingEnvironment, Orchestrator orchestrator, ILoggerFactory loggerFactory)
         {
             this.sessionService = sessionService ?? throw new ArgumentNullException(nameof(sessionService));
             this.usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
@@ -83,8 +83,21 @@ namespace TeamCloud.API.Initialization
                 var command = new OrchestratorTeamCloudUserCreateCommand(user, user);
 
                 var commandResult = await orchestrator
-                    .ExecuteAsync(command)
+                    .InvokeAsync(command)
                     .ConfigureAwait(false);
+
+                var initializationTimeout = DateTime.UtcNow.AddMinutes(5);
+
+                while (commandResult.RuntimeStatus.IsActive() && DateTime.UtcNow < initializationTimeout)
+                {
+                    await Task
+                        .Delay(1000)
+                        .ConfigureAwait(false);
+
+                    commandResult = await orchestrator
+                        .QueryAsync(command)
+                        .ConfigureAwait(false);
+                }
 
                 if (commandResult.RuntimeStatus == CommandRuntimeStatus.Completed)
                 {
@@ -92,7 +105,7 @@ namespace TeamCloud.API.Initialization
                 }
                 else
                 {
-                    log.LogWarning($"Failed to initialize environment with user '{user.Id}': {commandResult.Errors.FirstOrDefault()?.Message}");
+                    log.LogWarning($"Failed to initialize environment with user '{user.Id}': {commandResult.Errors.FirstOrDefault()?.Message ?? commandResult.RuntimeStatus.ToString()}");
                 }
             }
             catch (Exception exc)

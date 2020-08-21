@@ -4,12 +4,9 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.AzureAD.UI;
@@ -26,8 +23,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.ObjectPool;
 using Microsoft.IO;
 using Microsoft.OpenApi.Models;
-using TeamCloud.API.Initialization;
 using TeamCloud.API.Auth;
+using TeamCloud.API.Initialization;
 using TeamCloud.API.Middleware;
 using TeamCloud.API.Routing;
 using TeamCloud.API.Services;
@@ -41,7 +38,6 @@ using TeamCloud.Data;
 using TeamCloud.Data.Caching;
 using TeamCloud.Data.CosmosDb;
 using TeamCloud.Http;
-using TeamCloud.Model.Data;
 
 namespace TeamCloud.API
 {
@@ -122,12 +118,13 @@ namespace TeamCloud.API
 
             services
                 .AddSingleton<IHttpContextAccessor, HttpContextAccessor>()
-                .AddSingleton<IUsersRepository, CosmosDbUsersRepository>()
-                .AddSingleton<IProjectsRepository, CosmosDbProjectsRepository>()
+                .AddSingleton<IUserRepository, CosmosDbUserRepository>()
+                .AddSingleton<IProjectRepository, CosmosDbProjectRepository>()
                 .AddSingleton<ITeamCloudRepository, CosmosDbTeamCloudRepository>()
-                .AddSingleton<IProvidersRepository, CosmosDbProvidersRepository>()
+                .AddSingleton<IProviderRepository, CosmosDbProviderRepository>()
                 .AddSingleton<IProviderDataRepository, CosmosDbProviderDataRepository>()
-                .AddSingleton<IProjectTypesRepository, CosmosDbProjectTypesRepository>()
+                .AddSingleton<IProjectTypeRepository, CosmosDbProjectTypeRepository>()
+                .AddSingleton<IProjectLinkRepository, CosmosDbProjectLinkRepository>()
                 .AddSingleton<IClientErrorFactory, ClientErrorFactory>()
                 .AddSingleton<Orchestrator>()
                 .AddSingleton<UserService>()

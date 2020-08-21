@@ -3,25 +3,13 @@
  *  Licensed under the MIT License.
  */
 
-using System;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 namespace TeamCloud.API.Data.Results
 {
-    public interface IDataResult : ISuccessResult
-    { }
-
-
-    public interface IDataResult<T> : IDataResult
-        where T : new()
-    {
-        T Data { get; }
-    }
-
-    public class DataResult<T> : IDataResult<T>
+    public sealed class DataResult<T> : IDataResult<T>
         where T : new()
     {
         public T Data { get; private set; }
@@ -52,16 +40,5 @@ namespace TeamCloud.API.Data.Results
             => new DataResult<T> { Code = StatusCodes.Status204NoContent, Status = "NoContent" };
 
 #pragma warning restore CA1000 // Do not declare static members on generic types
-    }
-
-    public static class DataResultExtensions
-    {
-        public static IActionResult ActionResult(this IDataResult result) => result?.Code switch
-        {
-            StatusCodes.Status200OK => new OkObjectResult(result),
-            StatusCodes.Status201Created => new CreatedResult(result.Location, result),
-            StatusCodes.Status204NoContent => new NoContentResult(),
-            _ => throw new NotImplementedException()
-        };
     }
 }

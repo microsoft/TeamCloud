@@ -19,18 +19,14 @@ namespace TeamCloud.API.Controllers
     [ApiController]
     [Route("api/projects/{projectId:guid}/identity")]
     [Produces("application/json")]
-    public class ProjectIdentitiesController : ControllerBase
+    public class ProjectIdentitiesController : ApiController
     {
-        readonly IProjectsRepository projectsRepository;
+        readonly IProjectRepository projectsRepository;
 
-        public ProjectIdentitiesController(IProjectsRepository projectsRepository)
+        public ProjectIdentitiesController(IProjectRepository projectsRepository)
         {
             this.projectsRepository = projectsRepository ?? throw new ArgumentNullException(nameof(projectsRepository));
         }
-
-        public string ProjectId
-            => RouteData.Values.GetValueOrDefault(nameof(ProjectId), StringComparison.OrdinalIgnoreCase)?.ToString();
-
 
         [HttpGet]
         [Authorize(Policy = AuthPolicies.ProjectIdentityRead)]
@@ -43,7 +39,7 @@ namespace TeamCloud.API.Controllers
             if (string.IsNullOrEmpty(ProjectId))
                 return ErrorResult
                     .BadRequest($"Project Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCode.ValidationError)
-                    .ActionResult();
+                    .ToActionResult();
 
             var project = await projectsRepository
                 .GetAsync(ProjectId)
@@ -52,16 +48,16 @@ namespace TeamCloud.API.Controllers
             if (project is null)
                 return ErrorResult
                     .NotFound($"A Project with the identifier '{ProjectId}' was not found in this TeamCloud instance.")
-                    .ActionResult();
+                    .ToActionResult();
 
             if (project?.Identity is null)
                 return ErrorResult
                     .NotFound($"A ProjectIdentity was not found for the Project '{ProjectId}'.")
-                    .ActionResult();
+                    .ToActionResult();
 
             return DataResult<ProjectIdentity>
                 .Ok(project.Identity)
-                .ActionResult();
+                .ToActionResult();
         }
     }
 }
