@@ -10,7 +10,7 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Data
 {
-    public interface IProjectTypesRepository
+    public interface IProjectTypeRepository
     {
         Task<ProjectTypeDocument> GetAsync(string id);
 

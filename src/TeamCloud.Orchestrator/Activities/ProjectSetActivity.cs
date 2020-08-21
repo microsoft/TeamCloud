@@ -16,9 +16,9 @@ namespace TeamCloud.Orchestrator.Activities
 {
     public class ProjectSetActivity
     {
-        private readonly IProjectsRepository projectsRepository;
+        private readonly IProjectRepository projectsRepository;
 
-        public ProjectSetActivity(IProjectsRepository projectsRepository)
+        public ProjectSetActivity(IProjectRepository projectsRepository)
         {
             this.projectsRepository = projectsRepository ?? throw new ArgumentNullException(nameof(projectsRepository));
         }

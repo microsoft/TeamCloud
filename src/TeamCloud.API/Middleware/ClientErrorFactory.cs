@@ -22,21 +22,21 @@ namespace TeamCloud.API.Middleware
                 switch (clientError.StatusCode.Value)
                 {
                     case StatusCodes.Status400BadRequest:
-                        return ErrorResult.BadRequest().ActionResult();
+                        return ErrorResult.BadRequest().ToActionResult();
                     case StatusCodes.Status401Unauthorized:
-                        return ErrorResult.Unauthorized().ActionResult();
+                        return ErrorResult.Unauthorized().ToActionResult();
                     case StatusCodes.Status403Forbidden:
-                        return ErrorResult.Forbidden().ActionResult();
+                        return ErrorResult.Forbidden().ToActionResult();
                     case StatusCodes.Status404NotFound:
-                        return ErrorResult.NotFound("Not Found").ActionResult();
+                        return ErrorResult.NotFound("Not Found").ToActionResult();
                     case StatusCodes.Status409Conflict:
-                        return ErrorResult.Conflict("Conflict").ActionResult();
+                        return ErrorResult.Conflict("Conflict").ToActionResult();
                     case StatusCodes.Status500InternalServerError:
-                        return ErrorResult.ServerError().ActionResult();
+                        return ErrorResult.ServerError().ToActionResult();
                 }
             }
 
-            return ErrorResult.Unknown(clientError.StatusCode).ActionResult();
+            return ErrorResult.Unknown(clientError.StatusCode).ToActionResult();
         }
     }
 }

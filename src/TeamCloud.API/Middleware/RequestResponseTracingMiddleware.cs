@@ -57,9 +57,14 @@ namespace TeamCloud.API.Middleware
                 await LogResponse(context, stopwatch)
                     .ConfigureAwait(false);
 
-                await tempBodyStream
-                    .CopyToAsync(originalBodyStream)
-                    .ConfigureAwait(false);
+                if (tempBodyStream.CanRead)
+                {
+                    tempBodyStream.Seek(0, SeekOrigin.Begin);
+
+                    await tempBodyStream
+                        .CopyToAsync(originalBodyStream)
+                        .ConfigureAwait(false);
+                }
             }
             else
             {
@@ -90,7 +95,7 @@ namespace TeamCloud.API.Middleware
             try
             {
                 message.AppendLine($"Http Request Information: {context.Request.Method.ToUpperInvariant()} {context.Request.GetDisplayUrl()}");
-                message.AppendLine($"Body: {ReadStreamInChunks(requestStream)}");
+                message.AppendLine($"Body: {await ReadStreamAsync(requestStream).ConfigureAwait(false)}");
 
                 logger.Log(LOGLEVEL, message.ToString());
             }
@@ -104,19 +109,12 @@ namespace TeamCloud.API.Middleware
         {
             context.Response.Body.Seek(0, SeekOrigin.Begin);
 
-            using var reader = new StreamReader(context.Response.Body);
-            var text = await reader
-                .ReadToEndAsync()
-                .ConfigureAwait(false);
-
-            context.Response.Body.Seek(0, SeekOrigin.Begin);
-
             var message = stringBuilderPool.Get();
 
             try
             {
                 message.AppendLine($"Http Response Information: {context.Request.Method.ToUpperInvariant()} {context.Request.GetDisplayUrl()} [{stopwatch.Elapsed}]");
-                message.AppendLine($"Body: {text}");
+                message.AppendLine($"Body: {await ReadStreamAsync(context.Response.Body).ConfigureAwait(false)}");
 
                 logger.Log(LOGLEVEL, message.ToString());
             }
@@ -126,29 +124,31 @@ namespace TeamCloud.API.Middleware
             }
         }
 
-        private static string ReadStreamInChunks(Stream stream)
+        private static Task<string> ReadStreamAsync(Stream stream)
         {
-            const int readChunkBufferLength = 4096;
+            if (stream is null || !stream.CanRead)
+                return Task.FromResult<string>(null);
 
-            stream.Seek(0, SeekOrigin.Begin);
+            var position = stream.Position;
 
-            using var textWriter = new StringWriter();
-            using var reader = new StreamReader(stream);
-
-            var readChunk = new char[readChunkBufferLength];
-            int readChunkLength;
-
-            do
+            try
             {
-                readChunkLength = reader
-                    .ReadBlock(readChunk, 0, readChunkBufferLength);
+                stream.Seek(0, SeekOrigin.Begin);
 
-                textWriter
-                    .Write(readChunk, 0, readChunkLength);
+                using var reader = new StreamReader(
+                    stream,
+                    Encoding.Default,
+                    true,
+                    1024,
+                    leaveOpen: true);
 
-            } while (readChunkLength > 0);
-
-            return textWriter.ToString();
+                return reader
+                    .ReadToEndAsync();
+            }
+            finally
+            {
+                stream.Position = position;
+            }
         }
     }
 }

@@ -15,11 +15,11 @@ using TeamCloud.Model.Validation;
 
 namespace TeamCloud.Data.CosmosDb
 {
-    public class CosmosDbProjectsRepository : CosmosDbRepository<ProjectDocument>, IProjectsRepository
+    public class CosmosDbProjectRepository : CosmosDbRepository<ProjectDocument>, IProjectRepository
     {
-        private readonly IUsersRepository usersRepository;
+        private readonly IUserRepository usersRepository;
 
-        public CosmosDbProjectsRepository(ICosmosDbOptions cosmosOptions, IUsersRepository usersRepository)
+        public CosmosDbProjectRepository(ICosmosDbOptions cosmosOptions, IUserRepository usersRepository)
             : base(cosmosOptions)
         {
             this.usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));

@@ -17,9 +17,9 @@ namespace TeamCloud.Orchestrator.Activities
 {
     public class CommandProviderActivity
     {
-        private readonly IProvidersRepository providersRepository;
+        private readonly IProviderRepository providersRepository;
 
-        public CommandProviderActivity(IProvidersRepository providersRepository)
+        public CommandProviderActivity(IProviderRepository providersRepository)
         {
             this.providersRepository = providersRepository ?? throw new ArgumentNullException(nameof(providersRepository));
         }

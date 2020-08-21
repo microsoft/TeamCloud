@@ -11,26 +11,28 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using TeamCloud.API;
 using TeamCloud.API.Auth;
 using TeamCloud.API.Data;
 using TeamCloud.API.Data.Results;
+using TeamCloud.API.Data.Validators;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
 using TeamCloud.Model.Validation.Data;
 
-namespace TeamCloud.API
+namespace TeamCloud.API.Controllers
 {
     [ApiController]
     [Produces("application/json")]
-    public class TeamCloudUsersController : ControllerBase
+    public class TeamCloudUsersController : ApiController
     {
         readonly UserService userService;
         readonly Orchestrator orchestrator;
-        readonly IUsersRepository usersRepository;
+        readonly IUserRepository usersRepository;
 
-        public TeamCloudUsersController(UserService userService, Orchestrator orchestrator, IUsersRepository usersRepository)
+        public TeamCloudUsersController(UserService userService, Orchestrator orchestrator, IUserRepository usersRepository)
         {
             this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
             this.orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
@@ -55,7 +57,7 @@ namespace TeamCloud.API
 
             return DataResult<List<User>>
                 .Ok(returnUsers)
-                .ActionResult();
+                .ToActionResult();
         }
 
 
@@ -70,7 +72,7 @@ namespace TeamCloud.API
             if (string.IsNullOrWhiteSpace(userNameOrId))
                 return ErrorResult
                     .BadRequest($"The identifier '{userNameOrId}' provided in the url path is invalid.  Must be a valid email address or GUID.", ResultErrorCode.ValidationError)
-                    .ActionResult();
+                    .ToActionResult();
 
             var userId = await userService
                 .GetUserIdAsync(userNameOrId)
@@ -79,7 +81,7 @@ namespace TeamCloud.API
             if (string.IsNullOrEmpty(userId))
                 return ErrorResult
                     .NotFound($"The user '{userNameOrId}' could not be found.")
-                    .ActionResult();
+                    .ToActionResult();
 
             var user = await usersRepository
                 .GetAsync(userId)
@@ -88,13 +90,13 @@ namespace TeamCloud.API
             if (user is null)
                 return ErrorResult
                     .NotFound($"The specified User could not be found in this TeamCloud Instance.")
-                    .ActionResult();
+                    .ToActionResult();
 
             var returnUser = user.PopulateExternalModel();
 
             return DataResult<User>
                 .Ok(returnUser)
-                .ActionResult();
+                .ToActionResult();
         }
 
         [HttpGet("api/me")]
@@ -112,13 +114,13 @@ namespace TeamCloud.API
             if (me is null)
                 return ErrorResult
                     .NotFound($"A User matching the current authenticated user was not found in this TeamCloud instance.")
-                    .ActionResult();
+                    .ToActionResult();
 
             var returnMe = me.PopulateExternalModel();
 
             return DataResult<User>
                 .Ok(returnMe)
-                .ActionResult();
+                .ToActionResult();
         }
 
 
@@ -140,7 +142,7 @@ namespace TeamCloud.API
             if (!validation.IsValid)
                 return ErrorResult
                     .BadRequest(validation)
-                    .ActionResult();
+                    .ToActionResult();
 
             var userId = await userService
                 .GetUserIdAsync(userDefinition.Identifier)
@@ -149,7 +151,7 @@ namespace TeamCloud.API
             if (string.IsNullOrEmpty(userId))
                 return ErrorResult
                     .NotFound($"The user '{userDefinition.Identifier}' could not be found.")
-                    .ActionResult();
+                    .ToActionResult();
 
             var user = await usersRepository
                 .GetAsync(userId)
@@ -158,7 +160,7 @@ namespace TeamCloud.API
             if (user != null)
                 return ErrorResult
                     .Conflict($"The user '{userDefinition.Identifier}' already exists on this TeamCloud Instance. Please try your request again with a unique user or call PUT to update the existing User.")
-                    .ActionResult();
+                    .ToActionResult();
 
             user = new UserDocument
             {
@@ -175,7 +177,7 @@ namespace TeamCloud.API
             var command = new OrchestratorTeamCloudUserCreateCommand(currentUserForCommand, user);
 
             return await orchestrator
-                .InvokeAndReturnAccepted(command)
+                .InvokeAndReturnActionResultAsync<UserDocument, User>(command, Request)
                 .ConfigureAwait(false);
         }
 
@@ -195,7 +197,7 @@ namespace TeamCloud.API
             if (string.IsNullOrWhiteSpace(userNameOrId))
                 return ErrorResult
                     .BadRequest($"The identifier '{userNameOrId}' provided in the url path is invalid.  Must be a valid email address or GUID.", ResultErrorCode.ValidationError)
-                    .ActionResult();
+                    .ToActionResult();
 
             var userId = await userService
                 .GetUserIdAsync(userNameOrId)
@@ -204,14 +206,14 @@ namespace TeamCloud.API
             if (string.IsNullOrEmpty(userId))
                 return ErrorResult
                     .NotFound($"The user '{userNameOrId}' could not be found.")
-                    .ActionResult();
+                    .ToActionResult();
 
             var validation = new UserValidator().Validate(user);
 
             if (!validation.IsValid)
                 return ErrorResult
                     .BadRequest(validation)
-                    .ActionResult();
+                    .ToActionResult();
 
             var oldUser = await usersRepository
                 .GetAsync(user.Id)
@@ -220,7 +222,7 @@ namespace TeamCloud.API
             if (oldUser is null)
                 return ErrorResult
                     .NotFound($"The user '{user.Id}' could not be found on this TeamCloud Instance.")
-                    .ActionResult();
+                    .ToActionResult();
 
             if (oldUser.IsAdmin() && !user.IsAdmin())
             {
@@ -232,13 +234,13 @@ namespace TeamCloud.API
                 if (!otherAdmins)
                     return ErrorResult
                         .BadRequest($"The TeamCloud instance must have at least one Admin user. To change this user's role you must first add another Admin user.", ResultErrorCode.ValidationError)
-                        .ActionResult();
+                        .ToActionResult();
             }
 
             if (!oldUser.HasEqualMemberships(user))
                 return ErrorResult
                     .BadRequest(new ValidationError { Field = "projectMemberships", Message = $"User's project memberships can not be changed using the TeamCloud (system) users API. To update a user's project memberships use the project users API." })
-                    .ActionResult();
+                    .ToActionResult();
 
             var currentUserForCommand = await userService
                 .CurrentUserAsync()
@@ -249,7 +251,7 @@ namespace TeamCloud.API
             var command = new OrchestratorTeamCloudUserUpdateCommand(currentUserForCommand, oldUser);
 
             return await orchestrator
-                .InvokeAndReturnAccepted(command)
+                .InvokeAndReturnActionResultAsync<UserDocument, User>(command, Request)
                 .ConfigureAwait(false);
         }
 
@@ -271,7 +273,7 @@ namespace TeamCloud.API
             if (!validation.IsValid)
                 return ErrorResult
                     .BadRequest(validation)
-                    .ActionResult();
+                    .ToActionResult();
 
             var me = await userService
                 .CurrentUserAsync()
@@ -280,12 +282,12 @@ namespace TeamCloud.API
             if (me is null)
                 return ErrorResult
                     .NotFound($"A User matching the current authenticated user was not found in this TeamCloud instance.")
-                    .ActionResult();
+                    .ToActionResult();
 
             if (!me.Id.Equals(user.Id, StringComparison.OrdinalIgnoreCase))
                 return ErrorResult
                     .BadRequest(new ValidationError { Field = "id", Message = $"User's id does match the id of the current authenticated user." })
-                    .ActionResult();
+                    .ToActionResult();
 
             if (me.IsAdmin() && !user.IsAdmin())
             {
@@ -297,13 +299,13 @@ namespace TeamCloud.API
                 if (!otherAdmins)
                     return ErrorResult
                         .BadRequest($"The TeamCloud instance must have at least one Admin user. To change this user's role you must first add another Admin user.", ResultErrorCode.ValidationError)
-                        .ActionResult();
+                        .ToActionResult();
             }
 
             if (!me.HasEqualMemberships(user))
                 return ErrorResult
                     .BadRequest(new ValidationError { Field = "projectMemberships", Message = $"User's project memberships can not be changed using the TeamCloud (system) users API. To update a user's project memberships use the project users API." })
-                    .ActionResult();
+                    .ToActionResult();
 
             var currentUserForCommand = await userService
                 .CurrentUserAsync()
@@ -314,7 +316,7 @@ namespace TeamCloud.API
             var command = new OrchestratorTeamCloudUserUpdateCommand(currentUserForCommand, me);
 
             return await orchestrator
-                .InvokeAndReturnAccepted(command)
+                .InvokeAndReturnActionResultAsync<UserDocument, User>(command, Request)
                 .ConfigureAwait(false);
         }
 
@@ -329,7 +331,7 @@ namespace TeamCloud.API
             if (string.IsNullOrWhiteSpace(userNameOrId))
                 return ErrorResult
                     .BadRequest($"The identifier '{userNameOrId}' provided in the url path is invalid.  Must be a valid email address or GUID.", ResultErrorCode.ValidationError)
-                    .ActionResult();
+                    .ToActionResult();
 
             var userId = await userService
                 .GetUserIdAsync(userNameOrId)
@@ -338,7 +340,7 @@ namespace TeamCloud.API
             if (string.IsNullOrEmpty(userId))
                 return ErrorResult
                     .NotFound($"The user '{userNameOrId}' could not be found.")
-                    .ActionResult();
+                    .ToActionResult();
 
             var user = await usersRepository
                 .GetAsync(userId)
@@ -347,7 +349,7 @@ namespace TeamCloud.API
             if (user is null)
                 return ErrorResult
                     .NotFound($"The specified User could not be found in this TeamCloud Instance.")
-                    .ActionResult();
+                    .ToActionResult();
 
             if (user.IsAdmin())
             {
@@ -359,7 +361,7 @@ namespace TeamCloud.API
                 if (!otherAdmins)
                     return ErrorResult
                         .BadRequest($"The TeamCloud instance must have at least one Admin user. To delete this user you must first add another Admin user.", ResultErrorCode.ValidationError)
-                        .ActionResult();
+                        .ToActionResult();
             }
 
             var currentUserForCommand = await userService
@@ -369,7 +371,7 @@ namespace TeamCloud.API
             var command = new OrchestratorTeamCloudUserDeleteCommand(currentUserForCommand, user);
 
             return await orchestrator
-                .InvokeAndReturnAccepted(command)
+                .InvokeAndReturnActionResultAsync<UserDocument, User>(command, Request)
                 .ConfigureAwait(false);
         }
     }

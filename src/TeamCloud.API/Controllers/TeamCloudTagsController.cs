@@ -20,7 +20,7 @@ namespace TeamCloud.API.Controllers
     [ApiController]
     [Route("api/tags")]
     [Produces("application/json")]
-    public class TeamCloudTagsController : ControllerBase
+    public class TeamCloudTagsController : ApiController
     {
         readonly ITeamCloudRepository teamCloudRepository;
 
@@ -44,13 +44,13 @@ namespace TeamCloud.API.Controllers
             if (teamCloudInstance is null)
                 return ErrorResult
                     .NotFound($"No TeamCloud Instance was found.")
-                    .ActionResult();
+                    .ToActionResult();
 
             var tags = teamCloudInstance?.Tags is null ? new Dictionary<string, string>() : new Dictionary<string, string>(teamCloudInstance.Tags);
 
             return DataResult<Dictionary<string, string>>
                 .Ok(tags)
-                .ActionResult();
+                .ToActionResult();
         }
 
 
@@ -65,7 +65,7 @@ namespace TeamCloud.API.Controllers
             if (string.IsNullOrWhiteSpace(tagKey))
                 return ErrorResult
                     .BadRequest($"The key provided in the url path is invalid.  Must be a non-empty string.", ResultErrorCode.ValidationError)
-                    .ActionResult();
+                    .ToActionResult();
 
             var teamCloudInstance = await teamCloudRepository
                 .GetAsync()
@@ -74,16 +74,16 @@ namespace TeamCloud.API.Controllers
             if (teamCloudInstance is null)
                 return ErrorResult
                     .NotFound($"No TeamCloud Instance was found.")
-                    .ActionResult();
+                    .ToActionResult();
 
             if (!teamCloudInstance.Tags.TryGetValue(tagKey, out var tagValue))
                 return ErrorResult
                     .NotFound($"The specified Tag could not be found in this TeamCloud Instance.")
-                    .ActionResult();
+                    .ToActionResult();
 
             return DataResult<Dictionary<string, string>>
                 .Ok(new Dictionary<string, string> { { tagKey, tagValue } })
-                .ActionResult();
+                .ToActionResult();
         }
 
 
@@ -102,7 +102,7 @@ namespace TeamCloud.API.Controllers
             if (tag.Key is null)
                 return ErrorResult
                     .BadRequest()
-                    .ActionResult();
+                    .ToActionResult();
 
             var teamCloudInstance = await teamCloudRepository
                 .GetAsync()
@@ -111,12 +111,12 @@ namespace TeamCloud.API.Controllers
             if (teamCloudInstance is null)
                 return ErrorResult
                     .NotFound($"No TeamCloud Instance was found.")
-                    .ActionResult();
+                    .ToActionResult();
 
             if (teamCloudInstance.Tags.ContainsKey(tag.Key))
                 return ErrorResult
                     .Conflict($"A Tag with the key '{tag.Key}' already exists on this TeamCloud Instance. Please try your request again with a unique key or call PUT to update the existing Tag.")
-                    .ActionResult();
+                    .ToActionResult();
 
             // TODO:
             return new OkResult();
@@ -142,7 +142,7 @@ namespace TeamCloud.API.Controllers
             if (tag.Key is null)
                 return ErrorResult
                     .BadRequest()
-                    .ActionResult();
+                    .ToActionResult();
 
             var teamCloudInstance = await teamCloudRepository
                 .GetAsync()
@@ -151,12 +151,12 @@ namespace TeamCloud.API.Controllers
             if (teamCloudInstance is null)
                 return ErrorResult
                     .NotFound($"No TeamCloud Instance was found.")
-                    .ActionResult();
+                    .ToActionResult();
 
             if (!teamCloudInstance.Tags.ContainsKey(tag.Key))
                 return ErrorResult
                     .NotFound($"A Tag with the key '{tag.Key}' could not be found in this TeamCloud Instance.")
-                    .ActionResult();
+                    .ToActionResult();
 
 
             // TODO:
@@ -180,7 +180,7 @@ namespace TeamCloud.API.Controllers
             if (string.IsNullOrWhiteSpace(tagKey))
                 return ErrorResult
                     .BadRequest($"The key provided in the url path is invalid.  Must be a non-empty string.", ResultErrorCode.ValidationError)
-                    .ActionResult();
+                    .ToActionResult();
 
             var teamCloudInstance = await teamCloudRepository
                 .GetAsync()
@@ -189,11 +189,11 @@ namespace TeamCloud.API.Controllers
             if (teamCloudInstance is null)
                 return ErrorResult
                     .NotFound($"No TeamCloud Instance was found.")
-                    .ActionResult();
+                    .ToActionResult();
             if (!teamCloudInstance.Tags.TryGetValue(tagKey, out _))
                 return ErrorResult
                     .NotFound($"The specified Tag could not be found in this TeamCloud Instance.")
-                    .ActionResult();
+                    .ToActionResult();
 
             // TODO:
             return new NoContentResult();

@@ -20,7 +20,7 @@ namespace TeamCloud.API.Controllers
     [ApiController]
     [Consumes("application/json")]
     [Produces("application/json")]
-    public class StatusController : ControllerBase
+    public class StatusController : ApiController
     {
         private readonly Orchestrator orchestrator;
 
@@ -68,7 +68,7 @@ namespace TeamCloud.API.Controllers
             if (result is null)
                 return ErrorResult
                     .NotFound($"A status for the provided Tracking Id was not found.")
-                    .ActionResult();
+                    .ToActionResult();
 
             result.Links.TryGetValue("status", out var status);
 

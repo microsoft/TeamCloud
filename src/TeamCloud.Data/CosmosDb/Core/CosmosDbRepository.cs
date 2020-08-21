@@ -43,6 +43,22 @@ namespace TeamCloud.Data.CosmosDb.Core
 
         public Type ContainerDocumentType { get; } = typeof(T);
 
+        protected PartitionKey GetPartitionKey(string partitionKeyValue)
+            => new PartitionKey(partitionKeyValue);
+
+        protected PartitionKey GetPartitionKey(T containerDocument)
+        {
+            if (containerDocument is null)
+                throw new ArgumentNullException(nameof(containerDocument));
+
+            var partitionKeyValue = PartitionKeyAttribute.GetValue(containerDocument);
+
+            if (partitionKeyValue is null)
+                throw new ArgumentException($"{typeof(T)} does provide a partition key.");
+
+            return GetPartitionKey(partitionKeyValue as string);
+        }
+
         protected async Task<Database> GetDatabaseAsync()
         {
             if (cosmosClient.IsValueCreated)

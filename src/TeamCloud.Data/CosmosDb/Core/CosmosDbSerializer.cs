@@ -35,17 +35,21 @@ namespace TeamCloud.Data.CosmosDb.Core
 
         public override T FromStream<T>(Stream stream)
         {
-            using (stream)
-            {
-                if (typeof(Stream).IsAssignableFrom(typeof(T)))
-                    return (T)(object)stream;
+            if (typeof(Stream).IsAssignableFrom(typeof(T)))
+                return (T)(object)stream;
 
+            try
+            {
                 TraceStream(stream);
 
-                using var streamReader = new StreamReader(stream);
+                using var streamReader = new StreamReader(stream, DefaultEncoding, true, 1024, leaveOpen: true);
                 using var jsonReader = new JsonTextReader(streamReader);
 
                 return GetSerializer().Deserialize<T>(jsonReader);
+            }
+            finally
+            {
+                stream?.Close();
             }
         }
 
@@ -55,7 +59,7 @@ namespace TeamCloud.Data.CosmosDb.Core
 
             try
             {
-                using var streamWriter = new StreamWriter(stream, encoding: DefaultEncoding, bufferSize: 1024, leaveOpen: true);
+                using var streamWriter = new StreamWriter(stream, DefaultEncoding, 1024, leaveOpen: true);
                 using var jsonWriter = new JsonTextWriter(streamWriter);
 
                 GetSerializer().Serialize(jsonWriter, input);
