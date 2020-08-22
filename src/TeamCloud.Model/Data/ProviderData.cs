@@ -4,6 +4,7 @@
  */
 
 using Newtonsoft.Json;
+using TeamCloud.Model.Common;
 using TeamCloud.Serialization;
 
 namespace TeamCloud.Model.Data
@@ -11,12 +12,8 @@ namespace TeamCloud.Model.Data
 
 
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public sealed class ProviderData : IProviderData
+    public sealed class ProviderData : IProviderData, IValidatable
     {
-        // public string ProviderId { get; set; }
-
-        // public string ProjectId { get; set; }
-
         public string Id { get; set; }
 
         public string Name { get; set; }

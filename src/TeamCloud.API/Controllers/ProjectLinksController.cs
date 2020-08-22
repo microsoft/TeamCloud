@@ -29,16 +29,12 @@ namespace TeamCloud.API.Controllers
     public class ProjectLinksController : ApiController
     {
         private readonly IProjectRepository projectRepository;
-        readonly IProjectLinkRepository projectLinkRepository;
-        private readonly Orchestrator orchestrator;
-        private readonly UserService userService;
+        private readonly IProjectLinkRepository projectLinkRepository;
 
-        public ProjectLinksController(IProjectRepository projectRepository, IProjectLinkRepository projectLinkRepository, Orchestrator orchestrator, UserService userService)
+        public ProjectLinksController(UserService userService, Orchestrator orchestrator, IProjectRepository projectRepository, IProjectLinkRepository projectLinkRepository) : base(userService, orchestrator)
         {
             this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
             this.projectLinkRepository = projectLinkRepository ?? throw new ArgumentNullException(nameof(projectLinkRepository));
-            this.orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
-            this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
         }
 
         private async Task<IActionResult> ProcessAsync(Func<Task<IActionResult>> callback)
@@ -170,7 +166,7 @@ namespace TeamCloud.API.Controllers
                     .ToActionResult();
             }
 
-            var currentUser = await userService
+            var currentUser = await UserService
                 .CurrentUserAsync()
                 .ConfigureAwait(false);
 
@@ -183,7 +179,7 @@ namespace TeamCloud.API.Controllers
                 Type = linkDefinition.Type
             };
 
-            return await orchestrator
+            return await Orchestrator
                 .InvokeAndReturnActionResultAsync<ProjectLinkDocument, ProjectLink>(new OrchestratorProjectLinkCreateCommand(currentUser, linkDocument, ProjectId), Request)
                 .ConfigureAwait(false);
         });
@@ -244,11 +240,11 @@ namespace TeamCloud.API.Controllers
 
             linkDocument.PopulateFromExternalModel(link);
 
-            var currentUser = await userService
+            var currentUser = await UserService
                 .CurrentUserAsync()
                 .ConfigureAwait(false);
 
-            return await orchestrator
+            return await Orchestrator
                 .InvokeAndReturnActionResultAsync<ProjectLinkDocument, ProjectLink>(new OrchestratorProjectLinkUpdateCommand(currentUser, linkDocument, ProjectId), Request)
                 .ConfigureAwait(false);
         });
@@ -281,11 +277,11 @@ namespace TeamCloud.API.Controllers
                     .ToActionResult();
             }
 
-            var currentUser = await userService
+            var currentUser = await UserService
                 .CurrentUserAsync()
                 .ConfigureAwait(false);
 
-            return await orchestrator
+            return await Orchestrator
                 .InvokeAndReturnActionResultAsync<ProjectLinkDocument, ProjectLink>(new OrchestratorProjectLinkDeleteCommand(currentUser, linkDocument, ProjectId), Request)
                 .ConfigureAwait(false);
         });

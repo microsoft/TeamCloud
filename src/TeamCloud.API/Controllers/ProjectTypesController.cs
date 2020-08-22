@@ -15,8 +15,9 @@ using TeamCloud.API.Auth;
 using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
+using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
-using TeamCloud.Model.Validation.Data;
+using TeamCloud.Model.Validation;
 
 namespace TeamCloud.API.Controllers
 {
@@ -25,13 +26,11 @@ namespace TeamCloud.API.Controllers
     [Produces("application/json")]
     public class ProjectTypesController : ApiController
     {
-        readonly Orchestrator orchestrator;
-        readonly IProviderRepository providersRepository;
-        readonly IProjectTypeRepository projectTypesRepository;
+        private readonly IProviderRepository providersRepository;
+        private readonly IProjectTypeRepository projectTypesRepository;
 
-        public ProjectTypesController(Orchestrator orchestrator, IProviderRepository providersRepository, IProjectTypeRepository projectTypesRepository)
+        public ProjectTypesController(UserService userService, Orchestrator orchestrator, IProviderRepository providersRepository, IProjectTypeRepository projectTypesRepository) : base(userService, orchestrator)
         {
-            this.orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
             this.providersRepository = providersRepository ?? throw new ArgumentNullException(nameof(providersRepository));
             this.projectTypesRepository = projectTypesRepository ?? throw new ArgumentNullException(nameof(projectTypesRepository));
         }
@@ -94,23 +93,28 @@ namespace TeamCloud.API.Controllers
         public async Task<IActionResult> Post([FromBody] ProjectType projectType)
         {
             if (projectType is null)
-                throw new ArgumentNullException(nameof(projectType));
-
-            var validation = new ProjectTypeValidator().Validate(projectType);
-
-            if (!validation.IsValid)
+            {
                 return ErrorResult
-                    .BadRequest(validation)
+                    .BadRequest("Request body must not be empty.", ResultErrorCode.ValidationError)
                     .ToActionResult();
+            }
+            else if (!projectType.TryValidate(out var validationResult, serviceProvider: HttpContext.RequestServices))
+            {
+                return ErrorResult
+                    .BadRequest(validationResult)
+                    .ToActionResult();
+            }
 
             var existingProjectType = await projectTypesRepository
                 .GetAsync(projectType.Id)
                 .ConfigureAwait(false);
 
             if (existingProjectType != null)
+            {
                 return ErrorResult
                     .Conflict($"A ProjectType with id '{projectType.Id}' already exists.  Please try your request again with a unique id or call PUT to update the existing ProjectType.")
                     .ToActionResult();
+            }
 
             var providers = await providersRepository
                 .ListAsync()
@@ -123,26 +127,22 @@ namespace TeamCloud.API.Controllers
             if (!validProviders)
             {
                 var validProviderIds = string.Join(", ", providers.Select(p => p.Id));
+
                 return ErrorResult
                     .BadRequest(new ValidationError { Field = "projectType", Message = $"All provider ids on a ProjectType must match the id of a registered Provider on the TeamCloud instance. Valid provider ids are: {validProviderIds}" })
                     .ToActionResult();
             }
 
-            var newProjectType = new ProjectTypeDocument()
-                .PopulateFromExternalModel(projectType);
-
-            var addResult = await orchestrator
-                .AddAsync(newProjectType)
+            var currentUser = await UserService
+                .CurrentUserAsync()
                 .ConfigureAwait(false);
 
-            var baseUrl = HttpContext.GetApplicationBaseUrl();
-            var location = new Uri(baseUrl, $"api/projectTypes/{addResult.Id}").ToString();
+            var projectTypeDocument = new ProjectTypeDocument()
+                .PopulateFromExternalModel(projectType);
 
-            var returnAddResult = addResult.PopulateExternalModel();
-
-            return DataResult<ProjectType>
-                .Created(returnAddResult, location)
-                .ToActionResult();
+            return await Orchestrator
+                .InvokeAndReturnActionResultAsync<ProjectTypeDocument, ProjectType>(new OrchestratorProjectTypeCreateCommand(currentUser, projectTypeDocument), Request)
+                .ConfigureAwait(false);
         }
 
 
@@ -155,34 +155,42 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project Type with the ID provided in the request body could not be found.", typeof(ErrorResult))]
         public async Task<IActionResult> Put([FromRoute] string projectTypeId, [FromBody] ProjectType projectType)
         {
-            if (projectType is null)
-                throw new ArgumentNullException(nameof(projectType));
-
             if (string.IsNullOrWhiteSpace(projectTypeId))
+            {
                 return ErrorResult
                     .BadRequest($"The identifier '{projectTypeId}' provided in the url path is invalid.  Must be a valid project type ID.", ResultErrorCode.ValidationError)
                     .ToActionResult();
+            }
 
-            var validation = new ProjectTypeValidator().Validate(projectType);
-
-            if (!validation.IsValid)
+            if (projectType is null)
+            {
                 return ErrorResult
-                    .BadRequest(validation)
+                    .BadRequest("Request body must not be empty.", ResultErrorCode.ValidationError)
                     .ToActionResult();
-
-            if (!projectTypeId.Equals(projectType.Id, StringComparison.OrdinalIgnoreCase))
+            }
+            else if (!projectType.TryValidate(out var validationResult, serviceProvider: HttpContext.RequestServices))
+            {
+                return ErrorResult
+                    .BadRequest(validationResult)
+                    .ToActionResult();
+            }
+            else if (!projectType.Id.Equals(projectTypeId, StringComparison.Ordinal))
+            {
                 return ErrorResult
                     .BadRequest(new ValidationError { Field = "id", Message = $"ProjectType's id does match the identifier provided in the path." })
                     .ToActionResult();
+            }
 
-            var existingProjectType = await projectTypesRepository
+            var projectTypeDocument = await projectTypesRepository
                 .GetAsync(projectType.Id)
                 .ConfigureAwait(false);
 
-            if (existingProjectType is null)
+            if (projectTypeDocument is null)
+            {
                 return ErrorResult
                     .NotFound($"A ProjectType with the ID '{projectType.Id}' could not be found in this TeamCloud Instance")
                     .ToActionResult();
+            }
 
             var providers = await providersRepository
                 .ListAsync()
@@ -195,23 +203,22 @@ namespace TeamCloud.API.Controllers
             if (!validProviders)
             {
                 var validProviderIds = string.Join(", ", providers.Select(p => p.Id));
+
                 return ErrorResult
                     .BadRequest(new ValidationError { Field = "projectType", Message = $"All provider ids on a ProjectType must match the id of a registered Provider on the TeamCloud instance. Valid provider ids are: {validProviderIds}" })
                     .ToActionResult();
             }
 
-            existingProjectType
-                .PopulateFromExternalModel(projectType);
-
-            var updateResult = await orchestrator
-                .UpdateAsync(existingProjectType)
+            var currentUser = await UserService
+                .CurrentUserAsync()
                 .ConfigureAwait(false);
 
-            var returnUpdateResult = updateResult.PopulateExternalModel();
+            projectTypeDocument
+                .PopulateFromExternalModel(projectType);
 
-            return DataResult<ProjectType>
-                .Ok(returnUpdateResult)
-                .ToActionResult();
+            return await Orchestrator
+                .InvokeAndReturnActionResultAsync<ProjectTypeDocument, ProjectType>(new OrchestratorProjectTypeUpdateCommand(currentUser, projectTypeDocument), Request)
+                .ConfigureAwait(false);
         }
 
 
@@ -223,22 +230,24 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status404NotFound, "A ProjectType with the projectTypeId provided was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Delete(string projectTypeId)
         {
-            var existingProjectType = await projectTypesRepository
+            var projectTypeDocument = await projectTypesRepository
                 .GetAsync(projectTypeId)
                 .ConfigureAwait(false);
 
-            if (existingProjectType is null)
+            if (projectTypeDocument is null)
+            {
                 return ErrorResult
                     .NotFound($"A ProjectType with the ID '{projectTypeId}' could not be found in this TeamCloud Instance")
                     .ToActionResult();
+            }
 
-            _ = await orchestrator
-                .DeleteAsync(projectTypeId)
+            var currentUser = await UserService
+                .CurrentUserAsync()
                 .ConfigureAwait(false);
 
-            return DataResult<ProjectType>
-                .NoContent()
-                .ToActionResult();
+            return await Orchestrator
+                .InvokeAndReturnActionResultAsync<ProjectTypeDocument, ProjectType>(new OrchestratorProjectTypeUpdateCommand(currentUser, projectTypeDocument), Request)
+                .ConfigureAwait(false);
         }
     }
 }

@@ -26,16 +26,12 @@ namespace TeamCloud.API.Controllers
     [Produces("application/json")]
     public class ProvidersController : ApiController
     {
-        readonly UserService userService;
-        readonly Orchestrator orchestrator;
-        readonly IProjectRepository projectsRepository;
-        readonly IProviderRepository providersRepository;
-        readonly IProjectTypeRepository projectTypesRepository;
+        private readonly IProjectRepository projectsRepository;
+        private readonly IProviderRepository providersRepository;
+        private readonly IProjectTypeRepository projectTypesRepository;
 
-        public ProvidersController(UserService userService, Orchestrator orchestrator, IProjectRepository projectsRepository, IProviderRepository providersRepository, IProjectTypeRepository projectTypesRepository)
+        public ProvidersController(UserService userService, Orchestrator orchestrator, IProjectRepository projectsRepository, IProviderRepository providersRepository, IProjectTypeRepository projectTypesRepository) : base(userService, orchestrator)
         {
-            this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
-            this.orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
             this.projectsRepository = projectsRepository ?? throw new ArgumentNullException(nameof(projectsRepository));
             this.providersRepository = providersRepository ?? throw new ArgumentNullException(nameof(providersRepository));
             this.projectTypesRepository = projectTypesRepository ?? throw new ArgumentNullException(nameof(projectTypesRepository));
@@ -115,7 +111,7 @@ namespace TeamCloud.API.Controllers
                     .Conflict($"A Provider with the ID '{provider.Id}' already exists on this TeamCloud Instance. Please try your request again with a unique ID or call PUT to update the existing Provider.")
                     .ToActionResult();
 
-            var currentUserForCommand = await userService
+            var currentUserForCommand = await UserService
                 .CurrentUserAsync()
                 .ConfigureAwait(false);
 
@@ -124,7 +120,7 @@ namespace TeamCloud.API.Controllers
 
             var command = new OrchestratorProviderCreateCommand(currentUserForCommand, commandProvider);
 
-            return await orchestrator
+            return await Orchestrator
                 .InvokeAndReturnActionResultAsync<ProviderDocument, Provider>(command, Request)
                 .ConfigureAwait(false);
         }
@@ -168,7 +164,7 @@ namespace TeamCloud.API.Controllers
                     .NotFound($"A Provider with the ID '{provider.Id}' could not be found on this TeamCloud Instance.")
                     .ToActionResult();
 
-            var currentUserForCommand = await userService
+            var currentUserForCommand = await UserService
                 .CurrentUserAsync()
                 .ConfigureAwait(false);
 
@@ -176,7 +172,7 @@ namespace TeamCloud.API.Controllers
 
             var command = new OrchestratorProviderUpdateCommand(currentUserForCommand, oldProvider);
 
-            return await orchestrator
+            return await Orchestrator
                 .InvokeAndReturnActionResultAsync<ProviderDocument, Provider>(command, Request)
                 .ConfigureAwait(false);
         }
@@ -219,13 +215,13 @@ namespace TeamCloud.API.Controllers
                     .BadRequest("Cannot delete Providers being used by existing Projects", ResultErrorCode.ValidationError)
                     .ToActionResult();
 
-            var currentUserForCommand = await userService
+            var currentUserForCommand = await UserService
                 .CurrentUserAsync()
                 .ConfigureAwait(false);
 
             var command = new OrchestratorProviderDeleteCommand(currentUserForCommand, provider);
 
-            return await orchestrator
+            return await Orchestrator
                 .InvokeAndReturnActionResultAsync<ProviderDocument, Provider>(command, Request)
                 .ConfigureAwait(false);
         }

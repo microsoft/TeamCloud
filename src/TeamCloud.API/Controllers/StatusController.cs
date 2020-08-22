@@ -22,12 +22,8 @@ namespace TeamCloud.API.Controllers
     [Produces("application/json")]
     public class StatusController : ApiController
     {
-        private readonly Orchestrator orchestrator;
-
-        public StatusController(Orchestrator orchestrator)
-        {
-            this.orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
-        }
+        public StatusController(UserService userService, Orchestrator orchestrator) : base(userService, orchestrator)
+        { }
 
         [Authorize(Policy = AuthPolicies.Admin)]
         [HttpGet("api/status/{trackingId:guid}")]
@@ -39,7 +35,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status404NotFound, "The long-running operation with the trackingId provided was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Get(Guid trackingId)
         {
-            var result = await orchestrator
+            var result = await Orchestrator
                 .QueryAsync(trackingId, null)
                 .ConfigureAwait(false);
 
@@ -56,7 +52,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status404NotFound, "The long-running operation with the trackingId provided was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Get(string projectId, Guid trackingId)
         {
-            var result = await orchestrator
+            var result = await Orchestrator
                 .QueryAsync(trackingId, projectId)
                 .ConfigureAwait(false);
 
