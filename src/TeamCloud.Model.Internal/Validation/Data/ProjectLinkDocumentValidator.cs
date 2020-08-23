@@ -8,11 +8,14 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Model.Validation.Data
 {
-    public sealed class ProjectLinkValidator : AbstractValidator<ProjectLink>
+    public sealed class ProjectLinkDocumentValidator : AbstractValidator<ProjectLinkDocument>
     {
-        public ProjectLinkValidator()
+        public ProjectLinkDocumentValidator()
         {
             RuleFor(obj => obj.Id)
+                .MustBeGuid();
+
+            RuleFor(obj => obj.ProjectId)
                 .MustBeGuid();
 
             RuleFor(obj => obj.HRef)

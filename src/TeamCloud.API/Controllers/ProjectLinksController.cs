@@ -140,15 +140,15 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status409Conflict, "A Project Link already exists with the key provided in the request body.", typeof(ErrorResult))]
-        public Task<IActionResult> Post([FromBody] ProjectLinkDefinition linkDefinition) => ProcessAsync(async () =>
+        public Task<IActionResult> Post([FromBody] ProjectLink link) => ProcessAsync(async () =>
         {
-            if (linkDefinition is null)
+            if (link is null)
             {
                 return ErrorResult
                     .BadRequest($"The request body must not be EMPTY.", ResultErrorCode.ValidationError)
                     .ToActionResult();
             }
-            else if (!linkDefinition.TryValidate(out var validationResult, serviceProvider: HttpContext.RequestServices))
+            else if (!link.TryValidate(out var validationResult, serviceProvider: HttpContext.RequestServices))
             {
                 return ErrorResult
                     .BadRequest(validationResult)
@@ -156,7 +156,7 @@ namespace TeamCloud.API.Controllers
             }
 
             var linkDocument = await projectLinkRepository
-                .GetAsync(ProjectId, linkDefinition.Id)
+                .GetAsync(ProjectId, link.Id)
                 .ConfigureAwait(false);
 
             if (linkDocument != null)
@@ -172,11 +172,11 @@ namespace TeamCloud.API.Controllers
 
             linkDocument = new ProjectLinkDocument()
             {
-                Id = linkDefinition.Id,
+                Id = link.Id,
                 ProjectId = ProjectId,
-                HRef = linkDefinition.HRef,
-                Title = linkDefinition.Title,
-                Type = linkDefinition.Type
+                HRef = link.HRef,
+                Title = link.Title,
+                Type = link.Type
             };
 
             return await Orchestrator
@@ -212,12 +212,6 @@ namespace TeamCloud.API.Controllers
             {
                 return ErrorResult
                     .BadRequest(validationResult)
-                    .ToActionResult();
-            }
-            else if (!link.ProjectId.Equals(ProjectId, StringComparison.Ordinal))
-            {
-                return ErrorResult
-                    .BadRequest(new ValidationError { Field = "id", Message = $"ProjectLink's ProjectId does match the identifier provided in the path." })
                     .ToActionResult();
             }
             else if (!link.Id.Equals(linkId, StringComparison.Ordinal))
