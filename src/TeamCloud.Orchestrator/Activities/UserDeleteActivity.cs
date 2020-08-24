@@ -16,9 +16,9 @@ namespace TeamCloud.Orchestrator.Activities
 {
     public class UserDeleteActivity
     {
-        private readonly IUsersRepository usersRepository;
+        private readonly IUserRepository usersRepository;
 
-        public UserDeleteActivity(IUsersRepository usersRepository)
+        public UserDeleteActivity(IUserRepository usersRepository)
         {
             this.usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
         }

@@ -17,9 +17,9 @@ using TeamCloud.Model.Validation;
 namespace TeamCloud.Data.CosmosDb
 {
 
-    public class CosmosDbUsersRepository : CosmosDbRepository<UserDocument>, IUsersRepository
+    public class CosmosDbUserRepository : CosmosDbRepository<UserDocument>, IUserRepository
     {
-        public CosmosDbUsersRepository(ICosmosDbOptions cosmosOptions)
+        public CosmosDbUserRepository(ICosmosDbOptions cosmosOptions)
             : base(cosmosOptions)
         { }
 

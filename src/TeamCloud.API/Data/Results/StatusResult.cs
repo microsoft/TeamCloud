@@ -3,27 +3,18 @@
  *  Licensed under the MIT License.
  */
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using TeamCloud.Model.Commands.Core;
 
 namespace TeamCloud.API.Data.Results
 {
-    public interface IStatusResult : ISuccessResult, IErrorResult
-    {
-        string State { get; }
-
-        // user-facing
-        string StateMessage { get; }
-    }
 
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public class StatusResult : IStatusResult
+    public sealed class StatusResult : IStatusResult
     {
         [JsonProperty(Order = int.MinValue)]
         public int Code { get; private set; }
@@ -110,16 +101,5 @@ namespace TeamCloud.API.Data.Results
                 StateMessage = string.IsNullOrWhiteSpace(stateMessage) ? null : stateMessage,
                 Errors = errors?.Select(error => ResultError.Failed(error)).ToList() ?? new List<ResultError>()
             };
-    }
-
-    public static class StatusResultExtensions
-    {
-        public static IActionResult ActionResult(this IStatusResult result) => (result?.Code) switch
-        {
-            StatusCodes.Status200OK => new OkObjectResult(result),
-            StatusCodes.Status202Accepted => new AcceptedResult(result.Location, result),
-            StatusCodes.Status302Found => new JsonResult(result) { StatusCode = StatusCodes.Status302Found },
-            _ => throw new NotImplementedException()
-        };
     }
 }

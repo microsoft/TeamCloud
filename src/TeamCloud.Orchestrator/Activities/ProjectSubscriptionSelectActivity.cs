@@ -17,10 +17,10 @@ namespace TeamCloud.Orchestrator.Activities
 {
     public class ProjectSubscriptionSelectActivity
     {
-        private readonly IProjectTypesRepository projectTypesRepository;
+        private readonly IProjectTypeRepository projectTypesRepository;
         private readonly IAzureResourceService azureResourceService;
 
-        public ProjectSubscriptionSelectActivity(IProjectTypesRepository projectTypesRepository, IAzureResourceService azureResourceService)
+        public ProjectSubscriptionSelectActivity(IProjectTypeRepository projectTypesRepository, IAzureResourceService azureResourceService)
         {
             this.projectTypesRepository = projectTypesRepository ?? throw new ArgumentNullException(nameof(projectTypesRepository));
             this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));

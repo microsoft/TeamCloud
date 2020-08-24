@@ -24,15 +24,15 @@ namespace TeamCloud.API.Controllers
     [ApiController]
     [Route("api/providers")]
     [Produces("application/json")]
-    public class ProvidersController : ControllerBase
+    public class ProvidersController : ApiController
     {
         readonly UserService userService;
         readonly Orchestrator orchestrator;
-        readonly IProjectsRepository projectsRepository;
-        readonly IProvidersRepository providersRepository;
-        readonly IProjectTypesRepository projectTypesRepository;
+        readonly IProjectRepository projectsRepository;
+        readonly IProviderRepository providersRepository;
+        readonly IProjectTypeRepository projectTypesRepository;
 
-        public ProvidersController(UserService userService, Orchestrator orchestrator, IProjectsRepository projectsRepository, IProvidersRepository providersRepository, IProjectTypesRepository projectTypesRepository)
+        public ProvidersController(UserService userService, Orchestrator orchestrator, IProjectRepository projectsRepository, IProviderRepository providersRepository, IProjectTypeRepository projectTypesRepository)
         {
             this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
             this.orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
@@ -58,7 +58,7 @@ namespace TeamCloud.API.Controllers
 
             return DataResult<List<Provider>>
                 .Ok(returnProviders)
-                .ActionResult();
+                .ToActionResult();
         }
 
 
@@ -77,13 +77,13 @@ namespace TeamCloud.API.Controllers
             if (provider is null)
                 return ErrorResult
                     .NotFound($"A Provider with the ID '{providerId}' could not be found in this TeamCloud Instance")
-                    .ActionResult();
+                    .ToActionResult();
 
             var returnProvider = provider.PopulateExternalModel();
 
             return DataResult<Provider>
                 .Ok(returnProvider)
-                .ActionResult();
+                .ToActionResult();
         }
 
 
@@ -104,7 +104,7 @@ namespace TeamCloud.API.Controllers
             if (!validation.IsValid)
                 return ErrorResult
                     .BadRequest(validation)
-                    .ActionResult();
+                    .ToActionResult();
 
             var existingProvider = await providersRepository
                 .GetAsync(provider.Id)
@@ -113,7 +113,7 @@ namespace TeamCloud.API.Controllers
             if (existingProvider != null)
                 return ErrorResult
                     .Conflict($"A Provider with the ID '{provider.Id}' already exists on this TeamCloud Instance. Please try your request again with a unique ID or call PUT to update the existing Provider.")
-                    .ActionResult();
+                    .ToActionResult();
 
             var currentUserForCommand = await userService
                 .CurrentUserAsync()
@@ -125,7 +125,7 @@ namespace TeamCloud.API.Controllers
             var command = new OrchestratorProviderCreateCommand(currentUserForCommand, commandProvider);
 
             return await orchestrator
-                .InvokeAndReturnAccepted(command)
+                .InvokeAndReturnActionResultAsync<ProviderDocument, Provider>(command, Request)
                 .ConfigureAwait(false);
         }
 
@@ -145,19 +145,19 @@ namespace TeamCloud.API.Controllers
             if (string.IsNullOrWhiteSpace(providerId))
                 return ErrorResult
                     .BadRequest($"The identifier '{providerId}' provided in the url path is invalid.  Must be a valid provider ID.", ResultErrorCode.ValidationError)
-                    .ActionResult();
+                    .ToActionResult();
 
             var validation = new ProviderValidator().Validate(provider);
 
             if (!validation.IsValid)
                 return ErrorResult
                     .BadRequest(validation)
-                    .ActionResult();
+                    .ToActionResult();
 
             if (!providerId.Equals(provider.Id, StringComparison.OrdinalIgnoreCase))
                 return ErrorResult
                     .BadRequest(new ValidationError { Field = "id", Message = $"Provider's id does match the identifier provided in the path." })
-                    .ActionResult();
+                    .ToActionResult();
 
             var oldProvider = await providersRepository
                 .GetAsync(provider.Id)
@@ -166,7 +166,7 @@ namespace TeamCloud.API.Controllers
             if (oldProvider is null)
                 return ErrorResult
                     .NotFound($"A Provider with the ID '{provider.Id}' could not be found on this TeamCloud Instance.")
-                    .ActionResult();
+                    .ToActionResult();
 
             var currentUserForCommand = await userService
                 .CurrentUserAsync()
@@ -177,7 +177,7 @@ namespace TeamCloud.API.Controllers
             var command = new OrchestratorProviderUpdateCommand(currentUserForCommand, oldProvider);
 
             return await orchestrator
-                .InvokeAndReturnAccepted(command)
+                .InvokeAndReturnActionResultAsync<ProviderDocument, Provider>(command, Request)
                 .ConfigureAwait(false);
         }
 
@@ -197,7 +197,7 @@ namespace TeamCloud.API.Controllers
             if (provider is null)
                 return ErrorResult
                     .NotFound($"A Provider with the ID '{providerId}' could not be found on this TeamCloud Instance.")
-                    .ActionResult();
+                    .ToActionResult();
 
             var projectTypes = await projectTypesRepository
                 .ListByProviderAsync(providerId)
@@ -207,7 +207,7 @@ namespace TeamCloud.API.Controllers
             if (projectTypes.Any())
                 return ErrorResult
                     .BadRequest("Cannot delete Providers referenced in existing ProjectType definitions", ResultErrorCode.ValidationError)
-                    .ActionResult();
+                    .ToActionResult();
 
             var projects = await projectsRepository
                 .ListByProviderAsync(providerId)
@@ -217,7 +217,7 @@ namespace TeamCloud.API.Controllers
             if (projects.Any())
                 return ErrorResult
                     .BadRequest("Cannot delete Providers being used by existing Projects", ResultErrorCode.ValidationError)
-                    .ActionResult();
+                    .ToActionResult();
 
             var currentUserForCommand = await userService
                 .CurrentUserAsync()
@@ -226,7 +226,7 @@ namespace TeamCloud.API.Controllers
             var command = new OrchestratorProviderDeleteCommand(currentUserForCommand, provider);
 
             return await orchestrator
-                .InvokeAndReturnAccepted(command)
+                .InvokeAndReturnActionResultAsync<ProviderDocument, Provider>(command, Request)
                 .ConfigureAwait(false);
         }
     }

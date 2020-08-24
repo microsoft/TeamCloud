@@ -16,9 +16,9 @@ namespace TeamCloud.Orchestrator.Activities
 {
     public class UserProjectMembershipSetActivity
     {
-        private readonly IUsersRepository usersRepository;
+        private readonly IUserRepository usersRepository;
 
-        public UserProjectMembershipSetActivity(IUsersRepository usersRepository)
+        public UserProjectMembershipSetActivity(IUserRepository usersRepository)
         {
             this.usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
         }

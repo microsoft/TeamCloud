@@ -8,14 +8,13 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentValidation.Results;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using TeamCloud.Model.Commands.Core;
 
 namespace TeamCloud.API.Data.Results
 {
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy), ItemNullValueHandling = NullValueHandling.Ignore)]
-    public class ResultError
+    public sealed class ResultError
     {
         public ResultErrorCode Code { get; set; }
 
@@ -111,25 +110,5 @@ namespace TeamCloud.API.Data.Results
                 Code = ResultErrorCode.Unknown,
                 Message = "An unknown error occured."
             };
-    }
-
-    public class ValidationError
-    {
-        public string Field { get; set; }
-
-        public string Message { get; set; }
-    }
-
-    [JsonConverter(typeof(StringEnumConverter))]
-    public enum ResultErrorCode
-    {
-        Unknown,
-        Failed,
-        Conflict,
-        NotFound,
-        ServerError,
-        ValidationError,
-        Unauthorized,
-        Forbidden
     }
 }

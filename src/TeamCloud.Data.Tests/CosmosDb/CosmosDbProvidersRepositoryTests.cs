@@ -16,12 +16,12 @@ using TeamCloud.Model.Data;
 namespace TeamCloud.Data.CosmosDb
 {
     [Collection(nameof(CosmosDbRepositoryCollection))]
-    public class CosmosDbProvidersRepositoryTests : CosmosDbRepositoryTests<CosmosDbProvidersRepository>
+    public class CosmosDbProvidersRepositoryTests : CosmosDbRepositoryTests<CosmosDbProviderRepository>
     {
         private readonly CosmosDbRepositoryFixture fixture;
 
         public CosmosDbProvidersRepositoryTests(CosmosDbRepositoryFixture fixture)
-            : base(new CosmosDbProvidersRepository(CosmosDbTestOptions.Instance))
+            : base(new CosmosDbProviderRepository(CosmosDbTestOptions.Instance))
         {
             this.fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
         }

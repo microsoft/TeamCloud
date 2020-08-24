@@ -20,6 +20,8 @@ using TeamCloud.API.Data.Results;
 using TeamCloud.API.Initialization;
 using TeamCloud.API.Services;
 using TeamCloud.Model.Commands;
+using TeamCloud.Model.Commands.Core;
+using TeamCloud.Model.Data;
 
 namespace TeamCloud.API
 {
@@ -95,18 +97,115 @@ namespace TeamCloud.API
         public static bool IsUserIdentifier(this string identifier)
             => !string.IsNullOrWhiteSpace(identifier);
 
-        public static async Task<IActionResult> InvokeAndReturnAccepted(this Orchestrator orchestrator, IOrchestratorCommand command)
+        public static Task<IActionResult> InvokeAndReturnActionResultAsync<TDocument, TData>(this Orchestrator orchestrator, IOrchestratorCommand<TDocument> command, HttpRequest httpRequest)
+            where TDocument : class, IPopulate<TData>, new()
+            where TData : class, new()
+            => InvokeAndReturnActionResultAsync<TDocument, TData>(orchestrator, command, new HttpMethod(httpRequest?.Method ?? throw new ArgumentNullException(nameof(httpRequest))));
+
+        public static async Task<IActionResult> InvokeAndReturnActionResultAsync<TDocument, TData>(this Orchestrator orchestrator, IOrchestratorCommand<TDocument> command, HttpMethod httpMethod)
+            where TDocument : class, IPopulate<TData>, new()
+            where TData : class, new()
         {
-            var commandResult = await orchestrator
+            if (orchestrator is null)
+                throw new ArgumentNullException(nameof(orchestrator));
+
+            if (command is null)
+                throw new ArgumentNullException(nameof(command));
+
+            if (httpMethod is null)
+                throw new ArgumentNullException(nameof(httpMethod));
+
+            var commandResult = (ICommandResult<TDocument>)await orchestrator
                 .InvokeAsync(command)
                 .ConfigureAwait(false);
 
-            if (commandResult.Links.TryGetValue("status", out var url) || commandResult.Links.TryGetValue("location", out url))
-                return StatusResult
-                    .Accepted(commandResult.CommandId.ToString(), url, commandResult.RuntimeStatus.ToString(), commandResult.CustomStatus)
-                    .ActionResult();
+            return commandResult.ToActionResult<TDocument, TData>(httpMethod);
+        }
 
-            throw new Exception($"We tried to retrun an Accepted (202) result but the Orchestrator service didn't return a status url or a location url for the Orchestrator command of type '{command.GetType().Name}'. This shouldn't happen, but we need to decide to do when it does.");
+        public static IActionResult ToActionResult<TResult, TData>(this ICommandResult<TResult> commandResult, HttpRequest httpRequest)
+            where TResult : class, IPopulate<TData>, new()
+            where TData : class, new()
+            => ToActionResult<TResult, TData>(commandResult, new HttpMethod(httpRequest?.Method ?? throw new ArgumentNullException(nameof(httpRequest))));
+
+        public static IActionResult ToActionResult<TResult, TData>(this ICommandResult<TResult> commandResult, HttpMethod httpMethod)
+            where TResult : class, IPopulate<TData>, new()
+            where TData : class, new()
+        {
+            if (commandResult is null)
+                throw new ArgumentNullException(nameof(commandResult));
+
+            if (httpMethod is null)
+                throw new ArgumentNullException(nameof(httpMethod));
+
+            if (commandResult.RuntimeStatus.IsActive())
+            {
+                return commandResult.ToAcceptedResult();
+            }
+            else if (commandResult.RuntimeStatus == CommandRuntimeStatus.Completed)
+            {
+                return commandResult.ToDataResult<TResult, TData>(httpMethod);
+            }
+            else
+            {
+                return ErrorResult.ServerError(commandResult.Errors).ToActionResult();
+            }
+        }
+
+        public static IActionResult ToDataResult<TResult, TData>(this ICommandResult<TResult> commandResult, HttpRequest httpRequest)
+            where TResult : class, IPopulate<TData>, new()
+            where TData : class, new()
+            => ToDataResult<TResult, TData>(commandResult, new HttpMethod(httpRequest?.Method ?? throw new ArgumentNullException(nameof(httpRequest))));
+
+        public static IActionResult ToDataResult<TResult, TData>(this ICommandResult<TResult> commandResult, HttpMethod httpMethod)
+            where TResult : class, IPopulate<TData>, new()
+            where TData : class, new()
+        {
+            if (commandResult is null)
+                throw new ArgumentNullException(nameof(commandResult));
+
+            if (httpMethod == HttpMethod.Delete)
+            {
+                return DataResult<TData>.NoContent().ToActionResult();
+            }
+
+            var data = commandResult.Result?
+                .PopulateExternalModel<TResult, TData>();
+
+            if (httpMethod == HttpMethod.Post)
+            {
+                if (!commandResult.Links.TryGetValue("location", out var location))
+                    throw new NotSupportedException("Missing location link in command result.");
+
+                return DataResult<TData>.Created(data, location).ToActionResult();
+            }
+            else if (httpMethod == HttpMethod.Put)
+            {
+                return DataResult<TData>.Ok(data).ToActionResult();
+            }
+            else
+            {
+                throw new NotSupportedException($"HTTP verb {httpMethod} is not supported.");
+            }
+        }
+
+        public static IActionResult ToAcceptedResult(this ICommandResult commandResult)
+        {
+            if (commandResult is null)
+                throw new ArgumentNullException(nameof(commandResult));
+
+            if (commandResult.RuntimeStatus.IsActive())
+            {
+                if (commandResult.Links.TryGetValue("status", out var url) || commandResult.Links.TryGetValue("location", out url))
+                {
+                    return StatusResult
+                        .Accepted(commandResult.CommandId.ToString(), url, commandResult.RuntimeStatus.ToString(), commandResult.CustomStatus)
+                        .ActionResult();
+                }
+
+                throw new ArgumentException($"Command result of type '{commandResult.GetType().Name}' does not provide a status or location url.", nameof(commandResult));
+            }
+
+            throw new NotSupportedException("None active runtime states are not supported");
         }
 
         public static bool RequiresAdminUserSet(this HttpRequest httpRequest)

@@ -19,9 +19,9 @@ namespace TeamCloud.API.Services
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly IAzureDirectoryService azureDirectoryService;
         private readonly IMemoryCache cache;
-        readonly IUsersRepository usersRepository;
+        readonly IUserRepository usersRepository;
 
-        public UserService(IHttpContextAccessor httpContextAccessor, IAzureDirectoryService azureDirectoryService, IMemoryCache cache, IUsersRepository usersRepository)
+        public UserService(IHttpContextAccessor httpContextAccessor, IAzureDirectoryService azureDirectoryService, IMemoryCache cache, IUserRepository usersRepository)
         {
             this.httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             this.azureDirectoryService = azureDirectoryService ?? throw new ArgumentNullException(nameof(azureDirectoryService));

@@ -8,18 +8,14 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using TeamCloud.Model.Commands.Core;
 
 namespace TeamCloud.API.Data.Results
 {
-    public interface IErrorResult : IFailureResult
-    {
-    }
-
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public class ErrorResult : IErrorResult
+    public sealed class ErrorResult : IErrorResult
     {
         [JsonProperty(Order = int.MinValue)]
         public int Code { get; private set; }
@@ -52,8 +48,22 @@ namespace TeamCloud.API.Data.Results
         public static ErrorResult ServerError(IList<ResultError> errors = null)
             => new ErrorResult { Code = StatusCodes.Status500InternalServerError, Status = "ServerError", Errors = errors ?? new List<ResultError>() };
 
-        public static ErrorResult ServerError(IList<Exception> exceptions)
-            => new ErrorResult { Code = StatusCodes.Status500InternalServerError, Status = "ServerError", Errors = exceptions?.Select(e => ResultError.ServerError(e)).ToList() ?? new List<ResultError>() };
+        public static ErrorResult ServerError(Exception error)
+            => error is null
+            ? new ErrorResult { Code = StatusCodes.Status500InternalServerError, Status = "ServerError", Errors = new List<ResultError>() }
+            : ServerError(error is AggregateException aggregateError ? aggregateError.Flatten().InnerExceptions.ToList() : Enumerable.Repeat(error, 1).ToList());
+
+        public static ErrorResult ServerError(IList<Exception> errors)
+        {
+            var errorsFlattened = errors.SelectMany(error => error is AggregateException aggregateError
+                ? aggregateError.Flatten().InnerExceptions
+                : Enumerable.Repeat(error, 1));
+
+            return new ErrorResult { Code = StatusCodes.Status500InternalServerError, Status = "ServerError", Errors = errorsFlattened?.Select(e => ResultError.ServerError(e)).ToList() ?? new List<ResultError>() };
+        }
+
+        public static ErrorResult ServerError(IList<CommandError> errors)
+            => new ErrorResult { Code = StatusCodes.Status500InternalServerError, Status = "ServerError", Errors = errors?.Select(e => ResultError.Failed(e)).ToList() ?? new List<ResultError>() };
 
         public static ErrorResult Unauthorized()
             => new ErrorResult { Code = StatusCodes.Status401Unauthorized, Status = "Unauthorized", Errors = new List<ResultError> { ResultError.Unauthorized() } };
@@ -63,19 +73,5 @@ namespace TeamCloud.API.Data.Results
 
         public static ErrorResult Unknown(int? code)
             => new ErrorResult { Code = code ?? StatusCodes.Status500InternalServerError, Status = "Unknown", Errors = new List<ResultError> { ResultError.Unknown() } };
-    }
-
-    public static class ErrorResultExtensions
-    {
-        public static IActionResult ActionResult(this IErrorResult result) => result?.Code switch
-        {
-            StatusCodes.Status400BadRequest => new BadRequestObjectResult(result),
-            StatusCodes.Status401Unauthorized => new JsonResult(result) { StatusCode = StatusCodes.Status401Unauthorized },
-            StatusCodes.Status403Forbidden => new JsonResult(result) { StatusCode = StatusCodes.Status403Forbidden },
-            StatusCodes.Status404NotFound => new NotFoundObjectResult(result),
-            StatusCodes.Status409Conflict => new ConflictObjectResult(result),
-            StatusCodes.Status500InternalServerError => new JsonResult(result) { StatusCode = StatusCodes.Status500InternalServerError },
-            _ => throw new NotImplementedException()
-        };
     }
 }

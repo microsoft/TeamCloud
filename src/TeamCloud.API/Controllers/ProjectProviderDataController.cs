@@ -23,14 +23,14 @@ namespace TeamCloud.API.Controllers
     [ApiController]
     [Route("api/projects/{projectId:guid}/providers/{providerId:providerId}/data")]
     [Produces("application/json")]
-    public class ProjectProviderDataController : ControllerBase
+    public class ProjectProviderDataController : ApiController
     {
         readonly Orchestrator orchestrator;
-        readonly IProjectsRepository projectsRepository;
-        readonly IProvidersRepository providersRepository;
+        readonly IProjectRepository projectsRepository;
+        readonly IProviderRepository providersRepository;
         readonly IProviderDataRepository providerDataRepository;
 
-        public ProjectProviderDataController(Orchestrator orchestrator, IProjectsRepository projectsRepository, IProvidersRepository providersRepository, IProviderDataRepository providerDataRepository)
+        public ProjectProviderDataController(Orchestrator orchestrator, IProjectRepository projectsRepository, IProviderRepository providersRepository, IProviderDataRepository providerDataRepository)
         {
             this.orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
             this.projectsRepository = projectsRepository ?? throw new ArgumentNullException(nameof(projectsRepository));
@@ -38,12 +38,8 @@ namespace TeamCloud.API.Controllers
             this.providerDataRepository = providerDataRepository ?? throw new ArgumentNullException(nameof(providerDataRepository));
         }
 
-        public string ProjectId
-            => RouteData.Values.GetValueOrDefault(nameof(ProjectId), StringComparison.OrdinalIgnoreCase)?.ToString();
-
         public string ProviderId
             => RouteData.Values.GetValueOrDefault(nameof(ProviderId), StringComparison.OrdinalIgnoreCase)?.ToString();
-
 
         [HttpGet]
         [Authorize(Policy = AuthPolicies.ProviderDataRead)]
@@ -60,7 +56,7 @@ namespace TeamCloud.API.Controllers
             if (provider is null)
                 return ErrorResult
                     .NotFound($"A Provider with the ID '{ProviderId}' could not be found in this TeamCloud Instance")
-                    .ActionResult();
+                    .ToActionResult();
 
             var project = await projectsRepository
                 .GetAsync(ProjectId)
@@ -69,12 +65,12 @@ namespace TeamCloud.API.Controllers
             if (project is null)
                 return ErrorResult
                     .NotFound($"A Project with the identifier '{ProjectId}' could not be found in this TeamCloud Instance")
-                    .ActionResult();
+                    .ToActionResult();
 
             if (!project.Type.Providers.Any(p => p.Id.Equals(provider.Id, StringComparison.OrdinalIgnoreCase)))
                 return ErrorResult
                     .NotFound($"A Provider with the ID '{ProviderId}' could not be found on the Project '{ProjectId}'")
-                    .ActionResult();
+                    .ToActionResult();
 
             var data = await providerDataRepository
                 .ListAsync(provider.Id, project.Id, includeShared)
@@ -85,7 +81,7 @@ namespace TeamCloud.API.Controllers
 
             return DataResult<List<ProviderData>>
                 .Ok(returnData)
-                .ActionResult();
+                .ToActionResult();
         }
 
 
@@ -104,7 +100,7 @@ namespace TeamCloud.API.Controllers
             if (provider is null)
                 return ErrorResult
                     .NotFound($"A Provider with the ID '{ProviderId}' could not be found in this TeamCloud Instance")
-                    .ActionResult();
+                    .ToActionResult();
 
             var project = await projectsRepository
                 .GetAsync(ProjectId)
@@ -113,12 +109,12 @@ namespace TeamCloud.API.Controllers
             if (project is null)
                 return ErrorResult
                     .NotFound($"A Project with the identifier '{ProjectId}' could not be found in this TeamCloud Instance")
-                    .ActionResult();
+                    .ToActionResult();
 
             if (!project.Type.Providers.Any(p => p.Id.Equals(provider.Id, StringComparison.OrdinalIgnoreCase)))
                 return ErrorResult
                     .NotFound($"A Provider with the ID '{ProviderId}' could not be found on the Project '{ProjectId}'")
-                    .ActionResult();
+                    .ToActionResult();
 
             var providerData = await providerDataRepository
                 .GetAsync(providerDataId)
@@ -127,13 +123,13 @@ namespace TeamCloud.API.Controllers
             if (providerData is null)
                 return ErrorResult
                     .NotFound($"A Provider Data item with the ID '{providerDataId}' could not be found")
-                    .ActionResult();
+                    .ToActionResult();
 
             var returnData = providerData.PopulateExternalModel();
 
             return DataResult<ProviderData>
                 .Ok(returnData)
-                .ActionResult();
+                .ToActionResult();
         }
 
 
@@ -155,7 +151,7 @@ namespace TeamCloud.API.Controllers
             if (!validation.IsValid)
                 return ErrorResult
                     .BadRequest(validation)
-                    .ActionResult();
+                    .ToActionResult();
 
             var provider = await providersRepository
                 .GetAsync(ProviderId)
@@ -164,7 +160,7 @@ namespace TeamCloud.API.Controllers
             if (provider is null)
                 return ErrorResult
                     .NotFound($"A Provider with the ID '{ProviderId}' could not be found in this TeamCloud Instance")
-                    .ActionResult();
+                    .ToActionResult();
 
             var project = await projectsRepository
                 .GetAsync(ProjectId)
@@ -173,12 +169,12 @@ namespace TeamCloud.API.Controllers
             if (project is null)
                 return ErrorResult
                     .NotFound($"A Project with the identifier '{ProjectId}' could not be found in this TeamCloud Instance")
-                    .ActionResult();
+                    .ToActionResult();
 
             if (!project.Type.Providers.Any(p => p.Id.Equals(provider.Id, StringComparison.OrdinalIgnoreCase)))
                 return ErrorResult
                     .NotFound($"A Provider with the ID '{ProviderId}' could not be found on the Project '{ProjectId}'")
-                    .ActionResult();
+                    .ToActionResult();
 
             var newProviderData = new ProviderDataDocument()
             {
@@ -199,7 +195,7 @@ namespace TeamCloud.API.Controllers
 
             return DataResult<ProviderData>
                 .Created(returnAddResult, location)
-                .ActionResult();
+                .ToActionResult();
         }
 
 
@@ -218,19 +214,19 @@ namespace TeamCloud.API.Controllers
             if (string.IsNullOrWhiteSpace(providerDataId))
                 return ErrorResult
                     .BadRequest($"The identifier '{providerDataId}' provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCode.ValidationError)
-                    .ActionResult();
+                    .ToActionResult();
 
             var validation = new ProviderDataValidator().Validate(providerData);
 
             if (!validation.IsValid)
                 return ErrorResult
                     .BadRequest(validation)
-                    .ActionResult();
+                    .ToActionResult();
 
             if (!providerDataId.Equals(providerData.Id, StringComparison.OrdinalIgnoreCase))
                 return ErrorResult
                     .BadRequest(new ValidationError { Field = "id", Message = $"ProviderData's id does match the identifier provided in the path." })
-                    .ActionResult();
+                    .ToActionResult();
 
             var provider = await providersRepository
                 .GetAsync(ProviderId)
@@ -239,7 +235,7 @@ namespace TeamCloud.API.Controllers
             if (provider is null)
                 return ErrorResult
                     .NotFound($"A Provider with the ID '{ProviderId}' could not be found in this TeamCloud Instance")
-                    .ActionResult();
+                    .ToActionResult();
 
             var project = await projectsRepository
                 .GetAsync(ProjectId)
@@ -248,12 +244,12 @@ namespace TeamCloud.API.Controllers
             if (project is null)
                 return ErrorResult
                     .NotFound($"A Project with the identifier '{ProjectId}' could not be found in this TeamCloud Instance")
-                    .ActionResult();
+                    .ToActionResult();
 
             if (!project.Type.Providers.Any(p => p.Id.Equals(provider.Id, StringComparison.OrdinalIgnoreCase)))
                 return ErrorResult
                     .NotFound($"A Provider with the ID '{ProviderId}' could not be found on the Project '{ProjectId}'")
-                    .ActionResult();
+                    .ToActionResult();
 
             var oldProviderData = await providerDataRepository
                 .GetAsync(providerData.Id)
@@ -262,7 +258,7 @@ namespace TeamCloud.API.Controllers
             if (oldProviderData is null)
                 return ErrorResult
                     .NotFound($"The Provider Data '{providerData.Id}' could not be found..")
-                    .ActionResult();
+                    .ToActionResult();
 
             var newProviderData = new ProviderDataDocument
             {
@@ -280,7 +276,7 @@ namespace TeamCloud.API.Controllers
 
             return DataResult<ProviderData>
                 .Ok(returnUpdateResult)
-                .ActionResult();
+                .ToActionResult();
         }
 
 
@@ -299,7 +295,7 @@ namespace TeamCloud.API.Controllers
             if (provider is null)
                 return ErrorResult
                     .NotFound($"A Provider with the ID '{ProviderId}' could not be found in this TeamCloud Instance")
-                    .ActionResult();
+                    .ToActionResult();
 
             var existingProviderData = await providerDataRepository
                 .GetAsync(providerDataId)
@@ -308,12 +304,12 @@ namespace TeamCloud.API.Controllers
             if (existingProviderData is null)
                 return ErrorResult
                     .NotFound($"A Provider Data item with the ID '{providerDataId}' could not be found")
-                    .ActionResult();
+                    .ToActionResult();
 
             if (existingProviderData.Scope == ProviderDataScope.System)
                 return ErrorResult
                     .BadRequest("The specified Provider Data item is not scoped to a project use the system api to delete.", ResultErrorCode.ValidationError)
-                    .ActionResult();
+                    .ToActionResult();
 
             var project = await projectsRepository
                 .GetAsync(ProjectId)
@@ -322,12 +318,12 @@ namespace TeamCloud.API.Controllers
             if (project is null)
                 return ErrorResult
                     .NotFound($"A Project with the identifier '{ProjectId}' could not be found in this TeamCloud Instance")
-                    .ActionResult();
+                    .ToActionResult();
 
             if (!existingProviderData.ProjectId.Equals(project.Id, StringComparison.OrdinalIgnoreCase))
                 return ErrorResult
                     .NotFound($"A Provider Data item with the ID '{providerDataId}' could not be found for project '{ProjectId}'")
-                    .ActionResult();
+                    .ToActionResult();
 
             _ = await orchestrator
                 .DeleteAsync(existingProviderData)
@@ -335,7 +331,7 @@ namespace TeamCloud.API.Controllers
 
             return DataResult<ProviderData>
                 .NoContent()
-                .ActionResult();
+                .ToActionResult();
         }
     }
 }

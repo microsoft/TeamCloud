@@ -17,9 +17,9 @@ namespace TeamCloud.Orchestrator.Activities
 {
     public class ProjectListActivity
     {
-        private readonly IProjectsRepository projectsRepository;
+        private readonly IProjectRepository projectsRepository;
 
-        public ProjectListActivity(IProjectsRepository projectsRepository)
+        public ProjectListActivity(IProjectRepository projectsRepository)
         {
             this.projectsRepository = projectsRepository ?? throw new ArgumentNullException(nameof(projectsRepository));
         }
@@ -42,9 +42,9 @@ namespace TeamCloud.Orchestrator.Activities
 
     public class ProjectListByIdActivity
     {
-        private readonly IProjectsRepository projectsRepository;
+        private readonly IProjectRepository projectsRepository;
 
-        public ProjectListByIdActivity(IProjectsRepository projectsRepository)
+        public ProjectListByIdActivity(IProjectRepository projectsRepository)
         {
             this.projectsRepository = projectsRepository ?? throw new ArgumentNullException(nameof(projectsRepository));
         }

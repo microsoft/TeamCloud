@@ -19,10 +19,10 @@ namespace TeamCloud.Orchestrator.Activities
 {
     public class ResourceProviderRegisterActivity
     {
-        private readonly IProvidersRepository providersRepository;
+        private readonly IProviderRepository providersRepository;
         private readonly IAzureResourceService azureResourceService;
 
-        public ResourceProviderRegisterActivity(IProvidersRepository providersRepository, IAzureResourceService azureResourceService)
+        public ResourceProviderRegisterActivity(IProviderRepository providersRepository, IAzureResourceService azureResourceService)
         {
             this.providersRepository = providersRepository ?? throw new ArgumentNullException(nameof(providersRepository));
             this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));

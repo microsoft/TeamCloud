@@ -22,9 +22,9 @@ namespace TeamCloud.Orchestrator.Activities
     {
         private readonly IAzureSessionService azureSessionService;
         private readonly IAzureResourceService azureResourceService;
-        private readonly IProjectsRepository projectsRepository;
+        private readonly IProjectRepository projectsRepository;
 
-        public ProjectResourcesAccessActivity(IAzureSessionService azureSessionService, IAzureResourceService azureResourceService, IProjectsRepository projectsRepository)
+        public ProjectResourcesAccessActivity(IAzureSessionService azureSessionService, IAzureResourceService azureResourceService, IProjectRepository projectsRepository)
         {
             this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
             this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));

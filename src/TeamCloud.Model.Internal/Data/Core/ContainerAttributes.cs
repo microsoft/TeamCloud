@@ -4,6 +4,7 @@
  */
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -44,6 +45,36 @@ namespace TeamCloud.Model.Data.Core
     [AttributeUsage(AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
     public sealed class PartitionKeyAttribute : Attribute
     {
+        private static readonly ConcurrentDictionary<Type, PropertyInfo> PropertyCache
+            = new ConcurrentDictionary<Type, PropertyInfo>();
+
+        private static PropertyInfo GetProperty(Type type)
+        {
+            if (type is null)
+                throw new ArgumentNullException(nameof(type));
+
+            return PropertyCache.GetOrAdd(type, (key) =>
+            {
+                var property = type.GetProperties()
+                    .Where(p => p.GetCustomAttribute<PartitionKeyAttribute>() != null)
+                    .SingleOrDefault();
+
+                if (property.PropertyType != typeof(string))
+                    throw new NotSupportedException($"{typeof(PartitionKeyAttribute)} is only supported on properties with the type String");
+
+                return property;
+            });
+        }
+
+        public static object GetValue<T>(T obj)
+            where T : class
+        {
+            if (obj is null)
+                throw new ArgumentNullException(nameof(obj));
+
+            return GetProperty(typeof(T)).GetValue(obj);
+        }
+
         public static string GetPath<T>(bool camelCase = false)
             => GetPath(typeof(T), camelCase);
 
@@ -52,9 +83,7 @@ namespace TeamCloud.Model.Data.Core
             if (type is null)
                 throw new ArgumentNullException(nameof(type));
 
-            var name = type.GetProperties()
-                .Where(p => p.GetCustomAttribute<PartitionKeyAttribute>() != null)
-                .SingleOrDefault()?.Name;
+            var name = GetProperty(type)?.Name;
 
             if (string.IsNullOrEmpty(name))
                 return name;

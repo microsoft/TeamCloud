@@ -21,13 +21,13 @@ namespace TeamCloud.API.Controllers
 {
     [ApiController]
     [Produces("application/json")]
-    public class UserProjectsController : ControllerBase
+    public class UserProjectsController : ApiController
     {
         readonly UserService userService;
-        readonly IUsersRepository usersRepository;
-        readonly IProjectsRepository projectsRepository;
+        readonly IUserRepository usersRepository;
+        readonly IProjectRepository projectsRepository;
 
-        public UserProjectsController(UserService userService, IUsersRepository usersRepository, IProjectsRepository projectsRepository)
+        public UserProjectsController(UserService userService, IUserRepository usersRepository, IProjectRepository projectsRepository)
         {
             this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
             this.usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
@@ -49,7 +49,7 @@ namespace TeamCloud.API.Controllers
             if (string.IsNullOrEmpty(UserId))
                 return ErrorResult
                     .BadRequest($"User Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCode.ValidationError)
-                    .ActionResult();
+                    .ToActionResult();
 
             var user = await usersRepository
                 .GetAsync(UserId)
@@ -58,14 +58,14 @@ namespace TeamCloud.API.Controllers
             if (user is null)
                 return ErrorResult
                     .NotFound($"The specified User could not be found in this TeamCloud Instance.")
-                    .ActionResult();
+                    .ToActionResult();
 
             var projectIds = user.ProjectMemberships.Select(pm => pm.ProjectId);
 
             if (!projectIds.Any())
                 return DataResult<List<Project>>
                     .Ok(new List<Project>())
-                    .ActionResult();
+                    .ToActionResult();
 
             var projectDocuments = await projectsRepository
                 .ListAsync(projectIds)
@@ -76,7 +76,7 @@ namespace TeamCloud.API.Controllers
 
             return DataResult<List<Project>>
                 .Ok(projects)
-                .ActionResult();
+                .ToActionResult();
         }
 
         [HttpGet("api/me/projects")]
@@ -94,14 +94,14 @@ namespace TeamCloud.API.Controllers
             if (me is null)
                 return ErrorResult
                     .NotFound($"A User matching the current authenticated user was not found in this TeamCloud instance.")
-                    .ActionResult();
+                    .ToActionResult();
 
             var projectIds = me.ProjectMemberships.Select(pm => pm.ProjectId);
 
             if (!projectIds.Any())
                 return DataResult<List<Project>>
                     .Ok(new List<Project>())
-                    .ActionResult();
+                    .ToActionResult();
 
             var projectDocuments = await projectsRepository
                 .ListAsync(projectIds)
@@ -112,7 +112,7 @@ namespace TeamCloud.API.Controllers
 
             return DataResult<List<Project>>
                 .Ok(projects)
-                .ActionResult();
+                .ToActionResult();
         }
     }
 }

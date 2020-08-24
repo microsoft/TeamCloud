@@ -16,9 +16,9 @@ namespace TeamCloud.Orchestrator.Activities
 {
     public class UserProjectMembershipDeleteActivity
     {
-        private readonly IUsersRepository usersRepository;
+        private readonly IUserRepository usersRepository;
 
-        public UserProjectMembershipDeleteActivity(IUsersRepository usersRepository)
+        public UserProjectMembershipDeleteActivity(IUserRepository usersRepository)
         {
             this.usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
         }
