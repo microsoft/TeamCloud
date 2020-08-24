@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect } from "react";
-import { ICommandBarItemProps, SearchBox, Stack, IBreadcrumbItem, Panel, PrimaryButton, DefaultButton, Spinner, Text } from '@fluentui/react';
-import { getProjects, createProject } from '../API'
-import { Project, DataResult, ProjectType, User, ProjectDefinition, ProjectUserRole, StatusResult, ErrorResult, TeamCloudUserRole } from '../model'
+import { ICommandBarItemProps, SearchBox, Stack, IBreadcrumbItem } from '@fluentui/react';
+import { getProjects } from '../API'
+import { Project, DataResult, User, TeamCloudUserRole } from '../model'
 import { ProjectList, ProjectForm, SubheaderBar } from "../components";
 
 export interface IProjectsViewProps {
@@ -17,12 +17,6 @@ export const ProjectsView: React.FunctionComponent<IProjectsViewProps> = (props)
     const [projects, setProjects] = useState<Project[]>();
     const [projectFilter, setProjectFilter] = useState<string>();
     const [newProjectPanelOpen, setNewProjectPanelOpen] = useState(false);
-
-    const [newProjectFormEnabled, setNewProjectFormEnabled] = useState<boolean>(true);
-    const [newProjectName, setNewProjectName] = useState<string>();
-    const [newProjectType, setNewProjectType] = useState<ProjectType>();
-    const [newProjectErrorText, setNewProjectErrorText] = useState<string>();
-
 
     useEffect(() => {
         if (projects === undefined) {
@@ -41,45 +35,6 @@ export const ProjectsView: React.FunctionComponent<IProjectsViewProps> = (props)
         setProjects(data);
     }
 
-
-    const _onProjectFormNameChange = (val: string | undefined) => {
-        setNewProjectName(val);
-    }
-
-    const _onProjectFormTypeChange = (val: ProjectType | undefined) => {
-        setNewProjectType(val);
-    }
-
-    const _onCreateNewProject = async () => {
-        setNewProjectFormEnabled(false);
-        if (props.user && newProjectName && newProjectType) {
-            const projectDefinition: ProjectDefinition = {
-                name: newProjectName,
-                projectType: newProjectType.id,
-                users: [
-                    {
-                        identifier: props.user.id,
-                        role: ProjectUserRole.Owner
-                    }
-                ]
-            };
-            const result = await createProject(projectDefinition);
-            if ((result as StatusResult).code === 202)
-                _onNewProjectFormReset();
-            else if ((result as ErrorResult).errors) {
-                // console.log(JSON.stringify(result));
-                setNewProjectErrorText((result as ErrorResult).status);
-            }
-        }
-    }
-
-    const _onNewProjectFormReset = () => {
-        setNewProjectPanelOpen(false);
-        setNewProjectName(undefined);
-        setNewProjectType(undefined);
-        setNewProjectFormEnabled(true);
-    }
-
     const _userCanCreateProjects = () => props.user?.role === TeamCloudUserRole.Admin || props.user?.role === TeamCloudUserRole.Creator;
 
     const _commandBarItems = (): ICommandBarItemProps[] => [
@@ -95,16 +50,6 @@ export const ProjectsView: React.FunctionComponent<IProjectsViewProps> = (props)
         { text: '', key: 'root', href: '/', isCurrentItem: true }
     ];
 
-    const _onRenderNewProjectFormFooterContent = () => (
-        <div>
-            <PrimaryButton disabled={!newProjectFormEnabled || !(newProjectName && newProjectType)} onClick={() => _onCreateNewProject()} styles={{ root: { marginRight: 8 } }}>
-                Create project
-            </PrimaryButton>
-            <DefaultButton disabled={!newProjectFormEnabled} onClick={() => _onNewProjectFormReset()}>Cancel</DefaultButton>
-            <Spinner styles={{ root: { visibility: newProjectFormEnabled ? 'hidden' : 'visible' } }} />
-        </div>
-    );
-
     return (
         <>
             <Stack>
@@ -117,18 +62,10 @@ export const ProjectsView: React.FunctionComponent<IProjectsViewProps> = (props)
                     projectFilter={projectFilter}
                     onProjectSelected={props.onProjectSelected} />
             </Stack>
-            <Panel
-                headerText='New project'
-                isOpen={newProjectPanelOpen}
-                onDismiss={() => _onNewProjectFormReset()}
-                onRenderFooterContent={_onRenderNewProjectFormFooterContent}>
-                <ProjectForm
-                    fieldsEnabled={!newProjectFormEnabled}
-                    onNameChange={_onProjectFormNameChange}
-                    onProjectTypeChange={_onProjectFormTypeChange}
-                    onFormSubmit={() => _onCreateNewProject()} />
-                <Text>{newProjectErrorText}</Text>
-            </Panel>
+            <ProjectForm
+                user={props.user}
+                panelIsOpen={newProjectPanelOpen}
+                onFormClose={() => setNewProjectPanelOpen(false)} />
         </>
     );
 }

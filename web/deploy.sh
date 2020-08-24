@@ -69,7 +69,7 @@ fi
 
 selectNodeVersion () {
   if [[ -n "$KUDU_SELECT_NODE_VERSION_CMD" ]]; then
-    SELECT_NODE_VERSION="$KUDU_SELECT_NODE_VERSION_CMD \"$DEPLOYMENT_SOURCE/web/teamcloud\" \"$DEPLOYMENT_TARGET\" \"$DEPLOYMENT_TEMP\""
+    SELECT_NODE_VERSION="$KUDU_SELECT_NODE_VERSION_CMD \"$DEPLOYMENT_SOURCE/teamcloud\" \"$DEPLOYMENT_TARGET\" \"$DEPLOYMENT_TEMP\""
     eval $SELECT_NODE_VERSION
     exitWithMessageOnError "select node version failed"
 
@@ -77,7 +77,7 @@ selectNodeVersion () {
       NODE_EXE=`cat "$DEPLOYMENT_TEMP/__nodeVersion.tmp"`
       exitWithMessageOnError "getting node version failed"
     fi
-    
+
     if [[ -e "$DEPLOYMENT_TEMP/__npmVersion.tmp" ]]; then
       NPM_JS_PATH=`cat "$DEPLOYMENT_TEMP/__npmVersion.tmp"`
       exitWithMessageOnError "getting npm version failed"
@@ -100,22 +100,30 @@ selectNodeVersion () {
 
 echo Handling node.js deployment.
 
-# 1. KuduSync
-if [[ "$IN_PLACE_DEPLOYMENT" -ne "1" ]]; then
-  "$KUDU_SYNC_CMD" -v 50 -f "$DEPLOYMENT_SOURCE/web/teamcloud" -t "$DEPLOYMENT_TARGET" -n "$NEXT_MANIFEST_PATH" -p "$PREVIOUS_MANIFEST_PATH" -i ".git;.hg;.deployment;deploy.sh"
-  exitWithMessageOnError "Kudu Sync failed"
-fi
-
-# 2. Select node version
+# 1. Select node version
 selectNodeVersion
 
-# 3. Install npm packages
-if [ -e "$DEPLOYMENT_TARGET/package.json" ]; then
-  cd "$DEPLOYMENT_TARGET"
-  echo "Running $NPM_CMD install --production"
-  eval $NPM_CMD install --production
+# 2. Install npm packages and build app
+if [ -e "$DEPLOYMENT_SOURCE/teamcloud/package.json" ]; then
+  cd "$DEPLOYMENT_SOURCE/teamcloud"
+  # echo "Running $NPM_CMD install --production"
+  # eval $NPM_CMD install --production
+  echo "Running $NPM_CMD install"
+  eval $NPM_CMD install
+  eval $NPM_CMD run build
   exitWithMessageOnError "npm failed"
   cd - > /dev/null
+fi
+
+# 3. Copy web.config into build folder
+if [ -e "$DEPLOYMENT_SOURCE/web.config" ]; then
+  cp "$DEPLOYMENT_SOURCE/web.config" "$DEPLOYMENT_SOURCE/teamcloud/build/web.config"
+fi
+
+# 4. KuduSync
+if [[ "$IN_PLACE_DEPLOYMENT" -ne "1" ]]; then
+  "$KUDU_SYNC_CMD" -v 50 -f "$DEPLOYMENT_SOURCE/teamcloud/build" -t "$DEPLOYMENT_TARGET" -n "$NEXT_MANIFEST_PATH" -p "$PREVIOUS_MANIFEST_PATH" -i ".git;.hg;.deployment;deploy.sh"
+  exitWithMessageOnError "Kudu Sync failed"
 fi
 
 ##################################################################################################################################

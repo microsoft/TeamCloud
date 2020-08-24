@@ -4,77 +4,79 @@
 import { getToken } from "./Auth";
 import { DataResult, StatusResult, ErrorResult, Project, User, ProjectType, Provider, ProjectDefinition, UserDefinition } from "./model";
 
+const _getApiUrl = () => {
+    if (!process.env.REACT_APP_TC_API_URL) throw new Error('Must set env variable $REACT_APP_TC_API_URL');
+    return process.env.REACT_APP_TC_API_URL;
+};
+
 const scope = 'http://TeamCloud.Web/user_impersonation'
-const baseUrl = 'http://localhost:3000'
-
-
+const apiUrl = _getApiUrl();
 
 export const getProject = async (id: string) => {
-    return getResource<Project>(`${baseUrl}/api/projects/${id}`);
+    return getResource<Project>(`${apiUrl}/api/projects/${id}`);
 }
 
-export const getProjects = async () => {
-    return getResource<Array<Project>>(`${baseUrl}/api/projects`);
-}
+export const getProjects = async () => getResource<Array<Project>>(`${apiUrl}/api/projects`);
+
 
 export const createProject = async (definition: ProjectDefinition) => {
-    return createResource(`${baseUrl}/api/projects`, definition);
+    return createResource(`${apiUrl}/api/projects`, definition);
 }
 
 export const deleteProject = async (id: string) => {
-    return deleteResource<Project>(`${baseUrl}/api/projects/${id}`);
+    return deleteResource<Project>(`${apiUrl}/api/projects/${id}`);
 }
 
 
 export const getUser = async (id: string) => {
-    return getResource<User>(`${baseUrl}/api/users/${id}`);
+    return getResource<User>(`${apiUrl}/api/users/${id}`);
 }
 
 export const getUsers = async () => {
-    return getResource<Array<User>>(`${baseUrl}/api/users`);
+    return getResource<Array<User>>(`${apiUrl}/api/users`);
 }
 
 export const createUser = async (definition: UserDefinition) => {
-    return createResource(`${baseUrl}/api/users`, definition);
+    return createResource(`${apiUrl}/api/users`, definition);
 }
 
 export const deleteUser = async (id: string) => {
-    return deleteResource<User>(`${baseUrl}/api/users/${id}`);
+    return deleteResource<User>(`${apiUrl}/api/users/${id}`);
 }
 
 
 export const getProjectUser = async (projectId: string, id: string) => {
-    return getResource<User>(`${baseUrl}/api/projects/${projectId}/users/${id}`);
+    return getResource<User>(`${apiUrl}/api/projects/${projectId}/users/${id}`);
 }
 
 export const getProjectUsers = async (projectId: string) => {
-    return getResource<Array<User>>(`${baseUrl}/api/projects/${projectId}/users`);
+    return getResource<Array<User>>(`${apiUrl}/api/projects/${projectId}/users`);
 }
 
 export const createProjectUser = async (projectId: string, definition: UserDefinition) => {
-    return createResource(`${baseUrl}/api/projects/${projectId}/users`, definition);
+    return createResource(`${apiUrl}/api/projects/${projectId}/users`, definition);
 }
 
 export const deleteProjectUser = async (projectId: string, id: string) => {
-    return deleteResource<User>(`${baseUrl}/api/projects/${projectId}/users/${id}`);
+    return deleteResource<User>(`${apiUrl}/api/projects/${projectId}/users/${id}`);
 }
 
 
 export const getProjectType = async (id: string) => {
-    return getResource<ProjectType>(`${baseUrl}/api/projectTypes/${id}`);
+    return getResource<ProjectType>(`${apiUrl}/api/projectTypes/${id}`);
 }
 
 export const getProjectTypes = async () => {
-    return getResource<Array<ProjectType>>(`${baseUrl}/api/projectTypes`);
+    return getResource<Array<ProjectType>>(`${apiUrl}/api/projectTypes`);
 }
 
 
 export const getProvider = async (id: string) => {
-    return getResource<Provider>(`${baseUrl}/api/providers/${id}`);
+    return getResource<Provider>(`${apiUrl}/api/providers/${id}`);
 }
 
 export const getProviders = async () => {
-    return getResource<Array<Provider>>(`${baseUrl}/api/providers`);
+    return getResource<Array<Provider>>(`${apiUrl}/api/providers`);
 }
 
 

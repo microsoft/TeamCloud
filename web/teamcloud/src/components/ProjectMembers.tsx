@@ -92,7 +92,8 @@ export const ProjectMembers: React.FunctionComponent<IProjectMembersProps> = (pr
                         <Stack.Item align='end'>
                             <CommandBar
                                 styles={{ root: { minWidth: '160px' } }}
-                                items={_getCommandBarItems(member)} />
+                                items={_getCommandBarItems(member)}
+                                ariaLabel='Use left and right arrow keys to navigate between commands' />
                         </Stack.Item>
                     </>) : null;
                 return (

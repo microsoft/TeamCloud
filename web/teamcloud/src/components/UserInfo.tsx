@@ -69,7 +69,7 @@ export const UserInfo: React.FunctionComponent<IUserInfoProps> = (props) => {
                         imageUrl={props.graphUser?.imageUrl}
                         size={PersonaSize.size72} />
                     <Separator />
-                    <DefaultButton text="Sign out" onClick={() => props.onSignOut} />
+                    <DefaultButton text="Sign out" onClick={() => props.onSignOut()} />
                 </Stack>
             </Panel>
         </>;
