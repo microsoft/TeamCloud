@@ -29,7 +29,7 @@ namespace TeamCloud.API.Services
 
         private void SetResultLinks(HttpResponseMessage commandResponse, ICommandResult commandResult, string projectId)
         {
-            var baseUrl = httpContextAccessor.HttpContext?.GetApplicationBaseUrl();
+            var baseUrl = httpContextAccessor.HttpContext?.GetApplicationBaseUrl(true);
 
             if (baseUrl is null)
             {
