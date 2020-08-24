@@ -66,6 +66,12 @@ jobs:
             zip -r ../TeamCloud.Orchestrator.zip *
           popd
 
+      - name: Create Release Asset - TeamCloud.Web
+        run: |
+          pushd web
+            zip -r ../TeamCloud.Web.zip * -x .vscode -x \*.md -x teamcloud/.env.development -x teamcloud/.env.production -x teamcloud/build/\* -x teamcloud/node_modules/\* -x teamcloud/.gitignore
+          popd
+
       - name: Generate OpenAPI definition
         run: |
           pushd ${{ env.SOURCE_DIRECTORY }}/TeamCloud.API
@@ -83,6 +89,8 @@ jobs:
               'deployUrl': 'https://github.com/microsoft/TeamCloud/releases/download/v${{ steps.gitversion.outputs.majorMinorPatch }}/azuredeploy.json',
               'apiZipUrl': 'https://github.com/microsoft/TeamCloud/releases/download/v${{ steps.gitversion.outputs.majorMinorPatch }}/TeamCloud.API.zip',
               'orchestratorZipUrl': 'https://github.com/microsoft/TeamCloud/releases/download/v${{ steps.gitversion.outputs.majorMinorPatch }}/TeamCloud.Orchestrator.zip',
+              'webDeployUrl': 'https://github.com/microsoft/TeamCloud/releases/download/v${{ steps.gitversion.outputs.majorMinorPatch }}/azuredeploy.web.json',
+              'webZipUrl': 'https://github.com/microsoft/TeamCloud/releases/download/v${{ steps.gitversion.outputs.majorMinorPatch }}/TeamCloud.Web.zip',
           }
           with open('index.json', 'w') as f:
               json.dump(index, f, ensure_ascii=False, indent=4, sort_keys=True)
@@ -168,6 +176,16 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: TeamCloud.Orchestrator.zip
           asset_name: TeamCloud.Orchestrator.zip
+          asset_content_type: application/zip
+
+      - name: Upload Release Asset - TeamCloud.Web.zip
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: TeamCloud.Web.zip
+          asset_name: TeamCloud.Web.zip
           asset_content_type: application/zip
 
       - name: Upload Release Asset - azuredeploy.json

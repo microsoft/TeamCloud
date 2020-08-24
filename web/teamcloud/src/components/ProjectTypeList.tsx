@@ -4,11 +4,11 @@
 import React from 'react';
 import { ProjectType } from '../model';
 import { Link, useHistory } from 'react-router-dom';
-import { ShimmeredDetailsList, DetailsListLayoutMode, IColumn } from '@fluentui/react';
+import { ShimmeredDetailsList, DetailsListLayoutMode, IColumn, IRenderFunction, IDetailsRowProps, SelectionMode, CheckboxVisibility } from '@fluentui/react';
 
 export interface IProjectTypeListProps {
-    projectTypes: ProjectType[] | undefined,
-    projectTypeFilter?: string
+    projectTypes?: ProjectType[];
+    projectTypeFilter?: string;
     onProjectTypeSelected?: (projectType: ProjectType) => void;
 }
 
@@ -39,6 +39,11 @@ export const ProjectTypeList: React.FunctionComponent<IProjectTypeListProps> = (
         history.push('/projectTypes/' + projectType.id)
     };
 
+    const _onRenderRow: IRenderFunction<IDetailsRowProps> = (props?: IDetailsRowProps, defaultRender?: (props?: IDetailsRowProps) => JSX.Element | null): JSX.Element | null => {
+        if (props) props.styles = { fields: { alignItems: 'center' }, check: { minHeight: '62px' } }
+        return defaultRender ? defaultRender(props) : null;
+    };
+
     // const _onColumnHeaderClicked = (ev?: React.MouseEvent<HTMLElement>, column?: IColumn) => {
     //     console.log(column?.key);
     // }
@@ -49,13 +54,15 @@ export const ProjectTypeList: React.FunctionComponent<IProjectTypeListProps> = (
         <ShimmeredDetailsList
             items={items}
             columns={columns}
-            layoutMode={DetailsListLayoutMode.justified}
+            onRenderRow={_onRenderRow}
             enableShimmer={items.length === 0}
+            selectionMode={SelectionMode.none}
+            layoutMode={DetailsListLayoutMode.justified}
+            checkboxVisibility={CheckboxVisibility.hidden}
+            cellStyleProps={{ cellLeftPadding: 46, cellRightPadding: 20, cellExtraRightPadding: 0 }}
+
             // onColumnHeaderClick={_onColumnHeaderClicked}
             selectionPreservedOnEmptyClick={true}
-            ariaLabelForSelectionColumn="Toggle selection"
-            ariaLabelForSelectAllCheckbox="Toggle selection for all items"
-            checkButtonAriaLabel="Row checkbox"
             onItemInvoked={_onItemInvoked} />
     );
 }

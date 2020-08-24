@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { initializeIcons } from '@uifabric/icons';
 import { BrowserRouter, Switch, Route, useParams } from "react-router-dom";
 import { HeaderBar } from './components';
-import { Error404, ProjectView, ProjectsView, ProvidersView, ProjectTypesView } from './view';
+import { Error404, ProjectDetailView, ProjectsView, ProvidersView, ProjectTypesView } from './view';
 import { Project, User, DataResult } from './model';
 import { getUser } from './API';
 import { GraphUser, getMe } from './MSGraph';
@@ -39,7 +39,7 @@ export const App: React.FunctionComponent<IAppProps> = (props) => {
         }
     }, [graphUser, user]);
 
-    const _onProjectSelected = (project: Project | undefined) => {
+    const _onProjectSelected = (project?: Project) => {
         setProject(project);
     }
 
@@ -78,7 +78,7 @@ interface IProjectViewWrapperProps {
 
 function ProjectViewWrapper(props: IProjectViewWrapperProps) {
     let { projectId } = useParams();
-    return <ProjectView projectId={projectId} project={props.project} user={props.user} />;
+    return <ProjectDetailView projectId={projectId} project={props.project} user={props.user} />;
 }
 
 export default App;

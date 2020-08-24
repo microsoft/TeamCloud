@@ -2,8 +2,9 @@
 // Licensed under the MIT License.
 
 import React from 'react';
-import { Stack, IBreadcrumbItem, Breadcrumb, CommandBar, ICommandBarItemProps, Separator, ICommandBarStyles, INavLinkGroup, Nav, INavLink, INavStyles, getTheme } from '@fluentui/react';
+import { Stack, IBreadcrumbItem, Breadcrumb, CommandBar, ICommandBarItemProps, Separator, ICommandBarStyles } from '@fluentui/react';
 import { useLocation } from 'react-router-dom';
+import { RootNav } from './RootNav';
 
 export interface ISubheaderBarProps {
     breadcrumbs: IBreadcrumbItem[];
@@ -17,30 +18,17 @@ export const SubheaderBar: React.FunctionComponent<ISubheaderBarProps> = (props)
 
     const locaiton = useLocation();
 
-    const _getName = () => {
+    const _getNameLowerCase = () => {
         let parts = locaiton.pathname.split('/').filter(s => s);
-        return parts.length > 0 ? parts[0] : 'Projects';
-    };
-
-    const _getDisplayName = () => {
-        let name = _getName();
-        if (name.toLowerCase() === 'projects') return 'Projects';
-        if (name.toLowerCase() === 'projecttypes') return 'Project Types';
-        if (name.toLowerCase() === 'providers') return 'Providers';
-        return '';
+        return parts.length > 0 ? parts[0].toLowerCase() : 'projects';
     };
 
     const _getMargin = () => {
-        let name = _getName();
-        if (name.toLowerCase() === 'projects') return '93px';
-        if (name.toLowerCase() === 'projecttypes') return '104px';
-        if (name.toLowerCase() === 'providers') return '95px';
+        let name = _getNameLowerCase();
+        if (name === 'projects') return '93px';
+        if (name === 'projecttypes') return '104px';
+        if (name === 'providers') return '95px';
     };
-
-    // const _getUrl = () => {
-    //     let name = _getName();
-    //     return name.toLowerCase() === 'projects' ? '/' : `/${name}`;
-    // };
 
     const _commandBarWidth = props.commandBarWidth ?? '181px';
     const _breadcrumbsWidth = props.breadcrumbsWidth ?? '181px';
@@ -79,84 +67,6 @@ export const SubheaderBar: React.FunctionComponent<ISubheaderBarProps> = (props)
         </Stack.Item>
     ) : null;
 
-
-    const _navLinkGroups = (): INavLinkGroup[] => {
-        let name = _getName();
-        let links: INavLink[] = [];
-        if (name.toLowerCase() !== 'projects')
-            links.push({
-                key: 'projects',
-                name: 'Projects',
-                url: '/'
-            });
-        if (name.toLowerCase() !== 'projecttypes')
-            links.push({
-                key: 'projectTypes',
-                name: 'Project Types',
-                url: '/projectTypes'
-            });
-        if (name.toLowerCase() !== 'providers')
-            links.push({
-                key: 'providers',
-                name: 'Providers',
-                url: '/providers'
-            });
-        return [{
-            links: [{
-                key: 'root',
-                name: _getDisplayName(),
-                url: '',
-                links: links
-            }]
-        }]
-    };
-
-    const theme = getTheme();
-    const _navStyles = (): INavStyles => ({
-        // const _navStyles = {
-        group: {
-            textTransform: 'capitalize',
-        },
-        linkText: {
-            fontSize: '16px',
-            lineHeight: '36px',
-        },
-        groupContent: {
-            selectors: {
-                '.ms-Nav-navItems:first-child > .ms-Nav-navItem': {
-                    backgroundColor: 'transparent',
-                },
-                '.ms-Nav-navItems:first-child > .ms-Nav-navItem > .ms-Nav-compositeLink:hover > .ms-Nav-link': {
-                    backgroundColor: 'transparent',
-                },
-                '.ms-Nav-navItems:first-child > .ms-Nav-navItem > .ms-Nav-compositeLink > .ms-Nav-link .ms-Nav-linkText': {
-                    fontSize: '18px',
-                    fontWeight: props.breadcrumbs.length > 1 ? '400' : '600',
-                }
-            }
-        },
-        navItem: {
-            selectors: {
-                '.ms-Nav-navItems:last-child': {
-                    bordeRadius: theme.effects.roundedCorner2,
-                    boxShadow: theme.effects.elevation16
-                },
-                '.ms-Nav-navItems:last-child > .ms-Nav-navItem': {
-                    backgroundColor: theme.palette.white,
-                }
-            }
-        },
-        navItems: {},
-        chevronIcon: {},
-        chevronButton: {},
-        compositeLink: {},
-        link: {},
-        root: [{
-            padding: '7px',
-            zIndex: 9999
-        }]
-    });
-
     return (
         <>
             <Stack
@@ -168,10 +78,9 @@ export const SubheaderBar: React.FunctionComponent<ISubheaderBarProps> = (props)
                 tokens={{ padding: '0 8px 0 8px' }}>
                 <Stack.Item>
                     <Stack horizontal>
-                        <Nav
-                            isOnTop={true}
-                            styles={_navStyles()}
-                            groups={_navLinkGroups()} />
+                        <RootNav
+                            isBreadcrumbs={props.breadcrumbs.length > 1}
+                            locationNameLowerCase={_getNameLowerCase()} />
                         <Breadcrumb
                             items={props.breadcrumbs}
                             styles={_breadcrumbStyles()} />
@@ -181,7 +90,8 @@ export const SubheaderBar: React.FunctionComponent<ISubheaderBarProps> = (props)
                 <Stack.Item>
                     <CommandBar
                         styles={_commandBarStyles}
-                        items={props.commandBarItems} />
+                        items={props.commandBarItems}
+                        ariaLabel='Use left and right arrow keys to navigate between commands' />
                 </Stack.Item>
             </Stack>
             <Separator />

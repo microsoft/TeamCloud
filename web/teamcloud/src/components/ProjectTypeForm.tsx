@@ -14,8 +14,8 @@ import GitHub from '../img/github.svg';
 export interface IProjectTypeFormProps {
     fieldsEnabled: boolean;
     onFormSubmit: () => void;
-    onNameChange: (val: string | undefined) => void;
-    // onProjectTypeChange: (val: ProjectType | undefined) => void;
+    onNameChange: (val?: string) => void;
+    // onProjectTypeChange: (val?: ProjectType) => void;
 }
 
 export const ProjectTypeForm: React.FunctionComponent<IProjectTypeFormProps> = (props) => {
@@ -70,6 +70,7 @@ export const ProjectTypeForm: React.FunctionComponent<IProjectTypeFormProps> = (
         let buttons = providers?.map(p => (
             <Stack.Item styles={{ root: { width: '46%' } }}>
                 <DefaultButton
+                    toggle={true}
                     buttonType={ButtonType.icon}
                     styles={_providerButtonStyles}>
                     <Stack horizontalAlign='center' tokens={{ padding: '10px', childrenGap: '6px' }}>
