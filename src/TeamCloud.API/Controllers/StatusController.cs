@@ -74,17 +74,15 @@ namespace TeamCloud.API.Controllers
 
                     if (result.Links.TryGetValue("location", out var location))
                     {
-                        // return 302 (found) with location to resource
-                        Response.Headers.Add("Location", location);
                         return StatusResult
                             .Success(result.CommandId.ToString(), location, result.RuntimeStatus.ToString(), result.CustomStatus)
-                            .ActionResult();
+                            .ToActionResult();
                     }
 
                     // no resource location (i.e. DELETE command) return 200 (ok)
                     return StatusResult
                         .Success(result.CommandId.ToString(), result.RuntimeStatus.ToString(), result.CustomStatus)
-                        .ActionResult();
+                        .ToActionResult();
 
                 case CommandRuntimeStatus.Running:
                 case CommandRuntimeStatus.ContinuedAsNew:
@@ -93,7 +91,7 @@ namespace TeamCloud.API.Controllers
                     // command is in an active state, return 202 (accepted) so client can poll
                     return StatusResult
                         .Accepted(result.CommandId.ToString(), status, result.RuntimeStatus.ToString(), result.CustomStatus)
-                        .ActionResult();
+                        .ToActionResult();
 
                 case CommandRuntimeStatus.Canceled:
                 case CommandRuntimeStatus.Terminated:
@@ -101,18 +99,18 @@ namespace TeamCloud.API.Controllers
 
                     return StatusResult
                         .Failed(result.Errors, result.CommandId.ToString(), result.RuntimeStatus.ToString(), result.CustomStatus)
-                        .ActionResult();
+                        .ToActionResult();
 
                 default: // TODO: this probably isn't right as a default
 
                     if (result.Errors?.Any() ?? false)
                         return StatusResult
                             .Failed(result.Errors, result.CommandId.ToString(), result.RuntimeStatus.ToString(), result.CustomStatus)
-                            .ActionResult();
+                            .ToActionResult();
 
                     return StatusResult
                         .Ok(result.CommandId.ToString(), result.RuntimeStatus.ToString(), result.CustomStatus)
-                        .ActionResult();
+                        .ToActionResult();
             }
         }
     }

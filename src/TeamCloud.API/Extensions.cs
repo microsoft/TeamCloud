@@ -199,7 +199,7 @@ namespace TeamCloud.API
                 {
                     return StatusResult
                         .Accepted(commandResult.CommandId.ToString(), url, commandResult.RuntimeStatus.ToString(), commandResult.CustomStatus)
-                        .ActionResult();
+                        .ToActionResult();
                 }
 
                 throw new ArgumentException($"Command result of type '{commandResult.GetType().Name}' does not provide a status or location url.", nameof(commandResult));

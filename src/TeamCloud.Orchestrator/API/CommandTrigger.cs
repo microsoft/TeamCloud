@@ -216,8 +216,10 @@ namespace TeamCloud.Orchestrator
             if (commandResult.RuntimeStatus.IsFinal())
                 return new OkObjectResult(commandResult);
 
-            var location = UriHelper.GetDisplayUrl(httpContextAccessor.HttpContext.Request)
-                .AppendPathSegment(commandResult.CommandId);
+            var location = UriHelper.GetDisplayUrl(httpContextAccessor.HttpContext.Request);
+
+            if (!location.EndsWith(commandResult.CommandId.ToString()))
+                location = location.AppendPathSegment(commandResult.CommandId);
 
             return new AcceptedResult(location, commandResult);
         }
