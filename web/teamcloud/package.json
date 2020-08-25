@@ -2,6 +2,9 @@
   "name": "teamcloud",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "12.16.3"
+  },
   "dependencies": {
     "@fluentui/react": "^7.126.3",
     "@microsoft/microsoft-graph-client": "^2.0.0",

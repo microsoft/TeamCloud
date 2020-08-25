@@ -22,5 +22,7 @@ namespace TeamCloud.Model.Data
         public AzureResourceGroup ResourceGroup { get; set; }
 
         public IDictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();
+
+        public IList<TeamCloudApplication> Applications { get; set; } = new List<TeamCloudApplication>();
     }
 }
