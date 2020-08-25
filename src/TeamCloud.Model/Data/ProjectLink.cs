@@ -24,7 +24,7 @@ namespace TeamCloud.Model.Data
 
         [JsonConverter(typeof(StringEnumConverter))]
         public ProjectLinkType Type { get; set; }
-            = ProjectLinkType.Undefined;
+            = ProjectLinkType.Link;
 
         public bool Equals(ProjectLink other)
             => Id.Equals(other?.Id);

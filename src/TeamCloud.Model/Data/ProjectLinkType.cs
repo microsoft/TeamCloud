@@ -7,6 +7,9 @@ namespace TeamCloud.Model.Data
 {
     public enum ProjectLinkType
     {
-        Undefined
+        Link,
+        ReadMe,
+        Service,
+        Resource,
     }
 }
