@@ -8,12 +8,12 @@ using TeamCloud.Model.Data.Core;
 
 namespace TeamCloud.Model.Data
 {
-    public sealed class ProjectLinks : ReferenceLinksContainer<Project, ProjectLinks>
+    public sealed class ProjectReferenceLinks : ReferenceLinksContainer<Project, ProjectReferenceLinks>
     {
-        public ProjectLinks() : this(null)
+        public ProjectReferenceLinks() : this(null)
         { }
 
-        public ProjectLinks(Project project) : base(project)
+        public ProjectReferenceLinks(Project project) : base(project)
         {
             SetLink(nameof(Self), new ReferenceLink(()
                 => GetBaseUri()?.AppendPath($"api/projects/{Context.Id}").ToString()));

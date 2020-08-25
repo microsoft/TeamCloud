@@ -8,12 +8,12 @@ using TeamCloud.Model.Data.Core;
 
 namespace TeamCloud.Model.Commands
 {
-    public sealed class ProviderCommandLinks : ReferenceLinksContainer<IProviderCommand, ProviderCommandLinks>
+    public sealed class ProviderCommandReferenceLinks : ReferenceLinksContainer<IProviderCommand, ProviderCommandReferenceLinks>
     {
-        public ProviderCommandLinks() : this(null)
+        public ProviderCommandReferenceLinks() : this(null)
         { }
 
-        public ProviderCommandLinks(IProviderCommand providerCommand = null) : base(providerCommand)
+        public ProviderCommandReferenceLinks(IProviderCommand providerCommand = null) : base(providerCommand)
         {
             bool HasProviderId()
                 => !string.IsNullOrEmpty(Context?.ProviderId);
