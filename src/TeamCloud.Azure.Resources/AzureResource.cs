@@ -19,6 +19,8 @@ using Microsoft.Azure.Management.ResourceManager.Fluent.Models;
 using Microsoft.Rest.Azure;
 using Microsoft.Rest.Azure.OData;
 using Newtonsoft.Json.Linq;
+using TeamCloud.Azure.Resources.Typed;
+using TeamCloud.Http;
 
 namespace TeamCloud.Azure.Resources
 {
@@ -82,6 +84,34 @@ namespace TeamCloud.Azure.Resources
                 .ConfigureAwait(false);
 
             return response.IsSuccessStatusCode;
+        }
+
+        public virtual async IAsyncEnumerable<IAzureIdentity> GetIdentitiesAsync()
+        {
+            var json = await GetJsonAsync()
+                .ConfigureAwait(false);
+
+            var identity = json.SelectToken("$.identity");
+
+            if (identity != null)
+            {
+                if (json.SelectToken("type")?.ToString().Equals("SystemAssigned") ?? false)
+                    yield return identity.ToObject<AzureIdentity>();
+
+                var userAssignedIdentities = json
+                    .SelectToken("userAssignedIdentities")?
+                    .Children<JProperty>().Select(prop => prop.Name);
+
+                foreach (var userAssignedIdentity in userAssignedIdentities)
+                {
+                    var identityResource = await AzureResourceService
+                        .GetResourceAsync<AzureIdentityResource>(userAssignedIdentity, false)
+                        .ConfigureAwait(false);
+
+                    await foreach (var uaIdentity in identityResource?.GetIdentitiesAsync())
+                        yield return uaIdentity;
+                }
+            }
         }
 
         public virtual async Task DeleteAsync(bool deleteLocks = false)
@@ -168,6 +198,22 @@ namespace TeamCloud.Azure.Resources
                 .ConfigureAwait(false);
 
             return apiVersions.FirstOrDefault();
+        }
+
+        public async Task<JObject> GetJsonAsync(string apiVersion = null)
+        {
+            apiVersion ??= await GetLatestApiVersionAsync()
+                .ConfigureAwait(false);
+
+            var token = await AzureResourceService.AzureSessionService
+                .AcquireTokenAsync(AzureEndpoint.ResourceManagerEndpoint)
+                .ConfigureAwait(false);
+
+            return await ResourceId.GetApiUrl(AzureResourceService.AzureSessionService.Environment)
+                .SetQueryParam("api-version", apiVersion)
+                .WithOAuthBearerToken(token)
+                .GetJObjectAsync()
+                .ConfigureAwait(false);
         }
 
         private async Task<GenericResourceInner> GetResourceAsync()
