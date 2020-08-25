@@ -1,1 +1,103 @@
-
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "webAppName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the web app that you wish to create. This will also be used as the subdomain of your app endpoint (i.e. myapp.azurewebsites.net)."
+            }
+        },
+        "reactAppMsalClientId": {
+            "type": "string"
+        },
+        "reactAppMsalTenantId": {
+            "type": "string"
+        },
+        "reactAppTcApiUrl": {
+            "type": "string"
+        },
+        "resourceManagerIdentityClientId": {
+            "type": "string",
+            "metadata": {
+                "description": "The ClientId of the service principals used to authenticate users and create new Resource Groups for Projecs."
+            }
+        },
+        "resourceManagerIdentityClientSecret": {
+            "type": "string",
+            "metadata": {
+                "description": "The ClientSecret of the service principals used to authenticate users and create new Resource Groups for Projecs."
+            }
+        }
+    },
+    "variables": {
+        "webAppNameLower": "[toLower(parameters('webAppName'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Web/serverfarms",
+            "kind": "linux",
+            "name": "[variables('webAppNameLower')]",
+            "apiVersion": "2018-02-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "perSiteScaling": false,
+                "maximumElasticWorkerCount": 1,
+                "isSpot": false,
+                "reserved": true,
+                "isXenon": false,
+                "hyperV": false,
+                "targetWorkerCount": 0,
+                "targetWorkerSizeId": 0
+            },
+            "sku": {
+                "name": "P1v2",
+                "tier": "PremiumV2",
+                "size": "P1v2",
+                "family": "Pv2",
+                "capacity": 1
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites",
+            "kind": "app,linux",
+            "name": "[variables('webAppNameLower')]",
+            "apiVersion": "2018-11-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "reserved": true,
+                "name": "[variables('webAppNameLower')]",
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('webAppNameLower'))]",
+                "clientAffinityEnabled": false,
+                "siteConfig": {
+                    "alwaysOn": true,
+                    "reservedInstanceCount": 0,
+                    "linuxFxVersion": "NODE|12-lts",
+                    "appCommandLine": "pm2 serve /home/site/wwwroot --no-daemon --spa",
+                    "phpVersion": "off",
+                    "appSettings": [
+                        {
+                            "name": "REACT_APP_MSAL_CLIENT_ID",
+                            "value": "[parameters('reactAppMsalClientId')]"
+                        },
+                        {
+                            "name": "REACT_APP_MSAL_TENANT_ID",
+                            "value": "[parameters('reactAppMsalTenantId')]"
+                        },
+                        {
+                            "name": "REACT_APP_TC_API_URL",
+                            "value": "[parameters('reactAppTcApiUrl')]"
+                        },
+                        {
+                            "name": "WEBSITE_NPM_DEFAULT_VERSION",
+                            "value": "12.16.3"
+                        }
+                    ]
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', variables('webAppNameLower'))]"
+            ]
+        }
+    ]
+}
