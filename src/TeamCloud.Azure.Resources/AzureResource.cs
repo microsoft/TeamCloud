@@ -95,10 +95,10 @@ namespace TeamCloud.Azure.Resources
 
             if (identity != null)
             {
-                if (json.SelectToken("type")?.ToString().Equals("SystemAssigned") ?? false)
+                if (identity.SelectToken("type")?.ToString().Equals("SystemAssigned") ?? false)
                     yield return identity.ToObject<AzureIdentity>();
 
-                var userAssignedIdentities = json
+                var userAssignedIdentities = identity
                     .SelectToken("userAssignedIdentities")?
                     .Children<JProperty>().Select(prop => prop.Name);
 
