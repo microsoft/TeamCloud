@@ -12,29 +12,29 @@
 from msrest.serialization import Model
 
 
-class TeamCloudInstance(Model):
-    """TeamCloudInstance.
+class TeamCloudApplication(Model):
+    """TeamCloudApplication.
 
+    :param url:
+    :type url: str
     :param version:
     :type version: str
+    :param type: Possible values include: 'Web'
+    :type type: str or ~teamcloud.models.enum
     :param resource_group:
     :type resource_group: ~teamcloud.models.AzureResourceGroup
-    :param tags:
-    :type tags: dict[str, str]
-    :param applications:
-    :type applications: list[~teamcloud.models.TeamCloudApplication]
     """
 
     _attribute_map = {
+        'url': {'key': 'url', 'type': 'str'},
         'version': {'key': 'version', 'type': 'str'},
+        'type': {'key': 'type', 'type': 'str'},
         'resource_group': {'key': 'resourceGroup', 'type': 'AzureResourceGroup'},
-        'tags': {'key': 'tags', 'type': '{str}'},
-        'applications': {'key': 'applications', 'type': '[TeamCloudApplication]'},
     }
 
-    def __init__(self, *, version: str=None, resource_group=None, tags=None, applications=None, **kwargs) -> None:
-        super(TeamCloudInstance, self).__init__(**kwargs)
-        self.version = version
-        self.resource_group = resource_group
-        self.tags = tags
-        self.applications = applications
+    def __init__(self, **kwargs):
+        super(TeamCloudApplication, self).__init__(**kwargs)
+        self.url = kwargs.get('url', None)
+        self.version = kwargs.get('version', None)
+        self.type = kwargs.get('type', None)
+        self.resource_group = kwargs.get('resource_group', None)

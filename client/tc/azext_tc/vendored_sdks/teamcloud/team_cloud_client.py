@@ -67,6 +67,221 @@ class TeamCloudClient(SDKClient):
         self._deserialize = Deserializer(client_models)
 
 
+    def get_projects(
+            self, custom_headers=None, raw=False, **operation_config):
+        """Gets all Projects.
+
+        :param dict custom_headers: headers that will be added to the request
+        :param bool raw: returns the direct response alongside the
+         deserialized response
+        :param operation_config: :ref:`Operation configuration
+         overrides<msrest:optionsforoperations>`.
+        :return: object or ClientRawResponse if raw=true
+        :rtype: object or ~msrest.pipeline.ClientRawResponse
+        :raises:
+         :class:`HttpOperationError<msrest.exceptions.HttpOperationError>`
+        """
+        # Construct URL
+        url = self.get_projects.metadata['url']
+
+        # Construct parameters
+        query_parameters = {}
+
+        # Construct headers
+        header_parameters = {}
+        header_parameters['Accept'] = 'application/json'
+        if custom_headers:
+            header_parameters.update(custom_headers)
+
+        # Construct and send request
+        request = self._client.get(url, query_parameters, header_parameters)
+        response = self._client.send(request, stream=False, **operation_config)
+
+        if response.status_code not in [200, 400, 401, 403]:
+            raise HttpOperationError(self._deserialize, response)
+
+        deserialized = None
+
+        if response.status_code == 200:
+            deserialized = self._deserialize('ProjectListDataResult', response)
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', response)
+
+        if raw:
+            client_raw_response = ClientRawResponse(deserialized, response)
+            return client_raw_response
+
+        return deserialized
+    get_projects.metadata = {'url': '/api/projects'}
+
+    def create_project(
+            self, body=None, custom_headers=None, raw=False, **operation_config):
+        """Creates a new Project.
+
+        :param body:
+        :type body: ~teamcloud.models.ProjectDefinition
+        :param dict custom_headers: headers that will be added to the request
+        :param bool raw: returns the direct response alongside the
+         deserialized response
+        :param operation_config: :ref:`Operation configuration
+         overrides<msrest:optionsforoperations>`.
+        :return: object or ClientRawResponse if raw=true
+        :rtype: object or ~msrest.pipeline.ClientRawResponse
+        :raises:
+         :class:`HttpOperationError<msrest.exceptions.HttpOperationError>`
+        """
+        # Construct URL
+        url = self.create_project.metadata['url']
+
+        # Construct parameters
+        query_parameters = {}
+
+        # Construct headers
+        header_parameters = {}
+        header_parameters['Accept'] = 'application/json'
+        header_parameters['Content-Type'] = 'application/json; charset=utf-8'
+        if custom_headers:
+            header_parameters.update(custom_headers)
+
+        # Construct body
+        if body is not None:
+            body_content = self._serialize.body(body, 'ProjectDefinition')
+        else:
+            body_content = None
+
+        # Construct and send request
+        request = self._client.post(url, query_parameters, header_parameters, body_content)
+        response = self._client.send(request, stream=False, **operation_config)
+
+        if response.status_code not in [202, 400, 401, 403, 409]:
+            raise HttpOperationError(self._deserialize, response)
+
+        deserialized = None
+
+        if response.status_code == 202:
+            deserialized = self._deserialize('StatusResult', response)
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', response)
+        if response.status_code == 409:
+            deserialized = self._deserialize('ErrorResult', response)
+
+        if raw:
+            client_raw_response = ClientRawResponse(deserialized, response)
+            return client_raw_response
+
+        return deserialized
+    create_project.metadata = {'url': '/api/projects'}
+
+    def get_project_by_name_or_id(
+            self, project_name_or_id, custom_headers=None, raw=False, **operation_config):
+        """Gets a Project by Name or ID.
+
+        :param project_name_or_id:
+        :type project_name_or_id: str
+        :param dict custom_headers: headers that will be added to the request
+        :param bool raw: returns the direct response alongside the
+         deserialized response
+        :param operation_config: :ref:`Operation configuration
+         overrides<msrest:optionsforoperations>`.
+        :return: object or ClientRawResponse if raw=true
+        :rtype: object or ~msrest.pipeline.ClientRawResponse
+        :raises:
+         :class:`HttpOperationError<msrest.exceptions.HttpOperationError>`
+        """
+        # Construct URL
+        url = self.get_project_by_name_or_id.metadata['url']
+        path_format_arguments = {
+            'projectNameOrId': self._serialize.url("project_name_or_id", project_name_or_id, 'str')
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}
+
+        # Construct headers
+        header_parameters = {}
+        header_parameters['Accept'] = 'application/json'
+        if custom_headers:
+            header_parameters.update(custom_headers)
+
+        # Construct and send request
+        request = self._client.get(url, query_parameters, header_parameters)
+        response = self._client.send(request, stream=False, **operation_config)
+
+        if response.status_code not in [200, 400, 401, 403, 404]:
+            raise HttpOperationError(self._deserialize, response)
+
+        deserialized = None
+
+        if response.status_code == 200:
+            deserialized = self._deserialize('ProjectDataResult', response)
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', response)
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', response)
+
+        if raw:
+            client_raw_response = ClientRawResponse(deserialized, response)
+            return client_raw_response
+
+        return deserialized
+    get_project_by_name_or_id.metadata = {'url': '/api/projects/{projectNameOrId}'}
+
+    def delete_project(
+            self, project_name_or_id, custom_headers=None, raw=False, **operation_config):
+        """Deletes a Project.
+
+        :param project_name_or_id:
+        :type project_name_or_id: str
+        :param dict custom_headers: headers that will be added to the request
+        :param bool raw: returns the direct response alongside the
+         deserialized response
+        :param operation_config: :ref:`Operation configuration
+         overrides<msrest:optionsforoperations>`.
+        :return: object or ClientRawResponse if raw=true
+        :rtype: object or ~msrest.pipeline.ClientRawResponse
+        :raises:
+         :class:`HttpOperationError<msrest.exceptions.HttpOperationError>`
+        """
+        # Construct URL
+        url = self.delete_project.metadata['url']
+        path_format_arguments = {
+            'projectNameOrId': self._serialize.url("project_name_or_id", project_name_or_id, 'str')
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}
+
+        # Construct headers
+        header_parameters = {}
+        header_parameters['Accept'] = 'application/json'
+        if custom_headers:
+            header_parameters.update(custom_headers)
+
+        # Construct and send request
+        request = self._client.delete(url, query_parameters, header_parameters)
+        response = self._client.send(request, stream=False, **operation_config)
+
+        if response.status_code not in [202, 400, 401, 403, 404]:
+            raise HttpOperationError(self._deserialize, response)
+
+        deserialized = None
+
+        if response.status_code == 202:
+            deserialized = self._deserialize('StatusResult', response)
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', response)
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', response)
+
+        if raw:
+            client_raw_response = ClientRawResponse(deserialized, response)
+            return client_raw_response
+
+        return deserialized
+    delete_project.metadata = {'url': '/api/projects/{projectNameOrId}'}
+
     def get_project_identity(
             self, project_id, custom_headers=None, raw=False, **operation_config):
         """Gets the ProjectIdentity for a Project.
@@ -121,6 +336,316 @@ class TeamCloudClient(SDKClient):
 
         return deserialized
     get_project_identity.metadata = {'url': '/api/projects/{projectId}/identity'}
+
+    def get_project_links(
+            self, project_id, custom_headers=None, raw=False, **operation_config):
+        """Gets all Links for a Project.
+
+        :param project_id:
+        :type project_id: str
+        :param dict custom_headers: headers that will be added to the request
+        :param bool raw: returns the direct response alongside the
+         deserialized response
+        :param operation_config: :ref:`Operation configuration
+         overrides<msrest:optionsforoperations>`.
+        :return: object or ClientRawResponse if raw=true
+        :rtype: object or ~msrest.pipeline.ClientRawResponse
+        :raises:
+         :class:`HttpOperationError<msrest.exceptions.HttpOperationError>`
+        """
+        # Construct URL
+        url = self.get_project_links.metadata['url']
+        path_format_arguments = {
+            'projectId': self._serialize.url("project_id", project_id, 'str')
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}
+
+        # Construct headers
+        header_parameters = {}
+        header_parameters['Accept'] = 'application/json'
+        if custom_headers:
+            header_parameters.update(custom_headers)
+
+        # Construct and send request
+        request = self._client.get(url, query_parameters, header_parameters)
+        response = self._client.send(request, stream=False, **operation_config)
+
+        if response.status_code not in [200, 400, 401, 403, 404]:
+            raise HttpOperationError(self._deserialize, response)
+
+        deserialized = None
+
+        if response.status_code == 200:
+            deserialized = self._deserialize('StringStringDictionaryDataResult', response)
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', response)
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', response)
+
+        if raw:
+            client_raw_response = ClientRawResponse(deserialized, response)
+            return client_raw_response
+
+        return deserialized
+    get_project_links.metadata = {'url': '/api/projects/{projectId}/links'}
+
+    def create_project_link(
+            self, project_id, body=None, custom_headers=None, raw=False, **operation_config):
+        """Creates a new Project Link.
+
+        :param project_id:
+        :type project_id: str
+        :param body:
+        :type body: ~teamcloud.models.ProjectLink
+        :param dict custom_headers: headers that will be added to the request
+        :param bool raw: returns the direct response alongside the
+         deserialized response
+        :param operation_config: :ref:`Operation configuration
+         overrides<msrest:optionsforoperations>`.
+        :return: object or ClientRawResponse if raw=true
+        :rtype: object or ~msrest.pipeline.ClientRawResponse
+        :raises:
+         :class:`HttpOperationError<msrest.exceptions.HttpOperationError>`
+        """
+        # Construct URL
+        url = self.create_project_link.metadata['url']
+        path_format_arguments = {
+            'projectId': self._serialize.url("project_id", project_id, 'str')
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}
+
+        # Construct headers
+        header_parameters = {}
+        header_parameters['Accept'] = 'application/json'
+        header_parameters['Content-Type'] = 'application/json; charset=utf-8'
+        if custom_headers:
+            header_parameters.update(custom_headers)
+
+        # Construct body
+        if body is not None:
+            body_content = self._serialize.body(body, 'ProjectLink')
+        else:
+            body_content = None
+
+        # Construct and send request
+        request = self._client.post(url, query_parameters, header_parameters, body_content)
+        response = self._client.send(request, stream=False, **operation_config)
+
+        if response.status_code not in [201, 202, 400, 401, 403, 404, 409]:
+            raise HttpOperationError(self._deserialize, response)
+
+        deserialized = None
+
+        if response.status_code == 201:
+            deserialized = self._deserialize('ProjectLinkDataResult', response)
+        if response.status_code == 202:
+            deserialized = self._deserialize('StatusResult', response)
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', response)
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', response)
+        if response.status_code == 409:
+            deserialized = self._deserialize('ErrorResult', response)
+
+        if raw:
+            client_raw_response = ClientRawResponse(deserialized, response)
+            return client_raw_response
+
+        return deserialized
+    create_project_link.metadata = {'url': '/api/projects/{projectId}/links'}
+
+    def get_project_link_by_key(
+            self, link_id, project_id, custom_headers=None, raw=False, **operation_config):
+        """Gets a Project Link by Key.
+
+        :param link_id:
+        :type link_id: str
+        :param project_id:
+        :type project_id: str
+        :param dict custom_headers: headers that will be added to the request
+        :param bool raw: returns the direct response alongside the
+         deserialized response
+        :param operation_config: :ref:`Operation configuration
+         overrides<msrest:optionsforoperations>`.
+        :return: object or ClientRawResponse if raw=true
+        :rtype: object or ~msrest.pipeline.ClientRawResponse
+        :raises:
+         :class:`HttpOperationError<msrest.exceptions.HttpOperationError>`
+        """
+        # Construct URL
+        url = self.get_project_link_by_key.metadata['url']
+        path_format_arguments = {
+            'linkId': self._serialize.url("link_id", link_id, 'str'),
+            'projectId': self._serialize.url("project_id", project_id, 'str')
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}
+
+        # Construct headers
+        header_parameters = {}
+        header_parameters['Accept'] = 'application/json'
+        if custom_headers:
+            header_parameters.update(custom_headers)
+
+        # Construct and send request
+        request = self._client.get(url, query_parameters, header_parameters)
+        response = self._client.send(request, stream=False, **operation_config)
+
+        if response.status_code not in [200, 400, 401, 403, 404]:
+            raise HttpOperationError(self._deserialize, response)
+
+        deserialized = None
+
+        if response.status_code == 200:
+            deserialized = self._deserialize('StringStringDictionaryDataResult', response)
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', response)
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', response)
+
+        if raw:
+            client_raw_response = ClientRawResponse(deserialized, response)
+            return client_raw_response
+
+        return deserialized
+    get_project_link_by_key.metadata = {'url': '/api/projects/{projectId}/links/{linkId}'}
+
+    def update_project_link(
+            self, link_id, project_id, body=None, custom_headers=None, raw=False, **operation_config):
+        """Updates an existing Project Link.
+
+        :param link_id:
+        :type link_id: str
+        :param project_id:
+        :type project_id: str
+        :param body:
+        :type body: ~teamcloud.models.ProjectLink
+        :param dict custom_headers: headers that will be added to the request
+        :param bool raw: returns the direct response alongside the
+         deserialized response
+        :param operation_config: :ref:`Operation configuration
+         overrides<msrest:optionsforoperations>`.
+        :return: object or ClientRawResponse if raw=true
+        :rtype: object or ~msrest.pipeline.ClientRawResponse
+        :raises:
+         :class:`HttpOperationError<msrest.exceptions.HttpOperationError>`
+        """
+        # Construct URL
+        url = self.update_project_link.metadata['url']
+        path_format_arguments = {
+            'linkId': self._serialize.url("link_id", link_id, 'str'),
+            'projectId': self._serialize.url("project_id", project_id, 'str')
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}
+
+        # Construct headers
+        header_parameters = {}
+        header_parameters['Accept'] = 'application/json'
+        header_parameters['Content-Type'] = 'application/json; charset=utf-8'
+        if custom_headers:
+            header_parameters.update(custom_headers)
+
+        # Construct body
+        if body is not None:
+            body_content = self._serialize.body(body, 'ProjectLink')
+        else:
+            body_content = None
+
+        # Construct and send request
+        request = self._client.put(url, query_parameters, header_parameters, body_content)
+        response = self._client.send(request, stream=False, **operation_config)
+
+        if response.status_code not in [200, 202, 400, 401, 403, 404]:
+            raise HttpOperationError(self._deserialize, response)
+
+        deserialized = None
+
+        if response.status_code == 200:
+            deserialized = self._deserialize('ProjectLinkDataResult', response)
+        if response.status_code == 202:
+            deserialized = self._deserialize('StatusResult', response)
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', response)
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', response)
+
+        if raw:
+            client_raw_response = ClientRawResponse(deserialized, response)
+            return client_raw_response
+
+        return deserialized
+    update_project_link.metadata = {'url': '/api/projects/{projectId}/links/{linkId}'}
+
+    def delete_project_link(
+            self, link_id, project_id, custom_headers=None, raw=False, **operation_config):
+        """Deletes an existing Project Link.
+
+        :param link_id:
+        :type link_id: str
+        :param project_id:
+        :type project_id: str
+        :param dict custom_headers: headers that will be added to the request
+        :param bool raw: returns the direct response alongside the
+         deserialized response
+        :param operation_config: :ref:`Operation configuration
+         overrides<msrest:optionsforoperations>`.
+        :return: object or ClientRawResponse if raw=true
+        :rtype: object or ~msrest.pipeline.ClientRawResponse
+        :raises:
+         :class:`HttpOperationError<msrest.exceptions.HttpOperationError>`
+        """
+        # Construct URL
+        url = self.delete_project_link.metadata['url']
+        path_format_arguments = {
+            'linkId': self._serialize.url("link_id", link_id, 'str'),
+            'projectId': self._serialize.url("project_id", project_id, 'str')
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}
+
+        # Construct headers
+        header_parameters = {}
+        header_parameters['Accept'] = 'application/json'
+        if custom_headers:
+            header_parameters.update(custom_headers)
+
+        # Construct and send request
+        request = self._client.delete(url, query_parameters, header_parameters)
+        response = self._client.send(request, stream=False, **operation_config)
+
+        if response.status_code not in [202, 204, 400, 401, 403, 404]:
+            raise HttpOperationError(self._deserialize, response)
+
+        deserialized = None
+
+        if response.status_code == 202:
+            deserialized = self._deserialize('StatusResult', response)
+        if response.status_code == 204:
+            deserialized = self._deserialize('ProjectLinkDataResult', response)
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', response)
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', response)
+
+        if raw:
+            client_raw_response = ClientRawResponse(deserialized, response)
+            return client_raw_response
+
+        return deserialized
+    delete_project_link.metadata = {'url': '/api/projects/{projectId}/links/{linkId}'}
 
     def get_project_provider_data(
             self, project_id, provider_id, include_shared=None, custom_headers=None, raw=False, **operation_config):
@@ -444,221 +969,6 @@ class TeamCloudClient(SDKClient):
 
         return deserialized
     delete_project_provider_data.metadata = {'url': '/api/projects/{projectId}/providers/{providerId}/data/{providerDataId}'}
-
-    def get_projects(
-            self, custom_headers=None, raw=False, **operation_config):
-        """Gets all Projects.
-
-        :param dict custom_headers: headers that will be added to the request
-        :param bool raw: returns the direct response alongside the
-         deserialized response
-        :param operation_config: :ref:`Operation configuration
-         overrides<msrest:optionsforoperations>`.
-        :return: object or ClientRawResponse if raw=true
-        :rtype: object or ~msrest.pipeline.ClientRawResponse
-        :raises:
-         :class:`HttpOperationError<msrest.exceptions.HttpOperationError>`
-        """
-        # Construct URL
-        url = self.get_projects.metadata['url']
-
-        # Construct parameters
-        query_parameters = {}
-
-        # Construct headers
-        header_parameters = {}
-        header_parameters['Accept'] = 'application/json'
-        if custom_headers:
-            header_parameters.update(custom_headers)
-
-        # Construct and send request
-        request = self._client.get(url, query_parameters, header_parameters)
-        response = self._client.send(request, stream=False, **operation_config)
-
-        if response.status_code not in [200, 400, 401, 403]:
-            raise HttpOperationError(self._deserialize, response)
-
-        deserialized = None
-
-        if response.status_code == 200:
-            deserialized = self._deserialize('ProjectListDataResult', response)
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', response)
-
-        if raw:
-            client_raw_response = ClientRawResponse(deserialized, response)
-            return client_raw_response
-
-        return deserialized
-    get_projects.metadata = {'url': '/api/projects'}
-
-    def create_project(
-            self, body=None, custom_headers=None, raw=False, **operation_config):
-        """Creates a new Project.
-
-        :param body:
-        :type body: ~teamcloud.models.ProjectDefinition
-        :param dict custom_headers: headers that will be added to the request
-        :param bool raw: returns the direct response alongside the
-         deserialized response
-        :param operation_config: :ref:`Operation configuration
-         overrides<msrest:optionsforoperations>`.
-        :return: object or ClientRawResponse if raw=true
-        :rtype: object or ~msrest.pipeline.ClientRawResponse
-        :raises:
-         :class:`HttpOperationError<msrest.exceptions.HttpOperationError>`
-        """
-        # Construct URL
-        url = self.create_project.metadata['url']
-
-        # Construct parameters
-        query_parameters = {}
-
-        # Construct headers
-        header_parameters = {}
-        header_parameters['Accept'] = 'application/json'
-        header_parameters['Content-Type'] = 'application/json; charset=utf-8'
-        if custom_headers:
-            header_parameters.update(custom_headers)
-
-        # Construct body
-        if body is not None:
-            body_content = self._serialize.body(body, 'ProjectDefinition')
-        else:
-            body_content = None
-
-        # Construct and send request
-        request = self._client.post(url, query_parameters, header_parameters, body_content)
-        response = self._client.send(request, stream=False, **operation_config)
-
-        if response.status_code not in [202, 400, 401, 403, 409]:
-            raise HttpOperationError(self._deserialize, response)
-
-        deserialized = None
-
-        if response.status_code == 202:
-            deserialized = self._deserialize('StatusResult', response)
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', response)
-        if response.status_code == 409:
-            deserialized = self._deserialize('ErrorResult', response)
-
-        if raw:
-            client_raw_response = ClientRawResponse(deserialized, response)
-            return client_raw_response
-
-        return deserialized
-    create_project.metadata = {'url': '/api/projects'}
-
-    def get_project_by_name_or_id(
-            self, project_name_or_id, custom_headers=None, raw=False, **operation_config):
-        """Gets a Project by Name or ID.
-
-        :param project_name_or_id:
-        :type project_name_or_id: str
-        :param dict custom_headers: headers that will be added to the request
-        :param bool raw: returns the direct response alongside the
-         deserialized response
-        :param operation_config: :ref:`Operation configuration
-         overrides<msrest:optionsforoperations>`.
-        :return: object or ClientRawResponse if raw=true
-        :rtype: object or ~msrest.pipeline.ClientRawResponse
-        :raises:
-         :class:`HttpOperationError<msrest.exceptions.HttpOperationError>`
-        """
-        # Construct URL
-        url = self.get_project_by_name_or_id.metadata['url']
-        path_format_arguments = {
-            'projectNameOrId': self._serialize.url("project_name_or_id", project_name_or_id, 'str')
-        }
-        url = self._client.format_url(url, **path_format_arguments)
-
-        # Construct parameters
-        query_parameters = {}
-
-        # Construct headers
-        header_parameters = {}
-        header_parameters['Accept'] = 'application/json'
-        if custom_headers:
-            header_parameters.update(custom_headers)
-
-        # Construct and send request
-        request = self._client.get(url, query_parameters, header_parameters)
-        response = self._client.send(request, stream=False, **operation_config)
-
-        if response.status_code not in [200, 400, 401, 403, 404]:
-            raise HttpOperationError(self._deserialize, response)
-
-        deserialized = None
-
-        if response.status_code == 200:
-            deserialized = self._deserialize('ProjectDataResult', response)
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', response)
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', response)
-
-        if raw:
-            client_raw_response = ClientRawResponse(deserialized, response)
-            return client_raw_response
-
-        return deserialized
-    get_project_by_name_or_id.metadata = {'url': '/api/projects/{projectNameOrId}'}
-
-    def delete_project(
-            self, project_name_or_id, custom_headers=None, raw=False, **operation_config):
-        """Deletes a Project.
-
-        :param project_name_or_id:
-        :type project_name_or_id: str
-        :param dict custom_headers: headers that will be added to the request
-        :param bool raw: returns the direct response alongside the
-         deserialized response
-        :param operation_config: :ref:`Operation configuration
-         overrides<msrest:optionsforoperations>`.
-        :return: object or ClientRawResponse if raw=true
-        :rtype: object or ~msrest.pipeline.ClientRawResponse
-        :raises:
-         :class:`HttpOperationError<msrest.exceptions.HttpOperationError>`
-        """
-        # Construct URL
-        url = self.delete_project.metadata['url']
-        path_format_arguments = {
-            'projectNameOrId': self._serialize.url("project_name_or_id", project_name_or_id, 'str')
-        }
-        url = self._client.format_url(url, **path_format_arguments)
-
-        # Construct parameters
-        query_parameters = {}
-
-        # Construct headers
-        header_parameters = {}
-        header_parameters['Accept'] = 'application/json'
-        if custom_headers:
-            header_parameters.update(custom_headers)
-
-        # Construct and send request
-        request = self._client.delete(url, query_parameters, header_parameters)
-        response = self._client.send(request, stream=False, **operation_config)
-
-        if response.status_code not in [202, 400, 401, 403, 404]:
-            raise HttpOperationError(self._deserialize, response)
-
-        deserialized = None
-
-        if response.status_code == 202:
-            deserialized = self._deserialize('StatusResult', response)
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', response)
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', response)
-
-        if raw:
-            client_raw_response = ClientRawResponse(deserialized, response)
-            return client_raw_response
-
-        return deserialized
-    delete_project.metadata = {'url': '/api/projects/{projectNameOrId}'}
 
     def get_project_tags(
             self, project_id, custom_headers=None, raw=False, **operation_config):

@@ -21,12 +21,15 @@ class TeamCloudInstance(Model):
     :type resource_group: ~teamcloud.models.AzureResourceGroup
     :param tags:
     :type tags: dict[str, str]
+    :param applications:
+    :type applications: list[~teamcloud.models.TeamCloudApplication]
     """
 
     _attribute_map = {
         'version': {'key': 'version', 'type': 'str'},
         'resource_group': {'key': 'resourceGroup', 'type': 'AzureResourceGroup'},
         'tags': {'key': 'tags', 'type': '{str}'},
+        'applications': {'key': 'applications', 'type': '[TeamCloudApplication]'},
     }
 
     def __init__(self, **kwargs):
@@ -34,3 +37,4 @@ class TeamCloudInstance(Model):
         self.version = kwargs.get('version', None)
         self.resource_group = kwargs.get('resource_group', None)
         self.tags = kwargs.get('tags', None)
+        self.applications = kwargs.get('applications', None)
