@@ -17,9 +17,6 @@ namespace TeamCloud.Model.Data
         public string Id { get; set; }
             = Guid.NewGuid().ToString();
 
-        public string ProjectId { get; set; }
-            = Guid.Empty.ToString();
-
         [JsonProperty("href")]
         public string HRef { get; set; }
 

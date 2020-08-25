@@ -19,22 +19,18 @@ using TeamCloud.Data;
 using TeamCloud.Model;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
-using TeamCloud.Model.Validation.Data;
+using TeamCloud.Model.Validation;
 
 namespace TeamCloud.API.Controllers
 {
     [ApiController]
     public class TeamCloudAdminController : ApiController
     {
-        readonly UserService userService;
-        readonly Orchestrator orchestrator;
-        readonly IUserRepository usersRepository;
-        readonly ITeamCloudRepository teamCloudRepository;
+        private readonly IUserRepository usersRepository;
+        private readonly ITeamCloudRepository teamCloudRepository;
 
-        public TeamCloudAdminController(UserService userService, Orchestrator orchestrator, IUserRepository usersRepository, ITeamCloudRepository teamCloudRepository)
+        public TeamCloudAdminController(UserService userService, Orchestrator orchestrator, IUserRepository usersRepository, ITeamCloudRepository teamCloudRepository) : base(userService, orchestrator)
         {
-            this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
-            this.orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
             this.usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
             this.teamCloudRepository = teamCloudRepository ?? throw new ArgumentNullException(nameof(teamCloudRepository));
         }
@@ -70,7 +66,7 @@ namespace TeamCloud.API.Controllers
                     .BadRequest($"The TeamCloud instance already has one or more Admin users. To add additional users to the TeamCloud instance POST to api/users.", ResultErrorCode.ValidationError)
                     .ToActionResult();
 
-            var userId = await userService
+            var userId = await UserService
                 .GetUserIdAsync(userDefinition.Identifier)
                 .ConfigureAwait(false);
 
@@ -92,7 +88,7 @@ namespace TeamCloud.API.Controllers
             // thus, we can assume the calling user and the user from the payload are the same
             var command = new OrchestratorTeamCloudUserCreateCommand(user, user);
 
-            return await orchestrator
+            return await Orchestrator
                 .InvokeAndReturnActionResultAsync<UserDocument, User>(command, Request)
                 .ConfigureAwait(false);
         }
@@ -132,47 +128,49 @@ namespace TeamCloud.API.Controllers
         public async Task<IActionResult> Post([FromBody] TeamCloudInstance teamCloudInstance)
         {
             if (teamCloudInstance is null)
-                throw new ArgumentNullException(nameof(teamCloudInstance));
-
-            var validation = new TeamCloudInstanceValidaor().Validate(teamCloudInstance);
-
-            if (!validation.IsValid)
+            {
                 return ErrorResult
-                    .BadRequest(validation)
+                    .BadRequest("Request body must not be empty.", ResultErrorCode.ValidationError)
                     .ToActionResult();
+            }
+            else if (!teamCloudInstance.TryValidate(out var validationResult, serviceProvider: HttpContext.RequestServices))
+            {
+                return ErrorResult
+                    .BadRequest(validationResult)
+                    .ToActionResult();
+            }
 
-            var existingTeamCloudInstance = await teamCloudRepository
+            var teamCloudInstanceDocument = await teamCloudRepository
                 .GetAsync()
                 .ConfigureAwait(false);
 
-            if (existingTeamCloudInstance is null)
+            if (teamCloudInstanceDocument is null)
+            {
                 return ErrorResult
                     .NotFound("The TeamCloud instance could not be found.")
                     .ToActionResult();
+            }
 
-            if (existingTeamCloudInstance.ResourceGroup != null
-             || existingTeamCloudInstance.Version != null
-             || (existingTeamCloudInstance.Tags?.Any() ?? false))
+            if (teamCloudInstanceDocument.ResourceGroup != null
+                || teamCloudInstanceDocument.Version != null
+                || (teamCloudInstanceDocument.Tags?.Any() ?? false))
+            {
                 return ErrorResult
                     .Conflict($"The TeamCloud instance already exists.  Call PUT to update the existing instance.")
                     .ToActionResult();
+            }
 
-            existingTeamCloudInstance.Version = teamCloudInstance.Version;
-            existingTeamCloudInstance.ResourceGroup = teamCloudInstance.ResourceGroup;
-            existingTeamCloudInstance.Tags = teamCloudInstance.Tags;
+            teamCloudInstanceDocument.Version = teamCloudInstance.Version;
+            teamCloudInstanceDocument.ResourceGroup = teamCloudInstance.ResourceGroup;
+            teamCloudInstanceDocument.Tags = teamCloudInstance.Tags;
 
-            var setResult = await orchestrator
-                .SetAsync(existingTeamCloudInstance)
+            var currentUser = await UserService
+                .CurrentUserAsync()
                 .ConfigureAwait(false);
 
-            var baseUrl = HttpContext.GetApplicationBaseUrl();
-            var location = new Uri(baseUrl, $"api/admin/teamCloudInstance").ToString();
-
-            var returnSetResult = setResult.PopulateExternalModel();
-
-            return DataResult<TeamCloudInstance>
-                .Created(returnSetResult, location)
-                .ToActionResult();
+            return await Orchestrator
+                .InvokeAndReturnActionResultAsync<TeamCloudInstanceDocument, TeamCloudInstance>(new OrchestratorTeamCloudInstanceSetCommand(currentUser, teamCloudInstanceDocument), Request)
+                .ConfigureAwait(false);
         }
 
 
@@ -186,42 +184,43 @@ namespace TeamCloud.API.Controllers
         public async Task<IActionResult> Put([FromBody] TeamCloudInstance teamCloudInstance)
         {
             if (teamCloudInstance is null)
-                throw new ArgumentNullException(nameof(teamCloudInstance));
-
-            var validation = new TeamCloudInstanceValidaor().Validate(teamCloudInstance);
-
-            if (!validation.IsValid)
+            {
                 return ErrorResult
-                    .BadRequest(validation)
+                    .BadRequest("Request body must not be empty.", ResultErrorCode.ValidationError)
                     .ToActionResult();
+            }
+            else if (!teamCloudInstance.TryValidate(out var validationResult, serviceProvider: HttpContext.RequestServices))
+            {
+                return ErrorResult
+                    .BadRequest(validationResult)
+                    .ToActionResult();
+            }
 
-            var existingTeamCloudInstance = await teamCloudRepository
+            var teamCloudInstanceDocument = await teamCloudRepository
                 .GetAsync()
                 .ConfigureAwait(false);
 
-            if (existingTeamCloudInstance is null)
+            if (teamCloudInstanceDocument is null)
                 return ErrorResult
                     .NotFound("The TeamCloud instance could not be found.")
                     .ToActionResult();
 
             if (!string.IsNullOrEmpty(teamCloudInstance.Version))
-                existingTeamCloudInstance.Version = teamCloudInstance.Version;
+                teamCloudInstanceDocument.Version = teamCloudInstance.Version;
 
             if (!(teamCloudInstance.ResourceGroup is null))
-                existingTeamCloudInstance.ResourceGroup = teamCloudInstance.ResourceGroup;
+                teamCloudInstanceDocument.ResourceGroup = teamCloudInstance.ResourceGroup;
 
             if (teamCloudInstance.Tags?.Any() ?? false)
-                existingTeamCloudInstance.MergeTags(teamCloudInstance.Tags);
+                teamCloudInstanceDocument.MergeTags(teamCloudInstance.Tags);
 
-            var setResult = await orchestrator
-                .SetAsync(existingTeamCloudInstance)
+            var currentUser = await UserService
+                .CurrentUserAsync()
                 .ConfigureAwait(false);
 
-            var returnSetResult = setResult.PopulateExternalModel();
-
-            return DataResult<TeamCloudInstance>
-                .Ok(returnSetResult)
-                .ToActionResult();
+            return await Orchestrator
+                .InvokeAndReturnActionResultAsync<TeamCloudInstanceDocument, TeamCloudInstance>(new OrchestratorTeamCloudInstanceSetCommand(currentUser, teamCloudInstanceDocument), Request)
+                .ConfigureAwait(false);
         }
     }
 }

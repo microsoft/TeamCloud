@@ -75,7 +75,8 @@ namespace TeamCloud.Orchestrator
                 .AddSingleton<ITeamCloudRepository, CosmosDbTeamCloudRepository>()
                 .AddSingleton<IProviderRepository, CosmosDbProviderRepository>()
                 .AddSingleton<IProjectTypeRepository, CosmosDbProjectTypeRepository>()
-                .AddSingleton<IProjectLinkRepository, CosmosDbProjectLinkRepository>();
+                .AddSingleton<IProjectLinkRepository, CosmosDbProjectLinkRepository>()
+                .AddSingleton<IProviderDataRepository, CosmosDbProviderDataRepository>();
 
             // CAUTION - don't register an orchstrator command handler with the generic 
             // IOrchestratorCommandHandler<> interface. purpose of this interface is the 
@@ -83,7 +84,10 @@ namespace TeamCloud.Orchestrator
             // handler use the non-generic IOrchestratorCommandHandler interface.
 
             builder.Services
-                .AddScoped<IOrchestratorCommandHandler, OrchestratorProjectLinkCommandHandler>();
+                .AddScoped<IOrchestratorCommandHandler, OrchestratorProjectLinkCommandHandler>()
+                .AddScoped<IOrchestratorCommandHandler, OrchestratorProjectTypeCommandHandler>()
+                .AddScoped<IOrchestratorCommandHandler, OrchestratorProviderDataCommandHandler>()
+                .AddScoped<IOrchestratorCommandHandler, OrchestratorTeamCloudCommandHandler>();
 
             builder.Services
                 .AddTeamCloudAzure(configuration =>

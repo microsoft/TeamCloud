@@ -9,8 +9,6 @@ namespace TeamCloud.Model.Data
 {
     public interface IProjectLink : IIdentifiable
     {
-        string ProjectId { get; set; }
-
         string HRef { get; set; }
 
         string Title { get; set; }

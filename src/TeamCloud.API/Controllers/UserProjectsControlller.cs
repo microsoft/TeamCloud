@@ -23,13 +23,11 @@ namespace TeamCloud.API.Controllers
     [Produces("application/json")]
     public class UserProjectsController : ApiController
     {
-        readonly UserService userService;
-        readonly IUserRepository usersRepository;
-        readonly IProjectRepository projectsRepository;
+        private readonly IUserRepository usersRepository;
+        private readonly IProjectRepository projectsRepository;
 
-        public UserProjectsController(UserService userService, IUserRepository usersRepository, IProjectRepository projectsRepository)
+        public UserProjectsController(UserService userService, Orchestrator orchestrator, IUserRepository usersRepository, IProjectRepository projectsRepository) : base(userService, orchestrator)
         {
-            this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
             this.usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
             this.projectsRepository = projectsRepository ?? throw new ArgumentNullException(nameof(projectsRepository));
         }
@@ -87,7 +85,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status404NotFound, "A User with the provided userId was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> GetMe()
         {
-            var me = await userService
+            var me = await UserService
                 .CurrentUserAsync()
                 .ConfigureAwait(false);
 

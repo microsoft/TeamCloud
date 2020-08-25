@@ -28,14 +28,10 @@ namespace TeamCloud.API.Controllers
     [Produces("application/json")]
     public class TeamCloudUsersController : ApiController
     {
-        readonly UserService userService;
-        readonly Orchestrator orchestrator;
-        readonly IUserRepository usersRepository;
+        private readonly IUserRepository usersRepository;
 
-        public TeamCloudUsersController(UserService userService, Orchestrator orchestrator, IUserRepository usersRepository)
+        public TeamCloudUsersController(UserService userService, Orchestrator orchestrator, IUserRepository usersRepository) : base(userService, orchestrator)
         {
-            this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
-            this.orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
             this.usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
         }
 
@@ -74,7 +70,7 @@ namespace TeamCloud.API.Controllers
                     .BadRequest($"The identifier '{userNameOrId}' provided in the url path is invalid.  Must be a valid email address or GUID.", ResultErrorCode.ValidationError)
                     .ToActionResult();
 
-            var userId = await userService
+            var userId = await UserService
                 .GetUserIdAsync(userNameOrId)
                 .ConfigureAwait(false);
 
@@ -107,7 +103,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status404NotFound, "A User matching the current user was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> GetMe()
         {
-            var me = await userService
+            var me = await UserService
                 .CurrentUserAsync()
                 .ConfigureAwait(false);
 
@@ -144,7 +140,7 @@ namespace TeamCloud.API.Controllers
                     .BadRequest(validation)
                     .ToActionResult();
 
-            var userId = await userService
+            var userId = await UserService
                 .GetUserIdAsync(userDefinition.Identifier)
                 .ConfigureAwait(false);
 
@@ -170,13 +166,13 @@ namespace TeamCloud.API.Controllers
                 UserType = UserType.User
             };
 
-            var currentUserForCommand = await userService
+            var currentUserForCommand = await UserService
                 .CurrentUserAsync()
                 .ConfigureAwait(false);
 
             var command = new OrchestratorTeamCloudUserCreateCommand(currentUserForCommand, user);
 
-            return await orchestrator
+            return await Orchestrator
                 .InvokeAndReturnActionResultAsync<UserDocument, User>(command, Request)
                 .ConfigureAwait(false);
         }
@@ -199,7 +195,7 @@ namespace TeamCloud.API.Controllers
                     .BadRequest($"The identifier '{userNameOrId}' provided in the url path is invalid.  Must be a valid email address or GUID.", ResultErrorCode.ValidationError)
                     .ToActionResult();
 
-            var userId = await userService
+            var userId = await UserService
                 .GetUserIdAsync(userNameOrId)
                 .ConfigureAwait(false);
 
@@ -242,7 +238,7 @@ namespace TeamCloud.API.Controllers
                     .BadRequest(new ValidationError { Field = "projectMemberships", Message = $"User's project memberships can not be changed using the TeamCloud (system) users API. To update a user's project memberships use the project users API." })
                     .ToActionResult();
 
-            var currentUserForCommand = await userService
+            var currentUserForCommand = await UserService
                 .CurrentUserAsync()
                 .ConfigureAwait(false);
 
@@ -250,7 +246,7 @@ namespace TeamCloud.API.Controllers
 
             var command = new OrchestratorTeamCloudUserUpdateCommand(currentUserForCommand, oldUser);
 
-            return await orchestrator
+            return await Orchestrator
                 .InvokeAndReturnActionResultAsync<UserDocument, User>(command, Request)
                 .ConfigureAwait(false);
         }
@@ -275,7 +271,7 @@ namespace TeamCloud.API.Controllers
                     .BadRequest(validation)
                     .ToActionResult();
 
-            var me = await userService
+            var me = await UserService
                 .CurrentUserAsync()
                 .ConfigureAwait(false);
 
@@ -307,7 +303,7 @@ namespace TeamCloud.API.Controllers
                     .BadRequest(new ValidationError { Field = "projectMemberships", Message = $"User's project memberships can not be changed using the TeamCloud (system) users API. To update a user's project memberships use the project users API." })
                     .ToActionResult();
 
-            var currentUserForCommand = await userService
+            var currentUserForCommand = await UserService
                 .CurrentUserAsync()
                 .ConfigureAwait(false);
 
@@ -315,7 +311,7 @@ namespace TeamCloud.API.Controllers
 
             var command = new OrchestratorTeamCloudUserUpdateCommand(currentUserForCommand, me);
 
-            return await orchestrator
+            return await Orchestrator
                 .InvokeAndReturnActionResultAsync<UserDocument, User>(command, Request)
                 .ConfigureAwait(false);
         }
@@ -333,7 +329,7 @@ namespace TeamCloud.API.Controllers
                     .BadRequest($"The identifier '{userNameOrId}' provided in the url path is invalid.  Must be a valid email address or GUID.", ResultErrorCode.ValidationError)
                     .ToActionResult();
 
-            var userId = await userService
+            var userId = await UserService
                 .GetUserIdAsync(userNameOrId)
                 .ConfigureAwait(false);
 
@@ -364,13 +360,13 @@ namespace TeamCloud.API.Controllers
                         .ToActionResult();
             }
 
-            var currentUserForCommand = await userService
+            var currentUserForCommand = await UserService
                 .CurrentUserAsync()
                 .ConfigureAwait(false);
 
             var command = new OrchestratorTeamCloudUserDeleteCommand(currentUserForCommand, user);
 
-            return await orchestrator
+            return await Orchestrator
                 .InvokeAndReturnActionResultAsync<UserDocument, User>(command, Request)
                 .ConfigureAwait(false);
         }

@@ -28,15 +28,12 @@ namespace TeamCloud.API.Controllers
     [Produces("application/json")]
     public class ProjectController : ApiController
     {
-        readonly UserService userService;
-        readonly Orchestrator orchestrator;
-        readonly IProjectRepository projectsRepository;
-        readonly IProjectTypeRepository projectTypesRepository;
+        private readonly IProjectRepository projectsRepository;
+        private readonly IProjectTypeRepository projectTypesRepository;
 
         public ProjectController(UserService userService, Orchestrator orchestrator, IProjectRepository projectsRepository, IProjectTypeRepository projectTypesRepository)
+            : base(userService, orchestrator)
         {
-            this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
-            this.orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
             this.projectsRepository = projectsRepository ?? throw new ArgumentNullException(nameof(projectsRepository));
             this.projectTypesRepository = projectTypesRepository ?? throw new ArgumentNullException(nameof(projectTypesRepository));
         }
@@ -51,9 +48,9 @@ namespace TeamCloud.API.Controllers
                 users = (await Task.WhenAll(tasks).ConfigureAwait(false)).ToList();
             }
 
-            if (!users.Any(u => u.Id == userService.CurrentUserId))
+            if (!users.Any(u => u.Id == UserService.CurrentUserId))
             {
-                var currentUser = await userService
+                var currentUser = await UserService
                     .CurrentUserAsync()
                     .ConfigureAwait(false);
 
@@ -66,11 +63,11 @@ namespace TeamCloud.API.Controllers
 
             async Task<UserDocument> ResolveUserAndEnsureMembershipAsync(UserDefinition userDefinition, string projectId)
             {
-                var user = await userService
+                var user = await UserService
                     .ResolveUserAsync(userDefinition)
                     .ConfigureAwait(false);
 
-                var role = user.Id == userService.CurrentUserId ? ProjectUserRole.Owner : Enum.Parse<ProjectUserRole>(userDefinition.Role, true);
+                var role = user.Id == UserService.CurrentUserId ? ProjectUserRole.Owner : Enum.Parse<ProjectUserRole>(userDefinition.Role, true);
                 user.EnsureProjectMembership(projectId, role, userDefinition.Properties);
 
                 return user;
@@ -193,11 +190,11 @@ namespace TeamCloud.API.Controllers
                         .ToActionResult();
             }
 
-            var currentUserForCommand = users.FirstOrDefault(u => u.Id == userService.CurrentUserId);
+            var currentUserForCommand = users.FirstOrDefault(u => u.Id == UserService.CurrentUserId);
 
             var command = new OrchestratorProjectCreateCommand(currentUserForCommand, project);
 
-            return await orchestrator
+            return await Orchestrator
                 .InvokeAndReturnActionResultAsync<ProjectDocument, Project>(command, Request)
                 .ConfigureAwait(false);
         }
@@ -225,13 +222,13 @@ namespace TeamCloud.API.Controllers
                     .NotFound($"A Project with the identifier '{projectNameOrId}' could not be found in this TeamCloud Instance")
                     .ToActionResult();
 
-            var currentUserForCommand = await userService
+            var currentUserForCommand = await UserService
                 .CurrentUserAsync()
                 .ConfigureAwait(false);
 
             var command = new OrchestratorProjectDeleteCommand(currentUserForCommand, project);
 
-            return await orchestrator
+            return await Orchestrator
                 .InvokeAndReturnActionResultAsync<ProjectDocument, Project>(command, Request)
                 .ConfigureAwait(false);
         }

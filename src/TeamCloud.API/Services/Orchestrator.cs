@@ -29,7 +29,7 @@ namespace TeamCloud.API.Services
 
         private void SetResultLinks(HttpResponseMessage commandResponse, ICommandResult commandResult, string projectId)
         {
-            var baseUrl = httpContextAccessor.HttpContext?.GetApplicationBaseUrl();
+            var baseUrl = httpContextAccessor.HttpContext?.GetApplicationBaseUrl(true);
 
             if (baseUrl is null)
             {
@@ -54,7 +54,7 @@ namespace TeamCloud.API.Services
             }
             else if (commandResult is ICommandResult<UserDocument> userCommandResult)
             {
-                if (userCommandResult.Result?.Id is null)
+                if (string.IsNullOrEmpty(userCommandResult.Result?.Id))
                     return;
 
                 if (string.IsNullOrEmpty(projectId))
@@ -66,27 +66,55 @@ namespace TeamCloud.API.Services
                     commandResult.Links.Add("location", new Uri(baseUrl, $"api/projects/{projectId}/users/{userCommandResult.Result.Id}").ToString());
                 }
             }
-            else if (commandResult is ICommandResult<ProviderDocument> providerCommandResult)
+            else if (commandResult is ICommandResult<ProviderDocument> providerDocumentResult)
             {
-                if (providerCommandResult.Result?.Id is null)
+                if (string.IsNullOrEmpty(providerDocumentResult.Result?.Id))
                     return;
 
-                commandResult.Links.Add("location", new Uri(baseUrl, $"api/providers/{providerCommandResult.Result.Id}").ToString());
+                commandResult.Links.Add("location", new Uri(baseUrl, $"api/providers/{providerDocumentResult.Result.Id}").ToString());
             }
-            else if (commandResult is ICommandResult<ProjectDocument> projectCommandResult)
+            else if (commandResult is ICommandResult<ProviderDataDocument> providerDataDocumentResult)
             {
-                if (projectCommandResult.Result?.Id is null)
+                if (string.IsNullOrEmpty(providerDataDocumentResult.Result?.Id))
                     return;
 
-                commandResult.Links.Add("location", new Uri(baseUrl, $"api/projects/{projectCommandResult.Result.Id}").ToString());
+                var providerId = providerDataDocumentResult.Result?.ProviderId;
+
+                if (string.IsNullOrEmpty(projectId))
+                {
+                    commandResult.Links.Add("location", new Uri(baseUrl, $"api/projects/{projectId}/providers/{providerId}/data/{providerDataDocumentResult.Result.Id}").ToString());
+                }
+                else
+                {
+                    commandResult.Links.Add("location", new Uri(baseUrl, $"api/providers/{providerId}/data/{providerDataDocumentResult.Result.Id}").ToString());
+                }
             }
-            else if (commandResult is ICommandResult<ProjectLinkDocument> projectLinkCommandResult)
+            else if (commandResult is ICommandResult<ProjectDocument> projectDocumentResult)
             {
-                if (projectLinkCommandResult.Result?.Id is null)
+                if (string.IsNullOrEmpty(projectDocumentResult.Result?.Id))
                     return;
 
-                commandResult.Links.Add("location", new Uri(baseUrl, $"api/projects/{projectId}/links/{projectLinkCommandResult.Result.Id}").ToString());
+                commandResult.Links.Add("location", new Uri(baseUrl, $"api/projects/{projectDocumentResult.Result.Id}").ToString());
             }
+            else if (commandResult is ICommandResult<ProjectTypeDocument> projectTypeDocumentResult)
+            {
+                if (string.IsNullOrEmpty(projectTypeDocumentResult.Result?.Id))
+                    return;
+
+                commandResult.Links.Add("location", new Uri(baseUrl, $"api/projectTypes/{projectTypeDocumentResult.Result.Id}").ToString());
+            }
+            else if (commandResult is ICommandResult<ProjectLinkDocument> projectLinkDocumentResult)
+            {
+                if (string.IsNullOrEmpty(projectLinkDocumentResult.Result?.Id))
+                    return;
+
+                commandResult.Links.Add("location", new Uri(baseUrl, $"api/projects/{projectId}/links/{projectLinkDocumentResult.Result.Id}").ToString());
+            }
+            else if (commandResult is ICommandResult<TeamCloudInstanceDocument>)
+            {
+                commandResult.Links.Add("location", new Uri(baseUrl, "api/admin/teamCloudInstance").ToString());
+            }
+
 
             static bool IsDeleteCommandResult(ICommandResult result)
                 => result is OrchestratorProjectDeleteCommandResult
@@ -158,114 +186,6 @@ namespace TeamCloud.API.Services
             }
 
             return commandResult;
-        }
-
-        public async Task<TeamCloudInstanceDocument> SetAsync(TeamCloudInstanceDocument teamCloudInstance)
-        {
-            var response = await options.Url
-                .AppendPathSegment("api/data/teamCloudInstance")
-                .WithHeader("x-functions-key", options.AuthCode)
-                .PostJsonAsync(teamCloudInstance)
-                .ConfigureAwait(false);
-
-            var result = await response.Content
-                .ReadAsAsync<TeamCloudInstanceDocument>()
-                .ConfigureAwait(false);
-
-            return result;
-        }
-
-        public async Task<ProjectTypeDocument> AddAsync(ProjectTypeDocument projectType)
-        {
-            var response = await options.Url
-                .AppendPathSegment("api/data/projectTypes")
-                .WithHeader("x-functions-key", options.AuthCode)
-                .PostJsonAsync(projectType)
-                .ConfigureAwait(false);
-
-            var result = await response.Content
-                .ReadAsAsync<ProjectTypeDocument>()
-                .ConfigureAwait(false);
-
-            return result;
-        }
-
-        public async Task<ProjectTypeDocument> UpdateAsync(ProjectTypeDocument projectType)
-        {
-            var response = await options.Url
-                .AppendPathSegment("api/data/projectTypes")
-                .WithHeader("x-functions-key", options.AuthCode)
-                .PutJsonAsync(projectType)
-                .ConfigureAwait(false);
-
-            var result = await response.Content
-                .ReadAsAsync<ProjectTypeDocument>()
-                .ConfigureAwait(false);
-
-            return result;
-        }
-
-        public async Task<ProjectTypeDocument> DeleteAsync(string projectTypeId)
-        {
-            var response = await options.Url
-                .AppendPathSegments($"api/data/projectTypes/{projectTypeId}")
-                .WithHeader("x-functions-key", options.AuthCode)
-                .DeleteAsync()
-                .ConfigureAwait(false);
-
-            var result = await response.Content
-                .ReadAsAsync<ProjectTypeDocument>()
-                .ConfigureAwait(false);
-
-            return result;
-        }
-
-        public async Task<ProviderDataDocument> AddAsync(ProviderDataDocument providerData)
-        {
-            var response = await options.Url
-                .AppendPathSegment("api/data/providerData")
-                .WithHeader("x-functions-key", options.AuthCode)
-                .PostJsonAsync(providerData)
-                .ConfigureAwait(false);
-
-            var result = await response.Content
-                .ReadAsAsync<ProviderDataDocument>()
-                .ConfigureAwait(false);
-
-            return result;
-        }
-
-        public async Task<ProviderDataDocument> UpdateAsync(ProviderDataDocument providerData)
-        {
-            var response = await options.Url
-                .AppendPathSegment("api/data/providerData")
-                .WithHeader("x-functions-key", options.AuthCode)
-                .PutJsonAsync(providerData)
-                .ConfigureAwait(false);
-
-            var result = await response.Content
-                .ReadAsAsync<ProviderDataDocument>()
-                .ConfigureAwait(false);
-
-            return result;
-        }
-
-        public async Task<ProviderDataDocument> DeleteAsync(ProviderDataDocument providerData)
-        {
-            if (providerData is null)
-                throw new ArgumentNullException(nameof(providerData));
-
-            var response = await options.Url
-                .AppendPathSegments($"api/data/providerData/{providerData.Id}")
-                .WithHeader("x-functions-key", options.AuthCode)
-                .DeleteAsync()
-                .ConfigureAwait(false);
-
-            var result = await response.Content
-                .ReadAsAsync<ProviderDataDocument>()
-                .ConfigureAwait(false);
-
-            return result;
         }
     }
 }

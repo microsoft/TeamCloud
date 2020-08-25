@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TeamCloud.API.Auth;
 using TeamCloud.API.Data.Results;
+using TeamCloud.API.Services;
 using TeamCloud.Data;
 
 namespace TeamCloud.API.Controllers
@@ -24,7 +25,7 @@ namespace TeamCloud.API.Controllers
     {
         readonly IProjectRepository projectsRepository;
 
-        public ProjectTagsController(IProjectRepository projectsRepository)
+        public ProjectTagsController(UserService userService, Orchestrator orchestrator, IProjectRepository projectsRepository) : base(userService, orchestrator)
         {
             this.projectsRepository = projectsRepository ?? throw new ArgumentNullException(nameof(projectsRepository));
         }

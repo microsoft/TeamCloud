@@ -22,12 +22,8 @@ namespace TeamCloud.API.Controllers
     [Produces("application/json")]
     public class StatusController : ApiController
     {
-        private readonly Orchestrator orchestrator;
-
-        public StatusController(Orchestrator orchestrator)
-        {
-            this.orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
-        }
+        public StatusController(UserService userService, Orchestrator orchestrator) : base(userService, orchestrator)
+        { }
 
         [Authorize(Policy = AuthPolicies.Admin)]
         [HttpGet("api/status/{trackingId:guid}")]
@@ -39,7 +35,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status404NotFound, "The long-running operation with the trackingId provided was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Get(Guid trackingId)
         {
-            var result = await orchestrator
+            var result = await Orchestrator
                 .QueryAsync(trackingId, null)
                 .ConfigureAwait(false);
 
@@ -56,7 +52,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status404NotFound, "The long-running operation with the trackingId provided was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Get(string projectId, Guid trackingId)
         {
-            var result = await orchestrator
+            var result = await Orchestrator
                 .QueryAsync(trackingId, projectId)
                 .ConfigureAwait(false);
 
@@ -78,17 +74,15 @@ namespace TeamCloud.API.Controllers
 
                     if (result.Links.TryGetValue("location", out var location))
                     {
-                        // return 302 (found) with location to resource
-                        Response.Headers.Add("Location", location);
                         return StatusResult
                             .Success(result.CommandId.ToString(), location, result.RuntimeStatus.ToString(), result.CustomStatus)
-                            .ActionResult();
+                            .ToActionResult();
                     }
 
                     // no resource location (i.e. DELETE command) return 200 (ok)
                     return StatusResult
                         .Success(result.CommandId.ToString(), result.RuntimeStatus.ToString(), result.CustomStatus)
-                        .ActionResult();
+                        .ToActionResult();
 
                 case CommandRuntimeStatus.Running:
                 case CommandRuntimeStatus.ContinuedAsNew:
@@ -97,7 +91,7 @@ namespace TeamCloud.API.Controllers
                     // command is in an active state, return 202 (accepted) so client can poll
                     return StatusResult
                         .Accepted(result.CommandId.ToString(), status, result.RuntimeStatus.ToString(), result.CustomStatus)
-                        .ActionResult();
+                        .ToActionResult();
 
                 case CommandRuntimeStatus.Canceled:
                 case CommandRuntimeStatus.Terminated:
@@ -105,18 +99,18 @@ namespace TeamCloud.API.Controllers
 
                     return StatusResult
                         .Failed(result.Errors, result.CommandId.ToString(), result.RuntimeStatus.ToString(), result.CustomStatus)
-                        .ActionResult();
+                        .ToActionResult();
 
                 default: // TODO: this probably isn't right as a default
 
                     if (result.Errors?.Any() ?? false)
                         return StatusResult
                             .Failed(result.Errors, result.CommandId.ToString(), result.RuntimeStatus.ToString(), result.CustomStatus)
-                            .ActionResult();
+                            .ToActionResult();
 
                     return StatusResult
                         .Ok(result.CommandId.ToString(), result.RuntimeStatus.ToString(), result.CustomStatus)
-                        .ActionResult();
+                        .ToActionResult();
             }
         }
     }

@@ -42,7 +42,7 @@ namespace TeamCloud.API
             return host;
         }
 
-        public static Uri GetApplicationBaseUrl(this HttpContext httpContext)
+        public static Uri GetApplicationBaseUrl(this HttpContext httpContext, bool enforceHttps = false)
         {
             var uriBuilder = new UriBuilder()
             {
@@ -51,6 +51,35 @@ namespace TeamCloud.API
                 Port = httpContext.Request.Host.Port ?? -1,
                 Path = httpContext.Request.PathBase
             };
+
+            return enforceHttps ? uriBuilder.Uri.EnforceHttps() : uriBuilder.Uri;
+        }
+
+        public static Uri EnforceHttps(this Uri url, int? port = null)
+        {
+            if (url is null)
+            {
+                throw new ArgumentNullException(nameof(url));
+            }
+            else if (!url.Scheme.Equals(Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase)
+                  && !url.Scheme.Equals(Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new ArgumentException($"Urls with scheme '{url.Scheme}' are not supported.", nameof(url));
+            }
+
+            var uriBuilder = new UriBuilder(url);
+
+            if (uriBuilder.Uri.Scheme.Equals(Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
+            {
+                uriBuilder.Port = port.GetValueOrDefault(uriBuilder.Port);
+            }
+            else
+            {
+                uriBuilder.Scheme = Uri.UriSchemeHttps;
+                uriBuilder.Port = port.GetValueOrDefault(-1);
+            }
+
+
 
             return uriBuilder.Uri;
         }
@@ -199,7 +228,7 @@ namespace TeamCloud.API
                 {
                     return StatusResult
                         .Accepted(commandResult.CommandId.ToString(), url, commandResult.RuntimeStatus.ToString(), commandResult.CustomStatus)
-                        .ActionResult();
+                        .ToActionResult();
                 }
 
                 throw new ArgumentException($"Command result of type '{commandResult.GetType().Name}' does not provide a status or location url.", nameof(commandResult));
