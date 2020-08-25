@@ -25,7 +25,7 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.API
 {
-    internal static class Extensions
+    internal static class GlobalExtensions
     {
         internal static async Task<T> InitializeAsync<T>(this T host)
             where T : IHost
