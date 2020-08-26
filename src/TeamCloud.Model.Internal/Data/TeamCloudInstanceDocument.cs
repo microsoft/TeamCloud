@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using TeamCloud.Model.Data.Core;
 using TeamCloud.Serialization;
-using TeamCloud.Model.Data;
 
 namespace TeamCloud.Model.Data
 {
