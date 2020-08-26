@@ -11,7 +11,7 @@ from ._transformers import (transform_output, transform_user_table_output, trans
 from ._validators import tc_deploy_validator
 
 
-def load_command_table(self, _):
+def load_command_table(self, _):  # pylint: disable=too-many-statements
 
     tc_custom = CliCommandType(
         operations_tmpl='azext_tc.custom#{}',
@@ -27,6 +27,12 @@ def load_command_table(self, _):
         g.custom_command('deploy', 'teamcloud_deploy', validator=tc_deploy_validator)
         g.custom_command('upgrade', 'teamcloud_upgrade')
         g.custom_command('status', 'status_get', transform=transform_output)
+
+    # TeamCloud Apps
+
+    with self.command_group('tc app', client_factory=teamcloud_client_factory) as g:
+        g.custom_command('deploy', 'teamcloud_app_deploy')
+        g.custom_command('upgrade', 'teamcloud_app_upgrade')
 
     # TeamCloud Users
 

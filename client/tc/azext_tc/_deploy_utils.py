@@ -21,6 +21,7 @@ ERR_TMPL_BAD_JSON = '{}Response body does not contain valid json. Error detail: 
 
 ERR_UNABLE_TO_GET_PROVIDERS = 'Unable to get providers from index. Improper index format.'
 ERR_UNABLE_TO_GET_TEAMCLOUD = 'Unable to get teamcloud from index. Improper index format.'
+ERR_UNABLE_TO_GET_WEBAPP = 'Unable to get web app from index. Improper index format.'
 
 TRIES = 3
 
@@ -235,20 +236,100 @@ def get_index(index_url):
             continue
 
 
-def get_index_providers(index_url):
+def get_index_providers_core(cli_ctx, version=None, prerelease=False, index_url=None, warn=False):
+    if index_url is None:
+        version = version or get_github_latest_release(
+            cli_ctx, 'TeamCloud-Providers', prerelease=prerelease)
+        index_url = 'https://github.com/microsoft/TeamCloud-Providers/releases/download/{}/index.json'.format(
+            version)
     index = get_index(index_url=index_url)
     providers = index.get('providers')
-    if providers is None:
+    if warn and providers is None:
         logger.warning(ERR_UNABLE_TO_GET_PROVIDERS)
-    return providers
+    return version, providers
 
 
-def get_index_teamcloud(index_url):
+def get_index_providers(cli_ctx, provider, version=None, prerelease=False, index_url=None):
+    version, providers = get_index_providers_core(cli_ctx, version, prerelease, index_url)
+    index = providers.get(provider)
+    if not index:
+        raise CLIError("--name/-n no provider found in index with id '{}'".format(provider))
+    zip_url, deploy_url, provider_name = index.get(
+        'zipUrl'), index.get('deployUrl'), index.get('name')
+
+    if not zip_url:
+        raise CLIError("No zipUrl found in index for provider with id '{}'".format(provider))
+    if not deploy_url:
+        raise CLIError("No deployUrl found in index for provider with id '{}'".format(provider))
+    if not provider_name:
+        raise CLIError("No name found in index for provider with id '{}'".format(provider))
+
+    return version, zip_url, deploy_url, provider_name
+
+
+def _get_index_teamcloud_core(cli_ctx, version=None, prerelease=False, index_url=None):
+    if index_url is None:
+        version = version or get_github_latest_release(cli_ctx, 'TeamCloud', prerelease=prerelease)
+        index_url = 'https://github.com/microsoft/TeamCloud/releases/download/{}/index.json'.format(
+            version)
     index = get_index(index_url=index_url)
     teamcloud = index.get('teamcloud')
     if teamcloud is None:
         logger.warning(ERR_UNABLE_TO_GET_TEAMCLOUD)
-    return teamcloud
+    webapp = index.get('webapp')
+    if webapp is None:
+        logger.warning(ERR_UNABLE_TO_GET_WEBAPP)
+    return version, teamcloud, webapp
+
+
+def get_index_teamcloud(cli_ctx, version=None, prerelease=False, index_url=None):
+    version, teamcloud, _ = _get_index_teamcloud_core(cli_ctx, version, prerelease, index_url)
+    deploy_url, api_zip_url, orchestrator_zip_url = teamcloud.get('deployUrl'), teamcloud.get(
+        'apiZipUrl'), teamcloud.get('orchestratorZipUrl')
+    if not deploy_url:
+        raise CLIError('No deployUrl found in index')
+    if not api_zip_url:
+        raise CLIError('No apiZipUrl found in index')
+    if not orchestrator_zip_url:
+        raise CLIError('No orchestratorZipUrl found in index')
+    return version, deploy_url, api_zip_url, orchestrator_zip_url
+
+
+def get_index_webapp(cli_ctx, version=None, prerelease=False, index_url=None):
+    version, _, webapp = _get_index_teamcloud_core(cli_ctx, version, prerelease, index_url)
+    deploy_url, zip_url = webapp.get('deployUrl'), webapp.get('zipUrl')
+    if not deploy_url:
+        raise CLIError('No deployUrl found in index')
+    if not zip_url:
+        raise CLIError('No zipUrl found in index')
+    return version, deploy_url, zip_url
+
+
+def get_app_name(url):
+    from re import match
+    name = ''
+    m = match(r'^https?://(?P<name>[a-zA-Z0-9-]+)\.azurewebsites\.net[/a-zA-Z0-9.\:]*$', url)
+    try:
+        name = m.group('name') if m is not None else None
+    except IndexError:
+        pass
+
+    if name is None or '':
+        raise CLIError('Unable to get function app name from url.')
+
+    return name
+
+
+def get_arm_output(outputs, key, raise_on_error=True):
+    try:
+        value = outputs[key]['value']
+    except KeyError:
+        if raise_on_error:
+            raise CLIError(
+                "A value for '{}' was not provided in the ARM template outputs".format(key))
+        value = None
+
+    return value
 
 
 def _check_zip_deployment_status(cli_ctx, resource_group_name, name, deployment_status_url,

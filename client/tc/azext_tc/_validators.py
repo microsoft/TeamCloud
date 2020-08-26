@@ -175,22 +175,25 @@ def provider_event_list_validator(cmd, ns):
 def tracking_id_validator(cmd, ns):
     if ns.tracking_id:
         if not _is_valid_uuid(ns.tracking_id):
-            raise CLIError(
-                '--tracking-id/-t should be a valid uuid')
+            raise CLIError('--tracking-id/-t should be a valid uuid')
+
+
+def client_id_validator(cmd, ns):
+    if ns.client_id:
+        if not _is_valid_uuid(ns.client_id):
+            raise CLIError('--client-id/-c should be a valid uuid')
 
 
 def url_validator(cmd, ns):
     if ns.url:
         if not _is_valid_url(ns.url):
-            raise CLIError(
-                '--url should be a valid url')
+            raise CLIError('--url should be a valid url')
 
 
 def base_url_validator(cmd, ns):
     if ns.base_url:
         if not _is_valid_url(ns.base_url):
-            raise CLIError(
-                '--base-url/-u should be a valid url')
+            raise CLIError('--base-url/-u should be a valid url')
 
 
 def index_url_validator(cmd, ns):
@@ -199,8 +202,7 @@ def index_url_validator(cmd, ns):
             raise CLIError(
                 'usage error: can only use one of --index-url | --version/-v | --pre')
         if not _is_valid_url(ns.index_url):
-            raise CLIError(
-                '--index-url should be a valid url')
+            raise CLIError('--index-url should be a valid url')
 
 
 def auth_code_validator(cmd, ns):

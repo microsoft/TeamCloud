@@ -54,25 +54,54 @@ examples:
 """
 
 # ----------------
+# TeamCloud Apps
+# ----------------
+
+helps['tc app'] = """
+type: group
+short-summary: Manage client applications.
+"""
+
+helps['tc app deploy'] = """
+type: command
+short-summary: Deploy a new client applications.
+examples:
+  - name: Deploy a new web app for a instance.
+    text: az tc app deploy --base-url url --client-id clientId --type Web
+  - name: Deploy new pre-release web app for a instance.
+    text: az tc app deploy --base-url url --client-id clientId --type Web --pre
+"""
+
+helps['tc app upgrade'] = """
+type: command
+short-summary: Upgrade a client application.
+examples:
+  - name: Upgrade a web app to the latest version.
+    text: az tc app upgrade --base-url url --client-id clientId --type Web
+  - name: Upgrade a web app to the latest pre-release version.
+    text: az tc app upgrade --base-url url --client-id clientId --type Web --pre
+"""
+
+# ----------------
 # TeamCloud Users
 # ----------------
 
 helps['tc user'] = """
 type: group
-short-summary: Manage TeamCloud (system) users.
+short-summary: Manage (system) users.
 """
 
 helps['tc user create'] = """
 type: command
-short-summary: Create a new TeamCloud user.
+short-summary: Create a new user.
 examples:
-  - name: Create a new TeamCloud user with Admin role.
+  - name: Create a new user with Admin role.
     text: az tc user create --base-url url --name user --role Admin --properties prop=value
 """
 
 helps['tc user delete'] = """
 type: command
-short-summary: Delete a TeamCloud user.
+short-summary: Delete a user.
 examples:
   - name: Delete a user by email address.
     text: az tc user delete --base-url url --name user
@@ -82,7 +111,7 @@ examples:
 
 helps['tc user list'] = """
 type: command
-short-summary: List all TeamCloud users.
+short-summary: List all users.
 examples:
   - name: List all users.
     text: az tc user list --base-url url
@@ -92,7 +121,7 @@ examples:
 
 helps['tc user show'] = """
 type: command
-short-summary: Get a TeamCloud user.
+short-summary: Get a user.
 examples:
   - name: Get a user by email address.
     text: az tc user show --base-url url --name user
@@ -102,7 +131,7 @@ examples:
 
 helps['tc user update'] = """
 type: command
-short-summary: Update a TeamCloud user.
+short-summary: Update a user.
 examples:
   - name: Update a user's role.
     text: az tc user update --base-url url --name user --role Creator
@@ -118,38 +147,38 @@ examples:
 
 helps['tc tag'] = """
 type: group
-short-summary: Manage TeamCloud tags.
+short-summary: Manage (system) tags.
 """
 
 helps['tc tag create'] = """
 type: command
-short-summary: Create a new TeamCloud tag.
+short-summary: Create a new tag.
 examples:
-  - name: Create a new TeamCloud tag.
+  - name: Create a new tag.
     text: az tc tag create --base-url url --key key --value value
 """
 
 helps['tc tag delete'] = """
 type: command
-short-summary: Delete a TeamCloud tag.
+short-summary: Delete a tag.
 examples:
-  - name: Delete a TeamCloud tag by key.
+  - name: Delete a tag by key.
     text: az tc tag delete --base-url url --key key
 """
 
 helps['tc tag list'] = """
 type: command
-short-summary: List all TeamCloud tags.
+short-summary: List all tags.
 examples:
-  - name: List all TeamCloud tags in table format.
+  - name: List all tags in table format.
     text: az tc tag list --base-url url -o table
 """
 
 helps['tc tag show'] = """
 type: command
-short-summary: Get a TeamCloud tag.
+short-summary: Get a tag.
 examples:
-  - name: Get a TeamCloud tag by key.
+  - name: Get a tag by key.
     text: az tc tag show --base-url url --key key
 """
 
@@ -159,7 +188,7 @@ examples:
 
 helps['tc project'] = """
 type: group
-short-summary: Manage TeamCloud projects.
+short-summary: Manage projects.
 """
 
 helps['tc project create'] = """
