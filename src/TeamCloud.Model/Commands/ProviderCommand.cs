@@ -21,11 +21,11 @@ namespace TeamCloud.Model.Commands
             : base(user, payload, commandId)
         { }
 
-        private ProviderCommandLinks links = null;
+        private ProviderCommandReferenceLinks links = null;
 
-        public ProviderCommandLinks Links
+        public ProviderCommandReferenceLinks Links
         {
-            get => links ??= new ProviderCommandLinks(this);
+            get => links ??= new ProviderCommandReferenceLinks(this);
             set => links = value?.SetContext(this) ?? throw new ArgumentNullException(nameof(Links));
         }
 

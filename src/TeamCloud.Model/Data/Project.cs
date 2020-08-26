@@ -13,7 +13,7 @@ namespace TeamCloud.Model.Data
 {
 
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public sealed class Project : ReferenceLinksAccessor<Project, ProjectLinks>, IProject<User>, IEquatable<Project>
+    public sealed class Project : ReferenceLinksAccessor<Project, ProjectReferenceLinks>, IProject<User>, IEquatable<Project>
     {
         public string Id { get; set; }
             = Guid.NewGuid().ToString();

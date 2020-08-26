@@ -51,7 +51,7 @@ namespace TeamCloud.Model.Data
         public string ToString(Func<string, string> tokenCallback)
         {
             if (tokenCallback is null)
-                throw new ArgumentNullException(nameof(tokenCallback));
+                return ToString();
 
             return TokenExpression
                 .Replace(HRef ?? string.Empty, new MatchEvaluator((Match match) => tokenCallback(match.Value.TrimStart('{').TrimEnd('}'))));

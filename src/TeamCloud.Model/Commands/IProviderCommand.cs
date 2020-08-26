@@ -11,7 +11,7 @@ using TeamCloud.Model.Data.Core;
 namespace TeamCloud.Model.Commands
 {
     public interface IProviderCommand
-        : ICommand, IReferenceLinksAccessor<IProviderCommand, ProviderCommandLinks>
+        : ICommand, IReferenceLinksAccessor<IProviderCommand, ProviderCommandReferenceLinks>
     {
         string ProviderId { get; set; }
 
