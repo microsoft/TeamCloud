@@ -14,6 +14,7 @@ interface IAppProps {
     onSignOut: () => void;
 }
 
+
 export const App: React.FunctionComponent<IAppProps> = (props) => {
     initializeIcons();
 
