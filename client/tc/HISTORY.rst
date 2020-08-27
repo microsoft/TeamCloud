@@ -3,7 +3,14 @@
 Release History
 ===============
 
-0.5.4
+0.5.6
+++++++
+* Preview release
+* Add tc app deploy command
+* Add tc app upgrade command
+* Code cleanup and consolodation
+
+0.5.5
 ++++++
 * Preview release
 * model updates

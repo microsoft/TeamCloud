@@ -48,19 +48,14 @@ def get_provider_completion_list(cmd, prefix, namespace, **kwargs):  # pylint: d
 
 @Completer
 def get_provider_index_completion_list(cmd, prefix, namespace, **kwargs):  # pylint: disable=unused-argument
-    from ._deploy_utils import get_index_providers, get_github_latest_release
+    from ._deploy_utils import get_index_providers_core
 
     if namespace.version or namespace.prerelease:
         if namespace.index_url:
             return []
 
-    if namespace.index_url is None:
-        version = namespace.version or get_github_latest_release(
-            cmd.cli_ctx, 'TeamCloud-Providers', prerelease=namespace.prerelease)
-        index_url = 'https://github.com/microsoft/TeamCloud-Providers/releases/download/{}/index.json'.format(
-            version)
-
-    index_providers = get_index_providers(index_url=index_url)
+    _, index_providers = get_index_providers_core(
+        cmd.cli_ctx, namespace.version, namespace.prerelease, namespace.index_url, False)
 
     if not index_providers:
         return []

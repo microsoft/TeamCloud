@@ -14,7 +14,7 @@ from ._validators import (
     tracking_id_validator, project_type_id_validator, project_type_id_validator_name, provider_id_validator,
     subscriptions_list_validator, provider_event_list_validator, url_validator, base_url_validator,
     teamcloud_source_version_validator, providers_source_version_validator, auth_code_validator,
-    properties_validator, index_url_validator, project_name_or_id_validator_name)
+    properties_validator, index_url_validator, project_name_or_id_validator_name, client_id_validator)
 
 from ._completers import (
     get_project_completion_list, get_project_type_completion_list, get_provider_completion_list,
@@ -55,7 +55,7 @@ def load_arguments(self, _):
 
     # ignore global az arg --subscription and requre base_url for everything except `tc deploy`
     for scope in ['tc info', 'tc status', 'tc upgrade', 'tc user', 'tc project',
-                  'tc project-type', 'tc provider', 'tc tag']:
+                  'tc project-type', 'tc provider', 'tc tag', 'tc app']:
         with self.argument_context(scope, arg_group='TeamCloud') as c:
             c.ignore('_subscription')
             c.argument('base_url', tc_url_type)
@@ -112,6 +112,24 @@ def load_arguments(self, _):
         c.argument('tracking_id', options_list=['--tracking-id', '-t'],
                    type=str, help='Operation tracking id.',
                    validator=tracking_id_validator)
+
+    # TeamCloud Apps
+
+    for scope in ['tc app deploy', 'tc app upgrade']:
+        with self.argument_context(scope) as c:
+            c.argument('client_id', options_list=['--client-id', '-c'],
+                       type=str, validator=client_id_validator,
+                       help='Client ID for the Managed Application used for user authentication.'
+                       'See https://aka.ms/tcwebclientid for instructions.')
+            c.argument('app_type', get_enum_type(['Web'], default='Web'),
+                       options_list=['--type', '-t'], help='App type. Currently only supports Web')
+            c.argument('version', options_list=['--version', '-v'],
+                       type=str, help='Provider version. Default: latest stable.',
+                       validator=teamcloud_source_version_validator)
+            c.argument('prerelease', options_list=['--pre'], action='store_true',
+                       help='Deploy latest prerelease version.')
+            c.argument('index_url', help='URL to custom index.json file.',
+                       validator=index_url_validator)
 
     # TeamCloud Users
 

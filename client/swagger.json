@@ -15,6 +15,239 @@
     "version": "v1"
   },
   "paths": {
+    "/api/projects": {
+      "get": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "Gets all Projects.",
+        "operationId": "GetProjects",
+        "responses": {
+          "200": {
+            "description": "Returns all Projects.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectListDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "projectRead"
+            ]
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "Creates a new Project.",
+        "operationId": "CreateProject",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectDefinition"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Started creating the new Project. Returns a StatusResult object that can be used to track progress of the long-running operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A Project already exists with the name specified in the request body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "projectCreate"
+            ]
+          }
+        ]
+      }
+    },
+    "/api/projects/{projectNameOrId}": {
+      "get": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "Gets a Project by Name or ID.",
+        "operationId": "GetProjectByNameOrId",
+        "parameters": [
+          {
+            "name": "projectNameOrId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns a Project.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Project with the specified Name or ID was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "projectRead"
+            ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Project"
+        ],
+        "summary": "Deletes a Project.",
+        "operationId": "DeleteProject",
+        "parameters": [
+          {
+            "name": "projectNameOrId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Starts deleting the specified Project. Returns a StatusResult object that can be used to track progress of the long-running operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Project with the specified name or ID was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "projectWrite"
+            ]
+          }
+        ]
+      }
+    },
     "/api/projects/{projectId}/identity": {
       "get": {
         "tags": [
@@ -74,6 +307,405 @@
           {
             "oauth2": [
               "projectIdentityRead"
+            ]
+          }
+        ]
+      }
+    },
+    "/api/projects/{projectId}/links": {
+      "get": {
+        "tags": [
+          "ProjectLinks"
+        ],
+        "summary": "Gets all Links for a Project.",
+        "operationId": "GetProjectLinks",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns all Project Links",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringStringDictionaryDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Project with the provided projectId was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "projectRead"
+            ]
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "ProjectLinks"
+        ],
+        "summary": "Creates a new Project Link.",
+        "operationId": "CreateProjectLink",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectLink"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The created Project Link.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectLinkDataResult"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Starts creating the new Project Link. Returns a StatusResult object that can be used to track progress of the long-running operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Project with the provided projectId was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A Project Link already exists with the key provided in the request body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "projectWrite"
+            ]
+          }
+        ]
+      }
+    },
+    "/api/projects/{projectId}/links/{linkId}": {
+      "get": {
+        "tags": [
+          "ProjectLinks"
+        ],
+        "summary": "Gets a Project Link by Key.",
+        "operationId": "GetProjectLinkByKey",
+        "parameters": [
+          {
+            "name": "linkId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns Project Link",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringStringDictionaryDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Project with the provided projectId was not found, or a Tag with the provided key was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "projectRead"
+            ]
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "ProjectLinks"
+        ],
+        "summary": "Updates an existing Project Link.",
+        "operationId": "UpdateProjectLink",
+        "parameters": [
+          {
+            "name": "linkId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectLink"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The Project Link was updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectLinkDataResult"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Starts updating the Project Link. Returns a StatusResult object that can be used to track progress of the long-running operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Project with the provided projectId was not found, or a Tag with the key provided in the request body was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "projectWrite"
+            ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "ProjectLinks"
+        ],
+        "summary": "Deletes an existing Project Link.",
+        "operationId": "DeleteProjectLink",
+        "parameters": [
+          {
+            "name": "linkId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Starts deleting the Project Link. Returns a StatusResult object that can be used to track progress of the long-running operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResult"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "The Project Link was deleted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectLinkDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Project with the provided Id was not found, or a Link with the provided Id was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "projectWrite"
             ]
           }
         ]
@@ -490,239 +1122,6 @@
           {
             "oauth2": [
               "providerDataWrite"
-            ]
-          }
-        ]
-      }
-    },
-    "/api/projects": {
-      "get": {
-        "tags": [
-          "Projects"
-        ],
-        "summary": "Gets all Projects.",
-        "operationId": "GetProjects",
-        "responses": {
-          "200": {
-            "description": "Returns all Projects.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProjectListDataResult"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "A validation error occured.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResult"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "projectRead"
-            ]
-          }
-        ]
-      },
-      "post": {
-        "tags": [
-          "Projects"
-        ],
-        "summary": "Creates a new Project.",
-        "operationId": "CreateProject",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ProjectDefinition"
-              }
-            }
-          }
-        },
-        "responses": {
-          "202": {
-            "description": "Started creating the new Project. Returns a StatusResult object that can be used to track progress of the long-running operation.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StatusResult"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "A validation error occured.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResult"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "A Project already exists with the name specified in the request body.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResult"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "projectCreate"
-            ]
-          }
-        ]
-      }
-    },
-    "/api/projects/{projectNameOrId}": {
-      "get": {
-        "tags": [
-          "Projects"
-        ],
-        "summary": "Gets a Project by Name or ID.",
-        "operationId": "GetProjectByNameOrId",
-        "parameters": [
-          {
-            "name": "projectNameOrId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "nullable": true
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Returns a Project.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProjectDataResult"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "A validation error occured.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResult"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "A Project with the specified Name or ID was not found.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResult"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "projectRead"
-            ]
-          }
-        ]
-      },
-      "delete": {
-        "tags": [
-          "Projects"
-        ],
-        "summary": "Deletes a Project.",
-        "operationId": "DeleteProject",
-        "parameters": [
-          {
-            "name": "projectNameOrId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "nullable": true
-            }
-          }
-        ],
-        "responses": {
-          "202": {
-            "description": "Starts deleting the specified Project. Returns a StatusResult object that can be used to track progress of the long-running operation.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StatusResult"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "A validation error occured.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResult"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "A Project with the specified name or ID was not found.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResult"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "projectWrite"
             ]
           }
         ]
@@ -3990,173 +4389,6 @@
   },
   "components": {
     "schemas": {
-      "ProjectIdentity": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "nullable": true
-          },
-          "applicationId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "secret": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "ProjectIdentityDataResult": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "status": {
-            "type": "string",
-            "nullable": true
-          },
-          "data": {
-            "$ref": "#/components/schemas/ProjectIdentity"
-          },
-          "location": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "ValidationError": {
-        "type": "object",
-        "properties": {
-          "field": {
-            "type": "string",
-            "nullable": true
-          },
-          "message": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "ResultError": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "enum": [
-              "Unknown",
-              "Failed",
-              "Conflict",
-              "NotFound",
-              "ServerError",
-              "ValidationError",
-              "Unauthorized",
-              "Forbidden"
-            ],
-            "type": "string"
-          },
-          "message": {
-            "type": "string",
-            "nullable": true
-          },
-          "errors": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ValidationError"
-            },
-            "nullable": true
-          }
-        }
-      },
-      "ErrorResult": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "status": {
-            "type": "string",
-            "nullable": true
-          },
-          "errors": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ResultError"
-            },
-            "nullable": true
-          }
-        }
-      },
-      "ProviderData": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "nullable": true
-          },
-          "name": {
-            "type": "string",
-            "nullable": true
-          },
-          "value": {
-            "type": "object",
-            "nullable": true
-          },
-          "location": {
-            "type": "string",
-            "nullable": true
-          },
-          "isSecret": {
-            "type": "boolean"
-          },
-          "isShared": {
-            "type": "boolean"
-          },
-          "scope": {
-            "enum": [
-              0,
-              1
-            ],
-            "type": "integer",
-            "format": "int32"
-          },
-          "dataType": {
-            "enum": [
-              0,
-              1
-            ],
-            "type": "integer",
-            "format": "int32"
-          },
-          "stringValue": {
-            "type": "string",
-            "nullable": true,
-            "readOnly": true
-          }
-        }
-      },
-      "ProviderDataDataResult": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "status": {
-            "type": "string",
-            "nullable": true
-          },
-          "data": {
-            "$ref": "#/components/schemas/ProviderData"
-          },
-          "location": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
       "ProviderReference": {
         "type": "object",
         "properties": {
@@ -4425,6 +4657,68 @@
           }
         }
       },
+      "ValidationError": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ResultError": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "enum": [
+              "Unknown",
+              "Failed",
+              "Conflict",
+              "NotFound",
+              "ServerError",
+              "ValidationError",
+              "Unauthorized",
+              "Forbidden"
+            ],
+            "type": "string"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "nullable": true
+          }
+        }
+      },
+      "ErrorResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResultError"
+            },
+            "nullable": true
+          }
+        }
+      },
       "UserDefinition": {
         "type": "object",
         "properties": {
@@ -4536,6 +4830,43 @@
           }
         }
       },
+      "ProjectIdentity": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "applicationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "secret": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ProjectIdentityDataResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/ProjectIdentity"
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
       "StringStringDictionaryDataResult": {
         "type": "object",
         "properties": {
@@ -4554,6 +4885,118 @@
             },
             "nullable": true,
             "readOnly": true
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ProjectLink": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "href": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "enum": [
+              0
+            ],
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ProjectLinkDataResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/ProjectLink"
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ProviderData": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "value": {
+            "type": "object",
+            "nullable": true
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          },
+          "isSecret": {
+            "type": "boolean"
+          },
+          "isShared": {
+            "type": "boolean"
+          },
+          "scope": {
+            "enum": [
+              0,
+              1
+            ],
+            "type": "integer",
+            "format": "int32"
+          },
+          "dataType": {
+            "enum": [
+              0,
+              1
+            ],
+            "type": "integer",
+            "format": "int32"
+          },
+          "stringValue": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          }
+        }
+      },
+      "ProviderDataDataResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/ProviderData"
           },
           "location": {
             "type": "string",
@@ -4776,6 +5219,28 @@
           }
         }
       },
+      "TeamCloudApplication": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "nullable": true
+          },
+          "version": {
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "enum": [
+              "Web"
+            ],
+            "type": "string"
+          },
+          "resourceGroup": {
+            "$ref": "#/components/schemas/AzureResourceGroup"
+          }
+        }
+      },
       "TeamCloudInstance": {
         "type": "object",
         "properties": {
@@ -4790,6 +5255,13 @@
             "type": "object",
             "additionalProperties": {
               "type": "string"
+            },
+            "nullable": true
+          },
+          "applications": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TeamCloudApplication"
             },
             "nullable": true
           }

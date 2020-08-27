@@ -9,24 +9,15 @@
             }
         },
         "reactAppMsalClientId": {
-            "type": "string"
-        },
-        "reactAppMsalTenantId": {
-            "type": "string"
-        },
-        "reactAppTcApiUrl": {
-            "type": "string"
-        },
-        "resourceManagerIdentityClientId": {
             "type": "string",
             "metadata": {
-                "description": "The ClientId of the service principals used to authenticate users and create new Resource Groups for Projecs."
+                "description": "The ClientId of the Managed Application used to authenticate users. See https://aka.ms/tcwebclientid for details."
             }
         },
-        "resourceManagerIdentityClientSecret": {
+        "reactAppTcApiUrl": {
             "type": "string",
             "metadata": {
-                "description": "The ClientSecret of the service principals used to authenticate users and create new Resource Groups for Projecs."
+                "description": "Base url of the TeamCloud instance."
             }
         }
     },
@@ -82,7 +73,7 @@
                         },
                         {
                             "name": "REACT_APP_MSAL_TENANT_ID",
-                            "value": "[parameters('reactAppMsalTenantId')]"
+                            "value": "[subscription().tenantId]"
                         },
                         {
                             "name": "REACT_APP_TC_API_URL",

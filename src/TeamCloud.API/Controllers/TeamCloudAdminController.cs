@@ -214,6 +214,9 @@ namespace TeamCloud.API.Controllers
             if (teamCloudInstance.Tags?.Any() ?? false)
                 teamCloudInstanceDocument.MergeTags(teamCloudInstance.Tags);
 
+            if (teamCloudInstance.Applications?.Any() ?? false)
+                teamCloudInstanceDocument.Applications = teamCloudInstance.Applications;
+
             var currentUser = await UserService
                 .CurrentUserAsync()
                 .ConfigureAwait(false);
