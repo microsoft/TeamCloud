@@ -24,17 +24,15 @@ namespace TeamCloud.Orchestrator.Activities
 {
     public sealed class CommandSendActivity
     {
+        private readonly IApiOptions apiOptions;
+
         public CommandSendActivity(IApiOptions apiOptions)
         {
-            if (apiOptions is null)
-                throw new ArgumentNullException(nameof(apiOptions));
-
-            ReferenceLink.BaseUrl = apiOptions.Url;
+            this.apiOptions = apiOptions ?? throw new ArgumentNullException(nameof(apiOptions));
         }
 
-        [FunctionName(nameof(CommandSendActivity))]
-        [RetryOptions(3)]
-        public static async Task<ICommandResult> RunActivity(
+        [FunctionName(nameof(CommandSendActivity)), RetryOptions(3)]
+        public async Task<ICommandResult> RunActivity(
             [ActivityTrigger] IDurableActivityContext functionContext,
             ILogger log)
         {
@@ -43,15 +41,18 @@ namespace TeamCloud.Orchestrator.Activities
 
             var (provider, message) = functionContext.GetInput<(ProviderDocument, ProviderCommandMessage)>();
 
-            var providerUrl = new Url(provider.Url?.Trim());
-
-            if (!providerUrl.Path.EndsWith("/", StringComparison.OrdinalIgnoreCase))
-                providerUrl = providerUrl.AppendPathSegment("api/command");
-
-            log.LogInformation($"Sending command {message.CommandId} ({message.CommandType}) to {providerUrl}. Payload:{JsonConvert.SerializeObject(message)}");
-
             try
             {
+                ReferenceLink.BaseUrl = apiOptions.Url ?? ReferenceLink.BaseUrl
+                    ?? throw new NotSupportedException("Missing API base URL in configuration.");
+
+                var providerUrl = new Url(provider.Url?.Trim());
+
+                if (!providerUrl.Path.EndsWith("/", StringComparison.OrdinalIgnoreCase))
+                    providerUrl = providerUrl.AppendPathSegment("api/command");
+
+                log.LogInformation($"Sending command {message.CommandId} ({message.CommandType}) to {providerUrl}. Payload:{JsonConvert.SerializeObject(message)}");
+
                 var response = await providerUrl
                     .WithHeader("x-functions-key", provider.AuthCode)
                     .WithHeader("x-functions-callback", message.CallbackUrl)

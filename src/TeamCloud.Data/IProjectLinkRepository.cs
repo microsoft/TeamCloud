@@ -20,5 +20,9 @@ namespace TeamCloud.Data
         Task<ProjectLinkDocument> SetAsync(ProjectLinkDocument projectLink);
 
         Task<ProjectLinkDocument> RemoveAsync(ProjectLinkDocument projectLink);
+
+        Task RemoveAsync(string projectId);
+
+        Task RemoveAsync(string projectId, string id);
     }
 }

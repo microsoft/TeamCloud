@@ -13,7 +13,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TeamCloud.API.Auth;
-using TeamCloud.API.Data;
 using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
@@ -132,7 +131,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpPost]
-        [Authorize(Policy = AuthPolicies.ProjectWrite)]
+        [Authorize(Policy = AuthPolicies.ProjectLinkWrite)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "CreateProjectLink", Summary = "Creates a new Project Link.")]
         [SwaggerResponse(StatusCodes.Status201Created, "The created Project Link.", typeof(DataResult<ProjectLink>))]
@@ -186,7 +185,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpPut("{linkId}")]
-        [Authorize(Policy = AuthPolicies.ProjectWrite)]
+        [Authorize(Policy = AuthPolicies.ProjectLinkWrite)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "UpdateProjectLink", Summary = "Updates an existing Project Link.")]
         [SwaggerResponse(StatusCodes.Status200OK, "The Project Link was updated.", typeof(DataResult<ProjectLink>))]
@@ -245,7 +244,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpDelete("{linkId}")]
-        [Authorize(Policy = AuthPolicies.ProjectWrite)]
+        [Authorize(Policy = AuthPolicies.ProjectLinkWrite)]
         [SwaggerOperation(OperationId = "DeleteProjectLink", Summary = "Deletes an existing Project Link.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts deleting the Project Link. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status204NoContent, "The Project Link was deleted.", typeof(DataResult<ProjectLink>))]

@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
 using TeamCloud.Data.CosmosDb.Core;
@@ -118,6 +117,39 @@ namespace TeamCloud.Data.CosmosDb
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
             {
                 return null; // already deleted
+            }
+        }
+
+        public async Task RemoveAsync(string projectId)
+        {
+            var projectLinks = ListAsync(projectId);
+
+            if (await projectLinks.AnyAsync().ConfigureAwait(false))
+            {
+                var container = await GetContainerAsync()
+                    .ConfigureAwait(false);
+
+                var batch = container
+                    .CreateTransactionalBatch(new PartitionKey(projectId));
+
+                await foreach (var projectLink in projectLinks.ConfigureAwait(false))
+                    batch = batch.DeleteItem(projectLink.Id);
+
+                await batch
+                    .ExecuteAsync()
+                    .ConfigureAwait(false);
+            }
+        }
+
+        public async Task RemoveAsync(string projectId, string linkId)
+        {
+            var projectLink = await GetAsync(projectId, linkId)
+                .ConfigureAwait(false);
+
+            if (projectLink != null)
+            {
+                await RemoveAsync(projectLink)
+                    .ConfigureAwait(false);
             }
         }
 

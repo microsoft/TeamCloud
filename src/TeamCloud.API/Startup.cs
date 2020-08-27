@@ -75,9 +75,9 @@ namespace TeamCloud.API
                 });
 
             app
-                .UseMiddleware<RequestResponseTracingMiddleware>()
                 .UseRouting()
                 .UseAuthentication()
+                .UseMiddleware<RequestResponseTracingMiddleware>()
                 .UseWhen(context => context.Request.RequiresAdminUserSet(), appBuilder =>
                 {
                     appBuilder.UseMiddleware<EnsureTeamCloudAdminMiddleware>();

@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 using TeamCloud.Data.Conditional;
 using TeamCloud.Data.CosmosDb.Core;
 using TeamCloud.Model.Data;
-using TeamCloud.Model.Data;
 using Xunit;
 
 namespace TeamCloud.Data.CosmosDb
@@ -22,9 +21,7 @@ namespace TeamCloud.Data.CosmosDb
         private readonly CosmosDbRepositoryFixture fixture;
 
         public CosmosDbProjectTypesRepositoryTests(CosmosDbRepositoryFixture fixture)
-            : base(new CosmosDbProjectTypeRepository(CosmosDbTestOptions.Instance,
-                new CosmosDbProjectRepository(CosmosDbTestOptions.Instance,
-                    new CosmosDbUserRepository(CosmosDbTestOptions.Instance))))
+            : base(new CosmosDbProjectTypeRepository(CosmosDbTestOptions.Instance, new CosmosDbProjectRepository(CosmosDbTestOptions.Instance, new CosmosDbUserRepository(CosmosDbTestOptions.Instance), new CosmosDbProjectLinkRepository(CosmosDbTestOptions.Instance))))
         {
             this.fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
         }

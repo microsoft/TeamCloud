@@ -20,8 +20,7 @@ namespace TeamCloud.Data.CosmosDb
         private readonly CosmosDbRepositoryFixture fixture;
 
         public CosmosDbProjectsRepositoryTests(CosmosDbRepositoryFixture fixture)
-            : base(new CosmosDbProjectRepository(CosmosDbTestOptions.Instance,
-                new CosmosDbUserRepository(CosmosDbTestOptions.Instance)))
+            : base(new CosmosDbProjectRepository(CosmosDbTestOptions.Instance, new CosmosDbUserRepository(CosmosDbTestOptions.Instance), new CosmosDbProjectLinkRepository(CosmosDbTestOptions.Instance)))
         {
             this.fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
         }

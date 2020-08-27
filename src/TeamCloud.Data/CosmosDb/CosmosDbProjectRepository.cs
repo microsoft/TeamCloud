@@ -18,11 +18,13 @@ namespace TeamCloud.Data.CosmosDb
     public class CosmosDbProjectRepository : CosmosDbRepository<ProjectDocument>, IProjectRepository
     {
         private readonly IUserRepository usersRepository;
+        private readonly IProjectLinkRepository projectLinkRepository;
 
-        public CosmosDbProjectRepository(ICosmosDbOptions cosmosOptions, IUserRepository usersRepository)
+        public CosmosDbProjectRepository(ICosmosDbOptions cosmosOptions, IUserRepository usersRepository, IProjectLinkRepository projectLinkRepository)
             : base(cosmosOptions)
         {
             this.usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
+            this.projectLinkRepository = projectLinkRepository ?? throw new ArgumentNullException(nameof(projectLinkRepository));
         }
 
         public async Task<ProjectDocument> AddAsync(ProjectDocument project)
@@ -198,12 +200,17 @@ namespace TeamCloud.Data.CosmosDb
                     .DeleteItemAsync<ProjectDocument>(project.Id, new PartitionKey(Options.TenantName))
                     .ConfigureAwait(false);
 
-                await usersRepository
-                    .RemoveProjectMembershipsAsync(project.Id)
+                var tasks = new Task[]
+                {
+                    usersRepository.RemoveProjectMembershipsAsync(project.Id),
+                    projectLinkRepository.RemoveAsync(project.Id)
+                };
+
+                await Task
+                    .WhenAll(tasks)
                     .ConfigureAwait(false);
 
-                return await PopulateUsersAsync(response.Resource)
-                    .ConfigureAwait(false);
+                return response.Resource;
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
             {

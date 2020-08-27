@@ -13,6 +13,7 @@ namespace TeamCloud.API.Auth
         public const string UserWrite = "userWrite";
         // public const string ProjectUserRead = "projectUserRead";
         public const string ProjectUserWrite = "projectUserWrite";
+        public const string ProjectLinkWrite = "projectLinkWrite";
         public const string ProjectRead = "projectRead";
         public const string ProjectWrite = "projectWrite";
         public const string ProjectCreate = "projectCreate";

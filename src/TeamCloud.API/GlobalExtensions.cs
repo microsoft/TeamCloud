@@ -27,6 +27,25 @@ namespace TeamCloud.API
 {
     internal static class GlobalExtensions
     {
+        internal static async IAsyncEnumerable<TSource> ToAsyncEnumerable<TSource>(this IEnumerable<Task<TSource>> source)
+        {
+            if (source is null)
+                throw new ArgumentNullException(nameof(source));
+
+            var tasks = source.ToList();
+
+            while (tasks.Any())
+            {
+                var result = await Task
+                    .WhenAny(tasks)
+                    .ConfigureAwait(false);
+
+                tasks.Remove(result);
+
+                yield return (await result.ConfigureAwait(false));
+            }
+        }
+
         internal static async Task<T> InitializeAsync<T>(this T host)
             where T : IHost
         {

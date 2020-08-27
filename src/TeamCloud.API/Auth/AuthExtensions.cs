@@ -62,6 +62,12 @@ namespace TeamCloud.API.Auth
                                            UserRolePolicies.UserWritePolicy);
                     });
 
+                    options.AddPolicy(AuthPolicies.ProjectLinkWrite, policy =>
+                    {
+                        policy.RequireRole(TeamCloudUserRole.Admin.PolicyRoleName(),
+                                           ProjectUserRole.Owner.PolicyRoleName(),
+                                           ProjectUserRole.Provider.PolicyRoleName());
+                    });
 
                     options.AddPolicy(AuthPolicies.ProjectRead, policy =>
                     {

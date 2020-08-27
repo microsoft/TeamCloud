@@ -4,8 +4,11 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -18,8 +21,6 @@ namespace TeamCloud.API.Middleware
 {
     public sealed class RequestResponseTracingMiddleware : IMiddleware
     {
-        private const LogLevel LOGLEVEL = LogLevel.Debug;
-
         private readonly ILogger logger;
         private readonly RecyclableMemoryStreamManager streamManager;
         private readonly ObjectPool<StringBuilder> stringBuilderPool;
@@ -39,7 +40,7 @@ namespace TeamCloud.API.Middleware
             if (next is null)
                 throw new ArgumentNullException(nameof(next));
 
-            if (logger.IsEnabled(LOGLEVEL))
+            if (logger.IsEnabled(LogLevel.Debug))
             {
                 var stopwatch = Stopwatch.StartNew();
                 var originalBodyStream = context.Response.Body;
@@ -95,14 +96,21 @@ namespace TeamCloud.API.Middleware
             try
             {
                 message.AppendLine($"Http Request Information: {context.Request.Method.ToUpperInvariant()} {context.Request.GetDisplayUrl()}");
-                message.AppendLine($"Body: {await ReadStreamAsync(requestStream).ConfigureAwait(false)}");
+                message.AppendLine($"User:  {context.User?.GetObjectId()}");
+                message.AppendLine($"Roles: {string.Join(", ", GetUserRoles())}");
+                message.AppendLine($"Body:  {await ReadStreamAsync(requestStream).ConfigureAwait(false)}");
 
-                logger.Log(LOGLEVEL, message.ToString());
+                logger.LogDebug(message.ToString());
             }
             finally
             {
                 stringBuilderPool.Return(message);
             }
+
+            IEnumerable<string> GetUserRoles()
+                => (context.User?.Claims ?? Enumerable.Empty<Claim>())
+                .Where(claim => ClaimTypes.Role.Equals(claim.Type, StringComparison.OrdinalIgnoreCase))
+                .Select(claim => claim.Value);
         }
 
         private async Task LogResponse(HttpContext context, Stopwatch stopwatch)
@@ -116,7 +124,7 @@ namespace TeamCloud.API.Middleware
                 message.AppendLine($"Http Response Information: {context.Request.Method.ToUpperInvariant()} {context.Request.GetDisplayUrl()} [{stopwatch.Elapsed}]");
                 message.AppendLine($"Body: {await ReadStreamAsync(context.Response.Body).ConfigureAwait(false)}");
 
-                logger.Log(LOGLEVEL, message.ToString());
+                logger.LogDebug(message.ToString());
             }
             finally
             {
