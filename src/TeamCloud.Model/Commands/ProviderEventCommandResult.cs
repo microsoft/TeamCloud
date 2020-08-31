@@ -2,6 +2,6 @@
 
 namespace TeamCloud.Model.Commands
 {
-    public sealed class ProviderEventCommandResult : CommandResult
+    public class ProviderEventCommandResult : CommandResult
     { }
 }
