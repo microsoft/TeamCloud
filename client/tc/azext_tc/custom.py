@@ -283,21 +283,16 @@ def teamcloud_app_deploy(cmd, client, base_url, client_id, app_type='Web', versi
         resource_group_name = tc_instance.resource_group.name
         if not resource_group_name:
             raise CLIError('TODO TeamCloud instance was not deployed by the cli')
+        resource_group_name = resource_group_name + app_type
         location = tc_instance.resource_group.region
-        hook.add(message='Getting resource group {}'.format(resource_group_name))
-        rg, sub_id = get_resource_group_by_name(cli_ctx, resource_group_name)
-        if rg is None:
+    rg, sub_id = get_resource_group_by_name(cli_ctx, resource_group_name)
+    if rg is None:
+        if location is None:
             raise CLIError(
-                "TeamCloud instance resource group '{}' not found".format(resource_group_name))
-    else:
-        rg, sub_id = get_resource_group_by_name(cli_ctx, resource_group_name)
-        if rg is None:
-            if location is None:
-                raise CLIError(
-                    "--location/-l is required if resource group '{}' does not exist".format(resource_group_name))
-            hook.add(message="Resource group '{}' not found".format(resource_group_name))
-            hook.add(message="Creating resource group '{}'".format(resource_group_name))
-            rg, sub_id = create_resource_group_name(cli_ctx, resource_group_name, location)
+                "--location/-l is required if resource group '{}' does not exist".format(resource_group_name))
+        hook.add(message="Resource group '{}' not found".format(resource_group_name))
+        hook.add(message="Creating resource group '{}'".format(resource_group_name))
+        rg, sub_id = create_resource_group_name(cli_ctx, resource_group_name, location)
 
     parameters = []
     parameters.append('webAppName={}'.format(name))
@@ -387,8 +382,8 @@ def teamcloud_app_upgrade(cmd, client, base_url, client_id, app_type='Web', vers
     _ = client.update_team_cloud_instance(tc_instance)
 
     result = {
-        'version': version or 'latest',
         'name': name,
+        'version': version or 'latest',
         'url': '{}'.format(web_app.url),
     }
 
