@@ -32,11 +32,26 @@ namespace TeamCloud.API.Services
         public string CurrentUserId
             => httpContextAccessor.HttpContext.User.GetObjectId();
 
-        public async Task<UserDocument> CurrentUserAsync()
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="allowUnsafe">This should only be set to true in ApiController actions with the attribute Authorize(Policy = AuthPolicies.Default)</param>
+        /// <returns></returns>
+        public async Task<UserDocument> CurrentUserAsync(bool allowUnsafe = false)
         {
             var user = await usersRepository
                 .GetAsync(CurrentUserId)
                 .ConfigureAwait(false);
+
+            if (user is null && allowUnsafe)
+            {
+                user = new UserDocument
+                {
+                    Id = CurrentUserId,
+                    Role = TeamCloudUserRole.None,
+                    UserType = UserType.User
+                };
+            }
 
             return user;
         }

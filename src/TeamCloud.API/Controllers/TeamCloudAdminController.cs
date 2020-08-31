@@ -165,7 +165,7 @@ namespace TeamCloud.API.Controllers
             teamCloudInstanceDocument.Tags = teamCloudInstance.Tags;
 
             var currentUser = await UserService
-                .CurrentUserAsync()
+                .CurrentUserAsync(allowUnsafe: true)
                 .ConfigureAwait(false);
 
             return await Orchestrator
