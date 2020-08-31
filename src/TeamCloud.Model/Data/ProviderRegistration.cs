@@ -15,10 +15,16 @@ namespace TeamCloud.Model.Data
     {
         public Guid? PrincipalId { get; set; }
 
-        public ProviderCommandMode CommandMode { get; set; } = ProviderCommandMode.Simple;
+        public IList<ProviderEventSubscription> EventSubscriptions { get; set; }
+            = new List<ProviderEventSubscription>();
 
-        public IList<string> ResourceProviders { get; set; } = new List<string>();
+        public ProviderCommandMode CommandMode { get; set; }
+            = ProviderCommandMode.Simple;
 
-        public IDictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
+        public IList<string> ResourceProviders { get; set; }
+            = new List<string>();
+
+        public IDictionary<string, string> Properties { get; set; }
+            = new Dictionary<string, string>();
     }
 }

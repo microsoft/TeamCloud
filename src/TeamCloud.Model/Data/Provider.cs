@@ -26,14 +26,19 @@ namespace TeamCloud.Model.Data
 
         public AzureResourceGroup ResourceGroup { get; set; }
 
-        public IList<string> Events { get; set; } = new List<string>();
+        public IList<string> Events { get; set; }
+            = new List<string>();
 
-        public IDictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
+        public IList<ProviderEventSubscription> EventSubscriptions { get; set; }
+            = new List<ProviderEventSubscription>();
+
+        public IDictionary<string, string> Properties { get; set; }
+            = new Dictionary<string, string>();
 
         public DateTime? Registered { get; set; }
 
-        public ProviderCommandMode CommandMode { get; set; } = ProviderCommandMode.Simple;
-
+        public ProviderCommandMode CommandMode { get; set; }
+            = ProviderCommandMode.Simple;
 
         public bool Equals(Provider other)
             => Id.Equals(other?.Id, StringComparison.Ordinal);
