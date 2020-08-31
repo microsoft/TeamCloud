@@ -52,6 +52,6 @@ namespace TeamCloud.Model.Data
             => base.Equals(obj) || Equals(obj as ProviderDocument);
 
         public override int GetHashCode()
-            => Id?.GetHashCode(StringComparison.Ordinal) ?? base.GetHashCode();
+            => HashCode.Combine(this.GetType(), Id);
     }
 }
