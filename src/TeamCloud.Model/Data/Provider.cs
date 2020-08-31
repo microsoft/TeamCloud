@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
 using TeamCloud.Serialization;
 
@@ -29,8 +30,8 @@ namespace TeamCloud.Model.Data
         public IList<string> Events { get; set; }
             = new List<string>();
 
-        public IList<ProviderEventSubscription> EventSubscriptions { get; set; }
-            = new List<ProviderEventSubscription>();
+        public IEnumerable<ProviderEventSubscription> EventSubscriptions { get; set; }
+            = Enumerable.Empty<ProviderEventSubscription>();
 
         public IDictionary<string, string> Properties { get; set; }
             = new Dictionary<string, string>();
