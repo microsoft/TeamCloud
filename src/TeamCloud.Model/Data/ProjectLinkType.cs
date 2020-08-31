@@ -8,8 +8,9 @@ namespace TeamCloud.Model.Data
     public enum ProjectLinkType
     {
         Link,
-        ReadMe,
+        Readme,
         Service,
-        Resource,
+        GitRepository,
+        AzureResource,
     }
 }
