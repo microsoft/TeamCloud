@@ -119,7 +119,7 @@ def load_arguments(self, _):
         with self.argument_context(scope) as c:
             c.argument('client_id', options_list=['--client-id', '-c'],
                        type=str, validator=client_id_validator,
-                       help='Client ID for the Managed Application used for user authentication.'
+                       help='Client ID for the Managed Application used for user authentication. '
                        'See https://aka.ms/tcwebclientid for instructions.')
             c.argument('app_type', get_enum_type(['Web'], default='Web'),
                        options_list=['--type', '-t'], help='App type. Currently only supports Web')
