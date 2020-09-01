@@ -14,7 +14,8 @@ from ._validators import (
     tracking_id_validator, project_type_id_validator, project_type_id_validator_name, provider_id_validator,
     subscriptions_list_validator, provider_event_list_validator, url_validator, base_url_validator,
     teamcloud_source_version_validator, providers_source_version_validator, auth_code_validator,
-    properties_validator, index_url_validator, project_name_or_id_validator_name, client_id_validator)
+    properties_validator, index_url_validator, project_name_or_id_validator_name, client_id_validator,
+    teamcloud_cli_source_version_validator)
 
 from ._completers import (
     get_project_completion_list, get_project_type_completion_list, get_provider_completion_list,
@@ -54,14 +55,15 @@ def load_arguments(self, _):
     # Global
 
     # ignore global az arg --subscription and requre base_url for everything except `tc deploy`
-    for scope in ['tc info', 'tc status', 'tc upgrade', 'tc user', 'tc project',
+    for scope in ['tc info', 'tc status', 'tc upgrade', 'tc update', 'tc user', 'tc project',
                   'tc project-type', 'tc provider', 'tc tag', 'tc app']:
         with self.argument_context(scope, arg_group='TeamCloud') as c:
             c.ignore('_subscription')
             c.argument('base_url', tc_url_type)
 
-    with self.argument_context('tc provider list-available') as c:
-        c.ignore('base_url')
+    for scope in ['tc provider list-available', 'tc update']:
+        with self.argument_context(scope) as c:
+            c.ignore('base_url')
 
     # Tags
 
@@ -106,6 +108,12 @@ def load_arguments(self, _):
                    help='Deploy latest prerelease version.')
         c.argument('index_url', help='URL to custom index.json file.',
                    validator=index_url_validator)
+
+    with self.argument_context('tc update') as c:
+        c.argument('version', options_list=['--version', '-v'], help='TeamCloud version (tag). Default: latest stable.',
+                   validator=teamcloud_cli_source_version_validator)
+        c.argument('prerelease', options_list=['--pre'], action='store_true',
+                   help='Deploy latest prerelease version.')
 
     with self.argument_context('tc status') as c:
         c.argument('project', project_name_or_id_type)
