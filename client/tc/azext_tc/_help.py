@@ -15,6 +15,16 @@ type: group
 short-summary: Manage TeamCloud instances.
 """
 
+helps['tc update'] = """
+type: command
+short-summary: Update tc cli extension.
+examples:
+  - name: Update tc cli extension.
+    text: az tc update
+  - name: Update tc cli extension to the latest pre-release.
+    text: az tc update --pre
+"""
+
 helps['tc info'] = """
 type: command
 short-summary: Get TeamCloud instance information.

@@ -28,8 +28,12 @@ TRIES = 3
 logger = get_logger(__name__)
 
 
-def get_github_latest_release(cli_ctx, repo, org='microsoft', prerelease=False):
+def get_github_release(cli_ctx, repo, org='microsoft', version=None, prerelease=False):
     import requests
+
+    if version and prerelease:
+        raise CLIError(
+            'usage error: can only use one of --version/-v | --pre')
 
     url = 'https://api.github.com/repos/{}/{}/releases'.format(org, repo)
 
@@ -41,9 +45,10 @@ def get_github_latest_release(cli_ctx, repo, org='microsoft', prerelease=False):
         if not version_prerelease:
             raise CLIError('--pre no prerelease versions found for {}/{}'.format(org, repo))
 
-        return version_prerelease['tag_name']
+        return version_prerelease
 
-    url = url + '/latest'
+    url += ('/tags/{}'.format(version) if version else '/latest')
+
     version_res = requests.get(url, verify=not should_disable_connection_verify())
 
     if version_res.status_code == 404:
@@ -52,7 +57,11 @@ def get_github_latest_release(cli_ctx, repo, org='microsoft', prerelease=False):
             'Specify a specific prerelease version with --version '
             'or use latest prerelease with --pre'.format(org, repo))
 
-    version_json = version_res.json()
+    return version_res.json()
+
+
+def get_github_latest_release_version(cli_ctx, repo, org='microsoft', prerelease=False):
+    version_json = get_github_release(cli_ctx, repo, org, prerelease=prerelease)
     return version_json['tag_name']
 
 
@@ -238,7 +247,7 @@ def get_index(index_url):
 
 def get_index_providers_core(cli_ctx, version=None, prerelease=False, index_url=None, warn=False):
     if index_url is None:
-        version = version or get_github_latest_release(
+        version = version or get_github_latest_release_version(
             cli_ctx, 'TeamCloud-Providers', prerelease=prerelease)
         index_url = 'https://github.com/microsoft/TeamCloud-Providers/releases/download/{}/index.json'.format(
             version)
@@ -269,7 +278,8 @@ def get_index_providers(cli_ctx, provider, version=None, prerelease=False, index
 
 def _get_index_teamcloud_core(cli_ctx, version=None, prerelease=False, index_url=None):
     if index_url is None:
-        version = version or get_github_latest_release(cli_ctx, 'TeamCloud', prerelease=prerelease)
+        version = version or get_github_latest_release_version(
+            cli_ctx, 'TeamCloud', prerelease=prerelease)
         index_url = 'https://github.com/microsoft/TeamCloud/releases/download/{}/index.json'.format(
             version)
     index = get_index(index_url=index_url)

@@ -26,6 +26,7 @@ def load_command_table(self, _):  # pylint: disable=too-many-statements
         g.custom_command('info', 'teamcloud_info', transform=transform_output)
         g.custom_command('deploy', 'teamcloud_deploy', validator=tc_deploy_validator)
         g.custom_command('upgrade', 'teamcloud_upgrade')
+        g.custom_command('update', 'teamcloud_update')
         g.custom_command('status', 'status_get', transform=transform_output)
 
     # TeamCloud Apps

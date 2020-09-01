@@ -3,6 +3,11 @@
 Release History
 ===============
 
+0.5.7
+++++++
+* Preview release
+* Add command to update tc cli extension
+
 0.5.6
 ++++++
 * Preview release
