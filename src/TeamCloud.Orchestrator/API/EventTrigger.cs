@@ -3,24 +3,40 @@
  *  Licensed under the MIT License.
  */
 
-using System;/**
- *  Copyright (c) Microsoft Corporation.
- *  Licensed under the MIT License.
- */
+using System;
+using System.Collections.Generic;
+using System.Linq;
+/**
+*  Copyright (c) Microsoft Corporation.
+*  Licensed under the MIT License.
+*/
 
 using System.Threading.Tasks;
 using Flurl;
 using Flurl.Http;
 using Microsoft.Azure.EventGrid.Models;
 using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.EventGrid;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using TeamCloud.Azure;
+using TeamCloud.Data;
 using TeamCloud.Http;
+using TeamCloud.Model.Commands;
+using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
+using TeamCloud.Orchestrator.Orchestrations.Utilities;
 
 namespace TeamCloud.Orchestrator.API
 {
-    public static class EventTrigger
+    public sealed class EventTrigger
     {
+        private readonly IAzureSessionService azureSessionService;
+        private readonly IProviderRepository providerRepository;
+        private readonly IMemoryCache memoryCache;
+
         internal static async Task<string> GetUrlAsync()
         {
             var masterKey = await FunctionsEnvironment
@@ -44,13 +60,94 @@ namespace TeamCloud.Orchestrator.API
               .ToString();
         }
 
+        public EventTrigger(IAzureSessionService azureSessionService, IProviderRepository providerRepository, IMemoryCache memoryCache)
+        {
+            this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
+            this.providerRepository = providerRepository ?? throw new ArgumentNullException(nameof(providerRepository));
+            this.memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
+        }
+
+
+        private async Task<IEnumerable<ProviderDocument>> GetProviderDocumentsAsync(EventGridEvent eventGridEvent)
+        {
+            static DateTime GetExpirationTimestamp()
+            {
+                var now = DateTime.UtcNow;
+                var exp = now.AddMinutes(5 - now.Minute % 5);
+
+                return exp.AddTicks(-(exp.Ticks % TimeSpan.TicksPerMinute));
+            }
+
+            bool DoesEventSubscriptionMatch(ProviderEventSubscription eventSubscription)
+            {
+                if (ProviderEventSubscription.All.Equals(eventSubscription))
+                    return true;
+
+                return eventGridEvent.EventType
+                    .Equals(eventSubscription.EventType, StringComparison.Ordinal);
+            }
+
+            var providerDocuments = await memoryCache.GetOrCreateAsync<IEnumerable<ProviderDocument>>($"{this.GetType()}|{nameof(GetProviderDocumentsAsync)}", async cacheEntry =>
+            {
+                cacheEntry.SetAbsoluteExpiration(GetExpirationTimestamp());
+
+                return await providerRepository
+                    .ListAsync()
+                    .Where(provider => provider.EventSubscriptions.Any())
+                    .ToArrayAsync()
+                    .ConfigureAwait(false);
+
+            }).ConfigureAwait(false);
+
+            return providerDocuments
+                .Where(providerDocument => providerDocument.EventSubscriptions.Any(eventSubscription => DoesEventSubscriptionMatch(eventSubscription)));
+        }
+
         [FunctionName(nameof(EventTrigger))]
-        public static Task Run([EventGridTrigger] EventGridEvent eventGridEvent)
+        public async Task Run(
+            [EventGridTrigger] EventGridEvent eventGridEvent,
+            [DurableClient] IDurableClient durableClient,
+            ILogger log)
         {
             if (eventGridEvent is null)
                 throw new ArgumentNullException(nameof(eventGridEvent));
 
-            return Task.CompletedTask;
+            if (durableClient is null)
+                throw new ArgumentNullException(nameof(durableClient));
+
+            var providerDocuments = await GetProviderDocumentsAsync(eventGridEvent)
+                .ConfigureAwait(false);
+
+            if (providerDocuments.Any())
+            {
+                var systemIdentity = await azureSessionService
+                    .GetIdentityAsync()
+                    .ConfigureAwait(false);
+
+                var systemUser = new User()
+                {
+                    Id = systemIdentity.ObjectId.ToString(),
+                    Role = TeamCloudUserRole.None,
+                    UserType = UserType.System
+                };
+
+                var command = new ProviderEventCommand(systemUser, eventGridEvent);
+
+                var tasks = providerDocuments.Select(providerDocument =>
+                {
+                    log.LogInformation($"Forwarding event {eventGridEvent.Id} to provider {providerDocument.Id}: {JsonConvert.SerializeObject(eventGridEvent)}");
+
+                    return durableClient.StartNewAsync(nameof(ProviderSendOrchestration), Guid.NewGuid().ToString(), (command, providerDocument));
+                });
+
+                await Task
+                    .WhenAll(tasks)
+                    .ConfigureAwait(false);
+            }
+            else
+            {
+                log.LogDebug($"Ignoring event {eventGridEvent.Id}: {JsonConvert.SerializeObject(eventGridEvent)}");
+            }
         }
     }
 }

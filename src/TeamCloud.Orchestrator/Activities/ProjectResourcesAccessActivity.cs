@@ -4,16 +4,14 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Azure.Management.KeyVault.Fluent.Models;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Azure;
 using TeamCloud.Azure.Resources;
-using TeamCloud.Azure.Resources.Typed;
 using TeamCloud.Data;
-using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
 
 namespace TeamCloud.Orchestrator.Activities
@@ -51,7 +49,7 @@ namespace TeamCloud.Orchestrator.Activities
             if (!string.IsNullOrEmpty(project.ResourceGroup?.Id))
             {
                 var resourceGroup = await azureResourceService
-                     .GetResourceGroupAsync(project.ResourceGroup.SubscriptionId, project.ResourceGroup.Name, throwIfNotExists: true)
+                     .GetResourceGroupAsync(project.ResourceGroup.SubscriptionId, project.ResourceGroup.Name)
                      .ConfigureAwait(false);
 
                 if (resourceGroup != null)
@@ -60,19 +58,23 @@ namespace TeamCloud.Orchestrator.Activities
                         .GetRoleAssignmentsAsync(principalId.ToString())
                         .ConfigureAwait(false);
 
+                    var roleAssignmentTasks = new List<Task>();
+
                     if (!roleAssignments.Contains(AzureRoleDefinition.Contributor))
                     {
-                        await resourceGroup
-                            .AddRoleAssignmentAsync(principalId.ToString(), AzureRoleDefinition.Contributor)
-                            .ConfigureAwait(false);
+                        roleAssignmentTasks
+                            .Add(resourceGroup.AddRoleAssignmentAsync(principalId.ToString(), AzureRoleDefinition.Contributor));
                     }
 
                     if (!roleAssignments.Contains(AzureRoleDefinition.UserAccessAdministrator))
                     {
-                        await resourceGroup
-                            .AddRoleAssignmentAsync(principalId.ToString(), AzureRoleDefinition.UserAccessAdministrator)
-                            .ConfigureAwait(false);
+                        roleAssignmentTasks
+                            .Add(resourceGroup.AddRoleAssignmentAsync(principalId.ToString(), AzureRoleDefinition.UserAccessAdministrator));
                     }
+
+                    await Task
+                        .WhenAll(roleAssignmentTasks)
+                        .ConfigureAwait(false);
                 }
             }
         }

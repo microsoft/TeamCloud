@@ -34,7 +34,7 @@ namespace TeamCloud.Orchestrator.Activities
             return new UserDocument()
             {
                 Id = systemIdentity.ObjectId.ToString(),
-                Role = TeamCloudUserRole.Admin,
+                Role = TeamCloudUserRole.None,
                 UserType = UserType.System
             };
         }

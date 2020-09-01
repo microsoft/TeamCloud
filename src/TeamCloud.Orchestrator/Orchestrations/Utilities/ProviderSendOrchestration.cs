@@ -11,13 +11,12 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using TeamCloud.Model.Commands.Core;
-using TeamCloud.Model.Commands;
-using TeamCloud.Model.Internal;
 using TeamCloud.Model;
+using TeamCloud.Model.Commands;
+using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Common;
 using TeamCloud.Model.Data;
-using TeamCloud.Model.Data.Core;
+using TeamCloud.Model.Internal;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestration.Auditing;
 using TeamCloud.Orchestrator.Activities;
@@ -105,7 +104,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 
                 commandMessage = new ProviderCommandMessage(command, commandCallback);
 
-                if (!(command is ProviderRegisterCommand || provider.Registered.HasValue))
+                if (!(command is ProviderRegisterCommand) && !provider.Registered.HasValue)
                 {
                     log.LogInformation($"Register provider {provider.Id} for command {command.CommandId}");
 
@@ -252,13 +251,12 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                         .GetProjectAsync(command.ProjectId)
                         .ConfigureAwait(true);
 
-                    var providerReference = project.Type.Providers
+                    var providerReference = project?.Type.Providers
                         .SingleOrDefault(pr => pr.Id == provider.Id);
 
                     if (providerReference != null)
                     {
                         var commandType = command.GetType().Name;
-
                         var resultProperties = providerOutputResult?.Result?.Properties ?? new Dictionary<string, string>();
 
                         if (!providerReference.Metadata.TryAdd(commandType, resultProperties))
