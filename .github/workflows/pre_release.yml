@@ -240,3 +240,24 @@ jobs:
           asset_path: dist/tc-${{ env.TC_CLI_VERSION }}-py2.py3-none-any.whl
           asset_name: tc-${{ env.TC_CLI_VERSION }}-py2.py3-none-any.whl
           asset_content_type: application/zip
+
+      - name: Update CLI.md Version
+        shell: python
+        run: |
+          from pathlib import Path
+
+          with open(Path(Path.cwd() / 'docs/tpl') / 'CLI.md.tpl', 'r') as f:
+              content = f.read()
+
+          content = content.replace('%{{latest_cli}}%', 'https://github.com/microsoft/TeamCloud/releases/download/v${{ steps.gitversion.outputs.majorMinorPatch }}/tc-${{ env.TC_CLI_VERSION }}-py2.py3-none-any.whl')
+
+          with open(Path(Path.cwd() / 'docs') / 'CLI.md', 'w') as f:
+              f.write(content)
+
+      # Commit the docs only when any have changed
+      # (git diff --quiet && git diff --staged --quiet )
+      - name: Commit Updated Docs
+        run: |
+          git add docs
+          git diff --quiet && git diff --staged --quiet || git commit -m "[gh-action] Update Docs +norelease"
+          git push origin master
