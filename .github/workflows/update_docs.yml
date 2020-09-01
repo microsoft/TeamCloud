@@ -1,0 +1,45 @@
+name: Update Docs for Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    name: Update Docs for Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Update CLI.md Version
+        shell: python
+        run: |
+          import subprocess
+          from pathlib import Path
+
+          DOCS_DIR = Path(Path.cwd() / 'docs')
+          TMPL_DIR = Path(Path.cwd() / 'docs/tpl')
+
+          release = subprocess.run(['hub', 'release', '-L', '1'], text=True, check=True, capture_output=True).stdout.rstrip()
+          assets = subprocess.run(['hub', 'release', 'show', release, '-f', '%as'], text=True, check=True, capture_output=True).stdout.splitlines()
+          cli_asset = next((a.rstrip() for a in assets if '.whl' in a), None)
+
+          with open(TMPL_DIR / 'CLI.md.tpl', 'r') as f:
+              content = f.read()
+
+          content = content.replace('%{{latest_cli}}%', cli_asset)
+
+          with open(DOCS_DIR / 'CLI.md', 'w') as f:
+              f.write(content)
+
+      # Commit the docs only when any have changed
+      # (git diff --quiet && git diff --staged --quiet )
+      - name: Commit Updated Docs
+        run: |
+          git add docs
+          git diff --quiet && git diff --staged --quiet || git commit -m "[gh-action] Update Docs +norelease"
+          git push origin master
