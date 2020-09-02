@@ -54,4 +54,3 @@ Next, configure the app registration with a Redirect URI (and scope) to specify 
 
 [azure-portal]:https://portal.azure.com/
 [reply-url]:https://docs.microsoft.com/en-us/azure/active-directory/develop/reply-url
-
