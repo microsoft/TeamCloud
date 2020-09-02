@@ -4,6 +4,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
@@ -52,7 +53,7 @@ namespace TeamCloud.API
 
 #pragma warning disable CA1822 // Mark members as static
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, AzureResourceManagerOptions resourceManagerOptions)
         {
             if (env.IsDevelopment())
             {
@@ -64,14 +65,14 @@ namespace TeamCloud.API
                    .UseHttpsRedirection();
             }
 
-            // Enable middleware to serve generated Swagger as a JSON endpoint
-            // plus serve swagger-ui (HTML, JS, CSS, etc.), specifying the Swagger JSON endpoint.
-
             app
                 .UseSwagger()
                 .UseSwaggerUI(c =>
                 {
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", "TeamCloud API v1");
+                    c.OAuthClientId(resourceManagerOptions.ClientId);
+                    c.OAuthClientSecret("");
+                    c.OAuthUsePkce();
                 });
 
             app
@@ -171,6 +172,10 @@ namespace TeamCloud.API
 
         private static void ConfigureSwagger(IServiceCollection services)
         {
+            var resourceManagerOptions = services
+                .BuildServiceProvider()
+                .GetRequiredService<AzureResourceManagerOptions>();
+
             services
                 .AddSwaggerGen(options =>
                 {
@@ -196,6 +201,23 @@ namespace TeamCloud.API
                     options.EnableAnnotations();
                     options.UseInlineDefinitionsForEnums();
 
+                    options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+                    {
+                        Type = SecuritySchemeType.OAuth2,
+                        Flows = new OpenApiOAuthFlows
+                        {
+                            AuthorizationCode = new OpenApiOAuthFlow
+                            {
+                                TokenUrl = new Uri($"https://login.microsoftonline.com/{resourceManagerOptions.TenantId}/oauth2/v2.0/token"),
+                                AuthorizationUrl = new Uri($"https://login.microsoftonline.com/{resourceManagerOptions.TenantId}/oauth2/v2.0/authorize"),
+                                Scopes = new Dictionary<string, string> {
+                                    { "openid", "Sign you in" },
+                                    { "http://TeamCloud.aztcclitestsix/user_impersonation", "Access the TeamCloud API" }
+                                }
+                            }
+                        }
+                    });
+
                     options.AddSecurityRequirement(new OpenApiSecurityRequirement
                     {
                         {
@@ -203,7 +225,7 @@ namespace TeamCloud.API
                             {
                                 Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "oauth2" },
                             },
-                            new [] { "default", "admin", "projectCreate", "projectRead", "projectDelete" }
+                            new [] { "openid", "http://TeamCloud.aztcclitestsix/user_impersonation" }
                         }
                     });
 
