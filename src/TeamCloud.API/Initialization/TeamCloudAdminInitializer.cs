@@ -7,6 +7,7 @@ using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Threading.Tasks;
+using Flurl.Http;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Extensions.Hosting;
@@ -81,14 +82,35 @@ namespace TeamCloud.API.Initialization
                 };
 
                 var command = new OrchestratorTeamCloudUserCreateCommand(user, user);
+                var commandResult = (ICommandResult)command.CreateResult();
 
-                var commandResult = await orchestrator
-                    .InvokeAsync(command)
-                    .ConfigureAwait(false);
+                var commandSendDuration = TimeSpan.FromMinutes(5);
+                var commandSendTimeout = DateTime.UtcNow.Add(commandSendDuration);
 
-                var initializationTimeout = DateTime.UtcNow.AddMinutes(5);
+                while (DateTime.UtcNow < commandSendTimeout)
+                {
+                    try
+                    {
+                        commandResult = await orchestrator
+                            .InvokeAsync(command)
+                            .ConfigureAwait(false);
 
-                while (commandResult.RuntimeStatus.IsActive() && DateTime.UtcNow < initializationTimeout)
+                        break;
+                    }
+                    catch (FlurlHttpException exc) when (exc.Call.HttpStatus == System.Net.HttpStatusCode.BadGateway)
+                    {
+                        log.LogWarning(exc, $"Failed to initialize environment with user '{user.Id}' - will retry in a second");
+
+                        await Task
+                            .Delay(1000)
+                            .ConfigureAwait(false);
+                    }
+                }
+
+                var commandResultDuration = TimeSpan.FromMinutes(5);
+                var commandResultTimeout = DateTime.UtcNow.Add(commandResultDuration);
+
+                while (DateTime.UtcNow < commandResultTimeout && commandResult.RuntimeStatus.IsActive())
                 {
                     await Task
                         .Delay(1000)
