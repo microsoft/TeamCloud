@@ -23,9 +23,9 @@ def load_command_table(self, _):  # pylint: disable=too-many-statements
         pass
 
     with self.command_group('tc', client_factory=teamcloud_client_factory) as g:
+        g.custom_command('upgrade', 'teamcloud_upgrade')
         g.custom_command('info', 'teamcloud_info', transform=transform_output)
         g.custom_command('deploy', 'teamcloud_deploy', validator=tc_deploy_validator)
-        g.custom_command('upgrade', 'teamcloud_upgrade')
         g.custom_command('update', 'teamcloud_update')
         g.custom_command('status', 'status_get', transform=transform_output)
 

@@ -1,4 +1,4 @@
-# TeamCloud Client SDKs
+<!-- # TeamCloud Client SDKs
 
 This file contains the configuration for generating client SDKs for the TeamCloud API.
 
@@ -52,7 +52,9 @@ license-header: MICROSOFT_MIT_NO_VERSION
 
 ``` yaml
 python:
-  # output-folder: Python
+#   # output-folder: Python
+  use-extension:
+    "@autorest/python": "5.1.0-preview.7"
   no-namespace-folders: true
   output-folder: tc/azext_tc/vendored_sdks/teamcloud
-```
+``` -->
