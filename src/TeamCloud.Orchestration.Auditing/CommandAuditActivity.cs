@@ -72,7 +72,7 @@ namespace TeamCloud.Orchestration.Auditing
                 entity = (entityResult.Result as CommandAuditEntity) ?? entity;
 
             await auditTable
-                .ExecuteAsync(TableOperation.InsertOrReplace(entity.Augment(command, commandResult)))
+                .ExecuteAsync(TableOperation.InsertOrReplace(entity.Augment(command, commandResult, providerId)))
                 .ConfigureAwait(false);
         }
 

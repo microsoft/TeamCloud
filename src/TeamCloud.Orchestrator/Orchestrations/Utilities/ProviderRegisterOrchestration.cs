@@ -10,6 +10,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Model.Commands;
+using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Activities;
@@ -107,58 +108,70 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                         .SendProviderCommandAsync<ProviderRegisterCommand, ProviderRegisterCommandResult>(command, provider)
                         .ConfigureAwait(true);
 
-                    using (await functionContext.LockContainerDocumentAsync(provider).ConfigureAwait(true))
+                    if (commandResult.RuntimeStatus == CommandRuntimeStatus.Completed)
                     {
-                        provider = await functionContext
-                            .GetProviderAsync(provider.Id)
-                            .ConfigureAwait(true);
-
-                        if (provider is null)
+                        using (await functionContext.LockContainerDocumentAsync(provider).ConfigureAwait(true))
                         {
-                            log.LogWarning($"Provider '{provider.Id}' registration skipped - provider no longer exists");
-                        }
-                        else
-                        {
-                            provider.PrincipalId = commandResult.Result.PrincipalId;
-                            provider.CommandMode = commandResult.Result.CommandMode;
-                            provider.Registered = functionContext.CurrentUtcDateTime;
-                            provider.ResourceProviders = commandResult.Result.ResourceProviders;
-                            provider.Properties = provider.Properties.Override(commandResult.Result.Properties);
-
-                            functionContext.SetCustomStatus($"Updating provider", log);
-
                             provider = await functionContext
-                                .SetProviderAsync(provider)
+                                .GetProviderAsync(provider.Id)
                                 .ConfigureAwait(true);
 
-                            if (provider.PrincipalId.HasValue)
+                            if (provider is null)
                             {
-                                functionContext.SetCustomStatus($"Resolving provider identity", log);
+                                log.LogWarning($"Provider '{provider.Id}' registration skipped - provider no longer exists");
+                            }
+                            else
+                            {
+                                provider.PrincipalId = commandResult.Result.PrincipalId;
+                                provider.CommandMode = commandResult.Result.CommandMode;
+                                provider.Registered = functionContext.CurrentUtcDateTime;
+                                provider.EventSubscriptions = commandResult.Result.EventSubscriptions;
+                                provider.ResourceProviders = commandResult.Result.ResourceProviders;
+                                provider.Properties = provider.Properties.Override(commandResult.Result.Properties);
 
-                                var providerUser = await functionContext
-                                    .GetUserAsync(provider.PrincipalId.Value.ToString(), allowUnsafe: true)
+                                functionContext.SetCustomStatus($"Updating provider", log);
+
+                                provider = await functionContext
+                                    .SetProviderAsync(provider)
                                     .ConfigureAwait(true);
 
-                                if (providerUser is null)
+                                if (provider.PrincipalId.HasValue)
                                 {
-                                    providerUser = new UserDocument
-                                    {
-                                        Id = provider.PrincipalId.Value.ToString(),
-                                        Role = TeamCloudUserRole.Provider,
-                                        UserType = UserType.Provider
-                                    };
+                                    functionContext.SetCustomStatus($"Resolving provider identity", log);
 
-                                    functionContext.SetCustomStatus($"Granting provider access", log);
-
-                                    _ = await functionContext
-                                        .SetUserTeamCloudInfoAsync(providerUser, allowUnsafe: true)
+                                    var providerUser = await functionContext
+                                        .GetUserAsync(provider.PrincipalId.Value.ToString(), allowUnsafe: true)
                                         .ConfigureAwait(true);
+
+                                    if (providerUser is null)
+                                    {
+                                        providerUser = new UserDocument
+                                        {
+                                            Id = provider.PrincipalId.Value.ToString(),
+                                            Role = TeamCloudUserRole.Provider,
+                                            UserType = UserType.Provider
+                                        };
+
+                                        functionContext.SetCustomStatus($"Granting provider access", log);
+
+                                        _ = await functionContext
+                                            .SetUserTeamCloudInfoAsync(providerUser, allowUnsafe: true)
+                                            .ConfigureAwait(true);
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    functionContext.SetCustomStatus($"Provider registered", log);
+                        functionContext.SetCustomStatus($"Provider registered", log);
+                    }
+                    else
+                    {
+                        var exception = commandResult.Errors
+                            .ToException();
+
+                        throw exception
+                            ?? new OperationErrorException($"Provider registration ended in runtime status '{commandResult.RuntimeStatus}'");
+                    }
                 }
             }
             catch (Exception exc)

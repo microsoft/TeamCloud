@@ -33,6 +33,7 @@ namespace TeamCloud.Orchestration.Auditing.Model
 
         public string CommandId { get; set; }
         public string Command { get; set; }
+        public string Event { get; set; }
         public string Provider { get; set; }
         public CommandRuntimeStatus Status { get; set; } = CommandRuntimeStatus.Unknown;
 

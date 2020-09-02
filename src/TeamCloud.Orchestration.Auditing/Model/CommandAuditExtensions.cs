@@ -11,7 +11,7 @@ namespace TeamCloud.Orchestration.Auditing.Model
 {
     public static class CommandAuditExtensions
     {
-        public static CommandAuditEntity Augment(this CommandAuditEntity entity, ICommand command, ICommandResult commandResult = default)
+        internal static CommandAuditEntity Augment(this CommandAuditEntity entity, ICommand command, ICommandResult commandResult, string providerId)
         {
             if (entity is null)
                 throw new ArgumentNullException(nameof(entity));
@@ -23,6 +23,8 @@ namespace TeamCloud.Orchestration.Auditing.Model
 
             entity.CommandId = command.CommandId.ToString();
             entity.Command = command.GetType().Name;
+            entity.Event = (command as ProviderEventCommand)?.Payload?.EventType;
+            entity.Provider ??= providerId;
             entity.Created ??= timestamp;
 
             if (commandResult != null)

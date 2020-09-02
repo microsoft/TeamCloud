@@ -1,4 +1,9 @@
-﻿using System;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
+
+using System;
 
 namespace TeamCloud.Model.Data
 {
@@ -43,6 +48,6 @@ namespace TeamCloud.Model.Data
             => base.Equals(obj) || Equals(obj as ProviderEventSubscription);
 
         public override int GetHashCode()
-            => HashCode.Combine(this.GetType(), EventType);
+            => HashCode.Combine(this.GetType().FullName, EventType);
     }
 }

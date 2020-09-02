@@ -7,10 +7,10 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Extensions.Logging;
 using TeamCloud.Data;
 using TeamCloud.Model.Data;
-using TeamCloud.Orchestration;
-using TeamCloud.Orchestrator.Entities;
+using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.Activities
 {
@@ -25,19 +25,23 @@ namespace TeamCloud.Orchestrator.Activities
 
         [FunctionName(nameof(UserGetActivity))]
         public async Task<UserDocument> RunActivity(
-            [ActivityTrigger] string userId)
+            [ActivityTrigger] string userId,
+            ILogger log)
         {
-            return await usersRepository
-                .GetAsync(userId)
-                .ConfigureAwait(false);
-        }
-    }
+            try
+            {
+                var user = await usersRepository
+                    .GetAsync(userId)
+                    .ConfigureAwait(false);
 
-    internal static class UserGetExtension
-    {
-        public static Task<UserDocument> GetUserAsync(this IDurableOrchestrationContext functionContext, string userId, bool allowUnsafe = false)
-            => functionContext.IsLockedBy<UserDocument>(userId) || allowUnsafe
-            ? functionContext.CallActivityWithRetryAsync<UserDocument>(nameof(UserGetActivity), userId)
-            : throw new NotSupportedException($"Unable to get user '{userId}' without acquired lock");
+                return user;
+            }
+            catch (Exception exc)
+            {
+                log.LogError(exc, $"Failed to resolve user '{userId}': {exc.Message}");
+
+                throw exc.AsSerializable();
+            }
+        }
     }
 }
