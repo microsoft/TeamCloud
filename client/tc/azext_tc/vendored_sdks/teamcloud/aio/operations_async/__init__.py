@@ -6,11 +6,8 @@
 # Changes may cause incorrect behavior and will be lost if the code is regenerated.
 # --------------------------------------------------------------------------
 
-from ._team_cloud_client import TeamCloudClient
-__all__ = ['TeamCloudClient']
+from ._team_cloud_client_operations_async import TeamCloudClientOperationsMixin
 
-try:
-    from ._patch import patch_sdk  # type: ignore
-    patch_sdk()
-except ImportError:
-    pass
+__all__ = [
+    'TeamCloudClientOperationsMixin',
+]

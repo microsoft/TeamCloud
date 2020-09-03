@@ -6,11 +6,5 @@
 # Changes may cause incorrect behavior and will be lost if the code is regenerated.
 # --------------------------------------------------------------------------
 
-from ._team_cloud_client import TeamCloudClient
+from ._team_cloud_client_async import TeamCloudClient
 __all__ = ['TeamCloudClient']
-
-try:
-    from ._patch import patch_sdk  # type: ignore
-    patch_sdk()
-except ImportError:
-    pass
