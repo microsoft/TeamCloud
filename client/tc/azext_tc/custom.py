@@ -15,7 +15,11 @@ logger = get_logger(__name__)
 STATUS_POLLING_SLEEP_INTERVAL = 2
 
 
+def _ensure_base_url(client, base_url):
+    client._client._base_url = base_url
+
 # TeamCloud
+
 
 def teamcloud_update(cmd, version=None, prerelease=False):  # pylint: disable=too-many-statements, too-many-locals
     import os
@@ -66,7 +70,7 @@ def teamcloud_update(cmd, version=None, prerelease=False):  # pylint: disable=to
 
 
 def teamcloud_info(cmd, client, base_url):
-    client._client.config.base_url = base_url
+    _ensure_base_url(client, base_url)
     return client.get_team_cloud_instance()
 
 
@@ -208,7 +212,7 @@ def teamcloud_upgrade(cmd, client, base_url, version=None, prerelease=False, ind
         get_index_teamcloud, deploy_arm_template_at_resource_group, get_resource_group_by_name,
         set_appconfig_keys, zip_deploy_app, get_app_name, get_arm_output)
 
-    client._client.config.base_url = base_url
+    _ensure_base_url(client, base_url)
     cli_ctx = cmd.cli_ctx
 
     hook = cli_ctx.get_progress_controller()
@@ -290,7 +294,7 @@ def teamcloud_upgrade(cmd, client, base_url, version=None, prerelease=False, ind
 
 
 def status_get(cmd, client, base_url, tracking_id, project=None):
-    client._client.config.base_url = base_url
+    _ensure_base_url(client, base_url)
     return client.get_project_status(project, tracking_id) if project else client.get_status(tracking_id)
 
 
@@ -303,7 +307,7 @@ def teamcloud_app_deploy(cmd, client, base_url, client_id, app_type='Web', versi
         deploy_arm_template_at_resource_group, zip_deploy_app)
     from .vendored_sdks.teamcloud.models import TeamCloudApplication, AzureResourceGroup
 
-    client._client.config.base_url = base_url
+    _ensure_base_url(client, base_url)
     cli_ctx = cmd.cli_ctx
 
     if app_type.lower() != 'web':
@@ -378,7 +382,7 @@ def teamcloud_app_upgrade(cmd, client, base_url, client_id, app_type='Web', vers
         get_index_webapp, get_app_name, get_resource_group_by_name,
         deploy_arm_template_at_resource_group, zip_deploy_app)
 
-    client._client.config.base_url = base_url
+    _ensure_base_url(client, base_url)
     cli_ctx = cmd.cli_ctx
 
     # if app_type.lower() != 'web':
@@ -453,12 +457,12 @@ def teamcloud_user_delete(cmd, client, base_url, user, no_wait=False):
 
 
 def teamcloud_user_list(cmd, client, base_url):
-    client._client.config.base_url = base_url
+    _ensure_base_url(client, base_url)
     return client.get_team_cloud_users()
 
 
 def teamcloud_user_get(cmd, client, base_url, user):
-    client._client.config.base_url = base_url
+    _ensure_base_url(client, base_url)
     return client.get_team_cloud_user_by_name_or_id(user)
 
 
@@ -475,7 +479,7 @@ def teamcloud_user_update(cmd, client, base_url, user, instance, role=None, prop
 
 def teamcloud_user_get_for_update(cmd, client, base_url, user):
     from ._transformers import transform_output
-    client._client.config.base_url = base_url
+    _ensure_base_url(client, base_url)
     instance = client.get_team_cloud_user_by_name_or_id(user)
     return transform_output(instance)
 
@@ -499,12 +503,12 @@ def teamcloud_tag_delete(cmd, client, base_url, tag_key, no_wait=False):
 
 
 def teamcloud_tag_list(cmd, client, base_url):
-    client._client.config.base_url = base_url
+    _ensure_base_url(client, base_url)
     return client.get_team_cloud_tags()
 
 
 def teamcloud_tag_get(cmd, client, base_url, tag_key):
-    client._client.config.base_url = base_url
+    _ensure_base_url(client, base_url)
     return client.get_team_cloud_tag_by_key(tag_key)
 
 
@@ -525,12 +529,12 @@ def project_delete(cmd, client, base_url, project, no_wait=False):
 
 
 def project_list(cmd, client, base_url):
-    client._client.config.base_url = base_url
+    _ensure_base_url(client, base_url)
     return client.get_projects()
 
 
 def project_get(cmd, client, base_url, project):
-    client._client.config.base_url = base_url
+    _ensure_base_url(client, base_url)
     return client.get_project_by_name_or_id(project)
 
 
@@ -551,12 +555,12 @@ def project_user_delete(cmd, client, base_url, project, user, no_wait=False):
 
 
 def project_user_list(cmd, client, base_url, project):
-    client._client.config.base_url = base_url
+    _ensure_base_url(client, base_url)
     return client.get_project_users(project)
 
 
 def project_user_get(cmd, client, base_url, project, user):
-    client._client.config.base_url = base_url
+    _ensure_base_url(client, base_url)
     return client.get_project_user_by_name_or_id(user, project)
 
 
@@ -576,7 +580,7 @@ def project_user_update(cmd, client, base_url, project, user, instance, role=Non
 
 def project_user_get_for_update(cmd, client, base_url, project, user):
     from ._transformers import transform_output
-    client._client.config.base_url = base_url
+    _ensure_base_url(client, base_url)
     instance = client.get_project_user_by_name_or_id(user, project)
     return transform_output(instance)
 
@@ -603,12 +607,12 @@ def project_tag_delete(cmd, client, base_url, project, tag_key, no_wait=False):
 
 
 def project_tag_list(cmd, client, base_url, project):
-    client._client.config.base_url = base_url
+    _ensure_base_url(client, base_url)
     return client.get_project_tags(project)
 
 
 def project_tag_get(cmd, client, base_url, project, tag_key):
-    client._client.config.base_url = base_url
+    _ensure_base_url(client, base_url)
     return client.get_project_tag_by_key(project, tag_key)
 
 
@@ -618,7 +622,7 @@ def project_type_create(cmd, client, base_url, project_type, subscriptions, prov
                         location, subscription_capacity=10, resource_group_name_prefix=None,
                         tags=None, properties=None, default=False):
     from .vendored_sdks.teamcloud.models import ProjectType
-    client._client.config.base_url = base_url
+    _ensure_base_url(client, base_url)
 
     payload = ProjectType(id=project_type, is_default=default, region=location,
                           subscriptions=subscriptions, subscription_capacity=subscription_capacity,
@@ -629,17 +633,17 @@ def project_type_create(cmd, client, base_url, project_type, subscriptions, prov
 
 
 def project_type_delete(cmd, client, base_url, project_type):
-    client._client.config.base_url = base_url
+    _ensure_base_url(client, base_url)
     return client.delete_project_type(project_type)
 
 
 def project_type_list(cmd, client, base_url):
-    client._client.config.base_url = base_url
+    _ensure_base_url(client, base_url)
     return client.get_project_types()
 
 
 def project_type_get(cmd, client, base_url, project_type):
-    client._client.config.base_url = base_url
+    _ensure_base_url(client, base_url)
     return client.get_project_type_by_id(project_type)
 
 
@@ -659,12 +663,12 @@ def provider_delete(cmd, client, base_url, provider, no_wait=False):
 
 
 def provider_list(cmd, client, base_url):
-    client._client.config.base_url = base_url
+    _ensure_base_url(client, base_url)
     return client.get_providers()
 
 
 def provider_get(cmd, client, base_url, provider):
-    client._client.config.base_url = base_url
+    _ensure_base_url(client, base_url)
     return client.get_provider_by_id(provider)
 
 
@@ -675,7 +679,7 @@ def provider_deploy(cmd, client, base_url, provider, location=None, resource_gro
         deploy_arm_template_at_resource_group, get_index_providers, open_url_in_browser)
     from .vendored_sdks.teamcloud.models import Provider, AzureResourceGroup
 
-    client._client.config.base_url = base_url
+    _ensure_base_url(client, base_url)
     cli_ctx = cmd.cli_ctx
 
     hook = cli_ctx.get_progress_controller()
@@ -732,7 +736,7 @@ def provider_upgrade(cmd, client, base_url, provider, version=None, prerelease=F
         get_resource_group_by_name, zip_deploy_app, get_index_providers, get_arm_output,
         deploy_arm_template_at_resource_group, open_url_in_browser, get_app_name)
 
-    client._client.config.base_url = base_url
+    _ensure_base_url(client, base_url)
     cli_ctx = cmd.cli_ctx
 
     hook = cli_ctx.get_progress_controller()
@@ -808,7 +812,7 @@ def provider_list_available(cmd, index_url=None, version=None, prerelease=False,
 def _create_with_status(cmd, client, base_url, payload, create_func,
                         project_id=None, no_wait=False, hook_start=True):
     from .vendored_sdks.teamcloud.models import StatusResult
-    client._client.config.base_url = base_url
+    _ensure_base_url(client, base_url)
 
     if no_wait:
         return sdk_no_wait(no_wait, create_func, project_id, payload) if project_id else sdk_no_wait(
@@ -856,7 +860,7 @@ def _create_with_status(cmd, client, base_url, payload, create_func,
 def _update_with_status(cmd, client, base_url, payload, update_func,
                         project_id=None, no_wait=False, hook_start=True):
     from .vendored_sdks.teamcloud.models import StatusResult
-    client._client.config.base_url = base_url
+    _ensure_base_url(client, base_url)
 
     if no_wait:
         return sdk_no_wait(no_wait, update_func, project_id, payload) if project_id else sdk_no_wait(
@@ -904,7 +908,7 @@ def _update_with_status(cmd, client, base_url, payload, update_func,
 def _delete_with_status(cmd, client, base_url, item_id, delete_func,
                         project_id=None, no_wait=False, hook_start=True):
     from .vendored_sdks.teamcloud.models import StatusResult
-    client._client.config.base_url = base_url
+    _ensure_base_url(client, base_url)
 
     if no_wait:
         return sdk_no_wait(no_wait, delete_func, item_id, project_id) if project_id else sdk_no_wait(
