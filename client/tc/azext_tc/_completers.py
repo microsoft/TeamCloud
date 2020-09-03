@@ -10,10 +10,14 @@ from ._client_factory import teamcloud_client_factory
 logger = get_logger(__name__)
 
 
+def _ensure_base_url(client, base_url):
+    client._client._base_url = base_url  # pylint: disable=protected-access
+
+
 @Completer
 def get_project_completion_list(cmd, prefix, namespace, **kwargs):  # pylint: disable=unused-argument
     client = teamcloud_client_factory(cmd.cli_ctx)
-    client._client.config.base_url = namespace.base_url  # pylint: disable=protected-access
+    _ensure_base_url(client, namespace.base_url)
     result = client.get_projects()
 
     try:
@@ -25,7 +29,7 @@ def get_project_completion_list(cmd, prefix, namespace, **kwargs):  # pylint: di
 @Completer
 def get_project_type_completion_list(cmd, prefix, namespace, **kwargs):  # pylint: disable=unused-argument
     client = teamcloud_client_factory(cmd.cli_ctx)
-    client._client.config.base_url = namespace.base_url  # pylint: disable=protected-access
+    _ensure_base_url(client, namespace.base_url)
     result = client.get_project_types()
 
     try:
@@ -37,7 +41,7 @@ def get_project_type_completion_list(cmd, prefix, namespace, **kwargs):  # pylin
 @Completer
 def get_provider_completion_list(cmd, prefix, namespace, **kwargs):  # pylint: disable=unused-argument
     client = teamcloud_client_factory(cmd.cli_ctx)
-    client._client.config.base_url = namespace.base_url  # pylint: disable=protected-access
+    _ensure_base_url(client, namespace.base_url)
     result = client.get_providers()
 
     try:
