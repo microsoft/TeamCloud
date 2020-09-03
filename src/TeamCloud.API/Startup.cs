@@ -231,7 +231,7 @@ namespace TeamCloud.API
 
                     options.OperationFilter<SecurityRequirementsOperationFilter>();
                 })
-                .AddSwaggerGenNewtonsoftSupport(); // explicit Newtonsoft opt-in - needs to be placed after AddSwaggerGen()
+                .AddSwaggerGenNewtonsoftSupport();
         }
 
         private static void ConfigureAuthentication(IServiceCollection services)
