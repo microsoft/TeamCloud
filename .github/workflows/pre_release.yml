@@ -122,9 +122,6 @@ jobs:
                       if match:
                           print("::set-env name=TC_CLI_VERSION::{}".format(match.group(1)))
 
-      - name: Test TeamCloud Version env
-        run: echo ${{ env.TC_CLI_VERSION }}
-
       - name: Install Autorest
         run: npm install -g autorest
 
