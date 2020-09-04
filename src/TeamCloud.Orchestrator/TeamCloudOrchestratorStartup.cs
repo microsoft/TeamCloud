@@ -53,6 +53,7 @@ namespace TeamCloud.Orchestrator
                 .AddTeamCloudOptions(Assembly.GetExecutingAssembly())
                 .AddTeamCloudOptionsShared()
                 .AddTeamCloudHttp()
+                .AddTeamCloudAuditing()
                 .AddMvcCore()
                 .AddNewtonsoftJson();
 
@@ -77,9 +78,6 @@ namespace TeamCloud.Orchestrator
                 .AddSingleton<IProjectTypeRepository, CosmosDbProjectTypeRepository>()
                 .AddSingleton<IProjectLinkRepository, CosmosDbProjectLinkRepository>()
                 .AddSingleton<IProviderDataRepository, CosmosDbProviderDataRepository>();
-
-            builder.Services
-                .AddSingleton<ICommandAuditWriter, CommandAuditWriter>();
 
             // CAUTION - don't register an orchstrator command handler with the generic 
             // IOrchestratorCommandHandler<> interface. purpose of this interface is the 
