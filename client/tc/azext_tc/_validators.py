@@ -14,6 +14,10 @@ logger = get_logger(__name__)
 # pylint: disable=unused-argument, protected-access
 
 
+def _ensure_base_url(client, base_url):
+    client._client._base_url = base_url
+
+
 def tc_deploy_validator(cmd, ns):
     if ns.principal_name is not None:
         if ns.principal_password is None:
@@ -90,7 +94,7 @@ def project_name_or_id_validator(cmd, ns):
         from ._client_factory import teamcloud_client_factory
 
         client = teamcloud_client_factory(cmd.cli_ctx)
-        client._client.config.base_url = ns.base_url
+        _ensure_base_url(client, ns.base_url)
         result = client.get_project_by_name_or_id(ns.project)
 
         if isinstance(result, ErrorResult):
@@ -113,7 +117,7 @@ def project_name_or_id_validator_name(cmd, ns):
         from ._client_factory import teamcloud_client_factory
 
         client = teamcloud_client_factory(cmd.cli_ctx)
-        client._client.config.base_url = ns.base_url
+        _ensure_base_url(client, ns.base_url)
         result = client.get_project_by_name_or_id(ns.project)
 
         if isinstance(result, ErrorResult):

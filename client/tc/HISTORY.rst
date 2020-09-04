@@ -3,6 +3,11 @@
 Release History
 ===============
 
+0.6.0
+++++++
+* Preview release
+* Python client not generated with @autorest/python v3
+
 0.5.7
 ++++++
 * Preview release

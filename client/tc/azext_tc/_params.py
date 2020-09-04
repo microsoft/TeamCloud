@@ -81,6 +81,12 @@ def load_arguments(self, _):
 
     # TeamCloud
 
+    with self.argument_context('tc update') as c:
+        c.argument('version', options_list=['--version', '-v'], help='TeamCloud version (tag). Default: latest stable.',
+                   validator=teamcloud_cli_source_version_validator)
+        c.argument('prerelease', options_list=['--pre'], action='store_true',
+                   help='Deploy latest prerelease version.')
+
     # tc deploy uses a command level validator, param validators will be ignored
     with self.argument_context('tc deploy') as c:
         c.argument('name', options_list=['--name', '-n'],
@@ -108,12 +114,6 @@ def load_arguments(self, _):
                    help='Deploy latest prerelease version.')
         c.argument('index_url', help='URL to custom index.json file.',
                    validator=index_url_validator)
-
-    with self.argument_context('tc update') as c:
-        c.argument('version', options_list=['--version', '-v'], help='TeamCloud version (tag). Default: latest stable.',
-                   validator=teamcloud_cli_source_version_validator)
-        c.argument('prerelease', options_list=['--pre'], action='store_true',
-                   help='Deploy latest prerelease version.')
 
     with self.argument_context('tc status') as c:
         c.argument('project', project_name_or_id_type)

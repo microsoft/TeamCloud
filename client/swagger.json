@@ -49,14 +49,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "projectRead"
-            ]
-          }
-        ]
+        }
       },
       "post": {
         "tags": [
@@ -110,14 +103,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "projectCreate"
-            ]
-          }
-        ]
+        }
       }
     },
     "/api/projects/{projectNameOrId}": {
@@ -175,14 +161,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "projectRead"
-            ]
-          }
-        ]
+        }
       },
       "delete": {
         "tags": [
@@ -238,14 +217,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "projectWrite"
-            ]
-          }
-        ]
+        }
       }
     },
     "/api/projects/{projectId}/identity": {
@@ -302,14 +274,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "projectIdentityRead"
-            ]
-          }
-        ]
+        }
       }
     },
     "/api/projects/{projectId}/links": {
@@ -366,14 +331,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "projectRead"
-            ]
-          }
-        ]
+        }
       },
       "post": {
         "tags": [
@@ -457,14 +415,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "projectWrite"
-            ]
-          }
-        ]
+        }
       }
     },
     "/api/projects/{projectId}/links/{linkId}": {
@@ -530,14 +481,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "projectRead"
-            ]
-          }
-        ]
+        }
       },
       "put": {
         "tags": [
@@ -620,14 +564,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "projectWrite"
-            ]
-          }
-        ]
+        }
       },
       "delete": {
         "tags": [
@@ -701,14 +638,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "projectWrite"
-            ]
-          }
-        ]
+        }
       }
     },
     "/api/projects/{projectId}/providers/{providerId}/data": {
@@ -780,14 +710,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "providerDataRead"
-            ]
-          }
-        ]
+        }
       },
       "post": {
         "tags": [
@@ -869,14 +792,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "providerDataWrite"
-            ]
-          }
-        ]
+        }
       }
     },
     "/api/projects/{projectId}/providers/{providerId}/data/{providerDataId}": {
@@ -950,14 +866,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "providerDataRead"
-            ]
-          }
-        ]
+        }
       },
       "put": {
         "tags": [
@@ -1038,14 +947,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "providerDataWrite"
-            ]
-          }
-        ]
+        }
       },
       "delete": {
         "tags": [
@@ -1117,14 +1019,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "providerDataWrite"
-            ]
-          }
-        ]
+        }
       }
     },
     "/api/projects/{projectId}/tags": {
@@ -1181,14 +1076,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "projectRead"
-            ]
-          }
-        ]
+        }
       },
       "post": {
         "tags": [
@@ -1266,14 +1154,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "projectWrite"
-            ]
-          }
-        ]
+        }
       },
       "put": {
         "tags": [
@@ -1341,14 +1222,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "projectWrite"
-            ]
-          }
-        ]
+        }
       }
     },
     "/api/projects/{projectId}/tags/{tagKey}": {
@@ -1414,14 +1288,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "projectRead"
-            ]
-          }
-        ]
+        }
       },
       "delete": {
         "tags": [
@@ -1485,14 +1352,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "projectWrite"
-            ]
-          }
-        ]
+        }
       }
     },
     "/api/projectTypes": {
@@ -1529,14 +1389,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "admin"
-            ]
-          }
-        ]
+        }
       },
       "post": {
         "tags": [
@@ -1590,14 +1443,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "admin"
-            ]
-          }
-        ]
+        }
       }
     },
     "/api/projectTypes/{projectTypeId}": {
@@ -1655,14 +1501,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "admin"
-            ]
-          }
-        ]
+        }
       },
       "put": {
         "tags": [
@@ -1727,14 +1566,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "admin"
-            ]
-          }
-        ]
+        }
       },
       "delete": {
         "tags": [
@@ -1790,14 +1622,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "admin"
-            ]
-          }
-        ]
+        }
       }
     },
     "/api/projects/{projectId}/users": {
@@ -1854,14 +1679,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "projectRead"
-            ]
-          }
-        ]
+        }
       },
       "post": {
         "tags": [
@@ -1935,14 +1753,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "projectUserWrite"
-            ]
-          }
-        ]
+        }
       }
     },
     "/api/projects/{projectId}/users/{userNameOrId}": {
@@ -2008,14 +1819,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "projectRead"
-            ]
-          }
-        ]
+        }
       },
       "put": {
         "tags": [
@@ -2088,14 +1892,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "projectUserWrite"
-            ]
-          }
-        ]
+        }
       },
       "delete": {
         "tags": [
@@ -2159,14 +1956,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "projectUserWrite"
-            ]
-          }
-        ]
+        }
       }
     },
     "/api/projects/{projectId}/users/me": {
@@ -2223,14 +2013,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "projectRead"
-            ]
-          }
-        ]
+        }
       },
       "put": {
         "tags": [
@@ -2294,14 +2077,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "projectUserWrite"
-            ]
-          }
-        ]
+        }
       }
     },
     "/api/providers/{providerId}/data": {
@@ -2358,14 +2134,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "providerDataRead"
-            ]
-          }
-        ]
+        }
       },
       "post": {
         "tags": [
@@ -2439,14 +2208,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "providerDataWrite"
-            ]
-          }
-        ]
+        }
       }
     },
     "/api/providers/{providerId}/data/{providerDataId}": {
@@ -2512,14 +2274,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "providerDataRead"
-            ]
-          }
-        ]
+        }
       },
       "put": {
         "tags": [
@@ -2592,14 +2347,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "providerDataWrite"
-            ]
-          }
-        ]
+        }
       },
       "delete": {
         "tags": [
@@ -2663,14 +2411,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "providerDataWrite"
-            ]
-          }
-        ]
+        }
       }
     },
     "/api/providers": {
@@ -2707,14 +2448,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "admin"
-            ]
-          }
-        ]
+        }
       },
       "post": {
         "tags": [
@@ -2768,14 +2502,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "admin"
-            ]
-          }
-        ]
+        }
       }
     },
     "/api/providers/{providerId}": {
@@ -2833,14 +2560,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "admin"
-            ]
-          }
-        ]
+        }
       },
       "put": {
         "tags": [
@@ -2905,14 +2625,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "admin"
-            ]
-          }
-        ]
+        }
       },
       "delete": {
         "tags": [
@@ -2968,14 +2681,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "admin"
-            ]
-          }
-        ]
+        }
       }
     },
     "/api/status/{trackingId}": {
@@ -3053,14 +2759,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "admin"
-            ]
-          }
-        ]
+        }
       }
     },
     "/api/projects/{projectId}/status/{trackingId}": {
@@ -3147,14 +2846,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "projectRead"
-            ]
-          }
-        ]
+        }
       }
     },
     "/api/admin/users": {
@@ -3260,14 +2952,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "default"
-            ]
-          }
-        ]
+        }
       }
     },
     "/api/admin/teamCloudInstance": {
@@ -3324,14 +3009,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "admin"
-            ]
-          }
-        ]
+        }
       },
       "post": {
         "tags": [
@@ -3415,14 +3093,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "default"
-            ]
-          }
-        ]
+        }
       },
       "put": {
         "tags": [
@@ -3506,14 +3177,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "admin"
-            ]
-          }
-        ]
+        }
       }
     },
     "/api/tags": {
@@ -3560,14 +3224,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "admin"
-            ]
-          }
-        ]
+        }
       },
       "post": {
         "tags": [
@@ -3635,14 +3292,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "admin"
-            ]
-          }
-        ]
+        }
       },
       "put": {
         "tags": [
@@ -3700,14 +3350,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "admin"
-            ]
-          }
-        ]
+        }
       }
     },
     "/api/tags/{tagKey}": {
@@ -3765,14 +3408,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "admin"
-            ]
-          }
-        ]
+        }
       },
       "delete": {
         "tags": [
@@ -3828,14 +3464,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "admin"
-            ]
-          }
-        ]
+        }
       }
     },
     "/api/users": {
@@ -3882,14 +3511,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "userRead"
-            ]
-          }
-        ]
+        }
       },
       "post": {
         "tags": [
@@ -3953,14 +3575,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "userWrite"
-            ]
-          }
-        ]
+        }
       }
     },
     "/api/users/{userNameOrId}": {
@@ -4018,14 +3633,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "userRead"
-            ]
-          }
-        ]
+        }
       },
       "put": {
         "tags": [
@@ -4090,14 +3698,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "userWrite"
-            ]
-          }
-        ]
+        }
       },
       "delete": {
         "tags": [
@@ -4143,14 +3744,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "userWrite"
-            ]
-          }
-        ]
+        }
       }
     },
     "/api/me": {
@@ -4197,14 +3791,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "userRead"
-            ]
-          }
-        ]
+        }
       },
       "put": {
         "tags": [
@@ -4258,14 +3845,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "userWrite"
-            ]
-          }
-        ]
+        }
       }
     },
     "/api/users/{userId}/projects": {
@@ -4322,14 +3902,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "projectRead"
-            ]
-          }
-        ]
+        }
       }
     },
     "/api/me/projects": {
@@ -4376,14 +3949,7 @@
           "403": {
             "description": "Forbidden"
           }
-        },
-        "security": [
-          {
-            "oauth2": [
-              "projectRead"
-            ]
-          }
-        ]
+        }
       }
     }
   },
@@ -4420,7 +3986,8 @@
             },
             "nullable": true
           }
-        }
+        },
+        "additionalProperties": false
       },
       "ProjectType": {
         "type": "object",
@@ -4473,7 +4040,8 @@
             },
             "nullable": true
           }
-        }
+        },
+        "additionalProperties": false
       },
       "AzureResourceGroup": {
         "type": "object",
@@ -4494,7 +4062,8 @@
             "type": "string",
             "nullable": true
           }
-        }
+        },
+        "additionalProperties": false
       },
       "ProjectMembership": {
         "type": "object",
@@ -4519,7 +4088,8 @@
             },
             "nullable": true
           }
-        }
+        },
+        "additionalProperties": false
       },
       "User": {
         "type": "object",
@@ -4560,7 +4130,8 @@
             },
             "nullable": true
           }
-        }
+        },
+        "additionalProperties": false
       },
       "ReferenceLink": {
         "type": "object",
@@ -4573,9 +4144,10 @@
             "type": "boolean",
             "readOnly": true
           }
-        }
+        },
+        "additionalProperties": false
       },
-      "ProjectLinks": {
+      "ProjectReferenceLinks": {
         "type": "object",
         "properties": {
           "_self": {
@@ -4586,8 +4158,12 @@
           },
           "users": {
             "$ref": "#/components/schemas/ReferenceLink"
+          },
+          "links": {
+            "$ref": "#/components/schemas/ReferenceLink"
           }
-        }
+        },
+        "additionalProperties": false
       },
       "Project": {
         "type": "object",
@@ -4628,9 +4204,10 @@
             "nullable": true
           },
           "_links": {
-            "$ref": "#/components/schemas/ProjectLinks"
+            "$ref": "#/components/schemas/ProjectReferenceLinks"
           }
-        }
+        },
+        "additionalProperties": false
       },
       "ProjectListDataResult": {
         "type": "object",
@@ -4655,7 +4232,8 @@
             "type": "string",
             "nullable": true
           }
-        }
+        },
+        "additionalProperties": false
       },
       "ValidationError": {
         "type": "object",
@@ -4668,7 +4246,8 @@
             "type": "string",
             "nullable": true
           }
-        }
+        },
+        "additionalProperties": false
       },
       "ResultError": {
         "type": "object",
@@ -4697,7 +4276,8 @@
             },
             "nullable": true
           }
-        }
+        },
+        "additionalProperties": false
       },
       "ErrorResult": {
         "type": "object",
@@ -4717,7 +4297,8 @@
             },
             "nullable": true
           }
-        }
+        },
+        "additionalProperties": false
       },
       "UserDefinition": {
         "type": "object",
@@ -4737,7 +4318,8 @@
             },
             "nullable": true
           }
-        }
+        },
+        "additionalProperties": false
       },
       "ProjectDefinition": {
         "type": "object",
@@ -4771,7 +4353,8 @@
             },
             "nullable": true
           }
-        }
+        },
+        "additionalProperties": false
       },
       "StatusResult": {
         "type": "object",
@@ -4808,7 +4391,8 @@
             "type": "string",
             "nullable": true
           }
-        }
+        },
+        "additionalProperties": false
       },
       "ProjectDataResult": {
         "type": "object",
@@ -4828,7 +4412,8 @@
             "type": "string",
             "nullable": true
           }
-        }
+        },
+        "additionalProperties": false
       },
       "ProjectIdentity": {
         "type": "object",
@@ -4845,7 +4430,8 @@
             "type": "string",
             "nullable": true
           }
-        }
+        },
+        "additionalProperties": false
       },
       "ProjectIdentityDataResult": {
         "type": "object",
@@ -4865,7 +4451,8 @@
             "type": "string",
             "nullable": true
           }
-        }
+        },
+        "additionalProperties": false
       },
       "StringStringDictionaryDataResult": {
         "type": "object",
@@ -4890,7 +4477,8 @@
             "type": "string",
             "nullable": true
           }
-        }
+        },
+        "additionalProperties": false
       },
       "ProjectLink": {
         "type": "object",
@@ -4909,12 +4497,16 @@
           },
           "type": {
             "enum": [
-              0
+              "Link",
+              "Readme",
+              "Service",
+              "GitRepository",
+              "AzureResource"
             ],
-            "type": "integer",
-            "format": "int32"
+            "type": "string"
           }
-        }
+        },
+        "additionalProperties": false
       },
       "ProjectLinkDataResult": {
         "type": "object",
@@ -4934,7 +4526,8 @@
             "type": "string",
             "nullable": true
           }
-        }
+        },
+        "additionalProperties": false
       },
       "ProviderData": {
         "type": "object",
@@ -4949,6 +4542,7 @@
           },
           "value": {
             "type": "object",
+            "additionalProperties": false,
             "nullable": true
           },
           "location": {
@@ -4963,26 +4557,25 @@
           },
           "scope": {
             "enum": [
-              0,
-              1
+              "System",
+              "Project"
             ],
-            "type": "integer",
-            "format": "int32"
+            "type": "string"
           },
           "dataType": {
             "enum": [
-              0,
-              1
+              "Property",
+              "Service"
             ],
-            "type": "integer",
-            "format": "int32"
+            "type": "string"
           },
           "stringValue": {
             "type": "string",
             "nullable": true,
             "readOnly": true
           }
-        }
+        },
+        "additionalProperties": false
       },
       "ProviderDataDataResult": {
         "type": "object",
@@ -5002,7 +4595,8 @@
             "type": "string",
             "nullable": true
           }
-        }
+        },
+        "additionalProperties": false
       },
       "ProjectTypeListDataResult": {
         "type": "object",
@@ -5027,7 +4621,8 @@
             "type": "string",
             "nullable": true
           }
-        }
+        },
+        "additionalProperties": false
       },
       "ProjectTypeDataResult": {
         "type": "object",
@@ -5047,7 +4642,8 @@
             "type": "string",
             "nullable": true
           }
-        }
+        },
+        "additionalProperties": false
       },
       "UserListDataResult": {
         "type": "object",
@@ -5072,7 +4668,8 @@
             "type": "string",
             "nullable": true
           }
-        }
+        },
+        "additionalProperties": false
       },
       "UserDataResult": {
         "type": "object",
@@ -5092,7 +4689,8 @@
             "type": "string",
             "nullable": true
           }
-        }
+        },
+        "additionalProperties": false
       },
       "ProviderDataListDataResult": {
         "type": "object",
@@ -5117,7 +4715,18 @@
             "type": "string",
             "nullable": true
           }
-        }
+        },
+        "additionalProperties": false
+      },
+      "ProviderEventSubscription": {
+        "type": "object",
+        "properties": {
+          "eventType": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
       },
       "Provider": {
         "type": "object",
@@ -5153,6 +4762,13 @@
             },
             "nullable": true
           },
+          "eventSubscriptions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProviderEventSubscription"
+            },
+            "nullable": true
+          },
           "properties": {
             "type": "object",
             "additionalProperties": {
@@ -5172,7 +4788,8 @@
             ],
             "type": "string"
           }
-        }
+        },
+        "additionalProperties": false
       },
       "ProviderListDataResult": {
         "type": "object",
@@ -5197,7 +4814,8 @@
             "type": "string",
             "nullable": true
           }
-        }
+        },
+        "additionalProperties": false
       },
       "ProviderDataResult": {
         "type": "object",
@@ -5217,7 +4835,8 @@
             "type": "string",
             "nullable": true
           }
-        }
+        },
+        "additionalProperties": false
       },
       "TeamCloudApplication": {
         "type": "object",
@@ -5239,7 +4858,8 @@
           "resourceGroup": {
             "$ref": "#/components/schemas/AzureResourceGroup"
           }
-        }
+        },
+        "additionalProperties": false
       },
       "TeamCloudInstance": {
         "type": "object",
@@ -5265,7 +4885,8 @@
             },
             "nullable": true
           }
-        }
+        },
+        "additionalProperties": false
       },
       "TeamCloudInstanceDataResult": {
         "type": "object",
@@ -5285,6 +4906,22 @@
             "type": "string",
             "nullable": true
           }
+        },
+        "additionalProperties": false
+      }
+    },
+    "securitySchemes": {
+      "oauth2": {
+        "type": "oauth2",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://login.microsoftonline.com//oauth2/v2.0/authorize",
+            "tokenUrl": "https://login.microsoftonline.com//oauth2/v2.0/token",
+            "scopes": {
+              "openid": "Sign you in",
+              "http://TeamCloud.aztcclitestsix/user_impersonation": "Access the TeamCloud API"
+            }
+          }
         }
       }
     }
@@ -5292,11 +4929,8 @@
   "security": [
     {
       "oauth2": [
-        "default",
-        "admin",
-        "projectCreate",
-        "projectRead",
-        "projectDelete"
+        "openid",
+        "http://TeamCloud.aztcclitestsix/user_impersonation"
       ]
     }
   ]
