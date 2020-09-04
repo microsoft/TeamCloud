@@ -30,6 +30,9 @@ namespace TeamCloud.Orchestrator
 
         internal static ICommandResult ApplyStatus(this ICommandResult commandResult, DurableOrchestrationStatus orchestrationStatus)
         {
+            if (commandResult is null)
+                throw new ArgumentNullException(nameof(commandResult));
+
             if (orchestrationStatus is null)
                 throw new ArgumentNullException(nameof(orchestrationStatus));
 
