@@ -1,11 +1,16 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
+
+using Microsoft.Extensions.Configuration;
+using TeamCloud.Audit;
 using TeamCloud.Configuration;
-using TeamCloud.Orchestration.Auditing;
 
 namespace TeamCloud.Orchestrator.Options
 {
     [Options]
-    public sealed class TeamCloudAuditOptions : ICommandAuditWriterOptions
+    public sealed class TeamCloudAuditOptions : ICommandAuditOptions
     {
         private readonly IConfiguration configuration;
 
@@ -14,10 +19,10 @@ namespace TeamCloud.Orchestrator.Options
             this.configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
         }
 
-        string ICommandAuditWriterOptions.ConnectionString
-            => CommandAuditWriter.DefaultOptions.ConnectionString;
+        string ICommandAuditOptions.ConnectionString
+            => CommandAuditOptions.Default.ConnectionString;
 
-        string ICommandAuditWriterOptions.StoragePrefix
+        string ICommandAuditOptions.StoragePrefix
             => configuration.GetValue<string>("AzureFunctionsJobHost:extensions:durableTask:hubName");
     }
 }

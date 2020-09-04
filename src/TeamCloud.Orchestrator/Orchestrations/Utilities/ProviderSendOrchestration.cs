@@ -18,7 +18,6 @@ using TeamCloud.Model.Common;
 using TeamCloud.Model.Data;
 using TeamCloud.Model.Internal;
 using TeamCloud.Orchestration;
-using TeamCloud.Orchestration.Auditing;
 using TeamCloud.Orchestrator.Activities;
 using TeamCloud.Orchestrator.Entities;
 using TeamCloud.Serialization;

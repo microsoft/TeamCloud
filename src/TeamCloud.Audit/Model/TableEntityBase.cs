@@ -13,7 +13,7 @@ using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 using Newtonsoft.Json;
 
-namespace TeamCloud.Orchestration.Auditing.Model
+namespace TeamCloud.Audit.Model
 {
     public abstract class TableEntityBase : ITableEntity
     {

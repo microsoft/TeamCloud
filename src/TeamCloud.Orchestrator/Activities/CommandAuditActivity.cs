@@ -8,9 +8,10 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
+using TeamCloud.Audit;
 using TeamCloud.Model.Commands.Core;
 
-namespace TeamCloud.Orchestration.Auditing
+namespace TeamCloud.Orchestrator.Activities
 {
     public sealed class CommandAuditActivity
     {

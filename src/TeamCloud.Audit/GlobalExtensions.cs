@@ -1,11 +1,16 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
+
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace TeamCloud.Orchestration.Auditing
+namespace TeamCloud.Audit
 {
     public static class GlobalExtensions
     {
-        public static IServiceCollection AddTeamCloudAuditing(this IServiceCollection serviceCollection)
+        public static IServiceCollection AddTeamCloudAudit(this IServiceCollection serviceCollection)
         {
             serviceCollection
                 .TryAddSingleton<ICommandAuditWriter, CommandAuditWriter>();

@@ -9,7 +9,7 @@ using Microsoft.WindowsAzure.Storage.Table;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 
-namespace TeamCloud.Orchestration.Auditing.Model
+namespace TeamCloud.Audit.Model
 {
     public sealed class CommandAuditEntity : TableEntityBase
     {
@@ -33,10 +33,10 @@ namespace TeamCloud.Orchestration.Auditing.Model
         }
 
         [IgnoreProperty]
-        public string ProjectId => this.TableEntity.PartitionKey;
+        public string ProjectId => TableEntity.PartitionKey;
 
         [IgnoreProperty]
-        public string AuditId => this.TableEntity.RowKey;
+        public string AuditId => TableEntity.RowKey;
 
         [Column(Order = 101)]
         public string CommandId { get; private set; }

@@ -14,6 +14,7 @@ using Microsoft.Extensions.Configuration.AzureKeyVault;
 using Microsoft.Extensions.Configuration.UserSecrets;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using TeamCloud.Audit;
 using TeamCloud.Azure;
 using TeamCloud.Azure.Deployment;
 using TeamCloud.Azure.Deployment.Providers;
@@ -26,7 +27,6 @@ using TeamCloud.Data.Caching;
 using TeamCloud.Data.CosmosDb;
 using TeamCloud.Http;
 using TeamCloud.Orchestration;
-using TeamCloud.Orchestration.Auditing;
 using TeamCloud.Orchestration.Deployment;
 using TeamCloud.Orchestrator;
 using TeamCloud.Orchestrator.Handlers;
@@ -34,7 +34,6 @@ using TeamCloud.Orchestrator.Handlers;
 [assembly: FunctionsStartup(typeof(TeamCloudOrchestratorStartup))]
 
 [assembly: FunctionsImport(typeof(TeamCloudOrchestrationStartup))]
-[assembly: FunctionsImport(typeof(TeamCloudOrchestrationAuditingStartup))]
 [assembly: FunctionsImport(typeof(TeamCloudOrchestrationDeploymentStartup))]
 
 namespace TeamCloud.Orchestrator
@@ -53,7 +52,7 @@ namespace TeamCloud.Orchestrator
                 .AddTeamCloudOptions(Assembly.GetExecutingAssembly())
                 .AddTeamCloudOptionsShared()
                 .AddTeamCloudHttp()
-                .AddTeamCloudAuditing()
+                .AddTeamCloudAudit()
                 .AddMvcCore()
                 .AddNewtonsoftJson();
 

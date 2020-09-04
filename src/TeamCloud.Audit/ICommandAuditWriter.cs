@@ -1,7 +1,12 @@
-﻿using System.Threading.Tasks;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
+
+using System.Threading.Tasks;
 using TeamCloud.Model.Commands.Core;
 
-namespace TeamCloud.Orchestration.Auditing
+namespace TeamCloud.Audit
 {
     public interface ICommandAuditWriter
     {

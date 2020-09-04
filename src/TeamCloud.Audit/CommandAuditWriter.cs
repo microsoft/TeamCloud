@@ -1,4 +1,9 @@
-﻿using System;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -9,20 +14,18 @@ using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage.Table;
 using Newtonsoft.Json;
+using TeamCloud.Audit.Model;
 using TeamCloud.Model.Commands.Core;
-using TeamCloud.Orchestration.Auditing.Model;
+using TeamCloud.Orchestration;
 
-namespace TeamCloud.Orchestration.Auditing
+namespace TeamCloud.Audit
 {
 
     public sealed class CommandAuditWriter : ICommandAuditWriter
     {
         private static readonly DateTime MinDateTime = new DateTime(1601, 1, 1, 0, 0, 0, DateTimeKind.Unspecified);
 
-        public static ICommandAuditWriterOptions DefaultOptions
-            => new Options();
-
-        private static string SanitizeStoragePrefix(ICommandAuditWriterOptions options)
+        private static string SanitizeStoragePrefix(ICommandAuditOptions options)
         {
             const int MaxStorageNameSize = 45;
 
@@ -47,26 +50,24 @@ namespace TeamCloud.Orchestration.Auditing
                 .ToArray());
         }
 
-        private static string GetAuditContainerName(ICommandAuditWriterOptions options)
+        private static string GetAuditContainerName(ICommandAuditOptions options)
             => $"{SanitizeStoragePrefix(options)}-Audit".Trim().TrimStart('-').ToLowerInvariant();
 
-        private static string GetAuditTableName(ICommandAuditWriterOptions options)
+        private static string GetAuditTableName(ICommandAuditOptions options)
             => $"{SanitizeStoragePrefix(options)}Audit".Trim();
 
         private readonly Lazy<CloudBlobContainer> auditContainer;
         private readonly Lazy<CloudTable> auditTable;
         private readonly ILogger logger;
 
-        public CommandAuditWriter(ICommandAuditWriterOptions options = null, ILogger<CommandAuditWriter> logger = null)
+        public CommandAuditWriter(ICommandAuditOptions options = null, ILogger<CommandAuditWriter> logger = null)
         {
-            options ??= DefaultOptions;
-
             auditContainer = new Lazy<CloudBlobContainer>(() => CloudStorageAccount
-                .Parse(options.ConnectionString)
+                .Parse((options ?? CommandAuditOptions.Default).ConnectionString)
                 .CreateCloudBlobClient().GetContainerReference(GetAuditContainerName(options)));
 
             auditTable = new Lazy<CloudTable>(() => CloudStorageAccount
-                .Parse(options.ConnectionString)
+                .Parse((options ?? CommandAuditOptions.Default).ConnectionString)
                 .CreateCloudTableClient().GetTableReference(GetAuditTableName(options)));
 
             this.logger = logger as ILogger ?? NullLogger.Instance;
@@ -144,7 +145,7 @@ namespace TeamCloud.Orchestration.Auditing
                     .ConfigureAwait(false);
 
                 if (entityResult.HttpStatusCode == (int)HttpStatusCode.OK)
-                    entity = (entityResult.Result as CommandAuditEntity) ?? entity;
+                    entity = entityResult.Result as CommandAuditEntity ?? entity;
 
                 if (commandResult != null && !entity.RuntimeStatus.IsFinal())
                 {
@@ -182,7 +183,7 @@ namespace TeamCloud.Orchestration.Auditing
                 foreach (var dateTime in dateTimes.Where(dt => dt.HasValue && dt > MinDateTime))
                 {
                     timestamp = timestamp.HasValue
-                        ? (timestamp > dateTime ? timestamp : dateTime)
+                        ? timestamp > dateTime ? timestamp : dateTime
                         : dateTime;
                 }
 
@@ -196,19 +197,12 @@ namespace TeamCloud.Orchestration.Auditing
                 foreach (var dateTime in dateTimes.Where(dt => dt.HasValue && dt > MinDateTime))
                 {
                     timestamp = timestamp.HasValue
-                        ? (timestamp < dateTime ? timestamp : dateTime)
+                        ? timestamp < dateTime ? timestamp : dateTime
                         : dateTime;
                 }
 
                 return timestamp;
             }
-        }
-
-        public sealed class Options : ICommandAuditWriterOptions
-        {
-            public string ConnectionString => Environment.GetEnvironmentVariable("AzureWebJobsStorage");
-
-            public string StoragePrefix => null;
         }
     }
 }

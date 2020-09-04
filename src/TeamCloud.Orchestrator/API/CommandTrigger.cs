@@ -17,11 +17,11 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using TeamCloud.Audit;
 using TeamCloud.Http;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Validation;
-using TeamCloud.Orchestration.Auditing;
 using TeamCloud.Orchestrator.Handlers;
 using TeamCloud.Orchestrator.Orchestrations.Utilities;
 
