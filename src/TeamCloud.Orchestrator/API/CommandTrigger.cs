@@ -21,6 +21,7 @@ using TeamCloud.Http;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Validation;
+using TeamCloud.Orchestration.Auditing;
 using TeamCloud.Orchestrator.Handlers;
 using TeamCloud.Orchestrator.Orchestrations.Utilities;
 
@@ -28,23 +29,13 @@ namespace TeamCloud.Orchestrator
 {
     public class CommandTrigger
     {
-        internal static string GetCommandOrchestrationInstanceId(Guid commandId)
-            => commandId.ToString();
-
-        internal static string GetCommandOrchestrationInstanceId(ICommand command)
-            => GetCommandOrchestrationInstanceId(command.CommandId);
-
-        internal static string GetCommandWrapperOrchestrationInstanceId(Guid commandId)
-            => $"{GetCommandOrchestrationInstanceId(commandId)}-wrapper";
-
-        internal static string GetCommandWrapperOrchestrationInstanceId(ICommand command)
-            => GetCommandWrapperOrchestrationInstanceId(command.CommandId);
-
         private readonly IHttpContextAccessor httpContextAccessor;
+        private readonly ICommandAuditWriter commandAuditWriter;
 
-        public CommandTrigger(IHttpContextAccessor httpContextAccessor)
+        public CommandTrigger(IHttpContextAccessor httpContextAccessor, ICommandAuditWriter commandAuditWriter)
         {
             this.httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+            this.commandAuditWriter = commandAuditWriter ?? throw new ArgumentNullException(nameof(commandAuditWriter));
         }
 
         [FunctionName(nameof(CommandTrigger))]
@@ -105,73 +96,72 @@ namespace TeamCloud.Orchestrator
                     .ReadAsJsonAsync<IOrchestratorCommand>()
                     .ConfigureAwait(false);
 
-                command?.Validate(throwOnValidationError: true);
+                if (command is null)
+                    return new BadRequestResult();
+
+                command.Validate(throwOnValidationError: true);
             }
             catch (ValidationException)
             {
                 return new BadRequestResult();
             }
 
-            if (command is null)
+            if (TryGetOrchestratorCommandHandler(command, out var commandHandler))
             {
-                return new BadRequestResult();
-            }
-            else if (TryGetOrchestratorCommandHandler(command, out var commandHandler))
-            {
-                ICommandResult commandResult;
+                ICommandResult commandResult = null;
 
                 try
                 {
-                    commandResult = await commandHandler
-                        .HandleAsync(command)
+                    await commandAuditWriter
+                        .AuditAsync(command)
                         .ConfigureAwait(false);
+
+                    commandResult = await commandHandler
+                        .HandleAsync(command, durableClient)
+                        .ConfigureAwait(false);
+
+                    commandResult ??= await durableClient
+                        .GetCommandResultAsync(command)
+                        .ConfigureAwait(false);
+
+                    if (commandResult is null)
+                        throw new NullReferenceException($"Unable to resolve result information for command {command.CommandId}");
                 }
                 catch (Exception exc)
                 {
-                    commandResult = command.CreateResult();
+                    commandResult ??= command.CreateResult();
                     commandResult.Errors.Add(exc);
-                }
 
-                if (!commandResult.RuntimeStatus.IsFinal())
-                {
-                    log.LogWarning(string.Join(' ', new string[]
+                    // there are some edge cases that affect our action result
+                    // by returning specific result objects / status codes:
+
+                    switch (exc)
                     {
-                        $"Orchestrator command handler of type '{commandHandler.GetType().Name}' returned a none final runtime status of '{commandResult.RuntimeStatus}'.",
-                        $"As no exception was thrown, we assume a successful operation and enforce a runtime status of '{CommandRuntimeStatus.Completed}'."
-                    }));
+                        case NotImplementedException notImplementedException:
 
-                    commandResult.RuntimeStatus = CommandRuntimeStatus.Completed;
+                            // indicator something in the command's payload can't be processed 
+
+                            return new BadRequestResult();
+
+                        case NotSupportedException notSupportedException:
+
+                            // indicator for a duplicate command 
+
+                            return new System.Web.Http.ConflictResult();
+                    }
+                }
+                finally
+                {
+                    await commandAuditWriter
+                        .AuditAsync(command, commandResult)
+                        .ConfigureAwait(false);
                 }
 
                 return CreateCommandResultResponse(commandResult);
             }
             else
             {
-                var wapperInstanceId = GetCommandWrapperOrchestrationInstanceId(command.CommandId);
-
-                try
-                {
-                    _ = await durableClient
-                        .StartNewAsync(nameof(OrchestratorCommandOrchestration), wapperInstanceId, command)
-                        .ConfigureAwait(false);
-                }
-                catch (InvalidOperationException)
-                {
-                    // check if there is an orchestration for the given
-                    // orchstrator command message is already in-flight
-
-                    var commandWrapperStatus = await durableClient
-                        .GetStatusAsync(wapperInstanceId)
-                        .ConfigureAwait(false);
-
-                    if (commandWrapperStatus is null)
-                        throw; // bubble exception
-
-                    return new System.Web.Http.ConflictResult();
-                }
-
-                return await HandleGetAsync(durableClient, command.CommandId)
-                    .ConfigureAwait(false);
+                return new BadRequestResult();
             }
 
             bool TryGetOrchestratorCommandHandler(IOrchestratorCommand orchestratorCommand, out IOrchestratorCommandHandler orchestratorCommandHandler)
@@ -189,24 +179,12 @@ namespace TeamCloud.Orchestrator
 
         private async Task<IActionResult> HandleGetAsync(IDurableClient durableClient, Guid commandId)
         {
-            var wrapperInstanceId = GetCommandWrapperOrchestrationInstanceId(commandId);
-
-            var wrapperInstanceStatus = await durableClient
-                .GetStatusAsync(wrapperInstanceId)
-                .ConfigureAwait(false);
-
-            var command = wrapperInstanceStatus?.Input
-                .ToObject<IOrchestratorCommand>();
-
-            if (command is null)
-                return new NotFoundResult();
-
             var commandResult = await durableClient
-                .GetCommandResultAsync(command)
+                .GetCommandResultAsync(commandId)
                 .ConfigureAwait(false);
 
             if (commandResult is null)
-                commandResult = command.CreateResult(wrapperInstanceStatus);
+                return new NotFoundResult();
 
             return CreateCommandResultResponse(commandResult);
         }

@@ -83,15 +83,18 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 }
                 catch (Exception ex)
                 {
-                    functionContext.SetCustomStatus("Failed to delete user.", log, ex);
-
                     commandResult ??= command.CreateResult();
                     commandResult.Errors.Add(ex);
-
-                    throw;
                 }
                 finally
                 {
+                    var commandException = commandResult.Errors?.ToException();
+
+                    if (commandException is null)
+                        functionContext.SetCustomStatus($"Command succeeded", log);
+                    else
+                        functionContext.SetCustomStatus($"Command failed: {commandException.Message}", log, commandException);
+
                     functionContext.SetOutput(commandResult);
                 }
             }

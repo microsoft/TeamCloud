@@ -6,11 +6,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-/**
-*  Copyright (c) Microsoft Corporation.
-*  Licensed under the MIT License.
-*/
-
 using System.Threading.Tasks;
 using Flurl;
 using Flurl.Http;
@@ -20,7 +15,6 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.EventGrid;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using TeamCloud.Azure;
 using TeamCloud.Data;
 using TeamCloud.Http;
@@ -135,7 +129,7 @@ namespace TeamCloud.Orchestrator.API
 
                 var tasks = providerDocuments.Select(providerDocument =>
                 {
-                    log.LogInformation($"Forwarding event {eventGridEvent.Id} to provider {providerDocument.Id}: {JsonConvert.SerializeObject(eventGridEvent)}");
+                    log.LogInformation($"Forwarding event {eventGridEvent.EventType} ({eventGridEvent.Id}) to provider {providerDocument.Id}");
 
                     return durableClient.StartNewAsync(nameof(ProviderSendOrchestration), Guid.NewGuid().ToString(), (command, providerDocument));
                 });
@@ -146,7 +140,7 @@ namespace TeamCloud.Orchestrator.API
             }
             else
             {
-                log.LogDebug($"Ignoring event {eventGridEvent.Id}: {JsonConvert.SerializeObject(eventGridEvent)}");
+                log.LogDebug($"Ignoring event {eventGridEvent.EventType} ({eventGridEvent.Id})");
             }
         }
     }

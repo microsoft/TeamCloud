@@ -16,9 +16,9 @@ namespace TeamCloud.Model.Commands.Core
     {
         Guid CommandId { get; set; }
 
-        DateTime CreatedTime { get; set; }
+        DateTime? CreatedTime { get; set; }
 
-        DateTime LastUpdatedTime { get; set; }
+        DateTime? LastUpdatedTime { get; set; }
 
         CommandRuntimeStatus RuntimeStatus { get; set; }
 

@@ -45,6 +45,7 @@ namespace TeamCloud.Http
             FlurlHttp.Configure(configuration =>
             {
                 configuration.HttpClientFactory = services.BuildServiceProvider().GetRequiredService<IHttpClientFactory>();
+                configuration.Timeout = TimeSpan.FromMinutes(1);
 
                 configure?.Invoke(configuration);
             });

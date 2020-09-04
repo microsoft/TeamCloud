@@ -73,8 +73,6 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 {
                     commandResult ??= command.CreateResult();
                     commandResult.Errors.Add(exc);
-
-                    throw;
                 }
                 finally
                 {

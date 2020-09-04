@@ -70,8 +70,6 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 }
                 catch (Exception exc)
                 {
-                    functionContext.SetCustomStatus($"Handling error: {exc.Message}", log, exc);
-
                     commandResult ??= command.CreateResult();
                     commandResult.Errors.Add(exc);
                 }

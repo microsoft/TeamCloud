@@ -152,7 +152,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                         .ConfigureAwait(true);
                 }
 
-                if (commandResult.RuntimeStatus.IsActive())
+                if (!commandResult.RuntimeStatus.IsFinal())
                 {
                     var commandTimeout = (commandResult.Timeout > TimeSpan.Zero && commandResult.Timeout < CommandResult.MaximumTimeout)
                         ? commandResult.Timeout         // use the timeout reported back by the provider

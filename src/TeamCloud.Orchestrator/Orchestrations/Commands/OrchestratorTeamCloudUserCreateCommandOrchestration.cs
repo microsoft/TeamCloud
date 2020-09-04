@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using TeamCloud.Model.Commands.Core;
-using TeamCloud.Model.Internal;
-using TeamCloud.Model.Data;
 using TeamCloud.Model.Commands;
+using TeamCloud.Model.Commands.Core;
+using TeamCloud.Model.Data;
+using TeamCloud.Model.Internal;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Activities;
 using TeamCloud.Orchestrator.Entities;
@@ -85,11 +85,16 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
 
                     commandResult ??= command.CreateResult();
                     commandResult.Errors.Add(ex);
-
-                    throw;
                 }
                 finally
                 {
+                    var commandException = commandResult.Errors?.ToException();
+
+                    if (commandException is null)
+                        functionContext.SetCustomStatus($"Command succeeded", log);
+                    else
+                        functionContext.SetCustomStatus($"Command failed: {commandException.Message}", log, commandException);
+
                     functionContext.SetOutput(commandResult);
                 }
             }

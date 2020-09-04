@@ -27,9 +27,11 @@ namespace TeamCloud.Orchestrator.Activities
         public async Task<ProviderDocument> RunActivity(
             [ActivityTrigger] string providerId)
         {
-            return await providersRepository
+            var providerDocument = await providersRepository
                 .GetAsync(providerId)
                 .ConfigureAwait(false);
+
+            return providerDocument;
         }
     }
 

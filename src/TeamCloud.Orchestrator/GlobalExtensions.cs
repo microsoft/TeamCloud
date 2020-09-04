@@ -11,12 +11,13 @@ using System.Text.RegularExpressions;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Newtonsoft.Json.Linq;
 using TeamCloud.Model.Commands.Core;
-using TeamCloud.Model.Commands;
 
 namespace TeamCloud.Orchestrator
 {
     internal static class GlobalExtensions
     {
+
+
         internal static ICommandResult CreateResult(this ICommand command, DurableOrchestrationStatus orchestrationStatus)
         {
             if (orchestrationStatus is null)
@@ -32,34 +33,15 @@ namespace TeamCloud.Orchestrator
             if (orchestrationStatus is null)
                 throw new ArgumentNullException(nameof(orchestrationStatus));
 
-            commandResult.CreatedTime = orchestrationStatus.CreatedTime;
-            commandResult.LastUpdatedTime = orchestrationStatus.LastUpdatedTime;
+            commandResult.CreatedTime = GetNullWhenMinValue(orchestrationStatus.CreatedTime);
+            commandResult.LastUpdatedTime = GetNullWhenMinValue(orchestrationStatus.LastUpdatedTime);
             commandResult.RuntimeStatus = (CommandRuntimeStatus)orchestrationStatus.RuntimeStatus;
             commandResult.CustomStatus = orchestrationStatus.CustomStatus?.ToString();
 
             return commandResult;
-        }
-        internal static ICommandResult GetCommandResult(this DurableOrchestrationStatus orchestrationStatus)
-        {
-            if (orchestrationStatus.Output?.HasValues ?? false)
-            {
-                var result = orchestrationStatus.Output.ToObject<ICommandResult>();
 
-                result.CreatedTime = orchestrationStatus.CreatedTime;
-                result.LastUpdatedTime = orchestrationStatus.LastUpdatedTime;
-                result.RuntimeStatus = (CommandRuntimeStatus)orchestrationStatus.RuntimeStatus;
-                result.CustomStatus = orchestrationStatus.CustomStatus?.ToString();
-
-                return result;
-            }
-            else if (orchestrationStatus.Input?.HasValues ?? false)
-            {
-                var command = orchestrationStatus.Input.ToObject<IOrchestratorCommand>();
-
-                return command?.CreateResult(orchestrationStatus);
-            }
-
-            return null;
+            static DateTime? GetNullWhenMinValue(DateTime dateTime)
+                => (dateTime == DateTime.MinValue ? default(DateTime?) : dateTime);
         }
 
         internal static IDictionary<string, string> Override(this IDictionary<string, string> instance, IDictionary<string, string> mainOverride)
@@ -118,8 +100,5 @@ namespace TeamCloud.Orchestrator
 
             return resolvedProperties;
         }
-
-        internal static DateTime NextHour(this DateTime dateTime)
-             => dateTime.Date.AddHours(dateTime.Hour + 1);
     }
 }

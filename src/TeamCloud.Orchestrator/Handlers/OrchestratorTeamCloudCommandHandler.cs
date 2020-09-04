@@ -5,6 +5,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
@@ -21,7 +22,7 @@ namespace TeamCloud.Orchestrator.Handlers
             this.teamCloudRepository = teamCloudRepository ?? throw new ArgumentNullException(nameof(teamCloudRepository));
         }
 
-        public async Task<ICommandResult> HandleAsync(OrchestratorTeamCloudInstanceSetCommand orchestratorCommand)
+        public async Task<ICommandResult> HandleAsync(OrchestratorTeamCloudInstanceSetCommand orchestratorCommand, IDurableClient durableClient = null)
         {
             var commandResult = orchestratorCommand.CreateResult();
 

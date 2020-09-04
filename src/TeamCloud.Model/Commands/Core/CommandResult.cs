@@ -15,9 +15,9 @@ namespace TeamCloud.Model.Commands.Core
 
         public Guid CommandId { get; set; }
 
-        public DateTime CreatedTime { get; set; }
+        public DateTime? CreatedTime { get; set; }
 
-        public DateTime LastUpdatedTime { get; set; }
+        public DateTime? LastUpdatedTime { get; set; }
 
         private CommandRuntimeStatus runtimeStatus = CommandRuntimeStatus.Unknown;
 

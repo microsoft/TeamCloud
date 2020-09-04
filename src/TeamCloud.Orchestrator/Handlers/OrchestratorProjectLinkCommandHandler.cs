@@ -5,6 +5,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
@@ -23,7 +24,7 @@ namespace TeamCloud.Orchestrator.Handlers
             this.projectLinkRepository = projectLinkRepository ?? throw new ArgumentNullException(nameof(projectLinkRepository));
         }
 
-        public async Task<ICommandResult> HandleAsync(OrchestratorProjectLinkCreateCommand orchestratorCommand)
+        public async Task<ICommandResult> HandleAsync(OrchestratorProjectLinkCreateCommand orchestratorCommand, IDurableClient durableClient = null)
         {
             var commandResult = orchestratorCommand.CreateResult();
 
@@ -43,7 +44,7 @@ namespace TeamCloud.Orchestrator.Handlers
             return commandResult;
         }
 
-        public async Task<ICommandResult> HandleAsync(OrchestratorProjectLinkUpdateCommand orchestratorCommand)
+        public async Task<ICommandResult> HandleAsync(OrchestratorProjectLinkUpdateCommand orchestratorCommand, IDurableClient durableClient = null)
         {
             var commandResult = orchestratorCommand.CreateResult();
 
@@ -63,7 +64,7 @@ namespace TeamCloud.Orchestrator.Handlers
             return commandResult;
         }
 
-        public async Task<ICommandResult> HandleAsync(OrchestratorProjectLinkDeleteCommand orchestratorCommand)
+        public async Task<ICommandResult> HandleAsync(OrchestratorProjectLinkDeleteCommand orchestratorCommand, IDurableClient durableClient = null)
         {
             var commandResult = orchestratorCommand.CreateResult();
 

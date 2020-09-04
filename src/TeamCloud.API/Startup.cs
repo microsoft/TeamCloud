@@ -98,10 +98,7 @@ namespace TeamCloud.API
                         .AddDeployment()
                         .SetDeploymentArtifactsProvider<AzureStorageArtifactsProvider>();
                 })
-                .AddTeamCloudHttp(configuration =>
-                {
-                    // nothing to configure
-                });
+                .AddTeamCloudHttp();
 
             if (string.IsNullOrEmpty(Configuration.GetValue<string>("Cache:Configuration")))
             {

@@ -8,58 +8,45 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Orchestration;
+using TeamCloud.Orchestrator.Handlers;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 {
     internal static class OrchestratorCommandExtensions
     {
-        internal static async Task<ICommandResult> GetCommandResultAsync(this IDurableClient durableClient, ICommand command)
+        internal static Task<ICommandResult> GetCommandResultAsync(this IDurableClient durableClient, ICommand command)
+            => GetCommandResultAsync(durableClient, command?.CommandId ?? throw new ArgumentNullException(nameof(command)));
+
+        internal static async Task<ICommandResult> GetCommandResultAsync(this IDurableClient durableClient, Guid commandId)
         {
             if (durableClient is null)
                 throw new ArgumentNullException(nameof(durableClient));
 
-            if (command is null)
-                throw new ArgumentNullException(nameof(command));
-
             var commandStatus = await durableClient
-                .GetStatusAsync(CommandTrigger.GetCommandOrchestrationInstanceId(command))
+                .GetStatusAsync(OrchestratorCommandOrchestrationHandler.GetCommandOrchestrationInstanceId(commandId))
                 .ConfigureAwait(false);
 
-            if (commandStatus is null)
+            if (commandStatus?.RuntimeStatus.IsFinal() ?? true)
             {
-                // the command orchestration wasn't created yet
-                // there is no way to return a command result
+                // we use the command wrapper status as a fallback if there is no orchstration status available
+                // for the command itself, but also if the command orchestration reached a final state and we
+                // need to return the overall processing status (incl. all tasks managed by the wrapper)
 
-                return null;
-            }
-            else if (commandStatus.RuntimeStatus.IsFinal())
-            {
-                // the command orchestration reached a final state
-                // but the message orchestration is responsible to
-                // send the result and there could modify the overall
-                // command result (e.g. if a send operation fails).
-
-                var commandMessageStatus = await durableClient
-                    .GetStatusAsync(CommandTrigger.GetCommandWrapperOrchestrationInstanceId(command))
-                    .ConfigureAwait(false);
-
-                if (commandMessageStatus?.Output.HasValues ?? false)
-                {
-                    return commandMessageStatus.Output
-                        .ToObject<ICommandResult>()
-                        .ApplyStatus(commandMessageStatus);
-                }
+                commandStatus = await durableClient
+                    .GetStatusAsync(OrchestratorCommandOrchestrationHandler.GetCommandOrchestrationWrapperInstanceId(commandId))
+                    .ConfigureAwait(false) ?? commandStatus; // final fallback if there is no wrapper orchstration
             }
 
-            // the command orchestration is in-flight
-            // get the current command result from its
-            // output or fallback to the default result
+            if (commandStatus != null)
+            {
+                var commandResult = commandStatus.Output.HasValues
+                    ? commandStatus.Output.ToObject<ICommandResult>()
+                    : commandStatus.Input.ToObject<ICommand>().CreateResult(); // fallback to the default command result
 
-            var commandResult = commandStatus.Output.HasValues
-                ? commandStatus.Output.ToObject<ICommandResult>()
-                : command.CreateResult(); // fallback to the default command result
+                return commandResult.ApplyStatus(commandStatus);
+            }
 
-            return commandResult.ApplyStatus(commandStatus);
+            return null;
         }
 
     }

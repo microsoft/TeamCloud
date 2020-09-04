@@ -13,6 +13,7 @@ using TeamCloud.Model.Commands.Core;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestration.Auditing;
 using TeamCloud.Orchestrator.Activities;
+using TeamCloud.Orchestrator.Handlers;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 {
@@ -38,34 +39,31 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                     .AuditAsync(command, commandResult)
                     .ConfigureAwait(true);
 
-                functionContext.SetCustomStatus("Dispatching command", log);
-
-                var commandOrchestration = await functionContext
-                    .CallActivityWithRetryAsync<string>(nameof(OrchestratorCommandDispatchActivity), command)
-                    .ConfigureAwait(true);
-
                 functionContext.SetCustomStatus("Processing command", log);
 
                 commandResult = await functionContext
-                    .CallSubOrchestratorWithRetryAsync<ICommandResult>(commandOrchestration, command.CommandId.ToString(), command)
+                    .CallSubOrchestratorWithRetryAsync<ICommandResult>(OrchestratorCommandOrchestrationHandler.GetCommandOrchestrationName(command), command.CommandId.ToString(), command)
                     .ConfigureAwait(true);
             }
             catch (Exception exc)
             {
-                functionContext.SetCustomStatus($"Handling error: {exc.Message}", log, exc);
-
                 commandResult ??= command.CreateResult();
                 commandResult.Errors.Add(exc);
             }
             finally
             {
-                if (commandResult?.RuntimeStatus.IsUnknown() ?? false)
+                try
                 {
                     functionContext.SetCustomStatus("Augmenting command result", log);
 
                     commandResult = await functionContext
                         .CallActivityWithRetryAsync<ICommandResult>(nameof(CommandResultAugmentActivity), commandResult)
                         .ConfigureAwait(true);
+                }
+                catch (Exception exc)
+                {
+                    commandResult ??= command.CreateResult();
+                    commandResult.Errors.Add(exc);
                 }
 
                 functionContext.SetCustomStatus("Auditing command result", log);

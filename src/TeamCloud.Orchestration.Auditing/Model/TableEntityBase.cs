@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
 using Microsoft.WindowsAzure.Storage;
@@ -21,11 +22,16 @@ namespace TeamCloud.Orchestration.Auditing.Model
         public const string RowKeyPropertyName = "RowKey";
         public const string TimestampPropertyName = "Timestamp";
 
+        private static readonly ConcurrentDictionary<Type, IEnumerable<string>> ColumnOrderCache = new ConcurrentDictionary<Type, IEnumerable<string>>();
+        private static readonly ConcurrentDictionary<Type, IEnumerable<PropertyInfo>> ReadOnlyPropertiesCache = new ConcurrentDictionary<Type, IEnumerable<PropertyInfo>>();
         private static readonly ConcurrentDictionary<Type, IEnumerable<PropertyInfo>> ComplexPropertiesCache = new ConcurrentDictionary<Type, IEnumerable<PropertyInfo>>();
         private static readonly ConcurrentDictionary<Type, IEnumerable<PropertyInfo>> EnumPropertiesCache = new ConcurrentDictionary<Type, IEnumerable<PropertyInfo>>();
 
         private static readonly MethodInfo ReflectionReadMethod = typeof(TableEntity).GetMethod("ReflectionRead", BindingFlags.Static | BindingFlags.NonPublic);
         private static readonly MethodInfo ReflectionWriteMethod = typeof(TableEntity).GetMethod("ReflectionWrite", BindingFlags.Static | BindingFlags.NonPublic);
+
+        private static bool IsEdmType(Type type)
+            => Enum.GetNames(typeof(EdmType)).Contains(type.Name, StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// Gets the table entity.
@@ -58,6 +64,20 @@ namespace TeamCloud.Orchestration.Auditing.Model
         /// </summary>
         /// <value>The timestamp.</value>
         DateTimeOffset ITableEntity.Timestamp { get; set; }
+
+        private IEnumerable<string> ColumnOrder => ColumnOrderCache.GetOrAdd(GetType(), (type) => type
+            .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty)
+            .OrderBy(pi => (pi.GetCustomAttribute<ColumnAttribute>() ?? new ColumnAttribute()).Order)
+            .ThenBy(pi => pi.Name)
+            .Select(pi => pi.Name));
+
+        /// <summary>
+        /// Gets the complex properties.
+        /// </summary>
+        /// <value>The complex properties.</value>
+        private IEnumerable<PropertyInfo> ReadOnlyProperties => ReadOnlyPropertiesCache.GetOrAdd(GetType(), (type) => type
+                .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty)
+                .Where(pi => !pi.IsDefined(typeof(IgnorePropertyAttribute)) && IsEdmType(pi.PropertyType) && !(pi.GetSetMethod(true)?.IsPublic ?? true)));
 
         /// <summary>
         /// Gets the complex properties.
@@ -121,6 +141,14 @@ namespace TeamCloud.Orchestration.Auditing.Model
                     }
                 }
             }
+
+            foreach (var readOnlyProperty in ReadOnlyProperties)
+            {
+                if (properties.TryGetValue(readOnlyProperty.Name, out EntityProperty property))
+                {
+                    readOnlyProperty.SetValue(this, property.PropertyAsObject);
+                }
+            }
         }
 
         /// <summary>
@@ -150,7 +178,15 @@ namespace TeamCloud.Orchestration.Auditing.Model
                 properties[enumProperty.Name] = new EntityProperty(Enum.GetName(enumProperty.PropertyType, enumProperty.GetValue(this)));
             }
 
-            return properties;
+            foreach (var readOnlyProperty in ReadOnlyProperties)
+            {
+                properties[readOnlyProperty.Name] = EntityProperty.CreateEntityPropertyFromObject(readOnlyProperty.GetValue(this));
+            }
+
+            return ColumnOrder
+                .Intersect(properties.Keys)
+                .Concat(properties.Keys.Except(ColumnOrder))
+                .ToDictionary(column => column, column => properties[column]);
         }
     }
 }
