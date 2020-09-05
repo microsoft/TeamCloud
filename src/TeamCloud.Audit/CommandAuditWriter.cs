@@ -8,8 +8,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage.Table;
@@ -58,9 +56,8 @@ namespace TeamCloud.Audit
 
         private readonly Lazy<CloudBlobContainer> auditContainer;
         private readonly Lazy<CloudTable> auditTable;
-        private readonly ILogger logger;
 
-        public CommandAuditWriter(ICommandAuditOptions options = null, ILogger<CommandAuditWriter> logger = null)
+        public CommandAuditWriter(ICommandAuditOptions options = null)
         {
             auditContainer = new Lazy<CloudBlobContainer>(() => CloudStorageAccount
                 .Parse((options ?? CommandAuditOptions.Default).ConnectionString)
@@ -69,8 +66,6 @@ namespace TeamCloud.Audit
             auditTable = new Lazy<CloudTable>(() => CloudStorageAccount
                 .Parse((options ?? CommandAuditOptions.Default).ConnectionString)
                 .CreateCloudTableClient().GetTableReference(GetAuditTableName(options)));
-
-            this.logger = logger as ILogger ?? NullLogger.Instance;
         }
 
         public Task AuditAsync(ICommand command, ICommandResult commandResult = default, string providerId = default) => Task.WhenAll
@@ -103,19 +98,12 @@ namespace TeamCloud.Audit
             {
                 var auditPath = $"{command.ProjectId}/{command.CommandId}/{providerId}/{data.GetType().Name}.json";
 
-                try
-                {
-                    var auditContainer = await GetAuditContainerAsync().ConfigureAwait(false);
-                    var auditBlob = auditContainer.GetBlockBlobReference(auditPath.Replace("//", "/", StringComparison.OrdinalIgnoreCase));
+                var auditContainer = await GetAuditContainerAsync().ConfigureAwait(false);
+                var auditBlob = auditContainer.GetBlockBlobReference(auditPath.Replace("//", "/", StringComparison.OrdinalIgnoreCase));
 
-                    await auditBlob
-                        .UploadTextAsync(JsonConvert.SerializeObject(data, Formatting.Indented))
-                        .ConfigureAwait(false);
-                }
-                catch (Exception exc)
-                {
-                    logger.LogWarning(exc, $"Failed to write audit blob (Path: {auditPath}): {exc.Message}");
-                }
+                await auditBlob
+                    .UploadTextAsync(JsonConvert.SerializeObject(data, Formatting.Indented))
+                    .ConfigureAwait(false);
             }
         }
 
@@ -135,46 +123,39 @@ namespace TeamCloud.Audit
         {
             var entity = new CommandAuditEntity(command, providerId);
 
-            try
+            var auditTable = await GetAuditTableAsync()
+                .ConfigureAwait(false);
+
+            var entityResult = await auditTable
+                .ExecuteAsync(TableOperation.Retrieve<CommandAuditEntity>(entity.TableEntity.PartitionKey, entity.TableEntity.RowKey))
+                .ConfigureAwait(false);
+
+            if (entityResult.HttpStatusCode == (int)HttpStatusCode.OK)
+                entity = entityResult.Result as CommandAuditEntity ?? entity;
+
+            if (commandResult != null && !entity.RuntimeStatus.IsFinal())
             {
-                var auditTable = await GetAuditTableAsync()
-                    .ConfigureAwait(false);
+                entity.Created = GetTableStorageMinDate(entity.Created, commandResult.CreatedTime);
+                entity.Updated = GetTableStorageMaxDate(entity.Updated, commandResult.LastUpdatedTime);
 
-                var entityResult = await auditTable
-                    .ExecuteAsync(TableOperation.Retrieve<CommandAuditEntity>(entity.TableEntity.PartitionKey, entity.TableEntity.RowKey))
-                    .ConfigureAwait(false);
+                entity.RuntimeStatus = commandResult.RuntimeStatus;
+                entity.CustomStatus = commandResult.CustomStatus;
 
-                if (entityResult.HttpStatusCode == (int)HttpStatusCode.OK)
-                    entity = entityResult.Result as CommandAuditEntity ?? entity;
-
-                if (commandResult != null && !entity.RuntimeStatus.IsFinal())
+                if (entity.RuntimeStatus.IsFinal())
                 {
-                    entity.Created = GetTableStorageMinDate(entity.Created, commandResult.CreatedTime);
-                    entity.Updated = GetTableStorageMaxDate(entity.Updated, commandResult.LastUpdatedTime);
-
-                    entity.RuntimeStatus = commandResult.RuntimeStatus;
-                    entity.CustomStatus = commandResult.CustomStatus;
-
-                    if (entity.RuntimeStatus.IsFinal())
-                    {
-                        entity.Processed = entity.Updated;
-                        entity.Errors = string.Join(Environment.NewLine, commandResult.Errors.Select(error => $"[{error.Severity}] {error.Message}"));
-                    }
-                    else if (!string.IsNullOrEmpty(entity.Provider))
-                    {
-                        // timeout information are only relevant for provider related commands
-                        entity.Timeout = entity.Created?.Add(commandResult.Timeout);
-                    }
+                    entity.Processed = entity.Updated;
+                    entity.Errors = string.Join(Environment.NewLine, commandResult.Errors.Select(error => $"[{error.Severity}] {error.Message}"));
                 }
+                else if (!string.IsNullOrEmpty(entity.Provider))
+                {
+                    // timeout information are only relevant for provider related commands
+                    entity.Timeout = entity.Created?.Add(commandResult.Timeout);
+                }
+            }
 
-                await auditTable
-                    .ExecuteAsync(TableOperation.InsertOrReplace(entity))
-                    .ConfigureAwait(false);
-            }
-            catch (Exception exc)
-            {
-                logger.LogWarning(exc, $"Failed to write audit entry (PartitionKey: {entity.TableEntity.PartitionKey} / RowKey: {entity.TableEntity.RowKey}) : {exc.Message}");
-            }
+            await auditTable
+                .ExecuteAsync(TableOperation.InsertOrReplace(entity))
+                .ConfigureAwait(false);
 
             static DateTime? GetTableStorageMaxDate(params DateTime?[] dateTimes)
             {
