@@ -1,6 +1,6 @@
 # TeamCloud Web Client
 
-Although the TeamCloud CLI exposes all functionality provided by TeamCloud, you can also deploy a client website to interact with your instance.
+Although the [TeamCloud CLI](CLI.md) exposes all functionality provided by TeamCloud, you can also deploy a client website to interact with your instance.
 
 ![TeamCloud website](img/tc_web_app_0.png)
 
@@ -16,7 +16,7 @@ In order for the TeamCloud Web application to authenticate users and securely ca
 2. Search for and select **Azure Active Directory**.
 3. Under **Manage**, select **App registrations**.
 4. Select **New registration** at the top:
-   - For the application **Name**, enter **TeamCloud.Web**.
+   - For the application **Name**, enter **TeamCloud.Web**
    - Under **Supported account types** select **Accounts in this organizational directory only (Default Directory only - Single tenant)**.
    - Do **NOT** enter a **Redirect URI**.
 5. Select **Register** to create the app registration.
