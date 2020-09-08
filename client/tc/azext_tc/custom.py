@@ -157,7 +157,7 @@ def teamcloud_deploy(cmd, client, name, location=None, resource_group_name='Team
         version_string = version or 'the latest version'
         hook.add(message='Successfully created TeamCloud instance ({})'.format(version_string))
 
-    client._client.config.base_url = api_url
+    _ensure_base_url(client, api_url)
 
     if skip_admin_user:
         logger.warning(
