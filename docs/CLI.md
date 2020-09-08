@@ -4,6 +4,8 @@ The TeamCloud CLI is an [extension](https://docs.microsoft.com/en-us/cli/azure/a
 
 ## Install
 
+The TeamCloud CLI requires you have the Azure CLI [installed](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest#install).
+
 To install the Azure CLI TeamCloud extension, simply run the following command:
 
 ```sh
