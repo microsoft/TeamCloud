@@ -841,15 +841,15 @@ def _create_with_status(cmd, client, base_url, payload, create_func,
 
             # status for project children
             if project_id:
-                result = client.get_project_status(project_id, result._tracking_id)
+                result = client.get_project_status(project_id, result.tracking_id)
             # status for project
             elif 'projects' in result.location:
                 paths = urlparse(result.location).path.split('/')
                 p_id = paths[paths.index('projects') + 1]
-                result = client.get_project_status(p_id, result._tracking_id)
+                result = client.get_project_status(p_id, result.tracking_id)
             # status for teamcloud children
             else:
-                result = client.get_status(result._tracking_id)
+                result = client.get_status(result.tracking_id)
 
     hook.end(message=' ')
     logger.warning(' ')
@@ -889,15 +889,15 @@ def _update_with_status(cmd, client, base_url, payload, update_func,
 
             # status for project children
             if project_id:
-                result = client.get_project_status(project_id, result._tracking_id)
+                result = client.get_project_status(project_id, result.tracking_id)
             # status for project
             elif 'projects' in result.location:
                 paths = urlparse(result.location).path.split('/')
                 p_id = paths[paths.index('projects') + 1]
-                result = client.get_project_status(p_id, result._tracking_id)
+                result = client.get_project_status(p_id, result.tracking_id)
             # status for teamcloud children
             else:
-                result = client.get_status(result._tracking_id)
+                result = client.get_status(result.tracking_id)
 
     hook.end(message=' ')
     logger.warning(' ')
@@ -937,15 +937,15 @@ def _delete_with_status(cmd, client, base_url, item_id, delete_func,
 
             # status for project children
             if project_id:
-                result = client.get_project_status(project_id, result._tracking_id)
+                result = client.get_project_status(project_id, result.tracking_id)
             # status for project
             elif 'projects' in result.location:
                 paths = urlparse(result.location).path.split('/')
                 p_id = paths[paths.index('projects') + 1]
-                result = client.get_project_status(p_id, result._tracking_id)
+                result = client.get_project_status(p_id, result.tracking_id)
             # status for teamcloud children
             else:
-                result = client.get_status(result._tracking_id)
+                result = client.get_status(result.tracking_id)
 
     hook.end(message=' ')
     logger.warning(' ')
