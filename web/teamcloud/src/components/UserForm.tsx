@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import { Stack, Dropdown, IDropdownOption, Label, Panel, PrimaryButton, DefaultButton, Spinner, Text } from "@fluentui/react";
 import { ProjectUserRole, Project, UserDefinition, ErrorResult, StatusResult } from "../model";
 import { GraphUser } from "../MSGraph";

@@ -30,7 +30,7 @@ Next, configure the app registration with a Redirect URI (and scope) to specify 
 
 1. Under **Manage**, select **Expose an API**.
 2. Select **Add a scope**.
-3. For the **Application ID URI**, enter **http://TeamCloud.Web**.
+3. For the **Application ID URI**, enter **http://TeamCloud.Web**
 4. Select **Save and continue**, and fill in the form as follows:
    - **Scope name**: user_impersonation
    - **Who can consent?**: Admins and users

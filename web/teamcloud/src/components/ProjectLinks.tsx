@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect } from 'react';
-import { ProjectLink, ProjectLinkType, Project } from '../model';
+import { ProjectLink, ProjectLinkType, Project, DataResult } from '../model';
 import { Stack, Shimmer, Image, DefaultButton, IButtonStyles, getTheme } from '@fluentui/react';
 import { ProjectDetailCard } from './ProjectDetailCard';
 import { ExampleProjectLinks } from '../data/ExampleData';
@@ -10,6 +10,7 @@ import AppInsights from '../img/appinsights.svg';
 import DevOps from '../img/devops.svg';
 import DevTestLabs from '../img/devtestlabs.svg';
 import GitHub from '../img/github.svg';
+import { getProjectLinks } from '../API';
 
 
 export interface IProjectLinksProps {
@@ -25,32 +26,33 @@ export const ProjectLinks: React.FunctionComponent<IProjectLinksProps> = (props)
     useEffect(() => {
         if (props.project) {
             const _setLinks = async () => {
-                // let _links = await getProjectProviderLinks();
-                let _links = ExampleProjectLinks;
-                setLinks(_links);
+                const result = await getProjectLinks(props.project.id);
+                const data = (result as DataResult<ProjectLink[]>).data
+                // let _links = ExampleProjectLinks;
+                setLinks(data);
             };
             _setLinks();
         }
     }, [props.project]);
 
 
-    const _findKnownProviderImage = (link: ProjectLink) => {
-        if (link.providerId) {
-            if (link.providerId.startsWith('azure.appinsights')) return AppInsights;
-            if (link.providerId.startsWith('azure.devops')) return DevOps;
-            if (link.providerId.startsWith('azure.devtestlabs')) return DevTestLabs;
-            if (link.providerId.startsWith('github')) return GitHub;
-        }
-        return undefined;
-    }
+    // const _findKnownProviderImage = (link: ProjectLink) => {
+    //     if (link.providerId) {
+    //         if (link.providerId.startsWith('azure.appinsights')) return AppInsights;
+    //         if (link.providerId.startsWith('azure.devops')) return DevOps;
+    //         if (link.providerId.startsWith('azure.devtestlabs')) return DevTestLabs;
+    //         if (link.providerId.startsWith('github')) return GitHub;
+    //     }
+    //     return undefined;
+    // }
 
     const _getLinkTypeIcon = (link: ProjectLink) => {
-        switch (link.dataType) { // VisualStudioIDELogo32
+        switch (link.type) { // VisualStudioIDELogo32
             case ProjectLinkType.Link: return 'Link'; // Link12, FileSymlink, OpenInNewWindow, VSTSLogo
             case ProjectLinkType.Readme: return 'PageList'; // Preview, Copy, FileHTML, FileCode, MarkDownLanguage, Document
             case ProjectLinkType.Service: return 'Processing'; // Settings, Globe, Repair
-            case ProjectLinkType.Resource: return 'AzureLogo'; // AzureServiceEndpoint
-            case ProjectLinkType.Repository: return 'OpenSource';
+            case ProjectLinkType.AzureResource: return 'AzureLogo'; // AzureServiceEndpoint
+            case ProjectLinkType.GitRepository: return 'OpenSource';
             default: return undefined;
         }
     }
@@ -70,20 +72,20 @@ export const ProjectLinks: React.FunctionComponent<IProjectLinksProps> = (props)
         }
     }
 
-    const _linkTypes = [ProjectLinkType.Resource, ProjectLinkType.Service, ProjectLinkType.Repository, ProjectLinkType.Readme, ProjectLinkType.Link];
+    const _linkTypes = [ProjectLinkType.AzureResource, ProjectLinkType.Service, ProjectLinkType.GitRepository, ProjectLinkType.Readme, ProjectLinkType.Link];
 
-    const _getLinkStacks = () => links?.sort((a, b) => _linkTypes.indexOf(a.dataType) - _linkTypes.indexOf(b.dataType)).map(l => (
+    const _getLinkStacks = () => links?.sort((a, b) => _linkTypes.indexOf(a.type) - _linkTypes.indexOf(b.type)).map(l => (
         <Stack horizontal tokens={{ childrenGap: '12px' }}>
             < Stack.Item styles={{ root: { width: '100%' } }}>
                 <DefaultButton
                     iconProps={{ iconName: _getLinkTypeIcon(l) }}
-                    text={l.name}
-                    href={l.value}
+                    text={l.title}
+                    href={l.href}
                     target='_blank'
                     styles={_linkButtonStyles} >
-                    <Image
+                    {/* <Image
                         src={_findKnownProviderImage(l)}
-                        height={24} width={24} />
+                        height={24} width={24} /> */}
                 </DefaultButton>
             </Stack.Item >
         </Stack >

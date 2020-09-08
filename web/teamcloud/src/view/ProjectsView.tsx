@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import { ICommandBarItemProps, SearchBox, Stack, IBreadcrumbItem } from '@fluentui/react';
 import { getProjects } from '../API'
 import { Project, DataResult, User, TeamCloudUserRole } from '../model'

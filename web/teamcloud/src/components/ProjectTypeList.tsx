@@ -3,8 +3,7 @@
 
 import React from 'react';
 import { ProjectType } from '../model';
-import { Link, useHistory } from 'react-router-dom';
-import { ShimmeredDetailsList, DetailsListLayoutMode, IColumn, IRenderFunction, IDetailsRowProps, SelectionMode, CheckboxVisibility } from '@fluentui/react';
+import { Link, ShimmeredDetailsList, DetailsListLayoutMode, IColumn, IRenderFunction, IDetailsRowProps, SelectionMode, CheckboxVisibility } from '@fluentui/react';
 
 export interface IProjectTypeListProps {
     projectTypes?: ProjectType[];
@@ -14,11 +13,8 @@ export interface IProjectTypeListProps {
 
 export const ProjectTypeList: React.FunctionComponent<IProjectTypeListProps> = (props) => {
 
-    const history = useHistory();
-
     const columns: IColumn[] = [
-        // { key: 'projectName', name: 'Project T', onRender: (p: Project) => (<Link onClick={() => _onLinkClicked(p)} to={'/projects/' + p.id} style={{ textDecoration: 'none' }}>{p.name}</Link>), minWidth: 100, isResizable: true },
-        { key: 'id', name: 'ID', fieldName: 'id', minWidth: 100, isResizable: true },
+        { key: 'id', name: 'ID', onRender: (p: ProjectType) => (<Link onClick={() => _onLinkClicked(p)} style={{ textDecoration: 'none' }}>{p.id}</Link>), minWidth: 200, isResizable: true },
         { key: 'default', name: 'Default', onRender: (t: ProjectType) => t.isDefault ? 'Yes' : 'No', minWidth: 100, isResizable: true },
         { key: 'location', name: 'Location', fieldName: 'region', minWidth: 100, isResizable: true },
         { key: 'providers', name: 'Providers', onRender: (t: ProjectType) => t.providers.map(p => p.id).join(', '), minWidth: 300, isResizable: true },
@@ -36,7 +32,6 @@ export const ProjectTypeList: React.FunctionComponent<IProjectTypeListProps> = (
 
     const _onItemInvoked = (projectType: ProjectType): void => {
         _onLinkClicked(projectType);
-        history.push('/projectTypes/' + projectType.id)
     };
 
     const _onRenderRow: IRenderFunction<IDetailsRowProps> = (props?: IDetailsRowProps, defaultRender?: (props?: IDetailsRowProps) => JSX.Element | null): JSX.Element | null => {

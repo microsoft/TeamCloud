@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState, useEffect } from "react";
-import { ICommandBarItemProps, SearchBox, Stack, IBreadcrumbItem, Panel, PrimaryButton, DefaultButton, Spinner, Text } from '@fluentui/react';
+import React, { useState, useEffect } from 'react';
+import { ICommandBarItemProps, SearchBox, Stack, IBreadcrumbItem } from '@fluentui/react';
 import { getProjectTypes } from '../API'
 import { Project, DataResult, ProjectType, User, TeamCloudUserRole } from '../model'
-import { SubheaderBar, ProjectTypeForm, ProjectTypeList } from "../components";
+import { SubheaderBar, ProjectTypeForm, ProjectTypeList, ProjectTypePanel } from "../components";
 
 export interface IProjectTypesViewProps {
     user?: User;
@@ -18,12 +18,8 @@ export const ProjectTypesView: React.FunctionComponent<IProjectTypesViewProps> =
     const [projectTypeFilter, setProjectTypeFilter] = useState<string>();
     const [newProjectTypePanelOpen, setNewProjectTypePanelOpen] = useState(false);
 
-    const [newProjectFormEnabled] = useState<boolean>(true);
-    const [newProjectTypeFormEnabled, setNewProjectTypeFormEnabled] = useState<boolean>(true);
-    const [newProjectName] = useState<string>();
-    const [newProjectType] = useState<ProjectType>();
-    const [newProjectErrorText] = useState<string>();
-
+    const [selectedProjectType, setSelectedProjectType] = useState<ProjectType>();
+    const [detailsPanelOpen, setDetailsPanelOpen] = useState(false);
 
     useEffect(() => {
         if (projectTypes === undefined) {
@@ -42,19 +38,6 @@ export const ProjectTypesView: React.FunctionComponent<IProjectTypesViewProps> =
         setProjectTypes(data);
     }
 
-    const _onProjectTypeFormNameChange = () => {
-        // setNewProjectName(val);
-    }
-
-    const _onCreateNewProjectType = () => {
-
-    }
-
-    const _onNewProjectTypeFormReset = () => {
-        setNewProjectTypePanelOpen(false);
-        setNewProjectTypeFormEnabled(true);
-    }
-
     const _userCanCreateProjectTypes = () => props.user?.role === TeamCloudUserRole.Admin;
 
     const _commandBarItems = (): ICommandBarItemProps[] => [
@@ -70,15 +53,15 @@ export const ProjectTypesView: React.FunctionComponent<IProjectTypesViewProps> =
         { text: '', key: 'root', href: '/', isCurrentItem: true }
     ];
 
-    const _onRenderNewProjectTypeFormFooterContent = () => (
-        <div>
-            <PrimaryButton disabled={!newProjectFormEnabled || !(newProjectName && newProjectType)} onClick={() => _onCreateNewProjectType()} styles={{ root: { marginRight: 8 } }}>
-                Create project type
-            </PrimaryButton>
-            <DefaultButton disabled={!newProjectFormEnabled} onClick={() => _onNewProjectTypeFormReset()}>Cancel</DefaultButton>
-            <Spinner styles={{ root: { visibility: newProjectFormEnabled ? 'hidden' : 'visible' } }} />
-        </div>
-    );
+    const _onProjectTypeSelected = (projectType: ProjectType) => {
+        setSelectedProjectType(projectType)
+        setDetailsPanelOpen(true)
+    };
+
+    const _onDetailsPanelClose = () => {
+        setSelectedProjectType(undefined)
+        setDetailsPanelOpen(false)
+    };
 
     return (
         <>
@@ -90,21 +73,15 @@ export const ProjectTypesView: React.FunctionComponent<IProjectTypesViewProps> =
                 <ProjectTypeList
                     projectTypes={projectTypes}
                     projectTypeFilter={projectTypeFilter}
-                // onProjectTypeSelected={props.onProjectSelected}
-                />
+                    onProjectTypeSelected={_onProjectTypeSelected} />
             </Stack>
-            <Panel
-                headerText='New project type'
-                isOpen={newProjectTypePanelOpen}
-                onDismiss={() => _onNewProjectTypeFormReset()}
-                onRenderFooterContent={_onRenderNewProjectTypeFormFooterContent}>
-                <ProjectTypeForm
-                    fieldsEnabled={!newProjectTypeFormEnabled}
-                    onNameChange={_onProjectTypeFormNameChange}
-                    // onProjectTypeChange={_onProjectFormTypeChange}
-                    onFormSubmit={() => _onCreateNewProjectType()} />
-                <Text>{newProjectErrorText}</Text>
-            </Panel>
+            <ProjectTypePanel
+                projectType={selectedProjectType}
+                panelIsOpen={detailsPanelOpen}
+                onPanelClose={_onDetailsPanelClose} />
+            <ProjectTypeForm
+                panelIsOpen={newProjectTypePanelOpen}
+                onFormClose={() => setNewProjectTypePanelOpen(false)} />
         </>
     );
 }
