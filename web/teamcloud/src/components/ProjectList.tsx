@@ -91,7 +91,7 @@ export const ProjectList: React.FunctionComponent<IProjectListProps> = (props) =
                 items={items}
                 columns={columns}
                 onRenderRow={_onRenderRow}
-                enableShimmer={items.length === 0}
+                enableShimmer={props.projects === undefined}
                 selectionMode={SelectionMode.none}
                 layoutMode={DetailsListLayoutMode.justified}
                 checkboxVisibility={CheckboxVisibility.hidden}

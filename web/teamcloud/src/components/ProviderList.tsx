@@ -50,7 +50,7 @@ export const ProviderList: React.FunctionComponent<IProviderListProps> = (props)
             items={items}
             columns={columns}
             onRenderRow={_onRenderRow}
-            enableShimmer={items.length === 0}
+            enableShimmer={props.providers === undefined}
             selectionMode={SelectionMode.none}
             layoutMode={DetailsListLayoutMode.justified}
             checkboxVisibility={CheckboxVisibility.hidden}
