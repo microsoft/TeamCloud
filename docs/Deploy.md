@@ -11,7 +11,7 @@ For example, if you choose to pass in `myteamcloud` as the `<NAME>`, your TeamCl
 **Note: This command will take 15+ minutes to complete.**
 
 ```sh
-az tc deploy -n <NAME>
+az tc deploy -n <NAME> --pre
 ```
 
 > Use `az tc deploy -h` to see all available arguments and examples.
@@ -42,7 +42,7 @@ In order for the TeamCloud Web application to authenticate users and securely ca
 Just like the instance itself, the web app is deployed using the CLI. Run the following command replacing `<CLIENT-ID>` with the Client ID of your App registration.
 
 ```sh
-az tc app deploy -c <CLIENT-ID>
+az tc app deploy -c <CLIENT-ID> --pre
 ```
 
 > Use `az tc app deploy -h` to see all available arguments and examples.
@@ -59,7 +59,7 @@ Again, you use the CLI to deploy providers. Run the following command for each p
 - github
 
 ```sh
-az tc provider deploy -n <NAME>
+az tc provider deploy -n <NAME> --pre
 ```
 
 > Use `az tc provider deploy -h` to see all available arguments and examples.
