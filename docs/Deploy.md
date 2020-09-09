@@ -25,6 +25,8 @@ TeamCloud instance successfully created at: https://myteamcloud.azurewebsites.ne
 Use `az configure --defaults tc-base-url=https://myteamcloud.azurewebsites.net` to configure this as your default TeamCloud instance
 ```
 
+**:bangbang: IMPORTANT :bangbang:**
+
 **It is highly recommended you follow the instruction and run the `az configure` command to set your default url. Otherwise you'll have to pass this url as an argument into every command.**
 
 ## Deploy a Web UI (optional)
