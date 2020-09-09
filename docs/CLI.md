@@ -28,7 +28,7 @@ az tc update --pre
 
 ## Local Development
 
-The To use the Azure CLI TeamCloud extension with a locally running TeamCloud instance, first set the default base url to your localhost TeamCloud API endpoint:
+To use the Azure CLI TeamCloud extension with a locally running TeamCloud instance, first set the default base url to your localhost TeamCloud API endpoint:
 
 ```sh
 az configure -d tc-base-url=https://localhost:5001
