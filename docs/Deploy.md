@@ -1,6 +1,6 @@
 # Deploying TeamCloud
 
-To deploy and interact with a TeamCloud instance, you use the [TeamCloud CLI](CLI.md). Instructions for installing it can be found [here](CLI.md#install).
+To deploy and interact with a TeamCloud instance, you use the TeamCloud CLI. Instructions for installing it can be found [here](CLI.md#install).
 
 ## Deploy a TeamCloud instance
 
@@ -8,13 +8,13 @@ To deploy a TeamCloud instance to Azure, run the following command replacing `<N
 
 For example, if you choose to pass in `myteamcloud` as the `<NAME>`, your TeamCloud instance service endpoint will be `https://myteamcloud.azurewebsites.net`.
 
-This command will take several minutes to complete.
+**Note: This command will take 15+ minutes to complete.**
 
 ```sh
 az tc deploy -n <NAME>
 ```
 
-Note: If you are logged in to multiple subscriptions, you may need to specify the subscription by passing in additional arguments. To see all available arguments and examples, run `az tc deploy -h`.
+> Use `az tc deploy -h` to see all available arguments and examples.
 
 ### Set the default TeamCloud URL
 
@@ -25,7 +25,7 @@ TeamCloud instance successfully created at: https://myteamcloud.azurewebsites.ne
 Use `az configure --defaults tc-base-url=https://myteamcloud.azurewebsites.net` to configure this as your default TeamCloud instance
 ```
 
-It is **highly recommended** you follow the instruction and run the `az configure` command to set your default url. Otherwise you'll have to pass this url as an argument into every command.
+**It is highly recommended you follow the instruction and run the `az configure` command to set your default url. Otherwise you'll have to pass this url as an argument into every command.**
 
 ## Deploy a Web UI (optional)
 
@@ -33,7 +33,7 @@ Although the CLI exposes all functionality provided by TeamCloud, you can also d
 
 ### Create an App registration
 
-In order for the TeamCloud Web application to authenticate users and securely call the API, you must create a new app registration in Azure Active Directory. Follow [these instructions](Web.md#app-registration) to create your registration. Make sure you copy the Client ID, as you'll need it in the next step.
+In order for the TeamCloud Web application to authenticate users and securely call the API, you must create a new app registration in Azure Active Directory. **Follow [these instructions](Web.md#app-registration) to create your registration.** Make sure you copy the Client ID, as you'll need it in the next step.
 
 ### Deploy the Web App
 
@@ -43,7 +43,7 @@ Just like the instance itself, the web app is deployed using the CLI. Run the fo
 az tc app deploy -c <CLIENT-ID>
 ```
 
-Use `az tc app deploy -h` to see all available arguments and examples.
+> Use `az tc app deploy -h` to see all available arguments and examples.
 
 ## Deploy Providers
 
@@ -60,7 +60,7 @@ Again, you use the CLI to deploy providers. Run the following command for each p
 az tc provider deploy -n <NAME>
 ```
 
-Use `az tc provider deploy -h` to see all available arguments and examples.
+> Use `az tc provider deploy -h` to see all available arguments and examples.
 
 ## Create a Project Type
 
@@ -72,4 +72,8 @@ To create a project type named "simple", run the following command replacing `<S
 az tc project-type create -n simple --subscriptions <SUB-ID> --provider github --provider azure.devtestlabs
 ```
 
-Use `az tc project-type create -h` to see all available arguments and examples.
+> Use `az tc project-type create -h` to see all available arguments and examples.
+
+## Done
+
+That's it, you're ready to start using TeamCloud.  Use `az tc -h` to explore the CLI, or open up your website to work from there.
