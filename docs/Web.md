@@ -47,7 +47,7 @@ Next, configure the app registration with a Redirect URI (and scope) to specify 
 
 1. Under **Manage**, select **Authentication**, and then select **Add a platform**.
 2. Under **Web applications**, select **Single-page application** tile.
-3. Under **Redirect URIs**, enter a [redirect URI][reply-url].
+3. Under **Redirect URIs**, enter a [redirect URI][reply-url].  
    **:bangbang: IMPORTANT :bangbang:**  
    **Your redirect URI is the name (subdomain) of your TeamCloud instance with `-web` appended to the end.**  
    **For example, if your TeamCloud instance is at `https://myteamcloud.azurewebsites.net`, your redirect URI will be `https://myteamcloud-web.azurewebsites.net`**
