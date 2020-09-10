@@ -246,7 +246,7 @@ namespace TeamCloud.API.Controllers
                 .ConfigureAwait(false);
 
             return await Orchestrator
-                .InvokeAndReturnActionResultAsync<ProjectTypeDocument, ProjectType>(new OrchestratorProjectTypeUpdateCommand(currentUser, projectTypeDocument), Request)
+                .InvokeAndReturnActionResultAsync<ProjectTypeDocument, ProjectType>(new OrchestratorProjectTypeDeleteCommand(currentUser, projectTypeDocument), Request)
                 .ConfigureAwait(false);
         }
     }
