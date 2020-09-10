@@ -57,11 +57,11 @@ export const App: React.FunctionComponent<IAppProps> = (props) => {
                 </Route>
                 <Route path="/projectTypes" exact={true}>
                     <HeaderBar graphUser={graphUser} onSignOut={props.onSignOut} />
-                    <ProjectTypesView user={user} onProjectSelected={_onProjectSelected} />
+                    <ProjectTypesView user={user} />
                 </Route>
                 <Route path="/providers" exact={true}>
                     <HeaderBar graphUser={graphUser} onSignOut={props.onSignOut} />
-                    <ProvidersView user={user} onProjectSelected={_onProjectSelected} />
+                    <ProvidersView user={user} />
                 </Route>
                 <Route path="*">
                     <HeaderBar graphUser={graphUser} onSignOut={props.onSignOut} />

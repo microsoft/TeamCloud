@@ -157,7 +157,7 @@ def teamcloud_deploy(cmd, client, name, location=None, resource_group_name='Team
         version_string = version or 'the latest version'
         hook.add(message='Successfully created TeamCloud instance ({})'.format(version_string))
 
-    client._client.config.base_url = api_url
+    _ensure_base_url(client, api_url)
 
     if skip_admin_user:
         logger.warning(
@@ -486,7 +486,8 @@ def teamcloud_user_get_for_update(cmd, client, base_url, user):
 
 def teamcloud_user_set_for_update(cmd, client, base_url, payload):
     from ._transformers import transform_output
-    instance = _update_with_status(cmd, client, base_url, payload, client.update_team_cloud_user)
+    instance = _update_with_status(cmd, client, base_url, payload.id,
+                                   payload, client.update_team_cloud_user)
     return transform_output(instance)
 
 
@@ -587,7 +588,7 @@ def project_user_get_for_update(cmd, client, base_url, project, user):
 
 def project_user_set_for_update(cmd, client, base_url, project, payload):
     from ._transformers import transform_output
-    instance = _update_with_status(cmd, client, base_url, payload, client.update_project_user,
+    instance = _update_with_status(cmd, client, base_url, payload.id, payload, client.update_project_user,
                                    project_id=project)
     return transform_output(instance)
 
@@ -782,7 +783,7 @@ def provider_upgrade(cmd, client, base_url, provider, version=None, prerelease=F
     payload.auth_code = auth_code
     payload.version = version
 
-    provider_output = _update_with_status(cmd, client, base_url, payload,
+    provider_output = _update_with_status(cmd, client, base_url, provider, payload,
                                           client.update_provider, hook_start=False)
 
     if setup_url:
@@ -841,15 +842,15 @@ def _create_with_status(cmd, client, base_url, payload, create_func,
 
             # status for project children
             if project_id:
-                result = client.get_project_status(project_id, result._tracking_id)
+                result = client.get_project_status(project_id, result.tracking_id)
             # status for project
             elif 'projects' in result.location:
                 paths = urlparse(result.location).path.split('/')
                 p_id = paths[paths.index('projects') + 1]
-                result = client.get_project_status(p_id, result._tracking_id)
+                result = client.get_project_status(p_id, result.tracking_id)
             # status for teamcloud children
             else:
-                result = client.get_status(result._tracking_id)
+                result = client.get_status(result.tracking_id)
 
     hook.end(message=' ')
     logger.warning(' ')
@@ -857,23 +858,24 @@ def _create_with_status(cmd, client, base_url, payload, create_func,
     return result
 
 
-def _update_with_status(cmd, client, base_url, payload, update_func,
+def _update_with_status(cmd, client, base_url, item_id, payload, update_func,
                         project_id=None, no_wait=False, hook_start=True):
     from .vendored_sdks.teamcloud.models import StatusResult
     _ensure_base_url(client, base_url)
 
     if no_wait:
-        return sdk_no_wait(no_wait, update_func, project_id, payload) if project_id else sdk_no_wait(
-            no_wait, update_func, payload)
+        return sdk_no_wait(no_wait, update_func, item_id, project_id, payload) if project_id else sdk_no_wait(
+            no_wait, update_func, item_id, payload)
 
-    type_name = update_func.metadata['url'].split('/')[-1][:-1].capitalize()
+    type_name = update_func.metadata['url'].split('/')[-2][:-1].capitalize()
 
     hook = cmd.cli_ctx.get_progress_controller()
     if hook_start:
         hook.begin(message='Starting: Updating {}'.format(type_name))
     hook.add(message='Starting: Updating {}'.format(type_name))
 
-    result = update_func(project_id, payload) if project_id else update_func(payload)
+    result = update_func(item_id, project_id,
+                         payload) if project_id else update_func(item_id, payload)
 
     while isinstance(result, StatusResult):
         if result.code == 200:
@@ -889,15 +891,15 @@ def _update_with_status(cmd, client, base_url, payload, update_func,
 
             # status for project children
             if project_id:
-                result = client.get_project_status(project_id, result._tracking_id)
+                result = client.get_project_status(project_id, result.tracking_id)
             # status for project
             elif 'projects' in result.location:
                 paths = urlparse(result.location).path.split('/')
                 p_id = paths[paths.index('projects') + 1]
-                result = client.get_project_status(p_id, result._tracking_id)
+                result = client.get_project_status(p_id, result.tracking_id)
             # status for teamcloud children
             else:
-                result = client.get_status(result._tracking_id)
+                result = client.get_status(result.tracking_id)
 
     hook.end(message=' ')
     logger.warning(' ')
@@ -937,15 +939,15 @@ def _delete_with_status(cmd, client, base_url, item_id, delete_func,
 
             # status for project children
             if project_id:
-                result = client.get_project_status(project_id, result._tracking_id)
+                result = client.get_project_status(project_id, result.tracking_id)
             # status for project
             elif 'projects' in result.location:
                 paths = urlparse(result.location).path.split('/')
                 p_id = paths[paths.index('projects') + 1]
-                result = client.get_project_status(p_id, result._tracking_id)
+                result = client.get_project_status(p_id, result.tracking_id)
             # status for teamcloud children
             else:
-                result = client.get_status(result._tracking_id)
+                result = client.get_status(result.tracking_id)
 
     hook.end(message=' ')
     logger.warning(' ')

@@ -1,21 +1,22 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import { ICommandBarItemProps, SearchBox, Stack, IBreadcrumbItem } from '@fluentui/react';
 import { getProviders } from '../API'
-import { Project, DataResult, Provider, User, TeamCloudUserRole } from '../model'
-import { SubheaderBar, ProviderList } from "../components";
+import { DataResult, Provider, User } from '../model'
+import { SubheaderBar, ProviderList, ProviderPanel } from '../components';
 
 export interface IProvidersViewProps {
     user?: User;
-    onProjectSelected?: (project: Project) => void;
 }
 
 export const ProvidersView: React.FunctionComponent<IProvidersViewProps> = (props) => {
 
     const [providers, setProviders] = useState<Provider[]>();
     const [providerFilter, setProviderFilter] = useState<string>();
+    const [selectedProvider, setSelectedProvider] = useState<Provider>();
+    const [detailsPanelOpen, setDetailsPanelOpen] = useState(false);
 
     useEffect(() => {
         if (providers === undefined) {
@@ -32,7 +33,7 @@ export const ProvidersView: React.FunctionComponent<IProvidersViewProps> = (prop
         let result = await getProviders();
         let data = (result as DataResult<Provider[]>).data;
         setProviders(data);
-    }
+    };
 
 
     const _commandBarItems = (): ICommandBarItemProps[] => [
@@ -48,15 +49,15 @@ export const ProvidersView: React.FunctionComponent<IProvidersViewProps> = (prop
         { text: '', key: 'root', href: '/', isCurrentItem: true }
     ];
 
-    // const _onRenderNewProjectTypeFormFooterContent = () => (
-    //     <div>
-    //         <PrimaryButton disabled={!newProjectFormEnabled || !(newProjectName && newProjectType)} onClick={() => _onCreateNewProjectType()} styles={{ root: { marginRight: 8 } }}>
-    //             Create project type
-    //         </PrimaryButton>
-    //         <DefaultButton disabled={!newProjectFormEnabled} onClick={() => _onNewProjectTypeFormReset()}>Cancel</DefaultButton>
-    //         <Spinner styles={{ root: { visibility: newProjectFormEnabled ? 'hidden' : 'visible' } }} />
-    //     </div>
-    // );
+    const _onProviderSelected = (provider: Provider) => {
+        setSelectedProvider(provider)
+        setDetailsPanelOpen(true)
+    };
+
+    const _onDetailsPanelClose = () => {
+        setSelectedProvider(undefined)
+        setDetailsPanelOpen(false)
+    };
 
     return (
         <>
@@ -69,21 +70,12 @@ export const ProvidersView: React.FunctionComponent<IProvidersViewProps> = (prop
                 <ProviderList
                     providers={providers}
                     providerFilter={providerFilter}
-                // onProjectTypeSelected={props.onProjectSelected}
-                />
+                    onProviderSelected={_onProviderSelected} />
             </Stack>
-            {/* <Panel
-                headerText='New project type'
-                isOpen={newProjectTypePanelOpen}
-                onDismiss={() => _onNewProjectTypeFormReset()}
-                onRenderFooterContent={_onRenderNewProjectTypeFormFooterContent}>
-                <ProjectTypeForm
-                    fieldsEnabled={!newProjectTypeFormEnabled}
-                    onNameChange={_onProjectTypeFormNameChange}
-                    // onProjectTypeChange={_onProjectFormTypeChange}
-                    onFormSubmit={() => _onCreateNewProjectType()} />
-                <Text>{newProjectErrorText}</Text>
-            </Panel> */}
+            <ProviderPanel
+                provider={selectedProvider}
+                panelIsOpen={detailsPanelOpen}
+                onPanelClose={_onDetailsPanelClose} />
         </>
     );
 }

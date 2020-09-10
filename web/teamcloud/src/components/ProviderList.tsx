@@ -3,8 +3,7 @@
 
 import React from 'react';
 import { Provider } from '../model';
-import { Link, useHistory } from 'react-router-dom';
-import { ShimmeredDetailsList, DetailsListLayoutMode, IColumn } from '@fluentui/react';
+import { Link, ShimmeredDetailsList, DetailsListLayoutMode, IColumn, IRenderFunction, IDetailsRowProps, SelectionMode, CheckboxVisibility } from '@fluentui/react';
 
 export interface IProviderListProps {
     providers: Provider[] | undefined,
@@ -14,10 +13,8 @@ export interface IProviderListProps {
 
 export const ProviderList: React.FunctionComponent<IProviderListProps> = (props) => {
 
-    const history = useHistory();
-
     const columns: IColumn[] = [
-        { key: 'id', name: 'ID', onRender: (p: Provider) => (<Link onClick={() => _onLinkClicked(p)} to={'/providers/' + p.id} style={{ textDecoration: 'none' }}>{p.id}</Link>), minWidth: 200, isResizable: true },
+        { key: 'id', name: 'ID', onRender: (p: Provider) => (<Link onClick={() => _onLinkClicked(p)} style={{ textDecoration: 'none' }}>{p.id}</Link>), minWidth: 200, isResizable: true },
         { key: 'url', name: 'Url', fieldName: 'url', minWidth: 340, isResizable: true },
         { key: 'group', name: 'ResourceGroup', onRender: (p: Provider) => p.resourceGroup?.name, minWidth: 200, isResizable: true },
         { key: 'registered', name: 'Registered', fieldName: 'registered', minWidth: 200, isResizable: true },
@@ -35,7 +32,11 @@ export const ProviderList: React.FunctionComponent<IProviderListProps> = (props)
 
     const _onItemInvoked = (provider: Provider): void => {
         _onLinkClicked(provider);
-        history.push('/providers/' + provider.id)
+    };
+
+    const _onRenderRow: IRenderFunction<IDetailsRowProps> = (props?: IDetailsRowProps, defaultRender?: (props?: IDetailsRowProps) => JSX.Element | null): JSX.Element | null => {
+        if (props) props.styles = { fields: { alignItems: 'center' }, check: { minHeight: '62px' } }
+        return defaultRender ? defaultRender(props) : null;
     };
 
     // const _onColumnHeaderClicked = (ev?: React.MouseEvent<HTMLElement>, column?: IColumn) => {
@@ -48,13 +49,14 @@ export const ProviderList: React.FunctionComponent<IProviderListProps> = (props)
         <ShimmeredDetailsList
             items={items}
             columns={columns}
+            onRenderRow={_onRenderRow}
+            enableShimmer={props.providers === undefined}
+            selectionMode={SelectionMode.none}
             layoutMode={DetailsListLayoutMode.justified}
-            enableShimmer={items.length === 0}
+            checkboxVisibility={CheckboxVisibility.hidden}
+            cellStyleProps={{ cellLeftPadding: 46, cellRightPadding: 20, cellExtraRightPadding: 0 }}
             // onColumnHeaderClick={_onColumnHeaderClicked}
             selectionPreservedOnEmptyClick={true}
-            ariaLabelForSelectionColumn="Toggle selection"
-            ariaLabelForSelectAllCheckbox="Toggle selection for all items"
-            checkButtonAriaLabel="Row checkbox"
             onItemInvoked={_onItemInvoked} />
     );
 }

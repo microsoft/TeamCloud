@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import { Stack, TextField, Dropdown, IDropdownOption, Spinner, Panel, Text, PrimaryButton, DefaultButton, Label } from "@fluentui/react";
 import { ProjectType, DataResult, User, ProjectDefinition, ProjectUserRole, StatusResult, ErrorResult, UserDefinition } from "../model";
 import { getProjectTypes, createProject } from "../API";
@@ -17,6 +17,7 @@ export interface IProjectFormProps {
 export const ProjectForm: React.FunctionComponent<IProjectFormProps> = (props) => {
 
     const [projectTypes, setProjectTypes] = useState<ProjectType[]>();
+    const [projectTypeOptions, setProjectTypeOptions] = useState<IDropdownOption[]>();
     const [formEnabled, setFormEnabled] = useState<boolean>(true);
     const [projectName, setProjectName] = useState<string>();
     const [projectType, setProjectType] = useState<ProjectType>();
@@ -29,6 +30,7 @@ export const ProjectForm: React.FunctionComponent<IProjectFormProps> = (props) =
                 const result = await getProjectTypes()
                 const data = (result as DataResult<ProjectType[]>).data;
                 setProjectTypes(data);
+                setProjectTypeOptions(_projectTypeOptions(data))
             };
             _setProjectTypes();
         }
@@ -66,9 +68,9 @@ export const ProjectForm: React.FunctionComponent<IProjectFormProps> = (props) =
         props.onFormClose();
     };
 
-    const _projectTypeOptions = (): IDropdownOption[] => {
-        if (!projectTypes) return [];
-        return projectTypes.map(pt => ({ key: pt.id, text: pt.id } as IDropdownOption));
+    const _projectTypeOptions = (data: ProjectType[]): IDropdownOption[] => {
+        if (!data) return [];
+        return data.map(pt => ({ key: pt.id, text: pt.id } as IDropdownOption));
     };
 
     const _onDropdownChange = (event: React.FormEvent<HTMLDivElement>, option?: IDropdownOption, index?: number): void => {
@@ -89,38 +91,33 @@ export const ProjectForm: React.FunctionComponent<IProjectFormProps> = (props) =
         </div>
     );
 
-    if (projectTypes) {
-        return (
-            <Panel
-                headerText='New project'
-                isOpen={props.panelIsOpen}
-                onDismiss={() => _resetAndCloseForm()}
-                onRenderFooterContent={_onRenderPanelFooterContent}>
-                <Stack>
-                    <TextField
-                        required
-                        label='Name'
-                        // errorMessage='Name is required.'
-                        disabled={!formEnabled}
-                        onChange={(ev, val) => setProjectName(val)} />
-                    <Dropdown
-                        required
-                        label='Project Type'
-                        // errorMessage='Project Type is required.'
-                        placeHolder='Select a Project Type'
-                        disabled={!formEnabled}
-                        options={_projectTypeOptions()}
-                        onChange={_onDropdownChange} />
-                    <Label required>Members</Label>
-                    <ProjectMemberPicker
-                        formEnabled={formEnabled}
-                        onChange={_onMembersChanged} />
-                </Stack>
-                <Text>{errorText}</Text>
-            </Panel>
-
-        );
-    } else {
-        return (<Stack verticalFill verticalAlign='center' horizontalAlign='center'><Spinner /></Stack>)
-    }
+    return (
+        <Panel
+            headerText='New project'
+            isOpen={props.panelIsOpen}
+            onDismiss={() => _resetAndCloseForm()}
+            onRenderFooterContent={_onRenderPanelFooterContent}>
+            <Stack>
+                <TextField
+                    required
+                    label='Name'
+                    // errorMessage='Name is required.'
+                    disabled={!formEnabled}
+                    onChange={(ev, val) => setProjectName(val)} />
+                <Dropdown
+                    required
+                    label='Project Type'
+                    // errorMessage='Project Type is required.'
+                    placeHolder='Select a Project Type'
+                    disabled={!formEnabled}
+                    options={projectTypeOptions || []}
+                    onChange={_onDropdownChange} />
+                <Label required>Members</Label>
+                <ProjectMemberPicker
+                    formEnabled={formEnabled}
+                    onChange={_onMembersChanged} />
+            </Stack>
+            <Text>{errorText}</Text>
+        </Panel>
+    );
 }

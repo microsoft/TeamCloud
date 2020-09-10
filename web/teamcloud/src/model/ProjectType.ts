@@ -4,7 +4,7 @@
 import { IIdentifiable, ITags, IProperties } from './index'
 
 export interface ProjectType extends IIdentifiable, ITags, IProperties {
-    isDefault: boolean;
+    isDefault?: boolean;
     region: string;
     subscriptions: string[];
     subscriptionCapacity: number;

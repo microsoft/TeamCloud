@@ -4,10 +4,12 @@ The TeamCloud CLI is an [extension](https://docs.microsoft.com/en-us/cli/azure/a
 
 ## Install
 
+> Note: The Azure CLI must be installed before you can install the TeamCloud CLI.  Instructions for installing the Azure CLI can be found [here](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest).
+
 To install the Azure CLI TeamCloud extension, simply run the following command:
 
 ```sh
-az extension add --source https://github.com/microsoft/TeamCloud/releases/download/v0.2.212/tc-0.6.0-py2.py3-none-any.whl -y
+az extension add --source https://github.com/microsoft/TeamCloud/releases/download/v0.2.227/tc-0.6.0-py2.py3-none-any.whl -y
 ```
 
 ### Update
@@ -26,7 +28,7 @@ az tc update --pre
 
 ## Local Development
 
-The To use the Azure CLI TeamCloud extension with a locally running TeamCloud instance, first set the default base url to your localhost TeamCloud API endpoint:
+To use the Azure CLI TeamCloud extension with a locally running TeamCloud instance, first set the default base url to your localhost TeamCloud API endpoint:
 
 ```sh
 az configure -d tc-base-url=https://localhost:5001

@@ -5,102 +5,57 @@ import { ProjectLink, ProjectLinkType } from '../model'
 
 export const ExampleProjectLinks: ProjectLink[] = [
     {
-        projectId: '',
-        providerId: 'github',
         id: '00000000-0000-0000-0000-00000000000a',
-        name: 'GitHub Team',
-        value: 'https://github.com/orgs/TeamCloudMSFT/teams',
-        location: '',
-        isSecret: false,
-        isShared: false,
-        dataType: ProjectLinkType.Link
+        title: 'GitHub Team',
+        href: 'https://github.com/orgs/TeamCloudMSFT/teams',
+        type: ProjectLinkType.Link
     },
     {
-        projectId: '',
-        providerId: 'github',
         id: '00000000-0000-0000-0000-00000000000b',
-        name: 'GitHub Repo',
-        value: 'https://github.com/TeamCloudMSFT',
-        location: '',
-        isSecret: false,
-        isShared: false,
-        dataType: ProjectLinkType.Repository
+        title: 'GitHub Repo',
+        href: 'https://github.com/TeamCloudMSFT',
+        type: ProjectLinkType.GitRepository
     },
     {
-        projectId: '',
-        providerId: 'github',
         id: '00000000-0000-0000-0000-00000000000c',
-        name: 'Add a Repository to this Project',
-        value: 'https://github.com/TeamCloudMSFT',
-        location: '',
-        isSecret: false,
-        isShared: false,
-        dataType: ProjectLinkType.Readme
+        title: 'Add a Repository to this Project',
+        href: 'https://github.com/TeamCloudMSFT',
+        type: ProjectLinkType.Readme
     },
     {
-        projectId: '',
-        providerId: 'azure.devtestlabs',
         id: '00000000-0000-0000-0000-00000000000d',
-        name: 'DevTestLabs Portal',
-        value: 'https://github.com/TeamCloudMSFT',
-        location: '',
-        isSecret: false,
-        isShared: false,
-        dataType: ProjectLinkType.Resource
+        title: 'DevTestLabs Portal',
+        href: 'https://github.com/TeamCloudMSFT',
+        type: ProjectLinkType.AzureResource
     },
     {
-        projectId: '',
-        providerId: 'azure.devtestlabs',
         id: '00000000-0000-0000-0000-00000000000e',
-        name: 'DevTestLabs Jenkins Service',
-        value: 'https://github.com/TeamCloudMSFT',
-        location: '',
-        isSecret: false,
-        isShared: false,
-        dataType: ProjectLinkType.Service
+        title: 'DevTestLabs Jenkins Service',
+        href: 'https://github.com/TeamCloudMSFT',
+        type: ProjectLinkType.Service
     },
     {
-        projectId: '',
-        providerId: 'azure.devops',
         id: '00000000-0000-0000-0000-00000000000f',
-        name: 'DevOps Repo',
-        value: 'https://github.com/TeamCloudMSFT',
-        location: '',
-        isSecret: false,
-        isShared: false,
-        dataType: ProjectLinkType.Repository
+        title: 'DevOps Repo',
+        href: 'https://github.com/TeamCloudMSFT',
+        type: ProjectLinkType.GitRepository
     },
     {
-        projectId: '',
-        providerId: 'azure.devops',
         id: '00000000-0000-0000-0000-00000000000g',
-        name: 'DevOps Project Boards',
-        value: 'https://github.com/TeamCloudMSFT',
-        location: '',
-        isSecret: false,
-        isShared: false,
-        dataType: ProjectLinkType.Link
+        title: 'DevOps Project Boards',
+        href: 'https://github.com/TeamCloudMSFT',
+        type: ProjectLinkType.Link
     },
     {
-        projectId: '',
-        providerId: 'azure.appinsights',
         id: '00000000-0000-0000-0000-00000000000h',
-        name: 'Application Insights Portal',
-        value: 'https://github.com/TeamCloudMSFT',
-        location: '',
-        isSecret: false,
-        isShared: false,
-        dataType: ProjectLinkType.Resource
+        title: 'Application Insights Portal',
+        href: 'https://github.com/TeamCloudMSFT',
+        type: ProjectLinkType.AzureResource
     },
     {
-        projectId: '',
-        providerId: 'azure.appinsights',
         id: '00000000-0000-0000-0000-00000000000i',
-        name: 'Application Insights Alerts',
-        value: 'https://github.com/TeamCloudMSFT',
-        location: '',
-        isSecret: false,
-        isShared: false,
-        dataType: ProjectLinkType.Link
+        title: 'Application Insights Alerts',
+        href: 'https://github.com/TeamCloudMSFT',
+        type: ProjectLinkType.Link
     }
 ]
