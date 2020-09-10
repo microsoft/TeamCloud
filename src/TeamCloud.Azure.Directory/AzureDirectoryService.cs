@@ -268,6 +268,7 @@ namespace TeamCloud.Azure.Directory
             {
                 ObjectId = Guid.Parse(principal.ObjectId),
                 ApplicationId = Guid.Parse(principal.AppId),
+                TenantId = Guid.Parse(principal.AppOwnerTenantId),
                 Name = principal.ServicePrincipalNames.FirstOrDefault(),
                 Password = password,
                 ExpiresOn = expiresOn
@@ -303,6 +304,7 @@ namespace TeamCloud.Azure.Directory
             {
                 ObjectId = Guid.Parse(principal.ObjectId),
                 ApplicationId = Guid.Parse(principal.AppId),
+                TenantId = Guid.Parse(principal.AppOwnerTenantId),
                 Name = principal.ServicePrincipalNames.FirstOrDefault(),
                 ExpiresOn = application.PasswordCredentials.FirstOrDefault(c => c.CustomKeyIdentifier == Guid.Parse(principal.ObjectId).ToByteArray())?.EndDate
             };

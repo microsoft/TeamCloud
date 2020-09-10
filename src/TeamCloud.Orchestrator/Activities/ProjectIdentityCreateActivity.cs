@@ -50,6 +50,7 @@ namespace TeamCloud.Orchestrator.Activities
                         {
                             Id = servicePrincipal.ObjectId.ToString(),
                             ApplicationId = servicePrincipal.ApplicationId,
+                            TenantId = servicePrincipal.TenantId,
                             Secret = servicePrincipal.Password
                         };
 
