@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect } from 'react';
-import { User, ProjectMembership, UserType, Project, StatusResult, ErrorResult } from '../model';
+import { ProjectMember, UserType, Project, StatusResult, ErrorResult, ProjectUserRole } from '../model';
 import { Stack, Facepile, IFacepilePersona, PersonaSize, IRenderFunction, HoverCard, HoverCardType, Persona, Shimmer, ShimmerElementsGroup, ShimmerElementType, CommandBar, ICommandBarItemProps, Separator, Label, Text } from '@fluentui/react';
-import { GraphUser, getGraphUser, getGraphDirectoryObject } from '../MSGraph';
+import { getGraphUser, getGraphDirectoryObject } from '../MSGraph';
 import { ProjectDetailCard } from './ProjectDetailCard';
 import AppInsights from '../img/appinsights.svg';
 import DevOps from '../img/devops.svg';
@@ -12,19 +12,15 @@ import DevTestLabs from '../img/devtestlabs.svg';
 import GitHub from '../img/github.svg';
 import { deleteProjectUser } from '../API';
 
-export interface Member {
-    user: User;
-    graphUser?: GraphUser;
-    projectMembership?: ProjectMembership;
-}
 
 export interface IProjectMembersProps {
     project: Project;
+    onEditMember: (member?: ProjectMember) => void;
 }
 
 export const ProjectMembers: React.FunctionComponent<IProjectMembersProps> = (props) => {
 
-    const [members, setMembers] = useState<Member[]>();
+    const [members, setMembers] = useState<ProjectMember[]>();
 
     useEffect(() => {
         if (props.project) {
@@ -32,7 +28,7 @@ export const ProjectMembers: React.FunctionComponent<IProjectMembersProps> = (pr
                 let _members = await Promise.all(props.project.users.map(async u => ({
                     user: u,
                     graphUser: u.userType === UserType.User ? await getGraphUser(u.id) : u.userType === UserType.Provider ? await getGraphDirectoryObject(u.id) : undefined,
-                    projectMembership: u.projectMemberships?.find(m => m.projectId === props.project.id)
+                    projectMembership: u.projectMemberships!.find(m => m.projectId === props.project.id)!
                 })));
                 setMembers(_members);
             };
@@ -40,14 +36,14 @@ export const ProjectMembers: React.FunctionComponent<IProjectMembersProps> = (pr
         }
     }, [props.project]);
 
-    const _removeMemberFromProject = async (member: Member) => {
+    const _removeMemberFromProject = async (member: ProjectMember) => {
         let result = await deleteProjectUser(props.project.id, member.user.id);
         if ((result as StatusResult).code !== 202 && (result as ErrorResult).errors) {
             console.log(result as ErrorResult);
         }
     };
 
-    const _findKnownProviderImage = (member: Member) => {
+    const _findKnownProviderImage = (member: ProjectMember) => {
         if (member.graphUser?.displayName) {
             if (member.graphUser.displayName.startsWith('appinsights')) return AppInsights
             if (member.graphUser.displayName.startsWith('devops')) return DevOps
@@ -57,9 +53,16 @@ export const ProjectMembers: React.FunctionComponent<IProjectMembersProps> = (pr
         return undefined;
     };
 
-    const _getCommandBarItems = (member: Member): ICommandBarItemProps[] => [
-        { key: 'edit', text: 'Edit', iconProps: { iconName: 'EditContact' } },
-        { key: 'remove', text: 'Remove', iconProps: { iconName: 'UserRemove' }, onClick: () => { _removeMemberFromProject(member) } },
+    const _removeButtonDisabled = (member: ProjectMember) => {
+        return member.projectMembership.role === ProjectUserRole.Owner
+            && props.project.users.filter(u => u.userType === UserType.User
+                && u.projectMemberships
+                && u.projectMemberships!.find(pm => pm.projectId === props.project.id && pm.role === ProjectUserRole.Owner)).length === 1
+    };
+
+    const _getCommandBarItems = (member: ProjectMember): ICommandBarItemProps[] => [
+        { key: 'edit', text: 'Edit', iconProps: { iconName: 'EditContact' }, onClick: () => props.onEditMember(member) },
+        { key: 'remove', text: 'Remove', iconProps: { iconName: 'UserRemove' }, disabled: _removeButtonDisabled(member), onClick: () => { _removeMemberFromProject(member) } },
     ];
 
     const _getShimmerElements = (): JSX.Element => (
@@ -82,7 +85,7 @@ export const ProjectMembers: React.FunctionComponent<IProjectMembersProps> = (pr
     const _onRenderPersonaCoin: IRenderFunction<IFacepilePersona> = (props?: IFacepilePersona, defaultRender?: (props?: IFacepilePersona) => JSX.Element | null): JSX.Element | null => {
         if (defaultRender && props?.data) {
             let _onRenderPlainCard = (): JSX.Element | null => {
-                let member: Member = props.data;
+                let member: ProjectMember = props.data;
                 let _isUserType = member.user.userType === UserType.User;
                 let _getCommandBar = _isUserType ?
                     (<>

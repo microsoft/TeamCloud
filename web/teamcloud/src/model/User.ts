@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { IIdentifiable, IProperties } from './index'
+import { IIdentifiable, IProperties } from '.'
 
 export interface User extends IIdentifiable, IProperties {
     userType: UserType;

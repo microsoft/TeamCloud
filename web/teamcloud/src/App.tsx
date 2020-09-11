@@ -3,12 +3,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { initializeIcons } from '@uifabric/icons';
-import { BrowserRouter, Switch, Route, useParams } from "react-router-dom";
+import { BrowserRouter, Switch, Route, useParams } from 'react-router-dom';
 import { HeaderBar } from './components';
 import { Error404, ProjectDetailView, ProjectsView, ProvidersView, ProjectTypesView } from './view';
-import { Project, User, DataResult } from './model';
+import { Project, User, GraphUser, DataResult } from './model';
 import { getUser } from './API';
-import { GraphUser, getMe } from './MSGraph';
+import { getMe } from './MSGraph';
 
 interface IAppProps {
     onSignOut: () => void;
@@ -47,24 +47,24 @@ export const App: React.FunctionComponent<IAppProps> = (props) => {
     return (
         <BrowserRouter>
             <Switch>
-                <Route path="/projects/:projectId">
-                    <HeaderBar graphUser={graphUser} onSignOut={props.onSignOut} />
+                <Route path='/projects/:projectId'>
+                    <HeaderBar user={user} graphUser={graphUser} onSignOut={props.onSignOut} />
                     <ProjectViewWrapper {...{ project: project, user: user }} />
                 </Route>
-                <Route path="/" exact={true}>
-                    <HeaderBar graphUser={graphUser} onSignOut={props.onSignOut} />
+                <Route path='/' exact={true}>
+                    <HeaderBar user={user} graphUser={graphUser} onSignOut={props.onSignOut} />
                     <ProjectsView user={user} onProjectSelected={_onProjectSelected} />
                 </Route>
-                <Route path="/projectTypes" exact={true}>
-                    <HeaderBar graphUser={graphUser} onSignOut={props.onSignOut} />
+                <Route path='/projectTypes' exact={true}>
+                    <HeaderBar user={user} graphUser={graphUser} onSignOut={props.onSignOut} />
                     <ProjectTypesView user={user} />
                 </Route>
-                <Route path="/providers" exact={true}>
-                    <HeaderBar graphUser={graphUser} onSignOut={props.onSignOut} />
+                <Route path='/providers' exact={true}>
+                    <HeaderBar user={user} graphUser={graphUser} onSignOut={props.onSignOut} />
                     <ProvidersView user={user} />
                 </Route>
-                <Route path="*">
-                    <HeaderBar graphUser={graphUser} onSignOut={props.onSignOut} />
+                <Route path='*'>
+                    <HeaderBar user={user} graphUser={graphUser} onSignOut={props.onSignOut} />
                     <Error404 />;
                     </Route>
             </Switch>

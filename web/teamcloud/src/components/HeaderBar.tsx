@@ -4,9 +4,10 @@
 import React from 'react';
 import { UserInfo } from '.';
 import { Text, ITextStyles, Stack, getTheme, IStackStyles } from '@fluentui/react';
-import { GraphUser } from '../MSGraph';
+import { GraphUser, User } from '../model';
 
 export interface IHeaderBarProps {
+    user?: User;
     graphUser?: GraphUser;
     onSignOut: () => void;
 }
@@ -42,7 +43,7 @@ export const HeaderBar: React.FunctionComponent<IHeaderBarProps> = (props) => {
                     <Text styles={titleStyles}>TeamCloud</Text>
                 </Stack.Item>
                 <Stack.Item>
-                    <UserInfo graphUser={props.graphUser} onSignOut={props.onSignOut} />
+                    <UserInfo user={props.user} graphUser={props.graphUser} onSignOut={props.onSignOut} />
                 </Stack.Item>
             </Stack>
         </header>

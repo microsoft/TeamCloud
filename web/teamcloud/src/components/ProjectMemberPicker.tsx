@@ -3,8 +3,8 @@
 
 import React from 'react';
 import { ListPeoplePicker, IPersonaProps, IBasePickerSuggestionsProps } from '@fluentui/react';
-import { GraphUser, searchGraphUsers } from '../MSGraph';
-import { Project } from '../model';
+import { searchGraphUsers } from '../MSGraph';
+import { Project, GraphUser } from '../model';
 
 export interface IProjectMemberPickerProps {
     project?: Project;

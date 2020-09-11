@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { getToken } from "./Auth";
-import { DataResult, StatusResult, ErrorResult, Project, User, ProjectType, Provider, ProjectDefinition, UserDefinition, ProjectLink } from "./model";
+import { getToken } from './Auth';
+import { DataResult, StatusResult, ErrorResult, Project, User, ProjectType, Provider, ProjectDefinition, UserDefinition, ProjectLink } from './model';
+
+const logRequests = false
 
 const _getApiUrl = () => {
     if (!process.env.REACT_APP_TC_API_URL) throw new Error('Must set env variable $REACT_APP_TC_API_URL');
@@ -30,6 +32,8 @@ export const getUsers = async () => getResource<Array<User>>(`${apiUrl}/api/user
 
 export const createUser = async (definition: UserDefinition) => createResource(`${apiUrl}/api/users`, definition);
 
+export const updateUser = async (user: User) => updateResource(`${apiUrl}/api/users${user.id}`, user);
+
 export const deleteUser = async (id: string) => deleteResource<User>(`${apiUrl}/api/users/${id}`);
 
 
@@ -38,6 +42,8 @@ export const getProjectUser = async (projectId: string, id: string) => getResour
 export const getProjectUsers = async (projectId: string) => getResource<Array<User>>(`${apiUrl}/api/projects/${projectId}/users`);
 
 export const createProjectUser = async (projectId: string, definition: UserDefinition) => createResource(`${apiUrl}/api/projects/${projectId}/users`, definition);
+
+export const updateProjectUser = async (projectId: string, user: User) => updateResource<User>(`${apiUrl}/api/projects/${projectId}/users/${user.id}`, user);
 
 export const deleteProjectUser = async (projectId: string, id: string) => deleteResource<User>(`${apiUrl}/api/projects/${projectId}/users/${id}`);
 
@@ -67,23 +73,23 @@ export const getResource = async <T>(url: string): Promise<ErrorResult | DataRes
 
     while (true) {
 
-        console.log("==> GET " + url);
+        if (logRequests) console.log('==> GET ' + url);
 
         let response: Response = await fetch(url, {
             method: 'GET',
             mode: 'cors',
-            credentials: "include",
+            credentials: 'include',
             headers: {
                 'Authorization': 'Bearer ' + await getToken(scope, retry)
             }
         });
 
-        console.log("<== GET " + url);
+        if (logRequests) console.log('<== GET ' + url);
 
         retry = response.status === 403 && !retry;
 
         // let json = await response.json();
-        // console.log("=== JSON (" + url + ") " + JSON.stringify(json));
+        // console.log('=== JSON (' + url + ') ' + JSON.stringify(json));
 
         if (!retry) {
             const json = await response.json();
@@ -98,7 +104,7 @@ export const deleteResource = async <T>(url: string): Promise<ErrorResult | Stat
 
     while (true) {
 
-        console.log("==> DELETE " + url);
+        if (logRequests) console.log('==> DELETE ' + url);
 
         let response: Response = await fetch(url, {
             method: 'DELETE',
@@ -108,10 +114,10 @@ export const deleteResource = async <T>(url: string): Promise<ErrorResult | Stat
             }
         });
 
-        console.log("<== DELETE " + url);
+        if (logRequests) console.log('<== DELETE ' + url);
 
         // var json = await response.json();
-        // console.log("=== JSON (" + url + ") " + JSON.stringify(json));
+        // console.log('=== JSON (' + url + ') ' + JSON.stringify(json));
 
         retry = response.status === 403 && !retry;
 
@@ -129,7 +135,7 @@ export const createResource = async<T>(url: string, resource: T): Promise<ErrorR
 
     while (true) {
 
-        console.log("==> POST " + url);
+        if (logRequests) console.log('==> POST ' + url);
 
         let response: Response = await fetch(url, {
             method: 'POST',
@@ -141,10 +147,10 @@ export const createResource = async<T>(url: string, resource: T): Promise<ErrorR
             body: body
         });
 
-        console.log("<== POST " + url);
+        if (logRequests) console.log('<== POST ' + url);
 
         // var json = await response.json();
-        // console.log("=== JSON (" + url + ") " + JSON.stringify(json));
+        // console.log('=== JSON (' + url + ') ' + JSON.stringify(json));
 
         retry = response.status === 403 && !retry;
 
@@ -164,7 +170,7 @@ export const updateResource = async <T>(url: string, resource: T): Promise<DataR
 
     while (true) {
 
-        console.log("==> PUT " + url);
+        console.log('==> PUT ' + url);
 
         let response: Response = await fetch(url, {
             method: 'PUT',
@@ -175,10 +181,10 @@ export const updateResource = async <T>(url: string, resource: T): Promise<DataR
             body: body
         });
 
-        console.log("<== PUT " + url);
+        console.log('<== PUT ' + url);
 
         // var json = await response.json();
-        // console.log("=== JSON (" + url + ") " + JSON.stringify(json));
+        // console.log('=== JSON (' + url + ') ' + JSON.stringify(json));
 
         retry = response.status === 403 && !retry;
 

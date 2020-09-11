@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { Stack, Text, Label } from '@fluentui/react';
-import { ProjectDetailCard } from './index';
+import { ProjectDetailCard } from '.';
 
 export interface IProjectViewDetailProps {
     title: string;

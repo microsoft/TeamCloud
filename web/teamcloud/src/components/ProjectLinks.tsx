@@ -3,13 +3,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { ProjectLink, ProjectLinkType, Project, DataResult } from '../model';
-import { Stack, Shimmer, Image, DefaultButton, IButtonStyles, getTheme } from '@fluentui/react';
+import { Stack, Shimmer, DefaultButton, IButtonStyles, getTheme } from '@fluentui/react';
 import { ProjectDetailCard } from './ProjectDetailCard';
-import { ExampleProjectLinks } from '../data/ExampleData';
-import AppInsights from '../img/appinsights.svg';
-import DevOps from '../img/devops.svg';
-import DevTestLabs from '../img/devtestlabs.svg';
-import GitHub from '../img/github.svg';
+// import { ExampleProjectLinks } from '../data/ExampleData';
+// import AppInsights from '../img/appinsights.svg';
+// import DevOps from '../img/devops.svg';
+// import DevTestLabs from '../img/devtestlabs.svg';
+// import GitHub from '../img/github.svg';
 import { getProjectLinks } from '../API';
 
 
@@ -75,27 +75,23 @@ export const ProjectLinks: React.FunctionComponent<IProjectLinksProps> = (props)
     const _linkTypes = [ProjectLinkType.AzureResource, ProjectLinkType.Service, ProjectLinkType.GitRepository, ProjectLinkType.Readme, ProjectLinkType.Link];
 
     const _getLinkStacks = () => links?.sort((a, b) => _linkTypes.indexOf(a.type) - _linkTypes.indexOf(b.type)).map(l => (
-        <Stack horizontal tokens={{ childrenGap: '12px' }}>
-            < Stack.Item styles={{ root: { width: '100%' } }}>
+        <Stack key={l.id} horizontal tokens={{ childrenGap: '12px' }}>
+            <Stack.Item styles={{ root: { width: '100%' } }}>
                 <DefaultButton
                     iconProps={{ iconName: _getLinkTypeIcon(l) }}
                     text={l.title}
                     href={l.href}
                     target='_blank'
-                    styles={_linkButtonStyles} >
-                    {/* <Image
-                        src={_findKnownProviderImage(l)}
-                        height={24} width={24} /> */}
-                </DefaultButton>
-            </Stack.Item >
-        </Stack >
+                    styles={_linkButtonStyles} />
+            </Stack.Item>
+        </Stack>
     ));
 
     return (
         <ProjectDetailCard title='Resources' callout={links?.length.toString()}>
             <Shimmer
                 // customElementsGroup={_getShimmerElements()}
-                isDataLoaded={links ? links.length > 0 : false}
+                isDataLoaded={links !== undefined}
                 width={152} >
                 <Stack tokens={{ childrenGap: '0' }} >
                     {_getLinkStacks()}

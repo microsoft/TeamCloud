@@ -1,15 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState } from 'react';
-import { Stack, Dropdown, IDropdownOption, Label, Panel, PrimaryButton, DefaultButton, Spinner, Text } from "@fluentui/react";
-import { ProjectUserRole, Project, UserDefinition, ErrorResult, StatusResult } from "../model";
-import { GraphUser } from "../MSGraph";
-import { createProjectUser } from "../API";
-import { ProjectMemberPicker } from "./ProjectMemberPicker";
+import React, { useState, useEffect } from 'react';
+import { Properties, User, GraphUser, TeamCloudUserRole } from '../model';
+import { PrimaryButton, DefaultButton, Panel, Stack, TextField, Dropdown, Label, Spinner, Persona, PersonaSize } from '@fluentui/react';
 
 export interface IUserFormProps {
-    project: Project;
+    // user: User;
+    me: boolean;
+    user?: User;
+    graphUser?: GraphUser;
     panelIsOpen: boolean;
     onFormClose: () => void;
 }
@@ -17,85 +17,135 @@ export interface IUserFormProps {
 export const UserForm: React.FunctionComponent<IUserFormProps> = (props) => {
 
     const [formEnabled, setFormEnabled] = useState<boolean>(true);
-    const [userIdentifiers, setUserIdentifiers] = useState<string[]>();
-    const [userRole, setUserRole] = useState<ProjectUserRole>();
-    const [errorText, setErrorText] = useState<string>();
+    const [userRole, setUserRole] = useState<TeamCloudUserRole>();
+    const [userProperties, setUserProperties] = useState<Properties>();
+
+    useEffect(() => {
+        setUserRole(props.user?.role)
+        const newProps: Properties = {}
+        if (props.user?.properties)
+            for (const k in props.user?.properties)
+                newProps[k] = props.user?.properties[k]
+        newProps[''] = ''
+        setUserProperties(newProps)
+    }, [props.user]);
+
 
     const _submitForm = async () => {
         setFormEnabled(false);
-        if (props.project && userRole && userIdentifiers?.length && userIdentifiers.length > 0) {
-            const userDefinitions: UserDefinition[] = userIdentifiers!.map(i => ({
-                identifier: i,
-                role: userRole
-            }));
-            const results = await Promise
-                .all(userDefinitions.map(async d => await createProjectUser(props.project.id, d)));
-
-            let errors: ErrorResult[] = [];
-            results.forEach(r => {
-                if ((r as StatusResult).code !== 202 && (r as ErrorResult).errors)
-                    errors.push((r as ErrorResult));
-            });
-            if (errors.length > 0) {
-                errors.forEach(e => console.log(e));
-                setErrorText(`The following errors occured: ${errors.map(e => e.status).join()}`);
-            } else {
-                _resetAndCloseForm();
-            }
+        if ((userRole && userRole !== props.user?.role)
+            || (userProperties && userProperties !== props.user?.properties)) {
+            // const result = await updateProjectUser(projectDefinition);
+            // if ((result as StatusResult).code === 202)
+            //     _resetAndCloseForm();
+            // else if ((result as ErrorResult).errors) {
+            //     // console.log(JSON.stringify(result));
+            //     setErrorText((result as ErrorResult).status);
+            // }
         }
     };
 
     const _resetAndCloseForm = () => {
         setUserRole(undefined);
-        setUserIdentifiers(undefined);
+        setUserProperties(undefined);
         setFormEnabled(true);
         props.onFormClose();
     };
 
-    const _projectRoleOptions = (): IDropdownOption[] => {
-        return [ProjectUserRole.Member, ProjectUserRole.Owner].map(r => ({ key: r, text: r } as IDropdownOption));
-    };
-
-    const _onUserRoleDropdownChange = (event: React.FormEvent<HTMLDivElement>, option?: IDropdownOption): void => {
-        setUserRole(option ? option.key as ProjectUserRole : undefined);
-    };
-
-    const _onMembersChanged = (users?: GraphUser[]) => {
-        setUserIdentifiers(users?.map(u => u.id))
-    };
-
     const _onRenderPanelFooterContent = () => (
         <div>
-            <PrimaryButton disabled={!formEnabled || !(userRole && userIdentifiers?.length && userIdentifiers.length > 0)} onClick={() => _submitForm()} styles={{ root: { marginRight: 8 } }}>
-                Add users
-            </PrimaryButton>
-            <DefaultButton disabled={!formEnabled} onClick={() => _resetAndCloseForm()}>Cancel</DefaultButton>
+            <PrimaryButton text='Edit' disabled={!formEnabled} onClick={() => _submitForm()} styles={{ root: { marginRight: 8 } }} />
+            <DefaultButton text='Cancel' disabled={!formEnabled} onClick={() => _resetAndCloseForm()} />
             <Spinner styles={{ root: { visibility: formEnabled ? 'hidden' : 'visible' } }} />
         </div>
     );
 
+    const _onPropertyKeyChange = (key: string, value: string, newKey?: string) => {
+        const newProps: Properties = {}
+        for (const k in userProperties) newProps[(k === key) ? newKey ?? '' : k] = value
+        if (!newProps['']) newProps[''] = ''
+        setUserProperties(newProps)
+    }
+
+    const _onPropertyValueChange = (key: string, newValue?: string) => {
+        const newProps: Properties = {}
+        for (const k in userProperties) newProps[k] = (k === key) ? newValue ?? '' : userProperties[k]
+        setUserProperties(newProps)
+    }
+
+    const _getPropertiesTextFields = () => {
+        let propertyStacks = [];
+        if (userProperties) {
+            let counter = 0
+            for (const key in userProperties) {
+                propertyStacks.push(
+                    <Stack key={counter} horizontal tokens={{ childrenGap: '8px' }}>
+                        <TextField
+                            description='Name'
+                            value={key}
+                            onChange={(_ev, val) => _onPropertyKeyChange(key, userProperties[key], val)} />
+                        <TextField
+                            description='Value'
+                            value={userProperties[key]}
+                            onChange={(_ev, val) => _onPropertyValueChange(key, val)} />
+                    </Stack>)
+                counter++
+            }
+        }
+        return (
+            <Stack.Item>
+                {propertyStacks}
+            </Stack.Item>
+        )
+    };
+
+    // const _roleDropdownDisabled = () => {
+    //     return !formEnabled || (props.member?.projectMembership.role === ProjectUserRole.Owner
+    //         && props.project.users.filter(u => u.userType === UserType.User
+    //             && u.projectMemberships
+    //             && u.projectMemberships!.find(pm => pm.projectId === props.project.id && pm.role === ProjectUserRole.Owner)).length === 1)
+    // };
+
     return (
         <Panel
-            headerText='Add Users'
+            headerText='Edit'
             isOpen={props.panelIsOpen}
             onDismiss={() => _resetAndCloseForm()}
             onRenderFooterContent={_onRenderPanelFooterContent}>
-            <Stack>
-                <Dropdown
-                    required
-                    label='Role'
-                    placeHolder='Select a Role'
-                    disabled={!formEnabled}
-                    options={_projectRoleOptions()}
-                    onChange={_onUserRoleDropdownChange} />
-                <Label required>Users</Label>
-                <ProjectMemberPicker
-                    project={props.project}
-                    formEnabled={formEnabled}
-                    onChange={_onMembersChanged} />
+            <Stack tokens={{ childrenGap: '12px' }}>
+                <Stack.Item>
+                    <Persona
+                        text={props.graphUser?.displayName ?? props.user?.id}
+                        secondaryText={props.graphUser?.jobTitle ?? props.user?.userType}
+                        tertiaryText={props.graphUser?.department}
+                        imageUrl={props.graphUser?.imageUrl}
+                        size={PersonaSize.size72} />
+                </Stack.Item>
+                <Stack.Item>
+                    <TextField
+                        readOnly
+                        label='Id'
+                        value={props.user?.id} />
+                </Stack.Item>
+                <Stack.Item>
+                    <Dropdown
+                        required
+                        label='Role'
+                        // errorMessage='Project Type is required.'
+                        // placeholder='Select a Project Type'
+                        // disabled={_roleDropdownDisabled()}
+                        disabled
+                        selectedKey={userRole}
+                        // defaultSelectedKey={projectRole as string}
+                        options={[TeamCloudUserRole.Admin, TeamCloudUserRole.Creator].map(r => ({ key: r, text: r, data: r }))}
+                        onChange={(_ev, val) => setUserRole(val?.key ? TeamCloudUserRole[val.key as keyof typeof TeamCloudUserRole] : undefined)} />
+                </Stack.Item>
+                <Stack.Item>
+                    <Label>Properties</Label>
+                    {_getPropertiesTextFields()}
+                </Stack.Item>
             </Stack>
-            <Text>{errorText}</Text>
+            {/* <Text>{errorText}</Text> */}
         </Panel>
     );
 }
-

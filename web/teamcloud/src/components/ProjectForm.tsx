@@ -2,11 +2,10 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect } from 'react';
-import { Stack, TextField, Dropdown, IDropdownOption, Spinner, Panel, Text, PrimaryButton, DefaultButton, Label } from "@fluentui/react";
-import { ProjectType, DataResult, User, ProjectDefinition, ProjectUserRole, StatusResult, ErrorResult, UserDefinition } from "../model";
-import { getProjectTypes, createProject } from "../API";
-import { GraphUser } from "../MSGraph";
-import { ProjectMemberPicker } from "./ProjectMemberPicker";
+import { Stack, TextField, Dropdown, IDropdownOption, Spinner, Panel, Text, PrimaryButton, DefaultButton, Label } from '@fluentui/react';
+import { ProjectType, DataResult, User, ProjectDefinition, ProjectUserRole, StatusResult, ErrorResult, UserDefinition, GraphUser } from '../model';
+import { getProjectTypes, createProject } from '../API';
+import { ProjectMemberPicker } from '.';
 
 export interface IProjectFormProps {
     user?: User;
@@ -83,39 +82,43 @@ export const ProjectForm: React.FunctionComponent<IProjectFormProps> = (props) =
 
     const _onRenderPanelFooterContent = () => (
         <div>
-            <PrimaryButton disabled={!formEnabled || !(projectName && projectType)} onClick={() => _submitForm()} styles={{ root: { marginRight: 8 } }}>
-                Create project
-            </PrimaryButton>
-            <DefaultButton disabled={!formEnabled} onClick={() => _resetAndCloseForm()}>Cancel</DefaultButton>
+            <PrimaryButton text='Create project' disabled={!formEnabled || !(projectName && projectType)} onClick={() => _submitForm()} styles={{ root: { marginRight: 8 } }} />
+            <DefaultButton text='Cancel' disabled={!formEnabled} onClick={() => _resetAndCloseForm()} />
             <Spinner styles={{ root: { visibility: formEnabled ? 'hidden' : 'visible' } }} />
         </div>
     );
 
     return (
         <Panel
-            headerText='New project'
+            headerText='New Project'
             isOpen={props.panelIsOpen}
             onDismiss={() => _resetAndCloseForm()}
             onRenderFooterContent={_onRenderPanelFooterContent}>
-            <Stack>
-                <TextField
-                    required
-                    label='Name'
-                    // errorMessage='Name is required.'
-                    disabled={!formEnabled}
-                    onChange={(ev, val) => setProjectName(val)} />
-                <Dropdown
-                    required
-                    label='Project Type'
-                    // errorMessage='Project Type is required.'
-                    placeHolder='Select a Project Type'
-                    disabled={!formEnabled}
-                    options={projectTypeOptions || []}
-                    onChange={_onDropdownChange} />
-                <Label required>Members</Label>
-                <ProjectMemberPicker
-                    formEnabled={formEnabled}
-                    onChange={_onMembersChanged} />
+            <Stack tokens={{ childrenGap: '12px' }}>
+                <Stack.Item>
+                    <TextField
+                        required
+                        label='Name'
+                        // errorMessage='Name is required.'
+                        disabled={!formEnabled}
+                        onChange={(ev, val) => setProjectName(val)} />
+                </Stack.Item>
+                <Stack.Item>
+                    <Dropdown
+                        required
+                        label='Project Type'
+                        // errorMessage='Project Type is required.'
+                        // placeholder='Select a Project Type'
+                        disabled={!formEnabled}
+                        options={projectTypeOptions || []}
+                        onChange={_onDropdownChange} />
+                </Stack.Item>
+                <Stack.Item>
+                    <Label>Members</Label>
+                    <ProjectMemberPicker
+                        formEnabled={formEnabled}
+                        onChange={_onMembersChanged} />
+                </Stack.Item>
             </Stack>
             <Text>{errorText}</Text>
         </Panel>

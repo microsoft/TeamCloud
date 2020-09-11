@@ -2,10 +2,12 @@
 // Licensed under the MIT License.
 
 import React, { useState } from 'react';
-import { DefaultButton, Stack, Panel, Persona, PersonaSize, getTheme, Separator } from '@fluentui/react';
-import { GraphUser } from '../MSGraph';
+import { DefaultButton, Stack, Panel, Persona, PersonaSize, getTheme, Separator, PrimaryButton } from '@fluentui/react';
+import { GraphUser, User } from '../model';
+import { UserForm } from './UserForm';
 
 export interface IUserInfoProps {
+    user?: User;
     graphUser?: GraphUser;
     onSignOut: () => void;
 }
@@ -13,6 +15,7 @@ export interface IUserInfoProps {
 export const UserInfo: React.FunctionComponent<IUserInfoProps> = (props) => {
 
     const [panelOpen, setPanelOpen] = useState(false);
+    const [editPanelOpen, setEditPanelOpen] = useState(false);
 
     const theme = getTheme();
 
@@ -69,9 +72,18 @@ export const UserInfo: React.FunctionComponent<IUserInfoProps> = (props) => {
                         imageUrl={props.graphUser?.imageUrl}
                         size={PersonaSize.size72} />
                     <Separator />
-                    <DefaultButton text="Sign out" onClick={() => props.onSignOut()} />
+                    <Stack tokens={{ childrenGap: '8px' }}>
+                        <PrimaryButton text='Edit' onClick={() => setEditPanelOpen(true)} />
+                        <DefaultButton text='Sign out' onClick={() => props.onSignOut()} />
+                    </Stack>
                 </Stack>
             </Panel>
+            <UserForm
+                me={true}
+                user={props.user}
+                graphUser={props.graphUser}
+                panelIsOpen={editPanelOpen}
+                onFormClose={() => setEditPanelOpen(false)} />
         </>;
     } else {
         return <></>;
