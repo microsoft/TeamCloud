@@ -15,10 +15,11 @@ namespace TeamCloud.Model.Data
     {
         public string Id { get; set; }
 
+        public Guid TenantId { get; set; }
+
         public Guid ApplicationId { get; set; }
 
         public string Secret { get; set; }
-
 
         public bool Equals(ProjectIdentity other)
             => Id.Equals(other?.Id, StringComparison.Ordinal);
