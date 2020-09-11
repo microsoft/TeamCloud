@@ -5,6 +5,10 @@
 			"path": "src/TeamCloud.API"
 		},
 		{
+			"name": "Audit",
+			"path": "src/TeamCloud.Audit"
+		},
+		{
 			"name": "Azure",
 			"path": "src/TeamCloud.Azure"
 		},
@@ -51,10 +55,6 @@
 		{
 			"name": "Orchestration",
 			"path": "src/TeamCloud.Orchestration"
-		},
-		{
-			"name": "Orchestration.Auditing",
-			"path": "src/TeamCloud.Orchestration.Auditing"
 		},
 		{
 			"name": "Orchestration.Deployment",
@@ -182,6 +182,25 @@
 	"tasks": {
 		"version": "2.0.0",
 		"tasks": [
+			{
+				"label": "cleanAudit",
+				"command": "dotnet",
+				"args": [
+					"clean",
+					"${workspaceFolder:Audit}/TeamCloud.Audit.csproj",
+					"/property:GenerateFullPaths=true",
+					"/consoleloggerparameters:NoSummary"
+				],
+				"type": "process",
+				"problemMatcher": "$msCompile",
+				"options": {
+					"cwd": "${workspaceFolder:Audit}"
+				},
+				"presentation": {
+					"group": "cleanAll",
+					"showReuseMessage": false
+				}
+			},
 			{
 				"label": "cleanAzure",
 				"command": "dotnet",
@@ -411,25 +430,6 @@
 				}
 			},
 			{
-				"label": "cleanOrchestrationAuditing",
-				"command": "dotnet",
-				"args": [
-					"clean",
-					"${workspaceFolder:Orchestration.Auditing}/TeamCloud.Orchestration.Auditing.csproj",
-					"/property:GenerateFullPaths=true",
-					"/consoleloggerparameters:NoSummary"
-				],
-				"type": "process",
-				"problemMatcher": "$msCompile",
-				"options": {
-					"cwd": "${workspaceFolder:Orchestration.Auditing}"
-				},
-				"presentation": {
-					"group": "cleanAll",
-					"showReuseMessage": false
-				}
-			},
-			{
 				"label": "cleanOrchestrationDeployment",
 				"command": "dotnet",
 				"args": [
@@ -483,6 +483,30 @@
 				},
 				"presentation": {
 					"group": "cleanAll",
+					"showReuseMessage": false
+				}
+			},
+			{
+				"label": "buildAudit",
+				"command": "dotnet",
+				"args": [
+					"build",
+					"${workspaceFolder:Audit}/TeamCloud.Audit.csproj",
+					"--no-dependencies",
+					"/property:GenerateFullPaths=true",
+					"/consoleloggerparameters:NoSummary"
+				],
+				"type": "process",
+				"group": {
+					"kind": "build",
+					"isDefault": true
+				},
+				"problemMatcher": "$msCompile",
+				"options": {
+					"cwd": "${workspaceFolder:Audit}"
+				},
+				"presentation": {
+					"group": "buildAll",
 					"showReuseMessage": false
 				}
 			},
@@ -775,30 +799,6 @@
 				}
 			},
 			{
-				"label": "buildOrchestrationAuditing",
-				"command": "dotnet",
-				"args": [
-					"build",
-					"${workspaceFolder:Orchestration.Auditing}/TeamCloud.Orchestration.Auditing.csproj",
-					"--no-dependencies",
-					"/property:GenerateFullPaths=true",
-					"/consoleloggerparameters:NoSummary"
-				],
-				"type": "process",
-				"group": {
-					"kind": "build",
-					"isDefault": true
-				},
-				"problemMatcher": "$msCompile",
-				"options": {
-					"cwd": "${workspaceFolder:Orchestration.Auditing}"
-				},
-				"presentation": {
-					"group": "buildAll",
-					"showReuseMessage": false
-				}
-			},
-			{
 				"label": "buildOrchestrationDeployment",
 				"command": "dotnet",
 				"args": [
@@ -883,7 +883,7 @@
 					"cleanModel",
 					"cleanModelInternal",
 					"cleanOrchestration",
-					"cleanOrchestrationAuditing",
+					"cleanAudit",
 					"cleanSerialization",
 					"cleanProvidersCore"
 				],
@@ -945,6 +945,7 @@
 					"buildModelVal",
 					"buildModelInternal",
 					"buildOrchestration",
+					"buildAudit",
 					"buildOrchestrationAuditing",
 					"buildData",
 					"buildProvidersCore"
