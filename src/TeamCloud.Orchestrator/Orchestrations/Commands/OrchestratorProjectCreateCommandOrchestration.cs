@@ -140,12 +140,6 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
 
             using (await functionContext.LockContainerDocumentAsync(project).ConfigureAwait(true))
             {
-                functionContext.SetCustomStatus($"Provisioning identity", log);
-
-                project.Identity = await functionContext
-                    .CallActivityWithRetryAsync<ProjectIdentity>(nameof(ProjectIdentityCreateActivity), project)
-                    .ConfigureAwait(true);
-
                 project.ResourceGroup = new AzureResourceGroup()
                 {
                     SubscriptionId = subscriptionId,
@@ -153,6 +147,12 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                     Id = (string)deploymentOutput.GetValueOrDefault("resourceGroupId", default(string)),
                     Name = (string)deploymentOutput.GetValueOrDefault("resourceGroupName", default(string))
                 };
+
+                functionContext.SetCustomStatus($"Provisioning identity", log);
+
+                project.Identity = await functionContext
+                    .CallActivityWithRetryAsync<ProjectIdentity>(nameof(ProjectIdentityCreateActivity), project)
+                    .ConfigureAwait(true);
 
                 project = commandResult.Result = await functionContext
                     .SetProjectAsync(project)
