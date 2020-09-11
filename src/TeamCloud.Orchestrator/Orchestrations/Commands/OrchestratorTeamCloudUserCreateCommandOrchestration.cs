@@ -4,6 +4,7 @@
  */
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -15,6 +16,7 @@ using TeamCloud.Model.Internal;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Activities;
 using TeamCloud.Orchestrator.Entities;
+using TeamCloud.Orchestrator.Orchestrations.Utilities;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Commands
 {
@@ -59,7 +61,6 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                     // properties. providers only care if the user is an admin, so we check if
                     // the user is an admin, and if so, we send the providers teamcloud user created
                     // commands (or project update connamds depending on the provider's mode)
-
                     if (user.IsAdmin())
                     {
                         var projects = await functionContext
@@ -74,6 +75,19 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                             functionContext.StartNewOrchestration(nameof(OrchestratorProjectUpdateCommandOrchestration), projectUpdateCommand);
                         }
                     }
+
+                    var providerCommand = new ProviderTeamCloudUserCreateCommand
+                    (
+                        command.User.PopulateExternalModel(),
+                        command.Payload.PopulateExternalModel(),
+                        command.CommandId
+                    );
+
+                    var providerResult = await functionContext
+                        .SendProviderCommandAsync<ProviderTeamCloudUserCreateCommand, ProviderTeamCloudUserCreateCommandResult>(providerCommand)
+                        .ConfigureAwait(true);
+
+                    providerResult.Errors.ToList().ForEach(e => commandResult.Errors.Add(e));
 
                     commandResult.Result = user;
 
