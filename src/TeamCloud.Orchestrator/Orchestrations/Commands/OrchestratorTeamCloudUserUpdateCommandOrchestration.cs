@@ -105,7 +105,6 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                         .SendProviderCommandAsync<ProviderTeamCloudUserUpdateCommand, ProviderTeamCloudUserUpdateCommandResult>(providerCommand)
                         .ConfigureAwait(true);
 
-
                     providerResult.Errors.ToList().ForEach(e => commandResult.Errors.Add(e));
 
                     commandResult.Result = user;
