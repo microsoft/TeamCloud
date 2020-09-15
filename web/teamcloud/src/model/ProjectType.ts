@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { IIdentifiable, ITags, IProperties } from './index'
+import { IIdentifiable, ITags, IProperties } from '.'
 
 export interface ProjectType extends IIdentifiable, ITags, IProperties {
     isDefault?: boolean;
@@ -14,5 +14,5 @@ export interface ProjectType extends IIdentifiable, ITags, IProperties {
 
 export interface ProviderReference extends IIdentifiable, IProperties {
     dependsOn?: string[];
-    metadata?: Record<string, Record<string, string>>;
+    metadata?: Map<string, Map<string, string>>;
 }

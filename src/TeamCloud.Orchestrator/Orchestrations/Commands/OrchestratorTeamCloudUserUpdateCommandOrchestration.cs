@@ -17,6 +17,7 @@ using TeamCloud.Model.Internal;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Activities;
 using TeamCloud.Orchestrator.Entities;
+using TeamCloud.Orchestrator.Orchestrations.Utilities;
 
 namespace TeamCloud.Orchestrator.Orchestrations.Commands
 {
@@ -92,6 +93,19 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                             functionContext.StartNewOrchestration(nameof(OrchestratorProjectUpdateCommandOrchestration), projectUpdateCommand);
                         }
                     }
+
+                    var providerCommand = new ProviderTeamCloudUserUpdateCommand
+                   (
+                       command.User.PopulateExternalModel(),
+                       command.Payload.PopulateExternalModel(),
+                       command.CommandId
+                   );
+
+                    var providerResult = await functionContext
+                        .SendProviderCommandAsync<ProviderTeamCloudUserUpdateCommand, ProviderTeamCloudUserUpdateCommandResult>(providerCommand)
+                        .ConfigureAwait(true);
+
+                    providerResult.Errors.ToList().ForEach(e => commandResult.Errors.Add(e));
 
                     commandResult.Result = user;
 

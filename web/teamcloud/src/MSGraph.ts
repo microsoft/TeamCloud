@@ -1,26 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { ImplicitMSALAuthenticationProvider } from "@microsoft/microsoft-graph-client/lib/src/ImplicitMSALAuthenticationProvider";
+import { ImplicitMSALAuthenticationProvider } from '@microsoft/microsoft-graph-client/lib/src/ImplicitMSALAuthenticationProvider';
 import { MSALAuthenticationProviderOptions } from '@microsoft/microsoft-graph-client/lib/src/MSALAuthenticationProviderOptions';
 
 import { Client as GraphClient, GraphError, ResponseType } from '@microsoft/microsoft-graph-client'
 import { authProvider } from './Auth'
-
-export interface GraphUser {
-    id: string;
-    userPrincipalName: string;
-    displayName?: string;
-    givenName?: string;
-    sirname?: string;
-    mail?: string;
-    companyName?: string;
-    jobTitle?: string;
-    preferredLanguage?: string;
-    userType?: string;
-    department?: string;
-    imageUrl?: string;
-}
+import { GraphUser } from './model';
 
 export enum PhotoSize {
     size48x48 = '48x48',

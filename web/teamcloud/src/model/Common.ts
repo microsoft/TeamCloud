@@ -5,10 +5,18 @@ export interface IIdentifiable {
     id: string;
 }
 
+export interface Properties {
+    [key: string]: string
+}
+
 export interface IProperties {
-    properties?: Record<string, string>;
+    // properties?: Map<string, string>;
+    // properties?: Record<string, string>;
+    // properties?: Property[];
+    properties?: Properties;
+    // properties?: { key: string, value: string }[];
 }
 
 export interface ITags {
-    tags?: Record<string, string>;
+    tags?: Map<string, string>;
 }

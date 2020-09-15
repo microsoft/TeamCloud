@@ -99,12 +99,13 @@ export const ProjectList: React.FunctionComponent<IProjectListProps> = (props) =
                 // onColumnHeaderClick={_onColumnHeaderClicked}
                 selectionPreservedOnEmptyClick={true}
                 onItemInvoked={_onItemInvoked} />
+
             <Dialog
                 hidden={!deleteConfirmOpen}
                 dialogContentProps={{ type: DialogType.normal, title: 'Confirm Delete', subText: _confirmDialogSubtext() }}>
                 <DialogFooter>
-                    <PrimaryButton onClick={() => _onProjectDelete()} text="Delete" />
-                    <DefaultButton onClick={() => setDeleteConfirmOpen(false)} text="Cancel" />
+                    <PrimaryButton text='Delete' onClick={() => _onProjectDelete()} />
+                    <DefaultButton text='Cancel' onClick={() => setDeleteConfirmOpen(false)} />
                 </DialogFooter>
             </Dialog>
         </>

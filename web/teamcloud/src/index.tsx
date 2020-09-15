@@ -11,18 +11,18 @@ import App from './App';
 import './index.css'
 
 ReactDOM.render(
-    <React.StrictMode>
-        <AzureAD provider={authProvider} forceLogin={true}>
-            {({ login, logout, authenticationState, error, accountInfo }: IAzureADFunctionProps) => {
-                if (authenticationState === AuthenticationState.Authenticated)
-                    return <App onSignOut={logout} />
-                else if (authenticationState === AuthenticationState.Unauthenticated)
-                    return <Error403 error={error} />
-                return null;
-            }}
-        </AzureAD>
-    </React.StrictMode>,
-    document.getElementById('root')
+    // <React.StrictMode>
+    <AzureAD provider={authProvider} forceLogin={true}>
+        {({ login, logout, authenticationState, error, accountInfo }: IAzureADFunctionProps) => {
+            if (authenticationState === AuthenticationState.Authenticated)
+                return <App onSignOut={logout} />
+            else if (authenticationState === AuthenticationState.Unauthenticated)
+                return <Error403 error={error} />
+            return null;
+        }}
+    </AzureAD>
+    // </React.StrictMode>
+    , document.getElementById('root')
 );
 
 // If you want your app to work offline and load faster, you can change

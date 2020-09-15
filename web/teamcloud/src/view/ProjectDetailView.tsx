@@ -2,11 +2,10 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect } from 'react';
-import { Project, User, DataResult, ProjectUserRole } from '../model';
+import { Project, User, DataResult, ProjectUserRole, ProjectMember } from '../model';
 import { getProject } from '../API';
 import { Stack, Spinner, IBreadcrumbItem, ICommandBarItemProps } from '@fluentui/react';
-import { IProjectViewDetailProps, ProjectViewDetail, SubheaderBar, UserForm, ProjectMembers } from '../components';
-import { ProjectLinks } from '../components/ProjectLinks';
+import { IProjectViewDetailProps, ProjectViewDetail, SubheaderBar, ProjectMembersForm, ProjectMembers, ProjectMemberForm, ProjectLinks } from '../components';
 
 export interface IProjectDetailViewProps {
     user?: User;
@@ -17,13 +16,18 @@ export interface IProjectDetailViewProps {
 export const ProjectDetailView: React.FunctionComponent<IProjectDetailViewProps> = (props) => {
 
     const [project, setProject] = useState(props.project);
+    const [selectedMember, setSelectedMember] = useState<ProjectMember>();
     const [newUsersPanelOpen, setNewUsersPanelOpen] = useState(false);
+    const [editUsersPanelOpen, setEditUsersPanelOpen] = useState(false);
 
     useEffect(() => {
         if (project === undefined) {
+            console.log('go')
             const _setProject = async () => {
                 const result = await getProject(props.projectId);
+                console.log(result)
                 const data = (result as DataResult<Project>).data;
+                console.log(data)
                 setProject(data);
             };
             _setProject();
@@ -84,6 +88,11 @@ export const ProjectDetailView: React.FunctionComponent<IProjectDetailViewProps>
     const projectDetailStack = (projectDetailStackProps: IProjectViewDetailProps[]) =>
         projectDetailStackProps.map(p => <ProjectViewDetail key={p.title} title={p.title} details={p.details} />);
 
+    const _onEditMember = (member?: ProjectMember) => {
+        setSelectedMember(member)
+        setEditUsersPanelOpen(true)
+    };
+
 
     if (project?.id) {
         _ensureBreadcrumb();
@@ -102,7 +111,7 @@ export const ProjectDetailView: React.FunctionComponent<IProjectDetailViewProps>
                         horizontalAlign='center'
                         verticalAlign='start'>
                         <Stack.Item grow styles={{ root: { minWidth: '367px', marginRight: '16px' } }}>
-                            <ProjectMembers project={project} />
+                            <ProjectMembers project={project} onEditMember={_onEditMember} />
                             {projectDetailStack(projectDetailStackProps())}
                         </Stack.Item>
                         <Stack.Item grow styles={{ root: { minWidth: '367px', marginRight: '16px' } }}>
@@ -110,10 +119,15 @@ export const ProjectDetailView: React.FunctionComponent<IProjectDetailViewProps>
                         </Stack.Item>
                     </Stack>
                 </Stack>
-                <UserForm
+                <ProjectMembersForm
                     project={project}
                     panelIsOpen={newUsersPanelOpen}
                     onFormClose={() => setNewUsersPanelOpen(false)} />
+                <ProjectMemberForm
+                    member={selectedMember}
+                    project={project}
+                    panelIsOpen={editUsersPanelOpen}
+                    onFormClose={() => { setEditUsersPanelOpen(false); setSelectedMember(undefined) }} />
             </>
         );
     }

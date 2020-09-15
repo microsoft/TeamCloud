@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { IIdentifiable, IProperties, AzureResourceGroup } from './index';
+import { IIdentifiable, IProperties, AzureResourceGroup } from '.';
 
 export interface Provider extends IIdentifiable, IProperties {
     id: string;
@@ -11,7 +11,6 @@ export interface Provider extends IIdentifiable, IProperties {
     version: string;
     resourceGroup: AzureResourceGroup;
     events?: string[];
-    properties?: Record<string, string>;
     registered?: string;
     commandMode: ProviderCommandMode;
 }

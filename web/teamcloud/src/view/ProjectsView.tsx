@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { ICommandBarItemProps, SearchBox, Stack, IBreadcrumbItem } from '@fluentui/react';
 import { getProjects } from '../API'
 import { Project, DataResult, User, TeamCloudUserRole } from '../model'
-import { ProjectList, ProjectForm, SubheaderBar } from "../components";
+import { ProjectList, ProjectForm, SubheaderBar } from '../components';
 
 export interface IProjectsViewProps {
     user?: User;
@@ -43,7 +43,7 @@ export const ProjectsView: React.FunctionComponent<IProjectsViewProps> = (props)
     ];
 
     const _centerCommandBarItems: ICommandBarItemProps[] = [
-        { key: 'search', onRender: () => <SearchBox className="searchBox" iconProps={{ iconName: 'Filter' }} placeholder="Filter" onChange={(_, filter) => setProjectFilter(filter)} /> }
+        { key: 'search', onRender: () => <SearchBox className='searchBox' iconProps={{ iconName: 'Filter' }} placeholder='Filter' onChange={(_, filter) => setProjectFilter(filter)} /> }
     ];
 
     const _breadcrumbs: IBreadcrumbItem[] = [

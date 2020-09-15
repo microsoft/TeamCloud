@@ -2,20 +2,16 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect } from 'react';
-import { Stack, TextField, Spinner, DefaultButton, IButtonStyles, getTheme, Image, ButtonType, Text, Label, Checkbox, SpinButton, Panel, PrimaryButton } from '@fluentui/react';
+import { Stack, TextField, Spinner, DefaultButton, IButtonStyles, getTheme, Image, ButtonType, Text, Label, Checkbox, SpinButton, Panel, PrimaryButton, ComboBox } from '@fluentui/react';
 import { Position } from 'office-ui-fabric-react/lib/utilities/positioning';
-import { ProjectType, Provider, DataResult, ProviderReference, StatusResult, ErrorResult } from "../model";
-import { getProviders, createProjectType } from "../API";
+import { ProjectType, Provider, DataResult, ProviderReference, StatusResult, ErrorResult, AzureRegions } from '../model';
+import { getProviders, createProjectType } from '../API';
 import AppInsights from '../img/appinsights.svg';
 import DevOps from '../img/devops.svg';
 import DevTestLabs from '../img/devtestlabs.svg';
 import GitHub from '../img/github.svg';
 
 export interface IProjectTypeFormProps {
-    // fieldsEnabled: boolean;
-    // onFormSubmit: () => void;
-    // onNameChange: (val?: string) => void;
-    // onProjectTypeChange: (val?: ProjectType) => void;
     panelIsOpen: boolean;
     onFormClose: () => void;
 }
@@ -26,8 +22,8 @@ export const ProjectTypeForm: React.FunctionComponent<IProjectTypeFormProps> = (
     const [formEnabled, setFormEnabled] = useState<boolean>(true);
     const [projectTypeName, setProjectTypeName] = useState<string>();
     const [projectTypeIsDefault, setProjectTypeIsDefault] = useState<boolean>();
-    const [projectTypeRegion, setProjectTypeRegion] = useState('eastus');
-    const [projectTypeSubscriptions, setProjectTypeSubscriptions] = useState(new Array<string>());
+    const [projectTypeRegion, setProjectTypeRegion] = useState<string>();
+    const [projectTypeSubscriptions, setProjectTypeSubscriptions] = useState<string[]>();
     const [projectTypeSubscriptionsCapacity, setProjectTypeSubscriptionsCapacity] = useState(10);
     const [projectTypeRgNamePrefix, setProjectTypeRgNamePrefix] = useState<string>();
     const [projectTypeProviders, setProjectTypeProviders] = useState(new Array<ProviderReference>());
@@ -75,28 +71,39 @@ export const ProjectTypeForm: React.FunctionComponent<IProjectTypeFormProps> = (
             borderStyle: 'solid',
             borderColor: theme.palette.neutralLighter,
             padding: '8px 20px'
+        },
+        rootHovered: {
+            backgroundColor: theme.palette.themeLighter,
+        },
+        rootPressed: {
+            backgroundColor: theme.palette.themeLighter,
+        },
+        rootChecked: {
+            backgroundColor: theme.palette.themeLighter,
+            borderColor: theme.palette.themePrimary,
+        },
+        rootCheckedHovered: {
+            backgroundColor: theme.palette.themeLighter,
         }
     }
 
     const _toggleProviderSelection = (provider: Provider) => {
-        let index = projectTypeProviders.findIndex(r => r.id === provider.id)
+        const providerReferences = projectTypeProviders.slice()
+        let index = providerReferences.findIndex(r => r.id === provider.id)
         if (index > -1) {
-            projectTypeProviders.splice(index, 1)
+            providerReferences.splice(index, 1)
         } else {
-            const providerReference: ProviderReference = {
-                id: provider.id
-            }
-            projectTypeProviders.push(providerReference)
+            providerReferences.push({ id: provider.id })
         }
-        console.log(projectTypeProviders.map(p => p.id).join(', '))
-        console.log(projectTypeRegion)
+        setProjectTypeProviders(providerReferences)
     }
 
     const _getProviderButtons = (data?: Provider[]) => {
         let buttons = data?.map(p => (
-            <Stack.Item styles={{ root: { width: '46%' } }}>
+            <Stack.Item key={p.id} styles={{ root: { width: '46%' } }}>
                 <DefaultButton
-                    toggle={true}
+                    toggle
+                    checked={projectTypeProviders.findIndex(pr => pr.id === p.id) > -1}
                     buttonType={ButtonType.icon}
                     styles={_providerButtonStyles}
                     onClick={() => _toggleProviderSelection(p)} >
@@ -118,7 +125,7 @@ export const ProjectTypeForm: React.FunctionComponent<IProjectTypeFormProps> = (
 
     const _submitForm = async () => {
         setFormEnabled(false);
-        if (projectTypeName && projectTypeProviders.length > 0 && projectTypeSubscriptions.length > 0) {
+        if (projectTypeName && projectTypeRegion && projectTypeProviders.length > 0 && projectTypeSubscriptions && projectTypeSubscriptions.length > 0) {
             const projectType: ProjectType = {
                 id: projectTypeName,
                 isDefault: projectTypeIsDefault,
@@ -129,7 +136,7 @@ export const ProjectTypeForm: React.FunctionComponent<IProjectTypeFormProps> = (
                 providers: projectTypeProviders
             };
             const result = await createProjectType(projectType);
-            if ((result as StatusResult).code === 202)
+            if ((result as StatusResult).code === 201)
                 _resetAndCloseForm();
             else if ((result as ErrorResult).errors) {
                 // console.log(JSON.stringify(result));
@@ -146,24 +153,24 @@ export const ProjectTypeForm: React.FunctionComponent<IProjectTypeFormProps> = (
         setProjectTypeSubscriptionsCapacity(10)
         setProjectTypeRgNamePrefix(undefined)
         setProjectTypeProviders(new Array<ProviderReference>())
-        setErrorText("")
+        setErrorText('')
         setFormEnabled(true);
         props.onFormClose();
     };
 
     const _onRenderPanelFooterContent = () => (
         <div>
-            <PrimaryButton disabled={!formEnabled || !(projectTypeName && projectTypeProviders.length > 0 && projectTypeSubscriptions.length > 0)} onClick={() => _submitForm()} styles={{ root: { marginRight: 8 } }}>
-                Create project
-            </PrimaryButton>
-            <DefaultButton disabled={!formEnabled} onClick={() => _resetAndCloseForm()}>Cancel</DefaultButton>
+            <PrimaryButton text='Create project type' disabled={!formEnabled || !(projectTypeName && projectTypeRegion && projectTypeProviders.length > 0 && projectTypeSubscriptions && projectTypeSubscriptions?.length > 0)} onClick={() => _submitForm()} styles={{ root: { marginRight: 8 } }} />
+            <DefaultButton text='Cancel' disabled={!formEnabled} onClick={() => _resetAndCloseForm()} />
             <Spinner styles={{ root: { visibility: formEnabled ? 'hidden' : 'visible' } }} />
         </div>
     );
 
+    const subscriptionRegex = /([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})/g
+
     return (
         <Panel
-            headerText='New project'
+            headerText='New Project Type'
             isOpen={props.panelIsOpen}
             onDismiss={() => _resetAndCloseForm()}
             onRenderFooterContent={_onRenderPanelFooterContent}>
@@ -179,24 +186,29 @@ export const ProjectTypeForm: React.FunctionComponent<IProjectTypeFormProps> = (
                         required
                         // errorMessage='Name is required.'
                         disabled={!formEnabled}
-                        onChange={(ev, val) => setProjectTypeName(val)} />
+                        onChange={(_ev, val) => setProjectTypeName(val)} />
                 </Stack.Item>
                 <Stack.Item>
-                    <TextField
+                    <ComboBox
                         label='Region'
                         required
-                        // errorMessage='Name is required.'
-                        defaultValue={projectTypeRegion}
-                        disabled={!formEnabled}
-                        onChange={(ev, val) => setProjectTypeRegion(val ?? 'eastus')} />
+                        allowFreeform
+                        autoComplete={'on'}
+                        selectedKey={projectTypeRegion}
+                        options={AzureRegions.map(r => ({ key: r, text: r }))}
+                        onChange={(_ev, val) => setProjectTypeRegion(val?.text ?? undefined)} />
                 </Stack.Item>
                 <Stack.Item>
                     <TextField
-                        label='Subscriptions'
+                        label='Subscription IDs'
                         required
                         // errorMessage='Name is required.'
+                        // description='Comma-separated list of Azure Subscription IDs'
                         disabled={!formEnabled}
-                        onChange={(ev, val) => setProjectTypeSubscriptions(val?.split(',') ?? [])} />
+                        validateOnLoad={false}
+                        validateOnFocusOut
+                        onGetErrorMessage={(val) => val.match(subscriptionRegex) ? '' : 'Must be one or more Azure Subscription IDs.'}
+                        onChange={(_ev, val) => setProjectTypeSubscriptions(val?.match(subscriptionRegex) ?? undefined)} />
                 </Stack.Item>
                 <Stack.Item>
                     <SpinButton
@@ -215,13 +227,13 @@ export const ProjectTypeForm: React.FunctionComponent<IProjectTypeFormProps> = (
                         label='Resource Group name prefix'
                         // errorMessage='Name is required.'
                         disabled={!formEnabled}
-                        onChange={(ev, val) => setProjectTypeRgNamePrefix(val)} />
+                        onChange={(_ev, val) => setProjectTypeRgNamePrefix(val)} />
                 </Stack.Item>
                 <Stack.Item>
                     <Checkbox
                         label='Set as default'
                         styles={{ root: { paddingTop: '10px' }, label: { fontSize: '14px', fontWeight: '600' } }}
-                        onChange={(ev, val) => setProjectTypeIsDefault(val)} />
+                        onChange={(_ev, val) => setProjectTypeIsDefault(val)} />
                 </Stack.Item>
             </Stack>
             <Text>{errorText}</Text>

@@ -46,7 +46,7 @@ export const ProjectTypePanel: React.FunctionComponent<IProjectTypePanelProps> =
                 </Stack>
             ));
             return (
-                <Stack tokens={{ childrenGap: 10 }}>
+                <Stack key={s.title} tokens={{ childrenGap: 10 }}>
                     <Text styles={_titleStyles}>{s.title}</Text>
                     {details}
                 </Stack>

@@ -18,6 +18,31 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 {
     public static class ProviderSendExtensions
     {
+        internal static async Task<TCommandResult> SendProviderCommandAsync<TCommand, TCommandResult>(this IDurableOrchestrationContext functionContext, TCommand command)
+            where TCommand : IProviderCommand
+            where TCommandResult : ICommandResult
+        {
+            if (command is null)
+                throw new ArgumentNullException(nameof(command));
+
+            var providers = await functionContext
+                .ListProvidersAsync()
+                .ConfigureAwait(true);
+
+            var providerTasks = providers.Select(p => functionContext.SendProviderCommandAsync<TCommand, TCommandResult>(command, p));
+
+            var providerResults = await Task
+                .WhenAll(providerTasks)
+                .ConfigureAwait(true);
+
+            var providerResult = (TCommandResult)command.CreateResult();
+
+            providerResults.SelectMany(r => r.Errors).ToList().ForEach(e => providerResult.Errors.Add(e));
+
+            return providerResult;
+        }
+
+
         internal static async Task<TCommandResult> SendProviderCommandAsync<TCommand, TCommandResult>(this IDurableOrchestrationContext functionContext, TCommand command, ProviderDocument provider)
             where TCommand : IProviderCommand
             where TCommandResult : ICommandResult
