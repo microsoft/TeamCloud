@@ -14,6 +14,20 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 {
     internal static class OrchestratorCommandExtensions
     {
+        internal static async Task<ICommand> GetCommandAsync(this IDurableClient durableClient, Guid commandId)
+        {
+            if (durableClient is null)
+                throw new ArgumentNullException(nameof(durableClient));
+
+            var commandStatus = await durableClient
+                .GetStatusAsync(OrchestratorCommandOrchestrationHandler.GetCommandOrchestrationWrapperInstanceId(commandId))
+                .ConfigureAwait(false);
+
+            return (commandStatus?.Input?.HasValues ?? false)
+                ? commandStatus.Input.ToObject<ICommand>()
+                : null;
+        }
+
         internal static Task<ICommandResult> GetCommandResultAsync(this IDurableClient durableClient, ICommand command)
             => GetCommandResultAsync(durableClient, command?.CommandId ?? throw new ArgumentNullException(nameof(command)));
 

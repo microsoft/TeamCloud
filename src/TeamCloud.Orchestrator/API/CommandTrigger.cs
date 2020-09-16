@@ -25,7 +25,7 @@ using TeamCloud.Model.Validation;
 using TeamCloud.Orchestrator.Handlers;
 using TeamCloud.Orchestrator.Orchestrations.Utilities;
 
-namespace TeamCloud.Orchestrator
+namespace TeamCloud.Orchestrator.API
 {
     public class CommandTrigger
     {
@@ -41,6 +41,7 @@ namespace TeamCloud.Orchestrator
         [FunctionName(nameof(CommandTrigger))]
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "post", "get", Route = "command/{commandId:guid?}")] HttpRequestMessage requestMessage,
+            [Queue(MonitorTrigger.CommandMonitorQueue)] IAsyncCollector<string> commandMonitor,
             [DurableClient] IDurableClient durableClient,
             string commandId,
             ILogger log)
@@ -48,33 +49,26 @@ namespace TeamCloud.Orchestrator
             if (requestMessage is null)
                 throw new ArgumentNullException(nameof(requestMessage));
 
+            if (commandMonitor is null)
+                throw new ArgumentNullException(nameof(commandMonitor));
+
             if (durableClient is null)
                 throw new ArgumentNullException(nameof(durableClient));
 
-            IActionResult actionResult;
-
             try
             {
-                switch (requestMessage)
+                var actionResultTask = requestMessage switch
                 {
-                    case HttpRequestMessage msg when msg.Method == HttpMethod.Get:
+                    HttpRequestMessage msg when msg.Method == HttpMethod.Get && Guid.TryParse(commandId, out var commandIdParsed)
+                        => HandleGetAsync(durableClient, commandIdParsed),
 
-                        if (string.IsNullOrEmpty(commandId))
-                            actionResult = new NotFoundResult();
-                        else
-                            actionResult = await HandleGetAsync(durableClient, Guid.Parse(commandId)).ConfigureAwait(false);
+                    HttpRequestMessage msg when msg.Method == HttpMethod.Post
+                        => HandlePostAsync(durableClient, commandMonitor, requestMessage, log),
 
-                        break;
-
-                    case HttpRequestMessage msg when msg.Method == HttpMethod.Post:
-
-                        actionResult = await HandlePostAsync(durableClient, requestMessage, log).ConfigureAwait(false);
-
-                        break;
-
-                    default:
-                        throw new NotSupportedException($"Http method '{requestMessage.Method}' is not supported");
+                    _ => Task.FromResult<IActionResult>(new NotFoundResult())
                 };
+
+                return await actionResultTask.ConfigureAwait(false);
             }
             catch (Exception exc)
             {
@@ -82,13 +76,11 @@ namespace TeamCloud.Orchestrator
 
                 throw; // re-throw exception and use the default InternalServerError behaviour
             }
-
-            return actionResult;
         }
 
-        private async Task<IActionResult> HandlePostAsync(IDurableClient durableClient, HttpRequestMessage requestMessage, ILogger log)
+        private async Task<IActionResult> HandlePostAsync(IDurableClient durableClient, IAsyncCollector<string> commandMonitor, HttpRequestMessage requestMessage, ILogger log)
         {
-            IOrchestratorCommand command;
+            IOrchestratorCommand command = null;
 
             try
             {
@@ -101,8 +93,10 @@ namespace TeamCloud.Orchestrator
 
                 command.Validate(throwOnValidationError: true);
             }
-            catch (ValidationException)
+            catch (ValidationException exc)
             {
+                log.LogError(exc, $"Command {command?.CommandId} failed validation");
+
                 return new BadRequestResult();
             }
 
@@ -152,9 +146,18 @@ namespace TeamCloud.Orchestrator
                 }
                 finally
                 {
-                    await commandAuditWriter
-                        .AuditAsync(command, commandResult)
-                        .ConfigureAwait(false);
+                    if (commandResult.RuntimeStatus.IsFinal())
+                    {
+                        await commandAuditWriter
+                            .AuditAsync(command, commandResult)
+                            .ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        await commandMonitor
+                            .AddAsync(command.CommandId.ToString())
+                            .ConfigureAwait(false);
+                    }
                 }
 
                 return CreateCommandResultResponse(commandResult);
@@ -166,8 +169,7 @@ namespace TeamCloud.Orchestrator
 
             bool TryGetOrchestratorCommandHandler(IOrchestratorCommand orchestratorCommand, out IOrchestratorCommandHandler orchestratorCommandHandler)
             {
-                var scope = httpContextAccessor.HttpContext.RequestServices
-                    .CreateScope();
+                using var scope = httpContextAccessor.HttpContext.RequestServices.CreateScope();
 
                 orchestratorCommandHandler = scope.ServiceProvider
                     .GetServices<IOrchestratorCommandHandler>()
@@ -194,9 +196,9 @@ namespace TeamCloud.Orchestrator
             if (commandResult.RuntimeStatus.IsFinal())
                 return new OkObjectResult(commandResult);
 
-            var location = UriHelper.GetDisplayUrl(httpContextAccessor.HttpContext.Request);
+            var location = httpContextAccessor.HttpContext.Request.GetDisplayUrl();
 
-            if (!location.EndsWith(commandResult.CommandId.ToString()))
+            if (!location.EndsWith(commandResult.CommandId.ToString(), StringComparison.OrdinalIgnoreCase))
                 location = location.AppendPathSegment(commandResult.CommandId);
 
             return new AcceptedResult(location, commandResult);
