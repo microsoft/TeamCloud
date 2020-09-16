@@ -59,10 +59,6 @@ namespace TeamCloud.Audit.Model
         [Column(Order = 302)]
         public DateTime? Updated { get; set; }
         [Column(Order = 303)]
-        public DateTime? Sent { get; set; }
-        [Column(Order = 304)]
-        public DateTime? Processed { get; set; }
-        [Column(Order = 305)]
         public DateTime? Timeout { get; set; }
     }
 }

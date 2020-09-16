@@ -139,18 +139,13 @@ namespace TeamCloud.Audit
                 entity.Updated = GetTableStorageMaxDate(entity.Updated, commandResult.LastUpdatedTime);
 
                 entity.RuntimeStatus = commandResult.RuntimeStatus;
-                entity.CustomStatus = commandResult.CustomStatus;
+                entity.CustomStatus = commandResult.CustomStatus ?? string.Empty;
 
                 if (entity.RuntimeStatus.IsFinal())
-                {
-                    entity.Processed = entity.Updated;
                     entity.Errors = string.Join(Environment.NewLine, commandResult.Errors.Select(error => $"[{error.Severity}] {error.Message}"));
-                }
-                else if (!string.IsNullOrEmpty(entity.Provider))
-                {
-                    // timeout information are only relevant for provider related commands
-                    entity.Timeout = entity.Created?.Add(commandResult.Timeout);
-                }
+
+                if (!string.IsNullOrEmpty(entity.Provider))
+                    entity.Timeout ??= entity.Created?.Add(commandResult.Timeout);
             }
 
             await auditTable
