@@ -57,12 +57,18 @@ namespace TeamCloud.API
         {
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
+                app
+                    .UseDeveloperExceptionPage()
+                    .UseCors(builder => builder
+                        .SetIsOriginAllowed(origin => true)
+                        .AllowAnyHeader()
+                        .AllowCredentials());
             }
             else
             {
-                app.UseHsts()
-                   .UseHttpsRedirection();
+                app
+                    .UseHsts()
+                    .UseHttpsRedirection();
             }
 
             app
