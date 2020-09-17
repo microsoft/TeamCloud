@@ -17,6 +17,12 @@ namespace TeamCloud.Model.Commands
             CallbackUrl = callbackUrl;
         }
 
+        public new IProviderCommand Command
+        {
+            get => base.Command as IProviderCommand;
+            set => base.Command = value;
+        }
+
         public string CallbackUrl { get; set; }
     }
 }
