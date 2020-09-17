@@ -9,21 +9,19 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Azure.Directory;
-using TeamCloud.Azure.Resources;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
+using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.Activities
 {
     public class ProjectIdentityCreateActivity
     {
         private readonly IAzureDirectoryService azureDirectoryService;
-        private readonly IAzureResourceService azureResourceService;
 
-        public ProjectIdentityCreateActivity(IAzureDirectoryService azureDirectoryService, IAzureResourceService azureResourceService)
+        public ProjectIdentityCreateActivity(IAzureDirectoryService azureDirectoryService)
         {
             this.azureDirectoryService = azureDirectoryService ?? throw new ArgumentNullException(nameof(azureDirectoryService));
-            this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
         }
 
         [FunctionName(nameof(ProjectIdentityCreateActivity)), RetryOptions(3)]
@@ -66,10 +64,11 @@ namespace TeamCloud.Orchestrator.Activities
 
                 return project.Identity;
             }
-            catch (Exception ex)
+            catch (Exception exc)
             {
-                log.LogError(ex, $"{nameof(ProjectIdentityCreateActivity)} failed with error: {ex.Message}");
-                throw;
+                log.LogError(exc, $"{nameof(ProjectIdentityCreateActivity)} failed with error: {exc.Message}");
+
+                throw exc.AsSerializable();
             }
         }
     }

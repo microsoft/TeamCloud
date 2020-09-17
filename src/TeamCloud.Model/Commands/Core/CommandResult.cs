@@ -23,7 +23,7 @@ namespace TeamCloud.Model.Commands.Core
 
         public CommandRuntimeStatus RuntimeStatus
         {
-            get => Errors?.Any() ?? false ? CommandRuntimeStatus.Failed : runtimeStatus;
+            get => Errors?.Any(err => err.Severity == CommandErrorSeverity.Error) ?? false ? CommandRuntimeStatus.Failed : runtimeStatus;
             set => runtimeStatus = value;
         }
 

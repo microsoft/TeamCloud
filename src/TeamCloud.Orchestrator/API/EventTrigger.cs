@@ -127,11 +127,29 @@ namespace TeamCloud.Orchestrator.API
 
                 var command = new ProviderEventCommand(systemUser, eventGridEvent);
 
-                var tasks = providerDocuments.Select(providerDocument =>
+                var tasks = providerDocuments.Select(async providerDocument =>
                 {
-                    log.LogInformation($"Forwarding event {eventGridEvent.EventType} ({eventGridEvent.Id}) to provider {providerDocument.Id}");
+                    var instanceId = $"{eventGridEvent.Id}@{providerDocument.Id}";
 
-                    return durableClient.StartNewAsync(nameof(ProviderSendOrchestration), Guid.NewGuid().ToString(), (command, providerDocument));
+                    try
+                    {
+                        _ = await durableClient
+                            .StartNewAsync(nameof(ProviderSendOrchestration), instanceId, (command, providerDocument))
+                            .ConfigureAwait(false);
+
+                        log.LogInformation($"Forwarded event {eventGridEvent.EventType} ({eventGridEvent.Id}) to provider {providerDocument.Id}");
+                    }
+                    catch (Exception exc)
+                    {
+                        if ((await durableClient.GetStatusAsync(instanceId).ConfigureAwait(false)) is null)
+                        {
+                            log.LogError(exc, $"Forwarding event {eventGridEvent.EventType} ({eventGridEvent.Id}) to provider {providerDocument.Id} failed: {exc.Message}");
+
+                            throw;
+                        }
+
+                        log.LogWarning(exc, $"Forwarding event {eventGridEvent.EventType} ({eventGridEvent.Id}) to provider {providerDocument.Id} skipped: {exc.Message}");
+                    }
                 });
 
                 await Task

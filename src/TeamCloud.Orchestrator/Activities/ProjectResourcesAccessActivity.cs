@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -54,22 +53,17 @@ namespace TeamCloud.Orchestrator.Activities
 
                 if (resourceGroup != null)
                 {
-                    var roleAssignments = await resourceGroup
-                        .GetRoleAssignmentsAsync(principalId.ToString())
-                        .ConfigureAwait(false);
-
-                    var roleAssignmentTasks = new List<Task>();
-
-                    if (!roleAssignments.Contains(AzureRoleDefinition.Contributor))
+                    var roleAssignmentTasks = new List<Task>()
                     {
-                        roleAssignmentTasks
-                            .Add(resourceGroup.AddRoleAssignmentAsync(principalId.ToString(), AzureRoleDefinition.Contributor));
-                    }
+                        // ensure the given principal id has access to the projects resource group
+                        resourceGroup.AddRoleAssignmentAsync(principalId.ToString(), AzureRoleDefinition.Contributor),
+                        resourceGroup.AddRoleAssignmentAsync(principalId.ToString(), AzureRoleDefinition.UserAccessAdministrator) // TODO: do we really need this ???
+                    };
 
-                    if (!roleAssignments.Contains(AzureRoleDefinition.UserAccessAdministrator))
+                    if (!string.IsNullOrEmpty(project.Identity?.Id))
                     {
-                        roleAssignmentTasks
-                            .Add(resourceGroup.AddRoleAssignmentAsync(principalId.ToString(), AzureRoleDefinition.UserAccessAdministrator));
+                        // ensure the project identity has access to the projects resource group
+                        roleAssignmentTasks.Add(resourceGroup.AddRoleAssignmentAsync(project.Identity.Id, AzureRoleDefinition.Reader));
                     }
 
                     await Task
