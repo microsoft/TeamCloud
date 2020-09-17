@@ -46,7 +46,8 @@ namespace TeamCloud.Orchestrator.Activities
                 ReferenceLink.BaseUrl = apiOptions.Url ?? ReferenceLink.BaseUrl
                     ?? throw new NotSupportedException("Missing API base URL in configuration.");
 
-                var providerUrl = new Url(provider.Url?.Trim());
+                var providerUrl = new Url(provider.Url?.Trim())
+                    .SetQueryParam("providerId", provider.Id);
 
                 if (!providerUrl.Path.EndsWith("/", StringComparison.OrdinalIgnoreCase))
                     providerUrl = providerUrl.AppendPathSegment("api/command");
