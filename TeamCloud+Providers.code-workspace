@@ -85,6 +85,10 @@
 			"path": "../TeamCloud-Providers/GitHub/TeamCloud.Providers.GitHub"
 		},
 		{
+			"name": "[Providers] GitHub.Actions",
+			"path": "../TeamCloud-Providers/GitHub/TeamCloud.Providers.GitHub.Actions"
+		},
+		{
 			"name": "[Providers] Core",
 			"path": "../TeamCloud-Providers/Shared/TeamCloud.Providers.Core"
 		},
@@ -150,30 +154,19 @@
 		"configurations": [],
 		"compounds": [
 			{
-				"name": "Run TeamCloud ALL",
+				"name": "Run API + Orchestator + GitHub.Actions",
 				"configurations": [
 					"TeamCloud.API",
 					"TeamCloud.Orchestrator",
-					"TeamCloud.Providers.Azure.AppInsights",
-					"TeamCloud.Providers.Azure.DevOps",
-					"TeamCloud.Providers.Azure.DevTestLabs"
+					"TeamCloud.Providers.GitHub.Actions"
 				],
 				"preLaunchTask": "buildAll"
 			},
 			{
-				"name": "Run TeamCloud API + Orchestator",
+				"name": "Run API + Orchestator",
 				"configurations": [
 					"TeamCloud.API",
 					"TeamCloud.Orchestrator"
-				],
-				"preLaunchTask": "buildAll"
-			},
-			{
-				"name": "Run TeamCloud Providers",
-				"configurations": [
-					"TeamCloud.Providers.Azure.AppInsights",
-					"TeamCloud.Providers.Azure.DevOps",
-					"TeamCloud.Providers.Azure.DevTestLabs"
 				],
 				"preLaunchTask": "buildAll"
 			}
@@ -885,7 +878,7 @@
 					"cleanOrchestration",
 					"cleanAudit",
 					"cleanSerialization",
-					"cleanProvidersCore"
+					// "cleanProvidersCore"
 				],
 				"dependsOrder": "parallel",
 				"presentation": {
@@ -946,9 +939,8 @@
 					"buildModelInternal",
 					"buildOrchestration",
 					"buildAudit",
-					"buildOrchestrationAuditing",
 					"buildData",
-					"buildProvidersCore"
+					// "buildProvidersCore"
 				],
 				"dependsOrder": "sequence",
 				"presentation": {

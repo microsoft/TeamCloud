@@ -25,7 +25,7 @@ namespace TeamCloud.Model.Data
         public ProjectLinkType Type { get; set; }
 
         public bool Equals(ProjectLinkDocument other)
-            => Id.Equals(other?.Id);
+            => Id.Equals(other?.Id, StringComparison.Ordinal);
 
         public override bool Equals(object obj)
             => base.Equals(obj) || Equals(obj as ProjectLinkDocument);

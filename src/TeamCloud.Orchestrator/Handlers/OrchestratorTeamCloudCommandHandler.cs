@@ -24,6 +24,9 @@ namespace TeamCloud.Orchestrator.Handlers
 
         public async Task<ICommandResult> HandleAsync(OrchestratorTeamCloudInstanceSetCommand orchestratorCommand, IDurableClient durableClient = null)
         {
+            if (orchestratorCommand is null)
+                throw new ArgumentNullException(nameof(orchestratorCommand));
+
             var commandResult = orchestratorCommand.CreateResult();
 
             try
