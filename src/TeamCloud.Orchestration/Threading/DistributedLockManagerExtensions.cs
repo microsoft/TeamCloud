@@ -12,6 +12,15 @@ namespace TeamCloud.Orchestration.Threading
 {
     public static class DistributedLockManagerExtensions
     {
+        // CAUTION - we disable the Obsolte warning for this extension method
+        // IDistributedLockManager is marked as obsolete, but not because it will
+        // go away in the near term. The webjob SDK marked it with the comment
+        // that the current implementation is not ready for public use. however
+        // as the Azure Functions framework already relies on it, we assume it
+        // is also good enought for our scenarios.
+
+#pragma warning disable CS0618
+
         public static async Task<IDistributedLock> AcquireLockAsync(this IDistributedLockManager distributedLockManager, string lockId, string lockOwner, TimeSpan? lockPeriod = default, TimeSpan? acquisitionTimeout = default, CancellationToken cancellationToken = default)
         {
             if (distributedLockManager is null)
@@ -38,5 +47,8 @@ namespace TeamCloud.Orchestration.Threading
 
             throw new TimeoutException($"Unable to acquire lock {lockId} for owner {lockOwner}");
         }
+
+#pragma warning restore CS0618 
+
     }
 }
