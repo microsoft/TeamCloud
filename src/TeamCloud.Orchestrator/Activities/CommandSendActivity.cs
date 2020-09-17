@@ -52,7 +52,9 @@ namespace TeamCloud.Orchestrator.Activities
                 if (!providerUrl.Path.EndsWith("/", StringComparison.OrdinalIgnoreCase))
                     providerUrl = providerUrl.AppendPathSegment("api/command");
 
-                log.LogInformation($"Sending command {message.CommandId} ({message.CommandType}) to {providerUrl}. Payload:{JsonConvert.SerializeObject(message)}");
+                log.LogInformation(string.Join(", ",
+                    $"Sending command {message.CommandId} ({message.CommandType}) to {providerUrl}",
+                    JsonConvert.SerializeObject(message)));
 
                 var response = await providerUrl
                     .WithHeader("x-functions-key", provider.AuthCode)

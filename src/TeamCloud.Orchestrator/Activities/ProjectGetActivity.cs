@@ -7,6 +7,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Extensions.Logging;
 using TeamCloud.Data;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
@@ -25,11 +26,23 @@ namespace TeamCloud.Orchestrator.Activities
 
         [FunctionName(nameof(ProjectGetActivity))]
         public async Task<ProjectDocument> RunActivity(
-            [ActivityTrigger] string projectId)
+            [ActivityTrigger] string projectId,
+            ILogger log)
         {
-            return await projectsRepository
-                .GetAsync(projectId)
-                .ConfigureAwait(false);
+            try
+            {
+                var project = await projectsRepository
+                    .GetAsync(projectId)
+                    .ConfigureAwait(false);
+
+                return project;
+            }
+            catch (Exception exc)
+            {
+                log.LogError(exc, $"Getting project {projectId} from repository failed: {exc.Message}");
+
+                throw;
+            }
         }
     }
 
