@@ -103,7 +103,8 @@ namespace TeamCloud.Model.Data
                 user.ProjectMemberships.Add(membership);
             else
             {
-                existingMembership.Role = membership.Role;
+                if (!(existingMembership.Role == ProjectUserRole.Owner && membership.Role == ProjectUserRole.Provider))
+                    existingMembership.Role = membership.Role;
                 existingMembership.MergeProperties(membership.Properties, overwriteExistingValues: true);
             }
 
