@@ -42,7 +42,7 @@ namespace TeamCloud.Model.Data
         public string EventType { get; set; }
 
         public bool Equals(ProviderEventSubscription other)
-            => string.Equals(this.EventType, other.EventType, StringComparison.Ordinal);
+            => string.Equals(this.EventType, other?.EventType, StringComparison.Ordinal);
 
         public override bool Equals(object obj)
             => base.Equals(obj) || Equals(obj as ProviderEventSubscription);

@@ -95,7 +95,7 @@ namespace TeamCloud.Azure.Resources
 
             if (identity != null)
             {
-                if (identity.SelectToken("type")?.ToString().Equals("SystemAssigned") ?? false)
+                if (identity.SelectToken("type")?.ToString().Equals("SystemAssigned", StringComparison.OrdinalIgnoreCase) ?? false)
                     yield return identity.ToObject<AzureIdentity>();
 
                 var userAssignedIdentities = identity

@@ -26,6 +26,9 @@ namespace TeamCloud.Orchestrator.Handlers
 
         public async Task<ICommandResult> HandleAsync(OrchestratorProjectTypeCreateCommand orchestratorCommand, IDurableClient durableClient = null)
         {
+            if (orchestratorCommand is null)
+                throw new ArgumentNullException(nameof(orchestratorCommand));
+
             var commandResult = orchestratorCommand.CreateResult();
 
             try
@@ -46,6 +49,9 @@ namespace TeamCloud.Orchestrator.Handlers
 
         public async Task<ICommandResult> HandleAsync(OrchestratorProjectTypeUpdateCommand orchestratorCommand, IDurableClient durableClient = null)
         {
+            if (orchestratorCommand is null)
+                throw new ArgumentNullException(nameof(orchestratorCommand));
+
             var commandResult = orchestratorCommand.CreateResult();
 
             try
@@ -66,6 +72,9 @@ namespace TeamCloud.Orchestrator.Handlers
 
         public async Task<ICommandResult> HandleAsync(OrchestratorProjectTypeDeleteCommand orchestratorCommand, IDurableClient durableClient = null)
         {
+            if (orchestratorCommand is null)
+                throw new ArgumentNullException(nameof(orchestratorCommand));
+
             var commandResult = orchestratorCommand.CreateResult();
 
             try
