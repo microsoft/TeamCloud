@@ -92,8 +92,14 @@ export const getResource = async <T>(url: string): Promise<ErrorResult | DataRes
         // console.log('=== JSON (' + url + ') ' + JSON.stringify(json));
 
         if (!retry) {
-            const json = await response.json();
-            return response.status >= 400 ? json as ErrorResult : json as DataResult<T>;
+            try {
+                const json = await response.json();
+                return response.status >= 400 ? json as ErrorResult : json as DataResult<T>;
+            } catch (error) {
+                console.log(response)
+                console.error(error)
+                return { code: response.status, status: response.statusText ?? "Unknown Error" } as ErrorResult
+            }
         }
     }
 }
@@ -122,8 +128,14 @@ export const deleteResource = async <T>(url: string): Promise<ErrorResult | Stat
         retry = response.status === 403 && !retry;
 
         if (!retry) {
-            const json = await response.json();
-            return response.status === 202 ? json as StatusResult : response.status >= 400 ? json as ErrorResult : json as DataResult<T>;
+            try {
+                const json = await response.json();
+                return response.status === 202 ? json as StatusResult : response.status >= 400 ? json as ErrorResult : json as DataResult<T>;
+            } catch (error) {
+                console.log(response)
+                console.error(error)
+                return { code: response.status, status: response.statusText ?? "Unknown Error" } as ErrorResult
+            }
         }
     }
 }
@@ -155,8 +167,14 @@ export const createResource = async<T>(url: string, resource: T): Promise<ErrorR
         retry = response.status === 403 && !retry;
 
         if (!retry) {
-            const json = await response.json();
-            return response.status === 202 ? json as StatusResult : response.status >= 400 ? json as ErrorResult : json as DataResult<T>;
+            try {
+                const json = await response.json();
+                return response.status === 202 ? json as StatusResult : response.status >= 400 ? json as ErrorResult : json as DataResult<T>;
+            } catch (error) {
+                console.log(response)
+                console.error(error)
+                return { code: response.status, status: response.statusText ?? "Unknown Error" } as ErrorResult
+            }
         }
         // TODO: Poll status
     }
@@ -176,7 +194,8 @@ export const updateResource = async <T>(url: string, resource: T): Promise<DataR
             method: 'PUT',
             mode: 'cors',
             headers: {
-                'Authorization': 'Bearer ' + await getToken(scope, retry)
+                'Authorization': 'Bearer ' + await getToken(scope, retry),
+                'Content-Type': 'application/json'
             },
             body: body
         });
@@ -189,8 +208,14 @@ export const updateResource = async <T>(url: string, resource: T): Promise<DataR
         retry = response.status === 403 && !retry;
 
         if (!retry) {
-            const json = await response.json();
-            return response.status === 202 ? json as StatusResult : response.status >= 400 ? json as ErrorResult : json as DataResult<T>;
+            try {
+                const json = await response.json();
+                return response.status === 202 ? json as StatusResult : response.status >= 400 ? json as ErrorResult : json as DataResult<T>;
+            } catch (error) {
+                console.log(response)
+                console.error(error)
+                return { code: response.status, status: response.statusText ?? "Unknown Error" } as ErrorResult
+            }
         }
         // TODO: Poll status
     }
