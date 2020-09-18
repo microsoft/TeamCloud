@@ -10,6 +10,12 @@ echo   / / / _ \/ __ `/ __ `__ \/ /   / / __ \/ / / / __  /
 echo  / / /  __/ /_/ / / / / / / /___/ / /_/ / /_/ / /_/ /  
 echo /_/  \___/\__,_/_/ /_/ /_/\____/_/\____/\__,_/\__,_/   
 echo.
+echo    ______      
+echo   / ____/___  _____ __
+echo  / /   / __ \/ ___/ _ \ 
+echo / /___/ /_/ / /  /  __/  
+echo \____/\____/_/   \___/   
+echo.
 
 echo - Starting Azure Storage Emulator
 start "" cmd /C azurestorageemulator start
