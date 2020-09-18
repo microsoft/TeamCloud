@@ -3,13 +3,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { ProjectLink, ProjectLinkType, Project, DataResult } from '../model';
-import { Stack, Shimmer, DefaultButton, IButtonStyles, getTheme } from '@fluentui/react';
+import { Stack, Shimmer, DefaultButton, IButtonStyles, getTheme, Image } from '@fluentui/react';
 import { ProjectDetailCard } from './ProjectDetailCard';
-// import { ExampleProjectLinks } from '../data/ExampleData';
-// import AppInsights from '../img/appinsights.svg';
-// import DevOps from '../img/devops.svg';
-// import DevTestLabs from '../img/devtestlabs.svg';
-// import GitHub from '../img/github.svg';
+import AppInsights from '../img/appinsights.svg';
+import DevOps from '../img/devops.svg';
+import DevTestLabs from '../img/devtestlabs.svg';
+import GitHub from '../img/github.svg';
 import { getProjectLinks } from '../API';
 
 
@@ -20,8 +19,6 @@ export interface IProjectLinksProps {
 export const ProjectLinks: React.FunctionComponent<IProjectLinksProps> = (props) => {
 
     const [links, setLinks] = useState<ProjectLink[]>();
-
-    // registerIcons({ icons: { AppInsights, DevOps, DevTestLabs, GitHub } });
 
     useEffect(() => {
         if (props.project) {
@@ -36,15 +33,15 @@ export const ProjectLinks: React.FunctionComponent<IProjectLinksProps> = (props)
     }, [props.project]);
 
 
-    // const _findKnownProviderImage = (link: ProjectLink) => {
-    //     if (link.providerId) {
-    //         if (link.providerId.startsWith('azure.appinsights')) return AppInsights;
-    //         if (link.providerId.startsWith('azure.devops')) return DevOps;
-    //         if (link.providerId.startsWith('azure.devtestlabs')) return DevTestLabs;
-    //         if (link.providerId.startsWith('github')) return GitHub;
-    //     }
-    //     return undefined;
-    // }
+    const _findKnownProviderImage = (link: ProjectLink) => {
+        if (link.href) {
+            if (link.href.includes('providers/Microsoft.Insights')) return AppInsights;
+            if (link.href.includes('dev.azure.com')) return DevOps;
+            if (link.href.includes('providers/Microsoft.DevTestLab')) return DevTestLabs;
+            if (link.href.includes('github.com')) return GitHub;
+        }
+        return undefined;
+    }
 
     const _getLinkTypeIcon = (link: ProjectLink) => {
         switch (link.type) { // VisualStudioIDELogo32
@@ -82,7 +79,11 @@ export const ProjectLinks: React.FunctionComponent<IProjectLinksProps> = (props)
                     text={l.title}
                     href={l.href}
                     target='_blank'
-                    styles={_linkButtonStyles} />
+                    styles={_linkButtonStyles} >
+                    <Image
+                        src={_findKnownProviderImage(l)}
+                        height={24} width={24} />
+                </DefaultButton>
             </Stack.Item>
         </Stack>
     ));
