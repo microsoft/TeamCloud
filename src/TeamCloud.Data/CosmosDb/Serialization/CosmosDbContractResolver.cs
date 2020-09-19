@@ -11,7 +11,7 @@ using Microsoft.CodeAnalysis;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using TeamCloud.Model.Data.Core;
-using TeamCloud.Serialization.Resolver;
+using TeamCloud.Serialization;
 
 namespace TeamCloud.Data.CosmosDb.Serialization
 {

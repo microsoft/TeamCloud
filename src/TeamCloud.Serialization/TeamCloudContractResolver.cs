@@ -5,14 +5,13 @@
 
 using System;
 using System.Collections;
-using System.Collections.Concurrent;
 using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using TeamCloud.Serialization.Converter;
 
-namespace TeamCloud.Serialization.Resolver
+namespace TeamCloud.Serialization
 {
     public class TeamCloudContractResolver : CamelCasePropertyNamesContractResolver
     {

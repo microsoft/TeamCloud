@@ -5,7 +5,10 @@
 
 using System;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
+using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Extensions.DependencyInjection;
 using TeamCloud.Orchestration;
+using TeamCloud.Orchestration.Serialization;
 
 [assembly: FunctionsStartup(typeof(TeamCloudOrchestrationStartup))]
 
@@ -18,6 +21,8 @@ namespace TeamCloud.Orchestration
             if (builder is null)
                 throw new ArgumentNullException(nameof(builder));
 
+            builder.Services
+                .AddSingleton<IMessageSerializerSettingsFactory, MessageSerializerSettingsFactory>();
         }
     }
 }
