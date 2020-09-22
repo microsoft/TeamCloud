@@ -29,16 +29,16 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
 
         [FunctionName(nameof(OrchestratorProviderDeleteCommandOrchestration))]
         public static async Task RunOrchestration(
-            [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
+            [OrchestrationTrigger] IDurableOrchestrationContext orchestrationContext,
             ILogger log)
         {
-            if (functionContext is null)
-                throw new ArgumentNullException(nameof(functionContext));
+            if (orchestrationContext is null)
+                throw new ArgumentNullException(nameof(orchestrationContext));
 
             if (log is null)
                 throw new ArgumentNullException(nameof(log));
 
-            var command = functionContext.GetInput<OrchestratorProviderDeleteCommand>();
+            var command = orchestrationContext.GetInput<OrchestratorProviderDeleteCommand>();
             var commandResult = command.CreateResult();
             var provider = command.Payload;
 
@@ -46,17 +46,17 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
             {
                 try
                 {
-                    using (await functionContext.LockContainerDocumentAsync(provider).ConfigureAwait(true))
+                    using (await orchestrationContext.LockContainerDocumentAsync(provider).ConfigureAwait(true))
                     {
                         if (!(provider is null))
                         {
-                            await functionContext
+                            await orchestrationContext
                                 .DeleteProviderAsync(provider)
                                 .ConfigureAwait(true);
 
                             if (provider.PrincipalId.HasValue)
                             {
-                                await functionContext
+                                await orchestrationContext
                                     .DeleteUserAsync(provider.PrincipalId.Value.ToString(), allowUnsafe: true)
                                     .ConfigureAwait(true);
                             }
@@ -73,11 +73,11 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                     var commandException = commandResult.Errors?.ToException();
 
                     if (commandException is null)
-                        functionContext.SetCustomStatus($"Command succeeded", log);
+                        orchestrationContext.SetCustomStatus($"Command succeeded", log);
                     else
-                        functionContext.SetCustomStatus($"Command failed: {commandException.Message}", log, commandException);
+                        orchestrationContext.SetCustomStatus($"Command failed: {commandException.Message}", log, commandException);
 
-                    functionContext.SetOutput(commandResult);
+                    orchestrationContext.SetOutput(commandResult);
                 }
             }
         }

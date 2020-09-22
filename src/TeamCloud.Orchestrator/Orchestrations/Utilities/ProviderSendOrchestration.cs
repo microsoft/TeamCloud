@@ -11,6 +11,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Newtonsoft.Json;
 using TeamCloud.Model;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
@@ -28,126 +29,127 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
     {
         [FunctionName(nameof(ProviderSendOrchestration))]
         public static async Task<ICommandResult> RunOrchestrator(
-            [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
+            [OrchestrationTrigger] IDurableOrchestrationContext orchestrationContext,
             ILogger log)
         {
-            if (functionContext is null)
-                throw new ArgumentNullException(nameof(functionContext));
+            if (orchestrationContext is null)
+                throw new ArgumentNullException(nameof(orchestrationContext));
 
-            var (command, provider) = functionContext.GetInput<(IProviderCommand, ProviderDocument)>();
-            var commandResult = command.CreateResult();
-            var commandLog = functionContext.CreateReplaySafeLogger(log ?? NullLogger.Instance);
+            var functionContext = orchestrationContext.GetInput<Input>();
 
-            using (log.BeginCommandScope(command, provider))
-            using (functionContext.TrackCommandMetrics(command))
+            var commandResult = functionContext.Command.CreateResult();
+            var commandLog = orchestrationContext.CreateReplaySafeLogger(log ?? NullLogger.Instance);
+
+            using (log.BeginCommandScope(functionContext.Command, functionContext.Provider))
+            using (orchestrationContext.TrackCommandMetrics(functionContext.Command))
             {
                 // if the provider to use only supports the simple command mode
                 // we can not send commands like add, update, or delete project users.
                 // instead we need to send a full project update to process the command!
 
-                var isNotProjectCommandWithProjectId = provider.CommandMode == ProviderCommandMode.Simple
-                                                    && !string.IsNullOrEmpty(command.ProjectId)
-                                                    && !(command is IProviderCommand<Model.Data.Project>);
+                var isNotProjectCommandWithProjectId = functionContext.Provider.CommandMode == ProviderCommandMode.Simple
+                                                    && !string.IsNullOrEmpty(functionContext.Command.ProjectId)
+                                                    && !(functionContext.Command is IProviderCommand<Model.Data.Project>);
 
                 commandResult = isNotProjectCommandWithProjectId
-                    ? await SwitchCommandAsync(functionContext, provider, command, commandResult, commandLog).ConfigureAwait(true)
-                    : await ProcessCommandAsync(functionContext, provider, command, commandResult, commandLog).ConfigureAwait(true);
+                    ? await SwitchCommandAsync(orchestrationContext, functionContext, commandResult, commandLog).ConfigureAwait(true)
+                    : await ProcessCommandAsync(orchestrationContext, functionContext, commandResult, commandLog).ConfigureAwait(true);
             }
 
             return commandResult;
         }
 
-        private static async Task<IProviderCommand> AugmentCommandAsync(IDurableOrchestrationContext functionContext, ProviderDocument provider, IProviderCommand command)
+        private static async Task<IProviderCommand> AugmentCommandAsync(IDurableOrchestrationContext orchestrationContext, Input functionContext)
         {
-            if (!string.IsNullOrEmpty(command.ProjectId))
+            if (!string.IsNullOrEmpty(functionContext.Command.ProjectId))
             {
-                var project = await functionContext
-                    .GetProjectAsync(command.ProjectId, allowUnsafe: true)
+                var project = await orchestrationContext
+                    .GetProjectAsync(functionContext.Command.ProjectId, allowUnsafe: true)
                     .ConfigureAwait(true);
 
                 var providerReference = project.Type.Providers
-                    .Single(pr => pr.Id == provider.Id);
+                    .Single(pr => pr.Id == functionContext.Provider.Id);
 
-                command.Properties = provider.Properties.Resolve(project)
+                functionContext.Command.Properties = functionContext.Provider.Properties.Resolve(project)
                     .Override(project.Type.Properties.Resolve(project))
                     .Override(project.Properties.Resolve(project))
-                    .Override(provider.Properties.Resolve(project))
+                    .Override(functionContext.Provider.Properties.Resolve(project))
                     .Override(providerReference.Properties.Resolve(project));
             }
             else
             {
-                command.Properties = provider.Properties.Resolve();
+                functionContext.Command.Properties = functionContext.Provider.Properties.Resolve();
             }
 
-            if (command.Payload is IProperties payloadWithProperties)
+            if (functionContext.Command.Payload is IProperties payloadWithProperties)
             {
-                payloadWithProperties.Properties = payloadWithProperties.Properties.Resolve(command.Payload);
+                payloadWithProperties.Properties = payloadWithProperties.Properties.Resolve(functionContext.Command.Payload);
             }
 
-            return command;
+            return functionContext.Command;
         }
 
 
-        private static async Task<ICommandResult> ProcessCommandAsync(IDurableOrchestrationContext functionContext, ProviderDocument provider, IProviderCommand command, ICommandResult commandResult, ILogger log)
+        private static async Task<ICommandResult> ProcessCommandAsync(IDurableOrchestrationContext orchestrationContext, Input functionContext, ICommandResult commandResult, ILogger log)
         {
             var commandMessage = default(ICommandMessage);
             var commandCallback = default(string);
 
             try
             {
-                functionContext.SetCustomStatus($"Acquire callback url", log);
+                orchestrationContext.SetCustomStatus($"Acquire callback url", log);
 
-                commandCallback = await functionContext
-                    .CallActivityWithRetryAsync<string>(nameof(CallbackUrlGetActivity), (functionContext.InstanceId, command))
+                commandCallback = await orchestrationContext
+                    .CallActivityWithRetryAsync<string>(nameof(CallbackUrlGetActivity), new CallbackUrlGetActivity.Input() { InstanceId = orchestrationContext.InstanceId, Command = functionContext.Command })
                     .ConfigureAwait(true);
 
-                commandMessage = new ProviderCommandMessage(command, commandCallback);
+                commandMessage = new ProviderCommandMessage(functionContext.Command, commandCallback);
 
-                if (!(command is ProviderRegisterCommand) && !provider.Registered.HasValue)
+                if (!(functionContext.Command is ProviderRegisterCommand) && !functionContext.Provider.Registered.HasValue)
                 {
-                    log.LogInformation($"Register provider {provider.Id} for command {command.CommandId}");
+                    log.LogInformation($"Register provider {functionContext.Provider.Id} for command {functionContext.Command.CommandId}");
 
-                    await functionContext
-                        .RegisterProviderAsync(provider, true)
+                    await orchestrationContext
+                        .RegisterProviderAsync(functionContext.Provider, true)
                         .ConfigureAwait(true);
                 }
 
-                if (!string.IsNullOrEmpty(command.ProjectId) && provider.PrincipalId.HasValue)
+                if (!string.IsNullOrEmpty(functionContext.Command.ProjectId) && functionContext.Provider.PrincipalId.HasValue)
                 {
-                    log.LogInformation($"Enable provider {provider.Id} for command {command.CommandId}");
+                    log.LogInformation($"Enable provider {functionContext.Provider.Id} for command {functionContext.Command.CommandId}");
 
-                    await functionContext
-                        .CallActivityWithRetryAsync(nameof(ProjectResourcesAccessActivity), (command.ProjectId, provider.PrincipalId.Value))
+                    await orchestrationContext
+                        .CallActivityWithRetryAsync(nameof(ProjectResourcesAccessActivity), new ProjectResourcesAccessActivity.Input() { ProjectId = functionContext.Command.ProjectId, PrincipalId = functionContext.Provider.PrincipalId.Value })
                         .ConfigureAwait(true);
                 }
 
-                functionContext.SetCustomStatus($"Augmenting command", log);
+                orchestrationContext.SetCustomStatus($"Augmenting command", log);
 
-                command = await AugmentCommandAsync(functionContext, provider, command)
+                functionContext.Command = await AugmentCommandAsync(orchestrationContext, functionContext)
                     .ConfigureAwait(true);
 
-                await functionContext
-                    .AuditAsync(command, commandResult, provider)
+                await orchestrationContext
+                    .AuditAsync(functionContext.Command, commandResult, functionContext.Provider)
                     .ConfigureAwait(true);
 
                 try
                 {
-                    functionContext.SetCustomStatus($"Sending command", log);
+                    orchestrationContext.SetCustomStatus($"Sending command", log);
 
-                    commandResult = await functionContext
-                        .CallActivityWithRetryAsync<ICommandResult>(nameof(CommandSendActivity), (provider, commandMessage))
+                    commandResult = await orchestrationContext
+                        .CallActivityWithRetryAsync<ICommandResult>(nameof(CommandSendActivity), new CommandSendActivity.Input() { Provider = functionContext.Provider, CommandMessage = commandMessage })
                         .ConfigureAwait(true);
                 }
                 catch (RetryCanceledException)
                 {
-                    commandResult = await functionContext
-                        .CallActivityWithRetryAsync<ICommandResult>(nameof(CommandResultFetchActivity), (provider, commandMessage))
+                    commandResult = await orchestrationContext
+                        .CallActivityWithRetryAsync<ICommandResult>(nameof(CommandResultFetchActivity), new CommandResultFetchActivity.Input() { Provider = functionContext.Provider, CommandMessage = commandMessage })
                         .ConfigureAwait(true);
                 }
                 finally
                 {
-                    await functionContext
-                        .AuditAsync(command, commandResult, provider)
+                    await orchestrationContext
+                        .AuditAsync(functionContext.Command, commandResult, functionContext.Provider)
                         .ConfigureAwait(true);
                 }
 
@@ -157,10 +159,10 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                         ? commandResult.Timeout         // use the timeout reported back by the provider
                         : CommandResult.MaximumTimeout; // use the defined maximum timeout
 
-                    functionContext.SetCustomStatus($"Waiting for command result", log);
+                    orchestrationContext.SetCustomStatus($"Waiting for command result", log);
 
-                    commandResult = await functionContext
-                        .WaitForExternalEvent<ICommandResult>(command.CommandId.ToString(), commandTimeout, null)
+                    commandResult = await orchestrationContext
+                        .WaitForExternalEvent<ICommandResult>(functionContext.Command.CommandId.ToString(), commandTimeout, null)
                         .ConfigureAwait(true);
 
                     if (commandResult is null)
@@ -169,8 +171,8 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                         // lets give our provider a last
                         // chance to return a command result
 
-                        commandResult = await functionContext
-                            .CallActivityWithRetryAsync<ICommandResult>(nameof(CommandResultFetchActivity), (provider, commandMessage))
+                        commandResult = await orchestrationContext
+                            .CallActivityWithRetryAsync<ICommandResult>(nameof(CommandResultFetchActivity), new CommandResultFetchActivity.Input() { Provider = functionContext.Provider, CommandMessage = commandMessage })
                             .ConfigureAwait(true);
 
                         if (commandResult.RuntimeStatus.IsActive())
@@ -178,25 +180,25 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                             // the last change result still doesn't report a final runtime status
                             // escalate the timeout by throwing an appropriate exception
 
-                            throw new TimeoutException($"Provider '{provider.Id}' ran into timeout ({commandTimeout})");
+                            throw new TimeoutException($"Provider '{functionContext.Provider.Id}' ran into timeout ({commandTimeout})");
                         }
                     }
                 }
             }
             catch (Exception exc)
             {
-                functionContext.SetCustomStatus($"Sending command failed: {exc.Message}", log, exc);
+                orchestrationContext.SetCustomStatus($"Sending command failed: {exc.Message}", log, exc);
 
-                commandResult ??= command.CreateResult();
+                commandResult ??= functionContext.Command.CreateResult();
                 commandResult.Errors.Add(exc.AsSerializable());
             }
             finally
             {
-                await functionContext
-                    .AuditAsync(command, commandResult, provider)
+                await orchestrationContext
+                    .AuditAsync(functionContext.Command, commandResult, functionContext.Provider)
                     .ConfigureAwait(true);
 
-                await ProcessOutputAsync(functionContext, provider, command, commandResult)
+                await ProcessOutputAsync(orchestrationContext, functionContext.Provider, functionContext.Command, commandResult)
                     .ConfigureAwait(true);
             }
 
@@ -204,35 +206,29 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
         }
 
 
-        private static async Task<ICommandResult> SwitchCommandAsync(IDurableOrchestrationContext functionContext, ProviderDocument provider, IProviderCommand command, ICommandResult commandResult, ILogger log)
+        private static async Task<ICommandResult> SwitchCommandAsync(IDurableOrchestrationContext orchestrationContext, Input functionContext, ICommandResult commandResult, ILogger log)
         {
             try
             {
-                await functionContext
-                    .AuditAsync(command, commandResult, provider)
+                await orchestrationContext
+                    .AuditAsync(functionContext.Command, commandResult, functionContext.Provider)
                     .ConfigureAwait(true);
 
-                functionContext.SetCustomStatus($"Switching command", log);
+                orchestrationContext.SetCustomStatus($"Switching command", log);
 
-                var project = await functionContext
-                    .GetProjectAsync(command.ProjectId, allowUnsafe: true)
+                var project = await orchestrationContext
+                    .GetProjectAsync(functionContext.Command.ProjectId, allowUnsafe: true)
                     .ConfigureAwait(true);
 
-                functionContext.ContinueAsNew((
-                    new ProviderProjectUpdateCommand
-                    (
-                        command.User as Model.Data.User,
-                        project.PopulateExternalModel(),
-                        command.CommandId),
-                        provider
-                    )
-                );
+                functionContext.Command = new ProviderProjectUpdateCommand(functionContext.Command.User as Model.Data.User, project.PopulateExternalModel(), functionContext.Command.CommandId);
+
+                orchestrationContext.ContinueAsNew(functionContext);
             }
             catch (Exception exc)
             {
-                functionContext.SetCustomStatus($"Switching command failed: {exc.Message}", log, exc);
+                orchestrationContext.SetCustomStatus($"Switching command failed: {exc.Message}", log, exc);
 
-                commandResult ??= command.CreateResult();
+                commandResult ??= functionContext.Command.CreateResult();
                 commandResult.Errors.Add(exc);
             }
 
@@ -240,13 +236,13 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
         }
 
 
-        private static async Task ProcessOutputAsync(IDurableOrchestrationContext functionContext, ProviderDocument provider, IProviderCommand command, ICommandResult commandResult)
+        private static async Task ProcessOutputAsync(IDurableOrchestrationContext orchestrationContext, ProviderDocument provider, IProviderCommand command, ICommandResult commandResult)
         {
             if (!string.IsNullOrEmpty(command.ProjectId) && commandResult is ICommandResult<ProviderOutput> providerOutputResult)
             {
-                using (await functionContext.LockAsync<ProjectDocument>(command.ProjectId).ConfigureAwait(true))
+                using (await orchestrationContext.LockAsync<ProjectDocument>(command.ProjectId).ConfigureAwait(true))
                 {
-                    var project = await functionContext
+                    var project = await orchestrationContext
                         .GetProjectAsync(command.ProjectId)
                         .ConfigureAwait(true);
 
@@ -264,12 +260,166 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                                 (providerReference.Metadata[commandType] ?? new Dictionary<string, string>()).Override(resultProperties);
                         }
 
-                        project = await functionContext
+                        project = await orchestrationContext
                             .SetProjectAsync(project)
                             .ConfigureAwait(true);
                     }
                 }
             }
+        }
+
+        public struct Input
+        {
+            public ProviderDocument Provider { get; set; }
+
+            public IProviderCommand Command { get; set; }
+        }
+    }
+
+    internal static class ProviderSendExtensions
+    {
+        internal static async Task<string> SendProviderCommandAsync<TCommand>(this IDurableClient durableClient, TCommand command, ProviderDocument provider)
+            where TCommand : IProviderCommand
+        {
+            if (command is null)
+                throw new ArgumentNullException(nameof(command));
+
+            if (provider is null)
+                throw new ArgumentNullException(nameof(provider));
+
+            var commandJson = JsonConvert.SerializeObject(command);
+            var commandCopy = JsonConvert.DeserializeObject<TCommand>(commandJson);
+
+            // ensure our commmand copy contains
+            // the right provider id information
+            commandCopy.ProviderId = provider.Id;
+
+
+            // we define the orchestration instance id upfront
+            // so we can check if the orchestration start fails
+            // if this is because of a duplicate command operation
+            var instanceId = $"{command.CommandId}@{provider.Id}";
+
+            try
+            {
+                return await durableClient
+                    .StartNewAsync(nameof(ProviderSendOrchestration), instanceId, new ProviderSendOrchestration.Input() { Command = command, Provider = provider })
+                    .ConfigureAwait(false);
+            }
+            catch
+            {
+                if ((await durableClient.GetStatusAsync(instanceId).ConfigureAwait(false)) is null) throw;
+
+                throw new NotSupportedException($"Command {command.CommandId} can only sent once to provider {provider.Id}");
+            }
+        }
+
+        internal static async Task<TCommandResult> SendProviderCommandAsync<TCommand, TCommandResult>(this IDurableOrchestrationContext orchestrationContext, TCommand command)
+            where TCommand : IProviderCommand
+            where TCommandResult : ICommandResult
+        {
+            if (command is null)
+                throw new ArgumentNullException(nameof(command));
+
+            var providers = await orchestrationContext
+                .ListProvidersAsync()
+                .ConfigureAwait(true);
+
+            var providerTasks = providers.Select(p => orchestrationContext.SendProviderCommandAsync<TCommand, TCommandResult>(command, p));
+
+            var providerResults = await Task
+                .WhenAll(providerTasks)
+                .ConfigureAwait(true);
+
+            var providerResult = (TCommandResult)command.CreateResult();
+
+            providerResults.SelectMany(r => r.Errors).ToList().ForEach(e => providerResult.Errors.Add(e));
+
+            return providerResult;
+        }
+
+
+        internal static async Task<TCommandResult> SendProviderCommandAsync<TCommand, TCommandResult>(this IDurableOrchestrationContext orchestrationContext, TCommand command, ProviderDocument provider)
+            where TCommand : IProviderCommand
+            where TCommandResult : ICommandResult
+        {
+            if (command is null)
+                throw new ArgumentNullException(nameof(command));
+
+            if (provider is null)
+                throw new ArgumentNullException(nameof(provider));
+
+            command.ProviderId = provider.Id;
+
+            var providerResult = (TCommandResult)await orchestrationContext
+                .CallSubOrchestratorWithRetryAsync<ICommandResult>(nameof(ProviderSendOrchestration), new ProviderSendOrchestration.Input() { Command = command, Provider = provider })
+                .ConfigureAwait(true);
+
+            if (providerResult is null)
+            {
+                providerResult = (TCommandResult)command.CreateResult();
+                providerResult.Errors.Add(new NullReferenceException($"Provider '{provider.Id}' returned no result for command '{command.CommandId}'"));
+            }
+
+            return providerResult;
+        }
+
+
+        internal static Task<IDictionary<string, ICommandResult>> SendProviderCommandAsync<TCommand>(this IDurableOrchestrationContext orchestrationContext, TCommand command, ProjectDocument project, bool failFast = false)
+            where TCommand : IProviderCommand
+            => orchestrationContext.SendProviderCommandAsync<TCommand, ICommandResult>(command, project, failFast);
+
+
+        internal static async Task<IDictionary<string, TCommandResult>> SendProviderCommandAsync<TCommand, TCommandResult>(this IDurableOrchestrationContext orchestrationContext, TCommand command, ProjectDocument project, bool failFast = false)
+            where TCommand : IProviderCommand
+            where TCommandResult : ICommandResult
+        {
+            if (command is null)
+                throw new ArgumentNullException(nameof(command));
+
+            if (project is null && command is IProviderCommand<Model.Data.Project>)
+                throw new InvalidOperationException("Must pass original ProjectDocument (internal) for ProviderCommands with a payload of type Project (external).");
+
+            if (project is null && !string.IsNullOrEmpty(command.ProjectId))
+            {
+                project = await orchestrationContext
+                    .GetProjectAsync(command.ProjectId, allowUnsafe: true)
+                    .ConfigureAwait(true);
+            }
+
+            var providerBatches = await orchestrationContext
+                .CallActivityWithRetryAsync<IEnumerable<IEnumerable<ProviderDocument>>>(nameof(CommandProviderActivity), project)
+                .ConfigureAwait(true);
+
+            var commandResults = Enumerable.Empty<KeyValuePair<string, TCommandResult>>();
+
+            foreach (var providerBatch in providerBatches)
+            {
+                foreach (var commandResult in commandResults.Where(cr => cr.Value is ICommandResult<ProviderOutput>))
+                {
+                    var commandResultOutput = commandResult.Value as ICommandResult<ProviderOutput>;
+
+                    command.Results.TryAdd(commandResult.Key, commandResultOutput?.Result?.Properties ?? new Dictionary<string, string>());
+                }
+
+                var providerTasks = providerBatch.Select(async provider =>
+                {
+                    var providerResult = await orchestrationContext
+                        .SendProviderCommandAsync<TCommand, TCommandResult>(command, provider)
+                        .ConfigureAwait(true);
+
+                    return new KeyValuePair<string, TCommandResult>(provider.Id, providerResult);
+                });
+
+                commandResults = commandResults.Concat(await Task
+                    .WhenAll(providerTasks)
+                    .ConfigureAwait(true));
+
+                if (failFast && commandResults.Any(cr => cr.Value.Errors.Any()))
+                    break;
+            }
+
+            return new Dictionary<string, TCommandResult>(commandResults);
         }
     }
 }

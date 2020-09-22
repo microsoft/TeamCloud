@@ -22,10 +22,10 @@ namespace TeamCloud.Orchestrator.Activities
 
         [FunctionName(nameof(TeamCloudSystemUserActivity))]
         public async Task<UserDocument> RunActivity(
-            [ActivityTrigger] IDurableActivityContext functionContext)
+            [ActivityTrigger] IDurableActivityContext activityContext)
         {
-            if (functionContext is null)
-                throw new System.ArgumentNullException(nameof(functionContext));
+            if (activityContext is null)
+                throw new System.ArgumentNullException(nameof(activityContext));
 
             var systemIdentity = await azureSessionService
                 .GetIdentityAsync()

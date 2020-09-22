@@ -23,27 +23,27 @@ namespace TeamCloud.Orchestrator.Activities
 
         [FunctionName(nameof(ProjectSubscriptionVersionActivity))]
         public async Task<string> RunActivity(
-            [ActivityTrigger] IDurableActivityContext functionContext)
+            [ActivityTrigger] IDurableActivityContext activitiyContext)
         {
             const string SubscriptionVersionDefault = "0.0.0.0";
             const string SubscriptionVersionTag = "TeamCloudVersion";
 
-            if (functionContext is null)
-                throw new ArgumentNullException(nameof(functionContext));
+            if (activitiyContext is null)
+                throw new ArgumentNullException(nameof(activitiyContext));
 
-            var (subscriptionId, subscriptionVersion) = functionContext.GetInput<(Guid, string)>();
+            var functionInput = activitiyContext.GetInput<Input>();
 
             var subscription = await azureResourceService
-                .GetSubscriptionAsync(subscriptionId, throwIfNotExists: true)
+                .GetSubscriptionAsync(functionInput.SubscriptionId, throwIfNotExists: true)
                 .ConfigureAwait(false);
 
-            if (!string.IsNullOrEmpty(subscriptionVersion) && !subscriptionVersion.Equals(await GetCurrentSubscribtionVersionAsync().ConfigureAwait(false), StringComparison.OrdinalIgnoreCase))
+            if (!string.IsNullOrEmpty(functionInput.SubscriptionVersion) && !functionInput.SubscriptionVersion.Equals(await GetCurrentSubscribtionVersionAsync().ConfigureAwait(false), StringComparison.OrdinalIgnoreCase))
             {
                 await subscription
-                    .SetTagAsync(SubscriptionVersionTag, subscriptionVersion)
+                    .SetTagAsync(SubscriptionVersionTag, functionInput.SubscriptionVersion)
                     .ConfigureAwait(false);
 
-                return subscriptionVersion;
+                return functionInput.SubscriptionVersion;
             }
 
             return await GetCurrentSubscribtionVersionAsync()
@@ -62,23 +62,41 @@ namespace TeamCloud.Orchestrator.Activities
             }
         }
 
+        public struct Input
+        {
+            public Guid SubscriptionId { get; set; }
+
+            public string SubscriptionVersion { get; set; }
+        }
+
     }
 
     internal static class ProjectSubscriptionVersionExtension
     {
-        internal static async Task<Version> GetSubscriptionVersionAsync(this IDurableOrchestrationContext functionContext, Guid subscriptionId)
+        internal static async Task<Version> GetSubscriptionVersionAsync(this IDurableOrchestrationContext orchestrationContext, Guid subscriptionId)
         {
-            var version = await functionContext
-                .CallActivityWithRetryAsync<string>(nameof(ProjectSubscriptionVersionActivity), (subscriptionId, default(Version)))
+            var input = new ProjectSubscriptionVersionActivity.Input()
+            {
+                SubscriptionId = subscriptionId
+            };
+
+            var version = await orchestrationContext
+                .CallActivityWithRetryAsync<string>(nameof(ProjectSubscriptionVersionActivity), input)
                 .ConfigureAwait(true);
 
             return Version.Parse(version);
         }
 
-        internal static async Task<Version> SetSubscriptionVersionAsync(this IDurableOrchestrationContext functionContext, Guid subscriptionId, Version teamCloudVersion)
+        internal static async Task<Version> SetSubscriptionVersionAsync(this IDurableOrchestrationContext orchestrationContext, Guid subscriptionId, Version teamCloudVersion)
         {
-            var version = await functionContext
-                .CallActivityWithRetryAsync<string>(nameof(ProjectSubscriptionVersionActivity), (subscriptionId, teamCloudVersion?.ToString(4) ?? throw new ArgumentNullException(nameof(teamCloudVersion))))
+            var input = new ProjectSubscriptionVersionActivity.Input()
+            {
+                SubscriptionId = subscriptionId,
+                SubscriptionVersion = teamCloudVersion?.ToString(4) ?? throw new ArgumentNullException(nameof(teamCloudVersion))
+            };
+
+            var version = await orchestrationContext
+                .CallActivityWithRetryAsync<string>(nameof(ProjectSubscriptionVersionActivity), input)
                 .ConfigureAwait(true);
 
             return Version.Parse(version);

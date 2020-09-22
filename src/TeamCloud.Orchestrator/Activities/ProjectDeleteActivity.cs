@@ -9,6 +9,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Data;
 using TeamCloud.Model.Data;
+using TeamCloud.Orchestration;
 
 namespace TeamCloud.Orchestrator.Activities
 {
@@ -23,14 +24,22 @@ namespace TeamCloud.Orchestrator.Activities
 
         [FunctionName(nameof(ProjectDeleteActivity))]
         public async Task RunActivity(
-            [ActivityTrigger] ProjectDocument project)
+            [ActivityTrigger] IDurableActivityContext activityContext)
         {
-            if (project is null)
-                throw new ArgumentNullException(nameof(project));
+            if (activityContext is null)
+                throw new ArgumentNullException(nameof(activityContext));
+
+            var project = activityContext.GetInput<ProjectDocument>();
 
             _ = await projectsRepository
                 .RemoveAsync(project)
                 .ConfigureAwait(false);
         }
+    }
+
+    internal static class ProjectDeleteExtension
+    {
+        public static Task<ProjectDocument> DeleteProjectAsync(this IDurableOrchestrationContext orchestrationContext, ProjectDocument project)
+            => orchestrationContext.CallActivityWithRetryAsync<ProjectDocument>(nameof(ProjectDeleteActivity), project);
     }
 }

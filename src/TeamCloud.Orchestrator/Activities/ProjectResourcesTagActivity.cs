@@ -24,11 +24,13 @@ namespace TeamCloud.Orchestrator.Activities
 
         [FunctionName(nameof(ProjectResourcesTagActivity))]
         public async Task RunActivity(
-            [ActivityTrigger] ProjectDocument project,
+            [ActivityTrigger] IDurableActivityContext activityContext,
             ILogger log)
         {
-            if (project == null)
-                throw new ArgumentNullException(nameof(project));
+            if (activityContext == null)
+                throw new ArgumentNullException(nameof(activityContext));
+
+            var project = activityContext.GetInput<ProjectDocument>();
 
             if (!string.IsNullOrEmpty(project.ResourceGroup?.Id))
             {

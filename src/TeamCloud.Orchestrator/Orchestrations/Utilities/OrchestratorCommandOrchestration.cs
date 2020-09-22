@@ -20,27 +20,27 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
     {
         [FunctionName(nameof(OrchestratorCommandOrchestration))]
         public static async Task RunOrchestrator(
-            [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
+            [OrchestrationTrigger] IDurableOrchestrationContext orchestrationContext,
             ILogger log)
         {
-            if (functionContext is null)
-                throw new ArgumentNullException(nameof(functionContext));
+            if (orchestrationContext is null)
+                throw new ArgumentNullException(nameof(orchestrationContext));
 
-            var command = functionContext.GetInput<ICommand>();
+            var command = orchestrationContext.GetInput<ICommand>();
             var commandResult = command.CreateResult();
-            var commandLog = functionContext.CreateReplaySafeLogger(log ?? NullLogger.Instance);
+            var commandLog = orchestrationContext.CreateReplaySafeLogger(log ?? NullLogger.Instance);
 
             try
             {
-                functionContext.SetCustomStatus("Auditing command", log);
+                orchestrationContext.SetCustomStatus("Auditing command", log);
 
-                await functionContext
+                await orchestrationContext
                     .AuditAsync(command, commandResult)
                     .ConfigureAwait(true);
 
-                functionContext.SetCustomStatus("Processing command", log);
+                orchestrationContext.SetCustomStatus("Processing command", log);
 
-                commandResult = await functionContext
+                commandResult = await orchestrationContext
                     .CallSubOrchestratorWithRetryAsync<ICommandResult>(OrchestratorCommandOrchestrationHandler.GetCommandOrchestrationName(command), command.CommandId.ToString(), command)
                     .ConfigureAwait(true);
             }
@@ -53,9 +53,9 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
             {
                 try
                 {
-                    functionContext.SetCustomStatus("Augmenting command result", log);
+                    orchestrationContext.SetCustomStatus("Augmenting command result", log);
 
-                    commandResult = await functionContext
+                    commandResult = await orchestrationContext
                         .CallActivityWithRetryAsync<ICommandResult>(nameof(CommandResultAugmentActivity), commandResult)
                         .ConfigureAwait(true);
                 }
@@ -65,21 +65,75 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                     commandResult.Errors.Add(exc);
                 }
 
-                functionContext.SetCustomStatus("Auditing command result", log);
+                orchestrationContext.SetCustomStatus("Auditing command result", log);
 
-                await functionContext
+                await orchestrationContext
                     .AuditAsync(command, commandResult)
                     .ConfigureAwait(true);
 
                 var commandException = commandResult.Errors?.ToException();
 
                 if (commandException is null)
-                    functionContext.SetCustomStatus($"Command succeeded", log);
+                    orchestrationContext.SetCustomStatus($"Command succeeded", log);
                 else
-                    functionContext.SetCustomStatus($"Command failed: {commandException.Message}", log, commandException);
+                    orchestrationContext.SetCustomStatus($"Command failed: {commandException.Message}", log, commandException);
 
-                functionContext.SetOutput(commandResult);
+                orchestrationContext.SetOutput(commandResult);
             }
         }
     }
+
+    internal static class OrchestratorCommandExtensions
+    {
+        internal static async Task<ICommand> GetCommandAsync(this IDurableClient durableClient, Guid commandId)
+        {
+            if (durableClient is null)
+                throw new ArgumentNullException(nameof(durableClient));
+
+            var commandStatus = await durableClient
+                .GetStatusAsync(OrchestratorCommandOrchestrationHandler.GetCommandOrchestrationWrapperInstanceId(commandId))
+                .ConfigureAwait(false);
+
+            return (commandStatus?.Input?.HasValues ?? false)
+                ? commandStatus.Input.ToObject<ICommand>()
+                : null;
+        }
+
+        internal static Task<ICommandResult> GetCommandResultAsync(this IDurableClient durableClient, ICommand command)
+            => GetCommandResultAsync(durableClient, command?.CommandId ?? throw new ArgumentNullException(nameof(command)));
+
+        internal static async Task<ICommandResult> GetCommandResultAsync(this IDurableClient durableClient, Guid commandId)
+        {
+            if (durableClient is null)
+                throw new ArgumentNullException(nameof(durableClient));
+
+            var commandStatus = await durableClient
+                .GetStatusAsync(OrchestratorCommandOrchestrationHandler.GetCommandOrchestrationInstanceId(commandId))
+                .ConfigureAwait(false);
+
+            if (commandStatus?.RuntimeStatus.IsFinal() ?? true)
+            {
+                // we use the command wrapper status as a fallback if there is no orchstration status available
+                // for the command itself, but also if the command orchestration reached a final state and we
+                // need to return the overall processing status (incl. all tasks managed by the wrapper)
+
+                commandStatus = await durableClient
+                    .GetStatusAsync(OrchestratorCommandOrchestrationHandler.GetCommandOrchestrationWrapperInstanceId(commandId))
+                    .ConfigureAwait(false) ?? commandStatus; // final fallback if there is no wrapper orchstration
+            }
+
+            if (commandStatus != null)
+            {
+                var commandResult = commandStatus.Output.HasValues
+                    ? commandStatus.Output.ToObject<ICommandResult>()
+                    : commandStatus.Input.ToObject<ICommand>().CreateResult(); // fallback to the default command result
+
+                return commandResult.ApplyStatus(commandStatus);
+            }
+
+            return null;
+        }
+
+    }
+
 }

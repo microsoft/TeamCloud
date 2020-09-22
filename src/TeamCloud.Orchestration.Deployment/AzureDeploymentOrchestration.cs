@@ -23,84 +23,96 @@ namespace TeamCloud.Orchestration.Deployment
     {
         [FunctionName(nameof(AzureDeploymentOrchestration)), RetryOptions(3)]
         public static async Task RunOrchestrator(
-            [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
+            [OrchestrationTrigger] IDurableOrchestrationContext orchestrationContext,
 
             ILogger log)
         {
-            if (functionContext is null)
-                throw new ArgumentNullException(nameof(functionContext));
+            if (orchestrationContext is null)
+                throw new ArgumentNullException(nameof(orchestrationContext));
 
-            (string deploymentOwnerInstanceId, string deploymentActivityName, object deploymentActivityInput, string deploymentResourceId, string deploymentOutputEventName)
-                = functionContext.GetInput<(string, string, object, string, string)>();
-
-            var deploymentLog = functionContext.CreateReplaySafeLogger(log ?? NullLogger.Instance);
+            var functionInput = orchestrationContext.GetInput<Input>();
+            var functionLog = orchestrationContext.CreateReplaySafeLogger(log ?? NullLogger.Instance);
 
             try
             {
-                if (string.IsNullOrEmpty(deploymentResourceId))
+                if (string.IsNullOrEmpty(functionInput.DeploymentResourceId))
                 {
-                    functionContext.SetCustomStatus($"Starting deployment using activity '{deploymentActivityName}'", deploymentLog);
+                    orchestrationContext.SetCustomStatus($"Starting deployment using activity '{functionInput.DeploymentActivityName}'", functionLog);
 
-                    deploymentResourceId = await functionContext
-                        .CallActivityWithRetryAsync<string>(deploymentActivityName, deploymentActivityInput)
+                    functionInput.DeploymentResourceId = await orchestrationContext
+                        .CallActivityWithRetryAsync<string>(functionInput.DeploymentActivityName, functionInput.DeploymentActivityInput)
                         .ConfigureAwait(true);
 
-                    if (!string.IsNullOrEmpty(deploymentResourceId))
+                    if (!string.IsNullOrEmpty(functionInput.DeploymentResourceId))
                     {
-                        functionContext.SetCustomStatus($"Monitoring deployment '{deploymentResourceId}'", deploymentLog);
+                        orchestrationContext.SetCustomStatus($"Monitoring deployment '{functionInput.DeploymentResourceId}'", functionLog);
 
-                        functionContext.ContinueAsNew((deploymentOwnerInstanceId, deploymentActivityName, deploymentActivityInput, deploymentResourceId, deploymentOutputEventName));
+                        orchestrationContext.ContinueAsNew(functionInput);
                     }
                 }
                 else
                 {
-                    await functionContext
-                        .CreateTimer(functionContext.CurrentUtcDateTime.AddSeconds(10), CancellationToken.None)
+                    await orchestrationContext
+                        .CreateTimer(orchestrationContext.CurrentUtcDateTime.AddSeconds(10), CancellationToken.None)
                         .ConfigureAwait(true);
 
-                    var state = await functionContext
-                        .CallActivityWithRetryAsync<AzureDeploymentState>(nameof(AzureDeploymentStateActivity), deploymentResourceId)
+                    var state = await orchestrationContext
+                        .CallActivityWithRetryAsync<AzureDeploymentState>(nameof(AzureDeploymentStateActivity), functionInput.DeploymentResourceId)
                         .ConfigureAwait(true);
 
                     if (state.IsProgressState())
                     {
-                        functionContext
-                            .ContinueAsNew((deploymentOwnerInstanceId, deploymentActivityName, deploymentActivityInput, deploymentResourceId, deploymentOutputEventName));
+                        orchestrationContext
+                            .ContinueAsNew(functionInput);
                     }
                     else if (state.IsErrorState())
                     {
-                        var errors = (await functionContext
-                            .CallActivityWithRetryAsync<IEnumerable<string>>(nameof(AzureDeploymentErrorsActivity), deploymentResourceId)
+                        var errors = (await orchestrationContext
+                            .CallActivityWithRetryAsync<IEnumerable<string>>(nameof(AzureDeploymentErrorsActivity), functionInput.DeploymentResourceId)
                             .ConfigureAwait(true)) ?? Enumerable.Empty<string>();
 
                         foreach (var error in errors)
-                            deploymentLog.LogError($"Deployment '{deploymentResourceId}' reported error: {error}");
+                            functionLog.LogError($"Deployment '{functionInput.DeploymentResourceId}' reported error: {error}");
 
-                        throw new AzureDeploymentException($"Deployment '{deploymentResourceId}' failed", deploymentResourceId, errors.ToArray());
+                        throw new AzureDeploymentException($"Deployment '{functionInput.DeploymentResourceId}' failed", functionInput.DeploymentResourceId, errors.ToArray());
                     }
                     else
                     {
-                        var output = await functionContext
-                            .GetDeploymentOutputAsync(deploymentResourceId)
+                        var output = await orchestrationContext
+                            .GetDeploymentOutputAsync(functionInput.DeploymentResourceId)
                             .ConfigureAwait(true);
 
-                        if (!string.IsNullOrEmpty(deploymentOutputEventName))
+                        if (!string.IsNullOrEmpty(functionInput.DeploymentOutputEventName))
                         {
-                            await functionContext
-                                .RaiseEventAsync(deploymentOwnerInstanceId, deploymentOutputEventName, output)
+                            await orchestrationContext
+                                .RaiseEventAsync(functionInput.DeploymentOwnerInstanceId, functionInput.DeploymentOutputEventName, output)
                                 .ConfigureAwait(true);
                         }
 
-                        functionContext.SetOutput(output);
+                        orchestrationContext.SetOutput(output);
                     }
                 }
             }
             catch (Exception exc)
             {
-                deploymentLog.LogError(exc, $"Orchestration '{nameof(AzureDeploymentOrchestration)}' failed: {exc.Message}");
+                functionLog.LogError(exc, $"Orchestration '{nameof(AzureDeploymentOrchestration)}' failed: {exc.Message}");
 
                 throw exc.AsSerializable();
             }
         }
+
+        public struct Input
+        {
+            public string DeploymentOwnerInstanceId { get; set; }
+
+            public string DeploymentActivityName { get; set; }
+
+            public object DeploymentActivityInput { get; set; }
+
+            public string DeploymentResourceId { get; set; }
+
+            public string DeploymentOutputEventName { get; set; }
+        }
+
     }
 }

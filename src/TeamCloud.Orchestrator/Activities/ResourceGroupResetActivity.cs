@@ -31,13 +31,13 @@ namespace TeamCloud.Orchestrator.Activities
         [FunctionName(nameof(ResourceGroupResetActivity))]
         [RetryOptions(3)]
         public async Task<string> RunActivity(
-            [ActivityTrigger] IDurableActivityContext functionContext,
+            [ActivityTrigger] IDurableActivityContext activityContext,
             ILogger log)
         {
-            if (functionContext is null)
-                throw new ArgumentNullException(nameof(functionContext));
+            if (activityContext is null)
+                throw new ArgumentNullException(nameof(activityContext));
 
-            var resourceId = functionContext.GetInput<string>();
+            var resourceId = activityContext.GetInput<string>();
 
             try
             {

@@ -26,16 +26,16 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
     {
         [FunctionName(nameof(OrchestratorProjectCreateCommandOrchestration))]
         public static async Task RunOrchestration(
-            [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
+            [OrchestrationTrigger] IDurableOrchestrationContext orchestrationContext,
             ILogger log)
         {
-            if (functionContext is null)
-                throw new ArgumentNullException(nameof(functionContext));
+            if (orchestrationContext is null)
+                throw new ArgumentNullException(nameof(orchestrationContext));
 
             if (log is null)
                 throw new ArgumentNullException(nameof(log));
 
-            var command = functionContext.GetInput<OrchestratorProjectCreateCommand>();
+            var command = orchestrationContext.GetInput<OrchestratorProjectCreateCommand>();
             var commandResult = command.CreateResult();
 
             using (log.BeginCommandScope(command))
@@ -46,12 +46,12 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 {
                     try
                     {
-                        commandResult = await ProvisionAsync(functionContext, command, log)
+                        commandResult = await ProvisionAsync(orchestrationContext, command, log)
                             .ConfigureAwait(true);
                     }
                     catch
                     {
-                        await RollbackAsync(functionContext, command, log)
+                        await RollbackAsync(orchestrationContext, command, log)
                             .ConfigureAwait(true);
 
                         throw;
@@ -67,18 +67,18 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                     var commandException = commandResult.Errors?.ToException();
 
                     if (commandException is null)
-                        functionContext.SetCustomStatus($"Command succeeded", log);
+                        orchestrationContext.SetCustomStatus($"Command succeeded", log);
                     else
-                        functionContext.SetCustomStatus($"Command failed: {commandException.Message}", log, commandException);
+                        orchestrationContext.SetCustomStatus($"Command failed: {commandException.Message}", log, commandException);
 
-                    functionContext.SetOutput(commandResult);
+                    orchestrationContext.SetOutput(commandResult);
                 }
             }
         }
 
-        private static async Task<OrchestratorProjectCreateCommandResult> ProvisionAsync(IDurableOrchestrationContext functionContext, OrchestratorProjectCreateCommand command, ILogger log)
+        private static async Task<OrchestratorProjectCreateCommandResult> ProvisionAsync(IDurableOrchestrationContext orchestrationContext, OrchestratorProjectCreateCommand command, ILogger log)
         {
-            var teamCloud = await functionContext
+            var teamCloud = await orchestrationContext
                 .GetTeamCloudAsync()
                 .ConfigureAwait(true);
 
@@ -89,13 +89,13 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
 
             var projectUsers = project.Users.ToList();
 
-            var providers = await functionContext
+            var providers = await orchestrationContext
                 .ListProvidersAsync(project.Type.Providers.Select(p => p.Id).ToList())
                 .ConfigureAwait(true);
 
             var providerUserTasks = providers
                 .Where(p => p.PrincipalId.HasValue)
-                .Select(p => functionContext.GetUserAsync(p.PrincipalId.Value.ToString(), allowUnsafe: true));
+                .Select(p => orchestrationContext.GetUserAsync(p.PrincipalId.Value.ToString(), allowUnsafe: true));
 
             var providerUsers = await Task.WhenAll(providerUserTasks)
                 .ConfigureAwait(true);
@@ -105,40 +105,40 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
 
             projectUsers.AddRange(providerUsers);
 
-            using (await functionContext.LockContainerDocumentAsync(project).ConfigureAwait(true))
+            using (await orchestrationContext.LockContainerDocumentAsync(project).ConfigureAwait(true))
             {
-                functionContext.SetCustomStatus($"Creating project", log);
+                orchestrationContext.SetCustomStatus($"Creating project", log);
 
-                project = commandResult.Result = await functionContext
+                project = commandResult.Result = await orchestrationContext
                     .CreateProjectAsync(project)
                     .ConfigureAwait(true);
 
-                functionContext.SetCustomStatus($"Adding users", log);
+                orchestrationContext.SetCustomStatus($"Adding users", log);
 
                 project.Users = await Task
-                    .WhenAll(projectUsers.Select(user => functionContext.SetUserProjectMembershipAsync(user, project.Id, allowUnsafe: true)))
+                    .WhenAll(projectUsers.Select(user => orchestrationContext.SetUserProjectMembershipAsync(user, project.Id, allowUnsafe: true)))
                     .ConfigureAwait(true);
             }
 
-            functionContext.SetCustomStatus($"Allocating subscription", log);
+            orchestrationContext.SetCustomStatus($"Allocating subscription", log);
 
-            var subscriptionId = await functionContext
+            var subscriptionId = await orchestrationContext
                 .CallActivityWithRetryAsync<Guid>(nameof(ProjectSubscriptionSelectActivity), project)
                 .ConfigureAwait(true);
 
-            functionContext.SetCustomStatus($"Initializing subscription", log);
+            orchestrationContext.SetCustomStatus($"Initializing subscription", log);
 
-            await functionContext
+            await orchestrationContext
                 .InitializeSubscriptionAsync(subscriptionId, waitFor: false)
                 .ConfigureAwait(true);
 
-            functionContext.SetCustomStatus($"Provisioning resources", log);
+            orchestrationContext.SetCustomStatus($"Provisioning resources", log);
 
-            var deploymentOutput = await functionContext
-                .CallDeploymentAsync(nameof(ProjectResourcesCreateActivity), (project, subscriptionId))
+            var deploymentOutput = await orchestrationContext
+                .CallDeploymentAsync(nameof(ProjectResourcesCreateActivity), new ProjectResourcesCreateActivity.Input() { Project = project, SubscriptionId = subscriptionId })
                 .ConfigureAwait(true);
 
-            using (await functionContext.LockContainerDocumentAsync(project).ConfigureAwait(true))
+            using (await orchestrationContext.LockContainerDocumentAsync(project).ConfigureAwait(true))
             {
                 project.ResourceGroup = new AzureResourceGroup()
                 {
@@ -148,30 +148,30 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                     Name = (string)deploymentOutput.GetValueOrDefault("resourceGroupName", default(string))
                 };
 
-                functionContext.SetCustomStatus($"Provisioning identity", log);
+                orchestrationContext.SetCustomStatus($"Provisioning identity", log);
 
-                project.Identity = await functionContext
+                project.Identity = await orchestrationContext
                     .CallActivityWithRetryAsync<ProjectIdentity>(nameof(ProjectIdentityCreateActivity), project)
                     .ConfigureAwait(true);
 
-                project = commandResult.Result = await functionContext
+                project = commandResult.Result = await orchestrationContext
                     .SetProjectAsync(project)
                     .ConfigureAwait(true);
             }
 
-            functionContext.SetCustomStatus($"Tagging resources", log);
+            orchestrationContext.SetCustomStatus($"Tagging resources", log);
 
-            await functionContext
+            await orchestrationContext
                 .CallActivityWithRetryAsync(nameof(ProjectResourcesTagActivity), project)
                 .ConfigureAwait(true);
 
-            functionContext.SetCustomStatus($"Registering required resource providers", log);
+            orchestrationContext.SetCustomStatus($"Registering required resource providers", log);
 
-            await functionContext
+            await orchestrationContext
                 .RegisterResourceProvidersAsync(project)
                 .ConfigureAwait(true);
 
-            functionContext.SetCustomStatus($"Sending provider commands", log);
+            orchestrationContext.SetCustomStatus($"Sending provider commands", log);
 
             var providerCommand = new ProviderProjectCreateCommand
             (
@@ -180,7 +180,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 command.CommandId
             );
 
-            var providerResults = await functionContext
+            var providerResults = await orchestrationContext
                 .SendProviderCommandAsync<ProviderProjectCreateCommand, ProviderProjectCreateCommandResult>(providerCommand, project, failFast: true)
                 .ConfigureAwait(true);
 
@@ -194,23 +194,23 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
             return commandResult;
         }
 
-        private static async Task RollbackAsync(IDurableOrchestrationContext functionContext, OrchestratorProjectCreateCommand command, ILogger log)
+        private static async Task RollbackAsync(IDurableOrchestrationContext orchestrationContext, OrchestratorProjectCreateCommand command, ILogger log)
         {
-            functionContext.SetCustomStatus($"Refreshing project", log);
+            orchestrationContext.SetCustomStatus($"Refreshing project", log);
 
-            var project = (await functionContext
+            var project = (await orchestrationContext
                 .GetProjectAsync(command.ProjectId, allowUnsafe: true)
                 .ConfigureAwait(true)) ?? command.Payload;
 
-            functionContext.SetCustomStatus($"Rolling back project", log);
+            orchestrationContext.SetCustomStatus($"Rolling back project", log);
 
-            var systemUser = await functionContext
+            var systemUser = await orchestrationContext
                 .CallActivityWithRetryAsync<UserDocument>(nameof(TeamCloudSystemUserActivity), null)
                 .ConfigureAwait(true);
 
             var deleteCommand = new OrchestratorProjectDeleteCommand(systemUser, project);
 
-            await functionContext
+            await orchestrationContext
                 .CallSubOrchestratorWithRetryAsync(nameof(OrchestratorProjectDeleteCommandOrchestration), deleteCommand)
                 .ConfigureAwait(true);
         }

@@ -114,27 +114,29 @@ namespace TeamCloud.Data.CosmosDb.Core
 
                 return (database.GetContainer(containerName), null);
             }
+            else
+            {
+                _ = await database
+                    .DefineContainer($"{containerName}-leases", "/id")
+                    .CreateIfNotExistsAsync()
+                    .ConfigureAwait(false);
 
-            _ = await database
-                .DefineContainer($"{containerName}-leases", "/id")
-                .CreateIfNotExistsAsync()
-                .ConfigureAwait(false);
+                var processorInstance = Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID")
+                    ?? $"{Environment.MachineName}-{Process.GetCurrentProcess().Id}";
 
-            var processorInstance = Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID")
-                ?? $"{Environment.MachineName}-{Process.GetCurrentProcess().Id}";
+                var processor = database.GetContainer(containerName)
+                    .GetChangeFeedProcessorBuilder(containerName, changesHandler)
+                    .WithInstanceName($"{containerName}-{processorInstance}")
+                    .WithLeaseContainer(database.GetContainer($"{containerName}-leases"))
+                    .WithStartTime(DateTime.UtcNow)
+                    .Build();
 
-            var processor = database.GetContainer(containerName)
-                .GetChangeFeedProcessorBuilder(containerName, changesHandler)
-                .WithInstanceName($"{containerName}-{processorInstance}")
-                .WithLeaseContainer(database.GetContainer($"{containerName}-leases"))
-                .WithStartTime(DateTime.UtcNow)
-                .Build();
+                await processor
+                    .StartAsync()
+                    .ConfigureAwait(false);
 
-            await processor
-                .StartAsync()
-                .ConfigureAwait(false);
-
-            return (database.GetContainer(containerName), processor);
+                return (database.GetContainer(containerName), processor);
+            }
         }
 
         protected virtual ChangesHandler<T> HandleChangesAsync { get; }

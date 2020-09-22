@@ -30,13 +30,13 @@ namespace TeamCloud.Orchestrator.Activities
 
         [FunctionName(nameof(ResourceProviderRegisterActivity)), RetryOptions(3)]
         public async Task RunActivity(
-            [ActivityTrigger] IDurableActivityContext functionContext,
+            [ActivityTrigger] IDurableActivityContext activityContext,
             ILogger log)
         {
-            if (functionContext is null)
-                throw new ArgumentNullException(nameof(functionContext));
+            if (activityContext is null)
+                throw new ArgumentNullException(nameof(activityContext));
 
-            var project = functionContext.GetInput<ProjectDocument>();
+            var project = activityContext.GetInput<ProjectDocument>();
 
             try
             {
@@ -66,7 +66,7 @@ namespace TeamCloud.Orchestrator.Activities
 
     internal static class ResourceProviderRegisterExtension
     {
-        public static Task RegisterResourceProvidersAsync(this IDurableOrchestrationContext functionContext, ProjectDocument project)
-            => functionContext.CallActivityWithRetryAsync(nameof(ResourceProviderRegisterActivity), project);
+        public static Task RegisterResourceProvidersAsync(this IDurableOrchestrationContext orchestrationContext, ProjectDocument project)
+            => orchestrationContext.CallActivityWithRetryAsync(nameof(ResourceProviderRegisterActivity), project);
     }
 }

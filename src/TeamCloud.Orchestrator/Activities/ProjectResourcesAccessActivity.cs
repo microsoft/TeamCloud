@@ -31,19 +31,19 @@ namespace TeamCloud.Orchestrator.Activities
         [FunctionName(nameof(ProjectResourcesAccessActivity))]
         [RetryOptions(3)]
         public async Task RunActivity(
-            [ActivityTrigger] IDurableActivityContext functionContext)
+            [ActivityTrigger] IDurableActivityContext activitiyContext)
         {
-            if (functionContext is null)
-                throw new ArgumentNullException(nameof(functionContext));
+            if (activitiyContext is null)
+                throw new ArgumentNullException(nameof(activitiyContext));
 
-            var (projectId, principalId) = functionContext.GetInput<(string, Guid)>();
+            var functionInput = activitiyContext.GetInput<Input>();
 
             var project = await projectsRepository
-                .GetAsync(projectId)
+                .GetAsync(functionInput.ProjectId)
                 .ConfigureAwait(false);
 
             if (project is null)
-                throw new RetryCanceledException($"Could not find project '{projectId}'");
+                throw new RetryCanceledException($"Could not find project '{functionInput.ProjectId}'");
 
             if (!string.IsNullOrEmpty(project.ResourceGroup?.Id))
             {
@@ -56,8 +56,8 @@ namespace TeamCloud.Orchestrator.Activities
                     var roleAssignmentTasks = new List<Task>()
                     {
                         // ensure the given principal id has access to the projects resource group
-                        resourceGroup.AddRoleAssignmentAsync(principalId.ToString(), AzureRoleDefinition.Contributor),
-                        resourceGroup.AddRoleAssignmentAsync(principalId.ToString(), AzureRoleDefinition.UserAccessAdministrator) // TODO: do we really need this ???
+                        resourceGroup.AddRoleAssignmentAsync(functionInput.PrincipalId.ToString(), AzureRoleDefinition.Contributor),
+                        resourceGroup.AddRoleAssignmentAsync(functionInput.PrincipalId.ToString(), AzureRoleDefinition.UserAccessAdministrator) // TODO: do we really need this ???
                     };
 
                     if (!string.IsNullOrEmpty(project.Identity?.Id))
@@ -72,5 +72,13 @@ namespace TeamCloud.Orchestrator.Activities
                 }
             }
         }
+
+        public struct Input
+        {
+            public string ProjectId { get; set; }
+
+            public Guid PrincipalId { get; set; }
+        }
+
     }
 }

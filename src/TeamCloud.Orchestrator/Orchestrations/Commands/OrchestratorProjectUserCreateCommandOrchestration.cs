@@ -25,16 +25,16 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
     {
         [FunctionName(nameof(OrchestratorProjectUserCreateCommandOrchestration))]
         public static async Task RunOrchestration(
-            [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
+            [OrchestrationTrigger] IDurableOrchestrationContext orchestrationContext,
             ILogger log)
         {
-            if (functionContext is null)
-                throw new ArgumentNullException(nameof(functionContext));
+            if (orchestrationContext is null)
+                throw new ArgumentNullException(nameof(orchestrationContext));
 
             if (log is null)
                 throw new ArgumentNullException(nameof(log));
 
-            var command = functionContext.GetInput<OrchestratorProjectUserCreateCommand>();
+            var command = orchestrationContext.GetInput<OrchestratorProjectUserCreateCommand>();
             var commandResult = command.CreateResult();
             var user = command.Payload;
 
@@ -42,16 +42,16 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
             {
                 try
                 {
-                    functionContext.SetCustomStatus($"Creating user", log);
+                    orchestrationContext.SetCustomStatus($"Creating user", log);
 
-                    using (await functionContext.LockContainerDocumentAsync(user).ConfigureAwait(true))
+                    using (await orchestrationContext.LockContainerDocumentAsync(user).ConfigureAwait(true))
                     {
-                        user = await functionContext
+                        user = await orchestrationContext
                             .SetUserProjectMembershipAsync(user, command.ProjectId)
                             .ConfigureAwait(true);
                     }
 
-                    functionContext.SetCustomStatus("Sending commands", log);
+                    orchestrationContext.SetCustomStatus("Sending commands", log);
 
                     var providerCommand = new ProviderProjectUserCreateCommand
                     (
@@ -61,7 +61,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                         command.CommandId
                     );
 
-                    var providerResults = await functionContext
+                    var providerResults = await orchestrationContext
                         .SendProviderCommandAsync(providerCommand, null)
                         .ConfigureAwait(true);
 
@@ -82,13 +82,13 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                     var commandException = commandResult.Errors?.ToException();
 
                     if (commandException is null)
-                        functionContext.SetCustomStatus($"Command succeeded", log);
+                        orchestrationContext.SetCustomStatus($"Command succeeded", log);
                     else
-                        functionContext.SetCustomStatus($"Command failed", log, commandException);
+                        orchestrationContext.SetCustomStatus($"Command failed", log, commandException);
 
                     commandResult.Result = user;
 
-                    functionContext.SetOutput(commandResult);
+                    orchestrationContext.SetOutput(commandResult);
                 }
             }
         }

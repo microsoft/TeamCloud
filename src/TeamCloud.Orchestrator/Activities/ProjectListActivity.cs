@@ -26,10 +26,10 @@ namespace TeamCloud.Orchestrator.Activities
 
         [FunctionName(nameof(ProjectListActivity))]
         public async Task<IEnumerable<ProjectDocument>> RunActivity(
-            [ActivityTrigger] IDurableActivityContext functionContext)
+            [ActivityTrigger] IDurableActivityContext activityContext)
         {
-            if (functionContext is null)
-                throw new ArgumentNullException(nameof(functionContext));
+            if (activityContext is null)
+                throw new ArgumentNullException(nameof(activityContext));
 
             var projects = projectsRepository
                 .ListAsync();

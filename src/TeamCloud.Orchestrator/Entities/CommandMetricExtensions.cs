@@ -11,28 +11,28 @@ namespace TeamCloud.Orchestrator.Entities
 {
     public static class CommandMetricExtensions
     {
-        internal static IDisposable TrackCommandMetrics(this IDurableOrchestrationContext functionContext, ICommand command)
+        internal static IDisposable TrackCommandMetrics(this IDurableOrchestrationContext orchestrationContext, ICommand command)
         {
-            if (functionContext is null)
-                throw new ArgumentNullException(nameof(functionContext));
+            if (orchestrationContext is null)
+                throw new ArgumentNullException(nameof(orchestrationContext));
 
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
 
-            functionContext.SignalEntity(GetEntityId(command), CommandMetricEntity.IncrementCount);
+            orchestrationContext.SignalEntity(GetEntityId(command), CommandMetricEntity.IncrementCount);
 
-            return new CommandMetricScope(() => functionContext.SignalEntity(GetEntityId(command), CommandMetricEntity.DecrementCount));
+            return new CommandMetricScope(() => orchestrationContext.SignalEntity(GetEntityId(command), CommandMetricEntity.DecrementCount));
         }
 
-        internal static void ResetCommandMetrics(this IDurableOrchestrationContext functionContext, ICommand command)
+        internal static void ResetCommandMetrics(this IDurableOrchestrationContext orchestrationContext, ICommand command)
         {
-            if (functionContext is null)
-                throw new ArgumentNullException(nameof(functionContext));
+            if (orchestrationContext is null)
+                throw new ArgumentNullException(nameof(orchestrationContext));
 
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
 
-            functionContext.SignalEntity(GetEntityId(command), CommandMetricEntity.ResetCount);
+            orchestrationContext.SignalEntity(GetEntityId(command), CommandMetricEntity.ResetCount);
         }
 
         private static EntityId GetEntityId(ICommand command)

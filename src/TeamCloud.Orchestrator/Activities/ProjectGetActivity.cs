@@ -26,9 +26,14 @@ namespace TeamCloud.Orchestrator.Activities
 
         [FunctionName(nameof(ProjectGetActivity))]
         public async Task<ProjectDocument> RunActivity(
-            [ActivityTrigger] string projectId,
+            [ActivityTrigger] IDurableActivityContext activityContext,
             ILogger log)
         {
+            if (activityContext is null)
+                throw new ArgumentNullException(nameof(activityContext));
+
+            string projectId = activityContext.GetInput<string>();
+
             try
             {
                 var project = await projectsRepository
@@ -48,9 +53,9 @@ namespace TeamCloud.Orchestrator.Activities
 
     internal static class ProjectGetExtension
     {
-        public static Task<ProjectDocument> GetProjectAsync(this IDurableOrchestrationContext functionContext, string projectId, bool allowUnsafe = false)
-            => functionContext.IsLockedBy<ProjectDocument>(projectId) || allowUnsafe
-            ? functionContext.CallActivityWithRetryAsync<ProjectDocument>(nameof(ProjectGetActivity), projectId)
+        public static Task<ProjectDocument> GetProjectAsync(this IDurableOrchestrationContext orchestrationContext, string projectId, bool allowUnsafe = false)
+            => orchestrationContext.IsLockedBy<ProjectDocument>(projectId) || allowUnsafe
+            ? orchestrationContext.CallActivityWithRetryAsync<ProjectDocument>(nameof(ProjectGetActivity), projectId)
             : throw new NotSupportedException($"Unable to get project '{projectId}' without acquired lock");
     }
 }

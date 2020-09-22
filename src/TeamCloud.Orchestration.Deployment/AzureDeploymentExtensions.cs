@@ -12,40 +12,51 @@ namespace TeamCloud.Orchestration.Deployment
 {
     public static class AzureDeploymentExtensions
     {
-        public static Task<IReadOnlyDictionary<string, object>> GetDeploymentOutputAsync(this IDurableOrchestrationContext functionContext, string deploymentResourceId)
+        public static Task<IReadOnlyDictionary<string, object>> GetDeploymentOutputAsync(this IDurableOrchestrationContext orchestrationContext, string deploymentResourceId)
         {
-            if (functionContext is null)
-                throw new System.ArgumentNullException(nameof(functionContext));
+            if (orchestrationContext is null)
+                throw new System.ArgumentNullException(nameof(orchestrationContext));
 
             if (string.IsNullOrEmpty(deploymentResourceId))
                 throw new System.ArgumentException("message", nameof(deploymentResourceId));
 
-            return functionContext
+            return orchestrationContext
                 .CallActivityWithRetryAsync<IReadOnlyDictionary<string, object>>(nameof(AzureDeploymentOutputActivity), deploymentResourceId);
         }
 
-        public static Task<IReadOnlyDictionary<string, object>> CallDeploymentAsync(this IDurableOrchestrationContext functionContext, string deploymentActivityName, object deploymentActivityInput = default)
+        public static Task<IReadOnlyDictionary<string, object>> CallDeploymentAsync(this IDurableOrchestrationContext orchestrationContext, string deploymentActivityName, object deploymentActivityInput = default)
         {
-            if (functionContext is null)
-                throw new System.ArgumentNullException(nameof(functionContext));
+            if (orchestrationContext is null)
+                throw new System.ArgumentNullException(nameof(orchestrationContext));
 
             if (string.IsNullOrEmpty(deploymentActivityName))
                 throw new System.ArgumentException("message", nameof(deploymentActivityName));
 
-            return functionContext
-                .CallSubOrchestratorWithRetryAsync<IReadOnlyDictionary<string, object>>(nameof(AzureDeploymentOrchestration), (functionContext.InstanceId, deploymentActivityName, deploymentActivityInput, default(string), default(string)));
+            return orchestrationContext
+                .CallSubOrchestratorWithRetryAsync<IReadOnlyDictionary<string, object>>(nameof(AzureDeploymentOrchestration), new AzureDeploymentOrchestration.Input()
+                {
+                    DeploymentOwnerInstanceId = orchestrationContext.InstanceId,
+                    DeploymentActivityName = deploymentActivityName,
+                    DeploymentActivityInput = deploymentActivityInput
+                });
         }
 
-        public static Task<string> StartDeploymentAsync(this IDurableOrchestrationContext functionContext, string deploymentActivityName, object deploymentActivityInput = default, string deploymentOutputEventName = default)
+        public static Task<string> StartDeploymentAsync(this IDurableOrchestrationContext orchestrationContext, string deploymentActivityName, object deploymentActivityInput = default, string deploymentOutputEventName = default)
         {
-            if (functionContext is null)
-                throw new System.ArgumentNullException(nameof(functionContext));
+            if (orchestrationContext is null)
+                throw new System.ArgumentNullException(nameof(orchestrationContext));
 
             if (string.IsNullOrEmpty(deploymentActivityName))
                 throw new System.ArgumentException("message", nameof(deploymentActivityName));
 
-            var instanceId = functionContext
-                .StartNewOrchestration(nameof(AzureDeploymentOrchestration), (functionContext.InstanceId, deploymentActivityName, deploymentActivityInput, default(string), deploymentOutputEventName));
+            var instanceId = orchestrationContext
+                .StartNewOrchestration(nameof(AzureDeploymentOrchestration), new AzureDeploymentOrchestration.Input()
+                {
+                    DeploymentOwnerInstanceId = orchestrationContext.InstanceId,
+                    DeploymentActivityName = deploymentActivityName,
+                    DeploymentActivityInput = deploymentActivityInput,
+                    DeploymentOutputEventName = deploymentOutputEventName
+                });
 
             return Task.FromResult(instanceId);
         }

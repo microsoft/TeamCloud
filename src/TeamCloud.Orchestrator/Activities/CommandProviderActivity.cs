@@ -27,12 +27,12 @@ namespace TeamCloud.Orchestrator.Activities
         [FunctionName(nameof(CommandProviderActivity))]
         [RetryOptions(3)]
         public async Task<IEnumerable<IEnumerable<ProviderDocument>>> RunActivity(
-            [ActivityTrigger] IDurableActivityContext functionContext)
+            [ActivityTrigger] IDurableActivityContext activityContext)
         {
-            if (functionContext is null)
-                throw new ArgumentNullException(nameof(functionContext));
+            if (activityContext is null)
+                throw new ArgumentNullException(nameof(activityContext));
 
-            var project = functionContext.GetInput<ProjectDocument>();
+            var project = activityContext.GetInput<ProjectDocument>();
 
             if (project is null)
             {

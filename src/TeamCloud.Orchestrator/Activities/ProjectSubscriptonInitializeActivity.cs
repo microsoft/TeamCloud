@@ -28,13 +28,13 @@ namespace TeamCloud.Orchestrator.Activities
         [FunctionName(nameof(ProjectSubscriptonInitializeActivity))]
         [RetryOptions(3)]
         public async Task<string> RunActivity(
-            [ActivityTrigger] IDurableActivityContext functionContext,
+            [ActivityTrigger] IDurableActivityContext activityContext,
             ILogger log)
         {
-            if (functionContext is null)
-                throw new ArgumentNullException(nameof(functionContext));
+            if (activityContext is null)
+                throw new ArgumentNullException(nameof(activityContext));
 
-            var subscriptionId = functionContext.GetInput<Guid>();
+            var subscriptionId = activityContext.GetInput<Guid>();
             var location = azureDeploymentService.Options.DefaultLocation;
 
             if (string.IsNullOrEmpty(location))

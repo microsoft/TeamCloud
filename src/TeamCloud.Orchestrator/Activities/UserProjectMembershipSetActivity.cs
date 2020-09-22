@@ -25,31 +25,39 @@ namespace TeamCloud.Orchestrator.Activities
 
         [FunctionName(nameof(UserProjectMembershipSetActivity))]
         public async Task<UserDocument> RunActivity(
-            [ActivityTrigger] IDurableActivityContext functionContext)
+            [ActivityTrigger] IDurableActivityContext activityContext)
         {
-            if (functionContext is null)
-                throw new ArgumentNullException(nameof(functionContext));
+            if (activityContext is null)
+                throw new ArgumentNullException(nameof(activityContext));
 
-            var (user, projectId) = functionContext.GetInput<(UserDocument, string)>();
+            var functionInput = activityContext.GetInput<Input>();
 
-            var membership = user.ProjectMembership(projectId);
+            var membership = functionInput.User.ProjectMembership(functionInput.ProjectId);
 
             if (membership is null)
-                throw new InvalidOperationException($"User must contain a ProjectMembership for Project '{projectId}'");
+                throw new InvalidOperationException($"User must contain a ProjectMembership for Project '{functionInput.ProjectId}'");
 
-            user = await usersRepository
-                .AddProjectMembershipAsync(user, membership)
+            functionInput.User = await usersRepository
+                .AddProjectMembershipAsync(functionInput.User, membership)
                 .ConfigureAwait(false);
 
-            return user;
+            return functionInput.User;
         }
+
+        public struct Input
+        {
+            public UserDocument User { get; set; }
+
+            public string ProjectId { get; set; }
+        }
+
     }
 
     internal static class UserProjectMembershipSetExtension
     {
-        public static Task<UserDocument> SetUserProjectMembershipAsync(this IDurableOrchestrationContext functionContext, UserDocument user, string projectId, bool allowUnsafe = false)
-            => functionContext.IsLockedBy<UserDocument>(user.Id) || allowUnsafe
-            ? functionContext.CallActivityWithRetryAsync<UserDocument>(nameof(UserProjectMembershipSetActivity), (user, projectId))
+        public static Task<UserDocument> SetUserProjectMembershipAsync(this IDurableOrchestrationContext orchestrationContext, UserDocument user, string projectId, bool allowUnsafe = false)
+            => orchestrationContext.IsLockedBy<UserDocument>(user.Id) || allowUnsafe
+            ? orchestrationContext.CallActivityWithRetryAsync<UserDocument>(nameof(UserProjectMembershipSetActivity), new UserProjectMembershipSetActivity.Input() { User = user, ProjectId = projectId })
             : throw new NotSupportedException($"Unable to create or update project membership without acquired lock for user {user.Id}");
     }
 }

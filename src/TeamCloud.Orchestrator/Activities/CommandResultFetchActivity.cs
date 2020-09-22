@@ -11,7 +11,6 @@ using Flurl.Http;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Model.Commands.Core;
-using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
 using TeamCloud.Serialization;
@@ -23,14 +22,13 @@ namespace TeamCloud.Orchestrator.Activities
         [FunctionName(nameof(CommandResultFetchActivity))]
         [RetryOptions(3)]
         public static async Task<ICommandResult> RunActivity(
-            [ActivityTrigger] IDurableActivityContext functionContext)
+            [ActivityTrigger] IDurableActivityContext activityContext)
         {
-            if (functionContext is null)
-                throw new ArgumentNullException(nameof(functionContext));
+            if (activityContext is null)
+                throw new ArgumentNullException(nameof(activityContext));
 
-            var (provider, message) = functionContext.GetInput<(ProviderDocument, ProviderCommandMessage)>();
-
-            var providerUrl = new Url(provider.Url?.Trim());
+            var functionInput = activityContext.GetInput<Input>();
+            var providerUrl = new Url(functionInput.Provider.Url?.Trim());
 
             if (!providerUrl.Path.EndsWith("/", StringComparison.OrdinalIgnoreCase))
                 providerUrl = providerUrl.AppendPathSegment("api/command");
@@ -42,14 +40,14 @@ namespace TeamCloud.Orchestrator.Activities
                 try
                 {
                     commandResult = await providerUrl
-                        .AppendPathSegment(message.CommandId)
-                        .WithHeader("x-functions-key", provider.AuthCode)
+                        .AppendPathSegment(functionInput.CommandMessage.CommandId)
+                        .WithHeader("x-functions-key", functionInput.Provider.AuthCode)
                         .GetJsonAsync<ICommandResult>()
                         .ConfigureAwait(false);
                 }
                 catch (FlurlHttpException postException) when (postException.Call.HttpStatus == HttpStatusCode.Unauthorized)
                 {
-                    throw new RetryCanceledException($"Provider '{provider.Id}' failed: {postException.Message}", postException);
+                    throw new RetryCanceledException($"Provider '{functionInput.Provider.Id}' failed: {postException.Message}", postException);
                 }
 
                 return commandResult;
@@ -58,6 +56,13 @@ namespace TeamCloud.Orchestrator.Activities
             {
                 throw serializableExc;
             }
+        }
+
+        public struct Input
+        {
+            public ProviderDocument Provider { get; set; }
+
+            public ICommandMessage CommandMessage { get; set; }
         }
     }
 }

@@ -32,60 +32,59 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                 throw new ArgumentNullException(nameof(durableClient));
 
             _ = await durableClient
-                .StartNewAsync(nameof(ProviderRegisterOrchestration), Guid.NewGuid().ToString(), (default(ProviderDocument), default(ProviderRegisterCommand)))
+                .StartNewAsync(nameof(ProviderRegisterOrchestration), Guid.NewGuid().ToString(), new Input())
                 .ConfigureAwait(false);
         }
 
         [FunctionName(nameof(ProviderRegisterOrchestration))]
         public static async Task RunOrchestration(
-            [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
+            [OrchestrationTrigger] IDurableOrchestrationContext orchestrationContext,
             ILogger log)
         {
-            if (functionContext is null)
-                throw new ArgumentNullException(nameof(functionContext));
+            if (orchestrationContext is null)
+                throw new ArgumentNullException(nameof(orchestrationContext));
 
-            var (provider, command) = functionContext
-                .GetInput<(ProviderDocument, ProviderRegisterCommand)>();
+            var functionInput = orchestrationContext.GetInput<Input>();
 
             try
             {
-                if (command is null)
+                if (functionInput.Command is null)
                 {
                     // no command was given !!!
                     // restart the orchestration
                     // with a new command instance.
 
-                    functionContext.SetCustomStatus("Creating command", log);
+                    orchestrationContext.SetCustomStatus("Creating command", log);
 
-                    var systemUser = await functionContext
+                    var systemUser = await orchestrationContext
                         .CallActivityWithRetryAsync<UserDocument>(nameof(TeamCloudSystemUserActivity), null)
                         .ConfigureAwait(true);
 
-                    var providerCommand = new ProviderRegisterCommand
+                    functionInput.Command = new ProviderRegisterCommand
                     (
                         systemUser.PopulateExternalModel(),
                         new ProviderConfiguration()
                     );
 
-                    functionContext
-                        .ContinueAsNew((provider, providerCommand));
+                    orchestrationContext
+                        .ContinueAsNew(functionInput);
                 }
-                else if (provider is null)
+                else if (functionInput.Provider is null)
                 {
                     // no provider was given !!!
                     // fan out registration with
                     // one orchestration per provider.
 
-                    var providers = await functionContext
+                    var providers = await orchestrationContext
                         .ListProvidersAsync()
                         .ConfigureAwait(true);
 
                     if (providers.Any())
                     {
-                        functionContext.SetCustomStatus($"Register provider/s", log);
+                        orchestrationContext.SetCustomStatus($"Register provider/s", log);
 
                         var tasks = providers
-                            .Select(provider => functionContext.CallSubOrchestratorWithRetryAsync(nameof(ProviderRegisterOrchestration), (provider, command)));
+                            .Select(provider => orchestrationContext.CallSubOrchestratorWithRetryAsync(nameof(ProviderRegisterOrchestration), new Input() { Provider = provider, Command = functionInput.Command }));
 
                         await Task
                             .WhenAll(tasks)
@@ -94,67 +93,67 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                 }
                 else
                 {
-                    command.Payload
-                        .TeamCloudApplicationInsightsKey = await functionContext
+                    functionInput.Command.Payload
+                        .TeamCloudApplicationInsightsKey = await orchestrationContext
                         .GetInstrumentationKeyAsync()
                         .ConfigureAwait(true);
 
-                    command.Payload
-                        .Properties = provider.Properties;
+                    functionInput.Command.Payload
+                        .Properties = functionInput.Provider.Properties;
 
-                    functionContext.SetCustomStatus($"Sending command", log);
+                    orchestrationContext.SetCustomStatus($"Sending command", log);
 
-                    var commandResult = await functionContext
-                        .SendProviderCommandAsync<ProviderRegisterCommand, ProviderRegisterCommandResult>(command, provider)
+                    var commandResult = await orchestrationContext
+                        .SendProviderCommandAsync<ProviderRegisterCommand, ProviderRegisterCommandResult>(functionInput.Command, functionInput.Provider)
                         .ConfigureAwait(true);
 
                     if (commandResult.RuntimeStatus == CommandRuntimeStatus.Completed)
                     {
-                        using (await functionContext.LockContainerDocumentAsync(provider).ConfigureAwait(true))
+                        using (await orchestrationContext.LockContainerDocumentAsync(functionInput.Provider).ConfigureAwait(true))
                         {
-                            provider = await functionContext
-                                .GetProviderAsync(provider.Id)
+                            functionInput.Provider = await orchestrationContext
+                                .GetProviderAsync(functionInput.Provider.Id)
                                 .ConfigureAwait(true);
 
-                            if (provider is null)
+                            if (functionInput.Provider is null)
                             {
-                                log.LogWarning($"Provider '{provider.Id}' registration skipped - provider no longer exists");
+                                log.LogWarning($"Provider registration skipped - provider no longer exists");
                             }
                             else
                             {
-                                provider.PrincipalId = commandResult.Result.PrincipalId;
-                                provider.CommandMode = commandResult.Result.CommandMode;
-                                provider.Registered = functionContext.CurrentUtcDateTime;
-                                provider.EventSubscriptions = commandResult.Result.EventSubscriptions;
-                                provider.ResourceProviders = commandResult.Result.ResourceProviders;
-                                provider.Properties = provider.Properties.Override(commandResult.Result.Properties);
+                                functionInput.Provider.PrincipalId = commandResult.Result.PrincipalId;
+                                functionInput.Provider.CommandMode = commandResult.Result.CommandMode;
+                                functionInput.Provider.Registered = orchestrationContext.CurrentUtcDateTime;
+                                functionInput.Provider.EventSubscriptions = commandResult.Result.EventSubscriptions;
+                                functionInput.Provider.ResourceProviders = commandResult.Result.ResourceProviders;
+                                functionInput.Provider.Properties = functionInput.Provider.Properties.Override(commandResult.Result.Properties);
 
-                                functionContext.SetCustomStatus($"Updating provider", log);
+                                orchestrationContext.SetCustomStatus($"Updating provider", log);
 
-                                provider = await functionContext
-                                    .SetProviderAsync(provider)
+                                functionInput.Provider = await orchestrationContext
+                                    .SetProviderAsync(functionInput.Provider)
                                     .ConfigureAwait(true);
 
-                                if (provider.PrincipalId.HasValue)
+                                if (functionInput.Provider.PrincipalId.HasValue)
                                 {
-                                    functionContext.SetCustomStatus($"Resolving provider identity", log);
+                                    orchestrationContext.SetCustomStatus($"Resolving provider identity", log);
 
-                                    var providerUser = await functionContext
-                                        .GetUserAsync(provider.PrincipalId.Value.ToString(), allowUnsafe: true)
+                                    var providerUser = await orchestrationContext
+                                        .GetUserAsync(functionInput.Provider.PrincipalId.Value.ToString(), allowUnsafe: true)
                                         .ConfigureAwait(true);
 
                                     if (providerUser is null)
                                     {
                                         providerUser = new UserDocument
                                         {
-                                            Id = provider.PrincipalId.Value.ToString(),
+                                            Id = functionInput.Provider.PrincipalId.Value.ToString(),
                                             Role = TeamCloudUserRole.Provider,
                                             UserType = UserType.Provider
                                         };
 
-                                        functionContext.SetCustomStatus($"Granting provider access", log);
+                                        orchestrationContext.SetCustomStatus($"Granting provider access", log);
 
-                                        _ = await functionContext
+                                        _ = await orchestrationContext
                                             .SetUserTeamCloudInfoAsync(providerUser, allowUnsafe: true)
                                             .ConfigureAwait(true);
                                     }
@@ -162,7 +161,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                             }
                         }
 
-                        functionContext.SetCustomStatus($"Provider registered", log);
+                        orchestrationContext.SetCustomStatus($"Provider registered", log);
                     }
                     else
                     {
@@ -176,19 +175,49 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
             }
             catch (Exception exc)
             {
-                if (provider != null)
+                if (functionInput.Provider != null)
                 {
-                    functionContext.SetCustomStatus($"Failed to register provider '{provider.Id}' - {exc.Message}", log, exc);
+                    orchestrationContext.SetCustomStatus($"Failed to register provider '{functionInput.Provider.Id}' - {exc.Message}", log, exc);
                 }
-                else if (command != null)
+                else if (functionInput.Command != null)
                 {
-                    functionContext.SetCustomStatus($"Failed to register providers - {exc.Message}", log, exc);
+                    orchestrationContext.SetCustomStatus($"Failed to register providers - {exc.Message}", log, exc);
                 }
                 else
                 {
-                    functionContext.SetCustomStatus($"Failed to initiate provider registration - {exc.Message}", log, exc);
+                    orchestrationContext.SetCustomStatus($"Failed to initiate provider registration - {exc.Message}", log, exc);
                 }
             }
         }
+
+        public struct Input
+        {
+            public ProviderDocument Provider { get; set; }
+
+            public ProviderRegisterCommand Command { get; set; }
+        }
     }
+
+    internal static class ProviderRegisterExtension
+    {
+        public static Task RegisterProviderAsync(this IDurableOrchestrationContext orchestrationContext, ProviderDocument provider = null, bool wait = true)
+        {
+            if (wait)
+            {
+                // if the caller request to wait for the provider registration
+                // we will kick off the corresponding orchestration as a sub
+                // orchestration instead of completely new one
+
+                return orchestrationContext
+                    .CallSubOrchestratorWithRetryAsync(nameof(ProviderRegisterOrchestration), new ProviderRegisterOrchestration.Input() { Provider = provider });
+            }
+
+            orchestrationContext
+                .StartNewOrchestration(nameof(ProviderRegisterOrchestration), new ProviderRegisterOrchestration.Input() { Provider = provider });
+
+            return Task
+                .CompletedTask;
+        }
+    }
+
 }

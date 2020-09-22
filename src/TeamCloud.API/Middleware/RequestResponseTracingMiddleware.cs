@@ -42,29 +42,38 @@ namespace TeamCloud.API.Middleware
 
             if (logger.IsEnabled(LogLevel.Debug))
             {
-                var stopwatch = Stopwatch.StartNew();
-                var originalBodyStream = context.Response.Body;
-
-                await using var tempBodyStream = streamManager.GetStream();
-
-                await LogRequest(context)
-                    .ConfigureAwait(false);
-
-                context.Response.Body = tempBodyStream;
-
-                await next(context)
-                    .ConfigureAwait(false);
-
-                await LogResponse(context, stopwatch)
-                    .ConfigureAwait(false);
-
-                if (tempBodyStream.CanRead)
+                try
                 {
-                    tempBodyStream.Seek(0, SeekOrigin.Begin);
+                    using var tempBodyStream = streamManager.GetStream();
 
-                    await tempBodyStream
-                        .CopyToAsync(originalBodyStream)
+                    var stopwatch = Stopwatch.StartNew();
+                    var originalBodyStream = context.Response.Body;
+
+                    await LogRequest(context)
                         .ConfigureAwait(false);
+
+                    context.Response.Body = tempBodyStream;
+
+                    await next(context)
+                        .ConfigureAwait(false);
+
+                    await LogResponse(context, stopwatch)
+                        .ConfigureAwait(false);
+
+                    if (tempBodyStream.CanRead)
+                    {
+                        tempBodyStream.Seek(0, SeekOrigin.Begin);
+
+                        await tempBodyStream
+                            .CopyToAsync(originalBodyStream)
+                            .ConfigureAwait(false);
+                    }
+                }
+                catch (Exception exc)
+                {
+                    logger.LogWarning(exc, $"Failed to trace request/response: {exc.Message}");
+
+                    throw;
                 }
             }
             else
@@ -76,7 +85,7 @@ namespace TeamCloud.API.Middleware
 
         private async Task LogRequest(HttpContext context)
         {
-            await using var requestStream = streamManager.GetStream();
+            using var requestStream = streamManager.GetStream();
 
             try
             {
@@ -132,31 +141,36 @@ namespace TeamCloud.API.Middleware
             }
         }
 
-        private static Task<string> ReadStreamAsync(Stream stream)
+        private static async Task<string> ReadStreamAsync(Stream stream)
         {
-            if (stream is null || !stream.CanRead)
-                return Task.FromResult<string>(null);
+            string content = null;
 
-            var position = stream.Position;
-
-            try
+            if (stream?.CanRead ?? false)
             {
-                stream.Seek(0, SeekOrigin.Begin);
+                var position = stream.Position;
 
-                using var reader = new StreamReader(
-                    stream,
-                    Encoding.Default,
-                    true,
-                    1024,
-                    leaveOpen: true);
+                try
+                {
+                    stream.Seek(0, SeekOrigin.Begin);
 
-                return reader
-                    .ReadToEndAsync();
+                    using var reader = new StreamReader(
+                        stream,
+                        Encoding.Default,
+                        true,
+                        1024,
+                        leaveOpen: true);
+
+                    content = await reader
+                        .ReadToEndAsync()
+                        .ConfigureAwait(false);
+                }
+                finally
+                {
+                    stream.Position = position;
+                }
             }
-            finally
-            {
-                stream.Position = position;
-            }
+
+            return content;
         }
     }
 }

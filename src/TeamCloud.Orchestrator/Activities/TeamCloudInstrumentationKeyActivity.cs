@@ -15,10 +15,10 @@ namespace TeamCloud.Orchestrator.Activities
     {
         [FunctionName(nameof(TeamCloudInstrumentationKeyActivity))]
         public static string RunActivity(
-            [ActivityTrigger] IDurableActivityContext context)
+            [ActivityTrigger] IDurableActivityContext activityContext)
         {
-            if (context is null)
-                throw new ArgumentNullException(nameof(context));
+            if (activityContext is null)
+                throw new ArgumentNullException(nameof(activityContext));
 
             var instrumentationKey = Environment.GetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY");
 
@@ -31,7 +31,7 @@ namespace TeamCloud.Orchestrator.Activities
 
     internal static class TeamCloudInstrumentationKeyExtension
     {
-        public static Task<string> GetInstrumentationKeyAsync(this IDurableOrchestrationContext functionContext)
-            => functionContext.CallActivityWithRetryAsync<string>(nameof(TeamCloudInstrumentationKeyActivity), null);
+        public static Task<string> GetInstrumentationKeyAsync(this IDurableOrchestrationContext orchestrationContext)
+            => orchestrationContext.CallActivityWithRetryAsync<string>(nameof(TeamCloudInstrumentationKeyActivity), null);
     }
 }

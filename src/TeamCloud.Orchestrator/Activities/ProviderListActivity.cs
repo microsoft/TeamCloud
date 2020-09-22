@@ -26,10 +26,10 @@ namespace TeamCloud.Orchestrator.Activities
 
         [FunctionName(nameof(ProviderListActivity))]
         public async Task<IEnumerable<ProviderDocument>> RunActivity(
-            [ActivityTrigger] IDurableActivityContext functionContext)
+            [ActivityTrigger] IDurableActivityContext activityContext)
         {
-            if (functionContext is null)
-                throw new ArgumentNullException(nameof(functionContext));
+            if (activityContext is null)
+                throw new ArgumentNullException(nameof(activityContext));
 
             return await providersRepository
                 .ListAsync()

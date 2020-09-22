@@ -24,10 +24,10 @@ namespace TeamCloud.Orchestrator.Activities
 
         [FunctionName(nameof(TeamCloudGetActivity))]
         public async Task<TeamCloudInstanceDocument> RunActivity(
-            [ActivityTrigger] IDurableActivityContext context)
+            [ActivityTrigger] IDurableActivityContext activityContext)
         {
-            if (context is null)
-                throw new ArgumentNullException(nameof(context));
+            if (activityContext is null)
+                throw new ArgumentNullException(nameof(activityContext));
 
             var teamCloudInstance = await teamCloudRepository
                 .GetAsync()

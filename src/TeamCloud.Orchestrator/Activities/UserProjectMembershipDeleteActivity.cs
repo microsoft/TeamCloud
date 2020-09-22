@@ -25,26 +25,34 @@ namespace TeamCloud.Orchestrator.Activities
 
         [FunctionName(nameof(UserProjectMembershipDeleteActivity))]
         public async Task<UserDocument> RunActivity(
-            [ActivityTrigger] IDurableActivityContext functionContext)
+            [ActivityTrigger] IDurableActivityContext activityContext)
         {
-            if (functionContext is null)
-                throw new ArgumentNullException(nameof(functionContext));
+            if (activityContext is null)
+                throw new ArgumentNullException(nameof(activityContext));
 
-            var (user, projectId) = functionContext.GetInput<(UserDocument, string)>();
+            var functionInput = activityContext.GetInput<Input>();
 
             var updatedUser = await usersRepository
-                .RemoveProjectMembershipAsync(user, projectId)
+                .RemoveProjectMembershipAsync(functionInput.User, functionInput.ProjectId)
                 .ConfigureAwait(false);
 
             return updatedUser;
         }
+
+        public struct Input
+        {
+            public UserDocument User { get; set; }
+
+            public string ProjectId { get; set; }
+        }
+
     }
 
     internal static class UserProjectMembershipDeleteExtension
     {
-        public static Task<UserDocument> DeleteUserProjectMembershipAsync(this IDurableOrchestrationContext functionContext, UserDocument user, string projectId, bool allowUnsafe = false)
-            => functionContext.IsLockedBy<UserDocument>(user.Id) || allowUnsafe
-            ? functionContext.CallActivityWithRetryAsync<UserDocument>(nameof(UserProjectMembershipDeleteActivity), (user, projectId))
+        public static Task<UserDocument> DeleteUserProjectMembershipAsync(this IDurableOrchestrationContext orchestrationContext, UserDocument user, string projectId, bool allowUnsafe = false)
+            => orchestrationContext.IsLockedBy<UserDocument>(user.Id) || allowUnsafe
+            ? orchestrationContext.CallActivityWithRetryAsync<UserDocument>(nameof(UserProjectMembershipDeleteActivity), new UserProjectMembershipDeleteActivity.Input() { User = user, ProjectId = projectId })
             : throw new NotSupportedException($"Unable to delete project membership without acquired for user {user.Id} lock");
     }
 }

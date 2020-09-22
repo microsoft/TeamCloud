@@ -24,16 +24,16 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
     {
         [FunctionName(nameof(OrchestratorTeamCloudUserCreateCommandOrchestration))]
         public static async Task RunOrchestration(
-            [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
+            [OrchestrationTrigger] IDurableOrchestrationContext orchestrationContext,
             ILogger log)
         {
-            if (functionContext is null)
-                throw new ArgumentNullException(nameof(functionContext));
+            if (orchestrationContext is null)
+                throw new ArgumentNullException(nameof(orchestrationContext));
 
             if (log is null)
                 throw new ArgumentNullException(nameof(log));
 
-            var command = functionContext.GetInput<OrchestratorTeamCloudUserCreateCommand>();
+            var command = orchestrationContext.GetInput<OrchestratorTeamCloudUserCreateCommand>();
             var commandResult = command.CreateResult();
             var user = command.Payload;
 
@@ -41,18 +41,18 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
             {
                 try
                 {
-                    functionContext.SetCustomStatus($"Creating user.", log);
+                    orchestrationContext.SetCustomStatus($"Creating user.", log);
 
-                    using (await functionContext.LockContainerDocumentAsync(user).ConfigureAwait(true))
+                    using (await orchestrationContext.LockContainerDocumentAsync(user).ConfigureAwait(true))
                     {
-                        var existingUser = await functionContext
+                        var existingUser = await orchestrationContext
                             .GetUserAsync(user.Id)
                             .ConfigureAwait(true);
 
                         if (existingUser != null)
                             throw new OrchestratorCommandException($"User '{user.Id}' already exist.", command);
 
-                        user = await functionContext
+                        user = await orchestrationContext
                             .SetUserTeamCloudInfoAsync(user)
                             .ConfigureAwait(true);
                     }
@@ -63,7 +63,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                     // commands (or project update connamds depending on the provider's mode)
                     if (user.IsAdmin())
                     {
-                        var projects = await functionContext
+                        var projects = await orchestrationContext
                             .ListProjectsAsync()
                             .ConfigureAwait(true);
 
@@ -72,7 +72,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                         {
                             var projectUpdateCommand = new OrchestratorProjectUpdateCommand(command.User, project);
 
-                            functionContext.StartNewOrchestration(nameof(OrchestratorProjectUpdateCommandOrchestration), projectUpdateCommand);
+                            orchestrationContext.StartNewOrchestration(nameof(OrchestratorProjectUpdateCommandOrchestration), projectUpdateCommand);
                         }
                     }
 
@@ -83,7 +83,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                         command.CommandId
                     );
 
-                    var providerResult = await functionContext
+                    var providerResult = await orchestrationContext
                         .SendProviderCommandAsync<ProviderTeamCloudUserCreateCommand, ProviderTeamCloudUserCreateCommandResult>(providerCommand)
                         .ConfigureAwait(true);
 
@@ -91,11 +91,11 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
 
                     commandResult.Result = user;
 
-                    functionContext.SetCustomStatus($"User created.", log);
+                    orchestrationContext.SetCustomStatus($"User created.", log);
                 }
                 catch (Exception ex)
                 {
-                    functionContext.SetCustomStatus("Failed to create user.", log, ex);
+                    orchestrationContext.SetCustomStatus("Failed to create user.", log, ex);
 
                     commandResult ??= command.CreateResult();
                     commandResult.Errors.Add(ex);
@@ -105,11 +105,11 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                     var commandException = commandResult.Errors?.ToException();
 
                     if (commandException is null)
-                        functionContext.SetCustomStatus($"Command succeeded", log);
+                        orchestrationContext.SetCustomStatus($"Command succeeded", log);
                     else
-                        functionContext.SetCustomStatus($"Command failed: {commandException.Message}", log, commandException);
+                        orchestrationContext.SetCustomStatus($"Command failed: {commandException.Message}", log, commandException);
 
-                    functionContext.SetOutput(commandResult);
+                    orchestrationContext.SetOutput(commandResult);
                 }
             }
         }

@@ -25,10 +25,12 @@ namespace TeamCloud.Orchestrator.Activities
 
         [FunctionName(nameof(TeamCloudSetActivity))]
         public async Task<TeamCloudInstanceDocument> RunActivity(
-            [ActivityTrigger] TeamCloudInstanceDocument teamCloudInstance)
+            [ActivityTrigger] IDurableActivityContext activityContext)
         {
-            if (teamCloudInstance is null)
-                throw new ArgumentNullException(nameof(teamCloudInstance));
+            if (activityContext is null)
+                throw new ArgumentNullException(nameof(activityContext));
+
+            var teamCloudInstance = activityContext.GetInput<TeamCloudInstanceDocument>();
 
             teamCloudInstance = await teamCloudRepository
                 .SetAsync(teamCloudInstance)
@@ -40,14 +42,14 @@ namespace TeamCloud.Orchestrator.Activities
 
     internal static class TeamCloudSetExtension
     {
-        public static Task<TeamCloudInstanceDocument> SetTeamCloudAsync(this IDurableOrchestrationContext functionContext, TeamCloudInstanceDocument teamCloud)
+        public static Task<TeamCloudInstanceDocument> SetTeamCloudAsync(this IDurableOrchestrationContext orchestrationContext, TeamCloudInstanceDocument teamCloud)
         {
             if (teamCloud is null)
                 throw new ArgumentNullException(nameof(teamCloud));
 
-            if (functionContext.IsLockedByContainerDocument(teamCloud))
+            if (orchestrationContext.IsLockedByContainerDocument(teamCloud))
             {
-                return functionContext
+                return orchestrationContext
                     .CallActivityWithRetryAsync<TeamCloudInstanceDocument>(nameof(TeamCloudSetActivity), teamCloud);
             }
 

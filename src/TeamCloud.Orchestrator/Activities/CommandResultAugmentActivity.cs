@@ -16,17 +16,17 @@ namespace TeamCloud.Orchestrator.Activities
     {
         [FunctionName(nameof(CommandResultAugmentActivity))]
         public static async Task<ICommandResult> RunActivity(
-            [ActivityTrigger] IDurableActivityContext functionContext,
+            [ActivityTrigger] IDurableActivityContext activityContext,
             [DurableClient] IDurableClient durableClient,
             ILogger log)
         {
-            if (functionContext is null)
-                throw new ArgumentNullException(nameof(functionContext));
+            if (activityContext is null)
+                throw new ArgumentNullException(nameof(activityContext));
 
             if (durableClient is null)
                 throw new ArgumentNullException(nameof(durableClient));
 
-            var commandResult = functionContext.GetInput<ICommandResult>();
+            var commandResult = activityContext.GetInput<ICommandResult>();
 
             try
             {

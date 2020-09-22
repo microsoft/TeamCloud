@@ -25,13 +25,13 @@ namespace TeamCloud.Orchestration.Deployment.Activities
         [FunctionName(nameof(AzureDeploymentStateActivity))]
         [RetryOptions(3)]
         public async Task<AzureDeploymentState> RunActivity(
-            [ActivityTrigger] IDurableActivityContext functionContext,
+            [ActivityTrigger] IDurableActivityContext activityContext,
             ILogger log)
         {
-            if (functionContext is null)
-                throw new ArgumentNullException(nameof(functionContext));
+            if (activityContext is null)
+                throw new ArgumentNullException(nameof(activityContext));
 
-            var resourceId = functionContext.GetInput<string>();
+            var resourceId = activityContext.GetInput<string>();
 
             try
             {

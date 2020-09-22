@@ -28,10 +28,12 @@ namespace TeamCloud.Orchestrator.Activities
 
         [FunctionName(nameof(ProjectSubscriptionSelectActivity))]
         public async Task<Guid> RunActivity(
-            [ActivityTrigger] ProjectDocument project)
+            [ActivityTrigger] IDurableActivityContext activityContext)
         {
-            if (project is null)
-                throw new ArgumentNullException(nameof(project));
+            if (activityContext is null)
+                throw new ArgumentNullException(nameof(activityContext));
+
+            var project = activityContext.GetInput<ProjectDocument>();
 
             var subscriptionCapacityTasks = project.Type.Subscriptions
                 .Select(subscriptionId => GetSubscriptionCapacityAsync(project.Type, subscriptionId));

@@ -38,12 +38,23 @@ namespace TeamCloud.Orchestrator.Activities
 
     internal static class UserDeleteExtension
     {
-        public static Task<UserDocument> DeleteUserAsync(this IDurableOrchestrationContext functionContext, string userId, bool allowUnsafe = false)
-            => DeleteUserAsync(functionContext, Guid.Parse(userId), allowUnsafe);
+        public static Task<UserDocument> DeleteUserAsync(this IDurableOrchestrationContext orchestrationContext, string userId, bool allowUnsafe = false)
+            => DeleteUserAsync(orchestrationContext, Guid.Parse(userId), allowUnsafe);
 
-        public static Task<UserDocument> DeleteUserAsync(this IDurableOrchestrationContext functionContext, Guid userId, bool allowUnsafe = false)
-            => functionContext.IsLockedBy<UserDocument>(userId.ToString()) || allowUnsafe
-            ? functionContext.CallActivityWithRetryAsync<UserDocument>(nameof(UserDeleteActivity), userId)
-            : throw new NotSupportedException($"Unable to delete user '{userId}' without acquired lock");
+        public static async Task<UserDocument> DeleteUserAsync(this IDurableOrchestrationContext orchestrationContext, Guid userId, bool allowUnsafe = false)
+        {
+            var user = await orchestrationContext
+                .GetUserAsync(userId, true)
+                .ConfigureAwait(true);
+
+            return await orchestrationContext
+                .DeleteUserAsync(user, allowUnsafe)
+                .ConfigureAwait(true);
+        }
+
+        public static Task<UserDocument> DeleteUserAsync(this IDurableOrchestrationContext orchestrationContext, UserDocument user, bool allowUnsafe = false)
+            => orchestrationContext.IsLockedBy<UserDocument>(user.Id.ToString()) || allowUnsafe
+                ? orchestrationContext.CallActivityWithRetryAsync<UserDocument>(nameof(UserDeleteActivity), user)
+                : throw new NotSupportedException($"Unable to delete user '{user.Id}' without acquired lock");
     }
 }

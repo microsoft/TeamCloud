@@ -30,16 +30,16 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
 
         [FunctionName(nameof(OrchestratorProviderUpdateCommandOrchestration))]
         public static async Task RunOrchestration(
-            [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
+            [OrchestrationTrigger] IDurableOrchestrationContext orchestrationContext,
             ILogger log)
         {
-            if (functionContext is null)
-                throw new ArgumentNullException(nameof(functionContext));
+            if (orchestrationContext is null)
+                throw new ArgumentNullException(nameof(orchestrationContext));
 
             if (log is null)
                 throw new ArgumentNullException(nameof(log));
 
-            var command = functionContext.GetInput<OrchestratorProviderUpdateCommand>();
+            var command = orchestrationContext.GetInput<OrchestratorProviderUpdateCommand>();
             var commandResult = command.CreateResult();
             var provider = command.Payload;
 
@@ -54,18 +54,18 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
 
                     provider.Registered = null;
 
-                    using (await functionContext.LockContainerDocumentAsync(provider).ConfigureAwait(true))
+                    using (await orchestrationContext.LockContainerDocumentAsync(provider).ConfigureAwait(true))
                     {
-                        functionContext.SetCustomStatus($"Updating provider", log);
+                        orchestrationContext.SetCustomStatus($"Updating provider", log);
 
-                        provider = commandResult.Result = await functionContext
+                        provider = commandResult.Result = await orchestrationContext
                             .SetProviderAsync(provider)
                             .ConfigureAwait(true);
                     }
 
-                    functionContext.SetCustomStatus($"Registering provider", log);
+                    orchestrationContext.SetCustomStatus($"Registering provider", log);
 
-                    await functionContext
+                    await orchestrationContext
                         .RegisterProviderAsync(provider)
                         .ConfigureAwait(true);
                 }
@@ -79,11 +79,11 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                     var commandException = commandResult.Errors?.ToException();
 
                     if (commandException is null)
-                        functionContext.SetCustomStatus($"Command succeeded", log);
+                        orchestrationContext.SetCustomStatus($"Command succeeded", log);
                     else
-                        functionContext.SetCustomStatus($"Command failed: {commandException.Message}", log, commandException);
+                        orchestrationContext.SetCustomStatus($"Command failed: {commandException.Message}", log, commandException);
 
-                    functionContext.SetOutput(commandResult);
+                    orchestrationContext.SetOutput(commandResult);
                 }
             }
         }

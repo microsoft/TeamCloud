@@ -13,10 +13,10 @@ namespace TeamCloud.Orchestration.Eventing
     {
 #pragma warning disable CA1030 // Use events where appropriate
 
-        public static Task RaiseEventAsync(this IDurableOrchestrationContext functionContext, string instanceId, string eventName, object eventData = default)
+        public static Task RaiseEventAsync(this IDurableOrchestrationContext orchestrationContext, string instanceId, string eventName, object eventData = default)
         {
-            if (functionContext is null)
-                throw new ArgumentNullException(nameof(functionContext));
+            if (orchestrationContext is null)
+                throw new ArgumentNullException(nameof(orchestrationContext));
 
             if (string.IsNullOrEmpty(instanceId))
                 throw new ArgumentException($"Argument '{nameof(instanceId)}' must not NULL or EMPTY", nameof(instanceId));
@@ -24,8 +24,13 @@ namespace TeamCloud.Orchestration.Eventing
             if (string.IsNullOrEmpty(eventName))
                 throw new ArgumentException($"Argument '{nameof(instanceId)}' must not NULL or EMPTY", nameof(eventName));
 
-            return functionContext
-                .CallActivityWithRetryAsync(nameof(RaiseEventActivity), (instanceId, eventName, eventData));
+            return orchestrationContext
+                .CallActivityWithRetryAsync(nameof(RaiseEventActivity), new RaiseEventActivity.Input()
+                {
+                    InstanceId = instanceId,
+                    EventName = eventName,
+                    EventData = eventData
+                });
         }
 
 #pragma warning restore CA1030 // Use events where appropriate

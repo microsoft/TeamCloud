@@ -26,15 +26,15 @@ namespace TeamCloud.Orchestrator.Activities
 
         [FunctionName(nameof(ProjectIdentityDeleteActivity)), RetryOptions(3)]
         public async Task RunActivity(
-            [ActivityTrigger] IDurableActivityContext functionContext,
+            [ActivityTrigger] IDurableActivityContext activityContext,
             ILogger log)
         {
-            if (functionContext is null)
-                throw new ArgumentNullException(nameof(functionContext));
+            if (activityContext is null)
+                throw new ArgumentNullException(nameof(activityContext));
 
             try
             {
-                var project = functionContext.GetInput<ProjectDocument>();
+                var project = activityContext.GetInput<ProjectDocument>();
 
                 if (!string.IsNullOrEmpty(project.Identity?.Id))
                 {

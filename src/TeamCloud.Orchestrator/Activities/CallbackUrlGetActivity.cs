@@ -20,34 +20,41 @@ namespace TeamCloud.Orchestrator.Activities
         [FunctionName(nameof(CallbackUrlGetActivity))]
         [RetryOptions(3)]
         public static async Task<string> RunActivity(
-            [ActivityTrigger] IDurableActivityContext functionContext,
+            [ActivityTrigger] IDurableActivityContext activityContext,
             ILogger log)
         {
-            if (functionContext is null)
-                throw new ArgumentNullException(nameof(functionContext));
+            if (activityContext is null)
+                throw new ArgumentNullException(nameof(activityContext));
 
-            var (instanceId, command) =
-                functionContext.GetInput<(string, ICommand)>();
+            var functionInput = activityContext.GetInput<Input>();
 
-            using (log.BeginCommandScope(command))
+            using (log.BeginCommandScope(functionInput.Command))
             {
                 try
                 {
-                    log.LogInformation($"Acquire callback url for instance '{instanceId}' of command {command.GetType().Name} ({command.CommandId})");
+                    log.LogInformation($"Acquire callback url for instance '{functionInput.InstanceId}' of command {functionInput.Command.GetType().Name} ({functionInput.Command.CommandId})");
 
                     var callbackUrl = await CallbackTrigger
-                         .GetUrlAsync(instanceId, command)
+                         .GetUrlAsync(functionInput.InstanceId, functionInput.Command)
                          .ConfigureAwait(false);
 
                     return callbackUrl;
                 }
                 catch (Exception exc)
                 {
-                    log.LogError(exc, $"Failed to acquire callback url for instance '{instanceId}' of command {command.GetType().Name} ({command.CommandId}): {exc.Message}");
+                    log.LogError(exc, $"Failed to acquire callback url for instance '{functionInput.InstanceId}' of command {functionInput.Command.GetType().Name} ({functionInput.Command.CommandId}): {exc.Message}");
 
                     throw exc.AsSerializable();
                 }
             }
         }
+
+        public struct Input
+        {
+            public string InstanceId { get; set; }
+
+            public ICommand Command { get; set; }
+        }
+
     }
 }

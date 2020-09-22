@@ -23,23 +23,23 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
     {
         [FunctionName(nameof(OrchestratorProjectDeleteCommandOrchestration))]
         public static async Task RunOrchestration(
-            [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
+            [OrchestrationTrigger] IDurableOrchestrationContext orchestrationContext,
             ILogger log)
         {
-            if (functionContext is null)
-                throw new ArgumentNullException(nameof(functionContext));
+            if (orchestrationContext is null)
+                throw new ArgumentNullException(nameof(orchestrationContext));
 
             if (log is null)
                 throw new ArgumentNullException(nameof(log));
 
-            var command = functionContext.GetInput<OrchestratorProjectDeleteCommand>();
+            var command = orchestrationContext.GetInput<OrchestratorProjectDeleteCommand>();
             var commandResult = command.CreateResult();
 
             using (log.BeginCommandScope(command))
             {
-                functionContext.SetCustomStatus($"Refreshing project", log);
+                orchestrationContext.SetCustomStatus($"Refreshing project", log);
 
-                var project = commandResult.Result = (await functionContext
+                var project = commandResult.Result = (await orchestrationContext
                     .GetProjectAsync(command.ProjectId, allowUnsafe: true)
                     .ConfigureAwait(true)) ?? command.Payload;
 
@@ -47,7 +47,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 {
                     try
                     {
-                        functionContext.SetCustomStatus("Sending commands", log);
+                        orchestrationContext.SetCustomStatus("Sending commands", log);
 
                         var providerCommand = new ProviderProjectDeleteCommand
                         (
@@ -56,27 +56,27 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                             command.CommandId
                         );
 
-                        var providerResults = await functionContext
+                        var providerResults = await orchestrationContext
                             .SendProviderCommandAsync<ProviderProjectDeleteCommand, ProviderProjectDeleteCommandResult>(providerCommand, project)
                             .ConfigureAwait(true);
                     }
                     finally
                     {
-                        functionContext.SetCustomStatus("Deleting project", log);
+                        orchestrationContext.SetCustomStatus("Deleting project", log);
 
-                        await functionContext
+                        await orchestrationContext
                             .DeleteProjectAsync(project)
                             .ConfigureAwait(true);
 
-                        functionContext.SetCustomStatus($"Deleting project identity", log);
+                        orchestrationContext.SetCustomStatus($"Deleting project identity", log);
 
-                        await functionContext
+                        await orchestrationContext
                             .CallActivityWithRetryAsync(nameof(ProjectIdentityDeleteActivity), project)
                             .ConfigureAwait(true);
 
-                        functionContext.SetCustomStatus("Deleting resources", log);
+                        orchestrationContext.SetCustomStatus("Deleting resources", log);
 
-                        await functionContext.DeleteResourcesAsync
+                        await orchestrationContext.DeleteResourcesAsync
                         (
                             false, // we are not going to wait for this operation
                             GetResourceGroupId(project?.ResourceGroup?.Id)
@@ -94,11 +94,11 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                     var commandException = commandResult.Errors?.ToException();
 
                     if (commandException is null)
-                        functionContext.SetCustomStatus($"Command succeeded", log);
+                        orchestrationContext.SetCustomStatus($"Command succeeded", log);
                     else
-                        functionContext.SetCustomStatus($"Command failed: {commandException.Message}", log, commandException);
+                        orchestrationContext.SetCustomStatus($"Command failed: {commandException.Message}", log, commandException);
 
-                    functionContext.SetOutput(commandResult);
+                    orchestrationContext.SetOutput(commandResult);
                 }
             }
         }

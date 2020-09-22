@@ -5,11 +5,11 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.Azure.Storage.Queue;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.WindowsAzure.Storage.Queue;
 using TeamCloud.Audit;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Orchestrator.Orchestrations.Utilities;

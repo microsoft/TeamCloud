@@ -10,6 +10,8 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Audit;
 using TeamCloud.Model.Commands.Core;
+using TeamCloud.Model.Data;
+using TeamCloud.Orchestration;
 
 namespace TeamCloud.Orchestrator.Activities
 {
@@ -24,28 +26,52 @@ namespace TeamCloud.Orchestrator.Activities
 
         [FunctionName(nameof(CommandAuditActivity))]
         public async Task RunActivity(
-            [ActivityTrigger] IDurableActivityContext functionContext,
+            [ActivityTrigger] IDurableActivityContext activityContext,
             ILogger logger)
         {
-            if (functionContext is null)
-                throw new ArgumentNullException(nameof(functionContext));
+            if (activityContext is null)
+                throw new ArgumentNullException(nameof(activityContext));
 
             if (logger is null)
                 throw new ArgumentNullException(nameof(logger));
 
             try
             {
-                var (command, commandResult, providerId) =
-                    functionContext.GetInput<(ICommand, ICommandResult, string)>();
+                var functionInput = activityContext.GetInput<Input>();
 
                 await commandAuditWriter
-                    .AuditAsync(command, commandResult, providerId)
+                    .AuditAsync(functionInput.Command, functionInput.CommandResult, functionInput.ProviderId)
                     .ConfigureAwait(false);
             }
             catch (Exception exc)
             {
                 logger.LogError(exc, $"Command auditing failed: {exc.Message}");
             }
+        }
+
+        public struct Input
+        {
+            public ICommand Command { get; set; }
+
+            public ICommandResult CommandResult { get; set; }
+
+            public string ProviderId { get; set; }
+        }
+    }
+
+    internal static class CommandAuditExtensions
+    {
+        internal static Task AuditAsync(this IDurableOrchestrationContext orchestrationContext, ICommand command, ICommandResult commandResult = default, IProvider provider = default)
+        {
+            if (command is null)
+                throw new ArgumentNullException(nameof(command));
+
+            return orchestrationContext.CallActivityWithRetryAsync(nameof(CommandAuditActivity), new CommandAuditActivity.Input()
+            {
+                Command = command,
+                CommandResult = commandResult,
+                ProviderId = provider?.Id
+            });
         }
     }
 }

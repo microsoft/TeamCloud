@@ -24,16 +24,16 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
     {
         [FunctionName(nameof(OrchestratorProjectUpdateCommandOrchestration))]
         public static async Task RunOrchestration(
-            [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
+            [OrchestrationTrigger] IDurableOrchestrationContext orchestrationContext,
             ILogger log)
         {
-            if (functionContext is null)
-                throw new ArgumentNullException(nameof(functionContext));
+            if (orchestrationContext is null)
+                throw new ArgumentNullException(nameof(orchestrationContext));
 
             if (log is null)
                 throw new ArgumentNullException(nameof(log));
 
-            var command = functionContext.GetInput<OrchestratorProjectUpdateCommand>();
+            var command = orchestrationContext.GetInput<OrchestratorProjectUpdateCommand>();
             var commandResult = command.CreateResult();
 
             using (log.BeginCommandScope(command))
@@ -44,22 +44,22 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                 {
                     var projectUsers = project.Users.ToList();
 
-                    using (await functionContext.LockContainerDocumentAsync(project).ConfigureAwait(true))
+                    using (await orchestrationContext.LockContainerDocumentAsync(project).ConfigureAwait(true))
                     {
-                        functionContext.SetCustomStatus($"Updating project", log);
+                        orchestrationContext.SetCustomStatus($"Updating project", log);
 
-                        project = commandResult.Result = await functionContext
+                        project = commandResult.Result = await orchestrationContext
                             .SetProjectAsync(project)
                             .ConfigureAwait(true);
 
-                        functionContext.SetCustomStatus($"Adding users", log);
+                        orchestrationContext.SetCustomStatus($"Adding users", log);
 
                         project.Users = await Task
-                            .WhenAll(projectUsers.Select(user => functionContext.SetUserProjectMembershipAsync(user, project.Id, allowUnsafe: true)))
+                            .WhenAll(projectUsers.Select(user => orchestrationContext.SetUserProjectMembershipAsync(user, project.Id, allowUnsafe: true)))
                             .ConfigureAwait(true);
                     }
 
-                    functionContext.SetCustomStatus("Waiting on providers to update project resources.", log);
+                    orchestrationContext.SetCustomStatus("Waiting on providers to update project resources.", log);
 
                     var providerCommand = new ProviderProjectUpdateCommand
                     (
@@ -68,7 +68,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                         command.CommandId
                     );
 
-                    var providerResults = await functionContext
+                    var providerResults = await orchestrationContext
                         .SendProviderCommandAsync<ProviderProjectUpdateCommand, ProviderProjectUpdateCommandResult>(providerCommand, project)
                         .ConfigureAwait(true);
                 }
@@ -82,11 +82,11 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                     var commandException = commandResult.Errors?.ToException();
 
                     if (commandException is null)
-                        functionContext.SetCustomStatus($"Command succeeded", log);
+                        orchestrationContext.SetCustomStatus($"Command succeeded", log);
                     else
-                        functionContext.SetCustomStatus($"Command failed: {commandException.Message}", log, commandException);
+                        orchestrationContext.SetCustomStatus($"Command failed: {commandException.Message}", log, commandException);
 
-                    functionContext.SetOutput(commandResult);
+                    orchestrationContext.SetOutput(commandResult);
                 }
             }
         }

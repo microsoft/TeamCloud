@@ -58,13 +58,13 @@ namespace TeamCloud.Orchestrator.Activities
         [FunctionName(nameof(ProjectResourcesCreateActivity))]
         [RetryOptions(3)]
         public async Task<string> RunActivity(
-            [ActivityTrigger] IDurableActivityContext functionContext,
+            [ActivityTrigger] IDurableActivityContext activityContext,
             ILogger log)
         {
-            if (functionContext is null)
-                throw new ArgumentNullException(nameof(functionContext));
+            if (activityContext is null)
+                throw new ArgumentNullException(nameof(activityContext));
 
-            var (project, subscriptionId) = functionContext.GetInput<(ProjectDocument, Guid)>();
+            var functionInput = activityContext.GetInput<Input>();
 
             // if the provided project instance is already assigned
             // to a subscription we use this one instead of the provided
@@ -72,16 +72,16 @@ namespace TeamCloud.Orchestrator.Activities
             // same subscription). the same is valid for the projects
             // resource group name and location (passed as templated params).
 
-            subscriptionId = project.ResourceGroup?.SubscriptionId ?? subscriptionId;
+            functionInput.SubscriptionId = functionInput.Project.ResourceGroup?.SubscriptionId ?? functionInput.SubscriptionId;
 
             var template = new CreateProjectTemplate();
 
-            template.Parameters["projectId"] = project.Id;
-            template.Parameters["projectName"] = project.Name;
-            template.Parameters["projectPrefix"] = project.Type.ResourceGroupNamePrefix; // if null - the template uses its default value
-            template.Parameters["resourceGroupName"] = project.ResourceGroup?.Name; // if null - the template generates a unique name
-            template.Parameters["resourceGroupLocation"] = project.ResourceGroup?.Region ?? project.Type.Region;
-            template.Parameters["providerIdentities"] = await GetProviderIdentitiesAsync(project).ConfigureAwait(false);
+            template.Parameters["projectId"] = functionInput.Project.Id;
+            template.Parameters["projectName"] = functionInput.Project.Name;
+            template.Parameters["projectPrefix"] = functionInput.Project.Type.ResourceGroupNamePrefix; // if null - the template uses its default value
+            template.Parameters["resourceGroupName"] = functionInput.Project.ResourceGroup?.Name; // if null - the template generates a unique name
+            template.Parameters["resourceGroupLocation"] = functionInput.Project.ResourceGroup?.Region ?? functionInput.Project.Type.Region;
+            template.Parameters["providerIdentities"] = await GetProviderIdentitiesAsync(functionInput.Project).ConfigureAwait(false);
 
             //template.Parameters["eventGridLocation"] = location;
             //template.Parameters["eventGridEndpoint"] = await EventTrigger.GetUrlAsync().ConfigureAwait(false);
@@ -89,7 +89,7 @@ namespace TeamCloud.Orchestrator.Activities
             try
             {
                 var deployment = await azureDeploymentService
-                    .DeploySubscriptionTemplateAsync(template, subscriptionId, project.Type.Region)
+                    .DeploySubscriptionTemplateAsync(template, functionInput.SubscriptionId, functionInput.Project.Type.Region)
                     .ConfigureAwait(false);
 
                 return deployment.ResourceId;
@@ -100,6 +100,13 @@ namespace TeamCloud.Orchestrator.Activities
 
                 throw serializableException;
             }
+        }
+
+        public struct Input
+        {
+            public ProjectDocument Project { get; set; }
+
+            public Guid SubscriptionId { get; set; }
         }
     }
 }

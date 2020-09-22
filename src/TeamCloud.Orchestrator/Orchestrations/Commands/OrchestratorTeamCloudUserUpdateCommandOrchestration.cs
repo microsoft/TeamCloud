@@ -25,16 +25,16 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
     {
         [FunctionName(nameof(OrchestratorTeamCloudUserUpdateCommandOrchestration))]
         public static async Task RunOrchestration(
-            [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
+            [OrchestrationTrigger] IDurableOrchestrationContext orchestrationContext,
             ILogger log)
         {
-            if (functionContext is null)
-                throw new ArgumentNullException(nameof(functionContext));
+            if (orchestrationContext is null)
+                throw new ArgumentNullException(nameof(orchestrationContext));
 
             if (log is null)
                 throw new ArgumentNullException(nameof(log));
 
-            var command = functionContext.GetInput<OrchestratorTeamCloudUserUpdateCommand>();
+            var command = orchestrationContext.GetInput<OrchestratorTeamCloudUserUpdateCommand>();
             var commandResult = command.CreateResult();
             var user = command.Payload;
 
@@ -42,13 +42,13 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
             {
                 try
                 {
-                    functionContext.SetCustomStatus($"Updating user.", log);
+                    orchestrationContext.SetCustomStatus($"Updating user.", log);
 
                     var existingUser = default(UserDocument);
 
-                    using (await functionContext.LockAsync<UserDocument>(user.Id.ToString()).ConfigureAwait(true))
+                    using (await orchestrationContext.LockAsync<UserDocument>(user.Id.ToString()).ConfigureAwait(true))
                     {
-                        existingUser = await functionContext
+                        existingUser = await orchestrationContext
                             .GetUserAsync(user.Id)
                             .ConfigureAwait(true);
 
@@ -61,7 +61,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                         if (!user.HasEqualMemberships(existingUser))
                             throw new OrchestratorCommandException($"User '{user.Id}' Project Memberships cannot be changed using the TeamCloudUserUpdateCommand. Project Memebership details must be changed using the ProjectUserUpdateCommand.", command);
 
-                        user = await functionContext
+                        user = await orchestrationContext
                             .SetUserTeamCloudInfoAsync(user)
                             .ConfigureAwait(true);
                     }
@@ -73,13 +73,13 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                     // only update member projects if user's teamcloud level properties changed
                     if (user.IsAdmin() || existingUser.IsAdmin())
                     {
-                        projects = await functionContext
+                        projects = await orchestrationContext
                             .ListProjectsAsync()
                             .ConfigureAwait(true);
                     }
                     else if (user.ProjectMemberships.Any() && !user.Properties.SequenceEqual(existingUser.Properties))
                     {
-                        projects = await functionContext
+                        projects = await orchestrationContext
                             .ListProjectsAsync(user.ProjectMemberships.Select(m => m.ProjectId).ToList())
                             .ConfigureAwait(true);
                     }
@@ -90,7 +90,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                         {
                             var projectUpdateCommand = new OrchestratorProjectUpdateCommand(command.User, project);
 
-                            functionContext.StartNewOrchestration(nameof(OrchestratorProjectUpdateCommandOrchestration), projectUpdateCommand);
+                            orchestrationContext.StartNewOrchestration(nameof(OrchestratorProjectUpdateCommandOrchestration), projectUpdateCommand);
                         }
                     }
 
@@ -101,7 +101,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                        command.CommandId
                    );
 
-                    var providerResult = await functionContext
+                    var providerResult = await orchestrationContext
                         .SendProviderCommandAsync<ProviderTeamCloudUserUpdateCommand, ProviderTeamCloudUserUpdateCommandResult>(providerCommand)
                         .ConfigureAwait(true);
 
@@ -109,7 +109,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
 
                     commandResult.Result = user;
 
-                    functionContext.SetCustomStatus($"User updated.", log);
+                    orchestrationContext.SetCustomStatus($"User updated.", log);
                 }
                 catch (Exception ex)
                 {
@@ -121,11 +121,11 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                     var commandException = commandResult.Errors?.ToException();
 
                     if (commandException is null)
-                        functionContext.SetCustomStatus($"Command succeeded", log);
+                        orchestrationContext.SetCustomStatus($"Command succeeded", log);
                     else
-                        functionContext.SetCustomStatus($"Command failed: {commandException.Message}", log, commandException);
+                        orchestrationContext.SetCustomStatus($"Command failed: {commandException.Message}", log, commandException);
 
-                    functionContext.SetOutput(commandResult);
+                    orchestrationContext.SetOutput(commandResult);
                 }
             }
         }

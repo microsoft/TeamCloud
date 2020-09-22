@@ -25,24 +25,26 @@ namespace TeamCloud.Orchestrator.Activities
 
         [FunctionName(nameof(UserTeamCloudInfoSetActivity))]
         public async Task<UserDocument> RunActivity(
-            [ActivityTrigger] UserDocument user)
+            [ActivityTrigger] IDurableActivityContext activityContext)
         {
-            if (user is null)
-                throw new ArgumentNullException(nameof(user));
+            if (activityContext is null)
+                throw new ArgumentNullException(nameof(activityContext));
 
-            var newUser = await usersRepository
+            var user = activityContext.GetInput<UserDocument>();
+
+            user = await usersRepository
                 .SetTeamCloudInfoAsync(user)
                 .ConfigureAwait(false);
 
-            return newUser;
+            return user;
         }
     }
 
     internal static class UserTeamCloudDetailsSetExtension
     {
-        public static Task<UserDocument> SetUserTeamCloudInfoAsync(this IDurableOrchestrationContext functionContext, UserDocument user, bool allowUnsafe = false)
-            => functionContext.IsLockedByContainerDocument(user) || allowUnsafe
-            ? functionContext.CallActivityWithRetryAsync<UserDocument>(nameof(UserTeamCloudInfoSetActivity), user)
+        public static Task<UserDocument> SetUserTeamCloudInfoAsync(this IDurableOrchestrationContext orchestrationContext, UserDocument user, bool allowUnsafe = false)
+            => orchestrationContext.IsLockedByContainerDocument(user) || allowUnsafe
+            ? orchestrationContext.CallActivityWithRetryAsync<UserDocument>(nameof(UserTeamCloudInfoSetActivity), user)
             : throw new NotSupportedException($"Unable to set user '{user.Id}' without acquired lock");
     }
 }

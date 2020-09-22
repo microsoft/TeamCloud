@@ -22,16 +22,16 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
     {
         [FunctionName(nameof(OrchestratorProviderCreateCommandOrchestration))]
         public static async Task RunOrchestration(
-            [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
+            [OrchestrationTrigger] IDurableOrchestrationContext orchestrationContext,
             ILogger log)
         {
-            if (functionContext is null)
-                throw new ArgumentNullException(nameof(functionContext));
+            if (orchestrationContext is null)
+                throw new ArgumentNullException(nameof(orchestrationContext));
 
             if (log is null)
                 throw new ArgumentNullException(nameof(log));
 
-            var command = functionContext.GetInput<OrchestratorProviderCreateCommand>();
+            var command = orchestrationContext.GetInput<OrchestratorProviderCreateCommand>();
             var commandResult = command.CreateResult();
             var provider = command.Payload;
 
@@ -46,25 +46,25 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
 
                     provider.Registered = null;
 
-                    using (await functionContext.LockContainerDocumentAsync(provider).ConfigureAwait(true))
+                    using (await orchestrationContext.LockContainerDocumentAsync(provider).ConfigureAwait(true))
                     {
-                        var existingProvider = await functionContext
+                        var existingProvider = await orchestrationContext
                             .GetProviderAsync(provider.Id)
                             .ConfigureAwait(true);
 
                         if (!(existingProvider is null))
                             throw new OrchestratorCommandException($"Provider {provider.Id} already exists.");
 
-                        functionContext.SetCustomStatus($"Creating provider", log);
+                        orchestrationContext.SetCustomStatus($"Creating provider", log);
 
-                        provider = commandResult.Result = await functionContext
+                        provider = commandResult.Result = await orchestrationContext
                             .CreateProviderAsync(provider)
                             .ConfigureAwait(true);
                     }
 
-                    functionContext.SetCustomStatus($"Registering provider", log);
+                    orchestrationContext.SetCustomStatus($"Registering provider", log);
 
-                    await functionContext
+                    await orchestrationContext
                         .RegisterProviderAsync(provider, true)
                         .ConfigureAwait(true);
                 }
@@ -78,11 +78,11 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
                     var commandException = commandResult.Errors?.ToException();
 
                     if (commandException is null)
-                        functionContext.SetCustomStatus($"Command succeeded", log);
+                        orchestrationContext.SetCustomStatus($"Command succeeded", log);
                     else
-                        functionContext.SetCustomStatus($"Command failed: {commandException.Message}", log, commandException);
+                        orchestrationContext.SetCustomStatus($"Command failed: {commandException.Message}", log, commandException);
 
-                    functionContext.SetOutput(commandResult);
+                    orchestrationContext.SetOutput(commandResult);
                 }
             }
         }

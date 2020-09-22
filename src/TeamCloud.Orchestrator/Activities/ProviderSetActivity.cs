@@ -25,10 +25,12 @@ namespace TeamCloud.Orchestrator.Activities
 
         [FunctionName(nameof(ProviderSetActivity))]
         public async Task<ProviderDocument> RunActivity(
-            [ActivityTrigger] ProviderDocument provider)
+            [ActivityTrigger] IDurableActivityContext activityContext)
         {
-            if (provider is null)
-                throw new ArgumentNullException(nameof(provider));
+            if (activityContext is null)
+                throw new ArgumentNullException(nameof(activityContext));
+
+            var provider = activityContext.GetInput<ProviderDocument>();
 
             var newProvider = await providersRepository
                 .SetAsync(provider)
@@ -40,9 +42,9 @@ namespace TeamCloud.Orchestrator.Activities
 
     internal static class ProviderSetExtension
     {
-        public static Task<ProviderDocument> SetProviderAsync(this IDurableOrchestrationContext functionContext, ProviderDocument provider, bool allowUnsafe = false)
-            => functionContext.IsLockedByContainerDocument(provider) || allowUnsafe
-            ? functionContext.CallActivityWithRetryAsync<ProviderDocument>(nameof(ProviderSetActivity), provider)
+        public static Task<ProviderDocument> SetProviderAsync(this IDurableOrchestrationContext orchestrationContext, ProviderDocument provider, bool allowUnsafe = false)
+            => orchestrationContext.IsLockedByContainerDocument(provider) || allowUnsafe
+            ? orchestrationContext.CallActivityWithRetryAsync<ProviderDocument>(nameof(ProviderSetActivity), provider)
             : throw new NotSupportedException($"Unable to set provider '{provider.Id}' without acquired lock");
     }
 }

@@ -10,6 +10,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using TeamCloud.Azure.Resources;
+using TeamCloud.Orchestration;
 using TeamCloud.Orchestration.Deployment;
 using TeamCloud.Orchestrator.Activities;
 using TeamCloud.Orchestrator.Entities;
@@ -23,29 +24,29 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 
         [FunctionName(nameof(SubscriptionInitializationOrchestration))]
         public static async Task RunOrchestrator(
-            [OrchestrationTrigger] IDurableOrchestrationContext functionContext,
+            [OrchestrationTrigger] IDurableOrchestrationContext orchestrationContext,
             ILogger log)
         {
-            if (functionContext is null)
-                throw new ArgumentNullException(nameof(functionContext));
+            if (orchestrationContext is null)
+                throw new ArgumentNullException(nameof(orchestrationContext));
 
-            var functionLog = functionContext.CreateReplaySafeLogger(log ?? NullLogger.Instance);
+            var functionLog = orchestrationContext.CreateReplaySafeLogger(log ?? NullLogger.Instance);
 
-            var subscriptionId = functionContext.GetInput<Guid>();
+            var subscriptionId = orchestrationContext.GetInput<Guid>();
             var resourceId = new AzureResourceIdentifier(subscriptionId);
             var initializationTimeout = TimeSpan.FromMinutes(5);
 
             try
             {
-                var currentSubscriptionVersion = await functionContext
+                var currentSubscriptionVersion = await orchestrationContext
                     .GetSubscriptionVersionAsync(subscriptionId)
                     .ConfigureAwait(true);
 
                 if (currentSubscriptionVersion != TargetSubscriptionVersion)
                 {
-                    using (await functionContext.LockAzureResourceAsync(resourceId).ConfigureAwait(true))
+                    using (await orchestrationContext.LockAzureResourceAsync(resourceId).ConfigureAwait(true))
                     {
-                        currentSubscriptionVersion = await functionContext
+                        currentSubscriptionVersion = await orchestrationContext
                             .GetSubscriptionVersionAsync(subscriptionId)
                             .ConfigureAwait(true);
 
@@ -58,15 +59,15 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 
                             var deploymentOutputEventName = subscriptionId.ToString();
 
-                            _ = await functionContext
+                            _ = await orchestrationContext
                                 .StartDeploymentAsync(nameof(ProjectSubscriptonInitializeActivity), subscriptionId, deploymentOutputEventName)
                                 .ConfigureAwait(true);
 
-                            await functionContext
+                            await orchestrationContext
                                 .WaitForExternalEvent(deploymentOutputEventName, initializationTimeout)
                                 .ConfigureAwait(true);
 
-                            _ = await functionContext
+                            _ = await orchestrationContext
                                 .SetSubscriptionVersionAsync(subscriptionId, TargetSubscriptionVersion)
                                 .ConfigureAwait(true);
                         }
@@ -83,4 +84,31 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
             }
         }
     }
+
+    internal static class SubscriptionInitializationExtensions
+    {
+        private static readonly Version TargetSubscriptionVersion = new InitializeSubscriptionTemplate().TemplateVersion;
+
+        internal static async Task InitializeSubscriptionAsync(this IDurableOrchestrationContext orchestrationContext, Guid subscriptionId, bool waitFor = false)
+        {
+            var currentSubscriptionVersion = await orchestrationContext
+                .GetSubscriptionVersionAsync(subscriptionId)
+                .ConfigureAwait(true);
+
+            if (currentSubscriptionVersion != TargetSubscriptionVersion)
+            {
+                if (waitFor)
+                {
+                    await orchestrationContext
+                        .CallSubOrchestratorWithRetryAsync(nameof(SubscriptionInitializationOrchestration), subscriptionId)
+                        .ConfigureAwait(true);
+                }
+                else
+                {
+                    orchestrationContext.StartNewOrchestration(nameof(SubscriptionInitializationOrchestration), subscriptionId);
+                }
+            }
+        }
+    }
+
 }
