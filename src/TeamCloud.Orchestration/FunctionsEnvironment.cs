@@ -56,7 +56,7 @@ namespace TeamCloud.Orchestration
         public static bool IsLocalEnvironment
             => string.IsNullOrEmpty(Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID"));
 
-        public static async Task<string> GetFunctionUrlAsync(string functionName)
+        public static async Task<string> GetFunctionUrlAsync(string functionName, bool withCode = false)
         {
             var functionJson = await GetFunctionJsonAsync(functionName)
                 .ConfigureAwait(false);
@@ -71,11 +71,57 @@ namespace TeamCloud.Orchestration
             var hostUrl = await GetHostUrlAsync()
                 .ConfigureAwait(false);
 
-            if (functionUrl.StartsWith(hostUrl, StringComparison.OrdinalIgnoreCase))
-                return functionUrl;
+            if (!functionUrl.StartsWith(hostUrl, StringComparison.OrdinalIgnoreCase))
+            {
+                functionUrl = hostUrl
+                    .AppendPathSegment(new Uri(functionUrl).AbsolutePath)
+                    .ToString();
+            }
 
-            return hostUrl
-                .AppendPathSegment(new Uri(functionUrl).AbsolutePath)
+            if (withCode)
+            {
+                var code = await GetFunctionKeyAsync(functionName)
+                    .ConfigureAwait(false);
+
+                functionUrl = functionUrl
+                    .SetQueryParam("code", code);
+            }
+
+            return functionUrl;
+        }
+
+        public static async Task<string> GetFunctionKeyAsync(string functionName)
+        {
+            var masterKey = await GetAdminKeyAsync()
+                .ConfigureAwait(false);
+
+            var hostUrl = await GetHostUrlAsync()
+                .ConfigureAwait(false);
+
+            var json = await hostUrl
+                .AppendPathSegment("admin/functions")
+                .AppendPathSegment(functionName)
+                .AppendPathSegment("keys")
+                .SetQueryParam("code", masterKey)
+                .GetJObjectAsync()
+                .ConfigureAwait(false);
+
+            var tokens = json
+                .SelectTokens($"$.keys[?(@.name != 'default')].value")
+                .Select(token => token.ToString())
+                .ToArray();
+
+            if (tokens.Length == 1)
+            {
+                return tokens[0];
+            }
+            else if (tokens.Length > 1)
+            {
+                return tokens[new Random().Next(0, tokens.Length - 1)];
+            }
+
+            return json
+                .SelectToken($"$.keys[?(@.name == 'default')].value")?
                 .ToString();
         }
 
