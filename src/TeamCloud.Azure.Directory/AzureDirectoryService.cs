@@ -42,8 +42,9 @@ namespace TeamCloud.Azure.Directory
             if (identifier is null)
                 throw new ArgumentNullException(nameof(identifier));
 
-            using var client = azureSessionService
-                .CreateClient<GraphRbacManagementClient>(AzureEndpoint.GraphEndpoint);
+            using var client = await azureSessionService
+                .CreateClientAsync<GraphRbacManagementClient>(AzureEndpoint.GraphEndpoint)
+                .ConfigureAwait(false);
 
             identifier = identifier
                 .Replace("%3A", ":", StringComparison.OrdinalIgnoreCase)
@@ -220,8 +221,9 @@ namespace TeamCloud.Azure.Directory
 
             name = SanitizeServicePrincipalName(name);
 
-            using var client = azureSessionService
-                .CreateClient<GraphRbacManagementClient>(AzureEndpoint.GraphEndpoint);
+            using var client = await azureSessionService
+                .CreateClientAsync<GraphRbacManagementClient>(AzureEndpoint.GraphEndpoint)
+                .ConfigureAwait(false);
 
             password ??= CreateServicePrincipalPassword();
 
@@ -285,8 +287,9 @@ namespace TeamCloud.Azure.Directory
 
             name = SanitizeServicePrincipalName(name);
 
-            using var client = azureSessionService
-                .CreateClient<GraphRbacManagementClient>(AzureEndpoint.GraphEndpoint);
+            using var client = await azureSessionService
+                .CreateClientAsync<GraphRbacManagementClient>(AzureEndpoint.GraphEndpoint)
+                .ConfigureAwait(false);
 
             var principal = await GetServicePrincipalInnerAsync(client, name)
                 .ConfigureAwait(false);
@@ -318,8 +321,9 @@ namespace TeamCloud.Azure.Directory
 
             name = SanitizeServicePrincipalName(name);
 
-            using var client = azureSessionService
-                .CreateClient<GraphRbacManagementClient>(AzureEndpoint.GraphEndpoint);
+            using var client = await azureSessionService
+                .CreateClientAsync<GraphRbacManagementClient>(AzureEndpoint.GraphEndpoint)
+                .ConfigureAwait(false);
 
             var principal = await GetServicePrincipalInnerAsync(client, name)
                 .ConfigureAwait(false);

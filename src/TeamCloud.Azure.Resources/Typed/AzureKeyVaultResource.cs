@@ -24,13 +24,15 @@ namespace TeamCloud.Azure.Resources.Typed
             vaultInstance = new AsyncLazy<IVault>(() => GetVaultAsync());
         }
 
-        private Task<IVault> GetVaultAsync()
+        private async Task<IVault> GetVaultAsync()
         {
-            var session = AzureResourceService.AzureSessionService
-                .CreateSession(ResourceId.SubscriptionId);
+            var session = await AzureResourceService.AzureSessionService
+                .CreateSessionAsync(ResourceId.SubscriptionId)
+                .ConfigureAwait(false);
 
-            return session.Vaults
-                .GetByIdAsync(ResourceId.ToString());
+            return await session.Vaults
+                .GetByIdAsync(ResourceId.ToString())
+                .ConfigureAwait(false);
         }
 
         public async Task SetAllSecretPermissionsAsync(Guid userObjectId)

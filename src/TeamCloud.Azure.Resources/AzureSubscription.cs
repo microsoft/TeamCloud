@@ -30,7 +30,9 @@ namespace TeamCloud.Azure.Resources
 
         public override async Task<bool> ExistsAsync()
         {
-            var session = AzureResourceService.AzureSessionService.CreateSession();
+            var session = await AzureResourceService.AzureSessionService
+                .CreateSessionAsync()
+                .ConfigureAwait(false);
 
             try
             {
@@ -48,8 +50,9 @@ namespace TeamCloud.Azure.Resources
 
         public async Task<AzureResourceGroup> CreateResourceGroupAsync(string name, string region = default)
         {
-            var session = AzureResourceService.AzureSessionService
-                .CreateSession(this.ResourceId.SubscriptionId);
+            var session = await AzureResourceService.AzureSessionService
+                .CreateSessionAsync(this.ResourceId.SubscriptionId)
+                .ConfigureAwait(false);
 
             _ = await session.ResourceGroups
                 .Define(name)

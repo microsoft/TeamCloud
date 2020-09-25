@@ -27,13 +27,15 @@ namespace TeamCloud.Azure.Resources
             : base(GetResourceId(subscriptionId, resourceGroupName), azureResourceService)
         { }
 
-        public override Task<bool> ExistsAsync()
+        public override async Task<bool> ExistsAsync()
         {
-            var session = AzureResourceService.AzureSessionService
-                .CreateSession(this.ResourceId.SubscriptionId);
+            var session = await AzureResourceService.AzureSessionService
+                .CreateSessionAsync(this.ResourceId.SubscriptionId)
+                .ConfigureAwait(false);
 
-            return session.ResourceGroups
-                .ContainAsync(this.ResourceId.ResourceGroup);
+            return await session.ResourceGroups
+                .ContainAsync(this.ResourceId.ResourceGroup)
+                .ConfigureAwait(false);
         }
 
         public override async Task DeleteAsync(bool deleteLocks = false)
@@ -78,8 +80,9 @@ namespace TeamCloud.Azure.Resources
 
             if (locks.Any())
             {
-                var session = AzureResourceService.AzureSessionService
-                    .CreateSession(this.ResourceId.SubscriptionId);
+                var session = await AzureResourceService.AzureSessionService
+                    .CreateSessionAsync(this.ResourceId.SubscriptionId)
+                    .ConfigureAwait(false);
 
                 await session.ManagementLocks
                     .DeleteByIdsAsync(locks.ToArray())
@@ -126,8 +129,9 @@ namespace TeamCloud.Azure.Resources
 
         private async IAsyncEnumerable<AzureResource> GetResourcesAsync(ODataQuery<GenericResourceFilter> resourceQuery = null)
         {
-            using var resourceManagementClient = AzureResourceService.AzureSessionService
-                .CreateClient<ResourceManagementClient>(subscriptionId: this.ResourceId.SubscriptionId);
+            using var resourceManagementClient = await AzureResourceService.AzureSessionService
+                .CreateClientAsync<ResourceManagementClient>(subscriptionId: this.ResourceId.SubscriptionId)
+                .ConfigureAwait(false);
 
             var page = await resourceManagementClient.Resources
                 .ListByResourceGroupAsync(this.ResourceId.ResourceGroup, resourceQuery)
@@ -150,8 +154,9 @@ namespace TeamCloud.Azure.Resources
 
         private async Task<IEnumerable<string>> GetLocksInternalAsync()
         {
-            var session = AzureResourceService.AzureSessionService
-                .CreateSession(this.ResourceId.SubscriptionId);
+            var session = await AzureResourceService.AzureSessionService
+                .CreateSessionAsync(this.ResourceId.SubscriptionId)
+                .ConfigureAwait(false);
 
             var page = await session.ManagementLocks
                 .ListByResourceGroupAsync(ResourceId.ResourceGroup, loadAllPages: true)

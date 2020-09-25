@@ -32,6 +32,7 @@
   </ItemGroup>
   
   <ItemGroup>
+    <PackageReference Include="Microsoft.Azure.Management.DevTestLabs" Version="3.0.0" />
     <PackageReference Include="System.Linq.Async" Version="4.1.1" />
     <ProjectReference Include="..\TeamCloud.Azure\TeamCloud.Azure.csproj" />
   </ItemGroup>

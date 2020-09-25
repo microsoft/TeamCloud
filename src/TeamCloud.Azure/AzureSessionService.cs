@@ -5,6 +5,8 @@
 
 using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Reflection;
 using System.Threading;
@@ -23,25 +25,6 @@ using RMFluent = Microsoft.Azure.Management.ResourceManager.Fluent;
 namespace TeamCloud.Azure
 {
 
-    public interface IAzureSessionService
-    {
-        AzureEnvironment Environment { get; }
-
-        IAzureSessionOptions Options { get; }
-
-        AZFluent.Azure.IAuthenticated CreateSession();
-
-        AZFluent.IAzure CreateSession(Guid subscriptionId);
-
-        Task<string> AcquireTokenAsync(AzureEndpoint azureEndpoint = AzureEndpoint.ResourceManagerEndpoint);
-
-        Task<IAzureSessionIdentity> GetIdentityAsync(AzureEndpoint azureEndpoint = AzureEndpoint.ResourceManagerEndpoint);
-
-        RestClient CreateClient(AzureEndpoint azureEndpoint = AzureEndpoint.ResourceManagerEndpoint);
-
-        T CreateClient<T>(AzureEndpoint azureEndpoint = AzureEndpoint.ResourceManagerEndpoint, Guid? subscriptionId = null) where T : FluentServiceClientBase<T>;
-    }
-
     public class AzureSessionService : IAzureSessionService
     {
         public static bool IsAzureEnvironment =>
@@ -50,8 +33,6 @@ namespace TeamCloud.Azure
         public static Task<string> AcquireTokenAsync(AzureEndpoint azureEndpoint = AzureEndpoint.ResourceManagerEndpoint, IAzureSessionOptions azureSessionOptions = null, IHttpClientFactory httpClientFactory = null)
             => new AzureSessionService(azureSessionOptions, httpClientFactory).AcquireTokenAsync(azureEndpoint);
 
-        private readonly Lazy<AzureCredentials> credentials;
-        private readonly Lazy<AZFluent.Azure.IAuthenticated> session;
         private readonly IAzureSessionOptions azureSessionOptions;
         private readonly IHttpClientFactory httpClientFactory;
 
@@ -59,21 +40,19 @@ namespace TeamCloud.Azure
         {
             this.azureSessionOptions = azureSessionOptions ?? AzureSessionOptions.Default;
             this.httpClientFactory = httpClientFactory ?? new DefaultHttpClientFactory();
-
-            credentials = new Lazy<AzureCredentials>(() => InitCredentials(), LazyThreadSafetyMode.PublicationOnly);
-            session = new Lazy<AZFluent.Azure.IAuthenticated>(() => InitSession(), LazyThreadSafetyMode.PublicationOnly);
         }
 
-        private AzureCredentials InitCredentials()
+        private async Task<AzureCredentials> GetCredentialsAsync()
         {
             try
             {
                 if (string.IsNullOrEmpty(azureSessionOptions.TenantId) && azureSessionOptions == AzureSessionOptions.Default)
                 {
-                    var tenantId = GetIdentityAsync(AzureEndpoint.ResourceManagerEndpoint).Result?.TenantId;
+                    var identity = await GetIdentityAsync(AzureEndpoint.ResourceManagerEndpoint)
+                        .ConfigureAwait(false);
 
-                    if (tenantId.HasValue)
-                        ((AzureSessionOptions)azureSessionOptions).TenantId = tenantId.ToString();
+                    if ((identity?.TenantId).HasValue)
+                        ((AzureSessionOptions)azureSessionOptions).TenantId = identity.TenantId.ToString();
                 }
 
                 var credentialsFactory = new RMFluent.Authentication.AzureCredentialsFactory();
@@ -109,14 +88,6 @@ namespace TeamCloud.Azure
             {
                 throw new TypeInitializationException(typeof(AzureCredentials).FullName, exc);
             }
-        }
-
-        private AZFluent.Azure.IAuthenticated InitSession()
-        {
-            return AZFluent.Azure
-                .Configure()
-                .WithDelegatingHandler(this.httpClientFactory)
-                .Authenticate(credentials.Value);
         }
 
         public AzureEnvironment Environment { get => AzureEnvironment.AzureGlobalCloud; }
@@ -195,43 +166,122 @@ namespace TeamCloud.Azure
             }
         }
 
-        public AZFluent.Azure.IAuthenticated CreateSession()
-            => session.Value;
-
-        public AZFluent.IAzure CreateSession(Guid subscriptionId)
-            => CreateSession().WithSubscription(subscriptionId.ToString());
-
-        public RestClient CreateClient(AzureEndpoint azureEndpoint = AzureEndpoint.ResourceManagerEndpoint)
+        public async Task<AZFluent.Azure.IAuthenticated> CreateSessionAsync()
         {
-            try
-            {
-                var endpointUrl = AzureEnvironment.AzureGlobalCloud.GetEndpointUrl(azureEndpoint);
+            var credentials = await GetCredentialsAsync()
+                .ConfigureAwait(false);
 
-                return RestClient.Configure()
-                    .WithBaseUri(endpointUrl)
-                    .WithCredentials(credentials.Value)
-                    .WithDelegatingHandler(httpClientFactory)
-                    .Build();
-            }
-            catch (TypeInitializationException)
-            {
-                throw;
-            }
-            catch (Exception exc)
-            {
-                throw new TypeInitializationException(typeof(RestClient).FullName, exc);
-            }
+            return AZFluent.Azure
+                  .Configure()
+                  .WithDelegatingHandler(this.httpClientFactory)
+                  .Authenticate(credentials);
         }
 
-        public T CreateClient<T>(AzureEndpoint azureEndpoint = AzureEndpoint.ResourceManagerEndpoint, Guid? subscriptionId = null)
-            where T : FluentServiceClientBase<T>
+        public async Task<AZFluent.IAzure> CreateSessionAsync(Guid subscriptionId)
         {
+            var session = await CreateSessionAsync()
+                .ConfigureAwait(false);
+
+            return session.WithSubscription(subscriptionId.ToString());
+        }
+
+        public async Task<T> CreateClientAsync<T>(AzureEndpoint azureEndpoint = AzureEndpoint.ResourceManagerEndpoint, Guid? subscriptionId = default)
+            where T : ServiceClient<T>
+        {
+            static bool CanCreateWith(params Type[] parameterTypes) => typeof(T).GetConstructors().Any(constructor =>
+            {
+                var parameters = constructor.GetParameters();
+
+                if (parameters.Length < parameterTypes.Length)
+                {
+                    return false;
+                }
+                else
+                {
+                    for (int i = 0; i < parameterTypes.Length; i++)
+                    {
+                        if (parameters[i].ParameterType != parameterTypes[i]
+                        && !parameters[i].ParameterType.IsAssignableFrom(parameterTypes[i]))
+                        {
+                            if (i == (parameters.Length - 1) && parameters[i].GetCustomAttribute<ParamArrayAttribute>() != null)
+                            {
+                                // edge case - the last parameter of the constructor can also
+                                // be an "params" parameter. means the parametertype is a array
+
+                                if (parameters[i].ParameterType.GetElementType() != parameterTypes[i]
+                                && !parameters[i].ParameterType.GetElementType().IsAssignableFrom(parameterTypes[i]))
+                                {
+                                    return false;
+                                }
+                            }
+                            else
+                            {
+                                // the provided parameter type don't match the constructor's parameter
+                                // type at the same position and is also not assignable
+
+                                return false;
+                            }
+                        }
+                    }
+
+                    if (parameters.Length > parameterTypes.Length
+                    && !parameters.Skip(parameterTypes.Length).All(parameter => parameter.IsOptional))
+                    {
+                        // the constructor's parameter list is longer than the provided set of parameter
+                        // types, but at least on of the constructor's paramters is not optional
+
+                        return false;
+                    }
+
+                    return true;
+                }
+            });
+
             try
             {
-                var client = (T)Activator.CreateInstance(typeof(T), new object[]
+                T client;
+
+                try
                 {
-                    CreateClient(azureEndpoint)
-                });
+                    if (CanCreateWith(typeof(RestClient)))
+                    {
+                        var credentials = await GetCredentialsAsync().ConfigureAwait(false);
+                        var endpointUrl = AzureEnvironment.AzureGlobalCloud.GetEndpointUrl(azureEndpoint);
+
+                        var restClient = RestClient.Configure()
+                            .WithBaseUri(endpointUrl)
+                            .WithCredentials(credentials)
+                            .WithDelegatingHandler(httpClientFactory)
+                            .Build();
+
+                        client = (T)Activator.CreateInstance(typeof(T), new object[]
+                        {
+                            restClient
+                        });
+                    }
+                    else if (CanCreateWith(typeof(ServiceClientCredentials), typeof(DelegatingHandler)))
+                    {
+                        var credentials = await GetCredentialsAsync().ConfigureAwait(false);
+
+                        client = (T)Activator.CreateInstance(typeof(T), new object[]
+                        {
+                            credentials,
+                            httpClientFactory.CreateMessageHandler() as DelegatingHandler
+                        });
+                    }
+                    else
+                    {
+                        throw new NotSupportedException($"Clients of type '{typeof(T)}' are not supported");
+                    }
+                }
+                catch (TypeInitializationException)
+                {
+                    throw;
+                }
+                catch (Exception exc)
+                {
+                    throw new TypeInitializationException(typeof(RestClient).FullName, exc);
+                }
 
                 // if a subscription id was provided by the caller
                 // set the corresponding property on the client instance

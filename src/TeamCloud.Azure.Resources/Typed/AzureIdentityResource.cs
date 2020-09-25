@@ -19,13 +19,15 @@ namespace TeamCloud.Azure.Resources.Typed
             identityInstance = new AsyncLazy<IIdentity>(GetIdentityAsync);
         }
 
-        private Task<IIdentity> GetIdentityAsync()
+        private async Task<IIdentity> GetIdentityAsync()
         {
-            var session = AzureResourceService.AzureSessionService
-                .CreateSession(ResourceId.SubscriptionId);
+            var session = await AzureResourceService.AzureSessionService
+                .CreateSessionAsync(ResourceId.SubscriptionId)
+                .ConfigureAwait(false);
 
-            return session.Identities
-                .GetByIdAsync(ResourceId.ToString());
+            return await session.Identities
+                .GetByIdAsync(ResourceId.ToString())
+                .ConfigureAwait(false);
         }
 
         public string ClientId

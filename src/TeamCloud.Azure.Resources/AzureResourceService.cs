@@ -16,26 +16,6 @@ using Microsoft.Azure.Management.ResourceManager.Fluent.Models;
 namespace TeamCloud.Azure.Resources
 {
 
-    public interface IAzureResourceService
-    {
-        IAzureSessionService AzureSessionService { get; }
-
-        Task<AzureSubscription> GetSubscriptionAsync(Guid subscriptionId, bool throwIfNotExists = false);
-
-        Task<AzureResourceGroup> GetResourceGroupAsync(Guid subscriptionId, string resourceGroupName, bool throwIfNotExists = false);
-
-        Task<AzureResource> GetResourceAsync(string resourceId, bool throwIfNotExists = false);
-
-        Task<TAzureResource> GetResourceAsync<TAzureResource>(string resourceId, bool throwIfNotExists = false)
-            where TAzureResource : AzureResource;
-
-        Task RegisterProviderAsync(Guid subscriptionId, string resourceNamespace);
-
-        Task RegisterProvidersAsync(Guid subscriptionId, IEnumerable<string> resourceNamespaces);
-
-        Task<IEnumerable<string>> GetApiVersionsAsync(Guid subscriptionId, string resourceNamespace, string resourceType, bool includePreviewVersions = false);
-    }
-
     public class AzureResourceService : IAzureResourceService
     {
         public AzureResourceService(IAzureSessionService azureSessionService)
@@ -68,8 +48,9 @@ namespace TeamCloud.Azure.Resources
             if (resourceNamespace is null)
                 throw new ArgumentNullException(nameof(resourceNamespace));
 
-            using var resourceManagementClient = AzureSessionService
-                .CreateClient<ResourceManagementClient>(subscriptionId: subscriptionId);
+            using var resourceManagementClient = await AzureSessionService
+                .CreateClientAsync<ResourceManagementClient>(subscriptionId: subscriptionId)
+                .ConfigureAwait(false);
 
             return await resourceManagementClient.Providers
                 .GetAsync(resourceNamespace)
@@ -81,8 +62,9 @@ namespace TeamCloud.Azure.Resources
             if (resourceNamespace is null)
                 throw new ArgumentNullException(nameof(resourceNamespace));
 
-            using var resourceManagementClient = AzureSessionService
-                .CreateClient<ResourceManagementClient>(subscriptionId: subscriptionId);
+            using var resourceManagementClient = await AzureSessionService
+                .CreateClientAsync<ResourceManagementClient>(subscriptionId: subscriptionId)
+                .ConfigureAwait(false);
 
             var provider = await resourceManagementClient.Providers
                 .GetAsync(resourceNamespace)

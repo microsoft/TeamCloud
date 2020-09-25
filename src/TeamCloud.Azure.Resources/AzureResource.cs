@@ -145,8 +145,9 @@ namespace TeamCloud.Azure.Resources
 
             if (locks.Any())
             {
-                var session = AzureResourceService.AzureSessionService
-                    .CreateSession(this.ResourceId.SubscriptionId);
+                var session = await AzureResourceService.AzureSessionService
+                    .CreateSessionAsync(this.ResourceId.SubscriptionId)
+                    .ConfigureAwait(false);
 
                 await session.ManagementLocks
                     .DeleteByIdsAsync(locks.ToArray())
@@ -171,8 +172,9 @@ namespace TeamCloud.Azure.Resources
 
         private async Task<IEnumerable<string>> GetLocksInternalAsync()
         {
-            var session = AzureResourceService.AzureSessionService
-                .CreateSession(this.ResourceId.SubscriptionId);
+            var session = await AzureResourceService.AzureSessionService
+                .CreateSessionAsync(this.ResourceId.SubscriptionId)
+                .ConfigureAwait(false);
 
             var locks = new List<string>();
 
@@ -218,8 +220,9 @@ namespace TeamCloud.Azure.Resources
 
         private async Task<GenericResourceInner> GetResourceAsync()
         {
-            using var resourceManagementClient = AzureResourceService.AzureSessionService
-                .CreateClient<ResourceManagementClient>(subscriptionId: this.ResourceId.SubscriptionId);
+            using var resourceManagementClient = await AzureResourceService.AzureSessionService
+                .CreateClientAsync<ResourceManagementClient>(subscriptionId: this.ResourceId.SubscriptionId)
+                .ConfigureAwait(false);
 
             var apiVersion = await GetLatestApiVersionAsync()
                 .ConfigureAwait(false);
@@ -234,8 +237,9 @@ namespace TeamCloud.Azure.Resources
             if (resource is null)
                 throw new ArgumentNullException(nameof(resource));
 
-            using var resourceManagementClient = AzureResourceService.AzureSessionService
-                .CreateClient<ResourceManagementClient>(subscriptionId: this.ResourceId.SubscriptionId);
+            using var resourceManagementClient = await AzureResourceService.AzureSessionService
+                .CreateClientAsync<ResourceManagementClient>(subscriptionId: this.ResourceId.SubscriptionId)
+                .ConfigureAwait(false);
 
             var apiVersion = await GetLatestApiVersionAsync()
                 .ConfigureAwait(false);
@@ -336,8 +340,9 @@ namespace TeamCloud.Azure.Resources
 
         public virtual async Task AddRoleAssignmentAsync(string userObjectId, Guid roleDefinitionId)
         {
-            using var authClient = AzureResourceService.AzureSessionService
-                .CreateClient<AuthorizationManagementClient>();
+            using var authClient = await AzureResourceService.AzureSessionService
+                .CreateClientAsync<AuthorizationManagementClient>()
+                .ConfigureAwait(false);
 
             var parameters = new RoleAssignmentCreateParameters
             {
@@ -365,8 +370,9 @@ namespace TeamCloud.Azure.Resources
 
             if (assignments.TryGetValue(userObjectId, out var roleAssignments))
             {
-                using var authClient = AzureResourceService.AzureSessionService
-                    .CreateClient<AuthorizationManagementClient>();
+                using var authClient = await AzureResourceService.AzureSessionService
+                    .CreateClientAsync<AuthorizationManagementClient>()
+                    .ConfigureAwait(false);
 
                 var deleteTasks = roleAssignments
                     .Where(roleAssignment => !roleDefinitionId.HasValue || roleAssignment.GetRoleDefinitionId().Equals(roleDefinitionId.Value))
@@ -454,8 +460,9 @@ namespace TeamCloud.Azure.Resources
 
         private async Task<IDictionary<string, IEnumerable<RoleAssignmentInner>>> GetRoleAssignmentsInternalAsync(string userObjectId)
         {
-            using var authClient = AzureResourceService.AzureSessionService
-                .CreateClient<AuthorizationManagementClient>();
+            using var authClient = await AzureResourceService.AzureSessionService
+                .CreateClientAsync<AuthorizationManagementClient>()
+                .ConfigureAwait(false);
 
             var roles = new List<RoleAssignmentInner>();
             var query = new ODataQuery<RoleAssignmentFilter>();
