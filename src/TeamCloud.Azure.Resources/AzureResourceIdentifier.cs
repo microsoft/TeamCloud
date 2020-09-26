@@ -97,6 +97,9 @@ namespace TeamCloud.Azure.Resources
         public string ResourceNamespace { get; }
         public IReadOnlyList<KeyValuePair<string, string>> ResourceTypes { get; }
 
+        public string ResourceName
+            => ResourceTypes.Any() ? ResourceTypes.Last().Value : null;
+
         public string ResourceTypeName
             => !string.IsNullOrEmpty(ResourceNamespace) && ResourceTypes.Any()
             ? string.Join('/', ResourceTypes.Select(kvp => kvp.Key))
