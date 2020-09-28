@@ -28,6 +28,8 @@ namespace TeamCloud.Model.Data
 
         DateTime? Registered { get; set; }
 
+        ProviderType Type { get; set; }
+
         ProviderCommandMode CommandMode { get; set; }
     }
 }

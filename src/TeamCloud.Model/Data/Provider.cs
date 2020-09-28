@@ -38,6 +38,8 @@ namespace TeamCloud.Model.Data
 
         public DateTime? Registered { get; set; }
 
+        public ProviderType Type { get; set; }
+
         public ProviderCommandMode CommandMode { get; set; }
             = ProviderCommandMode.Simple;
 
