@@ -4422,6 +4422,10 @@
             "type": "string",
             "nullable": true
           },
+          "tenantId": {
+            "type": "string",
+            "format": "uuid"
+          },
           "applicationId": {
             "type": "string",
             "format": "uuid"
@@ -4780,6 +4784,14 @@
             "type": "string",
             "format": "date-time",
             "nullable": true
+          },
+          "type": {
+            "enum": [
+              "Standard",
+              "Service",
+              "Virtual"
+            ],
+            "type": "string"
           },
           "commandMode": {
             "enum": [
