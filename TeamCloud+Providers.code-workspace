@@ -89,6 +89,10 @@
 			"path": "../TeamCloud-Providers/GitHub/TeamCloud.Providers.GitHub.Actions"
 		},
 		{
+			"name": "[Providers] GitHub.Repos",
+			"path": "../TeamCloud-Providers/GitHub/TeamCloud.Providers.GitHub.Repos"
+		},
+		{
 			"name": "[Providers] Core",
 			"path": "../TeamCloud-Providers/Shared/TeamCloud.Providers.Core"
 		},
