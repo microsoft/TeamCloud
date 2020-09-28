@@ -33,18 +33,21 @@ namespace TeamCloud.Azure.Resources
             return resourceId;
         }
 
-        public static AzureResourceIdentifier Parse(string resourceId)
+        public static AzureResourceIdentifier Parse(string resourceId, bool allowUnnamedResource = false)
         {
             if (string.IsNullOrEmpty(resourceId))
                 throw new ArgumentException("The resource id to parse must not NULL or EMPTY.", nameof(resourceId));
 
-            if (TryParse(resourceId, out var azureResourceIdentifier))
+            if (TryParse(resourceId, allowUnnamedResource, out var azureResourceIdentifier))
                 return azureResourceIdentifier;
 
             throw new ArgumentException($"The given string is not a valid Azure resoure id.", nameof(resourceId));
         }
 
         public static bool TryParse(string resourceId, out AzureResourceIdentifier azureResourceIdentifier)
+            => TryParse(resourceId, false, out azureResourceIdentifier);
+
+        public static bool TryParse(string resourceId, bool allowUnnamedResource, out AzureResourceIdentifier azureResourceIdentifier)
         {
             azureResourceIdentifier = null;
 
@@ -72,15 +75,24 @@ namespace TeamCloud.Azure.Resources
 
             return (azureResourceIdentifier != null);
 
-            static KeyValuePair<string, string>[] ParseResourceSegment(string resourceSegment)
+            KeyValuePair<string, string>[] ParseResourceSegment(string resourceSegment)
             {
-                var segments = resourceSegment.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+                var tokens = resourceSegment.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
 
-                return segments
+                var segments = tokens
                     .Select((segment, index) => new { segment, index })
                     .GroupBy(x => x.index / 2, x => x.segment)
-                    .Select(group => new KeyValuePair<string, string>(group.First(), group.Last()))
-                    .ToArray();
+                    .Select(group => new KeyValuePair<string, string>(group.First(), group.Skip(1).LastOrDefault()));
+
+                if (!allowUnnamedResource)
+                {
+                    var emptySegment = segments.FirstOrDefault(segment => string.IsNullOrEmpty(segment.Value));
+
+                    if (!string.IsNullOrEmpty(emptySegment.Key))
+                        throw new ArgumentException($"Missing name for resource '{emptySegment.Key}'", nameof(resourceId));
+                }
+
+                return segments.ToArray();
             }
         }
 
@@ -96,6 +108,9 @@ namespace TeamCloud.Azure.Resources
         public string ResourceGroup { get; }
         public string ResourceNamespace { get; }
         public IReadOnlyList<KeyValuePair<string, string>> ResourceTypes { get; }
+
+        public string ResourceName
+            => ResourceTypes.LastOrDefault().Value;
 
         public string ResourceTypeName
             => !string.IsNullOrEmpty(ResourceNamespace) && ResourceTypes.Any()
