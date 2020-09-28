@@ -25,7 +25,7 @@ namespace TeamCloud.Azure.Tests.Resources
         [Theory]
         [InlineData("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/TestRG/providers/Microsoft.CustomProviders/resourceProviders/TestProviderName/TestResourceType/TestResourceName")]
         [InlineData("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/TestRG/providers/Microsoft.CustomProviders/resourceProviders/TestProviderName/TestResourceType/TestResourceName/")]
-        public void ParseCustomResourceProviderResourceId(string resourceId)
+        public void ParseResourceId(string resourceId)
         {
             var resourceIdentifier = AzureResourceIdentifier.Parse(resourceId);
 
@@ -38,6 +38,33 @@ namespace TeamCloud.Azure.Tests.Resources
 
             Assert.Equal("TestResourceType", resourceIdentifier.ResourceTypes[1].Key);
             Assert.Equal("TestResourceName", resourceIdentifier.ResourceTypes[1].Value);
+        }
+
+        [Theory]
+        [InlineData("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/TestRG/providers/Microsoft.CustomProviders/resourceProviders/TestProviderName/TestResourceType")]
+        [InlineData("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/TestRG/providers/Microsoft.CustomProviders/resourceProviders/TestProviderName/TestResourceType/")]
+        public void ParseResourceIdUnnamed(string resourceId)
+        {
+            var resourceIdentifier = AzureResourceIdentifier.Parse(resourceId, allowUnnamedResource: true);
+
+            Assert.Equal(Guid.Empty, resourceIdentifier.SubscriptionId);
+            Assert.Equal("TestRG", resourceIdentifier.ResourceGroup);
+            Assert.True(resourceIdentifier.ResourceTypes.Count == 2);
+            Assert.Null(resourceIdentifier.ResourceName);
+
+            Assert.Equal("resourceProviders", resourceIdentifier.ResourceTypes[0].Key);
+            Assert.Equal("TestProviderName", resourceIdentifier.ResourceTypes[0].Value);
+
+            Assert.Equal("TestResourceType", resourceIdentifier.ResourceTypes[1].Key);
+            Assert.Null(resourceIdentifier.ResourceTypes[1].Value);
+        }
+
+        [Theory]
+        [InlineData("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/TestRG/providers/Microsoft.CustomProviders/resourceProviders/TestProviderName/TestResourceType")]
+        [InlineData("/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/TestRG/providers/Microsoft.CustomProviders/resourceProviders/TestProviderName/TestResourceType/")]
+        public void ParseResourceIdUnnamedNotAllowed(string resourceId)
+        {
+            Assert.Throws<ArgumentException>(() => AzureResourceIdentifier.Parse(resourceId, allowUnnamedResource: false));
         }
     }
 }
