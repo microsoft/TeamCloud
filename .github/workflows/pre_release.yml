@@ -129,7 +129,7 @@ jobs:
         run: |
           pushd client
             autorest --v3 \
-            --use:@autorest/python@5.1.0-preview.7 \
+            --use:@autorest/python@latest \
             --input-file=swagger.json \
             --namespace=teamcloud \
             --add-credentials=true \

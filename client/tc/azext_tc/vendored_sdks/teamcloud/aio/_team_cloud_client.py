@@ -15,8 +15,8 @@ if TYPE_CHECKING:
     # pylint: disable=unused-import,ungrouped-imports
     from azure.core.credentials_async import AsyncTokenCredential
 
-from ._configuration_async import TeamCloudClientConfiguration
-from .operations_async import TeamCloudClientOperationsMixin
+from ._configuration import TeamCloudClientConfiguration
+from .operations import TeamCloudClientOperationsMixin
 from .. import models
 
 

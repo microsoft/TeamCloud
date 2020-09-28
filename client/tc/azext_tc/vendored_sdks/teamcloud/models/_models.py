@@ -185,6 +185,8 @@ class ProjectIdentity(msrest.serialization.Model):
 
     :param id:
     :type id: str
+    :param tenant_id:
+    :type tenant_id: str
     :param application_id:
     :type application_id: str
     :param secret:
@@ -193,6 +195,7 @@ class ProjectIdentity(msrest.serialization.Model):
 
     _attribute_map = {
         'id': {'key': 'id', 'type': 'str'},
+        'tenant_id': {'key': 'tenantId', 'type': 'str'},
         'application_id': {'key': 'applicationId', 'type': 'str'},
         'secret': {'key': 'secret', 'type': 'str'},
     }
@@ -203,6 +206,7 @@ class ProjectIdentity(msrest.serialization.Model):
     ):
         super(ProjectIdentity, self).__init__(**kwargs)
         self.id = kwargs.get('id', None)
+        self.tenant_id = kwargs.get('tenant_id', None)
         self.application_id = kwargs.get('application_id', None)
         self.secret = kwargs.get('secret', None)
 
@@ -538,6 +542,8 @@ class Provider(msrest.serialization.Model):
     :type properties: dict[str, str]
     :param registered:
     :type registered: ~datetime.datetime
+    :param type:  Possible values include: "Standard", "Service", "Virtual".
+    :type type: str or ~teamcloud.models.ProviderType
     :param command_mode:  Possible values include: "Simple", "Extended".
     :type command_mode: str or ~teamcloud.models.ProviderCommandMode
     """
@@ -553,6 +559,7 @@ class Provider(msrest.serialization.Model):
         'event_subscriptions': {'key': 'eventSubscriptions', 'type': '[ProviderEventSubscription]'},
         'properties': {'key': 'properties', 'type': '{str}'},
         'registered': {'key': 'registered', 'type': 'iso-8601'},
+        'type': {'key': 'type', 'type': 'str'},
         'command_mode': {'key': 'commandMode', 'type': 'str'},
     }
 
@@ -571,6 +578,7 @@ class Provider(msrest.serialization.Model):
         self.event_subscriptions = kwargs.get('event_subscriptions', None)
         self.properties = kwargs.get('properties', None)
         self.registered = kwargs.get('registered', None)
+        self.type = kwargs.get('type', None)
         self.command_mode = kwargs.get('command_mode', None)
 
 

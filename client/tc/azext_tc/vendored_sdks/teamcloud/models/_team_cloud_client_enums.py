@@ -56,6 +56,12 @@ class ProviderDataType(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
     PROPERTY = "Property"
     SERVICE = "Service"
 
+class ProviderType(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
+
+    STANDARD = "Standard"
+    SERVICE = "Service"
+    VIRTUAL = "Virtual"
+
 class ResultErrorCode(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
 
     UNKNOWN = "Unknown"

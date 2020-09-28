@@ -219,6 +219,8 @@ class ProjectIdentity(msrest.serialization.Model):
 
     :param id:
     :type id: str
+    :param tenant_id:
+    :type tenant_id: str
     :param application_id:
     :type application_id: str
     :param secret:
@@ -227,6 +229,7 @@ class ProjectIdentity(msrest.serialization.Model):
 
     _attribute_map = {
         'id': {'key': 'id', 'type': 'str'},
+        'tenant_id': {'key': 'tenantId', 'type': 'str'},
         'application_id': {'key': 'applicationId', 'type': 'str'},
         'secret': {'key': 'secret', 'type': 'str'},
     }
@@ -235,12 +238,14 @@ class ProjectIdentity(msrest.serialization.Model):
         self,
         *,
         id: Optional[str] = None,
+        tenant_id: Optional[str] = None,
         application_id: Optional[str] = None,
         secret: Optional[str] = None,
         **kwargs
     ):
         super(ProjectIdentity, self).__init__(**kwargs)
         self.id = id
+        self.tenant_id = tenant_id
         self.application_id = application_id
         self.secret = secret
 
@@ -623,6 +628,8 @@ class Provider(msrest.serialization.Model):
     :type properties: dict[str, str]
     :param registered:
     :type registered: ~datetime.datetime
+    :param type:  Possible values include: "Standard", "Service", "Virtual".
+    :type type: str or ~teamcloud.models.ProviderType
     :param command_mode:  Possible values include: "Simple", "Extended".
     :type command_mode: str or ~teamcloud.models.ProviderCommandMode
     """
@@ -638,6 +645,7 @@ class Provider(msrest.serialization.Model):
         'event_subscriptions': {'key': 'eventSubscriptions', 'type': '[ProviderEventSubscription]'},
         'properties': {'key': 'properties', 'type': '{str}'},
         'registered': {'key': 'registered', 'type': 'iso-8601'},
+        'type': {'key': 'type', 'type': 'str'},
         'command_mode': {'key': 'commandMode', 'type': 'str'},
     }
 
@@ -654,6 +662,7 @@ class Provider(msrest.serialization.Model):
         event_subscriptions: Optional[List["ProviderEventSubscription"]] = None,
         properties: Optional[Dict[str, str]] = None,
         registered: Optional[datetime.datetime] = None,
+        type: Optional[Union[str, "ProviderType"]] = None,
         command_mode: Optional[Union[str, "ProviderCommandMode"]] = None,
         **kwargs
     ):
@@ -668,6 +677,7 @@ class Provider(msrest.serialization.Model):
         self.event_subscriptions = event_subscriptions
         self.properties = properties
         self.registered = registered
+        self.type = type
         self.command_mode = command_mode
 
 

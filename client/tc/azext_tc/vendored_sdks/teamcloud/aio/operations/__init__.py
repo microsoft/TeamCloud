@@ -6,7 +6,7 @@
 # Changes may cause incorrect behavior and will be lost if the code is regenerated.
 # --------------------------------------------------------------------------
 
-from ._team_cloud_client_operations_async import TeamCloudClientOperationsMixin
+from ._team_cloud_client_operations import TeamCloudClientOperationsMixin
 
 __all__ = [
     'TeamCloudClientOperationsMixin',

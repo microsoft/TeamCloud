@@ -6,5 +6,5 @@
 # Changes may cause incorrect behavior and will be lost if the code is regenerated.
 # --------------------------------------------------------------------------
 
-from ._team_cloud_client_async import TeamCloudClient
+from ._team_cloud_client import TeamCloudClient
 __all__ = ['TeamCloudClient']
