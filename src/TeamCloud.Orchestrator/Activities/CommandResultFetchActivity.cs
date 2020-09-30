@@ -28,13 +28,12 @@ namespace TeamCloud.Orchestrator.Activities
                 throw new ArgumentNullException(nameof(activityContext));
 
             var functionInput = activityContext.GetInput<Input>();
-            var providerUrl = new Url(functionInput.Provider.Url?.Trim());
-
-            if (!providerUrl.Path.EndsWith("/", StringComparison.OrdinalIgnoreCase))
-                providerUrl = providerUrl.AppendPathSegment("api/command");
 
             try
             {
+                var providerUrl = new Url(functionInput.Provider.Url?.Trim())
+                    .SetQueryParam("providerId", functionInput.Provider.Id);
+
                 ICommandResult commandResult;
 
                 try
@@ -42,6 +41,7 @@ namespace TeamCloud.Orchestrator.Activities
                     commandResult = await providerUrl
                         .AppendPathSegment(functionInput.CommandMessage.CommandId)
                         .WithHeader("x-functions-key", functionInput.Provider.AuthCode)
+                        .WithHeader("x-teamcloud-provider", functionInput.Provider.Id)
                         .GetJsonAsync<ICommandResult>()
                         .ConfigureAwait(false);
                 }
