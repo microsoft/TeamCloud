@@ -26,15 +26,14 @@ namespace TeamCloud.Orchestrator.Activities
 
         [FunctionName(nameof(ProviderListActivity))]
         public async Task<IEnumerable<ProviderDocument>> RunActivity(
-            [ActivityTrigger] IDurableActivityContext activityContext)
+            [ActivityTrigger] bool includeServiceProviders)
         {
-            if (activityContext is null)
-                throw new ArgumentNullException(nameof(activityContext));
-
-            return await providersRepository
+            var providers = await providersRepository
                 .ListAsync()
                 .ToListAsync()
                 .ConfigureAwait(false);
+
+            return includeServiceProviders ? providers : providers.Where(p => p.Type != ProviderType.Service);
         }
     }
 
@@ -61,8 +60,8 @@ namespace TeamCloud.Orchestrator.Activities
 
     internal static class ProviderListExtension
     {
-        public static Task<IEnumerable<ProviderDocument>> ListProvidersAsync(this IDurableOrchestrationContext durableOrchestrationContext)
-            => durableOrchestrationContext.CallActivityWithRetryAsync<IEnumerable<ProviderDocument>>(nameof(ProviderListActivity), null);
+        public static Task<IEnumerable<ProviderDocument>> ListProvidersAsync(this IDurableOrchestrationContext durableOrchestrationContext, bool includeServiceProviders = false)
+            => durableOrchestrationContext.CallActivityWithRetryAsync<IEnumerable<ProviderDocument>>(nameof(ProviderListActivity), includeServiceProviders);
 
         public static Task<IEnumerable<ProviderDocument>> ListProvidersAsync(this IDurableOrchestrationContext durableOrchestrationContext, IList<string> providerIds)
             => durableOrchestrationContext.CallActivityWithRetryAsync<IEnumerable<ProviderDocument>>(nameof(ProviderListByIdActivity), providerIds);
