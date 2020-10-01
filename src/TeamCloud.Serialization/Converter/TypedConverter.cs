@@ -8,8 +8,6 @@ namespace TeamCloud.Serialization.Converter
 {
     public abstract class TypedConverter<T> : JsonConverter<T>
     {
-        private const string TypePropertyName = "$type";
-
         private static readonly ConcurrentDictionary<Type, JsonSerializer> InnerSerializerCache = new ConcurrentDictionary<Type, JsonSerializer>();
 
         private JsonSerializer GetInnerSerializer() => InnerSerializerCache.GetOrAdd(this.GetType(), type =>

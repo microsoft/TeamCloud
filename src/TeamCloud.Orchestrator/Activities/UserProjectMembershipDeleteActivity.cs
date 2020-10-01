@@ -39,7 +39,7 @@ namespace TeamCloud.Orchestrator.Activities
             return updatedUser;
         }
 
-        public struct Input
+        internal struct Input
         {
             public UserDocument User { get; set; }
 

@@ -207,7 +207,7 @@ namespace TeamCloud.Azure.Directory
             const string ServicePrincipalNamePrefix = "TeamCloud/";
 
             if (name.StartsWith(ServicePrincipalNamePrefix, StringComparison.OrdinalIgnoreCase))
-                name = ServicePrincipalNamePrefix + name.Substring(ServicePrincipalNamePrefix.Length);
+                name = ServicePrincipalNamePrefix + name[ServicePrincipalNamePrefix.Length..];
             else
                 name = ServicePrincipalNamePrefix + name;
 

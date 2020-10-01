@@ -11,7 +11,6 @@ using TeamCloud.Data.Conditional;
 using TeamCloud.Data.CosmosDb.Core;
 using TeamCloud.Model.Data;
 using Xunit;
-using TeamCloud.Model.Data;
 
 namespace TeamCloud.Data.CosmosDb
 {

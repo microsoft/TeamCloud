@@ -102,7 +102,7 @@ namespace TeamCloud.Orchestrator.Activities
             }
         }
 
-        public struct Input
+        internal struct Input
         {
             public ProjectDocument Project { get; set; }
 

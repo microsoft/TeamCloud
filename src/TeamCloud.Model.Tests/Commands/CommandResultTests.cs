@@ -38,10 +38,11 @@ namespace TeamCloud.Model
         [SuppressMessage("Naming", "CA1707:Identifiers should not contain underscores", Justification = "<Pending>")]
         public async Task Serialize_WithErrorsAsync()
         {
-            var errors = new List<CommandError>();
-
-            errors.Add(await CreateFlurlHttpExceptionAsync().ConfigureAwait(false));
-            errors.Add(new NotSupportedException());
+            var errors = new List<CommandError>
+            {
+                await CreateFlurlHttpExceptionAsync().ConfigureAwait(false),
+                new NotSupportedException()
+            };
 
             var result = new MockCommandResult()
             {
@@ -58,10 +59,11 @@ namespace TeamCloud.Model
         [SuppressMessage("Naming", "CA1707:Identifiers should not contain underscores", Justification = "<Pending>")]
         public async Task Deserialize_WithExceptionErrorsAsync()
         {
-            var errors = new List<CommandError>();
-
-            errors.Add(await CreateFlurlHttpExceptionAsync().ConfigureAwait(false));
-            errors.Add(new NotSupportedException());
+            var errors = new List<CommandError>
+            {
+                await CreateFlurlHttpExceptionAsync().ConfigureAwait(false),
+                new NotSupportedException()
+            };
 
             var result1 = new MockCommandResult()
             {

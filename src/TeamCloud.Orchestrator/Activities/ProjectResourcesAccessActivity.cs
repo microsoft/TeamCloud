@@ -73,7 +73,7 @@ namespace TeamCloud.Orchestrator.Activities
             }
         }
 
-        public struct Input
+        internal struct Input
         {
             public string ProjectId { get; set; }
 

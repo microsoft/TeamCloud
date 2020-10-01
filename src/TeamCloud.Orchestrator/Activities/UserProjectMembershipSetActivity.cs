@@ -44,7 +44,7 @@ namespace TeamCloud.Orchestrator.Activities
             return functionInput.User;
         }
 
-        public struct Input
+        internal struct Input
         {
             public UserDocument User { get; set; }
 

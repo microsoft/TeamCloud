@@ -55,7 +55,7 @@ namespace TeamCloud.Orchestration.Eventing
             }
         }
 
-        public struct Input
+        internal struct Input
         {
             public string InstanceId { get; set; }
 

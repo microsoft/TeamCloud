@@ -59,7 +59,7 @@ namespace TeamCloud.API.Controllers
             return GetStatusResult(result);
         }
 
-        private IActionResult GetStatusResult(ICommandResult result)
+        private static IActionResult GetStatusResult(ICommandResult result)
         {
             if (result is null)
                 return ErrorResult

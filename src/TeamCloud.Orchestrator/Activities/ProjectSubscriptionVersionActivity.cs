@@ -62,7 +62,7 @@ namespace TeamCloud.Orchestrator.Activities
             }
         }
 
-        public struct Input
+        internal struct Input
         {
             public Guid SubscriptionId { get; set; }
 

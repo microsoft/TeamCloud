@@ -13,6 +13,9 @@ namespace TeamCloud.Serialization.Converter
         {
             existingValue ??= new NameValueCollection();
 
+            if (serializer is null)
+                throw new ArgumentNullException(nameof(serializer));
+
             serializer.Deserialize<Dictionary<string, string[]>>(reader)?
                 .SelectMany(item => item.Value.Select(val => new KeyValuePair<string, string>(item.Key, val)))
                 .ToList().ForEach(kvp => existingValue.Add(kvp.Key, kvp.Value));
@@ -22,6 +25,9 @@ namespace TeamCloud.Serialization.Converter
 
         public override void WriteJson(JsonWriter writer, [AllowNull] NameValueCollection value, JsonSerializer serializer)
         {
+            if (serializer is null)
+                throw new ArgumentNullException(nameof(serializer));
+
             var dictionary = value?.AllKeys.ToDictionary(key => key, key => value.GetValues(key));
 
             serializer.Serialize(writer, dictionary);

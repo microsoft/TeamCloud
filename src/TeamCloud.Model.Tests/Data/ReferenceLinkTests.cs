@@ -89,7 +89,7 @@ namespace TeamCloud.Model.Data
 
             Assert.Equal(mockOwnerJson, mockOwnerJson2);
 
-            void AssertMockOwnerJson(JObject json)
+            static void AssertMockOwnerJson(JObject json)
             {
                 Assert.NotNull(json.SelectToken("$._links._self"));
             }

@@ -58,7 +58,7 @@ namespace TeamCloud.Orchestrator.Activities
             }
         }
 
-        public struct Input
+        internal struct Input
         {
             public ProviderDocument Provider { get; set; }
 
