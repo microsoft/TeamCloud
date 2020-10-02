@@ -167,15 +167,6 @@ def subscriptions_list_validator(cmd, ns):
                 '--subscriptions should be a space-separated list of valid uuids')
 
 
-def provider_event_list_validator(cmd, ns):
-    if ns.events:
-        if not all(_is_valid_provider_id(x) for x in ns.events):
-            raise CLIError(
-                '--events should be a space-separated list of valid provider ids, '
-                'provider ids should start with a lowercase and contain only lowercase, numbers, '
-                'and periods [.] with length [5,254]')
-
-
 def tracking_id_validator(cmd, ns):
     if ns.tracking_id:
         if not _is_valid_uuid(ns.tracking_id):

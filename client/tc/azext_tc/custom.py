@@ -625,6 +625,16 @@ def project_type_create(cmd, client, base_url, project_type, subscriptions, prov
     from .vendored_sdks.teamcloud.models import ProjectType
     _ensure_base_url(client, base_url)
 
+    existing_providers = client.get_providers().data
+
+    for p in providers:
+        provider_match = next((m for m in existing_providers if m.id == p.id), None)
+        if not provider_match:
+            raise CLIError('--provider {} was not found'.format(p.id))
+        if provider_match.type == 'Service':
+            raise CLIError(
+                '--provider service provider {} cannot be added to project types'.format(p.id))
+
     payload = ProjectType(id=project_type, is_default=default, region=location,
                           subscriptions=subscriptions, subscription_capacity=subscription_capacity,
                           resource_group_name_prefix=resource_group_name_prefix, providers=providers,
@@ -650,11 +660,12 @@ def project_type_get(cmd, client, base_url, project_type):
 
 # Providers
 
-def provider_create(cmd, client, base_url, provider, url, auth_code, events=None, properties=None, no_wait=False):
+def provider_create(cmd, client, base_url, provider, url, auth_code, provider_type='Standard',
+                    properties=None, no_wait=False):
     from .vendored_sdks.teamcloud.models import Provider
 
     payload = Provider(id=provider, url=url, auth_code=auth_code,
-                       events=events, properties=properties)
+                       type=provider_type, properties=properties)
 
     return _create_with_status(cmd, client, base_url, payload, client.create_provider, no_wait=no_wait)
 
@@ -674,7 +685,7 @@ def provider_get(cmd, client, base_url, provider):
 
 
 def provider_deploy(cmd, client, base_url, provider, location=None, resource_group_name=None,  # pylint: disable=too-many-locals, too-many-statements
-                    events=None, properties=None, version=None, prerelease=False, index_url=None, tags=None):
+                    properties=None, version=None, prerelease=False, index_url=None, tags=None):
     from ._deploy_utils import (
         get_resource_group_by_name, create_resource_group_name, zip_deploy_app, get_arm_output,
         deploy_arm_template_at_resource_group, get_index_providers, open_url_in_browser)
@@ -687,7 +698,7 @@ def provider_deploy(cmd, client, base_url, provider, location=None, resource_gro
     hook.begin()
 
     hook.add(message='Fetching index.json from GitHub')
-    version, zip_url, deploy_url, provider_name = get_index_providers(
+    version, zip_url, deploy_url, provider_name, provider_type = get_index_providers(
         cli_ctx, provider, version, prerelease, index_url)
 
     resource_group_name = resource_group_name or provider_name
@@ -718,7 +729,7 @@ def provider_deploy(cmd, client, base_url, provider, location=None, resource_gro
     resource_group = AzureResourceGroup(
         id=rg.id, name=rg.name, region=rg.location, subscription_id=sub_id)
     payload = Provider(id=provider, url=url, auth_code=auth_code, principal_id=principal_id,
-                       version=version, resource_group=resource_group, events=events,
+                       version=version, resource_group=resource_group, type=provider_type,
                        properties=properties)
 
     provider_output = _create_with_status(cmd, client, base_url, payload,
@@ -744,13 +755,18 @@ def provider_upgrade(cmd, client, base_url, provider, version=None, prerelease=F
     hook.begin()
 
     hook.add(message='Fetching index.json from GitHub')
-    version, zip_url, deploy_url, _ = get_index_providers(
+    version, zip_url, deploy_url, _, _ = get_index_providers(
         cli_ctx, provider, version, prerelease, index_url)
 
     # get the provider from teamcloud
     hook.add(message='Getting existing provider')
     provider_result = client.get_provider_by_id(provider)
     existing_provider = provider_result.data
+
+    if existing_provider.type == 'Virtual':
+        raise CLIError(
+            '--provider virtual providers cannot be upgraded. '
+            'To upgrade the associated service provider use the service provider id')
 
     if version and existing_provider.version and version == existing_provider.version:
         raise CLIError("Provider '{}' is already using version {}".format(provider, version))

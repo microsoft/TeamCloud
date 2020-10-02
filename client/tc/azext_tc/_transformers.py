@@ -119,6 +119,7 @@ def transform_provider_table_output(result):
         rg = item['resourceGroup']
         resultList.append(OrderedDict([
             ('Provider ID', item['id']),
+            ('Type', item['type']),
             ('Url', item['url']),
             ('Code', '************'),
             ('Command Mode', item['commandMode']),

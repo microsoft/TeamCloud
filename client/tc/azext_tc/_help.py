@@ -404,9 +404,8 @@ examples:
       az tc provider create \\
         --base-url url \\
         --name azure.devtestlabs \\
-        --url https://my-provider.azurewebsites.net \\
-        --auth-code cmFuZG9tcmFuZG9tcmFuZG9tcmFuZG9tcmFuZG9tcmFuZG9tcmFuZA== \\
-        --events azure.devtestlabs azure.appinsights
+        --url https://my-provider.azurewebsites.net/api/command \\
+        --auth-code cmFuZG9tcmFuZG9tcmFuZG9tcmFuZG9tcmFuZG9tcmFuZG9tcmFuZA==
 """
 
 helps['tc provider delete'] = """

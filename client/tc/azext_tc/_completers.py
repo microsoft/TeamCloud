@@ -51,6 +51,18 @@ def get_provider_completion_list(cmd, prefix, namespace, **kwargs):  # pylint: d
 
 
 @Completer
+def get_provider_completion_list_novirtual(cmd, prefix, namespace, **kwargs):  # pylint: disable=unused-argument
+    client = teamcloud_client_factory(cmd.cli_ctx)
+    _ensure_base_url(client, namespace.base_url)
+    result = client.get_providers()
+
+    try:
+        return [p.id for p in result.data if p['type'] != 'Virtual']
+    except AttributeError:
+        return []
+
+
+@Completer
 def get_provider_index_completion_list(cmd, prefix, namespace, **kwargs):  # pylint: disable=unused-argument
     from ._deploy_utils import get_index_providers_core
 
