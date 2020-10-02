@@ -126,10 +126,23 @@ namespace TeamCloud.API.Controllers
 
             if (!validProviders)
             {
-                var validProviderIds = string.Join(", ", providers.Select(p => p.Id));
+                var validProviderIds = string.Join(", ", providers.Where(p => p.Type != ProviderType.Service).Select(p => p.Id));
 
                 return ErrorResult
                     .BadRequest(new ValidationError { Field = "projectType", Message = $"All provider ids on a ProjectType must match the id of a registered Provider on the TeamCloud instance. Valid provider ids are: {validProviderIds}" })
+                    .ToActionResult();
+            }
+
+            var serviceProviders = providers
+                .Where(p => projectType.Providers.Any(pr => pr.Id == p.Id) && p.Type == ProviderType.Service);
+
+            if (serviceProviders.Any())
+            {
+                var validProviderIds = string.Join(", ", providers.Where(p => p.Type != ProviderType.Service).Select(p => p.Id));
+                var serviceProviderIds = string.Join(", ", serviceProviders.Select(p => p.Id));
+
+                return ErrorResult
+                    .BadRequest(new ValidationError { Field = "projectType", Message = $"Providers {serviceProviderIds} are service providers and cannot be added to a project type. Valid provider ids are: {validProviderIds}" })
                     .ToActionResult();
             }
 
@@ -202,10 +215,23 @@ namespace TeamCloud.API.Controllers
 
             if (!validProviders)
             {
-                var validProviderIds = string.Join(", ", providers.Select(p => p.Id));
+                var validProviderIds = string.Join(", ", providers.Where(p => p.Type != ProviderType.Service).Select(p => p.Id));
 
                 return ErrorResult
                     .BadRequest(new ValidationError { Field = "projectType", Message = $"All provider ids on a ProjectType must match the id of a registered Provider on the TeamCloud instance. Valid provider ids are: {validProviderIds}" })
+                    .ToActionResult();
+            }
+
+            var serviceProviders = providers
+                .Where(p => projectType.Providers.Any(pr => pr.Id == p.Id) && p.Type == ProviderType.Service);
+
+            if (serviceProviders.Any())
+            {
+                var validProviderIds = string.Join(", ", providers.Where(p => p.Type != ProviderType.Service).Select(p => p.Id));
+                var serviceProviderIds = string.Join(", ", serviceProviders.Select(p => p.Id));
+
+                return ErrorResult
+                    .BadRequest(new ValidationError { Field = "projectType", Message = $"Providers {serviceProviderIds} are service providers and cannot be added to a project type. Valid provider ids are: {validProviderIds}" })
                     .ToActionResult();
             }
 
