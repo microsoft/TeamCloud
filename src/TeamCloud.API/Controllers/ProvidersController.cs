@@ -111,6 +111,35 @@ namespace TeamCloud.API.Controllers
                     .Conflict($"A Provider with the ID '{provider.Id}' already exists on this TeamCloud Instance. Please try your request again with a unique ID or call PUT to update the existing Provider.")
                     .ToActionResult();
 
+            if (provider.Type == ProviderType.Virtual)
+            {
+                var serviceProviders = await providersRepository
+                    .ListAsync(providerType: ProviderType.Service)
+                    .ToListAsync()
+                    .ConfigureAwait(false);
+
+                var serviceProvider = serviceProviders
+                    .FirstOrDefault(p => provider.Id.StartsWith($"{p.Id}.", StringComparison.Ordinal));
+
+                if (serviceProvider is null)
+                {
+                    var validServiceProviderIds = string.Join(", ", serviceProviders.Select(p => p.Id));
+
+                    return ErrorResult
+                        .BadRequest(new ValidationError { Field = "id", Message = $"No matching service provider found. Virtual provider ids must begin with the associated Service provider id followed by a period (.). Available service providers: {validServiceProviderIds}" })
+                        .ToActionResult();
+                }
+
+                var urlPrefix = $"{serviceProvider.Url}?";
+
+                if (!provider.Url.StartsWith(urlPrefix, StringComparison.OrdinalIgnoreCase))
+                {
+                    return ErrorResult
+                        .BadRequest(new ValidationError { Field = "url", Message = $"Virtual provider url must match the associated service provider url followed by a query string. The url should begin with {urlPrefix}" })
+                        .ToActionResult();
+                }
+            }
+
             var currentUserForCommand = await UserService
                 .CurrentUserAsync()
                 .ConfigureAwait(false);
@@ -163,6 +192,35 @@ namespace TeamCloud.API.Controllers
                 return ErrorResult
                     .NotFound($"A Provider with the ID '{provider.Id}' could not be found on this TeamCloud Instance.")
                     .ToActionResult();
+
+            if (provider.Type == ProviderType.Virtual)
+            {
+                var serviceProviders = await providersRepository
+                    .ListAsync(providerType: ProviderType.Service)
+                    .ToListAsync()
+                    .ConfigureAwait(false);
+
+                var serviceProvider = serviceProviders
+                    .FirstOrDefault(p => provider.Id.StartsWith($"{p.Id}.", StringComparison.Ordinal));
+
+                if (serviceProvider is null)
+                {
+                    var validServiceProviderIds = string.Join(", ", serviceProviders.Select(p => p.Id));
+
+                    return ErrorResult
+                        .BadRequest(new ValidationError { Field = "id", Message = $"No matching service provider found. Virtual provider ids must begin with the associated Service provider id followed by a period (.). Available service providers: {validServiceProviderIds}" })
+                        .ToActionResult();
+                }
+
+                var urlPrefix = $"{serviceProvider.Url}?";
+
+                if (!provider.Url.StartsWith(urlPrefix, StringComparison.OrdinalIgnoreCase))
+                {
+                    return ErrorResult
+                        .BadRequest(new ValidationError { Field = "url", Message = $"Virtual provider url must match the associated service provider url followed by a query string. The url should begin with {urlPrefix}" })
+                        .ToActionResult();
+                }
+            }
 
             var currentUserForCommand = await UserService
                 .CurrentUserAsync()

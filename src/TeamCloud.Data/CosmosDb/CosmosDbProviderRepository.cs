@@ -77,35 +77,24 @@ namespace TeamCloud.Data.CosmosDb
             return response.Resource;
         }
 
-        public async IAsyncEnumerable<ProviderDocument> ListAsync()
+        public IAsyncEnumerable<ProviderDocument> ListAsync(bool includeServiceProviders = true)
+            => ListWithQueryAsync(includeServiceProviders ? $"SELECT * FROM p" : $"SELECT * FROM p WHERE p.type != '{ProviderType.Service}'");
+
+        public IAsyncEnumerable<ProviderDocument> ListAsync(ProviderType providerType)
+            => ListWithQueryAsync($"SELECT * FROM p WHERE p.type = '{providerType}'");
+
+        public IAsyncEnumerable<ProviderDocument> ListAsync(IEnumerable<string> ids)
         {
-            var container = await GetContainerAsync()
-                .ConfigureAwait(false);
-
-            var query = new QueryDefinition($"SELECT * FROM c");
-            var queryIterator = container
-                .GetItemQueryIterator<ProviderDocument>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
-
-            while (queryIterator.HasMoreResults)
-            {
-                var queryResponse = await queryIterator
-                    .ReadNextAsync()
-                    .ConfigureAwait(false);
-
-                foreach (var queryResult in queryResponse)
-                {
-                    yield return queryResult;
-                }
-            }
+            var search = "'" + string.Join("', '", ids) + "'";
+            return ListWithQueryAsync($"SELECT * FROM p WHERE p.id IN ({search})");
         }
 
-        public async IAsyncEnumerable<ProviderDocument> ListAsync(IEnumerable<string> ids)
+        private async IAsyncEnumerable<ProviderDocument> ListWithQueryAsync(string queryString)
         {
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
-            var search = "'" + string.Join("', '", ids) + "'";
-            var query = new QueryDefinition($"SELECT * FROM p WHERE p.id IN ({search})");
+            var query = new QueryDefinition(queryString);
 
             var queryIterator = container
                 .GetItemQueryIterator<ProviderDocument>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });

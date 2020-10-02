@@ -28,12 +28,10 @@ namespace TeamCloud.Orchestrator.Activities
         public async Task<IEnumerable<ProviderDocument>> RunActivity(
             [ActivityTrigger] bool includeServiceProviders)
         {
-            var providers = await providersRepository
-                .ListAsync()
+            return await providersRepository
+                .ListAsync(includeServiceProviders)
                 .ToListAsync()
                 .ConfigureAwait(false);
-
-            return includeServiceProviders ? providers : providers.Where(p => p.Type != ProviderType.Service);
         }
     }
 
