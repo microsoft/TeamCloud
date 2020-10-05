@@ -224,7 +224,7 @@ namespace TeamCloud.API.Controllers
 
         [HttpDelete("{offerId}")]
         [Authorize(Policy = AuthPolicies.ProviderDataWrite)]
-        [SwaggerOperation(OperationId = "DeleteProviderData", Summary = "Deletes a ProviderData.")]
+        [SwaggerOperation(OperationId = "DeleteProviderOffer", Summary = "Deletes a ProviderData.")]
         [SwaggerResponse(StatusCodes.Status204NoContent, "The ProviderData was deleted.", typeof(DataResult<ProviderData>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A ProviderData with the providerDataId provided was not found.", typeof(ErrorResult))]
