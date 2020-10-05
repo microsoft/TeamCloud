@@ -35,9 +35,6 @@ namespace TeamCloud.API.Controllers
             this.providerDataRepository = providerDataRepository ?? throw new ArgumentNullException(nameof(providerDataRepository));
         }
 
-        public string ProviderId
-            => RouteData.Values.GetValueOrDefault(nameof(ProviderId), StringComparison.OrdinalIgnoreCase)?.ToString();
-
 
         [HttpGet]
         [Authorize(Policy = AuthPolicies.ProviderDataRead)]

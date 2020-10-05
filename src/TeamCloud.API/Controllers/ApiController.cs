@@ -20,6 +20,9 @@ namespace TeamCloud.API.Controllers
         public string ProjectId
             => RouteData.Values.GetValueOrDefault(nameof(ProjectId), StringComparison.OrdinalIgnoreCase)?.ToString();
 
+        public string ProviderId
+            => RouteData.Values.GetValueOrDefault(nameof(ProviderId), StringComparison.OrdinalIgnoreCase)?.ToString();
+
         public UserService UserService { get; }
 
         public Orchestrator Orchestrator { get; }

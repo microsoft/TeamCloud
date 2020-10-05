@@ -37,9 +37,6 @@ namespace TeamCloud.API.Controllers
             this.providerDataRepository = providerDataRepository ?? throw new ArgumentNullException(nameof(providerDataRepository));
         }
 
-        public string ProviderId
-            => RouteData.Values.GetValueOrDefault(nameof(ProviderId), StringComparison.OrdinalIgnoreCase)?.ToString();
-
         private async Task<IActionResult> ProcessAsync(Func<ProjectDocument, Task<IActionResult>> callback)
         {
             try
