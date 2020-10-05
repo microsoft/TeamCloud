@@ -11,7 +11,7 @@ using TeamCloud.Serialization;
 namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public sealed class TeamCloudInstanceDocument : ContainerDocument, ITeamCloudInstance, IPopulate<Model.Data.TeamCloudInstance>
+    public sealed class TeamCloudInstanceDocument : ContainerDocument, ITeamCloudInstance, IPopulate<TeamCloudInstance>
     {
         [PartitionKey]
         public override string Id { get; set; }

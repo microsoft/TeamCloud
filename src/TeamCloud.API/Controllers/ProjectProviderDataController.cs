@@ -30,10 +30,10 @@ namespace TeamCloud.API.Controllers
         private readonly IProviderRepository providerRepository;
         private readonly IProviderDataRepository providerDataRepository;
 
-        public ProjectProviderDataController(UserService userService, Orchestrator orchestrator, IProjectRepository projectsRepository, IProviderRepository providersRepository, IProviderDataRepository providerDataRepository) : base(userService, orchestrator)
+        public ProjectProviderDataController(UserService userService, Orchestrator orchestrator, IProjectRepository projectRepository, IProviderRepository providerRepository, IProviderDataRepository providerDataRepository) : base(userService, orchestrator)
         {
-            this.projectRepository = projectsRepository ?? throw new ArgumentNullException(nameof(projectsRepository));
-            this.providerRepository = providersRepository ?? throw new ArgumentNullException(nameof(providersRepository));
+            this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
+            this.providerRepository = providerRepository ?? throw new ArgumentNullException(nameof(providerRepository));
             this.providerDataRepository = providerDataRepository ?? throw new ArgumentNullException(nameof(providerDataRepository));
         }
 
@@ -48,22 +48,18 @@ namespace TeamCloud.API.Controllers
                     throw new ArgumentNullException(nameof(callback));
 
                 if (string.IsNullOrEmpty(ProjectId))
-                {
                     return ErrorResult
                         .BadRequest($"Project Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCode.ValidationError)
                         .ToActionResult();
-                }
 
                 var projectDocument = await projectRepository
                     .GetAsync(ProjectId)
                     .ConfigureAwait(false);
 
                 if (projectDocument is null)
-                {
                     return ErrorResult
                         .NotFound($"A Project with the ID '{ProjectId}' could not be found in this TeamCloud Instance.")
                         .ToActionResult();
-                }
 
                 return await callback(projectDocument)
                     .ConfigureAwait(false);
@@ -161,17 +157,14 @@ namespace TeamCloud.API.Controllers
         public Task<IActionResult> Post([FromBody] ProviderData providerData) => ProcessAsync(async (projectDocument) =>
         {
             if (providerData is null)
-            {
                 return ErrorResult
                     .BadRequest($"The request body must not be EMPTY.", ResultErrorCode.ValidationError)
                     .ToActionResult();
-            }
-            else if (!providerData.TryValidate(out var validationResult, serviceProvider: HttpContext.RequestServices))
-            {
+
+            if (!providerData.TryValidate(out var validationResult, serviceProvider: HttpContext.RequestServices))
                 return ErrorResult
                     .BadRequest(validationResult)
                     .ToActionResult();
-            }
 
             var providerDocument = await providerRepository
                 .GetAsync(ProviderId)

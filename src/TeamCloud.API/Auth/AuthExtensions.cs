@@ -215,7 +215,7 @@ namespace TeamCloud.API.Auth
                     .ConfigureAwait(false);
 
                 if (provider?.PrincipalId.HasValue ?? false
-                && provider.PrincipalId.Value.ToString().Equals(user.Id, StringComparison.OrdinalIgnoreCase))
+                 && provider.PrincipalId.Value.ToString().Equals(user.Id, StringComparison.OrdinalIgnoreCase))
                     claims.Add(new Claim(ClaimTypes.Role, ProviderUserRoles.ProviderWritePolicyRoleName));
             }
 

@@ -6,14 +6,13 @@
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
-using TeamCloud.Model.Data;
 using TeamCloud.Model.Data.Core;
 using TeamCloud.Serialization;
 
 namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public sealed class ProjectDocument : ContainerDocument, IProject<UserDocument>, IEquatable<ProjectDocument>, IPopulate<Model.Data.Project>
+    public sealed class ProjectDocument : ContainerDocument, IProject<UserDocument>, IEquatable<ProjectDocument>, IPopulate<Project>
     {
         [PartitionKey]
         public string Tenant { get; set; }
