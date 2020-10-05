@@ -22,10 +22,16 @@ namespace TeamCloud.Model.Commands
                 => !string.IsNullOrEmpty(Context?.ProjectId);
 
             SetLink(nameof(SystemData), new ReferenceLink(()
-                => HasProviderId() ? GetBaseUri()?.AppendPath($"api/providers/{Context.ProviderId}").ToString() : null));
+                => HasProviderId() ? GetBaseUri()?.AppendPath($"api/providers/{Context.ProviderId}/data").ToString() : null));
 
             SetLink(nameof(ProjectData), new ReferenceLink(()
-                => HasProviderId() && HasProjectId() ? GetBaseUri()?.AppendPath($"api/providers/{Context.ProviderId}").ToString() : null));
+                => HasProviderId() && HasProjectId() ? GetBaseUri()?.AppendPath($"api/projects/{Context.ProjectId}/providers/{Context.ProviderId}").ToString() : null));
+
+            SetLink(nameof(Offers), new ReferenceLink(()
+                => HasProviderId() ? GetBaseUri()?.AppendPath($"api/providers/{Context.ProviderId}/offers").ToString() : null));
+
+            SetLink(nameof(ProjectComponents), new ReferenceLink(()
+                => HasProviderId() && HasProjectId() ? GetBaseUri()?.AppendPath($"api/projects/{Context.ProjectId}/providers/{Context.ProviderId}/components").ToString() : null));
         }
 
         public ReferenceLink SystemData
@@ -35,6 +41,18 @@ namespace TeamCloud.Model.Commands
         }
 
         public ReferenceLink ProjectData
+        {
+            get => GetLink();
+            private set => SetLink(link: value);
+        }
+
+        public ReferenceLink Offers
+        {
+            get => GetLink();
+            private set => SetLink(link: value);
+        }
+
+        public ReferenceLink ProjectComponents
         {
             get => GetLink();
             private set => SetLink(link: value);
