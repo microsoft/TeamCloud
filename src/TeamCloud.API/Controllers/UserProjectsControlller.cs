@@ -23,17 +23,9 @@ namespace TeamCloud.API.Controllers
     [Produces("application/json")]
     public class UserProjectsController : ApiController
     {
-        private readonly IUserRepository usersRepository;
-        private readonly IProjectRepository projectsRepository;
-
-        public UserProjectsController(UserService userService, Orchestrator orchestrator, IUserRepository usersRepository, IProjectRepository projectsRepository) : base(userService, orchestrator)
-        {
-            this.usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
-            this.projectsRepository = projectsRepository ?? throw new ArgumentNullException(nameof(projectsRepository));
-        }
-
-        public string UserId
-            => RouteData.Values.GetValueOrDefault(nameof(UserId), StringComparison.OrdinalIgnoreCase)?.ToString();
+        public UserProjectsController(UserService userService, Orchestrator orchestrator, IUserRepository userRepository, IProjectRepository projectRepository)
+            : base(userService, orchestrator, projectRepository, userRepository)
+        { }
 
 
         [HttpGet("api/users/{userId:guid}/projects")]
@@ -42,22 +34,8 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all User Projects", typeof(DataResult<List<Project>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A User with the provided userId was not found.", typeof(ErrorResult))]
-        public async Task<IActionResult> Get()
+        public Task<IActionResult> Get() => EnsureUserAsync(async user =>
         {
-            if (string.IsNullOrEmpty(UserId))
-                return ErrorResult
-                    .BadRequest($"User Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCode.ValidationError)
-                    .ToActionResult();
-
-            var user = await usersRepository
-                .GetAsync(UserId)
-                .ConfigureAwait(false);
-
-            if (user is null)
-                return ErrorResult
-                    .NotFound($"The specified User could not be found in this TeamCloud Instance.")
-                    .ToActionResult();
-
             var projectIds = user.ProjectMemberships.Select(pm => pm.ProjectId);
 
             if (!projectIds.Any())
@@ -65,7 +43,7 @@ namespace TeamCloud.API.Controllers
                     .Ok(new List<Project>())
                     .ToActionResult();
 
-            var projectDocuments = await projectsRepository
+            var projectDocuments = await ProjectRepository
                 .ListAsync(projectIds)
                 .ToListAsync()
                 .ConfigureAwait(false);
@@ -75,7 +53,8 @@ namespace TeamCloud.API.Controllers
             return DataResult<List<Project>>
                 .Ok(projects)
                 .ToActionResult();
-        }
+        });
+
 
         [HttpGet("api/me/projects")]
         [Authorize(Policy = AuthPolicies.ProjectRead)]
@@ -83,25 +62,16 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all User Projects", typeof(DataResult<List<Project>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A User with the provided userId was not found.", typeof(ErrorResult))]
-        public async Task<IActionResult> GetMe()
+        public Task<IActionResult> GetMe() => EnsureCurrentUserAsync(async user =>
         {
-            var me = await UserService
-                .CurrentUserAsync()
-                .ConfigureAwait(false);
-
-            if (me is null)
-                return ErrorResult
-                    .NotFound($"A User matching the current authenticated user was not found in this TeamCloud instance.")
-                    .ToActionResult();
-
-            var projectIds = me.ProjectMemberships.Select(pm => pm.ProjectId);
+            var projectIds = user.ProjectMemberships.Select(pm => pm.ProjectId);
 
             if (!projectIds.Any())
                 return DataResult<List<Project>>
                     .Ok(new List<Project>())
                     .ToActionResult();
 
-            var projectDocuments = await projectsRepository
+            var projectDocuments = await ProjectRepository
                 .ListAsync(projectIds)
                 .ToListAsync()
                 .ConfigureAwait(false);
@@ -111,6 +81,6 @@ namespace TeamCloud.API.Controllers
             return DataResult<List<Project>>
                 .Ok(projects)
                 .ToActionResult();
-        }
+        });
     }
 }

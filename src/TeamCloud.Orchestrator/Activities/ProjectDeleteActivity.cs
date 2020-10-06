@@ -15,11 +15,11 @@ namespace TeamCloud.Orchestrator.Activities
 {
     public class ProjectDeleteActivity
     {
-        private readonly IProjectRepository projectsRepository;
+        private readonly IProjectRepository projectRepository;
 
-        public ProjectDeleteActivity(IProjectRepository projectsRepository)
+        public ProjectDeleteActivity(IProjectRepository projectRepository)
         {
-            this.projectsRepository = projectsRepository ?? throw new ArgumentNullException(nameof(projectsRepository));
+            this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
         }
 
         [FunctionName(nameof(ProjectDeleteActivity))]
@@ -31,7 +31,7 @@ namespace TeamCloud.Orchestrator.Activities
 
             var project = activityContext.GetInput<ProjectDocument>();
 
-            _ = await projectsRepository
+            _ = await projectRepository
                 .RemoveAsync(project)
                 .ConfigureAwait(false);
         }

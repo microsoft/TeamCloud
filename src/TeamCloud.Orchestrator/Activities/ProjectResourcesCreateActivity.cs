@@ -23,13 +23,13 @@ namespace TeamCloud.Orchestrator.Activities
     {
         private readonly IAzureDeploymentService azureDeploymentService;
         private readonly IAzureSessionService azureSessionService;
-        private readonly IProviderRepository providersRepository;
+        private readonly IProviderRepository providerRepository;
 
-        public ProjectResourcesCreateActivity(IAzureDeploymentService azureDeploymentService, IAzureSessionService azureSessionService, IProviderRepository providersRepository)
+        public ProjectResourcesCreateActivity(IAzureDeploymentService azureDeploymentService, IAzureSessionService azureSessionService, IProviderRepository providerRepository)
         {
             this.azureDeploymentService = azureDeploymentService ?? throw new ArgumentNullException(nameof(azureDeploymentService));
             this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
-            this.providersRepository = providersRepository ?? throw new ArgumentNullException(nameof(providersRepository));
+            this.providerRepository = providerRepository ?? throw new ArgumentNullException(nameof(providerRepository));
         }
 
         private async Task<string> GetOrchestratorIdentityAsync()
@@ -43,7 +43,7 @@ namespace TeamCloud.Orchestrator.Activities
 
         private async Task<string[]> GetProviderIdentitiesAsync(ProjectDocument project)
         {
-            var providers = await providersRepository
+            var providers = await providerRepository
                 .ListAsync(project.Type.Providers.Select(p => p.Id))
                 .ToListAsync()
                 .ConfigureAwait(false);

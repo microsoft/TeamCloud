@@ -19,14 +19,14 @@ namespace TeamCloud.API.Services
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly IAzureDirectoryService azureDirectoryService;
         private readonly IMemoryCache cache;
-        readonly IUserRepository usersRepository;
+        readonly IUserRepository userRepository;
 
-        public UserService(IHttpContextAccessor httpContextAccessor, IAzureDirectoryService azureDirectoryService, IMemoryCache cache, IUserRepository usersRepository)
+        public UserService(IHttpContextAccessor httpContextAccessor, IAzureDirectoryService azureDirectoryService, IMemoryCache cache, IUserRepository userRepository)
         {
             this.httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             this.azureDirectoryService = azureDirectoryService ?? throw new ArgumentNullException(nameof(azureDirectoryService));
             this.cache = cache ?? throw new ArgumentNullException(nameof(cache));
-            this.usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
+            this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         }
 
         public string CurrentUserId
@@ -39,7 +39,7 @@ namespace TeamCloud.API.Services
         /// <returns></returns>
         public async Task<UserDocument> CurrentUserAsync(bool allowUnsafe = false)
         {
-            var user = await usersRepository
+            var user = await userRepository
                 .GetAsync(CurrentUserId)
                 .ConfigureAwait(false);
 
@@ -89,7 +89,7 @@ namespace TeamCloud.API.Services
             if (string.IsNullOrEmpty(userId))
                 return null;
 
-            var user = await usersRepository
+            var user = await userRepository
                 .GetAsync(userId)
                 .ConfigureAwait(false);
 

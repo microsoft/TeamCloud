@@ -17,12 +17,12 @@ namespace TeamCloud.Orchestrator.Activities
 {
     public class ProjectSubscriptionSelectActivity
     {
-        private readonly IProjectTypeRepository projectTypesRepository;
+        private readonly IProjectTypeRepository projectTypeRepository;
         private readonly IAzureResourceService azureResourceService;
 
-        public ProjectSubscriptionSelectActivity(IProjectTypeRepository projectTypesRepository, IAzureResourceService azureResourceService)
+        public ProjectSubscriptionSelectActivity(IProjectTypeRepository projectTypeRepository, IAzureResourceService azureResourceService)
         {
-            this.projectTypesRepository = projectTypesRepository ?? throw new ArgumentNullException(nameof(projectTypesRepository));
+            this.projectTypeRepository = projectTypeRepository ?? throw new ArgumentNullException(nameof(projectTypeRepository));
             this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
         }
 
@@ -71,7 +71,7 @@ namespace TeamCloud.Orchestrator.Activities
 
             if (hasOwnership)
             {
-                var instanceCount = await projectTypesRepository
+                var instanceCount = await projectTypeRepository
                     .GetInstanceCountAsync(projectType.Id, subscriptionId)
                     .ConfigureAwait(false);
 

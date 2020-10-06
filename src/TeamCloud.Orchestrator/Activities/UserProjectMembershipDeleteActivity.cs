@@ -16,11 +16,11 @@ namespace TeamCloud.Orchestrator.Activities
 {
     public class UserProjectMembershipDeleteActivity
     {
-        private readonly IUserRepository usersRepository;
+        private readonly IUserRepository userRepository;
 
-        public UserProjectMembershipDeleteActivity(IUserRepository usersRepository)
+        public UserProjectMembershipDeleteActivity(IUserRepository userRepository)
         {
-            this.usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
+            this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         }
 
         [FunctionName(nameof(UserProjectMembershipDeleteActivity))]
@@ -32,7 +32,7 @@ namespace TeamCloud.Orchestrator.Activities
 
             var functionInput = activityContext.GetInput<Input>();
 
-            var updatedUser = await usersRepository
+            var updatedUser = await userRepository
                 .RemoveProjectMembershipAsync(functionInput.User, functionInput.ProjectId)
                 .ConfigureAwait(false);
 

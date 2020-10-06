@@ -26,12 +26,11 @@ namespace TeamCloud.API.Controllers
     [ApiController]
     public class TeamCloudAdminController : ApiController
     {
-        private readonly IUserRepository usersRepository;
         private readonly ITeamCloudRepository teamCloudRepository;
 
-        public TeamCloudAdminController(UserService userService, Orchestrator orchestrator, IUserRepository usersRepository, ITeamCloudRepository teamCloudRepository) : base(userService, orchestrator)
+        public TeamCloudAdminController(UserService userService, Orchestrator orchestrator, IUserRepository userRepository, ITeamCloudRepository teamCloudRepository)
+            : base(userService, orchestrator, userRepository)
         {
-            this.usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
             this.teamCloudRepository = teamCloudRepository ?? throw new ArgumentNullException(nameof(teamCloudRepository));
         }
 
@@ -56,7 +55,7 @@ namespace TeamCloud.API.Controllers
                     .BadRequest(validation)
                     .ToActionResult();
 
-            var adminUsers = await usersRepository
+            var adminUsers = await UserRepository
                 .ListAdminsAsync()
                 .AnyAsync()
                 .ConfigureAwait(false);
@@ -128,37 +127,30 @@ namespace TeamCloud.API.Controllers
         public async Task<IActionResult> Post([FromBody] TeamCloudInstance teamCloudInstance)
         {
             if (teamCloudInstance is null)
-            {
                 return ErrorResult
                     .BadRequest("Request body must not be empty.", ResultErrorCode.ValidationError)
                     .ToActionResult();
-            }
-            else if (!teamCloudInstance.TryValidate(out var validationResult, serviceProvider: HttpContext.RequestServices))
-            {
+
+            if (!teamCloudInstance.TryValidate(out var validationResult, serviceProvider: HttpContext.RequestServices))
                 return ErrorResult
                     .BadRequest(validationResult)
                     .ToActionResult();
-            }
 
             var teamCloudInstanceDocument = await teamCloudRepository
                 .GetAsync()
                 .ConfigureAwait(false);
 
             if (teamCloudInstanceDocument is null)
-            {
                 return ErrorResult
                     .NotFound("The TeamCloud instance could not be found.")
                     .ToActionResult();
-            }
 
             if (teamCloudInstanceDocument.ResourceGroup != null
                 || teamCloudInstanceDocument.Version != null
                 || (teamCloudInstanceDocument.Tags?.Any() ?? false))
-            {
                 return ErrorResult
                     .Conflict($"The TeamCloud instance already exists.  Call PUT to update the existing instance.")
                     .ToActionResult();
-            }
 
             teamCloudInstanceDocument.Version = teamCloudInstance.Version;
             teamCloudInstanceDocument.ResourceGroup = teamCloudInstance.ResourceGroup;
@@ -184,17 +176,14 @@ namespace TeamCloud.API.Controllers
         public async Task<IActionResult> Put([FromBody] TeamCloudInstance teamCloudInstance)
         {
             if (teamCloudInstance is null)
-            {
                 return ErrorResult
                     .BadRequest("Request body must not be empty.", ResultErrorCode.ValidationError)
                     .ToActionResult();
-            }
-            else if (!teamCloudInstance.TryValidate(out var validationResult, serviceProvider: HttpContext.RequestServices))
-            {
+
+            if (!teamCloudInstance.TryValidate(out var validationResult, serviceProvider: HttpContext.RequestServices))
                 return ErrorResult
                     .BadRequest(validationResult)
                     .ToActionResult();
-            }
 
             var teamCloudInstanceDocument = await teamCloudRepository
                 .GetAsync()

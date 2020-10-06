@@ -24,15 +24,15 @@ namespace TeamCloud.API.Initialization
     public class TeamCloudAdminInitializer : IHostInitializer
     {
         private readonly IAzureSessionService sessionService;
-        private readonly IUserRepository usersRepository;
+        private readonly IUserRepository userRepository;
         private readonly IWebHostEnvironment hostingEnvironment;
         private readonly Orchestrator orchestrator;
         private readonly ILoggerFactory loggerFactory;
 
-        public TeamCloudAdminInitializer(IAzureSessionService sessionService, IUserRepository usersRepository, IWebHostEnvironment hostingEnvironment, Orchestrator orchestrator, ILoggerFactory loggerFactory)
+        public TeamCloudAdminInitializer(IAzureSessionService sessionService, IUserRepository userRepository, IWebHostEnvironment hostingEnvironment, Orchestrator orchestrator, ILoggerFactory loggerFactory)
         {
             this.sessionService = sessionService ?? throw new ArgumentNullException(nameof(sessionService));
-            this.usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
+            this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             this.hostingEnvironment = hostingEnvironment ?? throw new ArgumentNullException(nameof(hostingEnvironment));
             this.orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
             this.loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
@@ -62,7 +62,7 @@ namespace TeamCloud.API.Initialization
 
             try
             {
-                var exists = await usersRepository
+                var exists = await userRepository
                     .ListAdminsAsync()
                     .AnyAsync()
                     .ConfigureAwait(false);

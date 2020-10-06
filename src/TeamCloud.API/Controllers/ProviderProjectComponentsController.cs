@@ -26,46 +26,14 @@ namespace TeamCloud.API.Controllers
     [Produces("application/json")]
     public class ProviderProjectComponentsController : ApiController
     {
-        private readonly IProjectRepository projectRepository;
         private readonly IComponentRepository componentRepository;
 
-        public ProviderProjectComponentsController(UserService userService, Orchestrator orchestrator, IProjectRepository projectRepository, IComponentRepository componentRepository) : base(userService, orchestrator)
+        public ProviderProjectComponentsController(UserService userService, Orchestrator orchestrator, IProjectRepository projectRepository, IComponentRepository componentRepository)
+            : base(userService, orchestrator, projectRepository)
         {
-            this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
             this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
         }
 
-        private async Task<IActionResult> ProcessAsync(Func<ProjectDocument, Task<IActionResult>> callback)
-        {
-            try
-            {
-                if (callback is null)
-                    throw new ArgumentNullException(nameof(callback));
-
-                if (string.IsNullOrEmpty(ProjectId))
-                    return ErrorResult
-                        .BadRequest($"Project Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCode.ValidationError)
-                        .ToActionResult();
-
-                var project = await projectRepository
-                    .GetAsync(ProjectId)
-                    .ConfigureAwait(false);
-
-                if (project is null)
-                    return ErrorResult
-                        .NotFound($"A Project with the ID '{ProjectId}' could not be found in this TeamCloud Instance.")
-                        .ToActionResult();
-
-                return await callback(project)
-                    .ConfigureAwait(false);
-            }
-            catch (Exception exc)
-            {
-                return ErrorResult
-                    .ServerError(exc)
-                    .ToActionResult();
-            }
-        }
 
         [HttpGet]
         [Authorize(Policy = AuthPolicies.ProjectRead)]
@@ -73,7 +41,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all Project Components", typeof(DataResult<List<Component>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found.", typeof(ErrorResult))]
-        public Task<IActionResult> Get() => ProcessAsync(async project =>
+        public Task<IActionResult> Get() => EnsureProjectAsync(async project =>
         {
             var componentDocuments = await componentRepository
                 .ListAsync(project.Id)
@@ -96,7 +64,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "Returns Project Component", typeof(DataResult<Component>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a Component with the provided id was not found.", typeof(ErrorResult))]
-        public Task<IActionResult> Get([FromRoute] string componentId) => ProcessAsync(async project =>
+        public Task<IActionResult> Get([FromRoute] string componentId) => EnsureProjectAsync(async project =>
         {
             if (string.IsNullOrWhiteSpace(componentId))
                 return ErrorResult
@@ -129,7 +97,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status409Conflict, "A Project Component already exists with the id provided in the request body.", typeof(ErrorResult))]
-        public Task<IActionResult> Post([FromBody] Component component) => ProcessAsync(async project =>
+        public Task<IActionResult> Post([FromBody] Component component) => EnsureProjectAsync(async project =>
         {
             if (component is null)
                 return ErrorResult
@@ -175,7 +143,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts updating the Project Component. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a Component with the id provided in the request body was not found.", typeof(ErrorResult))]
-        public Task<IActionResult> Put([FromRoute] string componentId, [FromBody] Component component) => ProcessAsync(async project =>
+        public Task<IActionResult> Put([FromRoute] string componentId, [FromBody] Component component) => EnsureProjectAsync(async project =>
         {
             if (string.IsNullOrWhiteSpace(componentId))
                 return ErrorResult
@@ -225,7 +193,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status204NoContent, "The Project Component was deleted.", typeof(DataResult<Component>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided id was not found, or a Component with the provided id was not found.", typeof(ErrorResult))]
-        public Task<IActionResult> Delete([FromRoute] string componentId) => ProcessAsync(async project =>
+        public Task<IActionResult> Delete([FromRoute] string componentId) => EnsureProjectAsync(async project =>
         {
             if (string.IsNullOrWhiteSpace(componentId))
                 return ErrorResult

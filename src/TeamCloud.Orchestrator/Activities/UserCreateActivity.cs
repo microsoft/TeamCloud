@@ -14,11 +14,11 @@
 // {
 //     public class UserCreateActivity
 //     {
-//         private readonly IUsersRepository usersRepository;
+//         private readonly IuserRepository userRepository;
 
-//         public UserCreateActivity(IUsersRepository usersRepository)
+//         public UserCreateActivity(IuserRepository userRepository)
 //         {
-//             this.usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
+//             this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 //         }
 
 //         [FunctionName(nameof(UserCreateActivity))]
@@ -28,7 +28,7 @@
 //             if (user is null)
 //                 throw new ArgumentNullException(nameof(user));
 
-//             user = await usersRepository
+//             user = await userRepository
 //                 .AddAsync(user)
 //                 .ConfigureAwait(false);
 

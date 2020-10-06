@@ -18,11 +18,11 @@ namespace TeamCloud.Orchestrator.Activities
 {
     public sealed class UserGetActivity
     {
-        private readonly IUserRepository usersRepository;
+        private readonly IUserRepository userRepository;
 
-        public UserGetActivity(IUserRepository usersRepository)
+        public UserGetActivity(IUserRepository userRepository)
         {
-            this.usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
+            this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         }
 
         [FunctionName(nameof(UserGetActivity))]
@@ -37,7 +37,7 @@ namespace TeamCloud.Orchestrator.Activities
 
             try
             {
-                var user = await usersRepository
+                var user = await userRepository
                     .GetAsync(userId)
                     .ConfigureAwait(false);
 

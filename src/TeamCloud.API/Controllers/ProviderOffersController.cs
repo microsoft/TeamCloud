@@ -26,45 +26,12 @@ namespace TeamCloud.API.Controllers
     [Produces("application/json")]
     public class ProviderOffersController : ApiController
     {
-        private readonly IProviderRepository providersRepository;
         private readonly IComponentOfferRepository componentOfferRepository;
 
-        public ProviderOffersController(UserService userService, Orchestrator orchestrator, IProviderRepository providersRepository, IComponentOfferRepository componentOfferRepository) : base(userService, orchestrator)
+        public ProviderOffersController(UserService userService, Orchestrator orchestrator, IProviderRepository providerRepository, IComponentOfferRepository componentOfferRepository)
+            : base(userService, orchestrator, providerRepository)
         {
-            this.providersRepository = providersRepository ?? throw new ArgumentNullException(nameof(providersRepository));
             this.componentOfferRepository = componentOfferRepository ?? throw new ArgumentNullException(nameof(componentOfferRepository));
-        }
-
-        private async Task<IActionResult> ProcessAsync(Func<ProviderDocument, Task<IActionResult>> callback)
-        {
-            try
-            {
-                if (callback is null)
-                    throw new ArgumentNullException(nameof(callback));
-
-                if (string.IsNullOrEmpty(ProviderId))
-                    return ErrorResult
-                        .BadRequest($"Provider Id provided in the url path is invalid.  Must be a valid non-empty string.", ResultErrorCode.ValidationError)
-                        .ToActionResult();
-
-                var provider = await providersRepository
-                    .GetAsync(ProviderId)
-                    .ConfigureAwait(false);
-
-                if (provider is null)
-                    return ErrorResult
-                        .NotFound($"A Provider with the ID '{ProviderId}' could not be found in this TeamCloud Instance.")
-                        .ToActionResult();
-
-                return await callback(provider)
-                    .ConfigureAwait(false);
-            }
-            catch (Exception exc)
-            {
-                return ErrorResult
-                    .ServerError(exc)
-                    .ToActionResult();
-            }
         }
 
 
@@ -75,7 +42,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all Provider Offers", typeof(DataResult<List<ComponentOffer>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Provider with the provided providerId was not found.", typeof(ErrorResult))]
-        public Task<IActionResult> Get() => ProcessAsync(async provider =>
+        public Task<IActionResult> Get() => EnsureProviderAsync(async provider =>
         {
             var offerDocuments = await componentOfferRepository
                 .ListAsync(provider.Id)
@@ -96,7 +63,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "Returns a ComponentOffer", typeof(DataResult<ComponentOffer>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A ComponentOffer with the provided id was not found.", typeof(ErrorResult))]
-        public Task<IActionResult> Get([FromRoute] string offerId) => ProcessAsync(async provider =>
+        public Task<IActionResult> Get([FromRoute] string offerId) => EnsureProviderAsync(async provider =>
         {
             if (string.IsNullOrWhiteSpace(offerId))
                 return ErrorResult
@@ -117,7 +84,6 @@ namespace TeamCloud.API.Controllers
             return DataResult<ComponentOffer>
                 .Ok(offer)
                 .ToActionResult();
-
         });
 
 
@@ -129,7 +95,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Provider with the provided providerId was not found.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status409Conflict, "A ComponentOffer already exists with the id provided in the request body.", typeof(ErrorResult))]
-        public Task<IActionResult> Post([FromBody] ComponentOffer offer) => ProcessAsync(async provider =>
+        public Task<IActionResult> Post([FromBody] ComponentOffer offer) => EnsureProviderAsync(async provider =>
         {
             if (offer is null)
                 return ErrorResult
@@ -174,7 +140,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "The ComponentOffer was updated.", typeof(DataResult<ComponentOffer>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Provider with the provided providerId was not found, or a ComponentOffer with the provided offerId was not found.", typeof(ErrorResult))]
-        public Task<IActionResult> Put([FromRoute] string offerId, [FromBody] ComponentOffer offer) => ProcessAsync(async provider =>
+        public Task<IActionResult> Put([FromRoute] string offerId, [FromBody] ComponentOffer offer) => EnsureProviderAsync(async provider =>
         {
             if (string.IsNullOrWhiteSpace(offerId))
                 return ErrorResult
@@ -207,7 +173,7 @@ namespace TeamCloud.API.Controllers
 
             if (offerDocument is null)
                 return ErrorResult
-                    .NotFound($"A ComponentOffer with the id '{offer.Id}' could not be found for Project {ProjectId}.")
+                    .NotFound($"A ComponentOffer with the id '{offer.Id}' could not be found.")
                     .ToActionResult();
 
             offerDocument.PopulateFromExternalModel(offer);
@@ -228,7 +194,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status204NoContent, "The ProviderData was deleted.", typeof(DataResult<ProviderData>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A ProviderData with the providerDataId provided was not found.", typeof(ErrorResult))]
-        public Task<IActionResult> Delete([FromRoute] string offerId) => ProcessAsync(async provider =>
+        public Task<IActionResult> Delete([FromRoute] string offerId) => EnsureProviderAsync(async provider =>
         {
             if (string.IsNullOrWhiteSpace(offerId))
                 return ErrorResult

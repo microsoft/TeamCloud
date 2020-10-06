@@ -16,11 +16,11 @@ namespace TeamCloud.Orchestrator.Activities
 {
     public class ProviderDeleteActivity
     {
-        private readonly IProviderRepository providersRepository;
+        private readonly IProviderRepository providerRepository;
 
-        public ProviderDeleteActivity(IProviderRepository providersRepository)
+        public ProviderDeleteActivity(IProviderRepository providerRepository)
         {
-            this.providersRepository = providersRepository ?? throw new ArgumentNullException(nameof(providersRepository));
+            this.providerRepository = providerRepository ?? throw new ArgumentNullException(nameof(providerRepository));
         }
 
         [FunctionName(nameof(ProviderDeleteActivity))]
@@ -32,7 +32,7 @@ namespace TeamCloud.Orchestrator.Activities
 
             var provider = activityContext.GetInput<ProviderDocument>();
 
-            _ = await providersRepository
+            _ = await providerRepository
                 .RemoveAsync(provider)
                 .ConfigureAwait(false);
         }

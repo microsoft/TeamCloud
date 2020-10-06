@@ -117,10 +117,10 @@ namespace TeamCloud.API.Auth
         {
             var claims = new List<Claim>();
 
-            var usersRepository = httpContext.RequestServices
+            var userRepository = httpContext.RequestServices
                 .GetRequiredService<IUserRepository>();
 
-            var user = await usersRepository
+            var user = await userRepository
                 .GetAsync(userId)
                 .ConfigureAwait(false);
 
@@ -207,10 +207,10 @@ namespace TeamCloud.API.Auth
 
             if (!string.IsNullOrEmpty(providerIdRouteValue) && user.UserType == UserType.Provider)
             {
-                var providersRepository = httpContext.RequestServices
+                var providerRepository = httpContext.RequestServices
                     .GetRequiredService<IProviderRepository>();
 
-                var provider = await providersRepository
+                var provider = await providerRepository
                     .GetAsync(providerIdRouteValue)
                     .ConfigureAwait(false);
 
