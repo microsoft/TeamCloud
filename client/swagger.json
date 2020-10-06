@@ -220,6 +220,287 @@
         }
       }
     },
+    "/api/projects/{projectId}/components": {
+      "get": {
+        "tags": [
+          "ProjectComponents"
+        ],
+        "summary": "Gets all Components for a Project.",
+        "operationId": "GetProjectComponents",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns all Project Components",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComponentListDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Project with the provided projectId was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "ProjectComponents"
+        ],
+        "summary": "Creates a new Project Component.",
+        "operationId": "CreateProjectComponent",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ComponentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The created Project Component.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComponentDataResult"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Starts creating the new Project Component. Returns a StatusResult object that can be used to track progress of the long-running operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Project with the provided projectId was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A Project Component already exists with the id provided in the request body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/api/projects/{projectId}/components/{componentId}": {
+      "get": {
+        "tags": [
+          "ProjectComponents"
+        ],
+        "summary": "Gets a Project Component by id.",
+        "operationId": "GetProjectComponentById",
+        "parameters": [
+          {
+            "name": "componentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns Project Component",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComponentDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Project with the provided projectId was not found, or a Component with the provided id was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "ProjectComponents"
+        ],
+        "summary": "Deletes an existing Project Component.",
+        "operationId": "DeleteProjectComponent",
+        "parameters": [
+          {
+            "name": "componentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Starts deleting the Project Component. Returns a StatusResult object that can be used to track progress of the long-running operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResult"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "The Project Component was deleted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComponentDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Project with the provided id was not found, or a Component with the provided id was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
     "/api/projects/{projectId}/identity": {
       "get": {
         "tags": [
@@ -624,6 +905,129 @@
           },
           "404": {
             "description": "A Project with the provided Id was not found, or a Link with the provided Id was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/api/projects/{projectId}/offers": {
+      "get": {
+        "tags": [
+          "ProjectOffers"
+        ],
+        "summary": "Gets all Project Offers.",
+        "operationId": "GetProjectOffers",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns all Project Offers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComponentOfferListDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Project with the provided providerId was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/api/projects/{projectId}/offers/{offerId}": {
+      "get": {
+        "tags": [
+          "ProjectOffers"
+        ],
+        "summary": "Gets the Offer by id.",
+        "operationId": "GetProjectOfferById",
+        "parameters": [
+          {
+            "name": "offerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns a ComponentOffer",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComponentOfferDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A ComponentOffer with the provided id was not found.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2414,6 +2818,734 @@
         }
       }
     },
+    "/api/providers/{providerId}/offers": {
+      "get": {
+        "tags": [
+          "ProviderOffers"
+        ],
+        "summary": "Gets all Provider Offers.",
+        "operationId": "GetProviderOffers",
+        "parameters": [
+          {
+            "name": "providerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns all Provider Offers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComponentOfferListDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Provider with the provided providerId was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "ProviderOffers"
+        ],
+        "summary": "Creates a new ComponentOffer item",
+        "operationId": "CreateProviderOffer",
+        "parameters": [
+          {
+            "name": "providerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ComponentOffer"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The new ComponentOffer was created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComponentOfferDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Provider with the provided providerId was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A ComponentOffer already exists with the id provided in the request body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/api/providers/{providerId}/offers/{offerId}": {
+      "get": {
+        "tags": [
+          "ProviderOffers"
+        ],
+        "summary": "Gets the Offer by id.",
+        "operationId": "GetProviderOfferById",
+        "parameters": [
+          {
+            "name": "offerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "providerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns a ComponentOffer",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComponentOfferDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A ComponentOffer with the provided id was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "ProviderOffers"
+        ],
+        "summary": "Updates an existing ComponentOffer.",
+        "operationId": "UpdateProviderOffer",
+        "parameters": [
+          {
+            "name": "offerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "providerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ComponentOffer"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The ComponentOffer was updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComponentOfferDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Provider with the provided providerId was not found, or a ComponentOffer with the provided offerId was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "ProviderOffers"
+        ],
+        "summary": "Deletes a ProviderData.",
+        "operationId": "DeleteProviderOffer",
+        "parameters": [
+          {
+            "name": "offerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "providerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The ProviderData was deleted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProviderDataDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A ProviderData with the providerDataId provided was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/api/projects/{projectId}/providers/{providerId}/components": {
+      "get": {
+        "tags": [
+          "ProviderProjectComponents"
+        ],
+        "summary": "Gets all Components for a Project.",
+        "operationId": "GetProviderProjectComponents",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "providerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns all Project Components",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComponentListDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Project with the provided projectId was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "ProviderProjectComponents"
+        ],
+        "summary": "Creates a new Project Component.",
+        "operationId": "CreateProviderProjectComponent",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "providerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Component"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The created Project Component.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComponentDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Project with the provided projectId was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A Project Component already exists with the id provided in the request body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/api/projects/{projectId}/providers/{providerId}/components/{componentId}": {
+      "get": {
+        "tags": [
+          "ProviderProjectComponents"
+        ],
+        "summary": "Gets a Project Component by id.",
+        "operationId": "GetProviderProjectComponentById",
+        "parameters": [
+          {
+            "name": "componentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "providerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns Project Component",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComponentDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Project with the provided projectId was not found, or a Component with the provided id was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "ProviderProjectComponents"
+        ],
+        "summary": "Updates an existing Project Component.",
+        "operationId": "UpdateProviderProjectComponent",
+        "parameters": [
+          {
+            "name": "componentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "providerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Component"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The Project Component was updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComponentDataResult"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Starts updating the Project Component. Returns a StatusResult object that can be used to track progress of the long-running operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Project with the provided projectId was not found, or a Component with the id provided in the request body was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "ProviderProjectComponents"
+        ],
+        "summary": "Deletes an existing Project Component.",
+        "operationId": "DeleteProviderProjectComponent",
+        "parameters": [
+          {
+            "name": "componentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "providerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Starts deleting the Project Component. Returns a StatusResult object that can be used to track progress of the long-running operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResult"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "The Project Component was deleted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComponentDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Project with the provided id was not found, or a Component with the provided id was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
     "/api/providers": {
       "get": {
         "tags": [
@@ -4161,6 +5293,12 @@
           },
           "links": {
             "$ref": "#/components/schemas/ReferenceLink"
+          },
+          "offers": {
+            "$ref": "#/components/schemas/ReferenceLink"
+          },
+          "components": {
+            "$ref": "#/components/schemas/ReferenceLink"
           }
         },
         "additionalProperties": false
@@ -4415,6 +5553,112 @@
         },
         "additionalProperties": false
       },
+      "Component": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "offerId": {
+            "type": "string",
+            "nullable": true
+          },
+          "projectId": {
+            "type": "string",
+            "nullable": true
+          },
+          "providerId": {
+            "type": "string",
+            "nullable": true
+          },
+          "requesterId": {
+            "type": "string",
+            "nullable": true
+          },
+          "displayName": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "input": {
+            "type": "object",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "value": {
+            "type": "object",
+            "additionalProperties": false,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ComponentListDataResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Component"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ComponentRequest": {
+        "type": "object",
+        "properties": {
+          "offerId": {
+            "type": "string",
+            "nullable": true
+          },
+          "input": {
+            "type": "object",
+            "additionalProperties": false,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ComponentDataResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/Component"
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "ProjectIdentity": {
         "type": "object",
         "properties": {
@@ -4525,6 +5769,79 @@
           },
           "data": {
             "$ref": "#/components/schemas/ProjectLink"
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ComponentOffer": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "providerId": {
+            "type": "string",
+            "nullable": true
+          },
+          "displayName": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "inputJsonSchema": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ComponentOfferListDataResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ComponentOffer"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ComponentOfferDataResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/ComponentOffer"
           },
           "location": {
             "type": "string",
