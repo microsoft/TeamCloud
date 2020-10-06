@@ -40,6 +40,251 @@ class AzureResourceGroup(msrest.serialization.Model):
         self.region = kwargs.get('region', None)
 
 
+class Component(msrest.serialization.Model):
+    """Component.
+
+    :param id:
+    :type id: str
+    :param offer_id:
+    :type offer_id: str
+    :param project_id:
+    :type project_id: str
+    :param provider_id:
+    :type provider_id: str
+    :param requester_id:
+    :type requester_id: str
+    :param display_name:
+    :type display_name: str
+    :param description:
+    :type description: str
+    :param input: Any object.
+    :type input: object
+    :param value: Any object.
+    :type value: object
+    """
+
+    _attribute_map = {
+        'id': {'key': 'id', 'type': 'str'},
+        'offer_id': {'key': 'offerId', 'type': 'str'},
+        'project_id': {'key': 'projectId', 'type': 'str'},
+        'provider_id': {'key': 'providerId', 'type': 'str'},
+        'requester_id': {'key': 'requesterId', 'type': 'str'},
+        'display_name': {'key': 'displayName', 'type': 'str'},
+        'description': {'key': 'description', 'type': 'str'},
+        'input': {'key': 'input', 'type': 'object'},
+        'value': {'key': 'value', 'type': 'object'},
+    }
+
+    def __init__(
+        self,
+        **kwargs
+    ):
+        super(Component, self).__init__(**kwargs)
+        self.id = kwargs.get('id', None)
+        self.offer_id = kwargs.get('offer_id', None)
+        self.project_id = kwargs.get('project_id', None)
+        self.provider_id = kwargs.get('provider_id', None)
+        self.requester_id = kwargs.get('requester_id', None)
+        self.display_name = kwargs.get('display_name', None)
+        self.description = kwargs.get('description', None)
+        self.input = kwargs.get('input', None)
+        self.value = kwargs.get('value', None)
+
+
+class ComponentDataResult(msrest.serialization.Model):
+    """ComponentDataResult.
+
+    :param code:
+    :type code: int
+    :param status:
+    :type status: str
+    :param data:
+    :type data: ~teamcloud.models.Component
+    :param location:
+    :type location: str
+    """
+
+    _attribute_map = {
+        'code': {'key': 'code', 'type': 'int'},
+        'status': {'key': 'status', 'type': 'str'},
+        'data': {'key': 'data', 'type': 'Component'},
+        'location': {'key': 'location', 'type': 'str'},
+    }
+
+    def __init__(
+        self,
+        **kwargs
+    ):
+        super(ComponentDataResult, self).__init__(**kwargs)
+        self.code = kwargs.get('code', None)
+        self.status = kwargs.get('status', None)
+        self.data = kwargs.get('data', None)
+        self.location = kwargs.get('location', None)
+
+
+class ComponentListDataResult(msrest.serialization.Model):
+    """ComponentListDataResult.
+
+    Variables are only populated by the server, and will be ignored when sending a request.
+
+    :param code:
+    :type code: int
+    :param status:
+    :type status: str
+    :ivar data:
+    :vartype data: list[~teamcloud.models.Component]
+    :param location:
+    :type location: str
+    """
+
+    _validation = {
+        'data': {'readonly': True},
+    }
+
+    _attribute_map = {
+        'code': {'key': 'code', 'type': 'int'},
+        'status': {'key': 'status', 'type': 'str'},
+        'data': {'key': 'data', 'type': '[Component]'},
+        'location': {'key': 'location', 'type': 'str'},
+    }
+
+    def __init__(
+        self,
+        **kwargs
+    ):
+        super(ComponentListDataResult, self).__init__(**kwargs)
+        self.code = kwargs.get('code', None)
+        self.status = kwargs.get('status', None)
+        self.data = None
+        self.location = kwargs.get('location', None)
+
+
+class ComponentOffer(msrest.serialization.Model):
+    """ComponentOffer.
+
+    :param id:
+    :type id: str
+    :param provider_id:
+    :type provider_id: str
+    :param display_name:
+    :type display_name: str
+    :param description:
+    :type description: str
+    :param input_json_schema:
+    :type input_json_schema: str
+    """
+
+    _attribute_map = {
+        'id': {'key': 'id', 'type': 'str'},
+        'provider_id': {'key': 'providerId', 'type': 'str'},
+        'display_name': {'key': 'displayName', 'type': 'str'},
+        'description': {'key': 'description', 'type': 'str'},
+        'input_json_schema': {'key': 'inputJsonSchema', 'type': 'str'},
+    }
+
+    def __init__(
+        self,
+        **kwargs
+    ):
+        super(ComponentOffer, self).__init__(**kwargs)
+        self.id = kwargs.get('id', None)
+        self.provider_id = kwargs.get('provider_id', None)
+        self.display_name = kwargs.get('display_name', None)
+        self.description = kwargs.get('description', None)
+        self.input_json_schema = kwargs.get('input_json_schema', None)
+
+
+class ComponentOfferDataResult(msrest.serialization.Model):
+    """ComponentOfferDataResult.
+
+    :param code:
+    :type code: int
+    :param status:
+    :type status: str
+    :param data:
+    :type data: ~teamcloud.models.ComponentOffer
+    :param location:
+    :type location: str
+    """
+
+    _attribute_map = {
+        'code': {'key': 'code', 'type': 'int'},
+        'status': {'key': 'status', 'type': 'str'},
+        'data': {'key': 'data', 'type': 'ComponentOffer'},
+        'location': {'key': 'location', 'type': 'str'},
+    }
+
+    def __init__(
+        self,
+        **kwargs
+    ):
+        super(ComponentOfferDataResult, self).__init__(**kwargs)
+        self.code = kwargs.get('code', None)
+        self.status = kwargs.get('status', None)
+        self.data = kwargs.get('data', None)
+        self.location = kwargs.get('location', None)
+
+
+class ComponentOfferListDataResult(msrest.serialization.Model):
+    """ComponentOfferListDataResult.
+
+    Variables are only populated by the server, and will be ignored when sending a request.
+
+    :param code:
+    :type code: int
+    :param status:
+    :type status: str
+    :ivar data:
+    :vartype data: list[~teamcloud.models.ComponentOffer]
+    :param location:
+    :type location: str
+    """
+
+    _validation = {
+        'data': {'readonly': True},
+    }
+
+    _attribute_map = {
+        'code': {'key': 'code', 'type': 'int'},
+        'status': {'key': 'status', 'type': 'str'},
+        'data': {'key': 'data', 'type': '[ComponentOffer]'},
+        'location': {'key': 'location', 'type': 'str'},
+    }
+
+    def __init__(
+        self,
+        **kwargs
+    ):
+        super(ComponentOfferListDataResult, self).__init__(**kwargs)
+        self.code = kwargs.get('code', None)
+        self.status = kwargs.get('status', None)
+        self.data = None
+        self.location = kwargs.get('location', None)
+
+
+class ComponentRequest(msrest.serialization.Model):
+    """ComponentRequest.
+
+    :param offer_id:
+    :type offer_id: str
+    :param input: Any object.
+    :type input: object
+    """
+
+    _attribute_map = {
+        'offer_id': {'key': 'offerId', 'type': 'str'},
+        'input': {'key': 'input', 'type': 'object'},
+    }
+
+    def __init__(
+        self,
+        **kwargs
+    ):
+        super(ComponentRequest, self).__init__(**kwargs)
+        self.offer_id = kwargs.get('offer_id', None)
+        self.input = kwargs.get('input', None)
+
+
 class ErrorResult(msrest.serialization.Model):
     """ErrorResult.
 
@@ -380,6 +625,10 @@ class ProjectReferenceLinks(msrest.serialization.Model):
     :type users: ~teamcloud.models.ReferenceLink
     :param links:
     :type links: ~teamcloud.models.ReferenceLink
+    :param offers:
+    :type offers: ~teamcloud.models.ReferenceLink
+    :param components:
+    :type components: ~teamcloud.models.ReferenceLink
     """
 
     _attribute_map = {
@@ -387,6 +636,8 @@ class ProjectReferenceLinks(msrest.serialization.Model):
         'identity': {'key': 'identity', 'type': 'ReferenceLink'},
         'users': {'key': 'users', 'type': 'ReferenceLink'},
         'links': {'key': 'links', 'type': 'ReferenceLink'},
+        'offers': {'key': 'offers', 'type': 'ReferenceLink'},
+        'components': {'key': 'components', 'type': 'ReferenceLink'},
     }
 
     def __init__(
@@ -398,6 +649,8 @@ class ProjectReferenceLinks(msrest.serialization.Model):
         self.identity = kwargs.get('identity', None)
         self.users = kwargs.get('users', None)
         self.links = kwargs.get('links', None)
+        self.offers = kwargs.get('offers', None)
+        self.components = kwargs.get('components', None)
 
 
 class ProjectType(msrest.serialization.Model):

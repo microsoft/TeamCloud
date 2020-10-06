@@ -8,6 +8,13 @@
 
 try:
     from ._models_py3 import AzureResourceGroup
+    from ._models_py3 import Component
+    from ._models_py3 import ComponentDataResult
+    from ._models_py3 import ComponentListDataResult
+    from ._models_py3 import ComponentOffer
+    from ._models_py3 import ComponentOfferDataResult
+    from ._models_py3 import ComponentOfferListDataResult
+    from ._models_py3 import ComponentRequest
     from ._models_py3 import ErrorResult
     from ._models_py3 import Project
     from ._models_py3 import ProjectDataResult
@@ -44,6 +51,13 @@ try:
     from ._models_py3 import ValidationError
 except (SyntaxError, ImportError):
     from ._models import AzureResourceGroup  # type: ignore
+    from ._models import Component  # type: ignore
+    from ._models import ComponentDataResult  # type: ignore
+    from ._models import ComponentListDataResult  # type: ignore
+    from ._models import ComponentOffer  # type: ignore
+    from ._models import ComponentOfferDataResult  # type: ignore
+    from ._models import ComponentOfferListDataResult  # type: ignore
+    from ._models import ComponentRequest  # type: ignore
     from ._models import ErrorResult  # type: ignore
     from ._models import Project  # type: ignore
     from ._models import ProjectDataResult  # type: ignore
@@ -93,6 +107,13 @@ from ._team_cloud_client_enums import (
 
 __all__ = [
     'AzureResourceGroup',
+    'Component',
+    'ComponentDataResult',
+    'ComponentListDataResult',
+    'ComponentOffer',
+    'ComponentOfferDataResult',
+    'ComponentOfferListDataResult',
+    'ComponentRequest',
     'ErrorResult',
     'Project',
     'ProjectDataResult',
