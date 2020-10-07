@@ -89,7 +89,7 @@ namespace TeamCloud.Orchestrator
                 .AddScoped<IOrchestratorCommandHandler, OrchestratorProjectLinkCommandHandler>()
                 .AddScoped<IOrchestratorCommandHandler, OrchestratorProjectTypeCommandHandler>()
                 .AddScoped<IOrchestratorCommandHandler, OrchestratorProviderDataCommandHandler>()
-                .AddScoped<IOrchestratorCommandHandler, OrchestratorCommandOrchestrationHandler>()
+                .AddScoped<IOrchestratorCommandHandler, OrchestratorComponentOfferCommandHandler>()
                 .AddScoped<IOrchestratorCommandHandler, OrchestratorComponentCommandHandler>()
                 .AddScoped<IOrchestratorCommandHandler, OrchestratorTeamCloudCommandHandler>()
                 .AddScoped<IOrchestratorCommandHandler, OrchestratorCommandOrchestrationHandler>();

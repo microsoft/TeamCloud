@@ -14,6 +14,8 @@ namespace TeamCloud.Model.Data
         : ContainerDocument, IComponentOffer, IPopulate<ComponentOffer>
     {
         [PartitionKey]
+        public string Tenant { get; set; }
+
         public string ProviderId { get; set; }
 
         public string DisplayName { get; set; }
