@@ -22,10 +22,10 @@ namespace TeamCloud.Orchestration.Eventing
             ILogger log)
         {
             if (activityContext is null)
-                throw new System.ArgumentNullException(nameof(activityContext));
+                throw new ArgumentNullException(nameof(activityContext));
 
             if (orchestrationClient is null)
-                throw new System.ArgumentNullException(nameof(orchestrationClient));
+                throw new ArgumentNullException(nameof(orchestrationClient));
 
             var functionInput = activityContext.GetInput<Input>();
 

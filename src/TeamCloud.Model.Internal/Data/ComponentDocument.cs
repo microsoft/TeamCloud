@@ -15,6 +15,7 @@ namespace TeamCloud.Model.Data
     {
         public string OfferId { get; set; }
 
+        [PartitionKey]
         public string ProjectId { get; set; }
 
         public string ProviderId { get; set; }

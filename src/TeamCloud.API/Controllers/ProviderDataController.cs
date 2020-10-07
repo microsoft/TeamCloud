@@ -101,7 +101,16 @@ namespace TeamCloud.API.Controllers
                     .BadRequest(validationResult)
                     .ToActionResult();
 
-            var dataDocument = new ProviderDataDocument
+            var dataDocument = await providerDataRepository
+                .GetAsync(providerData.Id)
+                .ConfigureAwait(false);
+
+            if (dataDocument != null)
+                return ErrorResult
+                    .Conflict($"A Provider Data item with id '{providerData.Id}' already exists.  Please try your request again with a unique id or call PUT to update the existing ProviderData.")
+                    .ToActionResult();
+
+            dataDocument = new ProviderDataDocument
             {
                 ProviderId = provider.Id,
                 Scope = ProviderDataScope.System

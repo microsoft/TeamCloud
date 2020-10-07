@@ -101,11 +101,11 @@ namespace TeamCloud.API.Controllers
                     .BadRequest(validationResult)
                     .ToActionResult();
 
-            var existingProjectType = await projectTypeRepository
+            var projectTypeDocument = await projectTypeRepository
                 .GetAsync(projectType.Id)
                 .ConfigureAwait(false);
 
-            if (existingProjectType != null)
+            if (projectTypeDocument != null)
                 return ErrorResult
                     .Conflict($"A ProjectType with id '{projectType.Id}' already exists.  Please try your request again with a unique id or call PUT to update the existing ProjectType.")
                     .ToActionResult();
@@ -131,7 +131,7 @@ namespace TeamCloud.API.Controllers
                 .CurrentUserAsync()
                 .ConfigureAwait(false);
 
-            var projectTypeDocument = new ProjectTypeDocument()
+            projectTypeDocument = new ProjectTypeDocument()
                 .PopulateFromExternalModel(projectType);
 
             return await Orchestrator

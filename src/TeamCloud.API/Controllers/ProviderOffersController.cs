@@ -125,7 +125,8 @@ namespace TeamCloud.API.Controllers
                 .CurrentUserAsync()
                 .ConfigureAwait(false);
 
-            offerDocument.PopulateFromExternalModel(offer);
+            offerDocument = new ComponentOfferDocument()
+                .PopulateFromExternalModel(offer);
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync<ComponentOfferDocument, ComponentOffer>(new OrchestratorComponentOfferCreateCommand(currentUser, offerDocument), Request)

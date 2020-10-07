@@ -13,6 +13,7 @@ namespace TeamCloud.Model.Data
     public sealed class ComponentOfferDocument
         : ContainerDocument, IComponentOffer, IPopulate<ComponentOffer>
     {
+        [PartitionKey]
         public string ProviderId { get; set; }
 
         public string DisplayName { get; set; }

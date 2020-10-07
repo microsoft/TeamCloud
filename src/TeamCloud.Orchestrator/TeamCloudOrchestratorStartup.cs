@@ -76,17 +76,21 @@ namespace TeamCloud.Orchestrator
                 .AddSingleton<IProviderRepository, CosmosDbProviderRepository>()
                 .AddSingleton<IProjectTypeRepository, CosmosDbProjectTypeRepository>()
                 .AddSingleton<IProjectLinkRepository, CosmosDbProjectLinkRepository>()
-                .AddSingleton<IProviderDataRepository, CosmosDbProviderDataRepository>();
+                .AddSingleton<IProviderDataRepository, CosmosDbProviderDataRepository>()
+                .AddSingleton<IComponentOfferRepository, CosmosDbComponentOfferRepository>()
+                .AddSingleton<IComponentRepository, CosmosDbComponentRepository>();
 
-            // CAUTION - don't register an orchstrator command handler with the generic 
-            // IOrchestratorCommandHandler<> interface. purpose of this interface is the 
-            // command specific implementation login. to register and identifiy a command 
+            // CAUTION - don't register an orchstrator command handler with the generic
+            // IOrchestratorCommandHandler<> interface. purpose of this interface is the
+            // command specific implementation login. to register and identifiy a command
             // handler use the non-generic IOrchestratorCommandHandler interface.
 
             builder.Services
                 .AddScoped<IOrchestratorCommandHandler, OrchestratorProjectLinkCommandHandler>()
                 .AddScoped<IOrchestratorCommandHandler, OrchestratorProjectTypeCommandHandler>()
                 .AddScoped<IOrchestratorCommandHandler, OrchestratorProviderDataCommandHandler>()
+                .AddScoped<IOrchestratorCommandHandler, OrchestratorCommandOrchestrationHandler>()
+                .AddScoped<IOrchestratorCommandHandler, OrchestratorComponentCommandHandler>()
                 .AddScoped<IOrchestratorCommandHandler, OrchestratorTeamCloudCommandHandler>()
                 .AddScoped<IOrchestratorCommandHandler, OrchestratorCommandOrchestrationHandler>();
 
