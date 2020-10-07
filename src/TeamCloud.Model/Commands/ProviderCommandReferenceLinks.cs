@@ -21,8 +21,11 @@ namespace TeamCloud.Model.Commands
             bool HasProjectId()
                 => !string.IsNullOrEmpty(Context?.ProjectId);
 
-            SetLink(nameof(SystemData), new ReferenceLink(()
+            SetLink(nameof(Data), new ReferenceLink(()
                 => HasProviderId() ? GetBaseUri()?.AppendPath($"api/providers/{Context.ProviderId}/data").ToString() : null));
+
+            SetLink(nameof(Project), new ReferenceLink(()
+                => HasProjectId() ? GetBaseUri()?.AppendPath($"api/projects/{Context.ProjectId}").ToString() : null));
 
             SetLink(nameof(ProjectData), new ReferenceLink(()
                 => HasProviderId() && HasProjectId() ? GetBaseUri()?.AppendPath($"api/projects/{Context.ProjectId}/providers/{Context.ProviderId}").ToString() : null));
@@ -34,7 +37,13 @@ namespace TeamCloud.Model.Commands
                 => HasProviderId() && HasProjectId() ? GetBaseUri()?.AppendPath($"api/projects/{Context.ProjectId}/providers/{Context.ProviderId}/components").ToString() : null));
         }
 
-        public ReferenceLink SystemData
+        public ReferenceLink Data
+        {
+            get => GetLink();
+            private set => SetLink(link: value);
+        }
+
+        public ReferenceLink Project
         {
             get => GetLink();
             private set => SetLink(link: value);
