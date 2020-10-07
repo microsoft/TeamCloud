@@ -7,7 +7,7 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Model.Commands
 {
-    public sealed class OrchestratorComponentCreateCommand : OrchestratorCommand<ComponentDocument, OrchestratorComponentCreateCommandResult>
+    public sealed class OrchestratorComponentCreateCommand : OrchestratorCreateCommand<ComponentDocument, OrchestratorComponentCreateCommandResult>
     {
         public OrchestratorComponentCreateCommand(UserDocument user, ComponentDocument payload, string projectId) : base(user, payload)
             => ProjectId = projectId;

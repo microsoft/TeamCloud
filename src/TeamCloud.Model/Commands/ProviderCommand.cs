@@ -10,15 +10,13 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Model.Commands
 {
-
-
     public abstract class ProviderCommand<TPayload, TCommandResult>
         : Command<User, TPayload, TCommandResult>, IProviderCommand<TPayload, TCommandResult>
         where TPayload : class, new()
         where TCommandResult : ICommandResult, new()
     {
-        protected ProviderCommand(User user, TPayload payload, Guid? commandId = default)
-            : base(user, payload, commandId)
+        protected ProviderCommand(CommandAction action, User user, TPayload payload, Guid? commandId = default)
+            : base(action, user, payload, commandId)
         { }
 
         private ProviderCommandReferenceLinks links = null;
@@ -36,5 +34,32 @@ namespace TeamCloud.Model.Commands
 
         public IDictionary<string, IDictionary<string, string>> Results { get; set; }
             = new Dictionary<string, IDictionary<string, string>>();
+    }
+
+    public abstract class ProviderCreateCommand<TPayload, TCommandResult> : ProviderCommand<TPayload, TCommandResult>
+        where TPayload : class, new()
+        where TCommandResult : ICommandResult, new()
+    {
+        protected ProviderCreateCommand(User user, TPayload payload, Guid? commandId = default)
+            : base(CommandAction.Create, user, payload, commandId)
+        { }
+    }
+
+    public abstract class ProviderUpdateCommand<TPayload, TCommandResult> : ProviderCommand<TPayload, TCommandResult>
+        where TPayload : class, new()
+        where TCommandResult : ICommandResult, new()
+    {
+        protected ProviderUpdateCommand(User user, TPayload payload, Guid? commandId = default)
+            : base(CommandAction.Create, user, payload, commandId)
+        { }
+    }
+
+    public abstract class ProviderDeleteCommand<TPayload, TCommandResult> : ProviderCommand<TPayload, TCommandResult>
+        where TPayload : class, new()
+        where TCommandResult : ICommandResult, new()
+    {
+        protected ProviderDeleteCommand(User user, TPayload payload, Guid? commandId = default)
+            : base(CommandAction.Create, user, payload, commandId)
+        { }
     }
 }

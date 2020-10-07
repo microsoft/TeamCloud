@@ -7,7 +7,7 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Model.Commands
 {
-    public sealed class OrchestratorComponentOfferUpdateCommand : OrchestratorCommand<ComponentOfferDocument, OrchestratorComponentOfferUpdateCommandResult>
+    public sealed class OrchestratorComponentOfferUpdateCommand : OrchestratorUpdateCommand<ComponentOfferDocument, OrchestratorComponentOfferUpdateCommandResult>
     {
         public OrchestratorComponentOfferUpdateCommand(UserDocument user, ComponentOfferDocument payload) : base(user, payload) { }
     }

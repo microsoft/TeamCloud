@@ -8,7 +8,7 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Model.Commands
 {
-    public class ProviderComponentDeleteCommand : ProviderCommand<Component, ProviderComponentDeleteCommandResult>
+    public class ProviderComponentDeleteCommand : ProviderDeleteCommand<Component, ProviderComponentDeleteCommandResult>
     {
         public ProviderComponentDeleteCommand(User user, Component payload, string projectId, Guid? commandId = null) : base(user, payload, commandId)
             => ProjectId = projectId;

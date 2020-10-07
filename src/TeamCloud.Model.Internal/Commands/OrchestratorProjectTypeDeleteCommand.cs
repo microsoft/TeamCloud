@@ -7,7 +7,7 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Model.Commands
 {
-    public sealed class OrchestratorProjectTypeDeleteCommand : OrchestratorCommand<ProjectTypeDocument, OrchestratorProjectTypeDeleteCommandResult>
+    public sealed class OrchestratorProjectTypeDeleteCommand : OrchestratorDeleteCommand<ProjectTypeDocument, OrchestratorProjectTypeDeleteCommandResult>
     {
         public OrchestratorProjectTypeDeleteCommand(UserDocument user, ProjectTypeDocument payload) : base(user, payload)
         { }
