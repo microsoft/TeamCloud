@@ -61,16 +61,16 @@ class Component(msrest.serialization.Model):
     :type project_id: str
     :param provider_id:
     :type provider_id: str
-    :param requester_id:
-    :type requester_id: str
+    :param requested_by:
+    :type requested_by: str
     :param display_name:
     :type display_name: str
     :param description:
     :type description: str
-    :param input: Any object.
-    :type input: object
-    :param value: Any object.
-    :type value: object
+    :param input_json:
+    :type input_json: str
+    :param value_json:
+    :type value_json: str
     """
 
     _attribute_map = {
@@ -78,11 +78,11 @@ class Component(msrest.serialization.Model):
         'offer_id': {'key': 'offerId', 'type': 'str'},
         'project_id': {'key': 'projectId', 'type': 'str'},
         'provider_id': {'key': 'providerId', 'type': 'str'},
-        'requester_id': {'key': 'requesterId', 'type': 'str'},
+        'requested_by': {'key': 'requestedBy', 'type': 'str'},
         'display_name': {'key': 'displayName', 'type': 'str'},
         'description': {'key': 'description', 'type': 'str'},
-        'input': {'key': 'input', 'type': 'object'},
-        'value': {'key': 'value', 'type': 'object'},
+        'input_json': {'key': 'inputJson', 'type': 'str'},
+        'value_json': {'key': 'valueJson', 'type': 'str'},
     }
 
     def __init__(
@@ -92,11 +92,11 @@ class Component(msrest.serialization.Model):
         offer_id: Optional[str] = None,
         project_id: Optional[str] = None,
         provider_id: Optional[str] = None,
-        requester_id: Optional[str] = None,
+        requested_by: Optional[str] = None,
         display_name: Optional[str] = None,
         description: Optional[str] = None,
-        input: Optional[object] = None,
-        value: Optional[object] = None,
+        input_json: Optional[str] = None,
+        value_json: Optional[str] = None,
         **kwargs
     ):
         super(Component, self).__init__(**kwargs)
@@ -104,11 +104,11 @@ class Component(msrest.serialization.Model):
         self.offer_id = offer_id
         self.project_id = project_id
         self.provider_id = provider_id
-        self.requester_id = requester_id
+        self.requested_by = requested_by
         self.display_name = display_name
         self.description = description
-        self.input = input
-        self.value = value
+        self.input_json = input_json
+        self.value_json = value_json
 
 
 class ComponentDataResult(msrest.serialization.Model):
@@ -311,25 +311,25 @@ class ComponentRequest(msrest.serialization.Model):
 
     :param offer_id:
     :type offer_id: str
-    :param input: Any object.
-    :type input: object
+    :param input_json:
+    :type input_json: str
     """
 
     _attribute_map = {
         'offer_id': {'key': 'offerId', 'type': 'str'},
-        'input': {'key': 'input', 'type': 'object'},
+        'input_json': {'key': 'inputJson', 'type': 'str'},
     }
 
     def __init__(
         self,
         *,
         offer_id: Optional[str] = None,
-        input: Optional[object] = None,
+        input_json: Optional[str] = None,
         **kwargs
     ):
         super(ComponentRequest, self).__init__(**kwargs)
         self.offer_id = offer_id
-        self.input = input
+        self.input_json = input_json
 
 
 class ErrorResult(msrest.serialization.Model):

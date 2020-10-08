@@ -3181,21 +3181,21 @@ class TeamCloudClientOperationsMixin:
         offer_id: str,
         provider_id: str,
         **kwargs
-    ) -> Optional[Union["models.ProviderDataResult", "models.ErrorResult"]]:
-        """Deletes a ProviderData.
+    ) -> Optional[Union["models.ComponentOfferDataResult", "models.ErrorResult"]]:
+        """Deletes a ComponentOffer.
 
-        Deletes a ProviderData.
+        Deletes a ComponentOffer.
 
         :param offer_id:
         :type offer_id: str
         :param provider_id:
         :type provider_id: str
         :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ProviderDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ProviderDataResult or ~teamcloud.models.ErrorResult or None
+        :return: ComponentOfferDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ComponentOfferDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProviderDataResult", "models.ErrorResult"]]]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ComponentOfferDataResult", "models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
@@ -3227,7 +3227,7 @@ class TeamCloudClientOperationsMixin:
 
         deserialized = None
         if response.status_code == 204:
-            deserialized = self._deserialize('ProviderDataResult', pipeline_response)
+            deserialized = self._deserialize('ComponentOfferDataResult', pipeline_response)
 
         if response.status_code == 400:
             deserialized = self._deserialize('ErrorResult', pipeline_response)
