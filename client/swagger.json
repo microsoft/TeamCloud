@@ -3091,7 +3091,7 @@
         "tags": [
           "ProviderOffers"
         ],
-        "summary": "Deletes a ProviderData.",
+        "summary": "Deletes a ComponentOffer.",
         "operationId": "DeleteProviderOffer",
         "parameters": [
           {
@@ -3114,11 +3114,11 @@
         ],
         "responses": {
           "204": {
-            "description": "The ProviderData was deleted.",
+            "description": "The ComponentOffer was deleted.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProviderDataDataResult"
+                  "$ref": "#/components/schemas/ComponentOfferDataResult"
                 }
               }
             }
@@ -3134,7 +3134,7 @@
             }
           },
           "404": {
-            "description": "A ProviderData with the providerDataId provided was not found.",
+            "description": "A ComponentOffer with the offerId provided was not found.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5572,7 +5572,7 @@
             "type": "string",
             "nullable": true
           },
-          "requesterId": {
+          "requestedBy": {
             "type": "string",
             "nullable": true
           },
@@ -5584,14 +5584,12 @@
             "type": "string",
             "nullable": true
           },
-          "input": {
-            "type": "object",
-            "additionalProperties": false,
+          "inputJson": {
+            "type": "string",
             "nullable": true
           },
-          "value": {
-            "type": "object",
-            "additionalProperties": false,
+          "valueJson": {
+            "type": "string",
             "nullable": true
           }
         },
@@ -5630,9 +5628,8 @@
             "type": "string",
             "nullable": true
           },
-          "input": {
-            "type": "object",
-            "additionalProperties": false,
+          "inputJson": {
+            "type": "string",
             "nullable": true
           }
         },
