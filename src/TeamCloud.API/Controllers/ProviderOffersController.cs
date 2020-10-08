@@ -191,10 +191,10 @@ namespace TeamCloud.API.Controllers
 
         [HttpDelete("{offerId}")]
         [Authorize(Policy = AuthPolicies.ProviderDataWrite)]
-        [SwaggerOperation(OperationId = "DeleteProviderOffer", Summary = "Deletes a ProviderData.")]
-        [SwaggerResponse(StatusCodes.Status204NoContent, "The ProviderData was deleted.", typeof(DataResult<ProviderData>))]
+        [SwaggerOperation(OperationId = "DeleteProviderOffer", Summary = "Deletes a ComponentOffer.")]
+        [SwaggerResponse(StatusCodes.Status204NoContent, "The ComponentOffer was deleted.", typeof(DataResult<ComponentOffer>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
-        [SwaggerResponse(StatusCodes.Status404NotFound, "A ProviderData with the providerDataId provided was not found.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "A ComponentOffer with the offerId provided was not found.", typeof(ErrorResult))]
         public Task<IActionResult> Delete([FromRoute] string offerId) => EnsureProviderAsync(async provider =>
         {
             if (string.IsNullOrWhiteSpace(offerId))

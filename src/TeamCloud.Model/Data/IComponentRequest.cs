@@ -13,6 +13,6 @@ namespace TeamCloud.Model.Data
     {
         string OfferId { get; set; }
 
-        object Input { get; set; }
+        string InputJson { get; set; }
     }
 }

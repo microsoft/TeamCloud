@@ -20,14 +20,14 @@ namespace TeamCloud.Model.Data
 
         public string ProviderId { get; set; }
 
-        public string RequesterId { get; set; }
+        public string RequestedBy { get; set; }
 
         public string DisplayName { get; set; }
 
         public string Description { get; set; }
 
-        public object Input { get; set; }
+        public string InputJson { get; set; }
 
-        public object Value { get; set; }
+        public string ValueJson { get; set; }
     }
 }

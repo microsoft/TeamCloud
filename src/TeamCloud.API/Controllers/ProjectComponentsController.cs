@@ -128,7 +128,10 @@ namespace TeamCloud.API.Controllers
                     .NotFound($"A ComponentOffer with the id '{request.OfferId}' could not be found for Project {project.Id}.")
                     .ToActionResult();
 
-            if (!JObject.FromObject(request.Input).IsValid(JSchema.Parse(offerDocument.InputJsonSchema), out IList<string> schemaErrors))
+            var input = JObject.Parse(request.InputJson);
+            var schema = JSchema.Parse(offerDocument.InputJsonSchema);
+
+            if (!input.IsValid(schema, out IList<string> schemaErrors))
                 return ErrorResult
                     .BadRequest(new ValidationError { Field = "input", Message = $"ComponentRequest's input does not match the the Offer inputJsonSchema.  Errors: {string.Join(", ", schemaErrors)}." })
                     .ToActionResult();
@@ -142,8 +145,8 @@ namespace TeamCloud.API.Controllers
                 OfferId = offerDocument.Id,
                 ProjectId = project.Id,
                 ProviderId = offerDocument.ProviderId,
-                RequesterId = currentUser.Id,
-                Input = request.Input
+                RequestedBy = currentUser.Id,
+                InputJson = request.InputJson
             };
 
             return await Orchestrator

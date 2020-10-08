@@ -22,7 +22,7 @@ namespace TeamCloud.Model.Validation.Data
             RuleFor(obj => obj.ProviderId)
                 .MustBeProviderId();
 
-            RuleFor(obj => obj.RequesterId)
+            RuleFor(obj => obj.RequestedBy)
                 .MustBeGuid();
 
             RuleFor(obj => obj.OfferId)
