@@ -34,8 +34,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpGet]
-        // TODO: Update auth policy
-        [Authorize(Policy = AuthPolicies.ProviderDataRead)]
+        [Authorize(Policy = AuthPolicies.ProjectRead)]
         [SwaggerOperation(OperationId = "GetProjectOffers", Summary = "Gets all Project Offers.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all Project Offers", typeof(DataResult<List<ComponentOffer>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
@@ -56,7 +55,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpGet("{offerId}")]
-        [Authorize(Policy = AuthPolicies.ProviderDataRead)]
+        [Authorize(Policy = AuthPolicies.ProjectRead)]
         [SwaggerOperation(OperationId = "GetProjectOfferById", Summary = "Gets the Offer by id.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns a ComponentOffer", typeof(DataResult<ComponentOffer>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]

@@ -36,8 +36,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpGet]
-        // TODO: Update auth policy
-        [Authorize(Policy = AuthPolicies.ProviderDataRead)]
+        [Authorize(Policy = AuthPolicies.ProviderOfferRead)]
         [SwaggerOperation(OperationId = "GetProviderOffers", Summary = "Gets all Provider Offers.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all Provider Offers", typeof(DataResult<List<ComponentOffer>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
@@ -58,7 +57,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpGet("{offerId}")]
-        [Authorize(Policy = AuthPolicies.ProviderDataRead)]
+        [Authorize(Policy = AuthPolicies.ProviderOfferRead)]
         [SwaggerOperation(OperationId = "GetProviderOfferById", Summary = "Gets the Offer by id.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns a ComponentOffer", typeof(DataResult<ComponentOffer>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
@@ -88,7 +87,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpPost]
-        [Authorize(Policy = AuthPolicies.ProviderDataWrite)]
+        [Authorize(Policy = AuthPolicies.ProviderOfferWrite)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "CreateProviderOffer", Summary = "Creates a new ComponentOffer item")]
         [SwaggerResponse(StatusCodes.Status201Created, "The new ComponentOffer was created.", typeof(DataResult<ComponentOffer>))]
@@ -135,7 +134,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpPut("{offerId}")]
-        [Authorize(Policy = AuthPolicies.ProviderDataWrite)]
+        [Authorize(Policy = AuthPolicies.ProviderOfferWrite)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "UpdateProviderOffer", Summary = "Updates an existing ComponentOffer.")]
         [SwaggerResponse(StatusCodes.Status200OK, "The ComponentOffer was updated.", typeof(DataResult<ComponentOffer>))]
@@ -190,7 +189,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpDelete("{offerId}")]
-        [Authorize(Policy = AuthPolicies.ProviderDataWrite)]
+        [Authorize(Policy = AuthPolicies.ProviderOfferWrite)]
         [SwaggerOperation(OperationId = "DeleteProviderOffer", Summary = "Deletes a ComponentOffer.")]
         [SwaggerResponse(StatusCodes.Status204NoContent, "The ComponentOffer was deleted.", typeof(DataResult<ComponentOffer>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]

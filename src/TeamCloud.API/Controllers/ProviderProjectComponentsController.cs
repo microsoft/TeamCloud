@@ -36,7 +36,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpGet]
-        [Authorize(Policy = AuthPolicies.ProjectRead)]
+        [Authorize(Policy = AuthPolicies.ProviderComponentWrite)]
         [SwaggerOperation(OperationId = "GetProviderProjectComponents", Summary = "Gets all Components for a Project.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all Project Components", typeof(DataResult<List<Component>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
@@ -59,7 +59,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpGet("{componentId}")]
-        [Authorize(Policy = AuthPolicies.ProjectRead)]
+        [Authorize(Policy = AuthPolicies.ProviderComponentWrite)]
         [SwaggerOperation(OperationId = "GetProviderProjectComponentById", Summary = "Gets a Project Component by id.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns Project Component", typeof(DataResult<Component>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
@@ -89,8 +89,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpPost]
-        // TODO: update auth policy
-        [Authorize(Policy = AuthPolicies.ProjectLinkWrite)]
+        [Authorize(Policy = AuthPolicies.ProviderComponentWrite)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "CreateProviderProjectComponent", Summary = "Creates a new Project Component.")]
         [SwaggerResponse(StatusCodes.Status201Created, "The created Project Component.", typeof(DataResult<Component>))]
@@ -136,7 +135,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpPut("{componentId}")]
-        [Authorize(Policy = AuthPolicies.ProjectLinkWrite)]
+        [Authorize(Policy = AuthPolicies.ProviderComponentWrite)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "UpdateProviderProjectComponent", Summary = "Updates an existing Project Component.")]
         [SwaggerResponse(StatusCodes.Status200OK, "The Project Component was updated.", typeof(DataResult<Component>))]
@@ -187,7 +186,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpDelete("{componentId}")]
-        [Authorize(Policy = AuthPolicies.ProjectLinkWrite)]
+        [Authorize(Policy = AuthPolicies.ProviderComponentWrite)]
         [SwaggerOperation(OperationId = "DeleteProviderProjectComponent", Summary = "Deletes an existing Project Component.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts deleting the Project Component. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status204NoContent, "The Project Component was deleted.", typeof(DataResult<Component>))]

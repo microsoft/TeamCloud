@@ -93,8 +93,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpPost]
-        // TODO: update auth policy
-        [Authorize(Policy = AuthPolicies.ProjectLinkWrite)]
+        [Authorize(Policy = AuthPolicies.ProjectComponentWrite)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "CreateProjectComponent", Summary = "Creates a new Project Component.")]
         [SwaggerResponse(StatusCodes.Status201Created, "The created Project Component.", typeof(DataResult<Component>))]
@@ -156,7 +155,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpDelete("{componentId}")]
-        [Authorize(Policy = AuthPolicies.ProjectLinkWrite)]
+        [Authorize(Policy = AuthPolicies.ProjectComponentUpdate)]
         [SwaggerOperation(OperationId = "DeleteProjectComponent", Summary = "Deletes an existing Project Component.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts deleting the Project Component. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status204NoContent, "The Project Component was deleted.", typeof(DataResult<Component>))]
