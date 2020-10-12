@@ -49,7 +49,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 
                 var isNotProjectCommandWithProjectId = functionContext.Provider.CommandMode == ProviderCommandMode.Simple
                                                     && !string.IsNullOrEmpty(functionContext.Command.ProjectId)
-                                                    && !(functionContext.Command is IProviderCommand<Model.Data.Project>);
+                                                    && (functionContext.Command is IProviderCommand<User>);
 
                 commandResult = isNotProjectCommandWithProjectId
                     ? await SwitchCommandAsync(orchestrationContext, functionContext, commandResult, commandLog).ConfigureAwait(true)
