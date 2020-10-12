@@ -25,4 +25,17 @@ for azureProvider in AppInsights DevOps DevTestLabs; do
 
 done
 
+for githubProvider in Repos Actions; do
+
+    echo "Deleting task hub for 'TeamCloud.Providers.GitHub.$githubProvider'."
+
+    pushd $cdir/../../TeamCloud-Providers/Azure/TeamCloud.Providers.Azure.$githubProvider > /dev/null
+
+        func durable delete-task-hub --connection-string-setting DurableFunctionsHubStorage
+        echo ""
+
+    popd > /dev/null
+
+done
+
 echo "Done."
