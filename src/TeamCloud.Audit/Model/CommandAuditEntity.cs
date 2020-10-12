@@ -5,7 +5,7 @@
 
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.WindowsAzure.Storage.Table;
+using Microsoft.Azure.Cosmos.Table;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 
@@ -23,8 +23,8 @@ namespace TeamCloud.Audit.Model
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
 
-            TableEntity.PartitionKey = command.ProjectId ?? NoneProjectPartitionKey;
-            TableEntity.RowKey = $"{command.CommandId}@{providerId}".TrimEnd('@');
+            PartitionKey = command.ProjectId ?? NoneProjectPartitionKey;
+            RowKey = $"{command.CommandId}@{providerId}".TrimEnd('@');
 
             CommandId = command.CommandId.ToString();
             Command = command.GetType().Name;
@@ -33,10 +33,10 @@ namespace TeamCloud.Audit.Model
         }
 
         [IgnoreProperty]
-        public string ProjectId => TableEntity.PartitionKey;
+        public string ProjectId => PartitionKey;
 
         [IgnoreProperty]
-        public string AuditId => TableEntity.RowKey;
+        public string AuditId => RowKey;
 
         [Column(Order = 101)]
         public string CommandId { get; private set; }

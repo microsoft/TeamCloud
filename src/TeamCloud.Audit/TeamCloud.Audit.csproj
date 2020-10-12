@@ -32,12 +32,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="WindowsAzure.Storage" Version="9.3.3" />
+    <PackageReference Include="Microsoft.Azure.Storage.Blob" Version="11.2.2" />
+    <PackageReference Include="Microsoft.Azure.Cosmos.Table" Version="1.0.8" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\TeamCloud.Model\TeamCloud.Model.csproj" />
     <ProjectReference Include="..\TeamCloud.Orchestration\TeamCloud.Orchestration.csproj" />
   </ItemGroup>
-  
+
 </Project>
