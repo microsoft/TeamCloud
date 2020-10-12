@@ -7,7 +7,8 @@ from azure.cli.core.commands import CliCommandType
 from ._client_factory import teamcloud_client_factory
 from ._transformers import (transform_output, transform_user_table_output, transform_project_table_output,
                             transform_project_type_table_output, transform_provider_table_output,
-                            transform_tag_table_output)
+                            transform_tag_table_output, transform_component_table_output,
+                            transform_offer_table_output)
 from ._validators import tc_deploy_validator
 
 
@@ -88,6 +89,24 @@ def load_command_table(self, _):  # pylint: disable=too-many-statements
                                  setter_name='project_user_set_for_update', setter_arg_name='payload',
                                  custom_func_name='project_user_update',
                                  custom_command_type=tc_custom)
+
+    # Project Offers
+
+    with self.command_group('tc project offer', client_factory=teamcloud_client_factory) as g:
+        g.custom_command('list', 'project_offer_list', transform=transform_output,
+                         table_transformer=transform_offer_table_output)
+        g.custom_show_command('show', 'project_offer_get', transform=transform_output)
+
+    # Project Components
+
+    with self.command_group('tc project component', client_factory=teamcloud_client_factory) as g:
+        g.custom_command('create', 'project_component_create', transform=transform_output,
+                         supports_no_wait=True)
+        g.custom_command('delete', 'project_component_delete', transform=transform_output,
+                         supports_no_wait=True, confirmation='Are you sure you want to delete this component?')
+        g.custom_command('list', 'project_component_list', transform=transform_output,
+                         table_transformer=transform_component_table_output)
+        g.custom_show_command('show', 'project_component_get', transform=transform_output)
 
     # Project Tags
 

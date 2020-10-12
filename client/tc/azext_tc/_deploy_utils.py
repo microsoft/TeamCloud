@@ -96,15 +96,12 @@ def create_resource_group_name(cli_ctx, resource_group_name, location, tags=None
     return resource_client.create_or_update(resource_group_name, parameters), resource_client.config.subscription_id
 
 
-def set_appconfig_keys(cli_ctx, appconfig_conn_string, kvs):
-    from azure.cli.command_modules.appconfig._azconfig.azconfig_client import AzconfigClient
-    from azure.cli.command_modules.appconfig._azconfig.models import KeyValue
-
-    azconfig_client = AzconfigClient(appconfig_conn_string)
+def set_appconfig_keys(cmd, appconfig_conn_string, kvs):
+    from azure.cli.command_modules.appconfig.keyvalue import set_key
 
     for kv in kvs:
-        set_kv = KeyValue(key=kv['key'], value=kv['value'])
-        azconfig_client.set_keyvalue(set_kv)
+        set_key(cmd, key=kv['key'], value=kv['value'], yes=True,
+                connection_string=appconfig_conn_string)
 
 
 def create_resource_manager_sp(cmd, app_name):

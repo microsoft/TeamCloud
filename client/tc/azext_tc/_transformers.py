@@ -87,6 +87,42 @@ def transform_project_table_output(result):
     return resultList
 
 
+def transform_component_table_output(result):
+    if not isinstance(result, list):
+        result = [result]
+
+    resultList = []
+
+    for item in result:
+        resultList.append(OrderedDict([
+            ('Component ID', item['id']),
+            ('Name', item['displayName']),
+            ('Offer', item['offerId']),
+            ('Requested By', item['requestedBy']),
+            ('Description', item['description'])
+        ]))
+
+    return resultList
+
+
+def transform_offer_table_output(result):
+    if not isinstance(result, list):
+        result = [result]
+
+    resultList = []
+
+    for item in result:
+        resultList.append(OrderedDict([
+            ('Offer ID', item['id']),
+            ('Provider', item['providerId']),
+            ('Name', item['displayName']),
+            ('Description', item['description']),
+            ('Input Schema', item['inputJsonSchema'])
+        ]))
+
+    return resultList
+
+
 def transform_project_type_table_output(result):
     if not isinstance(result, list):
         result = [result]

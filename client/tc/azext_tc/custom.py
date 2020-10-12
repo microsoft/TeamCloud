@@ -140,7 +140,7 @@ def teamcloud_deploy(cmd, client, name, location=None, resource_group_name='Team
         config_kvs.append({'key': k, 'value': v})
 
     hook.add(message='Adding ARM template outputs to App Configuration service')
-    set_appconfig_keys(cli_ctx, config_service_conn_string, config_kvs)
+    set_appconfig_keys(cmd, config_service_conn_string, config_kvs)
 
     if skip_app_deployment:
         logger.warning(
@@ -259,7 +259,7 @@ def teamcloud_upgrade(cmd, client, base_url, version=None, prerelease=False, ind
             config_kvs.append({'key': k, 'value': v})
 
     hook.add(message='Adding ARM template outputs to App Configuration service')
-    set_appconfig_keys(cli_ctx, config_service_conn_string, config_kvs)
+    set_appconfig_keys(cmd, config_service_conn_string, config_kvs)
 
     hook.add(message='Deploying Orchestrator source code')
     zip_deploy_app(cli_ctx, resource_group_name, orchestrator_app_name, orchestrator_zip_url)
@@ -590,6 +590,44 @@ def project_user_set_for_update(cmd, client, base_url, project, payload):
     instance = _update_with_status(cmd, client, base_url, payload.id, payload, client.update_project_user,
                                    project_id=project)
     return transform_output(instance)
+
+
+# Project Offers
+
+def project_offer_list(cmd, client, base_url, project):
+    _ensure_base_url(client, base_url)
+    return client.get_project_offers(project)
+
+
+def project_offer_get(cmd, client, base_url, project, offer):
+    _ensure_base_url(client, base_url)
+    return client.get_project_offer_by_id(offer, project)
+
+
+# Project Components
+
+def project_component_create(cmd, client, base_url, project, offer, input_json, no_wait=False):
+    from .vendored_sdks.teamcloud.models import ComponentRequest
+
+    payload = ComponentRequest(offer_id=offer, input_json=input_json)
+
+    return _create_with_status(cmd, client, base_url, payload, client.create_project_component,
+                               project_id=project, no_wait=no_wait)
+
+
+def project_component_delete(cmd, client, base_url, project, component, no_wait=False):
+    return _delete_with_status(cmd, client, base_url, component, client.delete_project_component,
+                               project_id=project, no_wait=no_wait)
+
+
+def project_component_list(cmd, client, base_url, project):
+    _ensure_base_url(client, base_url)
+    return client.get_project_components(project)
+
+
+def project_component_get(cmd, client, base_url, project, component):
+    _ensure_base_url(client, base_url)
+    return client.get_project_component_by_id(component, project)
 
 
 # Project Tags

@@ -251,7 +251,7 @@ type: command
 short-summary: Create a new project user.
 examples:
   - name: Create a new project user with Owner role.
-    text: az tc project user create --base-url urle --project project --name user --role Owner --properties prop=value
+    text: az tc project user create --base-url url --project project --name user --role Owner --properties prop=value
 """
 
 helps['tc project user delete'] = """
@@ -290,6 +290,80 @@ examples:
     text: az tc project user update --base-url url --project project --name user --properties prop=value
   - name: Add a property to a user using generic set.
     text: az tc project user update --base-url url --project project --name user --set properties.prop=value
+"""
+
+# ----------------
+# Project Offers
+# ----------------
+
+helps['tc project offer'] = """
+type: group
+short-summary: Manage project offers.
+"""
+
+helps['tc project offer list'] = """
+type: command
+short-summary: List all project offers.
+examples:
+  - name: List all project offers.
+    text: az tc project offer list --base-url url --project project
+  - name: List all project offers in table format.
+    text: az tc project offer list --base-url url --project project -o table
+"""
+
+helps['tc project offer show'] = """
+type: command
+short-summary: Get a offer.
+examples:
+  - name: Get a project offer.
+    text: az tc project offer show --base-url url --project project --name offerId
+"""
+
+# ----------------
+# Project Components
+# ----------------
+
+helps['tc project component'] = """
+type: group
+short-summary: Manage project components.
+"""
+
+helps['tc project component create'] = """
+type: command
+short-summary: Create a new project component.
+examples:
+  - name: Create a new project component.
+    text: az tc project component create \\
+      --base-url url \\
+      --project project \\
+      --offer github.repos.repo \\
+      --input inputJson
+"""
+
+helps['tc project component delete'] = """
+type: command
+short-summary: Delete a project component.
+examples:
+  - name: Delete a project component.
+    text: az tc project component delete --base-url url --project project --name componentId
+"""
+
+helps['tc project component list'] = """
+type: command
+short-summary: List all project components.
+examples:
+  - name: List all project components.
+    text: az tc project component list --base-url url --project project
+  - name: List all project components in table format.
+    text: az tc project component list --base-url url --project project -o table
+"""
+
+helps['tc project component show'] = """
+type: command
+short-summary: Get a component.
+examples:
+  - name: Get a project component.
+    text: az tc project component show --base-url url --project project --name componentId
 """
 
 # ----------------
