@@ -42,7 +42,7 @@ namespace TeamCloud.API
 
                 tasks.Remove(result);
 
-                yield return (await result.ConfigureAwait(false));
+                yield return await result.ConfigureAwait(false);
             }
         }
 
@@ -97,8 +97,6 @@ namespace TeamCloud.API
                 uriBuilder.Scheme = Uri.UriSchemeHttps;
                 uriBuilder.Port = port.GetValueOrDefault(-1);
             }
-
-
 
             return uriBuilder.Uri;
         }

@@ -44,7 +44,5 @@ namespace TeamCloud.Orchestrator.Entities
 
         internal static Task<IDisposable> LockAzureResourceAsync(this IDurableOrchestrationContext orchestrationContext, AzureResourceIdentifier resourceId)
             => orchestrationContext.LockAsync(orchestrationContext.GetEntityId(typeof(AzureResourceIdentifier), resourceId?.ToString()));
-
-
     }
 }
