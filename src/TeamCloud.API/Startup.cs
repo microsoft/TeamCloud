@@ -84,6 +84,7 @@ namespace TeamCloud.API
             app
                 .UseRouting()
                 .UseAuthentication()
+                .UseMiddleware<EnsureTeamCloudModelMiddleware>()
                 .UseMiddleware<RequestResponseTracingMiddleware>()
                 .UseWhen(context => context.Request.RequiresAdminUserSet(), appBuilder =>
                 {
@@ -134,6 +135,7 @@ namespace TeamCloud.API
                 .AddSingleton<IClientErrorFactory, ClientErrorFactory>()
                 .AddSingleton<Orchestrator>()
                 .AddSingleton<UserService>()
+                .AddScoped<EnsureTeamCloudModelMiddleware>()
                 .AddScoped<RequestResponseTracingMiddleware>()
                 .AddScoped<EnsureTeamCloudAdminMiddleware>()
                 .AddTransient<IHostInitializer, TeamCloudAdminInitializer>();
