@@ -84,14 +84,14 @@ namespace TeamCloud.API.Controllers
 
         [NonAction]
         public Task<IActionResult> EnsureProjectAsync(Func<ProjectDocument, Task<IActionResult>> callback)
-            => EnsureProjectAsync(asyncCallback: callback);
+            => EnsureProjectInternalAsync(asyncCallback: callback);
 
         [NonAction]
-        public Task<IActionResult> EnsureProjectAsync(Func<ProjectDocument, IActionResult> callback = null)
-            => EnsureProjectAsync(callback: callback);
+        public Task<IActionResult> EnsureProjectAsync(Func<ProjectDocument, IActionResult> callback)
+            => EnsureProjectInternalAsync(callback: callback);
 
         [NonAction]
-        private async Task<IActionResult> EnsureProjectAsync(Func<ProjectDocument, Task<IActionResult>> asyncCallback = null, Func<ProjectDocument, IActionResult> callback = null)
+        private async Task<IActionResult> EnsureProjectInternalAsync(Func<ProjectDocument, Task<IActionResult>> asyncCallback = null, Func<ProjectDocument, IActionResult> callback = null)
         {
             try
             {
@@ -135,14 +135,14 @@ namespace TeamCloud.API.Controllers
 
         [NonAction]
         public Task<IActionResult> EnsureProviderAsync(Func<ProviderDocument, Task<IActionResult>> callback)
-            => EnsureProviderAsync(asyncCallback: callback);
+            => EnsureProviderInternalAsync(asyncCallback: callback);
 
         [NonAction]
-        public Task<IActionResult> EnsureProviderAsync(Func<ProviderDocument, IActionResult> callback = null)
-            => EnsureProviderAsync(callback: callback);
+        public Task<IActionResult> EnsureProviderAsync(Func<ProviderDocument, IActionResult> callback)
+            => EnsureProviderInternalAsync(callback: callback);
 
         [NonAction]
-        private async Task<IActionResult> EnsureProviderAsync(Func<ProviderDocument, Task<IActionResult>> asyncCallback = null, Func<ProviderDocument, IActionResult> callback = null)
+        private async Task<IActionResult> EnsureProviderInternalAsync(Func<ProviderDocument, Task<IActionResult>> asyncCallback = null, Func<ProviderDocument, IActionResult> callback = null)
         {
             try
             {
@@ -185,14 +185,14 @@ namespace TeamCloud.API.Controllers
 
         [NonAction]
         public Task<IActionResult> EnsureUserAsync(Func<UserDocument, Task<IActionResult>> callback)
-            => EnsureUserAsync(asyncCallback: callback);
+            => EnsureUserInternalAsync(asyncCallback: callback);
 
         [NonAction]
-        public Task<IActionResult> EnsureUserAsync(Func<UserDocument, IActionResult> callback = null)
-            => EnsureUserAsync(callback: callback);
+        public Task<IActionResult> EnsureUserAsync(Func<UserDocument, IActionResult> callback)
+            => EnsureUserInternalAsync(callback: callback);
 
         [NonAction]
-        private async Task<IActionResult> EnsureUserAsync(Func<UserDocument, Task<IActionResult>> asyncCallback = null, Func<UserDocument, IActionResult> callback = null)
+        private async Task<IActionResult> EnsureUserInternalAsync(Func<UserDocument, Task<IActionResult>> asyncCallback = null, Func<UserDocument, IActionResult> callback = null)
         {
             try
             {
@@ -244,14 +244,14 @@ namespace TeamCloud.API.Controllers
 
         [NonAction]
         public Task<IActionResult> EnsureCurrentUserAsync(Func<UserDocument, Task<IActionResult>> callback)
-            => EnsureCurrentUserAsync(asyncCallback: callback);
+            => EnsureCurrentUserInternalAsync(asyncCallback: callback);
 
         [NonAction]
-        public Task<IActionResult> EnsureCurrentUserAsync(Func<UserDocument, IActionResult> callback = null)
-            => EnsureCurrentUserAsync(callback: callback);
+        public Task<IActionResult> EnsureCurrentUserAsync(Func<UserDocument, IActionResult> callback)
+            => EnsureCurrentUserInternalAsync(callback: callback);
 
         [NonAction]
-        private async Task<IActionResult> EnsureCurrentUserAsync(Func<UserDocument, Task<IActionResult>> asyncCallback = null, Func<UserDocument, IActionResult> callback = null)
+        private async Task<IActionResult> EnsureCurrentUserInternalAsync(Func<UserDocument, Task<IActionResult>> asyncCallback = null, Func<UserDocument, IActionResult> callback = null)
         {
             try
             {
@@ -336,14 +336,14 @@ namespace TeamCloud.API.Controllers
 
         [NonAction]
         public Task<IActionResult> EnsureProjectAndUserAsync(Func<ProjectDocument, UserDocument, Task<IActionResult>> callback)
-            => EnsureProjectAndUserAsync(asyncCallback: callback);
+            => EnsureProjectAndUserInternalAsync(asyncCallback: callback);
 
         [NonAction]
         public Task<IActionResult> EnsureProjectAndUserAsync(Func<ProjectDocument, UserDocument, IActionResult> callback)
-            => EnsureProjectAndUserAsync(callback: callback);
+            => EnsureProjectAndUserInternalAsync(callback: callback);
 
         [NonAction]
-        private async Task<IActionResult> EnsureProjectAndUserAsync(Func<ProjectDocument, UserDocument, Task<IActionResult>> asyncCallback = null, Func<ProjectDocument, UserDocument, IActionResult> callback = null)
+        private async Task<IActionResult> EnsureProjectAndUserInternalAsync(Func<ProjectDocument, UserDocument, Task<IActionResult>> asyncCallback = null, Func<ProjectDocument, UserDocument, IActionResult> callback = null)
         {
             try
             {
@@ -409,14 +409,14 @@ namespace TeamCloud.API.Controllers
 
         [NonAction]
         public Task<IActionResult> EnsureProjectAndCurrentUserAsync(Func<ProjectDocument, UserDocument, Task<IActionResult>> callback)
-            => EnsureProjectAndCurrentUserAsync(asyncCallback: callback);
+            => EnsureProjectAndCurrentUserInternalAsync(asyncCallback: callback);
 
         [NonAction]
         public Task<IActionResult> EnsureProjectAndCurrentUserAsync(Func<ProjectDocument, UserDocument, IActionResult> callback)
-            => EnsureProjectAndCurrentUserAsync(callback: callback);
+            => EnsureProjectAndCurrentUserInternalAsync(callback: callback);
 
         [NonAction]
-        private async Task<IActionResult> EnsureProjectAndCurrentUserAsync(Func<ProjectDocument, UserDocument, Task<IActionResult>> asyncCallback = null, Func<ProjectDocument, UserDocument, IActionResult> callback = null)
+        private async Task<IActionResult> EnsureProjectAndCurrentUserInternalAsync(Func<ProjectDocument, UserDocument, Task<IActionResult>> asyncCallback = null, Func<ProjectDocument, UserDocument, IActionResult> callback = null)
         {
             try
             {
