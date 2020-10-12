@@ -77,6 +77,7 @@ jobs:
           pushd ${{ env.SOURCE_DIRECTORY }}/TeamCloud.API
             dotnet tool restore
             dotnet swagger tofile --output ../../client/swagger.json ../../TeamCloud.API/TeamCloud.API.dll v1
+            dotnet swagger tofile --yaml --output ../../client/swagger.yaml ../../TeamCloud.API/TeamCloud.API.dll v1
           popd
 
       - name: Generate index.json
@@ -130,7 +131,7 @@ jobs:
           pushd client
             autorest --v3 \
             --use:@autorest/python@latest \
-            --input-file=swagger.json \
+            --input-file=swagger.yaml \
             --namespace=teamcloud \
             --add-credentials=true \
             --credential-scopes=openid \
@@ -255,6 +256,16 @@ jobs:
           asset_path: client/swagger.json
           asset_name: swagger.json
           asset_content_type: application/json
+
+      - name: Upload Release Asset - swagger.yaml
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: client/swagger.yaml
+          asset_name: swagger.yaml
+          asset_content_type: application/x-yaml
 
       - name: Upload Release Asset - TeamCloud CLI WHL
         uses: actions/upload-release-asset@v1
