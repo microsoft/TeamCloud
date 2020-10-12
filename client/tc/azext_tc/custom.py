@@ -8,7 +8,6 @@ from time import sleep
 from urllib.parse import urlparse
 from knack.util import CLIError
 from knack.log import get_logger
-from azure.cli.core.util import sdk_no_wait
 
 logger = get_logger(__name__)
 
@@ -831,10 +830,6 @@ def _create_with_status(cmd, client, base_url, payload, create_func,
     from .vendored_sdks.teamcloud.models import StatusResult
     _ensure_base_url(client, base_url)
 
-    if no_wait:
-        return sdk_no_wait(no_wait, create_func, project_id, payload) if project_id else sdk_no_wait(
-            no_wait, create_func, payload)
-
     type_name = create_func.metadata['url'].split('/')[-1][:-1].capitalize()
 
     hook = cmd.cli_ctx.get_progress_controller()
@@ -843,6 +838,11 @@ def _create_with_status(cmd, client, base_url, payload, create_func,
     hook.add(message='Starting: Creating new {}'.format(type_name))
 
     result = create_func(project_id, payload) if project_id else create_func(payload)
+
+    if no_wait:
+        hook.end(message=' ')
+        logger.warning(' ')
+        return result
 
     while isinstance(result, StatusResult):
         if result.code == 200:
@@ -879,10 +879,6 @@ def _update_with_status(cmd, client, base_url, item_id, payload, update_func,
     from .vendored_sdks.teamcloud.models import StatusResult
     _ensure_base_url(client, base_url)
 
-    if no_wait:
-        return sdk_no_wait(no_wait, update_func, item_id, project_id, payload) if project_id else sdk_no_wait(
-            no_wait, update_func, item_id, payload)
-
     type_name = update_func.metadata['url'].split('/')[-2][:-1].capitalize()
 
     hook = cmd.cli_ctx.get_progress_controller()
@@ -892,6 +888,11 @@ def _update_with_status(cmd, client, base_url, item_id, payload, update_func,
 
     result = update_func(item_id, project_id,
                          payload) if project_id else update_func(item_id, payload)
+
+    if no_wait:
+        hook.end(message=' ')
+        logger.warning(' ')
+        return result
 
     while isinstance(result, StatusResult):
         if result.code == 200:
@@ -928,10 +929,6 @@ def _delete_with_status(cmd, client, base_url, item_id, delete_func,
     from .vendored_sdks.teamcloud.models import StatusResult
     _ensure_base_url(client, base_url)
 
-    if no_wait:
-        return sdk_no_wait(no_wait, delete_func, item_id, project_id) if project_id else sdk_no_wait(
-            no_wait, delete_func, item_id)
-
     type_name = delete_func.metadata['url'].split('/')[-2][:-1].capitalize()
 
     hook = cmd.cli_ctx.get_progress_controller()
@@ -940,6 +937,11 @@ def _delete_with_status(cmd, client, base_url, item_id, delete_func,
     hook.add(message='Starting: Deleting {}'.format(type_name))
 
     result = delete_func(item_id, project_id) if project_id else delete_func(item_id)
+
+    if no_wait:
+        hook.end(message=' ')
+        logger.warning(' ')
+        return result
 
     while isinstance(result, StatusResult):
         if result.code == 200:
