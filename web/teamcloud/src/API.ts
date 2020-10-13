@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 
 import { getToken } from './Auth';
-import { DataResult, StatusResult, ErrorResult, Project, User, ProjectType, Provider, ProjectDefinition, UserDefinition, ProjectLink } from './model';
+import { DataResult, StatusResult, ErrorResult, Project, User, ProjectType, Provider, ProjectDefinition, UserDefinition, ProjectLink, ComponentRequest, Component, ComponentOffer } from './model';
 
-const logRequests = false
+const logRequests = true
 
 const _getApiUrl = () => {
     if (!process.env.REACT_APP_TC_API_URL) throw new Error('Must set env variable $REACT_APP_TC_API_URL');
@@ -62,9 +62,30 @@ export const getProvider = async (id: string) => getResource<Provider>(`${apiUrl
 export const getProviders = async () => getResource<Array<Provider>>(`${apiUrl}/api/providers`);
 
 
+export const getProviderOffer = async (providerId: string, id: string) => getResource<ComponentOffer>(`${apiUrl}/api/providers/${providerId}/offers/${id}`);
+
+export const getProviderOffers = async (providerId: string) => getResource<Array<ComponentOffer>>(`${apiUrl}/api/providers/${providerId}/offers`);
+
+
 export const getProjectLink = async (projectId: string, id: string) => getResource<ProjectLink>(`${apiUrl}/api/projects/${projectId}/links/${id}`);
 
 export const getProjectLinks = async (projectId: string) => getResource<Array<ProjectLink>>(`${apiUrl}/api/projects/${projectId}/links`);
+
+
+export const getProjectOffer = async (projectId: string, id: string) => getResource<ComponentOffer>(`${apiUrl}/api/projects/${projectId}/offers/${id}`);
+
+export const getProjectOffers = async (projectId: string) => getResource<Array<ComponentOffer>>(`${apiUrl}/api/projects/${projectId}/offers`);
+
+
+export const getProjectComponent = async (projectId: string, id: string) => getResource<Component>(`${apiUrl}/api/projects/${projectId}/components/${id}`);
+
+export const getProjectComponents = async (projectId: string) => getResource<Array<Component>>(`${apiUrl}/api/projects/${projectId}/components`);
+
+export const createProjectComponent = async (projectId: string, request: ComponentRequest) => createResource(`${apiUrl}/api/projects/${projectId}/components`, request);
+
+export const updateProjectComponent = async (projectId: string, component: Component) => updateResource<Component>(`${apiUrl}/api/projects/${projectId}/components/${component.id}`, component);
+
+export const deleteProjectComponent = async (projectId: string, id: string) => deleteResource<Component>(`${apiUrl}/api/projects/${projectId}/components/${id}`);
 
 
 export const getResource = async <T>(url: string): Promise<ErrorResult | DataResult<T>> => {

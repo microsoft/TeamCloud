@@ -7,7 +7,7 @@
                 "API",
                 "Orchestrator"
             ],
-            "preLaunchTask": "buildSln"
+            "preLaunchTask": "buildSln",
         }
     ],
     "configurations": [
@@ -22,13 +22,14 @@
             "justMyCode": true,
             "env": {
                 "ASPNETCORE_ENVIRONMENT": "Development"
-            }
+            },
+            "console": "integratedTerminal"
         },
         {
             "name": "Orchestrator",
             "type": "coreclr",
             "request": "attach",
-            "processId": "${command:azureFunctions.pickProcess}"
+            "processId": "${command:azureFunctions.pickProcess}",
         },
         {
             "name": "Web",
