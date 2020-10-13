@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { Project, User, DataResult, ProjectUserRole, ProjectMember } from '../model';
 import { getProject } from '../API';
 import { Stack, Spinner, IBreadcrumbItem, ICommandBarItemProps } from '@fluentui/react';
-import { IProjectViewDetailProps, ProjectViewDetail, SubheaderBar, ProjectMembersForm, ProjectMembers, ProjectMemberForm, ProjectLinks } from '../components';
+import { IProjectViewDetailProps, ProjectViewDetail, SubheaderBar, ProjectMembersForm, ProjectMembers, ProjectMemberForm, ProjectLinks, ProjectComponents } from '../components';
 
 export interface IProjectDetailViewProps {
     user?: User;
@@ -28,6 +28,7 @@ export const ProjectDetailView: React.FunctionComponent<IProjectDetailViewProps>
                 console.log(result)
                 const data = (result as DataResult<Project>).data;
                 console.log(data)
+                console.log(data._links['offers']?.href ?? 'nope')
                 setProject(data);
             };
             _setProject();
@@ -45,7 +46,7 @@ export const ProjectDetailView: React.FunctionComponent<IProjectDetailViewProps>
 
     const _commandBarItems = (): ICommandBarItemProps[] => [
         { key: 'refresh', text: 'Refresh', iconProps: { iconName: 'Refresh' }, onClick: () => { _refresh() } },
-        { key: 'addUser', text: 'Add users', iconProps: { iconName: 'PeopleAdd' }, onClick: () => { setNewUsersPanelOpen(true) }, disabled: !_userIsProjectOwner() },
+        // { key: 'addUser', text: 'Add users', iconProps: { iconName: 'PeopleAdd' }, onClick: () => { setNewUsersPanelOpen(true) }, disabled: !_userIsProjectOwner() },
     ];
 
     const _breadcrumbs: IBreadcrumbItem[] = [{ text: '', key: 'root', href: '/' }];
@@ -55,38 +56,78 @@ export const ProjectDetailView: React.FunctionComponent<IProjectDetailViewProps>
             _breadcrumbs.push({ text: project.name, key: 'project', isCurrentItem: true })
     };
 
-    const projectDetailStackProps = (): IProjectViewDetailProps[] => {
-        if (!project) return [];
 
-        let _projectDetailStackProps: IProjectViewDetailProps[] = [
-            {
-                title: 'Project', details: [
-                    { label: 'ID', value: project.id },
-                    { label: 'Name', value: project.name }
-                ]
-            }, {
-                title: 'Project Type', details: [
-                    { label: 'ID', value: project.type.id },
-                    { label: 'Default', value: project.type.isDefault ? 'Yes' : 'No' },
-                    { label: 'Location', value: project.type.region },
-                    { label: 'Providers', value: project.type.providers.map(p => p.id).join(', ') },
-                    { label: 'Subscription Capacity', value: project.type.subscriptionCapacity.toString() },
-                    { label: 'Subscriptions', value: project.type.subscriptions.join(', ') },
-                    { label: 'Resource Group Name Prefix', value: project.type.resourceGroupNamePrefix ?? '' },
-                ]
-            }, {
-                title: 'Resource Group', details: [
-                    { label: 'Name', value: project.resourceGroup?.name },
-                    { label: 'Location', value: project.resourceGroup?.region },
-                    { label: 'Subscription', value: project.resourceGroup?.subscriptionId },
-                ]
-            }
-        ];
-        return _projectDetailStackProps;
+    const projectDetailProjectStackProps = () => {
+        if (!project) return null;
+        const detailProps: IProjectViewDetailProps = {
+            title: 'Project', details: [
+                { label: 'ID', value: project.id },
+                { label: 'Name', value: project.name }
+            ]
+        };
+        return (<ProjectViewDetail key={detailProps.title} title={detailProps.title} details={detailProps.details} />);
     };
 
+    const projectDetailProjectTypeStackProps = () => {
+        if (!project) return null;
+        const detailProps: IProjectViewDetailProps = {
+            title: 'Project Type', details: [
+                { label: 'ID', value: project.type.id },
+                { label: 'Default', value: project.type.isDefault ? 'Yes' : 'No' },
+                { label: 'Location', value: project.type.region },
+                { label: 'Providers', value: project.type.providers.map(p => p.id).join(', ') },
+                { label: 'Subscription Capacity', value: project.type.subscriptionCapacity.toString() },
+                { label: 'Subscriptions', value: project.type.subscriptions.join(', ') },
+                { label: 'Resource Group Name Prefix', value: project.type.resourceGroupNamePrefix ?? '' },
+            ]
+        };
+        return (<ProjectViewDetail key={detailProps.title} title={detailProps.title} details={detailProps.details} />);
+    };
+
+    const projectDetailResourceGroupStackProps = () => {
+        if (!project) return null;
+        const detailProps: IProjectViewDetailProps = {
+            title: 'Resource Group', details: [
+                { label: 'Name', value: project.resourceGroup?.name },
+                { label: 'Location', value: project.resourceGroup?.region },
+                { label: 'Subscription', value: project.resourceGroup?.subscriptionId },
+            ]
+        };
+        return (<ProjectViewDetail key={detailProps.title} title={detailProps.title} details={detailProps.details} />);
+    };
+
+    // const projectDetailStackProps = (): IProjectViewDetailProps[] => {
+    //     if (!project) return [];
+
+    //     let _projectDetailStackProps: IProjectViewDetailProps[] = [
+    //         {
+    //             title: 'Project', details: [
+    //                 { label: 'ID', value: project.id },
+    //                 { label: 'Name', value: project.name }
+    //             ]
+    //         }, {
+    //             title: 'Project Type', details: [
+    //                 { label: 'ID', value: project.type.id },
+    //                 { label: 'Default', value: project.type.isDefault ? 'Yes' : 'No' },
+    //                 { label: 'Location', value: project.type.region },
+    //                 { label: 'Providers', value: project.type.providers.map(p => p.id).join(', ') },
+    //                 { label: 'Subscription Capacity', value: project.type.subscriptionCapacity.toString() },
+    //                 { label: 'Subscriptions', value: project.type.subscriptions.join(', ') },
+    //                 { label: 'Resource Group Name Prefix', value: project.type.resourceGroupNamePrefix ?? '' },
+    //             ]
+    //         }, {
+    //             title: 'Resource Group', details: [
+    //                 { label: 'Name', value: project.resourceGroup?.name },
+    //                 { label: 'Location', value: project.resourceGroup?.region },
+    //                 { label: 'Subscription', value: project.resourceGroup?.subscriptionId },
+    //             ]
+    //         }
+    //     ];
+    //     return _projectDetailStackProps;
+    // };
+
     const projectDetailStack = (projectDetailStackProps: IProjectViewDetailProps[]) =>
-        projectDetailStackProps.map(p => <ProjectViewDetail key={p.title} title={p.title} details={p.details} />);
+        projectDetailStackProps.map(p => <Stack.Item grow styles={{ root: { minWidth: '40%', marginRight: '16px' } }}><ProjectViewDetail key={p.title} title={p.title} details={p.details} /></Stack.Item>);
 
     const _onEditMember = (member?: ProjectMember) => {
         setSelectedMember(member)
@@ -103,20 +144,30 @@ export const ProjectDetailView: React.FunctionComponent<IProjectDetailViewProps>
                     <SubheaderBar
                         breadcrumbs={_breadcrumbs}
                         commandBarItems={_commandBarItems()}
-                        breadcrumbsWidth='300px' />
+                        breadcrumbsWidth='300px'
+                        commandBarWidth='90px' />
                     <Stack
                         wrap
                         horizontal
                         styles={{ root: { padding: '0 24px' } }}
                         horizontalAlign='center'
                         verticalAlign='start'>
-                        <Stack.Item grow styles={{ root: { minWidth: '367px', marginRight: '16px' } }}>
-                            <ProjectMembers project={project} onEditMember={_onEditMember} />
-                            {projectDetailStack(projectDetailStackProps())}
+                        {/* <Stack.Item grow styles={{ root: { minWidth: '367px', marginRight: '16px' } }}> */}
+                        <Stack.Item grow styles={{ root: { minWidth: '40%', marginRight: '16px' } }}>
+                            <ProjectMembers
+                                user={props.user}
+                                project={project}
+                                onEditMember={_onEditMember} />
+                            <ProjectComponents user={props.user} project={project} />
+                            {projectDetailProjectTypeStackProps()}
                         </Stack.Item>
-                        <Stack.Item grow styles={{ root: { minWidth: '367px', marginRight: '16px' } }}>
+                        {/* <Stack.Item grow styles={{ root: { minWidth: '367px', marginRight: '16px' } }}> */}
+                        <Stack.Item grow styles={{ root: { minWidth: '40%', marginRight: '16px' } }}>
+                            {projectDetailProjectStackProps()}
                             <ProjectLinks project={project} />
+                            {projectDetailResourceGroupStackProps()}
                         </Stack.Item>
+                        {/* {projectDetailStack(projectDetailStackProps())} */}
                     </Stack>
                 </Stack>
                 <ProjectMembersForm
@@ -124,8 +175,9 @@ export const ProjectDetailView: React.FunctionComponent<IProjectDetailViewProps>
                     panelIsOpen={newUsersPanelOpen}
                     onFormClose={() => setNewUsersPanelOpen(false)} />
                 <ProjectMemberForm
-                    member={selectedMember}
+                    user={selectedMember?.user}
                     project={project}
+                    graphUser={selectedMember?.graphUser}
                     panelIsOpen={editUsersPanelOpen}
                     onFormClose={() => { setEditUsersPanelOpen(false); setSelectedMember(undefined) }} />
             </>

@@ -2,13 +2,14 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect } from 'react';
-import { ProjectUserRole, ProjectMember, Project, UserType, Properties } from '../model';
-import { PrimaryButton, DefaultButton, Panel, Stack, TextField, Dropdown, Label, Spinner, Persona, PersonaSize } from '@fluentui/react';
+import { ProjectUserRole, Project, UserType, Properties, ProjectMembership, StatusResult, ErrorResult, GraphUser, User } from '../model';
+import { PrimaryButton, DefaultButton, Panel, Stack, TextField, Dropdown, Label, Spinner, Persona, PersonaSize, Text } from '@fluentui/react';
+import { updateProjectUser } from '../API';
 
 export interface IProjectMemberFormProps {
-    // user: User;
-    member?: ProjectMember;
+    user?: User;
     project: Project;
+    graphUser?: GraphUser;
     panelIsOpen: boolean;
     onFormClose: () => void;
 }
@@ -16,47 +17,75 @@ export interface IProjectMemberFormProps {
 export const ProjectMemberForm: React.FunctionComponent<IProjectMemberFormProps> = (props) => {
 
     const [formEnabled, setFormEnabled] = useState<boolean>(true);
-    const [projectRole, setProjectRole] = useState<ProjectUserRole>();
-    const [projectProperties, setProjectProperties] = useState<Properties>();
+    const [projectMembership, setProjectMembership] = useState<ProjectMembership>();
+    const [newProjectRole, setNewProjectRole] = useState<ProjectUserRole>();
+    const [newProjectProperties, setNewProjectProperties] = useState<Properties>();
+    const [errorText, setErrorText] = useState<string>();
 
     useEffect(() => {
-        setProjectRole(props.member?.projectMembership.role)
-        const newProps: Properties = {}
-        if (props.member?.projectMembership.properties)
-            for (const k in props.member.projectMembership.properties)
-                newProps[k] = props.member.projectMembership.properties[k]
-        newProps[''] = ''
-        setProjectProperties(newProps)
-    }, [props.member]);
+        setProjectMembership(props.user?.projectMemberships?.find(pm => pm.projectId === props.project.id))
+    }, [props.user, props.project.id]);
+
+    useEffect(() => {
+        if (projectMembership) {
+            setNewProjectRole(projectMembership.role)
+            const newProps: Properties = {}
+            if (projectMembership.properties)
+                for (const k in projectMembership.properties)
+                    newProps[k] = projectMembership.properties[k]
+            newProps[''] = ''
+            setNewProjectProperties(newProps)
+        }
+    }, [projectMembership]);
 
 
     const _submitForm = async () => {
-        if (props.member) {
+        if (props.user && projectMembership) {
             setFormEnabled(false);
-            if ((projectRole && projectRole !== props.member.projectMembership.role)
-                || (projectProperties && projectProperties !== props.member.projectMembership.properties)) {
-                // const result = await updateProjectUser(projectDefinition);
-                // if ((result as StatusResult).code === 202)
-                //     _resetAndCloseForm();
-                // else if ((result as ErrorResult).errors) {
-                //     // console.log(JSON.stringify(result));
-                //     setErrorText((result as ErrorResult).status);
-                // }
+            if ((newProjectRole && newProjectRole !== projectMembership.role)
+                || (newProjectProperties && newProjectProperties !== projectMembership.properties)) {
+                const newProps: Properties = {}
+                for (const k in newProjectProperties)
+                    if (k !== '' && newProjectProperties[k] !== '')
+                        newProps[k] = newProjectProperties[k]
 
+                const newProjectMembership: ProjectMembership = {
+                    projectId: projectMembership.projectId,
+                    role: newProjectRole ?? projectMembership.role,
+                    properties: newProps
+                }
+
+                const index = props.user.projectMemberships?.findIndex(m => m.projectId === projectMembership.projectId)
+                if (index !== undefined && index >= 0) {
+                    props.user.projectMemberships![index] = newProjectMembership;
+                    const result = await updateProjectUser(props.project.id, props.user)
+                    if ((result as StatusResult).code === 202)
+                        _resetAndCloseForm();
+                    else if ((result as ErrorResult).errors) {
+                        // console.log(JSON.stringify(result));
+                        setErrorText((result as ErrorResult).status);
+                    }
+                } else {
+                    setErrorText('index not found')
+                }
+            } else {
+                setErrorText('nothing changed')
             }
+        } else {
+            setErrorText('no props.member')
         }
     };
 
     const _resetAndCloseForm = () => {
-        setProjectRole(undefined);
-        setProjectProperties(undefined);
+        setNewProjectRole(undefined);
+        setNewProjectProperties(undefined);
         setFormEnabled(true);
         props.onFormClose();
     };
 
     const _onRenderPanelFooterContent = () => (
         <div>
-            <PrimaryButton text='Edit member' disabled={!formEnabled} onClick={() => _submitForm()} styles={{ root: { marginRight: 8 } }} />
+            <PrimaryButton text='Edit member' disabled={!formEnabled || !projectMembership} onClick={() => _submitForm()} styles={{ root: { marginRight: 8 } }} />
             <DefaultButton text='Cancel' disabled={!formEnabled} onClick={() => _resetAndCloseForm()} />
             <Spinner styles={{ root: { visibility: formEnabled ? 'hidden' : 'visible' } }} />
         </div>
@@ -64,31 +93,31 @@ export const ProjectMemberForm: React.FunctionComponent<IProjectMemberFormProps>
 
     const _onPropertyKeyChange = (key: string, value: string, newKey?: string) => {
         const newProps: Properties = {}
-        for (const k in projectProperties) newProps[(k === key) ? newKey ?? '' : k] = value
+        for (const k in newProjectProperties) newProps[(k === key) ? newKey ?? '' : k] = value
         if (!newProps['']) newProps[''] = ''
-        setProjectProperties(newProps)
+        setNewProjectProperties(newProps)
     }
 
     const _onPropertyValueChange = (key: string, newValue?: string) => {
         const newProps: Properties = {}
-        for (const k in projectProperties) newProps[k] = (k === key) ? newValue ?? '' : projectProperties[k]
-        setProjectProperties(newProps)
+        for (const k in newProjectProperties) newProps[k] = (k === key) ? newValue ?? '' : newProjectProperties[k]
+        setNewProjectProperties(newProps)
     }
 
     const _getPropertiesTextFields = () => {
         let propertyStacks = [];
-        if (projectProperties) {
+        if (newProjectProperties) {
             let counter = 0
-            for (const key in projectProperties) {
+            for (const key in newProjectProperties) {
                 propertyStacks.push(
                     <Stack key={counter} horizontal tokens={{ childrenGap: '8px' }}>
                         <TextField
                             description='Name'
                             value={key}
-                            onChange={(_ev, val) => _onPropertyKeyChange(key, projectProperties[key], val)} />
+                            onChange={(_ev, val) => _onPropertyKeyChange(key, newProjectProperties[key], val)} />
                         <TextField
                             description='Value'
-                            value={projectProperties[key]}
+                            value={newProjectProperties[key]}
                             onChange={(_ev, val) => _onPropertyValueChange(key, val)} />
                     </Stack>)
                 counter++
@@ -102,7 +131,7 @@ export const ProjectMemberForm: React.FunctionComponent<IProjectMemberFormProps>
     };
 
     const _roleDropdownDisabled = () => {
-        return !formEnabled || (props.member?.projectMembership.role === ProjectUserRole.Owner
+        return !formEnabled || !projectMembership || (projectMembership.role === ProjectUserRole.Owner
             && props.project.users.filter(u => u.userType === UserType.User
                 && u.projectMemberships
                 && u.projectMemberships!.find(pm => pm.projectId === props.project.id && pm.role === ProjectUserRole.Owner)).length === 1)
@@ -117,17 +146,17 @@ export const ProjectMemberForm: React.FunctionComponent<IProjectMemberFormProps>
             <Stack tokens={{ childrenGap: '12px' }}>
                 <Stack.Item>
                     <Persona
-                        text={props.member?.graphUser?.displayName ?? props.member?.user.id}
-                        secondaryText={props.member?.graphUser?.jobTitle ?? props.member?.user.userType}
-                        tertiaryText={props.member?.graphUser?.department}
-                        imageUrl={props.member?.graphUser?.imageUrl}
+                        text={props.graphUser?.displayName ?? props.user?.id}
+                        secondaryText={props.graphUser?.jobTitle ?? props.user?.userType}
+                        tertiaryText={props.graphUser?.department}
+                        imageUrl={props.graphUser?.imageUrl}
                         size={PersonaSize.size72} />
                 </Stack.Item>
                 <Stack.Item>
                     <TextField
                         readOnly
                         label='Id'
-                        value={props.member?.user.id} />
+                        value={props.user?.id} />
                 </Stack.Item>
                 <Stack.Item>
                     <Dropdown
@@ -136,19 +165,17 @@ export const ProjectMemberForm: React.FunctionComponent<IProjectMemberFormProps>
                         // errorMessage='Project Type is required.'
                         // placeholder='Select a Project Type'
                         disabled={_roleDropdownDisabled()}
-                        selectedKey={projectRole}
+                        selectedKey={newProjectRole}
                         // defaultSelectedKey={projectRole as string}
                         options={[ProjectUserRole.Owner, ProjectUserRole.Member].map(r => ({ key: r, text: r, data: r }))}
-                        onChange={(_ev, val) => setProjectRole(val?.key ? ProjectUserRole[val.key as keyof typeof ProjectUserRole] : undefined)} />
+                        onChange={(_ev, val) => setNewProjectRole(val?.key ? ProjectUserRole[val.key as keyof typeof ProjectUserRole] : undefined)} />
                 </Stack.Item>
                 <Stack.Item>
                     <Label>Properties</Label>
                     {_getPropertiesTextFields()}
                 </Stack.Item>
             </Stack>
-            {/* <Text>{errorText}</Text> */}
-
-
+            <Text>{errorText}</Text>
         </Panel>
     );
 }

@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { IIdentifiable, ITags, IProperties, AzureResourceGroup, ProjectType, User } from '.'
+import { IIdentifiable, ITags, IProperties, ILinks, AzureResourceGroup, ProjectType, User } from '.'
 
-export interface Project extends IIdentifiable, ITags, IProperties {
+export interface Project extends IIdentifiable, ITags, IProperties, ILinks {
     name: string;
     type: ProjectType;
     resourceGroup: AzureResourceGroup;

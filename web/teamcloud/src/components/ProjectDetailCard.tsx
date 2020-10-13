@@ -2,11 +2,12 @@
 // Licensed under the MIT License.
 
 import React from 'react';
-import { Stack, IStackStyles, ITextStyles, getTheme, FontWeights, Text } from '@fluentui/react';
+import { Stack, IStackStyles, ITextStyles, getTheme, FontWeights, Text, ICommandBarItemProps, CommandBar, ICommandBarStyles } from '@fluentui/react';
 
 export interface IProjectDetailCardProps {
     title?: string;
     callout?: string;
+    commandBarItems?: ICommandBarItemProps[];
 }
 
 export const ProjectDetailCard: React.FunctionComponent<IProjectDetailCardProps> = (props) => {
@@ -50,14 +51,39 @@ export const ProjectDetailCard: React.FunctionComponent<IProjectDetailCardProps>
         }
     }
 
+    const _commandBarStyles: ICommandBarStyles = {
+        root: {
+            marginTop: '-4px',
+            marginBottom: '4px',
+            padding: '0px',
+            // minWidth: '150px',
+        }
+    }
+
     const _getCallout = (): JSX.Element | null => props.callout ? <Text styles={_calloutStyles}>{props.callout}</Text> : null;
 
     const _getTitle = (): JSX.Element | null => props.title ? <Text styles={_titleStyles}>{props.title}</Text> : null;
 
+    const _getCammandBar = (): JSX.Element | null => props.commandBarItems ? <CommandBar
+        styles={_commandBarStyles}
+        items={props.commandBarItems}
+        ariaLabel='Use left and right arrow keys to navigate between commands' />
+        : null;
+
     return (
         <Stack verticalFill styles={_cardStackStyles}>
             <Stack styles={_cardStackContentStyles} >
-                <Stack horizontal tokens={{ childrenGap: '5px' }}>{_getTitle()}{_getCallout()}</Stack>
+                <Stack styles={{ root: { minHeight: '44px' } }} horizontal horizontalAlign='space-between'>
+                    <Stack.Item>
+                        <Stack horizontal tokens={{ childrenGap: '5px' }}>
+                            {_getTitle()}
+                            {_getCallout()}
+                        </Stack>
+                    </Stack.Item>
+                    <Stack.Item>
+                        {_getCammandBar()}
+                    </Stack.Item>
+                </Stack>
                 {/* {_getTitle()} */}
                 {props.children}
             </Stack>

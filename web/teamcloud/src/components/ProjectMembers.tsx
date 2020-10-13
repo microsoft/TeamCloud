@@ -2,10 +2,10 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect } from 'react';
-import { ProjectMember, UserType, Project, StatusResult, ErrorResult, ProjectUserRole } from '../model';
+import { ProjectMember, UserType, Project, StatusResult, ErrorResult, ProjectUserRole, User } from '../model';
 import { Stack, Facepile, IFacepilePersona, PersonaSize, IRenderFunction, HoverCard, HoverCardType, Persona, Shimmer, ShimmerElementsGroup, ShimmerElementType, CommandBar, ICommandBarItemProps, Separator, Label, Text } from '@fluentui/react';
 import { getGraphUser, getGraphDirectoryObject } from '../MSGraph';
-import { ProjectDetailCard } from './ProjectDetailCard';
+import { ProjectDetailCard, ProjectMembersForm } from '.';
 import AppInsights from '../img/appinsights.svg';
 import DevOps from '../img/devops.svg';
 import DevTestLabs from '../img/devtestlabs.svg';
@@ -14,6 +14,7 @@ import { deleteProjectUser } from '../API';
 
 
 export interface IProjectMembersProps {
+    user?: User;
     project: Project;
     onEditMember: (member?: ProjectMember) => void;
 }
@@ -21,6 +22,7 @@ export interface IProjectMembersProps {
 export const ProjectMembers: React.FunctionComponent<IProjectMembersProps> = (props) => {
 
     const [members, setMembers] = useState<ProjectMember[]>();
+    const [addMembersPanelOpen, setAddMembersPanelOpen] = useState(false);
 
     useEffect(() => {
         if (props.project) {
@@ -60,7 +62,14 @@ export const ProjectMembers: React.FunctionComponent<IProjectMembersProps> = (pr
                 && u.projectMemberships!.find(pm => pm.projectId === props.project.id && pm.role === ProjectUserRole.Owner)).length === 1
     };
 
-    const _getCommandBarItems = (member: ProjectMember): ICommandBarItemProps[] => [
+    const _userIsProjectOwner = () =>
+        props.user?.projectMemberships?.find(m => m.projectId === props.project.id)?.role === ProjectUserRole.Owner;
+
+    const _getCommandBarItems = (): ICommandBarItemProps[] => [
+        { key: 'addUser', text: 'Add', iconProps: { iconName: 'PeopleAdd' }, onClick: () => { setAddMembersPanelOpen(true) }, disabled: !_userIsProjectOwner() },
+    ];
+
+    const _getMemberCommandBarItems = (member: ProjectMember): ICommandBarItemProps[] => [
         { key: 'edit', text: 'Edit', iconProps: { iconName: 'EditContact' }, onClick: () => props.onEditMember(member) },
         { key: 'remove', text: 'Remove', iconProps: { iconName: 'UserRemove' }, disabled: _removeButtonDisabled(member), onClick: () => { _removeMemberFromProject(member) } },
     ];
@@ -95,7 +104,7 @@ export const ProjectMembers: React.FunctionComponent<IProjectMembersProps> = (pr
                         <Stack.Item align='end'>
                             <CommandBar
                                 styles={{ root: { minWidth: '160px' } }}
-                                items={_getCommandBarItems(member)}
+                                items={_getMemberCommandBarItems(member)}
                                 ariaLabel='Use left and right arrow keys to navigate between commands' />
                         </Stack.Item>
                     </>) : null;
@@ -154,18 +163,27 @@ export const ProjectMembers: React.FunctionComponent<IProjectMembersProps> = (pr
     }
 
     return (
-        <ProjectDetailCard title='Members' callout={members?.length.toString()}>
-            <Shimmer
-                customElementsGroup={_getShimmerElements()}
-                isDataLoaded={members ? members.length > 0 : false}
-                width={152} >
-                <Facepile
-                    styles={{ itemButton: _personaCoinStyles }}
-                    personas={_facepilePersonas()}
-                    personaSize={PersonaSize.size48}
-                    maxDisplayablePersonas={20}
-                    onRenderPersonaCoin={_onRenderPersonaCoin} />
-            </Shimmer>
-        </ProjectDetailCard>
+        <>
+            <ProjectDetailCard
+                title='Members'
+                callout={members?.length.toString()}
+                commandBarItems={_getCommandBarItems()}>
+                <Shimmer
+                    customElementsGroup={_getShimmerElements()}
+                    isDataLoaded={members ? members.length > 0 : false}
+                    width={152} >
+                    <Facepile
+                        styles={{ itemButton: _personaCoinStyles }}
+                        personas={_facepilePersonas()}
+                        personaSize={PersonaSize.size48}
+                        maxDisplayablePersonas={20}
+                        onRenderPersonaCoin={_onRenderPersonaCoin} />
+                </Shimmer>
+            </ProjectDetailCard>
+            <ProjectMembersForm
+                project={props.project}
+                panelIsOpen={addMembersPanelOpen}
+                onFormClose={() => setAddMembersPanelOpen(false)} />
+        </>
     );
 }

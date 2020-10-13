@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 export * from './HeaderBar'
+export * from './ProjectComponents'
+export * from './ProjectComponentForm'
 export * from './ProjectDetailCard'
 export * from './ProjectForm'
 export * from './ProjectList'

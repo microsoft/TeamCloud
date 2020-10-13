@@ -1,12 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import { ReferenceLink } from '.'
+
 export interface IIdentifiable {
     id: string;
 }
 
 export interface Properties {
     [key: string]: string
+}
+
+export interface ReferenceLinks {
+    [key: string]: ReferenceLink
 }
 
 export interface IProperties {
@@ -19,4 +25,8 @@ export interface IProperties {
 
 export interface ITags {
     tags?: Map<string, string>;
+}
+
+export interface ILinks {
+    _links: ReferenceLinks;
 }

@@ -15,12 +15,12 @@ export interface IProjectFormProps {
 
 export const ProjectForm: React.FunctionComponent<IProjectFormProps> = (props) => {
 
-    const [projectTypes, setProjectTypes] = useState<ProjectType[]>();
-    const [projectTypeOptions, setProjectTypeOptions] = useState<IDropdownOption[]>();
-    const [formEnabled, setFormEnabled] = useState<boolean>(true);
     const [projectName, setProjectName] = useState<string>();
     const [projectType, setProjectType] = useState<ProjectType>();
+    const [projectTypes, setProjectTypes] = useState<ProjectType[]>();
+    const [projectTypeOptions, setProjectTypeOptions] = useState<IDropdownOption[]>();
     const [userIdentifiers, setUserIdentifiers] = useState<string[]>();
+    const [formEnabled, setFormEnabled] = useState<boolean>(true);
     const [errorText, setErrorText] = useState<string>();
 
     useEffect(() => {
@@ -29,7 +29,7 @@ export const ProjectForm: React.FunctionComponent<IProjectFormProps> = (props) =
                 const result = await getProjectTypes()
                 const data = (result as DataResult<ProjectType[]>).data;
                 setProjectTypes(data);
-                setProjectTypeOptions(_projectTypeOptions(data))
+                setProjectTypeOptions(_projectTypeOptions(data));
             };
             _setProjectTypes();
         }

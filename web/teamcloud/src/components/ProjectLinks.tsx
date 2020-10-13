@@ -24,7 +24,7 @@ export const ProjectLinks: React.FunctionComponent<IProjectLinksProps> = (props)
         if (props.project) {
             const _setLinks = async () => {
                 const result = await getProjectLinks(props.project.id);
-                const data = (result as DataResult<ProjectLink[]>).data
+                const data = (result as DataResult<ProjectLink[]>).data;
                 // let _links = ExampleProjectLinks;
                 setLinks(data);
             };
@@ -89,7 +89,7 @@ export const ProjectLinks: React.FunctionComponent<IProjectLinksProps> = (props)
     ));
 
     return (
-        <ProjectDetailCard title='Resources' callout={links?.length.toString()}>
+        <ProjectDetailCard title='Links' callout={links?.length.toString()}>
             <Shimmer
                 // customElementsGroup={_getShimmerElements()}
                 isDataLoaded={links !== undefined}
