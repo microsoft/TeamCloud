@@ -19,7 +19,7 @@ namespace TeamCloud.Model.Commands
             : base(action, user, payload, commandId)
         { }
 
-        private ProviderCommandReferenceLinks links = null;
+        private ProviderCommandReferenceLinks links;
 
         public ProviderCommandReferenceLinks Links
         {

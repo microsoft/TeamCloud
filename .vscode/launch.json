@@ -23,7 +23,7 @@
             "env": {
                 "ASPNETCORE_ENVIRONMENT": "Development"
             },
-            "console": "integratedTerminal"
+            // "console": "integratedTerminal"
         },
         {
             "name": "Orchestrator",

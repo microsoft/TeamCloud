@@ -25,7 +25,7 @@ namespace TeamCloud.Model.Commands.Core
 
         public CommandAction CommandAction { get; private set; }
 
-        private string projectId = default;
+        private string projectId;
 
         public virtual string ProjectId
         {

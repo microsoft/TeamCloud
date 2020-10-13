@@ -16,7 +16,7 @@ namespace TeamCloud.API.Middleware
 {
     public class EnsureTeamCloudAdminMiddleware : IMiddleware
     {
-        private static bool HasAdmin = false;
+        private static bool HasAdmin;
 
         private readonly IUserRepository userRepository;
 

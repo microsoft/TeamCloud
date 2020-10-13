@@ -34,7 +34,7 @@ namespace TeamCloud.Azure.Deployment
 
 
         private readonly IAzureSessionService azureSessionService;
-        private JObject deploymentJsonFinal = null;
+        private JObject deploymentJsonFinal;
 
         internal AzureDeployment(string resourceId, IAzureSessionService azureSessionService)
         {
@@ -224,7 +224,7 @@ namespace TeamCloud.Azure.Deployment
 
             for (int i = 0; state == AzureDeploymentState.Unknown && i < 10; i++)
             {
-                // in some cases Azure doesn't return the state immediately 
+                // in some cases Azure doesn't return the state immediately
                 // this poor mans retry loop tries to solve this behaviour
 
                 state = await GetStateAsync()
