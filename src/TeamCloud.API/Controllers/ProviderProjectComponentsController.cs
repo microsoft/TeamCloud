@@ -205,7 +205,7 @@ namespace TeamCloud.API.Controllers
 
             if (componentDocument is null)
                 return ErrorResult
-                    .NotFound($"A Component with the id '{componentDocument.Id}' could not be found for Project {project.Id}.")
+                    .NotFound($"A Component with the id '{componentId}' could not be found for Project {project.Id}.")
                     .ToActionResult();
 
             var currentUser = await UserService
