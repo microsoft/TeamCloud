@@ -62,6 +62,7 @@ namespace TeamCloud.API
                     .UseCors(builder => builder
                         .SetIsOriginAllowed(origin => true)
                         .AllowAnyHeader()
+                        .AllowAnyMethod()
                         .AllowCredentials());
             }
             else
