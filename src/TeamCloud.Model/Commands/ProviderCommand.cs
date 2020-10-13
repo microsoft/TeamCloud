@@ -50,7 +50,7 @@ namespace TeamCloud.Model.Commands
         where TCommandResult : ICommandResult, new()
     {
         protected ProviderUpdateCommand(User user, TPayload payload, Guid? commandId = default)
-            : base(CommandAction.Create, user, payload, commandId)
+            : base(CommandAction.Update, user, payload, commandId)
         { }
     }
 
@@ -59,7 +59,7 @@ namespace TeamCloud.Model.Commands
         where TCommandResult : ICommandResult, new()
     {
         protected ProviderDeleteCommand(User user, TPayload payload, Guid? commandId = default)
-            : base(CommandAction.Create, user, payload, commandId)
+            : base(CommandAction.Delete, user, payload, commandId)
         { }
     }
 }

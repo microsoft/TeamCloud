@@ -64,7 +64,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Commands
 
                     providerResult.Errors.ToList().ForEach(e => commandResult.Errors.Add(e));
 
-                    commandResult.Result = commandResult.Result.PopulateFromExternalModel(providerResult.Result);
+                    commandResult.Result = component.PopulateFromExternalModel(providerResult.Result);
 
                     orchestrationContext.SetCustomStatus($"Component delete.", log);
                 }

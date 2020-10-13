@@ -27,7 +27,6 @@ namespace TeamCloud.Model.Data
         public IList<User> Users { get; set; }
             = new List<User>();
 
-
         public IDictionary<string, string> Tags { get; set; }
             = new Dictionary<string, string>();
 
