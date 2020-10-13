@@ -23,5 +23,9 @@ namespace TeamCloud.Model.Data
         public string Description { get; set; }
 
         public string InputJsonSchema { get; set; }
+
+        public ComponentScope Scope { get; set; }
+
+        public ComponentType Type { get; set; }
     }
 }

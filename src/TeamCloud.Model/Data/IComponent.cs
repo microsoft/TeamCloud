@@ -12,6 +12,9 @@ namespace TeamCloud.Model.Data
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
     public interface IComponent : IIdentifiable
     {
+        [JsonProperty("href")]
+        string HRef { get; set; }
+
         string OfferId { get; set; }
 
         string ProjectId { get; set; }
@@ -27,5 +30,9 @@ namespace TeamCloud.Model.Data
         string InputJson { get; set; }
 
         string ValueJson { get; set; }
+
+        ComponentScope Scope { get; set; }
+
+        ComponentType Type { get; set; }
     }
 }

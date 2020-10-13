@@ -23,6 +23,11 @@ namespace TeamCloud.Model.Data
 
         public string InputJsonSchema { get; set; }
 
+        public ComponentScope Scope { get; set; }
+
+        public ComponentType Type { get; set; }
+
+
         public bool Equals(ComponentOffer other)
             => Id.Equals(other?.Id, StringComparison.Ordinal);
 

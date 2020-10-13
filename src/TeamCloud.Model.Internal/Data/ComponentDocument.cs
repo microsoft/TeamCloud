@@ -13,6 +13,9 @@ namespace TeamCloud.Model.Data
     public sealed class ComponentDocument
         : ContainerDocument, IComponent, IPopulate<Component>
     {
+        [JsonProperty("href")]
+        public string HRef { get; set; }
+
         public string OfferId { get; set; }
 
         [PartitionKey]
@@ -29,5 +32,9 @@ namespace TeamCloud.Model.Data
         public string InputJson { get; set; }
 
         public string ValueJson { get; set; }
+
+        public ComponentScope Scope { get; set; }
+
+        public ComponentType Type { get; set; }
     }
 }

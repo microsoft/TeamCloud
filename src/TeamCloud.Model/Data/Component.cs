@@ -16,6 +16,9 @@ namespace TeamCloud.Model.Data
         public string Id { get; set; }
             = Guid.NewGuid().ToString();
 
+        [JsonProperty("href")]
+        public string HRef { get; set; }
+
         public string OfferId { get; set; }
 
         public string ProjectId { get; set; }
@@ -31,6 +34,10 @@ namespace TeamCloud.Model.Data
         public string InputJson { get; set; }
 
         public string ValueJson { get; set; }
+
+        public ComponentScope Scope { get; set; }
+
+        public ComponentType Type { get; set; }
 
         public bool Equals(Component other)
             => Id.Equals(other?.Id, StringComparison.Ordinal);
