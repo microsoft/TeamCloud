@@ -27,10 +27,10 @@ namespace TeamCloud.Model.Data
             SetLink(nameof(Links), new ReferenceLink(()
                 => GetBaseUri()?.AppendPath($"api/projects/{Context.Id}/links").ToString()));
 
-            SetLink(nameof(Links), new ReferenceLink(()
+            SetLink(nameof(Offers), new ReferenceLink(()
                 => GetBaseUri()?.AppendPath($"api/projects/{Context.Id}/offers").ToString()));
 
-            SetLink(nameof(Links), new ReferenceLink(()
+            SetLink(nameof(Components), new ReferenceLink(()
                 => GetBaseUri()?.AppendPath($"api/projects/{Context.Id}/components").ToString()));
         }
 
