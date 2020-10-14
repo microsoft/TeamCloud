@@ -124,7 +124,7 @@ jobs:
                           print("::set-env name=TC_CLI_VERSION::{}".format(match.group(1)))
 
       - name: Generate Python Client
-        run: sh ./scripts/generate-python-client.sh ../../TeamCloud.API/TeamCloud.API.dll
+        run: bash ./scripts/generate-python-client.sh ../../TeamCloud.API/TeamCloud.API.dll
 
       # - name: Generate Python SDK
       #   run: |
