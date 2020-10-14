@@ -29,7 +29,7 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: '3.1.300'
+          dotnet-version: '3.1.403'
 
       - name: Publish NuGet Packages
         run: dotnet nuget push 'NuGet/*.nupkg' --api-key '${{ secrets.MYGET_TOKEN }}' --source 'https://www.myget.org/F/teamcloud/api/v2/package' --symbol-api-key '${{ secrets.MYGET_TOKEN }}' --symbol-source 'https://www.myget.org/F/teamcloud/symbols/api/v2/package' --skip-duplicate

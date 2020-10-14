@@ -3723,8 +3723,6 @@ components:
           type: string
           nullable: true
         value:
-          type: object
-          additionalProperties: false
           nullable: true
         location:
           type: string
