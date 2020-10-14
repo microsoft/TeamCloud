@@ -94,6 +94,10 @@ except (SyntaxError, ImportError):
     from ._models import ValidationError  # type: ignore
 
 from ._team_cloud_client_enums import (
+    ComponentOfferScope,
+    ComponentOfferType,
+    ComponentScope,
+    ComponentType,
     ProjectLinkType,
     ProjectMembershipRole,
     ProviderCommandMode,
@@ -148,6 +152,10 @@ __all__ = [
     'UserDefinition',
     'UserListDataResult',
     'ValidationError',
+    'ComponentOfferScope',
+    'ComponentOfferType',
+    'ComponentScope',
+    'ComponentType',
     'ProjectLinkType',
     'ProjectMembershipRole',
     'ProviderCommandMode',

@@ -26,6 +26,28 @@ class _CaseInsensitiveEnumMeta(EnumMeta):
             raise AttributeError(name)
 
 
+class ComponentOfferScope(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
+
+    SYSTEM = "System"
+    PROJECT = "Project"
+    ALL = "All"
+
+class ComponentOfferType(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
+
+    CUSTOM = "Custom"
+    GIT_REPOSITORY = "GitRepository"
+
+class ComponentScope(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
+
+    SYSTEM = "System"
+    PROJECT = "Project"
+    ALL = "All"
+
+class ComponentType(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
+
+    CUSTOM = "Custom"
+    GIT_REPOSITORY = "GitRepository"
+
 class ProjectLinkType(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
 
     LINK = "Link"

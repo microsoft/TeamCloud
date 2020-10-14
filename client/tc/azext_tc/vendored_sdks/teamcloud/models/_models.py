@@ -45,6 +45,8 @@ class Component(msrest.serialization.Model):
 
     :param id:
     :type id: str
+    :param href:
+    :type href: str
     :param offer_id:
     :type offer_id: str
     :param project_id:
@@ -61,10 +63,15 @@ class Component(msrest.serialization.Model):
     :type input_json: str
     :param value_json:
     :type value_json: str
+    :param scope:  Possible values include: "System", "Project", "All".
+    :type scope: str or ~teamcloud.models.ComponentScope
+    :param type:  Possible values include: "Custom", "GitRepository".
+    :type type: str or ~teamcloud.models.ComponentType
     """
 
     _attribute_map = {
         'id': {'key': 'id', 'type': 'str'},
+        'href': {'key': 'href', 'type': 'str'},
         'offer_id': {'key': 'offerId', 'type': 'str'},
         'project_id': {'key': 'projectId', 'type': 'str'},
         'provider_id': {'key': 'providerId', 'type': 'str'},
@@ -73,6 +80,8 @@ class Component(msrest.serialization.Model):
         'description': {'key': 'description', 'type': 'str'},
         'input_json': {'key': 'inputJson', 'type': 'str'},
         'value_json': {'key': 'valueJson', 'type': 'str'},
+        'scope': {'key': 'scope', 'type': 'str'},
+        'type': {'key': 'type', 'type': 'str'},
     }
 
     def __init__(
@@ -81,6 +90,7 @@ class Component(msrest.serialization.Model):
     ):
         super(Component, self).__init__(**kwargs)
         self.id = kwargs.get('id', None)
+        self.href = kwargs.get('href', None)
         self.offer_id = kwargs.get('offer_id', None)
         self.project_id = kwargs.get('project_id', None)
         self.provider_id = kwargs.get('provider_id', None)
@@ -89,6 +99,8 @@ class Component(msrest.serialization.Model):
         self.description = kwargs.get('description', None)
         self.input_json = kwargs.get('input_json', None)
         self.value_json = kwargs.get('value_json', None)
+        self.scope = kwargs.get('scope', None)
+        self.type = kwargs.get('type', None)
 
 
 class ComponentDataResult(msrest.serialization.Model):
@@ -172,6 +184,10 @@ class ComponentOffer(msrest.serialization.Model):
     :type description: str
     :param input_json_schema:
     :type input_json_schema: str
+    :param scope:  Possible values include: "System", "Project", "All".
+    :type scope: str or ~teamcloud.models.ComponentOfferScope
+    :param type:  Possible values include: "Custom", "GitRepository".
+    :type type: str or ~teamcloud.models.ComponentOfferType
     """
 
     _attribute_map = {
@@ -180,6 +196,8 @@ class ComponentOffer(msrest.serialization.Model):
         'display_name': {'key': 'displayName', 'type': 'str'},
         'description': {'key': 'description', 'type': 'str'},
         'input_json_schema': {'key': 'inputJsonSchema', 'type': 'str'},
+        'scope': {'key': 'scope', 'type': 'str'},
+        'type': {'key': 'type', 'type': 'str'},
     }
 
     def __init__(
@@ -192,6 +210,8 @@ class ComponentOffer(msrest.serialization.Model):
         self.display_name = kwargs.get('display_name', None)
         self.description = kwargs.get('description', None)
         self.input_json_schema = kwargs.get('input_json_schema', None)
+        self.scope = kwargs.get('scope', None)
+        self.type = kwargs.get('type', None)
 
 
 class ComponentOfferDataResult(msrest.serialization.Model):

@@ -5560,6 +5560,10 @@
             "type": "string",
             "nullable": true
           },
+          "href": {
+            "type": "string",
+            "nullable": true
+          },
           "offerId": {
             "type": "string",
             "nullable": true
@@ -5591,6 +5595,21 @@
           "valueJson": {
             "type": "string",
             "nullable": true
+          },
+          "scope": {
+            "enum": [
+              "System",
+              "Project",
+              "All"
+            ],
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "Custom",
+              "GitRepository"
+            ],
+            "type": "string"
           }
         },
         "additionalProperties": false
@@ -5796,6 +5815,21 @@
           "inputJsonSchema": {
             "type": "string",
             "nullable": true
+          },
+          "scope": {
+            "enum": [
+              "System",
+              "Project",
+              "All"
+            ],
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "Custom",
+              "GitRepository"
+            ],
+            "type": "string"
           }
         },
         "additionalProperties": false

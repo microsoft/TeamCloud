@@ -3480,6 +3480,9 @@ components:
         id:
           type: string
           nullable: true
+        href:
+          type: string
+          nullable: true
         offerId:
           type: string
           nullable: true
@@ -3504,6 +3507,17 @@ components:
         valueJson:
           type: string
           nullable: true
+        scope:
+          enum:
+            - System
+            - Project
+            - All
+          type: string
+        type:
+          enum:
+            - Custom
+            - GitRepository
+          type: string
       additionalProperties: false
     ComponentListDataResult:
       type: object
@@ -3653,6 +3667,17 @@ components:
         inputJsonSchema:
           type: string
           nullable: true
+        scope:
+          enum:
+            - System
+            - Project
+            - All
+          type: string
+        type:
+          enum:
+            - Custom
+            - GitRepository
+          type: string
       additionalProperties: false
     ComponentOfferListDataResult:
       type: object
