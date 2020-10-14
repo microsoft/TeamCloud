@@ -72,75 +72,15 @@ jobs:
             zip -r ../TeamCloud.Web.zip * .deployment -x .vscode -x \*.md -x teamcloud/.DS_Store -x teamcloud/.env.development -x teamcloud/build/\* -x teamcloud/node_modules/\* -x teamcloud/.gitignore
           popd
 
-      # - name: Generate OpenAPI definition
-      #   run: |
-      #     pushd ${{ env.SOURCE_DIRECTORY }}/TeamCloud.API
-      #       dotnet tool restore
-      #       dotnet swagger tofile --output ../../client/swagger.json ../../TeamCloud.API/TeamCloud.API.dll v1
-      #       dotnet swagger tofile --yaml --output ../../client/swagger.yaml ../../TeamCloud.API/TeamCloud.API.dll v1
-      #     popd
-
       - name: Generate index.json
-        shell: python
-        run: |
-          import json
-          index = {}
-          index['teamcloud'] = {
-              'version': 'v${{ steps.gitversion.outputs.majorMinorPatch }}',
-              'deployUrl': 'https://github.com/microsoft/TeamCloud/releases/download/v${{ steps.gitversion.outputs.majorMinorPatch }}/azuredeploy.json',
-              'apiZipUrl': 'https://github.com/microsoft/TeamCloud/releases/download/v${{ steps.gitversion.outputs.majorMinorPatch }}/TeamCloud.API.zip',
-              'orchestratorZipUrl': 'https://github.com/microsoft/TeamCloud/releases/download/v${{ steps.gitversion.outputs.majorMinorPatch }}/TeamCloud.Orchestrator.zip',
-          }
-          index['webapp'] = {
-              'version': 'v${{ steps.gitversion.outputs.majorMinorPatch }}',
-              'deployUrl': 'https://github.com/microsoft/TeamCloud/releases/download/v${{ steps.gitversion.outputs.majorMinorPatch }}/azuredeploy.web.json',
-              'zipUrl': 'https://github.com/microsoft/TeamCloud/releases/download/v${{ steps.gitversion.outputs.majorMinorPatch }}/TeamCloud.Web.zip',
-          }
-          with open('index.json', 'w') as f:
-              json.dump(index, f, ensure_ascii=False, indent=4, sort_keys=True)
-
-      - name: Setup Node
-        uses: actions/setup-node@v1
-        with:
-          node-version: '10.x'
-
-      - name: Setup Python
-        uses: actions/setup-python@v1
-        with:
-          python-version: '3.x'
+        run: python ./scripts/generate-index.py
 
       - name: Get TeamCloud CLI Version
-        shell: python
-        run: |
-          from re import search
-          from pathlib import Path
-
-          with open(Path(Path.cwd() / 'client/tc') / 'setup.py', 'r') as f:
-              for line in f:
-                  if line.startswith('VERSION'):
-                      txt = str(line).rstrip()
-                      match = search(r'VERSION = [\'\"](.*)[\'\"]$', txt)
-                      if match:
-                          print("::set-env name=TC_CLI_VERSION::{}".format(match.group(1)))
+        id: cli_version
+        run: python ./scripts/cli-version.py
 
       - name: Generate Python Client
         run: bash ./scripts/generate-python-client.sh ../../TeamCloud.API/TeamCloud.API.dll
-
-      # - name: Generate Python SDK
-      #   run: |
-      #     pushd client
-      #       autorest --v3 \
-      #       --use:@autorest/python@latest \
-      #       --input-file=swagger.yaml \
-      #       --namespace=teamcloud \
-      #       --add-credentials=true \
-      #       --credential-scopes=openid \
-      #       --override-client-name=TeamCloudClient \
-      #       --license-header=MICROSOFT_MIT_NO_VERSION \
-      #       --output-folder=tc/azext_tc/vendored_sdks/teamcloud \
-      #       --no-namespace-folders=true \
-      #       --clear-output-folder
-      #     popd
 
       - name: Setup Azure CLI Dev Tools (azdev)
         run: |
@@ -158,12 +98,10 @@ jobs:
           deactivate
 
       - name: Build TeamCloud CLI
-        id: build_tc_cli
         run: |
           source env/bin/activate
           azdev extension build tc
           deactivate
-          # echo ::set-output name=whl_file::$(ls dist)
 
       - name: Create Release
         id: create_release
@@ -272,8 +210,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: dist/tc-${{ env.TC_CLI_VERSION }}-py2.py3-none-any.whl
-          asset_name: tc-${{ env.TC_CLI_VERSION }}-py2.py3-none-any.whl
+          asset_path: dist/tc-${{ steps.cli_version.outputs.version }}-py2.py3-none-any.whl
+          asset_name: tc-${{ steps.cli_version.outputs.version }}-py2.py3-none-any.whl
           asset_content_type: application/zip
 
       - name: Update CLI.md Version
@@ -284,7 +222,7 @@ jobs:
           with open(Path(Path.cwd() / 'docs/tpl') / 'CLI.md.tpl', 'r') as f:
               content = f.read()
 
-          content = content.replace('%{{latest_cli}}%', 'https://github.com/microsoft/TeamCloud/releases/download/v${{ steps.gitversion.outputs.majorMinorPatch }}/tc-${{ env.TC_CLI_VERSION }}-py2.py3-none-any.whl')
+          content = content.replace('%{{latest_cli}}%', 'https://github.com/microsoft/TeamCloud/releases/download/v${{ steps.gitversion.outputs.majorMinorPatch }}/tc-${{ steps.cli_version.outputs.version }}-py2.py3-none-any.whl')
 
           with open(Path(Path.cwd() / 'docs') / 'CLI.md', 'w') as f:
               f.write(content)
