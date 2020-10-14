@@ -39,7 +39,11 @@ jobs:
         uses: gittools/actions/gitversion/execute@v0.9.2
 
       - name: TEST
-        run: python3 ./scripts/test-ci.py
+        id: test
+        run: python3 ./scripts/test-ci.py ${{ steps.gitversion.outputs.majorMinorPatch }}
+
+      - name: TEST2
+        run: echo ${{ steps.test.outputs.version }}
 
       - name: Build & Package for Pre-release
         run: dotnet build ${{ env.SOURCE_DIRECTORY }}/TeamCloud.sln -o Prerelease -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true --version-suffix "pre"

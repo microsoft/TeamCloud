@@ -1,17 +1,30 @@
 import json
+import argparse
 from pathlib import Path
 
+parser = argparse.ArgumentParser()
+parser.add_argument('version', help='version number string')
+
+args = parser.parse_args()
+
+version = args.version.lower()
+if version[:1].isdigit():
+    version = 'v' + version
+
 index = {}
+
 index['teamcloud'] = {
-    'version': 'v${{ steps.gitversion.outputs.majorMinorPatch }}',
-    'deployUrl': 'https://github.com/microsoft/TeamCloud/releases/download/v${{ steps.gitversion.outputs.majorMinorPatch }}/azuredeploy.json',
-    'apiZipUrl': 'https://github.com/microsoft/TeamCloud/releases/download/v${{ steps.gitversion.outputs.majorMinorPatch }}/TeamCloud.API.zip',
-    'orchestratorZipUrl': 'https://github.com/microsoft/TeamCloud/releases/download/v${{ steps.gitversion.outputs.majorMinorPatch }}/TeamCloud.Orchestrator.zip',
+    'version': '{}'.format(version),
+    'deployUrl': 'https://github.com/microsoft/TeamCloud/releases/download/{}/azuredeploy.json'.format(version),
+    'apiZipUrl': 'https://github.com/microsoft/TeamCloud/releases/download/{}/TeamCloud.API.zip'.format(version),
+    'orchestratorZipUrl': 'https://github.com/microsoft/TeamCloud/releases/download/{}/TeamCloud.Orchestrator.zip'.format(version),
 }
+
 index['webapp'] = {
-    'version': 'v${{ steps.gitversion.outputs.majorMinorPatch }}',
-    'deployUrl': 'https://github.com/microsoft/TeamCloud/releases/download/v${{ steps.gitversion.outputs.majorMinorPatch }}/azuredeploy.web.json',
-    'zipUrl': 'https://github.com/microsoft/TeamCloud/releases/download/v${{ steps.gitversion.outputs.majorMinorPatch }}/TeamCloud.Web.zip',
+    'version': '{}'.format(version),
+    'deployUrl': 'https://github.com/microsoft/TeamCloud/releases/download/{}/azuredeploy.web.json'.format(version),
+    'zipUrl': 'https://github.com/microsoft/TeamCloud/releases/download/{}/TeamCloud.Web.zip'.format(version),
 }
+
 with open(Path.cwd() / 'index.json', 'w') as f:
     json.dump(index, f, ensure_ascii=False, indent=4, sort_keys=True)
