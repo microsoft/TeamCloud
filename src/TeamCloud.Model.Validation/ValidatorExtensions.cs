@@ -37,8 +37,10 @@ namespace TeamCloud.Model.Validation
 
             if (validators.Any())
             {
+                var context = new ValidationContext<IValidatable>(validatable);
+
                 var validationResult = validators
-                    .Select(validator => validator.Validate(validatable))
+                    .Select(validator => validator.Validate(context))
                     .MergeValidationResults();
 
                 if (!validationResult.IsValid && throwOnValidationError)
@@ -73,7 +75,9 @@ namespace TeamCloud.Model.Validation
 
             if (validator.CanValidateInstancesOfType(validatable.GetType()))
             {
-                var validationResult = validator.Validate(validatable);
+                var context = new ValidationContext<IValidatable>(validatable);
+
+                var validationResult = validator.Validate(context);
 
                 if (!validationResult.IsValid && throwOnValidationError)
                     throw validationResult.ToException();
@@ -97,8 +101,10 @@ namespace TeamCloud.Model.Validation
 
             if (validators.Any())
             {
+                var context = new ValidationContext<IValidatable>(validatable);
+
                 var validationTasks = validators
-                    .Select(validator => validator.ValidateAsync(validatable));
+                    .Select(validator => validator.ValidateAsync(context));
 
                 var validationResults = await Task
                     .WhenAll(validationTasks)
@@ -131,8 +137,10 @@ namespace TeamCloud.Model.Validation
 
             if (validator.CanValidateInstancesOfType(validatable.GetType()))
             {
+                var context = new ValidationContext<IValidatable>(validatable);
+
                 var validationResult = await validator
-                    .ValidateAsync(validatable)
+                    .ValidateAsync(context)
                     .ConfigureAwait(false);
 
                 if (!validationResult.IsValid && throwOnValidationError)
@@ -170,28 +178,28 @@ namespace TeamCloud.Model.Validation
 
         public static IRuleBuilderOptions<T, IList<TElement>> MustContainAtLeast<T, TElement>(this IRuleBuilderInitial<T, IList<TElement>> ruleBuilder, int min)
             => ruleBuilder
-                .Cascade(CascadeMode.StopOnFirstFailure)
+                .Cascade(CascadeMode.Stop)
                 .NotEmpty()
                 .Must(list => list.Count >= min)
                     .WithMessage("'{PropertyName}' must contain at least " + $"{min} item/s.");
 
         public static IRuleBuilderOptions<T, IList<TElement>> MustContainAtLeast<T, TElement>(this IRuleBuilderInitial<T, IList<TElement>> ruleBuilder, int min, Func<TElement, bool> predicate, string predicateMessage)
             => ruleBuilder
-                .Cascade(CascadeMode.StopOnFirstFailure)
+                .Cascade(CascadeMode.Stop)
                 .NotEmpty()
                 .Must(list => list.Where(predicate).Count() >= min)
                     .WithMessage("'{PropertyName}' must contain at least " + $"{min} item/s succeeding predicate '{predicateMessage}'.");
 
         public static IRuleBuilderOptions<T, string> MustBeResourceId<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
             => ruleBuilder
-                .Cascade(CascadeMode.StopOnFirstFailure)
+                .Cascade(CascadeMode.Stop)
                 .NotEmpty()
                 .Must(BeValidResourceId)
                     .WithMessage("'{PropertyName}' must be less than 255 characters long and may not contain: " + @"'/', '\\', '?', '#'");
 
         public static IRuleBuilderOptions<T, string> MustBeAzureRegion<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
             => ruleBuilder
-                .Cascade(CascadeMode.StopOnFirstFailure)
+                .Cascade(CascadeMode.Stop)
                 .NotEmpty()
                 .Must(BeAzureRegion)
                     .WithMessage("'{PropertyName}' must be a valid Azure Region. See https://azure.microsoft.com/en-us/global-infrastructure/regions/ for more information on Azure Regions");
@@ -199,21 +207,21 @@ namespace TeamCloud.Model.Validation
 
         public static IRuleBuilderOptions<T, string> MustBeEmail<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
             => ruleBuilder
-                .Cascade(CascadeMode.StopOnFirstFailure)
+                .Cascade(CascadeMode.Stop)
                 .NotEmpty()
                 .EmailAddress()
                     .WithMessage("'{PropertyName}' must be a valid email address.");
 
         public static IRuleBuilderOptions<T, string> MustBeUserIdentifier<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
             => ruleBuilder
-                .Cascade(CascadeMode.StopOnFirstFailure)
+                .Cascade(CascadeMode.Stop)
                 .NotEmpty()
                 .Must(BeUserIdentifier)
                     .WithMessage("'{PropertyName}' must be a valid email address, non-empty GUID, or url.");
 
         public static IRuleBuilderOptions<T, string> MustBeGuid<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
             => ruleBuilder
-                .Cascade(CascadeMode.StopOnFirstFailure)
+                .Cascade(CascadeMode.Stop)
                 .NotEmpty()
                 .Must(BeGuid)
                     .WithMessage("'{PropertyName}' must be a valid, non-empty GUID.");
@@ -226,56 +234,56 @@ namespace TeamCloud.Model.Validation
 
         public static IRuleBuilderOptions<T, string> MustBeUrl<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
             => ruleBuilder
-                .Cascade(CascadeMode.StopOnFirstFailure)
+                .Cascade(CascadeMode.Stop)
                 .NotEmpty()
                 .Must(BeUrl)
                     .WithMessage("'{PropertyName}' must be a valid url.");
 
         public static IRuleBuilderOptions<T, string> MustBeUserRole<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
             => ruleBuilder
-                .Cascade(CascadeMode.StopOnFirstFailure)
+                .Cascade(CascadeMode.Stop)
                 .NotEmpty()
                 .Must(BeUserRole)
                     .WithMessage("'{PropertyName}' must be a valid Role. Valid roles for Project users are 'Owner' and 'Member'. Valid roles for TeamCloud users are 'Admin' and 'Creator'.");
 
         public static IRuleBuilderOptions<T, string> MustBeProjectUserRole<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
             => ruleBuilder
-                .Cascade(CascadeMode.StopOnFirstFailure)
+                .Cascade(CascadeMode.Stop)
                 .NotEmpty()
                 .Must(BeProjectUserRole)
                     .WithMessage("'{PropertyName}' must be a valid Role. Valid roles for Project users are 'Owner' and 'Member'.");
 
         public static IRuleBuilderOptions<T, string> MustBeTeamCloudUserRole<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
             => ruleBuilder
-                .Cascade(CascadeMode.StopOnFirstFailure)
+                .Cascade(CascadeMode.Stop)
                 .NotEmpty()
                 .Must(BeTeamCloudUserRole)
                     .WithMessage("'{PropertyName}' must be a valid Role. Valid roles for TeamCloud users are 'Admin' and 'Creator'.");
 
         public static IRuleBuilderOptions<T, string> MustBeProviderId<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
             => ruleBuilder
-                .Cascade(CascadeMode.StopOnFirstFailure)
+                .Cascade(CascadeMode.Stop)
                 .NotEmpty()
                 .Must(BeValidProviderId)
                     .WithMessage("'{PropertyName}' must start with a lowercase letter and contain only lowercase letters, numbers, and periods [.] with a length greater than 4 and less than 255");
 
         public static IRuleBuilderOptions<T, string> MustBeProjectTypeId<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
             => ruleBuilder
-                .Cascade(CascadeMode.StopOnFirstFailure)
+                .Cascade(CascadeMode.Stop)
                 .NotEmpty()
                 .Must(BeValidProjectTypeId)
                     .WithMessage("'{PropertyName}' must start with a lowercase letter and contain only lowercase letters, numbers, and periods [.] with a length greater than 4 and less than 255");
 
         public static IRuleBuilderOptions<T, string> MustBeFunctionAuthCode<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
             => ruleBuilder
-                .Cascade(CascadeMode.StopOnFirstFailure)
+                .Cascade(CascadeMode.Stop)
                 .NotEmpty()
                 .Must(BeValidFunctionAuthCode)
                     .WithMessage("'{PropertyName}' must contain only base-64 digits [A-Za-z0-9/] (excluding the plus sign (+)), ending in = or ==");
 
         public static IRuleBuilderOptions<T, string> MustBeVersionString<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
             => ruleBuilder
-                .Cascade(CascadeMode.StopOnFirstFailure)
+                .Cascade(CascadeMode.Stop)
                 .NotEmpty()
                 .Must(BeValidVersionString)
                     .WithMessage("'{PropertyName}' be in format v0.0.0 and not include -pre suffix");

@@ -16,7 +16,7 @@ namespace TeamCloud.API.Data.Validators
         {
             RuleFor(obj => obj.Identifier).MustBeUserIdentifier();
             RuleFor(obj => obj.Role)
-                .Cascade(CascadeMode.StopOnFirstFailure)
+                .Cascade(CascadeMode.Stop)
                 .NotEmpty()
                 .Must(BeAdminUserRole)
                 .WithMessage("'{PropertyName}' must be Admin.");
