@@ -11,7 +11,7 @@ env:
 jobs:
   build:
     name: Create CI NuGet Packages
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04 # change to ubuntu-latest once 20.04 LTS moves from preview
 
     steps:
       - name: Checkout Code

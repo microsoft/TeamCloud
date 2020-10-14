@@ -12,14 +12,9 @@ jobs:
   build:
     name: Create new Pre-release
     if: "!contains(join(github.event.commits.*.message), '+norelease')"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04 # change to ubuntu-latest once 20.04 LTS moves from preview
 
     steps:
-      - run: |
-          python --version
-          python3 --version
-          dotnet --version
-
       - name: Checkout Code
         uses: actions/checkout@v2
         with:
