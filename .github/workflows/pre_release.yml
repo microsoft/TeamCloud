@@ -72,6 +72,10 @@ jobs:
             zip -r ../TeamCloud.Web.zip * .deployment -x .vscode -x \*.md -x teamcloud/.DS_Store -x teamcloud/.env.development -x teamcloud/build/\* -x teamcloud/node_modules/\* -x teamcloud/.gitignore
           popd
 
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '12'
+
       - name: Create index.json
         run: python3 ./scripts/create-index.py ${{ steps.gitversion.outputs.majorMinorPatch }}
 

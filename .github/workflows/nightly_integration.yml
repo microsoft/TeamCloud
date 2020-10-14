@@ -32,6 +32,10 @@ jobs:
       - name: Generate OpenAPI & Python Client
         run: bash ./scripts/create-python-client.sh ../../TeamCloud.API/TeamCloud.API.dll
 
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '12'
+
       - name: Build TeamCloud CLI
         run: bash ./scripts/build-cli.sh
 
