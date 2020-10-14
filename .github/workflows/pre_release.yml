@@ -15,6 +15,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - run: |
+          python --version
+          python3 --version
+          dotnet --version
+
       - name: Checkout Code
         uses: actions/checkout@v2
         with:
