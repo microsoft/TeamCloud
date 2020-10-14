@@ -8,7 +8,7 @@ jobs:
   build:
     if: '!github.event.release.prerelease'
     name: Promote Pre-release to Release
-    runs-on: ubuntu-20.04 # change to ubuntu-latest once 20.04 LTS moves from preview
+    runs-on: ubuntu-latest
 
     steps:
       - name: Make NuGet Directory

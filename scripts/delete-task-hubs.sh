@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -e
 
 cdir=$(cd -P -- "$(dirname -- "$0")" && pwd -P)

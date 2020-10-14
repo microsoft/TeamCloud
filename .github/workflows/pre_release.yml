@@ -12,7 +12,7 @@ jobs:
   build:
     name: Create new Pre-release
     if: "!contains(join(github.event.commits.*.message), '+norelease')"
-    runs-on: ubuntu-20.04 # change to ubuntu-latest once 20.04 LTS moves from preview
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Code
@@ -21,13 +21,13 @@ jobs:
           token: ${{ secrets.TEAMCLOUD_PAT }}
           fetch-depth: 0
 
+      - name: Checkout Tags
+        run: git fetch --prune --tags
+
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '3.1.403'
-
-      - name: Checkout Tags
-        run: git fetch --prune --tags
 
       - name: Setup GitVersion
         uses: gittools/actions/gitversion/setup@v0.9.2
@@ -73,35 +73,17 @@ jobs:
           popd
 
       - name: Generate index.json
-        run: python ./scripts/generate-index.py
+        run: python3 ./scripts/generate-index.py
 
       - name: Get TeamCloud CLI Version
         id: cli_version
-        run: python ./scripts/cli-version.py
+        run: python3 ./scripts/cli-version.py
 
-      - name: Generate Python Client
+      - name: Generate OpenAPI & Python Client
         run: bash ./scripts/generate-python-client.sh ../../TeamCloud.API/TeamCloud.API.dll
 
-      - name: Setup Azure CLI Dev Tools (azdev)
-        run: |
-          python -m venv env
-          source env/bin/activate
-          pip install azdev
-          azdev setup -r $PWD -e tc
-          deactivate
-
-      - name: TeamCloud CLI Lint & Style checks
-        run: |
-          source env/bin/activate
-          azdev linter tc
-          azdev style tc
-          deactivate
-
       - name: Build TeamCloud CLI
-        run: |
-          source env/bin/activate
-          azdev extension build tc
-          deactivate
+        run: bash /scripts/cli-build.sh
 
       - name: Create Release
         id: create_release

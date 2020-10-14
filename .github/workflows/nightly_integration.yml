@@ -12,7 +12,7 @@ env:
 jobs:
   build:
     name: 'Integration Test'
-    runs-on: ubuntu-20.04 # change to ubuntu-latest once 20.04 LTS moves from preview
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Code
@@ -29,46 +29,11 @@ jobs:
         run: |
           dotnet publish ${{ env.SOURCE_DIRECTORY }}/TeamCloud.API/TeamCloud.API.csproj -o TeamCloud.API -c ${{ env.BUILD_CONFIGURATION }} -p:IncludeSymbols=true
 
-      - name: Generate OpenAPI definition
-        run: |
-          pushd ${{ env.SOURCE_DIRECTORY }}/TeamCloud.API
-            dotnet tool restore
-            dotnet swagger tofile --output ../../client/swagger.json ../../TeamCloud.API/TeamCloud.API.dll v1
-          popd
+      - name: Generate OpenAPI & Python Client
+        run: bash ./scripts/generate-python-client.sh ../../TeamCloud.API/TeamCloud.API.dll
 
-      - name: Setup Node
-        uses: actions/setup-node@v1
-        with:
-          node-version: '10.x'
-
-      - name: Setup Python
-        uses: actions/setup-python@v1
-        with:
-          python-version: '3.x'
-
-      - name: Install Autorest
-        run: npm install -g autorest
-
-      - name: Generate Python SDK
-        run: |
-          pushd client
-            autorest --v3
-          popd
-
-      - name: Setup Azure CLI Dev Tools (azdev)
-        run: |
-          python -m venv env
-          source env/bin/activate
-          pip install azdev
-          azdev setup -r $PWD -e tc
-          deactivate
-
-      - name: TeamCloud CLI Lint & Style checks
-        run: |
-          source env/bin/activate
-          azdev linter tc
-          azdev style tc
-          deactivate
+      - name: Build TeamCloud CLI
+        run: bash /scripts/cli-build.sh
 
       - name: Login to Azure CLI
         run: |
