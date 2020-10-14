@@ -30,10 +30,10 @@ jobs:
           dotnet publish ${{ env.SOURCE_DIRECTORY }}/TeamCloud.API/TeamCloud.API.csproj -o TeamCloud.API -c ${{ env.BUILD_CONFIGURATION }} -p:IncludeSymbols=true
 
       - name: Generate OpenAPI & Python Client
-        run: bash ./scripts/generate-python-client.sh ../../TeamCloud.API/TeamCloud.API.dll
+        run: bash ./scripts/create-python-client.sh ../../TeamCloud.API/TeamCloud.API.dll
 
       - name: Build TeamCloud CLI
-        run: bash /scripts/cli-build.sh
+        run: bash ./scripts/build-cli.sh
 
       - name: Login to Azure CLI
         run: |

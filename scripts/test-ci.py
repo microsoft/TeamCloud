@@ -12,7 +12,7 @@ if version[:1].isdigit():
 
 index = {}
 index['foo'] = {
-    'version': ''.format(version)
+    'version': '{}'.format(version)
 }
 
 print(json.dumps(index, indent=4))

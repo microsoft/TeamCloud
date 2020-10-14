@@ -38,13 +38,6 @@ jobs:
         id: gitversion
         uses: gittools/actions/gitversion/execute@v0.9.2
 
-      - name: TEST
-        id: test
-        run: python3 ./scripts/test-ci.py ${{ steps.gitversion.outputs.majorMinorPatch }}
-
-      - name: TEST2
-        run: echo ${{ steps.test.outputs.version }}
-
       - name: Build & Package for Pre-release
         run: dotnet build ${{ env.SOURCE_DIRECTORY }}/TeamCloud.sln -o Prerelease -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true --version-suffix "pre"
 
@@ -79,18 +72,18 @@ jobs:
             zip -r ../TeamCloud.Web.zip * .deployment -x .vscode -x \*.md -x teamcloud/.DS_Store -x teamcloud/.env.development -x teamcloud/build/\* -x teamcloud/node_modules/\* -x teamcloud/.gitignore
           popd
 
-      - name: Generate index.json
-        run: python3 ./scripts/generate-index.py
+      - name: Create index.json
+        run: python3 ./scripts/create-index.py ${{ steps.gitversion.outputs.majorMinorPatch }}
 
       - name: Get TeamCloud CLI Version
         id: cli_version
         run: python3 ./scripts/cli-version.py
 
-      - name: Generate OpenAPI & Python Client
-        run: bash ./scripts/generate-python-client.sh ../../TeamCloud.API/TeamCloud.API.dll
+      - name: Create OpenAPI & Python Client
+        run: bash ./scripts/create-python-client.sh ../../TeamCloud.API/TeamCloud.API.dll
 
       - name: Build TeamCloud CLI
-        run: bash /scripts/cli-build.sh
+        run: bash ./scripts/build-cli.sh
 
       - name: Create Release
         id: create_release
