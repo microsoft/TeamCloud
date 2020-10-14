@@ -72,13 +72,13 @@ jobs:
             zip -r ../TeamCloud.Web.zip * .deployment -x .vscode -x \*.md -x teamcloud/.DS_Store -x teamcloud/.env.development -x teamcloud/build/\* -x teamcloud/node_modules/\* -x teamcloud/.gitignore
           popd
 
-      - name: Generate OpenAPI definition
-        run: |
-          pushd ${{ env.SOURCE_DIRECTORY }}/TeamCloud.API
-            dotnet tool restore
-            dotnet swagger tofile --output ../../client/swagger.json ../../TeamCloud.API/TeamCloud.API.dll v1
-            dotnet swagger tofile --yaml --output ../../client/swagger.yaml ../../TeamCloud.API/TeamCloud.API.dll v1
-          popd
+      # - name: Generate OpenAPI definition
+      #   run: |
+      #     pushd ${{ env.SOURCE_DIRECTORY }}/TeamCloud.API
+      #       dotnet tool restore
+      #       dotnet swagger tofile --output ../../client/swagger.json ../../TeamCloud.API/TeamCloud.API.dll v1
+      #       dotnet swagger tofile --yaml --output ../../client/swagger.yaml ../../TeamCloud.API/TeamCloud.API.dll v1
+      #     popd
 
       - name: Generate index.json
         shell: python
@@ -123,24 +123,24 @@ jobs:
                       if match:
                           print("::set-env name=TC_CLI_VERSION::{}".format(match.group(1)))
 
-      - name: Install Autorest
-        run: npm install -g autorest
+      - name: Generate Python Client
+        run: sh ./scripts/generate-python-client.sh ../../TeamCloud.API/TeamCloud.API.dll
 
-      - name: Generate Python SDK
-        run: |
-          pushd client
-            autorest --v3 \
-            --use:@autorest/python@latest \
-            --input-file=swagger.yaml \
-            --namespace=teamcloud \
-            --add-credentials=true \
-            --credential-scopes=openid \
-            --override-client-name=TeamCloudClient \
-            --license-header=MICROSOFT_MIT_NO_VERSION \
-            --output-folder=tc/azext_tc/vendored_sdks/teamcloud \
-            --no-namespace-folders=true \
-            --clear-output-folder
-          popd
+      # - name: Generate Python SDK
+      #   run: |
+      #     pushd client
+      #       autorest --v3 \
+      #       --use:@autorest/python@latest \
+      #       --input-file=swagger.yaml \
+      #       --namespace=teamcloud \
+      #       --add-credentials=true \
+      #       --credential-scopes=openid \
+      #       --override-client-name=TeamCloudClient \
+      #       --license-header=MICROSOFT_MIT_NO_VERSION \
+      #       --output-folder=tc/azext_tc/vendored_sdks/teamcloud \
+      #       --no-namespace-folders=true \
+      #       --clear-output-folder
+      #     popd
 
       - name: Setup Azure CLI Dev Tools (azdev)
         run: |
