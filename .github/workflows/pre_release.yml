@@ -72,16 +72,20 @@ jobs:
             zip -r ../TeamCloud.Web.zip * .deployment -x .vscode -x \*.md -x teamcloud/.DS_Store -x teamcloud/.env.development -x teamcloud/build/\* -x teamcloud/node_modules/\* -x teamcloud/.gitignore
           popd
 
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+
       - uses: actions/setup-node@v1
         with:
           node-version: '12'
 
       - name: Create index.json
-        run: python3 ./scripts/create-index.py ${{ steps.gitversion.outputs.majorMinorPatch }}
+        run: python ./scripts/create-index.py ${{ steps.gitversion.outputs.majorMinorPatch }}
 
       - name: Get TeamCloud CLI Version
         id: cli_version
-        run: python3 ./scripts/cli-version.py
+        run: python ./scripts/cli-version.py
 
       - name: Create OpenAPI & Python Client
         run: bash ./scripts/create-python-client.sh ../../TeamCloud.API/TeamCloud.API.dll

@@ -10,7 +10,7 @@ echo ""
 pushd $tcdir > /dev/null
 
     echo "Creating a virtual environment"
-    python3 -m venv env
+    python -m venv env
     echo ""
 
     echo "Activating virtual environment"
