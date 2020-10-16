@@ -174,24 +174,24 @@ jobs:
           asset_name: index.json
           asset_content_type: application/json
 
-      - name: Upload Release Asset - swagger.json
+      - name: Upload Release Asset - openapi.json
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: client/swagger.json
-          asset_name: swagger.json
+          asset_path: openapi/openapi.json
+          asset_name: openapi.json
           asset_content_type: application/json
 
-      - name: Upload Release Asset - swagger.yaml
+      - name: Upload Release Asset - openapi.yaml
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: client/swagger.yaml
-          asset_name: swagger.yaml
+          asset_path: openapi/openapi.yaml
+          asset_name: openapi.yaml
           asset_content_type: application/x-yaml
 
       - name: Upload Release Asset - TeamCloud CLI WHL

@@ -27,17 +27,17 @@ pushd $cdir/../src/TeamCloud.API > /dev/null
     dotnet tool restore
     echo ""
 
-    echo "Generating swagger.json"
-    dotnet swagger tofile --output ../../client/swagger.json $apiDll v1
+    echo "Generating openapi.json"
+    dotnet swagger tofile --output ../../openapi/openapi.json $apiDll v1
     echo ""
 
-    echo "Generating swagger.yaml"
-    dotnet swagger tofile --yaml --output ../../client/swagger.yaml $apiDll v1
+    echo "Generating openapi.yaml"
+    dotnet swagger tofile --yaml --output ../../openapi/openapi.yaml $apiDll v1
     echo ""
 
 popd > /dev/null
 
-pushd $cdir/../client > /dev/null
+pushd $cdir/../openapi > /dev/null
 
     echo "Reseting autorest"
     autorest --reset

@@ -76,7 +76,7 @@ namespace TeamCloud.API
                 .UseSwagger()
                 .UseSwaggerUI(c =>
                 {
-                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "TeamCloud API v1");
+                    c.SwaggerEndpoint("/openapi/v1/openapi.json", "TeamCloud API v1");
                     c.OAuthClientId(resourceManagerOptions.ClientId);
                     c.OAuthClientSecret("");
                     c.OAuthUsePkce();

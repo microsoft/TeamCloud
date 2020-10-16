@@ -22,42 +22,37 @@ The remainder of this file is configuration details used by AutoRest.
 ### Inputs
 
 ``` yaml
-use: '@microsoft.azure/autorest.csharp@https://github.com/Azure/autorest.csharp/releases/download/3.0.0-dev.20200911.1/autorest-csharp-v3-3.0.0-dev.20200911.1.tgz'
-# use: '@autorest/csharp-v3@latest'
-input-file: swagger.yaml
-public-clients: true
-namespace: TeamCloud.Client
-library-name: TeamCloud
+use: '@autorest/python@latest'
+input-file: openapi.yaml
+namespace: teamcloud
 add-credentials: true
 credential-scopes: openid
 override-client-name: TeamCloudClient
 license-header: MICROSOFT_MIT_NO_VERSION
-output-folder: $(this-folder)/csharp
-shared-source-folder: $(this-folder)/csharpassets
-# save-inputs: true
-# no-namespace-folders: true
-# clear-output-folder: true
+output-folder: './../client/tc/azext_tc/vendored_sdks/teamcloud'
+no-namespace-folders: true
+clear-output-folder: true
 
 declare-directive:
   rename-component: >-
     [{
-      from: 'swagger.yaml',
+      from: 'openapi.yaml',
       where: '$.components.schemas',
       transform: `if ($[${JSON.stringify($.from)}]) { $[${JSON.stringify($.to)}] = $[${JSON.stringify($.from)}]; delete $[${JSON.stringify($.from)}]; }`
     },
     {
-      from: 'swagger.yaml',
+      from: 'openapi.yaml',
       where: `$..['$ref']`,
       transform: `$ = $ === "#/components/schemas/${$.from}" ? "#/components/schemas/${$.to}" : $`
     },
     {
-      from: 'swagger.yaml',
+      from: 'openapi.yaml',
       where: `$..['$ref']`,
       transform: `$ = $ === ($documentPath + "#/components/schemas/${$.from}") ? ($documentPath + "#/components/schemas/${$.to}") : $`
     }]
 
 directive:
-  - from: swagger.yaml
+  - from: openapi.yaml
     where: $.components.schemas.ProviderData.properties.value
     transform: return undefined
 

@@ -263,7 +263,7 @@ namespace TeamCloud.API
         }
 
         public static bool IsSwaggerGet(this HttpRequest httpRequest)
-            => httpRequest.Path.StartsWithSegments("/swagger", StringComparison.OrdinalIgnoreCase) && HttpMethods.IsGet(httpRequest.Method);
+            => httpRequest.Path.StartsWithSegments("/openapi", StringComparison.OrdinalIgnoreCase) && HttpMethods.IsGet(httpRequest.Method);
 
         public static bool IsAdminUserPost(this HttpRequest httpRequest)
             => httpRequest.Path.StartsWithSegments("/api/admin/users", StringComparison.OrdinalIgnoreCase) && HttpMethods.IsPost(httpRequest.Method);

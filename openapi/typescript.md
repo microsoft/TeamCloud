@@ -24,7 +24,7 @@ The remainder of this file is configuration details used by AutoRest.
 ``` yaml
 use: '@microsoft.azure/autorest.typescript@https://github.com/Azure/autorest.typescript/releases/download/v6.0.0-dev.20201013.1/autorest-typescript-6.0.0-dev.20201013.1.tgz'
 package-name: teamcloud
-input-file: swagger.yaml
+input-file: openapi.yaml
 add-credentials: true
 credential-scopes: openid
 license-header: MICROSOFT_MIT_NO_VERSION
@@ -35,23 +35,23 @@ enum-types: true
 declare-directive:
   rename-component: >-
     [{
-      from: 'swagger.yaml',
+      from: 'openapi.yaml',
       where: '$.components.schemas',
       transform: `if ($[${JSON.stringify($.from)}]) { $[${JSON.stringify($.to)}] = $[${JSON.stringify($.from)}]; delete $[${JSON.stringify($.from)}]; }`
     },
     {
-      from: 'swagger.yaml',
+      from: 'openapi.yaml',
       where: `$..['$ref']`,
       transform: `$ = $ === "#/components/schemas/${$.from}" ? "#/components/schemas/${$.to}" : $`
     },
     {
-      from: 'swagger.yaml',
+      from: 'openapi.yaml',
       where: `$..['$ref']`,
       transform: `$ = $ === ($documentPath + "#/components/schemas/${$.from}") ? ($documentPath + "#/components/schemas/${$.to}") : $`
     }]
 
 directive:
-  - from: swagger.yaml
+  - from: openapi.yaml
     where: $.components.schemas.ProviderData.properties.value
     transform: return undefined
 
