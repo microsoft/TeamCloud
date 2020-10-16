@@ -1,11 +1,12 @@
 {
-  "name": "teamcloud",
+  "name": "teamcloud-web",
   "version": "0.1.0",
   "private": true,
   "engines": {
     "node": "12.16.3"
   },
   "dependencies": {
+    "@azure/core-auth": "^1.1.3",
     "@fluentui/react": "^7.126.3",
     "@microsoft/microsoft-graph-client": "^2.0.0",
     "@rjsf/core": "^2.4.0",
@@ -23,6 +24,7 @@
     "react-dom": "^16.13.1",
     "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.1",
+    "teamcloud": "file:lib/teamcloud",
     "typescript": "^3.9.7"
   },
   "scripts": {

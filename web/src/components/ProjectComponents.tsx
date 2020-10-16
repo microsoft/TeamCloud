@@ -2,7 +2,8 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect } from 'react';
-import { Project, DataResult, Component, User, StatusResult, ErrorResult } from '../model';
+import { DataResult, Project, Component, User, StatusResult, ErrorResult } from '../model'
+// import { Project, Component, User, StatusResult, ErrorResult } from 'teamcloud';
 import { Stack, Shimmer, DefaultButton, IButtonStyles, getTheme, Image, ICommandBarItemProps, Dialog, DialogType, DialogFooter, PrimaryButton, IContextualMenuProps, IContextualMenuItem } from '@fluentui/react';
 import { ProjectDetailCard, ProjectComponentForm } from '.';
 import AppInsights from '../img/appinsights.svg';
@@ -27,7 +28,7 @@ export const ProjectComponents: React.FunctionComponent<IProjectComponentsProps>
     useEffect(() => {
         if (props.project) {
             const _setComponents = async () => {
-                const result = await getProjectComponents(props.project.id);
+                const result = await getProjectComponents(props.project.id!);
                 const data = (result as DataResult<Component[]>).data;
                 setComponents(data);
             };

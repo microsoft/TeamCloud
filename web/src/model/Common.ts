@@ -24,7 +24,9 @@ export interface IProperties {
 }
 
 export interface ITags {
-    tags?: Map<string, string>;
+    tags?: {
+        [propertyName: string]: string;
+    };
 }
 
 export interface ILinks {

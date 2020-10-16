@@ -2,7 +2,8 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect } from 'react';
-import { Project, ComponentOffer, ComponentRequest, User, DataResult, StatusResult, ErrorResult } from '../model';
+import { DataResult, Project, ComponentOffer, ComponentRequest, User, StatusResult, ErrorResult } from '../model'
+// import { Project, ComponentOffer, ComponentRequest, User, StatusResult, ErrorResult } from 'teamcloud';
 import { getProjectOffers, createProjectComponent } from '../API';
 import { DefaultButton, Dropdown, IDropdownOption, Panel, PrimaryButton, Spinner, Stack, Text } from '@fluentui/react';
 import { FuiForm } from '@rjsf/fluent-ui'
@@ -30,7 +31,7 @@ export const ProjectComponentForm: React.FunctionComponent<IProjectComponentForm
     useEffect(() => {
         if (props.project) {
             const _setOffers = async () => {
-                const result = await getProjectOffers(props.project.id);
+                const result = await getProjectOffers(props.project.id!);
                 const data = (result as DataResult<ComponentOffer[]>).data;
                 setOffers(data);
                 setOfferOptions(_offerOptions(data));
@@ -47,7 +48,7 @@ export const ProjectComponentForm: React.FunctionComponent<IProjectComponentForm
                 offerId: offer.id,
                 inputJson: JSON.stringify(e.formData)
             };
-            const result = await createProjectComponent(props.project.id, request);
+            const result = await createProjectComponent(props.project.id!, request);
             if ((result as StatusResult).code === 202)
                 _resetAndCloseForm();
             else if ((result as ErrorResult).errors) {

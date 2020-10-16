@@ -1,8 +1,27 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { getToken } from './Auth';
-import { DataResult, StatusResult, ErrorResult, Project, User, ProjectType, Provider, ProjectDefinition, UserDefinition, ProjectLink, ComponentRequest, Component, ComponentOffer } from './model';
+import {
+    TeamCloud,
+    StatusResult,
+    ErrorResult,
+    Project,
+    User,
+    ProjectType,
+    Provider,
+    ProjectDefinition,
+    UserDefinition,
+    ProjectLink,
+    ComponentRequest,
+    Component,
+    ComponentOffer
+} from 'teamcloud';
+import { DataResult } from './model'
+import { Auth } from './Auth';
+// import { getToken } from './Auth';
+// import { DataResult, StatusResult, ErrorResult, Project, User, ProjectType, Provider, ProjectDefinition, UserDefinition, ProjectLink, ComponentRequest, Component, ComponentOffer } from './model';
+
+
 
 const logRequests = true
 
@@ -14,9 +33,16 @@ const _getApiUrl = () => {
 const scope = 'http://TeamCloud.Web/user_impersonation'
 const apiUrl = _getApiUrl();
 
-export const getProject = async (id: string) => {
-    return getResource<Project>(`${apiUrl}/api/projects/${id}`);
-}
+// const token = getToken(scope);
+export const auth = new Auth();
+export const teamcloud = new TeamCloud(auth, apiUrl);
+
+
+export const getProject = async (id: string) => (await teamcloud.getProjectByNameOrId(id)).data
+
+// export const getProject = async (id: string) => {
+//     return getResource<Project>(`${apiUrl}/api/projects/${id}`);
+// }
 
 export const getProjects = async () => getResource<Array<Project>>(`${apiUrl}/api/projects`);
 
@@ -87,7 +113,6 @@ export const updateProjectComponent = async (projectId: string, component: Compo
 
 export const deleteProjectComponent = async (projectId: string, id: string) => deleteResource<Component>(`${apiUrl}/api/projects/${projectId}/components/${id}`);
 
-
 export const getResource = async <T>(url: string): Promise<ErrorResult | DataResult<T>> => {
 
     let retry = false;
@@ -101,7 +126,7 @@ export const getResource = async <T>(url: string): Promise<ErrorResult | DataRes
             mode: 'cors',
             credentials: 'include',
             headers: {
-                'Authorization': 'Bearer ' + await getToken(scope, retry)
+                'Authorization': 'Bearer ' + (await auth.getToken(scope))?.token,
             }
         });
 
@@ -137,7 +162,7 @@ export const deleteResource = async <T>(url: string): Promise<ErrorResult | Stat
             method: 'DELETE',
             mode: 'cors',
             headers: {
-                'Authorization': 'Bearer ' + await getToken(scope, retry)
+                'Authorization': 'Bearer ' + (await auth.getToken(scope))?.token,
             }
         });
 
@@ -174,7 +199,7 @@ export const createResource = async<T>(url: string, resource: T): Promise<ErrorR
             method: 'POST',
             mode: 'cors',
             headers: {
-                'Authorization': 'Bearer ' + await getToken(scope, retry),
+                'Authorization': 'Bearer ' + (await auth.getToken(scope))?.token,
                 'Content-Type': 'application/json'
             },
             body: body
@@ -215,7 +240,7 @@ export const updateResource = async <T>(url: string, resource: T): Promise<DataR
             method: 'PUT',
             mode: 'cors',
             headers: {
-                'Authorization': 'Bearer ' + await getToken(scope, retry),
+                'Authorization': 'Bearer ' + (await auth.getToken(scope))?.token,
                 'Content-Type': 'application/json'
             },
             body: body

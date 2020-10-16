@@ -2,7 +2,8 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect } from 'react';
-import { Project, User, DataResult, ProjectUserRole, ProjectMember } from '../model';
+import { Project, User, ProjectMembershipRole } from 'teamcloud';
+import { ProjectMember, DataResult } from '../model';
 import { getProject } from '../API';
 import { Stack, Spinner, IBreadcrumbItem, ICommandBarItemProps } from '@fluentui/react';
 import { IProjectViewDetailProps, ProjectViewDetail, SubheaderBar, ProjectMembersForm, ProjectMembers, ProjectMemberForm, ProjectLinks, ProjectComponents } from '../components';
@@ -26,10 +27,12 @@ export const ProjectDetailView: React.FunctionComponent<IProjectDetailViewProps>
             const _setProject = async () => {
                 const result = await getProject(props.projectId);
                 console.log(result)
-                const data = (result as DataResult<Project>).data;
-                console.log(data)
-                console.log(data._links['offers']?.href ?? 'nope')
-                setProject(data);
+                // const data = (result as DataResult<Project>).data;
+                // console.log(data)
+                if (result) {
+                    console.log(result.links?.offers?.href ?? 'nope')
+                    setProject(result);
+                }
             };
             _setProject();
         }
@@ -53,7 +56,7 @@ export const ProjectDetailView: React.FunctionComponent<IProjectDetailViewProps>
 
     const _ensureBreadcrumb = () => {
         if (project && _breadcrumbs.length === 1)
-            _breadcrumbs.push({ text: project.name, key: 'project', isCurrentItem: true })
+            _breadcrumbs.push({ text: project.name ?? '', key: 'project', isCurrentItem: true })
     };
 
 
@@ -61,7 +64,7 @@ export const ProjectDetailView: React.FunctionComponent<IProjectDetailViewProps>
         if (!project) return null;
         const detailProps: IProjectViewDetailProps = {
             title: 'Project', details: [
-                { label: 'ID', value: project.id },
+                { label: 'ID', value: project.id ?? '' },
                 { label: 'Name', value: project.name }
             ]
         };
@@ -69,15 +72,15 @@ export const ProjectDetailView: React.FunctionComponent<IProjectDetailViewProps>
     };
 
     const projectDetailProjectTypeStackProps = () => {
-        if (!project) return null;
+        if (!project || !project.type) return null;
         const detailProps: IProjectViewDetailProps = {
             title: 'Project Type', details: [
-                { label: 'ID', value: project.type.id },
+                { label: 'ID', value: project.type.id ?? '' },
                 { label: 'Default', value: project.type.isDefault ? 'Yes' : 'No' },
-                { label: 'Location', value: project.type.region },
-                { label: 'Providers', value: project.type.providers.map(p => p.id).join(', ') },
-                { label: 'Subscription Capacity', value: project.type.subscriptionCapacity.toString() },
-                { label: 'Subscriptions', value: project.type.subscriptions.join(', ') },
+                { label: 'Location', value: project.type.region ?? '' },
+                { label: 'Providers', value: project.type.providers?.map(p => p.id).join(', ') ?? '' },
+                { label: 'Subscription Capacity', value: project.type.subscriptionCapacity?.toString() ?? '' },
+                { label: 'Subscriptions', value: project.type.subscriptions?.join(', ') ?? '' },
                 { label: 'Resource Group Name Prefix', value: project.type.resourceGroupNamePrefix ?? '' },
             ]
         };
@@ -85,12 +88,12 @@ export const ProjectDetailView: React.FunctionComponent<IProjectDetailViewProps>
     };
 
     const projectDetailResourceGroupStackProps = () => {
-        if (!project) return null;
+        if (!project || !project.resourceGroup) return null;
         const detailProps: IProjectViewDetailProps = {
             title: 'Resource Group', details: [
-                { label: 'Name', value: project.resourceGroup?.name },
-                { label: 'Location', value: project.resourceGroup?.region },
-                { label: 'Subscription', value: project.resourceGroup?.subscriptionId },
+                { label: 'Name', value: project.resourceGroup.name ?? '' },
+                { label: 'Location', value: project.resourceGroup.region ?? '' },
+                { label: 'Subscription', value: project.resourceGroup.subscriptionId ?? '' },
             ]
         };
         return (<ProjectViewDetail key={detailProps.title} title={detailProps.title} details={detailProps.details} />);

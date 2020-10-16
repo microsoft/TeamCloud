@@ -5,7 +5,7 @@ import { ImplicitMSALAuthenticationProvider } from '@microsoft/microsoft-graph-c
 import { MSALAuthenticationProviderOptions } from '@microsoft/microsoft-graph-client/lib/src/MSALAuthenticationProviderOptions';
 
 import { Client as GraphClient, GraphError, ResponseType } from '@microsoft/microsoft-graph-client'
-import { authProvider } from './Auth'
+import { auth } from './API'
 import { GraphUser } from './model';
 
 export enum PhotoSize {
@@ -24,7 +24,7 @@ const graphScopes = ['User.Read', 'User.ReadBasic.All', 'Directory.Read.All', 'P
 
 const options = new MSALAuthenticationProviderOptions(graphScopes);
 
-const graphAuthProvider = new ImplicitMSALAuthenticationProvider(authProvider, options);
+const graphAuthProvider = new ImplicitMSALAuthenticationProvider(auth.authProvider, options);
 
 const Client = GraphClient;
 const client = Client.initWithMiddleware({ authProvider: graphAuthProvider });

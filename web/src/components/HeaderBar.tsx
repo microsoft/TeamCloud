@@ -5,6 +5,7 @@ import React from 'react';
 import { UserInfo } from '.';
 import { Text, ITextStyles, Stack, getTheme, IStackStyles } from '@fluentui/react';
 import { GraphUser, User } from '../model';
+// import { User } from 'teamcloud';
 
 export interface IHeaderBarProps {
     user?: User;
