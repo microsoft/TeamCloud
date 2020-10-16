@@ -29,7 +29,7 @@ add-credentials: true
 credential-scopes: openid
 license-header: MICROSOFT_MIT_NO_VERSION
 output-folder: './../web/teamcloud'
-clear-output-folder: true
+# clear-output-folder: true
 enum-types: true
 
 declare-directive:
