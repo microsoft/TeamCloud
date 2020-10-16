@@ -14,6 +14,7 @@ namespace TeamCloud.Model.Data
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
     public sealed class ProviderData : IProviderData, IValidatable
     {
+        [JsonProperty(Required = Required.Always)]
         public string Id { get; set; }
 
         public string Name { get; set; }

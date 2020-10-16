@@ -13,6 +13,7 @@ namespace TeamCloud.Model.Data
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
     public sealed class ProjectMembership : IProperties
     {
+        [JsonProperty(Required = Required.Always)]
         public string ProjectId { get; set; }
 
         public ProjectUserRole Role { get; set; }

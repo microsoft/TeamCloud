@@ -15,10 +15,13 @@ namespace TeamCloud.Model.Data
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
     public sealed class Provider : IProvider, IEquatable<Provider>
     {
+        [JsonProperty(Required = Required.Always)]
         public string Id { get; set; }
 
+        [JsonProperty(Required = Required.Always)]
         public string Url { get; set; }
 
+        [JsonProperty(Required = Required.Always)]
         public string AuthCode { get; set; }
 
         public Guid? PrincipalId { get; set; }

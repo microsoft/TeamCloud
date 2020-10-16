@@ -13,8 +13,10 @@ namespace TeamCloud.Model.Data
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
     public sealed class ComponentOffer : IComponentOffer, IEquatable<ComponentOffer>, IValidatable
     {
+        [JsonProperty(Required = Required.Always)]
         public string Id { get; set; }
 
+        [JsonProperty(Required = Required.Always)]
         public string ProviderId { get; set; }
 
         public string DisplayName { get; set; }

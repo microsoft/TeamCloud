@@ -13,6 +13,7 @@ namespace TeamCloud.Model.Data
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
     public sealed class Component : IComponent, IEquatable<Component>, IValidatable
     {
+        [JsonProperty(Required = Required.Always)]
         public string Id { get; set; }
             = Guid.NewGuid().ToString();
 
@@ -23,8 +24,10 @@ namespace TeamCloud.Model.Data
 
         public string ProjectId { get; set; }
 
+        [JsonProperty(Required = Required.Always)]
         public string ProviderId { get; set; }
 
+        [JsonProperty(Required = Required.Always)]
         public string RequestedBy { get; set; }
 
         public string DisplayName { get; set; }
@@ -38,6 +41,7 @@ namespace TeamCloud.Model.Data
         public ComponentScope Scope { get; set; }
 
         public ComponentType Type { get; set; }
+
 
         public bool Equals(Component other)
             => Id.Equals(other?.Id, StringComparison.Ordinal);

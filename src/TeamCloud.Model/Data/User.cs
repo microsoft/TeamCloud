@@ -14,6 +14,7 @@ namespace TeamCloud.Model.Data
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
     public sealed class User : IUser, IEquatable<User>
     {
+        [JsonProperty(Required = Required.Always)]
         public string Id { get; set; }
 
         public UserType UserType { get; set; }
