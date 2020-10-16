@@ -3294,14 +3294,17 @@ components:
           $ref: '#/components/schemas/ReferenceLink'
       additionalProperties: false
     Project:
+      required:
+        - id
+        - name
+        - type
+        - users
       type: object
       properties:
         id:
           type: string
-          nullable: true
         name:
           type: string
-          nullable: true
         type:
           $ref: '#/components/schemas/ProjectType'
         resourceGroup:
@@ -3310,7 +3313,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/User'
-          nullable: true
         tags:
           type: object
           additionalProperties:

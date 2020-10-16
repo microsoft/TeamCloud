@@ -69,7 +69,7 @@ jobs:
       - name: Create Release Asset - TeamCloud.Web
         run: |
           pushd web
-            zip -r ../TeamCloud.Web.zip * .deployment -x .vscode -x \*.md -x teamcloud/.DS_Store -x teamcloud/.env.development -x teamcloud/build/\* -x teamcloud/node_modules/\* -x teamcloud/.gitignore
+            zip -r ../TeamCloud.Web.zip * .deployment -x .vscode -x \*.md -x .DS_Store -x .env.development -x build/\* -x lib/\* -x node_modules/\* -x .gitignore
           popd
 
       - uses: actions/setup-python@v2
@@ -88,7 +88,7 @@ jobs:
         run: python ./scripts/cli-version.py
 
       - name: Create OpenAPI & Python Client
-        run: bash ./scripts/create-python-client.sh ../../TeamCloud.API/TeamCloud.API.dll
+        run: bash ./scripts/create-clients.sh ../../TeamCloud.API/TeamCloud.API.dll
 
       - name: Build TeamCloud CLI
         run: bash ./scripts/build-cli.sh

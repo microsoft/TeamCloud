@@ -44,17 +44,11 @@ pushd $cdir/../client > /dev/null
     echo ""
 
     echo "Generating python client"
-    autorest --v3 \
-        --use:@autorest/python@latest \
-        --input-file=swagger.yaml \
-        --namespace=teamcloud \
-        --add-credentials=true \
-        --credential-scopes=openid \
-        --override-client-name=TeamCloudClient \
-        --license-header=MICROSOFT_MIT_NO_VERSION \
-        --output-folder=tc/azext_tc/vendored_sdks/teamcloud \
-        --no-namespace-folders=true \
-        --clear-output-folder
+    autorest --v3 python.md
+    echo ""
+
+    echo "Generating typescript client"
+    autorest --v3 typescript.md
     echo ""
 
 popd > /dev/null

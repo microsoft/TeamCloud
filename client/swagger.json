@@ -5304,15 +5304,19 @@
         "additionalProperties": false
       },
       "Project": {
+        "required": [
+          "id",
+          "name",
+          "type",
+          "users"
+        ],
         "type": "object",
         "properties": {
           "id": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "name": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "type": {
             "$ref": "#/components/schemas/ProjectType"
@@ -5324,8 +5328,7 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/User"
-            },
-            "nullable": true
+            }
           },
           "tags": {
             "type": "object",
