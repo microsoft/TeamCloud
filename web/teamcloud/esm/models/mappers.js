@@ -46,12 +46,14 @@ export var Project = {
         modelProperties: {
             id: {
                 serializedName: "id",
+                required: true,
                 type: {
                     name: "String"
                 }
             },
             name: {
                 serializedName: "name",
+                required: true,
                 type: {
                     name: "String"
                 }
@@ -72,6 +74,7 @@ export var Project = {
             },
             users: {
                 serializedName: "users",
+                required: true,
                 type: {
                     name: "Sequence",
                     element: { type: { name: "Composite", className: "User" } }
@@ -108,6 +111,7 @@ export var ProjectType = {
         modelProperties: {
             id: {
                 serializedName: "id",
+                required: true,
                 type: {
                     name: "String"
                 }
@@ -120,12 +124,14 @@ export var ProjectType = {
             },
             region: {
                 serializedName: "region",
+                required: true,
                 type: {
                     name: "String"
                 }
             },
             subscriptions: {
                 serializedName: "subscriptions",
+                required: true,
                 type: {
                     name: "Sequence",
                     element: { type: { name: "Uuid" } }
@@ -145,6 +151,7 @@ export var ProjectType = {
             },
             providers: {
                 serializedName: "providers",
+                required: true,
                 type: {
                     name: "Sequence",
                     element: {
@@ -176,6 +183,7 @@ export var ProviderReference = {
         modelProperties: {
             id: {
                 serializedName: "id",
+                required: true,
                 type: {
                     name: "String"
                 }
@@ -211,24 +219,28 @@ export var AzureResourceGroup = {
         modelProperties: {
             id: {
                 serializedName: "id",
+                required: true,
                 type: {
                     name: "String"
                 }
             },
             name: {
                 serializedName: "name",
+                required: true,
                 type: {
                     name: "String"
                 }
             },
             subscriptionId: {
                 serializedName: "subscriptionId",
+                required: true,
                 type: {
                     name: "Uuid"
                 }
             },
             region: {
                 serializedName: "region",
+                required: true,
                 type: {
                     name: "String"
                 }
@@ -243,6 +255,7 @@ export var User = {
         modelProperties: {
             id: {
                 serializedName: "id",
+                required: true,
                 type: {
                     name: "String"
                 }
@@ -285,6 +298,7 @@ export var ProjectMembership = {
         modelProperties: {
             projectId: {
                 serializedName: "projectId",
+                required: true,
                 type: {
                     name: "String"
                 }
@@ -644,6 +658,7 @@ export var Component = {
         modelProperties: {
             id: {
                 serializedName: "id",
+                required: true,
                 type: {
                     name: "String"
                 }
@@ -668,12 +683,14 @@ export var Component = {
             },
             providerId: {
                 serializedName: "providerId",
+                required: true,
                 type: {
                     name: "String"
                 }
             },
             requestedBy: {
                 serializedName: "requestedBy",
+                required: true,
                 type: {
                     name: "String"
                 }
@@ -724,6 +741,7 @@ export var ComponentRequest = {
         modelProperties: {
             offerId: {
                 serializedName: "offerId",
+                required: true,
                 type: {
                     name: "String"
                 }
@@ -810,24 +828,28 @@ export var ProjectIdentity = {
         modelProperties: {
             id: {
                 serializedName: "id",
+                required: true,
                 type: {
                     name: "String"
                 }
             },
             tenantId: {
                 serializedName: "tenantId",
+                required: true,
                 type: {
                     name: "Uuid"
                 }
             },
             applicationId: {
                 serializedName: "applicationId",
+                required: true,
                 type: {
                     name: "Uuid"
                 }
             },
             secret: {
                 serializedName: "secret",
+                required: true,
                 type: {
                     name: "String"
                 }
@@ -876,12 +898,14 @@ export var ProjectLink = {
         modelProperties: {
             id: {
                 serializedName: "id",
+                required: true,
                 type: {
                     name: "String"
                 }
             },
             href: {
                 serializedName: "href",
+                required: true,
                 type: {
                     name: "String"
                 }
@@ -975,12 +999,14 @@ export var ComponentOffer = {
         modelProperties: {
             id: {
                 serializedName: "id",
+                required: true,
                 type: {
                     name: "String"
                 }
             },
             providerId: {
                 serializedName: "providerId",
+                required: true,
                 type: {
                     name: "String"
                 }
@@ -1091,6 +1117,7 @@ export var ProviderData = {
         modelProperties: {
             id: {
                 serializedName: "id",
+                required: true,
                 type: {
                     name: "String"
                 }
@@ -1350,18 +1377,21 @@ export var Provider = {
         modelProperties: {
             id: {
                 serializedName: "id",
+                required: true,
                 type: {
                     name: "String"
                 }
             },
             url: {
                 serializedName: "url",
+                required: true,
                 type: {
                     name: "String"
                 }
             },
             authCode: {
                 serializedName: "authCode",
+                required: true,
                 type: {
                     name: "String"
                 }

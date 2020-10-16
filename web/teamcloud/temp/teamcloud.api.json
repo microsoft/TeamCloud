@@ -35,7 +35,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "id?: "
+                  "text": "id: "
                 },
                 {
                   "kind": "Content",
@@ -60,7 +60,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "name?: "
+                  "text": "name: "
                 },
                 {
                   "kind": "Content",
@@ -85,7 +85,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "region?: "
+                  "text": "region: "
                 },
                 {
                   "kind": "Content",
@@ -110,7 +110,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "subscriptionId?: "
+                  "text": "subscriptionId: "
                 },
                 {
                   "kind": "Content",
@@ -226,7 +226,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "id?: "
+                  "text": "id: "
                 },
                 {
                   "kind": "Content",
@@ -326,7 +326,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "providerId?: "
+                  "text": "providerId: "
                 },
                 {
                   "kind": "Content",
@@ -351,7 +351,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "requestedBy?: "
+                  "text": "requestedBy: "
                 },
                 {
                   "kind": "Content",
@@ -757,7 +757,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "id?: "
+                  "text": "id: "
                 },
                 {
                   "kind": "Content",
@@ -807,7 +807,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "providerId?: "
+                  "text": "providerId: "
                 },
                 {
                   "kind": "Content",
@@ -1213,7 +1213,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "offerId?: "
+                  "text": "offerId: "
                 },
                 {
                   "kind": "Content",
@@ -1400,7 +1400,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "id?: "
+                  "text": "id: "
                 },
                 {
                   "kind": "Content",
@@ -1451,7 +1451,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "name?: "
+                  "text": "name: "
                 },
                 {
                   "kind": "Content",
@@ -1552,7 +1552,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "type?: "
+                  "text": "type: "
                 },
                 {
                   "kind": "Reference",
@@ -1578,7 +1578,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "users?: "
+                  "text": "users: "
                 },
                 {
                   "kind": "Reference",
@@ -1887,7 +1887,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "applicationId?: "
+                  "text": "applicationId: "
                 },
                 {
                   "kind": "Content",
@@ -1912,7 +1912,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "id?: "
+                  "text": "id: "
                 },
                 {
                   "kind": "Content",
@@ -1937,7 +1937,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "secret?: "
+                  "text": "secret: "
                 },
                 {
                   "kind": "Content",
@@ -1962,7 +1962,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "tenantId?: "
+                  "text": "tenantId: "
                 },
                 {
                   "kind": "Content",
@@ -2120,7 +2120,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "href?: "
+                  "text": "href: "
                 },
                 {
                   "kind": "Content",
@@ -2145,7 +2145,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "id?: "
+                  "text": "id: "
                 },
                 {
                   "kind": "Content",
@@ -2500,7 +2500,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "projectId?: "
+                  "text": "projectId: "
                 },
                 {
                   "kind": "Content",
@@ -2789,7 +2789,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "id?: "
+                  "text": "id: "
                 },
                 {
                   "kind": "Content",
@@ -2864,7 +2864,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "providers?: "
+                  "text": "providers: "
                 },
                 {
                   "kind": "Reference",
@@ -2894,7 +2894,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "region?: "
+                  "text": "region: "
                 },
                 {
                   "kind": "Content",
@@ -2969,7 +2969,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "subscriptions?: "
+                  "text": "subscriptions: "
                 },
                 {
                   "kind": "Content",
@@ -3273,7 +3273,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "authCode?: "
+                  "text": "authCode: "
                 },
                 {
                   "kind": "Content",
@@ -3379,7 +3379,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "id?: "
+                  "text": "id: "
                 },
                 {
                   "kind": "Content",
@@ -3532,7 +3532,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "url?: "
+                  "text": "url: "
                 },
                 {
                   "kind": "Content",
@@ -3649,7 +3649,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "id?: "
+                  "text": "id: "
                 },
                 {
                   "kind": "Content",
@@ -4433,7 +4433,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "id?: "
+                  "text": "id: "
                 },
                 {
                   "kind": "Content",
@@ -17445,7 +17445,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "id?: "
+                  "text": "id: "
                 },
                 {
                   "kind": "Content",

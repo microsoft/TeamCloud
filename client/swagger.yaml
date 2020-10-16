@@ -3139,11 +3139,12 @@ paths:
 components:
   schemas:
     ProviderReference:
+      required:
+        - id
       type: object
       properties:
         id:
           type: string
-          nullable: true
         dependsOn:
           type: array
           items:
@@ -3163,22 +3164,24 @@ components:
           nullable: true
       additionalProperties: false
     ProjectType:
+      required:
+        - id
+        - providers
+        - region
+        - subscriptions
       type: object
       properties:
         id:
           type: string
-          nullable: true
         isDefault:
           type: boolean
         region:
           type: string
-          nullable: true
         subscriptions:
           type: array
           items:
             type: string
             format: uuid
-          nullable: true
         subscriptionCapacity:
           type: integer
           format: int32
@@ -3189,7 +3192,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ProviderReference'
-          nullable: true
         tags:
           type: object
           additionalProperties:
@@ -3202,27 +3204,30 @@ components:
           nullable: true
       additionalProperties: false
     AzureResourceGroup:
+      required:
+        - id
+        - name
+        - region
+        - subscriptionId
       type: object
       properties:
         id:
           type: string
-          nullable: true
         name:
           type: string
-          nullable: true
         subscriptionId:
           type: string
           format: uuid
         region:
           type: string
-          nullable: true
       additionalProperties: false
     ProjectMembership:
+      required:
+        - projectId
       type: object
       properties:
         projectId:
           type: string
-          nullable: true
         role:
           enum:
             - None
@@ -3237,11 +3242,12 @@ components:
           nullable: true
       additionalProperties: false
     User:
+      required:
+        - id
       type: object
       properties:
         id:
           type: string
-          nullable: true
         userType:
           enum:
             - User
@@ -3477,11 +3483,14 @@ components:
           nullable: true
       additionalProperties: false
     Component:
+      required:
+        - id
+        - providerId
+        - requestedBy
       type: object
       properties:
         id:
           type: string
-          nullable: true
         href:
           type: string
           nullable: true
@@ -3493,10 +3502,8 @@ components:
           nullable: true
         providerId:
           type: string
-          nullable: true
         requestedBy:
           type: string
-          nullable: true
         displayName:
           type: string
           nullable: true
@@ -3541,11 +3548,12 @@ components:
           nullable: true
       additionalProperties: false
     ComponentRequest:
+      required:
+        - offerId
       type: object
       properties:
         offerId:
           type: string
-          nullable: true
         inputJson:
           type: string
           nullable: true
@@ -3566,11 +3574,15 @@ components:
           nullable: true
       additionalProperties: false
     ProjectIdentity:
+      required:
+        - applicationId
+        - id
+        - secret
+        - tenantId
       type: object
       properties:
         id:
           type: string
-          nullable: true
         tenantId:
           type: string
           format: uuid
@@ -3579,7 +3591,6 @@ components:
           format: uuid
         secret:
           type: string
-          nullable: true
       additionalProperties: false
     ProjectIdentityDataResult:
       type: object
@@ -3616,14 +3627,15 @@ components:
           nullable: true
       additionalProperties: false
     ProjectLink:
+      required:
+        - href
+        - id
       type: object
       properties:
         id:
           type: string
-          nullable: true
         href:
           type: string
-          nullable: true
         title:
           type: string
           nullable: true
@@ -3652,14 +3664,15 @@ components:
           nullable: true
       additionalProperties: false
     ComponentOffer:
+      required:
+        - id
+        - providerId
       type: object
       properties:
         id:
           type: string
-          nullable: true
         providerId:
           type: string
-          nullable: true
         displayName:
           type: string
           nullable: true
@@ -3716,11 +3729,12 @@ components:
           nullable: true
       additionalProperties: false
     ProviderData:
+      required:
+        - id
       type: object
       properties:
         id:
           type: string
-          nullable: true
         name:
           type: string
           nullable: true
@@ -3858,17 +3872,18 @@ components:
           nullable: true
       additionalProperties: false
     Provider:
+      required:
+        - authCode
+        - id
+        - url
       type: object
       properties:
         id:
           type: string
-          nullable: true
         url:
           type: string
-          nullable: true
         authCode:
           type: string
-          nullable: true
         principalId:
           type: string
           format: uuid

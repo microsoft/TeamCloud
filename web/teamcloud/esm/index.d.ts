@@ -1,19 +1,19 @@
 import * as coreHttp from '@azure/core-http';
 
 export declare interface AzureResourceGroup {
-    id?: string;
-    name?: string;
-    subscriptionId?: string;
-    region?: string;
+    id: string;
+    name: string;
+    subscriptionId: string;
+    region: string;
 }
 
 export declare interface Component {
-    id?: string;
+    id: string;
     href?: string;
     offerId?: string;
     projectId?: string;
-    providerId?: string;
-    requestedBy?: string;
+    providerId: string;
+    requestedBy: string;
     displayName?: string;
     description?: string;
     inputJson?: string;
@@ -37,8 +37,8 @@ export declare interface ComponentListDataResult {
 }
 
 export declare interface ComponentOffer {
-    id?: string;
-    providerId?: string;
+    id: string;
+    providerId: string;
     displayName?: string;
     description?: string;
     inputJsonSchema?: string;
@@ -71,7 +71,7 @@ export declare type ComponentOfferScope = "System" | "Project" | "All" | string;
 export declare type ComponentOfferType = "Custom" | "GitRepository" | string;
 
 export declare interface ComponentRequest {
-    offerId?: string;
+    offerId: string;
     inputJson?: string;
 }
 
@@ -92,11 +92,11 @@ export declare interface ErrorResult {
 }
 
 export declare interface Project {
-    id?: string;
-    name?: string;
-    type?: ProjectType;
+    id: string;
+    name: string;
+    type: ProjectType;
     resourceGroup?: AzureResourceGroup;
-    users?: User[];
+    users: User[];
     /**
      * Dictionary of <string>
      */
@@ -138,10 +138,10 @@ export declare interface ProjectDefinition {
 }
 
 export declare interface ProjectIdentity {
-    id?: string;
-    tenantId?: string;
-    applicationId?: string;
-    secret?: string;
+    id: string;
+    tenantId: string;
+    applicationId: string;
+    secret: string;
 }
 
 export declare interface ProjectIdentityDataResult {
@@ -152,8 +152,8 @@ export declare interface ProjectIdentityDataResult {
 }
 
 export declare interface ProjectLink {
-    id?: string;
-    href?: string;
+    id: string;
+    href: string;
     title?: string;
     type?: ProjectLinkType;
 }
@@ -178,7 +178,7 @@ export declare interface ProjectListDataResult {
 }
 
 export declare interface ProjectMembership {
-    projectId?: string;
+    projectId: string;
     role?: ProjectMembershipRole;
     /**
      * Dictionary of <string>
@@ -203,13 +203,13 @@ export declare interface ProjectReferenceLinks {
 }
 
 export declare interface ProjectType {
-    id?: string;
+    id: string;
     isDefault?: boolean;
-    region?: string;
-    subscriptions?: string[];
+    region: string;
+    subscriptions: string[];
     subscriptionCapacity?: number;
     resourceGroupNamePrefix?: string;
-    providers?: ProviderReference[];
+    providers: ProviderReference[];
     /**
      * Dictionary of <string>
      */
@@ -239,9 +239,9 @@ export declare interface ProjectTypeListDataResult {
 }
 
 export declare interface Provider {
-    id?: string;
-    url?: string;
-    authCode?: string;
+    id: string;
+    url: string;
+    authCode: string;
     principalId?: string;
     version?: string;
     resourceGroup?: AzureResourceGroup;
@@ -264,7 +264,7 @@ export declare interface Provider {
 export declare type ProviderCommandMode = "Simple" | "Extended" | string;
 
 export declare interface ProviderData {
-    id?: string;
+    id: string;
     name?: string;
     location?: string;
     isSecret?: boolean;
@@ -317,7 +317,7 @@ export declare interface ProviderListDataResult {
 }
 
 export declare interface ProviderReference {
-    id?: string;
+    id: string;
     dependsOn?: string[];
     /**
      * Dictionary of <string>
@@ -2630,7 +2630,7 @@ export declare type TeamCloudUpdateTeamCloudUserResponse = StatusResult & {
 };
 
 export declare interface User {
-    id?: string;
+    id: string;
     userType?: UserType;
     role?: UserRole;
     projectMemberships?: ProjectMembership[];

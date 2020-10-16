@@ -5088,11 +5088,13 @@
   "components": {
     "schemas": {
       "ProviderReference": {
+        "required": [
+          "id"
+        ],
         "type": "object",
         "properties": {
           "id": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "dependsOn": {
             "type": "array",
@@ -5122,26 +5124,29 @@
         "additionalProperties": false
       },
       "ProjectType": {
+        "required": [
+          "id",
+          "providers",
+          "region",
+          "subscriptions"
+        ],
         "type": "object",
         "properties": {
           "id": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "isDefault": {
             "type": "boolean"
           },
           "region": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "subscriptions": {
             "type": "array",
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "nullable": true
+            }
           },
           "subscriptionCapacity": {
             "type": "integer",
@@ -5155,8 +5160,7 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ProviderReference"
-            },
-            "nullable": true
+            }
           },
           "tags": {
             "type": "object",
@@ -5176,33 +5180,38 @@
         "additionalProperties": false
       },
       "AzureResourceGroup": {
+        "required": [
+          "id",
+          "name",
+          "region",
+          "subscriptionId"
+        ],
         "type": "object",
         "properties": {
           "id": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "name": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "subscriptionId": {
             "type": "string",
             "format": "uuid"
           },
           "region": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           }
         },
         "additionalProperties": false
       },
       "ProjectMembership": {
+        "required": [
+          "projectId"
+        ],
         "type": "object",
         "properties": {
           "projectId": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "role": {
             "enum": [
@@ -5224,11 +5233,13 @@
         "additionalProperties": false
       },
       "User": {
+        "required": [
+          "id"
+        ],
         "type": "object",
         "properties": {
           "id": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "userType": {
             "enum": [
@@ -5557,11 +5568,15 @@
         "additionalProperties": false
       },
       "Component": {
+        "required": [
+          "id",
+          "providerId",
+          "requestedBy"
+        ],
         "type": "object",
         "properties": {
           "id": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "href": {
             "type": "string",
@@ -5576,12 +5591,10 @@
             "nullable": true
           },
           "providerId": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "requestedBy": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "displayName": {
             "type": "string",
@@ -5644,11 +5657,13 @@
         "additionalProperties": false
       },
       "ComponentRequest": {
+        "required": [
+          "offerId"
+        ],
         "type": "object",
         "properties": {
           "offerId": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "inputJson": {
             "type": "string",
@@ -5679,11 +5694,16 @@
         "additionalProperties": false
       },
       "ProjectIdentity": {
+        "required": [
+          "applicationId",
+          "id",
+          "secret",
+          "tenantId"
+        ],
         "type": "object",
         "properties": {
           "id": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "tenantId": {
             "type": "string",
@@ -5694,8 +5714,7 @@
             "format": "uuid"
           },
           "secret": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           }
         },
         "additionalProperties": false
@@ -5748,15 +5767,17 @@
         "additionalProperties": false
       },
       "ProjectLink": {
+        "required": [
+          "href",
+          "id"
+        ],
         "type": "object",
         "properties": {
           "id": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "href": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "title": {
             "type": "string",
@@ -5797,15 +5818,17 @@
         "additionalProperties": false
       },
       "ComponentOffer": {
+        "required": [
+          "id",
+          "providerId"
+        ],
         "type": "object",
         "properties": {
           "id": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "providerId": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "displayName": {
             "type": "string",
@@ -5885,11 +5908,13 @@
         "additionalProperties": false
       },
       "ProviderData": {
+        "required": [
+          "id"
+        ],
         "type": "object",
         "properties": {
           "id": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "name": {
             "type": "string",
@@ -6082,19 +6107,21 @@
         "additionalProperties": false
       },
       "Provider": {
+        "required": [
+          "authCode",
+          "id",
+          "url"
+        ],
         "type": "object",
         "properties": {
           "id": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "url": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "authCode": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "principalId": {
             "type": "string",

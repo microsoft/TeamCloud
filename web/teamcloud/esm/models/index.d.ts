@@ -6,11 +6,11 @@ export interface ProjectListDataResult {
     location?: string;
 }
 export interface Project {
-    id?: string;
-    name?: string;
-    type?: ProjectType;
+    id: string;
+    name: string;
+    type: ProjectType;
     resourceGroup?: AzureResourceGroup;
-    users?: User[];
+    users: User[];
     /**
      * Dictionary of <string>
      */
@@ -26,13 +26,13 @@ export interface Project {
     links?: ProjectReferenceLinks;
 }
 export interface ProjectType {
-    id?: string;
+    id: string;
     isDefault?: boolean;
-    region?: string;
-    subscriptions?: string[];
+    region: string;
+    subscriptions: string[];
     subscriptionCapacity?: number;
     resourceGroupNamePrefix?: string;
-    providers?: ProviderReference[];
+    providers: ProviderReference[];
     /**
      * Dictionary of <string>
      */
@@ -47,7 +47,7 @@ export interface ProjectType {
     };
 }
 export interface ProviderReference {
-    id?: string;
+    id: string;
     dependsOn?: string[];
     /**
      * Dictionary of <string>
@@ -63,13 +63,13 @@ export interface ProviderReference {
     };
 }
 export interface AzureResourceGroup {
-    id?: string;
-    name?: string;
-    subscriptionId?: string;
-    region?: string;
+    id: string;
+    name: string;
+    subscriptionId: string;
+    region: string;
 }
 export interface User {
-    id?: string;
+    id: string;
     userType?: UserType;
     role?: UserRole;
     projectMemberships?: ProjectMembership[];
@@ -81,7 +81,7 @@ export interface User {
     };
 }
 export interface ProjectMembership {
-    projectId?: string;
+    projectId: string;
     role?: ProjectMembershipRole;
     /**
      * Dictionary of <string>
@@ -165,12 +165,12 @@ export interface ComponentListDataResult {
     location?: string;
 }
 export interface Component {
-    id?: string;
+    id: string;
     href?: string;
     offerId?: string;
     projectId?: string;
-    providerId?: string;
-    requestedBy?: string;
+    providerId: string;
+    requestedBy: string;
     displayName?: string;
     description?: string;
     inputJson?: string;
@@ -179,7 +179,7 @@ export interface Component {
     type?: ComponentType;
 }
 export interface ComponentRequest {
-    offerId?: string;
+    offerId: string;
     inputJson?: string;
 }
 export interface ComponentDataResult {
@@ -195,10 +195,10 @@ export interface ProjectIdentityDataResult {
     location?: string;
 }
 export interface ProjectIdentity {
-    id?: string;
-    tenantId?: string;
-    applicationId?: string;
-    secret?: string;
+    id: string;
+    tenantId: string;
+    applicationId: string;
+    secret: string;
 }
 export interface StringDictionaryDataResult {
     code?: number;
@@ -212,8 +212,8 @@ export interface StringDictionaryDataResult {
     location?: string;
 }
 export interface ProjectLink {
-    id?: string;
-    href?: string;
+    id: string;
+    href: string;
     title?: string;
     type?: ProjectLinkType;
 }
@@ -230,8 +230,8 @@ export interface ComponentOfferListDataResult {
     location?: string;
 }
 export interface ComponentOffer {
-    id?: string;
-    providerId?: string;
+    id: string;
+    providerId: string;
     displayName?: string;
     description?: string;
     inputJsonSchema?: string;
@@ -251,7 +251,7 @@ export interface ProviderDataReturnResult {
     location?: string;
 }
 export interface ProviderData {
-    id?: string;
+    id: string;
     name?: string;
     location?: string;
     isSecret?: boolean;
@@ -297,9 +297,9 @@ export interface ProviderListDataResult {
     location?: string;
 }
 export interface Provider {
-    id?: string;
-    url?: string;
-    authCode?: string;
+    id: string;
+    url: string;
+    authCode: string;
     principalId?: string;
     version?: string;
     resourceGroup?: AzureResourceGroup;

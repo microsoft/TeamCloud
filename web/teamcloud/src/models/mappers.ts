@@ -50,12 +50,14 @@ export const Project: coreHttp.CompositeMapper = {
     modelProperties: {
       id: {
         serializedName: "id",
+        required: true,
         type: {
           name: "String"
         }
       },
       name: {
         serializedName: "name",
+        required: true,
         type: {
           name: "String"
         }
@@ -76,6 +78,7 @@ export const Project: coreHttp.CompositeMapper = {
       },
       users: {
         serializedName: "users",
+        required: true,
         type: {
           name: "Sequence",
           element: { type: { name: "Composite", className: "User" } }
@@ -113,6 +116,7 @@ export const ProjectType: coreHttp.CompositeMapper = {
     modelProperties: {
       id: {
         serializedName: "id",
+        required: true,
         type: {
           name: "String"
         }
@@ -125,12 +129,14 @@ export const ProjectType: coreHttp.CompositeMapper = {
       },
       region: {
         serializedName: "region",
+        required: true,
         type: {
           name: "String"
         }
       },
       subscriptions: {
         serializedName: "subscriptions",
+        required: true,
         type: {
           name: "Sequence",
           element: { type: { name: "Uuid" } }
@@ -150,6 +156,7 @@ export const ProjectType: coreHttp.CompositeMapper = {
       },
       providers: {
         serializedName: "providers",
+        required: true,
         type: {
           name: "Sequence",
           element: {
@@ -182,6 +189,7 @@ export const ProviderReference: coreHttp.CompositeMapper = {
     modelProperties: {
       id: {
         serializedName: "id",
+        required: true,
         type: {
           name: "String"
         }
@@ -218,24 +226,28 @@ export const AzureResourceGroup: coreHttp.CompositeMapper = {
     modelProperties: {
       id: {
         serializedName: "id",
+        required: true,
         type: {
           name: "String"
         }
       },
       name: {
         serializedName: "name",
+        required: true,
         type: {
           name: "String"
         }
       },
       subscriptionId: {
         serializedName: "subscriptionId",
+        required: true,
         type: {
           name: "Uuid"
         }
       },
       region: {
         serializedName: "region",
+        required: true,
         type: {
           name: "String"
         }
@@ -251,6 +263,7 @@ export const User: coreHttp.CompositeMapper = {
     modelProperties: {
       id: {
         serializedName: "id",
+        required: true,
         type: {
           name: "String"
         }
@@ -294,6 +307,7 @@ export const ProjectMembership: coreHttp.CompositeMapper = {
     modelProperties: {
       projectId: {
         serializedName: "projectId",
+        required: true,
         type: {
           name: "String"
         }
@@ -664,6 +678,7 @@ export const Component: coreHttp.CompositeMapper = {
     modelProperties: {
       id: {
         serializedName: "id",
+        required: true,
         type: {
           name: "String"
         }
@@ -688,12 +703,14 @@ export const Component: coreHttp.CompositeMapper = {
       },
       providerId: {
         serializedName: "providerId",
+        required: true,
         type: {
           name: "String"
         }
       },
       requestedBy: {
         serializedName: "requestedBy",
+        required: true,
         type: {
           name: "String"
         }
@@ -745,6 +762,7 @@ export const ComponentRequest: coreHttp.CompositeMapper = {
     modelProperties: {
       offerId: {
         serializedName: "offerId",
+        required: true,
         type: {
           name: "String"
         }
@@ -834,24 +852,28 @@ export const ProjectIdentity: coreHttp.CompositeMapper = {
     modelProperties: {
       id: {
         serializedName: "id",
+        required: true,
         type: {
           name: "String"
         }
       },
       tenantId: {
         serializedName: "tenantId",
+        required: true,
         type: {
           name: "Uuid"
         }
       },
       applicationId: {
         serializedName: "applicationId",
+        required: true,
         type: {
           name: "Uuid"
         }
       },
       secret: {
         serializedName: "secret",
+        required: true,
         type: {
           name: "String"
         }
@@ -902,12 +924,14 @@ export const ProjectLink: coreHttp.CompositeMapper = {
     modelProperties: {
       id: {
         serializedName: "id",
+        required: true,
         type: {
           name: "String"
         }
       },
       href: {
         serializedName: "href",
+        required: true,
         type: {
           name: "String"
         }
@@ -1004,12 +1028,14 @@ export const ComponentOffer: coreHttp.CompositeMapper = {
     modelProperties: {
       id: {
         serializedName: "id",
+        required: true,
         type: {
           name: "String"
         }
       },
       providerId: {
         serializedName: "providerId",
+        required: true,
         type: {
           name: "String"
         }
@@ -1123,6 +1149,7 @@ export const ProviderData: coreHttp.CompositeMapper = {
     modelProperties: {
       id: {
         serializedName: "id",
+        required: true,
         type: {
           name: "String"
         }
@@ -1389,18 +1416,21 @@ export const Provider: coreHttp.CompositeMapper = {
     modelProperties: {
       id: {
         serializedName: "id",
+        required: true,
         type: {
           name: "String"
         }
       },
       url: {
         serializedName: "url",
+        required: true,
         type: {
           name: "String"
         }
       },
       authCode: {
         serializedName: "authCode",
+        required: true,
         type: {
           name: "String"
         }
