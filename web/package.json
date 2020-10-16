@@ -24,7 +24,6 @@
     "react-dom": "^16.13.1",
     "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.1",
-    "teamcloud": "file:lib/teamcloud",
     "typescript": "^3.9.7"
   },
   "scripts": {
