@@ -18,8 +18,8 @@ export declare interface Component {
     description?: string;
     inputJson?: string;
     valueJson?: string;
-    scope?: ComponentScope;
-    type?: ComponentType;
+    scope: ComponentScope;
+    type: ComponentType;
 }
 
 export declare interface ComponentDataResult {
@@ -42,8 +42,8 @@ export declare interface ComponentOffer {
     displayName?: string;
     description?: string;
     inputJsonSchema?: string;
-    scope?: ComponentOfferScope;
-    type?: ComponentOfferType;
+    scope: ComponentOfferScope;
+    type: ComponentOfferType;
 }
 
 export declare interface ComponentOfferDataResult {
@@ -155,13 +155,20 @@ export declare interface ProjectLink {
     id: string;
     href: string;
     title?: string;
-    type?: ProjectLinkType;
+    type: ProjectLinkType;
 }
 
 export declare interface ProjectLinkDataResult {
     code?: number;
     status?: string;
     data?: ProjectLink;
+    location?: string;
+}
+
+export declare interface ProjectLinkListDataResult {
+    code?: number;
+    status?: string;
+    readonly data?: ProjectLink[];
     location?: string;
 }
 
@@ -179,7 +186,7 @@ export declare interface ProjectListDataResult {
 
 export declare interface ProjectMembership {
     projectId: string;
-    role?: ProjectMembershipRole;
+    role: ProjectMembershipRole;
     /**
      * Dictionary of <string>
      */
@@ -254,8 +261,8 @@ export declare interface Provider {
         [propertyName: string]: string;
     };
     registered?: Date;
-    type?: ProviderType;
-    commandMode?: ProviderCommandMode;
+    type: ProviderType;
+    commandMode: ProviderCommandMode;
 }
 
 /**
@@ -269,8 +276,8 @@ export declare interface ProviderData {
     location?: string;
     isSecret?: boolean;
     isShared?: boolean;
-    scope?: ProviderDataScope;
-    dataType?: ProviderDataType;
+    scope: ProviderDataScope;
+    dataType: ProviderDataType;
     readonly stringValue?: string;
 }
 
@@ -1614,7 +1621,7 @@ export declare type TeamCloudGetProjectIdentityResponse = ProjectIdentityDataRes
 /**
  * Contains response data for the getProjectLinkByKey operation.
  */
-export declare type TeamCloudGetProjectLinkByKeyResponse = StringDictionaryDataResult & {
+export declare type TeamCloudGetProjectLinkByKeyResponse = ProjectLinkDataResult & {
     /**
      * The underlying HTTP response.
      */
@@ -1626,14 +1633,14 @@ export declare type TeamCloudGetProjectLinkByKeyResponse = StringDictionaryDataR
         /**
          * The response body as parsed JSON or XML
          */
-        parsedBody: StringDictionaryDataResult;
+        parsedBody: ProjectLinkDataResult;
     };
 };
 
 /**
  * Contains response data for the getProjectLinks operation.
  */
-export declare type TeamCloudGetProjectLinksResponse = StringDictionaryDataResult & {
+export declare type TeamCloudGetProjectLinksResponse = ProjectLinkListDataResult & {
     /**
      * The underlying HTTP response.
      */
@@ -1645,7 +1652,7 @@ export declare type TeamCloudGetProjectLinksResponse = StringDictionaryDataResul
         /**
          * The response body as parsed JSON or XML
          */
-        parsedBody: StringDictionaryDataResult;
+        parsedBody: ProjectLinkListDataResult;
     };
 };
 
@@ -2631,8 +2638,8 @@ export declare type TeamCloudUpdateTeamCloudUserResponse = StatusResult & {
 
 export declare interface User {
     id: string;
-    userType?: UserType;
-    role?: UserRole;
+    userType: UserType;
+    role: UserRole;
     projectMemberships?: ProjectMembership[];
     /**
      * Dictionary of <string>

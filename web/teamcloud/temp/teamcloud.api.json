@@ -376,7 +376,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "scope?: "
+                  "text": "scope: "
                 },
                 {
                   "kind": "Reference",
@@ -402,7 +402,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "type?: "
+                  "text": "type: "
                 },
                 {
                   "kind": "Reference",
@@ -832,7 +832,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "scope?: "
+                  "text": "scope: "
                 },
                 {
                   "kind": "Reference",
@@ -858,7 +858,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "type?: "
+                  "text": "type: "
                 },
                 {
                   "kind": "Reference",
@@ -2195,7 +2195,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "type?: "
+                  "text": "type: "
                 },
                 {
                   "kind": "Reference",
@@ -2309,6 +2309,127 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "teamcloud!ProjectLinkDataResult#status:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "status?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "status",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ],
+          "extendsTokenRanges": []
+        },
+        {
+          "kind": "Interface",
+          "canonicalReference": "teamcloud!ProjectLinkListDataResult:interface",
+          "docComment": "",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export interface ProjectLinkListDataResult "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "ProjectLinkListDataResult",
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!ProjectLinkListDataResult#code:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "code?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "code",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!ProjectLinkListDataResult#data:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly data?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ProjectLink",
+                  "canonicalReference": "teamcloud!ProjectLink:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "[]"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "data",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!ProjectLinkListDataResult#location:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "location?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "location",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!ProjectLinkListDataResult#status:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -2550,7 +2671,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "role?: "
+                  "text": "role: "
                 },
                 {
                   "kind": "Reference",
@@ -3298,7 +3419,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "commandMode?: "
+                  "text": "commandMode: "
                 },
                 {
                   "kind": "Reference",
@@ -3506,7 +3627,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "type?: "
+                  "text": "type: "
                 },
                 {
                   "kind": "Reference",
@@ -3623,7 +3744,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "dataType?: "
+                  "text": "dataType: "
                 },
                 {
                   "kind": "Reference",
@@ -3774,7 +3895,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "scope?: "
+                  "text": "scope: "
                 },
                 {
                   "kind": "Reference",
@@ -14033,8 +14154,8 @@
             },
             {
               "kind": "Reference",
-              "text": "StringDictionaryDataResult",
-              "canonicalReference": "teamcloud!StringDictionaryDataResult:interface"
+              "text": "ProjectLinkDataResult",
+              "canonicalReference": "teamcloud!ProjectLinkDataResult:interface"
             },
             {
               "kind": "Content",
@@ -14051,8 +14172,8 @@
             },
             {
               "kind": "Reference",
-              "text": "StringDictionaryDataResult",
-              "canonicalReference": "teamcloud!StringDictionaryDataResult:interface"
+              "text": "ProjectLinkDataResult",
+              "canonicalReference": "teamcloud!ProjectLinkDataResult:interface"
             },
             {
               "kind": "Content",
@@ -14081,8 +14202,8 @@
             },
             {
               "kind": "Reference",
-              "text": "StringDictionaryDataResult",
-              "canonicalReference": "teamcloud!StringDictionaryDataResult:interface"
+              "text": "ProjectLinkListDataResult",
+              "canonicalReference": "teamcloud!ProjectLinkListDataResult:interface"
             },
             {
               "kind": "Content",
@@ -14099,8 +14220,8 @@
             },
             {
               "kind": "Reference",
-              "text": "StringDictionaryDataResult",
-              "canonicalReference": "teamcloud!StringDictionaryDataResult:interface"
+              "text": "ProjectLinkListDataResult",
+              "canonicalReference": "teamcloud!ProjectLinkListDataResult:interface"
             },
             {
               "kind": "Content",
@@ -17525,7 +17646,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "role?: "
+                  "text": "role: "
                 },
                 {
                   "kind": "Reference",
@@ -17551,7 +17672,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "userType?: "
+                  "text": "userType: "
                 },
                 {
                   "kind": "Reference",

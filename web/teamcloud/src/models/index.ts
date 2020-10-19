@@ -72,8 +72,8 @@ export interface AzureResourceGroup {
 
 export interface User {
   id: string;
-  userType?: UserType;
-  role?: UserRole;
+  userType: UserType;
+  role: UserRole;
   projectMemberships?: ProjectMembership[];
   /**
    * Dictionary of <string>
@@ -83,7 +83,7 @@ export interface User {
 
 export interface ProjectMembership {
   projectId: string;
-  role?: ProjectMembershipRole;
+  role: ProjectMembershipRole;
   /**
    * Dictionary of <string>
    */
@@ -179,8 +179,8 @@ export interface Component {
   description?: string;
   inputJson?: string;
   valueJson?: string;
-  scope?: ComponentScope;
-  type?: ComponentType;
+  scope: ComponentScope;
+  type: ComponentType;
 }
 
 export interface ComponentRequest {
@@ -209,13 +209,10 @@ export interface ProjectIdentity {
   secret: string;
 }
 
-export interface StringDictionaryDataResult {
+export interface ProjectLinkListDataResult {
   code?: number;
   status?: string;
-  /**
-   * Dictionary of <string>
-   */
-  readonly data?: { [propertyName: string]: string };
+  readonly data?: ProjectLink[];
   location?: string;
 }
 
@@ -223,7 +220,7 @@ export interface ProjectLink {
   id: string;
   href: string;
   title?: string;
-  type?: ProjectLinkType;
+  type: ProjectLinkType;
 }
 
 export interface ProjectLinkDataResult {
@@ -246,8 +243,8 @@ export interface ComponentOffer {
   displayName?: string;
   description?: string;
   inputJsonSchema?: string;
-  scope?: ComponentOfferScope;
-  type?: ComponentOfferType;
+  scope: ComponentOfferScope;
+  type: ComponentOfferType;
 }
 
 export interface ComponentOfferDataResult {
@@ -270,9 +267,19 @@ export interface ProviderData {
   location?: string;
   isSecret?: boolean;
   isShared?: boolean;
-  scope?: ProviderDataScope;
-  dataType?: ProviderDataType;
+  scope: ProviderDataScope;
+  dataType: ProviderDataType;
   readonly stringValue?: string;
+}
+
+export interface StringDictionaryDataResult {
+  code?: number;
+  status?: string;
+  /**
+   * Dictionary of <string>
+   */
+  readonly data?: { [propertyName: string]: string };
+  location?: string;
 }
 
 export interface ProjectTypeListDataResult {
@@ -331,8 +338,8 @@ export interface Provider {
    */
   properties?: { [propertyName: string]: string };
   registered?: Date;
-  type?: ProviderType;
-  commandMode?: ProviderCommandMode;
+  type: ProviderType;
+  commandMode: ProviderCommandMode;
 }
 
 export interface ProviderEventSubscription {
@@ -642,7 +649,7 @@ export type TeamCloudGetProjectIdentityResponse = ProjectIdentityDataResult & {
 /**
  * Contains response data for the getProjectLinks operation.
  */
-export type TeamCloudGetProjectLinksResponse = StringDictionaryDataResult & {
+export type TeamCloudGetProjectLinksResponse = ProjectLinkListDataResult & {
   /**
    * The underlying HTTP response.
    */
@@ -655,7 +662,7 @@ export type TeamCloudGetProjectLinksResponse = StringDictionaryDataResult & {
     /**
      * The response body as parsed JSON or XML
      */
-    parsedBody: StringDictionaryDataResult;
+    parsedBody: ProjectLinkListDataResult;
   };
 };
 
@@ -690,7 +697,7 @@ export type TeamCloudCreateProjectLinkResponse = ProjectLinkDataResult & {
 /**
  * Contains response data for the getProjectLinkByKey operation.
  */
-export type TeamCloudGetProjectLinkByKeyResponse = StringDictionaryDataResult & {
+export type TeamCloudGetProjectLinkByKeyResponse = ProjectLinkDataResult & {
   /**
    * The underlying HTTP response.
    */
@@ -703,7 +710,7 @@ export type TeamCloudGetProjectLinkByKeyResponse = StringDictionaryDataResult & 
     /**
      * The response body as parsed JSON or XML
      */
-    parsedBody: StringDictionaryDataResult;
+    parsedBody: ProjectLinkDataResult;
   };
 };
 

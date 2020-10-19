@@ -70,8 +70,8 @@ export interface AzureResourceGroup {
 }
 export interface User {
     id: string;
-    userType?: UserType;
-    role?: UserRole;
+    userType: UserType;
+    role: UserRole;
     projectMemberships?: ProjectMembership[];
     /**
      * Dictionary of <string>
@@ -82,7 +82,7 @@ export interface User {
 }
 export interface ProjectMembership {
     projectId: string;
-    role?: ProjectMembershipRole;
+    role: ProjectMembershipRole;
     /**
      * Dictionary of <string>
      */
@@ -175,8 +175,8 @@ export interface Component {
     description?: string;
     inputJson?: string;
     valueJson?: string;
-    scope?: ComponentScope;
-    type?: ComponentType;
+    scope: ComponentScope;
+    type: ComponentType;
 }
 export interface ComponentRequest {
     offerId: string;
@@ -200,22 +200,17 @@ export interface ProjectIdentity {
     applicationId: string;
     secret: string;
 }
-export interface StringDictionaryDataResult {
+export interface ProjectLinkListDataResult {
     code?: number;
     status?: string;
-    /**
-     * Dictionary of <string>
-     */
-    readonly data?: {
-        [propertyName: string]: string;
-    };
+    readonly data?: ProjectLink[];
     location?: string;
 }
 export interface ProjectLink {
     id: string;
     href: string;
     title?: string;
-    type?: ProjectLinkType;
+    type: ProjectLinkType;
 }
 export interface ProjectLinkDataResult {
     code?: number;
@@ -235,8 +230,8 @@ export interface ComponentOffer {
     displayName?: string;
     description?: string;
     inputJsonSchema?: string;
-    scope?: ComponentOfferScope;
-    type?: ComponentOfferType;
+    scope: ComponentOfferScope;
+    type: ComponentOfferType;
 }
 export interface ComponentOfferDataResult {
     code?: number;
@@ -256,9 +251,20 @@ export interface ProviderData {
     location?: string;
     isSecret?: boolean;
     isShared?: boolean;
-    scope?: ProviderDataScope;
-    dataType?: ProviderDataType;
+    scope: ProviderDataScope;
+    dataType: ProviderDataType;
     readonly stringValue?: string;
+}
+export interface StringDictionaryDataResult {
+    code?: number;
+    status?: string;
+    /**
+     * Dictionary of <string>
+     */
+    readonly data?: {
+        [propertyName: string]: string;
+    };
+    location?: string;
 }
 export interface ProjectTypeListDataResult {
     code?: number;
@@ -312,8 +318,8 @@ export interface Provider {
         [propertyName: string]: string;
     };
     registered?: Date;
-    type?: ProviderType;
-    commandMode?: ProviderCommandMode;
+    type: ProviderType;
+    commandMode: ProviderCommandMode;
 }
 export interface ProviderEventSubscription {
     eventType?: string;
@@ -576,7 +582,7 @@ export declare type TeamCloudGetProjectIdentityResponse = ProjectIdentityDataRes
 /**
  * Contains response data for the getProjectLinks operation.
  */
-export declare type TeamCloudGetProjectLinksResponse = StringDictionaryDataResult & {
+export declare type TeamCloudGetProjectLinksResponse = ProjectLinkListDataResult & {
     /**
      * The underlying HTTP response.
      */
@@ -588,7 +594,7 @@ export declare type TeamCloudGetProjectLinksResponse = StringDictionaryDataResul
         /**
          * The response body as parsed JSON or XML
          */
-        parsedBody: StringDictionaryDataResult;
+        parsedBody: ProjectLinkListDataResult;
     };
 };
 /**
@@ -618,7 +624,7 @@ export declare type TeamCloudCreateProjectLinkResponse = ProjectLinkDataResult &
 /**
  * Contains response data for the getProjectLinkByKey operation.
  */
-export declare type TeamCloudGetProjectLinkByKeyResponse = StringDictionaryDataResult & {
+export declare type TeamCloudGetProjectLinkByKeyResponse = ProjectLinkDataResult & {
     /**
      * The underlying HTTP response.
      */
@@ -630,7 +636,7 @@ export declare type TeamCloudGetProjectLinkByKeyResponse = StringDictionaryDataR
         /**
          * The response body as parsed JSON or XML
          */
-        parsedBody: StringDictionaryDataResult;
+        parsedBody: ProjectLinkDataResult;
     };
 };
 /**

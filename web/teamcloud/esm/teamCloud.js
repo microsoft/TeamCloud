@@ -947,7 +947,7 @@ var getProjectLinksOperationSpec = {
     httpMethod: "GET",
     responses: {
         200: {
-            bodyMapper: Mappers.StringDictionaryDataResult
+            bodyMapper: Mappers.ProjectLinkListDataResult
         },
         400: {
             bodyMapper: Mappers.ErrorResult
@@ -995,7 +995,7 @@ var getProjectLinkByKeyOperationSpec = {
     httpMethod: "GET",
     responses: {
         200: {
-            bodyMapper: Mappers.StringDictionaryDataResult
+            bodyMapper: Mappers.ProjectLinkDataResult
         },
         400: {
             bodyMapper: Mappers.ErrorResult

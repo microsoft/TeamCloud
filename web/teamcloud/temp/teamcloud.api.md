@@ -39,9 +39,9 @@ export interface Component {
     // (undocumented)
     requestedBy: string;
     // (undocumented)
-    scope?: ComponentScope;
+    scope: ComponentScope;
     // (undocumented)
-    type?: ComponentType;
+    type: ComponentType;
     // (undocumented)
     valueJson?: string;
 }
@@ -83,9 +83,9 @@ export interface ComponentOffer {
     // (undocumented)
     providerId: string;
     // (undocumented)
-    scope?: ComponentOfferScope;
+    scope: ComponentOfferScope;
     // (undocumented)
-    type?: ComponentOfferType;
+    type: ComponentOfferType;
 }
 
 // @public (undocumented)
@@ -225,7 +225,7 @@ export interface ProjectLink {
     // (undocumented)
     title?: string;
     // (undocumented)
-    type?: ProjectLinkType;
+    type: ProjectLinkType;
 }
 
 // @public (undocumented)
@@ -234,6 +234,18 @@ export interface ProjectLinkDataResult {
     code?: number;
     // (undocumented)
     data?: ProjectLink;
+    // (undocumented)
+    location?: string;
+    // (undocumented)
+    status?: string;
+}
+
+// @public (undocumented)
+export interface ProjectLinkListDataResult {
+    // (undocumented)
+    code?: number;
+    // (undocumented)
+    readonly data?: ProjectLink[];
     // (undocumented)
     location?: string;
     // (undocumented)
@@ -263,7 +275,7 @@ export interface ProjectMembership {
         [propertyName: string]: string;
     };
     // (undocumented)
-    role?: ProjectMembershipRole;
+    role: ProjectMembershipRole;
 }
 
 // @public
@@ -338,7 +350,7 @@ export interface Provider {
     // (undocumented)
     authCode: string;
     // (undocumented)
-    commandMode?: ProviderCommandMode;
+    commandMode: ProviderCommandMode;
     // (undocumented)
     events?: string[];
     // (undocumented)
@@ -355,7 +367,7 @@ export interface Provider {
     // (undocumented)
     resourceGroup?: AzureResourceGroup;
     // (undocumented)
-    type?: ProviderType;
+    type: ProviderType;
     // (undocumented)
     url: string;
     // (undocumented)
@@ -368,7 +380,7 @@ export type ProviderCommandMode = "Simple" | "Extended" | string;
 // @public (undocumented)
 export interface ProviderData {
     // (undocumented)
-    dataType?: ProviderDataType;
+    dataType: ProviderDataType;
     // (undocumented)
     id: string;
     // (undocumented)
@@ -380,7 +392,7 @@ export interface ProviderData {
     // (undocumented)
     name?: string;
     // (undocumented)
-    scope?: ProviderDataScope;
+    scope: ProviderDataScope;
     // (undocumented)
     readonly stringValue?: string;
 }
@@ -965,18 +977,18 @@ export type TeamCloudGetProjectIdentityResponse = ProjectIdentityDataResult & {
 };
 
 // @public
-export type TeamCloudGetProjectLinkByKeyResponse = StringDictionaryDataResult & {
+export type TeamCloudGetProjectLinkByKeyResponse = ProjectLinkDataResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
-        parsedBody: StringDictionaryDataResult;
+        parsedBody: ProjectLinkDataResult;
     };
 };
 
 // @public
-export type TeamCloudGetProjectLinksResponse = StringDictionaryDataResult & {
+export type TeamCloudGetProjectLinksResponse = ProjectLinkListDataResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
-        parsedBody: StringDictionaryDataResult;
+        parsedBody: ProjectLinkListDataResult;
     };
 };
 
@@ -1464,9 +1476,9 @@ export interface User {
         [propertyName: string]: string;
     };
     // (undocumented)
-    role?: UserRole;
+    role: UserRole;
     // (undocumented)
-    userType?: UserType;
+    userType: UserType;
 }
 
 // @public (undocumented)

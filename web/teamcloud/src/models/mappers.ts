@@ -270,12 +270,14 @@ export const User: coreHttp.CompositeMapper = {
       },
       userType: {
         serializedName: "userType",
+        required: true,
         type: {
           name: "String"
         }
       },
       role: {
         serializedName: "role",
+        required: true,
         type: {
           name: "String"
         }
@@ -314,6 +316,7 @@ export const ProjectMembership: coreHttp.CompositeMapper = {
       },
       role: {
         serializedName: "role",
+        required: true,
         type: {
           name: "String"
         }
@@ -741,12 +744,14 @@ export const Component: coreHttp.CompositeMapper = {
       },
       scope: {
         serializedName: "scope",
+        required: true,
         type: {
           name: "String"
         }
       },
       type: {
         serializedName: "type",
+        required: true,
         type: {
           name: "String"
         }
@@ -882,10 +887,10 @@ export const ProjectIdentity: coreHttp.CompositeMapper = {
   }
 };
 
-export const StringDictionaryDataResult: coreHttp.CompositeMapper = {
+export const ProjectLinkListDataResult: coreHttp.CompositeMapper = {
   type: {
     name: "Composite",
-    className: "StringDictionaryDataResult",
+    className: "ProjectLinkListDataResult",
     modelProperties: {
       code: {
         serializedName: "code",
@@ -903,8 +908,8 @@ export const StringDictionaryDataResult: coreHttp.CompositeMapper = {
         serializedName: "data",
         readOnly: true,
         type: {
-          name: "Dictionary",
-          value: { type: { name: "String" } }
+          name: "Sequence",
+          element: { type: { name: "Composite", className: "ProjectLink" } }
         }
       },
       location: {
@@ -944,6 +949,7 @@ export const ProjectLink: coreHttp.CompositeMapper = {
       },
       type: {
         serializedName: "type",
+        required: true,
         type: {
           name: "String"
         }
@@ -1060,12 +1066,14 @@ export const ComponentOffer: coreHttp.CompositeMapper = {
       },
       scope: {
         serializedName: "scope",
+        required: true,
         type: {
           name: "String"
         }
       },
       type: {
         serializedName: "type",
+        required: true,
         type: {
           name: "String"
         }
@@ -1180,12 +1188,14 @@ export const ProviderData: coreHttp.CompositeMapper = {
       },
       scope: {
         serializedName: "scope",
+        required: true,
         type: {
           name: "String"
         }
       },
       dataType: {
         serializedName: "dataType",
+        required: true,
         type: {
           name: "String"
         }
@@ -1193,6 +1203,41 @@ export const ProviderData: coreHttp.CompositeMapper = {
       stringValue: {
         serializedName: "stringValue",
         readOnly: true,
+        type: {
+          name: "String"
+        }
+      }
+    }
+  }
+};
+
+export const StringDictionaryDataResult: coreHttp.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "StringDictionaryDataResult",
+    modelProperties: {
+      code: {
+        serializedName: "code",
+        type: {
+          name: "Number"
+        }
+      },
+      status: {
+        serializedName: "status",
+        type: {
+          name: "String"
+        }
+      },
+      data: {
+        serializedName: "data",
+        readOnly: true,
+        type: {
+          name: "Dictionary",
+          value: { type: { name: "String" } }
+        }
+      },
+      location: {
+        serializedName: "location",
         type: {
           name: "String"
         }
@@ -1485,12 +1530,14 @@ export const Provider: coreHttp.CompositeMapper = {
       },
       type: {
         serializedName: "type",
+        required: true,
         type: {
           name: "String"
         }
       },
       commandMode: {
         serializedName: "commandMode",
+        required: true,
         type: {
           name: "String"
         }

@@ -262,12 +262,14 @@ export var User = {
             },
             userType: {
                 serializedName: "userType",
+                required: true,
                 type: {
                     name: "String"
                 }
             },
             role: {
                 serializedName: "role",
+                required: true,
                 type: {
                     name: "String"
                 }
@@ -305,6 +307,7 @@ export var ProjectMembership = {
             },
             role: {
                 serializedName: "role",
+                required: true,
                 type: {
                     name: "String"
                 }
@@ -721,12 +724,14 @@ export var Component = {
             },
             scope: {
                 serializedName: "scope",
+                required: true,
                 type: {
                     name: "String"
                 }
             },
             type: {
                 serializedName: "type",
+                required: true,
                 type: {
                     name: "String"
                 }
@@ -857,10 +862,10 @@ export var ProjectIdentity = {
         }
     }
 };
-export var StringDictionaryDataResult = {
+export var ProjectLinkListDataResult = {
     type: {
         name: "Composite",
-        className: "StringDictionaryDataResult",
+        className: "ProjectLinkListDataResult",
         modelProperties: {
             code: {
                 serializedName: "code",
@@ -878,8 +883,8 @@ export var StringDictionaryDataResult = {
                 serializedName: "data",
                 readOnly: true,
                 type: {
-                    name: "Dictionary",
-                    value: { type: { name: "String" } }
+                    name: "Sequence",
+                    element: { type: { name: "Composite", className: "ProjectLink" } }
                 }
             },
             location: {
@@ -918,6 +923,7 @@ export var ProjectLink = {
             },
             type: {
                 serializedName: "type",
+                required: true,
                 type: {
                     name: "String"
                 }
@@ -1031,12 +1037,14 @@ export var ComponentOffer = {
             },
             scope: {
                 serializedName: "scope",
+                required: true,
                 type: {
                     name: "String"
                 }
             },
             type: {
                 serializedName: "type",
+                required: true,
                 type: {
                     name: "String"
                 }
@@ -1148,12 +1156,14 @@ export var ProviderData = {
             },
             scope: {
                 serializedName: "scope",
+                required: true,
                 type: {
                     name: "String"
                 }
             },
             dataType: {
                 serializedName: "dataType",
+                required: true,
                 type: {
                     name: "String"
                 }
@@ -1161,6 +1171,40 @@ export var ProviderData = {
             stringValue: {
                 serializedName: "stringValue",
                 readOnly: true,
+                type: {
+                    name: "String"
+                }
+            }
+        }
+    }
+};
+export var StringDictionaryDataResult = {
+    type: {
+        name: "Composite",
+        className: "StringDictionaryDataResult",
+        modelProperties: {
+            code: {
+                serializedName: "code",
+                type: {
+                    name: "Number"
+                }
+            },
+            status: {
+                serializedName: "status",
+                type: {
+                    name: "String"
+                }
+            },
+            data: {
+                serializedName: "data",
+                readOnly: true,
+                type: {
+                    name: "Dictionary",
+                    value: { type: { name: "String" } }
+                }
+            },
+            location: {
+                serializedName: "location",
                 type: {
                     name: "String"
                 }
@@ -1446,12 +1490,14 @@ export var Provider = {
             },
             type: {
                 serializedName: "type",
+                required: true,
                 type: {
                     name: "String"
                 }
             },
             commandMode: {
                 serializedName: "commandMode",
+                required: true,
                 type: {
                     name: "String"
                 }
