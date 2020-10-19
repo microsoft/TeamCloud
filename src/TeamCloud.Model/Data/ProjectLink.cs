@@ -23,7 +23,7 @@ namespace TeamCloud.Model.Data
 
         public string Title { get; set; }
 
-        [JsonConverter(typeof(StringEnumConverter))]
+        [JsonProperty(Required = Required.Always)]
         public ProjectLinkType Type { get; set; }
             = ProjectLinkType.Link;
 

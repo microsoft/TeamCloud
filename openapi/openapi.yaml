@@ -364,7 +364,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StringStringDictionaryDataResult'
+                $ref: '#/components/schemas/ProjectLinkListDataResult'
         '400':
           description: A validation error occured.
           content:
@@ -456,7 +456,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StringStringDictionaryDataResult'
+                $ref: '#/components/schemas/ProjectLinkDataResult'
         '400':
           description: A validation error occured.
           content:
@@ -3224,6 +3224,7 @@ components:
     ProjectMembership:
       required:
         - projectId
+        - role
       type: object
       properties:
         projectId:
@@ -3244,6 +3245,8 @@ components:
     User:
       required:
         - id
+        - role
+        - userType
       type: object
       properties:
         id:
@@ -3487,6 +3490,8 @@ components:
         - id
         - providerId
         - requestedBy
+        - scope
+        - type
       type: object
       properties:
         id:
@@ -3607,29 +3612,11 @@ components:
           type: string
           nullable: true
       additionalProperties: false
-    StringStringDictionaryDataResult:
-      type: object
-      properties:
-        code:
-          type: integer
-          format: int32
-        status:
-          type: string
-          nullable: true
-        data:
-          type: object
-          additionalProperties:
-            type: string
-          nullable: true
-          readOnly: true
-        location:
-          type: string
-          nullable: true
-      additionalProperties: false
     ProjectLink:
       required:
         - href
         - id
+        - type
       type: object
       properties:
         id:
@@ -3647,6 +3634,25 @@ components:
             - GitRepository
             - AzureResource
           type: string
+      additionalProperties: false
+    ProjectLinkListDataResult:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        status:
+          type: string
+          nullable: true
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProjectLink'
+          nullable: true
+          readOnly: true
+        location:
+          type: string
+          nullable: true
       additionalProperties: false
     ProjectLinkDataResult:
       type: object
@@ -3667,6 +3673,8 @@ components:
       required:
         - id
         - providerId
+        - scope
+        - type
       type: object
       properties:
         id:
@@ -3730,7 +3738,10 @@ components:
       additionalProperties: false
     ProviderData:
       required:
+        - dataType
         - id
+        - scope
+        - value
       type: object
       properties:
         id:
@@ -3738,8 +3749,7 @@ components:
         name:
           type: string
           nullable: true
-        value:
-          nullable: true
+        value: { }
         location:
           type: string
           nullable: true
@@ -3773,6 +3783,25 @@ components:
           nullable: true
         data:
           $ref: '#/components/schemas/ProviderData'
+        location:
+          type: string
+          nullable: true
+      additionalProperties: false
+    StringStringDictionaryDataResult:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        status:
+          type: string
+          nullable: true
+        data:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+          readOnly: true
         location:
           type: string
           nullable: true
@@ -3874,7 +3903,9 @@ components:
     Provider:
       required:
         - authCode
+        - commandMode
         - id
+        - type
         - url
       type: object
       properties:

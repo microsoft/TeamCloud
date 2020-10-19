@@ -39,7 +39,7 @@ namespace TeamCloud.API.Controllers
         [HttpGet]
         [Authorize(Policy = AuthPolicies.ProjectRead)]
         [SwaggerOperation(OperationId = "GetProjectLinks", Summary = "Gets all Links for a Project.")]
-        [SwaggerResponse(StatusCodes.Status200OK, "Returns all Project Links", typeof(DataResult<Dictionary<string, string>>))]
+        [SwaggerResponse(StatusCodes.Status200OK, "Returns all Project Links", typeof(DataResult<List<ProjectLink>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found.", typeof(ErrorResult))]
         public Task<IActionResult> Get() => EnsureProjectAsync(async project =>
@@ -62,7 +62,7 @@ namespace TeamCloud.API.Controllers
         [HttpGet("{linkId}")]
         [Authorize(Policy = AuthPolicies.ProjectRead)]
         [SwaggerOperation(OperationId = "GetProjectLinkByKey", Summary = "Gets a Project Link by Key.")]
-        [SwaggerResponse(StatusCodes.Status200OK, "Returns Project Link", typeof(DataResult<Dictionary<string, string>>))]
+        [SwaggerResponse(StatusCodes.Status200OK, "Returns Project Link", typeof(DataResult<ProjectLink>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a Tag with the provided key was not found.", typeof(ErrorResult))]
         public Task<IActionResult> Get([FromRoute] string linkId) => EnsureProjectAsync(async project =>

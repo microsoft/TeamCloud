@@ -19,6 +19,7 @@ namespace TeamCloud.Model.Data
 
         public string Name { get; set; }
 
+        [JsonProperty(Required = Required.Always)]
         public object Value { get; set; }
 
         public string Location { get; set; }
@@ -27,8 +28,10 @@ namespace TeamCloud.Model.Data
 
         public bool IsShared { get; set; }
 
+        [JsonProperty(Required = Required.Always)]
         public ProviderDataScope Scope { get; set; }
 
+        [JsonProperty(Required = Required.Always)]
         public ProviderDataType DataType { get; set; }
 
         public string StringValue => Value.ToString();

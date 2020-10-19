@@ -25,8 +25,10 @@ namespace TeamCloud.Model.Data
 
         public string InputJsonSchema { get; set; }
 
+        [JsonProperty(Required = Required.Always)]
         public ComponentScope Scope { get; set; }
 
+        [JsonProperty(Required = Required.Always)]
         public ComponentType Type { get; set; }
 
 

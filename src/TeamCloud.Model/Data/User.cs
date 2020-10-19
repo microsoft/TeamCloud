@@ -17,8 +17,10 @@ namespace TeamCloud.Model.Data
         [JsonProperty(Required = Required.Always)]
         public string Id { get; set; }
 
+        [JsonProperty(Required = Required.Always)]
         public UserType UserType { get; set; }
 
+        [JsonProperty(Required = Required.Always)]
         public TeamCloudUserRole Role { get; set; }
 
         public IList<ProjectMembership> ProjectMemberships { get; set; } = new List<ProjectMembership>();

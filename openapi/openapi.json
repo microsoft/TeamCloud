@@ -581,7 +581,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/StringStringDictionaryDataResult"
+                  "$ref": "#/components/schemas/ProjectLinkListDataResult"
                 }
               }
             }
@@ -731,7 +731,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/StringStringDictionaryDataResult"
+                  "$ref": "#/components/schemas/ProjectLinkDataResult"
                 }
               }
             }
@@ -5206,7 +5206,8 @@
       },
       "ProjectMembership": {
         "required": [
-          "projectId"
+          "projectId",
+          "role"
         ],
         "type": "object",
         "properties": {
@@ -5234,7 +5235,9 @@
       },
       "User": {
         "required": [
-          "id"
+          "id",
+          "role",
+          "userType"
         ],
         "type": "object",
         "properties": {
@@ -5571,7 +5574,9 @@
         "required": [
           "id",
           "providerId",
-          "requestedBy"
+          "requestedBy",
+          "scope",
+          "type"
         ],
         "type": "object",
         "properties": {
@@ -5740,36 +5745,11 @@
         },
         "additionalProperties": false
       },
-      "StringStringDictionaryDataResult": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "status": {
-            "type": "string",
-            "nullable": true
-          },
-          "data": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "string"
-            },
-            "nullable": true,
-            "readOnly": true
-          },
-          "location": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
       "ProjectLink": {
         "required": [
           "href",
-          "id"
+          "id",
+          "type"
         ],
         "type": "object",
         "properties": {
@@ -5792,6 +5772,32 @@
               "AzureResource"
             ],
             "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProjectLinkListDataResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProjectLink"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -5820,7 +5826,9 @@
       "ComponentOffer": {
         "required": [
           "id",
-          "providerId"
+          "providerId",
+          "scope",
+          "type"
         ],
         "type": "object",
         "properties": {
@@ -5909,7 +5917,10 @@
       },
       "ProviderData": {
         "required": [
-          "id"
+          "dataType",
+          "id",
+          "scope",
+          "value"
         ],
         "type": "object",
         "properties": {
@@ -5920,9 +5931,7 @@
             "type": "string",
             "nullable": true
           },
-          "value": {
-            "nullable": true
-          },
+          "value": { },
           "location": {
             "type": "string",
             "nullable": true
@@ -5968,6 +5977,32 @@
           },
           "data": {
             "$ref": "#/components/schemas/ProviderData"
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "StringStringDictionaryDataResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "nullable": true,
+            "readOnly": true
           },
           "location": {
             "type": "string",
@@ -6109,7 +6144,9 @@
       "Provider": {
         "required": [
           "authCode",
+          "commandMode",
           "id",
+          "type",
           "url"
         ],
         "type": "object",

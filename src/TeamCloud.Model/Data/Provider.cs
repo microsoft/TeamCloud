@@ -41,8 +41,10 @@ namespace TeamCloud.Model.Data
 
         public DateTime? Registered { get; set; }
 
+        [JsonProperty(Required = Required.Always)]
         public ProviderType Type { get; set; }
 
+        [JsonProperty(Required = Required.Always)]
         public ProviderCommandMode CommandMode { get; set; }
             = ProviderCommandMode.Simple;
 
