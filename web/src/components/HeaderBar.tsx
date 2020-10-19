@@ -2,10 +2,10 @@
 // Licensed under the MIT License.
 
 import React from 'react';
-import { UserInfo } from '.';
 import { Text, ITextStyles, Stack, getTheme, IStackStyles } from '@fluentui/react';
-import { GraphUser, User } from '../model';
-// import { User } from 'teamcloud';
+import { UserInfo } from '.';
+import { User } from 'teamcloud';
+import { GraphUser } from '../model';
 
 export interface IHeaderBarProps {
     user?: User;

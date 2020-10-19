@@ -3,8 +3,9 @@
 
 import React, { useState } from 'react';
 import { Stack, Dropdown, IDropdownOption, Label, Panel, PrimaryButton, DefaultButton, Spinner, Text } from '@fluentui/react';
-import { ProjectUserRole, Project, UserDefinition, ErrorResult, StatusResult, GraphUser } from '../model';
-import { createProjectUser } from '../API';
+import { ProjectMembershipRole, Project, UserDefinition, ErrorResult, StatusResult } from 'teamcloud';
+import { GraphUser } from '../model'
+import { api } from '../API';
 import { ProjectMemberPicker } from '.';
 
 export interface IProjectMembersFormProps {
@@ -17,7 +18,7 @@ export const ProjectMembersForm: React.FunctionComponent<IProjectMembersFormProp
 
     const [formEnabled, setFormEnabled] = useState<boolean>(true);
     const [userIdentifiers, setUserIdentifiers] = useState<string[]>();
-    const [userRole, setUserRole] = useState<ProjectUserRole>();
+    const [userRole, setUserRole] = useState<ProjectMembershipRole>();
     const [errorText, setErrorText] = useState<string>();
 
     const _submitForm = async () => {
@@ -28,7 +29,7 @@ export const ProjectMembersForm: React.FunctionComponent<IProjectMembersFormProp
                 role: userRole
             }));
             const results = await Promise
-                .all(userDefinitions.map(async d => await createProjectUser(props.project.id, d)));
+                .all(userDefinitions.map(async d => await api.createProjectUser(props.project.id, { body: d })));
 
             let errors: ErrorResult[] = [];
             results.forEach(r => {
@@ -52,11 +53,11 @@ export const ProjectMembersForm: React.FunctionComponent<IProjectMembersFormProp
     };
 
     const _projectRoleOptions = (): IDropdownOption[] => {
-        return [ProjectUserRole.Member, ProjectUserRole.Owner].map(r => ({ key: r, text: r } as IDropdownOption));
+        return ['Member', 'Owner'].map(r => ({ key: r, text: r } as IDropdownOption));
     };
 
     const _onUserRoleDropdownChange = (event: React.FormEvent<HTMLDivElement>, option?: IDropdownOption): void => {
-        setUserRole(option ? option.key as ProjectUserRole : undefined);
+        setUserRole(option ? option.key as ProjectMembershipRole : undefined);
     };
 
     const _onMembersChanged = (users?: GraphUser[]) => {

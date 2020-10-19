@@ -6,9 +6,10 @@ import { initializeIcons } from '@uifabric/icons';
 import { BrowserRouter, Switch, Route, useParams } from 'react-router-dom';
 import { HeaderBar } from './components';
 import { Error404, ProjectDetailView, ProjectsView, ProvidersView, ProjectTypesView } from './view';
-import { Project, User, GraphUser, DataResult } from './model';
-import { getUser } from './API';
+import { GraphUser } from './model';
+import { Project, User } from 'teamcloud';
 import { getMe } from './MSGraph';
+import { api } from './API';
 
 interface IAppProps {
     onSignOut: () => void;
@@ -29,9 +30,8 @@ export const App: React.FunctionComponent<IAppProps> = (props) => {
                 setGraphUser(result);
                 if (result && user === undefined) {
                     const _setUser = async (gu: GraphUser) => {
-                        const result = await getUser(gu.id);
-                        const data = (result as DataResult<User>).data;
-                        setUser(data)
+                        const result = await api.getTeamCloudUserByNameOrId(gu.id);
+                        setUser(result.data)
                     };
                     _setUser(result);
                 }
@@ -78,7 +78,7 @@ interface IProjectViewWrapperProps {
 }
 
 function ProjectViewWrapper(props: IProjectViewWrapperProps) {
-    let { projectId } = useParams();
+    let { projectId } = useParams() as { projectId: string };
     return <ProjectDetailView projectId={projectId} project={props.project} user={props.user} />;
 }
 

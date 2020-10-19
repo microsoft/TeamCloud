@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import React, { useState } from 'react';
-import { Project } from '../model';
+import { Project } from 'teamcloud';
 import { Link, useHistory } from 'react-router-dom';
 import { ShimmeredDetailsList, DetailsListLayoutMode, IColumn, CommandButton, IContextualMenuProps, IContextualMenuItem, IRenderFunction, IDetailsRowProps, CheckboxVisibility, SelectionMode, Dialog, DialogType, DialogFooter, PrimaryButton, DefaultButton } from '@fluentui/react';
 

@@ -2,11 +2,12 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect } from 'react';
-import { Properties, User, GraphUser, TeamCloudUserRole } from '../model';
-import { PrimaryButton, DefaultButton, Panel, Stack, TextField, Dropdown, Label, Spinner, Persona, PersonaSize } from '@fluentui/react';
+import { PrimaryButton, DefaultButton, Panel, Stack, TextField, Dropdown, Label, Spinner, Persona, PersonaSize, Text } from '@fluentui/react';
+import { GraphUser, Properties } from '../model'
+import { User, UserRole } from 'teamcloud';
+import { api } from '../API'
 
 export interface IUserFormProps {
-    // user: User;
     me: boolean;
     user?: User;
     graphUser?: GraphUser;
@@ -17,8 +18,9 @@ export interface IUserFormProps {
 export const UserForm: React.FunctionComponent<IUserFormProps> = (props) => {
 
     const [formEnabled, setFormEnabled] = useState<boolean>(true);
-    const [userRole, setUserRole] = useState<TeamCloudUserRole>();
+    const [userRole, setUserRole] = useState<UserRole>();
     const [userProperties, setUserProperties] = useState<Properties>();
+    const [errorText, setErrorText] = useState<string>();
 
     useEffect(() => {
         setUserRole(props.user?.role)
@@ -32,16 +34,32 @@ export const UserForm: React.FunctionComponent<IUserFormProps> = (props) => {
 
 
     const _submitForm = async () => {
-        setFormEnabled(false);
-        if ((userRole && userRole !== props.user?.role)
-            || (userProperties && userProperties !== props.user?.properties)) {
-            // const result = await updateProjectUser(projectDefinition);
-            // if ((result as StatusResult).code === 202)
-            //     _resetAndCloseForm();
-            // else if ((result as ErrorResult).errors) {
-            //     // console.log(JSON.stringify(result));
-            //     setErrorText((result as ErrorResult).status);
-            // }
+        if (props.user) {
+            setFormEnabled(false);
+            if ((userRole && userRole !== props.user.role)
+                || (userProperties && userProperties !== props.user!.properties)) {
+
+                const newProps: Properties = {}
+                for (const k in userProperties)
+                    if (k !== '' && userProperties[k] !== '')
+                        newProps[k] = userProperties[k]
+
+                const user = props.user;
+                user.role = userRole ?? props.user.role;
+                user.properties = newProps;
+
+                const result = await api.updateTeamCloudUser(props.user!.id, { body: user });
+
+                if (result.code === 202) {
+                    props.user = user;
+                    _resetAndCloseForm();
+                } else {
+                    // console.log(JSON.stringify(result));
+                    setErrorText(result.status);
+                }
+            } else {
+                setErrorText('nothing changed')
+            }
         }
     };
 
@@ -99,13 +117,6 @@ export const UserForm: React.FunctionComponent<IUserFormProps> = (props) => {
         )
     };
 
-    // const _roleDropdownDisabled = () => {
-    //     return !formEnabled || (props.member?.projectMembership.role === ProjectUserRole.Owner
-    //         && props.project.users.filter(u => u.userType === UserType.User
-    //             && u.projectMemberships
-    //             && u.projectMemberships!.find(pm => pm.projectId === props.project.id && pm.role === ProjectUserRole.Owner)).length === 1)
-    // };
-
     return (
         <Panel
             headerText='Edit'
@@ -131,21 +142,17 @@ export const UserForm: React.FunctionComponent<IUserFormProps> = (props) => {
                     <Dropdown
                         required
                         label='Role'
-                        // errorMessage='Project Type is required.'
-                        // placeholder='Select a Project Type'
-                        // disabled={_roleDropdownDisabled()}
                         disabled
                         selectedKey={userRole}
-                        // defaultSelectedKey={projectRole as string}
-                        options={[TeamCloudUserRole.Admin, TeamCloudUserRole.Creator].map(r => ({ key: r, text: r, data: r }))}
-                        onChange={(_ev, val) => setUserRole(val?.key ? TeamCloudUserRole[val.key as keyof typeof TeamCloudUserRole] : undefined)} />
+                        options={['Admin', 'Creator'].map(r => ({ key: r, text: r, data: r }))}
+                        onChange={(_ev, val) => setUserRole(val?.key ? val.key as UserRole : undefined)} />
                 </Stack.Item>
                 <Stack.Item>
                     <Label>Properties</Label>
                     {_getPropertiesTextFields()}
                 </Stack.Item>
             </Stack>
-            {/* <Text>{errorText}</Text> */}
+            <Text>{errorText}</Text>
         </Panel>
     );
 }

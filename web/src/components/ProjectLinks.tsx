@@ -2,14 +2,14 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect } from 'react';
-import { ProjectLink, ProjectLinkType, Project, DataResult } from '../model';
 import { Stack, Shimmer, DefaultButton, IButtonStyles, getTheme, Image } from '@fluentui/react';
+import { ProjectLink, Project } from 'teamcloud';
 import { ProjectDetailCard } from './ProjectDetailCard';
 import AppInsights from '../img/appinsights.svg';
-import DevOps from '../img/devops.svg';
 import DevTestLabs from '../img/devtestlabs.svg';
+import DevOps from '../img/devops.svg';
 import GitHub from '../img/github.svg';
-import { getProjectLinks } from '../API';
+import { api } from '../API';
 
 
 export interface IProjectLinksProps {
@@ -18,15 +18,13 @@ export interface IProjectLinksProps {
 
 export const ProjectLinks: React.FunctionComponent<IProjectLinksProps> = (props) => {
 
-    const [links, setLinks] = useState<ProjectLink[]>();
+    const [projectLinks, setProjectLinks] = useState<ProjectLink[]>();
 
     useEffect(() => {
         if (props.project) {
             const _setLinks = async () => {
-                const result = await getProjectLinks(props.project.id);
-                const data = (result as DataResult<ProjectLink[]>).data;
-                // let _links = ExampleProjectLinks;
-                setLinks(data);
+                const result = await api.getProjectLinks(props.project.id);
+                setProjectLinks(result.data);
             };
             _setLinks();
         }
@@ -44,14 +42,15 @@ export const ProjectLinks: React.FunctionComponent<IProjectLinksProps> = (props)
     }
 
     const _getLinkTypeIcon = (link: ProjectLink) => {
-        switch (link.type) { // VisualStudioIDELogo32
-            case ProjectLinkType.Link: return 'Link'; // Link12, FileSymlink, OpenInNewWindow, VSTSLogo
-            case ProjectLinkType.Readme: return 'PageList'; // Preview, Copy, FileHTML, FileCode, MarkDownLanguage, Document
-            case ProjectLinkType.Service: return 'Processing'; // Settings, Globe, Repair
-            case ProjectLinkType.AzureResource: return 'AzureLogo'; // AzureServiceEndpoint
-            case ProjectLinkType.GitRepository: return 'OpenSource';
-            default: return undefined;
-        }
+        if (link.type)
+            switch (link.type) { // VisualStudioIDELogo32
+                case 'Link': return 'Link'; // Link12, FileSymlink, OpenInNewWindow, VSTSLogo
+                case 'Readme': return 'PageList'; // Preview, Copy, FileHTML, FileCode, MarkDownLanguage, Document
+                case 'Service': return 'Processing'; // Settings, Globe, Repair
+                case 'AzureResource': return 'AzureLogo'; // AzureServiceEndpoint
+                case 'GitRepository': return 'OpenSource';
+                default: return undefined;
+            }
     }
 
     const theme = getTheme();
@@ -69,30 +68,33 @@ export const ProjectLinks: React.FunctionComponent<IProjectLinksProps> = (props)
         }
     }
 
-    const _linkTypes = [ProjectLinkType.AzureResource, ProjectLinkType.Service, ProjectLinkType.GitRepository, ProjectLinkType.Readme, ProjectLinkType.Link];
+    const _linkTypes = ['AzureResource', 'Service', 'GitRepository', 'Readme', 'Link'];
 
-    const _getLinkStacks = () => links?.sort((a, b) => _linkTypes.indexOf(a.type) - _linkTypes.indexOf(b.type)).map(l => (
-        <Stack key={l.id} horizontal tokens={{ childrenGap: '12px' }}>
-            <Stack.Item styles={{ root: { width: '100%' } }}>
-                <DefaultButton
-                    iconProps={{ iconName: _getLinkTypeIcon(l) }}
-                    text={l.title}
-                    href={l.href}
-                    target='_blank'
-                    styles={_linkButtonStyles} >
-                    <Image
-                        src={_findKnownProviderImage(l)}
-                        height={24} width={24} />
-                </DefaultButton>
-            </Stack.Item>
-        </Stack>
-    ));
+    const _getLinkStacks = (): JSX.Element[] => projectLinks ?
+        projectLinks
+            .sort((a, b) => _linkTypes.indexOf(a.type) - _linkTypes.indexOf(b.type))
+            .map(l => (
+                <Stack key={l.id} horizontal tokens={{ childrenGap: '12px' }}>
+                    <Stack.Item styles={{ root: { width: '100%' } }}>
+                        <DefaultButton
+                            iconProps={{ iconName: _getLinkTypeIcon(l) }}
+                            text={l.title}
+                            href={l.href}
+                            target='_blank'
+                            styles={_linkButtonStyles} >
+                            <Image
+                                src={_findKnownProviderImage(l)}
+                                height={24} width={24} />
+                        </DefaultButton>
+                    </Stack.Item>
+                </Stack>
+            )) : [];
 
     return (
-        <ProjectDetailCard title='Links' callout={links?.length.toString()}>
+        <ProjectDetailCard title='Links' callout={projectLinks?.length?.toString() ?? '0'}>
             <Shimmer
                 // customElementsGroup={_getShimmerElements()}
-                isDataLoaded={links !== undefined}
+                isDataLoaded={projectLinks !== undefined}
                 width={152} >
                 <Stack tokens={{ childrenGap: '0' }} >
                     {_getLinkStacks()}

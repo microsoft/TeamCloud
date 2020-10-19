@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { Panel, Stack, Label, Text, ITextStyles, FontWeights } from '@fluentui/react';
-import { ProjectType } from '../model';
+import { ProjectType } from 'teamcloud';
 
 
 export interface IProjectTypePanelProps {
@@ -29,7 +29,7 @@ export const ProjectTypePanel: React.FunctionComponent<IProjectTypePanelProps> =
                     { label: 'Default', value: props.projectType?.isDefault ? 'Yes' : 'No' },
                     { label: 'Location', value: props.projectType?.region },
                     { label: 'Providers', value: props.projectType?.providers.map(p => p.id).join(', ') },
-                    { label: 'Subscription Capacity', value: props.projectType?.subscriptionCapacity.toString() },
+                    { label: 'Subscription Capacity', value: props.projectType?.subscriptionCapacity?.toString() },
                     { label: 'Subscriptions', value: props.projectType?.subscriptions.join(', ') },
                     { label: 'Resource Group Name Prefix', value: props.projectType?.resourceGroupNamePrefix ?? '' },
                 ]

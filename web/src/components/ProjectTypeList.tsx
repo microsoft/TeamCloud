@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import React from 'react';
-import { ProjectType } from '../model';
+import { ProjectType } from 'teamcloud';
 import { Link, ShimmeredDetailsList, DetailsListLayoutMode, IColumn, IRenderFunction, IDetailsRowProps, SelectionMode, CheckboxVisibility } from '@fluentui/react';
 
 export interface IProjectTypeListProps {

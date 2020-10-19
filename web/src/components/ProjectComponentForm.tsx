@@ -2,13 +2,12 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect } from 'react';
-import { DataResult, Project, ComponentOffer, ComponentRequest, User, StatusResult, ErrorResult } from '../model'
-// import { Project, ComponentOffer, ComponentRequest, User, StatusResult, ErrorResult } from 'teamcloud';
-import { getProjectOffers, createProjectComponent } from '../API';
+import { Project, ComponentOffer, ComponentRequest, User } from 'teamcloud';
 import { DefaultButton, Dropdown, IDropdownOption, Panel, PrimaryButton, Spinner, Stack, Text } from '@fluentui/react';
 import { FuiForm } from '@rjsf/fluent-ui'
-import { JSONSchema7 } from 'json-schema'
+// import { JSONSchema7 } from 'json-schema'
 import { ISubmitEvent } from '@rjsf/core';
+import { api } from '../API';
 
 export interface IProjectComponentFormProps {
     user?: User;
@@ -22,7 +21,7 @@ export const ProjectComponentForm: React.FunctionComponent<IProjectComponentForm
     const [offer, setOffer] = useState<ComponentOffer>();
     const [offers, setOffers] = useState<ComponentOffer[]>();
     const [offerOptions, setOfferOptions] = useState<IDropdownOption[]>();
-    const [offerInputSchema, setOfferInputSchema] = useState<JSONSchema7>();
+    // const [offerInputSchema, setOfferInputSchema] = useState<JSONSchema7>();
     const [formEnabled, setFormEnabled] = useState<boolean>(true);
     const [errorText, setErrorText] = useState<string>();
     // const [components, setComponents] = useState<Component[]>();
@@ -31,10 +30,9 @@ export const ProjectComponentForm: React.FunctionComponent<IProjectComponentForm
     useEffect(() => {
         if (props.project) {
             const _setOffers = async () => {
-                const result = await getProjectOffers(props.project.id!);
-                const data = (result as DataResult<ComponentOffer[]>).data;
-                setOffers(data);
-                setOfferOptions(_offerOptions(data));
+                const result = await api.getProjectOffers(props.project.id!);
+                setOffers(result.data);
+                setOfferOptions(_offerOptions(result.data));
             };
             _setOffers();
         }
@@ -48,12 +46,12 @@ export const ProjectComponentForm: React.FunctionComponent<IProjectComponentForm
                 offerId: offer.id,
                 inputJson: JSON.stringify(e.formData)
             };
-            const result = await createProjectComponent(props.project.id!, request);
-            if ((result as StatusResult).code === 202)
+            const result = await api.createProjectComponent(props.project.id, { body: request });
+            if (result.code === 202)
                 _resetAndCloseForm();
-            else if ((result as ErrorResult).errors) {
+            else {
                 // console.log(JSON.stringify(result));
-                setErrorText((result as ErrorResult).status);
+                setErrorText(result.status);
             }
         }
     };
@@ -64,7 +62,7 @@ export const ProjectComponentForm: React.FunctionComponent<IProjectComponentForm
         props.onFormClose();
     };
 
-    const _offerOptions = (data: ComponentOffer[]): IDropdownOption[] => {
+    const _offerOptions = (data?: ComponentOffer[]): IDropdownOption[] => {
         if (!data) return [];
         return data.map(pt => ({ key: pt.id, text: pt.id } as IDropdownOption));
     };

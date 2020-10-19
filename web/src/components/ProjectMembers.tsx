@@ -2,7 +2,8 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect } from 'react';
-import { ProjectMember, UserType, Project, StatusResult, ErrorResult, ProjectUserRole, User } from '../model';
+import { ProjectMember } from '../model'
+import { Project, ErrorResult, User } from 'teamcloud';
 import { Stack, Facepile, IFacepilePersona, PersonaSize, IRenderFunction, HoverCard, HoverCardType, Persona, Shimmer, ShimmerElementsGroup, ShimmerElementType, CommandBar, ICommandBarItemProps, Separator, Label, Text } from '@fluentui/react';
 import { getGraphUser, getGraphDirectoryObject } from '../MSGraph';
 import { ProjectDetailCard, ProjectMembersForm } from '.';
@@ -10,7 +11,7 @@ import AppInsights from '../img/appinsights.svg';
 import DevOps from '../img/devops.svg';
 import DevTestLabs from '../img/devtestlabs.svg';
 import GitHub from '../img/github.svg';
-import { deleteProjectUser } from '../API';
+import { api } from '../API';
 
 
 export interface IProjectMembersProps {
@@ -29,7 +30,7 @@ export const ProjectMembers: React.FunctionComponent<IProjectMembersProps> = (pr
             const _setMembers = async () => {
                 let _members = await Promise.all(props.project.users.map(async u => ({
                     user: u,
-                    graphUser: u.userType === UserType.User ? await getGraphUser(u.id) : u.userType === UserType.Provider ? await getGraphDirectoryObject(u.id) : undefined,
+                    graphUser: u.userType === 'User' ? await getGraphUser(u.id) : u.userType === 'Provider' ? await getGraphDirectoryObject(u.id) : undefined,
                     projectMembership: u.projectMemberships!.find(m => m.projectId === props.project.id)!
                 })));
                 setMembers(_members);
@@ -39,8 +40,8 @@ export const ProjectMembers: React.FunctionComponent<IProjectMembersProps> = (pr
     }, [props.project]);
 
     const _removeMemberFromProject = async (member: ProjectMember) => {
-        let result = await deleteProjectUser(props.project.id, member.user.id);
-        if ((result as StatusResult).code !== 202 && (result as ErrorResult).errors) {
+        let result = await api.deleteProjectUser(member.user.id, props.project.id);
+        if (result.code !== 202 && (result as ErrorResult).errors) {
             console.log(result as ErrorResult);
         }
     };
@@ -56,14 +57,14 @@ export const ProjectMembers: React.FunctionComponent<IProjectMembersProps> = (pr
     };
 
     const _removeButtonDisabled = (member: ProjectMember) => {
-        return member.projectMembership.role === ProjectUserRole.Owner
-            && props.project.users.filter(u => u.userType === UserType.User
+        return member.projectMembership.role === 'Owner'
+            && props.project.users.filter(u => u.userType === 'User'
                 && u.projectMemberships
-                && u.projectMemberships!.find(pm => pm.projectId === props.project.id && pm.role === ProjectUserRole.Owner)).length === 1
+                && u.projectMemberships!.find(pm => pm.projectId === props.project.id && pm.role === 'Owner')).length === 1
     };
 
     const _userIsProjectOwner = () =>
-        props.user?.projectMemberships?.find(m => m.projectId === props.project.id)?.role === ProjectUserRole.Owner;
+        props.user?.projectMemberships?.find(m => m.projectId === props.project.id)?.role === 'Owner';
 
     const _getCommandBarItems = (): ICommandBarItemProps[] => [
         { key: 'addUser', text: 'Add', iconProps: { iconName: 'PeopleAdd' }, onClick: () => { setAddMembersPanelOpen(true) }, disabled: !_userIsProjectOwner() },
@@ -95,7 +96,7 @@ export const ProjectMembers: React.FunctionComponent<IProjectMembersProps> = (pr
         if (defaultRender && props?.data) {
             let _onRenderPlainCard = (): JSX.Element | null => {
                 let member: ProjectMember = props.data;
-                let _isUserType = member.user.userType === UserType.User;
+                let _isUserType = member.user.userType === 'User';
                 let _getCommandBar = _isUserType ?
                     (<>
                         <Stack.Item>

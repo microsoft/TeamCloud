@@ -7,12 +7,6 @@ import { AccessToken, TokenCredential } from '@azure/core-auth'
 
 export class Auth implements TokenCredential {
 
-
-
-    constructor() {
-
-    }
-
     _getClientId = () => {
         if (!process.env.REACT_APP_MSAL_CLIENT_ID) throw new Error('Must set env variable $REACT_APP_MSAL_CLIENT_ID');
         return process.env.REACT_APP_MSAL_CLIENT_ID;
@@ -66,7 +60,7 @@ export class Auth implements TokenCredential {
         if (!scopes.includes(tcwebScope))
             scopes.push(tcwebScope);
 
-        scopes.forEach(scope => console.warn(`scope: ${scope}`));
+        // scopes.forEach(scope => console.warn(`scope: ${scope}`));
 
         var authParameters: AuthenticationParameters = { scopes: scopes };
         var authResponse = await this.authProvider.getAccessToken(authParameters);

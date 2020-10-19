@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { Panel, Stack, Label, Text, ITextStyles, FontWeights } from '@fluentui/react';
-import { Provider } from '../model';
+import { Provider } from 'teamcloud';
 
 export interface IProviderPanelProps {
     provider?: Provider;
@@ -26,9 +26,11 @@ export const ProviderPanel: React.FunctionComponent<IProviderPanelProps> = (prop
             {
                 title: 'Provider', details: [
                     { label: 'ID', value: props.provider?.id },
+                    { label: 'Type', value: props.provider?.type },
+                    { label: 'Version', value: props.provider?.version },
                     { label: 'Url', value: props.provider?.url },
                     { label: 'Principal Id', value: props.provider?.principalId },
-                    { label: 'Registered', value: props.provider?.registered },
+                    { label: 'Registered', value: props.provider?.registered?.toDateString() },
                     { label: 'Command Mode', value: props.provider?.commandMode },
                 ]
             },
@@ -51,7 +53,9 @@ export const ProviderPanel: React.FunctionComponent<IProviderPanelProps> = (prop
                 </Stack>
             ));
             return (
-                <Stack tokens={{ childrenGap: 10 }}>
+                <Stack
+                    tokens={{ childrenGap: 10 }}
+                    key={s.title}>
                     <Text styles={_titleStyles}>{s.title}</Text>
                     {details}
                 </Stack>

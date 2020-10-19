@@ -2,9 +2,10 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect } from 'react';
-import { ProjectUserRole, Project, UserType, Properties, ProjectMembership, StatusResult, ErrorResult, GraphUser, User } from '../model';
 import { PrimaryButton, DefaultButton, Panel, Stack, TextField, Dropdown, Label, Spinner, Persona, PersonaSize, Text } from '@fluentui/react';
-import { updateProjectUser } from '../API';
+import { ProjectMembershipRole, Project, ProjectMembership, User } from 'teamcloud';
+import { GraphUser, Properties } from '../model'
+import { api } from '../API';
 
 export interface IProjectMemberFormProps {
     user?: User;
@@ -18,7 +19,7 @@ export const ProjectMemberForm: React.FunctionComponent<IProjectMemberFormProps>
 
     const [formEnabled, setFormEnabled] = useState<boolean>(true);
     const [projectMembership, setProjectMembership] = useState<ProjectMembership>();
-    const [newProjectRole, setNewProjectRole] = useState<ProjectUserRole>();
+    const [newProjectRole, setNewProjectRole] = useState<ProjectMembershipRole>();
     const [newProjectProperties, setNewProjectProperties] = useState<Properties>();
     const [errorText, setErrorText] = useState<string>();
 
@@ -58,12 +59,12 @@ export const ProjectMemberForm: React.FunctionComponent<IProjectMemberFormProps>
                 const index = props.user.projectMemberships?.findIndex(m => m.projectId === projectMembership.projectId)
                 if (index !== undefined && index >= 0) {
                     props.user.projectMemberships![index] = newProjectMembership;
-                    const result = await updateProjectUser(props.project.id, props.user)
-                    if ((result as StatusResult).code === 202)
+                    const result = await api.updateProjectUser(props.user.id, props.project.id, { body: props.user });
+                    if (result.code === 202)
                         _resetAndCloseForm();
-                    else if ((result as ErrorResult).errors) {
+                    else {
                         // console.log(JSON.stringify(result));
-                        setErrorText((result as ErrorResult).status);
+                        setErrorText(result.status);
                     }
                 } else {
                     setErrorText('index not found')
@@ -131,10 +132,10 @@ export const ProjectMemberForm: React.FunctionComponent<IProjectMemberFormProps>
     };
 
     const _roleDropdownDisabled = () => {
-        return !formEnabled || !projectMembership || (projectMembership.role === ProjectUserRole.Owner
-            && props.project.users.filter(u => u.userType === UserType.User
+        return !formEnabled || !projectMembership || (projectMembership.role === 'Owner'
+            && props.project.users.filter(u => u.userType === 'User'
                 && u.projectMemberships
-                && u.projectMemberships!.find(pm => pm.projectId === props.project.id && pm.role === ProjectUserRole.Owner)).length === 1)
+                && u.projectMemberships!.find(pm => pm.projectId === props.project.id && pm.role === 'Owner')).length === 1)
     };
 
     return (
@@ -162,13 +163,10 @@ export const ProjectMemberForm: React.FunctionComponent<IProjectMemberFormProps>
                     <Dropdown
                         required
                         label='Role'
-                        // errorMessage='Project Type is required.'
-                        // placeholder='Select a Project Type'
                         disabled={_roleDropdownDisabled()}
                         selectedKey={newProjectRole}
-                        // defaultSelectedKey={projectRole as string}
-                        options={[ProjectUserRole.Owner, ProjectUserRole.Member].map(r => ({ key: r, text: r, data: r }))}
-                        onChange={(_ev, val) => setNewProjectRole(val?.key ? ProjectUserRole[val.key as keyof typeof ProjectUserRole] : undefined)} />
+                        options={['Owner', 'Member'].map(r => ({ key: r, text: r, data: r }))}
+                        onChange={(_ev, val) => setNewProjectRole(val?.key ? val.key as ProjectMembershipRole : undefined)} />
                 </Stack.Item>
                 <Stack.Item>
                     <Label>Properties</Label>

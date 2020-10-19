@@ -3,9 +3,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { ICommandBarItemProps, SearchBox, Stack, IBreadcrumbItem } from '@fluentui/react';
-import { getProjectTypes } from '../API'
-import { Project, DataResult, ProjectType, User, TeamCloudUserRole } from '../model'
 import { SubheaderBar, ProjectTypeForm, ProjectTypeList, ProjectTypePanel } from "../components";
+import { Project, ProjectType, User } from 'teamcloud'
+import { api } from '../API';
 
 export interface IProjectTypesViewProps {
     user?: User;
@@ -24,21 +24,19 @@ export const ProjectTypesView: React.FunctionComponent<IProjectTypesViewProps> =
     useEffect(() => {
         if (projectTypes === undefined) {
             const _setProjectTypes = async () => {
-                const result = await getProjectTypes();
-                const data = (result as DataResult<ProjectType[]>).data;
-                setProjectTypes(data);
+                const result = await api.getProjectTypes();
+                setProjectTypes(result.data);
             };
             _setProjectTypes();
         }
     }, [projectTypes]);
 
     const _refresh = async () => {
-        let result = await getProjectTypes();
-        let data = (result as DataResult<ProjectType[]>).data;
-        setProjectTypes(data);
+        let result = await api.getProjectTypes();
+        setProjectTypes(result.data);
     }
 
-    const _userCanCreateProjectTypes = () => props.user?.role === TeamCloudUserRole.Admin;
+    const _userCanCreateProjectTypes = () => props.user?.role === 'Admin';
 
     const _commandBarItems = (): ICommandBarItemProps[] => [
         { key: 'refresh', text: 'Refresh', iconProps: { iconName: 'refresh' }, onClick: () => { _refresh() } },

@@ -3,9 +3,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { Stack, TextField, Dropdown, IDropdownOption, Spinner, Panel, Text, PrimaryButton, DefaultButton, Label } from '@fluentui/react';
-import { ProjectType, DataResult, User, ProjectDefinition, ProjectUserRole, StatusResult, ErrorResult, UserDefinition, GraphUser } from '../model';
-import { getProjectTypes, createProject } from '../API';
+import { ProjectType, User, ProjectDefinition, ProjectMembershipRole, UserDefinition } from 'teamcloud';
 import { ProjectMemberPicker } from '.';
+import { GraphUser } from '../model'
+import { api } from '../API';
+
 
 export interface IProjectFormProps {
     user?: User;
@@ -26,10 +28,9 @@ export const ProjectForm: React.FunctionComponent<IProjectFormProps> = (props) =
     useEffect(() => {
         if (projectTypes === undefined) {
             const _setProjectTypes = async () => {
-                const result = await getProjectTypes()
-                const data = (result as DataResult<ProjectType[]>).data;
-                setProjectTypes(data);
-                setProjectTypeOptions(_projectTypeOptions(data));
+                const result = await api.getProjectTypes();
+                setProjectTypes(result.data);
+                setProjectTypeOptions(_projectTypeOptions(result.data));
             };
             _setProjectTypes();
         }
@@ -38,11 +39,11 @@ export const ProjectForm: React.FunctionComponent<IProjectFormProps> = (props) =
     const _submitForm = async () => {
         setFormEnabled(false);
         if (props.user && projectName && projectType) {
-            let userDefinitions: UserDefinition[] = [{ identifier: props.user.id, role: ProjectUserRole.Owner }];
+            let userDefinitions: UserDefinition[] = [{ identifier: props.user.id, role: 'Owner' as ProjectMembershipRole }];
             if (userIdentifiers?.length && userIdentifiers.length > 0) {
                 userDefinitions = userDefinitions.concat(userIdentifiers.map(i => ({
                     identifier: i,
-                    role: ProjectUserRole.Member
+                    role: 'Member' as ProjectMembershipRole
                 })));
             }
             const projectDefinition: ProjectDefinition = {
@@ -50,12 +51,12 @@ export const ProjectForm: React.FunctionComponent<IProjectFormProps> = (props) =
                 projectType: projectType.id,
                 users: userDefinitions
             };
-            const result = await createProject(projectDefinition);
-            if ((result as StatusResult).code === 202)
+            const result = await api.createProject({ body: projectDefinition });
+            if (result.code === 202)
                 _resetAndCloseForm();
-            else if ((result as ErrorResult).errors) {
+            else {
                 // console.log(JSON.stringify(result));
-                setErrorText((result as ErrorResult).status);
+                setErrorText(result.status);
             }
         }
     };
@@ -67,7 +68,7 @@ export const ProjectForm: React.FunctionComponent<IProjectFormProps> = (props) =
         props.onFormClose();
     };
 
-    const _projectTypeOptions = (data: ProjectType[]): IDropdownOption[] => {
+    const _projectTypeOptions = (data?: ProjectType[]): IDropdownOption[] => {
         if (!data) return [];
         return data.map(pt => ({ key: pt.id, text: pt.id } as IDropdownOption));
     };

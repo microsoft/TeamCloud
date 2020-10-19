@@ -2,15 +2,14 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect } from 'react';
-import { DataResult, Project, Component, User, StatusResult, ErrorResult } from '../model'
-// import { Project, Component, User, StatusResult, ErrorResult } from 'teamcloud';
+import { Project, Component, User, ErrorResult } from 'teamcloud';
 import { Stack, Shimmer, DefaultButton, IButtonStyles, getTheme, Image, ICommandBarItemProps, Dialog, DialogType, DialogFooter, PrimaryButton, IContextualMenuProps, IContextualMenuItem } from '@fluentui/react';
 import { ProjectDetailCard, ProjectComponentForm } from '.';
 import AppInsights from '../img/appinsights.svg';
 import DevOps from '../img/devops.svg';
 import DevTestLabs from '../img/devtestlabs.svg';
 import GitHub from '../img/github.svg';
-import { getProjectComponents, deleteProjectComponent } from '../API';
+import { api } from '../API';
 
 export interface IProjectComponentsProps {
     user?: User;
@@ -22,15 +21,14 @@ export const ProjectComponents: React.FunctionComponent<IProjectComponentsProps>
     const [component, setComponent] = useState<Component>();
     const [components, setComponents] = useState<Component[]>();
     const [addComponentPanelOpen, setAddComponentPanelOpen] = useState(false);
-    const [showContextualMenu, setShowContextualMenu] = useState(false);
+    // const [showContextualMenu, setShowContextualMenu] = useState(false);
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
     useEffect(() => {
         if (props.project) {
             const _setComponents = async () => {
-                const result = await getProjectComponents(props.project.id!);
-                const data = (result as DataResult<Component[]>).data;
-                setComponents(data);
+                const result = await api.getProjectComponents(props.project.id);
+                setComponents(result.data);
             };
             _setComponents();
         }
@@ -73,8 +71,8 @@ export const ProjectComponents: React.FunctionComponent<IProjectComponentsProps>
 
     const _onComponentDelete = async () => {
         if (component) {
-            const result = await deleteProjectComponent(props.project.id, component.id);
-            if ((result as StatusResult).code !== 202 && (result as ErrorResult).errors) {
+            const result = await api.deleteProjectComponent(component.id, props.project.id);
+            if (result.code !== 202 && (result as ErrorResult).errors) {
                 console.log(result as ErrorResult);
             }
             setComponent(undefined);
@@ -102,7 +100,7 @@ export const ProjectComponents: React.FunctionComponent<IProjectComponentsProps>
         }
     }
 
-    const _getComponentStacks = () => components?.sort((a, b) => a.offerId === b.offerId ? 0 : a.offerId > b.offerId ? 1 : -1).map(c => (
+    const _getComponentStacks = () => components?.sort((a, b) => a.offerId === b.offerId ? 0 : (a.offerId ?? '') > (b.offerId ?? '') ? 1 : -1).map(c => (
         <Stack key={c.id} horizontal tokens={{ childrenGap: '12px' }}>
             <Stack.Item styles={{ root: { width: '100%' } }}>
                 <DefaultButton

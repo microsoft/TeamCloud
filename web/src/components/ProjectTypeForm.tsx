@@ -4,12 +4,13 @@
 import React, { useState, useEffect } from 'react';
 import { Stack, TextField, Spinner, DefaultButton, IButtonStyles, getTheme, Image, ButtonType, Text, Label, Checkbox, SpinButton, Panel, PrimaryButton, ComboBox } from '@fluentui/react';
 import { Position } from 'office-ui-fabric-react/lib/utilities/positioning';
-import { ProjectType, Provider, DataResult, ProviderReference, StatusResult, ErrorResult, AzureRegions } from '../model';
-import { getProviders, createProjectType } from '../API';
+import { ProjectType, Provider, ProviderReference } from 'teamcloud';
+import { AzureRegions } from '../model'
 import AppInsights from '../img/appinsights.svg';
 import DevOps from '../img/devops.svg';
 import DevTestLabs from '../img/devtestlabs.svg';
 import GitHub from '../img/github.svg';
+import { api } from '../API';
 
 export interface IProjectTypeFormProps {
     panelIsOpen: boolean;
@@ -32,9 +33,8 @@ export const ProjectTypeForm: React.FunctionComponent<IProjectTypeFormProps> = (
     useEffect(() => {
         if (providers === undefined) {
             const _setProviders = async () => {
-                const result = await getProviders()
-                const data = (result as DataResult<Provider[]>).data;
-                setProviders(data);
+                const result = await api.getProviders()
+                setProviders(result.data);
             };
             _setProviders();
         }
@@ -135,12 +135,12 @@ export const ProjectTypeForm: React.FunctionComponent<IProjectTypeFormProps> = (
                 resourceGroupNamePrefix: projectTypeRgNamePrefix,
                 providers: projectTypeProviders
             };
-            const result = await createProjectType(projectType);
-            if ((result as StatusResult).code === 201)
+            const result = await api.createProjectType({ body: projectType });
+            if (result.code === 201)
                 _resetAndCloseForm();
-            else if ((result as ErrorResult).errors) {
+            else {
                 // console.log(JSON.stringify(result));
-                setErrorText((result as ErrorResult).status);
+                setErrorText(result.status);
             }
         }
     };

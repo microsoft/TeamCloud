@@ -2,11 +2,11 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect } from 'react';
-import { Project, User, ProjectMembershipRole } from 'teamcloud';
-import { ProjectMember, DataResult } from '../model';
-import { getProject } from '../API';
 import { Stack, Spinner, IBreadcrumbItem, ICommandBarItemProps } from '@fluentui/react';
 import { IProjectViewDetailProps, ProjectViewDetail, SubheaderBar, ProjectMembersForm, ProjectMembers, ProjectMemberForm, ProjectLinks, ProjectComponents } from '../components';
+import { Project, User } from 'teamcloud';
+import { ProjectMember } from '../model';
+import { api } from '../API';
 
 export interface IProjectDetailViewProps {
     user?: User;
@@ -23,29 +23,21 @@ export const ProjectDetailView: React.FunctionComponent<IProjectDetailViewProps>
 
     useEffect(() => {
         if (project === undefined) {
-            console.log('go')
             const _setProject = async () => {
-                const result = await getProject(props.projectId);
-                console.log(result)
-                // const data = (result as DataResult<Project>).data;
-                // console.log(data)
-                if (result) {
-                    console.log(result.links?.offers?.href ?? 'nope')
-                    setProject(result);
-                }
+                const result = await api.getProjectByNameOrId(props.projectId);
+                setProject(result.data);
             };
             _setProject();
         }
     }, [project, props.projectId]);
 
     const _refresh = async () => {
-        let result = await getProject(project?.id ?? props.projectId);
-        let data = (result as DataResult<Project>).data;
-        setProject(data);
+        let result = await api.getProjectByNameOrId(project?.id ?? props.projectId);
+        setProject(result.data);
     };
 
-    const _userIsProjectOwner = () =>
-        props.user?.projectMemberships?.find(m => m.projectId === project?.id ?? props.projectId)?.role === ProjectUserRole.Owner;
+    // const _userIsProjectOwner = () =>
+    //     props.user?.projectMemberships?.find(m => m.projectId === project?.id ?? props.projectId)?.role === 'Owner';
 
     const _commandBarItems = (): ICommandBarItemProps[] => [
         { key: 'refresh', text: 'Refresh', iconProps: { iconName: 'Refresh' }, onClick: () => { _refresh() } },
@@ -98,39 +90,6 @@ export const ProjectDetailView: React.FunctionComponent<IProjectDetailViewProps>
         };
         return (<ProjectViewDetail key={detailProps.title} title={detailProps.title} details={detailProps.details} />);
     };
-
-    // const projectDetailStackProps = (): IProjectViewDetailProps[] => {
-    //     if (!project) return [];
-
-    //     let _projectDetailStackProps: IProjectViewDetailProps[] = [
-    //         {
-    //             title: 'Project', details: [
-    //                 { label: 'ID', value: project.id },
-    //                 { label: 'Name', value: project.name }
-    //             ]
-    //         }, {
-    //             title: 'Project Type', details: [
-    //                 { label: 'ID', value: project.type.id },
-    //                 { label: 'Default', value: project.type.isDefault ? 'Yes' : 'No' },
-    //                 { label: 'Location', value: project.type.region },
-    //                 { label: 'Providers', value: project.type.providers.map(p => p.id).join(', ') },
-    //                 { label: 'Subscription Capacity', value: project.type.subscriptionCapacity.toString() },
-    //                 { label: 'Subscriptions', value: project.type.subscriptions.join(', ') },
-    //                 { label: 'Resource Group Name Prefix', value: project.type.resourceGroupNamePrefix ?? '' },
-    //             ]
-    //         }, {
-    //             title: 'Resource Group', details: [
-    //                 { label: 'Name', value: project.resourceGroup?.name },
-    //                 { label: 'Location', value: project.resourceGroup?.region },
-    //                 { label: 'Subscription', value: project.resourceGroup?.subscriptionId },
-    //             ]
-    //         }
-    //     ];
-    //     return _projectDetailStackProps;
-    // };
-
-    const projectDetailStack = (projectDetailStackProps: IProjectViewDetailProps[]) =>
-        projectDetailStackProps.map(p => <Stack.Item grow styles={{ root: { minWidth: '40%', marginRight: '16px' } }}><ProjectViewDetail key={p.title} title={p.title} details={p.details} /></Stack.Item>);
 
     const _onEditMember = (member?: ProjectMember) => {
         setSelectedMember(member)

@@ -4,7 +4,7 @@
 import React from 'react';
 import { Stack, IBreadcrumbItem, Breadcrumb, CommandBar, ICommandBarItemProps, Separator, ICommandBarStyles } from '@fluentui/react';
 import { useLocation } from 'react-router-dom';
-import { RootNav } from './RootNav';
+import { RootNav } from '.';
 
 export interface ISubheaderBarProps {
     breadcrumbs: IBreadcrumbItem[];

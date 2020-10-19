@@ -3,9 +3,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { ICommandBarItemProps, SearchBox, Stack, IBreadcrumbItem } from '@fluentui/react';
-import { getProviders } from '../API'
-import { DataResult, Provider, User } from '../model'
 import { SubheaderBar, ProviderList, ProviderPanel } from '../components';
+import { Provider, User } from 'teamcloud'
+import { api } from '../API';
 
 export interface IProvidersViewProps {
     user?: User;
@@ -21,18 +21,16 @@ export const ProvidersView: React.FunctionComponent<IProvidersViewProps> = (prop
     useEffect(() => {
         if (providers === undefined) {
             const _setProviders = async () => {
-                const result = await getProviders();
-                const data = (result as DataResult<Provider[]>).data;
-                setProviders(data);
+                const result = await api.getProviders();
+                setProviders(result.data);
             };
             _setProviders();
         }
     }, [providers]);
 
     const _refresh = async () => {
-        let result = await getProviders();
-        let data = (result as DataResult<Provider[]>).data;
-        setProviders(data);
+        let result = await api.getProviders();
+        setProviders(result.data);
     };
 
 
