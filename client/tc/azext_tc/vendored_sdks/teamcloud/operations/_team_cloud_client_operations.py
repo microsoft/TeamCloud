@@ -608,7 +608,7 @@ class TeamCloudClientOperationsMixin(object):
         project_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["models.StringDictionaryDataResult", "models.ErrorResult"]]
+        # type: (...) -> Optional[Union["models.ProjectLinkListDataResult", "models.ErrorResult"]]
         """Gets all Links for a Project.
 
         Gets all Links for a Project.
@@ -616,11 +616,11 @@ class TeamCloudClientOperationsMixin(object):
         :param project_id:
         :type project_id: str
         :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: StringDictionaryDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.StringDictionaryDataResult or ~teamcloud.models.ErrorResult or None
+        :return: ProjectLinkListDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ProjectLinkListDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StringDictionaryDataResult", "models.ErrorResult"]]]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProjectLinkListDataResult", "models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
@@ -651,7 +651,7 @@ class TeamCloudClientOperationsMixin(object):
 
         deserialized = None
         if response.status_code == 200:
-            deserialized = self._deserialize('StringDictionaryDataResult', pipeline_response)
+            deserialized = self._deserialize('ProjectLinkListDataResult', pipeline_response)
 
         if response.status_code == 400:
             deserialized = self._deserialize('ErrorResult', pipeline_response)
@@ -750,7 +750,7 @@ class TeamCloudClientOperationsMixin(object):
         project_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["models.StringDictionaryDataResult", "models.ErrorResult"]]
+        # type: (...) -> Optional[Union["models.ProjectLinkDataResult", "models.ErrorResult"]]
         """Gets a Project Link by Key.
 
         Gets a Project Link by Key.
@@ -760,11 +760,11 @@ class TeamCloudClientOperationsMixin(object):
         :param project_id:
         :type project_id: str
         :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: StringDictionaryDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.StringDictionaryDataResult or ~teamcloud.models.ErrorResult or None
+        :return: ProjectLinkDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ProjectLinkDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StringDictionaryDataResult", "models.ErrorResult"]]]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProjectLinkDataResult", "models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
@@ -796,7 +796,7 @@ class TeamCloudClientOperationsMixin(object):
 
         deserialized = None
         if response.status_code == 200:
-            deserialized = self._deserialize('StringDictionaryDataResult', pipeline_response)
+            deserialized = self._deserialize('ProjectLinkDataResult', pipeline_response)
 
         if response.status_code == 400:
             deserialized = self._deserialize('ErrorResult', pipeline_response)

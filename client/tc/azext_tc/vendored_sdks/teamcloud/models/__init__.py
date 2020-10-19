@@ -23,6 +23,7 @@ try:
     from ._models_py3 import ProjectIdentityDataResult
     from ._models_py3 import ProjectLink
     from ._models_py3 import ProjectLinkDataResult
+    from ._models_py3 import ProjectLinkListDataResult
     from ._models_py3 import ProjectListDataResult
     from ._models_py3 import ProjectMembership
     from ._models_py3 import ProjectReferenceLinks
@@ -66,6 +67,7 @@ except (SyntaxError, ImportError):
     from ._models import ProjectIdentityDataResult  # type: ignore
     from ._models import ProjectLink  # type: ignore
     from ._models import ProjectLinkDataResult  # type: ignore
+    from ._models import ProjectLinkListDataResult  # type: ignore
     from ._models import ProjectListDataResult  # type: ignore
     from ._models import ProjectMembership  # type: ignore
     from ._models import ProjectReferenceLinks  # type: ignore
@@ -126,6 +128,7 @@ __all__ = [
     'ProjectIdentityDataResult',
     'ProjectLink',
     'ProjectLinkDataResult',
+    'ProjectLinkListDataResult',
     'ProjectListDataResult',
     'ProjectMembership',
     'ProjectReferenceLinks',

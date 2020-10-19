@@ -84,9 +84,9 @@ class Component(msrest.serialization.Model):
     :type input_json: str
     :param value_json:
     :type value_json: str
-    :param scope:  Possible values include: "System", "Project", "All".
+    :param scope: Required.  Possible values include: "System", "Project", "All".
     :type scope: str or ~teamcloud.models.ComponentScope
-    :param type:  Possible values include: "Custom", "GitRepository".
+    :param type: Required.  Possible values include: "Custom", "GitRepository".
     :type type: str or ~teamcloud.models.ComponentType
     """
 
@@ -94,6 +94,8 @@ class Component(msrest.serialization.Model):
         'id': {'required': True},
         'provider_id': {'required': True},
         'requested_by': {'required': True},
+        'scope': {'required': True},
+        'type': {'required': True},
     }
 
     _attribute_map = {
@@ -117,6 +119,8 @@ class Component(msrest.serialization.Model):
         id: str,
         provider_id: str,
         requested_by: str,
+        scope: Union[str, "ComponentScope"],
+        type: Union[str, "ComponentType"],
         href: Optional[str] = None,
         offer_id: Optional[str] = None,
         project_id: Optional[str] = None,
@@ -124,8 +128,6 @@ class Component(msrest.serialization.Model):
         description: Optional[str] = None,
         input_json: Optional[str] = None,
         value_json: Optional[str] = None,
-        scope: Optional[Union[str, "ComponentScope"]] = None,
-        type: Optional[Union[str, "ComponentType"]] = None,
         **kwargs
     ):
         super(Component, self).__init__(**kwargs)
@@ -235,15 +237,17 @@ class ComponentOffer(msrest.serialization.Model):
     :type description: str
     :param input_json_schema:
     :type input_json_schema: str
-    :param scope:  Possible values include: "System", "Project", "All".
+    :param scope: Required.  Possible values include: "System", "Project", "All".
     :type scope: str or ~teamcloud.models.ComponentOfferScope
-    :param type:  Possible values include: "Custom", "GitRepository".
+    :param type: Required.  Possible values include: "Custom", "GitRepository".
     :type type: str or ~teamcloud.models.ComponentOfferType
     """
 
     _validation = {
         'id': {'required': True},
         'provider_id': {'required': True},
+        'scope': {'required': True},
+        'type': {'required': True},
     }
 
     _attribute_map = {
@@ -261,11 +265,11 @@ class ComponentOffer(msrest.serialization.Model):
         *,
         id: str,
         provider_id: str,
+        scope: Union[str, "ComponentOfferScope"],
+        type: Union[str, "ComponentOfferType"],
         display_name: Optional[str] = None,
         description: Optional[str] = None,
         input_json_schema: Optional[str] = None,
-        scope: Optional[Union[str, "ComponentOfferScope"]] = None,
-        type: Optional[Union[str, "ComponentOfferType"]] = None,
         **kwargs
     ):
         super(ComponentOffer, self).__init__(**kwargs)
@@ -652,7 +656,7 @@ class ProjectLink(msrest.serialization.Model):
     :type href: str
     :param title:
     :type title: str
-    :param type:  Possible values include: "Link", "Readme", "Service", "GitRepository",
+    :param type: Required.  Possible values include: "Link", "Readme", "Service", "GitRepository",
      "AzureResource".
     :type type: str or ~teamcloud.models.ProjectLinkType
     """
@@ -660,6 +664,7 @@ class ProjectLink(msrest.serialization.Model):
     _validation = {
         'id': {'required': True},
         'href': {'required': True},
+        'type': {'required': True},
     }
 
     _attribute_map = {
@@ -674,8 +679,8 @@ class ProjectLink(msrest.serialization.Model):
         *,
         id: str,
         href: str,
+        type: Union[str, "ProjectLinkType"],
         title: Optional[str] = None,
-        type: Optional[Union[str, "ProjectLinkType"]] = None,
         **kwargs
     ):
         super(ProjectLink, self).__init__(**kwargs)
@@ -718,6 +723,47 @@ class ProjectLinkDataResult(msrest.serialization.Model):
         self.code = code
         self.status = status
         self.data = data
+        self.location = location
+
+
+class ProjectLinkListDataResult(msrest.serialization.Model):
+    """ProjectLinkListDataResult.
+
+    Variables are only populated by the server, and will be ignored when sending a request.
+
+    :param code:
+    :type code: int
+    :param status:
+    :type status: str
+    :ivar data:
+    :vartype data: list[~teamcloud.models.ProjectLink]
+    :param location:
+    :type location: str
+    """
+
+    _validation = {
+        'data': {'readonly': True},
+    }
+
+    _attribute_map = {
+        'code': {'key': 'code', 'type': 'int'},
+        'status': {'key': 'status', 'type': 'str'},
+        'data': {'key': 'data', 'type': '[ProjectLink]'},
+        'location': {'key': 'location', 'type': 'str'},
+    }
+
+    def __init__(
+        self,
+        *,
+        code: Optional[int] = None,
+        status: Optional[str] = None,
+        location: Optional[str] = None,
+        **kwargs
+    ):
+        super(ProjectLinkListDataResult, self).__init__(**kwargs)
+        self.code = code
+        self.status = status
+        self.data = None
         self.location = location
 
 
@@ -769,7 +815,7 @@ class ProjectMembership(msrest.serialization.Model):
 
     :param project_id: Required.
     :type project_id: str
-    :param role:  Possible values include: "None", "Provider", "Member", "Owner".
+    :param role: Required.  Possible values include: "None", "Provider", "Member", "Owner".
     :type role: str or ~teamcloud.models.ProjectMembershipRole
     :param properties: Dictionary of :code:`<string>`.
     :type properties: dict[str, str]
@@ -777,6 +823,7 @@ class ProjectMembership(msrest.serialization.Model):
 
     _validation = {
         'project_id': {'required': True},
+        'role': {'required': True},
     }
 
     _attribute_map = {
@@ -789,7 +836,7 @@ class ProjectMembership(msrest.serialization.Model):
         self,
         *,
         project_id: str,
-        role: Optional[Union[str, "ProjectMembershipRole"]] = None,
+        role: Union[str, "ProjectMembershipRole"],
         properties: Optional[Dict[str, str]] = None,
         **kwargs
     ):
@@ -1017,9 +1064,9 @@ class Provider(msrest.serialization.Model):
     :type properties: dict[str, str]
     :param registered:
     :type registered: ~datetime.datetime
-    :param type:  Possible values include: "Standard", "Service", "Virtual".
+    :param type: Required.  Possible values include: "Standard", "Service", "Virtual".
     :type type: str or ~teamcloud.models.ProviderType
-    :param command_mode:  Possible values include: "Simple", "Extended".
+    :param command_mode: Required.  Possible values include: "Simple", "Extended".
     :type command_mode: str or ~teamcloud.models.ProviderCommandMode
     """
 
@@ -1027,6 +1074,8 @@ class Provider(msrest.serialization.Model):
         'id': {'required': True},
         'url': {'required': True},
         'auth_code': {'required': True},
+        'type': {'required': True},
+        'command_mode': {'required': True},
     }
 
     _attribute_map = {
@@ -1050,6 +1099,8 @@ class Provider(msrest.serialization.Model):
         id: str,
         url: str,
         auth_code: str,
+        type: Union[str, "ProviderType"],
+        command_mode: Union[str, "ProviderCommandMode"],
         principal_id: Optional[str] = None,
         version: Optional[str] = None,
         resource_group: Optional["AzureResourceGroup"] = None,
@@ -1057,8 +1108,6 @@ class Provider(msrest.serialization.Model):
         event_subscriptions: Optional[List["ProviderEventSubscription"]] = None,
         properties: Optional[Dict[str, str]] = None,
         registered: Optional[datetime.datetime] = None,
-        type: Optional[Union[str, "ProviderType"]] = None,
-        command_mode: Optional[Union[str, "ProviderCommandMode"]] = None,
         **kwargs
     ):
         super(Provider, self).__init__(**kwargs)
@@ -1093,9 +1142,9 @@ class ProviderData(msrest.serialization.Model):
     :type is_secret: bool
     :param is_shared:
     :type is_shared: bool
-    :param scope:  Possible values include: "System", "Project".
+    :param scope: Required.  Possible values include: "System", "Project".
     :type scope: str or ~teamcloud.models.ProviderDataScope
-    :param data_type:  Possible values include: "Property", "Service".
+    :param data_type: Required.  Possible values include: "Property", "Service".
     :type data_type: str or ~teamcloud.models.ProviderDataType
     :ivar string_value:
     :vartype string_value: str
@@ -1103,6 +1152,8 @@ class ProviderData(msrest.serialization.Model):
 
     _validation = {
         'id': {'required': True},
+        'scope': {'required': True},
+        'data_type': {'required': True},
         'string_value': {'readonly': True},
     }
 
@@ -1121,12 +1172,12 @@ class ProviderData(msrest.serialization.Model):
         self,
         *,
         id: str,
+        scope: Union[str, "ProviderDataScope"],
+        data_type: Union[str, "ProviderDataType"],
         name: Optional[str] = None,
         location: Optional[str] = None,
         is_secret: Optional[bool] = None,
         is_shared: Optional[bool] = None,
-        scope: Optional[Union[str, "ProviderDataScope"]] = None,
-        data_type: Optional[Union[str, "ProviderDataType"]] = None,
         **kwargs
     ):
         super(ProviderData, self).__init__(**kwargs)
@@ -1638,9 +1689,10 @@ class User(msrest.serialization.Model):
 
     :param id: Required.
     :type id: str
-    :param user_type:  Possible values include: "User", "System", "Provider", "Application".
+    :param user_type: Required.  Possible values include: "User", "System", "Provider",
+     "Application".
     :type user_type: str or ~teamcloud.models.UserType
-    :param role:  Possible values include: "None", "Provider", "Creator", "Admin".
+    :param role: Required.  Possible values include: "None", "Provider", "Creator", "Admin".
     :type role: str or ~teamcloud.models.UserRole
     :param project_memberships:
     :type project_memberships: list[~teamcloud.models.ProjectMembership]
@@ -1650,6 +1702,8 @@ class User(msrest.serialization.Model):
 
     _validation = {
         'id': {'required': True},
+        'user_type': {'required': True},
+        'role': {'required': True},
     }
 
     _attribute_map = {
@@ -1664,8 +1718,8 @@ class User(msrest.serialization.Model):
         self,
         *,
         id: str,
-        user_type: Optional[Union[str, "UserType"]] = None,
-        role: Optional[Union[str, "UserRole"]] = None,
+        user_type: Union[str, "UserType"],
+        role: Union[str, "UserRole"],
         project_memberships: Optional[List["ProjectMembership"]] = None,
         properties: Optional[Dict[str, str]] = None,
         **kwargs
