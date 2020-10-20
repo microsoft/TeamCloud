@@ -9,7 +9,7 @@ namespace TeamCloud.Serialization.Tests
     public class SerializeNameValueCollectionTests
     {
         [Fact]
-        public async Task DeSerialize_NameValueCollection()
+        public void DeSerialize_NameValueCollection()
         {
             var nvc = new NameValueCollection();
 

@@ -18,10 +18,43 @@ def _ensure_base_url(client, base_url):
 def get_project_completion_list(cmd, prefix, namespace, **kwargs):  # pylint: disable=unused-argument
     client = teamcloud_client_factory(cmd.cli_ctx)
     _ensure_base_url(client, namespace.base_url)
+
     result = client.get_projects()
 
     try:
         return [p.name for p in result.data]
+    except AttributeError:
+        return []
+
+
+@Completer
+def get_project_offer_completion_list(cmd, prefix, namespace, **kwargs):  # pylint: disable=unused-argument
+    client = teamcloud_client_factory(cmd.cli_ctx)
+    _ensure_base_url(client, namespace.base_url)
+
+    if namespace.project is None:
+        return []
+
+    result = client.get_project_offers(namespace.project)
+
+    try:
+        return [o.id for o in result.data]
+    except AttributeError:
+        return []
+
+
+@Completer
+def get_project_component_completion_list(cmd, prefix, namespace, **kwargs):  # pylint: disable=unused-argument
+    client = teamcloud_client_factory(cmd.cli_ctx)
+    _ensure_base_url(client, namespace.base_url)
+
+    if namespace.project is None:
+        return []
+
+    result = client.get_project_components(namespace.project)
+
+    try:
+        return [c.id for c in result.data]
     except AttributeError:
         return []
 
@@ -46,6 +79,18 @@ def get_provider_completion_list(cmd, prefix, namespace, **kwargs):  # pylint: d
 
     try:
         return [p.id for p in result.data]
+    except AttributeError:
+        return []
+
+
+@Completer
+def get_provider_completion_list_novirtual(cmd, prefix, namespace, **kwargs):  # pylint: disable=unused-argument
+    client = teamcloud_client_factory(cmd.cli_ctx)
+    _ensure_base_url(client, namespace.base_url)
+    result = client.get_providers()
+
+    try:
+        return [p.id for p in result.data if p['type'] != 'Virtual']
     except AttributeError:
         return []
 

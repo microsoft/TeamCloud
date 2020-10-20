@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -e
 
 cdir=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
@@ -17,6 +17,19 @@ for azureProvider in AppInsights DevOps DevTestLabs; do
     echo "Deleting task hub for 'TeamCloud.Providers.Azure.$azureProvider'."
 
     pushd $cdir/../../TeamCloud-Providers/Azure/TeamCloud.Providers.Azure.$azureProvider > /dev/null
+
+        func durable delete-task-hub --connection-string-setting DurableFunctionsHubStorage
+        echo ""
+
+    popd > /dev/null
+
+done
+
+for githubProvider in Repos Actions; do
+
+    echo "Deleting task hub for 'TeamCloud.Providers.GitHub.$githubProvider'."
+
+    pushd $cdir/../../TeamCloud-Providers/Azure/TeamCloud.Providers.Azure.$githubProvider > /dev/null
 
         func durable delete-task-hub --connection-string-setting DurableFunctionsHubStorage
         echo ""

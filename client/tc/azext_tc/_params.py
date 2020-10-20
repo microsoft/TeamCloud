@@ -12,14 +12,15 @@ from azure.cli.core.commands.parameters import (tags_type, get_enum_type)
 from ._validators import (
     project_name_validator, project_name_or_id_validator, user_name_or_id_validator,
     tracking_id_validator, project_type_id_validator, project_type_id_validator_name, provider_id_validator,
-    subscriptions_list_validator, provider_event_list_validator, url_validator, base_url_validator,
-    teamcloud_source_version_validator, providers_source_version_validator, auth_code_validator,
-    properties_validator, index_url_validator, project_name_or_id_validator_name, client_id_validator,
-    teamcloud_cli_source_version_validator)
+    subscriptions_list_validator, url_validator, base_url_validator, teamcloud_source_version_validator,
+    providers_source_version_validator, auth_code_validator, properties_validator, index_url_validator,
+    project_name_or_id_validator_name, client_id_validator, teamcloud_cli_source_version_validator,
+    offer_id_validator, offer_name_validator, component_name_validator, input_json_validator)
 
 from ._completers import (
     get_project_completion_list, get_project_type_completion_list, get_provider_completion_list,
-    get_provider_index_completion_list)
+    get_provider_completion_list_novirtual, get_provider_index_completion_list, get_project_offer_completion_list,
+    get_project_component_completion_list)
 
 from ._actions import CreateProviderReference
 
@@ -132,7 +133,7 @@ def load_arguments(self, _):
             c.argument('app_type', get_enum_type(['Web'], default='Web'),
                        options_list=['--type', '-t'], help='App type. Currently only supports Web')
             c.argument('version', options_list=['--version', '-v'],
-                       type=str, help='Provider version. Default: latest stable.',
+                       type=str, help='App version. Default: latest stable.',
                        validator=teamcloud_source_version_validator)
             c.argument('prerelease', options_list=['--pre'], action='store_true',
                        help='Deploy latest prerelease version.')
@@ -194,6 +195,38 @@ def load_arguments(self, _):
                    options_list=['--role', '-r'], help='User role.')
         c.argument('properties', properties_type)
 
+    # Project Offers
+
+    with self.argument_context('tc project offer') as c:
+        c.argument('project', project_name_or_id_type)
+
+    with self.argument_context('tc project offer show') as c:
+        c.argument('offer', options_list=['--name', '-n'],
+                   type=str, help='Offer id.',
+                   validator=offer_name_validator,
+                   completer=get_project_offer_completion_list)
+
+    # Project Components
+
+    with self.argument_context('tc project component') as c:
+        c.argument('project', project_name_or_id_type)
+
+    with self.argument_context('tc project component create') as c:
+        c.argument('offer', options_list=['--offer'],
+                   type=str, help='Offer id.',
+                   validator=offer_id_validator,
+                   completer=get_project_offer_completion_list)
+        c.argument('input_json', options_list=['--input', '-i'],
+                   type=str, help='Input JSON.',
+                   validator=input_json_validator)
+
+    for scope in ['tc project component show', 'tc project component delete']:
+        with self.argument_context(scope) as c:
+            c.argument('component', options_list=['--name', '-n'],
+                       type=str, help='Component id.',
+                       validator=component_name_validator,
+                       completer=get_project_component_completion_list)
+
     # Project Types
 
     with self.argument_context('tc project-type create') as c:
@@ -233,7 +266,7 @@ def load_arguments(self, _):
                    type=str, help='Provider id.',
                    validator=provider_id_validator)
 
-    for scope in ['tc provider show', 'tc provider delete', 'tc provider upgrade']:
+    for scope in ['tc provider show', 'tc provider delete']:
         with self.argument_context(scope) as c:
             c.argument('provider', options_list=['--name', '-n'],
                        type=str, help='Provider id.',
@@ -242,9 +275,6 @@ def load_arguments(self, _):
 
     for scope in ['tc provider create', 'tc provider deploy']:
         with self.argument_context(scope) as c:
-            c.argument('events', nargs='+',
-                       help='Space-seperated provider ids.',
-                       validator=provider_event_list_validator)
             c.argument('properties', properties_type)
 
     with self.argument_context('tc provider create') as c:
@@ -252,6 +282,8 @@ def load_arguments(self, _):
                    validator=url_validator)
         c.argument('auth_code', type=str, help='Provider auth code.',
                    validator=auth_code_validator)
+        c.argument('provider_type', get_enum_type(['Standard', 'Service', 'Virtual'], default='Standard'),
+                   options_list=['--type', '-t'], help='Provider type.')
 
     for scope in ['tc provider deploy', 'tc provider upgrade']:
         with self.argument_context(scope) as c:
@@ -269,6 +301,12 @@ def load_arguments(self, _):
                    validator=provider_id_validator,
                    completer=get_provider_index_completion_list)
         c.argument('tags', tags_type)
+
+    with self.argument_context('tc provider upgrade') as c:
+        c.argument('provider', options_list=['--name', '-n'],
+                   type=str, help='Provider id.',
+                   validator=provider_id_validator,
+                   completer=get_provider_completion_list_novirtual)
 
     with self.argument_context('tc provider list-available') as c:
         c.argument('index_url', help='URL to custom index.json file.',

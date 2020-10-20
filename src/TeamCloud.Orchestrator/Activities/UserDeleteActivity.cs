@@ -16,11 +16,11 @@ namespace TeamCloud.Orchestrator.Activities
 {
     public class UserDeleteActivity
     {
-        private readonly IUserRepository usersRepository;
+        private readonly IUserRepository userRepository;
 
-        public UserDeleteActivity(IUserRepository usersRepository)
+        public UserDeleteActivity(IUserRepository userRepository)
         {
-            this.usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
+            this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         }
 
         [FunctionName(nameof(UserDeleteActivity))]
@@ -30,7 +30,7 @@ namespace TeamCloud.Orchestrator.Activities
             if (user is null)
                 throw new ArgumentNullException(nameof(user));
 
-            _ = await usersRepository
+            _ = await userRepository
                 .RemoveAsync(user)
                 .ConfigureAwait(false);
         }

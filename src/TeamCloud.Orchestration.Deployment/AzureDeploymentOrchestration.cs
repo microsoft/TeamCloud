@@ -101,7 +101,7 @@ namespace TeamCloud.Orchestration.Deployment
             }
         }
 
-        public struct Input
+        internal struct Input
         {
             public string DeploymentOwnerInstanceId { get; set; }
 

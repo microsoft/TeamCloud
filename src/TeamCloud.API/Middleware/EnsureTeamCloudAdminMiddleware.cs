@@ -16,13 +16,13 @@ namespace TeamCloud.API.Middleware
 {
     public class EnsureTeamCloudAdminMiddleware : IMiddleware
     {
-        private static bool HasAdmin = false;
+        private static bool HasAdmin;
 
-        private readonly IUserRepository usersRepository;
+        private readonly IUserRepository userRepository;
 
-        public EnsureTeamCloudAdminMiddleware(IUserRepository usersRepository)
+        public EnsureTeamCloudAdminMiddleware(IUserRepository userRepository)
         {
-            this.usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
+            this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         }
 
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
@@ -63,7 +63,7 @@ namespace TeamCloud.API.Middleware
 
             async Task<bool> AdminExistsAsync()
             {
-                var exists = await usersRepository
+                var exists = await userRepository
                     .ListAdminsAsync()
                     .AnyAsync()
                     .ConfigureAwait(false);

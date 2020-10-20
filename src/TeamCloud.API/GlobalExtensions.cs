@@ -42,7 +42,7 @@ namespace TeamCloud.API
 
                 tasks.Remove(result);
 
-                yield return (await result.ConfigureAwait(false));
+                yield return await result.ConfigureAwait(false);
             }
         }
 
@@ -97,8 +97,6 @@ namespace TeamCloud.API
                 uriBuilder.Scheme = Uri.UriSchemeHttps;
                 uriBuilder.Port = port.GetValueOrDefault(-1);
             }
-
-
 
             return uriBuilder.Uri;
         }
@@ -265,7 +263,7 @@ namespace TeamCloud.API
         }
 
         public static bool IsSwaggerGet(this HttpRequest httpRequest)
-            => httpRequest.Path.StartsWithSegments("/swagger", StringComparison.OrdinalIgnoreCase) && HttpMethods.IsGet(httpRequest.Method);
+            => httpRequest.Path.StartsWithSegments("/openapi", StringComparison.OrdinalIgnoreCase) && HttpMethods.IsGet(httpRequest.Method);
 
         public static bool IsAdminUserPost(this HttpRequest httpRequest)
             => httpRequest.Path.StartsWithSegments("/api/admin/users", StringComparison.OrdinalIgnoreCase) && HttpMethods.IsPost(httpRequest.Method);

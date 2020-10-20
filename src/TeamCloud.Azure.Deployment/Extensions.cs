@@ -11,7 +11,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.WindowsAzure.Storage;
+using Microsoft.Azure.Storage;
 
 namespace TeamCloud.Azure.Deployment
 {

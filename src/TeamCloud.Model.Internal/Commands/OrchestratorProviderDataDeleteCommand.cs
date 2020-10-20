@@ -7,7 +7,7 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Model.Commands
 {
-    public sealed class OrchestratorProviderDataDeleteCommand : OrchestratorCommand<ProviderDataDocument, OrchestratorProviderDataDeleteCommandResult>
+    public sealed class OrchestratorProviderDataDeleteCommand : OrchestratorDeleteCommand<ProviderDataDocument, OrchestratorProviderDataDeleteCommandResult>
     {
         public OrchestratorProviderDataDeleteCommand(UserDocument user, ProviderDataDocument payload) : base(user, payload)
         {

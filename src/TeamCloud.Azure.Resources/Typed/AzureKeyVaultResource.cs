@@ -126,7 +126,7 @@ namespace TeamCloud.Azure.Resources.Typed
                 .ConfigureAwait(false);
 
             return string.IsNullOrEmpty(secretJson)
-                ? default(T)
+                ? default
                 : JsonConvert.DeserializeObject<T>(secretJson);
         }
 

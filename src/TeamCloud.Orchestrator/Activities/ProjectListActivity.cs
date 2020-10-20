@@ -17,11 +17,11 @@ namespace TeamCloud.Orchestrator.Activities
 {
     public class ProjectListActivity
     {
-        private readonly IProjectRepository projectsRepository;
+        private readonly IProjectRepository projectRepository;
 
-        public ProjectListActivity(IProjectRepository projectsRepository)
+        public ProjectListActivity(IProjectRepository projectRepository)
         {
-            this.projectsRepository = projectsRepository ?? throw new ArgumentNullException(nameof(projectsRepository));
+            this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
         }
 
         [FunctionName(nameof(ProjectListActivity))]
@@ -31,7 +31,7 @@ namespace TeamCloud.Orchestrator.Activities
             if (activityContext is null)
                 throw new ArgumentNullException(nameof(activityContext));
 
-            var projects = projectsRepository
+            var projects = projectRepository
                 .ListAsync();
 
             return await projects
@@ -42,18 +42,18 @@ namespace TeamCloud.Orchestrator.Activities
 
     public class ProjectListByIdActivity
     {
-        private readonly IProjectRepository projectsRepository;
+        private readonly IProjectRepository projectRepository;
 
-        public ProjectListByIdActivity(IProjectRepository projectsRepository)
+        public ProjectListByIdActivity(IProjectRepository projectRepository)
         {
-            this.projectsRepository = projectsRepository ?? throw new ArgumentNullException(nameof(projectsRepository));
+            this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
         }
 
         [FunctionName(nameof(ProjectListByIdActivity))]
         public async Task<IEnumerable<ProjectDocument>> RunActivity(
             [ActivityTrigger] IList<string> projectIds)
         {
-            var projects = projectsRepository
+            var projects = projectRepository
                 .ListAsync(projectIds);
 
             return await projects

@@ -14,15 +14,16 @@ namespace TeamCloud.Model.Data
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
     public sealed class ProjectLink : IProjectLink, IEquatable<ProjectLink>, IValidatable
     {
+        [JsonProperty(Required = Required.Always)]
         public string Id { get; set; }
             = Guid.NewGuid().ToString();
 
-        [JsonProperty("href")]
+        [JsonProperty("href", Required = Required.Always)]
         public string HRef { get; set; }
 
         public string Title { get; set; }
 
-        [JsonConverter(typeof(StringEnumConverter))]
+        [JsonProperty(Required = Required.Always)]
         public ProjectLinkType Type { get; set; }
             = ProjectLinkType.Link;
 

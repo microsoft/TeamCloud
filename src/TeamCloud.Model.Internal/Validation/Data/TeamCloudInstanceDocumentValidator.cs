@@ -5,8 +5,6 @@
 
 using FluentValidation;
 using TeamCloud.Model.Data;
-using TeamCloud.Model.Validation;
-using TeamCloud.Model.Validation.Data;
 
 namespace TeamCloud.Model.Validation.Data
 {

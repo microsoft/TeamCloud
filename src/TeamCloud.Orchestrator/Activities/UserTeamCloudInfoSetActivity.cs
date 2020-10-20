@@ -16,11 +16,11 @@ namespace TeamCloud.Orchestrator.Activities
 {
     public class UserTeamCloudInfoSetActivity
     {
-        private readonly IUserRepository usersRepository;
+        private readonly IUserRepository userRepository;
 
-        public UserTeamCloudInfoSetActivity(IUserRepository usersRepository)
+        public UserTeamCloudInfoSetActivity(IUserRepository userRepository)
         {
-            this.usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
+            this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         }
 
         [FunctionName(nameof(UserTeamCloudInfoSetActivity))]
@@ -32,7 +32,7 @@ namespace TeamCloud.Orchestrator.Activities
 
             var user = activityContext.GetInput<UserDocument>();
 
-            user = await usersRepository
+            user = await userRepository
                 .SetTeamCloudInfoAsync(user)
                 .ConfigureAwait(false);
 

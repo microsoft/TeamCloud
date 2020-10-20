@@ -12,12 +12,16 @@ namespace TeamCloud.Model.Data
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
     public class AzureResourceGroup : IEquatable<AzureResourceGroup>
     {
+        [JsonProperty(Required = Required.Always)]
         public string Id { get; set; }
 
+        [JsonProperty(Required = Required.Always)]
         public string Name { get; set; }
 
+        [JsonProperty(Required = Required.Always)]
         public Guid SubscriptionId { get; set; } = Guid.Empty;
 
+        [JsonProperty(Required = Required.Always)]
         public string Region { get; set; }
 
 

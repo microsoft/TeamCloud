@@ -96,15 +96,12 @@ def create_resource_group_name(cli_ctx, resource_group_name, location, tags=None
     return resource_client.create_or_update(resource_group_name, parameters), resource_client.config.subscription_id
 
 
-def set_appconfig_keys(cli_ctx, appconfig_conn_string, kvs):
-    from azure.cli.command_modules.appconfig._azconfig.azconfig_client import AzconfigClient
-    from azure.cli.command_modules.appconfig._azconfig.models import KeyValue
-
-    azconfig_client = AzconfigClient(appconfig_conn_string)
+def set_appconfig_keys(cmd, appconfig_conn_string, kvs):
+    from azure.cli.command_modules.appconfig.keyvalue import set_key
 
     for kv in kvs:
-        set_kv = KeyValue(key=kv['key'], value=kv['value'])
-        azconfig_client.set_keyvalue(set_kv)
+        set_key(cmd, key=kv['key'], value=kv['value'], yes=True,
+                connection_string=appconfig_conn_string)
 
 
 def create_resource_manager_sp(cmd, app_name):
@@ -263,8 +260,8 @@ def get_index_providers(cli_ctx, provider, version=None, prerelease=False, index
     index = providers.get(provider)
     if not index:
         raise CLIError("--name/-n no provider found in index with id '{}'".format(provider))
-    zip_url, deploy_url, provider_name = index.get(
-        'zipUrl'), index.get('deployUrl'), index.get('name')
+    zip_url, deploy_url, provider_name, provider_type = index.get(
+        'zipUrl'), index.get('deployUrl'), index.get('name'), index.get('type')
 
     if not zip_url:
         raise CLIError("No zipUrl found in index for provider with id '{}'".format(provider))
@@ -272,8 +269,10 @@ def get_index_providers(cli_ctx, provider, version=None, prerelease=False, index
         raise CLIError("No deployUrl found in index for provider with id '{}'".format(provider))
     if not provider_name:
         raise CLIError("No name found in index for provider with id '{}'".format(provider))
+    if not provider_type:
+        raise CLIError("No type found in index for provider with id '{}'".format(provider))
 
-    return version, zip_url, deploy_url, provider_name
+    return version, zip_url, deploy_url, provider_name, provider_type
 
 
 def _get_index_teamcloud_core(cli_ctx, version=None, prerelease=False, index_url=None):

@@ -13,7 +13,7 @@ namespace TeamCloud.Model.Validation.Commands
         public CommandMessageValidator()
         {
             RuleFor(obj => obj.Command)
-                .Cascade(CascadeMode.StopOnFirstFailure)
+                .Cascade(CascadeMode.Stop)
                 .NotNull()
                 .SetValidator(new CommandValidator());
         }

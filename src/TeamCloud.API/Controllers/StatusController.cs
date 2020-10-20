@@ -33,7 +33,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status302Found, "The long-running operation completed.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "The long-running operation with the trackingId provided was not found.", typeof(ErrorResult))]
-        public async Task<IActionResult> Get(Guid trackingId)
+        public async Task<IActionResult> Get([FromRoute] Guid trackingId)
         {
             var result = await Orchestrator
                 .QueryAsync(trackingId, null)
@@ -50,7 +50,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status302Found, "The long-running operation completed.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "The long-running operation with the trackingId provided was not found.", typeof(ErrorResult))]
-        public async Task<IActionResult> Get(string projectId, Guid trackingId)
+        public async Task<IActionResult> Get([FromRoute] string projectId, [FromRoute] Guid trackingId)
         {
             var result = await Orchestrator
                 .QueryAsync(trackingId, projectId)
@@ -59,7 +59,7 @@ namespace TeamCloud.API.Controllers
             return GetStatusResult(result);
         }
 
-        private IActionResult GetStatusResult(ICommandResult result)
+        private static IActionResult GetStatusResult(ICommandResult result)
         {
             if (result is null)
                 return ErrorResult

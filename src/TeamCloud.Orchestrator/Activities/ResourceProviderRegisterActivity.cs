@@ -19,12 +19,12 @@ namespace TeamCloud.Orchestrator.Activities
 {
     public class ResourceProviderRegisterActivity
     {
-        private readonly IProviderRepository providersRepository;
+        private readonly IProviderRepository providerRepository;
         private readonly IAzureResourceService azureResourceService;
 
-        public ResourceProviderRegisterActivity(IProviderRepository providersRepository, IAzureResourceService azureResourceService)
+        public ResourceProviderRegisterActivity(IProviderRepository providerRepository, IAzureResourceService azureResourceService)
         {
-            this.providersRepository = providersRepository ?? throw new ArgumentNullException(nameof(providersRepository));
+            this.providerRepository = providerRepository ?? throw new ArgumentNullException(nameof(providerRepository));
             this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
         }
 
@@ -41,7 +41,7 @@ namespace TeamCloud.Orchestrator.Activities
             try
             {
                 var providers = await Task.WhenAll(project.Type.Providers
-                        .Select(p => providersRepository.GetAsync(p.Id)))
+                        .Select(p => providerRepository.GetAsync(p.Id)))
                     .ConfigureAwait(false);
 
                 var resourceProviderNamespaces = providers

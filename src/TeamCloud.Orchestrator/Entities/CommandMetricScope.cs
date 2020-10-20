@@ -9,7 +9,7 @@ namespace TeamCloud.Orchestrator.Entities
 {
     internal class CommandMetricScope : IDisposable
     {
-        private bool disposed = false;
+        private bool disposed;
         private readonly Action disposeCallback;
 
         public CommandMetricScope(Action disposeCallback)

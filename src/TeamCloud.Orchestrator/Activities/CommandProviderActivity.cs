@@ -17,11 +17,11 @@ namespace TeamCloud.Orchestrator.Activities
 {
     public class CommandProviderActivity
     {
-        private readonly IProviderRepository providersRepository;
+        private readonly IProviderRepository providerRepository;
 
-        public CommandProviderActivity(IProviderRepository providersRepository)
+        public CommandProviderActivity(IProviderRepository providerRepository)
         {
-            this.providersRepository = providersRepository ?? throw new ArgumentNullException(nameof(providersRepository));
+            this.providerRepository = providerRepository ?? throw new ArgumentNullException(nameof(providerRepository));
         }
 
         [FunctionName(nameof(CommandProviderActivity))]
@@ -36,7 +36,7 @@ namespace TeamCloud.Orchestrator.Activities
 
             if (project is null)
             {
-                var providers = await providersRepository
+                var providers = await providerRepository
                     .ListAsync()
                     .ToListAsync()
                     .ConfigureAwait(false);
@@ -45,7 +45,7 @@ namespace TeamCloud.Orchestrator.Activities
             }
             else
             {
-                var providers = await providersRepository
+                var providers = await providerRepository
                     .ListAsync(project.Type.Providers.Select(p => p.Id))
                     .ToListAsync()
                     .ConfigureAwait(false);

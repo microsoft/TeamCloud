@@ -49,9 +49,6 @@ namespace TeamCloud.Orchestrator.Activities
                 var providerUrl = new Url(functionInput.Provider.Url?.Trim())
                     .SetQueryParam("providerId", functionInput.Provider.Id);
 
-                if (!providerUrl.Path.EndsWith("/", StringComparison.OrdinalIgnoreCase))
-                    providerUrl = providerUrl.AppendPathSegment("api/command");
-
                 log.LogInformation(string.Join(", ",
                     $"Sending command {functionInput.CommandMessage.CommandId} ({functionInput.CommandMessage.CommandType}) to {providerUrl}",
                     JsonConvert.SerializeObject(functionInput.CommandMessage)));
@@ -59,6 +56,7 @@ namespace TeamCloud.Orchestrator.Activities
                 var response = await providerUrl
                     .WithHeader("x-functions-key", functionInput.Provider.AuthCode)
                     .WithHeader("x-functions-callback", (functionInput.CommandMessage as ProviderCommandMessage)?.CallbackUrl)
+                    .WithHeader("x-teamcloud-provider", functionInput.Provider.Id)
                     .PostJsonAsync(functionInput.CommandMessage)
                     .ConfigureAwait(false);
 
@@ -87,7 +85,7 @@ namespace TeamCloud.Orchestrator.Activities
             }
         }
 
-        public struct Input
+        internal struct Input
         {
             public ProviderDocument Provider { get; set; }
 

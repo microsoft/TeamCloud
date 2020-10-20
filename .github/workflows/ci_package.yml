@@ -41,7 +41,7 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: '3.1.300'
+          dotnet-version: '3.1.403'
 
       - name: Build & Package for CI
         run: dotnet build -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true --version-suffix "ci-${{ steps.gitversion.outputs.preReleaseTag }}"

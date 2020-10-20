@@ -3,10 +3,22 @@
 Release History
 ===============
 
+0.7.0
+++++++
+* Preview release
+* Minimum Azure CLI version now 2.10.0
+* Fix bug when using --no-wait arg
+* Add tc project offer list command
+* Add tc project offer show command
+* Add tc project component create command
+* Add tc project component delete command
+* Add tc project component list command
+* Add tc project component show command
+
 0.6.0
 ++++++
 * Preview release
-* Python client not generated with @autorest/python v3
+* Python client now generated with @autorest/python v3
 
 0.5.7
 ++++++

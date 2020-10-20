@@ -8,7 +8,7 @@
 from typing import TYPE_CHECKING
 import warnings
 
-from azure.core.exceptions import HttpResponseError, ResourceExistsError, ResourceNotFoundError, map_error
+from azure.core.exceptions import ClientAuthenticationError, HttpResponseError, ResourceExistsError, ResourceNotFoundError, map_error
 from azure.core.pipeline import PipelineResponse
 from azure.core.pipeline.transport import HttpRequest, HttpResponse
 
@@ -38,8 +38,11 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProjectListDataResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
 
         # Construct URL
         url = self.get_projects.metadata['url']  # type: ignore
@@ -49,7 +52,7 @@ class TeamCloudClientOperationsMixin(object):
 
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         request = self._client.get(url, query_parameters, header_parameters)
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
@@ -90,9 +93,12 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
         content_type = kwargs.pop("content_type", "application/json")
+        accept = "application/json"
 
         # Construct URL
         url = self.create_project.metadata['url']  # type: ignore
@@ -103,7 +109,7 @@ class TeamCloudClientOperationsMixin(object):
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
         header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         body_content_kwargs = {}  # type: Dict[str, Any]
         if body is not None:
@@ -112,7 +118,6 @@ class TeamCloudClientOperationsMixin(object):
             body_content = None
         body_content_kwargs['content'] = body_content
         request = self._client.post(url, query_parameters, header_parameters, **body_content_kwargs)
-
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
         response = pipeline_response.http_response
 
@@ -154,8 +159,11 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProjectDataResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
 
         # Construct URL
         url = self.get_project_by_name_or_id.metadata['url']  # type: ignore
@@ -169,7 +177,7 @@ class TeamCloudClientOperationsMixin(object):
 
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         request = self._client.get(url, query_parameters, header_parameters)
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
@@ -213,8 +221,11 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
 
         # Construct URL
         url = self.delete_project.metadata['url']  # type: ignore
@@ -228,7 +239,7 @@ class TeamCloudClientOperationsMixin(object):
 
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         request = self._client.delete(url, query_parameters, header_parameters)
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
@@ -254,6 +265,282 @@ class TeamCloudClientOperationsMixin(object):
         return deserialized
     delete_project.metadata = {'url': '/api/projects/{projectNameOrId}'}  # type: ignore
 
+    def get_project_components(
+        self,
+        project_id,  # type: str
+        **kwargs  # type: Any
+    ):
+        # type: (...) -> Optional[Union["models.ComponentListDataResult", "models.ErrorResult"]]
+        """Gets all Components for a Project.
+
+        Gets all Components for a Project.
+
+        :param project_id:
+        :type project_id: str
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: ComponentListDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ComponentListDataResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ComponentListDataResult", "models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
+
+        # Construct URL
+        url = self.get_project_components.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'projectId': self._serialize.url("project_id", project_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        request = self._client.get(url, query_parameters, header_parameters)
+        pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [200, 400, 401, 403, 404]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 200:
+            deserialized = self._deserialize('ComponentListDataResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    get_project_components.metadata = {'url': '/api/projects/{projectId}/components'}  # type: ignore
+
+    def create_project_component(
+        self,
+        project_id,  # type: str
+        body=None,  # type: Optional["models.ComponentRequest"]
+        **kwargs  # type: Any
+    ):
+        # type: (...) -> Optional[Union["models.ComponentDataResult", "models.StatusResult", "models.ErrorResult"]]
+        """Creates a new Project Component.
+
+        Creates a new Project Component.
+
+        :param project_id:
+        :type project_id: str
+        :param body:
+        :type body: ~teamcloud.models.ComponentRequest
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: ComponentDataResult or StatusResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ComponentDataResult or ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ComponentDataResult", "models.StatusResult", "models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        content_type = kwargs.pop("content_type", "application/json")
+        accept = "application/json"
+
+        # Construct URL
+        url = self.create_project_component.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'projectId': self._serialize.url("project_id", project_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        body_content_kwargs = {}  # type: Dict[str, Any]
+        if body is not None:
+            body_content = self._serialize.body(body, 'ComponentRequest')
+        else:
+            body_content = None
+        body_content_kwargs['content'] = body_content
+        request = self._client.post(url, query_parameters, header_parameters, **body_content_kwargs)
+        pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [201, 202, 400, 401, 403, 404, 409]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 201:
+            deserialized = self._deserialize('ComponentDataResult', pipeline_response)
+
+        if response.status_code == 202:
+            deserialized = self._deserialize('StatusResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 409:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    create_project_component.metadata = {'url': '/api/projects/{projectId}/components'}  # type: ignore
+
+    def get_project_component_by_id(
+        self,
+        component_id,  # type: str
+        project_id,  # type: str
+        **kwargs  # type: Any
+    ):
+        # type: (...) -> Optional[Union["models.ComponentDataResult", "models.ErrorResult"]]
+        """Gets a Project Component by id.
+
+        Gets a Project Component by id.
+
+        :param component_id:
+        :type component_id: str
+        :param project_id:
+        :type project_id: str
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: ComponentDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ComponentDataResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ComponentDataResult", "models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
+
+        # Construct URL
+        url = self.get_project_component_by_id.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'componentId': self._serialize.url("component_id", component_id, 'str'),
+            'projectId': self._serialize.url("project_id", project_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        request = self._client.get(url, query_parameters, header_parameters)
+        pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [200, 400, 401, 403, 404]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 200:
+            deserialized = self._deserialize('ComponentDataResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    get_project_component_by_id.metadata = {'url': '/api/projects/{projectId}/components/{componentId}'}  # type: ignore
+
+    def delete_project_component(
+        self,
+        component_id,  # type: str
+        project_id,  # type: str
+        **kwargs  # type: Any
+    ):
+        # type: (...) -> Optional[Union["models.StatusResult", "models.ComponentDataResult", "models.ErrorResult"]]
+        """Deletes an existing Project Component.
+
+        Deletes an existing Project Component.
+
+        :param component_id:
+        :type component_id: str
+        :param project_id:
+        :type project_id: str
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: StatusResult or ComponentDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ComponentDataResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ComponentDataResult", "models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
+
+        # Construct URL
+        url = self.delete_project_component.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'componentId': self._serialize.url("component_id", component_id, 'str'),
+            'projectId': self._serialize.url("project_id", project_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        request = self._client.delete(url, query_parameters, header_parameters)
+        pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [202, 204, 400, 401, 403, 404]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 202:
+            deserialized = self._deserialize('StatusResult', pipeline_response)
+
+        if response.status_code == 204:
+            deserialized = self._deserialize('ComponentDataResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    delete_project_component.metadata = {'url': '/api/projects/{projectId}/components/{componentId}'}  # type: ignore
+
     def get_project_identity(
         self,
         project_id,  # type: str
@@ -272,8 +559,11 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProjectIdentityDataResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
 
         # Construct URL
         url = self.get_project_identity.metadata['url']  # type: ignore
@@ -287,7 +577,7 @@ class TeamCloudClientOperationsMixin(object):
 
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         request = self._client.get(url, query_parameters, header_parameters)
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
@@ -318,7 +608,7 @@ class TeamCloudClientOperationsMixin(object):
         project_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["models.StringDictionaryDataResult", "models.ErrorResult"]]
+        # type: (...) -> Optional[Union["models.ProjectLinkListDataResult", "models.ErrorResult"]]
         """Gets all Links for a Project.
 
         Gets all Links for a Project.
@@ -326,13 +616,16 @@ class TeamCloudClientOperationsMixin(object):
         :param project_id:
         :type project_id: str
         :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: StringDictionaryDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.StringDictionaryDataResult or ~teamcloud.models.ErrorResult or None
+        :return: ProjectLinkListDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ProjectLinkListDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StringDictionaryDataResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProjectLinkListDataResult", "models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
 
         # Construct URL
         url = self.get_project_links.metadata['url']  # type: ignore
@@ -346,7 +639,7 @@ class TeamCloudClientOperationsMixin(object):
 
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         request = self._client.get(url, query_parameters, header_parameters)
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
@@ -358,7 +651,7 @@ class TeamCloudClientOperationsMixin(object):
 
         deserialized = None
         if response.status_code == 200:
-            deserialized = self._deserialize('StringDictionaryDataResult', pipeline_response)
+            deserialized = self._deserialize('ProjectLinkListDataResult', pipeline_response)
 
         if response.status_code == 400:
             deserialized = self._deserialize('ErrorResult', pipeline_response)
@@ -393,9 +686,12 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProjectLinkDataResult", "models.StatusResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
         content_type = kwargs.pop("content_type", "application/json")
+        accept = "application/json"
 
         # Construct URL
         url = self.create_project_link.metadata['url']  # type: ignore
@@ -410,7 +706,7 @@ class TeamCloudClientOperationsMixin(object):
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
         header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         body_content_kwargs = {}  # type: Dict[str, Any]
         if body is not None:
@@ -419,7 +715,6 @@ class TeamCloudClientOperationsMixin(object):
             body_content = None
         body_content_kwargs['content'] = body_content
         request = self._client.post(url, query_parameters, header_parameters, **body_content_kwargs)
-
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
         response = pipeline_response.http_response
 
@@ -455,7 +750,7 @@ class TeamCloudClientOperationsMixin(object):
         project_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["models.StringDictionaryDataResult", "models.ErrorResult"]]
+        # type: (...) -> Optional[Union["models.ProjectLinkDataResult", "models.ErrorResult"]]
         """Gets a Project Link by Key.
 
         Gets a Project Link by Key.
@@ -465,13 +760,16 @@ class TeamCloudClientOperationsMixin(object):
         :param project_id:
         :type project_id: str
         :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: StringDictionaryDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.StringDictionaryDataResult or ~teamcloud.models.ErrorResult or None
+        :return: ProjectLinkDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ProjectLinkDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StringDictionaryDataResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProjectLinkDataResult", "models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
 
         # Construct URL
         url = self.get_project_link_by_key.metadata['url']  # type: ignore
@@ -486,7 +784,7 @@ class TeamCloudClientOperationsMixin(object):
 
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         request = self._client.get(url, query_parameters, header_parameters)
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
@@ -498,7 +796,7 @@ class TeamCloudClientOperationsMixin(object):
 
         deserialized = None
         if response.status_code == 200:
-            deserialized = self._deserialize('StringDictionaryDataResult', pipeline_response)
+            deserialized = self._deserialize('ProjectLinkDataResult', pipeline_response)
 
         if response.status_code == 400:
             deserialized = self._deserialize('ErrorResult', pipeline_response)
@@ -536,9 +834,12 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProjectLinkDataResult", "models.StatusResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
         content_type = kwargs.pop("content_type", "application/json")
+        accept = "application/json"
 
         # Construct URL
         url = self.update_project_link.metadata['url']  # type: ignore
@@ -554,7 +855,7 @@ class TeamCloudClientOperationsMixin(object):
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
         header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         body_content_kwargs = {}  # type: Dict[str, Any]
         if body is not None:
@@ -563,7 +864,6 @@ class TeamCloudClientOperationsMixin(object):
             body_content = None
         body_content_kwargs['content'] = body_content
         request = self._client.put(url, query_parameters, header_parameters, **body_content_kwargs)
-
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
         response = pipeline_response.http_response
 
@@ -611,8 +911,11 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ProjectLinkDataResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
 
         # Construct URL
         url = self.delete_project_link.metadata['url']  # type: ignore
@@ -627,7 +930,7 @@ class TeamCloudClientOperationsMixin(object):
 
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         request = self._client.delete(url, query_parameters, header_parameters)
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
@@ -656,6 +959,134 @@ class TeamCloudClientOperationsMixin(object):
         return deserialized
     delete_project_link.metadata = {'url': '/api/projects/{projectId}/links/{linkId}'}  # type: ignore
 
+    def get_project_offers(
+        self,
+        project_id,  # type: str
+        **kwargs  # type: Any
+    ):
+        # type: (...) -> Optional[Union["models.ComponentOfferListDataResult", "models.ErrorResult"]]
+        """Gets all Project Offers.
+
+        Gets all Project Offers.
+
+        :param project_id:
+        :type project_id: str
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: ComponentOfferListDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ComponentOfferListDataResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ComponentOfferListDataResult", "models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
+
+        # Construct URL
+        url = self.get_project_offers.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'projectId': self._serialize.url("project_id", project_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        request = self._client.get(url, query_parameters, header_parameters)
+        pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [200, 400, 401, 403, 404]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 200:
+            deserialized = self._deserialize('ComponentOfferListDataResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    get_project_offers.metadata = {'url': '/api/projects/{projectId}/offers'}  # type: ignore
+
+    def get_project_offer_by_id(
+        self,
+        offer_id,  # type: str
+        project_id,  # type: str
+        **kwargs  # type: Any
+    ):
+        # type: (...) -> Optional[Union["models.ComponentOfferDataResult", "models.ErrorResult"]]
+        """Gets the Offer by id.
+
+        Gets the Offer by id.
+
+        :param offer_id:
+        :type offer_id: str
+        :param project_id:
+        :type project_id: str
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: ComponentOfferDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ComponentOfferDataResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ComponentOfferDataResult", "models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
+
+        # Construct URL
+        url = self.get_project_offer_by_id.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'offerId': self._serialize.url("offer_id", offer_id, 'str'),
+            'projectId': self._serialize.url("project_id", project_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        request = self._client.get(url, query_parameters, header_parameters)
+        pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [200, 400, 401, 403, 404]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 200:
+            deserialized = self._deserialize('ComponentOfferDataResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    get_project_offer_by_id.metadata = {'url': '/api/projects/{projectId}/offers/{offerId}'}  # type: ignore
+
     def get_project_provider_data(
         self,
         project_id,  # type: str
@@ -663,7 +1094,7 @@ class TeamCloudClientOperationsMixin(object):
         include_shared=None,  # type: Optional[bool]
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["models.ProviderDataResult", "models.ErrorResult"]]
+        # type: (...) -> Optional[Union["models.ProviderDataReturnResult", "models.ErrorResult"]]
         """Gets the ProviderData items for a Project.
 
         Gets the ProviderData items for a Project.
@@ -675,13 +1106,16 @@ class TeamCloudClientOperationsMixin(object):
         :param include_shared:
         :type include_shared: bool
         :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ProviderDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ProviderDataResult or ~teamcloud.models.ErrorResult or None
+        :return: ProviderDataReturnResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ProviderDataReturnResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProviderDataResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProviderDataReturnResult", "models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
 
         # Construct URL
         url = self.get_project_provider_data.metadata['url']  # type: ignore
@@ -698,7 +1132,7 @@ class TeamCloudClientOperationsMixin(object):
 
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         request = self._client.get(url, query_parameters, header_parameters)
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
@@ -710,7 +1144,7 @@ class TeamCloudClientOperationsMixin(object):
 
         deserialized = None
         if response.status_code == 200:
-            deserialized = self._deserialize('ProviderDataResult', pipeline_response)
+            deserialized = self._deserialize('ProviderDataReturnResult', pipeline_response)
 
         if response.status_code == 400:
             deserialized = self._deserialize('ErrorResult', pipeline_response)
@@ -731,7 +1165,7 @@ class TeamCloudClientOperationsMixin(object):
         body=None,  # type: Optional["models.ProviderData"]
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["models.ProviderDataResult", "models.ErrorResult"]]
+        # type: (...) -> Optional[Union["models.ProviderDataReturnResult", "models.ErrorResult"]]
         """Creates a new ProviderData.
 
         Creates a new ProviderData.
@@ -743,14 +1177,17 @@ class TeamCloudClientOperationsMixin(object):
         :param body:
         :type body: ~teamcloud.models.ProviderData
         :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ProviderDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ProviderDataResult or ~teamcloud.models.ErrorResult or None
+        :return: ProviderDataReturnResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ProviderDataReturnResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProviderDataResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProviderDataReturnResult", "models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
         content_type = kwargs.pop("content_type", "application/json")
+        accept = "application/json"
 
         # Construct URL
         url = self.create_project_provider_data.metadata['url']  # type: ignore
@@ -766,7 +1203,7 @@ class TeamCloudClientOperationsMixin(object):
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
         header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         body_content_kwargs = {}  # type: Dict[str, Any]
         if body is not None:
@@ -775,7 +1212,6 @@ class TeamCloudClientOperationsMixin(object):
             body_content = None
         body_content_kwargs['content'] = body_content
         request = self._client.post(url, query_parameters, header_parameters, **body_content_kwargs)
-
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
         response = pipeline_response.http_response
 
@@ -785,7 +1221,7 @@ class TeamCloudClientOperationsMixin(object):
 
         deserialized = None
         if response.status_code == 201:
-            deserialized = self._deserialize('ProviderDataResult', pipeline_response)
+            deserialized = self._deserialize('ProviderDataReturnResult', pipeline_response)
 
         if response.status_code == 400:
             deserialized = self._deserialize('ErrorResult', pipeline_response)
@@ -809,7 +1245,7 @@ class TeamCloudClientOperationsMixin(object):
         provider_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["models.ProviderDataResult", "models.ErrorResult"]]
+        # type: (...) -> Optional[Union["models.ProviderDataReturnResult", "models.ErrorResult"]]
         """Gets a ProviderData for a Project by ID.
 
         Gets a ProviderData for a Project by ID.
@@ -821,13 +1257,16 @@ class TeamCloudClientOperationsMixin(object):
         :param provider_id:
         :type provider_id: str
         :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ProviderDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ProviderDataResult or ~teamcloud.models.ErrorResult or None
+        :return: ProviderDataReturnResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ProviderDataReturnResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProviderDataResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProviderDataReturnResult", "models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
 
         # Construct URL
         url = self.get_project_provider_data_by_id.metadata['url']  # type: ignore
@@ -843,7 +1282,7 @@ class TeamCloudClientOperationsMixin(object):
 
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         request = self._client.get(url, query_parameters, header_parameters)
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
@@ -855,7 +1294,7 @@ class TeamCloudClientOperationsMixin(object):
 
         deserialized = None
         if response.status_code == 200:
-            deserialized = self._deserialize('ProviderDataResult', pipeline_response)
+            deserialized = self._deserialize('ProviderDataReturnResult', pipeline_response)
 
         if response.status_code == 400:
             deserialized = self._deserialize('ErrorResult', pipeline_response)
@@ -877,7 +1316,7 @@ class TeamCloudClientOperationsMixin(object):
         body=None,  # type: Optional["models.ProviderData"]
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["models.ProviderDataResult", "models.ErrorResult"]]
+        # type: (...) -> Optional[Union["models.ProviderDataReturnResult", "models.ErrorResult"]]
         """Updates an existing ProviderData.
 
         Updates an existing ProviderData.
@@ -891,14 +1330,17 @@ class TeamCloudClientOperationsMixin(object):
         :param body:
         :type body: ~teamcloud.models.ProviderData
         :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ProviderDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ProviderDataResult or ~teamcloud.models.ErrorResult or None
+        :return: ProviderDataReturnResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ProviderDataReturnResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProviderDataResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProviderDataReturnResult", "models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
         content_type = kwargs.pop("content_type", "application/json")
+        accept = "application/json"
 
         # Construct URL
         url = self.update_project_provider_data.metadata['url']  # type: ignore
@@ -915,7 +1357,7 @@ class TeamCloudClientOperationsMixin(object):
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
         header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         body_content_kwargs = {}  # type: Dict[str, Any]
         if body is not None:
@@ -924,7 +1366,6 @@ class TeamCloudClientOperationsMixin(object):
             body_content = None
         body_content_kwargs['content'] = body_content
         request = self._client.put(url, query_parameters, header_parameters, **body_content_kwargs)
-
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
         response = pipeline_response.http_response
 
@@ -934,7 +1375,7 @@ class TeamCloudClientOperationsMixin(object):
 
         deserialized = None
         if response.status_code == 200:
-            deserialized = self._deserialize('ProviderDataResult', pipeline_response)
+            deserialized = self._deserialize('ProviderDataReturnResult', pipeline_response)
 
         if response.status_code == 400:
             deserialized = self._deserialize('ErrorResult', pipeline_response)
@@ -955,7 +1396,7 @@ class TeamCloudClientOperationsMixin(object):
         provider_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["models.ProviderDataResult", "models.ErrorResult"]]
+        # type: (...) -> Optional[Union["models.ProviderDataReturnResult", "models.ErrorResult"]]
         """Deletes a ProviderData.
 
         Deletes a ProviderData.
@@ -967,13 +1408,16 @@ class TeamCloudClientOperationsMixin(object):
         :param provider_id:
         :type provider_id: str
         :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ProviderDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ProviderDataResult or ~teamcloud.models.ErrorResult or None
+        :return: ProviderDataReturnResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ProviderDataReturnResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProviderDataResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProviderDataReturnResult", "models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
 
         # Construct URL
         url = self.delete_project_provider_data.metadata['url']  # type: ignore
@@ -989,7 +1433,7 @@ class TeamCloudClientOperationsMixin(object):
 
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         request = self._client.delete(url, query_parameters, header_parameters)
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
@@ -1001,7 +1445,7 @@ class TeamCloudClientOperationsMixin(object):
 
         deserialized = None
         if response.status_code == 204:
-            deserialized = self._deserialize('ProviderDataResult', pipeline_response)
+            deserialized = self._deserialize('ProviderDataReturnResult', pipeline_response)
 
         if response.status_code == 400:
             deserialized = self._deserialize('ErrorResult', pipeline_response)
@@ -1033,8 +1477,11 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StringDictionaryDataResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
 
         # Construct URL
         url = self.get_project_tags.metadata['url']  # type: ignore
@@ -1048,7 +1495,7 @@ class TeamCloudClientOperationsMixin(object):
 
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         request = self._client.get(url, query_parameters, header_parameters)
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
@@ -1095,9 +1542,12 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
         content_type = kwargs.pop("content_type", "application/json")
+        accept = "application/json"
 
         # Construct URL
         url = self.create_project_tag.metadata['url']  # type: ignore
@@ -1112,7 +1562,7 @@ class TeamCloudClientOperationsMixin(object):
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
         header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         body_content_kwargs = {}  # type: Dict[str, Any]
         if body is not None:
@@ -1121,7 +1571,6 @@ class TeamCloudClientOperationsMixin(object):
             body_content = None
         body_content_kwargs['content'] = body_content
         request = self._client.post(url, query_parameters, header_parameters, **body_content_kwargs)
-
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
         response = pipeline_response.http_response
 
@@ -1169,9 +1618,12 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
         content_type = kwargs.pop("content_type", "application/json")
+        accept = "application/json"
 
         # Construct URL
         url = self.update_project_tag.metadata['url']  # type: ignore
@@ -1186,7 +1638,7 @@ class TeamCloudClientOperationsMixin(object):
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
         header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         body_content_kwargs = {}  # type: Dict[str, Any]
         if body is not None:
@@ -1195,7 +1647,6 @@ class TeamCloudClientOperationsMixin(object):
             body_content = None
         body_content_kwargs['content'] = body_content
         request = self._client.put(url, query_parameters, header_parameters, **body_content_kwargs)
-
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
         response = pipeline_response.http_response
 
@@ -1240,8 +1691,11 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StringDictionaryDataResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
 
         # Construct URL
         url = self.get_project_tag_by_key.metadata['url']  # type: ignore
@@ -1256,7 +1710,7 @@ class TeamCloudClientOperationsMixin(object):
 
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         request = self._client.get(url, query_parameters, header_parameters)
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
@@ -1303,8 +1757,11 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
 
         # Construct URL
         url = self.delete_project_tag.metadata['url']  # type: ignore
@@ -1319,7 +1776,7 @@ class TeamCloudClientOperationsMixin(object):
 
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         request = self._client.delete(url, query_parameters, header_parameters)
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
@@ -1360,8 +1817,11 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProjectTypeListDataResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
 
         # Construct URL
         url = self.get_project_types.metadata['url']  # type: ignore
@@ -1371,7 +1831,7 @@ class TeamCloudClientOperationsMixin(object):
 
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         request = self._client.get(url, query_parameters, header_parameters)
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
@@ -1412,9 +1872,12 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProjectTypeDataResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
         content_type = kwargs.pop("content_type", "application/json")
+        accept = "application/json"
 
         # Construct URL
         url = self.create_project_type.metadata['url']  # type: ignore
@@ -1425,7 +1888,7 @@ class TeamCloudClientOperationsMixin(object):
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
         header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         body_content_kwargs = {}  # type: Dict[str, Any]
         if body is not None:
@@ -1434,7 +1897,6 @@ class TeamCloudClientOperationsMixin(object):
             body_content = None
         body_content_kwargs['content'] = body_content
         request = self._client.post(url, query_parameters, header_parameters, **body_content_kwargs)
-
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
         response = pipeline_response.http_response
 
@@ -1476,8 +1938,11 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProjectTypeDataResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
 
         # Construct URL
         url = self.get_project_type_by_id.metadata['url']  # type: ignore
@@ -1491,7 +1956,7 @@ class TeamCloudClientOperationsMixin(object):
 
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         request = self._client.get(url, query_parameters, header_parameters)
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
@@ -1538,9 +2003,12 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProjectTypeDataResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
         content_type = kwargs.pop("content_type", "application/json")
+        accept = "application/json"
 
         # Construct URL
         url = self.update_project_type.metadata['url']  # type: ignore
@@ -1555,7 +2023,7 @@ class TeamCloudClientOperationsMixin(object):
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
         header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         body_content_kwargs = {}  # type: Dict[str, Any]
         if body is not None:
@@ -1564,7 +2032,6 @@ class TeamCloudClientOperationsMixin(object):
             body_content = None
         body_content_kwargs['content'] = body_content
         request = self._client.put(url, query_parameters, header_parameters, **body_content_kwargs)
-
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
         response = pipeline_response.http_response
 
@@ -1606,8 +2073,11 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProjectTypeDataResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
 
         # Construct URL
         url = self.delete_project_type.metadata['url']  # type: ignore
@@ -1621,7 +2091,7 @@ class TeamCloudClientOperationsMixin(object):
 
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         request = self._client.delete(url, query_parameters, header_parameters)
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
@@ -1665,8 +2135,11 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.UserListDataResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
 
         # Construct URL
         url = self.get_project_users.metadata['url']  # type: ignore
@@ -1680,7 +2153,7 @@ class TeamCloudClientOperationsMixin(object):
 
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         request = self._client.get(url, query_parameters, header_parameters)
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
@@ -1727,9 +2200,12 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
         content_type = kwargs.pop("content_type", "application/json")
+        accept = "application/json"
 
         # Construct URL
         url = self.create_project_user.metadata['url']  # type: ignore
@@ -1744,7 +2220,7 @@ class TeamCloudClientOperationsMixin(object):
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
         header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         body_content_kwargs = {}  # type: Dict[str, Any]
         if body is not None:
@@ -1753,7 +2229,6 @@ class TeamCloudClientOperationsMixin(object):
             body_content = None
         body_content_kwargs['content'] = body_content
         request = self._client.post(url, query_parameters, header_parameters, **body_content_kwargs)
-
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
         response = pipeline_response.http_response
 
@@ -1801,8 +2276,11 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.UserDataResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
 
         # Construct URL
         url = self.get_project_user_by_name_or_id.metadata['url']  # type: ignore
@@ -1817,7 +2295,7 @@ class TeamCloudClientOperationsMixin(object):
 
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         request = self._client.get(url, query_parameters, header_parameters)
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
@@ -1867,9 +2345,12 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
         content_type = kwargs.pop("content_type", "application/json")
+        accept = "application/json"
 
         # Construct URL
         url = self.update_project_user.metadata['url']  # type: ignore
@@ -1885,7 +2366,7 @@ class TeamCloudClientOperationsMixin(object):
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
         header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         body_content_kwargs = {}  # type: Dict[str, Any]
         if body is not None:
@@ -1894,7 +2375,6 @@ class TeamCloudClientOperationsMixin(object):
             body_content = None
         body_content_kwargs['content'] = body_content
         request = self._client.put(url, query_parameters, header_parameters, **body_content_kwargs)
-
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
         response = pipeline_response.http_response
 
@@ -1939,8 +2419,11 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
 
         # Construct URL
         url = self.delete_project_user.metadata['url']  # type: ignore
@@ -1955,7 +2438,7 @@ class TeamCloudClientOperationsMixin(object):
 
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         request = self._client.delete(url, query_parameters, header_parameters)
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
@@ -1999,8 +2482,11 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.UserDataResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
 
         # Construct URL
         url = self.get_project_user_me.metadata['url']  # type: ignore
@@ -2014,7 +2500,7 @@ class TeamCloudClientOperationsMixin(object):
 
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         request = self._client.get(url, query_parameters, header_parameters)
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
@@ -2061,9 +2547,12 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
         content_type = kwargs.pop("content_type", "application/json")
+        accept = "application/json"
 
         # Construct URL
         url = self.update_project_user_me.metadata['url']  # type: ignore
@@ -2078,7 +2567,7 @@ class TeamCloudClientOperationsMixin(object):
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
         header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         body_content_kwargs = {}  # type: Dict[str, Any]
         if body is not None:
@@ -2087,7 +2576,6 @@ class TeamCloudClientOperationsMixin(object):
             body_content = None
         body_content_kwargs['content'] = body_content
         request = self._client.put(url, query_parameters, header_parameters, **body_content_kwargs)
-
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
         response = pipeline_response.http_response
 
@@ -2129,8 +2617,11 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProviderDataListDataResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
 
         # Construct URL
         url = self.get_provider_data.metadata['url']  # type: ignore
@@ -2144,7 +2635,7 @@ class TeamCloudClientOperationsMixin(object):
 
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         request = self._client.get(url, query_parameters, header_parameters)
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
@@ -2176,7 +2667,7 @@ class TeamCloudClientOperationsMixin(object):
         body=None,  # type: Optional["models.ProviderData"]
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["models.ProviderDataResult", "models.ErrorResult"]]
+        # type: (...) -> Optional[Union["models.ProviderDataReturnResult", "models.ErrorResult"]]
         """Creates a new ProviderData item.
 
         Creates a new ProviderData item.
@@ -2186,14 +2677,17 @@ class TeamCloudClientOperationsMixin(object):
         :param body:
         :type body: ~teamcloud.models.ProviderData
         :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ProviderDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ProviderDataResult or ~teamcloud.models.ErrorResult or None
+        :return: ProviderDataReturnResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ProviderDataReturnResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProviderDataResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProviderDataReturnResult", "models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
         content_type = kwargs.pop("content_type", "application/json")
+        accept = "application/json"
 
         # Construct URL
         url = self.create_provider_data.metadata['url']  # type: ignore
@@ -2208,7 +2702,7 @@ class TeamCloudClientOperationsMixin(object):
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
         header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         body_content_kwargs = {}  # type: Dict[str, Any]
         if body is not None:
@@ -2217,7 +2711,6 @@ class TeamCloudClientOperationsMixin(object):
             body_content = None
         body_content_kwargs['content'] = body_content
         request = self._client.post(url, query_parameters, header_parameters, **body_content_kwargs)
-
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
         response = pipeline_response.http_response
 
@@ -2227,7 +2720,7 @@ class TeamCloudClientOperationsMixin(object):
 
         deserialized = None
         if response.status_code == 201:
-            deserialized = self._deserialize('ProviderDataResult', pipeline_response)
+            deserialized = self._deserialize('ProviderDataReturnResult', pipeline_response)
 
         if response.status_code == 400:
             deserialized = self._deserialize('ErrorResult', pipeline_response)
@@ -2250,7 +2743,7 @@ class TeamCloudClientOperationsMixin(object):
         provider_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["models.ProviderDataResult", "models.ErrorResult"]]
+        # type: (...) -> Optional[Union["models.ProviderDataReturnResult", "models.ErrorResult"]]
         """Gets the ProviderData by ID.
 
         Gets the ProviderData by ID.
@@ -2260,13 +2753,16 @@ class TeamCloudClientOperationsMixin(object):
         :param provider_id:
         :type provider_id: str
         :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ProviderDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ProviderDataResult or ~teamcloud.models.ErrorResult or None
+        :return: ProviderDataReturnResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ProviderDataReturnResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProviderDataResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProviderDataReturnResult", "models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
 
         # Construct URL
         url = self.get_provider_data_by_id.metadata['url']  # type: ignore
@@ -2281,7 +2777,7 @@ class TeamCloudClientOperationsMixin(object):
 
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         request = self._client.get(url, query_parameters, header_parameters)
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
@@ -2293,7 +2789,7 @@ class TeamCloudClientOperationsMixin(object):
 
         deserialized = None
         if response.status_code == 200:
-            deserialized = self._deserialize('ProviderDataResult', pipeline_response)
+            deserialized = self._deserialize('ProviderDataReturnResult', pipeline_response)
 
         if response.status_code == 400:
             deserialized = self._deserialize('ErrorResult', pipeline_response)
@@ -2314,7 +2810,7 @@ class TeamCloudClientOperationsMixin(object):
         body=None,  # type: Optional["models.ProviderData"]
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["models.ProviderDataResult", "models.ErrorResult"]]
+        # type: (...) -> Optional[Union["models.ProviderDataReturnResult", "models.ErrorResult"]]
         """Updates an existing ProviderData.
 
         Updates an existing ProviderData.
@@ -2326,14 +2822,17 @@ class TeamCloudClientOperationsMixin(object):
         :param body:
         :type body: ~teamcloud.models.ProviderData
         :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ProviderDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ProviderDataResult or ~teamcloud.models.ErrorResult or None
+        :return: ProviderDataReturnResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ProviderDataReturnResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProviderDataResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProviderDataReturnResult", "models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
         content_type = kwargs.pop("content_type", "application/json")
+        accept = "application/json"
 
         # Construct URL
         url = self.update_provider_data.metadata['url']  # type: ignore
@@ -2349,7 +2848,7 @@ class TeamCloudClientOperationsMixin(object):
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
         header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         body_content_kwargs = {}  # type: Dict[str, Any]
         if body is not None:
@@ -2358,7 +2857,6 @@ class TeamCloudClientOperationsMixin(object):
             body_content = None
         body_content_kwargs['content'] = body_content
         request = self._client.put(url, query_parameters, header_parameters, **body_content_kwargs)
-
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
         response = pipeline_response.http_response
 
@@ -2368,7 +2866,7 @@ class TeamCloudClientOperationsMixin(object):
 
         deserialized = None
         if response.status_code == 200:
-            deserialized = self._deserialize('ProviderDataResult', pipeline_response)
+            deserialized = self._deserialize('ProviderDataReturnResult', pipeline_response)
 
         if response.status_code == 400:
             deserialized = self._deserialize('ErrorResult', pipeline_response)
@@ -2388,7 +2886,7 @@ class TeamCloudClientOperationsMixin(object):
         provider_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["models.ProviderDataResult", "models.ErrorResult"]]
+        # type: (...) -> Optional[Union["models.ProviderDataReturnResult", "models.ErrorResult"]]
         """Deletes a ProviderData.
 
         Deletes a ProviderData.
@@ -2398,13 +2896,16 @@ class TeamCloudClientOperationsMixin(object):
         :param provider_id:
         :type provider_id: str
         :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ProviderDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ProviderDataResult or ~teamcloud.models.ErrorResult or None
+        :return: ProviderDataReturnResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ProviderDataReturnResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProviderDataResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProviderDataReturnResult", "models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
 
         # Construct URL
         url = self.delete_provider_data.metadata['url']  # type: ignore
@@ -2419,7 +2920,7 @@ class TeamCloudClientOperationsMixin(object):
 
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         request = self._client.delete(url, query_parameters, header_parameters)
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
@@ -2431,7 +2932,7 @@ class TeamCloudClientOperationsMixin(object):
 
         deserialized = None
         if response.status_code == 204:
-            deserialized = self._deserialize('ProviderDataResult', pipeline_response)
+            deserialized = self._deserialize('ProviderDataReturnResult', pipeline_response)
 
         if response.status_code == 400:
             deserialized = self._deserialize('ErrorResult', pipeline_response)
@@ -2444,6 +2945,726 @@ class TeamCloudClientOperationsMixin(object):
 
         return deserialized
     delete_provider_data.metadata = {'url': '/api/providers/{providerId}/data/{providerDataId}'}  # type: ignore
+
+    def get_provider_offers(
+        self,
+        provider_id,  # type: str
+        **kwargs  # type: Any
+    ):
+        # type: (...) -> Optional[Union["models.ComponentOfferListDataResult", "models.ErrorResult"]]
+        """Gets all Provider Offers.
+
+        Gets all Provider Offers.
+
+        :param provider_id:
+        :type provider_id: str
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: ComponentOfferListDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ComponentOfferListDataResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ComponentOfferListDataResult", "models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
+
+        # Construct URL
+        url = self.get_provider_offers.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'providerId': self._serialize.url("provider_id", provider_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        request = self._client.get(url, query_parameters, header_parameters)
+        pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [200, 400, 401, 403, 404]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 200:
+            deserialized = self._deserialize('ComponentOfferListDataResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    get_provider_offers.metadata = {'url': '/api/providers/{providerId}/offers'}  # type: ignore
+
+    def create_provider_offer(
+        self,
+        provider_id,  # type: str
+        body=None,  # type: Optional["models.ComponentOffer"]
+        **kwargs  # type: Any
+    ):
+        # type: (...) -> Optional[Union["models.ComponentOfferDataResult", "models.ErrorResult"]]
+        """Creates a new ComponentOffer item.
+
+        Creates a new ComponentOffer item.
+
+        :param provider_id:
+        :type provider_id: str
+        :param body:
+        :type body: ~teamcloud.models.ComponentOffer
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: ComponentOfferDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ComponentOfferDataResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ComponentOfferDataResult", "models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        content_type = kwargs.pop("content_type", "application/json")
+        accept = "application/json"
+
+        # Construct URL
+        url = self.create_provider_offer.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'providerId': self._serialize.url("provider_id", provider_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        body_content_kwargs = {}  # type: Dict[str, Any]
+        if body is not None:
+            body_content = self._serialize.body(body, 'ComponentOffer')
+        else:
+            body_content = None
+        body_content_kwargs['content'] = body_content
+        request = self._client.post(url, query_parameters, header_parameters, **body_content_kwargs)
+        pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [201, 400, 401, 403, 404, 409]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 201:
+            deserialized = self._deserialize('ComponentOfferDataResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 409:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    create_provider_offer.metadata = {'url': '/api/providers/{providerId}/offers'}  # type: ignore
+
+    def get_provider_offer_by_id(
+        self,
+        offer_id,  # type: str
+        provider_id,  # type: str
+        **kwargs  # type: Any
+    ):
+        # type: (...) -> Optional[Union["models.ComponentOfferDataResult", "models.ErrorResult"]]
+        """Gets the Offer by id.
+
+        Gets the Offer by id.
+
+        :param offer_id:
+        :type offer_id: str
+        :param provider_id:
+        :type provider_id: str
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: ComponentOfferDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ComponentOfferDataResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ComponentOfferDataResult", "models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
+
+        # Construct URL
+        url = self.get_provider_offer_by_id.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'offerId': self._serialize.url("offer_id", offer_id, 'str'),
+            'providerId': self._serialize.url("provider_id", provider_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        request = self._client.get(url, query_parameters, header_parameters)
+        pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [200, 400, 401, 403, 404]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 200:
+            deserialized = self._deserialize('ComponentOfferDataResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    get_provider_offer_by_id.metadata = {'url': '/api/providers/{providerId}/offers/{offerId}'}  # type: ignore
+
+    def update_provider_offer(
+        self,
+        offer_id,  # type: str
+        provider_id,  # type: str
+        body=None,  # type: Optional["models.ComponentOffer"]
+        **kwargs  # type: Any
+    ):
+        # type: (...) -> Optional[Union["models.ComponentOfferDataResult", "models.ErrorResult"]]
+        """Updates an existing ComponentOffer.
+
+        Updates an existing ComponentOffer.
+
+        :param offer_id:
+        :type offer_id: str
+        :param provider_id:
+        :type provider_id: str
+        :param body:
+        :type body: ~teamcloud.models.ComponentOffer
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: ComponentOfferDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ComponentOfferDataResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ComponentOfferDataResult", "models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        content_type = kwargs.pop("content_type", "application/json")
+        accept = "application/json"
+
+        # Construct URL
+        url = self.update_provider_offer.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'offerId': self._serialize.url("offer_id", offer_id, 'str'),
+            'providerId': self._serialize.url("provider_id", provider_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        body_content_kwargs = {}  # type: Dict[str, Any]
+        if body is not None:
+            body_content = self._serialize.body(body, 'ComponentOffer')
+        else:
+            body_content = None
+        body_content_kwargs['content'] = body_content
+        request = self._client.put(url, query_parameters, header_parameters, **body_content_kwargs)
+        pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [200, 400, 401, 403, 404]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 200:
+            deserialized = self._deserialize('ComponentOfferDataResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    update_provider_offer.metadata = {'url': '/api/providers/{providerId}/offers/{offerId}'}  # type: ignore
+
+    def delete_provider_offer(
+        self,
+        offer_id,  # type: str
+        provider_id,  # type: str
+        **kwargs  # type: Any
+    ):
+        # type: (...) -> Optional[Union["models.ComponentOfferDataResult", "models.ErrorResult"]]
+        """Deletes a ComponentOffer.
+
+        Deletes a ComponentOffer.
+
+        :param offer_id:
+        :type offer_id: str
+        :param provider_id:
+        :type provider_id: str
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: ComponentOfferDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ComponentOfferDataResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ComponentOfferDataResult", "models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
+
+        # Construct URL
+        url = self.delete_provider_offer.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'offerId': self._serialize.url("offer_id", offer_id, 'str'),
+            'providerId': self._serialize.url("provider_id", provider_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        request = self._client.delete(url, query_parameters, header_parameters)
+        pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [204, 400, 401, 403, 404]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 204:
+            deserialized = self._deserialize('ComponentOfferDataResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    delete_provider_offer.metadata = {'url': '/api/providers/{providerId}/offers/{offerId}'}  # type: ignore
+
+    def get_provider_project_components(
+        self,
+        project_id,  # type: str
+        provider_id,  # type: str
+        **kwargs  # type: Any
+    ):
+        # type: (...) -> Optional[Union["models.ComponentListDataResult", "models.ErrorResult"]]
+        """Gets all Components for a Project.
+
+        Gets all Components for a Project.
+
+        :param project_id:
+        :type project_id: str
+        :param provider_id:
+        :type provider_id: str
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: ComponentListDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ComponentListDataResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ComponentListDataResult", "models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
+
+        # Construct URL
+        url = self.get_provider_project_components.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'projectId': self._serialize.url("project_id", project_id, 'str'),
+            'providerId': self._serialize.url("provider_id", provider_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        request = self._client.get(url, query_parameters, header_parameters)
+        pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [200, 400, 401, 403, 404]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 200:
+            deserialized = self._deserialize('ComponentListDataResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    get_provider_project_components.metadata = {'url': '/api/projects/{projectId}/providers/{providerId}/components'}  # type: ignore
+
+    def create_provider_project_component(
+        self,
+        project_id,  # type: str
+        provider_id,  # type: str
+        body=None,  # type: Optional["models.Component"]
+        **kwargs  # type: Any
+    ):
+        # type: (...) -> Optional[Union["models.ComponentDataResult", "models.ErrorResult"]]
+        """Creates a new Project Component.
+
+        Creates a new Project Component.
+
+        :param project_id:
+        :type project_id: str
+        :param provider_id:
+        :type provider_id: str
+        :param body:
+        :type body: ~teamcloud.models.Component
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: ComponentDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ComponentDataResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ComponentDataResult", "models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        content_type = kwargs.pop("content_type", "application/json")
+        accept = "application/json"
+
+        # Construct URL
+        url = self.create_provider_project_component.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'projectId': self._serialize.url("project_id", project_id, 'str'),
+            'providerId': self._serialize.url("provider_id", provider_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        body_content_kwargs = {}  # type: Dict[str, Any]
+        if body is not None:
+            body_content = self._serialize.body(body, 'Component')
+        else:
+            body_content = None
+        body_content_kwargs['content'] = body_content
+        request = self._client.post(url, query_parameters, header_parameters, **body_content_kwargs)
+        pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [201, 400, 401, 403, 404, 409]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 201:
+            deserialized = self._deserialize('ComponentDataResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 409:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    create_provider_project_component.metadata = {'url': '/api/projects/{projectId}/providers/{providerId}/components'}  # type: ignore
+
+    def get_provider_project_component_by_id(
+        self,
+        component_id,  # type: str
+        project_id,  # type: str
+        provider_id,  # type: str
+        **kwargs  # type: Any
+    ):
+        # type: (...) -> Optional[Union["models.ComponentDataResult", "models.ErrorResult"]]
+        """Gets a Project Component by id.
+
+        Gets a Project Component by id.
+
+        :param component_id:
+        :type component_id: str
+        :param project_id:
+        :type project_id: str
+        :param provider_id:
+        :type provider_id: str
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: ComponentDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ComponentDataResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ComponentDataResult", "models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
+
+        # Construct URL
+        url = self.get_provider_project_component_by_id.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'componentId': self._serialize.url("component_id", component_id, 'str'),
+            'projectId': self._serialize.url("project_id", project_id, 'str'),
+            'providerId': self._serialize.url("provider_id", provider_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        request = self._client.get(url, query_parameters, header_parameters)
+        pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [200, 400, 401, 403, 404]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 200:
+            deserialized = self._deserialize('ComponentDataResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    get_provider_project_component_by_id.metadata = {'url': '/api/projects/{projectId}/providers/{providerId}/components/{componentId}'}  # type: ignore
+
+    def update_provider_project_component(
+        self,
+        component_id,  # type: str
+        project_id,  # type: str
+        provider_id,  # type: str
+        body=None,  # type: Optional["models.Component"]
+        **kwargs  # type: Any
+    ):
+        # type: (...) -> Optional[Union["models.ComponentDataResult", "models.StatusResult", "models.ErrorResult"]]
+        """Updates an existing Project Component.
+
+        Updates an existing Project Component.
+
+        :param component_id:
+        :type component_id: str
+        :param project_id:
+        :type project_id: str
+        :param provider_id:
+        :type provider_id: str
+        :param body:
+        :type body: ~teamcloud.models.Component
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: ComponentDataResult or StatusResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ComponentDataResult or ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ComponentDataResult", "models.StatusResult", "models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        content_type = kwargs.pop("content_type", "application/json")
+        accept = "application/json"
+
+        # Construct URL
+        url = self.update_provider_project_component.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'componentId': self._serialize.url("component_id", component_id, 'str'),
+            'projectId': self._serialize.url("project_id", project_id, 'str'),
+            'providerId': self._serialize.url("provider_id", provider_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        body_content_kwargs = {}  # type: Dict[str, Any]
+        if body is not None:
+            body_content = self._serialize.body(body, 'Component')
+        else:
+            body_content = None
+        body_content_kwargs['content'] = body_content
+        request = self._client.put(url, query_parameters, header_parameters, **body_content_kwargs)
+        pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [200, 202, 400, 401, 403, 404]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 200:
+            deserialized = self._deserialize('ComponentDataResult', pipeline_response)
+
+        if response.status_code == 202:
+            deserialized = self._deserialize('StatusResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    update_provider_project_component.metadata = {'url': '/api/projects/{projectId}/providers/{providerId}/components/{componentId}'}  # type: ignore
+
+    def delete_provider_project_component(
+        self,
+        component_id,  # type: str
+        project_id,  # type: str
+        provider_id,  # type: str
+        **kwargs  # type: Any
+    ):
+        # type: (...) -> Optional[Union["models.StatusResult", "models.ComponentDataResult", "models.ErrorResult"]]
+        """Deletes an existing Project Component.
+
+        Deletes an existing Project Component.
+
+        :param component_id:
+        :type component_id: str
+        :param project_id:
+        :type project_id: str
+        :param provider_id:
+        :type provider_id: str
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: StatusResult or ComponentDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ComponentDataResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ComponentDataResult", "models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
+
+        # Construct URL
+        url = self.delete_provider_project_component.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'componentId': self._serialize.url("component_id", component_id, 'str'),
+            'projectId': self._serialize.url("project_id", project_id, 'str'),
+            'providerId': self._serialize.url("provider_id", provider_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        request = self._client.delete(url, query_parameters, header_parameters)
+        pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [202, 204, 400, 401, 403, 404]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 202:
+            deserialized = self._deserialize('StatusResult', pipeline_response)
+
+        if response.status_code == 204:
+            deserialized = self._deserialize('ComponentDataResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    delete_provider_project_component.metadata = {'url': '/api/projects/{projectId}/providers/{providerId}/components/{componentId}'}  # type: ignore
 
     def get_providers(
         self,
@@ -2460,8 +3681,11 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProviderListDataResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
 
         # Construct URL
         url = self.get_providers.metadata['url']  # type: ignore
@@ -2471,7 +3695,7 @@ class TeamCloudClientOperationsMixin(object):
 
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         request = self._client.get(url, query_parameters, header_parameters)
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
@@ -2512,9 +3736,12 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
         content_type = kwargs.pop("content_type", "application/json")
+        accept = "application/json"
 
         # Construct URL
         url = self.create_provider.metadata['url']  # type: ignore
@@ -2525,7 +3752,7 @@ class TeamCloudClientOperationsMixin(object):
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
         header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         body_content_kwargs = {}  # type: Dict[str, Any]
         if body is not None:
@@ -2534,7 +3761,6 @@ class TeamCloudClientOperationsMixin(object):
             body_content = None
         body_content_kwargs['content'] = body_content
         request = self._client.post(url, query_parameters, header_parameters, **body_content_kwargs)
-
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
         response = pipeline_response.http_response
 
@@ -2563,7 +3789,7 @@ class TeamCloudClientOperationsMixin(object):
         provider_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["models.ProviderDataResultAutoGenerated", "models.ErrorResult"]]
+        # type: (...) -> Optional[Union["models.ProviderDataResult", "models.ErrorResult"]]
         """Gets a Provider by ID.
 
         Gets a Provider by ID.
@@ -2571,13 +3797,16 @@ class TeamCloudClientOperationsMixin(object):
         :param provider_id:
         :type provider_id: str
         :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ProviderDataResultAutoGenerated or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ProviderDataResultAutoGenerated or ~teamcloud.models.ErrorResult or None
+        :return: ProviderDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ProviderDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProviderDataResultAutoGenerated", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProviderDataResult", "models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
 
         # Construct URL
         url = self.get_provider_by_id.metadata['url']  # type: ignore
@@ -2591,7 +3820,7 @@ class TeamCloudClientOperationsMixin(object):
 
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         request = self._client.get(url, query_parameters, header_parameters)
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
@@ -2603,7 +3832,7 @@ class TeamCloudClientOperationsMixin(object):
 
         deserialized = None
         if response.status_code == 200:
-            deserialized = self._deserialize('ProviderDataResultAutoGenerated', pipeline_response)
+            deserialized = self._deserialize('ProviderDataResult', pipeline_response)
 
         if response.status_code == 400:
             deserialized = self._deserialize('ErrorResult', pipeline_response)
@@ -2638,9 +3867,12 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
         content_type = kwargs.pop("content_type", "application/json")
+        accept = "application/json"
 
         # Construct URL
         url = self.update_provider.metadata['url']  # type: ignore
@@ -2655,7 +3887,7 @@ class TeamCloudClientOperationsMixin(object):
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
         header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         body_content_kwargs = {}  # type: Dict[str, Any]
         if body is not None:
@@ -2664,7 +3896,6 @@ class TeamCloudClientOperationsMixin(object):
             body_content = None
         body_content_kwargs['content'] = body_content
         request = self._client.put(url, query_parameters, header_parameters, **body_content_kwargs)
-
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
         response = pipeline_response.http_response
 
@@ -2706,8 +3937,11 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
 
         # Construct URL
         url = self.delete_provider.metadata['url']  # type: ignore
@@ -2721,7 +3955,7 @@ class TeamCloudClientOperationsMixin(object):
 
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         request = self._client.delete(url, query_parameters, header_parameters)
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
@@ -2765,8 +3999,11 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
 
         # Construct URL
         url = self.get_status.metadata['url']  # type: ignore
@@ -2780,7 +4017,7 @@ class TeamCloudClientOperationsMixin(object):
 
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         request = self._client.get(url, query_parameters, header_parameters)
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
@@ -2833,8 +4070,11 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
 
         # Construct URL
         url = self.get_project_status.metadata['url']  # type: ignore
@@ -2849,7 +4089,7 @@ class TeamCloudClientOperationsMixin(object):
 
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         request = self._client.get(url, query_parameters, header_parameters)
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
@@ -2899,9 +4139,12 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
         content_type = kwargs.pop("content_type", "application/json")
+        accept = "application/json, text/json"
 
         # Construct URL
         url = self.create_team_cloud_admin_user.metadata['url']  # type: ignore
@@ -2912,7 +4155,7 @@ class TeamCloudClientOperationsMixin(object):
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
         header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         body_content_kwargs = {}  # type: Dict[str, Any]
         if body is not None:
@@ -2921,7 +4164,6 @@ class TeamCloudClientOperationsMixin(object):
             body_content = None
         body_content_kwargs['content'] = body_content
         request = self._client.post(url, query_parameters, header_parameters, **body_content_kwargs)
-
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
         response = pipeline_response.http_response
 
@@ -2963,8 +4205,11 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.TeamCloudInstanceDataResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json, text/json"
 
         # Construct URL
         url = self.get_team_cloud_instance.metadata['url']  # type: ignore
@@ -2974,7 +4219,7 @@ class TeamCloudClientOperationsMixin(object):
 
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         request = self._client.get(url, query_parameters, header_parameters)
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
@@ -3015,9 +4260,12 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.TeamCloudInstanceDataResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
         content_type = kwargs.pop("content_type", "application/json")
+        accept = "application/json, text/json"
 
         # Construct URL
         url = self.create_team_cloud_instance.metadata['url']  # type: ignore
@@ -3028,7 +4276,7 @@ class TeamCloudClientOperationsMixin(object):
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
         header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         body_content_kwargs = {}  # type: Dict[str, Any]
         if body is not None:
@@ -3037,7 +4285,6 @@ class TeamCloudClientOperationsMixin(object):
             body_content = None
         body_content_kwargs['content'] = body_content
         request = self._client.post(url, query_parameters, header_parameters, **body_content_kwargs)
-
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
         response = pipeline_response.http_response
 
@@ -3079,9 +4326,12 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.TeamCloudInstanceDataResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
         content_type = kwargs.pop("content_type", "application/json")
+        accept = "application/json, text/json"
 
         # Construct URL
         url = self.update_team_cloud_instance.metadata['url']  # type: ignore
@@ -3092,7 +4342,7 @@ class TeamCloudClientOperationsMixin(object):
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
         header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         body_content_kwargs = {}  # type: Dict[str, Any]
         if body is not None:
@@ -3101,7 +4351,6 @@ class TeamCloudClientOperationsMixin(object):
             body_content = None
         body_content_kwargs['content'] = body_content
         request = self._client.put(url, query_parameters, header_parameters, **body_content_kwargs)
-
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
         response = pipeline_response.http_response
 
@@ -3140,8 +4389,11 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StringDictionaryDataResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
 
         # Construct URL
         url = self.get_team_cloud_tags.metadata['url']  # type: ignore
@@ -3151,7 +4403,7 @@ class TeamCloudClientOperationsMixin(object):
 
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         request = self._client.get(url, query_parameters, header_parameters)
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
@@ -3195,9 +4447,12 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
         content_type = kwargs.pop("content_type", "application/json")
+        accept = "application/json"
 
         # Construct URL
         url = self.create_team_cloud_tag.metadata['url']  # type: ignore
@@ -3208,7 +4463,7 @@ class TeamCloudClientOperationsMixin(object):
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
         header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         body_content_kwargs = {}  # type: Dict[str, Any]
         if body is not None:
@@ -3217,7 +4472,6 @@ class TeamCloudClientOperationsMixin(object):
             body_content = None
         body_content_kwargs['content'] = body_content
         request = self._client.post(url, query_parameters, header_parameters, **body_content_kwargs)
-
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
         response = pipeline_response.http_response
 
@@ -3262,9 +4516,12 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
         content_type = kwargs.pop("content_type", "application/json")
+        accept = "application/json"
 
         # Construct URL
         url = self.update_team_cloud_tag.metadata['url']  # type: ignore
@@ -3275,7 +4532,7 @@ class TeamCloudClientOperationsMixin(object):
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
         header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         body_content_kwargs = {}  # type: Dict[str, Any]
         if body is not None:
@@ -3284,7 +4541,6 @@ class TeamCloudClientOperationsMixin(object):
             body_content = None
         body_content_kwargs['content'] = body_content
         request = self._client.put(url, query_parameters, header_parameters, **body_content_kwargs)
-
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
         response = pipeline_response.http_response
 
@@ -3326,8 +4582,11 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StringDictionaryDataResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
 
         # Construct URL
         url = self.get_team_cloud_tag_by_key.metadata['url']  # type: ignore
@@ -3341,7 +4600,7 @@ class TeamCloudClientOperationsMixin(object):
 
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         request = self._client.get(url, query_parameters, header_parameters)
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
@@ -3385,8 +4644,11 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
 
         # Construct URL
         url = self.delete_team_cloud_tag.metadata['url']  # type: ignore
@@ -3400,7 +4662,7 @@ class TeamCloudClientOperationsMixin(object):
 
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         request = self._client.delete(url, query_parameters, header_parameters)
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
@@ -3441,8 +4703,11 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.UserListDataResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
 
         # Construct URL
         url = self.get_team_cloud_users.metadata['url']  # type: ignore
@@ -3452,7 +4717,7 @@ class TeamCloudClientOperationsMixin(object):
 
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         request = self._client.get(url, query_parameters, header_parameters)
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
@@ -3496,9 +4761,12 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
         content_type = kwargs.pop("content_type", "application/json")
+        accept = "application/json"
 
         # Construct URL
         url = self.create_team_cloud_user.metadata['url']  # type: ignore
@@ -3509,7 +4777,7 @@ class TeamCloudClientOperationsMixin(object):
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
         header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         body_content_kwargs = {}  # type: Dict[str, Any]
         if body is not None:
@@ -3518,7 +4786,6 @@ class TeamCloudClientOperationsMixin(object):
             body_content = None
         body_content_kwargs['content'] = body_content
         request = self._client.post(url, query_parameters, header_parameters, **body_content_kwargs)
-
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
         response = pipeline_response.http_response
 
@@ -3563,8 +4830,11 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.UserDataResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
 
         # Construct URL
         url = self.get_team_cloud_user_by_name_or_id.metadata['url']  # type: ignore
@@ -3578,7 +4848,7 @@ class TeamCloudClientOperationsMixin(object):
 
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         request = self._client.get(url, query_parameters, header_parameters)
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
@@ -3625,9 +4895,12 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
         content_type = kwargs.pop("content_type", "application/json")
+        accept = "application/json"
 
         # Construct URL
         url = self.update_team_cloud_user.metadata['url']  # type: ignore
@@ -3642,7 +4915,7 @@ class TeamCloudClientOperationsMixin(object):
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
         header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         body_content_kwargs = {}  # type: Dict[str, Any]
         if body is not None:
@@ -3651,7 +4924,6 @@ class TeamCloudClientOperationsMixin(object):
             body_content = None
         body_content_kwargs['content'] = body_content
         request = self._client.put(url, query_parameters, header_parameters, **body_content_kwargs)
-
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
         response = pipeline_response.http_response
 
@@ -3693,8 +4965,11 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
 
         # Construct URL
         url = self.delete_team_cloud_user.metadata['url']  # type: ignore
@@ -3708,7 +4983,7 @@ class TeamCloudClientOperationsMixin(object):
 
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         request = self._client.delete(url, query_parameters, header_parameters)
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
@@ -3746,8 +5021,11 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.UserDataResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
 
         # Construct URL
         url = self.get_team_cloud_user_me.metadata['url']  # type: ignore
@@ -3757,7 +5035,7 @@ class TeamCloudClientOperationsMixin(object):
 
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         request = self._client.get(url, query_parameters, header_parameters)
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
@@ -3801,9 +5079,12 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
         content_type = kwargs.pop("content_type", "application/json")
+        accept = "application/json"
 
         # Construct URL
         url = self.update_team_cloud_user_me.metadata['url']  # type: ignore
@@ -3814,7 +5095,7 @@ class TeamCloudClientOperationsMixin(object):
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
         header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         body_content_kwargs = {}  # type: Dict[str, Any]
         if body is not None:
@@ -3823,7 +5104,6 @@ class TeamCloudClientOperationsMixin(object):
             body_content = None
         body_content_kwargs['content'] = body_content
         request = self._client.put(url, query_parameters, header_parameters, **body_content_kwargs)
-
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
         response = pipeline_response.http_response
 
@@ -3865,8 +5145,11 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProjectListDataResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
 
         # Construct URL
         url = self.get_user_projects.metadata['url']  # type: ignore
@@ -3880,7 +5163,7 @@ class TeamCloudClientOperationsMixin(object):
 
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         request = self._client.get(url, query_parameters, header_parameters)
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
@@ -3921,8 +5204,11 @@ class TeamCloudClientOperationsMixin(object):
         :raises: ~azure.core.exceptions.HttpResponseError
         """
         cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProjectListDataResult", "models.ErrorResult"]]]
-        error_map = {404: ResourceNotFoundError, 409: ResourceExistsError}
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
         error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
 
         # Construct URL
         url = self.get_user_projects_me.metadata['url']  # type: ignore
@@ -3932,7 +5218,7 @@ class TeamCloudClientOperationsMixin(object):
 
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = 'application/json'
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
 
         request = self._client.get(url, query_parameters, header_parameters)
         pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)

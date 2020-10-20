@@ -14,10 +14,13 @@ namespace TeamCloud.Model.Data
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
     public sealed class User : IUser, IEquatable<User>
     {
+        [JsonProperty(Required = Required.Always)]
         public string Id { get; set; }
 
+        [JsonProperty(Required = Required.Always)]
         public UserType UserType { get; set; }
 
+        [JsonProperty(Required = Required.Always)]
         public TeamCloudUserRole Role { get; set; }
 
         public IList<ProjectMembership> ProjectMemberships { get; set; } = new List<ProjectMembership>();

@@ -45,6 +45,13 @@ namespace TeamCloud.Model.Data
             => source.PopulateExternalModel<ProjectLinkDocument, ProjectLink>(target);
 
 
+        public static Component PopulateExternalModel(this ComponentDocument source, Component target = null)
+            => source.PopulateExternalModel<ComponentDocument, Component>(target);
+
+
+        public static ComponentOffer PopulateExternalModel(this ComponentOfferDocument source, ComponentOffer target = null)
+            => source.PopulateExternalModel<ComponentOfferDocument, ComponentOffer>(target);
+
         public static TeamCloudInstance PopulateExternalModel(this TeamCloudInstanceDocument source, TeamCloudInstance target = null)
             => source.PopulateExternalModel<TeamCloudInstanceDocument, TeamCloudInstance>(target);
 

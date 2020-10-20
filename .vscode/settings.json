@@ -1,9 +1,24 @@
 {
+    "azureFunctions.projectLanguage": "C#",
+    "azureFunctions.projectRuntime": "~3",
     "spellright.language": [
         "en"
     ],
     "spellright.documentTypes": [
-        "latex",
-        "plaintext"
-    ]
+        "latex"
+    ],
+    "files.exclude": {
+        "**/.vs": true,
+        "**/bin": true,
+        "**/obj": true,
+        "**/.git": true,
+        "**/.DS_Store": true,
+        "**/**.egg-info": true,
+        "**/__pycache__": true,
+        "**/**.dist-info": true,
+        "client/dist": true,
+        "client/tc/build": true,
+        "client/env/include": true,
+        "client/env/pyvenv.cfg": true,
+    }
 }

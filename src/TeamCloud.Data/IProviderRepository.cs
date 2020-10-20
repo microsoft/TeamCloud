@@ -13,7 +13,9 @@ namespace TeamCloud.Data
     {
         Task<ProviderDocument> GetAsync(string id);
 
-        IAsyncEnumerable<ProviderDocument> ListAsync();
+        IAsyncEnumerable<ProviderDocument> ListAsync(bool includeServiceProviders = true);
+
+        IAsyncEnumerable<ProviderDocument> ListAsync(ProviderType providerType);
 
         IAsyncEnumerable<ProviderDocument> ListAsync(IEnumerable<string> ids);
 

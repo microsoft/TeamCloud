@@ -9,8 +9,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Flurl;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Blob;
+using Microsoft.Azure.Storage;
+using Microsoft.Azure.Storage.Blob;
 
 namespace TeamCloud.Azure.Deployment.Providers
 {

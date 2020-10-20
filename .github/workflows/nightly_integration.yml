@@ -23,52 +23,25 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: '3.1.300'
+          dotnet-version: '3.1.403'
 
       - name: Build TeamCloud.API
         run: |
           dotnet publish ${{ env.SOURCE_DIRECTORY }}/TeamCloud.API/TeamCloud.API.csproj -o TeamCloud.API -c ${{ env.BUILD_CONFIGURATION }} -p:IncludeSymbols=true
 
-      - name: Generate OpenAPI definition
-        run: |
-          pushd ${{ env.SOURCE_DIRECTORY }}/TeamCloud.API
-            dotnet tool restore
-            dotnet swagger tofile --output ../../client/swagger.json ../../TeamCloud.API/TeamCloud.API.dll v1
-          popd
+      - name: Generate OpenAPI & Python Client
+        run: bash ./scripts/create-clients.sh ../../TeamCloud.API/TeamCloud.API.dll
 
-      - name: Setup Node
-        uses: actions/setup-node@v1
+      - uses: actions/setup-python@v2
         with:
-          node-version: '10.x'
+          python-version: '3.8'
 
-      - name: Setup Python
-        uses: actions/setup-python@v1
+      - uses: actions/setup-node@v1
         with:
-          python-version: '3.x'
+          node-version: '12'
 
-      - name: Install Autorest
-        run: npm install -g autorest
-
-      - name: Generate Python SDK
-        run: |
-          pushd client
-            autorest --v3
-          popd
-
-      - name: Setup Azure CLI Dev Tools (azdev)
-        run: |
-          python -m venv env
-          source env/bin/activate
-          pip install azdev
-          azdev setup -r $PWD -e tc
-          deactivate
-
-      - name: TeamCloud CLI Lint & Style checks
-        run: |
-          source env/bin/activate
-          azdev linter tc
-          azdev style tc
-          deactivate
+      - name: Build TeamCloud CLI
+        run: bash ./scripts/build-cli.sh
 
       - name: Login to Azure CLI
         run: |

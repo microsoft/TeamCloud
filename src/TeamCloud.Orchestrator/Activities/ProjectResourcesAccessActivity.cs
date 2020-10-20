@@ -19,13 +19,13 @@ namespace TeamCloud.Orchestrator.Activities
     {
         private readonly IAzureSessionService azureSessionService;
         private readonly IAzureResourceService azureResourceService;
-        private readonly IProjectRepository projectsRepository;
+        private readonly IProjectRepository projectRepository;
 
-        public ProjectResourcesAccessActivity(IAzureSessionService azureSessionService, IAzureResourceService azureResourceService, IProjectRepository projectsRepository)
+        public ProjectResourcesAccessActivity(IAzureSessionService azureSessionService, IAzureResourceService azureResourceService, IProjectRepository projectRepository)
         {
             this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
             this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
-            this.projectsRepository = projectsRepository ?? throw new ArgumentNullException(nameof(projectsRepository));
+            this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
         }
 
         [FunctionName(nameof(ProjectResourcesAccessActivity))]
@@ -38,7 +38,7 @@ namespace TeamCloud.Orchestrator.Activities
 
             var functionInput = activitiyContext.GetInput<Input>();
 
-            var project = await projectsRepository
+            var project = await projectRepository
                 .GetAsync(functionInput.ProjectId)
                 .ConfigureAwait(false);
 
@@ -73,7 +73,7 @@ namespace TeamCloud.Orchestrator.Activities
             }
         }
 
-        public struct Input
+        internal struct Input
         {
             public string ProjectId { get; set; }
 

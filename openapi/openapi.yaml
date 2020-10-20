@@ -1,0 +1,4055 @@
+openapi: 3.0.1
+info:
+  title: TeamCloud
+  description: API for working with a TeamCloud instance.
+  contact:
+    name: TeamCloud Dev Team
+    url: https://github.com/microsoft/TeamCloud/issues/new
+    email: Markus.Heiliger@microsoft.com
+  license:
+    name: TeamCloud is licensed under the MIT License
+    url: https://github.com/microsoft/TeamCloud/blob/master/LICENSE
+  version: v1
+paths:
+  /api/projects:
+    get:
+      tags:
+        - Project
+      summary: Gets all Projects.
+      operationId: GetProjects
+      responses:
+        '200':
+          description: Returns all Projects.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectListDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    post:
+      tags:
+        - Project
+      summary: Creates a new Project.
+      operationId: CreateProject
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectDefinition'
+      responses:
+        '202':
+          description: Started creating the new Project. Returns a StatusResult object that can be used to track progress of the long-running operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '409':
+          description: A Project already exists with the name specified in the request body.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  '/api/projects/{projectNameOrId}':
+    get:
+      tags:
+        - Project
+      summary: Gets a Project by Name or ID.
+      operationId: GetProjectByNameOrId
+      parameters:
+        - name: projectNameOrId
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+      responses:
+        '200':
+          description: Returns a Project.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A Project with the specified Name or ID was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    delete:
+      tags:
+        - Project
+      summary: Deletes a Project.
+      operationId: DeleteProject
+      parameters:
+        - name: projectNameOrId
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+      responses:
+        '202':
+          description: Starts deleting the specified Project. Returns a StatusResult object that can be used to track progress of the long-running operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A Project with the specified name or ID was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  '/api/projects/{projectId}/components':
+    get:
+      tags:
+        - ProjectComponents
+      summary: Gets all Components for a Project.
+      operationId: GetProjectComponents
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns all Project Components
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComponentListDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A Project with the provided projectId was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    post:
+      tags:
+        - ProjectComponents
+      summary: Creates a new Project Component.
+      operationId: CreateProjectComponent
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComponentRequest'
+      responses:
+        '201':
+          description: The created Project Component.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComponentDataResult'
+        '202':
+          description: Starts creating the new Project Component. Returns a StatusResult object that can be used to track progress of the long-running operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A Project with the provided projectId was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '409':
+          description: A Project Component already exists with the id provided in the request body.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  '/api/projects/{projectId}/components/{componentId}':
+    get:
+      tags:
+        - ProjectComponents
+      summary: Gets a Project Component by id.
+      operationId: GetProjectComponentById
+      parameters:
+        - name: componentId
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns Project Component
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComponentDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: 'A Project with the provided projectId was not found, or a Component with the provided id was not found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    delete:
+      tags:
+        - ProjectComponents
+      summary: Deletes an existing Project Component.
+      operationId: DeleteProjectComponent
+      parameters:
+        - name: componentId
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '202':
+          description: Starts deleting the Project Component. Returns a StatusResult object that can be used to track progress of the long-running operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResult'
+        '204':
+          description: The Project Component was deleted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComponentDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: 'A Project with the provided id was not found, or a Component with the provided id was not found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  '/api/projects/{projectId}/identity':
+    get:
+      tags:
+        - ProjectIdentities
+      summary: Gets the ProjectIdentity for a Project.
+      operationId: GetProjectIdentity
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns ProjectIdentity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectIdentityDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: 'A Project with the provided projectId was not found, or a ProjectIdentity was not found for the Project.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  '/api/projects/{projectId}/links':
+    get:
+      tags:
+        - ProjectLinks
+      summary: Gets all Links for a Project.
+      operationId: GetProjectLinks
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns all Project Links
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectLinkListDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A Project with the provided projectId was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    post:
+      tags:
+        - ProjectLinks
+      summary: Creates a new Project Link.
+      operationId: CreateProjectLink
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectLink'
+      responses:
+        '201':
+          description: The created Project Link.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectLinkDataResult'
+        '202':
+          description: Starts creating the new Project Link. Returns a StatusResult object that can be used to track progress of the long-running operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A Project with the provided projectId was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '409':
+          description: A Project Link already exists with the key provided in the request body.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  '/api/projects/{projectId}/links/{linkId}':
+    get:
+      tags:
+        - ProjectLinks
+      summary: Gets a Project Link by Key.
+      operationId: GetProjectLinkByKey
+      parameters:
+        - name: linkId
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns Project Link
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectLinkDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: 'A Project with the provided projectId was not found, or a Tag with the provided key was not found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    put:
+      tags:
+        - ProjectLinks
+      summary: Updates an existing Project Link.
+      operationId: UpdateProjectLink
+      parameters:
+        - name: linkId
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectLink'
+      responses:
+        '200':
+          description: The Project Link was updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectLinkDataResult'
+        '202':
+          description: Starts updating the Project Link. Returns a StatusResult object that can be used to track progress of the long-running operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: 'A Project with the provided projectId was not found, or a Tag with the key provided in the request body was not found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    delete:
+      tags:
+        - ProjectLinks
+      summary: Deletes an existing Project Link.
+      operationId: DeleteProjectLink
+      parameters:
+        - name: linkId
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '202':
+          description: Starts deleting the Project Link. Returns a StatusResult object that can be used to track progress of the long-running operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResult'
+        '204':
+          description: The Project Link was deleted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectLinkDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: 'A Project with the provided Id was not found, or a Link with the provided Id was not found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  '/api/projects/{projectId}/offers':
+    get:
+      tags:
+        - ProjectOffers
+      summary: Gets all Project Offers.
+      operationId: GetProjectOffers
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns all Project Offers
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComponentOfferListDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A Project with the provided providerId was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  '/api/projects/{projectId}/offers/{offerId}':
+    get:
+      tags:
+        - ProjectOffers
+      summary: Gets the Offer by id.
+      operationId: GetProjectOfferById
+      parameters:
+        - name: offerId
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns a ComponentOffer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComponentOfferDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A ComponentOffer with the provided id was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  '/api/projects/{projectId}/providers/{providerId}/data':
+    get:
+      tags:
+        - ProjectProviderData
+      summary: Gets the ProviderData items for a Project.
+      operationId: GetProjectProviderData
+      parameters:
+        - name: includeShared
+          in: query
+          schema:
+            type: boolean
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: providerId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns ProviderData
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderDataDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: 'A Provider with the provided id was not found, or a Project with the provided identifier was not found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    post:
+      tags:
+        - ProjectProviderData
+      summary: Creates a new ProviderData
+      operationId: CreateProjectProviderData
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: providerId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProviderData'
+      responses:
+        '201':
+          description: The ProviderData was created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderDataDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: 'A Provider with the provided provider ID was not found, or a Project with the id specified was not found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '409':
+          description: A Project User already exists with the email address provided in the request body.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  '/api/projects/{projectId}/providers/{providerId}/data/{providerDataId}':
+    get:
+      tags:
+        - ProjectProviderData
+      summary: Gets a ProviderData for a Project by ID.
+      operationId: GetProjectProviderDataById
+      parameters:
+        - name: providerDataId
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: providerId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns ProviderData
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderDataDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: 'A ProviderData with the provided id was not found, or a Project with the provided identifier was not found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    put:
+      tags:
+        - ProjectProviderData
+      summary: Updates an existing ProviderData.
+      operationId: UpdateProjectProviderData
+      parameters:
+        - name: providerDataId
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: providerId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProviderData'
+      responses:
+        '200':
+          description: The ProviderData was updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderDataDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: 'A Project with the provided projectId was not found, or a User with the ID provided in the request body was not found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    delete:
+      tags:
+        - ProjectProviderData
+      summary: Deletes a ProviderData.
+      operationId: DeleteProjectProviderData
+      parameters:
+        - name: providerDataId
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: providerId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: The ProviderData was deleted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderDataDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A ProviderData with the providerDataId provided was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  '/api/projects/{projectId}/tags':
+    get:
+      tags:
+        - ProjectTags
+      summary: Gets all Tags for a Project.
+      operationId: GetProjectTags
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns all Project Tags
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StringStringDictionaryDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A Project with the provided projectId was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    post:
+      tags:
+        - ProjectTags
+      summary: Creates a new Project Tag.
+      operationId: CreateProjectTag
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties:
+                type: string
+              nullable: true
+      responses:
+        '202':
+          description: Starts creating the new Project Tag. Returns a StatusResult object that can be used to track progress of the long-running operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A Project with the provided projectId was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '409':
+          description: A Project Tag already exists with the key provided in the request body.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    put:
+      tags:
+        - ProjectTags
+      summary: Updates an existing Project Tag.
+      operationId: UpdateProjectTag
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties:
+                type: string
+              nullable: true
+      responses:
+        '202':
+          description: Starts updating the Project Tag. Returns a StatusResult object that can be used to track progress of the long-running operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: 'A Project with the provided projectId was not found, or a Tag with the key provided in the request body was not found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  '/api/projects/{projectId}/tags/{tagKey}':
+    get:
+      tags:
+        - ProjectTags
+      summary: Gets a Project Tag by Key.
+      operationId: GetProjectTagByKey
+      parameters:
+        - name: tagKey
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns Project Tag
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StringStringDictionaryDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: 'A Project with the provided projectId was not found, or a Tag with the provided key was not found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    delete:
+      tags:
+        - ProjectTags
+      summary: Deletes an existing Project Tag.
+      operationId: DeleteProjectTag
+      parameters:
+        - name: tagKey
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '202':
+          description: Starts deleting the Project Tag. Returns a StatusResult object that can be used to track progress of the long-running operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: 'A Project with the provided projectId was not found, or a Tag with the provided key was not found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  /api/projectTypes:
+    get:
+      tags:
+        - ProjectTypes
+      summary: Gets all Project Types.
+      operationId: GetProjectTypes
+      responses:
+        '200':
+          description: Returns all ProjectTypes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectTypeListDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    post:
+      tags:
+        - ProjectTypes
+      summary: Creates a new Project Type.
+      operationId: CreateProjectType
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectType'
+      responses:
+        '201':
+          description: The new ProjectType was created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectTypeDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '409':
+          description: A ProjectType already exists with the ID provided in the request body.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  '/api/projectTypes/{projectTypeId}':
+    get:
+      tags:
+        - ProjectTypes
+      summary: Gets a Project Type by ID.
+      operationId: GetProjectTypeById
+      parameters:
+        - name: projectTypeId
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+      responses:
+        '200':
+          description: Returns a ProjectType.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectTypeDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A ProjectType with the projectTypeId provided was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    put:
+      tags:
+        - ProjectTypes
+      summary: Updates an existing Project Type.
+      operationId: UpdateProjectType
+      parameters:
+        - name: projectTypeId
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectType'
+      responses:
+        '200':
+          description: The ProjectType was updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectTypeDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A Project Type with the ID provided in the request body could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    delete:
+      tags:
+        - ProjectTypes
+      summary: Deletes a Project Type.
+      operationId: DeleteProjectType
+      parameters:
+        - name: projectTypeId
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+      responses:
+        '204':
+          description: The ProjectType was deleted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectTypeDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A ProjectType with the projectTypeId provided was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  '/api/projects/{projectId}/users':
+    get:
+      tags:
+        - ProjectUsers
+      summary: Gets all Users for a Project.
+      operationId: GetProjectUsers
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns all Project Users
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserListDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A Project with the provided projectId was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    post:
+      tags:
+        - ProjectUsers
+      summary: Creates a new Project User
+      operationId: CreateProjectUser
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserDefinition'
+      responses:
+        '202':
+          description: Starts creating the new Project User. Returns a StatusResult object that can be used to track progress of the long-running operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: 'A Project with the provided projectId was not found, or a User with the email address provided in the request body was not found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '409':
+          description: A Project User already exists with the email address provided in the request body.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  '/api/projects/{projectId}/users/{userNameOrId}':
+    get:
+      tags:
+        - ProjectUsers
+      summary: Gets a Project User by ID or email address.
+      operationId: GetProjectUserByNameOrId
+      parameters:
+        - name: userNameOrId
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns Project User
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: 'A Project with the provided projectId was not found, or a User with the provided identifier was not found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    put:
+      tags:
+        - ProjectUsers
+      summary: Updates an existing Project User.
+      operationId: UpdateProjectUser
+      parameters:
+        - name: userNameOrId
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '202':
+          description: Starts updating the Project UserProject. Returns a StatusResult object that can be used to track progress of the long-running operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: 'A Project with the provided projectId was not found, or a User with the ID provided in the request body was not found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    delete:
+      tags:
+        - ProjectUsers
+      summary: Deletes an existing Project User.
+      operationId: DeleteProjectUser
+      parameters:
+        - name: userNameOrId
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '202':
+          description: Starts deleting the Project User. Returns a StatusResult object that can be used to track progress of the long-running operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: 'A Project with the provided projectId was not found, or a User with the provided identifier was not found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  '/api/projects/{projectId}/users/me':
+    get:
+      tags:
+        - ProjectUsers
+      summary: Gets a Project User for the calling user.
+      operationId: GetProjectUserMe
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns Project User
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: 'A Project with the provided projectId was not found, or a User matching the current user was not found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    put:
+      tags:
+        - ProjectUsers
+      summary: Updates an existing Project User.
+      operationId: UpdateProjectUserMe
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '202':
+          description: Starts updating the Project User. Returns a StatusResult object that can be used to track progress of the long-running operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: 'A Project with the provided projectId was not found, or a User matching the current user was not found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  '/api/providers/{providerId}/data':
+    get:
+      tags:
+        - ProviderData
+      summary: Gets all ProviderData for a Provider.
+      operationId: GetProviderData
+      parameters:
+        - name: providerId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns all ProviderData
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderDataListDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A Provider with the provided providerId was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    post:
+      tags:
+        - ProviderData
+      summary: Creates a new ProviderData item
+      operationId: CreateProviderData
+      parameters:
+        - name: providerId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProviderData'
+      responses:
+        '201':
+          description: The new ProviderData was created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderDataDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A Project with the provided projectId was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '409':
+          description: A Project User already exists with the email address provided in the request body.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  '/api/providers/{providerId}/data/{providerDataId}':
+    get:
+      tags:
+        - ProviderData
+      summary: Gets the ProviderData by ID.
+      operationId: GetProviderDataById
+      parameters:
+        - name: providerDataId
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+        - name: providerId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns a ProviderData
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderDataDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A ProviderData with the provided ID was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    put:
+      tags:
+        - ProviderData
+      summary: Updates an existing ProviderData.
+      operationId: UpdateProviderData
+      parameters:
+        - name: providerDataId
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+        - name: providerId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProviderData'
+      responses:
+        '200':
+          description: The ProviderData was updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderDataDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: 'A Project with the provided projectId was not found, or a User with the ID provided in the request body was not found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    delete:
+      tags:
+        - ProviderData
+      summary: Deletes a ProviderData.
+      operationId: DeleteProviderData
+      parameters:
+        - name: providerDataId
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+        - name: providerId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: The ProviderData was deleted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderDataDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A ProviderData with the providerDataId provided was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  '/api/providers/{providerId}/offers':
+    get:
+      tags:
+        - ProviderOffers
+      summary: Gets all Provider Offers.
+      operationId: GetProviderOffers
+      parameters:
+        - name: providerId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns all Provider Offers
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComponentOfferListDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A Provider with the provided providerId was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    post:
+      tags:
+        - ProviderOffers
+      summary: Creates a new ComponentOffer item
+      operationId: CreateProviderOffer
+      parameters:
+        - name: providerId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComponentOffer'
+      responses:
+        '201':
+          description: The new ComponentOffer was created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComponentOfferDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A Provider with the provided providerId was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '409':
+          description: A ComponentOffer already exists with the id provided in the request body.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  '/api/providers/{providerId}/offers/{offerId}':
+    get:
+      tags:
+        - ProviderOffers
+      summary: Gets the Offer by id.
+      operationId: GetProviderOfferById
+      parameters:
+        - name: offerId
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+        - name: providerId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns a ComponentOffer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComponentOfferDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A ComponentOffer with the provided id was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    put:
+      tags:
+        - ProviderOffers
+      summary: Updates an existing ComponentOffer.
+      operationId: UpdateProviderOffer
+      parameters:
+        - name: offerId
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+        - name: providerId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComponentOffer'
+      responses:
+        '200':
+          description: The ComponentOffer was updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComponentOfferDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: 'A Provider with the provided providerId was not found, or a ComponentOffer with the provided offerId was not found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    delete:
+      tags:
+        - ProviderOffers
+      summary: Deletes a ComponentOffer.
+      operationId: DeleteProviderOffer
+      parameters:
+        - name: offerId
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+        - name: providerId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: The ComponentOffer was deleted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComponentOfferDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A ComponentOffer with the offerId provided was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  '/api/projects/{projectId}/providers/{providerId}/components':
+    get:
+      tags:
+        - ProviderProjectComponents
+      summary: Gets all Components for a Project.
+      operationId: GetProviderProjectComponents
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: providerId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns all Project Components
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComponentListDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A Project with the provided projectId was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    post:
+      tags:
+        - ProviderProjectComponents
+      summary: Creates a new Project Component.
+      operationId: CreateProviderProjectComponent
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: providerId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Component'
+      responses:
+        '201':
+          description: The created Project Component.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComponentDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A Project with the provided projectId was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '409':
+          description: A Project Component already exists with the id provided in the request body.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  '/api/projects/{projectId}/providers/{providerId}/components/{componentId}':
+    get:
+      tags:
+        - ProviderProjectComponents
+      summary: Gets a Project Component by id.
+      operationId: GetProviderProjectComponentById
+      parameters:
+        - name: componentId
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: providerId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns Project Component
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComponentDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: 'A Project with the provided projectId was not found, or a Component with the provided id was not found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    put:
+      tags:
+        - ProviderProjectComponents
+      summary: Updates an existing Project Component.
+      operationId: UpdateProviderProjectComponent
+      parameters:
+        - name: componentId
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: providerId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Component'
+      responses:
+        '200':
+          description: The Project Component was updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComponentDataResult'
+        '202':
+          description: Starts updating the Project Component. Returns a StatusResult object that can be used to track progress of the long-running operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: 'A Project with the provided projectId was not found, or a Component with the id provided in the request body was not found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    delete:
+      tags:
+        - ProviderProjectComponents
+      summary: Deletes an existing Project Component.
+      operationId: DeleteProviderProjectComponent
+      parameters:
+        - name: componentId
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: providerId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '202':
+          description: Starts deleting the Project Component. Returns a StatusResult object that can be used to track progress of the long-running operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResult'
+        '204':
+          description: The Project Component was deleted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComponentDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: 'A Project with the provided id was not found, or a Component with the provided id was not found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  /api/providers:
+    get:
+      tags:
+        - Providers
+      summary: Gets all Providers.
+      operationId: GetProviders
+      responses:
+        '200':
+          description: Returns all Providers.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderListDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    post:
+      tags:
+        - Providers
+      summary: Creates a new Provider.
+      operationId: CreateProvider
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Provider'
+      responses:
+        '202':
+          description: Starts creating the new Provider. Returns a StatusResult object that can be used to track progress of the long-running operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '409':
+          description: A Provider already exists with the ID provided in the request body.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  '/api/providers/{providerId}':
+    get:
+      tags:
+        - Providers
+      summary: Gets a Provider by ID.
+      operationId: GetProviderById
+      parameters:
+        - name: providerId
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+      responses:
+        '200':
+          description: Returns a DataResult with the Provider as the data value.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A Provider with the providerId provided was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    put:
+      tags:
+        - Providers
+      summary: Updates an existing Provider.
+      operationId: UpdateProvider
+      parameters:
+        - name: providerId
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Provider'
+      responses:
+        '202':
+          description: Starts updating the provided Provider. Returns a StatusResult object that can be used to track progress of the long-running operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A Provider with the ID provided in the reques body was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    delete:
+      tags:
+        - Providers
+      summary: Deletes an existing Provider.
+      operationId: DeleteProvider
+      parameters:
+        - name: providerId
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+      responses:
+        '202':
+          description: Starts deleting the provided Provider. Returns a StatusResult object that can be used to track progress of the long-running operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A Provider with the provided providerId was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  '/api/status/{trackingId}':
+    get:
+      tags:
+        - Status
+      summary: Gets the status of a long-running operation.
+      operationId: GetStatus
+      parameters:
+        - name: trackingId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: The long-running operation completed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResult'
+        '202':
+          description: The long-running operation is running. Returns a StatusResult object that can be used to track progress of the long-running operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResult'
+        '302':
+          description: The long-running operation completed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: The long-running operation with the trackingId provided was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  '/api/projects/{projectId}/status/{trackingId}':
+    get:
+      tags:
+        - Status
+      summary: Gets the status of a long-running operation.
+      operationId: GetProjectStatus
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+        - name: trackingId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: The long-running operation completed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResult'
+        '202':
+          description: The long-running operation is running. Returns a StatusResult object that can be used to track progress of the long-running operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResult'
+        '302':
+          description: The long-running operation completed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: The long-running operation with the trackingId provided was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  /api/admin/users:
+    post:
+      tags:
+        - TeamCloudAdmin
+      summary: Creates a new TeamCloud User as an Admin.
+      operationId: CreateTeamCloudAdminUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserDefinition'
+      responses:
+        '202':
+          description: Starts creating the new TeamCloud User as an Admin. Returns a StatusResult object that can be used to track progress of the long-running operation.
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/StatusResult'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResult'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/StatusResult'
+        '400':
+          description: A validation error occured.
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: 'The TeamCloud instance was not found, or a User with the email address provided in the request body was not found.'
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '409':
+          description: A TeamCloud User already exists with the email address provided in the request body.
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  /api/admin/teamCloudInstance:
+    get:
+      tags:
+        - TeamCloudAdmin
+      summary: Gets the TeamCloud instance.
+      operationId: GetTeamCloudInstance
+      responses:
+        '200':
+          description: Returns the TeamCloudInstance.
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/TeamCloudInstanceDataResult'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamCloudInstanceDataResult'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/TeamCloudInstanceDataResult'
+        '404':
+          description: The TeamCloud instance was not found.
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    post:
+      tags:
+        - TeamCloudAdmin
+      summary: Updates the TeamCloud instance.
+      operationId: CreateTeamCloudInstance
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeamCloudInstance'
+      responses:
+        '201':
+          description: The TeamCloud instance was created.
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/TeamCloudInstanceDataResult'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamCloudInstanceDataResult'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/TeamCloudInstanceDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: The TeamCloud instance was not found.
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    put:
+      tags:
+        - TeamCloudAdmin
+      summary: Updates the TeamCloud instance.
+      operationId: UpdateTeamCloudInstance
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeamCloudInstance'
+      responses:
+        '200':
+          description: The TeamCloud instance was updated.
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/TeamCloudInstanceDataResult'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamCloudInstanceDataResult'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/TeamCloudInstanceDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: The TeamCloud instance was not found.
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  /api/tags:
+    get:
+      tags:
+        - TeamCloudTags
+      summary: Gets all Tags for a TeamCloud Instance.
+      operationId: GetTeamCloudTags
+      responses:
+        '200':
+          description: Returns all TeamCloud Tags
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StringStringDictionaryDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: The TeamCloud instance was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    post:
+      tags:
+        - TeamCloudTags
+      summary: Creates a new TeamCloud Tag.
+      operationId: CreateTeamCloudTag
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties:
+                type: string
+              nullable: true
+      responses:
+        '202':
+          description: Starts creating the new TeamCloud Tag. Returns a StatusResult object that can be used to track progress of the long-running operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: The TeamCloud instance was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '409':
+          description: A TeamCloud Tag already exists with the key provided in the request body.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    put:
+      tags:
+        - TeamCloudTags
+      summary: Updates an existing TeamCloud Tag.
+      operationId: UpdateTeamCloudTag
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties:
+                type: string
+              nullable: true
+      responses:
+        '202':
+          description: Starts updating the TeamCloud Tag. Returns a StatusResult object that can be used to track progress of the long-running operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: 'The TeamCloud instance was not found, or a Tag with the key provided in the request body was not found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  '/api/tags/{tagKey}':
+    get:
+      tags:
+        - TeamCloudTags
+      summary: Gets a TeamCloud Tag by Key.
+      operationId: GetTeamCloudTagByKey
+      parameters:
+        - name: tagKey
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+      responses:
+        '200':
+          description: Returns TeamCloud Tag
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StringStringDictionaryDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: 'The TeamCloud instance was not found, or a Tag with the provided key was not found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    delete:
+      tags:
+        - TeamCloudTags
+      summary: Deletes an existing TeamCloud Tag.
+      operationId: DeleteTeamCloudTag
+      parameters:
+        - name: tagKey
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+      responses:
+        '202':
+          description: Starts deleting the TeamCloud Tag. Returns a StatusResult object that can be used to track progress of the long-running operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: 'The TeamCloud instance was not found, or a Tag with the provided key was not found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  /api/users:
+    get:
+      tags:
+        - TeamCloudUsers
+      summary: Gets all TeamCloud Users.
+      operationId: GetTeamCloudUsers
+      responses:
+        '200':
+          description: Returns all TeamCloud Users.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserListDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: The TeamCloud instance was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    post:
+      tags:
+        - TeamCloudUsers
+      summary: Creates a new TeamCloud User.
+      operationId: CreateTeamCloudUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserDefinition'
+      responses:
+        '202':
+          description: Starts creating the new TeamCloud User. Returns a StatusResult object that can be used to track progress of the long-running operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: 'The TeamCloud instance was not found, or a User with the email address provided in the request body was not found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '409':
+          description: A User already exists with the email address provided in the request body.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  '/api/users/{userNameOrId}':
+    get:
+      tags:
+        - TeamCloudUsers
+      summary: Gets a TeamCloud User by ID or email address.
+      operationId: GetTeamCloudUserByNameOrId
+      parameters:
+        - name: userNameOrId
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+      responses:
+        '200':
+          description: Returns TeamCloud User.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A User with the provided identifier was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    put:
+      tags:
+        - TeamCloudUsers
+      summary: Updates an existing TeamCloud User.
+      operationId: UpdateTeamCloudUser
+      parameters:
+        - name: userNameOrId
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '202':
+          description: Starts updating the TeamCloud User. Returns a StatusResult object that can be used to track progress of the long-running operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A User with the ID provided in the request body was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    delete:
+      tags:
+        - TeamCloudUsers
+      summary: Deletes an existing TeamCloud User.
+      operationId: DeleteTeamCloudUser
+      parameters:
+        - name: userNameOrId
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+      responses:
+        '202':
+          description: Starts deleting the TeamCloud User. Returns a StatusResult object that can be used to track progress of the long-running operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResult'
+        '404':
+          description: A User with the identifier provided was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  /api/me:
+    get:
+      tags:
+        - TeamCloudUsers
+      summary: Gets a TeamCloud User A User matching the current authenticated user.
+      operationId: GetTeamCloudUserMe
+      responses:
+        '200':
+          description: Returns TeamCloud User.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A User matching the current user was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    put:
+      tags:
+        - TeamCloudUsers
+      summary: Updates an existing TeamCloud User.
+      operationId: UpdateTeamCloudUserMe
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '202':
+          description: Starts updating the TeamCloud User. Returns a StatusResult object that can be used to track progress of the long-running operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A User with the ID provided in the request body was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  '/api/users/{userId}/projects':
+    get:
+      tags:
+        - UserProjects
+      summary: Gets all Projects for a User.
+      operationId: GetUserProjects
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns all User Projects
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectListDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A User with the provided userId was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  /api/me/projects:
+    get:
+      tags:
+        - UserProjects
+      summary: Gets all Projects for a User.
+      operationId: GetUserProjectsMe
+      responses:
+        '200':
+          description: Returns all User Projects
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectListDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A User with the provided userId was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+components:
+  schemas:
+    ProviderReference:
+      required:
+        - id
+      type: object
+      properties:
+        id:
+          type: string
+        dependsOn:
+          type: array
+          items:
+            type: string
+          nullable: true
+        properties:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+        metadata:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: string
+          nullable: true
+      additionalProperties: false
+    ProjectType:
+      required:
+        - id
+        - providers
+        - region
+        - subscriptions
+      type: object
+      properties:
+        id:
+          type: string
+        isDefault:
+          type: boolean
+        region:
+          type: string
+        subscriptions:
+          type: array
+          items:
+            type: string
+            format: uuid
+        subscriptionCapacity:
+          type: integer
+          format: int32
+        resourceGroupNamePrefix:
+          type: string
+          nullable: true
+        providers:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProviderReference'
+        tags:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+        properties:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+      additionalProperties: false
+    AzureResourceGroup:
+      required:
+        - id
+        - name
+        - region
+        - subscriptionId
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        subscriptionId:
+          type: string
+          format: uuid
+        region:
+          type: string
+      additionalProperties: false
+    ProjectMembership:
+      required:
+        - projectId
+        - role
+      type: object
+      properties:
+        projectId:
+          type: string
+        role:
+          enum:
+            - None
+            - Provider
+            - Member
+            - Owner
+          type: string
+        properties:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+      additionalProperties: false
+    User:
+      required:
+        - id
+        - role
+        - userType
+      type: object
+      properties:
+        id:
+          type: string
+        userType:
+          enum:
+            - User
+            - System
+            - Provider
+            - Application
+          type: string
+        role:
+          enum:
+            - None
+            - Provider
+            - Creator
+            - Admin
+          type: string
+        projectMemberships:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProjectMembership'
+          nullable: true
+        properties:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+      additionalProperties: false
+    ReferenceLink:
+      type: object
+      properties:
+        href:
+          type: string
+          nullable: true
+        templated:
+          type: boolean
+          readOnly: true
+      additionalProperties: false
+    ProjectReferenceLinks:
+      type: object
+      properties:
+        _self:
+          $ref: '#/components/schemas/ReferenceLink'
+        identity:
+          $ref: '#/components/schemas/ReferenceLink'
+        users:
+          $ref: '#/components/schemas/ReferenceLink'
+        links:
+          $ref: '#/components/schemas/ReferenceLink'
+        offers:
+          $ref: '#/components/schemas/ReferenceLink'
+        components:
+          $ref: '#/components/schemas/ReferenceLink'
+      additionalProperties: false
+    Project:
+      required:
+        - id
+        - name
+        - type
+        - users
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        type:
+          $ref: '#/components/schemas/ProjectType'
+        resourceGroup:
+          $ref: '#/components/schemas/AzureResourceGroup'
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+        tags:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+        properties:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+        _links:
+          $ref: '#/components/schemas/ProjectReferenceLinks'
+      additionalProperties: false
+    ProjectListDataResult:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        status:
+          type: string
+          nullable: true
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Project'
+          nullable: true
+          readOnly: true
+        location:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ValidationError:
+      type: object
+      properties:
+        field:
+          type: string
+          nullable: true
+        message:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ResultError:
+      type: object
+      properties:
+        code:
+          enum:
+            - Unknown
+            - Failed
+            - Conflict
+            - NotFound
+            - ServerError
+            - ValidationError
+            - Unauthorized
+            - Forbidden
+          type: string
+        message:
+          type: string
+          nullable: true
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          nullable: true
+      additionalProperties: false
+    ErrorResult:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        status:
+          type: string
+          nullable: true
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResultError'
+          nullable: true
+      additionalProperties: false
+    UserDefinition:
+      type: object
+      properties:
+        identifier:
+          type: string
+          nullable: true
+        role:
+          type: string
+          nullable: true
+        properties:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+      additionalProperties: false
+    ProjectDefinition:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        projectType:
+          type: string
+          nullable: true
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserDefinition'
+          nullable: true
+        tags:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+        properties:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+      additionalProperties: false
+    StatusResult:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        status:
+          type: string
+          nullable: true
+        state:
+          type: string
+          nullable: true
+          readOnly: true
+        stateMessage:
+          type: string
+          nullable: true
+        location:
+          type: string
+          nullable: true
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResultError'
+          nullable: true
+        _trackingId:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ProjectDataResult:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        status:
+          type: string
+          nullable: true
+        data:
+          $ref: '#/components/schemas/Project'
+        location:
+          type: string
+          nullable: true
+      additionalProperties: false
+    Component:
+      required:
+        - id
+        - providerId
+        - requestedBy
+        - scope
+        - type
+      type: object
+      properties:
+        id:
+          type: string
+        href:
+          type: string
+          nullable: true
+        offerId:
+          type: string
+          nullable: true
+        projectId:
+          type: string
+          nullable: true
+        providerId:
+          type: string
+        requestedBy:
+          type: string
+        displayName:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        inputJson:
+          type: string
+          nullable: true
+        valueJson:
+          type: string
+          nullable: true
+        scope:
+          enum:
+            - System
+            - Project
+            - All
+          type: string
+        type:
+          enum:
+            - Custom
+            - GitRepository
+          type: string
+      additionalProperties: false
+    ComponentListDataResult:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        status:
+          type: string
+          nullable: true
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Component'
+          nullable: true
+          readOnly: true
+        location:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ComponentRequest:
+      required:
+        - offerId
+      type: object
+      properties:
+        offerId:
+          type: string
+        inputJson:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ComponentDataResult:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        status:
+          type: string
+          nullable: true
+        data:
+          $ref: '#/components/schemas/Component'
+        location:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ProjectIdentity:
+      required:
+        - applicationId
+        - id
+        - secret
+        - tenantId
+      type: object
+      properties:
+        id:
+          type: string
+        tenantId:
+          type: string
+          format: uuid
+        applicationId:
+          type: string
+          format: uuid
+        secret:
+          type: string
+      additionalProperties: false
+    ProjectIdentityDataResult:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        status:
+          type: string
+          nullable: true
+        data:
+          $ref: '#/components/schemas/ProjectIdentity'
+        location:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ProjectLink:
+      required:
+        - href
+        - id
+        - type
+      type: object
+      properties:
+        id:
+          type: string
+        href:
+          type: string
+        title:
+          type: string
+          nullable: true
+        type:
+          enum:
+            - Link
+            - Readme
+            - Service
+            - GitRepository
+            - AzureResource
+          type: string
+      additionalProperties: false
+    ProjectLinkListDataResult:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        status:
+          type: string
+          nullable: true
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProjectLink'
+          nullable: true
+          readOnly: true
+        location:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ProjectLinkDataResult:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        status:
+          type: string
+          nullable: true
+        data:
+          $ref: '#/components/schemas/ProjectLink'
+        location:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ComponentOffer:
+      required:
+        - id
+        - providerId
+        - scope
+        - type
+      type: object
+      properties:
+        id:
+          type: string
+        providerId:
+          type: string
+        displayName:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        inputJsonSchema:
+          type: string
+          nullable: true
+        scope:
+          enum:
+            - System
+            - Project
+            - All
+          type: string
+        type:
+          enum:
+            - Custom
+            - GitRepository
+          type: string
+      additionalProperties: false
+    ComponentOfferListDataResult:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        status:
+          type: string
+          nullable: true
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ComponentOffer'
+          nullable: true
+          readOnly: true
+        location:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ComponentOfferDataResult:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        status:
+          type: string
+          nullable: true
+        data:
+          $ref: '#/components/schemas/ComponentOffer'
+        location:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ProviderData:
+      required:
+        - dataType
+        - id
+        - scope
+        - value
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          nullable: true
+        value: { }
+        location:
+          type: string
+          nullable: true
+        isSecret:
+          type: boolean
+        isShared:
+          type: boolean
+        scope:
+          enum:
+            - System
+            - Project
+          type: string
+        dataType:
+          enum:
+            - Property
+            - Service
+          type: string
+        stringValue:
+          type: string
+          nullable: true
+          readOnly: true
+      additionalProperties: false
+    ProviderDataDataResult:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        status:
+          type: string
+          nullable: true
+        data:
+          $ref: '#/components/schemas/ProviderData'
+        location:
+          type: string
+          nullable: true
+      additionalProperties: false
+    StringStringDictionaryDataResult:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        status:
+          type: string
+          nullable: true
+        data:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+          readOnly: true
+        location:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ProjectTypeListDataResult:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        status:
+          type: string
+          nullable: true
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProjectType'
+          nullable: true
+          readOnly: true
+        location:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ProjectTypeDataResult:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        status:
+          type: string
+          nullable: true
+        data:
+          $ref: '#/components/schemas/ProjectType'
+        location:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UserListDataResult:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        status:
+          type: string
+          nullable: true
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+          nullable: true
+          readOnly: true
+        location:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UserDataResult:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        status:
+          type: string
+          nullable: true
+        data:
+          $ref: '#/components/schemas/User'
+        location:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ProviderDataListDataResult:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        status:
+          type: string
+          nullable: true
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProviderData'
+          nullable: true
+          readOnly: true
+        location:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ProviderEventSubscription:
+      type: object
+      properties:
+        eventType:
+          type: string
+          nullable: true
+      additionalProperties: false
+    Provider:
+      required:
+        - authCode
+        - commandMode
+        - id
+        - type
+        - url
+      type: object
+      properties:
+        id:
+          type: string
+        url:
+          type: string
+        authCode:
+          type: string
+        principalId:
+          type: string
+          format: uuid
+          nullable: true
+        version:
+          type: string
+          nullable: true
+        resourceGroup:
+          $ref: '#/components/schemas/AzureResourceGroup'
+        events:
+          type: array
+          items:
+            type: string
+          nullable: true
+        eventSubscriptions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProviderEventSubscription'
+          nullable: true
+        properties:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+        registered:
+          type: string
+          format: date-time
+          nullable: true
+        type:
+          enum:
+            - Standard
+            - Service
+            - Virtual
+          type: string
+        commandMode:
+          enum:
+            - Simple
+            - Extended
+          type: string
+      additionalProperties: false
+    ProviderListDataResult:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        status:
+          type: string
+          nullable: true
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Provider'
+          nullable: true
+          readOnly: true
+        location:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ProviderDataResult:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        status:
+          type: string
+          nullable: true
+        data:
+          $ref: '#/components/schemas/Provider'
+        location:
+          type: string
+          nullable: true
+      additionalProperties: false
+    TeamCloudApplication:
+      type: object
+      properties:
+        url:
+          type: string
+          nullable: true
+        version:
+          type: string
+          nullable: true
+        type:
+          enum:
+            - Web
+          type: string
+        resourceGroup:
+          $ref: '#/components/schemas/AzureResourceGroup'
+      additionalProperties: false
+    TeamCloudInstance:
+      type: object
+      properties:
+        version:
+          type: string
+          nullable: true
+        resourceGroup:
+          $ref: '#/components/schemas/AzureResourceGroup'
+        tags:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+        applications:
+          type: array
+          items:
+            $ref: '#/components/schemas/TeamCloudApplication'
+          nullable: true
+      additionalProperties: false
+    TeamCloudInstanceDataResult:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        status:
+          type: string
+          nullable: true
+        data:
+          $ref: '#/components/schemas/TeamCloudInstance'
+        location:
+          type: string
+          nullable: true
+      additionalProperties: false
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://login.microsoftonline.com//oauth2/v2.0/authorize
+          tokenUrl: https://login.microsoftonline.com//oauth2/v2.0/token
+          scopes:
+            openid: Sign you in
+            http://TeamCloud.aztcclitestsix/user_impersonation: Access the TeamCloud API
+security:
+  - oauth2:
+      - openid
+      - http://TeamCloud.aztcclitestsix/user_impersonation

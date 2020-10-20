@@ -13,8 +13,9 @@ namespace TeamCloud.Model.Commands.Core
         where TPayload : class, new()
         where TCommandResult : ICommandResult, new()
     {
-        protected Command(TUser user, TPayload payload = default, Guid? commandId = default)
+        protected Command(CommandAction action, TUser user, TPayload payload = default, Guid? commandId = default)
         {
+            CommandAction = action;
             User = user ?? throw new ArgumentNullException(nameof(user));
             Payload = payload;
             CommandId = commandId.GetValueOrDefault(Guid.NewGuid());
@@ -22,7 +23,9 @@ namespace TeamCloud.Model.Commands.Core
 
         public Guid CommandId { get; private set; }
 
-        private string projectId = default;
+        public CommandAction CommandAction { get; private set; }
+
+        private string projectId;
 
         public virtual string ProjectId
         {
@@ -52,6 +55,7 @@ namespace TeamCloud.Model.Commands.Core
             var result = Activator.CreateInstance<TCommandResult>();
 
             result.CommandId = CommandId;
+            result.CommandAction = CommandAction;
             result.RuntimeStatus = CommandRuntimeStatus.Unknown;
 
             return result;

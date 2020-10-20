@@ -16,11 +16,11 @@ namespace TeamCloud.Orchestrator.Activities
 {
     public class ProviderCreateActivity
     {
-        private readonly IProviderRepository providersRepository;
+        private readonly IProviderRepository providerRepository;
 
-        public ProviderCreateActivity(IProviderRepository providersRepository)
+        public ProviderCreateActivity(IProviderRepository providerRepository)
         {
-            this.providersRepository = providersRepository ?? throw new ArgumentNullException(nameof(providersRepository));
+            this.providerRepository = providerRepository ?? throw new ArgumentNullException(nameof(providerRepository));
         }
 
         [FunctionName(nameof(ProviderCreateActivity))]
@@ -32,7 +32,7 @@ namespace TeamCloud.Orchestrator.Activities
 
             var provider = activityContext.GetInput<ProviderDocument>();
 
-            provider = await providersRepository
+            provider = await providerRepository
                 .AddAsync(provider)
                 .ConfigureAwait(false);
 

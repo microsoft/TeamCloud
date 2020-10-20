@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -28,14 +29,12 @@ namespace TeamCloud.API.Controllers
     [Produces("application/json")]
     public class ProjectController : ApiController
     {
-        private readonly IProjectRepository projectsRepository;
-        private readonly IProjectTypeRepository projectTypesRepository;
+        private readonly IProjectTypeRepository projectTypeRepository;
 
-        public ProjectController(UserService userService, Orchestrator orchestrator, IProjectRepository projectsRepository, IProjectTypeRepository projectTypesRepository)
-            : base(userService, orchestrator)
+        public ProjectController(UserService userService, Orchestrator orchestrator, IProjectRepository projectRepository, IProjectTypeRepository projectTypeRepository)
+            : base(userService, orchestrator, projectRepository)
         {
-            this.projectsRepository = projectsRepository ?? throw new ArgumentNullException(nameof(projectsRepository));
-            this.projectTypesRepository = projectTypesRepository ?? throw new ArgumentNullException(nameof(projectTypesRepository));
+            this.projectTypeRepository = projectTypeRepository ?? throw new ArgumentNullException(nameof(projectTypeRepository));
         }
 
         private async Task<List<UserDocument>> ResolveUsersAsync(ProjectDefinition projectDefinition, string projectId)
@@ -82,7 +81,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         public async Task<IActionResult> Get()
         {
-            var projects = await projectsRepository
+            var projects = await ProjectRepository
                 .ListAsync()
                 .ToListAsync()
                 .ConfigureAwait(false);
@@ -101,28 +100,13 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "Returns a Project.", typeof(DataResult<Project>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the specified Name or ID was not found.", typeof(ErrorResult))]
-        public async Task<IActionResult> Get(string projectNameOrId)
+        [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
+        public Task<IActionResult> Get([FromRoute] string projectNameOrId) => EnsureProjectAsync(project =>
         {
-            if (string.IsNullOrWhiteSpace(projectNameOrId))
-                return ErrorResult
-                    .BadRequest($"The identifier '{projectNameOrId}' provided in the url path is invalid.  Must be a valid project name or GUID.", ResultErrorCode.ValidationError)
-                    .ToActionResult();
-
-            var project = await projectsRepository
-                .GetAsync(projectNameOrId)
-                .ConfigureAwait(false);
-
-            if (project is null)
-                return ErrorResult
-                    .NotFound($"A Project with the identifier '{projectNameOrId}' could not be found in this TeamCloud Instance")
-                    .ToActionResult();
-
-            var returnProject = project.PopulateExternalModel();
-
             return DataResult<Project>
-                .Ok(returnProject)
+                .Ok(project.PopulateExternalModel())
                 .ToActionResult();
-        }
+        });
 
 
         [HttpPost]
@@ -144,7 +128,7 @@ namespace TeamCloud.API.Controllers
                     .BadRequest(validation)
                     .ToActionResult();
 
-            var nameExists = await projectsRepository
+            var nameExists = await ProjectRepository
                 .NameExistsAsync(projectDefinition.Name)
                 .ConfigureAwait(false);
 
@@ -169,7 +153,7 @@ namespace TeamCloud.API.Controllers
 
             if (!string.IsNullOrEmpty(projectDefinition.ProjectType))
             {
-                project.Type = await projectTypesRepository
+                project.Type = await projectTypeRepository
                     .GetAsync(projectDefinition.ProjectType)
                     .ConfigureAwait(false);
 
@@ -180,7 +164,7 @@ namespace TeamCloud.API.Controllers
             }
             else
             {
-                project.Type = await projectTypesRepository
+                project.Type = await projectTypeRepository
                     .GetDefaultAsync()
                     .ConfigureAwait(false);
 
@@ -190,9 +174,9 @@ namespace TeamCloud.API.Controllers
                         .ToActionResult();
             }
 
-            var currentUserForCommand = users.FirstOrDefault(u => u.Id == UserService.CurrentUserId);
+            var currentUser = users.FirstOrDefault(u => u.Id == UserService.CurrentUserId);
 
-            var command = new OrchestratorProjectCreateCommand(currentUserForCommand, project);
+            var command = new OrchestratorProjectCreateCommand(currentUser, project);
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync<ProjectDocument, Project>(command, Request)
@@ -206,31 +190,18 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts deleting the specified Project. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the specified name or ID was not found.", typeof(ErrorResult))]
-        public async Task<IActionResult> Delete(string projectNameOrId)
+        [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
+        public Task<IActionResult> Delete([FromRoute] string projectNameOrId) => EnsureProjectAsync(async project =>
         {
-            if (string.IsNullOrWhiteSpace(projectNameOrId))
-                return ErrorResult
-                    .BadRequest($"The identifier '{projectNameOrId}' provided in the url path is invalid.  Must be a valid project name or GUID.", ResultErrorCode.ValidationError)
-                    .ToActionResult();
-
-            var project = await projectsRepository
-                .GetAsync(projectNameOrId)
-                .ConfigureAwait(false);
-
-            if (project is null)
-                return ErrorResult
-                    .NotFound($"A Project with the identifier '{projectNameOrId}' could not be found in this TeamCloud Instance")
-                    .ToActionResult();
-
-            var currentUserForCommand = await UserService
+            var currentUser = await UserService
                 .CurrentUserAsync()
                 .ConfigureAwait(false);
 
-            var command = new OrchestratorProjectDeleteCommand(currentUserForCommand, project);
+            var command = new OrchestratorProjectDeleteCommand(currentUser, project);
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync<ProjectDocument, Project>(command, Request)
                 .ConfigureAwait(false);
-        }
+        });
     }
 }

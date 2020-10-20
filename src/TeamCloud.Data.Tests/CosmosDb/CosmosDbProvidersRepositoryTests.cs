@@ -11,16 +11,15 @@ using TeamCloud.Data.Conditional;
 using TeamCloud.Data.CosmosDb.Core;
 using TeamCloud.Model.Data;
 using Xunit;
-using TeamCloud.Model.Data;
 
 namespace TeamCloud.Data.CosmosDb
 {
     [Collection(nameof(CosmosDbRepositoryCollection))]
-    public class CosmosDbProvidersRepositoryTests : CosmosDbRepositoryTests<CosmosDbProviderRepository>
+    public class CosmosDbproviderRepositoryTests : CosmosDbRepositoryTests<CosmosDbProviderRepository>
     {
         private readonly CosmosDbRepositoryFixture fixture;
 
-        public CosmosDbProvidersRepositoryTests(CosmosDbRepositoryFixture fixture)
+        public CosmosDbproviderRepositoryTests(CosmosDbRepositoryFixture fixture)
             : base(new CosmosDbProviderRepository(CosmosDbTestOptions.Instance))
         {
             this.fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
@@ -45,7 +44,7 @@ namespace TeamCloud.Data.CosmosDb
         {
             yield return new ProviderReference()
             {
-                Id = SanitizeName(nameof(CosmosDbProvidersRepositoryTests))
+                Id = SanitizeName(nameof(CosmosDbproviderRepositoryTests))
             };
         }
 

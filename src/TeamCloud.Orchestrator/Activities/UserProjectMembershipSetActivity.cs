@@ -16,11 +16,11 @@ namespace TeamCloud.Orchestrator.Activities
 {
     public class UserProjectMembershipSetActivity
     {
-        private readonly IUserRepository usersRepository;
+        private readonly IUserRepository userRepository;
 
-        public UserProjectMembershipSetActivity(IUserRepository usersRepository)
+        public UserProjectMembershipSetActivity(IUserRepository userRepository)
         {
-            this.usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
+            this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         }
 
         [FunctionName(nameof(UserProjectMembershipSetActivity))]
@@ -37,14 +37,14 @@ namespace TeamCloud.Orchestrator.Activities
             if (membership is null)
                 throw new InvalidOperationException($"User must contain a ProjectMembership for Project '{functionInput.ProjectId}'");
 
-            functionInput.User = await usersRepository
+            functionInput.User = await userRepository
                 .AddProjectMembershipAsync(functionInput.User, membership)
                 .ConfigureAwait(false);
 
             return functionInput.User;
         }
 
-        public struct Input
+        internal struct Input
         {
             public UserDocument User { get; set; }
 

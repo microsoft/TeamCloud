@@ -17,13 +17,13 @@ namespace TeamCloud.Data.CosmosDb
 {
     public class CosmosDbProjectRepository : CosmosDbRepository<ProjectDocument>, IProjectRepository
     {
-        private readonly IUserRepository usersRepository;
+        private readonly IUserRepository userRepository;
         private readonly IProjectLinkRepository projectLinkRepository;
 
-        public CosmosDbProjectRepository(ICosmosDbOptions cosmosOptions, IUserRepository usersRepository, IProjectLinkRepository projectLinkRepository)
+        public CosmosDbProjectRepository(ICosmosDbOptions cosmosOptions, IUserRepository userRepository, IProjectLinkRepository projectLinkRepository)
             : base(cosmosOptions)
         {
-            this.usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
+            this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             this.projectLinkRepository = projectLinkRepository ?? throw new ArgumentNullException(nameof(projectLinkRepository));
         }
 
@@ -202,7 +202,7 @@ namespace TeamCloud.Data.CosmosDb
 
                 var tasks = new Task[]
                 {
-                    usersRepository.RemoveProjectMembershipsAsync(project.Id),
+                    userRepository.RemoveProjectMembershipsAsync(project.Id),
                     projectLinkRepository.RemoveAsync(project.Id)
                 };
 
@@ -221,7 +221,7 @@ namespace TeamCloud.Data.CosmosDb
         private async Task<ProjectDocument> PopulateUsersAsync(ProjectDocument project)
         {
             if (project != null)
-                project.Users = await usersRepository
+                project.Users = await userRepository
                     .ListAsync(project.Id)
                     .ToListAsync()
                     .ConfigureAwait(false);

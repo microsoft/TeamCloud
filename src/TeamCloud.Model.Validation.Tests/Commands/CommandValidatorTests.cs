@@ -3,12 +3,9 @@
  *  Licensed under the MIT License.
  */
 
-using System;
 using System.Threading.Tasks;
 using TeamCloud.Model.Data;
-using TeamCloud.Model.Data.Core;
 using TeamCloud.Model.Commands;
-using TeamCloud.Model.Data;
 using Xunit;
 
 namespace TeamCloud.Model.Validation.Tests.Commands

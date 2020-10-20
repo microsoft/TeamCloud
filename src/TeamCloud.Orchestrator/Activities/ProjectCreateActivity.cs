@@ -15,11 +15,11 @@ namespace TeamCloud.Orchestrator.Activities
 {
     public class ProjectCreateActivity
     {
-        private readonly IProjectRepository projectsRepository;
+        private readonly IProjectRepository projectRepository;
 
-        public ProjectCreateActivity(IProjectRepository projectsRepository)
+        public ProjectCreateActivity(IProjectRepository projectRepository)
         {
-            this.projectsRepository = projectsRepository ?? throw new ArgumentNullException(nameof(projectsRepository));
+            this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
         }
 
         [FunctionName(nameof(ProjectCreateActivity))]
@@ -31,7 +31,7 @@ namespace TeamCloud.Orchestrator.Activities
 
             var project = activityContext.GetInput<ProjectDocument>();
 
-            project = await projectsRepository
+            project = await projectRepository
                 .AddAsync(project)
                 .ConfigureAwait(false);
 

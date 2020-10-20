@@ -49,7 +49,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
 
                 var isNotProjectCommandWithProjectId = functionContext.Provider.CommandMode == ProviderCommandMode.Simple
                                                     && !string.IsNullOrEmpty(functionContext.Command.ProjectId)
-                                                    && !(functionContext.Command is IProviderCommand<Model.Data.Project>);
+                                                    && (functionContext.Command is IProviderCommand<User>);
 
                 commandResult = isNotProjectCommandWithProjectId
                     ? await SwitchCommandAsync(orchestrationContext, functionContext, commandResult, commandLog).ConfigureAwait(true)
@@ -220,7 +220,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                     .GetProjectAsync(functionContext.Command.ProjectId, allowUnsafe: true)
                     .ConfigureAwait(true);
 
-                functionContext.Command = new ProviderProjectUpdateCommand(functionContext.Command.User as Model.Data.User, project.PopulateExternalModel(), functionContext.Command.CommandId);
+                functionContext.Command = new ProviderProjectUpdateCommand(functionContext.Command.User as User, project.PopulateExternalModel(), functionContext.Command.CommandId);
 
                 orchestrationContext.ContinueAsNew(functionContext);
             }
@@ -268,7 +268,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
             }
         }
 
-        public struct Input
+        internal struct Input
         {
             public ProviderDocument Provider { get; set; }
 
@@ -377,7 +377,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
 
-            if (project is null && command is IProviderCommand<Model.Data.Project>)
+            if (project is null && command is IProviderCommand<Project>)
                 throw new InvalidOperationException("Must pass original ProjectDocument (internal) for ProviderCommands with a payload of type Project (external).");
 
             if (project is null && !string.IsNullOrEmpty(command.ProjectId))

@@ -44,6 +44,9 @@ namespace TeamCloud.Azure.Resources
             this IPage<T> firstPage,
             Func<string, Task<IPage<T>>> getNextPage)
         {
+            if (getNextPage is null)
+                throw new ArgumentNullException(nameof(getNextPage));
+
             var currentPage = firstPage;
 
             do

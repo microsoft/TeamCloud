@@ -8,7 +8,6 @@ from time import sleep
 from urllib.parse import urlparse
 from knack.util import CLIError
 from knack.log import get_logger
-from azure.cli.core.util import sdk_no_wait
 
 logger = get_logger(__name__)
 
@@ -141,7 +140,7 @@ def teamcloud_deploy(cmd, client, name, location=None, resource_group_name='Team
         config_kvs.append({'key': k, 'value': v})
 
     hook.add(message='Adding ARM template outputs to App Configuration service')
-    set_appconfig_keys(cli_ctx, config_service_conn_string, config_kvs)
+    set_appconfig_keys(cmd, config_service_conn_string, config_kvs)
 
     if skip_app_deployment:
         logger.warning(
@@ -260,7 +259,7 @@ def teamcloud_upgrade(cmd, client, base_url, version=None, prerelease=False, ind
             config_kvs.append({'key': k, 'value': v})
 
     hook.add(message='Adding ARM template outputs to App Configuration service')
-    set_appconfig_keys(cli_ctx, config_service_conn_string, config_kvs)
+    set_appconfig_keys(cmd, config_service_conn_string, config_kvs)
 
     hook.add(message='Deploying Orchestrator source code')
     zip_deploy_app(cli_ctx, resource_group_name, orchestrator_app_name, orchestrator_zip_url)
@@ -593,6 +592,44 @@ def project_user_set_for_update(cmd, client, base_url, project, payload):
     return transform_output(instance)
 
 
+# Project Offers
+
+def project_offer_list(cmd, client, base_url, project):
+    _ensure_base_url(client, base_url)
+    return client.get_project_offers(project)
+
+
+def project_offer_get(cmd, client, base_url, project, offer):
+    _ensure_base_url(client, base_url)
+    return client.get_project_offer_by_id(offer, project)
+
+
+# Project Components
+
+def project_component_create(cmd, client, base_url, project, offer, input_json, no_wait=False):
+    from .vendored_sdks.teamcloud.models import ComponentRequest
+
+    payload = ComponentRequest(offer_id=offer, input_json=input_json)
+
+    return _create_with_status(cmd, client, base_url, payload, client.create_project_component,
+                               project_id=project, no_wait=no_wait)
+
+
+def project_component_delete(cmd, client, base_url, project, component, no_wait=False):
+    return _delete_with_status(cmd, client, base_url, component, client.delete_project_component,
+                               project_id=project, no_wait=no_wait)
+
+
+def project_component_list(cmd, client, base_url, project):
+    _ensure_base_url(client, base_url)
+    return client.get_project_components(project)
+
+
+def project_component_get(cmd, client, base_url, project, component):
+    _ensure_base_url(client, base_url)
+    return client.get_project_component_by_id(component, project)
+
+
 # Project Tags
 
 def project_tag_create(cmd, client, base_url, project, tag_key, tag_value, no_wait=False):
@@ -625,6 +662,16 @@ def project_type_create(cmd, client, base_url, project_type, subscriptions, prov
     from .vendored_sdks.teamcloud.models import ProjectType
     _ensure_base_url(client, base_url)
 
+    existing_providers = client.get_providers().data
+
+    for p in providers:
+        provider_match = next((m for m in existing_providers if m.id == p.id), None)
+        if not provider_match:
+            raise CLIError('--provider {} was not found'.format(p.id))
+        if provider_match.type == 'Service':
+            raise CLIError(
+                '--provider service provider {} cannot be added to project types'.format(p.id))
+
     payload = ProjectType(id=project_type, is_default=default, region=location,
                           subscriptions=subscriptions, subscription_capacity=subscription_capacity,
                           resource_group_name_prefix=resource_group_name_prefix, providers=providers,
@@ -650,11 +697,12 @@ def project_type_get(cmd, client, base_url, project_type):
 
 # Providers
 
-def provider_create(cmd, client, base_url, provider, url, auth_code, events=None, properties=None, no_wait=False):
+def provider_create(cmd, client, base_url, provider, url, auth_code, provider_type='Standard',
+                    properties=None, no_wait=False):
     from .vendored_sdks.teamcloud.models import Provider
 
     payload = Provider(id=provider, url=url, auth_code=auth_code,
-                       events=events, properties=properties)
+                       type=provider_type, properties=properties)
 
     return _create_with_status(cmd, client, base_url, payload, client.create_provider, no_wait=no_wait)
 
@@ -674,7 +722,7 @@ def provider_get(cmd, client, base_url, provider):
 
 
 def provider_deploy(cmd, client, base_url, provider, location=None, resource_group_name=None,  # pylint: disable=too-many-locals, too-many-statements
-                    events=None, properties=None, version=None, prerelease=False, index_url=None, tags=None):
+                    properties=None, version=None, prerelease=False, index_url=None, tags=None):
     from ._deploy_utils import (
         get_resource_group_by_name, create_resource_group_name, zip_deploy_app, get_arm_output,
         deploy_arm_template_at_resource_group, get_index_providers, open_url_in_browser)
@@ -687,7 +735,7 @@ def provider_deploy(cmd, client, base_url, provider, location=None, resource_gro
     hook.begin()
 
     hook.add(message='Fetching index.json from GitHub')
-    version, zip_url, deploy_url, provider_name = get_index_providers(
+    version, zip_url, deploy_url, provider_name, provider_type = get_index_providers(
         cli_ctx, provider, version, prerelease, index_url)
 
     resource_group_name = resource_group_name or provider_name
@@ -718,7 +766,7 @@ def provider_deploy(cmd, client, base_url, provider, location=None, resource_gro
     resource_group = AzureResourceGroup(
         id=rg.id, name=rg.name, region=rg.location, subscription_id=sub_id)
     payload = Provider(id=provider, url=url, auth_code=auth_code, principal_id=principal_id,
-                       version=version, resource_group=resource_group, events=events,
+                       version=version, resource_group=resource_group, type=provider_type,
                        properties=properties)
 
     provider_output = _create_with_status(cmd, client, base_url, payload,
@@ -744,13 +792,18 @@ def provider_upgrade(cmd, client, base_url, provider, version=None, prerelease=F
     hook.begin()
 
     hook.add(message='Fetching index.json from GitHub')
-    version, zip_url, deploy_url, _ = get_index_providers(
+    version, zip_url, deploy_url, _, _ = get_index_providers(
         cli_ctx, provider, version, prerelease, index_url)
 
     # get the provider from teamcloud
     hook.add(message='Getting existing provider')
     provider_result = client.get_provider_by_id(provider)
     existing_provider = provider_result.data
+
+    if existing_provider.type == 'Virtual':
+        raise CLIError(
+            '--provider virtual providers cannot be upgraded. '
+            'To upgrade the associated service provider use the service provider id')
 
     if version and existing_provider.version and version == existing_provider.version:
         raise CLIError("Provider '{}' is already using version {}".format(provider, version))
@@ -815,10 +868,6 @@ def _create_with_status(cmd, client, base_url, payload, create_func,
     from .vendored_sdks.teamcloud.models import StatusResult
     _ensure_base_url(client, base_url)
 
-    if no_wait:
-        return sdk_no_wait(no_wait, create_func, project_id, payload) if project_id else sdk_no_wait(
-            no_wait, create_func, payload)
-
     type_name = create_func.metadata['url'].split('/')[-1][:-1].capitalize()
 
     hook = cmd.cli_ctx.get_progress_controller()
@@ -827,6 +876,11 @@ def _create_with_status(cmd, client, base_url, payload, create_func,
     hook.add(message='Starting: Creating new {}'.format(type_name))
 
     result = create_func(project_id, payload) if project_id else create_func(payload)
+
+    if no_wait:
+        hook.end(message=' ')
+        logger.warning(' ')
+        return result
 
     while isinstance(result, StatusResult):
         if result.code == 200:
@@ -863,10 +917,6 @@ def _update_with_status(cmd, client, base_url, item_id, payload, update_func,
     from .vendored_sdks.teamcloud.models import StatusResult
     _ensure_base_url(client, base_url)
 
-    if no_wait:
-        return sdk_no_wait(no_wait, update_func, item_id, project_id, payload) if project_id else sdk_no_wait(
-            no_wait, update_func, item_id, payload)
-
     type_name = update_func.metadata['url'].split('/')[-2][:-1].capitalize()
 
     hook = cmd.cli_ctx.get_progress_controller()
@@ -876,6 +926,11 @@ def _update_with_status(cmd, client, base_url, item_id, payload, update_func,
 
     result = update_func(item_id, project_id,
                          payload) if project_id else update_func(item_id, payload)
+
+    if no_wait:
+        hook.end(message=' ')
+        logger.warning(' ')
+        return result
 
     while isinstance(result, StatusResult):
         if result.code == 200:
@@ -912,10 +967,6 @@ def _delete_with_status(cmd, client, base_url, item_id, delete_func,
     from .vendored_sdks.teamcloud.models import StatusResult
     _ensure_base_url(client, base_url)
 
-    if no_wait:
-        return sdk_no_wait(no_wait, delete_func, item_id, project_id) if project_id else sdk_no_wait(
-            no_wait, delete_func, item_id)
-
     type_name = delete_func.metadata['url'].split('/')[-2][:-1].capitalize()
 
     hook = cmd.cli_ctx.get_progress_controller()
@@ -924,6 +975,11 @@ def _delete_with_status(cmd, client, base_url, item_id, delete_func,
     hook.add(message='Starting: Deleting {}'.format(type_name))
 
     result = delete_func(item_id, project_id) if project_id else delete_func(item_id)
+
+    if no_wait:
+        hook.end(message=' ')
+        logger.warning(' ')
+        return result
 
     while isinstance(result, StatusResult):
         if result.code == 200:

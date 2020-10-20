@@ -21,20 +21,47 @@ namespace TeamCloud.Model.Commands
             bool HasProjectId()
                 => !string.IsNullOrEmpty(Context?.ProjectId);
 
-            SetLink(nameof(SystemData), new ReferenceLink(()
-                => HasProviderId() ? GetBaseUri()?.AppendPath($"api/providers/{Context.ProviderId}").ToString() : null));
+            SetLink(nameof(Data), new ReferenceLink(()
+                => HasProviderId() ? GetBaseUri()?.AppendPath($"api/providers/{Context.ProviderId}/data").ToString() : null));
+
+            SetLink(nameof(Project), new ReferenceLink(()
+                => HasProjectId() ? GetBaseUri()?.AppendPath($"api/projects/{Context.ProjectId}").ToString() : null));
 
             SetLink(nameof(ProjectData), new ReferenceLink(()
-                => HasProviderId() && HasProjectId() ? GetBaseUri()?.AppendPath($"api/providers/{Context.ProviderId}").ToString() : null));
+                => HasProviderId() && HasProjectId() ? GetBaseUri()?.AppendPath($"api/projects/{Context.ProjectId}/providers/{Context.ProviderId}").ToString() : null));
+
+            SetLink(nameof(Offers), new ReferenceLink(()
+                => HasProviderId() ? GetBaseUri()?.AppendPath($"api/providers/{Context.ProviderId}/offers").ToString() : null));
+
+            SetLink(nameof(ProjectComponents), new ReferenceLink(()
+                => HasProviderId() && HasProjectId() ? GetBaseUri()?.AppendPath($"api/projects/{Context.ProjectId}/providers/{Context.ProviderId}/components").ToString() : null));
         }
 
-        public ReferenceLink SystemData
+        public ReferenceLink Data
+        {
+            get => GetLink();
+            private set => SetLink(link: value);
+        }
+
+        public ReferenceLink Project
         {
             get => GetLink();
             private set => SetLink(link: value);
         }
 
         public ReferenceLink ProjectData
+        {
+            get => GetLink();
+            private set => SetLink(link: value);
+        }
+
+        public ReferenceLink Offers
+        {
+            get => GetLink();
+            private set => SetLink(link: value);
+        }
+
+        public ReferenceLink ProjectComponents
         {
             get => GetLink();
             private set => SetLink(link: value);

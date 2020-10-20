@@ -16,6 +16,8 @@ namespace TeamCloud.Model.Commands.Core
     {
         Guid CommandId { get; }
 
+        CommandAction CommandAction { get; }
+
         string ProjectId { get; }
 
         object User { get; set; }

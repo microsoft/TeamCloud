@@ -13,7 +13,7 @@ using TeamCloud.Serialization;
 namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public sealed class ProviderDocument : ContainerDocument, IProvider, IEquatable<ProviderDocument>, IPopulate<Model.Data.Provider>
+    public sealed class ProviderDocument : ContainerDocument, IProvider, IEquatable<ProviderDocument>, IPopulate<Provider>
     {
         [PartitionKey]
         public string Tenant { get; set; }
@@ -38,6 +38,8 @@ namespace TeamCloud.Model.Data
             = new Dictionary<string, string>();
 
         public DateTime? Registered { get; set; }
+
+        public ProviderType Type { get; set; }
 
         public ProviderCommandMode CommandMode { get; set; }
             = ProviderCommandMode.Simple;

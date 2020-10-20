@@ -62,6 +62,7 @@ namespace TeamCloud.API
                     .UseCors(builder => builder
                         .SetIsOriginAllowed(origin => true)
                         .AllowAnyHeader()
+                        .AllowAnyMethod()
                         .AllowCredentials());
             }
             else
@@ -75,7 +76,7 @@ namespace TeamCloud.API
                 .UseSwagger()
                 .UseSwaggerUI(c =>
                 {
-                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "TeamCloud API v1");
+                    c.SwaggerEndpoint("/openapi/v1/openapi.json", "TeamCloud API v1");
                     c.OAuthClientId(resourceManagerOptions.ClientId);
                     c.OAuthClientSecret("");
                     c.OAuthUsePkce();
@@ -84,6 +85,7 @@ namespace TeamCloud.API
             app
                 .UseRouting()
                 .UseAuthentication()
+                .UseMiddleware<EnsureTeamCloudModelMiddleware>()
                 .UseMiddleware<RequestResponseTracingMiddleware>()
                 .UseWhen(context => context.Request.RequiresAdminUserSet(), appBuilder =>
                 {
@@ -129,9 +131,12 @@ namespace TeamCloud.API
                 .AddSingleton<IProviderDataRepository, CosmosDbProviderDataRepository>()
                 .AddSingleton<IProjectTypeRepository, CosmosDbProjectTypeRepository>()
                 .AddSingleton<IProjectLinkRepository, CosmosDbProjectLinkRepository>()
+                .AddSingleton<IComponentOfferRepository, CosmosDbComponentOfferRepository>()
+                .AddSingleton<IComponentRepository, CosmosDbComponentRepository>()
                 .AddSingleton<IClientErrorFactory, ClientErrorFactory>()
                 .AddSingleton<Orchestrator>()
                 .AddSingleton<UserService>()
+                .AddScoped<EnsureTeamCloudModelMiddleware>()
                 .AddScoped<RequestResponseTracingMiddleware>()
                 .AddScoped<EnsureTeamCloudAdminMiddleware>()
                 .AddTransient<IHostInitializer, TeamCloudAdminInitializer>();
@@ -163,8 +168,8 @@ namespace TeamCloud.API
 
 #pragma warning disable CA1308 // Normalize strings to uppercase
 
-            ValidatorOptions.DisplayNameResolver = (type, memberInfo, lambda) => memberInfo?.Name?.ToLowerInvariant();
-            ValidatorOptions.PropertyNameResolver = (type, memberInfo, lambda) => memberInfo?.Name?.ToLowerInvariant();
+            ValidatorOptions.Global.DisplayNameResolver = (type, memberInfo, lambda) => memberInfo?.Name?.ToLowerInvariant();
+            ValidatorOptions.Global.PropertyNameResolver = (type, memberInfo, lambda) => memberInfo?.Name?.ToLowerInvariant();
 
 #pragma warning restore CA1308 // Normalize strings to uppercase
 

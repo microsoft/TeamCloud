@@ -34,7 +34,7 @@ namespace TeamCloud.Azure.Deployment.Templates
             return templateType.Assembly.GetManifestResourceNames()
                 .Where(name => name.StartsWith(templatePrefix, StringComparison.Ordinal)
                             && name.EndsWith(TemplateSuffix, StringComparison.Ordinal))
-                .ToDictionary(name => name.Substring(templatePrefix.Length), name => GetResourceJson(templateType, name));
+                .ToDictionary(name => name[templatePrefix.Length..], name => GetResourceJson(templateType, name));
         }
 
         private static string GetResourceJson(Type templateType, string resourceName, bool enforceVersionUpdate = false)

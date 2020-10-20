@@ -24,11 +24,8 @@ namespace TeamCloud.API.Auth
         public static string UserWritePolicy
             => $"User_ReadWrite";
 
-        public static string ProviderReadPolicyRoleName
-            => $"Provider_Read";
-
-        public static string ProviderWritePolicyRoleName
-            => $"Provider_ReadWrite";
+        public static string ComponentWritePolicy
+            => $"Component_ReadWrite";
     }
 
     public static class ProviderUserRoles

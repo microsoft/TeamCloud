@@ -136,6 +136,28 @@ def user_name_or_id_validator(cmd, ns):
         ns.user = sub('http[s]?://', '', ns.user)
 
 
+def offer_name_validator(cmd, ns):
+    if ns.offer:
+        if not _is_valid_provider_id(ns.offer):
+            raise CLIError(
+                '--name/-n should start with a lowercase and contain only lowercase, numbers, '
+                'and periods [.] with length [5,254]')
+
+
+def offer_id_validator(cmd, ns):
+    if ns.offer:
+        if not _is_valid_provider_id(ns.offer):
+            raise CLIError(
+                '--offer should start with a lowercase and contain only lowercase, numbers, '
+                'and periods [.] with length [5,254]')
+
+
+def component_name_validator(cmd, ns):
+    if ns.component:
+        if not _is_valid_uuid(ns.component):
+            raise CLIError('--name/-n should be a valid uuid')
+
+
 def project_type_id_validator(cmd, ns):
     if ns.project_type:
         if not _is_valid_project_type_id(ns.project_type):
@@ -165,15 +187,6 @@ def subscriptions_list_validator(cmd, ns):
         if not all(_is_valid_uuid(x) for x in ns.subscriptions):
             raise CLIError(
                 '--subscriptions should be a space-separated list of valid uuids')
-
-
-def provider_event_list_validator(cmd, ns):
-    if ns.events:
-        if not all(_is_valid_provider_id(x) for x in ns.events):
-            raise CLIError(
-                '--events should be a space-separated list of valid provider ids, '
-                'provider ids should start with a lowercase and contain only lowercase, numbers, '
-                'and periods [.] with length [5,254]')
 
 
 def tracking_id_validator(cmd, ns):
@@ -215,6 +228,12 @@ def auth_code_validator(cmd, ns):
             raise CLIError(
                 '--auth-code should contain only base-64 digits [A-Za-z0-9/] '
                 '(excluding the plus sign (+)), ending in = or ==')
+
+
+def input_json_validator(cmd, ns):
+    ns.input_json = 'null' if ns.input_json is None else ns.input_json
+    if not _is_valid_json(ns.input_json):
+        raise CLIError('--input/-i must be a valid json string')
 
 
 def source_version_validator(cmd, ns):
@@ -349,3 +368,13 @@ def _is_valid_uuid(uuid_to_test, version=4):
 
 def _is_valid_version(version):
     return match(r'^v[0-9]+\.[0-9]+\.[0-9]+$', version) is not None
+
+
+def _is_valid_json(value):
+    import json
+    try:
+        json.loads(value)
+        return True
+    except ValueError:
+        return False
+    return False

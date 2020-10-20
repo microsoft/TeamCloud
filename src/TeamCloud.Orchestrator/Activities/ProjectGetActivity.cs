@@ -17,11 +17,11 @@ namespace TeamCloud.Orchestrator.Activities
 {
     public class ProjectGetActivity
     {
-        private readonly IProjectRepository projectsRepository;
+        private readonly IProjectRepository projectRepository;
 
-        public ProjectGetActivity(IProjectRepository projectsRepository)
+        public ProjectGetActivity(IProjectRepository projectRepository)
         {
-            this.projectsRepository = projectsRepository ?? throw new ArgumentNullException(nameof(projectsRepository));
+            this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
         }
 
         [FunctionName(nameof(ProjectGetActivity))]
@@ -36,7 +36,7 @@ namespace TeamCloud.Orchestrator.Activities
 
             try
             {
-                var project = await projectsRepository
+                var project = await projectRepository
                     .GetAsync(projectId)
                     .ConfigureAwait(false);
 

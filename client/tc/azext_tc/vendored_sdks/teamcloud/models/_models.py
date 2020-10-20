@@ -12,15 +12,24 @@ import msrest.serialization
 class AzureResourceGroup(msrest.serialization.Model):
     """AzureResourceGroup.
 
-    :param id:
+    All required parameters must be populated in order to send to Azure.
+
+    :param id: Required.
     :type id: str
-    :param name:
+    :param name: Required.
     :type name: str
-    :param subscription_id:
+    :param subscription_id: Required.
     :type subscription_id: str
-    :param region:
+    :param region: Required.
     :type region: str
     """
+
+    _validation = {
+        'id': {'required': True},
+        'name': {'required': True},
+        'subscription_id': {'required': True},
+        'region': {'required': True},
+    }
 
     _attribute_map = {
         'id': {'key': 'id', 'type': 'str'},
@@ -34,10 +43,300 @@ class AzureResourceGroup(msrest.serialization.Model):
         **kwargs
     ):
         super(AzureResourceGroup, self).__init__(**kwargs)
-        self.id = kwargs.get('id', None)
-        self.name = kwargs.get('name', None)
-        self.subscription_id = kwargs.get('subscription_id', None)
-        self.region = kwargs.get('region', None)
+        self.id = kwargs['id']
+        self.name = kwargs['name']
+        self.subscription_id = kwargs['subscription_id']
+        self.region = kwargs['region']
+
+
+class Component(msrest.serialization.Model):
+    """Component.
+
+    All required parameters must be populated in order to send to Azure.
+
+    :param id: Required.
+    :type id: str
+    :param href:
+    :type href: str
+    :param offer_id:
+    :type offer_id: str
+    :param project_id:
+    :type project_id: str
+    :param provider_id: Required.
+    :type provider_id: str
+    :param requested_by: Required.
+    :type requested_by: str
+    :param display_name:
+    :type display_name: str
+    :param description:
+    :type description: str
+    :param input_json:
+    :type input_json: str
+    :param value_json:
+    :type value_json: str
+    :param scope: Required.  Possible values include: "System", "Project", "All".
+    :type scope: str or ~teamcloud.models.ComponentScope
+    :param type: Required.  Possible values include: "Custom", "GitRepository".
+    :type type: str or ~teamcloud.models.ComponentType
+    """
+
+    _validation = {
+        'id': {'required': True},
+        'provider_id': {'required': True},
+        'requested_by': {'required': True},
+        'scope': {'required': True},
+        'type': {'required': True},
+    }
+
+    _attribute_map = {
+        'id': {'key': 'id', 'type': 'str'},
+        'href': {'key': 'href', 'type': 'str'},
+        'offer_id': {'key': 'offerId', 'type': 'str'},
+        'project_id': {'key': 'projectId', 'type': 'str'},
+        'provider_id': {'key': 'providerId', 'type': 'str'},
+        'requested_by': {'key': 'requestedBy', 'type': 'str'},
+        'display_name': {'key': 'displayName', 'type': 'str'},
+        'description': {'key': 'description', 'type': 'str'},
+        'input_json': {'key': 'inputJson', 'type': 'str'},
+        'value_json': {'key': 'valueJson', 'type': 'str'},
+        'scope': {'key': 'scope', 'type': 'str'},
+        'type': {'key': 'type', 'type': 'str'},
+    }
+
+    def __init__(
+        self,
+        **kwargs
+    ):
+        super(Component, self).__init__(**kwargs)
+        self.id = kwargs['id']
+        self.href = kwargs.get('href', None)
+        self.offer_id = kwargs.get('offer_id', None)
+        self.project_id = kwargs.get('project_id', None)
+        self.provider_id = kwargs['provider_id']
+        self.requested_by = kwargs['requested_by']
+        self.display_name = kwargs.get('display_name', None)
+        self.description = kwargs.get('description', None)
+        self.input_json = kwargs.get('input_json', None)
+        self.value_json = kwargs.get('value_json', None)
+        self.scope = kwargs['scope']
+        self.type = kwargs['type']
+
+
+class ComponentDataResult(msrest.serialization.Model):
+    """ComponentDataResult.
+
+    :param code:
+    :type code: int
+    :param status:
+    :type status: str
+    :param data:
+    :type data: ~teamcloud.models.Component
+    :param location:
+    :type location: str
+    """
+
+    _attribute_map = {
+        'code': {'key': 'code', 'type': 'int'},
+        'status': {'key': 'status', 'type': 'str'},
+        'data': {'key': 'data', 'type': 'Component'},
+        'location': {'key': 'location', 'type': 'str'},
+    }
+
+    def __init__(
+        self,
+        **kwargs
+    ):
+        super(ComponentDataResult, self).__init__(**kwargs)
+        self.code = kwargs.get('code', None)
+        self.status = kwargs.get('status', None)
+        self.data = kwargs.get('data', None)
+        self.location = kwargs.get('location', None)
+
+
+class ComponentListDataResult(msrest.serialization.Model):
+    """ComponentListDataResult.
+
+    Variables are only populated by the server, and will be ignored when sending a request.
+
+    :param code:
+    :type code: int
+    :param status:
+    :type status: str
+    :ivar data:
+    :vartype data: list[~teamcloud.models.Component]
+    :param location:
+    :type location: str
+    """
+
+    _validation = {
+        'data': {'readonly': True},
+    }
+
+    _attribute_map = {
+        'code': {'key': 'code', 'type': 'int'},
+        'status': {'key': 'status', 'type': 'str'},
+        'data': {'key': 'data', 'type': '[Component]'},
+        'location': {'key': 'location', 'type': 'str'},
+    }
+
+    def __init__(
+        self,
+        **kwargs
+    ):
+        super(ComponentListDataResult, self).__init__(**kwargs)
+        self.code = kwargs.get('code', None)
+        self.status = kwargs.get('status', None)
+        self.data = None
+        self.location = kwargs.get('location', None)
+
+
+class ComponentOffer(msrest.serialization.Model):
+    """ComponentOffer.
+
+    All required parameters must be populated in order to send to Azure.
+
+    :param id: Required.
+    :type id: str
+    :param provider_id: Required.
+    :type provider_id: str
+    :param display_name:
+    :type display_name: str
+    :param description:
+    :type description: str
+    :param input_json_schema:
+    :type input_json_schema: str
+    :param scope: Required.  Possible values include: "System", "Project", "All".
+    :type scope: str or ~teamcloud.models.ComponentOfferScope
+    :param type: Required.  Possible values include: "Custom", "GitRepository".
+    :type type: str or ~teamcloud.models.ComponentOfferType
+    """
+
+    _validation = {
+        'id': {'required': True},
+        'provider_id': {'required': True},
+        'scope': {'required': True},
+        'type': {'required': True},
+    }
+
+    _attribute_map = {
+        'id': {'key': 'id', 'type': 'str'},
+        'provider_id': {'key': 'providerId', 'type': 'str'},
+        'display_name': {'key': 'displayName', 'type': 'str'},
+        'description': {'key': 'description', 'type': 'str'},
+        'input_json_schema': {'key': 'inputJsonSchema', 'type': 'str'},
+        'scope': {'key': 'scope', 'type': 'str'},
+        'type': {'key': 'type', 'type': 'str'},
+    }
+
+    def __init__(
+        self,
+        **kwargs
+    ):
+        super(ComponentOffer, self).__init__(**kwargs)
+        self.id = kwargs['id']
+        self.provider_id = kwargs['provider_id']
+        self.display_name = kwargs.get('display_name', None)
+        self.description = kwargs.get('description', None)
+        self.input_json_schema = kwargs.get('input_json_schema', None)
+        self.scope = kwargs['scope']
+        self.type = kwargs['type']
+
+
+class ComponentOfferDataResult(msrest.serialization.Model):
+    """ComponentOfferDataResult.
+
+    :param code:
+    :type code: int
+    :param status:
+    :type status: str
+    :param data:
+    :type data: ~teamcloud.models.ComponentOffer
+    :param location:
+    :type location: str
+    """
+
+    _attribute_map = {
+        'code': {'key': 'code', 'type': 'int'},
+        'status': {'key': 'status', 'type': 'str'},
+        'data': {'key': 'data', 'type': 'ComponentOffer'},
+        'location': {'key': 'location', 'type': 'str'},
+    }
+
+    def __init__(
+        self,
+        **kwargs
+    ):
+        super(ComponentOfferDataResult, self).__init__(**kwargs)
+        self.code = kwargs.get('code', None)
+        self.status = kwargs.get('status', None)
+        self.data = kwargs.get('data', None)
+        self.location = kwargs.get('location', None)
+
+
+class ComponentOfferListDataResult(msrest.serialization.Model):
+    """ComponentOfferListDataResult.
+
+    Variables are only populated by the server, and will be ignored when sending a request.
+
+    :param code:
+    :type code: int
+    :param status:
+    :type status: str
+    :ivar data:
+    :vartype data: list[~teamcloud.models.ComponentOffer]
+    :param location:
+    :type location: str
+    """
+
+    _validation = {
+        'data': {'readonly': True},
+    }
+
+    _attribute_map = {
+        'code': {'key': 'code', 'type': 'int'},
+        'status': {'key': 'status', 'type': 'str'},
+        'data': {'key': 'data', 'type': '[ComponentOffer]'},
+        'location': {'key': 'location', 'type': 'str'},
+    }
+
+    def __init__(
+        self,
+        **kwargs
+    ):
+        super(ComponentOfferListDataResult, self).__init__(**kwargs)
+        self.code = kwargs.get('code', None)
+        self.status = kwargs.get('status', None)
+        self.data = None
+        self.location = kwargs.get('location', None)
+
+
+class ComponentRequest(msrest.serialization.Model):
+    """ComponentRequest.
+
+    All required parameters must be populated in order to send to Azure.
+
+    :param offer_id: Required.
+    :type offer_id: str
+    :param input_json:
+    :type input_json: str
+    """
+
+    _validation = {
+        'offer_id': {'required': True},
+    }
+
+    _attribute_map = {
+        'offer_id': {'key': 'offerId', 'type': 'str'},
+        'input_json': {'key': 'inputJson', 'type': 'str'},
+    }
+
+    def __init__(
+        self,
+        **kwargs
+    ):
+        super(ComponentRequest, self).__init__(**kwargs)
+        self.offer_id = kwargs['offer_id']
+        self.input_json = kwargs.get('input_json', None)
 
 
 class ErrorResult(msrest.serialization.Model):
@@ -70,15 +369,17 @@ class ErrorResult(msrest.serialization.Model):
 class Project(msrest.serialization.Model):
     """Project.
 
-    :param id:
+    All required parameters must be populated in order to send to Azure.
+
+    :param id: Required.
     :type id: str
-    :param name:
+    :param name: Required.
     :type name: str
-    :param type:
+    :param type: Required.
     :type type: ~teamcloud.models.ProjectType
     :param resource_group:
     :type resource_group: ~teamcloud.models.AzureResourceGroup
-    :param users:
+    :param users: Required.
     :type users: list[~teamcloud.models.User]
     :param tags: A set of tags. Dictionary of :code:`<string>`.
     :type tags: dict[str, str]
@@ -87,6 +388,13 @@ class Project(msrest.serialization.Model):
     :param links:
     :type links: ~teamcloud.models.ProjectReferenceLinks
     """
+
+    _validation = {
+        'id': {'required': True},
+        'name': {'required': True},
+        'type': {'required': True},
+        'users': {'required': True},
+    }
 
     _attribute_map = {
         'id': {'key': 'id', 'type': 'str'},
@@ -104,11 +412,11 @@ class Project(msrest.serialization.Model):
         **kwargs
     ):
         super(Project, self).__init__(**kwargs)
-        self.id = kwargs.get('id', None)
-        self.name = kwargs.get('name', None)
-        self.type = kwargs.get('type', None)
+        self.id = kwargs['id']
+        self.name = kwargs['name']
+        self.type = kwargs['type']
         self.resource_group = kwargs.get('resource_group', None)
-        self.users = kwargs.get('users', None)
+        self.users = kwargs['users']
         self.tags = kwargs.get('tags', None)
         self.properties = kwargs.get('properties', None)
         self.links = kwargs.get('links', None)
@@ -183,16 +491,28 @@ class ProjectDefinition(msrest.serialization.Model):
 class ProjectIdentity(msrest.serialization.Model):
     """ProjectIdentity.
 
-    :param id:
+    All required parameters must be populated in order to send to Azure.
+
+    :param id: Required.
     :type id: str
-    :param application_id:
+    :param tenant_id: Required.
+    :type tenant_id: str
+    :param application_id: Required.
     :type application_id: str
-    :param secret:
+    :param secret: Required.
     :type secret: str
     """
 
+    _validation = {
+        'id': {'required': True},
+        'tenant_id': {'required': True},
+        'application_id': {'required': True},
+        'secret': {'required': True},
+    }
+
     _attribute_map = {
         'id': {'key': 'id', 'type': 'str'},
+        'tenant_id': {'key': 'tenantId', 'type': 'str'},
         'application_id': {'key': 'applicationId', 'type': 'str'},
         'secret': {'key': 'secret', 'type': 'str'},
     }
@@ -202,9 +522,10 @@ class ProjectIdentity(msrest.serialization.Model):
         **kwargs
     ):
         super(ProjectIdentity, self).__init__(**kwargs)
-        self.id = kwargs.get('id', None)
-        self.application_id = kwargs.get('application_id', None)
-        self.secret = kwargs.get('secret', None)
+        self.id = kwargs['id']
+        self.tenant_id = kwargs['tenant_id']
+        self.application_id = kwargs['application_id']
+        self.secret = kwargs['secret']
 
 
 class ProjectIdentityDataResult(msrest.serialization.Model):
@@ -241,16 +562,24 @@ class ProjectIdentityDataResult(msrest.serialization.Model):
 class ProjectLink(msrest.serialization.Model):
     """ProjectLink.
 
-    :param id:
+    All required parameters must be populated in order to send to Azure.
+
+    :param id: Required.
     :type id: str
-    :param href:
+    :param href: Required.
     :type href: str
     :param title:
     :type title: str
-    :param type:  Possible values include: "Link", "Readme", "Service", "GitRepository",
+    :param type: Required.  Possible values include: "Link", "Readme", "Service", "GitRepository",
      "AzureResource".
     :type type: str or ~teamcloud.models.ProjectLinkType
     """
+
+    _validation = {
+        'id': {'required': True},
+        'href': {'required': True},
+        'type': {'required': True},
+    }
 
     _attribute_map = {
         'id': {'key': 'id', 'type': 'str'},
@@ -264,10 +593,10 @@ class ProjectLink(msrest.serialization.Model):
         **kwargs
     ):
         super(ProjectLink, self).__init__(**kwargs)
-        self.id = kwargs.get('id', None)
-        self.href = kwargs.get('href', None)
+        self.id = kwargs['id']
+        self.href = kwargs['href']
         self.title = kwargs.get('title', None)
-        self.type = kwargs.get('type', None)
+        self.type = kwargs['type']
 
 
 class ProjectLinkDataResult(msrest.serialization.Model):
@@ -298,6 +627,43 @@ class ProjectLinkDataResult(msrest.serialization.Model):
         self.code = kwargs.get('code', None)
         self.status = kwargs.get('status', None)
         self.data = kwargs.get('data', None)
+        self.location = kwargs.get('location', None)
+
+
+class ProjectLinkListDataResult(msrest.serialization.Model):
+    """ProjectLinkListDataResult.
+
+    Variables are only populated by the server, and will be ignored when sending a request.
+
+    :param code:
+    :type code: int
+    :param status:
+    :type status: str
+    :ivar data:
+    :vartype data: list[~teamcloud.models.ProjectLink]
+    :param location:
+    :type location: str
+    """
+
+    _validation = {
+        'data': {'readonly': True},
+    }
+
+    _attribute_map = {
+        'code': {'key': 'code', 'type': 'int'},
+        'status': {'key': 'status', 'type': 'str'},
+        'data': {'key': 'data', 'type': '[ProjectLink]'},
+        'location': {'key': 'location', 'type': 'str'},
+    }
+
+    def __init__(
+        self,
+        **kwargs
+    ):
+        super(ProjectLinkListDataResult, self).__init__(**kwargs)
+        self.code = kwargs.get('code', None)
+        self.status = kwargs.get('status', None)
+        self.data = None
         self.location = kwargs.get('location', None)
 
 
@@ -341,13 +707,20 @@ class ProjectListDataResult(msrest.serialization.Model):
 class ProjectMembership(msrest.serialization.Model):
     """ProjectMembership.
 
-    :param project_id:
+    All required parameters must be populated in order to send to Azure.
+
+    :param project_id: Required.
     :type project_id: str
-    :param role:  Possible values include: "None", "Provider", "Member", "Owner".
+    :param role: Required.  Possible values include: "None", "Provider", "Member", "Owner".
     :type role: str or ~teamcloud.models.ProjectMembershipRole
     :param properties: Dictionary of :code:`<string>`.
     :type properties: dict[str, str]
     """
+
+    _validation = {
+        'project_id': {'required': True},
+        'role': {'required': True},
+    }
 
     _attribute_map = {
         'project_id': {'key': 'projectId', 'type': 'str'},
@@ -360,8 +733,8 @@ class ProjectMembership(msrest.serialization.Model):
         **kwargs
     ):
         super(ProjectMembership, self).__init__(**kwargs)
-        self.project_id = kwargs.get('project_id', None)
-        self.role = kwargs.get('role', None)
+        self.project_id = kwargs['project_id']
+        self.role = kwargs['role']
         self.properties = kwargs.get('properties', None)
 
 
@@ -376,6 +749,10 @@ class ProjectReferenceLinks(msrest.serialization.Model):
     :type users: ~teamcloud.models.ReferenceLink
     :param links:
     :type links: ~teamcloud.models.ReferenceLink
+    :param offers:
+    :type offers: ~teamcloud.models.ReferenceLink
+    :param components:
+    :type components: ~teamcloud.models.ReferenceLink
     """
 
     _attribute_map = {
@@ -383,6 +760,8 @@ class ProjectReferenceLinks(msrest.serialization.Model):
         'identity': {'key': 'identity', 'type': 'ReferenceLink'},
         'users': {'key': 'users', 'type': 'ReferenceLink'},
         'links': {'key': 'links', 'type': 'ReferenceLink'},
+        'offers': {'key': 'offers', 'type': 'ReferenceLink'},
+        'components': {'key': 'components', 'type': 'ReferenceLink'},
     }
 
     def __init__(
@@ -394,30 +773,41 @@ class ProjectReferenceLinks(msrest.serialization.Model):
         self.identity = kwargs.get('identity', None)
         self.users = kwargs.get('users', None)
         self.links = kwargs.get('links', None)
+        self.offers = kwargs.get('offers', None)
+        self.components = kwargs.get('components', None)
 
 
 class ProjectType(msrest.serialization.Model):
     """ProjectType.
 
-    :param id:
+    All required parameters must be populated in order to send to Azure.
+
+    :param id: Required.
     :type id: str
     :param is_default:
     :type is_default: bool
-    :param region:
+    :param region: Required.
     :type region: str
-    :param subscriptions:
+    :param subscriptions: Required.
     :type subscriptions: list[str]
     :param subscription_capacity:
     :type subscription_capacity: int
     :param resource_group_name_prefix:
     :type resource_group_name_prefix: str
-    :param providers:
+    :param providers: Required.
     :type providers: list[~teamcloud.models.ProviderReference]
     :param tags: A set of tags. Dictionary of :code:`<string>`.
     :type tags: dict[str, str]
     :param properties: Dictionary of :code:`<string>`.
     :type properties: dict[str, str]
     """
+
+    _validation = {
+        'id': {'required': True},
+        'region': {'required': True},
+        'subscriptions': {'required': True},
+        'providers': {'required': True},
+    }
 
     _attribute_map = {
         'id': {'key': 'id', 'type': 'str'},
@@ -436,13 +826,13 @@ class ProjectType(msrest.serialization.Model):
         **kwargs
     ):
         super(ProjectType, self).__init__(**kwargs)
-        self.id = kwargs.get('id', None)
+        self.id = kwargs['id']
         self.is_default = kwargs.get('is_default', None)
-        self.region = kwargs.get('region', None)
-        self.subscriptions = kwargs.get('subscriptions', None)
+        self.region = kwargs['region']
+        self.subscriptions = kwargs['subscriptions']
         self.subscription_capacity = kwargs.get('subscription_capacity', None)
         self.resource_group_name_prefix = kwargs.get('resource_group_name_prefix', None)
-        self.providers = kwargs.get('providers', None)
+        self.providers = kwargs['providers']
         self.tags = kwargs.get('tags', None)
         self.properties = kwargs.get('properties', None)
 
@@ -518,11 +908,13 @@ class ProjectTypeListDataResult(msrest.serialization.Model):
 class Provider(msrest.serialization.Model):
     """Provider.
 
-    :param id:
+    All required parameters must be populated in order to send to Azure.
+
+    :param id: Required.
     :type id: str
-    :param url:
+    :param url: Required.
     :type url: str
-    :param auth_code:
+    :param auth_code: Required.
     :type auth_code: str
     :param principal_id:
     :type principal_id: str
@@ -538,9 +930,19 @@ class Provider(msrest.serialization.Model):
     :type properties: dict[str, str]
     :param registered:
     :type registered: ~datetime.datetime
-    :param command_mode:  Possible values include: "Simple", "Extended".
+    :param type: Required.  Possible values include: "Standard", "Service", "Virtual".
+    :type type: str or ~teamcloud.models.ProviderType
+    :param command_mode: Required.  Possible values include: "Simple", "Extended".
     :type command_mode: str or ~teamcloud.models.ProviderCommandMode
     """
+
+    _validation = {
+        'id': {'required': True},
+        'url': {'required': True},
+        'auth_code': {'required': True},
+        'type': {'required': True},
+        'command_mode': {'required': True},
+    }
 
     _attribute_map = {
         'id': {'key': 'id', 'type': 'str'},
@@ -553,6 +955,7 @@ class Provider(msrest.serialization.Model):
         'event_subscriptions': {'key': 'eventSubscriptions', 'type': '[ProviderEventSubscription]'},
         'properties': {'key': 'properties', 'type': '{str}'},
         'registered': {'key': 'registered', 'type': 'iso-8601'},
+        'type': {'key': 'type', 'type': 'str'},
         'command_mode': {'key': 'commandMode', 'type': 'str'},
     }
 
@@ -561,9 +964,9 @@ class Provider(msrest.serialization.Model):
         **kwargs
     ):
         super(Provider, self).__init__(**kwargs)
-        self.id = kwargs.get('id', None)
-        self.url = kwargs.get('url', None)
-        self.auth_code = kwargs.get('auth_code', None)
+        self.id = kwargs['id']
+        self.url = kwargs['url']
+        self.auth_code = kwargs['auth_code']
         self.principal_id = kwargs.get('principal_id', None)
         self.version = kwargs.get('version', None)
         self.resource_group = kwargs.get('resource_group', None)
@@ -571,7 +974,8 @@ class Provider(msrest.serialization.Model):
         self.event_subscriptions = kwargs.get('event_subscriptions', None)
         self.properties = kwargs.get('properties', None)
         self.registered = kwargs.get('registered', None)
-        self.command_mode = kwargs.get('command_mode', None)
+        self.type = kwargs['type']
+        self.command_mode = kwargs['command_mode']
 
 
 class ProviderData(msrest.serialization.Model):
@@ -579,34 +983,36 @@ class ProviderData(msrest.serialization.Model):
 
     Variables are only populated by the server, and will be ignored when sending a request.
 
-    :param id:
+    All required parameters must be populated in order to send to Azure.
+
+    :param id: Required.
     :type id: str
     :param name:
     :type name: str
-    :param value: Any object.
-    :type value: object
     :param location:
     :type location: str
     :param is_secret:
     :type is_secret: bool
     :param is_shared:
     :type is_shared: bool
-    :param scope:  Possible values include: "System", "Project".
+    :param scope: Required.  Possible values include: "System", "Project".
     :type scope: str or ~teamcloud.models.ProviderDataScope
-    :param data_type:  Possible values include: "Property", "Service".
+    :param data_type: Required.  Possible values include: "Property", "Service".
     :type data_type: str or ~teamcloud.models.ProviderDataType
     :ivar string_value:
     :vartype string_value: str
     """
 
     _validation = {
+        'id': {'required': True},
+        'scope': {'required': True},
+        'data_type': {'required': True},
         'string_value': {'readonly': True},
     }
 
     _attribute_map = {
         'id': {'key': 'id', 'type': 'str'},
         'name': {'key': 'name', 'type': 'str'},
-        'value': {'key': 'value', 'type': 'object'},
         'location': {'key': 'location', 'type': 'str'},
         'is_secret': {'key': 'isSecret', 'type': 'bool'},
         'is_shared': {'key': 'isShared', 'type': 'bool'},
@@ -620,14 +1026,13 @@ class ProviderData(msrest.serialization.Model):
         **kwargs
     ):
         super(ProviderData, self).__init__(**kwargs)
-        self.id = kwargs.get('id', None)
+        self.id = kwargs['id']
         self.name = kwargs.get('name', None)
-        self.value = kwargs.get('value', None)
         self.location = kwargs.get('location', None)
         self.is_secret = kwargs.get('is_secret', None)
         self.is_shared = kwargs.get('is_shared', None)
-        self.scope = kwargs.get('scope', None)
-        self.data_type = kwargs.get('data_type', None)
+        self.scope = kwargs['scope']
+        self.data_type = kwargs['data_type']
         self.string_value = None
 
 
@@ -676,37 +1081,6 @@ class ProviderDataResult(msrest.serialization.Model):
     :param status:
     :type status: str
     :param data:
-    :type data: ~teamcloud.models.ProviderData
-    :param location:
-    :type location: str
-    """
-
-    _attribute_map = {
-        'code': {'key': 'code', 'type': 'int'},
-        'status': {'key': 'status', 'type': 'str'},
-        'data': {'key': 'data', 'type': 'ProviderData'},
-        'location': {'key': 'location', 'type': 'str'},
-    }
-
-    def __init__(
-        self,
-        **kwargs
-    ):
-        super(ProviderDataResult, self).__init__(**kwargs)
-        self.code = kwargs.get('code', None)
-        self.status = kwargs.get('status', None)
-        self.data = kwargs.get('data', None)
-        self.location = kwargs.get('location', None)
-
-
-class ProviderDataResultAutoGenerated(msrest.serialization.Model):
-    """ProviderDataResultAutoGenerated.
-
-    :param code:
-    :type code: int
-    :param status:
-    :type status: str
-    :param data:
     :type data: ~teamcloud.models.Provider
     :param location:
     :type location: str
@@ -723,7 +1097,38 @@ class ProviderDataResultAutoGenerated(msrest.serialization.Model):
         self,
         **kwargs
     ):
-        super(ProviderDataResultAutoGenerated, self).__init__(**kwargs)
+        super(ProviderDataResult, self).__init__(**kwargs)
+        self.code = kwargs.get('code', None)
+        self.status = kwargs.get('status', None)
+        self.data = kwargs.get('data', None)
+        self.location = kwargs.get('location', None)
+
+
+class ProviderDataReturnResult(msrest.serialization.Model):
+    """ProviderDataReturnResult.
+
+    :param code:
+    :type code: int
+    :param status:
+    :type status: str
+    :param data:
+    :type data: ~teamcloud.models.ProviderData
+    :param location:
+    :type location: str
+    """
+
+    _attribute_map = {
+        'code': {'key': 'code', 'type': 'int'},
+        'status': {'key': 'status', 'type': 'str'},
+        'data': {'key': 'data', 'type': 'ProviderData'},
+        'location': {'key': 'location', 'type': 'str'},
+    }
+
+    def __init__(
+        self,
+        **kwargs
+    ):
+        super(ProviderDataReturnResult, self).__init__(**kwargs)
         self.code = kwargs.get('code', None)
         self.status = kwargs.get('status', None)
         self.data = kwargs.get('data', None)
@@ -789,7 +1194,9 @@ class ProviderListDataResult(msrest.serialization.Model):
 class ProviderReference(msrest.serialization.Model):
     """ProviderReference.
 
-    :param id:
+    All required parameters must be populated in order to send to Azure.
+
+    :param id: Required.
     :type id: str
     :param depends_on:
     :type depends_on: list[str]
@@ -798,6 +1205,10 @@ class ProviderReference(msrest.serialization.Model):
     :param metadata: Dictionary of :code:`<any>`.
     :type metadata: dict[str, object]
     """
+
+    _validation = {
+        'id': {'required': True},
+    }
 
     _attribute_map = {
         'id': {'key': 'id', 'type': 'str'},
@@ -811,7 +1222,7 @@ class ProviderReference(msrest.serialization.Model):
         **kwargs
     ):
         super(ProviderReference, self).__init__(**kwargs)
-        self.id = kwargs.get('id', None)
+        self.id = kwargs['id']
         self.depends_on = kwargs.get('depends_on', None)
         self.properties = kwargs.get('properties', None)
         self.metadata = kwargs.get('metadata', None)
@@ -1063,17 +1474,26 @@ class TeamCloudInstanceDataResult(msrest.serialization.Model):
 class User(msrest.serialization.Model):
     """User.
 
-    :param id:
+    All required parameters must be populated in order to send to Azure.
+
+    :param id: Required.
     :type id: str
-    :param user_type:  Possible values include: "User", "System", "Provider", "Application".
+    :param user_type: Required.  Possible values include: "User", "System", "Provider",
+     "Application".
     :type user_type: str or ~teamcloud.models.UserType
-    :param role:  Possible values include: "None", "Provider", "Creator", "Admin".
+    :param role: Required.  Possible values include: "None", "Provider", "Creator", "Admin".
     :type role: str or ~teamcloud.models.UserRole
     :param project_memberships:
     :type project_memberships: list[~teamcloud.models.ProjectMembership]
     :param properties: Dictionary of :code:`<string>`.
     :type properties: dict[str, str]
     """
+
+    _validation = {
+        'id': {'required': True},
+        'user_type': {'required': True},
+        'role': {'required': True},
+    }
 
     _attribute_map = {
         'id': {'key': 'id', 'type': 'str'},
@@ -1088,9 +1508,9 @@ class User(msrest.serialization.Model):
         **kwargs
     ):
         super(User, self).__init__(**kwargs)
-        self.id = kwargs.get('id', None)
-        self.user_type = kwargs.get('user_type', None)
-        self.role = kwargs.get('role', None)
+        self.id = kwargs['id']
+        self.user_type = kwargs['user_type']
+        self.role = kwargs['role']
         self.project_memberships = kwargs.get('project_memberships', None)
         self.properties = kwargs.get('properties', None)
 

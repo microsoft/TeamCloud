@@ -108,6 +108,46 @@ namespace TeamCloud.API.Auth
                         policy.RequireRole(TeamCloudUserRole.Admin.PolicyRoleName(),
                                            ProviderUserRoles.ProviderWritePolicyRoleName);
                     });
+
+                    options.AddPolicy(AuthPolicies.ProviderOfferRead, policy =>
+                    {
+                        policy.RequireRole(TeamCloudUserRole.Admin.PolicyRoleName(),
+                                        ProviderUserRoles.ProviderWritePolicyRoleName);
+                    });
+
+                    options.AddPolicy(AuthPolicies.ProviderOfferWrite, policy =>
+                    {
+                        policy.RequireRole(TeamCloudUserRole.Admin.PolicyRoleName(),
+                                        ProviderUserRoles.ProviderWritePolicyRoleName);
+                    });
+
+                    options.AddPolicy(AuthPolicies.ProviderComponentWrite, policy =>
+                    {
+                        policy.RequireRole(TeamCloudUserRole.Admin.PolicyRoleName(),
+                                        ProviderUserRoles.ProviderWritePolicyRoleName);
+                    });
+
+                    options.AddPolicy(AuthPolicies.ProjectComponentRead, policy =>
+                    {
+                        policy.RequireRole(TeamCloudUserRole.Admin.PolicyRoleName(),
+                                           ProjectUserRole.Owner.PolicyRoleName(),
+                                           ProjectUserRole.Member.PolicyRoleName(),
+                                           ProjectUserRole.Provider.PolicyRoleName());
+                    });
+
+                    options.AddPolicy(AuthPolicies.ProjectComponentWrite, policy =>
+                    {
+                        policy.RequireRole(TeamCloudUserRole.Admin.PolicyRoleName(),
+                                           ProjectUserRole.Owner.PolicyRoleName(),
+                                           ProjectUserRole.Member.PolicyRoleName(),
+                                           ProjectUserRole.Provider.PolicyRoleName());
+                    });
+
+                    options.AddPolicy(AuthPolicies.ProjectComponentUpdate, policy =>
+                    {
+                        policy.RequireRole(TeamCloudUserRole.Admin.PolicyRoleName(),
+                                        UserRolePolicies.ComponentWritePolicy);
+                    });
                 });
 
             return services;
@@ -117,10 +157,10 @@ namespace TeamCloud.API.Auth
         {
             var claims = new List<Claim>();
 
-            var usersRepository = httpContext.RequestServices
+            var userRepository = httpContext.RequestServices
                 .GetRequiredService<IUserRepository>();
 
-            var user = await usersRepository
+            var user = await userRepository
                 .GetAsync(userId)
                 .ConfigureAwait(false);
 
@@ -165,6 +205,9 @@ namespace TeamCloud.API.Auth
 
                 if (httpContext.Request.Path.StartsWithSegments($"/api/projects/{projectIdRouteValue}/providers", StringComparison.OrdinalIgnoreCase))
                     claims.AddRange(await httpContext.ResolveProviderClaimsAsync(user).ConfigureAwait(false));
+
+                if (httpContext.Request.Path.StartsWithSegments($"/api/projects/{projectIdRouteValue}/components", StringComparison.OrdinalIgnoreCase))
+                    claims.AddRange(await httpContext.ResolveComponentClaimsAsync(projectIdRouteValue, user).ConfigureAwait(false));
             }
 
             return claims;
@@ -177,7 +220,7 @@ namespace TeamCloud.API.Auth
             string userIdRouteValue;
 
             if (httpContext.Request.Path.StartsWithSegments("/api/me", StringComparison.OrdinalIgnoreCase)
-            || httpContext.Request.Path.Value.EndsWith("/me", StringComparison.OrdinalIgnoreCase))
+             || httpContext.Request.Path.Value.EndsWith("/me", StringComparison.OrdinalIgnoreCase))
             {
                 userIdRouteValue = user.Id;
             }
@@ -190,7 +233,8 @@ namespace TeamCloud.API.Auth
                     userIdRouteValue = await httpContext.ResolveUserIdFromNameOrIdRouteAsync().ConfigureAwait(false);
             }
 
-            if (!string.IsNullOrEmpty(userIdRouteValue) && userIdRouteValue.Equals(user.Id, StringComparison.OrdinalIgnoreCase))
+            if (!string.IsNullOrEmpty(userIdRouteValue)
+             && userIdRouteValue.Equals(user.Id, StringComparison.OrdinalIgnoreCase))
             {
                 claims.Add(new Claim(ClaimTypes.Role, UserRolePolicies.UserWritePolicy));
             }
@@ -207,16 +251,43 @@ namespace TeamCloud.API.Auth
 
             if (!string.IsNullOrEmpty(providerIdRouteValue) && user.UserType == UserType.Provider)
             {
-                var providersRepository = httpContext.RequestServices
+                var providerRepository = httpContext.RequestServices
                     .GetRequiredService<IProviderRepository>();
 
-                var provider = await providersRepository
+                var provider = await providerRepository
                     .GetAsync(providerIdRouteValue)
                     .ConfigureAwait(false);
 
                 if (provider?.PrincipalId.HasValue ?? false
-                && provider.PrincipalId.Value.ToString().Equals(user.Id, StringComparison.OrdinalIgnoreCase))
+                 && provider.PrincipalId.Value.ToString().Equals(user.Id, StringComparison.OrdinalIgnoreCase))
                     claims.Add(new Claim(ClaimTypes.Role, ProviderUserRoles.ProviderWritePolicyRoleName));
+            }
+
+            return claims;
+        }
+
+        private static async Task<IEnumerable<Claim>> ResolveComponentClaimsAsync(this HttpContext httpContext, string projecId, UserDocument user)
+        {
+            var claims = new List<Claim>();
+
+            if (httpContext.Request.Method == HttpMethods.Get)
+                return claims;
+
+            var componentIdRouteValue = httpContext.GetRouteData()
+                .Values.GetValueOrDefault("ComponentId", StringComparison.OrdinalIgnoreCase)?.ToString();
+
+            if (!string.IsNullOrEmpty(componentIdRouteValue))
+            {
+                var componentRepository = httpContext.RequestServices
+                    .GetRequiredService<IComponentRepository>();
+
+                var component = await componentRepository
+                    .GetAsync(projecId, componentIdRouteValue)
+                    .ConfigureAwait(false);
+
+                if (!string.IsNullOrEmpty(component?.RequestedBy)
+                 && component.RequestedBy.Equals(user.Id, StringComparison.OrdinalIgnoreCase))
+                    claims.Add(new Claim(ClaimTypes.Role, UserRolePolicies.ComponentWritePolicy));
             }
 
             return claims;

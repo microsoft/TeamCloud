@@ -26,6 +26,12 @@ namespace TeamCloud.Model.Data
 
             SetLink(nameof(Links), new ReferenceLink(()
                 => GetBaseUri()?.AppendPath($"api/projects/{Context.Id}/links").ToString()));
+
+            SetLink(nameof(Offers), new ReferenceLink(()
+                => GetBaseUri()?.AppendPath($"api/projects/{Context.Id}/offers").ToString()));
+
+            SetLink(nameof(Components), new ReferenceLink(()
+                => GetBaseUri()?.AppendPath($"api/projects/{Context.Id}/components").ToString()));
         }
 
         [JsonProperty("_self", Order = int.MinValue)]
@@ -48,6 +54,18 @@ namespace TeamCloud.Model.Data
         }
 
         public ReferenceLink Links
+        {
+            get => GetLink();
+            private set => SetLink(link: value);
+        }
+
+        public ReferenceLink Offers
+        {
+            get => GetLink();
+            private set => SetLink(link: value);
+        }
+
+        public ReferenceLink Components
         {
             get => GetLink();
             private set => SetLink(link: value);

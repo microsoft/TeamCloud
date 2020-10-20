@@ -54,7 +54,7 @@ namespace TeamCloud.Data.CosmosDb.Core
             var partitionKeyValue = PartitionKeyAttribute.GetValue(containerDocument);
 
             if (partitionKeyValue is null)
-                throw new ArgumentException($"{typeof(T)} does provide a partition key.");
+                throw new ArgumentException($"{typeof(T)} does not provide a partition key.");
 
             return GetPartitionKey(partitionKeyValue as string);
         }

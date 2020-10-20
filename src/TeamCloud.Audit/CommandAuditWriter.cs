@@ -8,13 +8,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Blob;
-using Microsoft.WindowsAzure.Storage.Table;
+using Microsoft.Azure.Storage.Blob;
+using Microsoft.Azure.Cosmos.Table;
 using Newtonsoft.Json;
 using TeamCloud.Audit.Model;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Orchestration;
+using BlobCloudStorageAccount = Microsoft.Azure.Storage.CloudStorageAccount;
+using TableCloudStorageAccount = Microsoft.Azure.Cosmos.Table.CloudStorageAccount;
 
 namespace TeamCloud.Audit
 {
@@ -59,11 +60,11 @@ namespace TeamCloud.Audit
 
         public CommandAuditWriter(ICommandAuditOptions options = null)
         {
-            auditContainer = new Lazy<CloudBlobContainer>(() => CloudStorageAccount
+            auditContainer = new Lazy<CloudBlobContainer>(() => BlobCloudStorageAccount
                 .Parse((options ?? CommandAuditOptions.Default).ConnectionString)
                 .CreateCloudBlobClient().GetContainerReference(GetAuditContainerName(options)));
 
-            auditTable = new Lazy<CloudTable>(() => CloudStorageAccount
+            auditTable = new Lazy<CloudTable>(() => TableCloudStorageAccount
                 .Parse((options ?? CommandAuditOptions.Default).ConnectionString)
                 .CreateCloudTableClient().GetTableReference(GetAuditTableName(options)));
         }
@@ -127,7 +128,7 @@ namespace TeamCloud.Audit
                 .ConfigureAwait(false);
 
             var entityResult = await auditTable
-                .ExecuteAsync(TableOperation.Retrieve<CommandAuditEntity>(entity.TableEntity.PartitionKey, entity.TableEntity.RowKey))
+                .ExecuteAsync(TableOperation.Retrieve<CommandAuditEntity>(entity.PartitionKey, entity.RowKey))
                 .ConfigureAwait(false);
 
             if (entityResult.HttpStatusCode == (int)HttpStatusCode.OK)
