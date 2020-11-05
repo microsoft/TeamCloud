@@ -12,6 +12,8 @@ namespace TeamCloud.Model.Data
     public enum ComponentType
     {
         Custom,
+        AzureResource,
+        Environment,
         GitRepository
     }
 }

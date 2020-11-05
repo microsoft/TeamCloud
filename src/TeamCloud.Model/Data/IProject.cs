@@ -11,10 +11,8 @@ using TeamCloud.Serialization;
 namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public interface IProject : ITags, IProperties
+    public interface IProject : IIdentifiable, ITags, IProperties
     {
-        string Id { get; set; }
-
         string Name { get; set; }
 
         AzureResourceGroup ResourceGroup { get; set; }

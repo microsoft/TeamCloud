@@ -10,7 +10,7 @@ using TeamCloud.Serialization;
 namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public interface IComponent : IIdentifiable
+    public interface IComponent : IIdentifiable, IDisplayName
     {
         [JsonProperty("href")]
         string HRef { get; set; }
@@ -22,8 +22,6 @@ namespace TeamCloud.Model.Data
         string ProviderId { get; set; }
 
         string RequestedBy { get; set; }
-
-        string DisplayName { get; set; }
 
         string Description { get; set; }
 
