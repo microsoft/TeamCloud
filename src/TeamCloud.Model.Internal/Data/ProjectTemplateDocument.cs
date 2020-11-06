@@ -13,7 +13,7 @@ using TeamCloud.Serialization;
 namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public sealed class ProjectTemplateDocument : ContainerDocument, IProjectTemplate, IEquatable<ProjectTemplateDocument>, IValidatable
+    public sealed class ProjectTemplateDocument : ContainerDocument, IProjectTemplate, IEquatable<ProjectTemplateDocument>, IPopulate<ProjectTemplate>, IValidatable
     {
         [PartitionKey]
         public string Tenant { get; set; }
