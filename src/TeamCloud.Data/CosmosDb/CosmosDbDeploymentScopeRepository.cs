@@ -33,7 +33,7 @@ namespace TeamCloud.Data.CosmosDb
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
-            var defaultdeploymentScope = await GetDefaultAsync()
+            var defaultdeploymentScope = await GetDefaultAsync(deploymentScope.Organization)
                 .ConfigureAwait(false);
 
             if (defaultdeploymentScope is null)
@@ -49,13 +49,13 @@ namespace TeamCloud.Data.CosmosDb
                 if (deploymentScope.IsDefault)
                 {
                     var batch = container
-                        .CreateTransactionalBatch(new PartitionKey(Options.TenantName))
+                        .CreateTransactionalBatch(GetPartitionKey(deploymentScope))
                         .CreateItem(deploymentScope);
 
                     var query = new QueryDefinition($"SELECT * FROM c WHERE c.isDefault = true and c.id != '{deploymentScope.Id}'");
 
                     var queryIterator = container
-                        .GetItemQueryIterator<DeploymentScope>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
+                        .GetItemQueryIterator<DeploymentScope>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(deploymentScope) });
 
                     while (queryIterator.HasMoreResults)
                     {
@@ -73,13 +73,13 @@ namespace TeamCloud.Data.CosmosDb
                         .ExecuteAsync()
                         .ConfigureAwait(false);
 
-                    return await GetAsync(deploymentScope.Id)
+                    return await GetAsync(deploymentScope.Organization, deploymentScope.Id)
                         .ConfigureAwait(false);
                 }
                 else
                 {
                     var response = await container
-                        .CreateItemAsync(deploymentScope, new PartitionKey(Options.TenantName))
+                        .CreateItemAsync(deploymentScope, GetPartitionKey(deploymentScope))
                         .ConfigureAwait(false);
 
                     return response.Resource;
@@ -91,7 +91,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async Task<DeploymentScope> GetAsync(string id)
+        public async Task<DeploymentScope> GetAsync(string organization, string id)
         {
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
@@ -99,7 +99,7 @@ namespace TeamCloud.Data.CosmosDb
             try
             {
                 var response = await container
-                    .ReadItemAsync<DeploymentScope>(id, new PartitionKey(Options.TenantName))
+                    .ReadItemAsync<DeploymentScope>(id, GetPartitionKey(organization))
                     .ConfigureAwait(false);
 
                 return response.Resource;
@@ -110,7 +110,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async Task<DeploymentScope> GetDefaultAsync()
+        public async Task<DeploymentScope> GetDefaultAsync(string organization)
         {
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
@@ -120,7 +120,7 @@ namespace TeamCloud.Data.CosmosDb
                 var query = new QueryDefinition($"SELECT * FROM c WHERE c.isDefault = true");
 
                 var queryIterator = container
-                    .GetItemQueryIterator<DeploymentScope>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
+                    .GetItemQueryIterator<DeploymentScope>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(organization) });
 
                 var defaultdeploymentScope = default(DeploymentScope);
                 var nonDefaultBatch = default(TransactionalBatch);
@@ -143,7 +143,7 @@ namespace TeamCloud.Data.CosmosDb
                         .ToList()
                         .ForEach(pt =>
                         {
-                            nonDefaultBatch ??= container.CreateTransactionalBatch(new PartitionKey(Options.TenantName));
+                            nonDefaultBatch ??= container.CreateTransactionalBatch(GetPartitionKey(organization));
                             nonDefaultBatch.UpsertItem(pt);
                         });
                 }
@@ -170,7 +170,7 @@ namespace TeamCloud.Data.CosmosDb
 
             if (!deploymentScope.IsDefault)
             {
-                var defaultdeploymentScope = await GetDefaultAsync()
+                var defaultdeploymentScope = await GetDefaultAsync(deploymentScope.Organization)
                     .ConfigureAwait(false);
 
                 if (deploymentScope.Id == defaultdeploymentScope?.Id)
@@ -183,13 +183,13 @@ namespace TeamCloud.Data.CosmosDb
             if (deploymentScope.IsDefault)
             {
                 var batch = container
-                    .CreateTransactionalBatch(new PartitionKey(Options.TenantName))
+                    .CreateTransactionalBatch(GetPartitionKey(deploymentScope))
                     .UpsertItem(deploymentScope);
 
                 var query = new QueryDefinition($"SELECT * FROM c WHERE c.isDefault = true and c.id != '{deploymentScope.Id}'");
 
                 var queryIterator = container
-                    .GetItemQueryIterator<DeploymentScope>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
+                    .GetItemQueryIterator<DeploymentScope>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(deploymentScope) });
 
                 while (queryIterator.HasMoreResults)
                 {
@@ -207,27 +207,27 @@ namespace TeamCloud.Data.CosmosDb
                     .ExecuteAsync()
                     .ConfigureAwait(false);
 
-                return await GetAsync(deploymentScope.Id)
+                return await GetAsync(deploymentScope.Organization, deploymentScope.Id)
                     .ConfigureAwait(false);
             }
             else
             {
                 var response = await container
-                    .UpsertItemAsync(deploymentScope, new PartitionKey(Options.TenantName))
+                    .UpsertItemAsync(deploymentScope, GetPartitionKey(deploymentScope))
                     .ConfigureAwait(false);
 
                 return response.Resource;
             }
         }
 
-        public async IAsyncEnumerable<DeploymentScope> ListAsync()
+        public async IAsyncEnumerable<DeploymentScope> ListAsync(string organization)
         {
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
             var query = new QueryDefinition($"SELECT * FROM c");
             var queryIterator = container
-                .GetItemQueryIterator<DeploymentScope>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
+                .GetItemQueryIterator<DeploymentScope>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(organization) });
 
             while (queryIterator.HasMoreResults)
             {
@@ -251,7 +251,7 @@ namespace TeamCloud.Data.CosmosDb
             try
             {
                 var response = await container
-                    .DeleteItemAsync<DeploymentScope>(deploymentScope.Id, new PartitionKey(Options.TenantName))
+                    .DeleteItemAsync<DeploymentScope>(deploymentScope.Id, GetPartitionKey(deploymentScope))
                     .ConfigureAwait(false);
 
                 return response.Resource;

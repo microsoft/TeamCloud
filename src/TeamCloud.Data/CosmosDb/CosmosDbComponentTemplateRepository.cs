@@ -33,7 +33,7 @@ namespace TeamCloud.Data.CosmosDb
                 .ConfigureAwait(false);
 
             var response = await container
-                .CreateItemAsync(componentTemplate, new PartitionKey(componentTemplate.Organization))
+                .CreateItemAsync(componentTemplate, GetPartitionKey(componentTemplate))
                 .ConfigureAwait(false);
 
             return response.Resource;
@@ -47,7 +47,7 @@ namespace TeamCloud.Data.CosmosDb
             try
             {
                 var response = await container
-                    .ReadItemAsync<ComponentTemplate>(id, new PartitionKey(organization))
+                    .ReadItemAsync<ComponentTemplate>(id, GetPartitionKey(organization))
                     .ConfigureAwait(false);
 
                 return response.Resource;
@@ -71,7 +71,7 @@ namespace TeamCloud.Data.CosmosDb
                 .ConfigureAwait(false);
 
             var response = await container
-                .UpsertItemAsync(componentTemplate, new PartitionKey(componentTemplate.Organization))
+                .UpsertItemAsync(componentTemplate, GetPartitionKey(componentTemplate))
                 .ConfigureAwait(false);
 
             return response.Resource;
@@ -97,7 +97,7 @@ namespace TeamCloud.Data.CosmosDb
             var query = new QueryDefinition(queryString);
 
             var queryIterator = container
-                .GetItemQueryIterator<ComponentTemplate>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(organization) });
+                .GetItemQueryIterator<ComponentTemplate>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(organization) });
 
             while (queryIterator.HasMoreResults)
             {
@@ -121,7 +121,7 @@ namespace TeamCloud.Data.CosmosDb
             try
             {
                 var response = await container
-                    .DeleteItemAsync<ComponentTemplate>(componentTemplate.Id, new PartitionKey(componentTemplate.Organization))
+                    .DeleteItemAsync<ComponentTemplate>(componentTemplate.Id, GetPartitionKey(componentTemplate))
                     .ConfigureAwait(false);
 
                 return response.Resource;

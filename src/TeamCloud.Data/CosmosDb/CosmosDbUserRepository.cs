@@ -36,7 +36,7 @@ namespace TeamCloud.Data.CosmosDb
                 .ConfigureAwait(false);
 
             var response = await container
-                .CreateItemAsync(user, new PartitionKey(user.Organization))
+                .CreateItemAsync(user, GetPartitionKey(user))
                 .ConfigureAwait(false);
 
             return response.Resource;
@@ -50,7 +50,7 @@ namespace TeamCloud.Data.CosmosDb
             try
             {
                 var response = await container
-                    .ReadItemAsync<User>(id, new PartitionKey(organization))
+                    .ReadItemAsync<User>(id, GetPartitionKey(organization))
                     .ConfigureAwait(false);
 
                 return response.Resource;
@@ -69,7 +69,7 @@ namespace TeamCloud.Data.CosmosDb
             try
             {
                 var response = await container
-                    .ReadItemAsync<User>(user.Id, new PartitionKey(user.Organization))
+                    .ReadItemAsync<User>(user.Id, GetPartitionKey(user))
                     .ConfigureAwait(false);
 
                 return response.Resource;
@@ -86,7 +86,7 @@ namespace TeamCloud.Data.CosmosDb
                 .ConfigureAwait(false);
 
             var query = new QueryDefinition($"SELECT * FROM u");
-            var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(organization) });
+            var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(organization) });
 
             while (queryIterator.HasMoreResults)
             {
@@ -106,7 +106,7 @@ namespace TeamCloud.Data.CosmosDb
 
             var query = new QueryDefinition($"SELECT VALUE u FROM u WHERE EXISTS(SELECT VALUE m FROM m IN u.projectMemberships WHERE m.projectId = '{projectId}')");
 
-            var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(organization) });
+            var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(organization) });
 
             while (queryIterator.HasMoreResults)
             {
@@ -126,7 +126,7 @@ namespace TeamCloud.Data.CosmosDb
 
             var query = new QueryDefinition($"SELECT VALUE u FROM u WHERE EXISTS(SELECT VALUE m FROM m IN u.projectMemberships WHERE m.projectId = '{projectId}' AND m.role = '{ProjectUserRole.Owner}')");
 
-            var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(organization) });
+            var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(organization) });
 
             while (queryIterator.HasMoreResults)
             {
@@ -146,7 +146,7 @@ namespace TeamCloud.Data.CosmosDb
 
             var query = new QueryDefinition($"SELECT * FROM u WHERE u.role = '{OrganizationUserRole.Admin}'");
 
-            var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(organization) });
+            var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(organization) });
 
             while (queryIterator.HasMoreResults)
             {
@@ -172,7 +172,7 @@ namespace TeamCloud.Data.CosmosDb
                 .ConfigureAwait(false);
 
             var response = await container
-                .UpsertItemAsync<User>(user, new PartitionKey(user.Organization))
+                .UpsertItemAsync<User>(user, GetPartitionKey(user))
                 .ConfigureAwait(false);
 
             return response.Resource;
@@ -189,7 +189,7 @@ namespace TeamCloud.Data.CosmosDb
             try
             {
                 var response = await container
-                    .DeleteItemAsync<User>(user.Id, new PartitionKey(user.Organization))
+                    .DeleteItemAsync<User>(user.Id, GetPartitionKey(user))
                     .ConfigureAwait(false);
 
                 return response.Resource;
@@ -207,7 +207,7 @@ namespace TeamCloud.Data.CosmosDb
 
             var query = new QueryDefinition($"SELECT VALUE u FROM u WHERE EXISTS(SELECT VALUE m FROM m IN u.projectMemberships WHERE m.projectId = '{projectId}')");
 
-            var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(organization) });
+            var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(organization) });
 
 
             while (queryIterator.HasMoreResults)
@@ -257,10 +257,7 @@ namespace TeamCloud.Data.CosmosDb
                     {
                         user.ProjectMemberships.Remove(membership);
 
-                        return await container.ReplaceItemAsync(
-                                user,
-                                user.Id,
-                                new PartitionKey(user.Organization),
+                        return await container.ReplaceItemAsync(user, user.Id, GetPartitionKey(user),
                                 new ItemRequestOptions { IfMatchEtag = ((IContainerDocument)user).ETag })
                             .ConfigureAwait(false);
                     }
@@ -323,10 +320,7 @@ namespace TeamCloud.Data.CosmosDb
                     {
                         user.EnsureProjectMembership(membership);
 
-                        return await container.ReplaceItemAsync(
-                            user,
-                            user.Id,
-                            new PartitionKey(user.Organization),
+                        return await container.ReplaceItemAsync(user, user.Id, GetPartitionKey(user),
                             new ItemRequestOptions { IfMatchEtag = ((IContainerDocument)user).ETag })
                         .ConfigureAwait(false);
                     }
@@ -372,10 +366,7 @@ namespace TeamCloud.Data.CosmosDb
                 {
                     try
                     {
-                        return await container.ReplaceItemAsync(
-                            user,
-                            user.Id,
-                            new PartitionKey(Options.TenantName),
+                        return await container.ReplaceItemAsync(user, user.Id, GetPartitionKey(user),
                             new ItemRequestOptions { IfMatchEtag = ((IContainerDocument)user).ETag })
                         .ConfigureAwait(false);
                     }

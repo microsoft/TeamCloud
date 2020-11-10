@@ -38,16 +38,16 @@
 //         [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found.", typeof(ErrorResult))]
 //         public async Task<IActionResult> Get()
 //         {
-//             var teamCloudInstance = await teamCloudRepository
+//             var organization = await teamCloudRepository
 //                 .GetAsync()
 //                 .ConfigureAwait(false);
 
-//             if (teamCloudInstance is null)
+//             if (organization is null)
 //                 return ErrorResult
 //                     .NotFound($"No TeamCloud Instance was found.")
 //                     .ToActionResult();
 
-//             var tags = teamCloudInstance?.Tags is null ? new Dictionary<string, string>() : new Dictionary<string, string>(teamCloudInstance.Tags);
+//             var tags = organization?.Tags is null ? new Dictionary<string, string>() : new Dictionary<string, string>(organization.Tags);
 
 //             return DataResult<Dictionary<string, string>>
 //                 .Ok(tags)
@@ -68,16 +68,16 @@
 //                     .BadRequest($"The key provided in the url path is invalid.  Must be a non-empty string.", ResultErrorCode.ValidationError)
 //                     .ToActionResult();
 
-//             var teamCloudInstance = await teamCloudRepository
+//             var organization = await teamCloudRepository
 //                 .GetAsync()
 //                 .ConfigureAwait(false);
 
-//             if (teamCloudInstance is null)
+//             if (organization is null)
 //                 return ErrorResult
 //                     .NotFound($"No TeamCloud Instance was found.")
 //                     .ToActionResult();
 
-//             if (!teamCloudInstance.Tags.TryGetValue(tagKey, out var tagValue))
+//             if (!organization.Tags.TryGetValue(tagKey, out var tagValue))
 //                 return ErrorResult
 //                     .NotFound($"The specified Tag could not be found in this TeamCloud Instance.")
 //                     .ToActionResult();
@@ -105,16 +105,16 @@
 //                     .BadRequest()
 //                     .ToActionResult();
 
-//             var teamCloudInstance = await teamCloudRepository
+//             var organization = await teamCloudRepository
 //                 .GetAsync()
 //                 .ConfigureAwait(false);
 
-//             if (teamCloudInstance is null)
+//             if (organization is null)
 //                 return ErrorResult
 //                     .NotFound($"No TeamCloud Instance was found.")
 //                     .ToActionResult();
 
-//             if (teamCloudInstance.Tags.ContainsKey(tag.Key))
+//             if (organization.Tags.ContainsKey(tag.Key))
 //                 return ErrorResult
 //                     .Conflict($"A Tag with the key '{tag.Key}' already exists on this TeamCloud Instance. Please try your request again with a unique key or call PUT to update the existing Tag.")
 //                     .ToActionResult();
@@ -145,16 +145,16 @@
 //                     .BadRequest()
 //                     .ToActionResult();
 
-//             var teamCloudInstance = await teamCloudRepository
+//             var organization = await teamCloudRepository
 //                 .GetAsync()
 //                 .ConfigureAwait(false);
 
-//             if (teamCloudInstance is null)
+//             if (organization is null)
 //                 return ErrorResult
 //                     .NotFound($"No TeamCloud Instance was found.")
 //                     .ToActionResult();
 
-//             if (!teamCloudInstance.Tags.ContainsKey(tag.Key))
+//             if (!organization.Tags.ContainsKey(tag.Key))
 //                 return ErrorResult
 //                     .NotFound($"A Tag with the key '{tag.Key}' could not be found in this TeamCloud Instance.")
 //                     .ToActionResult();
@@ -183,15 +183,15 @@
 //                     .BadRequest($"The key provided in the url path is invalid.  Must be a non-empty string.", ResultErrorCode.ValidationError)
 //                     .ToActionResult();
 
-//             var teamCloudInstance = await teamCloudRepository
+//             var organization = await teamCloudRepository
 //                 .GetAsync()
 //                 .ConfigureAwait(false);
 
-//             if (teamCloudInstance is null)
+//             if (organization is null)
 //                 return ErrorResult
 //                     .NotFound($"No TeamCloud Instance was found.")
 //                     .ToActionResult();
-//             if (!teamCloudInstance.Tags.TryGetValue(tagKey, out _))
+//             if (!organization.Tags.TryGetValue(tagKey, out _))
 //                 return ErrorResult
 //                     .NotFound($"The specified Tag could not be found in this TeamCloud Instance.")
 //                     .ToActionResult();

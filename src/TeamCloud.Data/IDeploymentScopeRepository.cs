@@ -11,11 +11,11 @@ namespace TeamCloud.Data
 {
     public interface IDeploymentScopeRepository
     {
-        Task<DeploymentScope> GetAsync(string id);
+        Task<DeploymentScope> GetAsync(string organization, string id);
 
-        IAsyncEnumerable<DeploymentScope> ListAsync();
+        IAsyncEnumerable<DeploymentScope> ListAsync(string organization);
 
-        Task<DeploymentScope> GetDefaultAsync();
+        Task<DeploymentScope> GetDefaultAsync(string organization);
 
         Task<DeploymentScope> AddAsync(DeploymentScope deploymentScope);
 

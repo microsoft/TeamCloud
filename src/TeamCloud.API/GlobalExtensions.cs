@@ -254,22 +254,5 @@ namespace TeamCloud.API
 
             throw new NotSupportedException("None active runtime states are not supported");
         }
-
-        public static bool RequiresAdminUserSet(this HttpRequest httpRequest)
-        {
-            if (httpRequest.IsAdminUserPost() || httpRequest.IsSwaggerGet() || httpRequest.IsAdminTeamCloudInstancePost())
-                return false;
-
-            return true;
-        }
-
-        public static bool IsSwaggerGet(this HttpRequest httpRequest)
-            => httpRequest.Path.StartsWithSegments("/openapi", StringComparison.OrdinalIgnoreCase) && HttpMethods.IsGet(httpRequest.Method);
-
-        public static bool IsAdminUserPost(this HttpRequest httpRequest)
-            => httpRequest.Path.StartsWithSegments("/api/admin/users", StringComparison.OrdinalIgnoreCase) && HttpMethods.IsPost(httpRequest.Method);
-
-        public static bool IsAdminTeamCloudInstancePost(this HttpRequest httpRequest)
-            => httpRequest.Path.StartsWithSegments("/api/admin/teamCloudInstance", StringComparison.OrdinalIgnoreCase) && HttpMethods.IsPost(httpRequest.Method);
     }
 }

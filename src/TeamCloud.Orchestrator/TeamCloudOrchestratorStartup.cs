@@ -71,16 +71,14 @@ namespace TeamCloud.Orchestrator
             }
 
             builder.Services
-                .AddSingleton<IUserRepository, CosmosDbUserRepository>()
-                .AddSingleton<IProjectRepository, CosmosDbProjectRepository>()
-                .AddSingleton<ITeamCloudRepository, CosmosDbTeamCloudRepository>()
                 .AddSingleton<IOrganizationRepository, CosmosDbOrganizationRepository>()
-                .AddSingleton<IProjectTemplateRepository, CosmosDbProjectTemplateRepository>()
+                .AddSingleton<IUserRepository, CosmosDbUserRepository>()
                 .AddSingleton<IDeploymentScopeRepository, CosmosDbDeploymentScopeRepository>()
-                .AddSingleton<IProjectLinkRepository, CosmosDbProjectLinkRepository>()
-                .AddSingleton<IComponentOfferRepository, CosmosDbComponentOfferRepository>()
+                .AddSingleton<IProjectTemplateRepository, CosmosDbProjectTemplateRepository>()
                 .AddSingleton<IComponentTemplateRepository, CosmosDbComponentTemplateRepository>()
+                .AddSingleton<IProjectRepository, CosmosDbProjectRepository>()
                 .AddSingleton<IComponentRepository, CosmosDbComponentRepository>()
+                // .AddSingleton<IProjectLinkRepository, CosmosDbProjectLinkRepository>()
                 .AddSingleton<IRepositoryService, RepositoryService>();
 
             // CAUTION - don't register an orchstrator command handler with the generic
@@ -89,17 +87,16 @@ namespace TeamCloud.Orchestrator
             // handler use the non-generic IOrchestratorCommandHandler interface.
 
             builder.Services
-                .AddScoped<IOrchestratorCommandHandler, OrchestratorProjectLinkCommandHandler>()
+                .AddScoped<IOrchestratorCommandHandler, OrchestratorCommandOrchestrationHandler>()
+                .AddScoped<IOrchestratorCommandHandler, OrchestratorComponentCommandHandler>()
+                .AddScoped<IOrchestratorCommandHandler, OrchestratorComponentTemplateCommandHandler>()
+                .AddScoped<IOrchestratorCommandHandler, OrchestratorDeploymentScopeCommandHandler>()
                 .AddScoped<IOrchestratorCommandHandler, OrchestratorOrganizationCommandHandler>()
                 .AddScoped<IOrchestratorCommandHandler, OrchestratorOrganizationUserCommandHandler>()
                 .AddScoped<IOrchestratorCommandHandler, OrchestratorProjectCommandHandler>()
-                .AddScoped<IOrchestratorCommandHandler, OrchestratorProjectUserCommandHandler>()
+                .AddScoped<IOrchestratorCommandHandler, OrchestratorProjectLinkCommandHandler>()
                 .AddScoped<IOrchestratorCommandHandler, OrchestratorProjectTemplateCommandHandler>()
-                .AddScoped<IOrchestratorCommandHandler, OrchestratorDeploymentScopeCommandHandler>()
-                .AddScoped<IOrchestratorCommandHandler, OrchestratorComponentOfferCommandHandler>()
-                .AddScoped<IOrchestratorCommandHandler, OrchestratorComponentCommandHandler>()
-                .AddScoped<IOrchestratorCommandHandler, OrchestratorTeamCloudCommandHandler>()
-                .AddScoped<IOrchestratorCommandHandler, OrchestratorCommandOrchestrationHandler>();
+                .AddScoped<IOrchestratorCommandHandler, OrchestratorProjectUserCommandHandler>();
 
             builder.Services
                 .AddTeamCloudAzure(configuration =>

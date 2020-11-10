@@ -17,13 +17,12 @@ namespace TeamCloud.Model.Data
         [PartitionKey]
         public string Organization { get; set; }
 
-        [JsonProperty(Required = Required.Always)]
         public string DisplayName { get; set; }
 
-        [JsonProperty(Required = Required.Always)]
         public string ManagementGroupId { get; set; }
 
         public bool IsDefault { get; set; }
+
 
         public bool Equals(DeploymentScope other)
             => Id.Equals(other?.Id, StringComparison.Ordinal);

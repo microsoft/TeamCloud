@@ -24,12 +24,6 @@ namespace TeamCloud.Model.Validation.Data
 
             RuleFor(obj => obj.RequestedBy)
                 .MustBeGuid();
-
-            RuleFor(obj => obj.TemplateId)
-                .Cascade(CascadeMode.Stop)
-                .NotEmpty()
-                .Must((obj, id) => id.StartsWith($"{obj.ProviderId}.", StringComparison.Ordinal))
-                .WithMessage(obj => "'{PropertyName}' must begin with the providerId followed by a period " + $"({obj.ProviderId}.)");
         }
     }
 }

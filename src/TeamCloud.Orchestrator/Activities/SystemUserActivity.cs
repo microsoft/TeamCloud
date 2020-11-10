@@ -3,6 +3,7 @@
  *  Licensed under the MIT License.
  */
 
+using System;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -11,21 +12,21 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Orchestrator.Activities
 {
-    public class TeamCloudSystemUserActivity
+    public class SystemUserActivity
     {
         private readonly IAzureSessionService azureSessionService;
 
-        public TeamCloudSystemUserActivity(IAzureSessionService azureSessionService)
+        public SystemUserActivity(IAzureSessionService azureSessionService)
         {
-            this.azureSessionService = azureSessionService ?? throw new System.ArgumentNullException(nameof(azureSessionService));
+            this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
         }
 
-        [FunctionName(nameof(TeamCloudSystemUserActivity))]
+        [FunctionName(nameof(SystemUserActivity))]
         public async Task<User> RunActivity(
             [ActivityTrigger] IDurableActivityContext activityContext)
         {
             if (activityContext is null)
-                throw new System.ArgumentNullException(nameof(activityContext));
+                throw new ArgumentNullException(nameof(activityContext));
 
             var systemIdentity = await azureSessionService
                 .GetIdentityAsync()

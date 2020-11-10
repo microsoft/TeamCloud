@@ -129,7 +129,7 @@ namespace TeamCloud.Data.CosmosDb
                     .ConfigureAwait(false);
 
                 var batch = container
-                    .CreateTransactionalBatch(new PartitionKey(organization));
+                    .CreateTransactionalBatch(GetPartitionKey(organization));
 
                 await foreach (var component in components.ConfigureAwait(false))
                     batch = batch.DeleteItem(component.Id);

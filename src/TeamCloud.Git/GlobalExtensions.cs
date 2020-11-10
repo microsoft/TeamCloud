@@ -141,29 +141,6 @@ namespace TeamCloud.Git
             return schema;
         }
 
-        // internal static ComponentOffer ToOffer(this ComponentYaml yaml, RepositoryReference repo, string folder)
-        // {
-        //     if (yaml is null)
-        //         throw new ArgumentNullException(nameof(yaml));
-
-        //     if (repo is null)
-        //         throw new ArgumentNullException(nameof(repo));
-
-        //     if (folder is null)
-        //         throw new ArgumentNullException(nameof(folder));
-
-        //     return new ComponentOffer
-        //     {
-        //         Id = $"{repo}.{folder.ToLowerInvariant().Replace(' ', '_').Replace('-', '_')}",
-        //         ProviderId = yaml.Provider,
-        //         DisplayName = folder,
-        //         Description = yaml.Description,
-        //         Scope = yaml.Scope,
-        //         Type = yaml.Type,
-        //         InputJsonSchema = yaml.Parameters.ToSchema().ToString()
-        //     };
-        // }
-
 
         internal static ComponentTemplate ToComponentTemplate(this ComponentYaml yaml, ProjectTemplate projectTemplate, string folder)
         {

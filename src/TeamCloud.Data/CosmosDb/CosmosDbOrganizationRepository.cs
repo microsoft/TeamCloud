@@ -86,7 +86,7 @@ namespace TeamCloud.Data.CosmosDb
             try
             {
                 var response = await container
-                    .ReadItemAsync<Organization>(identifier, new PartitionKey(Options.TenantName))
+                    .ReadItemAsync<Organization>(identifier, GetPartitionKey(Options.TenantName))
                     .ConfigureAwait(false);
 
                 organization = response.Resource;
@@ -96,7 +96,7 @@ namespace TeamCloud.Data.CosmosDb
                 var query = new QueryDefinition($"SELECT * FROM o WHERE o.slug = '{identifier}'");
 
                 var queryIterator = container
-                    .GetItemQueryIterator<Organization>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
+                    .GetItemQueryIterator<Organization>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(Options.TenantName) });
 
                 if (queryIterator.HasMoreResults)
                 {
@@ -119,7 +119,7 @@ namespace TeamCloud.Data.CosmosDb
             var query = new QueryDefinition($"SELECT * FROM o");
 
             var queryIterator = container
-                .GetItemQueryIterator<Organization>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
+                .GetItemQueryIterator<Organization>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(Options.TenantName) });
 
             while (queryIterator.HasMoreResults)
             {

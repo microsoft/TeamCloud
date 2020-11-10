@@ -14,16 +14,16 @@ using TeamCloud.Orchestrator.Entities;
 
 namespace TeamCloud.Orchestrator.Activities
 {
-    public class UserTeamCloudInfoSetActivity
+    public class UserOrganizationInfoSetActivity
     {
         private readonly IUserRepository userRepository;
 
-        public UserTeamCloudInfoSetActivity(IUserRepository userRepository)
+        public UserOrganizationInfoSetActivity(IUserRepository userRepository)
         {
             this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         }
 
-        [FunctionName(nameof(UserTeamCloudInfoSetActivity))]
+        [FunctionName(nameof(UserOrganizationInfoSetActivity))]
         public async Task<User> RunActivity(
             [ActivityTrigger] IDurableActivityContext activityContext)
         {
@@ -40,11 +40,11 @@ namespace TeamCloud.Orchestrator.Activities
         }
     }
 
-    internal static class UserTeamCloudDetailsSetExtension
+    internal static class UserOrganizationDetailsSetExtension
     {
-        public static Task<User> SetUserTeamCloudInfoAsync(this IDurableOrchestrationContext orchestrationContext, User user, bool allowUnsafe = false)
+        public static Task<User> SetUserOrganizationInfoAsync(this IDurableOrchestrationContext orchestrationContext, User user, bool allowUnsafe = false)
             => orchestrationContext.IsLockedByContainerDocument(user) || allowUnsafe
-            ? orchestrationContext.CallActivityWithRetryAsync<User>(nameof(UserTeamCloudInfoSetActivity), user)
+            ? orchestrationContext.CallActivityWithRetryAsync<User>(nameof(UserOrganizationInfoSetActivity), user)
             : throw new NotSupportedException($"Unable to set user '{user.Id}' without acquired lock");
     }
 }

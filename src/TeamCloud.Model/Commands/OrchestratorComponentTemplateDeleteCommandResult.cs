@@ -8,6 +8,6 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Model.Commands
 {
-    public sealed class OrchestratorComponentOfferUpdateCommandResult : CommandResult<ComponentOffer>
+    public sealed class OrchestratorComponentTemplateDeleteCommandResult : CommandResult<ComponentTemplate>
     { }
 }

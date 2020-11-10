@@ -12,19 +12,19 @@ using TeamCloud.Model.Commands.Core;
 
 namespace TeamCloud.Orchestrator.Handlers
 {
-    public sealed class OrchestratorComponentOfferCommandHandler
-        : IOrchestratorCommandHandler<OrchestratorComponentOfferCreateCommand>,
-          IOrchestratorCommandHandler<OrchestratorComponentOfferUpdateCommand>,
-          IOrchestratorCommandHandler<OrchestratorComponentOfferDeleteCommand>
+    public sealed class OrchestratorComponentTemplateCommandHandler
+        : IOrchestratorCommandHandler<OrchestratorComponentTemplateCreateCommand>,
+          IOrchestratorCommandHandler<OrchestratorComponentTemplateUpdateCommand>,
+          IOrchestratorCommandHandler<OrchestratorComponentTemplateDeleteCommand>
     {
-        private readonly IComponentOfferRepository componentOfferRepository;
+        private readonly IComponentTemplateRepository componentTemplateRepository;
 
-        public OrchestratorComponentOfferCommandHandler(IComponentOfferRepository componentOfferRepository)
+        public OrchestratorComponentTemplateCommandHandler(IComponentTemplateRepository componentTemplateRepository)
         {
-            this.componentOfferRepository = componentOfferRepository ?? throw new ArgumentNullException(nameof(componentOfferRepository));
+            this.componentTemplateRepository = componentTemplateRepository ?? throw new ArgumentNullException(nameof(componentTemplateRepository));
         }
 
-        public async Task<ICommandResult> HandleAsync(OrchestratorComponentOfferCreateCommand orchestratorCommand, IDurableClient durableClient = null)
+        public async Task<ICommandResult> HandleAsync(OrchestratorComponentTemplateCreateCommand orchestratorCommand, IDurableClient durableClient = null)
         {
             if (orchestratorCommand is null)
                 throw new ArgumentNullException(nameof(orchestratorCommand));
@@ -33,7 +33,7 @@ namespace TeamCloud.Orchestrator.Handlers
 
             try
             {
-                commandResult.Result = await componentOfferRepository
+                commandResult.Result = await componentTemplateRepository
                     .AddAsync(orchestratorCommand.Payload)
                     .ConfigureAwait(false);
 
@@ -47,7 +47,7 @@ namespace TeamCloud.Orchestrator.Handlers
             return commandResult;
         }
 
-        public async Task<ICommandResult> HandleAsync(OrchestratorComponentOfferUpdateCommand orchestratorCommand, IDurableClient durableClient = null)
+        public async Task<ICommandResult> HandleAsync(OrchestratorComponentTemplateUpdateCommand orchestratorCommand, IDurableClient durableClient = null)
         {
             if (orchestratorCommand is null)
                 throw new ArgumentNullException(nameof(orchestratorCommand));
@@ -56,7 +56,7 @@ namespace TeamCloud.Orchestrator.Handlers
 
             try
             {
-                commandResult.Result = await componentOfferRepository
+                commandResult.Result = await componentTemplateRepository
                     .SetAsync(orchestratorCommand.Payload)
                     .ConfigureAwait(false);
 
@@ -70,7 +70,7 @@ namespace TeamCloud.Orchestrator.Handlers
             return commandResult;
         }
 
-        public async Task<ICommandResult> HandleAsync(OrchestratorComponentOfferDeleteCommand orchestratorCommand, IDurableClient durableClient = null)
+        public async Task<ICommandResult> HandleAsync(OrchestratorComponentTemplateDeleteCommand orchestratorCommand, IDurableClient durableClient = null)
         {
             if (orchestratorCommand is null)
                 throw new ArgumentNullException(nameof(orchestratorCommand));
@@ -79,7 +79,7 @@ namespace TeamCloud.Orchestrator.Handlers
 
             try
             {
-                commandResult.Result = await componentOfferRepository
+                commandResult.Result = await componentTemplateRepository
                     .RemoveAsync(orchestratorCommand.Payload)
                     .ConfigureAwait(false);
 

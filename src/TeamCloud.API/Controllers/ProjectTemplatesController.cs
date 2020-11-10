@@ -26,9 +26,9 @@ namespace TeamCloud.API.Controllers
     [ApiController]
     [Route("orgs/{org}/templates")]
     [Produces("application/json")]
-    public class ProjectTemplatessController : ApiController
+    public class ProjectTemplatesController : ApiController
     {
-        public ProjectTemplatessController(UserService userService, Orchestrator orchestrator, IOrganizationRepository organizationRepository, IProjectTemplateRepository projectTemplateRepository)
+        public ProjectTemplatesController(UserService userService, Orchestrator orchestrator, IOrganizationRepository organizationRepository, IProjectTemplateRepository projectTemplateRepository)
             : base(userService, orchestrator, organizationRepository, projectTemplateRepository)
         { }
 

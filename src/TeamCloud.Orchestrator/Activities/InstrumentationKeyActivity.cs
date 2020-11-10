@@ -11,9 +11,9 @@ using TeamCloud.Orchestration;
 
 namespace TeamCloud.Orchestrator.Activities
 {
-    public static class TeamCloudInstrumentationKeyActivity
+    public static class InstrumentationKeyActivity
     {
-        [FunctionName(nameof(TeamCloudInstrumentationKeyActivity))]
+        [FunctionName(nameof(InstrumentationKeyActivity))]
         public static string RunActivity(
             [ActivityTrigger] IDurableActivityContext activityContext)
         {
@@ -29,9 +29,9 @@ namespace TeamCloud.Orchestrator.Activities
         }
     }
 
-    internal static class TeamCloudInstrumentationKeyExtension
+    internal static class InstrumentationKeyExtension
     {
         public static Task<string> GetInstrumentationKeyAsync(this IDurableOrchestrationContext orchestrationContext)
-            => orchestrationContext.CallActivityWithRetryAsync<string>(nameof(TeamCloudInstrumentationKeyActivity), null);
+            => orchestrationContext.CallActivityWithRetryAsync<string>(nameof(InstrumentationKeyActivity), null);
     }
 }

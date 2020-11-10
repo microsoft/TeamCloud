@@ -49,13 +49,13 @@ namespace TeamCloud.Data.CosmosDb
                 if (projectTemplate.IsDefault)
                 {
                     var batch = container
-                        .CreateTransactionalBatch(new PartitionKey(projectTemplate.Organization))
+                        .CreateTransactionalBatch(GetPartitionKey(projectTemplate))
                         .CreateItem(projectTemplate);
 
                     var query = new QueryDefinition($"SELECT * FROM c WHERE c.isDefault = true and c.id != '{projectTemplate.Id}'");
 
                     var queryIterator = container
-                        .GetItemQueryIterator<ProjectTemplate>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(projectTemplate.Organization) });
+                        .GetItemQueryIterator<ProjectTemplate>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(projectTemplate) });
 
                     while (queryIterator.HasMoreResults)
                     {
@@ -79,7 +79,7 @@ namespace TeamCloud.Data.CosmosDb
                 else
                 {
                     var response = await container
-                        .CreateItemAsync(projectTemplate, new PartitionKey(projectTemplate.Organization))
+                        .CreateItemAsync(projectTemplate, GetPartitionKey(projectTemplate))
                         .ConfigureAwait(false);
 
                     return response.Resource;
@@ -99,7 +99,7 @@ namespace TeamCloud.Data.CosmosDb
             try
             {
                 var response = await container
-                    .ReadItemAsync<ProjectTemplate>(id, new PartitionKey(organization))
+                    .ReadItemAsync<ProjectTemplate>(id, GetPartitionKey(organization))
                     .ConfigureAwait(false);
 
                 return response.Resource;
@@ -129,7 +129,7 @@ namespace TeamCloud.Data.CosmosDb
                 var query = new QueryDefinition($"SELECT * FROM c WHERE c.isDefault = true");
 
                 var queryIterator = container
-                    .GetItemQueryIterator<ProjectTemplate>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(organization) });
+                    .GetItemQueryIterator<ProjectTemplate>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(organization) });
 
                 var defaultprojectTemplate = default(ProjectTemplate);
                 var nonDefaultBatch = default(TransactionalBatch);
@@ -152,7 +152,7 @@ namespace TeamCloud.Data.CosmosDb
                         .ToList()
                         .ForEach(pt =>
                         {
-                            nonDefaultBatch ??= container.CreateTransactionalBatch(new PartitionKey(organization));
+                            nonDefaultBatch ??= container.CreateTransactionalBatch(GetPartitionKey(organization));
                             nonDefaultBatch.UpsertItem(pt);
                         });
                 }
@@ -192,13 +192,13 @@ namespace TeamCloud.Data.CosmosDb
             if (projectTemplate.IsDefault)
             {
                 var batch = container
-                    .CreateTransactionalBatch(new PartitionKey(projectTemplate.Organization))
+                    .CreateTransactionalBatch(GetPartitionKey(projectTemplate))
                     .UpsertItem(projectTemplate);
 
                 var query = new QueryDefinition($"SELECT * FROM c WHERE c.isDefault = true and c.id != '{projectTemplate.Id}'");
 
                 var queryIterator = container
-                    .GetItemQueryIterator<ProjectTemplate>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(projectTemplate.Organization) });
+                    .GetItemQueryIterator<ProjectTemplate>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(projectTemplate) });
 
                 while (queryIterator.HasMoreResults)
                 {
@@ -222,7 +222,7 @@ namespace TeamCloud.Data.CosmosDb
             else
             {
                 var response = await container
-                    .UpsertItemAsync(projectTemplate, new PartitionKey(projectTemplate.Organization))
+                    .UpsertItemAsync(projectTemplate, GetPartitionKey(projectTemplate))
                     .ConfigureAwait(false);
 
                 return response.Resource;
@@ -236,7 +236,7 @@ namespace TeamCloud.Data.CosmosDb
 
             var query = new QueryDefinition($"SELECT * FROM c");
             var queryIterator = container
-                .GetItemQueryIterator<ProjectTemplate>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(organization) });
+                .GetItemQueryIterator<ProjectTemplate>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(organization) });
 
             while (queryIterator.HasMoreResults)
             {
@@ -260,7 +260,7 @@ namespace TeamCloud.Data.CosmosDb
             try
             {
                 var response = await container
-                    .DeleteItemAsync<ProjectTemplate>(projectTemplate.Id, new PartitionKey(projectTemplate.Organization))
+                    .DeleteItemAsync<ProjectTemplate>(projectTemplate.Id, GetPartitionKey(projectTemplate))
                     .ConfigureAwait(false);
 
                 return response.Resource;
