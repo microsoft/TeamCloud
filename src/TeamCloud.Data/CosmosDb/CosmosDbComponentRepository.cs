@@ -40,14 +40,8 @@ namespace TeamCloud.Data.CosmosDb
             return response.Resource;
         }
 
-        public async Task<Component> GetAsync(string projectId, string id)
+        public async Task<Component> GetAsync(string organization, string id)
         {
-            if (projectId is null)
-                throw new ArgumentNullException(nameof(projectId));
-
-            if (!Guid.TryParse(projectId, out var projectIdParsed))
-                throw new ArgumentException("Value is not a valid GUID", nameof(projectId));
-
             if (id is null)
                 throw new ArgumentNullException(nameof(id));
 
@@ -60,7 +54,7 @@ namespace TeamCloud.Data.CosmosDb
             try
             {
                 var response = await container
-                    .ReadItemAsync<Component>(idParsed.ToString(), GetPartitionKey(projectIdParsed.ToString()))
+                    .ReadItemAsync<Component>(idParsed.ToString(), GetPartitionKey(organization))
                     .ConfigureAwait(false);
 
                 return response.Resource;
@@ -71,7 +65,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async IAsyncEnumerable<Component> ListAsync(string projectId, string providerId = null)
+        public async IAsyncEnumerable<Component> ListAsync(string organization, string projectId)
         {
             if (projectId is null)
                 throw new ArgumentNullException(nameof(projectId));
@@ -84,13 +78,13 @@ namespace TeamCloud.Data.CosmosDb
 
             var queryString = $"SELECT * FROM c WHERE c.projectId = '{projectIdParsed}'";
 
-            if (!string.IsNullOrEmpty(providerId))
-                queryString += $" and c.providerId = '{providerId}'";
+            // if (!string.IsNullOrEmpty(providerId))
+            //     queryString += $" and c.providerId = '{providerId}'";
 
             var query = new QueryDefinition(queryString);
 
             var queryIterator = container
-                .GetItemQueryIterator<Component>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(projectIdParsed.ToString()) });
+                .GetItemQueryIterator<Component>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(organization) });
 
             while (queryIterator.HasMoreResults)
             {
@@ -125,9 +119,9 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async Task RemoveAsync(string projectId)
+        public async Task RemoveAllAsync(string organization, string projectId)
         {
-            var components = ListAsync(projectId);
+            var components = ListAsync(organization, projectId);
 
             if (await components.AnyAsync().ConfigureAwait(false))
             {
@@ -135,7 +129,7 @@ namespace TeamCloud.Data.CosmosDb
                     .ConfigureAwait(false);
 
                 var batch = container
-                    .CreateTransactionalBatch(new PartitionKey(projectId));
+                    .CreateTransactionalBatch(new PartitionKey(organization));
 
                 await foreach (var component in components.ConfigureAwait(false))
                     batch = batch.DeleteItem(component.Id);
@@ -146,9 +140,9 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async Task RemoveAsync(string projectId, string id)
+        public async Task RemoveAsync(string organization, string id)
         {
-            var component = await GetAsync(projectId, id)
+            var component = await GetAsync(organization, id)
                 .ConfigureAwait(false);
 
             if (component != null)

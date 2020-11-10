@@ -28,8 +28,6 @@ namespace TeamCloud.API.Controllers
     [Produces("application/json")]
     public class ProjectTemplatessController : ApiController
     {
-        private readonly IProjectTemplateRepository projectTemplateRepository;
-
         public ProjectTemplatessController(UserService userService, Orchestrator orchestrator, IOrganizationRepository organizationRepository, IProjectTemplateRepository projectTemplateRepository)
             : base(userService, orchestrator, organizationRepository, projectTemplateRepository)
         { }
@@ -42,7 +40,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         public Task<IActionResult> Get() => ResolveOrganizationIdAsync(async organizationId =>
         {
-            var projectTemplates = await projectTemplateRepository
+            var projectTemplates = await ProjectTemplateRepository
                 .ListAsync(organizationId)
                 .ToListAsync()
                 .ConfigureAwait(false);

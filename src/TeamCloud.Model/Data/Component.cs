@@ -12,20 +12,20 @@ using TeamCloud.Serialization;
 namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public sealed class Component : ContainerDocument, IEquatable<Component>, IValidatable
+    public sealed class Component : ContainerDocument, IOrganizationChild, IEquatable<Component>, IValidatable
     {
         [JsonProperty("href")]
         public string HRef { get; set; }
 
-        public string OfferId { get; set; }
+        public string TemplateId { get; set; }
 
         [PartitionKey]
+        public string Organization { get; set; }
+
         public string ProjectId { get; set; }
 
-        [JsonProperty(Required = Required.Always)]
         public string ProviderId { get; set; }
 
-        [JsonProperty(Required = Required.Always)]
         public string RequestedBy { get; set; }
 
         public string DisplayName { get; set; }

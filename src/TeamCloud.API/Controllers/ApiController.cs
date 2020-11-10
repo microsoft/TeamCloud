@@ -46,6 +46,12 @@ namespace TeamCloud.API.Controllers
             ProjectTemplateRepository = projectTemplateRepository ?? throw new ArgumentNullException(nameof(projectTemplateRepository));
         }
 
+        protected ApiController(UserService userService, Orchestrator orchestrator, IOrganizationRepository organizationRepository, IProjectRepository projectRepository, IProjectTemplateRepository projectTemplateRepository)
+            : this(userService, orchestrator, organizationRepository, projectRepository)
+        {
+            ProjectTemplateRepository = projectTemplateRepository ?? throw new ArgumentNullException(nameof(projectTemplateRepository));
+        }
+
         protected ApiController(UserService userService, Orchestrator orchestrator, IOrganizationRepository organizationRepository, IProjectRepository projectRepository, IUserRepository userRepository)
             : this(userService, orchestrator, organizationRepository)
         {
@@ -305,6 +311,87 @@ namespace TeamCloud.API.Controllers
 
                 if (!(asyncCallback is null))
                     return await asyncCallback(template)
+                        .ConfigureAwait(false);
+
+                throw new InvalidOperationException("asyncCallback or callback must have a value");
+            }
+            catch (Exception exc)
+            {
+                return ErrorResult
+                    .ServerError(exc)
+                    .ToActionResult();
+            }
+        }
+
+
+        [NonAction]
+        public Task<IActionResult> EnsureProjectAndProjectTemplateAsync(Func<Project, ProjectTemplate, Task<IActionResult>> callback)
+            => EnsureProjectAndProjectTemplateInternalAsync(asyncCallback: callback);
+
+        [NonAction]
+        public Task<IActionResult> EnsureProjectAndProjectTemplateAsync(Func<Project, ProjectTemplate, IActionResult> callback)
+            => EnsureProjectAndProjectTemplateInternalAsync(callback: callback);
+
+        [NonAction]
+        private async Task<IActionResult> EnsureProjectAndProjectTemplateInternalAsync(Func<Project, ProjectTemplate, Task<IActionResult>> asyncCallback = null, Func<Project, ProjectTemplate, IActionResult> callback = null)
+        {
+            try
+            {
+                if (asyncCallback is null && callback is null)
+                    throw new InvalidOperationException("asyncCallback or callback must have a value");
+
+                if (!(asyncCallback is null || callback is null))
+                    throw new InvalidOperationException("Only one of asyncCallback or callback can hava a value");
+
+                if (string.IsNullOrEmpty(Org))
+                    return ErrorResult
+                        .BadRequest($"Organization id or slug provided in the url path is invalid.  Must be a valid organization slug or id (guid).", ResultErrorCode.ValidationError)
+                        .ToActionResult();
+
+                OrganizationId = await OrganizationRepository
+                    .ResolveIdAsync(Org)
+                    .ConfigureAwait(false);
+
+                if (string.IsNullOrEmpty(OrganizationId))
+                    return ErrorResult
+                        .NotFound($"A Organization with the slug or id '{Org}' was not found.")
+                        .ToActionResult();
+
+                if (string.IsNullOrEmpty(ProjectIdentifier))
+                    return ErrorResult
+                        .BadRequest($"Project name or id provided in the url path is invalid.  Must be a valid project name or id (guid).", ResultErrorCode.ValidationError)
+                        .ToActionResult();
+
+                var project = await ProjectRepository
+                    .GetAsync(OrganizationId, ProjectIdentifier)
+                    .ConfigureAwait(false);
+
+                if (project is null)
+                    return ErrorResult
+                        .NotFound($"A Project with the name or id '{ProjectIdentifier}' was not found.")
+                        .ToActionResult();
+
+                var templateId = ProjectTemplateId ?? project.Template;
+
+                if (string.IsNullOrEmpty(templateId))
+                    return ErrorResult
+                        .BadRequest($"Project Template name or id provided in the url path is invalid.  Must be a valid project template name or id (guid).", ResultErrorCode.ValidationError)
+                        .ToActionResult();
+
+                var projectTemplate = await ProjectTemplateRepository
+                    .GetAsync(OrganizationId, templateId)
+                    .ConfigureAwait(false);
+
+                if (projectTemplate is null)
+                    return ErrorResult
+                        .NotFound($"A Project Template with the name or id '{templateId}' was not found.")
+                        .ToActionResult();
+
+                if (!(callback is null))
+                    return callback(project, projectTemplate);
+
+                if (!(asyncCallback is null))
+                    return await asyncCallback(project, projectTemplate)
                         .ConfigureAwait(false);
 
                 throw new InvalidOperationException("asyncCallback or callback must have a value");

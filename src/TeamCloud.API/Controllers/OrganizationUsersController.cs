@@ -231,8 +231,6 @@ namespace TeamCloud.API.Controllers
                     .BadRequest(new ValidationError { Field = "projectMemberships", Message = $"User's project memberships can not be changed using the TeamCloud (system) users API. To update a user's project memberships use the project users API." })
                     .ToActionResult();
 
-            // currentUser.PopulateFromExternalModel(user);
-
             var command = new OrchestratorOrganizationUserUpdateCommand(currentUser, user);
 
             return await Orchestrator

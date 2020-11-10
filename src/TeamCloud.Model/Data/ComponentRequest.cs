@@ -13,7 +13,7 @@ namespace TeamCloud.Model.Data
     public sealed class ComponentRequest : IValidatable
     {
         [JsonProperty(Required = Required.Always)]
-        public string OfferId { get; set; }
+        public string TemplateId { get; set; }
 
         public string InputJson { get; set; }
     }

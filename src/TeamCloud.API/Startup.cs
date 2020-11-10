@@ -88,10 +88,10 @@ namespace TeamCloud.API
                 .UseAuthentication()
                 .UseMiddleware<EnsureTeamCloudModelMiddleware>()
                 .UseMiddleware<RequestResponseTracingMiddleware>()
-                .UseWhen(context => context.Request.RequiresAdminUserSet(), appBuilder =>
-                {
-                    appBuilder.UseMiddleware<EnsureTeamCloudAdminMiddleware>();
-                })
+               // .UseWhen(context => context.Request.RequiresAdminUserSet(), appBuilder =>
+               // {
+               //     appBuilder.UseMiddleware<EnsureTeamCloudAdminMiddleware>();
+               // })
                .UseAuthorization()
                .UseEndpoints(endpoints => endpoints.MapControllers());
         }
@@ -139,9 +139,9 @@ namespace TeamCloud.API
                 .AddSingleton<UserService>()
                 .AddSingleton<IRepositoryService, RepositoryService>()
                 .AddScoped<EnsureTeamCloudModelMiddleware>()
-                .AddScoped<RequestResponseTracingMiddleware>()
-                .AddScoped<EnsureTeamCloudAdminMiddleware>()
-                .AddTransient<IHostInitializer, TeamCloudAdminInitializer>();
+                .AddScoped<RequestResponseTracingMiddleware>();
+            // .AddScoped<EnsureTeamCloudAdminMiddleware>()
+            // .AddTransient<IHostInitializer, TeamCloudAdminInitializer>();
 
             services
                 .AddSingleton<RecyclableMemoryStreamManager>()

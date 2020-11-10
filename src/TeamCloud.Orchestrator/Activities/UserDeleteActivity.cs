@@ -48,11 +48,11 @@ namespace TeamCloud.Orchestrator.Activities
                 .ConfigureAwait(true);
 
             return await orchestrationContext
-                .DeleteUserAsync(organizationId, user, allowUnsafe)
+                .DeleteUserAsync(user, allowUnsafe)
                 .ConfigureAwait(true);
         }
 
-        public static Task<User> DeleteUserAsync(this IDurableOrchestrationContext orchestrationContext, string organization, User user, bool allowUnsafe = false)
+        public static Task<User> DeleteUserAsync(this IDurableOrchestrationContext orchestrationContext, User user, bool allowUnsafe = false)
             => orchestrationContext.IsLockedBy<User>(user.Id.ToString()) || allowUnsafe
                 ? orchestrationContext.CallActivityWithRetryAsync<User>(nameof(UserDeleteActivity), user)
                 : throw new NotSupportedException($"Unable to delete user '{user.Id}' without acquired lock");
