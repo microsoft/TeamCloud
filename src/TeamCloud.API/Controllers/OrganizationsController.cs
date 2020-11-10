@@ -34,7 +34,7 @@ namespace TeamCloud.API.Controllers
         { }
 
 
-        [HttpGet("api/orgs")] // TODO: Update Auth
+        [HttpGet("orgs")] // TODO: Update Auth
         [Authorize(Policy = AuthPolicies.UserRead)]
         [SwaggerOperation(OperationId = "GetOrganizations", Summary = "Gets all Organizations.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all Organizations.", typeof(DataResult<List<Organization>>))]
@@ -53,22 +53,22 @@ namespace TeamCloud.API.Controllers
         }
 
 
-        [HttpGet("api/orgs/{id}")]
+        [HttpGet("orgs/{org}")]
         [Authorize(Policy = AuthPolicies.UserRead)]
         [SwaggerOperation(OperationId = "GetOrganizationById", Summary = "Gets an Organization by ID.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns an Organization.", typeof(DataResult<Organization>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "An Organization with the provided identifier was not found.", typeof(ErrorResult))]
         [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
-        public Task<IActionResult> Get([FromRoute] string id) => EnsureOrganizationAsync(org =>
+        public Task<IActionResult> Get([FromRoute] string org) => EnsureOrganizationAsync(organization =>
         {
             return DataResult<Organization>
-                .Ok(org)
+                .Ok(organization)
                 .ToActionResult();
         });
 
 
-        [HttpPost("api/orgs")]
+        [HttpPost("orgs")]
         [Authorize(Policy = AuthPolicies.UserWrite)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "CreateOrganization", Summary = "Creates a new Organization.")]
@@ -129,7 +129,7 @@ namespace TeamCloud.API.Controllers
         }
 
 
-        // [HttpPut("api/orgs/{id}")]
+        // [HttpPut("orgs/{org}")]
         // [Authorize(Policy = AuthPolicies.UserWrite)]
         // [Consumes("application/json")]
         // [SwaggerOperation(OperationId = "UpdateOrganization", Summary = "Updates an existing Organization.")]
@@ -137,7 +137,7 @@ namespace TeamCloud.API.Controllers
         // [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         // [SwaggerResponse(StatusCodes.Status404NotFound, "An Organization with the ID provided in the request body was not found.", typeof(ErrorResult))]
         // [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
-        // public Task<IActionResult> Put([FromRoute] string id, [FromBody] User user) => EnsureUserAsync(async userDocument =>
+        // public Task<IActionResult> Put([FromRoute] string org, [FromBody] User user) => EnsureUserAsync(async userDocument =>
         // {
         //     if (user is null)
         //         throw new ArgumentNullException(nameof(user));
@@ -181,13 +181,13 @@ namespace TeamCloud.API.Controllers
         // });
 
 
-        [HttpDelete("api/orgs/{id}")]
+        [HttpDelete("orgs/{org}")]
         [Authorize(Policy = AuthPolicies.UserWrite)]
         [SwaggerOperation(OperationId = "DeleteOrganization", Summary = "Deletes an existing Organization.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts deleting the Organization. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "An Organization with the identifier provided was not found.", typeof(ErrorResult))]
         [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
-        public Task<IActionResult> Delete([FromRoute] string id) => EnsureOrganizationAsync(async org =>
+        public Task<IActionResult> Delete([FromRoute] string org) => EnsureOrganizationAsync(async organization =>
         {
             // if (userDocument.IsAdmin())
             // {
@@ -206,7 +206,7 @@ namespace TeamCloud.API.Controllers
                 .CurrentUserAsync(OrganizationId)
                 .ConfigureAwait(false);
 
-            var command = new OrchestratorOrganizationDeleteCommand(currentUser, org);
+            var command = new OrchestratorOrganizationDeleteCommand(currentUser, organization);
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync(command, Request)

@@ -13,6 +13,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
@@ -101,9 +102,7 @@ namespace TeamCloud.API
         }
 
         public static T GetValueOrDefault<T>(this IReadOnlyDictionary<string, T> dictionary, string key, StringComparison comparsion)
-        {
-            return dictionary.GetValueOrDefault(key, default, comparsion);
-        }
+         => dictionary.GetValueOrDefault(key, default, comparsion);
 
         public static T GetValueOrDefault<T>(this IReadOnlyDictionary<string, T> dictionary, string key, T defaultValue, StringComparison comparsion)
         {
@@ -111,6 +110,18 @@ namespace TeamCloud.API
 
             return result.Key is null ? defaultValue : result.Value;
         }
+
+        public static bool RequestPathStartsWithSegments(this HttpContext httpContext, PathString other, bool ignoreCase = true)
+            => httpContext.Request.Path.StartsWithSegments(other, ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
+
+        public static bool RequestPathEndsWith(this HttpContext httpContext, string value, bool ignoreCase = true)
+            => httpContext.Request.Path.Value.EndsWith(value, ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
+
+        public static string RouteValueOrDefault(this HttpContext httpContext, string key, bool ignoreCase = true)
+            => httpContext.GetRouteData().ValueOrDefault(key, ignoreCase);
+
+        public static string ValueOrDefault(this RouteData routeData, string key, bool ignoreCase = true)
+            => routeData.Values.GetValueOrDefault(key, ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal)?.ToString();
 
         public static string GetObjectId(this ClaimsPrincipal claimsPrincipal)
         {

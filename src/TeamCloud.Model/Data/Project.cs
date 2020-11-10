@@ -12,7 +12,6 @@ using TeamCloud.Serialization;
 
 namespace TeamCloud.Model.Data
 {
-
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
     public sealed class Project : ContainerDocument, IOrganizationChild, IEquatable<Project>//ReferenceLinksAccessor<Project, ProjectReferenceLinks>, IProject<User>, IEquatable<Project>
     {

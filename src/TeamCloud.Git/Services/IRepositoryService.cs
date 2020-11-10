@@ -5,7 +5,6 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using TeamCloud.Git.Data;
 using TeamCloud.Model.Data;
 
 namespace TeamCloud.Git.Services
@@ -14,10 +13,8 @@ namespace TeamCloud.Git.Services
     {
         Task<RepositoryReference> GetRepositoryReferenceAsync(string url, string version, string token);
 
-        Task<ProjectTemplate> GetProjectTemplateAsync(RepositoryReference repository);
+        Task<ProjectTemplate> UpdateProjectTemplateAsync(ProjectTemplate projectTemplate);
 
-        Task<List<ComponentOffer>> GetComponentOffersAsync(RepositoryReference repository);
-
-        // Task<ProjectTemplateRepository> GetProjectTemplateRepositoryAsync(RepositoryReference repository);
+        Task<List<ComponentTemplate>> GetComponentTemplatesAsync(ProjectTemplate projectTemplate);
     }
 }

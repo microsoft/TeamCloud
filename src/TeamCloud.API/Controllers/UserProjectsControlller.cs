@@ -3,7 +3,6 @@
  *  Licensed under the MIT License.
  */
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -28,7 +27,7 @@ namespace TeamCloud.API.Controllers
         { }
 
 
-        [HttpGet("api/{organization}/users/{userId:guid}/projects")]
+        [HttpGet("orgs/{org}/users/{userId:guid}/projects")]
         [Authorize(Policy = AuthPolicies.ProjectRead)]
         [SwaggerOperation(OperationId = "GetUserProjects", Summary = "Gets all Projects for a User.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all User Projects", typeof(DataResult<List<Project>>))]
@@ -54,7 +53,7 @@ namespace TeamCloud.API.Controllers
         });
 
 
-        [HttpGet("api/{organization}/me/projects")]
+        [HttpGet("orgs/{org}/me/projects")] // TODO: change to users/orgs/{org}/projects
         [Authorize(Policy = AuthPolicies.ProjectRead)]
         [SwaggerOperation(OperationId = "GetUserProjectsMe", Summary = "Gets all Projects for a User.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all User Projects", typeof(DataResult<List<Project>>))]

@@ -3,6 +3,7 @@
  *  Licensed under the MIT License.
  */
 
+using System;
 using Newtonsoft.Json;
 using TeamCloud.Serialization;
 
@@ -11,7 +12,7 @@ namespace TeamCloud.Model.Data
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
     public class RepositoryReference
     {
-        // public string Id => $"{Organization}.{Project}.{Repository}.{Version}".Replace("..", ".", StringComparison.Ordinal);
+        // public string Id => $"{Organization}.{Project}.{Repository}".Replace("..", ".", StringComparison.Ordinal);
 
         public string Url { get; set; }
 
@@ -20,6 +21,8 @@ namespace TeamCloud.Model.Data
         public string Version { get; set; }
 
         public string BaselUrl { get; set; }
+
+        public string MountUrl { get; set; }
 
         public string Ref { get; set; }
 

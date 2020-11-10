@@ -28,7 +28,7 @@ namespace TeamCloud.Audit.Model
 
             CommandId = command.CommandId.ToString();
             Command = command.GetType().Name;
-            Event = (command as ProviderEventCommand)?.Payload?.EventType ?? string.Empty;
+            // Event = (command as ProviderEventCommand)?.Payload?.EventType ?? string.Empty;
             Provider = providerId ?? string.Empty;
         }
 
@@ -43,8 +43,8 @@ namespace TeamCloud.Audit.Model
         [Column(Order = 102)]
         public string Command { get; private set; }
         [Column(Order = 103)]
-        public string Event { get; private set; }
-        [Column(Order = 104)]
+        // public string Event { get; private set; }
+        // [Column(Order = 104)]
         public string Provider { get; private set; }
 
         [Column(Order = 201)]

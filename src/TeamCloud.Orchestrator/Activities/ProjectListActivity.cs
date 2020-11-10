@@ -31,8 +31,10 @@ namespace TeamCloud.Orchestrator.Activities
             if (activityContext is null)
                 throw new ArgumentNullException(nameof(activityContext));
 
+            var organizationId = activityContext.GetInput<string>();
+
             var projects = projectRepository
-                .ListAsync();
+                .ListAsync(organizationId);
 
             return await projects
                 .ToListAsync()
@@ -51,24 +53,36 @@ namespace TeamCloud.Orchestrator.Activities
 
         [FunctionName(nameof(ProjectListByIdActivity))]
         public async Task<IEnumerable<Project>> RunActivity(
-            [ActivityTrigger] IList<string> projectIds)
+            [ActivityTrigger] IDurableActivityContext activityContext)
         {
+            if (activityContext is null)
+                throw new ArgumentNullException(nameof(activityContext));
+
+            var input = activityContext.GetInput<Input>();
+
             var projects = projectRepository
-                .ListAsync(projectIds);
+                .ListAsync(input.Organization, input.ProjectIds);
 
             return await projects
                 .ToListAsync()
                 .ConfigureAwait(false);
+        }
+
+        internal struct Input
+        {
+            public string Organization { get; set; }
+
+            public IList<string> ProjectIds { get; set; }
         }
     }
 
 
     internal static class ProjectListExtension
     {
-        public static Task<IEnumerable<Project>> ListProjectsAsync(this IDurableOrchestrationContext durableOrchestrationContext)
-            => durableOrchestrationContext.CallActivityWithRetryAsync<IEnumerable<Project>>(nameof(ProjectListActivity), null);
+        public static Task<IEnumerable<Project>> ListProjectsAsync(this IDurableOrchestrationContext durableOrchestrationContext, string organizationId)
+            => durableOrchestrationContext.CallActivityWithRetryAsync<IEnumerable<Project>>(nameof(ProjectListActivity), organizationId);
 
-        public static Task<IEnumerable<Project>> ListProjectsAsync(this IDurableOrchestrationContext durableOrchestrationContext, IList<string> projectIds)
-            => durableOrchestrationContext.CallActivityWithRetryAsync<IEnumerable<Project>>(nameof(ProjectListByIdActivity), projectIds);
+        public static Task<IEnumerable<Project>> ListProjectsAsync(this IDurableOrchestrationContext durableOrchestrationContext, string organizationId, IList<string> projectIds)
+            => durableOrchestrationContext.CallActivityWithRetryAsync<IEnumerable<Project>>(nameof(ProjectListByIdActivity), new ProjectListByIdActivity.Input { Organization = organizationId, ProjectIds = projectIds });
     }
 }

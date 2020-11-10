@@ -10,6 +10,8 @@ namespace TeamCloud.Git.Data
 {
     public class ComponentYaml
     {
+        public string Name { get; set; }
+
         public string Description { get; set; }
 
         public ComponentType Type { get; set; }

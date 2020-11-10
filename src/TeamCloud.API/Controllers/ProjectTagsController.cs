@@ -18,7 +18,7 @@ using TeamCloud.Data;
 namespace TeamCloud.API.Controllers
 {
     [ApiController]
-    [Route("api/{organization}/projects/{projectId:guid}/tags")]
+    [Route("orgs/{org}/projects/{projectId:guid}/tags")]
     [Produces("application/json")]
     public class ProjectTagsController : ApiController
     {

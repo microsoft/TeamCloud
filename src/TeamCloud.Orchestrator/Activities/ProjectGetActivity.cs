@@ -32,30 +32,37 @@ namespace TeamCloud.Orchestrator.Activities
             if (activityContext is null)
                 throw new ArgumentNullException(nameof(activityContext));
 
-            string projectId = activityContext.GetInput<string>();
+            var input = activityContext.GetInput<Input>();
 
             try
             {
                 var project = await projectRepository
-                    .GetAsync(projectId)
+                    .GetAsync(input.Organization, input.Project)
                     .ConfigureAwait(false);
 
                 return project;
             }
             catch (Exception exc)
             {
-                log.LogError(exc, $"Getting project {projectId} from repository failed: {exc.Message}");
+                log.LogError(exc, $"Getting project {input.Project} from repository failed: {exc.Message}");
 
                 throw;
             }
+        }
+
+        internal struct Input
+        {
+            public string Organization { get; set; }
+
+            public string Project { get; set; }
         }
     }
 
     internal static class ProjectGetExtension
     {
-        public static Task<Project> GetProjectAsync(this IDurableOrchestrationContext orchestrationContext, string projectId, bool allowUnsafe = false)
+        public static Task<Project> GetProjectAsync(this IDurableOrchestrationContext orchestrationContext, string organizationId, string projectId, bool allowUnsafe = false)
             => orchestrationContext.IsLockedBy<Project>(projectId) || allowUnsafe
-            ? orchestrationContext.CallActivityWithRetryAsync<Project>(nameof(ProjectGetActivity), projectId)
+            ? orchestrationContext.CallActivityWithRetryAsync<Project>(nameof(ProjectGetActivity), new ProjectGetActivity.Input { Organization = organizationId, Project = projectId })
             : throw new NotSupportedException($"Unable to get project '{projectId}' without acquired lock");
     }
 }

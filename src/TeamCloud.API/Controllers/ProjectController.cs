@@ -28,7 +28,7 @@ using ValidationError = TeamCloud.API.Data.Results.ValidationError;
 namespace TeamCloud.API.Controllers
 {
     [ApiController]
-    [Route("api/{organization}/projects")]
+    [Route("orgs/{org}/projects")]
     [Produces("application/json")]
     public class ProjectController : ApiController
     {

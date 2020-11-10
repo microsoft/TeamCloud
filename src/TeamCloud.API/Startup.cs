@@ -38,6 +38,7 @@ using TeamCloud.Configuration.Options;
 using TeamCloud.Data;
 using TeamCloud.Data.Caching;
 using TeamCloud.Data.CosmosDb;
+using TeamCloud.Git.Services;
 using TeamCloud.Http;
 
 namespace TeamCloud.API
@@ -136,6 +137,7 @@ namespace TeamCloud.API
                 .AddSingleton<IClientErrorFactory, ClientErrorFactory>()
                 .AddSingleton<Orchestrator>()
                 .AddSingleton<UserService>()
+                .AddSingleton<IRepositoryService, RepositoryService>()
                 .AddScoped<EnsureTeamCloudModelMiddleware>()
                 .AddScoped<RequestResponseTracingMiddleware>()
                 .AddScoped<EnsureTeamCloudAdminMiddleware>()
@@ -160,7 +162,7 @@ namespace TeamCloud.API
                 {
                     options.ConstraintMap.Add("userNameOrId", typeof(UserIdentifierRouteConstraint));
                     options.ConstraintMap.Add("projectNameOrId", typeof(ProjectIdentifierRouteConstraint));
-                    options.ConstraintMap.Add("providerId", typeof(ProviderIdentifierRouteConstraint));
+                    // options.ConstraintMap.Add("providerId", typeof(ProviderIdentifierRouteConstraint));
                 })
                 .AddControllers()
                 .AddNewtonsoftJson()

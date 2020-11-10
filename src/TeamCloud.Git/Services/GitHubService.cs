@@ -33,43 +33,7 @@ namespace TeamCloud.Git.Services
                 .WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
         }
 
-        internal async Task<ProjectTemplate> GetProjectTemplateAsync(RepositoryReference repository)
-        {
-            if (repository is null)
-                throw new ArgumentNullException(nameof(repository));
-
-            if (!string.IsNullOrEmpty(repository.Token))
-                client.Credentials = new Credentials(repository.Token);
-
-            var trees = await client.Git.Tree
-                .GetRecursive(repository.Organization, repository.Repository, repository.Ref)
-                .ConfigureAwait(false);
-
-            var template = await GetProjectTemplateAsync(repository, trees.Tree)
-                .ConfigureAwait(false);
-
-            return template;
-        }
-
-        internal async Task<List<ComponentOffer>> GetComponentOffersAsync(RepositoryReference repository)
-        {
-            if (repository is null)
-                throw new ArgumentNullException(nameof(repository));
-
-            if (!string.IsNullOrEmpty(repository.Token))
-                client.Credentials = new Credentials(repository.Token);
-
-            var trees = await client.Git.Tree
-                .GetRecursive(repository.Organization, repository.Repository, repository.Ref)
-                .ConfigureAwait(false);
-
-            var offers = await GetOffersAsync(repository, trees.Tree)
-                .ConfigureAwait(false);
-
-            return offers;
-        }
-
-        // internal async Task<ProjectTemplateRepository> GetProjectTemplateRepositoryAsync(RepositoryReference repository)
+        // internal async Task<ProjectTemplate> GetProjectTemplateAsync(RepositoryReference repository)
         // {
         //     if (repository is null)
         //         throw new ArgumentNullException(nameof(repository));
@@ -84,33 +48,82 @@ namespace TeamCloud.Git.Services
         //     var template = await GetProjectTemplateAsync(repository, trees.Tree)
         //         .ConfigureAwait(false);
 
-        //     var offers = await GetOffersAsync(repository, trees.Tree)
-        //         .ConfigureAwait(false);
-
-        //     return new ProjectTemplateRepository
-        //     {
-        //         Template = template,
-        //         Offers = offers
-        //     };
+        //     return template;
         // }
 
-        private async Task<ProjectTemplate> GetProjectTemplateAsync(RepositoryReference repo, IReadOnlyList<TreeItem> tree)
+        // private async Task<ProjectTemplate> GetProjectTemplateAsync(RepositoryReference repo, IReadOnlyList<TreeItem> tree)
+        // {
+        //     var projectYamlFile = await client.Repository.Content
+        //         .GetAllContents(repo.Organization, repo.Repository, Constants.ProjectYaml)
+        //         .ConfigureAwait(false);
+
+        //     var projectYaml = yamlDeserializer.Deserialize<ProjectYaml>(projectYamlFile.First().Content);
+
+        //     projectYaml.Description = await CheckAndPopulateFileContentAsync(repo, tree, projectYaml.Description)
+        //         .ConfigureAwait(false);
+
+        //     return projectYaml.ToProjectTemplate(repo);
+        // }
+
+
+        internal async Task<ProjectTemplate> UpdateProjectTemplateAsync(ProjectTemplate projectTemplate)
         {
+            if (projectTemplate is null)
+                throw new ArgumentNullException(nameof(projectTemplate));
+
+            var repository = projectTemplate.Repository;
+
+            if (!string.IsNullOrEmpty(repository.Token))
+                client.Credentials = new Credentials(repository.Token);
+
+            var trees = await client.Git.Tree
+                .GetRecursive(repository.Organization, repository.Repository, repository.Ref)
+                .ConfigureAwait(false);
+
+            return await UpdateProjectTemplateAsync(projectTemplate, trees.Tree)
+                .ConfigureAwait(false);
+        }
+
+        private async Task<ProjectTemplate> UpdateProjectTemplateAsync(ProjectTemplate projectTemplate, IReadOnlyList<TreeItem> tree)
+        {
+            var repository = projectTemplate.Repository;
+
             var projectYamlFile = await client.Repository.Content
-                .GetAllContents(repo.Organization, repo.Repository, Constants.ProjectYaml)
+                .GetAllContents(repository.Organization, repository.Repository, Constants.ProjectYaml)
                 .ConfigureAwait(false);
 
             var projectYaml = yamlDeserializer.Deserialize<ProjectYaml>(projectYamlFile.First().Content);
 
-            projectYaml.Description = await CheckAndPopulateFileContentAsync(repo, tree, projectYaml.Description)
+            projectYaml.Description = await CheckAndPopulateFileContentAsync(repository, tree, projectYaml.Description)
                 .ConfigureAwait(false);
 
-            return projectYaml.ToProjectTemplate(repo);
+            return projectTemplate.UpdateFromYaml(projectYaml);
         }
 
-        private async Task<List<ComponentOffer>> GetOffersAsync(RepositoryReference repo, IReadOnlyList<TreeItem> tree)
+
+        internal async Task<List<ComponentTemplate>> GetComponentTemplatesAsync(ProjectTemplate projectTemplate)
         {
-            var offers = new List<ComponentOffer>();
+            if (projectTemplate is null)
+                throw new ArgumentNullException(nameof(projectTemplate));
+
+            var repository = projectTemplate.Repository;
+
+            if (!string.IsNullOrEmpty(repository.Token))
+                client.Credentials = new Credentials(repository.Token);
+
+            var trees = await client.Git.Tree
+                .GetRecursive(repository.Organization, repository.Repository, repository.Ref)
+                .ConfigureAwait(false);
+
+            return await GetComponentTemplatesAsync(projectTemplate, trees.Tree)
+                .ConfigureAwait(false);
+        }
+
+        private async Task<List<ComponentTemplate>> GetComponentTemplatesAsync(ProjectTemplate projectTemplate, IReadOnlyList<TreeItem> tree)
+        {
+            var repository = projectTemplate.Repository;
+
+            var componenetTemplates = new List<ComponentTemplate>();
 
             var componentItems = tree.Where(t => t.Path.EndsWith(Constants.ComponentYaml, StringComparison.Ordinal));
 
@@ -119,23 +132,25 @@ namespace TeamCloud.Git.Services
                 var folder = componentItem.Path.Split(Constants.ComponentYaml).First().TrimEnd('/');
 
                 var componentFiles = await client.Repository.Content
-                    .GetAllContents(repo.Organization, repo.Repository, componentItem.Path)
+                    .GetAllContents(repository.Organization, repository.Repository, componentItem.Path)
                     .ConfigureAwait(false);
 
                 var componentYaml = yamlDeserializer.Deserialize<ComponentYaml>(componentFiles.First().Content);
 
-                componentYaml.Description = await CheckAndPopulateFileContentAsync(repo, tree, componentYaml.Description, folder)
+                componentYaml.Description = await CheckAndPopulateFileContentAsync(repository, tree, componentYaml.Description, folder)
                     .ConfigureAwait(false);
 
                 foreach (var parameter in componentYaml.Parameters.Where(p => p.Type == JSchemaType.String))
-                    parameter.Value = await CheckAndPopulateFileContentAsync(repo, tree, parameter.StringValue, folder)
+                    parameter.Value = await CheckAndPopulateFileContentAsync(repository, tree, parameter.StringValue, folder)
                         .ConfigureAwait(false);
 
-                offers.Add(componentYaml.ToOffer(repo, folder));
+                componenetTemplates.Add(componentYaml.ToComponentTemplate(projectTemplate, folder));
             }
 
-            return offers;
+            return componenetTemplates;
         }
+
+
 
         private async Task<string> CheckAndPopulateFileContentAsync(RepositoryReference repo, IReadOnlyList<TreeItem> tree, string value, string folder = null)
         {

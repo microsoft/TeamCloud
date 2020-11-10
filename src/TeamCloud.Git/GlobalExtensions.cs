@@ -141,23 +141,52 @@ namespace TeamCloud.Git
             return schema;
         }
 
-        internal static ComponentOffer ToOffer(this ComponentYaml yaml, RepositoryReference repo, string folder)
+        // internal static ComponentOffer ToOffer(this ComponentYaml yaml, RepositoryReference repo, string folder)
+        // {
+        //     if (yaml is null)
+        //         throw new ArgumentNullException(nameof(yaml));
+
+        //     if (repo is null)
+        //         throw new ArgumentNullException(nameof(repo));
+
+        //     if (folder is null)
+        //         throw new ArgumentNullException(nameof(folder));
+
+        //     return new ComponentOffer
+        //     {
+        //         Id = $"{repo}.{folder.ToLowerInvariant().Replace(' ', '_').Replace('-', '_')}",
+        //         ProviderId = yaml.Provider,
+        //         DisplayName = folder,
+        //         Description = yaml.Description,
+        //         Scope = yaml.Scope,
+        //         Type = yaml.Type,
+        //         InputJsonSchema = yaml.Parameters.ToSchema().ToString()
+        //     };
+        // }
+
+
+        internal static ComponentTemplate ToComponentTemplate(this ComponentYaml yaml, ProjectTemplate projectTemplate, string folder)
         {
             if (yaml is null)
                 throw new ArgumentNullException(nameof(yaml));
 
-            if (repo is null)
-                throw new ArgumentNullException(nameof(repo));
+            if (projectTemplate is null)
+                throw new ArgumentNullException(nameof(projectTemplate));
 
             if (folder is null)
                 throw new ArgumentNullException(nameof(folder));
 
-            return new ComponentOffer
+            var name = !string.IsNullOrEmpty(yaml.Name) ? yaml.Name : folder;
+
+            return new ComponentTemplate
             {
-                Id = $"{repo}.{folder.Replace(' ', '_').Replace('-', '_')}",
+                Id = Guid.NewGuid().ToString(),
+                Organization = projectTemplate.Organization,
+                ParentId = projectTemplate.Id,
                 ProviderId = yaml.Provider,
-                DisplayName = folder,
+                DisplayName = name,
                 Description = yaml.Description,
+                Repository = projectTemplate.Repository,
                 Scope = yaml.Scope,
                 Type = yaml.Type,
                 InputJsonSchema = yaml.Parameters.ToSchema().ToString()
@@ -181,6 +210,29 @@ namespace TeamCloud.Git
                 Components = yaml.Components,
                 InputJsonSchema = yaml.Parameters.ToSchema().ToString()
             };
+        }
+
+        internal static ProjectTemplate UpdateFromYaml(this ProjectTemplate template, ProjectYaml yaml)
+        {
+            if (template is null)
+                throw new ArgumentNullException(nameof(template));
+
+            if (yaml is null)
+                throw new ArgumentNullException(nameof(yaml));
+
+            template.Name = yaml.Name;
+            template.Description = yaml.Description;
+            template.Components = yaml.Components;
+            template.InputJsonSchema = yaml.Parameters.ToSchema().ToString();
+
+            template.DisplayName ??= template.Name;
+
+            template.Slug = template.DisplayName
+                .ToLowerInvariant()
+                .Replace(' ', '_')
+                .Replace('-', '_');
+
+            return template;
         }
     }
 }

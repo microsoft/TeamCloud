@@ -25,7 +25,7 @@ using TeamCloud.Model.Validation.Data;
 namespace TeamCloud.API.Controllers
 {
     [ApiController]
-    [Route("api/{orgaization}/projects/{projectId:guid}/users")]
+    [Route("orgs/{org}/projects/{projectId:guid}/users")]
     [Produces("application/json")]
     public class ProjectUsersController : ApiController
     {

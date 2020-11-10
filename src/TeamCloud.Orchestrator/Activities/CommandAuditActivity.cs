@@ -61,16 +61,15 @@ namespace TeamCloud.Orchestrator.Activities
 
     internal static class CommandAuditExtensions
     {
-        internal static Task AuditAsync(this IDurableOrchestrationContext orchestrationContext, ICommand command, ICommandResult commandResult = default, IProvider provider = default)
+        internal static Task AuditAsync(this IDurableOrchestrationContext orchestrationContext, ICommand command, ICommandResult commandResult = default)
         {
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
 
-            return orchestrationContext.CallActivityWithRetryAsync(nameof(CommandAuditActivity), new CommandAuditActivity.Input()
+            return orchestrationContext.CallActivityWithRetryAsync(nameof(CommandAuditActivity), new CommandAuditActivity.Input
             {
                 Command = command,
-                CommandResult = commandResult,
-                ProviderId = provider?.Id
+                CommandResult = commandResult
             });
         }
     }

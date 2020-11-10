@@ -43,7 +43,9 @@ namespace TeamCloud.API.Services
             if (commandResult.CommandAction == CommandAction.Delete)
                 return commandResult; // delete commands don't provide a status location endpoint
 
-            var locationPath = commandResult.GetLocationPath(projectId);
+            var org = commandResult.OrganizationId ?? (commandResult.Result as IOrganizationChild)?.Organization;
+
+            var locationPath = commandResult.GetLocationPath(org, projectId);
 
             if (!string.IsNullOrEmpty(locationPath))
                 commandResult.Links.Add("location", new Uri(baseUrl, locationPath).ToString());
@@ -51,48 +53,48 @@ namespace TeamCloud.API.Services
             return commandResult;
         }
 
-        public static string GetLocationPath(this ICommandResult commandResult, string projectId)
+        public static string GetLocationPath(this ICommandResult commandResult, string org, string projectId)
             => commandResult switch
             {
                 ICommandResult result
                     when result.Result is null
                     => null,
                 ICommandResult result
-                    when string.IsNullOrEmpty((result.Result as IIdentifiable)?.Id)
+                    when string.IsNullOrEmpty(org) || string.IsNullOrEmpty((result.Result as IIdentifiable)?.Id)
                     => null,
-                ICommandResult<TeamCloudInstance> _
-                    => $"api/{commandResult.OrganizationId}/admin/teamCloudInstance",
+                // ICommandResult<TeamCloudInstance> _
+                //     => $"orgs/{org}/admin/teamCloudInstance",
                 ICommandResult<Project> result
-                    => $"api/{commandResult.OrganizationId}/projects/{result.Result.Id}",
+                    => $"orgs/{org}/projects/{result.Result.Id}",
                 ICommandResult<ProjectTemplate> result
-                    => $"api/{commandResult.OrganizationId}/templates/{result.Result.Id}",
+                    => $"orgs/{org}/templates/{result.Result.Id}",
                 ICommandResult<DeploymentScope> result
-                    => $"api/{commandResult.OrganizationId}/scopes/{result.Result.Id}",
+                    => $"orgs/{org}/scopes/{result.Result.Id}",
                 ICommandResult<User> result
                     when !string.IsNullOrEmpty(projectId)
-                    => $"api/{commandResult.OrganizationId}/projects/{projectId}/users/{result.Result.Id}",
+                    => $"orgs/{org}/projects/{projectId}/users/{result.Result.Id}",
                 ICommandResult<User> result
-                    => $"api/{commandResult.OrganizationId}/users/{result.Result.Id}",
+                    => $"orgs/{org}/users/{result.Result.Id}",
                 // ICommandResult<ProviderData> result
                 //     when !string.IsNullOrEmpty(projectId)
                 //     => !string.IsNullOrEmpty(result.Result.ProviderId)
-                //      ? $"api/{commandResult.OrganizationId}/projects/{projectId}/providers/{result.Result.ProviderId}/data/{result.Result.Id}"
+                //      ? $"orgs/{org}/projects/{projectId}/providers/{result.Result.ProviderId}/data/{result.Result.Id}"
                 //      : throw new InvalidOperationException("ProviderData must have a value for ProviderId to create location url."),
                 // ICommandResult<ProviderData> result
                 //     => !string.IsNullOrEmpty(result.Result.ProviderId)
-                //      ? $"api/{commandResult.OrganizationId}/providers/{result.Result.ProviderId}/data/{result.Result.Id}"
+                //      ? $"orgs/{org}/providers/{result.Result.ProviderId}/data/{result.Result.Id}"
                 //      : throw new InvalidOperationException("ProviderData must have a value for ProviderId to create location url."),
                 ICommandResult<ProjectLink> result
                     => !string.IsNullOrEmpty(projectId ?? result.Result.ProjectId)
-                     ? $"api/{commandResult.OrganizationId}/projects/{projectId ?? result.Result.ProjectId}/links/{result.Result.Id}"
+                     ? $"orgs/{org}/projects/{projectId ?? result.Result.ProjectId}/links/{result.Result.Id}"
                      : throw new InvalidOperationException("ProjectLink must have a value for ProjectId to create location url."),
                 ICommandResult<ComponentOffer> result
                     => !string.IsNullOrEmpty(result.Result.ProviderId)
-                     ? $"api/{commandResult.OrganizationId}/providers/{result.Result.ProviderId}/offers/{result.Result.Id}"
+                     ? $"orgs/{org}/providers/{result.Result.ProviderId}/offers/{result.Result.Id}"
                      : throw new InvalidOperationException("ComponentOffer must have a value for providerId to create location url."),
                 ICommandResult<Component> result
                     => !string.IsNullOrEmpty(projectId ?? result.Result.ProjectId)
-                     ? $"api/{commandResult.OrganizationId}/projects/{projectId ?? result.Result.ProjectId}/componenets/{result.Result.Id}"
+                     ? $"orgs/{org}/projects/{projectId ?? result.Result.ProjectId}/componenets/{result.Result.Id}"
                      : throw new InvalidOperationException("Component must have a value for ProjectId to create location url."),
                 _ => null
             };

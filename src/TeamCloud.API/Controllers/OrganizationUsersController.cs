@@ -34,7 +34,7 @@ namespace TeamCloud.API.Controllers
         { }
 
 
-        [HttpGet("api/{organization}/users")]
+        [HttpGet("orgs/{org}/users")]
         [Authorize(Policy = AuthPolicies.UserRead)]
         [SwaggerOperation(OperationId = "GetOrganizationUsers", Summary = "Gets all Users.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all Users.", typeof(DataResult<List<User>>))]
@@ -53,7 +53,7 @@ namespace TeamCloud.API.Controllers
         });
 
 
-        [HttpGet("api/{organization}/users/{userNameOrId:userNameOrId}")]
+        [HttpGet("orgs/{org}/users/{userNameOrId:userNameOrId}")]
         [Authorize(Policy = AuthPolicies.UserRead)]
         [SwaggerOperation(OperationId = "GetOrganizationUserByNameOrId", Summary = "Gets a User by ID or email address.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns User.", typeof(DataResult<User>))]
@@ -67,7 +67,7 @@ namespace TeamCloud.API.Controllers
                 .ToActionResult();
         });
 
-        [HttpGet("api/{organization}/me")]
+        [HttpGet("orgs/{org}/me")] // TODO: change this to users/orgs (maybe)
         [Authorize(Policy = AuthPolicies.UserRead)]
         [SwaggerOperation(OperationId = "GetOrganizationUserMe", Summary = "Gets a User A User matching the current authenticated user.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns User.", typeof(DataResult<User>))]
@@ -81,7 +81,7 @@ namespace TeamCloud.API.Controllers
         });
 
 
-        [HttpPost("api/{organization}/users")]
+        [HttpPost("orgs/{org}/users")]
         [Authorize(Policy = AuthPolicies.UserWrite)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "CreateOrganizationUser", Summary = "Creates a new User.")]
@@ -139,7 +139,7 @@ namespace TeamCloud.API.Controllers
         });
 
 
-        [HttpPut("api/{organization}/users/{userNameOrId:userNameOrId}")]
+        [HttpPut("orgs/{org}/users/{userNameOrId:userNameOrId}")]
         [Authorize(Policy = AuthPolicies.UserWrite)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "UpdateOrganizationUser", Summary = "Updates an existing User.")]
@@ -189,7 +189,7 @@ namespace TeamCloud.API.Controllers
         });
 
 
-        [HttpPut("api/{organization}/me")]
+        [HttpPut("orgs/{org}/me")] // TODO: change to /users/orgs/{org}
         [Authorize(Policy = AuthPolicies.UserWrite)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "UpdateOrganizationUserMe", Summary = "Updates an existing User.")]
@@ -241,7 +241,7 @@ namespace TeamCloud.API.Controllers
         });
 
 
-        [HttpDelete("api/{organization}/users/{userNameOrId:userNameOrId}")]
+        [HttpDelete("orgs/{org}/users/{userNameOrId:userNameOrId}")]
         [Authorize(Policy = AuthPolicies.UserWrite)]
         [SwaggerOperation(OperationId = "DeleteOrganizationUser", Summary = "Deletes an existing User.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts deleting the User. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]

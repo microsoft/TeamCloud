@@ -20,7 +20,7 @@ using TeamCloud.Model.Data;
 namespace TeamCloud.API.Controllers
 {
     [ApiController]
-    [Route("api/{organization}/projects/{projectId:guid}/offers")]
+    [Route("orgs/{org}/projects/{projectId:guid}/offers")]
     [Produces("application/json")]
     public class ProjectOffersController : ApiController
     {

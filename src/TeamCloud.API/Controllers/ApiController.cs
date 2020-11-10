@@ -15,11 +15,11 @@ namespace TeamCloud.API.Controllers
 {
     public abstract class ApiController : ControllerBase
     {
-        protected ApiController(UserService userService, Orchestrator orchestrator)
-        {
-            UserService = userService ?? throw new ArgumentNullException(nameof(userService));
-            Orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
-        }
+        // protected ApiController(UserService userService, Orchestrator orchestrator)
+        // {
+        //     UserService = userService ?? throw new ArgumentNullException(nameof(userService));
+        //     Orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
+        // }
 
         protected ApiController(UserService userService, Orchestrator orchestrator, IOrganizationRepository organizationRepository)
         {
@@ -34,12 +34,6 @@ namespace TeamCloud.API.Controllers
             ProjectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
         }
 
-        // protected ApiController(UserService userService, Orchestrator orchestrator, IProviderRepository providerRepository)
-        //     : this(userService, orchestrator)
-        // {
-        //     ProviderRepository = providerRepository ?? throw new ArgumentNullException(nameof(providerRepository));
-        // }
-
         protected ApiController(UserService userService, Orchestrator orchestrator, IOrganizationRepository organizationRepository, IUserRepository userRepository)
             : this(userService, orchestrator, organizationRepository)
         {
@@ -52,13 +46,6 @@ namespace TeamCloud.API.Controllers
             ProjectTemplateRepository = projectTemplateRepository ?? throw new ArgumentNullException(nameof(projectTemplateRepository));
         }
 
-        // protected ApiController(UserService userService, Orchestrator orchestrator, IProjectRepository projectRepository, IProviderRepository providerRepository)
-        //     : this(userService, orchestrator)
-        // {
-        //     ProjectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
-        //     ProviderRepository = providerRepository ?? throw new ArgumentNullException(nameof(providerRepository));
-        // }
-
         protected ApiController(UserService userService, Orchestrator orchestrator, IOrganizationRepository organizationRepository, IProjectRepository projectRepository, IUserRepository userRepository)
             : this(userService, orchestrator, organizationRepository)
         {
@@ -66,29 +53,25 @@ namespace TeamCloud.API.Controllers
             UserRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         }
 
-        private string ProjectId
-            => RouteData.Values.GetValueOrDefault(nameof(ProjectId), StringComparison.OrdinalIgnoreCase)?.ToString();
+        private string Org => RouteData.ValueOrDefault(nameof(Org));
 
-        private string ProjectNameOrId
-            => RouteData.Values.GetValueOrDefault(nameof(ProjectNameOrId), StringComparison.OrdinalIgnoreCase)?.ToString();
+        private string ProjectId => RouteData.ValueOrDefault(nameof(ProjectId));
 
-        private string UserId
-            => RouteData.Values.GetValueOrDefault(nameof(UserId), StringComparison.OrdinalIgnoreCase)?.ToString();
+        private string ProjectNameOrId => RouteData.ValueOrDefault(nameof(ProjectNameOrId));
 
-        private string UserNameOrId
-            => RouteData.Values.GetValueOrDefault(nameof(UserNameOrId), StringComparison.OrdinalIgnoreCase)?.ToString();
+        private string UserId => RouteData.ValueOrDefault(nameof(UserId));
 
-        private string ProjectTemplateId
-            => RouteData.Values.GetValueOrDefault(nameof(ProjectTemplateId), StringComparison.OrdinalIgnoreCase)?.ToString();
+        private string UserNameOrId => RouteData.ValueOrDefault(nameof(UserNameOrId));
 
-        private string Organization
-            => RouteData.Values.GetValueOrDefault(nameof(Organization), StringComparison.OrdinalIgnoreCase)?.ToString();
+        private string ProjectTemplateId => RouteData.ValueOrDefault(nameof(ProjectTemplateId));
+
 
         public string OrganizationId { get; private set; }
 
         public string ProjectIdentifier => ProjectId ?? ProjectNameOrId;
 
         public string UserIdentifier => UserId ?? UserNameOrId;
+
 
         public UserService UserService { get; }
 
@@ -101,6 +84,7 @@ namespace TeamCloud.API.Controllers
         public IOrganizationRepository OrganizationRepository { get; }
 
         public IProjectTemplateRepository ProjectTemplateRepository { get; }
+
 
         [NonAction]
         public Task<IActionResult> ResolveOrganizationIdAsync(Func<string, Task<IActionResult>> callback)
@@ -121,18 +105,18 @@ namespace TeamCloud.API.Controllers
                 if (!(asyncCallback is null || callback is null))
                     throw new InvalidOperationException("Only one of asyncCallback or callback can hava a value");
 
-                if (string.IsNullOrEmpty(Organization))
+                if (string.IsNullOrEmpty(Org))
                     return ErrorResult
                         .BadRequest($"Organization id or slug provided in the url path is invalid.  Must be a valid organization slug or id (guid).", ResultErrorCode.ValidationError)
                         .ToActionResult();
 
                 OrganizationId = await OrganizationRepository
-                    .ResolveIdAsync(Organization)
+                    .ResolveIdAsync(Org)
                     .ConfigureAwait(false);
 
                 if (string.IsNullOrEmpty(OrganizationId))
                     return ErrorResult
-                        .NotFound($"A Organization with the slug or id '{Organization}' was not found.")
+                        .NotFound($"A Organization with the slug or id '{Org}' was not found.")
                         .ToActionResult();
 
                 if (!(callback is null))
@@ -172,18 +156,18 @@ namespace TeamCloud.API.Controllers
                 if (!(asyncCallback is null || callback is null))
                     throw new InvalidOperationException("Only one of asyncCallback or callback can hava a value");
 
-                if (string.IsNullOrEmpty(Organization))
+                if (string.IsNullOrEmpty(Org))
                     return ErrorResult
                         .BadRequest($"Organization id or slug provided in the url path is invalid.  Must be a valid organization slug or id (guid).", ResultErrorCode.ValidationError)
                         .ToActionResult();
 
                 var organization = await OrganizationRepository
-                    .GetAsync(Organization)
+                    .GetAsync(Org)
                     .ConfigureAwait(false);
 
                 if (organization is null)
                     return ErrorResult
-                        .NotFound($"A Organization with the slug or id '{Organization}' was not found.")
+                        .NotFound($"A Organization with the slug or id '{Org}' was not found.")
                         .ToActionResult();
 
                 if (!(callback is null))
@@ -223,18 +207,18 @@ namespace TeamCloud.API.Controllers
                 if (!(asyncCallback is null || callback is null))
                     throw new InvalidOperationException("Only one of asyncCallback or callback can hava a value");
 
-                if (string.IsNullOrEmpty(Organization))
+                if (string.IsNullOrEmpty(Org))
                     return ErrorResult
                         .BadRequest($"Organization id or slug provided in the url path is invalid.  Must be a valid organization slug or id (guid).", ResultErrorCode.ValidationError)
                         .ToActionResult();
 
                 OrganizationId = await OrganizationRepository
-                    .ResolveIdAsync(Organization)
+                    .ResolveIdAsync(Org)
                     .ConfigureAwait(false);
 
                 if (string.IsNullOrEmpty(OrganizationId))
                     return ErrorResult
-                        .NotFound($"A Organization with the slug or id '{Organization}' was not found.")
+                        .NotFound($"A Organization with the slug or id '{Org}' was not found.")
                         .ToActionResult();
 
                 if (string.IsNullOrEmpty(ProjectIdentifier))
@@ -288,18 +272,18 @@ namespace TeamCloud.API.Controllers
                 if (!(asyncCallback is null || callback is null))
                     throw new InvalidOperationException("Only one of asyncCallback or callback can hava a value");
 
-                if (string.IsNullOrEmpty(Organization))
+                if (string.IsNullOrEmpty(Org))
                     return ErrorResult
                         .BadRequest($"Organization id or slug provided in the url path is invalid.  Must be a valid organization slug or id (guid).", ResultErrorCode.ValidationError)
                         .ToActionResult();
 
                 OrganizationId = await OrganizationRepository
-                    .ResolveIdAsync(Organization)
+                    .ResolveIdAsync(Org)
                     .ConfigureAwait(false);
 
                 if (string.IsNullOrEmpty(OrganizationId))
                     return ErrorResult
-                        .NotFound($"A Organization with the slug or id '{Organization}' was not found.")
+                        .NotFound($"A Organization with the slug or id '{Org}' was not found.")
                         .ToActionResult();
 
                 if (string.IsNullOrEmpty(ProjectTemplateId))
@@ -353,18 +337,18 @@ namespace TeamCloud.API.Controllers
                 if (!(asyncCallback is null || callback is null))
                     throw new InvalidOperationException("Only one of asyncCallback or callback can hava a value");
 
-                if (string.IsNullOrEmpty(Organization))
+                if (string.IsNullOrEmpty(Org))
                     return ErrorResult
                         .BadRequest($"Organization id or slug provided in the url path is invalid.  Must be a valid organization slug or id (guid).", ResultErrorCode.ValidationError)
                         .ToActionResult();
 
                 OrganizationId = await OrganizationRepository
-                    .ResolveIdAsync(Organization)
+                    .ResolveIdAsync(Org)
                     .ConfigureAwait(false);
 
                 if (string.IsNullOrEmpty(OrganizationId))
                     return ErrorResult
-                        .NotFound($"A Organization with the slug or id '{Organization}' was not found.")
+                        .NotFound($"A Organization with the slug or id '{Org}' was not found.")
                         .ToActionResult();
 
                 if (string.IsNullOrEmpty(UserIdentifier))
@@ -426,18 +410,18 @@ namespace TeamCloud.API.Controllers
                 if (!(asyncCallback is null || callback is null))
                     throw new InvalidOperationException("Only one of asyncCallback or callback can hava a value");
 
-                if (string.IsNullOrEmpty(Organization))
+                if (string.IsNullOrEmpty(Org))
                     return ErrorResult
                         .BadRequest($"Organization id or slug provided in the url path is invalid.  Must be a valid organization slug or id (guid).", ResultErrorCode.ValidationError)
                         .ToActionResult();
 
                 OrganizationId = await OrganizationRepository
-                    .ResolveIdAsync(Organization)
+                    .ResolveIdAsync(Org)
                     .ConfigureAwait(false);
 
                 if (string.IsNullOrEmpty(OrganizationId))
                     return ErrorResult
-                        .NotFound($"A Organization with the slug or id '{Organization}' was not found.")
+                        .NotFound($"A Organization with the slug or id '{Org}' was not found.")
                         .ToActionResult();
 
                 var user = await UserService
@@ -485,18 +469,18 @@ namespace TeamCloud.API.Controllers
                 if (!(asyncCallback is null || callback is null))
                     throw new InvalidOperationException("Only one of asyncCallback or callback can hava a value");
 
-                if (string.IsNullOrEmpty(Organization))
+                if (string.IsNullOrEmpty(Org))
                     return ErrorResult
                         .BadRequest($"Organization id or slug provided in the url path is invalid.  Must be a valid organization slug or id (guid).", ResultErrorCode.ValidationError)
                         .ToActionResult();
 
                 OrganizationId = await OrganizationRepository
-                    .ResolveIdAsync(Organization)
+                    .ResolveIdAsync(Org)
                     .ConfigureAwait(false);
 
                 if (string.IsNullOrEmpty(OrganizationId))
                     return ErrorResult
-                        .NotFound($"A Organization with the slug or id '{Organization}' was not found.")
+                        .NotFound($"A Organization with the slug or id '{Org}' was not found.")
                         .ToActionResult();
 
                 if (string.IsNullOrEmpty(ProjectIdentifier))
@@ -572,18 +556,18 @@ namespace TeamCloud.API.Controllers
                 if (!(asyncCallback is null || callback is null))
                     throw new InvalidOperationException("Only one of asyncCallback or callback can hava a value");
 
-                if (string.IsNullOrEmpty(Organization))
+                if (string.IsNullOrEmpty(Org))
                     return ErrorResult
                         .BadRequest($"Organization id or slug provided in the url path is invalid.  Must be a valid organization slug or id (guid).", ResultErrorCode.ValidationError)
                         .ToActionResult();
 
                 OrganizationId = await OrganizationRepository
-                    .ResolveIdAsync(Organization)
+                    .ResolveIdAsync(Org)
                     .ConfigureAwait(false);
 
                 if (string.IsNullOrEmpty(OrganizationId))
                     return ErrorResult
-                        .NotFound($"A Organization with the slug or id '{Organization}' was not found.")
+                        .NotFound($"A Organization with the slug or id '{Org}' was not found.")
                         .ToActionResult();
 
                 if (string.IsNullOrEmpty(ProjectIdentifier))

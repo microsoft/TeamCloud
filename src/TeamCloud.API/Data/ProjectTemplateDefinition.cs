@@ -9,8 +9,10 @@ using TeamCloud.Serialization;
 namespace TeamCloud.API.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public class ProjectTemplateDefinition : RepositoryDefinition
+    public class ProjectTemplateDefinition
     {
         public string DisplayName { get; set; }
+
+        public RepositoryDefinition Repository { get; set; }
     }
 }

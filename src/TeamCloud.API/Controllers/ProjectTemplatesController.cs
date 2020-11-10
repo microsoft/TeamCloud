@@ -24,17 +24,15 @@ using TeamCloud.Model.Validation;
 namespace TeamCloud.API.Controllers
 {
     [ApiController]
-    [Route("api/{organization}/templates")]
+    [Route("orgs/{org}/templates")]
     [Produces("application/json")]
     public class ProjectTemplatessController : ApiController
     {
         private readonly IProjectTemplateRepository projectTemplateRepository;
 
         public ProjectTemplatessController(UserService userService, Orchestrator orchestrator, IOrganizationRepository organizationRepository, IProjectTemplateRepository projectTemplateRepository)
-            : base(userService, orchestrator, organizationRepository)
-        {
-            this.projectTemplateRepository = projectTemplateRepository ?? throw new ArgumentNullException(nameof(projectTemplateRepository));
-        }
+            : base(userService, orchestrator, organizationRepository, projectTemplateRepository)
+        { }
 
 
         [HttpGet]
@@ -99,14 +97,14 @@ namespace TeamCloud.API.Controllers
             //         .BadRequest(validationResult)
             //         .ToActionResult();
 
-            var projectTemplate = await projectTemplateRepository
-                .GetAsync(organizationId, projectTemplateDefinition.Id)
-                .ConfigureAwait(false);
+            // var projectTemplate = await projectTemplateRepository
+            //     .GetAsync(organizationId, projectTemplateDefinition.Id)
+            //     .ConfigureAwait(false);
 
-            if (projectTemplate != null)
-                return ErrorResult
-                    .Conflict($"A ProjectTemplate with id '{projectTemplate.Id}' already exists.  Please try your request again with a unique id or call PUT to update the existing ProjectTemplate.")
-                    .ToActionResult();
+            //     .ConfigureAwait(false);
+
+            //  // if (projectTemplate != null)
+            //         .ToActionResult();
 
             // var providers = await ProviderRepository
             //     .ListAsync(includeServiceProviders: false)
@@ -129,11 +127,18 @@ namespace TeamCloud.API.Controllers
                 .CurrentUserAsync(organizationId)
                 .ConfigureAwait(false);
 
-            projectTemplate = new ProjectTemplate
+            var projectTemplate = new ProjectTemplate
             {
-
+                Id = Guid.NewGuid().ToString(),
+                Organization = organizationId,
+                DisplayName = projectTemplateDefinition.DisplayName,
+                Repository = new RepositoryReference
+                {
+                    Url = projectTemplateDefinition.Repository.Url,
+                    Token = projectTemplateDefinition.Repository.Token,
+                    Version = projectTemplateDefinition.Repository.Version
+                }
             };
-            // .PopulateFromExternalModel(projectTemplate);
 
             var command = new OrchestratorProjectTemplateCreateCommand(currentUser, projectTemplate);
 

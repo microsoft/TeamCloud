@@ -1,113 +1,113 @@
-/**
- *  Copyright (c) Microsoft Corporation.
- *  Licensed under the MIT License.
- */
+// /**
+//  *  Copyright (c) Microsoft Corporation.
+//  *  Licensed under the MIT License.
+//  */
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-using TeamCloud.Data.Conditional;
-using TeamCloud.Data.CosmosDb.Core;
-using TeamCloud.Model.Data;
-using Xunit;
+// using System;
+// using System.Collections.Generic;
+// using System.Text;
+// using System.Threading.Tasks;
+// using TeamCloud.Data.Conditional;
+// using TeamCloud.Data.CosmosDb.Core;
+// using TeamCloud.Model.Data;
+// using Xunit;
 
-namespace TeamCloud.Data.CosmosDb
-{
-    [Collection(nameof(CosmosDbRepositoryCollection))]
-    public class CosmosDbproviderRepositoryTests : CosmosDbRepositoryTests<CosmosDbProviderRepository>
-    {
-        private readonly CosmosDbRepositoryFixture fixture;
+// namespace TeamCloud.Data.CosmosDb
+// {
+//     [Collection(nameof(CosmosDbRepositoryCollection))]
+//     public class CosmosDbproviderRepositoryTests : CosmosDbRepositoryTests<CosmosDbProviderRepository>
+//     {
+//         private readonly CosmosDbRepositoryFixture fixture;
 
-        public CosmosDbproviderRepositoryTests(CosmosDbRepositoryFixture fixture)
-            : base(new CosmosDbProviderRepository(CosmosDbTestOptions.Instance))
-        {
-            this.fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
-        }
+//         public CosmosDbproviderRepositoryTests(CosmosDbRepositoryFixture fixture)
+//             : base(new CosmosDbProviderRepository(CosmosDbTestOptions.Instance))
+//         {
+//             this.fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
+//         }
 
-        private static string SanitizeName(string name)
-        {
-            var sanitizedName = new StringBuilder(name.Length);
+//         private static string SanitizeName(string name)
+//         {
+//             var sanitizedName = new StringBuilder(name.Length);
 
-            foreach (var c in name.ToCharArray())
-            {
-                if (sanitizedName.Length > 0 && char.IsUpper(c))
-                    sanitizedName.Append('.');
+//             foreach (var c in name.ToCharArray())
+//             {
+//                 if (sanitizedName.Length > 0 && char.IsUpper(c))
+//                     sanitizedName.Append('.');
 
-                sanitizedName.Append(char.ToLowerInvariant(c));
-            }
+//                 sanitizedName.Append(char.ToLowerInvariant(c));
+//             }
 
-            return sanitizedName.ToString();
-        }
+//             return sanitizedName.ToString();
+//         }
 
-        private IEnumerable<ProviderReference> GetProviderReferences()
-        {
-            yield return new ProviderReference()
-            {
-                Id = SanitizeName(nameof(CosmosDbproviderRepositoryTests))
-            };
-        }
+//         private IEnumerable<ProviderReference> GetProviderReferences()
+//         {
+//             yield return new ProviderReference()
+//             {
+//                 Id = SanitizeName(nameof(CosmosDbproviderRepositoryTests))
+//             };
+//         }
 
-        [ConditionalFact(ConditionalFactPlatforms.Windows)]
-        public async Task AddProvider()
-        {
-            var provider = await Repository.AddAsync(new ProviderDocument()
-            {
-                Id = SanitizeName(nameof(AddProvider)),
-                Url = "https://www.foo.com",
-                AuthCode = "3iexLbySHolb0Tsm5PErwg=="
+//         [ConditionalFact(ConditionalFactPlatforms.Windows)]
+//         public async Task AddProvider()
+//         {
+//             var provider = await Repository.AddAsync(new ProviderDocument()
+//             {
+//                 Id = SanitizeName(nameof(AddProvider)),
+//                 Url = "https://www.foo.com",
+//                 AuthCode = "3iexLbySHolb0Tsm5PErwg=="
 
-            }).ConfigureAwait(false);
+//             }).ConfigureAwait(false);
 
-            AssertContainerDocumentMetadata(provider);
-        }
+//             AssertContainerDocumentMetadata(provider);
+//         }
 
-        [ConditionalFact(ConditionalFactPlatforms.Windows)]
-        public async Task UpdateProvider()
-        {
-            var providerId = SanitizeName(nameof(UpdateProvider));
+//         [ConditionalFact(ConditionalFactPlatforms.Windows)]
+//         public async Task UpdateProvider()
+//         {
+//             var providerId = SanitizeName(nameof(UpdateProvider));
 
-            var provider = await Repository.AddAsync(new ProviderDocument()
-            {
-                Id = providerId,
-                Url = "https://www.foo.com",
-                AuthCode = "3iexLbySHolb0Tsm5PErwg=="
+//             var provider = await Repository.AddAsync(new ProviderDocument()
+//             {
+//                 Id = providerId,
+//                 Url = "https://www.foo.com",
+//                 AuthCode = "3iexLbySHolb0Tsm5PErwg=="
 
-            }).ConfigureAwait(false);
+//             }).ConfigureAwait(false);
 
-            Assert.Equal(providerId, provider.Id);
-            AssertContainerDocumentMetadata(provider);
+//             Assert.Equal(providerId, provider.Id);
+//             AssertContainerDocumentMetadata(provider);
 
-            var registered = DateTime.UtcNow;
+//             var registered = DateTime.UtcNow;
 
-            provider.Registered = registered;
+//             provider.Registered = registered;
 
-            var provider2 = await Repository
-                .SetAsync(provider)
-                .ConfigureAwait(false);
+//             var provider2 = await Repository
+//                 .SetAsync(provider)
+//                 .ConfigureAwait(false);
 
-            Assert.Equal(providerId, provider2.Id);
-            AssertContainerDocumentMetadata(provider2);
+//             Assert.Equal(providerId, provider2.Id);
+//             AssertContainerDocumentMetadata(provider2);
 
-            Assert.Equal(provider.Registered, provider2.Registered);
-        }
+//             Assert.Equal(provider.Registered, provider2.Registered);
+//         }
 
-        [ConditionalFact(ConditionalFactPlatforms.Windows)]
-        public async Task RemoveProvider()
-        {
-            var provider = await Repository.AddAsync(new ProviderDocument()
-            {
-                Id = SanitizeName(nameof(RemoveProvider)),
-                Url = "https://www.foo.com",
-                AuthCode = "3iexLbySHolb0Tsm5PErwg=="
+//         [ConditionalFact(ConditionalFactPlatforms.Windows)]
+//         public async Task RemoveProvider()
+//         {
+//             var provider = await Repository.AddAsync(new ProviderDocument()
+//             {
+//                 Id = SanitizeName(nameof(RemoveProvider)),
+//                 Url = "https://www.foo.com",
+//                 AuthCode = "3iexLbySHolb0Tsm5PErwg=="
 
-            }).ConfigureAwait(false);
+//             }).ConfigureAwait(false);
 
-            AssertContainerDocumentMetadata(provider);
+//             AssertContainerDocumentMetadata(provider);
 
-            await Repository
-                .RemoveAsync(provider)
-                .ConfigureAwait(false);
-        }
-    }
-}
+//             await Repository
+//                 .RemoveAsync(provider)
+//                 .ConfigureAwait(false);
+//         }
+//     }
+// }

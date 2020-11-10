@@ -25,6 +25,7 @@ using TeamCloud.Configuration.Options;
 using TeamCloud.Data;
 using TeamCloud.Data.Caching;
 using TeamCloud.Data.CosmosDb;
+using TeamCloud.Git.Services;
 using TeamCloud.Http;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestration.Deployment;
@@ -78,7 +79,9 @@ namespace TeamCloud.Orchestrator
                 .AddSingleton<IDeploymentScopeRepository, CosmosDbDeploymentScopeRepository>()
                 .AddSingleton<IProjectLinkRepository, CosmosDbProjectLinkRepository>()
                 .AddSingleton<IComponentOfferRepository, CosmosDbComponentOfferRepository>()
-                .AddSingleton<IComponentRepository, CosmosDbComponentRepository>();
+                .AddSingleton<IComponentTemplateRepository, CosmosDbComponentTemplateRepository>()
+                .AddSingleton<IComponentRepository, CosmosDbComponentRepository>()
+                .AddSingleton<IRepositoryService, RepositoryService>();
 
             // CAUTION - don't register an orchstrator command handler with the generic
             // IOrchestratorCommandHandler<> interface. purpose of this interface is the

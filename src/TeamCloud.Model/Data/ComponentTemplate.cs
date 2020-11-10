@@ -4,7 +4,6 @@
  */
 
 using System;
-using System.Collections.Generic;
 using Newtonsoft.Json;
 using TeamCloud.Model.Common;
 using TeamCloud.Model.Data.Core;
@@ -13,33 +12,33 @@ using TeamCloud.Serialization;
 namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public sealed class ProjectTemplate : ContainerDocument, IOrganizationChild, IRepositoryReference, IEquatable<ProjectTemplate>, IValidatable
+    public sealed class ComponentTemplate : ContainerDocument, IOrganizationChild, IRepositoryReference, IValidatable
     {
         [PartitionKey]
         public string Organization { get; set; }
 
-        public string Slug { get; set; }
+        public string ParentId { get; set; }
 
-        public string Name { get; set; }
+        public string ProviderId { get; set; }
 
         public string DisplayName { get; set; }
 
-        public List<string> Components { get; set; } = new List<string>();
+        public string Description { get; set; }
 
         public RepositoryReference Repository { get; set; }
 
-        public string Description { get; set; }
-
-        public bool IsDefault { get; set; }
-
         public string InputJsonSchema { get; set; }
 
+        public ComponentScope Scope { get; set; }
 
-        public bool Equals(ProjectTemplate other)
+        public ComponentType Type { get; set; }
+
+
+        public bool Equals(ComponentTemplate other)
             => Id.Equals(other?.Id, StringComparison.Ordinal);
 
         public override bool Equals(object obj)
-            => base.Equals(obj) || Equals(obj as ProjectTemplate);
+            => base.Equals(obj) || Equals(obj as ComponentTemplate);
 
         public override int GetHashCode()
             => Id?.GetHashCode(StringComparison.Ordinal) ?? base.GetHashCode();

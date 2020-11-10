@@ -157,19 +157,19 @@ namespace TeamCloud.API.Auth
         {
             var claims = new List<Claim>();
 
-            if (httpContext.RequestPathStartsWithSegments("api/orgs"))
+            if (httpContext.Request.Path.Equals("/orgs", StringComparison.OrdinalIgnoreCase))
                 return claims;
 
-            var organization = httpContext.RouteValueOrDefault("Organization");
+            var org = httpContext.RouteValueOrDefault("org");
 
-            if (string.IsNullOrEmpty(organization))
+            if (string.IsNullOrEmpty(org))
                 return claims;
 
             var organizationRepository = httpContext.RequestServices
                 .GetRequiredService<IOrganizationRepository>();
 
             var organizationId = await organizationRepository
-                .ResolveIdAsync(organization)
+                .ResolveIdAsync(org)
                 .ConfigureAwait(false);
 
             if (string.IsNullOrEmpty(organizationId))
@@ -187,22 +187,22 @@ namespace TeamCloud.API.Auth
 
             claims.Add(new Claim(ClaimTypes.Role, user.AuthPolicy()));
 
-            var organizationPath = $"/api/{organization}";
+            var orgPath = $"/orgs/{org}";
 
-            if (httpContext.RequestPathStartsWithSegments($"{organizationPath}/projects"))
+            if (httpContext.RequestPathStartsWithSegments($"{orgPath}/projects"))
             {
-                claims.AddRange(await httpContext.ResolveProjectClaimsAsync(organizationPath, user).ConfigureAwait(false));
+                claims.AddRange(await httpContext.ResolveProjectClaimsAsync(orgPath, user).ConfigureAwait(false));
             }
-            else if (httpContext.RequestPathStartsWithSegments($"{organizationPath}/users")
-                  || httpContext.RequestPathStartsWithSegments($"{organizationPath}/me"))
+            else if (httpContext.RequestPathStartsWithSegments($"{orgPath}/users")
+                  || httpContext.RequestPathStartsWithSegments($"{orgPath}/me"))
             {
-                claims.AddRange(await httpContext.ResolveUserClaimsAsync(organizationPath, user).ConfigureAwait(false));
+                claims.AddRange(await httpContext.ResolveUserClaimsAsync(orgPath, user).ConfigureAwait(false));
             }
 
             return claims;
         }
 
-        private static async Task<IEnumerable<Claim>> ResolveProjectClaimsAsync(this HttpContext httpContext, string organizationPath, User user)
+        private static async Task<IEnumerable<Claim>> ResolveProjectClaimsAsync(this HttpContext httpContext, string orgPath, User user)
         {
             var claims = new List<Claim>();
 
@@ -215,24 +215,24 @@ namespace TeamCloud.API.Auth
             {
                 claims.Add(new Claim(ClaimTypes.Role, user.AuthPolicy(projectId)));
 
-                if (httpContext.RequestPathStartsWithSegments($"{organizationPath}/projects/{projectId}/users"))
-                    claims.AddRange(await httpContext.ResolveUserClaimsAsync(organizationPath, user).ConfigureAwait(false));
+                if (httpContext.RequestPathStartsWithSegments($"{orgPath}/projects/{projectId}/users"))
+                    claims.AddRange(await httpContext.ResolveUserClaimsAsync(orgPath, user).ConfigureAwait(false));
 
-                if (httpContext.RequestPathStartsWithSegments($"{organizationPath}/projects/{projectId}/components"))
+                if (httpContext.RequestPathStartsWithSegments($"{orgPath}/projects/{projectId}/components"))
                     claims.AddRange(await httpContext.ResolveComponentClaimsAsync(projectId, user).ConfigureAwait(false));
             }
 
             return claims;
         }
 
-        private static async Task<IEnumerable<Claim>> ResolveUserClaimsAsync(this HttpContext httpContext, string organizationPath, User user)
+        private static async Task<IEnumerable<Claim>> ResolveUserClaimsAsync(this HttpContext httpContext, string orgPath, User user)
         {
             var claims = new List<Claim>();
 
             string userId;
 
-            if (httpContext.RequestPathStartsWithSegments($"{organizationPath}/me")
-            || (httpContext.RequestPathStartsWithSegments(organizationPath) && httpContext.RequestPathEndsWith("/me")))
+            if (httpContext.RequestPathStartsWithSegments($"{orgPath}/me")
+            || (httpContext.RequestPathStartsWithSegments(orgPath) && httpContext.RequestPathEndsWith("/me")))
             {
                 userId = user.Id;
             }
@@ -310,14 +310,5 @@ namespace TeamCloud.API.Auth
 
             return userId;
         }
-
-        private static bool RequestPathStartsWithSegments(this HttpContext httpContext, PathString other, bool ignoreCase = true)
-            => httpContext.Request.Path.StartsWithSegments(other, ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
-
-        private static bool RequestPathEndsWith(this HttpContext httpContext, string value, bool ignoreCase = true)
-            => httpContext.Request.Path.Value.EndsWith(value, ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
-
-        private static string RouteValueOrDefault(this HttpContext httpContext, string key, bool ignoreCase = true)
-            => httpContext.GetRouteData().Values.GetValueOrDefault(key, ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal)?.ToString();
     }
 }
