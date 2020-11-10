@@ -23,12 +23,12 @@ namespace TeamCloud.API.Controllers
     [Produces("application/json")]
     public class UserProjectsController : ApiController
     {
-        public UserProjectsController(UserService userService, Orchestrator orchestrator, IUserRepository userRepository, IProjectRepository projectRepository)
-            : base(userService, orchestrator, projectRepository, userRepository)
+        public UserProjectsController(UserService userService, Orchestrator orchestrator, IOrganizationRepository organizationRepository, IUserRepository userRepository, IProjectRepository projectRepository)
+            : base(userService, orchestrator, organizationRepository, projectRepository, userRepository)
         { }
 
 
-        [HttpGet("api/users/{userId:guid}/projects")]
+        [HttpGet("api/{organization}/users/{userId:guid}/projects")]
         [Authorize(Policy = AuthPolicies.ProjectRead)]
         [SwaggerOperation(OperationId = "GetUserProjects", Summary = "Gets all Projects for a User.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all User Projects", typeof(DataResult<List<Project>>))]
@@ -43,12 +43,10 @@ namespace TeamCloud.API.Controllers
                     .Ok(new List<Project>())
                     .ToActionResult();
 
-            var projectDocuments = await ProjectRepository
-                .ListAsync(projectIds)
+            var projects = await ProjectRepository
+                .ListAsync(OrganizationId, projectIds)
                 .ToListAsync()
                 .ConfigureAwait(false);
-
-            var projects = projectDocuments.Select(p => p.PopulateExternalModel()).ToList();
 
             return DataResult<List<Project>>
                 .Ok(projects)
@@ -56,7 +54,7 @@ namespace TeamCloud.API.Controllers
         });
 
 
-        [HttpGet("api/me/projects")]
+        [HttpGet("api/{organization}/me/projects")]
         [Authorize(Policy = AuthPolicies.ProjectRead)]
         [SwaggerOperation(OperationId = "GetUserProjectsMe", Summary = "Gets all Projects for a User.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all User Projects", typeof(DataResult<List<Project>>))]
@@ -71,12 +69,10 @@ namespace TeamCloud.API.Controllers
                     .Ok(new List<Project>())
                     .ToActionResult();
 
-            var projectDocuments = await ProjectRepository
-                .ListAsync(projectIds)
+            var projects = await ProjectRepository
+                .ListAsync(OrganizationId, projectIds)
                 .ToListAsync()
                 .ConfigureAwait(false);
-
-            var projects = projectDocuments.Select(p => p.PopulateExternalModel()).ToList();
 
             return DataResult<List<Project>>
                 .Ok(projects)

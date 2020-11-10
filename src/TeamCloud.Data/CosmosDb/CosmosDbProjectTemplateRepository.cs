@@ -9,24 +9,19 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
-using Microsoft.Azure.Cosmos.Linq;
 using TeamCloud.Data.CosmosDb.Core;
 using TeamCloud.Model.Data;
 using TeamCloud.Model.Validation;
 
 namespace TeamCloud.Data.CosmosDb
 {
-    public class CosmosDbProjectTemplateRepository : CosmosDbRepository<ProjectTemplateDocument>, IProjectTemplateRepository
+    public class CosmosDbProjectTemplateRepository : CosmosDbRepository<ProjectTemplate>, IProjectTemplateRepository
     {
-        private readonly IProjectRepository projectRepository;
-
-        public CosmosDbProjectTemplateRepository(ICosmosDbOptions cosmosOptions, IProjectRepository projectRepository)
+        public CosmosDbProjectTemplateRepository(ICosmosDbOptions cosmosOptions)
             : base(cosmosOptions)
-        {
-            this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
-        }
+        { }
 
-        public async Task<ProjectTemplateDocument> AddAsync(ProjectTemplateDocument projectTemplate)
+        public async Task<ProjectTemplate> AddAsync(ProjectTemplate projectTemplate)
         {
             if (projectTemplate is null)
                 throw new ArgumentNullException(nameof(projectTemplate));
@@ -38,13 +33,13 @@ namespace TeamCloud.Data.CosmosDb
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
-            var defaultprojectTemplate = await GetDefaultAsync()
+            var defaultprojectTemplate = await GetDefaultAsync(projectTemplate.Organization)
                 .ConfigureAwait(false);
 
             if (defaultprojectTemplate is null)
             {
                 // ensure we have a default
-                // project type if none is defined
+                // project template if none is defined
 
                 projectTemplate.IsDefault = true;
             }
@@ -54,13 +49,13 @@ namespace TeamCloud.Data.CosmosDb
                 if (projectTemplate.IsDefault)
                 {
                     var batch = container
-                        .CreateTransactionalBatch(new PartitionKey(Options.TenantName))
+                        .CreateTransactionalBatch(new PartitionKey(projectTemplate.Organization))
                         .CreateItem(projectTemplate);
 
                     var query = new QueryDefinition($"SELECT * FROM c WHERE c.isDefault = true and c.id != '{projectTemplate.Id}'");
 
                     var queryIterator = container
-                        .GetItemQueryIterator<ProjectTemplateDocument>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
+                        .GetItemQueryIterator<ProjectTemplate>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(projectTemplate.Organization) });
 
                     while (queryIterator.HasMoreResults)
                     {
@@ -78,13 +73,13 @@ namespace TeamCloud.Data.CosmosDb
                         .ExecuteAsync()
                         .ConfigureAwait(false);
 
-                    return await GetAsync(projectTemplate.Id)
+                    return await GetAsync(projectTemplate.Organization, projectTemplate.Id)
                         .ConfigureAwait(false);
                 }
                 else
                 {
                     var response = await container
-                        .CreateItemAsync(projectTemplate, new PartitionKey(Options.TenantName))
+                        .CreateItemAsync(projectTemplate, new PartitionKey(projectTemplate.Organization))
                         .ConfigureAwait(false);
 
                     return response.Resource;
@@ -96,7 +91,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async Task<ProjectTemplateDocument> GetAsync(string id)
+        public async Task<ProjectTemplate> GetAsync(string organization, string id)
         {
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
@@ -104,7 +99,7 @@ namespace TeamCloud.Data.CosmosDb
             try
             {
                 var response = await container
-                    .ReadItemAsync<ProjectTemplateDocument>(id, new PartitionKey(Options.TenantName))
+                    .ReadItemAsync<ProjectTemplate>(id, new PartitionKey(organization))
                     .ConfigureAwait(false);
 
                 return response.Resource;
@@ -115,16 +110,16 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async Task<int> GetInstanceCountAsync(string id, Guid? subscriptionId = null)
-        {
-            return await projectRepository.ListAsync()
-                .Where(project => project.Type.Id.Equals(id, StringComparison.Ordinal))
-                .Where(project => !subscriptionId.HasValue || project.ResourceGroup?.SubscriptionId == subscriptionId.GetValueOrDefault())
-                .CountAsync()
-                .ConfigureAwait(false);
-        }
+        // public async Task<int> GetInstanceCountAsync(string id, Guid? subscriptionId = null)
+        // {
+        //     return await projectRepository.ListAsync()
+        //         .Where(project => project.Type.Id.Equals(id, StringComparison.Ordinal))
+        //         .Where(project => !subscriptionId.HasValue || project.ResourceGroup?.SubscriptionId == subscriptionId.GetValueOrDefault())
+        //         .CountAsync()
+        //         .ConfigureAwait(false);
+        // }
 
-        public async Task<ProjectTemplateDocument> GetDefaultAsync()
+        public async Task<ProjectTemplate> GetDefaultAsync(string organization)
         {
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
@@ -134,9 +129,9 @@ namespace TeamCloud.Data.CosmosDb
                 var query = new QueryDefinition($"SELECT * FROM c WHERE c.isDefault = true");
 
                 var queryIterator = container
-                    .GetItemQueryIterator<ProjectTemplateDocument>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
+                    .GetItemQueryIterator<ProjectTemplate>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(organization) });
 
-                var defaultprojectTemplate = default(ProjectTemplateDocument);
+                var defaultprojectTemplate = default(ProjectTemplate);
                 var nonDefaultBatch = default(TransactionalBatch);
 
                 while (queryIterator.HasMoreResults)
@@ -157,7 +152,7 @@ namespace TeamCloud.Data.CosmosDb
                         .ToList()
                         .ForEach(pt =>
                         {
-                            nonDefaultBatch ??= container.CreateTransactionalBatch(new PartitionKey(Options.TenantName));
+                            nonDefaultBatch ??= container.CreateTransactionalBatch(new PartitionKey(organization));
                             nonDefaultBatch.UpsertItem(pt);
                         });
                 }
@@ -173,7 +168,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async Task<ProjectTemplateDocument> SetAsync(ProjectTemplateDocument projectTemplate)
+        public async Task<ProjectTemplate> SetAsync(ProjectTemplate projectTemplate)
         {
             if (projectTemplate is null)
                 throw new ArgumentNullException(nameof(projectTemplate));
@@ -184,7 +179,7 @@ namespace TeamCloud.Data.CosmosDb
 
             if (!projectTemplate.IsDefault)
             {
-                var defaultprojectTemplate = await GetDefaultAsync()
+                var defaultprojectTemplate = await GetDefaultAsync(projectTemplate.Organization)
                     .ConfigureAwait(false);
 
                 if (projectTemplate.Id == defaultprojectTemplate?.Id)
@@ -197,13 +192,13 @@ namespace TeamCloud.Data.CosmosDb
             if (projectTemplate.IsDefault)
             {
                 var batch = container
-                    .CreateTransactionalBatch(new PartitionKey(Options.TenantName))
+                    .CreateTransactionalBatch(new PartitionKey(projectTemplate.Organization))
                     .UpsertItem(projectTemplate);
 
                 var query = new QueryDefinition($"SELECT * FROM c WHERE c.isDefault = true and c.id != '{projectTemplate.Id}'");
 
                 var queryIterator = container
-                    .GetItemQueryIterator<ProjectTemplateDocument>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
+                    .GetItemQueryIterator<ProjectTemplate>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(projectTemplate.Organization) });
 
                 while (queryIterator.HasMoreResults)
                 {
@@ -221,27 +216,27 @@ namespace TeamCloud.Data.CosmosDb
                     .ExecuteAsync()
                     .ConfigureAwait(false);
 
-                return await GetAsync(projectTemplate.Id)
+                return await GetAsync(projectTemplate.Organization, projectTemplate.Id)
                     .ConfigureAwait(false);
             }
             else
             {
                 var response = await container
-                    .UpsertItemAsync(projectTemplate, new PartitionKey(Options.TenantName))
+                    .UpsertItemAsync(projectTemplate, new PartitionKey(projectTemplate.Organization))
                     .ConfigureAwait(false);
 
                 return response.Resource;
             }
         }
 
-        public async IAsyncEnumerable<ProjectTemplateDocument> ListAsync()
+        public async IAsyncEnumerable<ProjectTemplate> ListAsync(string organization)
         {
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
             var query = new QueryDefinition($"SELECT * FROM c");
             var queryIterator = container
-                .GetItemQueryIterator<ProjectTemplateDocument>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
+                .GetItemQueryIterator<ProjectTemplate>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(organization) });
 
             while (queryIterator.HasMoreResults)
             {
@@ -254,7 +249,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async Task<ProjectTemplateDocument> RemoveAsync(ProjectTemplateDocument projectTemplate)
+        public async Task<ProjectTemplate> RemoveAsync(ProjectTemplate projectTemplate)
         {
             if (projectTemplate is null)
                 throw new ArgumentNullException(nameof(projectTemplate));
@@ -265,7 +260,7 @@ namespace TeamCloud.Data.CosmosDb
             try
             {
                 var response = await container
-                    .DeleteItemAsync<ProjectTemplateDocument>(projectTemplate.Id, new PartitionKey(Options.TenantName))
+                    .DeleteItemAsync<ProjectTemplate>(projectTemplate.Id, new PartitionKey(projectTemplate.Organization))
                     .ConfigureAwait(false);
 
                 return response.Resource;

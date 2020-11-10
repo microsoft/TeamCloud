@@ -11,28 +11,28 @@ namespace TeamCloud.Model.Data
 {
     public static class UserExtensions
     {
-        public static bool IsAdmin(this IUser user)
+        public static bool IsAdmin(this User user)
         {
             if (user is null) throw new ArgumentNullException(nameof(user));
 
-            return user.Role == TeamCloudUserRole.Admin;
+            return user.Role == OrganizationUserRole.Admin;
         }
 
-        public static bool IsCreator(this IUser user)
+        public static bool IsCreator(this User user)
         {
             if (user is null) throw new ArgumentNullException(nameof(user));
 
-            return user.Role == TeamCloudUserRole.Creator;
+            return user.Role == OrganizationUserRole.Creator;
         }
 
-        public static bool IsAdminOrCreator(this IUser user)
+        public static bool IsAdminOrCreator(this User user)
         {
             if (user is null) throw new ArgumentNullException(nameof(user));
 
             return user.IsAdmin() || user.IsCreator();
         }
 
-        public static bool IsOwner(this IUser user, string projectId)
+        public static bool IsOwner(this User user, string projectId)
         {
             if (user is null) throw new ArgumentNullException(nameof(user));
             if (projectId is null) throw new ArgumentNullException(nameof(projectId));
@@ -40,7 +40,7 @@ namespace TeamCloud.Model.Data
             return user.RoleFor(projectId) == ProjectUserRole.Owner;
         }
 
-        public static bool IsMember(this IUser user, string projectId)
+        public static bool IsMember(this User user, string projectId)
         {
             if (user is null) throw new ArgumentNullException(nameof(user));
             if (projectId is null) throw new ArgumentNullException(nameof(projectId));
@@ -50,13 +50,13 @@ namespace TeamCloud.Model.Data
             return role != ProjectUserRole.None;
         }
 
-        public static ProjectUserRole RoleFor(this IUser user, string projectId)
+        public static ProjectUserRole RoleFor(this User user, string projectId)
             => user?.ProjectMembership(projectId)?.Role ?? ProjectUserRole.None;
 
-        public static ProjectMembership ProjectMembership(this IUser user, string projectId)
+        public static ProjectMembership ProjectMembership(this User user, string projectId)
             => user?.ProjectMemberships.FirstOrDefault(m => m.ProjectId == projectId);
 
-        public static IDictionary<string, string> ProjectProperties(this IUser user, string projectId, bool overwriteExistingValues = true)
+        public static IDictionary<string, string> ProjectProperties(this User user, string projectId, bool overwriteExistingValues = true)
         {
             if (user is null) throw new ArgumentNullException(nameof(user));
             if (projectId is null) throw new ArgumentNullException(nameof(projectId));
@@ -88,8 +88,7 @@ namespace TeamCloud.Model.Data
             return properties;
         }
 
-        public static TUser EnsureProjectMembership<TUser>(this TUser user, ProjectMembership membership)
-            where TUser : class, IUser
+        public static User EnsureProjectMembership(this User user, ProjectMembership membership)
         {
             if (user is null)
                 throw new ArgumentNullException(nameof(user));
@@ -111,8 +110,7 @@ namespace TeamCloud.Model.Data
             return user;
         }
 
-        public static TUser EnsureProjectMembership<TUser>(this TUser user, string projectId, ProjectUserRole role, IDictionary<string, string> properties = null)
-            where TUser : class, IUser
+        public static User EnsureProjectMembership(this User user, string projectId, ProjectUserRole role, IDictionary<string, string> properties = null)
         {
             if (user is null) throw new ArgumentNullException(nameof(user));
             if (projectId is null) throw new ArgumentNullException(nameof(projectId));
@@ -125,8 +123,7 @@ namespace TeamCloud.Model.Data
             });
         }
 
-        public static TUser UpdateProjectMembership<TUser>(this TUser user, ProjectMembership membership)
-            where TUser : class, IUser
+        public static User UpdateProjectMembership(this User user, ProjectMembership membership)
         {
             if (user is null) throw new ArgumentNullException(nameof(user));
             if (membership is null) throw new ArgumentNullException(nameof(membership));
@@ -139,7 +136,7 @@ namespace TeamCloud.Model.Data
             return user;
         }
 
-        public static bool HasEqualMemberships(this IUser user, IUser other)
+        public static bool HasEqualMemberships(this User user, User other)
         {
             if (user is null) throw new ArgumentNullException(nameof(user));
             if (other is null) throw new ArgumentNullException(nameof(other));
@@ -147,7 +144,7 @@ namespace TeamCloud.Model.Data
             return user.ProjectMemberships.SequenceEqual(other.ProjectMemberships, new ProjectMembershipComparer());
         }
 
-        public static bool HasEqualMembership(this IUser user, IUser other, string projectId)
+        public static bool HasEqualMembership(this User user, User other, string projectId)
         {
             if (user is null) throw new ArgumentNullException(nameof(user));
             if (other is null) throw new ArgumentNullException(nameof(other));
@@ -156,7 +153,7 @@ namespace TeamCloud.Model.Data
             return new ProjectMembershipComparer().Equals(user.ProjectMembership(projectId), other.ProjectMembership(projectId));
         }
 
-        public static bool HasEqualMembership(this IUser user, ProjectMembership membership)
+        public static bool HasEqualMembership(this User user, ProjectMembership membership)
         {
             if (user is null) throw new ArgumentNullException(nameof(user));
             if (membership is null) throw new ArgumentNullException(nameof(membership));
@@ -164,7 +161,7 @@ namespace TeamCloud.Model.Data
             return new ProjectMembershipComparer().Equals(user.ProjectMembership(membership.ProjectId), membership);
         }
 
-        public static void EnsureTeamCloudInfo(this IUser user, TeamCloudUserRole role, IDictionary<string, string> properties = null)
+        public static void EnsureTeamCloudInfo(this User user, OrganizationUserRole role, IDictionary<string, string> properties = null)
         {
             if (user is null) throw new ArgumentNullException(nameof(user));
 
@@ -173,7 +170,7 @@ namespace TeamCloud.Model.Data
                 user.MergeProperties(properties, overwriteExistingValues: true);
         }
 
-        public static bool HasEqualTeamCloudInfo(this IUser user, IUser other)
+        public static bool HasEqualTeamCloudInfo(this User user, User other)
         {
             if (user is null) throw new ArgumentNullException(nameof(user));
             if (other is null) throw new ArgumentNullException(nameof(other));

@@ -7,15 +7,20 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using TeamCloud.Model.Common;
+using TeamCloud.Model.Data.Core;
 using TeamCloud.Serialization;
 
 namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public sealed class ProjectTemplate : IProjectTemplate, IEquatable<ProjectTemplate>, IValidatable
+    public sealed class ProjectTemplate : ContainerDocument, IOrganizationChild, IEquatable<ProjectTemplate>, IValidatable
     {
-        [JsonProperty(Required = Required.Always)]
-        public string Id { get; set; }
+        [PartitionKey]
+        public string Organization { get; set; }
+
+        public string Slug { get; set; }
+
+        public string Name { get; set; }
 
         [JsonProperty(Required = Required.Always)]
         public string DisplayName { get; set; }

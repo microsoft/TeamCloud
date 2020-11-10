@@ -6,22 +6,20 @@
 using System;
 using Newtonsoft.Json;
 using TeamCloud.Model.Common;
+using TeamCloud.Model.Data.Core;
 using TeamCloud.Serialization;
 
 namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public sealed class Component : IComponent, IEquatable<Component>, IValidatable
+    public sealed class Component : ContainerDocument, IEquatable<Component>, IValidatable
     {
-        [JsonProperty(Required = Required.Always)]
-        public string Id { get; set; }
-            = Guid.NewGuid().ToString();
-
         [JsonProperty("href")]
         public string HRef { get; set; }
 
         public string OfferId { get; set; }
 
+        [PartitionKey]
         public string ProjectId { get; set; }
 
         [JsonProperty(Required = Required.Always)]

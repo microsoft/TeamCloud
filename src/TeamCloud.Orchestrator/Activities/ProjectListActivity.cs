@@ -25,7 +25,7 @@ namespace TeamCloud.Orchestrator.Activities
         }
 
         [FunctionName(nameof(ProjectListActivity))]
-        public async Task<IEnumerable<ProjectDocument>> RunActivity(
+        public async Task<IEnumerable<Project>> RunActivity(
             [ActivityTrigger] IDurableActivityContext activityContext)
         {
             if (activityContext is null)
@@ -50,7 +50,7 @@ namespace TeamCloud.Orchestrator.Activities
         }
 
         [FunctionName(nameof(ProjectListByIdActivity))]
-        public async Task<IEnumerable<ProjectDocument>> RunActivity(
+        public async Task<IEnumerable<Project>> RunActivity(
             [ActivityTrigger] IList<string> projectIds)
         {
             var projects = projectRepository
@@ -65,10 +65,10 @@ namespace TeamCloud.Orchestrator.Activities
 
     internal static class ProjectListExtension
     {
-        public static Task<IEnumerable<ProjectDocument>> ListProjectsAsync(this IDurableOrchestrationContext durableOrchestrationContext)
-            => durableOrchestrationContext.CallActivityWithRetryAsync<IEnumerable<ProjectDocument>>(nameof(ProjectListActivity), null);
+        public static Task<IEnumerable<Project>> ListProjectsAsync(this IDurableOrchestrationContext durableOrchestrationContext)
+            => durableOrchestrationContext.CallActivityWithRetryAsync<IEnumerable<Project>>(nameof(ProjectListActivity), null);
 
-        public static Task<IEnumerable<ProjectDocument>> ListProjectsAsync(this IDurableOrchestrationContext durableOrchestrationContext, IList<string> projectIds)
-            => durableOrchestrationContext.CallActivityWithRetryAsync<IEnumerable<ProjectDocument>>(nameof(ProjectListByIdActivity), projectIds);
+        public static Task<IEnumerable<Project>> ListProjectsAsync(this IDurableOrchestrationContext durableOrchestrationContext, IList<string> projectIds)
+            => durableOrchestrationContext.CallActivityWithRetryAsync<IEnumerable<Project>>(nameof(ProjectListByIdActivity), projectIds);
     }
 }

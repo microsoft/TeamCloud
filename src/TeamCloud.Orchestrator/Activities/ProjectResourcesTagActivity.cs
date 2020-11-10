@@ -30,7 +30,7 @@ namespace TeamCloud.Orchestrator.Activities
             if (activityContext == null)
                 throw new ArgumentNullException(nameof(activityContext));
 
-            var project = activityContext.GetInput<ProjectDocument>();
+            var project = activityContext.GetInput<Project>();
 
             if (!string.IsNullOrEmpty(project.ResourceGroup?.Id))
             {

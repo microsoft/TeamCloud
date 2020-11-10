@@ -14,13 +14,13 @@ using TeamCloud.Model.Validation;
 
 namespace TeamCloud.Data.CosmosDb
 {
-    public class CosmosDbComponentOfferRepository : CosmosDbRepository<ComponentOfferDocument>, IComponentOfferRepository
+    public class CosmosDbComponentOfferRepository : CosmosDbRepository<ComponentOffer>, IComponentOfferRepository
     {
         public CosmosDbComponentOfferRepository(ICosmosDbOptions cosmosOptions)
             : base(cosmosOptions)
         { }
 
-        public async Task<ComponentOfferDocument> AddAsync(ComponentOfferDocument componentOffer)
+        public async Task<ComponentOffer> AddAsync(ComponentOffer componentOffer)
         {
             if (componentOffer is null)
                 throw new ArgumentNullException(nameof(componentOffer));
@@ -39,7 +39,7 @@ namespace TeamCloud.Data.CosmosDb
             return response.Resource;
         }
 
-        public async Task<ComponentOfferDocument> GetAsync(string id)
+        public async Task<ComponentOffer> GetAsync(string id)
         {
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
@@ -47,7 +47,7 @@ namespace TeamCloud.Data.CosmosDb
             try
             {
                 var response = await container
-                    .ReadItemAsync<ComponentOfferDocument>(id, new PartitionKey(Options.TenantName))
+                    .ReadItemAsync<ComponentOffer>(id, new PartitionKey(Options.TenantName))
                     .ConfigureAwait(false);
 
                 return response.Resource;
@@ -58,7 +58,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async Task<ComponentOfferDocument> SetAsync(ComponentOfferDocument componentOffer)
+        public async Task<ComponentOffer> SetAsync(ComponentOffer componentOffer)
         {
             if (componentOffer is null)
                 throw new ArgumentNullException(nameof(componentOffer));
@@ -77,19 +77,19 @@ namespace TeamCloud.Data.CosmosDb
             return response.Resource;
         }
 
-        public IAsyncEnumerable<ComponentOfferDocument> ListAsync()
+        public IAsyncEnumerable<ComponentOffer> ListAsync()
             => ListWithQueryAsync($"SELECT * FROM o");
 
-        public IAsyncEnumerable<ComponentOfferDocument> ListAsync(string providerId)
+        public IAsyncEnumerable<ComponentOffer> ListAsync(string providerId)
             => ListWithQueryAsync($"SELECT * FROM o WHERE o.providerId = '{providerId}'");
 
-        public IAsyncEnumerable<ComponentOfferDocument> ListAsync(IEnumerable<string> providerIds)
+        public IAsyncEnumerable<ComponentOffer> ListAsync(IEnumerable<string> providerIds)
         {
             var search = "'" + string.Join("', '", providerIds) + "'";
             return ListWithQueryAsync($"SELECT * FROM o WHERE o.providerId IN ({search})");
         }
 
-        private async IAsyncEnumerable<ComponentOfferDocument> ListWithQueryAsync(string queryString)
+        private async IAsyncEnumerable<ComponentOffer> ListWithQueryAsync(string queryString)
         {
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
@@ -97,7 +97,7 @@ namespace TeamCloud.Data.CosmosDb
             var query = new QueryDefinition(queryString);
 
             var queryIterator = container
-                .GetItemQueryIterator<ComponentOfferDocument>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
+                .GetItemQueryIterator<ComponentOffer>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
 
             while (queryIterator.HasMoreResults)
             {
@@ -112,7 +112,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async Task<ComponentOfferDocument> RemoveAsync(ComponentOfferDocument componentOffer)
+        public async Task<ComponentOffer> RemoveAsync(ComponentOffer componentOffer)
         {
             if (componentOffer is null)
                 throw new ArgumentNullException(nameof(componentOffer));
@@ -123,7 +123,7 @@ namespace TeamCloud.Data.CosmosDb
             try
             {
                 var response = await container
-                    .DeleteItemAsync<ComponentOfferDocument>(componentOffer.Id, new PartitionKey(Options.TenantName))
+                    .DeleteItemAsync<ComponentOffer>(componentOffer.Id, new PartitionKey(Options.TenantName))
                     .ConfigureAwait(false);
 
                 return response.Resource;

@@ -24,13 +24,13 @@ namespace TeamCloud.Orchestrator.Activities
         }
 
         [FunctionName(nameof(ProjectSetActivity))]
-        public async Task<ProjectDocument> RunActivity(
+        public async Task<Project> RunActivity(
             [ActivityTrigger] IDurableActivityContext activityContext)
         {
             if (activityContext is null)
                 throw new ArgumentNullException(nameof(activityContext));
 
-            var project = activityContext.GetInput<ProjectDocument>();
+            var project = activityContext.GetInput<Project>();
 
             var newProject = await projectRepository
                 .SetAsync(project)
@@ -42,9 +42,9 @@ namespace TeamCloud.Orchestrator.Activities
 
     internal static class ProjectSetExtension
     {
-        public static Task<ProjectDocument> SetProjectAsync(this IDurableOrchestrationContext orchestrationContext, ProjectDocument project, bool allowUnsafe = false)
+        public static Task<Project> SetProjectAsync(this IDurableOrchestrationContext orchestrationContext, Project project, bool allowUnsafe = false)
             => orchestrationContext.IsLockedByContainerDocument(project) || allowUnsafe
-            ? orchestrationContext.CallActivityWithRetryAsync<ProjectDocument>(nameof(ProjectSetActivity), project)
+            ? orchestrationContext.CallActivityWithRetryAsync<Project>(nameof(ProjectSetActivity), project)
             : throw new NotSupportedException($"Unable to set project '{project.Id}' without acquired lock");
     }
 }

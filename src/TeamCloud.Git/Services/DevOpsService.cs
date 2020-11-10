@@ -19,98 +19,98 @@ using YamlDotNet.Serialization.NamingConventions;
 
 namespace TeamCloud.Git.Services
 {
-    public class DevOpsService : IRepositoryService
+    internal class DevOpsService
     {
         private readonly IDeserializer yamlDeserializer;
 
-        public DevOpsService()
+        internal DevOpsService()
         {
             yamlDeserializer = new DeserializerBuilder()
                 .IgnoreUnmatchedProperties()
                 .WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
         }
 
-        private static (string baseUrl, string org, string project, string repo) GetRepoDetails(string url)
-        {
-            var parts = url.Split("/", StringSplitOptions.RemoveEmptyEntries).ToList();
-            var index = parts.FindIndex(p => p.Contains("dev.azure.com", StringComparison.OrdinalIgnoreCase));
-
-            if (index > -1)
-            {
-                if (parts.Count < index + 4)
-                    throw new Exception("Invalid Repository Url");
-
-                var org = parts[index + 1];
-                var project = parts[index + 2];
-                var hasGit = parts[index + 3].Equals("_git", StringComparison.OrdinalIgnoreCase);
-                var repo = parts[index + (hasGit ? 4 : 3)].Replace(".git", "", StringComparison.OrdinalIgnoreCase);
-                var baseUrl = url.Split(project).First().TrimEnd('/');
-
-                return (baseUrl, org, project, repo);
-            }
-            else
-            {
-                index = parts.FindIndex(p => p.Contains("visualstudio.com", StringComparison.OrdinalIgnoreCase));
-
-                if (index == -1 || parts.Count < index + 3)
-                    throw new Exception("Invalid Repository Url");
-
-                var org = parts[index].Split(".visualstudio.com").First();
-                var project = parts[index + 1];
-                var hasGit = parts[index + 2].Equals("_git", StringComparison.OrdinalIgnoreCase);
-                var repo = parts[index + (hasGit ? 3 : 2)].Replace(".git", "", StringComparison.OrdinalIgnoreCase);
-                var baseUrl = url.Split(project).First().TrimEnd('/');
-
-                return (baseUrl, org, project, repo);
-            }
-        }
-
-
-        public async Task<ProjectTemplateDefinition> GetProjectTemplateDefinitionAsync(RepositoryReference repository)
+        internal async Task<ProjectTemplate> GetProjectTemplateAsync(RepositoryReference repository)
         {
             if (repository is null)
                 throw new ArgumentNullException(nameof(repository));
 
-            var (baseUrl, org, project, repo) = GetRepoDetails(repository.Url);
-
             var creds = new VssBasicCredential(string.Empty, repository.Token);
-            using var connection = new VssConnection(new Uri(baseUrl), creds);
+            using var connection = new VssConnection(new Uri(repository.BaselUrl), creds);
             using var client = connection.GetClient<GitHttpClient>();
 
-            var commitId = await ResolveRefAsync(client, project, repo, repository.Version)
-                .ConfigureAwait(false);
-
             var commit = await client
-                .GetCommitAsync(project: project, commitId, repo)
+                .GetCommitAsync(project: repository.Project, repository.Ref, repository.Repository)
                 .ConfigureAwait(false);
 
             var tree = await client
-                .GetTreeAsync(project: project, repo, commit.TreeId, recursive: true)
+                .GetTreeAsync(project: repository.Project, repository.Repository, commit.TreeId, recursive: true)
                 .ConfigureAwait(false);
 
-            var version = new GitVersionDescriptor
-            {
-                Version = commitId,
-                VersionType = GitVersionType.Commit
-            };
-
-            var template = await GetProjectTemplateAsync(client, version, repository, commitId, project, repo, tree.TreeEntries)
+            var template = await GetProjectTemplateAsync(client, repository, tree.TreeEntries)
                 .ConfigureAwait(false);
 
-            var offers = await GetOffersAsync(client, version, project, repo, tree.TreeEntries)
-                .ConfigureAwait(false);
-
-            return new ProjectTemplateDefinition
-            {
-                Template = template,
-                Offers = offers
-            };
+            return template;
         }
 
-        private async Task<ProjectTemplate> GetProjectTemplateAsync(GitHttpClient client, GitVersionDescriptor version, RepositoryReference repository, string commitId, string project, string repo, IEnumerable<GitTreeEntryRef> tree)
+        internal async Task<List<ComponentOffer>> GetComponentOffersAsync(RepositoryReference repository)
+        {
+            if (repository is null)
+                throw new ArgumentNullException(nameof(repository));
+
+            var creds = new VssBasicCredential(string.Empty, repository.Token);
+            using var connection = new VssConnection(new Uri(repository.BaselUrl), creds);
+            using var client = connection.GetClient<GitHttpClient>();
+
+            var commit = await client
+                .GetCommitAsync(project: repository.Project, repository.Ref, repository.Repository)
+                .ConfigureAwait(false);
+
+            var tree = await client
+                .GetTreeAsync(project: repository.Project, repository.Repository, commit.TreeId, recursive: true)
+                .ConfigureAwait(false);
+
+            var offers = await GetOffersAsync(client, repository, tree.TreeEntries)
+                .ConfigureAwait(false);
+
+            return offers;
+        }
+
+
+        // internal async Task<ProjectTemplateRepository> GetProjectTemplateRepositoryAsync(RepositoryReference repository)
+        // {
+        //     if (repository is null)
+        //         throw new ArgumentNullException(nameof(repository));
+
+        //     var creds = new VssBasicCredential(string.Empty, repository.Token);
+        //     using var connection = new VssConnection(new Uri(repository.BaselUrl), creds);
+        //     using var client = connection.GetClient<GitHttpClient>();
+
+        //     var commit = await client
+        //         .GetCommitAsync(project: repository.Project, repository.Ref, repository.Repository)
+        //         .ConfigureAwait(false);
+
+        //     var tree = await client
+        //         .GetTreeAsync(project: repository.Project, repository.Repository, commit.TreeId, recursive: true)
+        //         .ConfigureAwait(false);
+
+        //     var template = await GetProjectTemplateAsync(client, repository, tree.TreeEntries)
+        //         .ConfigureAwait(false);
+
+        //     var offers = await GetOffersAsync(client, repository, tree.TreeEntries)
+        //         .ConfigureAwait(false);
+
+        //     return new ProjectTemplateRepository
+        //     {
+        //         Template = template,
+        //         Offers = offers
+        //     };
+        // }
+
+        private async Task<ProjectTemplate> GetProjectTemplateAsync(GitHttpClient client, RepositoryReference repo, IEnumerable<GitTreeEntryRef> tree)
         {
             var projectYamlFileStream = await client
-                .GetItemContentAsync(project: project, repo, Constants.ProjectYaml, download: true, versionDescriptor: version)
+                .GetItemContentAsync(project: repo.Project, repo.Repository, Constants.ProjectYaml, download: true, versionDescriptor: repo.VersionDescriptor())
                 .ConfigureAwait(false);
 
             using var streamReader = new StreamReader(projectYamlFileStream);
@@ -121,13 +121,13 @@ namespace TeamCloud.Git.Services
 
             var projectYaml = yamlDeserializer.Deserialize<ProjectYaml>(projectYamlFile);
 
-            projectYaml.Description = await CheckAndPopulateFileContentAsync(client, version, project, repo, tree, projectYaml.Description)
+            projectYaml.Description = await CheckAndPopulateFileContentAsync(client, repo, tree, projectYaml.Description)
                 .ConfigureAwait(false);
 
-            return projectYaml.ToProjectTemplate(repository, commitId);
+            return projectYaml.ToProjectTemplate(repo);
         }
 
-        private async Task<List<ComponentOffer>> GetOffersAsync(GitHttpClient client, GitVersionDescriptor version, string project, string repo, IEnumerable<GitTreeEntryRef> tree)
+        private async Task<List<ComponentOffer>> GetOffersAsync(GitHttpClient client, RepositoryReference repo, IEnumerable<GitTreeEntryRef> tree)
         {
             var offers = new List<ComponentOffer>();
 
@@ -138,7 +138,7 @@ namespace TeamCloud.Git.Services
                 var folder = componentItem.RelativePath.Split(Constants.ComponentYaml).First().TrimEnd('/');
 
                 var componentFileStream = await client
-                    .GetItemContentAsync(project: project, repo, componentItem.RelativePath, download: true, versionDescriptor: version)
+                    .GetItemContentAsync(project: repo.Project, repo.Repository, componentItem.RelativePath, download: true, versionDescriptor: repo.VersionDescriptor())
                     .ConfigureAwait(false);
 
                 using var streamReader = new StreamReader(componentFileStream);
@@ -149,11 +149,11 @@ namespace TeamCloud.Git.Services
 
                 var componentYaml = yamlDeserializer.Deserialize<ComponentYaml>(componentFile);
 
-                componentYaml.Description = await CheckAndPopulateFileContentAsync(client, version, project, repo, tree, componentYaml.Description, folder)
+                componentYaml.Description = await CheckAndPopulateFileContentAsync(client, repo, tree, componentYaml.Description, folder)
                     .ConfigureAwait(false);
 
                 foreach (var parameter in componentYaml.Parameters.Where(p => p.Type == JSchemaType.String))
-                    parameter.Value = await CheckAndPopulateFileContentAsync(client, version, project, repo, tree, parameter.StringValue, folder)
+                    parameter.Value = await CheckAndPopulateFileContentAsync(client, repo, tree, parameter.StringValue, folder)
                         .ConfigureAwait(false);
 
                 offers.Add(componentYaml.ToOffer(repo, folder));
@@ -162,7 +162,7 @@ namespace TeamCloud.Git.Services
             return offers;
         }
 
-        private static async Task<string> CheckAndPopulateFileContentAsync(GitHttpClient client, GitVersionDescriptor version, string project, string repo, IEnumerable<GitTreeEntryRef> tree, string value, string folder = null)
+        private static async Task<string> CheckAndPopulateFileContentAsync(GitHttpClient client, RepositoryReference repo, IEnumerable<GitTreeEntryRef> tree, string value, string folder = null)
         {
             if (string.IsNullOrEmpty(value) || !Uri.IsWellFormedUriString(value, UriKind.Relative))
                 return value;
@@ -175,7 +175,7 @@ namespace TeamCloud.Git.Services
                 return value;
 
             var fileStream = await client
-                .GetItemContentAsync(project: project, repo, fileItem.RelativePath, download: true, versionDescriptor: version)
+                .GetItemContentAsync(project: repo.Project, repo.Repository, fileItem.RelativePath, download: true, versionDescriptor: repo.VersionDescriptor())
                 .ConfigureAwait(false);
 
             using var streamReader = new StreamReader(fileStream);
@@ -187,20 +187,33 @@ namespace TeamCloud.Git.Services
             return string.IsNullOrEmpty(file) ? value : file;
         }
 
-        private static async Task<string> ResolveRefAsync(GitHttpClient client, string project, string repo, string version)
+        internal async Task<RepositoryReference> GetRepositoryReferenceAsync(RepositoryReference repository)
         {
-            if (!string.IsNullOrEmpty(version) && Constants.ValidSha1.IsMatch(version))
-                return version;
+            if (repository is null)
+                throw new ArgumentNullException(nameof(repository));
+
+            if (!string.IsNullOrEmpty(repository.Version) && Constants.ValidSha1.IsMatch(repository.Version))
+            {
+                repository.Ref = repository.Version;
+                repository.Type = RepositoryReferenceType.Hash;
+
+                return repository;
+            }
+
+            var creds = new VssBasicCredential(string.Empty, repository.Token);
+
+            using var connection = new VssConnection(new Uri(repository.BaselUrl), creds);
+            using var client = connection.GetClient<GitHttpClient>();
 
             var refs = await client
-                .GetRefsAsync(project: project, repo, filterContains: version ?? "", peelTags: true)
+                .GetRefsAsync(project: repository.Project, repository.Repository, filterContains: repository.Version ?? "", peelTags: true)
                 .ConfigureAwait(false);
 
             if (!(refs?.Any() ?? false))
                 throw new Exception("No matching ref found");
 
             // use latest tag
-            if (string.IsNullOrEmpty(version))
+            if (string.IsNullOrEmpty(repository.Version))
             {
                 var tags = refs.Where(r => r.IsTag()).ToList();
 
@@ -209,12 +222,36 @@ namespace TeamCloud.Git.Services
 
                 tags.Sort((a, b) => string.Compare(a.Name, b.Name, StringComparison.Ordinal));
 
-                return tags.Last().PeeledObjectId;
+                var tag = tags.Last();
+
+                repository.Ref = tag.PeeledObjectId;
+                repository.Version = tag.Name;
+                repository.Type = RepositoryReferenceType.Tag;
+            }
+            else
+            {
+                var gitRef = refs.First();
+
+                repository.Ref = string.IsNullOrEmpty(gitRef.PeeledObjectId) ? gitRef.ObjectId : gitRef.PeeledObjectId;
+
+                if (gitRef.IsTag())
+                    repository.Type = RepositoryReferenceType.Tag;
+
+                if (gitRef.IsBranch())
+                    repository.Type = RepositoryReferenceType.Branch;
             }
 
-            var gitRef = refs.First();
-
-            return string.IsNullOrEmpty(gitRef.PeeledObjectId) ? gitRef.ObjectId : gitRef.PeeledObjectId;
+            return repository;
         }
+    }
+
+    internal static class DevOpsServiceExtensions
+    {
+        public static GitVersionDescriptor VersionDescriptor(this RepositoryReference repository)
+            => new GitVersionDescriptor
+            {
+                Version = repository.Ref,
+                VersionType = GitVersionType.Commit
+            };
     }
 }

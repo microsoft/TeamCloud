@@ -21,7 +21,6 @@ using TeamCloud.API.Initialization;
 using TeamCloud.API.Services;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
-using TeamCloud.Model.Data;
 
 namespace TeamCloud.API
 {
@@ -143,13 +142,11 @@ namespace TeamCloud.API
         public static bool IsUserIdentifier(this string identifier)
             => !string.IsNullOrWhiteSpace(identifier);
 
-        public static Task<IActionResult> InvokeAndReturnActionResultAsync<TDocument, TData>(this Orchestrator orchestrator, IOrchestratorCommand<TDocument> command, HttpRequest httpRequest)
-            where TDocument : class, IPopulate<TData>, new()
+        public static Task<IActionResult> InvokeAndReturnActionResultAsync<TData>(this Orchestrator orchestrator, IOrchestratorCommand<TData> command, HttpRequest httpRequest)
             where TData : class, new()
-            => InvokeAndReturnActionResultAsync<TDocument, TData>(orchestrator, command, new HttpMethod(httpRequest?.Method ?? throw new ArgumentNullException(nameof(httpRequest))));
+            => InvokeAndReturnActionResultAsync(orchestrator, command, new HttpMethod(httpRequest?.Method ?? throw new ArgumentNullException(nameof(httpRequest))));
 
-        public static async Task<IActionResult> InvokeAndReturnActionResultAsync<TDocument, TData>(this Orchestrator orchestrator, IOrchestratorCommand<TDocument> command, HttpMethod httpMethod)
-            where TDocument : class, IPopulate<TData>, new()
+        public static async Task<IActionResult> InvokeAndReturnActionResultAsync<TData>(this Orchestrator orchestrator, IOrchestratorCommand<TData> command, HttpMethod httpMethod)
             where TData : class, new()
         {
             if (orchestrator is null)
@@ -161,20 +158,18 @@ namespace TeamCloud.API
             if (httpMethod is null)
                 throw new ArgumentNullException(nameof(httpMethod));
 
-            var commandResult = (ICommandResult<TDocument>)await orchestrator
+            var commandResult = (ICommandResult<TData>)await orchestrator
                 .InvokeAsync(command)
                 .ConfigureAwait(false);
 
-            return commandResult.ToActionResult<TDocument, TData>(httpMethod);
+            return commandResult.ToActionResult<TData>(httpMethod);
         }
 
-        public static IActionResult ToActionResult<TResult, TData>(this ICommandResult<TResult> commandResult, HttpRequest httpRequest)
-            where TResult : class, IPopulate<TData>, new()
+        public static IActionResult ToActionResult<TData>(this ICommandResult<TData> commandResult, HttpRequest httpRequest)
             where TData : class, new()
-            => ToActionResult<TResult, TData>(commandResult, new HttpMethod(httpRequest?.Method ?? throw new ArgumentNullException(nameof(httpRequest))));
+            => ToActionResult(commandResult, new HttpMethod(httpRequest?.Method ?? throw new ArgumentNullException(nameof(httpRequest))));
 
-        public static IActionResult ToActionResult<TResult, TData>(this ICommandResult<TResult> commandResult, HttpMethod httpMethod)
-            where TResult : class, IPopulate<TData>, new()
+        public static IActionResult ToActionResult<TData>(this ICommandResult<TData> commandResult, HttpMethod httpMethod)
             where TData : class, new()
         {
             if (commandResult is null)
@@ -189,7 +184,7 @@ namespace TeamCloud.API
             }
             else if (commandResult.RuntimeStatus == CommandRuntimeStatus.Completed)
             {
-                return commandResult.ToDataResult<TResult, TData>(httpMethod);
+                return commandResult.ToDataResult(httpMethod);
             }
             else
             {
@@ -197,13 +192,11 @@ namespace TeamCloud.API
             }
         }
 
-        public static IActionResult ToDataResult<TResult, TData>(this ICommandResult<TResult> commandResult, HttpRequest httpRequest)
-            where TResult : class, IPopulate<TData>, new()
+        public static IActionResult ToDataResult<TData>(this ICommandResult<TData> commandResult, HttpRequest httpRequest)
             where TData : class, new()
-            => ToDataResult<TResult, TData>(commandResult, new HttpMethod(httpRequest?.Method ?? throw new ArgumentNullException(nameof(httpRequest))));
+            => ToDataResult(commandResult, new HttpMethod(httpRequest?.Method ?? throw new ArgumentNullException(nameof(httpRequest))));
 
-        public static IActionResult ToDataResult<TResult, TData>(this ICommandResult<TResult> commandResult, HttpMethod httpMethod)
-            where TResult : class, IPopulate<TData>, new()
+        public static IActionResult ToDataResult<TData>(this ICommandResult<TData> commandResult, HttpMethod httpMethod)
             where TData : class, new()
         {
             if (commandResult is null)
@@ -214,19 +207,16 @@ namespace TeamCloud.API
                 return DataResult<TData>.NoContent().ToActionResult();
             }
 
-            var data = commandResult.Result?
-                .PopulateExternalModel<TResult, TData>();
-
             if (httpMethod == HttpMethod.Post)
             {
                 if (!commandResult.Links.TryGetValue("location", out var location))
                     throw new NotSupportedException("Missing location link in command result.");
 
-                return DataResult<TData>.Created(data, location).ToActionResult();
+                return DataResult<TData>.Created(commandResult.Result, location).ToActionResult();
             }
             else if (httpMethod == HttpMethod.Put)
             {
-                return DataResult<TData>.Ok(data).ToActionResult();
+                return DataResult<TData>.Ok(commandResult.Result).ToActionResult();
             }
             else
             {

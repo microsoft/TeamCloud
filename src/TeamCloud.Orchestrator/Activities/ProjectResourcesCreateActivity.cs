@@ -41,7 +41,7 @@ namespace TeamCloud.Orchestrator.Activities
             return identity.ObjectId.ToString();
         }
 
-        private async Task<string[]> GetProviderIdentitiesAsync(ProjectDocument project)
+        private async Task<string[]> GetProviderIdentitiesAsync(Project project)
         {
             var providers = await providerRepository
                 .ListAsync(project.Type.Providers.Select(p => p.Id))
@@ -104,7 +104,7 @@ namespace TeamCloud.Orchestrator.Activities
 
         internal struct Input
         {
-            public ProjectDocument Project { get; set; }
+            public Project Project { get; set; }
 
             public Guid SubscriptionId { get; set; }
         }

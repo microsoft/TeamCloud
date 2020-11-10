@@ -15,13 +15,13 @@ using TeamCloud.Model.Validation;
 
 namespace TeamCloud.Data.CosmosDb
 {
-    public sealed class CosmosDbProjectLinkRepository : CosmosDbRepository<ProjectLinkDocument>, IProjectLinkRepository
+    public sealed class CosmosDbProjectLinkRepository : CosmosDbRepository<ProjectLink>, IProjectLinkRepository
     {
         public CosmosDbProjectLinkRepository(ICosmosDbOptions cosmosOptions)
             : base(cosmosOptions)
         { }
 
-        public async Task<ProjectLinkDocument> AddAsync(ProjectLinkDocument projectLink)
+        public async Task<ProjectLink> AddAsync(ProjectLink projectLink)
         {
             if (projectLink is null)
                 throw new ArgumentNullException(nameof(projectLink));
@@ -40,7 +40,7 @@ namespace TeamCloud.Data.CosmosDb
             return response.Resource;
         }
 
-        public async Task<ProjectLinkDocument> GetAsync(string projectId, string linkId)
+        public async Task<ProjectLink> GetAsync(string projectId, string linkId)
         {
             if (projectId is null)
                 throw new ArgumentNullException(nameof(projectId));
@@ -60,7 +60,7 @@ namespace TeamCloud.Data.CosmosDb
             try
             {
                 var response = await container
-                    .ReadItemAsync<ProjectLinkDocument>(linkIdParsed.ToString(), GetPartitionKey(projectIdParsed.ToString()))
+                    .ReadItemAsync<ProjectLink>(linkIdParsed.ToString(), GetPartitionKey(projectIdParsed.ToString()))
                     .ConfigureAwait(false);
 
                 return response.Resource;
@@ -71,7 +71,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async IAsyncEnumerable<ProjectLinkDocument> ListAsync(string projectId)
+        public async IAsyncEnumerable<ProjectLink> ListAsync(string projectId)
         {
             if (projectId is null)
                 throw new ArgumentNullException(nameof(projectId));
@@ -85,7 +85,7 @@ namespace TeamCloud.Data.CosmosDb
             var query = new QueryDefinition($"SELECT * FROM c WHERE c.projectId = '{projectIdParsed}'");
 
             var queryIterator = container
-                .GetItemQueryIterator<ProjectLinkDocument>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(projectIdParsed.ToString()) });
+                .GetItemQueryIterator<ProjectLink>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(projectIdParsed.ToString()) });
 
             while (queryIterator.HasMoreResults)
             {
@@ -98,7 +98,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async Task<ProjectLinkDocument> RemoveAsync(ProjectLinkDocument projectLink)
+        public async Task<ProjectLink> RemoveAsync(ProjectLink projectLink)
         {
             if (projectLink is null)
                 throw new ArgumentNullException(nameof(projectLink));
@@ -109,7 +109,7 @@ namespace TeamCloud.Data.CosmosDb
             try
             {
                 var response = await container
-                    .DeleteItemAsync<ProjectLinkDocument>(projectLink.Id, GetPartitionKey(projectLink))
+                    .DeleteItemAsync<ProjectLink>(projectLink.Id, GetPartitionKey(projectLink))
                     .ConfigureAwait(false);
 
                 return response.Resource;
@@ -153,7 +153,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async Task<ProjectLinkDocument> SetAsync(ProjectLinkDocument projectLink)
+        public async Task<ProjectLink> SetAsync(ProjectLink projectLink)
         {
             if (projectLink is null)
                 throw new ArgumentNullException(nameof(projectLink));

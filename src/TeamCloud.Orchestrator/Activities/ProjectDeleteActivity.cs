@@ -29,7 +29,7 @@ namespace TeamCloud.Orchestrator.Activities
             if (activityContext is null)
                 throw new ArgumentNullException(nameof(activityContext));
 
-            var project = activityContext.GetInput<ProjectDocument>();
+            var project = activityContext.GetInput<Project>();
 
             _ = await projectRepository
                 .RemoveAsync(project)
@@ -39,7 +39,7 @@ namespace TeamCloud.Orchestrator.Activities
 
     internal static class ProjectDeleteExtension
     {
-        public static Task<ProjectDocument> DeleteProjectAsync(this IDurableOrchestrationContext orchestrationContext, ProjectDocument project)
-            => orchestrationContext.CallActivityWithRetryAsync<ProjectDocument>(nameof(ProjectDeleteActivity), project);
+        public static Task<Project> DeleteProjectAsync(this IDurableOrchestrationContext orchestrationContext, Project project)
+            => orchestrationContext.CallActivityWithRetryAsync<Project>(nameof(ProjectDeleteActivity), project);
     }
 }

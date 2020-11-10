@@ -20,16 +20,18 @@ using TeamCloud.Model.Data;
 namespace TeamCloud.API.Controllers
 {
     [ApiController]
-    [Route("api/projects/{projectId:guid}/offers")]
+    [Route("api/{organization}/projects/{projectId:guid}/offers")]
     [Produces("application/json")]
     public class ProjectOffersController : ApiController
     {
         private readonly IComponentOfferRepository componentOfferRepository;
+        private readonly IProjectTemplateRepository projectTemplateRepository;
 
-        public ProjectOffersController(UserService userService, Orchestrator orchestrator, IProjectRepository projectRepository, IComponentOfferRepository componentOfferRepository)
-            : base(userService, orchestrator, projectRepository)
+        public ProjectOffersController(UserService userService, Orchestrator orchestrator, IOrganizationRepository organizationRepository, IProjectRepository projectRepository, IComponentOfferRepository componentOfferRepository, IProjectTemplateRepository projectTemplateRepository)
+            : base(userService, orchestrator, organizationRepository, projectRepository)
         {
             this.componentOfferRepository = componentOfferRepository ?? throw new ArgumentNullException(nameof(componentOfferRepository));
+            this.projectTemplateRepository = projectTemplateRepository ?? throw new ArgumentNullException(nameof(projectTemplateRepository));
         }
 
 
@@ -41,12 +43,14 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided providerId was not found.", typeof(ErrorResult))]
         public Task<IActionResult> Get() => EnsureProjectAsync(async project =>
         {
-            var offerDocuments = await componentOfferRepository
-                .ListAsync(project.Type.Providers.Select(p => p.Id))
-                .ToListAsync()
+            var template = await projectTemplateRepository
+                .GetAsync(OrganizationId, project.Template)
                 .ConfigureAwait(false);
 
-            var offers = offerDocuments.Select(o => o.PopulateExternalModel()).ToList();
+            var offers = await componentOfferRepository
+                .ListAsync(template)
+                .ToListAsync()
+                .ConfigureAwait(false);
 
             return DataResult<List<ComponentOffer>>
                 .Ok(offers)
@@ -67,21 +71,19 @@ namespace TeamCloud.API.Controllers
                     .BadRequest($"The id provided in the url path is invalid. Must be a non-empty string.", ResultErrorCode.ValidationError)
                     .ToActionResult();
 
-            var offerDocument = await componentOfferRepository
+            var offer = await componentOfferRepository
                 .GetAsync(offerId)
                 .ConfigureAwait(false);
 
-            if (!project.Type.Providers.Any(p => p.Id.Equals(offerDocument.ProviderId, StringComparison.Ordinal)))
+            if (!project.Type.Providers.Any(p => p.Id.Equals(offer.ProviderId, StringComparison.Ordinal)))
                 return ErrorResult
                     .NotFound($"A ComponentOffer with the id '{offerId}' could not be found for Project {project.Id}.")
                     .ToActionResult();
 
-            if (offerDocument is null)
+            if (offer is null)
                 return ErrorResult
                     .NotFound($"A ComponentOffer with the id '{offerId}' could not be found.")
                     .ToActionResult();
-
-            var offer = offerDocument.PopulateExternalModel();
 
             return DataResult<ComponentOffer>
                 .Ok(offer)

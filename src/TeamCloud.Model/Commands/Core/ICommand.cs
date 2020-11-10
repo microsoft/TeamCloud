@@ -16,32 +16,31 @@ namespace TeamCloud.Model.Commands.Core
     {
         Guid CommandId { get; }
 
+        string OrganizationId { get; }
+
         CommandAction CommandAction { get; }
 
         string ProjectId { get; }
 
-        object User { get; set; }
+        User User { get; set; }
 
         ICommandResult CreateResult();
 
         object Payload { get; set; }
     }
 
-    public interface ICommand<TUser, TPayload> : ICommand
-        where TUser : IUser, new()
+    public interface ICommand<TPayload> : ICommand
         where TPayload : new()
     {
-        new TUser User { get; set; }
+        // new TUser User { get; set; }
 
         new TPayload Payload { get; set; }
     }
 
-    public interface ICommand<TUser, TPayload, TCommandResult> : ICommand<TUser, TPayload>
-        where TUser : class, IUser, new()
+    public interface ICommand<TPayload, TCommandResult> : ICommand<TPayload>
         where TPayload : class, new()
         where TCommandResult : ICommandResult
     {
         new TCommandResult CreateResult();
     }
-
 }

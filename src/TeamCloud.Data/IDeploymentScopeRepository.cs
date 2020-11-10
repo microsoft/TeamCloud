@@ -11,16 +11,16 @@ namespace TeamCloud.Data
 {
     public interface IDeploymentScopeRepository
     {
-        Task<DeploymentScopeDocument> GetAsync(string id);
+        Task<DeploymentScope> GetAsync(string id);
 
-        IAsyncEnumerable<DeploymentScopeDocument> ListAsync();
+        IAsyncEnumerable<DeploymentScope> ListAsync();
 
-        Task<DeploymentScopeDocument> GetDefaultAsync();
+        Task<DeploymentScope> GetDefaultAsync();
 
-        Task<DeploymentScopeDocument> AddAsync(DeploymentScopeDocument deploymentScope);
+        Task<DeploymentScope> AddAsync(DeploymentScope deploymentScope);
 
-        Task<DeploymentScopeDocument> SetAsync(DeploymentScopeDocument deploymentScope);
+        Task<DeploymentScope> SetAsync(DeploymentScope deploymentScope);
 
-        Task<DeploymentScopeDocument> RemoveAsync(DeploymentScopeDocument deploymentScope);
+        Task<DeploymentScope> RemoveAsync(DeploymentScope deploymentScope);
     }
 }

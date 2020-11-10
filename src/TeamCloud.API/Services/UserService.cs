@@ -37,18 +37,24 @@ namespace TeamCloud.API.Services
         /// </summary>
         /// <param name="allowUnsafe">This should only be set to true in ApiController actions with the attribute Authorize(Policy = AuthPolicies.Default)</param>
         /// <returns></returns>
-        public async Task<UserDocument> CurrentUserAsync(bool allowUnsafe = false)
+        public async Task<User> CurrentUserAsync(string organizationId, bool allowUnsafe = false)
         {
-            var user = await userRepository
-                .GetAsync(CurrentUserId)
-                .ConfigureAwait(false);
+            User user = null;
+
+            if (!string.IsNullOrEmpty(organizationId))
+            {
+                user = await userRepository
+                    .GetAsync(organizationId, CurrentUserId)
+                    .ConfigureAwait(false);
+            }
 
             if (user is null && allowUnsafe)
             {
-                user = new UserDocument
+                user = new User
                 {
                     Id = CurrentUserId,
-                    Role = TeamCloudUserRole.None,
+                    Organization = organizationId,
+                    Role = OrganizationUserRole.None,
                     UserType = UserType.User
                 };
             }
@@ -78,7 +84,7 @@ namespace TeamCloud.API.Services
             return val;
         }
 
-        public async Task<UserDocument> ResolveUserAsync(UserDefinition userDefinition, UserType userType = UserType.User)
+        public async Task<User> ResolveUserAsync(string organizationId, UserDefinition userDefinition, UserType userType = UserType.User)
         {
             if (userDefinition is null)
                 throw new ArgumentNullException(nameof(userDefinition));
@@ -90,10 +96,10 @@ namespace TeamCloud.API.Services
                 return null;
 
             var user = await userRepository
-                .GetAsync(userId)
+                .GetAsync(organizationId, userId)
                 .ConfigureAwait(false);
 
-            user ??= new UserDocument
+            user ??= new User
             {
                 Id = userId,
                 UserType = userType

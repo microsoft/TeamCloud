@@ -36,7 +36,7 @@ namespace TeamCloud.Orchestrator.Activities
             if (activityContext is null)
                 throw new ArgumentNullException(nameof(activityContext));
 
-            var project = activityContext.GetInput<ProjectDocument>();
+            var project = activityContext.GetInput<Project>();
 
             try
             {
@@ -66,7 +66,7 @@ namespace TeamCloud.Orchestrator.Activities
 
     internal static class ResourceProviderRegisterExtension
     {
-        public static Task RegisterResourceProvidersAsync(this IDurableOrchestrationContext orchestrationContext, ProjectDocument project)
+        public static Task RegisterResourceProvidersAsync(this IDurableOrchestrationContext orchestrationContext, Project project)
             => orchestrationContext.CallActivityWithRetryAsync(nameof(ResourceProviderRegisterActivity), project);
     }
 }

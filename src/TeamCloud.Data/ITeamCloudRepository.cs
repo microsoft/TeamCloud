@@ -10,8 +10,8 @@ namespace TeamCloud.Data
 {
     public interface ITeamCloudRepository
     {
-        Task<TeamCloudInstanceDocument> GetAsync();
+        Task<TeamCloudInstance> GetAsync();
 
-        Task<TeamCloudInstanceDocument> SetAsync(TeamCloudInstanceDocument teamCloudInstance);
+        Task<TeamCloudInstance> SetAsync(TeamCloudInstance teamCloudInstance);
     }
 }

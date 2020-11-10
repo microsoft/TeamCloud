@@ -6,22 +6,22 @@
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using TeamCloud.Model.Common;
+using TeamCloud.Model.Data.Core;
 using TeamCloud.Serialization;
 
 namespace TeamCloud.Model.Data
 {
 
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public sealed class User : IUser, IEquatable<User>
+    public sealed class User : ContainerDocument, IOrganizationChild, IEquatable<User>, IProperties
     {
-        [JsonProperty(Required = Required.Always)]
-        public string Id { get; set; }
+        [PartitionKey]
+        public string Organization { get; set; }
 
-        [JsonProperty(Required = Required.Always)]
         public UserType UserType { get; set; }
 
-        [JsonProperty(Required = Required.Always)]
-        public TeamCloudUserRole Role { get; set; }
+        public OrganizationUserRole Role { get; set; }
 
         public IList<ProjectMembership> ProjectMemberships { get; set; } = new List<ProjectMembership>();
 

@@ -307,7 +307,7 @@ namespace TeamCloud.Model.Validation
 
         private static bool BeUserRole(string role)
             => !string.IsNullOrEmpty(role)
-            && (Enum.TryParse<TeamCloudUserRole>(role, true, out _)
+            && (Enum.TryParse<OrganizationUserRole>(role, true, out _)
                 || Enum.TryParse<ProjectUserRole>(role, true, out _));
 
         private static bool BeProjectUserRole(string role)
@@ -316,7 +316,7 @@ namespace TeamCloud.Model.Validation
 
         private static bool BeTeamCloudUserRole(string role)
             => !string.IsNullOrEmpty(role)
-            && Enum.TryParse<TeamCloudUserRole>(role, true, out _);
+            && Enum.TryParse<OrganizationUserRole>(role, true, out _);
 
         private static bool BeAzureRegion(string region)
             => !string.IsNullOrEmpty(region)

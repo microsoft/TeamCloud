@@ -24,7 +24,7 @@ namespace TeamCloud.API.Data.Validators
 
         private static bool BeAdminUserRole(string role)
             => !string.IsNullOrEmpty(role)
-            && Enum.TryParse<TeamCloudUserRole>(role, true, out var tcRole)
-            && tcRole == TeamCloudUserRole.Admin;
+            && Enum.TryParse<OrganizationUserRole>(role, true, out var tcRole)
+            && tcRole == OrganizationUserRole.Admin;
     }
 }

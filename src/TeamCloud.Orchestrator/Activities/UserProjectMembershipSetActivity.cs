@@ -24,7 +24,7 @@ namespace TeamCloud.Orchestrator.Activities
         }
 
         [FunctionName(nameof(UserProjectMembershipSetActivity))]
-        public async Task<UserDocument> RunActivity(
+        public async Task<User> RunActivity(
             [ActivityTrigger] IDurableActivityContext activityContext)
         {
             if (activityContext is null)
@@ -46,7 +46,7 @@ namespace TeamCloud.Orchestrator.Activities
 
         internal struct Input
         {
-            public UserDocument User { get; set; }
+            public User User { get; set; }
 
             public string ProjectId { get; set; }
         }
@@ -55,9 +55,9 @@ namespace TeamCloud.Orchestrator.Activities
 
     internal static class UserProjectMembershipSetExtension
     {
-        public static Task<UserDocument> SetUserProjectMembershipAsync(this IDurableOrchestrationContext orchestrationContext, UserDocument user, string projectId, bool allowUnsafe = false)
-            => orchestrationContext.IsLockedBy<UserDocument>(user.Id) || allowUnsafe
-            ? orchestrationContext.CallActivityWithRetryAsync<UserDocument>(nameof(UserProjectMembershipSetActivity), new UserProjectMembershipSetActivity.Input() { User = user, ProjectId = projectId })
+        public static Task<User> SetUserProjectMembershipAsync(this IDurableOrchestrationContext orchestrationContext, User user, string projectId, bool allowUnsafe = false)
+            => orchestrationContext.IsLockedBy<User>(user.Id) || allowUnsafe
+            ? orchestrationContext.CallActivityWithRetryAsync<User>(nameof(UserProjectMembershipSetActivity), new UserProjectMembershipSetActivity.Input() { User = user, ProjectId = projectId })
             : throw new NotSupportedException($"Unable to create or update project membership without acquired lock for user {user.Id}");
     }
 }

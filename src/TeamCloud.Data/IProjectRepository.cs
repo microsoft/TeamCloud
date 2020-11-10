@@ -11,20 +11,20 @@ namespace TeamCloud.Data
 {
     public interface IProjectRepository
     {
-        Task<ProjectDocument> GetAsync(string nameOrId);
+        Task<Project> GetAsync(string organization, string nameOrId);
 
-        IAsyncEnumerable<ProjectDocument> ListAsync();
+        IAsyncEnumerable<Project> ListAsync(string organization);
 
-        IAsyncEnumerable<ProjectDocument> ListAsync(IEnumerable<string> nameOrIds);
+        IAsyncEnumerable<Project> ListAsync(string organization, IEnumerable<string> nameOrIds);
 
-        IAsyncEnumerable<ProjectDocument> ListByProviderAsync(string providerId);
+        IAsyncEnumerable<Project> ListByTemplateAsync(string organization, string templateId);
 
-        Task<bool> NameExistsAsync(string name);
+        Task<bool> NameExistsAsync(string organization, string name);
 
-        Task<ProjectDocument> AddAsync(ProjectDocument project);
+        Task<Project> AddAsync(Project project);
 
-        Task<ProjectDocument> SetAsync(ProjectDocument project);
+        Task<Project> SetAsync(Project project);
 
-        Task<ProjectDocument> RemoveAsync(ProjectDocument project);
+        Task<Project> RemoveAsync(Project project);
     }
 }

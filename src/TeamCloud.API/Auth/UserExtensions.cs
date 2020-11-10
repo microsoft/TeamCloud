@@ -3,16 +3,26 @@
  *  Licensed under the MIT License.
  */
 
+using System;
 using TeamCloud.Model.Data;
 
 namespace TeamCloud.API.Auth
 {
+    public static class UserExtensions
+    {
+        public static string AuthPolicy(this User user)
+            => user?.Role.AuthPolicy() ?? throw new ArgumentNullException(nameof(user));
+
+        public static string AuthPolicy(this User user, string projectId)
+            => user?.RoleFor(projectId).AuthPolicy() ?? throw new ArgumentNullException(nameof(user));
+    }
+
     public static class UserRoleExtensions
     {
-        public static string PolicyRoleName(this TeamCloudUserRole role)
-            => $"TeamCloud_{role}";
+        public static string AuthPolicy(this OrganizationUserRole role)
+            => $"Organization_{role}";
 
-        public static string PolicyRoleName(this ProjectUserRole role)
+        public static string AuthPolicy(this ProjectUserRole role)
             => $"Project_{role}";
     }
 

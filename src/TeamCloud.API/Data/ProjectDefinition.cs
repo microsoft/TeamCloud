@@ -4,9 +4,7 @@
  */
 
 using System.Collections.Generic;
-using FluentValidation;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using TeamCloud.Serialization;
 
 namespace TeamCloud.API.Data
@@ -16,12 +14,14 @@ namespace TeamCloud.API.Data
     {
         public string Name { get; set; }
 
-        public string ProjectType { get; set; }
+        public string Template { get; set; }
+
+        public string TemplateInput { get; set; }
 
         public List<UserDefinition> Users { get; set; } = new List<UserDefinition>();
 
-        public Dictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();
+        // public Dictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();
 
-        public Dictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
+        // public Dictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
     }
 }

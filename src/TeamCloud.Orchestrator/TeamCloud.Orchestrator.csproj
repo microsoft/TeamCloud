@@ -58,7 +58,6 @@
     <ProjectReference Include="..\TeamCloud.Data\TeamCloud.Data.csproj" />
     <ProjectReference Include="..\TeamCloud.Http\TeamCloud.Http.csproj" />
     <ProjectReference Include="..\TeamCloud.Model\TeamCloud.Model.csproj" />
-    <ProjectReference Include="..\TeamCloud.Model.Internal\TeamCloud.Model.Internal.csproj" />
     <ProjectReference Include="..\TeamCloud.Orchestration.Deployment\TeamCloud.Orchestration.Deployment.csproj" />
     <ProjectReference Include="..\TeamCloud.Orchestration\TeamCloud.Orchestration.csproj" />
     <ProjectReference Include="..\TeamCloud.Serialization\TeamCloud.Serialization.csproj" />

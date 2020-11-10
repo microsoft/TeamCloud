@@ -3,7 +3,6 @@
  *  Licensed under the MIT License.
  */
 
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using TeamCloud.Model.Data;
@@ -12,18 +11,18 @@ namespace TeamCloud.Data
 {
     public interface IProjectTemplateRepository
     {
-        Task<ProjectTemplateDocument> GetAsync(string id);
+        Task<ProjectTemplate> GetAsync(string organization, string id);
 
-        IAsyncEnumerable<ProjectTemplateDocument> ListAsync();
+        IAsyncEnumerable<ProjectTemplate> ListAsync(string organization);
 
-        Task<int> GetInstanceCountAsync(string id, Guid? subscriptionId = null);
+        // Task<int> GetInstanceCountAsync(string id, Guid? subscriptionId = null);
 
-        Task<ProjectTemplateDocument> GetDefaultAsync();
+        Task<ProjectTemplate> GetDefaultAsync(string organization);
 
-        Task<ProjectTemplateDocument> AddAsync(ProjectTemplateDocument projectTemplate);
+        Task<ProjectTemplate> AddAsync(ProjectTemplate projectTemplate);
 
-        Task<ProjectTemplateDocument> SetAsync(ProjectTemplateDocument projectTemplate);
+        Task<ProjectTemplate> SetAsync(ProjectTemplate projectTemplate);
 
-        Task<ProjectTemplateDocument> RemoveAsync(ProjectTemplateDocument projectTemplate);
+        Task<ProjectTemplate> RemoveAsync(ProjectTemplate projectTemplate);
     }
 }

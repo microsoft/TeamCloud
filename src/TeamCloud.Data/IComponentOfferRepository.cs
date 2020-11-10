@@ -11,18 +11,18 @@ namespace TeamCloud.Data
 {
     public interface IComponentOfferRepository
     {
-        Task<ComponentOfferDocument> GetAsync(string id);
+        Task<ComponentOffer> GetAsync(string id);
 
-        IAsyncEnumerable<ComponentOfferDocument> ListAsync();
+        IAsyncEnumerable<ComponentOffer> ListAsync();
 
-        IAsyncEnumerable<ComponentOfferDocument> ListAsync(string providerId);
+        IAsyncEnumerable<ComponentOffer> ListAsync(string providerId);
 
-        IAsyncEnumerable<ComponentOfferDocument> ListAsync(IEnumerable<string> providerIds);
+        IAsyncEnumerable<ComponentOffer> ListAsync(IEnumerable<string> providerIds);
 
-        Task<ComponentOfferDocument> AddAsync(ComponentOfferDocument componentOffer);
+        Task<ComponentOffer> AddAsync(ComponentOffer componentOffer);
 
-        Task<ComponentOfferDocument> SetAsync(ComponentOfferDocument componentOffer);
+        Task<ComponentOffer> SetAsync(ComponentOffer componentOffer);
 
-        Task<ComponentOfferDocument> RemoveAsync(ComponentOfferDocument componentOffer);
+        Task<ComponentOffer> RemoveAsync(ComponentOffer componentOffer);
     }
 }

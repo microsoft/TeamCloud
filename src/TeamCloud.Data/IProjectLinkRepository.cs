@@ -11,15 +11,15 @@ namespace TeamCloud.Data
 {
     public interface IProjectLinkRepository
     {
-        Task<ProjectLinkDocument> GetAsync(string projectId, string id);
+        Task<ProjectLink> GetAsync(string projectId, string id);
 
-        IAsyncEnumerable<ProjectLinkDocument> ListAsync(string projectId);
+        IAsyncEnumerable<ProjectLink> ListAsync(string projectId);
 
-        Task<ProjectLinkDocument> AddAsync(ProjectLinkDocument projectLink);
+        Task<ProjectLink> AddAsync(ProjectLink projectLink);
 
-        Task<ProjectLinkDocument> SetAsync(ProjectLinkDocument projectLink);
+        Task<ProjectLink> SetAsync(ProjectLink projectLink);
 
-        Task<ProjectLinkDocument> RemoveAsync(ProjectLinkDocument projectLink);
+        Task<ProjectLink> RemoveAsync(ProjectLink projectLink);
 
         Task RemoveAsync(string projectId);
 

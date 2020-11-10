@@ -6,15 +6,16 @@
 using System;
 using Newtonsoft.Json;
 using TeamCloud.Model.Common;
+using TeamCloud.Model.Data.Core;
 using TeamCloud.Serialization;
 
 namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public sealed class ComponentOffer : IComponentOffer, IEquatable<ComponentOffer>, IValidatable
+    public sealed class ComponentOffer : ContainerDocument, IOrganizationChild, IValidatable
     {
-        [JsonProperty(Required = Required.Always)]
-        public string Id { get; set; }
+        [PartitionKey]
+        public string Organization { get; set; }
 
         [JsonProperty(Required = Required.Always)]
         public string ProviderId { get; set; }

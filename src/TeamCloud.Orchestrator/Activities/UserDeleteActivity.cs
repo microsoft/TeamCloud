@@ -25,7 +25,7 @@ namespace TeamCloud.Orchestrator.Activities
 
         [FunctionName(nameof(UserDeleteActivity))]
         public async Task RunActivity(
-            [ActivityTrigger] UserDocument user)
+            [ActivityTrigger] User user)
         {
             if (user is null)
                 throw new ArgumentNullException(nameof(user));
@@ -38,10 +38,10 @@ namespace TeamCloud.Orchestrator.Activities
 
     internal static class UserDeleteExtension
     {
-        public static Task<UserDocument> DeleteUserAsync(this IDurableOrchestrationContext orchestrationContext, string userId, bool allowUnsafe = false)
+        public static Task<User> DeleteUserAsync(this IDurableOrchestrationContext orchestrationContext, string userId, bool allowUnsafe = false)
             => DeleteUserAsync(orchestrationContext, Guid.Parse(userId), allowUnsafe);
 
-        public static async Task<UserDocument> DeleteUserAsync(this IDurableOrchestrationContext orchestrationContext, Guid userId, bool allowUnsafe = false)
+        public static async Task<User> DeleteUserAsync(this IDurableOrchestrationContext orchestrationContext, Guid userId, bool allowUnsafe = false)
         {
             var user = await orchestrationContext
                 .GetUserAsync(userId, true)
@@ -52,9 +52,9 @@ namespace TeamCloud.Orchestrator.Activities
                 .ConfigureAwait(true);
         }
 
-        public static Task<UserDocument> DeleteUserAsync(this IDurableOrchestrationContext orchestrationContext, UserDocument user, bool allowUnsafe = false)
-            => orchestrationContext.IsLockedBy<UserDocument>(user.Id.ToString()) || allowUnsafe
-                ? orchestrationContext.CallActivityWithRetryAsync<UserDocument>(nameof(UserDeleteActivity), user)
+        public static Task<User> DeleteUserAsync(this IDurableOrchestrationContext orchestrationContext, User user, bool allowUnsafe = false)
+            => orchestrationContext.IsLockedBy<User>(user.Id.ToString()) || allowUnsafe
+                ? orchestrationContext.CallActivityWithRetryAsync<User>(nameof(UserDeleteActivity), user)
                 : throw new NotSupportedException($"Unable to delete user '{user.Id}' without acquired lock");
     }
 }

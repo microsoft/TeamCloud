@@ -92,7 +92,5 @@ namespace TeamCloud.Orchestrator.Handlers
 
             return commandResult;
         }
-
-
     }
 }

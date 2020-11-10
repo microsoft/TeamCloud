@@ -24,13 +24,13 @@ namespace TeamCloud.Orchestrator.Activities
         }
 
         [FunctionName(nameof(TeamCloudSetActivity))]
-        public async Task<TeamCloudInstanceDocument> RunActivity(
+        public async Task<TeamCloudInstance> RunActivity(
             [ActivityTrigger] IDurableActivityContext activityContext)
         {
             if (activityContext is null)
                 throw new ArgumentNullException(nameof(activityContext));
 
-            var teamCloudInstance = activityContext.GetInput<TeamCloudInstanceDocument>();
+            var teamCloudInstance = activityContext.GetInput<TeamCloudInstance>();
 
             teamCloudInstance = await teamCloudRepository
                 .SetAsync(teamCloudInstance)
@@ -42,7 +42,7 @@ namespace TeamCloud.Orchestrator.Activities
 
     internal static class TeamCloudSetExtension
     {
-        public static Task<TeamCloudInstanceDocument> SetTeamCloudAsync(this IDurableOrchestrationContext orchestrationContext, TeamCloudInstanceDocument teamCloud)
+        public static Task<TeamCloudInstance> SetTeamCloudAsync(this IDurableOrchestrationContext orchestrationContext, TeamCloudInstance teamCloud)
         {
             if (teamCloud is null)
                 throw new ArgumentNullException(nameof(teamCloud));
@@ -50,10 +50,10 @@ namespace TeamCloud.Orchestrator.Activities
             if (orchestrationContext.IsLockedByContainerDocument(teamCloud))
             {
                 return orchestrationContext
-                    .CallActivityWithRetryAsync<TeamCloudInstanceDocument>(nameof(TeamCloudSetActivity), teamCloud);
+                    .CallActivityWithRetryAsync<TeamCloudInstance>(nameof(TeamCloudSetActivity), teamCloud);
             }
 
-            throw new NotSupportedException($"Unable to set '{typeof(TeamCloudInstanceDocument)}' without acquired lock");
+            throw new NotSupportedException($"Unable to set '{typeof(TeamCloudInstance)}' without acquired lock");
         }
     }
 }

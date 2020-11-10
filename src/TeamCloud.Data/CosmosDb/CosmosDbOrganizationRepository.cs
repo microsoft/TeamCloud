@@ -6,10 +6,12 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Caching.Memory;
 using TeamCloud.Data.Caching;
 using TeamCloud.Data.CosmosDb.Core;
 using TeamCloud.Model.Data;
@@ -17,103 +19,39 @@ using TeamCloud.Model.Validation;
 
 namespace TeamCloud.Data.CosmosDb
 {
-    public class CosmosDbOrganizationRepository : CosmosDbRepository<OrganizationDocument>, IOrganizationRepository
+    public class CosmosDbOrganizationRepository : CosmosDbRepository<Organization>, IOrganizationRepository
     {
-        private readonly IContainerDocumentCache cache;
+        private readonly IMemoryCache idCache;
 
-        public CosmosDbOrganizationRepository(ICosmosDbOptions cosmosOptions, IContainerDocumentCache cache)
+        public CosmosDbOrganizationRepository(ICosmosDbOptions cosmosOptions, IMemoryCache idCache)
             : base(cosmosOptions)
         {
-            this.cache = cache ?? throw new ArgumentNullException(nameof(cache));
+            this.idCache = idCache ?? throw new ArgumentNullException(nameof(idCache));
         }
 
-        private async Task<ContainerDocumentCacheEntry<OrganizationDocument>> SetCacheAsync(ItemResponse<OrganizationDocument> response)
+
+        public async Task<string> ResolveIdAsync(string identifier)
         {
-            if (response is null)
+            if (identifier is null)
+                throw new ArgumentNullException(nameof(identifier));
+
+            var key = $"{Options.TenantName}_{identifier}";
+
+            if (!idCache.TryGetValue(key, out string id))
             {
-                await cache
-                    .RemoveAsync(nameof(OrganizationDocument))
+                var organization = await GetAsync(identifier)
                     .ConfigureAwait(false);
 
-                return null;
+                id = organization?.Id;
+
+                if (!string.IsNullOrEmpty(id))
+                    idCache.Set(key, idCache, TimeSpan.FromMinutes(10));
             }
-            else
-            {
-                return await cache
-                    .SetAsync(nameof(OrganizationDocument), new ContainerDocumentCacheEntry<OrganizationDocument>(response), new ContainerDocumentCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) })
-                    .ConfigureAwait(false);
-            }
+
+            return id;
         }
 
-        protected override Container.ChangesHandler<OrganizationDocument> HandleChangesAsync
-            => cache.InMemory
-            ? base.HandleChangesAsync // in case we deal with an InMemory cache, we fall back to the default implementation
-            : (IReadOnlyCollection<OrganizationDocument> changes, CancellationToken cancellationToken) => SetCacheAsync(null);
-
-        public Task<OrganizationDocument> GetAsync()
-            => GetAsync(false);
-
-        public async Task<OrganizationDocument> GetAsync(bool refresh)
-        {
-            var container = await GetContainerAsync()
-                .ConfigureAwait(false);
-
-            ContainerDocumentCacheEntry<OrganizationDocument> cacheEntry = null;
-
-            if (cache != null && !refresh)
-            {
-                var created = false;
-
-                cacheEntry = await cache
-                    .GetOrCreateAsync(nameof(OrganizationDocument), (key) => { created = true; return FetchAsync(); })
-                    .ConfigureAwait(false);
-
-                if (!created && cache.InMemory)
-                {
-                    var cacheEntryCurrent = await FetchAsync(cacheEntry.ETag)
-                        .ConfigureAwait(false);
-
-                    return (cacheEntryCurrent ?? cacheEntry)?.Value;
-                }
-            }
-
-            return (cacheEntry ?? await FetchAsync().ConfigureAwait(false))?.Value
-                ?? await SetAsync(new OrganizationDocument() { Id = Options.TenantName }).ConfigureAwait(false);
-
-            async Task<ContainerDocumentCacheEntry<OrganizationDocument>> FetchAsync(string currentETag = default)
-            {
-                var measure = Stopwatch.StartNew();
-
-                try
-                {
-                    var options = new ItemRequestOptions()
-                    {
-                        IfNoneMatchEtag = currentETag
-                    };
-
-                    var response = await container
-                        .ReadItemAsync<OrganizationDocument>(Options.TenantName, new PartitionKey(Options.TenantName), options)
-                        .ConfigureAwait(false);
-
-                    return await SetCacheAsync(response)
-                        .ConfigureAwait(false);
-                }
-                catch (CosmosException exc) when (exc.StatusCode == HttpStatusCode.NotFound)
-                {
-                    return null; // the requested document does not exist - return null instead of bubbling the exception
-                }
-                catch (CosmosException exc) when (exc.StatusCode == HttpStatusCode.NotModified)
-                {
-                    return null; // the requested document exist but the provided etag is still equal to the current version in the db - return null instead of bubbling the exception
-                }
-                finally
-                {
-                    Debug.WriteLine($"Fetching '{nameof(OrganizationDocument)}' (ETag: {currentETag ?? "EMPTY"}) took {measure.ElapsedMilliseconds} msec.");
-                }
-            }
-        }
-
-        public async Task<OrganizationDocument> SetAsync(OrganizationDocument organization)
+        public async Task<Organization> AddAsync(Organization organization)
         {
             if (organization is null)
                 throw new ArgumentNullException(nameof(organization));
@@ -126,14 +64,113 @@ namespace TeamCloud.Data.CosmosDb
                 .ConfigureAwait(false);
 
             var response = await container
-                .UpsertItemAsync(organization, new PartitionKey(Options.TenantName))
+                .CreateItemAsync(organization, GetPartitionKey(organization))
                 .ConfigureAwait(false);
 
-            var cacheEntry = await SetCacheAsync(response)
-                .ConfigureAwait(false);
-
-            return cacheEntry.Value;
+            return response.Resource;
         }
 
+        public async Task<Organization> GetAsync(string identifier)
+        {
+            if (identifier is null)
+                throw new ArgumentNullException(nameof(identifier));
+
+            // if (!Guid.TryParse(id, out var idParsed))
+            //     throw new ArgumentException("Value is not a valid GUID", nameof(id));
+
+            var container = await GetContainerAsync()
+                .ConfigureAwait(false);
+
+            Organization organization = null;
+
+            try
+            {
+                var response = await container
+                    .ReadItemAsync<Organization>(identifier, new PartitionKey(Options.TenantName))
+                    .ConfigureAwait(false);
+
+                organization = response.Resource;
+            }
+            catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
+            {
+                var query = new QueryDefinition($"SELECT * FROM o WHERE o.slug = '{identifier}'");
+
+                var queryIterator = container
+                    .GetItemQueryIterator<Organization>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
+
+                if (queryIterator.HasMoreResults)
+                {
+                    var queryResults = await queryIterator
+                        .ReadNextAsync()
+                        .ConfigureAwait(false);
+
+                    organization = queryResults.FirstOrDefault();
+                }
+            }
+
+            return organization;
+        }
+
+        public async IAsyncEnumerable<Organization> ListAsync()
+        {
+            var container = await GetContainerAsync()
+                .ConfigureAwait(false);
+
+            var query = new QueryDefinition($"SELECT * FROM o");
+
+            var queryIterator = container
+                .GetItemQueryIterator<Organization>(query, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(Options.TenantName) });
+
+            while (queryIterator.HasMoreResults)
+            {
+                var queryResponse = await queryIterator
+                    .ReadNextAsync()
+                    .ConfigureAwait(false);
+
+                foreach (var queryResult in queryResponse)
+                    yield return queryResult;
+            }
+        }
+
+        public async Task<Organization> RemoveAsync(Organization organization)
+        {
+            if (organization is null)
+                throw new ArgumentNullException(nameof(organization));
+
+            var container = await GetContainerAsync()
+                .ConfigureAwait(false);
+
+            try
+            {
+                var response = await container
+                    .DeleteItemAsync<Organization>(organization.Id, GetPartitionKey(organization))
+                    .ConfigureAwait(false);
+
+                return response.Resource;
+            }
+            catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
+            {
+                return null; // already deleted
+            }
+        }
+
+        public async Task<Organization> SetAsync(Organization organization)
+        {
+            if (organization is null)
+                throw new ArgumentNullException(nameof(organization));
+
+            await organization
+                .ValidateAsync(throwOnValidationError: true)
+                .ConfigureAwait(false);
+
+            var container = await GetContainerAsync()
+                .ConfigureAwait(false);
+
+            var response = await container
+                .UpsertItemAsync(organization, GetPartitionKey(organization))
+                .ConfigureAwait(false);
+
+            return response.Resource;
+        }
     }
 }

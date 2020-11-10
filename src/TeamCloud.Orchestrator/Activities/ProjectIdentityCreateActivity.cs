@@ -34,7 +34,7 @@ namespace TeamCloud.Orchestrator.Activities
 
             try
             {
-                var project = activityContext.GetInput<ProjectDocument>();
+                var project = activityContext.GetInput<Project>();
 
                 if (string.IsNullOrEmpty(project.Identity?.Id))
                 {

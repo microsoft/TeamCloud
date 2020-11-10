@@ -73,10 +73,10 @@ namespace TeamCloud.Orchestrator
                 .AddSingleton<IUserRepository, CosmosDbUserRepository>()
                 .AddSingleton<IProjectRepository, CosmosDbProjectRepository>()
                 .AddSingleton<ITeamCloudRepository, CosmosDbTeamCloudRepository>()
-                .AddSingleton<IProviderRepository, CosmosDbProviderRepository>()
-                .AddSingleton<IProjectTypeRepository, CosmosDbProjectTypeRepository>()
+                .AddSingleton<IOrganizationRepository, CosmosDbOrganizationRepository>()
+                .AddSingleton<IProjectTemplateRepository, CosmosDbProjectTemplateRepository>()
+                .AddSingleton<IDeploymentScopeRepository, CosmosDbDeploymentScopeRepository>()
                 .AddSingleton<IProjectLinkRepository, CosmosDbProjectLinkRepository>()
-                .AddSingleton<IProviderDataRepository, CosmosDbProviderDataRepository>()
                 .AddSingleton<IComponentOfferRepository, CosmosDbComponentOfferRepository>()
                 .AddSingleton<IComponentRepository, CosmosDbComponentRepository>();
 
@@ -87,8 +87,12 @@ namespace TeamCloud.Orchestrator
 
             builder.Services
                 .AddScoped<IOrchestratorCommandHandler, OrchestratorProjectLinkCommandHandler>()
-                .AddScoped<IOrchestratorCommandHandler, OrchestratorProjectTypeCommandHandler>()
-                .AddScoped<IOrchestratorCommandHandler, OrchestratorProviderDataCommandHandler>()
+                .AddScoped<IOrchestratorCommandHandler, OrchestratorOrganizationCommandHandler>()
+                .AddScoped<IOrchestratorCommandHandler, OrchestratorOrganizationUserCommandHandler>()
+                .AddScoped<IOrchestratorCommandHandler, OrchestratorProjectCommandHandler>()
+                .AddScoped<IOrchestratorCommandHandler, OrchestratorProjectUserCommandHandler>()
+                .AddScoped<IOrchestratorCommandHandler, OrchestratorProjectTemplateCommandHandler>()
+                .AddScoped<IOrchestratorCommandHandler, OrchestratorDeploymentScopeCommandHandler>()
                 .AddScoped<IOrchestratorCommandHandler, OrchestratorComponentOfferCommandHandler>()
                 .AddScoped<IOrchestratorCommandHandler, OrchestratorComponentCommandHandler>()
                 .AddScoped<IOrchestratorCommandHandler, OrchestratorTeamCloudCommandHandler>()

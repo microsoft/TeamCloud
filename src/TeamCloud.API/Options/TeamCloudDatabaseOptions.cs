@@ -5,7 +5,6 @@
 
 using TeamCloud.Configuration;
 using TeamCloud.Configuration.Options;
-using TeamCloud.Data.CosmosDb;
 using TeamCloud.Data.CosmosDb.Core;
 
 namespace TeamCloud.API.Options

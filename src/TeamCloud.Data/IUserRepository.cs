@@ -11,30 +11,30 @@ namespace TeamCloud.Data
 {
     public interface IUserRepository
     {
-        Task<UserDocument> GetAsync(string id);
+        Task<User> GetAsync(string organization, string id);
 
-        IAsyncEnumerable<UserDocument> ListAsync();
+        IAsyncEnumerable<User> ListAsync(string organization);
 
-        IAsyncEnumerable<UserDocument> ListAsync(string projectId);
+        IAsyncEnumerable<User> ListAsync(string organization, string projectId);
 
-        IAsyncEnumerable<UserDocument> ListOwnersAsync(string projectId);
+        IAsyncEnumerable<User> ListOwnersAsync(string organization, string projectId);
 
-        IAsyncEnumerable<UserDocument> ListAdminsAsync();
+        IAsyncEnumerable<User> ListAdminsAsync(string organization);
 
-        Task<UserDocument> AddAsync(UserDocument user);
+        Task<User> AddAsync(User user);
 
-        Task<UserDocument> SetAsync(UserDocument user);
+        Task<User> SetAsync(User user);
 
-        Task<UserDocument> RemoveAsync(UserDocument user);
+        Task<User> RemoveAsync(User user);
 
-        Task RemoveProjectMembershipsAsync(string projectId);
+        Task RemoveProjectMembershipsAsync(string organization, string projectId);
 
-        Task<UserDocument> RemoveProjectMembershipAsync(UserDocument user, string projectId);
+        Task<User> RemoveProjectMembershipAsync(User user, string projectId);
 
-        Task<UserDocument> AddProjectMembershipAsync(UserDocument user, ProjectMembership membership);
+        Task<User> AddProjectMembershipAsync(User user, ProjectMembership membership);
 
-        Task<UserDocument> AddProjectMembershipAsync(UserDocument user, string projectId, ProjectUserRole role, IDictionary<string, string> properties);
+        Task<User> AddProjectMembershipAsync(User user, string projectId, ProjectUserRole role, IDictionary<string, string> properties);
 
-        Task<UserDocument> SetTeamCloudInfoAsync(UserDocument user);
+        Task<User> SetOrganizationInfoAsync(User user);
     }
 }

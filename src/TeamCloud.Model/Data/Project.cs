@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using TeamCloud.Model.Common;
 using TeamCloud.Model.Data.Core;
 using TeamCloud.Serialization;
 
@@ -13,29 +14,24 @@ namespace TeamCloud.Model.Data
 {
 
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public sealed class Project : ReferenceLinksAccessor<Project, ProjectReferenceLinks>, IProject<User>, IEquatable<Project>
+    public sealed class Project : ContainerDocument, IOrganizationChild, IEquatable<Project>//ReferenceLinksAccessor<Project, ProjectReferenceLinks>, IProject<User>, IEquatable<Project>
     {
-        [JsonProperty(Required = Required.Always)]
-        public string Id { get; set; }
-            = Guid.NewGuid().ToString();
+        [PartitionKey]
+        public string Organization { get; set; }
 
-        [JsonProperty(Required = Required.Always)]
+        [UniqueKey]
         public string Name { get; set; }
 
-        [JsonProperty(Required = Required.Always)]
-        public ProjectType Type { get; set; }
+        public string Template { get; set; }
 
-        public AzureResourceGroup ResourceGroup { get; set; }
+        public string TemplateInput { get; set; }
 
-        [JsonProperty(Required = Required.Always)]
-        public IList<User> Users { get; set; }
-            = new List<User>();
+        [DatabaseIgnore]
+        public IList<User> Users { get; set; } = new List<User>();
 
-        public IDictionary<string, string> Tags { get; set; }
-            = new Dictionary<string, string>();
+        public IDictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();
 
-        public IDictionary<string, string> Properties { get; set; }
-            = new Dictionary<string, string>();
+        // public IDictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
 
         public bool Equals(Project other)
             => Id.Equals(other?.Id, StringComparison.OrdinalIgnoreCase);

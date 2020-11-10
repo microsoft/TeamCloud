@@ -11,15 +11,15 @@ namespace TeamCloud.Data
 {
     public interface IComponentRepository
     {
-        Task<ComponentDocument> GetAsync(string projectId, string id);
+        Task<Component> GetAsync(string projectId, string id);
 
-        IAsyncEnumerable<ComponentDocument> ListAsync(string projectId, string providerId = null);
+        IAsyncEnumerable<Component> ListAsync(string projectId, string providerId = null);
 
-        Task<ComponentDocument> AddAsync(ComponentDocument component);
+        Task<Component> AddAsync(Component component);
 
-        Task<ComponentDocument> SetAsync(ComponentDocument component);
+        Task<Component> SetAsync(Component component);
 
-        Task<ComponentDocument> RemoveAsync(ComponentDocument component);
+        Task<Component> RemoveAsync(Component component);
 
         Task RemoveAsync(string projectId);
 

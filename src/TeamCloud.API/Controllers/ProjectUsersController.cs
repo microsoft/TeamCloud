@@ -25,12 +25,12 @@ using TeamCloud.Model.Validation.Data;
 namespace TeamCloud.API.Controllers
 {
     [ApiController]
-    [Route("api/projects/{projectId:guid}/users")]
+    [Route("api/{orgaization}/projects/{projectId:guid}/users")]
     [Produces("application/json")]
     public class ProjectUsersController : ApiController
     {
-        public ProjectUsersController(UserService userService, Orchestrator orchestrator, IProjectRepository projectRepository, IUserRepository userRepository)
-            : base(userService, orchestrator, projectRepository, userRepository)
+        public ProjectUsersController(UserService userService, Orchestrator orchestrator, IOrganizationRepository organizationRepository, IProjectRepository projectRepository, IUserRepository userRepository)
+            : base(userService, orchestrator, organizationRepository, projectRepository, userRepository)
         { }
 
 
@@ -42,12 +42,10 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found.", typeof(ErrorResult))]
         public Task<IActionResult> Get() => EnsureProjectAsync(async project =>
         {
-            var userDocuments = await UserRepository
-                .ListAsync(project.Id)
+            var users = await UserRepository
+                .ListAsync(OrganizationId, project.Id)
                 .ToListAsync()
                 .ConfigureAwait(false);
-
-            var users = userDocuments.Select(u => u.PopulateExternalModel()).ToList();
 
             return DataResult<List<User>>
                 .Ok(users)
@@ -70,7 +68,7 @@ namespace TeamCloud.API.Controllers
                     .ToActionResult();
 
             return DataResult<User>
-                .Ok(user.PopulateExternalModel(project.Id))
+                .Ok(user)
                 .ToActionResult();
         });
 
@@ -89,7 +87,7 @@ namespace TeamCloud.API.Controllers
                     .ToActionResult();
 
             return DataResult<User>
-                .Ok(user.PopulateExternalModel(project.Id))
+                .Ok(user)
                 .ToActionResult();
         });
 
@@ -114,26 +112,26 @@ namespace TeamCloud.API.Controllers
                     .BadRequest(validation)
                     .ToActionResult();
 
-            var userDocument = await UserService
-                .ResolveUserAsync(userDefinition)
+            var user = await UserService
+                .ResolveUserAsync(OrganizationId, userDefinition)
                 .ConfigureAwait(false);
 
-            if (userDocument is null)
+            if (user is null)
                 return ErrorResult
                     .NotFound($"The user '{userDefinition.Identifier}' could not be found.")
                     .ToActionResult();
 
-            if (userDocument.IsMember(project.Id))
+            if (user.IsMember(project.Id))
                 return ErrorResult
                     .Conflict($"The user '{userDefinition.Identifier}' already exists on this Project. Please try your request again with a unique user or call PUT to update the existing User.")
                     .ToActionResult();
 
-            userDocument.EnsureProjectMembership(project.Id, Enum.Parse<ProjectUserRole>(userDefinition.Role, true), userDefinition.Properties);
+            user.EnsureProjectMembership(project.Id, Enum.Parse<ProjectUserRole>(userDefinition.Role, true), userDefinition.Properties);
 
-            var command = new OrchestratorProjectUserCreateCommand(currentUser, userDocument, project.Id);
+            var command = new OrchestratorProjectUserCreateCommand(currentUser, user, project.Id);
 
             return await Orchestrator
-                .InvokeAndReturnActionResultAsync<UserDocument, User>(command, Request)
+                .InvokeAndReturnActionResultAsync(command, Request)
                 .ConfigureAwait(false);
         });
 
@@ -146,7 +144,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a User with the ID provided in the request body was not found.", typeof(ErrorResult))]
         [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
-        public Task<IActionResult> Put([FromRoute] string userNameOrId, [FromBody] User user) => EnsureProjectAndUserAsync(async (project, userDocument) =>
+        public Task<IActionResult> Put([FromRoute] string userNameOrId, [FromBody] User user) => EnsureProjectAndUserAsync(async (project, existingUser) =>
         {
             if (user is null)
                 throw new ArgumentNullException(nameof(user));
@@ -158,20 +156,20 @@ namespace TeamCloud.API.Controllers
                     .BadRequest(validation)
                     .ToActionResult();
 
-            if (!user.Id.Equals(userDocument.Id, StringComparison.Ordinal))
+            if (!user.Id.Equals(existingUser.Id, StringComparison.Ordinal))
                 return ErrorResult
                     .BadRequest(new ValidationError { Field = "id", Message = $"User's id does match the identifier provided in the path." })
                     .ToActionResult();
 
-            if (!userDocument.IsMember(project.Id))
+            if (!existingUser.IsMember(project.Id))
                 return ErrorResult
                     .NotFound($"The user '{user.Id}' could not be found in this project.")
                     .ToActionResult();
 
-            if (userDocument.IsOwner(project.Id) && !user.IsOwner(project.Id))
+            if (existingUser.IsOwner(project.Id) && !user.IsOwner(project.Id))
             {
                 var otherOwners = await UserRepository
-                    .ListOwnersAsync(project.Id)
+                    .ListOwnersAsync(OrganizationId, project.Id)
                     .AnyAsync(o => o.Id.Equals(user.Id, StringComparison.OrdinalIgnoreCase))
                     .ConfigureAwait(false);
 
@@ -183,21 +181,21 @@ namespace TeamCloud.API.Controllers
 
             var membership = user.ProjectMembership(project.Id);
 
-            if (userDocument.HasEqualMembership(membership))
+            if (existingUser.HasEqualMembership(membership))
                 return ErrorResult
                     .BadRequest(new ValidationError { Field = "projectMemberships", Message = $"User's project memberships did not change." })
                     .ToActionResult();
 
-            userDocument.UpdateProjectMembership(membership);
+            existingUser.UpdateProjectMembership(membership);
 
             var currentUser = await UserService
-                .CurrentUserAsync()
+                .CurrentUserAsync(OrganizationId)
                 .ConfigureAwait(false);
 
-            var command = new OrchestratorProjectUserUpdateCommand(currentUser, userDocument, project.Id);
+            var command = new OrchestratorProjectUserUpdateCommand(currentUser, existingUser, project.Id);
 
             return await Orchestrator
-                .InvokeAndReturnActionResultAsync<UserDocument, User>(command, Request)
+                .InvokeAndReturnActionResultAsync(command, Request)
                 .ConfigureAwait(false);
         });
 
@@ -234,7 +232,7 @@ namespace TeamCloud.API.Controllers
             if (currentUser.IsOwner(project.Id) && !user.IsOwner(project.Id))
             {
                 var otherOwners = await UserRepository
-                    .ListOwnersAsync(project.Id)
+                    .ListOwnersAsync(OrganizationId, project.Id)
                     .AnyAsync(o => o.Id.Equals(user.Id, StringComparison.OrdinalIgnoreCase))
                     .ConfigureAwait(false);
 
@@ -256,7 +254,7 @@ namespace TeamCloud.API.Controllers
             var command = new OrchestratorProjectUserUpdateCommand(currentUser, currentUser, project.Id);
 
             return await Orchestrator
-                .InvokeAndReturnActionResultAsync<UserDocument, User>(command, Request)
+                .InvokeAndReturnActionResultAsync(command, Request)
                 .ConfigureAwait(false);
         });
 
@@ -278,7 +276,7 @@ namespace TeamCloud.API.Controllers
             if (user.IsOwner(project.Id))
             {
                 var otherOwners = await UserRepository
-                    .ListOwnersAsync(project.Id)
+                    .ListOwnersAsync(OrganizationId, project.Id)
                     .AnyAsync(o => o.Id.Equals(user.Id, StringComparison.OrdinalIgnoreCase))
                     .ConfigureAwait(false);
 
@@ -289,13 +287,13 @@ namespace TeamCloud.API.Controllers
             }
 
             var currentUser = await UserService
-                .CurrentUserAsync()
+                .CurrentUserAsync(OrganizationId)
                 .ConfigureAwait(false);
 
             var command = new OrchestratorProjectUserDeleteCommand(currentUser, user, project.Id);
 
             return await Orchestrator
-                .InvokeAndReturnActionResultAsync<UserDocument, User>(command, Request)
+                .InvokeAndReturnActionResultAsync(command, Request)
                 .ConfigureAwait(false);
         });
     }

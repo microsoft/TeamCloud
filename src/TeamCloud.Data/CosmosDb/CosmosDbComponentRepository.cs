@@ -15,13 +15,13 @@ using TeamCloud.Model.Validation;
 
 namespace TeamCloud.Data.CosmosDb
 {
-    public sealed class CosmosDbComponentRepository : CosmosDbRepository<ComponentDocument>, IComponentRepository
+    public sealed class CosmosDbComponentRepository : CosmosDbRepository<Component>, IComponentRepository
     {
         public CosmosDbComponentRepository(ICosmosDbOptions cosmosOptions)
             : base(cosmosOptions)
         { }
 
-        public async Task<ComponentDocument> AddAsync(ComponentDocument component)
+        public async Task<Component> AddAsync(Component component)
         {
             if (component is null)
                 throw new ArgumentNullException(nameof(component));
@@ -40,7 +40,7 @@ namespace TeamCloud.Data.CosmosDb
             return response.Resource;
         }
 
-        public async Task<ComponentDocument> GetAsync(string projectId, string id)
+        public async Task<Component> GetAsync(string projectId, string id)
         {
             if (projectId is null)
                 throw new ArgumentNullException(nameof(projectId));
@@ -52,7 +52,7 @@ namespace TeamCloud.Data.CosmosDb
                 throw new ArgumentNullException(nameof(id));
 
             if (!Guid.TryParse(id, out var idParsed))
-                throw new ArgumentException("Value is not a valid GUID", nameof(projectId));
+                throw new ArgumentException("Value is not a valid GUID", nameof(id));
 
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
@@ -60,7 +60,7 @@ namespace TeamCloud.Data.CosmosDb
             try
             {
                 var response = await container
-                    .ReadItemAsync<ComponentDocument>(idParsed.ToString(), GetPartitionKey(projectIdParsed.ToString()))
+                    .ReadItemAsync<Component>(idParsed.ToString(), GetPartitionKey(projectIdParsed.ToString()))
                     .ConfigureAwait(false);
 
                 return response.Resource;
@@ -71,7 +71,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async IAsyncEnumerable<ComponentDocument> ListAsync(string projectId, string providerId = null)
+        public async IAsyncEnumerable<Component> ListAsync(string projectId, string providerId = null)
         {
             if (projectId is null)
                 throw new ArgumentNullException(nameof(projectId));
@@ -90,7 +90,7 @@ namespace TeamCloud.Data.CosmosDb
             var query = new QueryDefinition(queryString);
 
             var queryIterator = container
-                .GetItemQueryIterator<ComponentDocument>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(projectIdParsed.ToString()) });
+                .GetItemQueryIterator<Component>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(projectIdParsed.ToString()) });
 
             while (queryIterator.HasMoreResults)
             {
@@ -103,7 +103,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async Task<ComponentDocument> RemoveAsync(ComponentDocument component)
+        public async Task<Component> RemoveAsync(Component component)
         {
             if (component is null)
                 throw new ArgumentNullException(nameof(component));
@@ -114,7 +114,7 @@ namespace TeamCloud.Data.CosmosDb
             try
             {
                 var response = await container
-                    .DeleteItemAsync<ComponentDocument>(component.Id, GetPartitionKey(component))
+                    .DeleteItemAsync<Component>(component.Id, GetPartitionKey(component))
                     .ConfigureAwait(false);
 
                 return response.Resource;
@@ -146,9 +146,9 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async Task RemoveAsync(string projectId, string linkId)
+        public async Task RemoveAsync(string projectId, string id)
         {
-            var component = await GetAsync(projectId, linkId)
+            var component = await GetAsync(projectId, id)
                 .ConfigureAwait(false);
 
             if (component != null)
@@ -158,7 +158,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async Task<ComponentDocument> SetAsync(ComponentDocument component)
+        public async Task<Component> SetAsync(Component component)
         {
             if (component is null)
                 throw new ArgumentNullException(nameof(component));

@@ -33,7 +33,7 @@ namespace TeamCloud.Orchestrator.Activities
             if (activityContext is null)
                 throw new ArgumentNullException(nameof(activityContext));
 
-            var project = activityContext.GetInput<ProjectDocument>();
+            var project = activityContext.GetInput<Project>();
 
             var subscriptionCapacityTasks = project.Type.Subscriptions
                 .Select(subscriptionId => GetSubscriptionCapacityAsync(project.Type, subscriptionId));

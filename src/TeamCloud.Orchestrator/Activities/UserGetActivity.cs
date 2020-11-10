@@ -26,7 +26,7 @@ namespace TeamCloud.Orchestrator.Activities
         }
 
         [FunctionName(nameof(UserGetActivity))]
-        public async Task<UserDocument> RunActivity(
+        public async Task<User> RunActivity(
             [ActivityTrigger] IDurableActivityContext activityContext,
             ILogger log)
         {
@@ -54,12 +54,12 @@ namespace TeamCloud.Orchestrator.Activities
 
     internal static class UserGetExtensions
     {
-        public static Task<UserDocument> GetUserAsync(this IDurableOrchestrationContext orchestrationContext, string userId, bool allowUnsafe = false)
+        public static Task<User> GetUserAsync(this IDurableOrchestrationContext orchestrationContext, string userId, bool allowUnsafe = false)
             => orchestrationContext.GetUserAsync(Guid.Parse(userId), allowUnsafe);
 
-        public static Task<UserDocument> GetUserAsync(this IDurableOrchestrationContext orchestrationContext, Guid userId, bool allowUnsafe = false)
-            => orchestrationContext.IsLockedBy<UserDocument>(userId.ToString()) || allowUnsafe
-                ? orchestrationContext.CallActivityWithRetryAsync<UserDocument>(nameof(UserGetActivity), userId.ToString())
+        public static Task<User> GetUserAsync(this IDurableOrchestrationContext orchestrationContext, Guid userId, bool allowUnsafe = false)
+            => orchestrationContext.IsLockedBy<User>(userId.ToString()) || allowUnsafe
+                ? orchestrationContext.CallActivityWithRetryAsync<User>(nameof(UserGetActivity), userId.ToString())
                 : throw new NotSupportedException($"Unable to fetch user '{userId}' without acquired lock");
     }
 }

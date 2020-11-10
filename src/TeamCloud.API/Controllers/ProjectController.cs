@@ -12,6 +12,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Schema;
 using Swashbuckle.AspNetCore.Annotations;
 using TeamCloud.API.Auth;
 using TeamCloud.API.Data;
@@ -21,25 +23,26 @@ using TeamCloud.API.Services;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
+using ValidationError = TeamCloud.API.Data.Results.ValidationError;
 
 namespace TeamCloud.API.Controllers
 {
     [ApiController]
-    [Route("api/projects")]
+    [Route("api/{organization}/projects")]
     [Produces("application/json")]
     public class ProjectController : ApiController
     {
-        private readonly IProjectTypeRepository projectTypeRepository;
+        private readonly IProjectTemplateRepository projectTemplateRepository;
 
-        public ProjectController(UserService userService, Orchestrator orchestrator, IProjectRepository projectRepository, IProjectTypeRepository projectTypeRepository)
-            : base(userService, orchestrator, projectRepository)
+        public ProjectController(UserService userService, Orchestrator orchestrator, IOrganizationRepository organizationRepository, IProjectRepository projectRepository, IProjectTemplateRepository projectTemplateRepository)
+            : base(userService, orchestrator, organizationRepository, projectRepository)
         {
-            this.projectTypeRepository = projectTypeRepository ?? throw new ArgumentNullException(nameof(projectTypeRepository));
+            this.projectTemplateRepository = projectTemplateRepository ?? throw new ArgumentNullException(nameof(projectTemplateRepository));
         }
 
-        private async Task<List<UserDocument>> ResolveUsersAsync(ProjectDefinition projectDefinition, string projectId)
+        private async Task<List<User>> ResolveUsersAsync(string organizationId, ProjectDefinition projectDefinition, string projectId)
         {
-            var users = new List<UserDocument>();
+            var users = new List<User>();
 
             if (projectDefinition.Users?.Any() ?? false)
             {
@@ -50,7 +53,7 @@ namespace TeamCloud.API.Controllers
             if (!users.Any(u => u.Id == UserService.CurrentUserId))
             {
                 var currentUser = await UserService
-                    .CurrentUserAsync()
+                    .CurrentUserAsync(organizationId)
                     .ConfigureAwait(false);
 
                 currentUser.EnsureProjectMembership(projectId, ProjectUserRole.Owner);
@@ -60,10 +63,10 @@ namespace TeamCloud.API.Controllers
 
             return users;
 
-            async Task<UserDocument> ResolveUserAndEnsureMembershipAsync(UserDefinition userDefinition, string projectId)
+            async Task<User> ResolveUserAndEnsureMembershipAsync(UserDefinition userDefinition, string projectId)
             {
                 var user = await UserService
-                    .ResolveUserAsync(userDefinition)
+                    .ResolveUserAsync(organizationId, userDefinition)
                     .ConfigureAwait(false);
 
                 var role = user.Id == UserService.CurrentUserId ? ProjectUserRole.Owner : Enum.Parse<ProjectUserRole>(userDefinition.Role, true);
@@ -79,19 +82,17 @@ namespace TeamCloud.API.Controllers
         [SwaggerOperation(OperationId = "GetProjects", Summary = "Gets all Projects.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all Projects.", typeof(DataResult<List<Project>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
-        public async Task<IActionResult> Get()
+        public Task<IActionResult> Get() => ResolveOrganizationIdAsync(async organizationId =>
         {
             var projects = await ProjectRepository
-                .ListAsync()
+                .ListAsync(organizationId)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
-            var returnProjects = projects.Select(p => p.PopulateExternalModel()).ToList();
-
             return DataResult<List<Project>>
-                .Ok(returnProjects)
+                .Ok(projects)
                 .ToActionResult();
-        }
+        });
 
 
         [HttpGet("{projectNameOrId:projectNameOrId}")]
@@ -104,7 +105,7 @@ namespace TeamCloud.API.Controllers
         public Task<IActionResult> Get([FromRoute] string projectNameOrId) => EnsureProjectAsync(project =>
         {
             return DataResult<Project>
-                .Ok(project.PopulateExternalModel())
+                .Ok(project)
                 .ToActionResult();
         });
 
@@ -116,7 +117,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status202Accepted, "Started creating the new Project. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status409Conflict, "A Project already exists with the name specified in the request body.", typeof(ErrorResult))]
-        public async Task<IActionResult> Post([FromBody] ProjectDefinition projectDefinition)
+        public Task<IActionResult> Post([FromBody] ProjectDefinition projectDefinition) => ResolveOrganizationIdAsync(async organizationId =>
         {
             if (projectDefinition is null)
                 throw new ArgumentNullException(nameof(projectDefinition));
@@ -129,7 +130,7 @@ namespace TeamCloud.API.Controllers
                     .ToActionResult();
 
             var nameExists = await ProjectRepository
-                .NameExistsAsync(projectDefinition.Name)
+                .NameExistsAsync(organizationId, projectDefinition.Name)
                 .ConfigureAwait(false);
 
             if (nameExists)
@@ -139,49 +140,62 @@ namespace TeamCloud.API.Controllers
 
             var projectId = Guid.NewGuid().ToString();
 
-            var users = await ResolveUsersAsync(projectDefinition, projectId)
+            var users = await ResolveUsersAsync(organizationId, projectDefinition, projectId)
                 .ConfigureAwait(false);
 
-            var project = new ProjectDocument
+            var project = new Project
             {
                 Id = projectId,
                 Users = users,
                 Name = projectDefinition.Name,
-                Tags = projectDefinition.Tags,
-                Properties = projectDefinition.Properties
+                // Tags = projectDefinition.Tags,
+                // Properties = projectDefinition.Properties
             };
 
-            if (!string.IsNullOrEmpty(projectDefinition.ProjectType))
+            ProjectTemplate template = null;
+
+            if (!string.IsNullOrEmpty(projectDefinition.Template))
             {
-                project.Type = await projectTypeRepository
-                    .GetAsync(projectDefinition.ProjectType)
+                template = await projectTemplateRepository
+                    .GetAsync(organizationId, projectDefinition.Template)
                     .ConfigureAwait(false);
 
-                if (project.Type is null)
+                if (template is null)
                     return ErrorResult
-                        .BadRequest(new ValidationError { Field = "projectType", Message = $"A Project Type with the ID '{projectDefinition.ProjectType}' could not be found in this TeamCloud Instance. Please try your request again with a valid Project Type ID for 'projectType'." })
+                        .BadRequest(new ValidationError { Field = "template", Message = $"A Project Template with the ID '{projectDefinition.Template}' could not be found in this Organization. Please try your request again with a valid Project Template ID for 'template'." })
                         .ToActionResult();
             }
             else
             {
-                project.Type = await projectTypeRepository
-                    .GetDefaultAsync()
+                template = await projectTemplateRepository
+                    .GetDefaultAsync(organizationId)
                     .ConfigureAwait(false);
 
-                if (project.Type is null)
+                if (template is null)
                     return ErrorResult
-                        .BadRequest(new ValidationError { Field = "projectType", Message = $"No value was provided for 'projectType' and there is no a default Project Type set for this TeamCloud Instance. Please try your request again with a valid Project Type ID for 'projectType'." })
+                        .BadRequest(new ValidationError { Field = "template", Message = $"No value was provided for 'template' and there is no a default Project Template set for this Organization. Please try your request again with a valid Project Template ID for 'template'." })
                         .ToActionResult();
             }
+
+            var input = JObject.Parse(projectDefinition.TemplateInput);
+            var schema = JSchema.Parse(template.InputJsonSchema);
+
+            if (!input.IsValid(schema, out IList<string> schemaErrors))
+                return ErrorResult
+                    .BadRequest(new ValidationError { Field = "templateInput", Message = $"Project templateInput does not match the the Offer inputJsonSchema.  Errors: {string.Join(", ", schemaErrors)}." })
+                    .ToActionResult();
+
+            project.Template = template.Id;
+            project.TemplateInput = projectDefinition.TemplateInput;
 
             var currentUser = users.FirstOrDefault(u => u.Id == UserService.CurrentUserId);
 
             var command = new OrchestratorProjectCreateCommand(currentUser, project);
 
             return await Orchestrator
-                .InvokeAndReturnActionResultAsync<ProjectDocument, Project>(command, Request)
+                .InvokeAndReturnActionResultAsync(command, Request)
                 .ConfigureAwait(false);
-        }
+        });
 
 
         [HttpDelete("{projectNameOrId:projectNameOrId}")]
@@ -194,13 +208,13 @@ namespace TeamCloud.API.Controllers
         public Task<IActionResult> Delete([FromRoute] string projectNameOrId) => EnsureProjectAsync(async project =>
         {
             var currentUser = await UserService
-                .CurrentUserAsync()
+                .CurrentUserAsync(OrganizationId)
                 .ConfigureAwait(false);
 
             var command = new OrchestratorProjectDeleteCommand(currentUser, project);
 
             return await Orchestrator
-                .InvokeAndReturnActionResultAsync<ProjectDocument, Project>(command, Request)
+                .InvokeAndReturnActionResultAsync(command, Request)
                 .ConfigureAwait(false);
         });
     }

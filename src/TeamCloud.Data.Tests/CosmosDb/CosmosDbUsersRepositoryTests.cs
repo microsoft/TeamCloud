@@ -26,10 +26,10 @@ namespace TeamCloud.Data.CosmosDb
         [ConditionalFact(ConditionalFactPlatforms.Windows)]
         public async Task AddUser()
         {
-            var user = await Repository.AddAsync(new UserDocument()
+            var user = await Repository.AddAsync(new User()
             {
                 Id = Guid.NewGuid().ToString(),
-                Role = TeamCloudUserRole.Admin
+                Role = OrganizationUserRole.Admin
 
             }).ConfigureAwait(false);
 
@@ -39,16 +39,16 @@ namespace TeamCloud.Data.CosmosDb
         [ConditionalFact(ConditionalFactPlatforms.Windows)]
         public async Task UpdateUser()
         {
-            var user = await Repository.AddAsync(new UserDocument()
+            var user = await Repository.AddAsync(new User()
             {
                 Id = Guid.NewGuid().ToString(),
-                Role = TeamCloudUserRole.Admin
+                Role = OrganizationUserRole.Admin
 
             }).ConfigureAwait(false);
 
             AssertContainerDocumentMetadata(user);
 
-            user.Role = TeamCloudUserRole.Creator;
+            user.Role = OrganizationUserRole.Creator;
 
             var user2 = await Repository
                 .SetAsync(user)
@@ -61,10 +61,10 @@ namespace TeamCloud.Data.CosmosDb
         [ConditionalFact(ConditionalFactPlatforms.Windows)]
         public async Task RemoveUser()
         {
-            var user = await Repository.AddAsync(new UserDocument()
+            var user = await Repository.AddAsync(new User()
             {
                 Id = Guid.NewGuid().ToString(),
-                Role = TeamCloudUserRole.Admin
+                Role = OrganizationUserRole.Admin
 
             }).ConfigureAwait(false);
 

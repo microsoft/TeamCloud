@@ -38,8 +38,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamCloud.Configuration.Opt
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamCloud.Orchestration", "TeamCloud.Orchestration\TeamCloud.Orchestration.csproj", "{10076816-878F-4161-8814-07A886F5E677}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamCloud.Model.Internal", "TeamCloud.Model.Internal\TeamCloud.Model.Internal.csproj", "{38453319-CD0C-4D53-AADB-666F39BC419A}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamCloud.Orchestration.Tests", "TeamCloud.Orchestration.Tests\TeamCloud.Orchestration.Tests.csproj", "{078098A7-CC8D-4B1B-A6CF-DF82EFDF3CB2}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamCloud.Serialization", "TeamCloud.Serialization\TeamCloud.Serialization.csproj", "{58710957-8D0D-4271-8F6B-6143C732992F}"

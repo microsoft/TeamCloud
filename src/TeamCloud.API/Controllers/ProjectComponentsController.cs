@@ -31,8 +31,8 @@ namespace TeamCloud.API.Controllers
         private readonly IComponentRepository componentRepository;
         private readonly IComponentOfferRepository componentOfferRepository;
 
-        public ProjectComponentsController(UserService userService, Orchestrator orchestrator, IProjectRepository projectRepository, IComponentRepository componentRepository, IComponentOfferRepository componentOfferRepository)
-            : base(userService, orchestrator, projectRepository)
+        public ProjectComponentsController(UserService userService, Orchestrator orchestrator, IOrganizationRepository organizationRepository, IProjectRepository projectRepository, IComponentRepository componentRepository, IComponentOfferRepository componentOfferRepository)
+            : base(userService, orchestrator, organizationRepository, projectRepository)
         {
             this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
             this.componentOfferRepository = componentOfferRepository ?? throw new ArgumentNullException(nameof(componentOfferRepository));
@@ -47,14 +47,10 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found.", typeof(ErrorResult))]
         public Task<IActionResult> Get() => EnsureProjectAsync(async project =>
         {
-            var componentDocuments = await componentRepository
+            var components = await componentRepository
                 .ListAsync(project.Id)
                 .ToListAsync()
                 .ConfigureAwait(false);
-
-            var components = componentDocuments
-                .Select(componentDocument => componentDocument.PopulateExternalModel())
-                .ToList();
 
             return DataResult<List<Component>>
                 .Ok(components)
@@ -75,16 +71,14 @@ namespace TeamCloud.API.Controllers
                     .BadRequest($"The id provided in the url path is invalid. Must be a non-empty string.", ResultErrorCode.ValidationError)
                     .ToActionResult();
 
-            var componentDocument = await componentRepository
+            var component = await componentRepository
                 .GetAsync(project.Id, componentId)
                 .ConfigureAwait(false);
 
-            if (componentDocument is null)
+            if (component is null)
                 return ErrorResult
                     .NotFound($"A Component with the ID '{componentId}' could not be found for Project {project.Id}.")
                     .ToActionResult();
-
-            var component = componentDocument.PopulateExternalModel();
 
             return DataResult<Component>
                 .Ok(component)
@@ -113,22 +107,22 @@ namespace TeamCloud.API.Controllers
             //         .BadRequest(validationResult)
             //         .ToActionResult();
 
-            var offerDocument = await componentOfferRepository
+            var offer = await componentOfferRepository
                 .GetAsync(request.OfferId)
                 .ConfigureAwait(false);
 
-            if (offerDocument is null)
+            if (offer is null)
                 return ErrorResult
                     .NotFound($"A ComponentOffer with the id '{request.OfferId}' could not be found for Project {project.Id}.")
                     .ToActionResult();
 
-            if (!project.Type.Providers.Any(p => p.Id.Equals(offerDocument.ProviderId, StringComparison.Ordinal)))
+            if (!project.Type.Providers.Any(p => p.Id.Equals(offer.ProviderId, StringComparison.Ordinal)))
                 return ErrorResult
                     .NotFound($"A ComponentOffer with the id '{request.OfferId}' could not be found for Project {project.Id}.")
                     .ToActionResult();
 
             var input = JObject.Parse(request.InputJson);
-            var schema = JSchema.Parse(offerDocument.InputJsonSchema);
+            var schema = JSchema.Parse(offer.InputJsonSchema);
 
             if (!input.IsValid(schema, out IList<string> schemaErrors))
                 return ErrorResult
@@ -139,17 +133,19 @@ namespace TeamCloud.API.Controllers
                 .CurrentUserAsync()
                 .ConfigureAwait(false);
 
-            var componentDocument = new ComponentDocument
+            var component = new Component
             {
-                OfferId = offerDocument.Id,
+                OfferId = offer.Id,
                 ProjectId = project.Id,
-                ProviderId = offerDocument.ProviderId,
+                ProviderId = offer.ProviderId,
                 RequestedBy = currentUser.Id,
                 InputJson = request.InputJson
             };
 
+            var command = new OrchestratorProjectComponentCreateCommand(currentUser, component, project.Id);
+
             return await Orchestrator
-                .InvokeAndReturnActionResultAsync<ComponentDocument, Component>(new OrchestratorProjectComponentCreateCommand(currentUser, componentDocument, project.Id), Request)
+                .InvokeAndReturnActionResultAsync(command, Request)
                 .ConfigureAwait(false);
         });
 
@@ -168,21 +164,23 @@ namespace TeamCloud.API.Controllers
                     .BadRequest($"The id provided in the url path is invalid. Must be a non-empty string.", ResultErrorCode.ValidationError)
                     .ToActionResult();
 
-            var componentDocument = await componentRepository
+            var component = await componentRepository
                 .GetAsync(project.Id, componentId)
                 .ConfigureAwait(false);
 
-            if (componentDocument is null)
+            if (component is null)
                 return ErrorResult
-                    .NotFound($"A Component with the id '{componentDocument.Id}' could not be found for Project {project.Id}.")
+                    .NotFound($"A Component with the id '{component.Id}' could not be found for Project {project.Id}.")
                     .ToActionResult();
 
             var currentUser = await UserService
                 .CurrentUserAsync()
                 .ConfigureAwait(false);
 
+            var command = new OrchestratorProjectComponentDeleteCommand(currentUser, component, project.Id);
+
             return await Orchestrator
-                .InvokeAndReturnActionResultAsync<ComponentDocument, Component>(new OrchestratorProjectComponentDeleteCommand(currentUser, componentDocument, project.Id), Request)
+                .InvokeAndReturnActionResultAsync(command, Request)
                 .ConfigureAwait(false);
         });
     }

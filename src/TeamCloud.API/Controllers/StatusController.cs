@@ -13,6 +13,7 @@ using Swashbuckle.AspNetCore.Annotations;
 using TeamCloud.API.Auth;
 using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
+using TeamCloud.Data;
 using TeamCloud.Model.Commands.Core;
 
 namespace TeamCloud.API.Controllers
@@ -22,11 +23,12 @@ namespace TeamCloud.API.Controllers
     [Produces("application/json")]
     public class StatusController : ApiController
     {
-        public StatusController(UserService userService, Orchestrator orchestrator) : base(userService, orchestrator)
+        public StatusController(UserService userService, Orchestrator orchestrator, IOrganizationRepository organizationRepository)
+            : base(userService, orchestrator, organizationRepository)
         { }
 
         [Authorize(Policy = AuthPolicies.Admin)]
-        [HttpGet("api/status/{trackingId:guid}")]
+        [HttpGet("api/{organization}/status/{trackingId:guid}")]
         [SwaggerOperation(OperationId = "GetStatus", Summary = "Gets the status of a long-running operation.")]
         [SwaggerResponse(StatusCodes.Status200OK, "The long-running operation completed.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status202Accepted, "The long-running operation is running. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
@@ -43,7 +45,7 @@ namespace TeamCloud.API.Controllers
         }
 
         [Authorize(Policy = AuthPolicies.ProjectRead)]
-        [HttpGet("api/projects/{projectId:guid}/status/{trackingId:guid}")]
+        [HttpGet("api/{organization}/projects/{projectId:guid}/status/{trackingId:guid}")]
         [SwaggerOperation(OperationId = "GetProjectStatus", Summary = "Gets the status of a long-running operation.")]
         [SwaggerResponse(StatusCodes.Status200OK, "The long-running operation completed.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status202Accepted, "The long-running operation is running. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]

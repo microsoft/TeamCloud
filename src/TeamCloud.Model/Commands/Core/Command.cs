@@ -4,24 +4,29 @@
  */
 
 using System;
+using TeamCloud.Model.Common;
 using TeamCloud.Model.Data;
 
 namespace TeamCloud.Model.Commands.Core
 {
-    public abstract class Command<TUser, TPayload, TCommandResult> : ICommand<TUser, TPayload, TCommandResult>
-        where TUser : class, IUser, new()
+    public abstract class Command<TPayload, TCommandResult> : ICommand<TPayload, TCommandResult>
         where TPayload : class, new()
         where TCommandResult : ICommandResult, new()
     {
-        protected Command(CommandAction action, TUser user, TPayload payload = default, Guid? commandId = default)
+        protected Command(CommandAction action, User user, TPayload payload = default, Guid? commandId = default)
         {
             CommandAction = action;
             User = user ?? throw new ArgumentNullException(nameof(user));
             Payload = payload;
             CommandId = commandId.GetValueOrDefault(Guid.NewGuid());
+
+            if (payload is IOrganizationChild child)
+                OrganizationId = child.Organization;
         }
 
         public Guid CommandId { get; private set; }
+
+        public string OrganizationId { get; private set; }
 
         public CommandAction CommandAction { get; private set; }
 
@@ -29,18 +34,11 @@ namespace TeamCloud.Model.Commands.Core
 
         public virtual string ProjectId
         {
-            get => Payload is IProject project && !string.IsNullOrEmpty(project.Id) ? project.Id : projectId;
+            get => Payload is Project project && !string.IsNullOrEmpty(project.Id) ? project.Id : projectId;
             protected set => projectId = value;
         }
 
-        public TUser User
-        {
-            get => ((ICommand)this).User as TUser;
-            set => ((ICommand)this).User = value;
-        }
-
-        object ICommand.User { get; set; }
-
+        public User User { get; set; }
 
         public TPayload Payload
         {
@@ -55,6 +53,7 @@ namespace TeamCloud.Model.Commands.Core
             var result = Activator.CreateInstance<TCommandResult>();
 
             result.CommandId = CommandId;
+            result.OrganizationId = OrganizationId;
             result.CommandAction = CommandAction;
             result.RuntimeStatus = CommandRuntimeStatus.Unknown;
 

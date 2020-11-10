@@ -23,7 +23,7 @@ namespace TeamCloud.Orchestrator.Activities
         }
 
         [FunctionName(nameof(TeamCloudGetActivity))]
-        public async Task<TeamCloudInstanceDocument> RunActivity(
+        public async Task<TeamCloudInstance> RunActivity(
             [ActivityTrigger] IDurableActivityContext activityContext)
         {
             if (activityContext is null)
@@ -39,7 +39,7 @@ namespace TeamCloud.Orchestrator.Activities
 
     internal static class TeamCloudGetExtension
     {
-        public static Task<TeamCloudInstanceDocument> GetTeamCloudAsync(this IDurableOrchestrationContext durableOrchestrationContext)
-            => durableOrchestrationContext.CallActivityWithRetryAsync<TeamCloudInstanceDocument>(nameof(TeamCloudGetActivity), null);
+        public static Task<TeamCloudInstance> GetTeamCloudAsync(this IDurableOrchestrationContext durableOrchestrationContext)
+            => durableOrchestrationContext.CallActivityWithRetryAsync<TeamCloudInstance>(nameof(TeamCloudGetActivity), null);
     }
 }

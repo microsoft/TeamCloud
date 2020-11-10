@@ -17,7 +17,7 @@ using TeamCloud.Model.Validation;
 
 namespace TeamCloud.Data.CosmosDb
 {
-    public class CosmosDbTeamCloudRepository : CosmosDbRepository<TeamCloudInstanceDocument>, ITeamCloudRepository
+    public class CosmosDbTeamCloudRepository : CosmosDbRepository<TeamCloudInstance>, ITeamCloudRepository
     {
         private readonly IContainerDocumentCache cache;
 
@@ -27,12 +27,12 @@ namespace TeamCloud.Data.CosmosDb
             this.cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }
 
-        private async Task<ContainerDocumentCacheEntry<TeamCloudInstanceDocument>> SetCacheAsync(ItemResponse<TeamCloudInstanceDocument> response)
+        private async Task<ContainerDocumentCacheEntry<TeamCloudInstance>> SetCacheAsync(ItemResponse<TeamCloudInstance> response)
         {
             if (response is null)
             {
                 await cache
-                    .RemoveAsync(nameof(TeamCloudInstanceDocument))
+                    .RemoveAsync(nameof(TeamCloudInstance))
                     .ConfigureAwait(false);
 
                 return null;
@@ -40,32 +40,32 @@ namespace TeamCloud.Data.CosmosDb
             else
             {
                 return await cache
-                    .SetAsync(nameof(TeamCloudInstanceDocument), new ContainerDocumentCacheEntry<TeamCloudInstanceDocument>(response), new ContainerDocumentCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) })
+                    .SetAsync(nameof(TeamCloudInstance), new ContainerDocumentCacheEntry<TeamCloudInstance>(response), new ContainerDocumentCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) })
                     .ConfigureAwait(false);
             }
         }
 
-        protected override Container.ChangesHandler<TeamCloudInstanceDocument> HandleChangesAsync
+        protected override Container.ChangesHandler<TeamCloudInstance> HandleChangesAsync
             => cache.InMemory
             ? base.HandleChangesAsync // in case we deal with an InMemory cache, we fall back to the default implementation
-            : (IReadOnlyCollection<TeamCloudInstanceDocument> changes, CancellationToken cancellationToken) => SetCacheAsync(null);
+            : (IReadOnlyCollection<TeamCloudInstance> changes, CancellationToken cancellationToken) => SetCacheAsync(null);
 
-        public Task<TeamCloudInstanceDocument> GetAsync()
+        public Task<TeamCloudInstance> GetAsync()
             => GetAsync(false);
 
-        public async Task<TeamCloudInstanceDocument> GetAsync(bool refresh)
+        public async Task<TeamCloudInstance> GetAsync(bool refresh)
         {
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
-            ContainerDocumentCacheEntry<TeamCloudInstanceDocument> cacheEntry = null;
+            ContainerDocumentCacheEntry<TeamCloudInstance> cacheEntry = null;
 
             if (cache != null && !refresh)
             {
                 var created = false;
 
                 cacheEntry = await cache
-                    .GetOrCreateAsync(nameof(TeamCloudInstanceDocument), (key) => { created = true; return FetchAsync(); })
+                    .GetOrCreateAsync(nameof(TeamCloudInstance), (key) => { created = true; return FetchAsync(); })
                     .ConfigureAwait(false);
 
                 if (!created && cache.InMemory)
@@ -78,9 +78,9 @@ namespace TeamCloud.Data.CosmosDb
             }
 
             return (cacheEntry ?? await FetchAsync().ConfigureAwait(false))?.Value
-                ?? await SetAsync(new TeamCloudInstanceDocument() { Id = Options.TenantName }).ConfigureAwait(false);
+                ?? await SetAsync(new TeamCloudInstance() { Id = Options.TenantName }).ConfigureAwait(false);
 
-            async Task<ContainerDocumentCacheEntry<TeamCloudInstanceDocument>> FetchAsync(string currentETag = default)
+            async Task<ContainerDocumentCacheEntry<TeamCloudInstance>> FetchAsync(string currentETag = default)
             {
                 var measure = Stopwatch.StartNew();
 
@@ -92,7 +92,7 @@ namespace TeamCloud.Data.CosmosDb
                     };
 
                     var response = await container
-                        .ReadItemAsync<TeamCloudInstanceDocument>(Options.TenantName, new PartitionKey(Options.TenantName), options)
+                        .ReadItemAsync<TeamCloudInstance>(Options.TenantName, new PartitionKey(Options.TenantName), options)
                         .ConfigureAwait(false);
 
                     return await SetCacheAsync(response)
@@ -108,12 +108,12 @@ namespace TeamCloud.Data.CosmosDb
                 }
                 finally
                 {
-                    Debug.WriteLine($"Fetching '{nameof(TeamCloudInstanceDocument)}' (ETag: {currentETag ?? "EMPTY"}) took {measure.ElapsedMilliseconds} msec.");
+                    Debug.WriteLine($"Fetching '{nameof(TeamCloudInstance)}' (ETag: {currentETag ?? "EMPTY"}) took {measure.ElapsedMilliseconds} msec.");
                 }
             }
         }
 
-        public async Task<TeamCloudInstanceDocument> SetAsync(TeamCloudInstanceDocument teamCloudInstance)
+        public async Task<TeamCloudInstance> SetAsync(TeamCloudInstance teamCloudInstance)
         {
             if (teamCloudInstance is null)
                 throw new ArgumentNullException(nameof(teamCloudInstance));

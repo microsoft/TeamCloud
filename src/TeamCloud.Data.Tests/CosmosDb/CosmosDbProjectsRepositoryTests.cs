@@ -25,9 +25,9 @@ namespace TeamCloud.Data.CosmosDb
             this.fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
         }
 
-        private IEnumerable<UserDocument> GetUsers()
+        private IEnumerable<User> GetUsers()
         {
-            yield return new UserDocument()
+            yield return new User()
             {
                 Id = Guid.NewGuid().ToString()
             };
@@ -36,7 +36,7 @@ namespace TeamCloud.Data.CosmosDb
         [ConditionalFact(ConditionalFactPlatforms.Windows)]
         public async Task AddProject()
         {
-            var project = await Repository.AddAsync(new ProjectDocument()
+            var project = await Repository.AddAsync(new Project()
             {
                 Name = Guid.NewGuid().ToString(),
                 Type = new ProjectTypeDocument()
@@ -53,7 +53,7 @@ namespace TeamCloud.Data.CosmosDb
         [ConditionalFact(ConditionalFactPlatforms.Windows)]
         public async Task UpdateProject()
         {
-            var project = await Repository.AddAsync(new ProjectDocument()
+            var project = await Repository.AddAsync(new Project()
             {
                 Name = Guid.NewGuid().ToString(),
                 Type = new ProjectTypeDocument()
@@ -80,7 +80,7 @@ namespace TeamCloud.Data.CosmosDb
         [ConditionalFact(ConditionalFactPlatforms.Windows)]
         public async Task RemoveProject()
         {
-            var project = await Repository.AddAsync(new ProjectDocument()
+            var project = await Repository.AddAsync(new Project()
             {
                 Name = Guid.NewGuid().ToString(),
                 Type = new ProjectTypeDocument()

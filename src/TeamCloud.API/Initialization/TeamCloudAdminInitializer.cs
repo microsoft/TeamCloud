@@ -74,14 +74,14 @@ namespace TeamCloud.API.Initialization
                     return;
                 }
 
-                var user = new UserDocument
+                var user = new User
                 {
                     Id = await ResolveAzureCliUserId().ConfigureAwait(false),
-                    Role = TeamCloudUserRole.Admin,
+                    Role = OrganizationUserRole.Admin,
                     UserType = UserType.User
                 };
 
-                var command = new OrchestratorTeamCloudUserCreateCommand(user, user);
+                var command = new OrchestratorOrganizationUserCreateCommand(user, user);
                 var commandResult = (ICommandResult)command.CreateResult();
 
                 var commandSendDuration = TimeSpan.FromMinutes(5);

@@ -5,18 +5,17 @@
 
 using System;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using TeamCloud.Model.Common;
+using TeamCloud.Model.Data.Core;
 using TeamCloud.Serialization;
 
 namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public sealed class ProjectLink : IProjectLink, IEquatable<ProjectLink>, IValidatable
+    public sealed class ProjectLink : ContainerDocument, IEquatable<ProjectLink>, IValidatable
     {
-        [JsonProperty(Required = Required.Always)]
-        public string Id { get; set; }
-            = Guid.NewGuid().ToString();
+        [PartitionKey]
+        public string ProjectId { get; set; }
 
         [JsonProperty("href", Required = Required.Always)]
         public string HRef { get; set; }
@@ -24,8 +23,8 @@ namespace TeamCloud.Model.Data
         public string Title { get; set; }
 
         [JsonProperty(Required = Required.Always)]
-        public ProjectLinkType Type { get; set; }
-            = ProjectLinkType.Link;
+        public ProjectLinkType Type { get; set; } = ProjectLinkType.Link;
+
 
         public bool Equals(ProjectLink other)
             => Id.Equals(other?.Id, StringComparison.Ordinal);
