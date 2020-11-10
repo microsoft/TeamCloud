@@ -141,7 +141,7 @@ namespace TeamCloud.API.Controllers
                 Type = componentTemplate.Type
             };
 
-            var command = new OrchestratorProjectComponentCreateCommand(currentUser, component, project.Id);
+            var command = new ProjectComponentCreateCommand(currentUser, component, project.Id);
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync(command, Request)
@@ -176,7 +176,7 @@ namespace TeamCloud.API.Controllers
                 .CurrentUserAsync(OrganizationId)
                 .ConfigureAwait(false);
 
-            var command = new OrchestratorProjectComponentDeleteCommand(currentUser, component, project.Id);
+            var command = new ProjectComponentDeleteCommand(currentUser, component, project.Id);
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync(command, Request)

@@ -136,7 +136,7 @@ namespace TeamCloud.API.Controllers
                 IsDefault = deploymentScopeDefinition.IsDefault
             };
 
-            var command = new OrchestratorDeploymentScopeCreateCommand(currentUser, deploymentScope);
+            var command = new DeploymentScopeCreateCommand(currentUser, deploymentScope);
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync(command, Request)
@@ -194,7 +194,7 @@ namespace TeamCloud.API.Controllers
                 .CurrentUserAsync(OrganizationId)
                 .ConfigureAwait(false);
 
-            var command = new OrchestratorDeploymentScopeUpdateCommand(currentUser, deploymentScope);
+            var command = new DeploymentScopeUpdateCommand(currentUser, deploymentScope);
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync(command, Request)
@@ -219,7 +219,7 @@ namespace TeamCloud.API.Controllers
                 .CurrentUserAsync(OrganizationId)
                 .ConfigureAwait(false);
 
-            var command = new OrchestratorDeploymentScopeDeleteCommand(currentUser, deploymentScope);
+            var command = new DeploymentScopeDeleteCommand(currentUser, deploymentScope);
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync(command, Request)

@@ -80,12 +80,12 @@ namespace TeamCloud.Orchestrator.API
 
         private async Task<IActionResult> HandlePostAsync(IDurableClient durableClient, IAsyncCollector<string> commandMonitor, HttpRequestMessage requestMessage, ILogger log)
         {
-            IOrchestratorCommand command = null;
+            ICommand command = null;
 
             try
             {
                 command = await requestMessage.Content
-                    .ReadAsJsonAsync<IOrchestratorCommand>()
+                    .ReadAsJsonAsync<ICommand>()
                     .ConfigureAwait(false);
 
                 if (command is null)
@@ -133,13 +133,13 @@ namespace TeamCloud.Orchestrator.API
                     {
                         case NotImplementedException notImplementedException:
 
-                            // indicator something in the command's payload can't be processed 
+                            // indicator something in the command's payload can't be processed
 
                             return new BadRequestResult();
 
                         case NotSupportedException notSupportedException:
 
-                            // indicator for a duplicate command 
+                            // indicator for a duplicate command
 
                             return new System.Web.Http.ConflictResult();
                     }
@@ -167,12 +167,12 @@ namespace TeamCloud.Orchestrator.API
                 return new BadRequestResult();
             }
 
-            bool TryGetOrchestratorCommandHandler(IOrchestratorCommand orchestratorCommand, out IOrchestratorCommandHandler orchestratorCommandHandler)
+            bool TryGetOrchestratorCommandHandler(ICommand orchestratorCommand, out ICommandHandler orchestratorCommandHandler)
             {
                 using var scope = httpContextAccessor.HttpContext.RequestServices.CreateScope();
 
                 orchestratorCommandHandler = scope.ServiceProvider
-                    .GetServices<IOrchestratorCommandHandler>()
+                    .GetServices<ICommandHandler>()
                     .SingleOrDefault(handler => handler.CanHandle(orchestratorCommand));
 
                 return !(orchestratorCommandHandler is null);

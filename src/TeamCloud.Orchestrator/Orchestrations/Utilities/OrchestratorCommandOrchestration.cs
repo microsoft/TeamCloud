@@ -41,7 +41,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                 orchestrationContext.SetCustomStatus("Processing command", log);
 
                 commandResult = await orchestrationContext
-                    .CallSubOrchestratorWithRetryAsync<ICommandResult>(OrchestratorCommandOrchestrationHandler.GetCommandOrchestrationName(command), command.CommandId.ToString(), command)
+                    .CallSubOrchestratorWithRetryAsync<ICommandResult>(CommandOrchestrationHandler.GetCommandOrchestrationName(command), command.CommandId.ToString(), command)
                     .ConfigureAwait(true);
             }
             catch (Exception exc)
@@ -91,7 +91,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                 throw new ArgumentNullException(nameof(durableClient));
 
             var commandStatus = await durableClient
-                .GetStatusAsync(OrchestratorCommandOrchestrationHandler.GetCommandOrchestrationWrapperInstanceId(commandId))
+                .GetStatusAsync(CommandOrchestrationHandler.GetCommandOrchestrationWrapperInstanceId(commandId))
                 .ConfigureAwait(false);
 
             return (commandStatus?.Input?.HasValues ?? false)
@@ -108,7 +108,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                 throw new ArgumentNullException(nameof(durableClient));
 
             var commandStatus = await durableClient
-                .GetStatusAsync(OrchestratorCommandOrchestrationHandler.GetCommandOrchestrationInstanceId(commandId))
+                .GetStatusAsync(CommandOrchestrationHandler.GetCommandOrchestrationInstanceId(commandId))
                 .ConfigureAwait(false);
 
             if (commandStatus?.RuntimeStatus.IsFinal() ?? true)
@@ -118,7 +118,7 @@ namespace TeamCloud.Orchestrator.Orchestrations.Utilities
                 // need to return the overall processing status (incl. all tasks managed by the wrapper)
 
                 commandStatus = await durableClient
-                    .GetStatusAsync(OrchestratorCommandOrchestrationHandler.GetCommandOrchestrationWrapperInstanceId(commandId))
+                    .GetStatusAsync(CommandOrchestrationHandler.GetCommandOrchestrationWrapperInstanceId(commandId))
                     .ConfigureAwait(false) ?? commandStatus; // final fallback if there is no wrapper orchstration
             }
 

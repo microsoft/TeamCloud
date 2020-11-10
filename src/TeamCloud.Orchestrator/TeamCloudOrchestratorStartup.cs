@@ -82,21 +82,21 @@ namespace TeamCloud.Orchestrator
                 .AddSingleton<IRepositoryService, RepositoryService>();
 
             // CAUTION - don't register an orchstrator command handler with the generic
-            // IOrchestratorCommandHandler<> interface. purpose of this interface is the
+            // ICommandHandler<> interface. purpose of this interface is the
             // command specific implementation login. to register and identifiy a command
-            // handler use the non-generic IOrchestratorCommandHandler interface.
+            // handler use the non-generic ICommandHandler interface.
 
             builder.Services
-                .AddScoped<IOrchestratorCommandHandler, OrchestratorCommandOrchestrationHandler>()
-                .AddScoped<IOrchestratorCommandHandler, OrchestratorComponentCommandHandler>()
-                .AddScoped<IOrchestratorCommandHandler, OrchestratorComponentTemplateCommandHandler>()
-                .AddScoped<IOrchestratorCommandHandler, OrchestratorDeploymentScopeCommandHandler>()
-                .AddScoped<IOrchestratorCommandHandler, OrchestratorOrganizationCommandHandler>()
-                .AddScoped<IOrchestratorCommandHandler, OrchestratorOrganizationUserCommandHandler>()
-                .AddScoped<IOrchestratorCommandHandler, OrchestratorProjectCommandHandler>()
-                .AddScoped<IOrchestratorCommandHandler, OrchestratorProjectLinkCommandHandler>()
-                .AddScoped<IOrchestratorCommandHandler, OrchestratorProjectTemplateCommandHandler>()
-                .AddScoped<IOrchestratorCommandHandler, OrchestratorProjectUserCommandHandler>();
+                .AddScoped<ICommandHandler, CommandOrchestrationHandler>()
+                .AddScoped<ICommandHandler, ComponentCommandHandler>()
+                .AddScoped<ICommandHandler, ComponentTemplateCommandHandler>()
+                .AddScoped<ICommandHandler, DeploymentScopeCommandHandler>()
+                .AddScoped<ICommandHandler, OrganizationCommandHandler>()
+                .AddScoped<ICommandHandler, OrganizationUserCommandHandler>()
+                .AddScoped<ICommandHandler, ProjectCommandHandler>()
+                .AddScoped<ICommandHandler, ProjectLinkCommandHandler>()
+                .AddScoped<ICommandHandler, ProjectTemplateCommandHandler>()
+                .AddScoped<ICommandHandler, ProjectUserCommandHandler>();
 
             builder.Services
                 .AddTeamCloudAzure(configuration =>

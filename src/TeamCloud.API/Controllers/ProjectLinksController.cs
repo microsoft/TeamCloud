@@ -134,7 +134,7 @@
 //             };
 
 //             return await Orchestrator
-//                 .InvokeAndReturnActionResultAsync<ProjectLink, ProjectLink>(new OrchestratorProjectLinkCreateCommand(currentUser, linkDocument, project.Id), Request)
+//                 .InvokeAndReturnActionResultAsync<ProjectLink, ProjectLink>(new ProjectLinkCreateCommand(currentUser, linkDocument, project.Id), Request)
 //                 .ConfigureAwait(false);
 //         });
 
@@ -185,7 +185,7 @@
 //                 .ConfigureAwait(false);
 
 //             return await Orchestrator
-//                 .InvokeAndReturnActionResultAsync<ProjectLink, ProjectLink>(new OrchestratorProjectLinkUpdateCommand(currentUser, linkDocument, project.Id), Request)
+//                 .InvokeAndReturnActionResultAsync<ProjectLink, ProjectLink>(new ProjectLinkUpdateCommand(currentUser, linkDocument, project.Id), Request)
 //                 .ConfigureAwait(false);
 //         });
 
@@ -218,7 +218,7 @@
 //                 .ConfigureAwait(false);
 
 //             return await Orchestrator
-//                 .InvokeAndReturnActionResultAsync<ProjectLink, ProjectLink>(new OrchestratorProjectLinkDeleteCommand(currentUser, linkDocument, project.Id), Request)
+//                 .InvokeAndReturnActionResultAsync<ProjectLink, ProjectLink>(new ProjectLinkDeleteCommand(currentUser, linkDocument, project.Id), Request)
 //                 .ConfigureAwait(false);
 //         });
 //     }

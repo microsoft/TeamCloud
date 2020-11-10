@@ -63,4 +63,28 @@ namespace TeamCloud.Model.Commands.Core
         ICommandResult ICommand.CreateResult()
             => CreateResult();
     }
+
+    public abstract class CreateCommand<TPayload, TCommandResult> : Command<TPayload, TCommandResult>
+        where TPayload : class, new()
+        where TCommandResult : ICommandResult, new()
+    {
+        protected CreateCommand(User user, TPayload payload) : base(CommandAction.Create, user, payload)
+        { }
+    }
+
+    public abstract class UpdateCommand<TPayload, TCommandResult> : Command<TPayload, TCommandResult>
+        where TPayload : class, new()
+        where TCommandResult : ICommandResult, new()
+    {
+        protected UpdateCommand(User user, TPayload payload) : base(CommandAction.Update, user, payload)
+        { }
+    }
+
+    public abstract class DeleteCommand<TPayload, TCommandResult> : Command<TPayload, TCommandResult>
+        where TPayload : class, new()
+        where TCommandResult : ICommandResult, new()
+    {
+        protected DeleteCommand(User user, TPayload payload) : base(CommandAction.Delete, user, payload)
+        { }
+    }
 }

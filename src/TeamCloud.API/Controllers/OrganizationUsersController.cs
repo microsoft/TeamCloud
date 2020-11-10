@@ -131,7 +131,7 @@ namespace TeamCloud.API.Controllers
                 .CurrentUserAsync(organizationId)
                 .ConfigureAwait(false);
 
-            var command = new OrchestratorOrganizationUserCreateCommand(currentUser, user);
+            var command = new OrganizationUserCreateCommand(currentUser, user);
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync(command, Request)
@@ -181,7 +181,7 @@ namespace TeamCloud.API.Controllers
                 .CurrentUserAsync(OrganizationId)
                 .ConfigureAwait(false);
 
-            var command = new OrchestratorOrganizationUserUpdateCommand(currentUser, user);
+            var command = new OrganizationUserUpdateCommand(currentUser, user);
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync(command, Request)
@@ -231,7 +231,7 @@ namespace TeamCloud.API.Controllers
                     .BadRequest(new ValidationError { Field = "projectMemberships", Message = $"User's project memberships can not be changed using the TeamCloud (system) users API. To update a user's project memberships use the project users API." })
                     .ToActionResult();
 
-            var command = new OrchestratorOrganizationUserUpdateCommand(currentUser, user);
+            var command = new OrganizationUserUpdateCommand(currentUser, user);
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync(command, Request)
@@ -264,7 +264,7 @@ namespace TeamCloud.API.Controllers
                 .CurrentUserAsync(OrganizationId)
                 .ConfigureAwait(false);
 
-            var command = new OrchestratorOrganizationUserDeleteCommand(currentUser, user);
+            var command = new OrganizationUserDeleteCommand(currentUser, user);
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync(command, Request)

@@ -128,7 +128,7 @@ namespace TeamCloud.API.Controllers
 
             user.EnsureProjectMembership(project.Id, Enum.Parse<ProjectUserRole>(userDefinition.Role, true), userDefinition.Properties);
 
-            var command = new OrchestratorProjectUserCreateCommand(currentUser, user, project.Id);
+            var command = new ProjectUserCreateCommand(currentUser, user, project.Id);
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync(command, Request)
@@ -192,7 +192,7 @@ namespace TeamCloud.API.Controllers
                 .CurrentUserAsync(OrganizationId)
                 .ConfigureAwait(false);
 
-            var command = new OrchestratorProjectUserUpdateCommand(currentUser, existingUser, project.Id);
+            var command = new ProjectUserUpdateCommand(currentUser, existingUser, project.Id);
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync(command, Request)
@@ -251,7 +251,7 @@ namespace TeamCloud.API.Controllers
 
             currentUser.UpdateProjectMembership(membership);
 
-            var command = new OrchestratorProjectUserUpdateCommand(currentUser, currentUser, project.Id);
+            var command = new ProjectUserUpdateCommand(currentUser, currentUser, project.Id);
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync(command, Request)
@@ -290,7 +290,7 @@ namespace TeamCloud.API.Controllers
                 .CurrentUserAsync(OrganizationId)
                 .ConfigureAwait(false);
 
-            var command = new OrchestratorProjectUserDeleteCommand(currentUser, user, project.Id);
+            var command = new ProjectUserDeleteCommand(currentUser, user, project.Id);
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync(command, Request)

@@ -138,7 +138,7 @@ namespace TeamCloud.API.Controllers
                 }
             };
 
-            var command = new OrchestratorProjectTemplateCreateCommand(currentUser, projectTemplate);
+            var command = new ProjectTemplateCreateCommand(currentUser, projectTemplate);
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync(command, Request)
@@ -192,7 +192,7 @@ namespace TeamCloud.API.Controllers
                 .CurrentUserAsync(OrganizationId)
                 .ConfigureAwait(false);
 
-            var command = new OrchestratorProjectTemplateUpdateCommand(currentUser, projectTemplate);
+            var command = new ProjectTemplateUpdateCommand(currentUser, projectTemplate);
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync(command, Request)
@@ -213,7 +213,7 @@ namespace TeamCloud.API.Controllers
                 .CurrentUserAsync(OrganizationId)
                 .ConfigureAwait(false);
 
-            var command = new OrchestratorProjectTemplateDeleteCommand(currentUser, projectTemplate);
+            var command = new ProjectTemplateDeleteCommand(currentUser, projectTemplate);
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync(command, Request)

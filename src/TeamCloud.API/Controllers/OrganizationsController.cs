@@ -121,7 +121,7 @@ namespace TeamCloud.API.Controllers
             currentUser.Role = OrganizationUserRole.Admin;
             currentUser.Organization = organization.Id;
 
-            var command = new OrchestratorOrganizationCreateCommand(currentUser, organization);
+            var command = new OrganizationCreateCommand(currentUser, organization);
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync(command, Request)
@@ -173,7 +173,7 @@ namespace TeamCloud.API.Controllers
 
         //     userDocument.PopulateFromExternalModel(user);
 
-        //     var command = new OrchestratorOrganizationUpdateCommand(currentUser, userDocument);
+        //     var command = new OrganizationUpdateCommand(currentUser, userDocument);
 
         //     return await Orchestrator
         //         .InvokeAndReturnActionResultAsync<User, User>(command, Request)
@@ -206,7 +206,7 @@ namespace TeamCloud.API.Controllers
                 .CurrentUserAsync(OrganizationId)
                 .ConfigureAwait(false);
 
-            var command = new OrchestratorOrganizationDeleteCommand(currentUser, organization);
+            var command = new OrganizationDeleteCommand(currentUser, organization);
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync(command, Request)

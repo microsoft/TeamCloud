@@ -54,7 +54,7 @@ namespace TeamCloud.API.Services
             return commandResult;
         }
 
-        public async Task<ICommandResult> InvokeAsync(IOrchestratorCommand command)
+        public async Task<ICommandResult> InvokeAsync(ICommand command)
         {
             if (command is null)
                 throw new ArgumentNullException(nameof(command));

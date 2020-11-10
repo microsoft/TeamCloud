@@ -81,7 +81,7 @@
 //                     UserType = UserType.User
 //                 };
 
-//                 var command = new OrchestratorOrganizationUserCreateCommand(user, user);
+//                 var command = new OrganizationUserCreateCommand(user, user);
 //                 var commandResult = (ICommandResult)command.CreateResult();
 
 //                 var commandSendDuration = TimeSpan.FromMinutes(5);
