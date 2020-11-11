@@ -8,12 +8,12 @@ using TeamCloud.Model.Validation;
 
 namespace TeamCloud.API.Data.Validators
 {
-    public sealed class UserDefinitionTeamCloudValidator : AbstractValidator<UserDefinition>
+    public sealed class OrganizationUserDefinitionValidator : AbstractValidator<UserDefinition>
     {
-        public UserDefinitionTeamCloudValidator()
+        public OrganizationUserDefinitionValidator()
         {
             RuleFor(obj => obj.Identifier).MustBeUserIdentifier();
-            RuleFor(obj => obj.Role).MustBeTeamCloudUserRole();
+            RuleFor(obj => obj.Role).MustBeOrganizationUserRole();
         }
     }
 }

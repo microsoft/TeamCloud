@@ -53,14 +53,14 @@ namespace TeamCloud.API.Controllers
         });
 
 
-        [HttpGet("orgs/{org}/users/{userNameOrId:userNameOrId}")]
+        [HttpGet("orgs/{org}/users/{userId:userId}")]
         [Authorize(Policy = AuthPolicies.UserRead)]
-        [SwaggerOperation(OperationId = "GetOrganizationUserByNameOrId", Summary = "Gets a User by ID or email address.")]
+        [SwaggerOperation(OperationId = "GetOrganizationUser", Summary = "Gets a User.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns User.", typeof(DataResult<User>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A User with the provided identifier was not found.", typeof(ErrorResult))]
         [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
-        public Task<IActionResult> Get([FromRoute] string userNameOrId) => EnsureUserAsync(user =>
+        public Task<IActionResult> Get([FromRoute] string userId) => EnsureUserAsync(user =>
         {
             return DataResult<User>
                 .Ok(user)
@@ -94,7 +94,7 @@ namespace TeamCloud.API.Controllers
             if (userDefinition is null)
                 throw new ArgumentNullException(nameof(userDefinition));
 
-            var validation = new UserDefinitionTeamCloudValidator().Validate(userDefinition);
+            var validation = new OrganizationUserDefinitionValidator().Validate(userDefinition);
 
             if (!validation.IsValid)
                 return ErrorResult
@@ -139,7 +139,7 @@ namespace TeamCloud.API.Controllers
         });
 
 
-        [HttpPut("orgs/{org}/users/{userNameOrId:userNameOrId}")]
+        [HttpPut("orgs/{org}/users/{userId:userId}")]
         [Authorize(Policy = AuthPolicies.UserWrite)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "UpdateOrganizationUser", Summary = "Updates an existing User.")]
@@ -147,7 +147,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A User with the ID provided in the request body was not found.", typeof(ErrorResult))]
         [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
-        public Task<IActionResult> Put([FromRoute] string userNameOrId, [FromBody] User user) => EnsureUserAsync(async existingUser =>
+        public Task<IActionResult> Put([FromRoute] string userId, [FromBody] User user) => EnsureUserAsync(async existingUser =>
         {
             if (user is null)
                 throw new ArgumentNullException(nameof(user));
@@ -162,7 +162,7 @@ namespace TeamCloud.API.Controllers
             if (existingUser.IsAdmin() && !user.IsAdmin())
             {
                 var otherAdmins = await UserRepository
-                    .ListAdminsAsync(OrganizationId)
+                    .ListAdminsAsync(OrgId)
                     .AnyAsync(a => a.Id != user.Id)
                     .ConfigureAwait(false);
 
@@ -178,7 +178,7 @@ namespace TeamCloud.API.Controllers
                     .ToActionResult();
 
             var currentUser = await UserService
-                .CurrentUserAsync(OrganizationId)
+                .CurrentUserAsync(OrgId)
                 .ConfigureAwait(false);
 
             var command = new OrganizationUserUpdateCommand(currentUser, user);
@@ -216,7 +216,7 @@ namespace TeamCloud.API.Controllers
             if (currentUser.IsAdmin() && !user.IsAdmin())
             {
                 var otherAdmins = await UserRepository
-                    .ListAdminsAsync(OrganizationId)
+                    .ListAdminsAsync(OrgId)
                     .AnyAsync(a => a.Id != user.Id)
                     .ConfigureAwait(false);
 
@@ -239,18 +239,18 @@ namespace TeamCloud.API.Controllers
         });
 
 
-        [HttpDelete("orgs/{org}/users/{userNameOrId:userNameOrId}")]
+        [HttpDelete("orgs/{org}/users/{userId:userId}")]
         [Authorize(Policy = AuthPolicies.UserWrite)]
         [SwaggerOperation(OperationId = "DeleteOrganizationUser", Summary = "Deletes an existing User.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts deleting the User. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A User with the identifier provided was not found.", typeof(ErrorResult))]
         [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
-        public Task<IActionResult> Delete([FromRoute] string userNameOrId) => EnsureUserAsync(async user =>
+        public Task<IActionResult> Delete([FromRoute] string userId) => EnsureUserAsync(async user =>
         {
             if (user.IsAdmin())
             {
                 var otherAdmins = await UserRepository
-                    .ListAdminsAsync(OrganizationId)
+                    .ListAdminsAsync(OrgId)
                     .AnyAsync(a => a.Id != user.Id)
                     .ConfigureAwait(false);
 
@@ -261,7 +261,7 @@ namespace TeamCloud.API.Controllers
             }
 
             var currentUser = await UserService
-                .CurrentUserAsync(OrganizationId)
+                .CurrentUserAsync(OrgId)
                 .ConfigureAwait(false);
 
             var command = new OrganizationUserDeleteCommand(currentUser, user);

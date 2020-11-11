@@ -24,7 +24,7 @@ using ValidationError = TeamCloud.API.Data.Results.ValidationError;
 namespace TeamCloud.API.Controllers
 {
     [ApiController]
-    [Route("orgs/{org}/projects/{projectId:guid}/components")]
+    [Route("orgs/{org}/projects/{projectId:projectId}/components")]
     [Produces("application/json")]
     public class ProjectComponentsController : ApiController
     {
@@ -48,7 +48,7 @@ namespace TeamCloud.API.Controllers
         public Task<IActionResult> Get() => EnsureProjectAsync(async project =>
         {
             var components = await componentRepository
-                .ListAsync(OrganizationId, project.Id)
+                .ListAsync(OrgId, project.Id)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
@@ -60,7 +60,7 @@ namespace TeamCloud.API.Controllers
 
         [HttpGet("{id}")]
         [Authorize(Policy = AuthPolicies.ProjectRead)]
-        [SwaggerOperation(OperationId = "GetProjectComponentById", Summary = "Gets a Project Component by id.")]
+        [SwaggerOperation(OperationId = "GetProjectComponent", Summary = "Gets a Project Component.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns Project Component", typeof(DataResult<Component>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a Component with the provided id was not found.", typeof(ErrorResult))]
@@ -72,7 +72,7 @@ namespace TeamCloud.API.Controllers
                     .ToActionResult();
 
             var component = await componentRepository
-                .GetAsync(OrganizationId, id)
+                .GetAsync(OrgId, id)
                 .ConfigureAwait(false);
 
             if (component is null || !component.ProjectId.Equals(project.Id, StringComparison.Ordinal))
@@ -108,7 +108,7 @@ namespace TeamCloud.API.Controllers
             //         .ToActionResult();
 
             var componentTemplate = await componentTemplateRepository
-                .GetAsync(OrganizationId, request.TemplateId)
+                .GetAsync(OrgId, request.TemplateId)
                 .ConfigureAwait(false);
 
             if (componentTemplate is null || !componentTemplate.ParentId.Equals(projectTemplate.Id, StringComparison.OrdinalIgnoreCase))
@@ -125,7 +125,7 @@ namespace TeamCloud.API.Controllers
                     .ToActionResult();
 
             var currentUser = await UserService
-                .CurrentUserAsync(OrganizationId)
+                .CurrentUserAsync(OrgId)
                 .ConfigureAwait(false);
 
             var component = new Component
@@ -164,7 +164,7 @@ namespace TeamCloud.API.Controllers
                     .ToActionResult();
 
             var component = await componentRepository
-                .GetAsync(OrganizationId, id)
+                .GetAsync(OrgId, id)
                 .ConfigureAwait(false);
 
             if (component is null || component.ProjectId.Equals(project.Id, StringComparison.Ordinal))
@@ -173,7 +173,7 @@ namespace TeamCloud.API.Controllers
                     .ToActionResult();
 
             var currentUser = await UserService
-                .CurrentUserAsync(OrganizationId)
+                .CurrentUserAsync(OrgId)
                 .ConfigureAwait(false);
 
             var command = new ProjectComponentDeleteCommand(currentUser, component, project.Id);

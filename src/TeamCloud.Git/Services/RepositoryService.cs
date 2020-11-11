@@ -34,15 +34,17 @@ namespace TeamCloud.Git.Services
             _ => throw new NotSupportedException("Only GitHub and Azure DevOps git repositories are supported. Generic git repositories are not supported.")
         } ?? throw new ArgumentNullException(nameof(repository));
 
-        public Task<ProjectTemplate> UpdateProjectTemplateAsync(ProjectTemplate projectTemplate)
+        public async Task<ProjectTemplate> UpdateProjectTemplateAsync(ProjectTemplate projectTemplate)
         {
             if (projectTemplate is null)
                 throw new ArgumentNullException(nameof(projectTemplate));
 
-            if (string.IsNullOrEmpty(projectTemplate.Repository.Repository))
-                projectTemplate.Repository.ParseUrl();
+            if (projectTemplate.Repository.Provider == RepositoryProvider.Unknown)
+                projectTemplate.Repository = await GetRepositoryReferenceAsync(projectTemplate.Repository)
+                    .ConfigureAwait(false);
 
-            return UpdateProjectTemplateInternalAsync(projectTemplate);
+            return await UpdateProjectTemplateInternalAsync(projectTemplate)
+                .ConfigureAwait(false);
         }
 
         private Task<ProjectTemplate> UpdateProjectTemplateInternalAsync(ProjectTemplate projectTemplate) => projectTemplate?.Repository?.Provider switch

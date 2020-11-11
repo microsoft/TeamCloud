@@ -5,14 +5,17 @@
 
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using TeamCloud.Model.Common;
 using TeamCloud.Serialization;
 
 namespace TeamCloud.API.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public sealed class ProjectDefinition
+    public sealed class ProjectDefinition : ISlug
     {
-        public string Name { get; set; }
+        public string Slug => (this as ISlug).GetSlug();
+
+        public string DisplayName { get; set; }
 
         public string Template { get; set; }
 

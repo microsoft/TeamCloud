@@ -25,7 +25,7 @@ using TeamCloud.Model.Validation.Data;
 namespace TeamCloud.API.Controllers
 {
     [ApiController]
-    [Route("orgs/{org}/projects/{projectId:guid}/users")]
+    [Route("orgs/{org}/projects/{projectId:projectId}/users")]
     [Produces("application/json")]
     public class ProjectUsersController : ApiController
     {
@@ -43,7 +43,7 @@ namespace TeamCloud.API.Controllers
         public Task<IActionResult> Get() => EnsureProjectAsync(async project =>
         {
             var users = await UserRepository
-                .ListAsync(OrganizationId, project.Id)
+                .ListAsync(OrgId, project.Id)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
@@ -53,14 +53,14 @@ namespace TeamCloud.API.Controllers
         });
 
 
-        [HttpGet("{userNameOrId:userNameOrId}")]
+        [HttpGet("{userId:userId}")]
         [Authorize(Policy = AuthPolicies.ProjectRead)]
         [SwaggerOperation(OperationId = "GetProjectUserByNameOrId", Summary = "Gets a Project User by ID or email address.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns Project User", typeof(DataResult<User>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a User with the provided identifier was not found.", typeof(ErrorResult))]
         [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
-        public Task<IActionResult> Get([FromRoute] string userNameOrId) => EnsureProjectAndUserAsync((project, user) =>
+        public Task<IActionResult> Get([FromRoute] string userId) => EnsureProjectAndUserAsync((project, user) =>
         {
             if (!user.IsMember(project.Id))
                 return ErrorResult
@@ -105,7 +105,7 @@ namespace TeamCloud.API.Controllers
             if (userDefinition is null)
                 throw new ArgumentNullException(nameof(userDefinition));
 
-            var validation = new UserDefinitionProjectValidator().Validate(userDefinition);
+            var validation = new ProjectUserDefinitionValidator().Validate(userDefinition);
 
             if (!validation.IsValid)
                 return ErrorResult
@@ -113,7 +113,7 @@ namespace TeamCloud.API.Controllers
                     .ToActionResult();
 
             var user = await UserService
-                .ResolveUserAsync(OrganizationId, userDefinition)
+                .ResolveUserAsync(OrgId, userDefinition)
                 .ConfigureAwait(false);
 
             if (user is null)
@@ -136,7 +136,7 @@ namespace TeamCloud.API.Controllers
         });
 
 
-        [HttpPut("{userNameOrId:userNameOrId}")]
+        [HttpPut("{userId:userId}")]
         [Authorize(Policy = AuthPolicies.ProjectUserWrite)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "UpdateProjectUser", Summary = "Updates an existing Project User.")]
@@ -144,7 +144,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a User with the ID provided in the request body was not found.", typeof(ErrorResult))]
         [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
-        public Task<IActionResult> Put([FromRoute] string userNameOrId, [FromBody] User user) => EnsureProjectAndUserAsync(async (project, existingUser) =>
+        public Task<IActionResult> Put([FromRoute] string userId, [FromBody] User user) => EnsureProjectAndUserAsync(async (project, existingUser) =>
         {
             if (user is null)
                 throw new ArgumentNullException(nameof(user));
@@ -169,7 +169,7 @@ namespace TeamCloud.API.Controllers
             if (existingUser.IsOwner(project.Id) && !user.IsOwner(project.Id))
             {
                 var otherOwners = await UserRepository
-                    .ListOwnersAsync(OrganizationId, project.Id)
+                    .ListOwnersAsync(OrgId, project.Id)
                     .AnyAsync(o => o.Id.Equals(user.Id, StringComparison.OrdinalIgnoreCase))
                     .ConfigureAwait(false);
 
@@ -189,7 +189,7 @@ namespace TeamCloud.API.Controllers
             existingUser.UpdateProjectMembership(membership);
 
             var currentUser = await UserService
-                .CurrentUserAsync(OrganizationId)
+                .CurrentUserAsync(OrgId)
                 .ConfigureAwait(false);
 
             var command = new ProjectUserUpdateCommand(currentUser, existingUser, project.Id);
@@ -232,7 +232,7 @@ namespace TeamCloud.API.Controllers
             if (currentUser.IsOwner(project.Id) && !user.IsOwner(project.Id))
             {
                 var otherOwners = await UserRepository
-                    .ListOwnersAsync(OrganizationId, project.Id)
+                    .ListOwnersAsync(OrgId, project.Id)
                     .AnyAsync(o => o.Id.Equals(user.Id, StringComparison.OrdinalIgnoreCase))
                     .ConfigureAwait(false);
 
@@ -259,14 +259,14 @@ namespace TeamCloud.API.Controllers
         });
 
 
-        [HttpDelete("{userNameOrId:userNameOrId}")]
+        [HttpDelete("{userId:userId}")]
         [Authorize(Policy = AuthPolicies.ProjectUserWrite)]
         [SwaggerOperation(OperationId = "DeleteProjectUser", Summary = "Deletes an existing Project User.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts deleting the Project User. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a User with the provided identifier was not found.", typeof(ErrorResult))]
         [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
-        public Task<IActionResult> Delete([FromRoute] string userNameOrId) => EnsureProjectAndUserAsync(async (project, user) =>
+        public Task<IActionResult> Delete([FromRoute] string userId) => EnsureProjectAndUserAsync(async (project, user) =>
         {
             if (!user.IsMember(project.Id))
                 return ErrorResult
@@ -276,7 +276,7 @@ namespace TeamCloud.API.Controllers
             if (user.IsOwner(project.Id))
             {
                 var otherOwners = await UserRepository
-                    .ListOwnersAsync(OrganizationId, project.Id)
+                    .ListOwnersAsync(OrgId, project.Id)
                     .AnyAsync(o => o.Id.Equals(user.Id, StringComparison.OrdinalIgnoreCase))
                     .ConfigureAwait(false);
 
@@ -287,7 +287,7 @@ namespace TeamCloud.API.Controllers
             }
 
             var currentUser = await UserService
-                .CurrentUserAsync(OrganizationId)
+                .CurrentUserAsync(OrgId)
                 .ConfigureAwait(false);
 
             var command = new ProjectUserDeleteCommand(currentUser, user, project.Id);

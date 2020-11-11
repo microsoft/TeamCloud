@@ -95,14 +95,14 @@ namespace TeamCloud.API.Controllers
         });
 
 
-        [HttpGet("{projectNameOrId:projectNameOrId}")]
+        [HttpGet("{projectId:projectId}")]
         [Authorize(Policy = AuthPolicies.ProjectRead)]
-        [SwaggerOperation(OperationId = "GetProjectByNameOrId", Summary = "Gets a Project by Name or ID.")]
+        [SwaggerOperation(OperationId = "GetProject", Summary = "Gets a Project.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns a Project.", typeof(DataResult<Project>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the specified Name or ID was not found.", typeof(ErrorResult))]
         [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
-        public Task<IActionResult> Get([FromRoute] string projectNameOrId) => EnsureProjectAsync(project =>
+        public Task<IActionResult> Get([FromRoute] string projectId) => EnsureProjectAsync(project =>
         {
             return DataResult<Project>
                 .Ok(project)
@@ -130,12 +130,12 @@ namespace TeamCloud.API.Controllers
                     .ToActionResult();
 
             var nameExists = await ProjectRepository
-                .NameExistsAsync(organizationId, projectDefinition.Name)
+                .NameExistsAsync(organizationId, projectDefinition.DisplayName)
                 .ConfigureAwait(false);
 
             if (nameExists)
                 return ErrorResult
-                    .Conflict($"A Project with name '{projectDefinition.Name}' already exists. Project names must be unique. Please try your request again with a unique name.")
+                    .Conflict($"A Project with name '{projectDefinition.DisplayName}' already exists. Project names must be unique. Please try your request again with a unique name.")
                     .ToActionResult();
 
             var projectId = Guid.NewGuid().ToString();
@@ -146,8 +146,9 @@ namespace TeamCloud.API.Controllers
             var project = new Project
             {
                 Id = projectId,
+                Organization = organizationId,
                 Users = users,
-                Name = projectDefinition.Name,
+                DisplayName = projectDefinition.DisplayName,
                 // Tags = projectDefinition.Tags,
                 // Properties = projectDefinition.Properties
             };
@@ -182,7 +183,7 @@ namespace TeamCloud.API.Controllers
 
             if (!input.IsValid(schema, out IList<string> schemaErrors))
                 return ErrorResult
-                    .BadRequest(new ValidationError { Field = "templateInput", Message = $"Project templateInput does not match the the Offer inputJsonSchema.  Errors: {string.Join(", ", schemaErrors)}." })
+                    .BadRequest(new ValidationError { Field = "templateInput", Message = $"Project templateInput does not match the the Project Template's inputJsonSchema.  Errors: {string.Join(", ", schemaErrors)}." })
                     .ToActionResult();
 
             project.Template = template.Id;
@@ -198,17 +199,17 @@ namespace TeamCloud.API.Controllers
         });
 
 
-        [HttpDelete("{projectNameOrId:projectNameOrId}")]
+        [HttpDelete("{projectId:projectId}")]
         [Authorize(Policy = AuthPolicies.ProjectWrite)]
         [SwaggerOperation(OperationId = "DeleteProject", Summary = "Deletes a Project.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts deleting the specified Project. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the specified name or ID was not found.", typeof(ErrorResult))]
         [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
-        public Task<IActionResult> Delete([FromRoute] string projectNameOrId) => EnsureProjectAsync(async project =>
+        public Task<IActionResult> Delete([FromRoute] string projectId) => EnsureProjectAsync(async project =>
         {
             var currentUser = await UserService
-                .CurrentUserAsync(OrganizationId)
+                .CurrentUserAsync(OrgId)
                 .ConfigureAwait(false);
 
             var command = new ProjectDeleteCommand(currentUser, project);

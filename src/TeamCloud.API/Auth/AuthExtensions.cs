@@ -167,19 +167,22 @@ namespace TeamCloud.API.Auth
         {
             var claims = new List<Claim>();
 
-            var projectId = httpContext.RouteValueOrDefault("ProjectId");
+            var project = httpContext.RouteValueOrDefault("projectId");
 
-            if (string.IsNullOrEmpty(projectId))
-                projectId = await httpContext.ResolveProjectIdFromNameOrIdRouteAsync(user.Organization).ConfigureAwait(false);
+            if (string.IsNullOrEmpty(project))
+                return claims;
+
+            var projectId = await ResolveProjectIdFromRouteAsync(httpContext, user.Organization)
+                .ConfigureAwait(false);
 
             if (!string.IsNullOrEmpty(projectId))
             {
                 claims.Add(new Claim(ClaimTypes.Role, user.AuthPolicy(projectId)));
 
-                if (httpContext.RequestPathStartsWithSegments($"{orgPath}/projects/{projectId}/users"))
+                if (httpContext.RequestPathStartsWithSegments($"{orgPath}/projects/{project}/users"))
                     claims.AddRange(await httpContext.ResolveUserClaimsAsync(orgPath, user).ConfigureAwait(false));
 
-                if (httpContext.RequestPathStartsWithSegments($"{orgPath}/projects/{projectId}/components"))
+                if (httpContext.RequestPathStartsWithSegments($"{orgPath}/projects/{project}/components"))
                     claims.AddRange(await httpContext.ResolveComponentClaimsAsync(projectId, user).ConfigureAwait(false));
             }
 
@@ -199,10 +202,7 @@ namespace TeamCloud.API.Auth
             }
             else
             {
-                userId = httpContext.RouteValueOrDefault("UserId");
-
-                if (string.IsNullOrEmpty(userId))
-                    userId = await httpContext.ResolveUserIdFromNameOrIdRouteAsync().ConfigureAwait(false);
+                userId = await httpContext.ResolveUserIdFromRouteAsync().ConfigureAwait(false);
             }
 
             if (!string.IsNullOrEmpty(userId) && userId.Equals(user.Id, StringComparison.OrdinalIgnoreCase))
@@ -238,38 +238,34 @@ namespace TeamCloud.API.Auth
             return claims;
         }
 
-        private static async Task<string> ResolveProjectIdFromNameOrIdRouteAsync(this HttpContext httpContext, string organizationId)
+        private static async Task<string> ResolveProjectIdFromRouteAsync(this HttpContext httpContext, string organizationId)
         {
-            var projectNameOrId = httpContext.RouteValueOrDefault("ProjectNameOrId");
+            var projectId = httpContext.RouteValueOrDefault("projectId");
 
-            if (string.IsNullOrEmpty(projectNameOrId) || projectNameOrId.IsGuid())
-                return projectNameOrId;
+            if (string.IsNullOrEmpty(projectId) || projectId.IsGuid())
+                return projectId;
 
             var projectsRepository = httpContext.RequestServices
                 .GetRequiredService<IProjectRepository>();
 
             var project = await projectsRepository
-                .GetAsync(organizationId, projectNameOrId)
+                .GetAsync(organizationId, projectId)
                 .ConfigureAwait(false);
 
             return project?.Id;
         }
 
-        private static async Task<string> ResolveUserIdFromNameOrIdRouteAsync(this HttpContext httpContext)
+        private static Task<string> ResolveUserIdFromRouteAsync(this HttpContext httpContext)
         {
-            var userNameOrId = httpContext.RouteValueOrDefault("UsertNameOrId");
+            var userId = httpContext.RouteValueOrDefault("userId");
 
-            if (string.IsNullOrEmpty(userNameOrId))
-                return userNameOrId;
+            if (string.IsNullOrEmpty(userId) || userId.IsGuid())
+                return Task.FromResult(userId);
 
             var userService = httpContext.RequestServices
                 .GetRequiredService<UserService>();
 
-            var userId = await userService
-                .GetUserIdAsync(userNameOrId)
-                .ConfigureAwait(false);
-
-            return userId;
+            return userService.GetUserIdAsync(userId);
         }
     }
 }

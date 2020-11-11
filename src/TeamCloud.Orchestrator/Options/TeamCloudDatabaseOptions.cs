@@ -19,7 +19,7 @@ namespace TeamCloud.Orchestrator.Options
             this.cosmosDbOptions = cosmosDbOptions ?? throw new System.ArgumentNullException(nameof(cosmosDbOptions));
         }
 
-        public string TenantName => DatabaseName;
+        public string Tenant => cosmosDbOptions.Tenant;
 
         public string DatabaseName => cosmosDbOptions.DatabaseName;
 

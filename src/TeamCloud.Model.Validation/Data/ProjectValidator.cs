@@ -12,7 +12,7 @@ namespace TeamCloud.Model.Validation.Data
     {
         public ProjectValidator()
         {
-            RuleFor(obj => obj.Name)
+            RuleFor(obj => obj.DisplayName)
                 .NotEmpty();
 
             // RuleFor(obj => obj.Type)

@@ -4,21 +4,17 @@
  */
 
 using Newtonsoft.Json;
+using TeamCloud.Model.Common;
 using TeamCloud.Serialization;
 
 namespace TeamCloud.API.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public class OrganizationDefinition
+    public class OrganizationDefinition : ISlug
     {
-        // public string Id => Name.ToLowerInvariant().Replace(' ', '_').Replace('-', '_');
+        public string Slug => (this as ISlug).GetSlug();
 
-        public string Slug => Name
-            .ToLowerInvariant()
-            .Replace(' ', '_')
-            .Replace('-', '_');
-
-        public string Name { get; set; }
+        public string DisplayName { get; set; }
 
         public string Tenant { get; set; }
     }

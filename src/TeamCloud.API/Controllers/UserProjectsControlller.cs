@@ -27,7 +27,7 @@ namespace TeamCloud.API.Controllers
         { }
 
 
-        [HttpGet("orgs/{org}/users/{userId:guid}/projects")]
+        [HttpGet("orgs/{org}/users/{userId:userId}/projects")]
         [Authorize(Policy = AuthPolicies.ProjectRead)]
         [SwaggerOperation(OperationId = "GetUserProjects", Summary = "Gets all Projects for a User.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all User Projects", typeof(DataResult<List<Project>>))]
@@ -43,7 +43,7 @@ namespace TeamCloud.API.Controllers
                     .ToActionResult();
 
             var projects = await ProjectRepository
-                .ListAsync(OrganizationId, projectIds)
+                .ListAsync(OrgId, projectIds)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
@@ -69,7 +69,7 @@ namespace TeamCloud.API.Controllers
                     .ToActionResult();
 
             var projects = await ProjectRepository
-                .ListAsync(OrganizationId, projectIds)
+                .ListAsync(OrgId, projectIds)
                 .ToListAsync()
                 .ConfigureAwait(false);
 

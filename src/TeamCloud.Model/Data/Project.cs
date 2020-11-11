@@ -13,13 +13,16 @@ using TeamCloud.Serialization;
 namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public sealed class Project : ContainerDocument, IOrganizationChild, IEquatable<Project>//ReferenceLinksAccessor<Project, ProjectReferenceLinks>, IProject<User>, IEquatable<Project>
+    public sealed class Project : ContainerDocument, IOrganizationChild, ISlug, IEquatable<Project>//ReferenceLinksAccessor<Project, ProjectReferenceLinks>
     {
         [PartitionKey]
         public string Organization { get; set; }
 
         [UniqueKey]
-        public string Name { get; set; }
+        public string Slug => (this as ISlug).GetSlug();
+
+        [UniqueKey]
+        public string DisplayName { get; set; }
 
         public string Template { get; set; }
 

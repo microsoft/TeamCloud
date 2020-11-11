@@ -71,7 +71,7 @@ namespace TeamCloud.Data.CosmosDb
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
             {
-                var query = new QueryDefinition($"SELECT * FROM c WHERE c.name = '{nameOrId}'");
+                var query = new QueryDefinition($"SELECT * FROM c WHERE c.displayName = '{nameOrId}'");
 
                 var queryIterator = container
                     .GetItemQueryIterator<Project>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(organization) });
@@ -154,7 +154,7 @@ namespace TeamCloud.Data.CosmosDb
                 .ConfigureAwait(false);
 
             var search = "'" + string.Join("', '", nameOrIds) + "'";
-            var query = new QueryDefinition($"SELECT * FROM p WHERE p.id IN ({search}) OR p.name in ({search})");
+            var query = new QueryDefinition($"SELECT * FROM p WHERE p.id IN ({search}) OR p.displayName in ({search})");
 
             var queryIterator = container
                 .GetItemQueryIterator<Project>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(organization) });

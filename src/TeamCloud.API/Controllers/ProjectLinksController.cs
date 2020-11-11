@@ -23,7 +23,7 @@
 // namespace TeamCloud.API.Controllers
 // {
 //     [ApiController]
-//     [Route("api/projects/{projectId:guid}/links")]
+//     [Route("api/projects/{projectId:projectId}/links")]
 //     [Produces("application/json")]
 //     public class ProjectLinksController : ApiController
 //     {

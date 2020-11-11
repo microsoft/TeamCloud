@@ -59,11 +59,11 @@ namespace TeamCloud.API.Services
                 ICommandResult result
                     when result.Result is null
                     => null,
+                ICommandResult<Organization> result
+                    => $"orgs/{result.Result.Id}",
                 ICommandResult result
                     when string.IsNullOrEmpty(org) || string.IsNullOrEmpty((result.Result as IIdentifiable)?.Id)
                     => null,
-                ICommandResult<Organization> _
-                    => $"orgs/{org}",
                 ICommandResult<Project> result
                     => $"orgs/{org}/projects/{result.Result.Id}",
                 ICommandResult<ProjectTemplate> result

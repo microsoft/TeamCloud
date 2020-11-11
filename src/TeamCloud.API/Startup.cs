@@ -159,8 +159,8 @@ namespace TeamCloud.API
             services
                 .AddRouting(options =>
                 {
-                    options.ConstraintMap.Add("userNameOrId", typeof(UserIdentifierRouteConstraint));
-                    options.ConstraintMap.Add("projectNameOrId", typeof(ProjectIdentifierRouteConstraint));
+                    options.ConstraintMap.Add("userId", typeof(UserIdentifierRouteConstraint));
+                    options.ConstraintMap.Add("projectId", typeof(ProjectIdentifierRouteConstraint));
                     // options.ConstraintMap.Add("providerId", typeof(ProviderIdentifierRouteConstraint));
                 })
                 .AddControllers()

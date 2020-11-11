@@ -4,6 +4,7 @@
  */
 
 using FluentValidation;
+using TeamCloud.Model.Validation;
 
 namespace TeamCloud.API.Data.Validators
 {
@@ -11,9 +12,11 @@ namespace TeamCloud.API.Data.Validators
     {
         public ProjectDefinitionValidator()
         {
-            RuleFor(obj => obj.Name).NotEmpty();
+            RuleFor(obj => obj.DisplayName).NotEmpty();
+            RuleFor(obj => obj.Template).MustBeGuid(); // TODO: May not need to require this if there is a default template
+            RuleFor(obj => obj.TemplateInput).NotEmpty();
             RuleFor(obj => obj.Users)
-                .ForEach(user => user.SetValidator(new UserDefinitionProjectValidator()));
+                .ForEach(user => user.SetValidator(new ProjectUserDefinitionValidator()));
         }
     }
 }

@@ -34,7 +34,7 @@ namespace TeamCloud.API.Controllers
         { }
 
 
-        [HttpGet("orgs")] // TODO: Update Auth
+        [HttpGet("orgs")]
         [Authorize(Policy = AuthPolicies.Default)]
         [SwaggerOperation(OperationId = "GetOrganizations", Summary = "Gets all Organizations.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all Organizations.", typeof(DataResult<List<Organization>>))]
@@ -55,7 +55,7 @@ namespace TeamCloud.API.Controllers
 
         [HttpGet("orgs/{org}")]
         [Authorize(Policy = AuthPolicies.Default)]
-        [SwaggerOperation(OperationId = "GetOrganizationById", Summary = "Gets an Organization by ID.")]
+        [SwaggerOperation(OperationId = "GetOrganization", Summary = "Gets an Organization.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns an Organization.", typeof(DataResult<Organization>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "An Organization with the provided identifier was not found.", typeof(ErrorResult))]
@@ -81,12 +81,12 @@ namespace TeamCloud.API.Controllers
             if (organizationDefinition is null)
                 throw new ArgumentNullException(nameof(organizationDefinition));
 
-            // var validation = new UserDefinitionTeamCloudValidator().Validate(organizationDefinition);
+            var validation = new OrganizationDefinitionValidator().Validate(organizationDefinition);
 
-            // if (!validation.IsValid)
-            //     return ErrorResult
-            //         .BadRequest(validation)
-            //         .ToActionResult();
+            if (!validation.IsValid)
+                return ErrorResult
+                    .BadRequest(validation)
+                    .ToActionResult();
 
             var organization = await OrganizationRepository
                 .GetAsync(organizationDefinition.Slug)
@@ -100,9 +100,8 @@ namespace TeamCloud.API.Controllers
             organization = new Organization
             {
                 Id = Guid.NewGuid().ToString(),
-                Slug = organizationDefinition.Slug,
                 Tenant = organizationDefinition.Tenant,
-                DisplayName = organizationDefinition.Name
+                DisplayName = organizationDefinition.DisplayName
             };
 
             var currentUser = await UserService
@@ -181,7 +180,7 @@ namespace TeamCloud.API.Controllers
         public Task<IActionResult> Delete([FromRoute] string org) => EnsureOrganizationAsync(async organization =>
         {
             var currentUser = await UserService
-                .CurrentUserAsync(OrganizationId)
+                .CurrentUserAsync(OrgId)
                 .ConfigureAwait(false);
 
             var command = new OrganizationDeleteCommand(currentUser, organization);

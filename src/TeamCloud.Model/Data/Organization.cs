@@ -13,17 +13,18 @@ using TeamCloud.Serialization;
 namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public sealed class Organization : ContainerDocument, IEquatable<Organization>, ITags
+    public sealed class Organization : ContainerDocument, ISlug, IEquatable<Organization>, ITags
     {
         [PartitionKey]
         public string Tenant { get; set; }
 
         [UniqueKey]
-        public string Slug { get; set; }
+        public string Slug => (this as ISlug).GetSlug();
 
         public string DisplayName { get; set; }
 
         public IDictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();
+
 
         public bool Equals(Organization other)
             => Id.Equals(other?.Id, StringComparison.OrdinalIgnoreCase);

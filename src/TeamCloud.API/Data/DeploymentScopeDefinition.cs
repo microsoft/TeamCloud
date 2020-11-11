@@ -4,13 +4,16 @@
  */
 
 using Newtonsoft.Json;
+using TeamCloud.Model.Common;
 using TeamCloud.Serialization;
 
 namespace TeamCloud.API.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public class DeploymentScopeDefinition
+    public class DeploymentScopeDefinition : ISlug
     {
+        public string Slug => (this as ISlug).GetSlug();
+
         public string DisplayName { get; set; }
 
         public string ManagementGroupId { get; set; }

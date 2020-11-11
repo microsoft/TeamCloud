@@ -35,7 +35,7 @@ namespace TeamCloud.Data.CosmosDb
             if (identifier is null)
                 throw new ArgumentNullException(nameof(identifier));
 
-            var key = $"{Options.TenantName}_{identifier}";
+            var key = $"{Options.Tenant}_{identifier}";
 
             if (!idCache.TryGetValue(key, out string id))
             {
@@ -86,7 +86,7 @@ namespace TeamCloud.Data.CosmosDb
             try
             {
                 var response = await container
-                    .ReadItemAsync<Organization>(identifier, GetPartitionKey(Options.TenantName))
+                    .ReadItemAsync<Organization>(identifier, GetPartitionKey(Options.Tenant))
                     .ConfigureAwait(false);
 
                 organization = response.Resource;
@@ -96,7 +96,7 @@ namespace TeamCloud.Data.CosmosDb
                 var query = new QueryDefinition($"SELECT * FROM o WHERE o.slug = '{identifier}'");
 
                 var queryIterator = container
-                    .GetItemQueryIterator<Organization>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(Options.TenantName) });
+                    .GetItemQueryIterator<Organization>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(Options.Tenant) });
 
                 if (queryIterator.HasMoreResults)
                 {
@@ -119,7 +119,7 @@ namespace TeamCloud.Data.CosmosDb
             var query = new QueryDefinition($"SELECT * FROM o");
 
             var queryIterator = container
-                .GetItemQueryIterator<Organization>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(Options.TenantName) });
+                .GetItemQueryIterator<Organization>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(Options.Tenant) });
 
             while (queryIterator.HasMoreResults)
             {

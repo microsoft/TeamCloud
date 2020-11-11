@@ -8,9 +8,9 @@ using TeamCloud.Model.Validation;
 
 namespace TeamCloud.API.Data.Validators
 {
-    public sealed class UserDefinitionProjectValidator : AbstractValidator<UserDefinition>
+    public sealed class ProjectUserDefinitionValidator : AbstractValidator<UserDefinition>
     {
-        public UserDefinitionProjectValidator()
+        public ProjectUserDefinitionValidator()
         {
             RuleFor(obj => obj.Identifier).MustBeUserIdentifier();
             RuleFor(obj => obj.Role).MustBeProjectUserRole();

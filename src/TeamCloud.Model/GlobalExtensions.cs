@@ -85,7 +85,7 @@ namespace TeamCloud.Model
             return logger.BeginScope(new Dictionary<string, object>()
             {
                 { "projectId", project.Id },
-                { "projectName", project.Name }
+                { "projectName", project.DisplayName }
             });
         }
 
@@ -104,7 +104,7 @@ namespace TeamCloud.Model
                 { "commandId", command.CommandId },
                 { "commandType", command.GetType().Name },
                 { "projectId", project?.Id ?? command.ProjectId },
-                { "projectName", project?.Name }
+                { "projectName", project?.DisplayName }
             });
         }
 

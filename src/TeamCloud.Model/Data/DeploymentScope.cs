@@ -12,10 +12,13 @@ using TeamCloud.Serialization;
 namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public sealed class DeploymentScope : ContainerDocument, IOrganizationChild, IEquatable<DeploymentScope>, IValidatable
+    public sealed class DeploymentScope : ContainerDocument, IOrganizationChild, ISlug, IEquatable<DeploymentScope>, IValidatable
     {
         [PartitionKey]
         public string Organization { get; set; }
+
+        [UniqueKey]
+        public string Slug => (this as ISlug).GetSlug();
 
         public string DisplayName { get; set; }
 

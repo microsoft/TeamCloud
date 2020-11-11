@@ -244,7 +244,7 @@ namespace TeamCloud.Model.Validation
                 .Cascade(CascadeMode.Stop)
                 .NotEmpty()
                 .Must(BeUserRole)
-                    .WithMessage("'{PropertyName}' must be a valid Role. Valid roles for Project users are 'Owner' and 'Member'. Valid roles for TeamCloud users are 'Admin' and 'Creator'.");
+                    .WithMessage("'{PropertyName}' must be a valid Role. Valid roles for Project users are 'Owner' and 'Member'. Valid roles for Organization users are 'Admin' and 'Creator'.");
 
         public static IRuleBuilderOptions<T, string> MustBeProjectUserRole<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
             => ruleBuilder
@@ -253,12 +253,12 @@ namespace TeamCloud.Model.Validation
                 .Must(BeProjectUserRole)
                     .WithMessage("'{PropertyName}' must be a valid Role. Valid roles for Project users are 'Owner' and 'Member'.");
 
-        public static IRuleBuilderOptions<T, string> MustBeTeamCloudUserRole<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
+        public static IRuleBuilderOptions<T, string> MustBeOrganizationUserRole<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
             => ruleBuilder
                 .Cascade(CascadeMode.Stop)
                 .NotEmpty()
-                .Must(BeTeamCloudUserRole)
-                    .WithMessage("'{PropertyName}' must be a valid Role. Valid roles for TeamCloud users are 'Admin' and 'Creator'.");
+                .Must(BeOrganizationUserRole)
+                    .WithMessage("'{PropertyName}' must be a valid Role. Valid roles for Organization users are 'Admin' and 'Creator'.");
 
         public static IRuleBuilderOptions<T, string> MustBeProviderId<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
             => ruleBuilder
@@ -314,7 +314,7 @@ namespace TeamCloud.Model.Validation
             => !string.IsNullOrEmpty(role)
             && Enum.TryParse<ProjectUserRole>(role, true, out _);
 
-        private static bool BeTeamCloudUserRole(string role)
+        private static bool BeOrganizationUserRole(string role)
             => !string.IsNullOrEmpty(role)
             && Enum.TryParse<OrganizationUserRole>(role, true, out _);
 

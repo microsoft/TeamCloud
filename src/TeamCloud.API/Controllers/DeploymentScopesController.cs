@@ -57,7 +57,7 @@ namespace TeamCloud.API.Controllers
 
         [HttpGet("{id}")]
         [Authorize(Policy = AuthPolicies.Admin)]
-        [SwaggerOperation(OperationId = "GetDeploymentScopeById", Summary = "Gets a Deployment Scope by ID.")]
+        [SwaggerOperation(OperationId = "GetDeploymentScope", Summary = "Gets a Deployment Scope.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns a DeploymentScope.", typeof(DataResult<DeploymentScope>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A DeploymentScope with the id provided was not found.", typeof(ErrorResult))]
@@ -148,7 +148,7 @@ namespace TeamCloud.API.Controllers
                     .ToActionResult();
 
             var currentUser = await UserService
-                .CurrentUserAsync(OrganizationId)
+                .CurrentUserAsync(OrgId)
                 .ConfigureAwait(false);
 
             var command = new DeploymentScopeUpdateCommand(currentUser, deploymentScope);
@@ -173,7 +173,7 @@ namespace TeamCloud.API.Controllers
                 .ConfigureAwait(false);
 
             var currentUser = await UserService
-                .CurrentUserAsync(OrganizationId)
+                .CurrentUserAsync(OrgId)
                 .ConfigureAwait(false);
 
             var command = new DeploymentScopeDeleteCommand(currentUser, deploymentScope);

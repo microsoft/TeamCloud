@@ -20,7 +20,7 @@ using TeamCloud.Model.Data;
 namespace TeamCloud.API.Controllers
 {
     [ApiController]
-    [Route("orgs/{org}/projects/{projectId:guid}/templates")]
+    [Route("orgs/{org}/projects/{projectId:projectId}/templates")]
     [Produces("application/json")]
     public class ProjectComponentTemplatesController : ApiController
     {
@@ -54,7 +54,7 @@ namespace TeamCloud.API.Controllers
 
         [HttpGet("{id}")]
         [Authorize(Policy = AuthPolicies.ProjectRead)]
-        [SwaggerOperation(OperationId = "GetProjectComponentTemplateById", Summary = "Gets the Component Template by id.")]
+        [SwaggerOperation(OperationId = "GetProjectComponentTemplate", Summary = "Gets the Component Template.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns a Component Template", typeof(DataResult<ComponentTemplate>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project Component Template with the provided id was not found.", typeof(ErrorResult))]
@@ -66,7 +66,7 @@ namespace TeamCloud.API.Controllers
                     .ToActionResult();
 
             var componentTemplate = await componentTemplateRepository
-                .GetAsync(OrganizationId, id)
+                .GetAsync(OrgId, id)
                 .ConfigureAwait(false);
 
             if (!(componentTemplate?.ParentId?.Equals(projectTemplate.Id, StringComparison.Ordinal) ?? false))

@@ -204,11 +204,6 @@ namespace TeamCloud.Git
 
             template.DisplayName ??= template.Name;
 
-            template.Slug = template.DisplayName
-                .ToLowerInvariant()
-                .Replace(' ', '_')
-                .Replace('-', '_');
-
             return template;
         }
     }

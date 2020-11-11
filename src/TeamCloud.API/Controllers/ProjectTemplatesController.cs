@@ -53,7 +53,7 @@ namespace TeamCloud.API.Controllers
 
         [HttpGet("{projectTemplateId}")]
         [Authorize(Policy = AuthPolicies.Admin)]
-        [SwaggerOperation(OperationId = "GetProjectTemplateById", Summary = "Gets a Project Template by ID.")]
+        [SwaggerOperation(OperationId = "GetProjectTemplate", Summary = "Gets a Project Template.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns a ProjectTemplate.", typeof(DataResult<ProjectTemplate>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A ProjectTemplate with the projectTemplateId provided was not found.", typeof(ErrorResult))]
@@ -131,7 +131,7 @@ namespace TeamCloud.API.Controllers
                     .ToActionResult();
 
             var currentUser = await UserService
-                .CurrentUserAsync(OrganizationId)
+                .CurrentUserAsync(OrgId)
                 .ConfigureAwait(false);
 
             var command = new ProjectTemplateUpdateCommand(currentUser, projectTemplate);
@@ -152,7 +152,7 @@ namespace TeamCloud.API.Controllers
         public Task<IActionResult> Delete([FromRoute] string projectTemplateId) => EnsureProjectTemplateAsync(async projectTemplate =>
         {
             var currentUser = await UserService
-                .CurrentUserAsync(OrganizationId)
+                .CurrentUserAsync(OrgId)
                 .ConfigureAwait(false);
 
             var command = new ProjectTemplateDeleteCommand(currentUser, projectTemplate);
