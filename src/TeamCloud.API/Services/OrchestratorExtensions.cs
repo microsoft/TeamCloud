@@ -75,10 +75,10 @@ namespace TeamCloud.API.Services
                     => $"orgs/{org}/projects/{projectId}/users/{result.Result.Id}",
                 ICommandResult<User> result
                     => $"orgs/{org}/users/{result.Result.Id}",
-                ICommandResult<ProjectLink> result
-                    => !string.IsNullOrEmpty(projectId ?? result.Result.ProjectId)
-                     ? $"orgs/{org}/projects/{projectId ?? result.Result.ProjectId}/links/{result.Result.Id}"
-                     : throw new InvalidOperationException("ProjectLink must have a value for ProjectId to create location url."),
+                // ICommandResult<ProjectLink> result
+                //     => !string.IsNullOrEmpty(projectId ?? result.Result.ProjectId)
+                //      ? $"orgs/{org}/projects/{projectId ?? result.Result.ProjectId}/links/{result.Result.Id}"
+                //      : throw new InvalidOperationException("ProjectLink must have a value for ProjectId to create location url."),
                 ICommandResult<ComponentTemplate> result
                     => !string.IsNullOrEmpty(projectId)
                      ? $"orgs/{org}/projects/{projectId}/templates/{result.Result.Id}"

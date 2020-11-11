@@ -51,29 +51,19 @@ namespace TeamCloud.API.Controllers
         });
 
 
-        // [HttpGet("{projectTemplateId}")]
-        // [Authorize(Policy = AuthPolicies.Admin)]
-        // [SwaggerOperation(OperationId = "GetProjectTemplateById", Summary = "Gets a Project Template by ID.")]
-        // [SwaggerResponse(StatusCodes.Status200OK, "Returns a ProjectTemplate.", typeof(DataResult<ProjectTemplate>))]
-        // [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
-        // [SwaggerResponse(StatusCodes.Status404NotFound, "A ProjectTemplate with the projectTemplateId provided was not found.", typeof(ErrorResult))]
-        // public async Task<IActionResult> Get(string projectTemplateId)
-        // {
-        //     var projectTemplate = await projectTemplateRepository
-        //         .GetAsync(projectTemplateId)
-        //         .ConfigureAwait(false);
-
-        //     if (projectTemplate is null)
-        //         return ErrorResult
-        //             .NotFound($"A ProjectTemplate with the ID '{projectTemplateId}' could not be found in this TeamCloud Instance")
-        //             .ToActionResult();
-
-        //     var returnProjectTemplate = projectTemplate.PopulateExternalModel();
-
-        //     return DataResult<ProjectTemplate>
-        //         .Ok(returnProjectTemplate)
-        //         .ToActionResult();
-        // }
+        [HttpGet("{projectTemplateId}")]
+        [Authorize(Policy = AuthPolicies.Admin)]
+        [SwaggerOperation(OperationId = "GetProjectTemplateById", Summary = "Gets a Project Template by ID.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Returns a ProjectTemplate.", typeof(DataResult<ProjectTemplate>))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "A ProjectTemplate with the projectTemplateId provided was not found.", typeof(ErrorResult))]
+        [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
+        public Task<IActionResult> Get(string projectTemplateId) => EnsureProjectTemplateAsync(projectTemplate =>
+        {
+            return DataResult<ProjectTemplate>
+                .Ok(projectTemplate)
+                .ToActionResult();
+        });
 
 
         [HttpPost]
@@ -89,37 +79,6 @@ namespace TeamCloud.API.Controllers
                 return ErrorResult
                     .BadRequest("Request body must not be empty.", ResultErrorCode.ValidationError)
                     .ToActionResult();
-
-            // if (!projectTemplate.TryValidate(out var validationResult, serviceProvider: HttpContext.RequestServices))
-            //     return ErrorResult
-            //         .BadRequest(validationResult)
-            //         .ToActionResult();
-
-            // var projectTemplate = await projectTemplateRepository
-            //     .GetAsync(organizationId, projectTemplateDefinition.Id)
-            //     .ConfigureAwait(false);
-
-            //     .ConfigureAwait(false);
-
-            //  // if (projectTemplate != null)
-            //         .ToActionResult();
-
-            // var providers = await ProviderRepository
-            //     .ListAsync(includeServiceProviders: false)
-            //     .ToListAsync()
-            //     .ConfigureAwait(false);
-
-            // var validProviders = projectTemplate.Providers
-            //     .All(p => providers.Any(provider => provider.Id == p.Id));
-
-            // if (!validProviders)
-            // {
-            //     var validProviderIds = string.Join(", ", providers.Select(p => p.Id));
-
-            //     return ErrorResult
-            //         .BadRequest(new ValidationError { Field = "projectTemplate", Message = $"All provider ids on a ProjectTemplate must match the id of a registered Provider on the TeamCloud instance and cannot be a Service Provider. Valid provider ids are: {validProviderIds}" })
-            //         .ToActionResult();
-            // }
 
             var currentUser = await UserService
                 .CurrentUserAsync(organizationId)
@@ -170,23 +129,6 @@ namespace TeamCloud.API.Controllers
                 return ErrorResult
                     .BadRequest(new ValidationError { Field = "id", Message = $"ProjectTemplate's id does match the identifier provided in the path." })
                     .ToActionResult();
-
-            // var providers = await ProviderRepository
-            //     .ListAsync(includeServiceProviders: false)
-            //     .ToListAsync()
-            //     .ConfigureAwait(false);
-
-            // var validProviders = projectTemplate.Providers
-            //     .All(p => providers.Any(provider => provider.Id == p.Id));
-
-            // if (!validProviders)
-            // {
-            //     var validProviderIds = string.Join(", ", providers.Select(p => p.Id));
-
-            //     return ErrorResult
-            //         .BadRequest(new ValidationError { Field = "projectTemplate", Message = $"All provider ids on a ProjectTemplate must match the id of a registered Provider on the TeamCloud instance and cannot be a Service Provider. Valid provider ids are: {validProviderIds}" })
-            //         .ToActionResult();
-            // }
 
             var currentUser = await UserService
                 .CurrentUserAsync(OrganizationId)

@@ -94,7 +94,7 @@ namespace TeamCloud.Orchestrator
                 .AddScoped<ICommandHandler, OrganizationCommandHandler>()
                 .AddScoped<ICommandHandler, OrganizationUserCommandHandler>()
                 .AddScoped<ICommandHandler, ProjectCommandHandler>()
-                .AddScoped<ICommandHandler, ProjectLinkCommandHandler>()
+                // .AddScoped<ICommandHandler, ProjectLinkCommandHandler>()
                 .AddScoped<ICommandHandler, ProjectTemplateCommandHandler>()
                 .AddScoped<ICommandHandler, ProjectUserCommandHandler>();
 

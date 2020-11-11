@@ -35,7 +35,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpGet("orgs")] // TODO: Update Auth
-        [Authorize(Policy = AuthPolicies.UserRead)]
+        [Authorize(Policy = AuthPolicies.Default)]
         [SwaggerOperation(OperationId = "GetOrganizations", Summary = "Gets all Organizations.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all Organizations.", typeof(DataResult<List<Organization>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
@@ -54,7 +54,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpGet("orgs/{org}")]
-        [Authorize(Policy = AuthPolicies.UserRead)]
+        [Authorize(Policy = AuthPolicies.Default)]
         [SwaggerOperation(OperationId = "GetOrganizationById", Summary = "Gets an Organization by ID.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns an Organization.", typeof(DataResult<Organization>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
@@ -69,7 +69,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpPost("orgs")]
-        [Authorize(Policy = AuthPolicies.UserWrite)]
+        [Authorize(Policy = AuthPolicies.Default)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "CreateOrganization", Summary = "Creates a new Organization.")]
         // [SwaggerResponse(StatusCodes.Status202Accepted, "Starts creating the new Organization. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
@@ -86,15 +86,6 @@ namespace TeamCloud.API.Controllers
             // if (!validation.IsValid)
             //     return ErrorResult
             //         .BadRequest(validation)
-            //         .ToActionResult();
-
-            // var userId = await UserService
-            //     .GetUserIdAsync(organizationDefinition.Identifier)
-            //     .ConfigureAwait(false);
-
-            // if (string.IsNullOrEmpty(userId))
-            //     return ErrorResult
-            //         .NotFound($"The user '{organizationDefinition.Identifier}' could not be found.")
             //         .ToActionResult();
 
             var organization = await OrganizationRepository
@@ -130,7 +121,7 @@ namespace TeamCloud.API.Controllers
 
 
         // [HttpPut("orgs/{org}")]
-        // [Authorize(Policy = AuthPolicies.UserWrite)]
+        // [Authorize(Policy = AuthPolicies.Admin)]
         // [Consumes("application/json")]
         // [SwaggerOperation(OperationId = "UpdateOrganization", Summary = "Updates an existing Organization.")]
         // [SwaggerResponse(StatusCodes.Status202Accepted, "Starts updating the Organization. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
@@ -182,26 +173,13 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpDelete("orgs/{org}")]
-        [Authorize(Policy = AuthPolicies.UserWrite)]
+        [Authorize(Policy = AuthPolicies.Admin)]
         [SwaggerOperation(OperationId = "DeleteOrganization", Summary = "Deletes an existing Organization.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts deleting the Organization. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "An Organization with the identifier provided was not found.", typeof(ErrorResult))]
         [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
         public Task<IActionResult> Delete([FromRoute] string org) => EnsureOrganizationAsync(async organization =>
         {
-            // if (userDocument.IsAdmin())
-            // {
-            //     var otherAdmins = await OrganizationRepository
-            //         .ListAdminsAsync()
-            //         .AnyAsync(a => a.Id != userDocument.Id)
-            //         .ConfigureAwait(false);
-
-            //     if (!otherAdmins)
-            //         return ErrorResult
-            //             .BadRequest($"The TeamCloud instance must have at least one Admin user. To delete this user you must first add another Admin user.", ResultErrorCode.ValidationError)
-            //             .ToActionResult();
-            // }
-
             var currentUser = await UserService
                 .CurrentUserAsync(OrganizationId)
                 .ConfigureAwait(false);

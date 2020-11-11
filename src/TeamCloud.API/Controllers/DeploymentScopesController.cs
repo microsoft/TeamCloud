@@ -97,32 +97,6 @@ namespace TeamCloud.API.Controllers
             //         .BadRequest(validationResult)
             //         .ToActionResult();
 
-            // var projectTemplate = await projectTemplateRepository
-            //     .GetAsync(organizationId, projectTemplateDefinition.Id)
-            //     .ConfigureAwait(false);
-
-            //     .ConfigureAwait(false);
-
-            //  // if (projectTemplate != null)
-            //         .ToActionResult();
-
-            // var providers = await ProviderRepository
-            //     .ListAsync(includeServiceProviders: false)
-            //     .ToListAsync()
-            //     .ConfigureAwait(false);
-
-            // var validProviders = projectTemplate.Providers
-            //     .All(p => providers.Any(provider => provider.Id == p.Id));
-
-            // if (!validProviders)
-            // {
-            //     var validProviderIds = string.Join(", ", providers.Select(p => p.Id));
-
-            //     return ErrorResult
-            //         .BadRequest(new ValidationError { Field = "projectTemplate", Message = $"All provider ids on a ProjectTemplate must match the id of a registered Provider on the TeamCloud instance and cannot be a Service Provider. Valid provider ids are: {validProviderIds}" })
-            //         .ToActionResult();
-            // }
-
             var currentUser = await UserService
                 .CurrentUserAsync(organizationId)
                 .ConfigureAwait(false);
@@ -172,23 +146,6 @@ namespace TeamCloud.API.Controllers
                 return ErrorResult
                     .BadRequest(new ValidationError { Field = "id", Message = $"DeploymentScopes's id does match the identifier provided in the path." })
                     .ToActionResult();
-
-            // var providers = await ProviderRepository
-            //     .ListAsync(includeServiceProviders: false)
-            //     .ToListAsync()
-            //     .ConfigureAwait(false);
-
-            // var validProviders = projectTemplate.Providers
-            //     .All(p => providers.Any(provider => provider.Id == p.Id));
-
-            // if (!validProviders)
-            // {
-            //     var validProviderIds = string.Join(", ", providers.Select(p => p.Id));
-
-            //     return ErrorResult
-            //         .BadRequest(new ValidationError { Field = "projectTemplate", Message = $"All provider ids on a ProjectTemplate must match the id of a registered Provider on the TeamCloud instance and cannot be a Service Provider. Valid provider ids are: {validProviderIds}" })
-            //         .ToActionResult();
-            // }
 
             var currentUser = await UserService
                 .CurrentUserAsync(OrganizationId)

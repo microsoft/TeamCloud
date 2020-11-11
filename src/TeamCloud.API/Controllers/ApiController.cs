@@ -15,12 +15,6 @@ namespace TeamCloud.API.Controllers
 {
     public abstract class ApiController : ControllerBase
     {
-        // protected ApiController(UserService userService, Orchestrator orchestrator)
-        // {
-        //     UserService = userService ?? throw new ArgumentNullException(nameof(userService));
-        //     Orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
-        // }
-
         protected ApiController(UserService userService, Orchestrator orchestrator, IOrganizationRepository organizationRepository)
         {
             UserService = userService ?? throw new ArgumentNullException(nameof(userService));

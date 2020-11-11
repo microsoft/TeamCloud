@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
@@ -87,44 +86,6 @@ namespace TeamCloud.API.Auth
                     {
                         policy.RequireRole(OrganizationUserRole.Admin.AuthPolicy(),
                                            OrganizationUserRole.Creator.AuthPolicy());
-                    });
-
-                    options.AddPolicy(AuthPolicies.ProjectIdentityRead, policy =>
-                    {
-                        policy.RequireRole(OrganizationUserRole.Admin.AuthPolicy(),
-                                           ProjectUserRole.Owner.AuthPolicy(),
-                                           ProjectUserRole.Provider.AuthPolicy());
-                    });
-
-                    options.AddPolicy(AuthPolicies.ProviderDataRead, policy =>
-                    {
-                        policy.RequireRole(OrganizationUserRole.Admin.AuthPolicy(),
-                                           ProviderUserRoles.ProviderReadPolicyRoleName,
-                                           ProviderUserRoles.ProviderWritePolicyRoleName);
-                    });
-
-                    options.AddPolicy(AuthPolicies.ProviderDataWrite, policy =>
-                    {
-                        policy.RequireRole(OrganizationUserRole.Admin.AuthPolicy(),
-                                           ProviderUserRoles.ProviderWritePolicyRoleName);
-                    });
-
-                    options.AddPolicy(AuthPolicies.ProviderOfferRead, policy =>
-                    {
-                        policy.RequireRole(OrganizationUserRole.Admin.AuthPolicy(),
-                                        ProviderUserRoles.ProviderWritePolicyRoleName);
-                    });
-
-                    options.AddPolicy(AuthPolicies.ProviderOfferWrite, policy =>
-                    {
-                        policy.RequireRole(OrganizationUserRole.Admin.AuthPolicy(),
-                                        ProviderUserRoles.ProviderWritePolicyRoleName);
-                    });
-
-                    options.AddPolicy(AuthPolicies.ProviderComponentWrite, policy =>
-                    {
-                        policy.RequireRole(OrganizationUserRole.Admin.AuthPolicy(),
-                                        ProviderUserRoles.ProviderWritePolicyRoleName);
                     });
 
                     options.AddPolicy(AuthPolicies.ProjectComponentRead, policy =>
