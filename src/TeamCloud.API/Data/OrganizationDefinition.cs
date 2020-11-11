@@ -10,7 +10,7 @@ using TeamCloud.Serialization;
 namespace TeamCloud.API.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public class OrganizationDefinition : ISlug
+    public class OrganizationDefinition : ISlug, IValidatable
     {
         public string Slug => (this as ISlug).GetSlug();
 

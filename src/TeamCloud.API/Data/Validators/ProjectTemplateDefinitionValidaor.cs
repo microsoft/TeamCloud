@@ -11,9 +11,7 @@ namespace TeamCloud.API.Data.Validators
     {
         public ProjectTemplateDefinitionValidator()
         {
-            // RuleFor(obj => obj.Name).NotEmpty();
-            // RuleFor(obj => obj.Users)
-            //     .ForEach(user => user.SetValidator(new ProjectUserDefinitionValidator()));
+            RuleFor(obj => obj.Repository).SetValidator(new RepositoryDefinitionValidator());
         }
     }
 }

@@ -4,12 +4,13 @@
  */
 
 using Newtonsoft.Json;
+using TeamCloud.Model.Common;
 using TeamCloud.Serialization;
 
 namespace TeamCloud.API.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public class ProjectTemplateDefinition
+    public class ProjectTemplateDefinition : IDisplayName, IValidatable
     {
         public string DisplayName { get; set; }
 
