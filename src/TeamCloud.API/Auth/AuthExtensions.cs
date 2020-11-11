@@ -114,7 +114,7 @@ namespace TeamCloud.API.Auth
             return services;
         }
 
-        internal static async Task<IEnumerable<Claim>> ResolveClaimsAsync(this HttpContext httpContext, string userId)
+        internal static async Task<IEnumerable<Claim>> ResolveClaimsAsync(this HttpContext httpContext, string tenantId, string userId)
         {
             var claims = new List<Claim>();
 
@@ -130,7 +130,7 @@ namespace TeamCloud.API.Auth
                 .GetRequiredService<IOrganizationRepository>();
 
             var organizationId = await organizationRepository
-                .ResolveIdAsync(org)
+                .ResolveIdAsync(tenantId, org)
                 .ConfigureAwait(false);
 
             if (string.IsNullOrEmpty(organizationId))

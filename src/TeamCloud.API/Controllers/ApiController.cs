@@ -102,7 +102,7 @@ namespace TeamCloud.API.Controllers
                         .ToActionResult();
 
                 OrgId = await OrganizationRepository
-                    .ResolveIdAsync(Org)
+                    .ResolveIdAsync(UserService.CurrentUserTenant, Org)
                     .ConfigureAwait(false);
 
                 if (string.IsNullOrEmpty(OrgId))
@@ -153,7 +153,7 @@ namespace TeamCloud.API.Controllers
                         .ToActionResult();
 
                 var organization = await OrganizationRepository
-                    .GetAsync(Org)
+                    .GetAsync(UserService.CurrentUserTenant, Org)
                     .ConfigureAwait(false);
 
                 if (organization is null)
@@ -204,7 +204,7 @@ namespace TeamCloud.API.Controllers
                         .ToActionResult();
 
                 OrgId = await OrganizationRepository
-                    .ResolveIdAsync(Org)
+                    .ResolveIdAsync(UserService.CurrentUserTenant, Org)
                     .ConfigureAwait(false);
 
                 if (string.IsNullOrEmpty(OrgId))
@@ -269,7 +269,7 @@ namespace TeamCloud.API.Controllers
                         .ToActionResult();
 
                 OrgId = await OrganizationRepository
-                    .ResolveIdAsync(Org)
+                    .ResolveIdAsync(UserService.CurrentUserTenant, Org)
                     .ConfigureAwait(false);
 
                 if (string.IsNullOrEmpty(OrgId))
@@ -334,7 +334,7 @@ namespace TeamCloud.API.Controllers
                         .ToActionResult();
 
                 OrgId = await OrganizationRepository
-                    .ResolveIdAsync(Org)
+                    .ResolveIdAsync(UserService.CurrentUserTenant, Org)
                     .ConfigureAwait(false);
 
                 if (string.IsNullOrEmpty(OrgId))
@@ -415,7 +415,7 @@ namespace TeamCloud.API.Controllers
                         .ToActionResult();
 
                 OrgId = await OrganizationRepository
-                    .ResolveIdAsync(Org)
+                    .ResolveIdAsync(UserService.CurrentUserTenant, Org)
                     .ConfigureAwait(false);
 
                 if (string.IsNullOrEmpty(OrgId))
@@ -488,7 +488,7 @@ namespace TeamCloud.API.Controllers
                         .ToActionResult();
 
                 OrgId = await OrganizationRepository
-                    .ResolveIdAsync(Org)
+                    .ResolveIdAsync(UserService.CurrentUserTenant, Org)
                     .ConfigureAwait(false);
 
                 if (string.IsNullOrEmpty(OrgId))
@@ -547,7 +547,7 @@ namespace TeamCloud.API.Controllers
                         .ToActionResult();
 
                 OrgId = await OrganizationRepository
-                    .ResolveIdAsync(Org)
+                    .ResolveIdAsync(UserService.CurrentUserTenant, Org)
                     .ConfigureAwait(false);
 
                 if (string.IsNullOrEmpty(OrgId))
@@ -634,7 +634,7 @@ namespace TeamCloud.API.Controllers
                         .ToActionResult();
 
                 OrgId = await OrganizationRepository
-                    .ResolveIdAsync(Org)
+                    .ResolveIdAsync(UserService.CurrentUserTenant, Org)
                     .ConfigureAwait(false);
 
                 if (string.IsNullOrEmpty(OrgId))

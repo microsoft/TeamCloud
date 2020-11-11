@@ -132,6 +132,15 @@ namespace TeamCloud.API
             return objectIdenifier;
         }
 
+        public static string GetTenantId(this ClaimsPrincipal claimsPrincipal)
+        {
+            const string TenantIdClaimType = "http://schemas.microsoft.com/identity/claims/tenantid";
+
+            var tenantId = claimsPrincipal.FindFirstValue(TenantIdClaimType);
+
+            return tenantId;
+        }
+
         public static Task<T> ReadAsAsync<T>(this HttpContent httpContent, JsonSerializerSettings serializerSettings = null)
             => httpContent.ReadAsAsync<T>(JsonSerializer.CreateDefault(serializerSettings));
 

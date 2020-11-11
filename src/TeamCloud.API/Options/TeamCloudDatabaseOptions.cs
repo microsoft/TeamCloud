@@ -19,8 +19,6 @@ namespace TeamCloud.API.Options
             this.cosmosDbOptions = cosmosDbOptions ?? throw new System.ArgumentNullException(nameof(cosmosDbOptions));
         }
 
-        public string Tenant => cosmosDbOptions.Tenant;
-
         public string DatabaseName => cosmosDbOptions.DatabaseName;
 
         public string ConnectionString => cosmosDbOptions.ConnectionString;

@@ -32,6 +32,9 @@ namespace TeamCloud.API.Services
         public string CurrentUserId
             => httpContextAccessor.HttpContext.User.GetObjectId();
 
+        public string CurrentUserTenant
+            => httpContextAccessor.HttpContext.User.GetTenantId();
+
         /// <summary>
         ///
         /// </summary>

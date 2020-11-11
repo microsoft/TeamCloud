@@ -21,7 +21,6 @@ using TeamCloud.API.Services;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
-using TeamCloud.Model.Validation.Data;
 
 namespace TeamCloud.API.Controllers
 {
@@ -43,7 +42,7 @@ namespace TeamCloud.API.Controllers
         public async Task<IActionResult> Get()
         {
             var orgs = await OrganizationRepository
-                .ListAsync()
+                .ListAsync(UserService.CurrentUserTenant)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
@@ -89,7 +88,7 @@ namespace TeamCloud.API.Controllers
                     .ToActionResult();
 
             var organization = await OrganizationRepository
-                .GetAsync(organizationDefinition.Slug)
+                .GetAsync(UserService.CurrentUserTenant, organizationDefinition.Slug)
                 .ConfigureAwait(false);
 
             if (organization != null)

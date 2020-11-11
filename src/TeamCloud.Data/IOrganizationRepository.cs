@@ -11,11 +11,11 @@ namespace TeamCloud.Data
 {
     public interface IOrganizationRepository
     {
-        Task<Organization> GetAsync(string id);
+        Task<Organization> GetAsync(string tenant, string id);
 
-        Task<string> ResolveIdAsync(string identifier);
+        Task<string> ResolveIdAsync(string tenant, string identifier);
 
-        IAsyncEnumerable<Organization> ListAsync();
+        IAsyncEnumerable<Organization> ListAsync(string tenant);
 
         Task<Organization> AddAsync(Organization organization);
 

@@ -7,8 +7,6 @@ namespace TeamCloud.Data.CosmosDb.Core
 {
     public interface ICosmosDbOptions
     {
-        string Tenant { get; }
-
         string DatabaseName { get; }
 
         string ConnectionString { get; }

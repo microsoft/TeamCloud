@@ -279,8 +279,9 @@ namespace TeamCloud.API
                         OnTokenValidated = async (TokenValidatedContext context) =>
                         {
                             var userId = context.Principal.GetObjectId();
+                            var tenantId = context.Principal.GetTenantId();
 
-                            var userClaims = await context.HttpContext.ResolveClaimsAsync(userId).ConfigureAwait(false);
+                            var userClaims = await context.HttpContext.ResolveClaimsAsync(tenantId, userId).ConfigureAwait(false);
                             if (userClaims.Any()) context.Principal.AddIdentity(new ClaimsIdentity(userClaims));
                         }
                     };
