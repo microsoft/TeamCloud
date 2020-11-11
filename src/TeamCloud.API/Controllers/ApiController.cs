@@ -178,6 +178,70 @@ namespace TeamCloud.API.Controllers
             }
         }
 
+        [NonAction]
+        public Task<IActionResult> EnsureProjectIdAsync(Func<string, Task<IActionResult>> callback)
+            => EnsureProjectIdInternalAsync(asyncCallback: callback);
+
+        [NonAction]
+        public Task<IActionResult> EnsureProjectIdAsync(Func<string, IActionResult> callback)
+            => EnsureProjectIdInternalAsync(callback: callback);
+
+        [NonAction]
+        private async Task<IActionResult> EnsureProjectIdInternalAsync(Func<string, Task<IActionResult>> asyncCallback = null, Func<string, IActionResult> callback = null)
+        {
+            try
+            {
+                if (asyncCallback is null && callback is null)
+                    throw new InvalidOperationException("asyncCallback or callback must have a value");
+
+                if (!(asyncCallback is null || callback is null))
+                    throw new InvalidOperationException("Only one of asyncCallback or callback can hava a value");
+
+                if (string.IsNullOrEmpty(Org))
+                    return ErrorResult
+                        .BadRequest($"Organization id or slug provided in the url path is invalid.  Must be a valid organization slug or id (guid).", ResultErrorCode.ValidationError)
+                        .ToActionResult();
+
+                OrgId = await OrganizationRepository
+                    .ResolveIdAsync(UserService.CurrentUserTenant, Org)
+                    .ConfigureAwait(false);
+
+                if (string.IsNullOrEmpty(OrgId))
+                    return ErrorResult
+                        .NotFound($"A Organization with the slug or id '{Org}' was not found.")
+                        .ToActionResult();
+
+                if (string.IsNullOrEmpty(ProjectId))
+                    return ErrorResult
+                        .BadRequest($"Project name or id provided in the url path is invalid.  Must be a valid project name or id (guid).", ResultErrorCode.ValidationError)
+                        .ToActionResult();
+
+                var project = await ProjectRepository
+                    .ResolveIdAsync(OrgId, ProjectId)
+                    .ConfigureAwait(false);
+
+                if (string.IsNullOrEmpty(project))
+                    return ErrorResult
+                        .NotFound($"A Project with the name or id '{ProjectId}' was not found.")
+                        .ToActionResult();
+
+                if (!(callback is null))
+                    return callback(project);
+
+                if (!(asyncCallback is null))
+                    return await asyncCallback(project)
+                        .ConfigureAwait(false);
+
+                throw new InvalidOperationException("asyncCallback or callback must have a value");
+            }
+            catch (Exception exc)
+            {
+                return ErrorResult
+                    .ServerError(exc)
+                    .ToActionResult();
+            }
+        }
+
 
         [NonAction]
         public Task<IActionResult> EnsureProjectAsync(Func<Project, Task<IActionResult>> callback)
@@ -523,15 +587,15 @@ namespace TeamCloud.API.Controllers
         }
 
         [NonAction]
-        public Task<IActionResult> EnsureProjectAndUserAsync(Func<Project, User, Task<IActionResult>> callback)
+        public Task<IActionResult> EnsureProjectAndUserAsync(Func<string, User, Task<IActionResult>> callback)
             => EnsureProjectAndUserInternalAsync(asyncCallback: callback);
 
         [NonAction]
-        public Task<IActionResult> EnsureProjectAndUserAsync(Func<Project, User, IActionResult> callback)
+        public Task<IActionResult> EnsureProjectAndUserAsync(Func<string, User, IActionResult> callback)
             => EnsureProjectAndUserInternalAsync(callback: callback);
 
         [NonAction]
-        private async Task<IActionResult> EnsureProjectAndUserInternalAsync(Func<Project, User, Task<IActionResult>> asyncCallback = null, Func<Project, User, IActionResult> callback = null)
+        private async Task<IActionResult> EnsureProjectAndUserInternalAsync(Func<string, User, Task<IActionResult>> asyncCallback = null, Func<string, User, IActionResult> callback = null)
         {
             try
             {
@@ -575,10 +639,10 @@ namespace TeamCloud.API.Controllers
                         .ToActionResult();
 
                 var project = await ProjectRepository
-                    .GetAsync(OrgId, ProjectId)
+                    .ResolveIdAsync(OrgId, ProjectId)
                     .ConfigureAwait(false);
 
-                if (project is null)
+                if (string.IsNullOrEmpty(project))
                     return ErrorResult
                         .NotFound($"A Project with the name or id '{ProjectId}' was not found.")
                         .ToActionResult();
@@ -610,15 +674,15 @@ namespace TeamCloud.API.Controllers
         }
 
         [NonAction]
-        public Task<IActionResult> EnsureProjectAndCurrentUserAsync(Func<Project, User, Task<IActionResult>> callback)
+        public Task<IActionResult> EnsureProjectAndCurrentUserAsync(Func<string, User, Task<IActionResult>> callback)
             => EnsureProjectAndCurrentUserInternalAsync(asyncCallback: callback);
 
         [NonAction]
-        public Task<IActionResult> EnsureProjectAndCurrentUserAsync(Func<Project, User, IActionResult> callback)
+        public Task<IActionResult> EnsureProjectAndCurrentUserAsync(Func<string, User, IActionResult> callback)
             => EnsureProjectAndCurrentUserInternalAsync(callback: callback);
 
         [NonAction]
-        private async Task<IActionResult> EnsureProjectAndCurrentUserInternalAsync(Func<Project, User, Task<IActionResult>> asyncCallback = null, Func<Project, User, IActionResult> callback = null)
+        private async Task<IActionResult> EnsureProjectAndCurrentUserInternalAsync(Func<string, User, Task<IActionResult>> asyncCallback = null, Func<string, User, IActionResult> callback = null)
         {
             try
             {
@@ -648,10 +712,10 @@ namespace TeamCloud.API.Controllers
                         .ToActionResult();
 
                 var project = await ProjectRepository
-                    .GetAsync(OrgId, ProjectId)
+                    .ResolveIdAsync(OrgId, ProjectId)
                     .ConfigureAwait(false);
 
-                if (project is null)
+                if (string.IsNullOrEmpty(project))
                     return ErrorResult
                         .NotFound($"A Project with the name or id '{ProjectId}' was not found.")
                         .ToActionResult();

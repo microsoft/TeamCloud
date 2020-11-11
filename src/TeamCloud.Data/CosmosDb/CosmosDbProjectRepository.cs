@@ -9,6 +9,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Caching.Memory;
 using TeamCloud.Data.CosmosDb.Core;
 using TeamCloud.Model.Data;
 using TeamCloud.Model.Validation;
@@ -17,12 +18,43 @@ namespace TeamCloud.Data.CosmosDb
 {
     public class CosmosDbProjectRepository : CosmosDbRepository<Project>, IProjectRepository
     {
+        private readonly IMemoryCache cache;
+
         private readonly IUserRepository userRepository;
 
-        public CosmosDbProjectRepository(ICosmosDbOptions cosmosOptions, IUserRepository userRepository)
+        public CosmosDbProjectRepository(ICosmosDbOptions cosmosOptions, IUserRepository userRepository, IMemoryCache cache)
             : base(cosmosOptions)
         {
             this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+            this.cache = cache ?? throw new ArgumentNullException(nameof(cache));
+        }
+
+        public async Task<string> ResolveIdAsync(string organization, string identifier)
+        {
+            if (identifier is null)
+                throw new ArgumentNullException(nameof(identifier));
+
+            var key = $"{organization}_{identifier}";
+
+            if (!cache.TryGetValue(key, out string id))
+            {
+                var project = await GetAsync(organization, identifier)
+                    .ConfigureAwait(false);
+
+                id = project?.Id;
+
+                if (!string.IsNullOrEmpty(id))
+                    cache.Set(key, cache, TimeSpan.FromMinutes(10));
+            }
+
+            return id;
+        }
+
+        private void RemoveCachedIds(Project project)
+        {
+            cache.Remove($"{project.Organization}_{project.DisplayName}");
+            cache.Remove($"{project.Organization}_{project.Slug}");
+            cache.Remove($"{project.Organization}_{project.Id}");
         }
 
         public async Task<Project> AddAsync(Project project)
@@ -54,7 +86,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async Task<Project> GetAsync(string organization, string nameOrId)
+        public async Task<Project> GetAsync(string organization, string identifier)
         {
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
@@ -64,14 +96,14 @@ namespace TeamCloud.Data.CosmosDb
             try
             {
                 var response = await container
-                    .ReadItemAsync<Project>(nameOrId, GetPartitionKey(organization))
+                    .ReadItemAsync<Project>(identifier, GetPartitionKey(organization))
                     .ConfigureAwait(false);
 
                 project = response.Resource;
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
             {
-                var query = new QueryDefinition($"SELECT * FROM c WHERE c.displayName = '{nameOrId}' OR c.slug = '{nameOrId}'");
+                var query = new QueryDefinition($"SELECT * FROM c WHERE c.displayName = '{identifier}' OR c.slug = '{identifier}'");
 
                 var queryIterator = container
                     .GetItemQueryIterator<Project>(query, requestOptions: GetQueryRequestOptions(organization));
@@ -94,7 +126,7 @@ namespace TeamCloud.Data.CosmosDb
 
         public async Task<bool> NameExistsAsync(string organization, string name)
         {
-            var project = await GetAsync(organization, name)
+            var project = await ResolveIdAsync(organization, name)
                 .ConfigureAwait(false);
 
             return project != null;
@@ -148,12 +180,12 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async IAsyncEnumerable<Project> ListAsync(string organization, IEnumerable<string> nameOrIds)
+        public async IAsyncEnumerable<Project> ListAsync(string organization, IEnumerable<string> identifiers)
         {
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
-            var search = "'" + string.Join("', '", nameOrIds) + "'";
+            var search = "'" + string.Join("', '", identifiers) + "'";
             var query = new QueryDefinition($"SELECT * FROM p WHERE p.id IN ({search}) OR p.slug IN ({search}) OR p.displayName in ({search})");
 
             var queryIterator = container
@@ -215,6 +247,8 @@ namespace TeamCloud.Data.CosmosDb
                 var response = await container
                     .DeleteItemAsync<Project>(project.Id, GetPartitionKey(project))
                     .ConfigureAwait(false);
+
+                RemoveCachedIds(project);
 
                 await userRepository
                     .RemoveProjectMembershipsAsync(project.Organization, project.Id)

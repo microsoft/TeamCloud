@@ -11,11 +11,13 @@ namespace TeamCloud.Data
 {
     public interface IProjectRepository
     {
-        Task<Project> GetAsync(string organization, string nameOrId);
+        Task<Project> GetAsync(string organization, string identifier);
+
+        Task<string> ResolveIdAsync(string tenant, string identifier);
 
         IAsyncEnumerable<Project> ListAsync(string organization);
 
-        IAsyncEnumerable<Project> ListAsync(string organization, IEnumerable<string> nameOrIds);
+        IAsyncEnumerable<Project> ListAsync(string organization, IEnumerable<string> identifiers);
 
         IAsyncEnumerable<Project> ListByTemplateAsync(string organization, string templateId);
 

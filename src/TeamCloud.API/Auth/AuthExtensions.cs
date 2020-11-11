@@ -238,21 +238,18 @@ namespace TeamCloud.API.Auth
             return claims;
         }
 
-        private static async Task<string> ResolveProjectIdFromRouteAsync(this HttpContext httpContext, string organizationId)
+        private static Task<string> ResolveProjectIdFromRouteAsync(this HttpContext httpContext, string organizationId)
         {
             var projectId = httpContext.RouteValueOrDefault("projectId");
 
             if (string.IsNullOrEmpty(projectId) || projectId.IsGuid())
-                return projectId;
+                return Task.FromResult(projectId);
 
             var projectsRepository = httpContext.RequestServices
                 .GetRequiredService<IProjectRepository>();
 
-            var project = await projectsRepository
-                .GetAsync(organizationId, projectId)
-                .ConfigureAwait(false);
-
-            return project?.Id;
+            return projectsRepository
+                .ResolveIdAsync(organizationId, projectId);
         }
 
         private static Task<string> ResolveUserIdFromRouteAsync(this HttpContext httpContext)

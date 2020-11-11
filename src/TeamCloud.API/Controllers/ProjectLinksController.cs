@@ -42,7 +42,7 @@
 //         [SwaggerResponse(StatusCodes.Status200OK, "Returns all Project Links", typeof(DataResult<List<ProjectLink>>))]
 //         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
 //         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found.", typeof(ErrorResult))]
-//         public Task<IActionResult> Get() => EnsureProjectAsync(async project =>
+//         public Task<IActionResult> Get() => EnsureProjectIdAsync(async project =>
 //         {
 //             var linkDocuments = await projectLinkRepository
 //                 .ListAsync(project.Id)
@@ -65,7 +65,7 @@
 //         [SwaggerResponse(StatusCodes.Status200OK, "Returns Project Link", typeof(DataResult<ProjectLink>))]
 //         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
 //         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a Tag with the provided key was not found.", typeof(ErrorResult))]
-//         public Task<IActionResult> Get([FromRoute] string linkId) => EnsureProjectAsync(async project =>
+//         public Task<IActionResult> Get([FromRoute] string linkId) => EnsureProjectIdAsync(async project =>
 //         {
 //             if (string.IsNullOrWhiteSpace(linkId))
 //                 return ErrorResult
@@ -99,7 +99,7 @@
 //         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
 //         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found.", typeof(ErrorResult))]
 //         [SwaggerResponse(StatusCodes.Status409Conflict, "A Project Link already exists with the key provided in the request body.", typeof(ErrorResult))]
-//         public Task<IActionResult> Post([FromBody] ProjectLink link) => EnsureProjectAsync(async project =>
+//         public Task<IActionResult> Post([FromBody] ProjectLink link) => EnsureProjectIdAsync(async project =>
 //         {
 //             if (link is null)
 //                 return ErrorResult
@@ -147,7 +147,7 @@
 //         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts updating the Project Link. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
 //         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
 //         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a Tag with the key provided in the request body was not found.", typeof(ErrorResult))]
-//         public Task<IActionResult> Put([FromRoute] string linkId, [FromBody] ProjectLink link) => EnsureProjectAsync(async project =>
+//         public Task<IActionResult> Put([FromRoute] string linkId, [FromBody] ProjectLink link) => EnsureProjectIdAsync(async project =>
 //         {
 //             if (!Guid.TryParse(linkId, out var linkIdParsed) || linkIdParsed == Guid.Empty)
 //                 return ErrorResult
@@ -197,7 +197,7 @@
 //         [SwaggerResponse(StatusCodes.Status204NoContent, "The Project Link was deleted.", typeof(DataResult<ProjectLink>))]
 //         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
 //         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided Id was not found, or a Link with the provided Id was not found.", typeof(ErrorResult))]
-//         public Task<IActionResult> Delete([FromRoute] string linkId) => EnsureProjectAsync(async project =>
+//         public Task<IActionResult> Delete([FromRoute] string linkId) => EnsureProjectIdAsync(async project =>
 //         {
 //             if (string.IsNullOrWhiteSpace(linkId))
 //                 return ErrorResult

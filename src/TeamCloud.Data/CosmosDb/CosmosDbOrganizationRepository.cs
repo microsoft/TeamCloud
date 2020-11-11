@@ -18,12 +18,12 @@ namespace TeamCloud.Data.CosmosDb
 {
     public class CosmosDbOrganizationRepository : CosmosDbRepository<Organization>, IOrganizationRepository
     {
-        private readonly IMemoryCache idCache;
+        private readonly IMemoryCache cache;
 
-        public CosmosDbOrganizationRepository(ICosmosDbOptions cosmosOptions, IMemoryCache idCache)
+        public CosmosDbOrganizationRepository(ICosmosDbOptions cosmosOptions, IMemoryCache cache)
             : base(cosmosOptions)
         {
-            this.idCache = idCache ?? throw new ArgumentNullException(nameof(idCache));
+            this.cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }
 
 
@@ -34,7 +34,7 @@ namespace TeamCloud.Data.CosmosDb
 
             var key = $"{tenant}_{identifier}";
 
-            if (!idCache.TryGetValue(key, out string id))
+            if (!cache.TryGetValue(key, out string id))
             {
                 var organization = await GetAsync(tenant, identifier)
                     .ConfigureAwait(false);
@@ -42,7 +42,7 @@ namespace TeamCloud.Data.CosmosDb
                 id = organization?.Id;
 
                 if (!string.IsNullOrEmpty(id))
-                    idCache.Set(key, idCache, TimeSpan.FromMinutes(10));
+                    cache.Set(key, cache, TimeSpan.FromMinutes(10));
             }
 
             return id;

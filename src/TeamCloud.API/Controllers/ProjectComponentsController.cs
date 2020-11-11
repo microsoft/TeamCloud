@@ -45,10 +45,10 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all Project Components", typeof(DataResult<List<Component>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found.", typeof(ErrorResult))]
-        public Task<IActionResult> Get() => EnsureProjectAsync(async project =>
+        public Task<IActionResult> Get() => EnsureProjectIdAsync(async projectId =>
         {
             var components = await componentRepository
-                .ListAsync(OrgId, project.Id)
+                .ListAsync(OrgId, projectId)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
@@ -64,7 +64,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "Returns Project Component", typeof(DataResult<Component>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a Component with the provided id was not found.", typeof(ErrorResult))]
-        public Task<IActionResult> Get([FromRoute] string id) => EnsureProjectAsync(async project =>
+        public Task<IActionResult> Get([FromRoute] string id) => EnsureProjectIdAsync(async projectId =>
         {
             if (string.IsNullOrWhiteSpace(id))
                 return ErrorResult
@@ -75,9 +75,9 @@ namespace TeamCloud.API.Controllers
                 .GetAsync(OrgId, id)
                 .ConfigureAwait(false);
 
-            if (component is null || !component.ProjectId.Equals(project.Id, StringComparison.Ordinal))
+            if (component is null || !component.ProjectId.Equals(projectId, StringComparison.Ordinal))
                 return ErrorResult
-                    .NotFound($"A Component with the ID '{id}' could not be found for Project {project.Id}.")
+                    .NotFound($"A Component with the ID '{id}' could not be found for Project {projectId}.")
                     .ToActionResult();
 
             return DataResult<Component>
@@ -156,7 +156,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status204NoContent, "The Project Component was deleted.", typeof(DataResult<Component>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided id was not found, or a Component with the provided id was not found.", typeof(ErrorResult))]
-        public Task<IActionResult> Delete([FromRoute] string id) => EnsureProjectAsync(async project =>
+        public Task<IActionResult> Delete([FromRoute] string id) => EnsureProjectIdAsync(async projectId =>
         {
             if (string.IsNullOrWhiteSpace(id))
                 return ErrorResult
@@ -167,16 +167,16 @@ namespace TeamCloud.API.Controllers
                 .GetAsync(OrgId, id)
                 .ConfigureAwait(false);
 
-            if (component is null || component.ProjectId.Equals(project.Id, StringComparison.Ordinal))
+            if (component is null || component.ProjectId.Equals(projectId, StringComparison.Ordinal))
                 return ErrorResult
-                    .NotFound($"A Component with the id '{id}' could not be found for Project {project.Id}.")
+                    .NotFound($"A Component with the id '{id}' could not be found for Project {projectId}.")
                     .ToActionResult();
 
             var currentUser = await UserService
                 .CurrentUserAsync(OrgId)
                 .ConfigureAwait(false);
 
-            var command = new ProjectComponentDeleteCommand(currentUser, component, project.Id);
+            var command = new ProjectComponentDeleteCommand(currentUser, component, projectId);
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync(command, Request)
