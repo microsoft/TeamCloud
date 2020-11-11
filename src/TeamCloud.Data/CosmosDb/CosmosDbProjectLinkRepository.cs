@@ -85,7 +85,7 @@
 //             var query = new QueryDefinition($"SELECT * FROM c WHERE c.projectId = '{projectIdParsed}'");
 
 //             var queryIterator = container
-//                 .GetItemQueryIterator<ProjectLink>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(projectIdParsed.ToString()) });
+//                 .GetItemQueryIterator<ProjectLink>(query, requestOptions: GetQueryRequestOptions(projectIdParsed.ToString()));
 
 //             while (queryIterator.HasMoreResults)
 //             {

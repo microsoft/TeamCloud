@@ -55,7 +55,7 @@ namespace TeamCloud.Data.CosmosDb
                     var query = new QueryDefinition($"SELECT * FROM c WHERE c.isDefault = true and c.id != '{projectTemplate.Id}'");
 
                     var queryIterator = container
-                        .GetItemQueryIterator<ProjectTemplate>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(projectTemplate) });
+                        .GetItemQueryIterator<ProjectTemplate>(query, requestOptions: GetQueryRequestOptions(projectTemplate));
 
                     while (queryIterator.HasMoreResults)
                     {
@@ -129,7 +129,7 @@ namespace TeamCloud.Data.CosmosDb
                 var query = new QueryDefinition($"SELECT * FROM c WHERE c.isDefault = true");
 
                 var queryIterator = container
-                    .GetItemQueryIterator<ProjectTemplate>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(organization) });
+                    .GetItemQueryIterator<ProjectTemplate>(query, requestOptions: GetQueryRequestOptions(organization));
 
                 var defaultprojectTemplate = default(ProjectTemplate);
                 var nonDefaultBatch = default(TransactionalBatch);
@@ -198,7 +198,7 @@ namespace TeamCloud.Data.CosmosDb
                 var query = new QueryDefinition($"SELECT * FROM c WHERE c.isDefault = true and c.id != '{projectTemplate.Id}'");
 
                 var queryIterator = container
-                    .GetItemQueryIterator<ProjectTemplate>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(projectTemplate) });
+                    .GetItemQueryIterator<ProjectTemplate>(query, requestOptions: GetQueryRequestOptions(projectTemplate));
 
                 while (queryIterator.HasMoreResults)
                 {
@@ -236,7 +236,7 @@ namespace TeamCloud.Data.CosmosDb
 
             var query = new QueryDefinition($"SELECT * FROM c");
             var queryIterator = container
-                .GetItemQueryIterator<ProjectTemplate>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(organization) });
+                .GetItemQueryIterator<ProjectTemplate>(query, requestOptions: GetQueryRequestOptions(organization));
 
             while (queryIterator.HasMoreResults)
             {

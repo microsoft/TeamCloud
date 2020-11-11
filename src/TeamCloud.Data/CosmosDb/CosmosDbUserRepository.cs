@@ -86,7 +86,8 @@ namespace TeamCloud.Data.CosmosDb
                 .ConfigureAwait(false);
 
             var query = new QueryDefinition($"SELECT * FROM u");
-            var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(organization) });
+
+            var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: GetQueryRequestOptions(organization));
 
             while (queryIterator.HasMoreResults)
             {
@@ -106,7 +107,7 @@ namespace TeamCloud.Data.CosmosDb
 
             var query = new QueryDefinition($"SELECT VALUE u FROM u WHERE EXISTS(SELECT VALUE m FROM m IN u.projectMemberships WHERE m.projectId = '{projectId}')");
 
-            var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(organization) });
+            var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: GetQueryRequestOptions(organization));
 
             while (queryIterator.HasMoreResults)
             {
@@ -126,7 +127,7 @@ namespace TeamCloud.Data.CosmosDb
 
             var query = new QueryDefinition($"SELECT VALUE u FROM u WHERE EXISTS(SELECT VALUE m FROM m IN u.projectMemberships WHERE m.projectId = '{projectId}' AND m.role = '{ProjectUserRole.Owner}')");
 
-            var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(organization) });
+            var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: GetQueryRequestOptions(organization));
 
             while (queryIterator.HasMoreResults)
             {
@@ -146,7 +147,7 @@ namespace TeamCloud.Data.CosmosDb
 
             var query = new QueryDefinition($"SELECT * FROM u WHERE u.role = '{OrganizationUserRole.Admin}'");
 
-            var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(organization) });
+            var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: GetQueryRequestOptions(organization));
 
             while (queryIterator.HasMoreResults)
             {
@@ -207,7 +208,7 @@ namespace TeamCloud.Data.CosmosDb
 
             var query = new QueryDefinition($"SELECT VALUE u FROM u WHERE EXISTS(SELECT VALUE m FROM m IN u.projectMemberships WHERE m.projectId = '{projectId}')");
 
-            var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(organization) });
+            var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: GetQueryRequestOptions(organization));
 
 
             while (queryIterator.HasMoreResults)

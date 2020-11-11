@@ -74,7 +74,7 @@ namespace TeamCloud.Data.CosmosDb
                 var query = new QueryDefinition($"SELECT * FROM c WHERE c.displayName = '{nameOrId}' OR c.slug = '{nameOrId}'");
 
                 var queryIterator = container
-                    .GetItemQueryIterator<Project>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(organization) });
+                    .GetItemQueryIterator<Project>(query, requestOptions: GetQueryRequestOptions(organization));
 
                 if (queryIterator.HasMoreResults)
                 {
@@ -130,7 +130,7 @@ namespace TeamCloud.Data.CosmosDb
             var query = new QueryDefinition($"SELECT * FROM p");
 
             var queryIterator = container
-                .GetItemQueryIterator<Project>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(organization) });
+                .GetItemQueryIterator<Project>(query, requestOptions: GetQueryRequestOptions(organization));
 
             while (queryIterator.HasMoreResults)
             {
@@ -157,7 +157,7 @@ namespace TeamCloud.Data.CosmosDb
             var query = new QueryDefinition($"SELECT * FROM p WHERE p.id IN ({search}) OR p.slug IN ({search}) OR p.displayName in ({search})");
 
             var queryIterator = container
-                .GetItemQueryIterator<Project>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(organization) });
+                .GetItemQueryIterator<Project>(query, requestOptions: GetQueryRequestOptions(organization));
 
             while (queryIterator.HasMoreResults)
             {
@@ -184,7 +184,7 @@ namespace TeamCloud.Data.CosmosDb
             var query = new QueryDefinition($"SELECT VALUE p FROM p WHERE p.template = '{template}'");
 
             var queryIterator = container
-                .GetItemQueryIterator<Project>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(organization) });
+                .GetItemQueryIterator<Project>(query, requestOptions: GetQueryRequestOptions(organization));
 
             while (queryIterator.HasMoreResults)
             {

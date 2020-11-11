@@ -84,7 +84,7 @@ namespace TeamCloud.Data.CosmosDb
             var query = new QueryDefinition(queryString);
 
             var queryIterator = container
-                .GetItemQueryIterator<Component>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(organization) });
+                .GetItemQueryIterator<Component>(query, requestOptions: GetQueryRequestOptions(organization));
 
             while (queryIterator.HasMoreResults)
             {

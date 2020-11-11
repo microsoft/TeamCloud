@@ -14,7 +14,6 @@ namespace TeamCloud.Model.Common
 
         public string GetSlug() => DisplayName?
             .ToLowerInvariant()
-            .Replace(' ', '_')
-            .Replace('-', '_');
+            .Replace(' ', '-');
     }
 }

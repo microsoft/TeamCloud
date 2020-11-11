@@ -101,6 +101,11 @@ namespace TeamCloud.Orchestrator.Handlers
 
             try
             {
+                var componentTemplates = await componentTemplateRepository
+                    .ListAsync(command.OrganizationId, command.Payload.Id)
+                    .ToListAsync()
+                    .ConfigureAwait(false);
+
                 commandResult.Result = await projectTemplateRepository
                     .RemoveAsync(command.Payload)
                     .ConfigureAwait(false);

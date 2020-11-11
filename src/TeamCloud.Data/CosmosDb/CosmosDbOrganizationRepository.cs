@@ -93,7 +93,7 @@ namespace TeamCloud.Data.CosmosDb
                 var query = new QueryDefinition($"SELECT * FROM o WHERE o.slug = '{identifier}'");
 
                 var queryIterator = container
-                    .GetItemQueryIterator<Organization>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(tenant) });
+                    .GetItemQueryIterator<Organization>(query, requestOptions: GetQueryRequestOptions(tenant));
 
                 if (queryIterator.HasMoreResults)
                 {
@@ -116,7 +116,7 @@ namespace TeamCloud.Data.CosmosDb
             var query = new QueryDefinition($"SELECT * FROM o");
 
             var queryIterator = container
-                .GetItemQueryIterator<Organization>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(tenant) });
+                .GetItemQueryIterator<Organization>(query, requestOptions: GetQueryRequestOptions(tenant));
 
             while (queryIterator.HasMoreResults)
             {

@@ -55,7 +55,7 @@ namespace TeamCloud.Data.CosmosDb
                     var query = new QueryDefinition($"SELECT * FROM c WHERE c.isDefault = true and c.id != '{deploymentScope.Id}'");
 
                     var queryIterator = container
-                        .GetItemQueryIterator<DeploymentScope>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(deploymentScope) });
+                        .GetItemQueryIterator<DeploymentScope>(query, requestOptions: GetQueryRequestOptions(deploymentScope));
 
                     while (queryIterator.HasMoreResults)
                     {
@@ -120,7 +120,7 @@ namespace TeamCloud.Data.CosmosDb
                 var query = new QueryDefinition($"SELECT * FROM c WHERE c.isDefault = true");
 
                 var queryIterator = container
-                    .GetItemQueryIterator<DeploymentScope>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(organization) });
+                    .GetItemQueryIterator<DeploymentScope>(query, requestOptions: GetQueryRequestOptions(organization));
 
                 var defaultdeploymentScope = default(DeploymentScope);
                 var nonDefaultBatch = default(TransactionalBatch);
@@ -189,7 +189,7 @@ namespace TeamCloud.Data.CosmosDb
                 var query = new QueryDefinition($"SELECT * FROM c WHERE c.isDefault = true and c.id != '{deploymentScope.Id}'");
 
                 var queryIterator = container
-                    .GetItemQueryIterator<DeploymentScope>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(deploymentScope) });
+                    .GetItemQueryIterator<DeploymentScope>(query, requestOptions: GetQueryRequestOptions(deploymentScope));
 
                 while (queryIterator.HasMoreResults)
                 {
@@ -227,7 +227,7 @@ namespace TeamCloud.Data.CosmosDb
 
             var query = new QueryDefinition($"SELECT * FROM c");
             var queryIterator = container
-                .GetItemQueryIterator<DeploymentScope>(query, requestOptions: new QueryRequestOptions { PartitionKey = GetPartitionKey(organization) });
+                .GetItemQueryIterator<DeploymentScope>(query, requestOptions: GetQueryRequestOptions(organization));
 
             while (queryIterator.HasMoreResults)
             {

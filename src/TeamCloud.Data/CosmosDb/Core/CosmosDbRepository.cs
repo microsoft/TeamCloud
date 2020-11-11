@@ -43,6 +43,16 @@ namespace TeamCloud.Data.CosmosDb.Core
 
         public Type ContainerDocumentType { get; } = typeof(T);
 
+
+        protected QueryRequestOptions GetQueryRequestOptions(PartitionKey partitionKey)
+            => new QueryRequestOptions { PartitionKey = partitionKey };
+
+        protected QueryRequestOptions GetQueryRequestOptions(string partitionKeyValue)
+            => GetQueryRequestOptions(GetPartitionKey(partitionKeyValue));
+
+        protected QueryRequestOptions GetQueryRequestOptions(T containerDocument)
+            => GetQueryRequestOptions(GetPartitionKey(containerDocument));
+
         protected PartitionKey GetPartitionKey(string partitionKeyValue)
             => new PartitionKey(partitionKeyValue);
 
