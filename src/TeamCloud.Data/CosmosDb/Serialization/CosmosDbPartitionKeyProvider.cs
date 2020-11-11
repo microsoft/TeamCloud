@@ -19,23 +19,16 @@ namespace TeamCloud.Data.CosmosDb.Serialization
         private static PropertyInfo GetPartitionKeyProperty(Type type) => PartitionKeyProperties
             .GetOrAdd(type, (type) => type.GetProperties().Where(p => p.GetCustomAttribute<PartitionKeyAttribute>() != null).SingleOrDefault());
 
-        private readonly string partitionkey;
-
-        public CosmosDbPartitionKeyProvider(string partitionkey)
-        {
-            this.partitionkey = partitionkey;
-        }
-
         public object GetValue(object target)
         {
             if (target is null) throw new ArgumentNullException(nameof(target));
-            return GetPartitionKeyProperty(target.GetType())?.GetValue(target) ?? partitionkey;
+            return GetPartitionKeyProperty(target.GetType())?.GetValue(target) ?? throw new InvalidOperationException("Properties marked with the PartitionKey attribute must have a value.");
         }
 
         public void SetValue(object target, object value)
         {
             if (target is null) throw new ArgumentNullException(nameof(target));
-            GetPartitionKeyProperty(target.GetType()).SetValue(target, value ?? partitionkey);
+            GetPartitionKeyProperty(target.GetType()).SetValue(target, value ?? throw new InvalidOperationException("Properties marked with the PartitionKey attribute must have a value."));
         }
     }
 }

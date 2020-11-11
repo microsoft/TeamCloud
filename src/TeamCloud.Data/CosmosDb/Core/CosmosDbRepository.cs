@@ -35,8 +35,8 @@ namespace TeamCloud.Data.CosmosDb.Core
 
             cosmosClient = new Lazy<CosmosClient>(() => new CosmosClient(options.ConnectionString, new CosmosClientOptions()
             {
-                Serializer = new CosmosDbSerializer(options.TenantName)
-            })); ;
+                Serializer = new CosmosDbSerializer()
+            }));
         }
 
         public ICosmosDbOptions Options { get; }

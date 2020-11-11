@@ -20,13 +20,13 @@ namespace TeamCloud.Data.CosmosDb.Core
 
         private readonly JsonSerializerSettings SerializerSettings;
 
-        public CosmosDbSerializer(string partitionKey = default)
+        public CosmosDbSerializer()
         {
             SerializerSettings = new JsonSerializerSettings()
             {
                 NullValueHandling = NullValueHandling.Ignore,
                 Formatting = Formatting.None,
-                ContractResolver = new CosmosDbContractResolver(partitionKey)
+                ContractResolver = new CosmosDbContractResolver()
             };
         }
 

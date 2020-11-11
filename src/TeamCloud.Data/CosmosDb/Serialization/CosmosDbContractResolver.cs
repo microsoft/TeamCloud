@@ -23,13 +23,6 @@ namespace TeamCloud.Data.CosmosDb.Serialization
             { nameof(IContainerDocument.Timestamp), ("_ts", new CosmosDbTimestampConverter()) }
         };
 
-        private readonly string partitionKey;
-
-        public CosmosDbContractResolver(string partitionKey)
-        {
-            this.partitionKey = partitionKey;
-        }
-
         protected override JsonObjectContract CreateObjectContract(Type objectType)
         {
             var contract = base.CreateObjectContract(objectType);
@@ -80,7 +73,7 @@ namespace TeamCloud.Data.CosmosDb.Serialization
                 // must use a special converter to ensure the partionkey
                 // matches the given partionkey (see ctor) on read and write
 
-                property.ValueProvider = new CosmosDbPartitionKeyProvider(partitionKey);
+                property.ValueProvider = new CosmosDbPartitionKeyProvider();
             }
             else if (member.GetCustomAttribute<DatabaseIgnoreAttribute>() != null)
             {
