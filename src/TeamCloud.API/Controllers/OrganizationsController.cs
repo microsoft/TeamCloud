@@ -99,7 +99,7 @@ namespace TeamCloud.API.Controllers
             organization = new Organization
             {
                 Id = Guid.NewGuid().ToString(),
-                Tenant = organizationDefinition.Tenant,
+                Tenant = UserService.CurrentUserTenant,
                 DisplayName = organizationDefinition.DisplayName
             };
 

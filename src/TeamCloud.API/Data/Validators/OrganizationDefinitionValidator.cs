@@ -13,7 +13,6 @@ namespace TeamCloud.API.Data.Validators
         public OrganizationDefinitionValidator()
         {
             RuleFor(obj => obj.DisplayName).NotEmpty();
-            RuleFor(obj => obj.Tenant).MustBeGuid();
         }
     }
 }

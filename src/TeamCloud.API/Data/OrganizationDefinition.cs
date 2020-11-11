@@ -15,7 +15,5 @@ namespace TeamCloud.API.Data
         public string Slug => (this as ISlug).GetSlug();
 
         public string DisplayName { get; set; }
-
-        public string Tenant { get; set; }
     }
 }
