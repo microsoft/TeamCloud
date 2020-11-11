@@ -98,16 +98,16 @@ namespace TeamCloud.Orchestrator.Handlers
                 throw new ArgumentNullException(nameof(command));
 
             var commandResult = command.CreateResult();
+            var projectTemplate = command.Payload;
 
             try
             {
-                var componentTemplates = await componentTemplateRepository
-                    .ListAsync(command.OrganizationId, command.Payload.Id)
-                    .ToListAsync()
+                await componentTemplateRepository
+                    .RemoveAllAsync(projectTemplate.Organization, projectTemplate.Id)
                     .ConfigureAwait(false);
 
                 commandResult.Result = await projectTemplateRepository
-                    .RemoveAsync(command.Payload)
+                    .RemoveAsync(projectTemplate)
                     .ConfigureAwait(false);
 
                 commandResult.RuntimeStatus = CommandRuntimeStatus.Completed;

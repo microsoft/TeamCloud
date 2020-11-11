@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
@@ -129,6 +130,27 @@ namespace TeamCloud.Data.CosmosDb
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
             {
                 return null; // already deleted
+            }
+        }
+
+        public async Task RemoveAllAsync(string organization, string parentId)
+        {
+            var templates = ListAsync(organization, parentId);
+
+            if (await templates.AnyAsync().ConfigureAwait(false))
+            {
+                var container = await GetContainerAsync()
+                    .ConfigureAwait(false);
+
+                var batch = container
+                    .CreateTransactionalBatch(GetPartitionKey(organization));
+
+                await foreach (var template in templates.ConfigureAwait(false))
+                    batch = batch.DeleteItem(template.Id);
+
+                await batch
+                    .ExecuteAsync()
+                    .ConfigureAwait(false);
             }
         }
     }

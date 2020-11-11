@@ -24,5 +24,7 @@ namespace TeamCloud.Data
         Task<ComponentTemplate> SetAsync(ComponentTemplate componentTemplate);
 
         Task<ComponentTemplate> RemoveAsync(ComponentTemplate componentTemplate);
+
+        Task RemoveAllAsync(string organization, string parentId);
     }
 }

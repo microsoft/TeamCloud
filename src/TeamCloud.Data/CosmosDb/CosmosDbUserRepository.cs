@@ -173,7 +173,7 @@ namespace TeamCloud.Data.CosmosDb
                 .ConfigureAwait(false);
 
             var response = await container
-                .UpsertItemAsync<User>(user, GetPartitionKey(user))
+                .UpsertItemAsync(user, GetPartitionKey(user))
                 .ConfigureAwait(false);
 
             return response.Resource;
