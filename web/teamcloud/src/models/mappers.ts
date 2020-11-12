@@ -8,10 +8,10 @@
 
 import * as coreHttp from "@azure/core-http";
 
-export const ProjectListDataResult: coreHttp.CompositeMapper = {
+export const DeploymentScopeListDataResult: coreHttp.CompositeMapper = {
   type: {
     name: "Composite",
-    className: "ProjectListDataResult",
+    className: "DeploymentScopeListDataResult",
     modelProperties: {
       code: {
         serializedName: "code",
@@ -30,7 +30,7 @@ export const ProjectListDataResult: coreHttp.CompositeMapper = {
         readOnly: true,
         type: {
           name: "Sequence",
-          element: { type: { name: "Composite", className: "Project" } }
+          element: { type: { name: "Composite", className: "DeploymentScope" } }
         }
       },
       location: {
@@ -43,80 +43,32 @@ export const ProjectListDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const Project: coreHttp.CompositeMapper = {
+export const DeploymentScope: coreHttp.CompositeMapper = {
   type: {
     name: "Composite",
-    className: "Project",
+    className: "DeploymentScope",
     modelProperties: {
-      id: {
-        serializedName: "id",
-        required: true,
+      organization: {
+        serializedName: "organization",
         type: {
           name: "String"
         }
       },
-      name: {
-        serializedName: "name",
-        required: true,
+      slug: {
+        serializedName: "slug",
+        readOnly: true,
         type: {
           name: "String"
         }
       },
-      type: {
-        serializedName: "type",
+      displayName: {
+        serializedName: "displayName",
         type: {
-          name: "Composite",
-          className: "ProjectType"
+          name: "String"
         }
       },
-      resourceGroup: {
-        serializedName: "resourceGroup",
-        type: {
-          name: "Composite",
-          className: "AzureResourceGroup"
-        }
-      },
-      users: {
-        serializedName: "users",
-        required: true,
-        type: {
-          name: "Sequence",
-          element: { type: { name: "Composite", className: "User" } }
-        }
-      },
-      tags: {
-        serializedName: "tags",
-        type: {
-          name: "Dictionary",
-          value: { type: { name: "String" } }
-        }
-      },
-      properties: {
-        serializedName: "properties",
-        type: {
-          name: "Dictionary",
-          value: { type: { name: "String" } }
-        }
-      },
-      links: {
-        serializedName: "_links",
-        type: {
-          name: "Composite",
-          className: "ProjectReferenceLinks"
-        }
-      }
-    }
-  }
-};
-
-export const ProjectType: coreHttp.CompositeMapper = {
-  type: {
-    name: "Composite",
-    className: "ProjectType",
-    modelProperties: {
-      id: {
-        serializedName: "id",
-        required: true,
+      managementGroupId: {
+        serializedName: "managementGroupId",
         type: {
           name: "String"
         }
@@ -127,278 +79,10 @@ export const ProjectType: coreHttp.CompositeMapper = {
           name: "Boolean"
         }
       },
-      region: {
-        serializedName: "region",
-        required: true,
-        type: {
-          name: "String"
-        }
-      },
-      subscriptions: {
-        serializedName: "subscriptions",
-        required: true,
-        type: {
-          name: "Sequence",
-          element: { type: { name: "Uuid" } }
-        }
-      },
-      subscriptionCapacity: {
-        serializedName: "subscriptionCapacity",
-        type: {
-          name: "Number"
-        }
-      },
-      resourceGroupNamePrefix: {
-        serializedName: "resourceGroupNamePrefix",
-        type: {
-          name: "String"
-        }
-      },
-      providers: {
-        serializedName: "providers",
-        required: true,
-        type: {
-          name: "Sequence",
-          element: {
-            type: { name: "Composite", className: "ProviderReference" }
-          }
-        }
-      },
-      tags: {
-        serializedName: "tags",
-        type: {
-          name: "Dictionary",
-          value: { type: { name: "String" } }
-        }
-      },
-      properties: {
-        serializedName: "properties",
-        type: {
-          name: "Dictionary",
-          value: { type: { name: "String" } }
-        }
-      }
-    }
-  }
-};
-
-export const ProviderReference: coreHttp.CompositeMapper = {
-  type: {
-    name: "Composite",
-    className: "ProviderReference",
-    modelProperties: {
       id: {
         serializedName: "id",
-        required: true,
         type: {
           name: "String"
-        }
-      },
-      dependsOn: {
-        serializedName: "dependsOn",
-        type: {
-          name: "Sequence",
-          element: { type: { name: "String" } }
-        }
-      },
-      properties: {
-        serializedName: "properties",
-        type: {
-          name: "Dictionary",
-          value: { type: { name: "String" } }
-        }
-      },
-      metadata: {
-        serializedName: "metadata",
-        type: {
-          name: "Dictionary",
-          value: { type: { name: "any" } }
-        }
-      }
-    }
-  }
-};
-
-export const AzureResourceGroup: coreHttp.CompositeMapper = {
-  type: {
-    name: "Composite",
-    className: "AzureResourceGroup",
-    modelProperties: {
-      id: {
-        serializedName: "id",
-        required: true,
-        type: {
-          name: "String"
-        }
-      },
-      name: {
-        serializedName: "name",
-        required: true,
-        type: {
-          name: "String"
-        }
-      },
-      subscriptionId: {
-        serializedName: "subscriptionId",
-        required: true,
-        type: {
-          name: "Uuid"
-        }
-      },
-      region: {
-        serializedName: "region",
-        required: true,
-        type: {
-          name: "String"
-        }
-      }
-    }
-  }
-};
-
-export const User: coreHttp.CompositeMapper = {
-  type: {
-    name: "Composite",
-    className: "User",
-    modelProperties: {
-      id: {
-        serializedName: "id",
-        required: true,
-        type: {
-          name: "String"
-        }
-      },
-      userType: {
-        serializedName: "userType",
-        required: true,
-        type: {
-          name: "String"
-        }
-      },
-      role: {
-        serializedName: "role",
-        required: true,
-        type: {
-          name: "String"
-        }
-      },
-      projectMemberships: {
-        serializedName: "projectMemberships",
-        type: {
-          name: "Sequence",
-          element: {
-            type: { name: "Composite", className: "ProjectMembership" }
-          }
-        }
-      },
-      properties: {
-        serializedName: "properties",
-        type: {
-          name: "Dictionary",
-          value: { type: { name: "String" } }
-        }
-      }
-    }
-  }
-};
-
-export const ProjectMembership: coreHttp.CompositeMapper = {
-  type: {
-    name: "Composite",
-    className: "ProjectMembership",
-    modelProperties: {
-      projectId: {
-        serializedName: "projectId",
-        required: true,
-        type: {
-          name: "String"
-        }
-      },
-      role: {
-        serializedName: "role",
-        required: true,
-        type: {
-          name: "String"
-        }
-      },
-      properties: {
-        serializedName: "properties",
-        type: {
-          name: "Dictionary",
-          value: { type: { name: "String" } }
-        }
-      }
-    }
-  }
-};
-
-export const ProjectReferenceLinks: coreHttp.CompositeMapper = {
-  type: {
-    name: "Composite",
-    className: "ProjectReferenceLinks",
-    modelProperties: {
-      self: {
-        serializedName: "_self",
-        type: {
-          name: "Composite",
-          className: "ReferenceLink"
-        }
-      },
-      identity: {
-        serializedName: "identity",
-        type: {
-          name: "Composite",
-          className: "ReferenceLink"
-        }
-      },
-      users: {
-        serializedName: "users",
-        type: {
-          name: "Composite",
-          className: "ReferenceLink"
-        }
-      },
-      links: {
-        serializedName: "links",
-        type: {
-          name: "Composite",
-          className: "ReferenceLink"
-        }
-      },
-      offers: {
-        serializedName: "offers",
-        type: {
-          name: "Composite",
-          className: "ReferenceLink"
-        }
-      },
-      components: {
-        serializedName: "components",
-        type: {
-          name: "Composite",
-          className: "ReferenceLink"
-        }
-      }
-    }
-  }
-};
-
-export const ReferenceLink: coreHttp.CompositeMapper = {
-  type: {
-    name: "Composite",
-    className: "ReferenceLink",
-    modelProperties: {
-      href: {
-        serializedName: "href",
-        type: {
-          name: "String"
-        }
-      },
-      templated: {
-        serializedName: "templated",
-        readOnly: true,
-        type: {
-          name: "Boolean"
         }
       }
     }
@@ -482,28 +166,131 @@ export const ValidationError: coreHttp.CompositeMapper = {
   }
 };
 
-export const ProjectDefinition: coreHttp.CompositeMapper = {
+export const DeploymentScopeDefinition: coreHttp.CompositeMapper = {
   type: {
     name: "Composite",
-    className: "ProjectDefinition",
+    className: "DeploymentScopeDefinition",
     modelProperties: {
-      name: {
-        serializedName: "name",
+      slug: {
+        serializedName: "slug",
+        readOnly: true,
         type: {
           name: "String"
         }
       },
-      projectType: {
-        serializedName: "projectType",
+      displayName: {
+        serializedName: "displayName",
         type: {
           name: "String"
         }
       },
-      users: {
-        serializedName: "users",
+      managementGroupId: {
+        serializedName: "managementGroupId",
+        type: {
+          name: "String"
+        }
+      },
+      isDefault: {
+        serializedName: "isDefault",
+        type: {
+          name: "Boolean"
+        }
+      }
+    }
+  }
+};
+
+export const DeploymentScopeDataResult: coreHttp.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "DeploymentScopeDataResult",
+    modelProperties: {
+      code: {
+        serializedName: "code",
+        type: {
+          name: "Number"
+        }
+      },
+      status: {
+        serializedName: "status",
+        type: {
+          name: "String"
+        }
+      },
+      data: {
+        serializedName: "data",
+        type: {
+          name: "Composite",
+          className: "DeploymentScope"
+        }
+      },
+      location: {
+        serializedName: "location",
+        type: {
+          name: "String"
+        }
+      }
+    }
+  }
+};
+
+export const OrganizationListDataResult: coreHttp.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "OrganizationListDataResult",
+    modelProperties: {
+      code: {
+        serializedName: "code",
+        type: {
+          name: "Number"
+        }
+      },
+      status: {
+        serializedName: "status",
+        type: {
+          name: "String"
+        }
+      },
+      data: {
+        serializedName: "data",
+        readOnly: true,
         type: {
           name: "Sequence",
-          element: { type: { name: "Composite", className: "UserDefinition" } }
+          element: { type: { name: "Composite", className: "Organization" } }
+        }
+      },
+      location: {
+        serializedName: "location",
+        type: {
+          name: "String"
+        }
+      }
+    }
+  }
+};
+
+export const Organization: coreHttp.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "Organization",
+    modelProperties: {
+      tenant: {
+        serializedName: "tenant",
+        type: {
+          name: "String"
+        }
+      },
+      slug: {
+        serializedName: "slug",
+        readOnly: true,
+        type: {
+          name: "String"
+        }
+      },
+      displayName: {
+        serializedName: "displayName",
+        type: {
+          name: "String"
         }
       },
       tags: {
@@ -513,39 +300,66 @@ export const ProjectDefinition: coreHttp.CompositeMapper = {
           value: { type: { name: "String" } }
         }
       },
-      properties: {
-        serializedName: "properties",
+      id: {
+        serializedName: "id",
         type: {
-          name: "Dictionary",
-          value: { type: { name: "String" } }
+          name: "String"
         }
       }
     }
   }
 };
 
-export const UserDefinition: coreHttp.CompositeMapper = {
+export const OrganizationDefinition: coreHttp.CompositeMapper = {
   type: {
     name: "Composite",
-    className: "UserDefinition",
+    className: "OrganizationDefinition",
     modelProperties: {
-      identifier: {
-        serializedName: "identifier",
+      slug: {
+        serializedName: "slug",
+        readOnly: true,
         type: {
           name: "String"
         }
       },
-      role: {
-        serializedName: "role",
+      displayName: {
+        serializedName: "displayName",
+        type: {
+          name: "String"
+        }
+      }
+    }
+  }
+};
+
+export const OrganizationDataResult: coreHttp.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "OrganizationDataResult",
+    modelProperties: {
+      code: {
+        serializedName: "code",
+        type: {
+          name: "Number"
+        }
+      },
+      status: {
+        serializedName: "status",
         type: {
           name: "String"
         }
       },
-      properties: {
-        serializedName: "properties",
+      data: {
+        serializedName: "data",
         type: {
-          name: "Dictionary",
-          value: { type: { name: "String" } }
+          name: "Composite",
+          className: "Organization"
+        }
+      },
+      location: {
+        serializedName: "location",
+        type: {
+          name: "String"
         }
       }
     }
@@ -599,6 +413,316 @@ export const StatusResult: coreHttp.CompositeMapper = {
         serializedName: "_trackingId",
         type: {
           name: "String"
+        }
+      }
+    }
+  }
+};
+
+export const UserListDataResult: coreHttp.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "UserListDataResult",
+    modelProperties: {
+      code: {
+        serializedName: "code",
+        type: {
+          name: "Number"
+        }
+      },
+      status: {
+        serializedName: "status",
+        type: {
+          name: "String"
+        }
+      },
+      data: {
+        serializedName: "data",
+        readOnly: true,
+        type: {
+          name: "Sequence",
+          element: { type: { name: "Composite", className: "User" } }
+        }
+      },
+      location: {
+        serializedName: "location",
+        type: {
+          name: "String"
+        }
+      }
+    }
+  }
+};
+
+export const User: coreHttp.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "User",
+    modelProperties: {
+      organization: {
+        serializedName: "organization",
+        type: {
+          name: "String"
+        }
+      },
+      userType: {
+        serializedName: "userType",
+        type: {
+          name: "String"
+        }
+      },
+      role: {
+        serializedName: "role",
+        type: {
+          name: "String"
+        }
+      },
+      projectMemberships: {
+        serializedName: "projectMemberships",
+        type: {
+          name: "Sequence",
+          element: {
+            type: { name: "Composite", className: "ProjectMembership" }
+          }
+        }
+      },
+      properties: {
+        serializedName: "properties",
+        type: {
+          name: "Dictionary",
+          value: { type: { name: "String" } }
+        }
+      },
+      id: {
+        serializedName: "id",
+        type: {
+          name: "String"
+        }
+      }
+    }
+  }
+};
+
+export const ProjectMembership: coreHttp.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "ProjectMembership",
+    modelProperties: {
+      projectId: {
+        serializedName: "projectId",
+        type: {
+          name: "String"
+        }
+      },
+      role: {
+        serializedName: "role",
+        type: {
+          name: "String"
+        }
+      },
+      properties: {
+        serializedName: "properties",
+        type: {
+          name: "Dictionary",
+          value: { type: { name: "String" } }
+        }
+      }
+    }
+  }
+};
+
+export const UserDefinition: coreHttp.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "UserDefinition",
+    modelProperties: {
+      identifier: {
+        serializedName: "identifier",
+        type: {
+          name: "String"
+        }
+      },
+      role: {
+        serializedName: "role",
+        type: {
+          name: "String"
+        }
+      },
+      properties: {
+        serializedName: "properties",
+        type: {
+          name: "Dictionary",
+          value: { type: { name: "String" } }
+        }
+      }
+    }
+  }
+};
+
+export const UserDataResult: coreHttp.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "UserDataResult",
+    modelProperties: {
+      code: {
+        serializedName: "code",
+        type: {
+          name: "Number"
+        }
+      },
+      status: {
+        serializedName: "status",
+        type: {
+          name: "String"
+        }
+      },
+      data: {
+        serializedName: "data",
+        type: {
+          name: "Composite",
+          className: "User"
+        }
+      },
+      location: {
+        serializedName: "location",
+        type: {
+          name: "String"
+        }
+      }
+    }
+  }
+};
+
+export const ProjectListDataResult: coreHttp.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "ProjectListDataResult",
+    modelProperties: {
+      code: {
+        serializedName: "code",
+        type: {
+          name: "Number"
+        }
+      },
+      status: {
+        serializedName: "status",
+        type: {
+          name: "String"
+        }
+      },
+      data: {
+        serializedName: "data",
+        readOnly: true,
+        type: {
+          name: "Sequence",
+          element: { type: { name: "Composite", className: "Project" } }
+        }
+      },
+      location: {
+        serializedName: "location",
+        type: {
+          name: "String"
+        }
+      }
+    }
+  }
+};
+
+export const Project: coreHttp.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "Project",
+    modelProperties: {
+      organization: {
+        serializedName: "organization",
+        type: {
+          name: "String"
+        }
+      },
+      slug: {
+        serializedName: "slug",
+        readOnly: true,
+        type: {
+          name: "String"
+        }
+      },
+      displayName: {
+        serializedName: "displayName",
+        type: {
+          name: "String"
+        }
+      },
+      template: {
+        serializedName: "template",
+        type: {
+          name: "String"
+        }
+      },
+      templateInput: {
+        serializedName: "templateInput",
+        type: {
+          name: "String"
+        }
+      },
+      users: {
+        serializedName: "users",
+        type: {
+          name: "Sequence",
+          element: { type: { name: "Composite", className: "User" } }
+        }
+      },
+      tags: {
+        serializedName: "tags",
+        type: {
+          name: "Dictionary",
+          value: { type: { name: "String" } }
+        }
+      },
+      id: {
+        serializedName: "id",
+        type: {
+          name: "String"
+        }
+      }
+    }
+  }
+};
+
+export const ProjectDefinition: coreHttp.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "ProjectDefinition",
+    modelProperties: {
+      slug: {
+        serializedName: "slug",
+        readOnly: true,
+        type: {
+          name: "String"
+        }
+      },
+      displayName: {
+        serializedName: "displayName",
+        type: {
+          name: "String"
+        }
+      },
+      template: {
+        serializedName: "template",
+        type: {
+          name: "String"
+        }
+      },
+      templateInput: {
+        serializedName: "templateInput",
+        type: {
+          name: "String"
+        }
+      },
+      users: {
+        serializedName: "users",
+        type: {
+          name: "Sequence",
+          element: { type: { name: "Composite", className: "UserDefinition" } }
         }
       }
     }
@@ -679,21 +803,20 @@ export const Component: coreHttp.CompositeMapper = {
     name: "Composite",
     className: "Component",
     modelProperties: {
-      id: {
-        serializedName: "id",
-        required: true,
-        type: {
-          name: "String"
-        }
-      },
       href: {
         serializedName: "href",
         type: {
           name: "String"
         }
       },
-      offerId: {
-        serializedName: "offerId",
+      templateId: {
+        serializedName: "templateId",
+        type: {
+          name: "String"
+        }
+      },
+      organization: {
+        serializedName: "organization",
         type: {
           name: "String"
         }
@@ -706,14 +829,12 @@ export const Component: coreHttp.CompositeMapper = {
       },
       providerId: {
         serializedName: "providerId",
-        required: true,
         type: {
           name: "String"
         }
       },
       requestedBy: {
         serializedName: "requestedBy",
-        required: true,
         type: {
           name: "String"
         }
@@ -755,6 +876,12 @@ export const Component: coreHttp.CompositeMapper = {
         type: {
           name: "String"
         }
+      },
+      id: {
+        serializedName: "id",
+        type: {
+          name: "String"
+        }
       }
     }
   }
@@ -765,8 +892,8 @@ export const ComponentRequest: coreHttp.CompositeMapper = {
     name: "Composite",
     className: "ComponentRequest",
     modelProperties: {
-      offerId: {
-        serializedName: "offerId",
+      templateId: {
+        serializedName: "templateId",
         required: true,
         type: {
           name: "String"
@@ -816,81 +943,10 @@ export const ComponentDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const ProjectIdentityDataResult: coreHttp.CompositeMapper = {
+export const ComponentTemplateListDataResult: coreHttp.CompositeMapper = {
   type: {
     name: "Composite",
-    className: "ProjectIdentityDataResult",
-    modelProperties: {
-      code: {
-        serializedName: "code",
-        type: {
-          name: "Number"
-        }
-      },
-      status: {
-        serializedName: "status",
-        type: {
-          name: "String"
-        }
-      },
-      data: {
-        serializedName: "data",
-        type: {
-          name: "Composite",
-          className: "ProjectIdentity"
-        }
-      },
-      location: {
-        serializedName: "location",
-        type: {
-          name: "String"
-        }
-      }
-    }
-  }
-};
-
-export const ProjectIdentity: coreHttp.CompositeMapper = {
-  type: {
-    name: "Composite",
-    className: "ProjectIdentity",
-    modelProperties: {
-      id: {
-        serializedName: "id",
-        required: true,
-        type: {
-          name: "String"
-        }
-      },
-      tenantId: {
-        serializedName: "tenantId",
-        required: true,
-        type: {
-          name: "Uuid"
-        }
-      },
-      applicationId: {
-        serializedName: "applicationId",
-        required: true,
-        type: {
-          name: "Uuid"
-        }
-      },
-      secret: {
-        serializedName: "secret",
-        required: true,
-        type: {
-          name: "String"
-        }
-      }
-    }
-  }
-};
-
-export const ProjectLinkListDataResult: coreHttp.CompositeMapper = {
-  type: {
-    name: "Composite",
-    className: "ProjectLinkListDataResult",
+    className: "ComponentTemplateListDataResult",
     modelProperties: {
       code: {
         serializedName: "code",
@@ -909,7 +965,9 @@ export const ProjectLinkListDataResult: coreHttp.CompositeMapper = {
         readOnly: true,
         type: {
           name: "Sequence",
-          element: { type: { name: "Composite", className: "ProjectLink" } }
+          element: {
+            type: { name: "Composite", className: "ComponentTemplate" }
+          }
         }
       },
       location: {
@@ -922,126 +980,25 @@ export const ProjectLinkListDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const ProjectLink: coreHttp.CompositeMapper = {
+export const ComponentTemplate: coreHttp.CompositeMapper = {
   type: {
     name: "Composite",
-    className: "ProjectLink",
+    className: "ComponentTemplate",
     modelProperties: {
-      id: {
-        serializedName: "id",
-        required: true,
+      organization: {
+        serializedName: "organization",
         type: {
           name: "String"
         }
       },
-      href: {
-        serializedName: "href",
-        required: true,
-        type: {
-          name: "String"
-        }
-      },
-      title: {
-        serializedName: "title",
-        type: {
-          name: "String"
-        }
-      },
-      type: {
-        serializedName: "type",
-        required: true,
-        type: {
-          name: "String"
-        }
-      }
-    }
-  }
-};
-
-export const ProjectLinkDataResult: coreHttp.CompositeMapper = {
-  type: {
-    name: "Composite",
-    className: "ProjectLinkDataResult",
-    modelProperties: {
-      code: {
-        serializedName: "code",
-        type: {
-          name: "Number"
-        }
-      },
-      status: {
-        serializedName: "status",
-        type: {
-          name: "String"
-        }
-      },
-      data: {
-        serializedName: "data",
-        type: {
-          name: "Composite",
-          className: "ProjectLink"
-        }
-      },
-      location: {
-        serializedName: "location",
-        type: {
-          name: "String"
-        }
-      }
-    }
-  }
-};
-
-export const ComponentOfferListDataResult: coreHttp.CompositeMapper = {
-  type: {
-    name: "Composite",
-    className: "ComponentOfferListDataResult",
-    modelProperties: {
-      code: {
-        serializedName: "code",
-        type: {
-          name: "Number"
-        }
-      },
-      status: {
-        serializedName: "status",
-        type: {
-          name: "String"
-        }
-      },
-      data: {
-        serializedName: "data",
-        readOnly: true,
-        type: {
-          name: "Sequence",
-          element: { type: { name: "Composite", className: "ComponentOffer" } }
-        }
-      },
-      location: {
-        serializedName: "location",
-        type: {
-          name: "String"
-        }
-      }
-    }
-  }
-};
-
-export const ComponentOffer: coreHttp.CompositeMapper = {
-  type: {
-    name: "Composite",
-    className: "ComponentOffer",
-    modelProperties: {
-      id: {
-        serializedName: "id",
-        required: true,
+      parentId: {
+        serializedName: "parentId",
         type: {
           name: "String"
         }
       },
       providerId: {
         serializedName: "providerId",
-        required: true,
         type: {
           name: "String"
         }
@@ -1058,6 +1015,13 @@ export const ComponentOffer: coreHttp.CompositeMapper = {
           name: "String"
         }
       },
+      repository: {
+        serializedName: "repository",
+        type: {
+          name: "Composite",
+          className: "RepositoryReference"
+        }
+      },
       inputJsonSchema: {
         serializedName: "inputJsonSchema",
         type: {
@@ -1066,143 +1030,127 @@ export const ComponentOffer: coreHttp.CompositeMapper = {
       },
       scope: {
         serializedName: "scope",
-        required: true,
         type: {
           name: "String"
         }
       },
       type: {
         serializedName: "type",
-        required: true,
-        type: {
-          name: "String"
-        }
-      }
-    }
-  }
-};
-
-export const ComponentOfferDataResult: coreHttp.CompositeMapper = {
-  type: {
-    name: "Composite",
-    className: "ComponentOfferDataResult",
-    modelProperties: {
-      code: {
-        serializedName: "code",
-        type: {
-          name: "Number"
-        }
-      },
-      status: {
-        serializedName: "status",
         type: {
           name: "String"
         }
       },
-      data: {
-        serializedName: "data",
-        type: {
-          name: "Composite",
-          className: "ComponentOffer"
-        }
-      },
-      location: {
-        serializedName: "location",
-        type: {
-          name: "String"
-        }
-      }
-    }
-  }
-};
-
-export const ProviderDataReturnResult: coreHttp.CompositeMapper = {
-  type: {
-    name: "Composite",
-    className: "ProviderDataReturnResult",
-    modelProperties: {
-      code: {
-        serializedName: "code",
-        type: {
-          name: "Number"
-        }
-      },
-      status: {
-        serializedName: "status",
-        type: {
-          name: "String"
-        }
-      },
-      data: {
-        serializedName: "data",
-        type: {
-          name: "Composite",
-          className: "ProviderData"
-        }
-      },
-      location: {
-        serializedName: "location",
-        type: {
-          name: "String"
-        }
-      }
-    }
-  }
-};
-
-export const ProviderData: coreHttp.CompositeMapper = {
-  type: {
-    name: "Composite",
-    className: "ProviderData",
-    modelProperties: {
       id: {
         serializedName: "id",
-        required: true,
+        type: {
+          name: "String"
+        }
+      }
+    }
+  }
+};
+
+export const RepositoryReference: coreHttp.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "RepositoryReference",
+    modelProperties: {
+      url: {
+        serializedName: "url",
         type: {
           name: "String"
         }
       },
-      name: {
-        serializedName: "name",
+      token: {
+        serializedName: "token",
         type: {
           name: "String"
+        }
+      },
+      version: {
+        serializedName: "version",
+        type: {
+          name: "String"
+        }
+      },
+      baselUrl: {
+        serializedName: "baselUrl",
+        type: {
+          name: "String"
+        }
+      },
+      mountUrl: {
+        serializedName: "mountUrl",
+        type: {
+          name: "String"
+        }
+      },
+      ref: {
+        serializedName: "ref",
+        type: {
+          name: "String"
+        }
+      },
+      provider: {
+        serializedName: "provider",
+        type: {
+          name: "String"
+        }
+      },
+      type: {
+        serializedName: "type",
+        type: {
+          name: "String"
+        }
+      },
+      organization: {
+        serializedName: "organization",
+        type: {
+          name: "String"
+        }
+      },
+      repository: {
+        serializedName: "repository",
+        type: {
+          name: "String"
+        }
+      },
+      project: {
+        serializedName: "project",
+        type: {
+          name: "String"
+        }
+      }
+    }
+  }
+};
+
+export const ComponentTemplateDataResult: coreHttp.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "ComponentTemplateDataResult",
+    modelProperties: {
+      code: {
+        serializedName: "code",
+        type: {
+          name: "Number"
+        }
+      },
+      status: {
+        serializedName: "status",
+        type: {
+          name: "String"
+        }
+      },
+      data: {
+        serializedName: "data",
+        type: {
+          name: "Composite",
+          className: "ComponentTemplate"
         }
       },
       location: {
         serializedName: "location",
-        type: {
-          name: "String"
-        }
-      },
-      isSecret: {
-        serializedName: "isSecret",
-        type: {
-          name: "Boolean"
-        }
-      },
-      isShared: {
-        serializedName: "isShared",
-        type: {
-          name: "Boolean"
-        }
-      },
-      scope: {
-        serializedName: "scope",
-        required: true,
-        type: {
-          name: "String"
-        }
-      },
-      dataType: {
-        serializedName: "dataType",
-        required: true,
-        type: {
-          name: "String"
-        }
-      },
-      stringValue: {
-        serializedName: "stringValue",
-        readOnly: true,
         type: {
           name: "String"
         }
@@ -1246,10 +1194,10 @@ export const StringDictionaryDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const ProjectTypeListDataResult: coreHttp.CompositeMapper = {
+export const ProjectTemplateListDataResult: coreHttp.CompositeMapper = {
   type: {
     name: "Composite",
-    className: "ProjectTypeListDataResult",
+    className: "ProjectTemplateListDataResult",
     modelProperties: {
       code: {
         serializedName: "code",
@@ -1268,7 +1216,7 @@ export const ProjectTypeListDataResult: coreHttp.CompositeMapper = {
         readOnly: true,
         type: {
           name: "Sequence",
-          element: { type: { name: "Composite", className: "ProjectType" } }
+          element: { type: { name: "Composite", className: "ProjectTemplate" } }
         }
       },
       location: {
@@ -1281,312 +1229,70 @@ export const ProjectTypeListDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const ProjectTypeDataResult: coreHttp.CompositeMapper = {
+export const ProjectTemplate: coreHttp.CompositeMapper = {
   type: {
     name: "Composite",
-    className: "ProjectTypeDataResult",
+    className: "ProjectTemplate",
     modelProperties: {
-      code: {
-        serializedName: "code",
-        type: {
-          name: "Number"
-        }
-      },
-      status: {
-        serializedName: "status",
+      organization: {
+        serializedName: "organization",
         type: {
           name: "String"
         }
       },
-      data: {
-        serializedName: "data",
-        type: {
-          name: "Composite",
-          className: "ProjectType"
-        }
-      },
-      location: {
-        serializedName: "location",
-        type: {
-          name: "String"
-        }
-      }
-    }
-  }
-};
-
-export const UserListDataResult: coreHttp.CompositeMapper = {
-  type: {
-    name: "Composite",
-    className: "UserListDataResult",
-    modelProperties: {
-      code: {
-        serializedName: "code",
-        type: {
-          name: "Number"
-        }
-      },
-      status: {
-        serializedName: "status",
-        type: {
-          name: "String"
-        }
-      },
-      data: {
-        serializedName: "data",
+      slug: {
+        serializedName: "slug",
         readOnly: true,
         type: {
-          name: "Sequence",
-          element: { type: { name: "Composite", className: "User" } }
-        }
-      },
-      location: {
-        serializedName: "location",
-        type: {
           name: "String"
         }
-      }
-    }
-  }
-};
-
-export const UserDataResult: coreHttp.CompositeMapper = {
-  type: {
-    name: "Composite",
-    className: "UserDataResult",
-    modelProperties: {
-      code: {
-        serializedName: "code",
-        type: {
-          name: "Number"
-        }
       },
-      status: {
-        serializedName: "status",
+      name: {
+        serializedName: "name",
         type: {
           name: "String"
         }
       },
-      data: {
-        serializedName: "data",
-        type: {
-          name: "Composite",
-          className: "User"
-        }
-      },
-      location: {
-        serializedName: "location",
-        type: {
-          name: "String"
-        }
-      }
-    }
-  }
-};
-
-export const ProviderDataListDataResult: coreHttp.CompositeMapper = {
-  type: {
-    name: "Composite",
-    className: "ProviderDataListDataResult",
-    modelProperties: {
-      code: {
-        serializedName: "code",
-        type: {
-          name: "Number"
-        }
-      },
-      status: {
-        serializedName: "status",
+      displayName: {
+        serializedName: "displayName",
         type: {
           name: "String"
         }
       },
-      data: {
-        serializedName: "data",
-        readOnly: true,
-        type: {
-          name: "Sequence",
-          element: { type: { name: "Composite", className: "ProviderData" } }
-        }
-      },
-      location: {
-        serializedName: "location",
-        type: {
-          name: "String"
-        }
-      }
-    }
-  }
-};
-
-export const ProviderListDataResult: coreHttp.CompositeMapper = {
-  type: {
-    name: "Composite",
-    className: "ProviderListDataResult",
-    modelProperties: {
-      code: {
-        serializedName: "code",
-        type: {
-          name: "Number"
-        }
-      },
-      status: {
-        serializedName: "status",
-        type: {
-          name: "String"
-        }
-      },
-      data: {
-        serializedName: "data",
-        readOnly: true,
-        type: {
-          name: "Sequence",
-          element: { type: { name: "Composite", className: "Provider" } }
-        }
-      },
-      location: {
-        serializedName: "location",
-        type: {
-          name: "String"
-        }
-      }
-    }
-  }
-};
-
-export const Provider: coreHttp.CompositeMapper = {
-  type: {
-    name: "Composite",
-    className: "Provider",
-    modelProperties: {
-      id: {
-        serializedName: "id",
-        required: true,
-        type: {
-          name: "String"
-        }
-      },
-      url: {
-        serializedName: "url",
-        required: true,
-        type: {
-          name: "String"
-        }
-      },
-      authCode: {
-        serializedName: "authCode",
-        required: true,
-        type: {
-          name: "String"
-        }
-      },
-      principalId: {
-        serializedName: "principalId",
-        type: {
-          name: "Uuid"
-        }
-      },
-      version: {
-        serializedName: "version",
-        type: {
-          name: "String"
-        }
-      },
-      resourceGroup: {
-        serializedName: "resourceGroup",
-        type: {
-          name: "Composite",
-          className: "AzureResourceGroup"
-        }
-      },
-      events: {
-        serializedName: "events",
+      components: {
+        serializedName: "components",
         type: {
           name: "Sequence",
           element: { type: { name: "String" } }
         }
       },
-      eventSubscriptions: {
-        serializedName: "eventSubscriptions",
-        type: {
-          name: "Sequence",
-          element: {
-            type: { name: "Composite", className: "ProviderEventSubscription" }
-          }
-        }
-      },
-      properties: {
-        serializedName: "properties",
-        type: {
-          name: "Dictionary",
-          value: { type: { name: "String" } }
-        }
-      },
-      registered: {
-        serializedName: "registered",
-        type: {
-          name: "DateTime"
-        }
-      },
-      type: {
-        serializedName: "type",
-        required: true,
-        type: {
-          name: "String"
-        }
-      },
-      commandMode: {
-        serializedName: "commandMode",
-        required: true,
-        type: {
-          name: "String"
-        }
-      }
-    }
-  }
-};
-
-export const ProviderEventSubscription: coreHttp.CompositeMapper = {
-  type: {
-    name: "Composite",
-    className: "ProviderEventSubscription",
-    modelProperties: {
-      eventType: {
-        serializedName: "eventType",
-        type: {
-          name: "String"
-        }
-      }
-    }
-  }
-};
-
-export const ProviderDataResult: coreHttp.CompositeMapper = {
-  type: {
-    name: "Composite",
-    className: "ProviderDataResult",
-    modelProperties: {
-      code: {
-        serializedName: "code",
-        type: {
-          name: "Number"
-        }
-      },
-      status: {
-        serializedName: "status",
-        type: {
-          name: "String"
-        }
-      },
-      data: {
-        serializedName: "data",
+      repository: {
+        serializedName: "repository",
         type: {
           name: "Composite",
-          className: "Provider"
+          className: "RepositoryReference"
         }
       },
-      location: {
-        serializedName: "location",
+      description: {
+        serializedName: "description",
+        type: {
+          name: "String"
+        }
+      },
+      isDefault: {
+        serializedName: "isDefault",
+        type: {
+          name: "Boolean"
+        }
+      },
+      inputJsonSchema: {
+        serializedName: "inputJsonSchema",
+        type: {
+          name: "String"
+        }
+      },
+      id: {
+        serializedName: "id",
         type: {
           name: "String"
         }
@@ -1595,82 +1301,32 @@ export const ProviderDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const TeamCloudInstanceDataResult: coreHttp.CompositeMapper = {
+export const ProjectTemplateDefinition: coreHttp.CompositeMapper = {
   type: {
     name: "Composite",
-    className: "TeamCloudInstanceDataResult",
+    className: "ProjectTemplateDefinition",
     modelProperties: {
-      code: {
-        serializedName: "code",
-        type: {
-          name: "Number"
-        }
-      },
-      status: {
-        serializedName: "status",
+      displayName: {
+        serializedName: "displayName",
         type: {
           name: "String"
         }
       },
-      data: {
-        serializedName: "data",
+      repository: {
+        serializedName: "repository",
         type: {
           name: "Composite",
-          className: "TeamCloudInstance"
-        }
-      },
-      location: {
-        serializedName: "location",
-        type: {
-          name: "String"
+          className: "RepositoryDefinition"
         }
       }
     }
   }
 };
 
-export const TeamCloudInstance: coreHttp.CompositeMapper = {
+export const RepositoryDefinition: coreHttp.CompositeMapper = {
   type: {
     name: "Composite",
-    className: "TeamCloudInstance",
-    modelProperties: {
-      version: {
-        serializedName: "version",
-        type: {
-          name: "String"
-        }
-      },
-      resourceGroup: {
-        serializedName: "resourceGroup",
-        type: {
-          name: "Composite",
-          className: "AzureResourceGroup"
-        }
-      },
-      tags: {
-        serializedName: "tags",
-        type: {
-          name: "Dictionary",
-          value: { type: { name: "String" } }
-        }
-      },
-      applications: {
-        serializedName: "applications",
-        type: {
-          name: "Sequence",
-          element: {
-            type: { name: "Composite", className: "TeamCloudApplication" }
-          }
-        }
-      }
-    }
-  }
-};
-
-export const TeamCloudApplication: coreHttp.CompositeMapper = {
-  type: {
-    name: "Composite",
-    className: "TeamCloudApplication",
+    className: "RepositoryDefinition",
     modelProperties: {
       url: {
         serializedName: "url",
@@ -1678,25 +1334,50 @@ export const TeamCloudApplication: coreHttp.CompositeMapper = {
           name: "String"
         }
       },
+      token: {
+        serializedName: "token",
+        type: {
+          name: "String"
+        }
+      },
       version: {
         serializedName: "version",
         type: {
           name: "String"
         }
+      }
+    }
+  }
+};
+
+export const ProjectTemplateDataResult: coreHttp.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "ProjectTemplateDataResult",
+    modelProperties: {
+      code: {
+        serializedName: "code",
+        type: {
+          name: "Number"
+        }
       },
-      type: {
-        defaultValue: "Web",
-        isConstant: true,
-        serializedName: "type",
+      status: {
+        serializedName: "status",
         type: {
           name: "String"
         }
       },
-      resourceGroup: {
-        serializedName: "resourceGroup",
+      data: {
+        serializedName: "data",
         type: {
           name: "Composite",
-          className: "AzureResourceGroup"
+          className: "ProjectTemplate"
+        }
+      },
+      location: {
+        serializedName: "location",
+        type: {
+          name: "String"
         }
       }
     }

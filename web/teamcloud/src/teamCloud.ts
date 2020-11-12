@@ -12,34 +12,40 @@ import * as Mappers from "./models/mappers";
 import { TeamCloudContext } from "./teamCloudContext";
 import {
   TeamCloudOptionalParams,
+  TeamCloudGetDeploymentScopesResponse,
+  TeamCloudCreateDeploymentScopeOptionalParams,
+  TeamCloudCreateDeploymentScopeResponse,
+  TeamCloudGetDeploymentScopeResponse,
+  TeamCloudUpdateDeploymentScopeOptionalParams,
+  TeamCloudUpdateDeploymentScopeResponse,
+  TeamCloudDeleteDeploymentScopeResponse,
+  TeamCloudGetOrganizationsResponse,
+  TeamCloudCreateOrganizationOptionalParams,
+  TeamCloudCreateOrganizationResponse,
+  TeamCloudGetOrganizationResponse,
+  TeamCloudDeleteOrganizationResponse,
+  TeamCloudGetOrganizationUsersResponse,
+  TeamCloudCreateOrganizationUserOptionalParams,
+  TeamCloudCreateOrganizationUserResponse,
+  TeamCloudGetOrganizationUserResponse,
+  TeamCloudUpdateOrganizationUserOptionalParams,
+  TeamCloudUpdateOrganizationUserResponse,
+  TeamCloudDeleteOrganizationUserResponse,
+  TeamCloudGetOrganizationUserMeResponse,
+  TeamCloudUpdateOrganizationUserMeOptionalParams,
+  TeamCloudUpdateOrganizationUserMeResponse,
   TeamCloudGetProjectsResponse,
   TeamCloudCreateProjectOptionalParams,
   TeamCloudCreateProjectResponse,
-  TeamCloudGetProjectByNameOrIdResponse,
+  TeamCloudGetProjectResponse,
   TeamCloudDeleteProjectResponse,
   TeamCloudGetProjectComponentsResponse,
   TeamCloudCreateProjectComponentOptionalParams,
   TeamCloudCreateProjectComponentResponse,
-  TeamCloudGetProjectComponentByIdResponse,
+  TeamCloudGetProjectComponentResponse,
   TeamCloudDeleteProjectComponentResponse,
-  TeamCloudGetProjectIdentityResponse,
-  TeamCloudGetProjectLinksResponse,
-  TeamCloudCreateProjectLinkOptionalParams,
-  TeamCloudCreateProjectLinkResponse,
-  TeamCloudGetProjectLinkByKeyResponse,
-  TeamCloudUpdateProjectLinkOptionalParams,
-  TeamCloudUpdateProjectLinkResponse,
-  TeamCloudDeleteProjectLinkResponse,
-  TeamCloudGetProjectOffersResponse,
-  TeamCloudGetProjectOfferByIdResponse,
-  TeamCloudGetProjectProviderDataOptionalParams,
-  TeamCloudGetProjectProviderDataResponse,
-  TeamCloudCreateProjectProviderDataOptionalParams,
-  TeamCloudCreateProjectProviderDataResponse,
-  TeamCloudGetProjectProviderDataByIdResponse,
-  TeamCloudUpdateProjectProviderDataOptionalParams,
-  TeamCloudUpdateProjectProviderDataResponse,
-  TeamCloudDeleteProjectProviderDataResponse,
+  TeamCloudGetProjectComponentTemplatesResponse,
+  TeamCloudGetProjectComponentTemplateResponse,
   TeamCloudGetProjectTagsResponse,
   TeamCloudCreateProjectTagOptionalParams,
   TeamCloudCreateProjectTagResponse,
@@ -47,13 +53,13 @@ import {
   TeamCloudUpdateProjectTagResponse,
   TeamCloudGetProjectTagByKeyResponse,
   TeamCloudDeleteProjectTagResponse,
-  TeamCloudGetProjectTypesResponse,
-  TeamCloudCreateProjectTypeOptionalParams,
-  TeamCloudCreateProjectTypeResponse,
-  TeamCloudGetProjectTypeByIdResponse,
-  TeamCloudUpdateProjectTypeOptionalParams,
-  TeamCloudUpdateProjectTypeResponse,
-  TeamCloudDeleteProjectTypeResponse,
+  TeamCloudGetProjectTemplatesResponse,
+  TeamCloudCreateProjectTemplateOptionalParams,
+  TeamCloudCreateProjectTemplateResponse,
+  TeamCloudGetProjectTemplateResponse,
+  TeamCloudUpdateProjectTemplateOptionalParams,
+  TeamCloudUpdateProjectTemplateResponse,
+  TeamCloudDeleteProjectTemplateResponse,
   TeamCloudGetProjectUsersResponse,
   TeamCloudCreateProjectUserOptionalParams,
   TeamCloudCreateProjectUserResponse,
@@ -64,60 +70,8 @@ import {
   TeamCloudGetProjectUserMeResponse,
   TeamCloudUpdateProjectUserMeOptionalParams,
   TeamCloudUpdateProjectUserMeResponse,
-  TeamCloudGetProviderDataResponse,
-  TeamCloudCreateProviderDataOptionalParams,
-  TeamCloudCreateProviderDataResponse,
-  TeamCloudGetProviderDataByIdResponse,
-  TeamCloudUpdateProviderDataOptionalParams,
-  TeamCloudUpdateProviderDataResponse,
-  TeamCloudDeleteProviderDataResponse,
-  TeamCloudGetProviderOffersResponse,
-  TeamCloudCreateProviderOfferOptionalParams,
-  TeamCloudCreateProviderOfferResponse,
-  TeamCloudGetProviderOfferByIdResponse,
-  TeamCloudUpdateProviderOfferOptionalParams,
-  TeamCloudUpdateProviderOfferResponse,
-  TeamCloudDeleteProviderOfferResponse,
-  TeamCloudGetProviderProjectComponentsResponse,
-  TeamCloudCreateProviderProjectComponentOptionalParams,
-  TeamCloudCreateProviderProjectComponentResponse,
-  TeamCloudGetProviderProjectComponentByIdResponse,
-  TeamCloudUpdateProviderProjectComponentOptionalParams,
-  TeamCloudUpdateProviderProjectComponentResponse,
-  TeamCloudDeleteProviderProjectComponentResponse,
-  TeamCloudGetProvidersResponse,
-  TeamCloudCreateProviderOptionalParams,
-  TeamCloudCreateProviderResponse,
-  TeamCloudGetProviderByIdResponse,
-  TeamCloudUpdateProviderOptionalParams,
-  TeamCloudUpdateProviderResponse,
-  TeamCloudDeleteProviderResponse,
   TeamCloudGetStatusResponse,
   TeamCloudGetProjectStatusResponse,
-  TeamCloudCreateTeamCloudAdminUserOptionalParams,
-  TeamCloudCreateTeamCloudAdminUserResponse,
-  TeamCloudGetTeamCloudInstanceResponse,
-  TeamCloudCreateTeamCloudInstanceOptionalParams,
-  TeamCloudCreateTeamCloudInstanceResponse,
-  TeamCloudUpdateTeamCloudInstanceOptionalParams,
-  TeamCloudUpdateTeamCloudInstanceResponse,
-  TeamCloudGetTeamCloudTagsResponse,
-  TeamCloudCreateTeamCloudTagOptionalParams,
-  TeamCloudCreateTeamCloudTagResponse,
-  TeamCloudUpdateTeamCloudTagOptionalParams,
-  TeamCloudUpdateTeamCloudTagResponse,
-  TeamCloudGetTeamCloudTagByKeyResponse,
-  TeamCloudDeleteTeamCloudTagResponse,
-  TeamCloudGetTeamCloudUsersResponse,
-  TeamCloudCreateTeamCloudUserOptionalParams,
-  TeamCloudCreateTeamCloudUserResponse,
-  TeamCloudGetTeamCloudUserByNameOrIdResponse,
-  TeamCloudUpdateTeamCloudUserOptionalParams,
-  TeamCloudUpdateTeamCloudUserResponse,
-  TeamCloudDeleteTeamCloudUserResponse,
-  TeamCloudGetTeamCloudUserMeResponse,
-  TeamCloudUpdateTeamCloudUserMeOptionalParams,
-  TeamCloudUpdateTeamCloudUserMeResponse,
   TeamCloudGetUserProjectsResponse,
   TeamCloudGetUserProjectsMeResponse
 } from "./models";
@@ -138,79 +92,385 @@ export class TeamCloud extends TeamCloudContext {
   }
 
   /**
+   * Gets all Deployment Scopes.
+   * @param org
+   * @param options The options parameters.
+   */
+  getDeploymentScopes(
+    org: string,
+    options?: coreHttp.OperationOptions
+  ): Promise<TeamCloudGetDeploymentScopesResponse> {
+    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
+      options || {}
+    );
+    return this.sendOperationRequest(
+      { org, options: operationOptions },
+      getDeploymentScopesOperationSpec
+    ) as Promise<TeamCloudGetDeploymentScopesResponse>;
+  }
+
+  /**
+   * Creates a new Deployment Scope.
+   * @param org
+   * @param options The options parameters.
+   */
+  createDeploymentScope(
+    org: string,
+    options?: TeamCloudCreateDeploymentScopeOptionalParams
+  ): Promise<TeamCloudCreateDeploymentScopeResponse> {
+    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
+      options || {}
+    );
+    return this.sendOperationRequest(
+      { org, options: operationOptions },
+      createDeploymentScopeOperationSpec
+    ) as Promise<TeamCloudCreateDeploymentScopeResponse>;
+  }
+
+  /**
+   * Gets a Deployment Scope.
+   * @param id
+   * @param org
+   * @param options The options parameters.
+   */
+  getDeploymentScope(
+    id: string,
+    org: string,
+    options?: coreHttp.OperationOptions
+  ): Promise<TeamCloudGetDeploymentScopeResponse> {
+    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
+      options || {}
+    );
+    return this.sendOperationRequest(
+      { id, org, options: operationOptions },
+      getDeploymentScopeOperationSpec
+    ) as Promise<TeamCloudGetDeploymentScopeResponse>;
+  }
+
+  /**
+   * Updates an existing Deployment Scope.
+   * @param id
+   * @param org
+   * @param options The options parameters.
+   */
+  updateDeploymentScope(
+    id: string,
+    org: string,
+    options?: TeamCloudUpdateDeploymentScopeOptionalParams
+  ): Promise<TeamCloudUpdateDeploymentScopeResponse> {
+    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
+      options || {}
+    );
+    return this.sendOperationRequest(
+      { id, org, options: operationOptions },
+      updateDeploymentScopeOperationSpec
+    ) as Promise<TeamCloudUpdateDeploymentScopeResponse>;
+  }
+
+  /**
+   * Deletes a Deployment Scope.
+   * @param id
+   * @param org
+   * @param options The options parameters.
+   */
+  deleteDeploymentScope(
+    id: string,
+    org: string,
+    options?: coreHttp.OperationOptions
+  ): Promise<TeamCloudDeleteDeploymentScopeResponse> {
+    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
+      options || {}
+    );
+    return this.sendOperationRequest(
+      { id, org, options: operationOptions },
+      deleteDeploymentScopeOperationSpec
+    ) as Promise<TeamCloudDeleteDeploymentScopeResponse>;
+  }
+
+  /**
+   * Gets all Organizations.
+   * @param options The options parameters.
+   */
+  getOrganizations(
+    options?: coreHttp.OperationOptions
+  ): Promise<TeamCloudGetOrganizationsResponse> {
+    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
+      options || {}
+    );
+    return this.sendOperationRequest(
+      { options: operationOptions },
+      getOrganizationsOperationSpec
+    ) as Promise<TeamCloudGetOrganizationsResponse>;
+  }
+
+  /**
+   * Creates a new Organization.
+   * @param options The options parameters.
+   */
+  createOrganization(
+    options?: TeamCloudCreateOrganizationOptionalParams
+  ): Promise<TeamCloudCreateOrganizationResponse> {
+    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
+      options || {}
+    );
+    return this.sendOperationRequest(
+      { options: operationOptions },
+      createOrganizationOperationSpec
+    ) as Promise<TeamCloudCreateOrganizationResponse>;
+  }
+
+  /**
+   * Gets an Organization.
+   * @param org
+   * @param options The options parameters.
+   */
+  getOrganization(
+    org: string,
+    options?: coreHttp.OperationOptions
+  ): Promise<TeamCloudGetOrganizationResponse> {
+    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
+      options || {}
+    );
+    return this.sendOperationRequest(
+      { org, options: operationOptions },
+      getOrganizationOperationSpec
+    ) as Promise<TeamCloudGetOrganizationResponse>;
+  }
+
+  /**
+   * Deletes an existing Organization.
+   * @param org
+   * @param options The options parameters.
+   */
+  deleteOrganization(
+    org: string,
+    options?: coreHttp.OperationOptions
+  ): Promise<TeamCloudDeleteOrganizationResponse> {
+    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
+      options || {}
+    );
+    return this.sendOperationRequest(
+      { org, options: operationOptions },
+      deleteOrganizationOperationSpec
+    ) as Promise<TeamCloudDeleteOrganizationResponse>;
+  }
+
+  /**
+   * Gets all Users.
+   * @param org
+   * @param options The options parameters.
+   */
+  getOrganizationUsers(
+    org: string,
+    options?: coreHttp.OperationOptions
+  ): Promise<TeamCloudGetOrganizationUsersResponse> {
+    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
+      options || {}
+    );
+    return this.sendOperationRequest(
+      { org, options: operationOptions },
+      getOrganizationUsersOperationSpec
+    ) as Promise<TeamCloudGetOrganizationUsersResponse>;
+  }
+
+  /**
+   * Creates a new User.
+   * @param org
+   * @param options The options parameters.
+   */
+  createOrganizationUser(
+    org: string,
+    options?: TeamCloudCreateOrganizationUserOptionalParams
+  ): Promise<TeamCloudCreateOrganizationUserResponse> {
+    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
+      options || {}
+    );
+    return this.sendOperationRequest(
+      { org, options: operationOptions },
+      createOrganizationUserOperationSpec
+    ) as Promise<TeamCloudCreateOrganizationUserResponse>;
+  }
+
+  /**
+   * Gets a User.
+   * @param userId
+   * @param org
+   * @param options The options parameters.
+   */
+  getOrganizationUser(
+    userId: string,
+    org: string,
+    options?: coreHttp.OperationOptions
+  ): Promise<TeamCloudGetOrganizationUserResponse> {
+    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
+      options || {}
+    );
+    return this.sendOperationRequest(
+      { userId, org, options: operationOptions },
+      getOrganizationUserOperationSpec
+    ) as Promise<TeamCloudGetOrganizationUserResponse>;
+  }
+
+  /**
+   * Updates an existing User.
+   * @param userId
+   * @param org
+   * @param options The options parameters.
+   */
+  updateOrganizationUser(
+    userId: string,
+    org: string,
+    options?: TeamCloudUpdateOrganizationUserOptionalParams
+  ): Promise<TeamCloudUpdateOrganizationUserResponse> {
+    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
+      options || {}
+    );
+    return this.sendOperationRequest(
+      { userId, org, options: operationOptions },
+      updateOrganizationUserOperationSpec
+    ) as Promise<TeamCloudUpdateOrganizationUserResponse>;
+  }
+
+  /**
+   * Deletes an existing User.
+   * @param userId
+   * @param org
+   * @param options The options parameters.
+   */
+  deleteOrganizationUser(
+    userId: string,
+    org: string,
+    options?: coreHttp.OperationOptions
+  ): Promise<TeamCloudDeleteOrganizationUserResponse> {
+    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
+      options || {}
+    );
+    return this.sendOperationRequest(
+      { userId, org, options: operationOptions },
+      deleteOrganizationUserOperationSpec
+    ) as Promise<TeamCloudDeleteOrganizationUserResponse>;
+  }
+
+  /**
+   * Gets a User A User matching the current authenticated user.
+   * @param org
+   * @param options The options parameters.
+   */
+  getOrganizationUserMe(
+    org: string,
+    options?: coreHttp.OperationOptions
+  ): Promise<TeamCloudGetOrganizationUserMeResponse> {
+    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
+      options || {}
+    );
+    return this.sendOperationRequest(
+      { org, options: operationOptions },
+      getOrganizationUserMeOperationSpec
+    ) as Promise<TeamCloudGetOrganizationUserMeResponse>;
+  }
+
+  /**
+   * Updates an existing User.
+   * @param org
+   * @param options The options parameters.
+   */
+  updateOrganizationUserMe(
+    org: string,
+    options?: TeamCloudUpdateOrganizationUserMeOptionalParams
+  ): Promise<TeamCloudUpdateOrganizationUserMeResponse> {
+    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
+      options || {}
+    );
+    return this.sendOperationRequest(
+      { org, options: operationOptions },
+      updateOrganizationUserMeOperationSpec
+    ) as Promise<TeamCloudUpdateOrganizationUserMeResponse>;
+  }
+
+  /**
    * Gets all Projects.
+   * @param org
    * @param options The options parameters.
    */
   getProjects(
+    org: string,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudGetProjectsResponse> {
     const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
       options || {}
     );
     return this.sendOperationRequest(
-      { options: operationOptions },
+      { org, options: operationOptions },
       getProjectsOperationSpec
     ) as Promise<TeamCloudGetProjectsResponse>;
   }
 
   /**
    * Creates a new Project.
+   * @param org
    * @param options The options parameters.
    */
   createProject(
+    org: string,
     options?: TeamCloudCreateProjectOptionalParams
   ): Promise<TeamCloudCreateProjectResponse> {
     const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
       options || {}
     );
     return this.sendOperationRequest(
-      { options: operationOptions },
+      { org, options: operationOptions },
       createProjectOperationSpec
     ) as Promise<TeamCloudCreateProjectResponse>;
   }
 
   /**
-   * Gets a Project by Name or ID.
-   * @param projectNameOrId
+   * Gets a Project.
+   * @param projectId
+   * @param org
    * @param options The options parameters.
    */
-  getProjectByNameOrId(
-    projectNameOrId: string,
+  getProject(
+    projectId: string,
+    org: string,
     options?: coreHttp.OperationOptions
-  ): Promise<TeamCloudGetProjectByNameOrIdResponse> {
+  ): Promise<TeamCloudGetProjectResponse> {
     const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
       options || {}
     );
     return this.sendOperationRequest(
-      { projectNameOrId, options: operationOptions },
-      getProjectByNameOrIdOperationSpec
-    ) as Promise<TeamCloudGetProjectByNameOrIdResponse>;
+      { projectId, org, options: operationOptions },
+      getProjectOperationSpec
+    ) as Promise<TeamCloudGetProjectResponse>;
   }
 
   /**
    * Deletes a Project.
-   * @param projectNameOrId
+   * @param projectId
+   * @param org
    * @param options The options parameters.
    */
   deleteProject(
-    projectNameOrId: string,
+    projectId: string,
+    org: string,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudDeleteProjectResponse> {
     const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
       options || {}
     );
     return this.sendOperationRequest(
-      { projectNameOrId, options: operationOptions },
+      { projectId, org, options: operationOptions },
       deleteProjectOperationSpec
     ) as Promise<TeamCloudDeleteProjectResponse>;
   }
 
   /**
    * Gets all Components for a Project.
+   * @param org
    * @param projectId
    * @param options The options parameters.
    */
   getProjectComponents(
+    org: string,
     projectId: string,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudGetProjectComponentsResponse> {
@@ -218,17 +478,19 @@ export class TeamCloud extends TeamCloudContext {
       options || {}
     );
     return this.sendOperationRequest(
-      { projectId, options: operationOptions },
+      { org, projectId, options: operationOptions },
       getProjectComponentsOperationSpec
     ) as Promise<TeamCloudGetProjectComponentsResponse>;
   }
 
   /**
    * Creates a new Project Component.
+   * @param org
    * @param projectId
    * @param options The options parameters.
    */
   createProjectComponent(
+    org: string,
     projectId: string,
     options?: TeamCloudCreateProjectComponentOptionalParams
   ): Promise<TeamCloudCreateProjectComponentResponse> {
@@ -236,39 +498,43 @@ export class TeamCloud extends TeamCloudContext {
       options || {}
     );
     return this.sendOperationRequest(
-      { projectId, options: operationOptions },
+      { org, projectId, options: operationOptions },
       createProjectComponentOperationSpec
     ) as Promise<TeamCloudCreateProjectComponentResponse>;
   }
 
   /**
-   * Gets a Project Component by id.
-   * @param componentId
+   * Gets a Project Component.
+   * @param id
+   * @param org
    * @param projectId
    * @param options The options parameters.
    */
-  getProjectComponentById(
-    componentId: string,
+  getProjectComponent(
+    id: string,
+    org: string,
     projectId: string,
     options?: coreHttp.OperationOptions
-  ): Promise<TeamCloudGetProjectComponentByIdResponse> {
+  ): Promise<TeamCloudGetProjectComponentResponse> {
     const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
       options || {}
     );
     return this.sendOperationRequest(
-      { componentId, projectId, options: operationOptions },
-      getProjectComponentByIdOperationSpec
-    ) as Promise<TeamCloudGetProjectComponentByIdResponse>;
+      { id, org, projectId, options: operationOptions },
+      getProjectComponentOperationSpec
+    ) as Promise<TeamCloudGetProjectComponentResponse>;
   }
 
   /**
    * Deletes an existing Project Component.
-   * @param componentId
+   * @param id
+   * @param org
    * @param projectId
    * @param options The options parameters.
    */
   deleteProjectComponent(
-    componentId: string,
+    id: string,
+    org: string,
     projectId: string,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudDeleteProjectComponentResponse> {
@@ -276,275 +542,61 @@ export class TeamCloud extends TeamCloudContext {
       options || {}
     );
     return this.sendOperationRequest(
-      { componentId, projectId, options: operationOptions },
+      { id, org, projectId, options: operationOptions },
       deleteProjectComponentOperationSpec
     ) as Promise<TeamCloudDeleteProjectComponentResponse>;
   }
 
   /**
-   * Gets the ProjectIdentity for a Project.
+   * Gets all Project Component Templates.
+   * @param org
    * @param projectId
    * @param options The options parameters.
    */
-  getProjectIdentity(
+  getProjectComponentTemplates(
+    org: string,
     projectId: string,
     options?: coreHttp.OperationOptions
-  ): Promise<TeamCloudGetProjectIdentityResponse> {
+  ): Promise<TeamCloudGetProjectComponentTemplatesResponse> {
     const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
       options || {}
     );
     return this.sendOperationRequest(
-      { projectId, options: operationOptions },
-      getProjectIdentityOperationSpec
-    ) as Promise<TeamCloudGetProjectIdentityResponse>;
+      { org, projectId, options: operationOptions },
+      getProjectComponentTemplatesOperationSpec
+    ) as Promise<TeamCloudGetProjectComponentTemplatesResponse>;
   }
 
   /**
-   * Gets all Links for a Project.
+   * Gets the Component Template.
+   * @param id
+   * @param org
    * @param projectId
    * @param options The options parameters.
    */
-  getProjectLinks(
+  getProjectComponentTemplate(
+    id: string,
+    org: string,
     projectId: string,
     options?: coreHttp.OperationOptions
-  ): Promise<TeamCloudGetProjectLinksResponse> {
+  ): Promise<TeamCloudGetProjectComponentTemplateResponse> {
     const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
       options || {}
     );
     return this.sendOperationRequest(
-      { projectId, options: operationOptions },
-      getProjectLinksOperationSpec
-    ) as Promise<TeamCloudGetProjectLinksResponse>;
-  }
-
-  /**
-   * Creates a new Project Link.
-   * @param projectId
-   * @param options The options parameters.
-   */
-  createProjectLink(
-    projectId: string,
-    options?: TeamCloudCreateProjectLinkOptionalParams
-  ): Promise<TeamCloudCreateProjectLinkResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { projectId, options: operationOptions },
-      createProjectLinkOperationSpec
-    ) as Promise<TeamCloudCreateProjectLinkResponse>;
-  }
-
-  /**
-   * Gets a Project Link by Key.
-   * @param linkId
-   * @param projectId
-   * @param options The options parameters.
-   */
-  getProjectLinkByKey(
-    linkId: string,
-    projectId: string,
-    options?: coreHttp.OperationOptions
-  ): Promise<TeamCloudGetProjectLinkByKeyResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { linkId, projectId, options: operationOptions },
-      getProjectLinkByKeyOperationSpec
-    ) as Promise<TeamCloudGetProjectLinkByKeyResponse>;
-  }
-
-  /**
-   * Updates an existing Project Link.
-   * @param linkId
-   * @param projectId
-   * @param options The options parameters.
-   */
-  updateProjectLink(
-    linkId: string,
-    projectId: string,
-    options?: TeamCloudUpdateProjectLinkOptionalParams
-  ): Promise<TeamCloudUpdateProjectLinkResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { linkId, projectId, options: operationOptions },
-      updateProjectLinkOperationSpec
-    ) as Promise<TeamCloudUpdateProjectLinkResponse>;
-  }
-
-  /**
-   * Deletes an existing Project Link.
-   * @param linkId
-   * @param projectId
-   * @param options The options parameters.
-   */
-  deleteProjectLink(
-    linkId: string,
-    projectId: string,
-    options?: coreHttp.OperationOptions
-  ): Promise<TeamCloudDeleteProjectLinkResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { linkId, projectId, options: operationOptions },
-      deleteProjectLinkOperationSpec
-    ) as Promise<TeamCloudDeleteProjectLinkResponse>;
-  }
-
-  /**
-   * Gets all Project Offers.
-   * @param projectId
-   * @param options The options parameters.
-   */
-  getProjectOffers(
-    projectId: string,
-    options?: coreHttp.OperationOptions
-  ): Promise<TeamCloudGetProjectOffersResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { projectId, options: operationOptions },
-      getProjectOffersOperationSpec
-    ) as Promise<TeamCloudGetProjectOffersResponse>;
-  }
-
-  /**
-   * Gets the Offer by id.
-   * @param offerId
-   * @param projectId
-   * @param options The options parameters.
-   */
-  getProjectOfferById(
-    offerId: string,
-    projectId: string,
-    options?: coreHttp.OperationOptions
-  ): Promise<TeamCloudGetProjectOfferByIdResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { offerId, projectId, options: operationOptions },
-      getProjectOfferByIdOperationSpec
-    ) as Promise<TeamCloudGetProjectOfferByIdResponse>;
-  }
-
-  /**
-   * Gets the ProviderData items for a Project.
-   * @param projectId
-   * @param providerId
-   * @param options The options parameters.
-   */
-  getProjectProviderData(
-    projectId: string,
-    providerId: string,
-    options?: TeamCloudGetProjectProviderDataOptionalParams
-  ): Promise<TeamCloudGetProjectProviderDataResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { projectId, providerId, options: operationOptions },
-      getProjectProviderDataOperationSpec
-    ) as Promise<TeamCloudGetProjectProviderDataResponse>;
-  }
-
-  /**
-   * Creates a new ProviderData
-   * @param projectId
-   * @param providerId
-   * @param options The options parameters.
-   */
-  createProjectProviderData(
-    projectId: string,
-    providerId: string,
-    options?: TeamCloudCreateProjectProviderDataOptionalParams
-  ): Promise<TeamCloudCreateProjectProviderDataResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { projectId, providerId, options: operationOptions },
-      createProjectProviderDataOperationSpec
-    ) as Promise<TeamCloudCreateProjectProviderDataResponse>;
-  }
-
-  /**
-   * Gets a ProviderData for a Project by ID.
-   * @param providerDataId
-   * @param projectId
-   * @param providerId
-   * @param options The options parameters.
-   */
-  getProjectProviderDataById(
-    providerDataId: string,
-    projectId: string,
-    providerId: string,
-    options?: coreHttp.OperationOptions
-  ): Promise<TeamCloudGetProjectProviderDataByIdResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { providerDataId, projectId, providerId, options: operationOptions },
-      getProjectProviderDataByIdOperationSpec
-    ) as Promise<TeamCloudGetProjectProviderDataByIdResponse>;
-  }
-
-  /**
-   * Updates an existing ProviderData.
-   * @param providerDataId
-   * @param projectId
-   * @param providerId
-   * @param options The options parameters.
-   */
-  updateProjectProviderData(
-    providerDataId: string,
-    projectId: string,
-    providerId: string,
-    options?: TeamCloudUpdateProjectProviderDataOptionalParams
-  ): Promise<TeamCloudUpdateProjectProviderDataResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { providerDataId, projectId, providerId, options: operationOptions },
-      updateProjectProviderDataOperationSpec
-    ) as Promise<TeamCloudUpdateProjectProviderDataResponse>;
-  }
-
-  /**
-   * Deletes a ProviderData.
-   * @param providerDataId
-   * @param projectId
-   * @param providerId
-   * @param options The options parameters.
-   */
-  deleteProjectProviderData(
-    providerDataId: string,
-    projectId: string,
-    providerId: string,
-    options?: coreHttp.OperationOptions
-  ): Promise<TeamCloudDeleteProjectProviderDataResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { providerDataId, projectId, providerId, options: operationOptions },
-      deleteProjectProviderDataOperationSpec
-    ) as Promise<TeamCloudDeleteProjectProviderDataResponse>;
+      { id, org, projectId, options: operationOptions },
+      getProjectComponentTemplateOperationSpec
+    ) as Promise<TeamCloudGetProjectComponentTemplateResponse>;
   }
 
   /**
    * Gets all Tags for a Project.
+   * @param org
    * @param projectId
    * @param options The options parameters.
    */
   getProjectTags(
+    org: string,
     projectId: string,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudGetProjectTagsResponse> {
@@ -552,17 +604,19 @@ export class TeamCloud extends TeamCloudContext {
       options || {}
     );
     return this.sendOperationRequest(
-      { projectId, options: operationOptions },
+      { org, projectId, options: operationOptions },
       getProjectTagsOperationSpec
     ) as Promise<TeamCloudGetProjectTagsResponse>;
   }
 
   /**
    * Creates a new Project Tag.
+   * @param org
    * @param projectId
    * @param options The options parameters.
    */
   createProjectTag(
+    org: string,
     projectId: string,
     options?: TeamCloudCreateProjectTagOptionalParams
   ): Promise<TeamCloudCreateProjectTagResponse> {
@@ -570,17 +624,19 @@ export class TeamCloud extends TeamCloudContext {
       options || {}
     );
     return this.sendOperationRequest(
-      { projectId, options: operationOptions },
+      { org, projectId, options: operationOptions },
       createProjectTagOperationSpec
     ) as Promise<TeamCloudCreateProjectTagResponse>;
   }
 
   /**
    * Updates an existing Project Tag.
+   * @param org
    * @param projectId
    * @param options The options parameters.
    */
   updateProjectTag(
+    org: string,
     projectId: string,
     options?: TeamCloudUpdateProjectTagOptionalParams
   ): Promise<TeamCloudUpdateProjectTagResponse> {
@@ -588,7 +644,7 @@ export class TeamCloud extends TeamCloudContext {
       options || {}
     );
     return this.sendOperationRequest(
-      { projectId, options: operationOptions },
+      { org, projectId, options: operationOptions },
       updateProjectTagOperationSpec
     ) as Promise<TeamCloudUpdateProjectTagResponse>;
   }
@@ -596,11 +652,13 @@ export class TeamCloud extends TeamCloudContext {
   /**
    * Gets a Project Tag by Key.
    * @param tagKey
+   * @param org
    * @param projectId
    * @param options The options parameters.
    */
   getProjectTagByKey(
     tagKey: string,
+    org: string,
     projectId: string,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudGetProjectTagByKeyResponse> {
@@ -608,7 +666,7 @@ export class TeamCloud extends TeamCloudContext {
       options || {}
     );
     return this.sendOperationRequest(
-      { tagKey, projectId, options: operationOptions },
+      { tagKey, org, projectId, options: operationOptions },
       getProjectTagByKeyOperationSpec
     ) as Promise<TeamCloudGetProjectTagByKeyResponse>;
   }
@@ -616,11 +674,13 @@ export class TeamCloud extends TeamCloudContext {
   /**
    * Deletes an existing Project Tag.
    * @param tagKey
+   * @param org
    * @param projectId
    * @param options The options parameters.
    */
   deleteProjectTag(
     tagKey: string,
+    org: string,
     projectId: string,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudDeleteProjectTagResponse> {
@@ -628,103 +688,115 @@ export class TeamCloud extends TeamCloudContext {
       options || {}
     );
     return this.sendOperationRequest(
-      { tagKey, projectId, options: operationOptions },
+      { tagKey, org, projectId, options: operationOptions },
       deleteProjectTagOperationSpec
     ) as Promise<TeamCloudDeleteProjectTagResponse>;
   }
 
   /**
-   * Gets all Project Types.
+   * Gets all Project Templates.
+   * @param org
    * @param options The options parameters.
    */
-  getProjectTypes(
+  getProjectTemplates(
+    org: string,
     options?: coreHttp.OperationOptions
-  ): Promise<TeamCloudGetProjectTypesResponse> {
+  ): Promise<TeamCloudGetProjectTemplatesResponse> {
     const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
       options || {}
     );
     return this.sendOperationRequest(
-      { options: operationOptions },
-      getProjectTypesOperationSpec
-    ) as Promise<TeamCloudGetProjectTypesResponse>;
+      { org, options: operationOptions },
+      getProjectTemplatesOperationSpec
+    ) as Promise<TeamCloudGetProjectTemplatesResponse>;
   }
 
   /**
-   * Creates a new Project Type.
+   * Creates a new Project Template.
+   * @param org
    * @param options The options parameters.
    */
-  createProjectType(
-    options?: TeamCloudCreateProjectTypeOptionalParams
-  ): Promise<TeamCloudCreateProjectTypeResponse> {
+  createProjectTemplate(
+    org: string,
+    options?: TeamCloudCreateProjectTemplateOptionalParams
+  ): Promise<TeamCloudCreateProjectTemplateResponse> {
     const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
       options || {}
     );
     return this.sendOperationRequest(
-      { options: operationOptions },
-      createProjectTypeOperationSpec
-    ) as Promise<TeamCloudCreateProjectTypeResponse>;
+      { org, options: operationOptions },
+      createProjectTemplateOperationSpec
+    ) as Promise<TeamCloudCreateProjectTemplateResponse>;
   }
 
   /**
-   * Gets a Project Type by ID.
-   * @param projectTypeId
+   * Gets a Project Template.
+   * @param projectTemplateId
+   * @param org
    * @param options The options parameters.
    */
-  getProjectTypeById(
-    projectTypeId: string,
+  getProjectTemplate(
+    projectTemplateId: string,
+    org: string,
     options?: coreHttp.OperationOptions
-  ): Promise<TeamCloudGetProjectTypeByIdResponse> {
+  ): Promise<TeamCloudGetProjectTemplateResponse> {
     const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
       options || {}
     );
     return this.sendOperationRequest(
-      { projectTypeId, options: operationOptions },
-      getProjectTypeByIdOperationSpec
-    ) as Promise<TeamCloudGetProjectTypeByIdResponse>;
+      { projectTemplateId, org, options: operationOptions },
+      getProjectTemplateOperationSpec
+    ) as Promise<TeamCloudGetProjectTemplateResponse>;
   }
 
   /**
-   * Updates an existing Project Type.
-   * @param projectTypeId
+   * Updates an existing Project Template.
+   * @param projectTemplateId
+   * @param org
    * @param options The options parameters.
    */
-  updateProjectType(
-    projectTypeId: string,
-    options?: TeamCloudUpdateProjectTypeOptionalParams
-  ): Promise<TeamCloudUpdateProjectTypeResponse> {
+  updateProjectTemplate(
+    projectTemplateId: string,
+    org: string,
+    options?: TeamCloudUpdateProjectTemplateOptionalParams
+  ): Promise<TeamCloudUpdateProjectTemplateResponse> {
     const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
       options || {}
     );
     return this.sendOperationRequest(
-      { projectTypeId, options: operationOptions },
-      updateProjectTypeOperationSpec
-    ) as Promise<TeamCloudUpdateProjectTypeResponse>;
+      { projectTemplateId, org, options: operationOptions },
+      updateProjectTemplateOperationSpec
+    ) as Promise<TeamCloudUpdateProjectTemplateResponse>;
   }
 
   /**
-   * Deletes a Project Type.
-   * @param projectTypeId
+   * Deletes a Project Template.
+   * @param projectTemplateId
+   * @param org
    * @param options The options parameters.
    */
-  deleteProjectType(
-    projectTypeId: string,
+  deleteProjectTemplate(
+    projectTemplateId: string,
+    org: string,
     options?: coreHttp.OperationOptions
-  ): Promise<TeamCloudDeleteProjectTypeResponse> {
+  ): Promise<TeamCloudDeleteProjectTemplateResponse> {
     const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
       options || {}
     );
     return this.sendOperationRequest(
-      { projectTypeId, options: operationOptions },
-      deleteProjectTypeOperationSpec
-    ) as Promise<TeamCloudDeleteProjectTypeResponse>;
+      { projectTemplateId, org, options: operationOptions },
+      deleteProjectTemplateOperationSpec
+    ) as Promise<TeamCloudDeleteProjectTemplateResponse>;
   }
 
   /**
    * Gets all Users for a Project.
+   * @param org
    * @param projectId
    * @param options The options parameters.
    */
   getProjectUsers(
+    org: string,
     projectId: string,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudGetProjectUsersResponse> {
@@ -732,17 +804,19 @@ export class TeamCloud extends TeamCloudContext {
       options || {}
     );
     return this.sendOperationRequest(
-      { projectId, options: operationOptions },
+      { org, projectId, options: operationOptions },
       getProjectUsersOperationSpec
     ) as Promise<TeamCloudGetProjectUsersResponse>;
   }
 
   /**
    * Creates a new Project User
+   * @param org
    * @param projectId
    * @param options The options parameters.
    */
   createProjectUser(
+    org: string,
     projectId: string,
     options?: TeamCloudCreateProjectUserOptionalParams
   ): Promise<TeamCloudCreateProjectUserResponse> {
@@ -750,19 +824,21 @@ export class TeamCloud extends TeamCloudContext {
       options || {}
     );
     return this.sendOperationRequest(
-      { projectId, options: operationOptions },
+      { org, projectId, options: operationOptions },
       createProjectUserOperationSpec
     ) as Promise<TeamCloudCreateProjectUserResponse>;
   }
 
   /**
    * Gets a Project User by ID or email address.
-   * @param userNameOrId
+   * @param userId
+   * @param org
    * @param projectId
    * @param options The options parameters.
    */
   getProjectUserByNameOrId(
-    userNameOrId: string,
+    userId: string,
+    org: string,
     projectId: string,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudGetProjectUserByNameOrIdResponse> {
@@ -770,19 +846,21 @@ export class TeamCloud extends TeamCloudContext {
       options || {}
     );
     return this.sendOperationRequest(
-      { userNameOrId, projectId, options: operationOptions },
+      { userId, org, projectId, options: operationOptions },
       getProjectUserByNameOrIdOperationSpec
     ) as Promise<TeamCloudGetProjectUserByNameOrIdResponse>;
   }
 
   /**
    * Updates an existing Project User.
-   * @param userNameOrId
+   * @param userId
+   * @param org
    * @param projectId
    * @param options The options parameters.
    */
   updateProjectUser(
-    userNameOrId: string,
+    userId: string,
+    org: string,
     projectId: string,
     options?: TeamCloudUpdateProjectUserOptionalParams
   ): Promise<TeamCloudUpdateProjectUserResponse> {
@@ -790,19 +868,21 @@ export class TeamCloud extends TeamCloudContext {
       options || {}
     );
     return this.sendOperationRequest(
-      { userNameOrId, projectId, options: operationOptions },
+      { userId, org, projectId, options: operationOptions },
       updateProjectUserOperationSpec
     ) as Promise<TeamCloudUpdateProjectUserResponse>;
   }
 
   /**
    * Deletes an existing Project User.
-   * @param userNameOrId
+   * @param userId
+   * @param org
    * @param projectId
    * @param options The options parameters.
    */
   deleteProjectUser(
-    userNameOrId: string,
+    userId: string,
+    org: string,
     projectId: string,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudDeleteProjectUserResponse> {
@@ -810,17 +890,19 @@ export class TeamCloud extends TeamCloudContext {
       options || {}
     );
     return this.sendOperationRequest(
-      { userNameOrId, projectId, options: operationOptions },
+      { userId, org, projectId, options: operationOptions },
       deleteProjectUserOperationSpec
     ) as Promise<TeamCloudDeleteProjectUserResponse>;
   }
 
   /**
    * Gets a Project User for the calling user.
+   * @param org
    * @param projectId
    * @param options The options parameters.
    */
   getProjectUserMe(
+    org: string,
     projectId: string,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudGetProjectUserMeResponse> {
@@ -828,17 +910,19 @@ export class TeamCloud extends TeamCloudContext {
       options || {}
     );
     return this.sendOperationRequest(
-      { projectId, options: operationOptions },
+      { org, projectId, options: operationOptions },
       getProjectUserMeOperationSpec
     ) as Promise<TeamCloudGetProjectUserMeResponse>;
   }
 
   /**
    * Updates an existing Project User.
+   * @param org
    * @param projectId
    * @param options The options parameters.
    */
   updateProjectUserMe(
+    org: string,
     projectId: string,
     options?: TeamCloudUpdateProjectUserMeOptionalParams
   ): Promise<TeamCloudUpdateProjectUserMeResponse> {
@@ -846,409 +930,27 @@ export class TeamCloud extends TeamCloudContext {
       options || {}
     );
     return this.sendOperationRequest(
-      { projectId, options: operationOptions },
+      { org, projectId, options: operationOptions },
       updateProjectUserMeOperationSpec
     ) as Promise<TeamCloudUpdateProjectUserMeResponse>;
   }
 
   /**
-   * Gets all ProviderData for a Provider.
-   * @param providerId
-   * @param options The options parameters.
-   */
-  getProviderData(
-    providerId: string,
-    options?: coreHttp.OperationOptions
-  ): Promise<TeamCloudGetProviderDataResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { providerId, options: operationOptions },
-      getProviderDataOperationSpec
-    ) as Promise<TeamCloudGetProviderDataResponse>;
-  }
-
-  /**
-   * Creates a new ProviderData item
-   * @param providerId
-   * @param options The options parameters.
-   */
-  createProviderData(
-    providerId: string,
-    options?: TeamCloudCreateProviderDataOptionalParams
-  ): Promise<TeamCloudCreateProviderDataResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { providerId, options: operationOptions },
-      createProviderDataOperationSpec
-    ) as Promise<TeamCloudCreateProviderDataResponse>;
-  }
-
-  /**
-   * Gets the ProviderData by ID.
-   * @param providerDataId
-   * @param providerId
-   * @param options The options parameters.
-   */
-  getProviderDataById(
-    providerDataId: string,
-    providerId: string,
-    options?: coreHttp.OperationOptions
-  ): Promise<TeamCloudGetProviderDataByIdResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { providerDataId, providerId, options: operationOptions },
-      getProviderDataByIdOperationSpec
-    ) as Promise<TeamCloudGetProviderDataByIdResponse>;
-  }
-
-  /**
-   * Updates an existing ProviderData.
-   * @param providerDataId
-   * @param providerId
-   * @param options The options parameters.
-   */
-  updateProviderData(
-    providerDataId: string,
-    providerId: string,
-    options?: TeamCloudUpdateProviderDataOptionalParams
-  ): Promise<TeamCloudUpdateProviderDataResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { providerDataId, providerId, options: operationOptions },
-      updateProviderDataOperationSpec
-    ) as Promise<TeamCloudUpdateProviderDataResponse>;
-  }
-
-  /**
-   * Deletes a ProviderData.
-   * @param providerDataId
-   * @param providerId
-   * @param options The options parameters.
-   */
-  deleteProviderData(
-    providerDataId: string,
-    providerId: string,
-    options?: coreHttp.OperationOptions
-  ): Promise<TeamCloudDeleteProviderDataResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { providerDataId, providerId, options: operationOptions },
-      deleteProviderDataOperationSpec
-    ) as Promise<TeamCloudDeleteProviderDataResponse>;
-  }
-
-  /**
-   * Gets all Provider Offers.
-   * @param providerId
-   * @param options The options parameters.
-   */
-  getProviderOffers(
-    providerId: string,
-    options?: coreHttp.OperationOptions
-  ): Promise<TeamCloudGetProviderOffersResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { providerId, options: operationOptions },
-      getProviderOffersOperationSpec
-    ) as Promise<TeamCloudGetProviderOffersResponse>;
-  }
-
-  /**
-   * Creates a new ComponentOffer item
-   * @param providerId
-   * @param options The options parameters.
-   */
-  createProviderOffer(
-    providerId: string,
-    options?: TeamCloudCreateProviderOfferOptionalParams
-  ): Promise<TeamCloudCreateProviderOfferResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { providerId, options: operationOptions },
-      createProviderOfferOperationSpec
-    ) as Promise<TeamCloudCreateProviderOfferResponse>;
-  }
-
-  /**
-   * Gets the Offer by id.
-   * @param offerId
-   * @param providerId
-   * @param options The options parameters.
-   */
-  getProviderOfferById(
-    offerId: string,
-    providerId: string,
-    options?: coreHttp.OperationOptions
-  ): Promise<TeamCloudGetProviderOfferByIdResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { offerId, providerId, options: operationOptions },
-      getProviderOfferByIdOperationSpec
-    ) as Promise<TeamCloudGetProviderOfferByIdResponse>;
-  }
-
-  /**
-   * Updates an existing ComponentOffer.
-   * @param offerId
-   * @param providerId
-   * @param options The options parameters.
-   */
-  updateProviderOffer(
-    offerId: string,
-    providerId: string,
-    options?: TeamCloudUpdateProviderOfferOptionalParams
-  ): Promise<TeamCloudUpdateProviderOfferResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { offerId, providerId, options: operationOptions },
-      updateProviderOfferOperationSpec
-    ) as Promise<TeamCloudUpdateProviderOfferResponse>;
-  }
-
-  /**
-   * Deletes a ComponentOffer.
-   * @param offerId
-   * @param providerId
-   * @param options The options parameters.
-   */
-  deleteProviderOffer(
-    offerId: string,
-    providerId: string,
-    options?: coreHttp.OperationOptions
-  ): Promise<TeamCloudDeleteProviderOfferResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { offerId, providerId, options: operationOptions },
-      deleteProviderOfferOperationSpec
-    ) as Promise<TeamCloudDeleteProviderOfferResponse>;
-  }
-
-  /**
-   * Gets all Components for a Project.
-   * @param projectId
-   * @param providerId
-   * @param options The options parameters.
-   */
-  getProviderProjectComponents(
-    projectId: string,
-    providerId: string,
-    options?: coreHttp.OperationOptions
-  ): Promise<TeamCloudGetProviderProjectComponentsResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { projectId, providerId, options: operationOptions },
-      getProviderProjectComponentsOperationSpec
-    ) as Promise<TeamCloudGetProviderProjectComponentsResponse>;
-  }
-
-  /**
-   * Creates a new Project Component.
-   * @param projectId
-   * @param providerId
-   * @param options The options parameters.
-   */
-  createProviderProjectComponent(
-    projectId: string,
-    providerId: string,
-    options?: TeamCloudCreateProviderProjectComponentOptionalParams
-  ): Promise<TeamCloudCreateProviderProjectComponentResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { projectId, providerId, options: operationOptions },
-      createProviderProjectComponentOperationSpec
-    ) as Promise<TeamCloudCreateProviderProjectComponentResponse>;
-  }
-
-  /**
-   * Gets a Project Component by id.
-   * @param componentId
-   * @param projectId
-   * @param providerId
-   * @param options The options parameters.
-   */
-  getProviderProjectComponentById(
-    componentId: string,
-    projectId: string,
-    providerId: string,
-    options?: coreHttp.OperationOptions
-  ): Promise<TeamCloudGetProviderProjectComponentByIdResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { componentId, projectId, providerId, options: operationOptions },
-      getProviderProjectComponentByIdOperationSpec
-    ) as Promise<TeamCloudGetProviderProjectComponentByIdResponse>;
-  }
-
-  /**
-   * Updates an existing Project Component.
-   * @param componentId
-   * @param projectId
-   * @param providerId
-   * @param options The options parameters.
-   */
-  updateProviderProjectComponent(
-    componentId: string,
-    projectId: string,
-    providerId: string,
-    options?: TeamCloudUpdateProviderProjectComponentOptionalParams
-  ): Promise<TeamCloudUpdateProviderProjectComponentResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { componentId, projectId, providerId, options: operationOptions },
-      updateProviderProjectComponentOperationSpec
-    ) as Promise<TeamCloudUpdateProviderProjectComponentResponse>;
-  }
-
-  /**
-   * Deletes an existing Project Component.
-   * @param componentId
-   * @param projectId
-   * @param providerId
-   * @param options The options parameters.
-   */
-  deleteProviderProjectComponent(
-    componentId: string,
-    projectId: string,
-    providerId: string,
-    options?: coreHttp.OperationOptions
-  ): Promise<TeamCloudDeleteProviderProjectComponentResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { componentId, projectId, providerId, options: operationOptions },
-      deleteProviderProjectComponentOperationSpec
-    ) as Promise<TeamCloudDeleteProviderProjectComponentResponse>;
-  }
-
-  /**
-   * Gets all Providers.
-   * @param options The options parameters.
-   */
-  getProviders(
-    options?: coreHttp.OperationOptions
-  ): Promise<TeamCloudGetProvidersResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { options: operationOptions },
-      getProvidersOperationSpec
-    ) as Promise<TeamCloudGetProvidersResponse>;
-  }
-
-  /**
-   * Creates a new Provider.
-   * @param options The options parameters.
-   */
-  createProvider(
-    options?: TeamCloudCreateProviderOptionalParams
-  ): Promise<TeamCloudCreateProviderResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { options: operationOptions },
-      createProviderOperationSpec
-    ) as Promise<TeamCloudCreateProviderResponse>;
-  }
-
-  /**
-   * Gets a Provider by ID.
-   * @param providerId
-   * @param options The options parameters.
-   */
-  getProviderById(
-    providerId: string,
-    options?: coreHttp.OperationOptions
-  ): Promise<TeamCloudGetProviderByIdResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { providerId, options: operationOptions },
-      getProviderByIdOperationSpec
-    ) as Promise<TeamCloudGetProviderByIdResponse>;
-  }
-
-  /**
-   * Updates an existing Provider.
-   * @param providerId
-   * @param options The options parameters.
-   */
-  updateProvider(
-    providerId: string,
-    options?: TeamCloudUpdateProviderOptionalParams
-  ): Promise<TeamCloudUpdateProviderResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { providerId, options: operationOptions },
-      updateProviderOperationSpec
-    ) as Promise<TeamCloudUpdateProviderResponse>;
-  }
-
-  /**
-   * Deletes an existing Provider.
-   * @param providerId
-   * @param options The options parameters.
-   */
-  deleteProvider(
-    providerId: string,
-    options?: coreHttp.OperationOptions
-  ): Promise<TeamCloudDeleteProviderResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { providerId, options: operationOptions },
-      deleteProviderOperationSpec
-    ) as Promise<TeamCloudDeleteProviderResponse>;
-  }
-
-  /**
    * Gets the status of a long-running operation.
    * @param trackingId
+   * @param org
    * @param options The options parameters.
    */
   getStatus(
     trackingId: string,
+    org: string,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudGetStatusResponse> {
     const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
       options || {}
     );
     return this.sendOperationRequest(
-      { trackingId, options: operationOptions },
+      { trackingId, org, options: operationOptions },
       getStatusOperationSpec
     ) as Promise<TeamCloudGetStatusResponse>;
   }
@@ -1257,294 +959,32 @@ export class TeamCloud extends TeamCloudContext {
    * Gets the status of a long-running operation.
    * @param projectId
    * @param trackingId
+   * @param org
    * @param options The options parameters.
    */
   getProjectStatus(
     projectId: string,
     trackingId: string,
+    org: string,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudGetProjectStatusResponse> {
     const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
       options || {}
     );
     return this.sendOperationRequest(
-      { projectId, trackingId, options: operationOptions },
+      { projectId, trackingId, org, options: operationOptions },
       getProjectStatusOperationSpec
     ) as Promise<TeamCloudGetProjectStatusResponse>;
   }
 
   /**
-   * Creates a new TeamCloud User as an Admin.
-   * @param options The options parameters.
-   */
-  createTeamCloudAdminUser(
-    options?: TeamCloudCreateTeamCloudAdminUserOptionalParams
-  ): Promise<TeamCloudCreateTeamCloudAdminUserResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { options: operationOptions },
-      createTeamCloudAdminUserOperationSpec
-    ) as Promise<TeamCloudCreateTeamCloudAdminUserResponse>;
-  }
-
-  /**
-   * Gets the TeamCloud instance.
-   * @param options The options parameters.
-   */
-  getTeamCloudInstance(
-    options?: coreHttp.OperationOptions
-  ): Promise<TeamCloudGetTeamCloudInstanceResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { options: operationOptions },
-      getTeamCloudInstanceOperationSpec
-    ) as Promise<TeamCloudGetTeamCloudInstanceResponse>;
-  }
-
-  /**
-   * Updates the TeamCloud instance.
-   * @param options The options parameters.
-   */
-  createTeamCloudInstance(
-    options?: TeamCloudCreateTeamCloudInstanceOptionalParams
-  ): Promise<TeamCloudCreateTeamCloudInstanceResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { options: operationOptions },
-      createTeamCloudInstanceOperationSpec
-    ) as Promise<TeamCloudCreateTeamCloudInstanceResponse>;
-  }
-
-  /**
-   * Updates the TeamCloud instance.
-   * @param options The options parameters.
-   */
-  updateTeamCloudInstance(
-    options?: TeamCloudUpdateTeamCloudInstanceOptionalParams
-  ): Promise<TeamCloudUpdateTeamCloudInstanceResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { options: operationOptions },
-      updateTeamCloudInstanceOperationSpec
-    ) as Promise<TeamCloudUpdateTeamCloudInstanceResponse>;
-  }
-
-  /**
-   * Gets all Tags for a TeamCloud Instance.
-   * @param options The options parameters.
-   */
-  getTeamCloudTags(
-    options?: coreHttp.OperationOptions
-  ): Promise<TeamCloudGetTeamCloudTagsResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { options: operationOptions },
-      getTeamCloudTagsOperationSpec
-    ) as Promise<TeamCloudGetTeamCloudTagsResponse>;
-  }
-
-  /**
-   * Creates a new TeamCloud Tag.
-   * @param options The options parameters.
-   */
-  createTeamCloudTag(
-    options?: TeamCloudCreateTeamCloudTagOptionalParams
-  ): Promise<TeamCloudCreateTeamCloudTagResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { options: operationOptions },
-      createTeamCloudTagOperationSpec
-    ) as Promise<TeamCloudCreateTeamCloudTagResponse>;
-  }
-
-  /**
-   * Updates an existing TeamCloud Tag.
-   * @param options The options parameters.
-   */
-  updateTeamCloudTag(
-    options?: TeamCloudUpdateTeamCloudTagOptionalParams
-  ): Promise<TeamCloudUpdateTeamCloudTagResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { options: operationOptions },
-      updateTeamCloudTagOperationSpec
-    ) as Promise<TeamCloudUpdateTeamCloudTagResponse>;
-  }
-
-  /**
-   * Gets a TeamCloud Tag by Key.
-   * @param tagKey
-   * @param options The options parameters.
-   */
-  getTeamCloudTagByKey(
-    tagKey: string,
-    options?: coreHttp.OperationOptions
-  ): Promise<TeamCloudGetTeamCloudTagByKeyResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { tagKey, options: operationOptions },
-      getTeamCloudTagByKeyOperationSpec
-    ) as Promise<TeamCloudGetTeamCloudTagByKeyResponse>;
-  }
-
-  /**
-   * Deletes an existing TeamCloud Tag.
-   * @param tagKey
-   * @param options The options parameters.
-   */
-  deleteTeamCloudTag(
-    tagKey: string,
-    options?: coreHttp.OperationOptions
-  ): Promise<TeamCloudDeleteTeamCloudTagResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { tagKey, options: operationOptions },
-      deleteTeamCloudTagOperationSpec
-    ) as Promise<TeamCloudDeleteTeamCloudTagResponse>;
-  }
-
-  /**
-   * Gets all TeamCloud Users.
-   * @param options The options parameters.
-   */
-  getTeamCloudUsers(
-    options?: coreHttp.OperationOptions
-  ): Promise<TeamCloudGetTeamCloudUsersResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { options: operationOptions },
-      getTeamCloudUsersOperationSpec
-    ) as Promise<TeamCloudGetTeamCloudUsersResponse>;
-  }
-
-  /**
-   * Creates a new TeamCloud User.
-   * @param options The options parameters.
-   */
-  createTeamCloudUser(
-    options?: TeamCloudCreateTeamCloudUserOptionalParams
-  ): Promise<TeamCloudCreateTeamCloudUserResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { options: operationOptions },
-      createTeamCloudUserOperationSpec
-    ) as Promise<TeamCloudCreateTeamCloudUserResponse>;
-  }
-
-  /**
-   * Gets a TeamCloud User by ID or email address.
-   * @param userNameOrId
-   * @param options The options parameters.
-   */
-  getTeamCloudUserByNameOrId(
-    userNameOrId: string,
-    options?: coreHttp.OperationOptions
-  ): Promise<TeamCloudGetTeamCloudUserByNameOrIdResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { userNameOrId, options: operationOptions },
-      getTeamCloudUserByNameOrIdOperationSpec
-    ) as Promise<TeamCloudGetTeamCloudUserByNameOrIdResponse>;
-  }
-
-  /**
-   * Updates an existing TeamCloud User.
-   * @param userNameOrId
-   * @param options The options parameters.
-   */
-  updateTeamCloudUser(
-    userNameOrId: string,
-    options?: TeamCloudUpdateTeamCloudUserOptionalParams
-  ): Promise<TeamCloudUpdateTeamCloudUserResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { userNameOrId, options: operationOptions },
-      updateTeamCloudUserOperationSpec
-    ) as Promise<TeamCloudUpdateTeamCloudUserResponse>;
-  }
-
-  /**
-   * Deletes an existing TeamCloud User.
-   * @param userNameOrId
-   * @param options The options parameters.
-   */
-  deleteTeamCloudUser(
-    userNameOrId: string,
-    options?: coreHttp.OperationOptions
-  ): Promise<TeamCloudDeleteTeamCloudUserResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { userNameOrId, options: operationOptions },
-      deleteTeamCloudUserOperationSpec
-    ) as Promise<TeamCloudDeleteTeamCloudUserResponse>;
-  }
-
-  /**
-   * Gets a TeamCloud User A User matching the current authenticated user.
-   * @param options The options parameters.
-   */
-  getTeamCloudUserMe(
-    options?: coreHttp.OperationOptions
-  ): Promise<TeamCloudGetTeamCloudUserMeResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { options: operationOptions },
-      getTeamCloudUserMeOperationSpec
-    ) as Promise<TeamCloudGetTeamCloudUserMeResponse>;
-  }
-
-  /**
-   * Updates an existing TeamCloud User.
-   * @param options The options parameters.
-   */
-  updateTeamCloudUserMe(
-    options?: TeamCloudUpdateTeamCloudUserMeOptionalParams
-  ): Promise<TeamCloudUpdateTeamCloudUserMeResponse> {
-    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
-      options || {}
-    );
-    return this.sendOperationRequest(
-      { options: operationOptions },
-      updateTeamCloudUserMeOperationSpec
-    ) as Promise<TeamCloudUpdateTeamCloudUserMeResponse>;
-  }
-
-  /**
    * Gets all Projects for a User.
+   * @param org
    * @param userId
    * @param options The options parameters.
    */
   getUserProjects(
+    org: string,
     userId: string,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudGetUserProjectsResponse> {
@@ -1552,23 +992,25 @@ export class TeamCloud extends TeamCloudContext {
       options || {}
     );
     return this.sendOperationRequest(
-      { userId, options: operationOptions },
+      { org, userId, options: operationOptions },
       getUserProjectsOperationSpec
     ) as Promise<TeamCloudGetUserProjectsResponse>;
   }
 
   /**
    * Gets all Projects for a User.
+   * @param org
    * @param options The options parameters.
    */
   getUserProjectsMe(
+    org: string,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudGetUserProjectsMeResponse> {
     const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
       options || {}
     );
     return this.sendOperationRequest(
-      { options: operationOptions },
+      { org, options: operationOptions },
       getUserProjectsMeOperationSpec
     ) as Promise<TeamCloudGetUserProjectsMeResponse>;
   }
@@ -1577,8 +1019,334 @@ export class TeamCloud extends TeamCloudContext {
 
 const serializer = new coreHttp.Serializer(Mappers, /* isXml */ false);
 
+const getDeploymentScopesOperationSpec: coreHttp.OperationSpec = {
+  path: "/orgs/{org}/scopes",
+  httpMethod: "GET",
+  responses: {
+    200: {
+      bodyMapper: Mappers.DeploymentScopeListDataResult
+    },
+    400: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    401: {},
+    403: {}
+  },
+  urlParameters: [Parameters.$host, Parameters.org],
+  headerParameters: [Parameters.accept],
+  serializer
+};
+const createDeploymentScopeOperationSpec: coreHttp.OperationSpec = {
+  path: "/orgs/{org}/scopes",
+  httpMethod: "POST",
+  responses: {
+    201: {
+      bodyMapper: Mappers.DeploymentScopeDataResult
+    },
+    400: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    401: {},
+    403: {},
+    409: {
+      bodyMapper: Mappers.ErrorResult
+    }
+  },
+  requestBody: Parameters.body,
+  urlParameters: [Parameters.$host, Parameters.org],
+  headerParameters: [Parameters.contentType, Parameters.accept1],
+  mediaType: "json",
+  serializer
+};
+const getDeploymentScopeOperationSpec: coreHttp.OperationSpec = {
+  path: "/orgs/{org}/scopes/{id}",
+  httpMethod: "GET",
+  responses: {
+    200: {
+      bodyMapper: Mappers.DeploymentScopeDataResult
+    },
+    400: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    401: {},
+    403: {},
+    404: {
+      bodyMapper: Mappers.ErrorResult
+    }
+  },
+  urlParameters: [Parameters.$host, Parameters.org, Parameters.id],
+  headerParameters: [Parameters.accept],
+  serializer
+};
+const updateDeploymentScopeOperationSpec: coreHttp.OperationSpec = {
+  path: "/orgs/{org}/scopes/{id}",
+  httpMethod: "PUT",
+  responses: {
+    200: {
+      bodyMapper: Mappers.DeploymentScopeDataResult
+    },
+    400: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    401: {},
+    403: {},
+    404: {
+      bodyMapper: Mappers.ErrorResult
+    }
+  },
+  requestBody: Parameters.body1,
+  urlParameters: [Parameters.$host, Parameters.org, Parameters.id],
+  headerParameters: [Parameters.contentType, Parameters.accept1],
+  mediaType: "json",
+  serializer
+};
+const deleteDeploymentScopeOperationSpec: coreHttp.OperationSpec = {
+  path: "/orgs/{org}/scopes/{id}",
+  httpMethod: "DELETE",
+  responses: {
+    204: {
+      bodyMapper: Mappers.DeploymentScopeDataResult
+    },
+    400: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    401: {},
+    403: {},
+    404: {
+      bodyMapper: Mappers.ErrorResult
+    }
+  },
+  urlParameters: [Parameters.$host, Parameters.org, Parameters.id],
+  headerParameters: [Parameters.accept],
+  serializer
+};
+const getOrganizationsOperationSpec: coreHttp.OperationSpec = {
+  path: "/orgs",
+  httpMethod: "GET",
+  responses: {
+    200: {
+      bodyMapper: Mappers.OrganizationListDataResult
+    },
+    400: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    401: {},
+    403: {},
+    404: {
+      bodyMapper: Mappers.ErrorResult
+    }
+  },
+  urlParameters: [Parameters.$host],
+  headerParameters: [Parameters.accept],
+  serializer
+};
+const createOrganizationOperationSpec: coreHttp.OperationSpec = {
+  path: "/orgs",
+  httpMethod: "POST",
+  responses: {
+    400: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    401: {},
+    403: {},
+    404: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    409: {
+      bodyMapper: Mappers.ErrorResult
+    }
+  },
+  requestBody: Parameters.body2,
+  urlParameters: [Parameters.$host],
+  headerParameters: [Parameters.contentType, Parameters.accept1],
+  mediaType: "json",
+  serializer
+};
+const getOrganizationOperationSpec: coreHttp.OperationSpec = {
+  path: "/orgs/{org}",
+  httpMethod: "GET",
+  responses: {
+    200: {
+      bodyMapper: Mappers.OrganizationDataResult
+    },
+    400: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    401: {},
+    403: {},
+    404: {
+      bodyMapper: Mappers.ErrorResult
+    }
+  },
+  urlParameters: [Parameters.$host, Parameters.org],
+  headerParameters: [Parameters.accept],
+  serializer
+};
+const deleteOrganizationOperationSpec: coreHttp.OperationSpec = {
+  path: "/orgs/{org}",
+  httpMethod: "DELETE",
+  responses: {
+    202: {
+      bodyMapper: Mappers.StatusResult
+    },
+    401: {},
+    403: {},
+    404: {
+      bodyMapper: Mappers.ErrorResult
+    }
+  },
+  urlParameters: [Parameters.$host, Parameters.org],
+  headerParameters: [Parameters.accept],
+  serializer
+};
+const getOrganizationUsersOperationSpec: coreHttp.OperationSpec = {
+  path: "/orgs/{org}/users",
+  httpMethod: "GET",
+  responses: {
+    200: {
+      bodyMapper: Mappers.UserListDataResult
+    },
+    400: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    401: {},
+    403: {},
+    404: {
+      bodyMapper: Mappers.ErrorResult
+    }
+  },
+  urlParameters: [Parameters.$host, Parameters.org],
+  headerParameters: [Parameters.accept],
+  serializer
+};
+const createOrganizationUserOperationSpec: coreHttp.OperationSpec = {
+  path: "/orgs/{org}/users",
+  httpMethod: "POST",
+  responses: {
+    202: {
+      bodyMapper: Mappers.StatusResult
+    },
+    400: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    401: {},
+    403: {},
+    404: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    409: {
+      bodyMapper: Mappers.ErrorResult
+    }
+  },
+  requestBody: Parameters.body3,
+  urlParameters: [Parameters.$host, Parameters.org],
+  headerParameters: [Parameters.contentType, Parameters.accept1],
+  mediaType: "json",
+  serializer
+};
+const getOrganizationUserOperationSpec: coreHttp.OperationSpec = {
+  path: "/orgs/{org}/users/{userId}",
+  httpMethod: "GET",
+  responses: {
+    200: {
+      bodyMapper: Mappers.UserDataResult
+    },
+    400: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    401: {},
+    403: {},
+    404: {
+      bodyMapper: Mappers.ErrorResult
+    }
+  },
+  urlParameters: [Parameters.$host, Parameters.org, Parameters.userId],
+  headerParameters: [Parameters.accept],
+  serializer
+};
+const updateOrganizationUserOperationSpec: coreHttp.OperationSpec = {
+  path: "/orgs/{org}/users/{userId}",
+  httpMethod: "PUT",
+  responses: {
+    202: {
+      bodyMapper: Mappers.StatusResult
+    },
+    400: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    401: {},
+    403: {},
+    404: {
+      bodyMapper: Mappers.ErrorResult
+    }
+  },
+  requestBody: Parameters.body4,
+  urlParameters: [Parameters.$host, Parameters.org, Parameters.userId],
+  headerParameters: [Parameters.contentType, Parameters.accept1],
+  mediaType: "json",
+  serializer
+};
+const deleteOrganizationUserOperationSpec: coreHttp.OperationSpec = {
+  path: "/orgs/{org}/users/{userId}",
+  httpMethod: "DELETE",
+  responses: {
+    202: {
+      bodyMapper: Mappers.StatusResult
+    },
+    401: {},
+    403: {},
+    404: {
+      bodyMapper: Mappers.ErrorResult
+    }
+  },
+  urlParameters: [Parameters.$host, Parameters.org, Parameters.userId],
+  headerParameters: [Parameters.accept],
+  serializer
+};
+const getOrganizationUserMeOperationSpec: coreHttp.OperationSpec = {
+  path: "/orgs/{org}/me",
+  httpMethod: "GET",
+  responses: {
+    200: {
+      bodyMapper: Mappers.UserDataResult
+    },
+    400: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    401: {},
+    403: {},
+    404: {
+      bodyMapper: Mappers.ErrorResult
+    }
+  },
+  urlParameters: [Parameters.$host, Parameters.org],
+  headerParameters: [Parameters.accept],
+  serializer
+};
+const updateOrganizationUserMeOperationSpec: coreHttp.OperationSpec = {
+  path: "/orgs/{org}/me",
+  httpMethod: "PUT",
+  responses: {
+    202: {
+      bodyMapper: Mappers.StatusResult
+    },
+    400: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    401: {},
+    403: {},
+    404: {
+      bodyMapper: Mappers.ErrorResult
+    }
+  },
+  requestBody: Parameters.body4,
+  urlParameters: [Parameters.$host, Parameters.org],
+  headerParameters: [Parameters.contentType, Parameters.accept1],
+  mediaType: "json",
+  serializer
+};
 const getProjectsOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/projects",
+  path: "/orgs/{org}/projects",
   httpMethod: "GET",
   responses: {
     200: {
@@ -1590,12 +1358,12 @@ const getProjectsOperationSpec: coreHttp.OperationSpec = {
     401: {},
     403: {}
   },
-  urlParameters: [Parameters.$host],
+  urlParameters: [Parameters.$host, Parameters.org],
   headerParameters: [Parameters.accept],
   serializer
 };
 const createProjectOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/projects",
+  path: "/orgs/{org}/projects",
   httpMethod: "POST",
   responses: {
     202: {
@@ -1610,14 +1378,14 @@ const createProjectOperationSpec: coreHttp.OperationSpec = {
       bodyMapper: Mappers.ErrorResult
     }
   },
-  requestBody: Parameters.body,
-  urlParameters: [Parameters.$host],
+  requestBody: Parameters.body5,
+  urlParameters: [Parameters.$host, Parameters.org],
   headerParameters: [Parameters.contentType, Parameters.accept1],
   mediaType: "json",
   serializer
 };
-const getProjectByNameOrIdOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/projects/{projectNameOrId}",
+const getProjectOperationSpec: coreHttp.OperationSpec = {
+  path: "/orgs/{org}/projects/{projectId}",
   httpMethod: "GET",
   responses: {
     200: {
@@ -1632,12 +1400,12 @@ const getProjectByNameOrIdOperationSpec: coreHttp.OperationSpec = {
       bodyMapper: Mappers.ErrorResult
     }
   },
-  urlParameters: [Parameters.$host, Parameters.projectNameOrId],
+  urlParameters: [Parameters.$host, Parameters.org, Parameters.projectId],
   headerParameters: [Parameters.accept],
   serializer
 };
 const deleteProjectOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/projects/{projectNameOrId}",
+  path: "/orgs/{org}/projects/{projectId}",
   httpMethod: "DELETE",
   responses: {
     202: {
@@ -1652,12 +1420,12 @@ const deleteProjectOperationSpec: coreHttp.OperationSpec = {
       bodyMapper: Mappers.ErrorResult
     }
   },
-  urlParameters: [Parameters.$host, Parameters.projectNameOrId],
+  urlParameters: [Parameters.$host, Parameters.org, Parameters.projectId],
   headerParameters: [Parameters.accept],
   serializer
 };
 const getProjectComponentsOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/projects/{projectId}/components",
+  path: "/orgs/{org}/projects/{projectId}/components",
   httpMethod: "GET",
   responses: {
     200: {
@@ -1672,631 +1440,17 @@ const getProjectComponentsOperationSpec: coreHttp.OperationSpec = {
       bodyMapper: Mappers.ErrorResult
     }
   },
-  urlParameters: [Parameters.$host, Parameters.projectId],
+  urlParameters: [Parameters.$host, Parameters.org, Parameters.projectId],
   headerParameters: [Parameters.accept],
   serializer
 };
 const createProjectComponentOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/projects/{projectId}/components",
+  path: "/orgs/{org}/projects/{projectId}/components",
   httpMethod: "POST",
   responses: {
     201: {
       bodyMapper: Mappers.ComponentDataResult
     },
-    202: {
-      bodyMapper: Mappers.StatusResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    409: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  requestBody: Parameters.body1,
-  urlParameters: [Parameters.$host, Parameters.projectId],
-  headerParameters: [Parameters.contentType, Parameters.accept1],
-  mediaType: "json",
-  serializer
-};
-const getProjectComponentByIdOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/projects/{projectId}/components/{componentId}",
-  httpMethod: "GET",
-  responses: {
-    200: {
-      bodyMapper: Mappers.ComponentDataResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  urlParameters: [
-    Parameters.$host,
-    Parameters.projectId,
-    Parameters.componentId
-  ],
-  headerParameters: [Parameters.accept],
-  serializer
-};
-const deleteProjectComponentOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/projects/{projectId}/components/{componentId}",
-  httpMethod: "DELETE",
-  responses: {
-    202: {
-      bodyMapper: Mappers.StatusResult
-    },
-    204: {
-      bodyMapper: Mappers.ComponentDataResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  urlParameters: [
-    Parameters.$host,
-    Parameters.projectId,
-    Parameters.componentId
-  ],
-  headerParameters: [Parameters.accept],
-  serializer
-};
-const getProjectIdentityOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/projects/{projectId}/identity",
-  httpMethod: "GET",
-  responses: {
-    200: {
-      bodyMapper: Mappers.ProjectIdentityDataResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  urlParameters: [Parameters.$host, Parameters.projectId],
-  headerParameters: [Parameters.accept],
-  serializer
-};
-const getProjectLinksOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/projects/{projectId}/links",
-  httpMethod: "GET",
-  responses: {
-    200: {
-      bodyMapper: Mappers.ProjectLinkListDataResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  urlParameters: [Parameters.$host, Parameters.projectId],
-  headerParameters: [Parameters.accept],
-  serializer
-};
-const createProjectLinkOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/projects/{projectId}/links",
-  httpMethod: "POST",
-  responses: {
-    201: {
-      bodyMapper: Mappers.ProjectLinkDataResult
-    },
-    202: {
-      bodyMapper: Mappers.StatusResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    409: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  requestBody: Parameters.body2,
-  urlParameters: [Parameters.$host, Parameters.projectId],
-  headerParameters: [Parameters.contentType, Parameters.accept1],
-  mediaType: "json",
-  serializer
-};
-const getProjectLinkByKeyOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/projects/{projectId}/links/{linkId}",
-  httpMethod: "GET",
-  responses: {
-    200: {
-      bodyMapper: Mappers.ProjectLinkDataResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  urlParameters: [Parameters.$host, Parameters.projectId, Parameters.linkId],
-  headerParameters: [Parameters.accept],
-  serializer
-};
-const updateProjectLinkOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/projects/{projectId}/links/{linkId}",
-  httpMethod: "PUT",
-  responses: {
-    200: {
-      bodyMapper: Mappers.ProjectLinkDataResult
-    },
-    202: {
-      bodyMapper: Mappers.StatusResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  requestBody: Parameters.body2,
-  urlParameters: [Parameters.$host, Parameters.projectId, Parameters.linkId],
-  headerParameters: [Parameters.contentType, Parameters.accept1],
-  mediaType: "json",
-  serializer
-};
-const deleteProjectLinkOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/projects/{projectId}/links/{linkId}",
-  httpMethod: "DELETE",
-  responses: {
-    202: {
-      bodyMapper: Mappers.StatusResult
-    },
-    204: {
-      bodyMapper: Mappers.ProjectLinkDataResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  urlParameters: [Parameters.$host, Parameters.projectId, Parameters.linkId],
-  headerParameters: [Parameters.accept],
-  serializer
-};
-const getProjectOffersOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/projects/{projectId}/offers",
-  httpMethod: "GET",
-  responses: {
-    200: {
-      bodyMapper: Mappers.ComponentOfferListDataResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  urlParameters: [Parameters.$host, Parameters.projectId],
-  headerParameters: [Parameters.accept],
-  serializer
-};
-const getProjectOfferByIdOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/projects/{projectId}/offers/{offerId}",
-  httpMethod: "GET",
-  responses: {
-    200: {
-      bodyMapper: Mappers.ComponentOfferDataResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  urlParameters: [Parameters.$host, Parameters.projectId, Parameters.offerId],
-  headerParameters: [Parameters.accept],
-  serializer
-};
-const getProjectProviderDataOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/projects/{projectId}/providers/{providerId}/data",
-  httpMethod: "GET",
-  responses: {
-    200: {
-      bodyMapper: Mappers.ProviderDataReturnResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  queryParameters: [Parameters.includeShared],
-  urlParameters: [
-    Parameters.$host,
-    Parameters.projectId,
-    Parameters.providerId
-  ],
-  headerParameters: [Parameters.accept],
-  serializer
-};
-const createProjectProviderDataOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/projects/{projectId}/providers/{providerId}/data",
-  httpMethod: "POST",
-  responses: {
-    201: {
-      bodyMapper: Mappers.ProviderDataReturnResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    409: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  requestBody: Parameters.body3,
-  urlParameters: [
-    Parameters.$host,
-    Parameters.projectId,
-    Parameters.providerId
-  ],
-  headerParameters: [Parameters.contentType, Parameters.accept1],
-  mediaType: "json",
-  serializer
-};
-const getProjectProviderDataByIdOperationSpec: coreHttp.OperationSpec = {
-  path:
-    "/api/projects/{projectId}/providers/{providerId}/data/{providerDataId}",
-  httpMethod: "GET",
-  responses: {
-    200: {
-      bodyMapper: Mappers.ProviderDataReturnResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  urlParameters: [
-    Parameters.$host,
-    Parameters.projectId,
-    Parameters.providerId,
-    Parameters.providerDataId
-  ],
-  headerParameters: [Parameters.accept],
-  serializer
-};
-const updateProjectProviderDataOperationSpec: coreHttp.OperationSpec = {
-  path:
-    "/api/projects/{projectId}/providers/{providerId}/data/{providerDataId}",
-  httpMethod: "PUT",
-  responses: {
-    200: {
-      bodyMapper: Mappers.ProviderDataReturnResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  requestBody: Parameters.body3,
-  urlParameters: [
-    Parameters.$host,
-    Parameters.projectId,
-    Parameters.providerId,
-    Parameters.providerDataId
-  ],
-  headerParameters: [Parameters.contentType, Parameters.accept1],
-  mediaType: "json",
-  serializer
-};
-const deleteProjectProviderDataOperationSpec: coreHttp.OperationSpec = {
-  path:
-    "/api/projects/{projectId}/providers/{providerId}/data/{providerDataId}",
-  httpMethod: "DELETE",
-  responses: {
-    204: {
-      bodyMapper: Mappers.ProviderDataReturnResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  urlParameters: [
-    Parameters.$host,
-    Parameters.projectId,
-    Parameters.providerId,
-    Parameters.providerDataId
-  ],
-  headerParameters: [Parameters.accept],
-  serializer
-};
-const getProjectTagsOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/projects/{projectId}/tags",
-  httpMethod: "GET",
-  responses: {
-    200: {
-      bodyMapper: Mappers.StringDictionaryDataResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  urlParameters: [Parameters.$host, Parameters.projectId],
-  headerParameters: [Parameters.accept],
-  serializer
-};
-const createProjectTagOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/projects/{projectId}/tags",
-  httpMethod: "POST",
-  responses: {
-    202: {
-      bodyMapper: Mappers.StatusResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    409: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  requestBody: Parameters.body4,
-  urlParameters: [Parameters.$host, Parameters.projectId],
-  headerParameters: [Parameters.contentType, Parameters.accept1],
-  mediaType: "json",
-  serializer
-};
-const updateProjectTagOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/projects/{projectId}/tags",
-  httpMethod: "PUT",
-  responses: {
-    202: {
-      bodyMapper: Mappers.StatusResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  requestBody: Parameters.body4,
-  urlParameters: [Parameters.$host, Parameters.projectId],
-  headerParameters: [Parameters.contentType, Parameters.accept1],
-  mediaType: "json",
-  serializer
-};
-const getProjectTagByKeyOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/projects/{projectId}/tags/{tagKey}",
-  httpMethod: "GET",
-  responses: {
-    200: {
-      bodyMapper: Mappers.StringDictionaryDataResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  urlParameters: [Parameters.$host, Parameters.projectId, Parameters.tagKey],
-  headerParameters: [Parameters.accept],
-  serializer
-};
-const deleteProjectTagOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/projects/{projectId}/tags/{tagKey}",
-  httpMethod: "DELETE",
-  responses: {
-    202: {
-      bodyMapper: Mappers.StatusResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  urlParameters: [Parameters.$host, Parameters.projectId, Parameters.tagKey],
-  headerParameters: [Parameters.accept],
-  serializer
-};
-const getProjectTypesOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/projectTypes",
-  httpMethod: "GET",
-  responses: {
-    200: {
-      bodyMapper: Mappers.ProjectTypeListDataResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {}
-  },
-  urlParameters: [Parameters.$host],
-  headerParameters: [Parameters.accept],
-  serializer
-};
-const createProjectTypeOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/projectTypes",
-  httpMethod: "POST",
-  responses: {
-    201: {
-      bodyMapper: Mappers.ProjectTypeDataResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    409: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  requestBody: Parameters.body5,
-  urlParameters: [Parameters.$host],
-  headerParameters: [Parameters.contentType, Parameters.accept1],
-  mediaType: "json",
-  serializer
-};
-const getProjectTypeByIdOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/projectTypes/{projectTypeId}",
-  httpMethod: "GET",
-  responses: {
-    200: {
-      bodyMapper: Mappers.ProjectTypeDataResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  urlParameters: [Parameters.$host, Parameters.projectTypeId],
-  headerParameters: [Parameters.accept],
-  serializer
-};
-const updateProjectTypeOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/projectTypes/{projectTypeId}",
-  httpMethod: "PUT",
-  responses: {
-    200: {
-      bodyMapper: Mappers.ProjectTypeDataResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  requestBody: Parameters.body5,
-  urlParameters: [Parameters.$host, Parameters.projectTypeId],
-  headerParameters: [Parameters.contentType, Parameters.accept1],
-  mediaType: "json",
-  serializer
-};
-const deleteProjectTypeOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/projectTypes/{projectTypeId}",
-  httpMethod: "DELETE",
-  responses: {
-    204: {
-      bodyMapper: Mappers.ProjectTypeDataResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  urlParameters: [Parameters.$host, Parameters.projectTypeId],
-  headerParameters: [Parameters.accept],
-  serializer
-};
-const getProjectUsersOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/projects/{projectId}/users",
-  httpMethod: "GET",
-  responses: {
-    200: {
-      bodyMapper: Mappers.UserListDataResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  urlParameters: [Parameters.$host, Parameters.projectId],
-  headerParameters: [Parameters.accept],
-  serializer
-};
-const createProjectUserOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/projects/{projectId}/users",
-  httpMethod: "POST",
-  responses: {
     202: {
       bodyMapper: Mappers.StatusResult
     },
@@ -2313,13 +1467,386 @@ const createProjectUserOperationSpec: coreHttp.OperationSpec = {
     }
   },
   requestBody: Parameters.body6,
-  urlParameters: [Parameters.$host, Parameters.projectId],
+  urlParameters: [Parameters.$host, Parameters.org, Parameters.projectId],
+  headerParameters: [Parameters.contentType, Parameters.accept1],
+  mediaType: "json",
+  serializer
+};
+const getProjectComponentOperationSpec: coreHttp.OperationSpec = {
+  path: "/orgs/{org}/projects/{projectId}/components/{id}",
+  httpMethod: "GET",
+  responses: {
+    200: {
+      bodyMapper: Mappers.ComponentDataResult
+    },
+    400: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    401: {},
+    403: {},
+    404: {
+      bodyMapper: Mappers.ErrorResult
+    }
+  },
+  urlParameters: [
+    Parameters.$host,
+    Parameters.org,
+    Parameters.id,
+    Parameters.projectId
+  ],
+  headerParameters: [Parameters.accept],
+  serializer
+};
+const deleteProjectComponentOperationSpec: coreHttp.OperationSpec = {
+  path: "/orgs/{org}/projects/{projectId}/components/{id}",
+  httpMethod: "DELETE",
+  responses: {
+    202: {
+      bodyMapper: Mappers.StatusResult
+    },
+    204: {
+      bodyMapper: Mappers.ComponentDataResult
+    },
+    400: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    401: {},
+    403: {},
+    404: {
+      bodyMapper: Mappers.ErrorResult
+    }
+  },
+  urlParameters: [
+    Parameters.$host,
+    Parameters.org,
+    Parameters.id,
+    Parameters.projectId
+  ],
+  headerParameters: [Parameters.accept],
+  serializer
+};
+const getProjectComponentTemplatesOperationSpec: coreHttp.OperationSpec = {
+  path: "/orgs/{org}/projects/{projectId}/templates",
+  httpMethod: "GET",
+  responses: {
+    200: {
+      bodyMapper: Mappers.ComponentTemplateListDataResult
+    },
+    400: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    401: {},
+    403: {},
+    404: {
+      bodyMapper: Mappers.ErrorResult
+    }
+  },
+  urlParameters: [Parameters.$host, Parameters.org, Parameters.projectId],
+  headerParameters: [Parameters.accept],
+  serializer
+};
+const getProjectComponentTemplateOperationSpec: coreHttp.OperationSpec = {
+  path: "/orgs/{org}/projects/{projectId}/templates/{id}",
+  httpMethod: "GET",
+  responses: {
+    200: {
+      bodyMapper: Mappers.ComponentTemplateDataResult
+    },
+    400: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    401: {},
+    403: {},
+    404: {
+      bodyMapper: Mappers.ErrorResult
+    }
+  },
+  urlParameters: [
+    Parameters.$host,
+    Parameters.org,
+    Parameters.id,
+    Parameters.projectId
+  ],
+  headerParameters: [Parameters.accept],
+  serializer
+};
+const getProjectTagsOperationSpec: coreHttp.OperationSpec = {
+  path: "/orgs/{org}/projects/{projectId}/tags",
+  httpMethod: "GET",
+  responses: {
+    200: {
+      bodyMapper: Mappers.StringDictionaryDataResult
+    },
+    400: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    401: {},
+    403: {},
+    404: {
+      bodyMapper: Mappers.ErrorResult
+    }
+  },
+  urlParameters: [Parameters.$host, Parameters.org, Parameters.projectId],
+  headerParameters: [Parameters.accept],
+  serializer
+};
+const createProjectTagOperationSpec: coreHttp.OperationSpec = {
+  path: "/orgs/{org}/projects/{projectId}/tags",
+  httpMethod: "POST",
+  responses: {
+    202: {
+      bodyMapper: Mappers.StatusResult
+    },
+    400: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    401: {},
+    403: {},
+    404: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    409: {
+      bodyMapper: Mappers.ErrorResult
+    }
+  },
+  requestBody: Parameters.body7,
+  urlParameters: [Parameters.$host, Parameters.org, Parameters.projectId],
+  headerParameters: [Parameters.contentType, Parameters.accept1],
+  mediaType: "json",
+  serializer
+};
+const updateProjectTagOperationSpec: coreHttp.OperationSpec = {
+  path: "/orgs/{org}/projects/{projectId}/tags",
+  httpMethod: "PUT",
+  responses: {
+    202: {
+      bodyMapper: Mappers.StatusResult
+    },
+    400: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    401: {},
+    403: {},
+    404: {
+      bodyMapper: Mappers.ErrorResult
+    }
+  },
+  requestBody: Parameters.body7,
+  urlParameters: [Parameters.$host, Parameters.org, Parameters.projectId],
+  headerParameters: [Parameters.contentType, Parameters.accept1],
+  mediaType: "json",
+  serializer
+};
+const getProjectTagByKeyOperationSpec: coreHttp.OperationSpec = {
+  path: "/orgs/{org}/projects/{projectId}/tags/{tagKey}",
+  httpMethod: "GET",
+  responses: {
+    200: {
+      bodyMapper: Mappers.StringDictionaryDataResult
+    },
+    400: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    401: {},
+    403: {},
+    404: {
+      bodyMapper: Mappers.ErrorResult
+    }
+  },
+  urlParameters: [
+    Parameters.$host,
+    Parameters.org,
+    Parameters.projectId,
+    Parameters.tagKey
+  ],
+  headerParameters: [Parameters.accept],
+  serializer
+};
+const deleteProjectTagOperationSpec: coreHttp.OperationSpec = {
+  path: "/orgs/{org}/projects/{projectId}/tags/{tagKey}",
+  httpMethod: "DELETE",
+  responses: {
+    202: {
+      bodyMapper: Mappers.StatusResult
+    },
+    400: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    401: {},
+    403: {},
+    404: {
+      bodyMapper: Mappers.ErrorResult
+    }
+  },
+  urlParameters: [
+    Parameters.$host,
+    Parameters.org,
+    Parameters.projectId,
+    Parameters.tagKey
+  ],
+  headerParameters: [Parameters.accept],
+  serializer
+};
+const getProjectTemplatesOperationSpec: coreHttp.OperationSpec = {
+  path: "/orgs/{org}/templates",
+  httpMethod: "GET",
+  responses: {
+    200: {
+      bodyMapper: Mappers.ProjectTemplateListDataResult
+    },
+    400: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    401: {},
+    403: {}
+  },
+  urlParameters: [Parameters.$host, Parameters.org],
+  headerParameters: [Parameters.accept],
+  serializer
+};
+const createProjectTemplateOperationSpec: coreHttp.OperationSpec = {
+  path: "/orgs/{org}/templates",
+  httpMethod: "POST",
+  responses: {
+    201: {
+      bodyMapper: Mappers.ProjectTemplateDataResult
+    },
+    400: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    401: {},
+    403: {},
+    409: {
+      bodyMapper: Mappers.ErrorResult
+    }
+  },
+  requestBody: Parameters.body8,
+  urlParameters: [Parameters.$host, Parameters.org],
+  headerParameters: [Parameters.contentType, Parameters.accept1],
+  mediaType: "json",
+  serializer
+};
+const getProjectTemplateOperationSpec: coreHttp.OperationSpec = {
+  path: "/orgs/{org}/templates/{projectTemplateId}",
+  httpMethod: "GET",
+  responses: {
+    200: {
+      bodyMapper: Mappers.ProjectTemplateDataResult
+    },
+    400: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    401: {},
+    403: {},
+    404: {
+      bodyMapper: Mappers.ErrorResult
+    }
+  },
+  urlParameters: [
+    Parameters.$host,
+    Parameters.org,
+    Parameters.projectTemplateId
+  ],
+  headerParameters: [Parameters.accept],
+  serializer
+};
+const updateProjectTemplateOperationSpec: coreHttp.OperationSpec = {
+  path: "/orgs/{org}/templates/{projectTemplateId}",
+  httpMethod: "PUT",
+  responses: {
+    200: {
+      bodyMapper: Mappers.ProjectTemplateDataResult
+    },
+    400: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    401: {},
+    403: {},
+    404: {
+      bodyMapper: Mappers.ErrorResult
+    }
+  },
+  requestBody: Parameters.body9,
+  urlParameters: [
+    Parameters.$host,
+    Parameters.org,
+    Parameters.projectTemplateId
+  ],
+  headerParameters: [Parameters.contentType, Parameters.accept1],
+  mediaType: "json",
+  serializer
+};
+const deleteProjectTemplateOperationSpec: coreHttp.OperationSpec = {
+  path: "/orgs/{org}/templates/{projectTemplateId}",
+  httpMethod: "DELETE",
+  responses: {
+    204: {
+      bodyMapper: Mappers.ProjectTemplateDataResult
+    },
+    400: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    401: {},
+    403: {},
+    404: {
+      bodyMapper: Mappers.ErrorResult
+    }
+  },
+  urlParameters: [
+    Parameters.$host,
+    Parameters.org,
+    Parameters.projectTemplateId
+  ],
+  headerParameters: [Parameters.accept],
+  serializer
+};
+const getProjectUsersOperationSpec: coreHttp.OperationSpec = {
+  path: "/orgs/{org}/projects/{projectId}/users",
+  httpMethod: "GET",
+  responses: {
+    200: {
+      bodyMapper: Mappers.UserListDataResult
+    },
+    400: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    401: {},
+    403: {},
+    404: {
+      bodyMapper: Mappers.ErrorResult
+    }
+  },
+  urlParameters: [Parameters.$host, Parameters.org, Parameters.projectId],
+  headerParameters: [Parameters.accept],
+  serializer
+};
+const createProjectUserOperationSpec: coreHttp.OperationSpec = {
+  path: "/orgs/{org}/projects/{projectId}/users",
+  httpMethod: "POST",
+  responses: {
+    202: {
+      bodyMapper: Mappers.StatusResult
+    },
+    400: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    401: {},
+    403: {},
+    404: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    409: {
+      bodyMapper: Mappers.ErrorResult
+    }
+  },
+  requestBody: Parameters.body3,
+  urlParameters: [Parameters.$host, Parameters.org, Parameters.projectId],
   headerParameters: [Parameters.contentType, Parameters.accept1],
   mediaType: "json",
   serializer
 };
 const getProjectUserByNameOrIdOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/projects/{projectId}/users/{userNameOrId}",
+  path: "/orgs/{org}/projects/{projectId}/users/{userId}",
   httpMethod: "GET",
   responses: {
     200: {
@@ -2336,14 +1863,15 @@ const getProjectUserByNameOrIdOperationSpec: coreHttp.OperationSpec = {
   },
   urlParameters: [
     Parameters.$host,
-    Parameters.projectId,
-    Parameters.userNameOrId
+    Parameters.org,
+    Parameters.userId,
+    Parameters.projectId
   ],
   headerParameters: [Parameters.accept],
   serializer
 };
 const updateProjectUserOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/projects/{projectId}/users/{userNameOrId}",
+  path: "/orgs/{org}/projects/{projectId}/users/{userId}",
   httpMethod: "PUT",
   responses: {
     202: {
@@ -2358,18 +1886,19 @@ const updateProjectUserOperationSpec: coreHttp.OperationSpec = {
       bodyMapper: Mappers.ErrorResult
     }
   },
-  requestBody: Parameters.body7,
+  requestBody: Parameters.body4,
   urlParameters: [
     Parameters.$host,
-    Parameters.projectId,
-    Parameters.userNameOrId
+    Parameters.org,
+    Parameters.userId,
+    Parameters.projectId
   ],
   headerParameters: [Parameters.contentType, Parameters.accept1],
   mediaType: "json",
   serializer
 };
 const deleteProjectUserOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/projects/{projectId}/users/{userNameOrId}",
+  path: "/orgs/{org}/projects/{projectId}/users/{userId}",
   httpMethod: "DELETE",
   responses: {
     202: {
@@ -2386,14 +1915,15 @@ const deleteProjectUserOperationSpec: coreHttp.OperationSpec = {
   },
   urlParameters: [
     Parameters.$host,
-    Parameters.projectId,
-    Parameters.userNameOrId
+    Parameters.org,
+    Parameters.userId,
+    Parameters.projectId
   ],
   headerParameters: [Parameters.accept],
   serializer
 };
 const getProjectUserMeOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/projects/{projectId}/users/me",
+  path: "/orgs/{org}/projects/{projectId}/users/me",
   httpMethod: "GET",
   responses: {
     200: {
@@ -2408,12 +1938,12 @@ const getProjectUserMeOperationSpec: coreHttp.OperationSpec = {
       bodyMapper: Mappers.ErrorResult
     }
   },
-  urlParameters: [Parameters.$host, Parameters.projectId],
+  urlParameters: [Parameters.$host, Parameters.org, Parameters.projectId],
   headerParameters: [Parameters.accept],
   serializer
 };
 const updateProjectUserMeOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/projects/{projectId}/users/me",
+  path: "/orgs/{org}/projects/{projectId}/users/me",
   httpMethod: "PUT",
   responses: {
     202: {
@@ -2428,480 +1958,14 @@ const updateProjectUserMeOperationSpec: coreHttp.OperationSpec = {
       bodyMapper: Mappers.ErrorResult
     }
   },
-  requestBody: Parameters.body7,
-  urlParameters: [Parameters.$host, Parameters.projectId],
+  requestBody: Parameters.body4,
+  urlParameters: [Parameters.$host, Parameters.org, Parameters.projectId],
   headerParameters: [Parameters.contentType, Parameters.accept1],
   mediaType: "json",
-  serializer
-};
-const getProviderDataOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/providers/{providerId}/data",
-  httpMethod: "GET",
-  responses: {
-    200: {
-      bodyMapper: Mappers.ProviderDataListDataResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  urlParameters: [Parameters.$host, Parameters.providerId],
-  headerParameters: [Parameters.accept],
-  serializer
-};
-const createProviderDataOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/providers/{providerId}/data",
-  httpMethod: "POST",
-  responses: {
-    201: {
-      bodyMapper: Mappers.ProviderDataReturnResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    409: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  requestBody: Parameters.body3,
-  urlParameters: [Parameters.$host, Parameters.providerId],
-  headerParameters: [Parameters.contentType, Parameters.accept1],
-  mediaType: "json",
-  serializer
-};
-const getProviderDataByIdOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/providers/{providerId}/data/{providerDataId}",
-  httpMethod: "GET",
-  responses: {
-    200: {
-      bodyMapper: Mappers.ProviderDataReturnResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  urlParameters: [
-    Parameters.$host,
-    Parameters.providerId,
-    Parameters.providerDataId
-  ],
-  headerParameters: [Parameters.accept],
-  serializer
-};
-const updateProviderDataOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/providers/{providerId}/data/{providerDataId}",
-  httpMethod: "PUT",
-  responses: {
-    200: {
-      bodyMapper: Mappers.ProviderDataReturnResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  requestBody: Parameters.body3,
-  urlParameters: [
-    Parameters.$host,
-    Parameters.providerId,
-    Parameters.providerDataId
-  ],
-  headerParameters: [Parameters.contentType, Parameters.accept1],
-  mediaType: "json",
-  serializer
-};
-const deleteProviderDataOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/providers/{providerId}/data/{providerDataId}",
-  httpMethod: "DELETE",
-  responses: {
-    204: {
-      bodyMapper: Mappers.ProviderDataReturnResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  urlParameters: [
-    Parameters.$host,
-    Parameters.providerId,
-    Parameters.providerDataId
-  ],
-  headerParameters: [Parameters.accept],
-  serializer
-};
-const getProviderOffersOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/providers/{providerId}/offers",
-  httpMethod: "GET",
-  responses: {
-    200: {
-      bodyMapper: Mappers.ComponentOfferListDataResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  urlParameters: [Parameters.$host, Parameters.providerId],
-  headerParameters: [Parameters.accept],
-  serializer
-};
-const createProviderOfferOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/providers/{providerId}/offers",
-  httpMethod: "POST",
-  responses: {
-    201: {
-      bodyMapper: Mappers.ComponentOfferDataResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    409: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  requestBody: Parameters.body8,
-  urlParameters: [Parameters.$host, Parameters.providerId],
-  headerParameters: [Parameters.contentType, Parameters.accept1],
-  mediaType: "json",
-  serializer
-};
-const getProviderOfferByIdOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/providers/{providerId}/offers/{offerId}",
-  httpMethod: "GET",
-  responses: {
-    200: {
-      bodyMapper: Mappers.ComponentOfferDataResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  urlParameters: [Parameters.$host, Parameters.offerId, Parameters.providerId],
-  headerParameters: [Parameters.accept],
-  serializer
-};
-const updateProviderOfferOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/providers/{providerId}/offers/{offerId}",
-  httpMethod: "PUT",
-  responses: {
-    200: {
-      bodyMapper: Mappers.ComponentOfferDataResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  requestBody: Parameters.body8,
-  urlParameters: [Parameters.$host, Parameters.offerId, Parameters.providerId],
-  headerParameters: [Parameters.contentType, Parameters.accept1],
-  mediaType: "json",
-  serializer
-};
-const deleteProviderOfferOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/providers/{providerId}/offers/{offerId}",
-  httpMethod: "DELETE",
-  responses: {
-    204: {
-      bodyMapper: Mappers.ComponentOfferDataResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  urlParameters: [Parameters.$host, Parameters.offerId, Parameters.providerId],
-  headerParameters: [Parameters.accept],
-  serializer
-};
-const getProviderProjectComponentsOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/projects/{projectId}/providers/{providerId}/components",
-  httpMethod: "GET",
-  responses: {
-    200: {
-      bodyMapper: Mappers.ComponentListDataResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  urlParameters: [
-    Parameters.$host,
-    Parameters.projectId,
-    Parameters.providerId
-  ],
-  headerParameters: [Parameters.accept],
-  serializer
-};
-const createProviderProjectComponentOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/projects/{projectId}/providers/{providerId}/components",
-  httpMethod: "POST",
-  responses: {
-    201: {
-      bodyMapper: Mappers.ComponentDataResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    409: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  requestBody: Parameters.body9,
-  urlParameters: [
-    Parameters.$host,
-    Parameters.projectId,
-    Parameters.providerId
-  ],
-  headerParameters: [Parameters.contentType, Parameters.accept1],
-  mediaType: "json",
-  serializer
-};
-const getProviderProjectComponentByIdOperationSpec: coreHttp.OperationSpec = {
-  path:
-    "/api/projects/{projectId}/providers/{providerId}/components/{componentId}",
-  httpMethod: "GET",
-  responses: {
-    200: {
-      bodyMapper: Mappers.ComponentDataResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  urlParameters: [
-    Parameters.$host,
-    Parameters.projectId,
-    Parameters.componentId,
-    Parameters.providerId
-  ],
-  headerParameters: [Parameters.accept],
-  serializer
-};
-const updateProviderProjectComponentOperationSpec: coreHttp.OperationSpec = {
-  path:
-    "/api/projects/{projectId}/providers/{providerId}/components/{componentId}",
-  httpMethod: "PUT",
-  responses: {
-    200: {
-      bodyMapper: Mappers.ComponentDataResult
-    },
-    202: {
-      bodyMapper: Mappers.StatusResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  requestBody: Parameters.body9,
-  urlParameters: [
-    Parameters.$host,
-    Parameters.projectId,
-    Parameters.componentId,
-    Parameters.providerId
-  ],
-  headerParameters: [Parameters.contentType, Parameters.accept1],
-  mediaType: "json",
-  serializer
-};
-const deleteProviderProjectComponentOperationSpec: coreHttp.OperationSpec = {
-  path:
-    "/api/projects/{projectId}/providers/{providerId}/components/{componentId}",
-  httpMethod: "DELETE",
-  responses: {
-    202: {
-      bodyMapper: Mappers.StatusResult
-    },
-    204: {
-      bodyMapper: Mappers.ComponentDataResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  urlParameters: [
-    Parameters.$host,
-    Parameters.projectId,
-    Parameters.componentId,
-    Parameters.providerId
-  ],
-  headerParameters: [Parameters.accept],
-  serializer
-};
-const getProvidersOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/providers",
-  httpMethod: "GET",
-  responses: {
-    200: {
-      bodyMapper: Mappers.ProviderListDataResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {}
-  },
-  urlParameters: [Parameters.$host],
-  headerParameters: [Parameters.accept],
-  serializer
-};
-const createProviderOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/providers",
-  httpMethod: "POST",
-  responses: {
-    202: {
-      bodyMapper: Mappers.StatusResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    409: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  requestBody: Parameters.body10,
-  urlParameters: [Parameters.$host],
-  headerParameters: [Parameters.contentType, Parameters.accept1],
-  mediaType: "json",
-  serializer
-};
-const getProviderByIdOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/providers/{providerId}",
-  httpMethod: "GET",
-  responses: {
-    200: {
-      bodyMapper: Mappers.ProviderDataResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  urlParameters: [Parameters.$host, Parameters.providerId],
-  headerParameters: [Parameters.accept],
-  serializer
-};
-const updateProviderOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/providers/{providerId}",
-  httpMethod: "PUT",
-  responses: {
-    202: {
-      bodyMapper: Mappers.StatusResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  requestBody: Parameters.body10,
-  urlParameters: [Parameters.$host, Parameters.providerId],
-  headerParameters: [Parameters.contentType, Parameters.accept1],
-  mediaType: "json",
-  serializer
-};
-const deleteProviderOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/providers/{providerId}",
-  httpMethod: "DELETE",
-  responses: {
-    202: {
-      bodyMapper: Mappers.StatusResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  urlParameters: [Parameters.$host, Parameters.providerId],
-  headerParameters: [Parameters.accept],
   serializer
 };
 const getStatusOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/status/{trackingId}",
+  path: "/orgs/{org}/status/{trackingId}",
   httpMethod: "GET",
   responses: {
     200: {
@@ -2922,12 +1986,12 @@ const getStatusOperationSpec: coreHttp.OperationSpec = {
       bodyMapper: Mappers.ErrorResult
     }
   },
-  urlParameters: [Parameters.$host, Parameters.trackingId],
+  urlParameters: [Parameters.$host, Parameters.org, Parameters.trackingId],
   headerParameters: [Parameters.accept],
   serializer
 };
 const getProjectStatusOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/projects/{projectId}/status/{trackingId}",
+  path: "/orgs/{org}/projects/{projectId}/status/{trackingId}",
   httpMethod: "GET",
   responses: {
     200: {
@@ -2950,353 +2014,15 @@ const getProjectStatusOperationSpec: coreHttp.OperationSpec = {
   },
   urlParameters: [
     Parameters.$host,
+    Parameters.org,
     Parameters.projectId,
     Parameters.trackingId
   ],
   headerParameters: [Parameters.accept],
   serializer
 };
-const createTeamCloudAdminUserOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/admin/users",
-  httpMethod: "POST",
-  responses: {
-    202: {
-      bodyMapper: Mappers.StatusResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    409: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  requestBody: Parameters.body6,
-  urlParameters: [Parameters.$host],
-  headerParameters: [Parameters.contentType, Parameters.accept2],
-  mediaType: "json",
-  serializer
-};
-const getTeamCloudInstanceOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/admin/teamCloudInstance",
-  httpMethod: "GET",
-  responses: {
-    200: {
-      bodyMapper: Mappers.TeamCloudInstanceDataResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  urlParameters: [Parameters.$host],
-  headerParameters: [Parameters.accept3],
-  serializer
-};
-const createTeamCloudInstanceOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/admin/teamCloudInstance",
-  httpMethod: "POST",
-  responses: {
-    201: {
-      bodyMapper: Mappers.TeamCloudInstanceDataResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  requestBody: Parameters.body11,
-  urlParameters: [Parameters.$host],
-  headerParameters: [Parameters.contentType, Parameters.accept2],
-  mediaType: "json",
-  serializer
-};
-const updateTeamCloudInstanceOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/admin/teamCloudInstance",
-  httpMethod: "PUT",
-  responses: {
-    200: {
-      bodyMapper: Mappers.TeamCloudInstanceDataResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  requestBody: Parameters.body11,
-  urlParameters: [Parameters.$host],
-  headerParameters: [Parameters.contentType, Parameters.accept2],
-  mediaType: "json",
-  serializer
-};
-const getTeamCloudTagsOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/tags",
-  httpMethod: "GET",
-  responses: {
-    200: {
-      bodyMapper: Mappers.StringDictionaryDataResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  urlParameters: [Parameters.$host],
-  headerParameters: [Parameters.accept],
-  serializer
-};
-const createTeamCloudTagOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/tags",
-  httpMethod: "POST",
-  responses: {
-    202: {
-      bodyMapper: Mappers.StatusResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    409: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  requestBody: Parameters.body4,
-  urlParameters: [Parameters.$host],
-  headerParameters: [Parameters.contentType, Parameters.accept1],
-  mediaType: "json",
-  serializer
-};
-const updateTeamCloudTagOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/tags",
-  httpMethod: "PUT",
-  responses: {
-    202: {
-      bodyMapper: Mappers.StatusResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  requestBody: Parameters.body4,
-  urlParameters: [Parameters.$host],
-  headerParameters: [Parameters.contentType, Parameters.accept1],
-  mediaType: "json",
-  serializer
-};
-const getTeamCloudTagByKeyOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/tags/{tagKey}",
-  httpMethod: "GET",
-  responses: {
-    200: {
-      bodyMapper: Mappers.StringDictionaryDataResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  urlParameters: [Parameters.$host, Parameters.tagKey],
-  headerParameters: [Parameters.accept],
-  serializer
-};
-const deleteTeamCloudTagOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/tags/{tagKey}",
-  httpMethod: "DELETE",
-  responses: {
-    202: {
-      bodyMapper: Mappers.StatusResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  urlParameters: [Parameters.$host, Parameters.tagKey],
-  headerParameters: [Parameters.accept],
-  serializer
-};
-const getTeamCloudUsersOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/users",
-  httpMethod: "GET",
-  responses: {
-    200: {
-      bodyMapper: Mappers.UserListDataResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  urlParameters: [Parameters.$host],
-  headerParameters: [Parameters.accept],
-  serializer
-};
-const createTeamCloudUserOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/users",
-  httpMethod: "POST",
-  responses: {
-    202: {
-      bodyMapper: Mappers.StatusResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    409: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  requestBody: Parameters.body6,
-  urlParameters: [Parameters.$host],
-  headerParameters: [Parameters.contentType, Parameters.accept1],
-  mediaType: "json",
-  serializer
-};
-const getTeamCloudUserByNameOrIdOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/users/{userNameOrId}",
-  httpMethod: "GET",
-  responses: {
-    200: {
-      bodyMapper: Mappers.UserDataResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  urlParameters: [Parameters.$host, Parameters.userNameOrId],
-  headerParameters: [Parameters.accept],
-  serializer
-};
-const updateTeamCloudUserOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/users/{userNameOrId}",
-  httpMethod: "PUT",
-  responses: {
-    202: {
-      bodyMapper: Mappers.StatusResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  requestBody: Parameters.body7,
-  urlParameters: [Parameters.$host, Parameters.userNameOrId],
-  headerParameters: [Parameters.contentType, Parameters.accept1],
-  mediaType: "json",
-  serializer
-};
-const deleteTeamCloudUserOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/users/{userNameOrId}",
-  httpMethod: "DELETE",
-  responses: {
-    202: {
-      bodyMapper: Mappers.StatusResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  urlParameters: [Parameters.$host, Parameters.userNameOrId],
-  headerParameters: [Parameters.accept],
-  serializer
-};
-const getTeamCloudUserMeOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/me",
-  httpMethod: "GET",
-  responses: {
-    200: {
-      bodyMapper: Mappers.UserDataResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  urlParameters: [Parameters.$host],
-  headerParameters: [Parameters.accept],
-  serializer
-};
-const updateTeamCloudUserMeOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/me",
-  httpMethod: "PUT",
-  responses: {
-    202: {
-      bodyMapper: Mappers.StatusResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  requestBody: Parameters.body7,
-  urlParameters: [Parameters.$host],
-  headerParameters: [Parameters.contentType, Parameters.accept1],
-  mediaType: "json",
-  serializer
-};
 const getUserProjectsOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/users/{userId}/projects",
+  path: "/orgs/{org}/users/{userId}/projects",
   httpMethod: "GET",
   responses: {
     200: {
@@ -3311,12 +2037,12 @@ const getUserProjectsOperationSpec: coreHttp.OperationSpec = {
       bodyMapper: Mappers.ErrorResult
     }
   },
-  urlParameters: [Parameters.$host, Parameters.userId],
+  urlParameters: [Parameters.$host, Parameters.org, Parameters.userId],
   headerParameters: [Parameters.accept],
   serializer
 };
 const getUserProjectsMeOperationSpec: coreHttp.OperationSpec = {
-  path: "/api/me/projects",
+  path: "/orgs/{org}/me/projects",
   httpMethod: "GET",
   responses: {
     200: {
@@ -3331,7 +2057,7 @@ const getUserProjectsMeOperationSpec: coreHttp.OperationSpec = {
       bodyMapper: Mappers.ErrorResult
     }
   },
-  urlParameters: [Parameters.$host],
+  urlParameters: [Parameters.$host, Parameters.org],
   headerParameters: [Parameters.accept],
   serializer
 };

@@ -81,7 +81,7 @@ namespace TeamCloud.API.Controllers
         [HttpPost]
         [Authorize(Policy = AuthPolicies.Admin)]
         [Consumes("application/json")]
-        [SwaggerOperation(OperationId = "CreateProjectTemplate", Summary = "Creates a new Deployment Scope.")]
+        [SwaggerOperation(OperationId = "CreateDeploymentScope", Summary = "Creates a new Deployment Scope.")]
         [SwaggerResponse(StatusCodes.Status201Created, "The new Deployment Scope was created.", typeof(DataResult<DeploymentScope>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status409Conflict, "A Deployment Scope already exists with the ID provided in the request body.", typeof(ErrorResult))]

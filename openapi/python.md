@@ -32,31 +32,4 @@ license-header: MICROSOFT_MIT_NO_VERSION
 output-folder: './../client/tc/azext_tc/vendored_sdks/teamcloud'
 no-namespace-folders: true
 clear-output-folder: true
-
-declare-directive:
-  rename-component: >-
-    [{
-      from: 'openapi.yaml',
-      where: '$.components.schemas',
-      transform: `if ($[${JSON.stringify($.from)}]) { $[${JSON.stringify($.to)}] = $[${JSON.stringify($.from)}]; delete $[${JSON.stringify($.from)}]; }`
-    },
-    {
-      from: 'openapi.yaml',
-      where: `$..['$ref']`,
-      transform: `$ = $ === "#/components/schemas/${$.from}" ? "#/components/schemas/${$.to}" : $`
-    },
-    {
-      from: 'openapi.yaml',
-      where: `$..['$ref']`,
-      transform: `$ = $ === ($documentPath + "#/components/schemas/${$.from}") ? ($documentPath + "#/components/schemas/${$.to}") : $`
-    }]
-
-directive:
-  - from: openapi.yaml
-    where: $.components.schemas.ProviderData.properties.value
-    transform: return undefined
-
-  - rename-component:
-      from: ProviderDataDataResult
-      to: ProviderDataReturnResult
 ```
