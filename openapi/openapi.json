@@ -3177,24 +3177,27 @@
   "components": {
     "schemas": {
       "DeploymentScope": {
+        "required": [
+          "displayName",
+          "isDefault",
+          "managementGroupId",
+          "organization",
+          "slug"
+        ],
         "type": "object",
         "properties": {
           "organization": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "slug": {
             "type": "string",
-            "nullable": true,
             "readOnly": true
           },
           "displayName": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "managementGroupId": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "isDefault": {
             "type": "boolean"
@@ -3298,6 +3301,10 @@
         "additionalProperties": false
       },
       "DeploymentScopeDefinition": {
+        "required": [
+          "displayName",
+          "managementGroupId"
+        ],
         "type": "object",
         "properties": {
           "slug": {
@@ -3306,12 +3313,10 @@
             "readOnly": true
           },
           "displayName": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "managementGroupId": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "isDefault": {
             "type": "boolean"
@@ -3341,20 +3346,22 @@
         "additionalProperties": false
       },
       "Organization": {
+        "required": [
+          "displayName",
+          "slug",
+          "tenant"
+        ],
         "type": "object",
         "properties": {
           "tenant": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "slug": {
             "type": "string",
-            "nullable": true,
             "readOnly": true
           },
           "displayName": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "tags": {
             "type": "object",
@@ -3397,6 +3404,9 @@
         "additionalProperties": false
       },
       "OrganizationDefinition": {
+        "required": [
+          "displayName"
+        ],
         "type": "object",
         "properties": {
           "slug": {
@@ -3405,8 +3415,7 @@
             "readOnly": true
           },
           "displayName": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           }
         },
         "additionalProperties": false
@@ -3471,11 +3480,14 @@
         "additionalProperties": false
       },
       "ProjectMembership": {
+        "required": [
+          "projectId",
+          "role"
+        ],
         "type": "object",
         "properties": {
           "projectId": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "role": {
             "enum": [
@@ -3497,11 +3509,16 @@
         "additionalProperties": false
       },
       "User": {
+        "required": [
+          "organization",
+          "projectMemberships",
+          "role",
+          "userType"
+        ],
         "type": "object",
         "properties": {
           "organization": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "userType": {
             "enum": [
@@ -3525,8 +3542,7 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ProjectMembership"
-            },
-            "nullable": true
+            }
           },
           "properties": {
             "type": "object",
@@ -3569,15 +3585,17 @@
         "additionalProperties": false
       },
       "UserDefinition": {
+        "required": [
+          "identifier",
+          "role"
+        ],
         "type": "object",
         "properties": {
           "identifier": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "role": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "properties": {
             "type": "object",
@@ -3611,28 +3629,30 @@
         "additionalProperties": false
       },
       "Project": {
+        "required": [
+          "displayName",
+          "organization",
+          "slug",
+          "template",
+          "templateInput"
+        ],
         "type": "object",
         "properties": {
           "organization": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "slug": {
             "type": "string",
-            "nullable": true,
             "readOnly": true
           },
           "displayName": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "template": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "templateInput": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "users": {
             "type": "array",
@@ -3682,6 +3702,11 @@
         "additionalProperties": false
       },
       "ProjectDefinition": {
+        "required": [
+          "displayName",
+          "template",
+          "templateInput"
+        ],
         "type": "object",
         "properties": {
           "slug": {
@@ -3690,16 +3715,13 @@
             "readOnly": true
           },
           "displayName": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "template": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "templateInput": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "users": {
             "type": "array",
@@ -3734,7 +3756,13 @@
       },
       "Component": {
         "required": [
+          "inputJson",
+          "organization",
+          "projectId",
+          "providerId",
+          "requestedBy",
           "scope",
+          "templateId",
           "type"
         ],
         "type": "object",
@@ -3743,25 +3771,20 @@
             "type": "string",
             "nullable": true
           },
-          "templateId": {
-            "type": "string",
-            "nullable": true
-          },
           "organization": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
+          },
+          "templateId": {
+            "type": "string"
           },
           "projectId": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "providerId": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "requestedBy": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "displayName": {
             "type": "string",
@@ -3772,8 +3795,7 @@
             "nullable": true
           },
           "inputJson": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "valueJson": {
             "type": "string",
@@ -3867,11 +3889,18 @@
         "additionalProperties": false
       },
       "RepositoryReference": {
+        "required": [
+          "organization",
+          "provider",
+          "ref",
+          "repository",
+          "type",
+          "url"
+        ],
         "type": "object",
         "properties": {
           "url": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "token": {
             "type": "string",
@@ -3890,8 +3919,7 @@
             "nullable": true
           },
           "ref": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "provider": {
             "enum": [
@@ -3911,12 +3939,10 @@
             "type": "string"
           },
           "organization": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "repository": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "project": {
             "type": "string",
@@ -3926,15 +3952,20 @@
         "additionalProperties": false
       },
       "ComponentTemplate": {
+        "required": [
+          "organization",
+          "parentId",
+          "repository",
+          "scope",
+          "type"
+        ],
         "type": "object",
         "properties": {
           "organization": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "parentId": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "providerId": {
             "type": "string",
@@ -4053,15 +4084,20 @@
         "additionalProperties": false
       },
       "ProjectTemplate": {
+        "required": [
+          "displayName",
+          "isDefault",
+          "organization",
+          "repository",
+          "slug"
+        ],
         "type": "object",
         "properties": {
           "organization": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "slug": {
             "type": "string",
-            "nullable": true,
             "readOnly": true
           },
           "name": {
@@ -4069,8 +4105,7 @@
             "nullable": true
           },
           "displayName": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "components": {
             "type": "array",
@@ -4127,11 +4162,13 @@
         "additionalProperties": false
       },
       "RepositoryDefinition": {
+        "required": [
+          "url"
+        ],
         "type": "object",
         "properties": {
           "url": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "token": {
             "type": "string",
@@ -4145,11 +4182,14 @@
         "additionalProperties": false
       },
       "ProjectTemplateDefinition": {
+        "required": [
+          "displayName",
+          "repository"
+        ],
         "type": "object",
         "properties": {
           "displayName": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "repository": {
             "$ref": "#/components/schemas/RepositoryDefinition"

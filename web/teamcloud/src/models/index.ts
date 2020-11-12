@@ -19,14 +19,14 @@ export interface DeploymentScopeListDataResult {
 }
 
 export interface DeploymentScope {
-  organization?: string | null;
+  organization: string;
   /**
    * NOTE: This property will not be serialized. It can only be populated by the server.
    */
-  readonly slug?: string | null;
-  displayName?: string | null;
-  managementGroupId?: string | null;
-  isDefault?: boolean;
+  readonly slug: string;
+  displayName: string;
+  managementGroupId: string;
+  isDefault: boolean;
   id?: string | null;
 }
 
@@ -52,8 +52,8 @@ export interface DeploymentScopeDefinition {
    * NOTE: This property will not be serialized. It can only be populated by the server.
    */
   readonly slug?: string | null;
-  displayName?: string | null;
-  managementGroupId?: string | null;
+  displayName: string;
+  managementGroupId: string;
   isDefault?: boolean;
 }
 
@@ -75,12 +75,12 @@ export interface OrganizationListDataResult {
 }
 
 export interface Organization {
-  tenant?: string | null;
+  tenant: string;
   /**
    * NOTE: This property will not be serialized. It can only be populated by the server.
    */
-  readonly slug?: string | null;
-  displayName?: string | null;
+  readonly slug: string;
+  displayName: string;
   /**
    * Dictionary of <string>
    */
@@ -93,7 +93,7 @@ export interface OrganizationDefinition {
    * NOTE: This property will not be serialized. It can only be populated by the server.
    */
   readonly slug?: string | null;
-  displayName?: string | null;
+  displayName: string;
 }
 
 export interface OrganizationDataResult {
@@ -127,10 +127,10 @@ export interface UserListDataResult {
 }
 
 export interface User {
-  organization?: string | null;
-  userType?: UserType;
-  role?: UserRole;
-  projectMemberships?: ProjectMembership[] | null;
+  organization: string;
+  userType: UserType;
+  role: UserRole;
+  projectMemberships: ProjectMembership[];
   /**
    * Dictionary of <string>
    */
@@ -139,8 +139,8 @@ export interface User {
 }
 
 export interface ProjectMembership {
-  projectId?: string | null;
-  role?: ProjectMembershipRole;
+  projectId: string;
+  role: ProjectMembershipRole;
   /**
    * Dictionary of <string>
    */
@@ -148,8 +148,8 @@ export interface ProjectMembership {
 }
 
 export interface UserDefinition {
-  identifier?: string | null;
-  role?: string | null;
+  identifier: string;
+  role: string;
   /**
    * Dictionary of <string>
    */
@@ -174,14 +174,14 @@ export interface ProjectListDataResult {
 }
 
 export interface Project {
-  organization?: string | null;
+  organization: string;
   /**
    * NOTE: This property will not be serialized. It can only be populated by the server.
    */
-  readonly slug?: string | null;
-  displayName?: string | null;
-  template?: string | null;
-  templateInput?: string | null;
+  readonly slug: string;
+  displayName: string;
+  template: string;
+  templateInput: string;
   users?: User[] | null;
   /**
    * Dictionary of <string>
@@ -195,9 +195,9 @@ export interface ProjectDefinition {
    * NOTE: This property will not be serialized. It can only be populated by the server.
    */
   readonly slug?: string | null;
-  displayName?: string | null;
-  template?: string | null;
-  templateInput?: string | null;
+  displayName: string;
+  template: string;
+  templateInput: string;
   users?: UserDefinition[] | null;
 }
 
@@ -220,14 +220,14 @@ export interface ComponentListDataResult {
 
 export interface Component {
   href?: string | null;
-  templateId?: string | null;
-  organization?: string | null;
-  projectId?: string | null;
-  providerId?: string | null;
-  requestedBy?: string | null;
+  organization: string;
+  templateId: string;
+  projectId: string;
+  providerId: string;
+  requestedBy: string;
   displayName?: string | null;
   description?: string | null;
-  inputJson?: string | null;
+  inputJson: string;
   valueJson?: string | null;
   scope: ComponentScope;
   type: ComponentType;
@@ -257,29 +257,29 @@ export interface ComponentTemplateListDataResult {
 }
 
 export interface ComponentTemplate {
-  organization?: string | null;
-  parentId?: string | null;
+  organization: string;
+  parentId: string;
   providerId?: string | null;
   displayName?: string | null;
   description?: string | null;
-  repository?: RepositoryReference;
+  repository: RepositoryReference;
   inputJsonSchema?: string | null;
-  scope?: ComponentTemplateScope;
-  type?: ComponentTemplateType;
+  scope: ComponentTemplateScope;
+  type: ComponentTemplateType;
   id?: string | null;
 }
 
 export interface RepositoryReference {
-  url?: string | null;
+  url: string;
   token?: string | null;
   version?: string | null;
   baselUrl?: string | null;
   mountUrl?: string | null;
-  ref?: string | null;
-  provider?: RepositoryReferenceProvider;
-  type?: RepositoryReferenceType;
-  organization?: string | null;
-  repository?: string | null;
+  ref: string;
+  provider: RepositoryReferenceProvider;
+  type: RepositoryReferenceType;
+  organization: string;
+  repository: string;
   project?: string | null;
 }
 
@@ -312,28 +312,28 @@ export interface ProjectTemplateListDataResult {
 }
 
 export interface ProjectTemplate {
-  organization?: string | null;
+  organization: string;
   /**
    * NOTE: This property will not be serialized. It can only be populated by the server.
    */
-  readonly slug?: string | null;
+  readonly slug: string;
   name?: string | null;
-  displayName?: string | null;
+  displayName: string;
   components?: string[] | null;
-  repository?: RepositoryReference;
+  repository: RepositoryReference;
   description?: string | null;
-  isDefault?: boolean;
+  isDefault: boolean;
   inputJsonSchema?: string | null;
   id?: string | null;
 }
 
 export interface ProjectTemplateDefinition {
-  displayName?: string | null;
-  repository?: RepositoryDefinition;
+  displayName: string;
+  repository: RepositoryDefinition;
 }
 
 export interface RepositoryDefinition {
-  url?: string | null;
+  url: string;
   token?: string | null;
   version?: string | null;
 }

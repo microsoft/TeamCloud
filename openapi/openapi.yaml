@@ -1964,21 +1964,23 @@ paths:
 components:
   schemas:
     DeploymentScope:
+      required:
+        - displayName
+        - isDefault
+        - managementGroupId
+        - organization
+        - slug
       type: object
       properties:
         organization:
           type: string
-          nullable: true
         slug:
           type: string
-          nullable: true
           readOnly: true
         displayName:
           type: string
-          nullable: true
         managementGroupId:
           type: string
-          nullable: true
         isDefault:
           type: boolean
         id:
@@ -2053,6 +2055,9 @@ components:
           nullable: true
       additionalProperties: false
     DeploymentScopeDefinition:
+      required:
+        - displayName
+        - managementGroupId
       type: object
       properties:
         slug:
@@ -2061,10 +2066,8 @@ components:
           readOnly: true
         displayName:
           type: string
-          nullable: true
         managementGroupId:
           type: string
-          nullable: true
         isDefault:
           type: boolean
       additionalProperties: false
@@ -2084,18 +2087,19 @@ components:
           nullable: true
       additionalProperties: false
     Organization:
+      required:
+        - displayName
+        - slug
+        - tenant
       type: object
       properties:
         tenant:
           type: string
-          nullable: true
         slug:
           type: string
-          nullable: true
           readOnly: true
         displayName:
           type: string
-          nullable: true
         tags:
           type: object
           additionalProperties:
@@ -2125,6 +2129,8 @@ components:
           nullable: true
       additionalProperties: false
     OrganizationDefinition:
+      required:
+        - displayName
       type: object
       properties:
         slug:
@@ -2133,7 +2139,6 @@ components:
           readOnly: true
         displayName:
           type: string
-          nullable: true
       additionalProperties: false
     OrganizationDataResult:
       type: object
@@ -2179,11 +2184,13 @@ components:
           nullable: true
       additionalProperties: false
     ProjectMembership:
+      required:
+        - projectId
+        - role
       type: object
       properties:
         projectId:
           type: string
-          nullable: true
         role:
           enum:
             - None
@@ -2198,11 +2205,15 @@ components:
           nullable: true
       additionalProperties: false
     User:
+      required:
+        - organization
+        - projectMemberships
+        - role
+        - userType
       type: object
       properties:
         organization:
           type: string
-          nullable: true
         userType:
           enum:
             - User
@@ -2221,7 +2232,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ProjectMembership'
-          nullable: true
         properties:
           type: object
           additionalProperties:
@@ -2251,14 +2261,15 @@ components:
           nullable: true
       additionalProperties: false
     UserDefinition:
+      required:
+        - identifier
+        - role
       type: object
       properties:
         identifier:
           type: string
-          nullable: true
         role:
           type: string
-          nullable: true
         properties:
           type: object
           additionalProperties:
@@ -2281,24 +2292,25 @@ components:
           nullable: true
       additionalProperties: false
     Project:
+      required:
+        - displayName
+        - organization
+        - slug
+        - template
+        - templateInput
       type: object
       properties:
         organization:
           type: string
-          nullable: true
         slug:
           type: string
-          nullable: true
           readOnly: true
         displayName:
           type: string
-          nullable: true
         template:
           type: string
-          nullable: true
         templateInput:
           type: string
-          nullable: true
         users:
           type: array
           items:
@@ -2333,6 +2345,10 @@ components:
           nullable: true
       additionalProperties: false
     ProjectDefinition:
+      required:
+        - displayName
+        - template
+        - templateInput
       type: object
       properties:
         slug:
@@ -2341,13 +2357,10 @@ components:
           readOnly: true
         displayName:
           type: string
-          nullable: true
         template:
           type: string
-          nullable: true
         templateInput:
           type: string
-          nullable: true
         users:
           type: array
           items:
@@ -2371,28 +2384,29 @@ components:
       additionalProperties: false
     Component:
       required:
+        - inputJson
+        - organization
+        - projectId
+        - providerId
+        - requestedBy
         - scope
+        - templateId
         - type
       type: object
       properties:
         href:
           type: string
           nullable: true
-        templateId:
-          type: string
-          nullable: true
         organization:
           type: string
-          nullable: true
+        templateId:
+          type: string
         projectId:
           type: string
-          nullable: true
         providerId:
           type: string
-          nullable: true
         requestedBy:
           type: string
-          nullable: true
         displayName:
           type: string
           nullable: true
@@ -2401,7 +2415,6 @@ components:
           nullable: true
         inputJson:
           type: string
-          nullable: true
         valueJson:
           type: string
           nullable: true
@@ -2468,11 +2481,17 @@ components:
           nullable: true
       additionalProperties: false
     RepositoryReference:
+      required:
+        - organization
+        - provider
+        - ref
+        - repository
+        - type
+        - url
       type: object
       properties:
         url:
           type: string
-          nullable: true
         token:
           type: string
           nullable: true
@@ -2487,7 +2506,6 @@ components:
           nullable: true
         ref:
           type: string
-          nullable: true
         provider:
           enum:
             - Unknown
@@ -2503,23 +2521,25 @@ components:
           type: string
         organization:
           type: string
-          nullable: true
         repository:
           type: string
-          nullable: true
         project:
           type: string
           nullable: true
       additionalProperties: false
     ComponentTemplate:
+      required:
+        - organization
+        - parentId
+        - repository
+        - scope
+        - type
       type: object
       properties:
         organization:
           type: string
-          nullable: true
         parentId:
           type: string
-          nullable: true
         providerId:
           type: string
           nullable: true
@@ -2605,21 +2625,24 @@ components:
           nullable: true
       additionalProperties: false
     ProjectTemplate:
+      required:
+        - displayName
+        - isDefault
+        - organization
+        - repository
+        - slug
       type: object
       properties:
         organization:
           type: string
-          nullable: true
         slug:
           type: string
-          nullable: true
           readOnly: true
         name:
           type: string
           nullable: true
         displayName:
           type: string
-          nullable: true
         components:
           type: array
           items:
@@ -2659,11 +2682,12 @@ components:
           nullable: true
       additionalProperties: false
     RepositoryDefinition:
+      required:
+        - url
       type: object
       properties:
         url:
           type: string
-          nullable: true
         token:
           type: string
           nullable: true
@@ -2672,11 +2696,13 @@ components:
           nullable: true
       additionalProperties: false
     ProjectTemplateDefinition:
+      required:
+        - displayName
+        - repository
       type: object
       properties:
         displayName:
           type: string
-          nullable: true
         repository:
           $ref: '#/components/schemas/RepositoryDefinition'
       additionalProperties: false
