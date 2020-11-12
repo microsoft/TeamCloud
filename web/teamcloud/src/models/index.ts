@@ -10,293 +10,339 @@ import * as coreHttp from "@azure/core-http";
 
 export interface DeploymentScopeListDataResult {
   code?: number;
-  status?: string;
-  readonly data?: DeploymentScope[];
-  location?: string;
+  status?: string | null;
+  /**
+   * NOTE: This property will not be serialized. It can only be populated by the server.
+   */
+  readonly data?: DeploymentScope[] | null;
+  location?: string | null;
 }
 
 export interface DeploymentScope {
-  organization?: string;
-  readonly slug?: string;
-  displayName?: string;
-  managementGroupId?: string;
+  organization?: string | null;
+  /**
+   * NOTE: This property will not be serialized. It can only be populated by the server.
+   */
+  readonly slug?: string | null;
+  displayName?: string | null;
+  managementGroupId?: string | null;
   isDefault?: boolean;
-  id?: string;
+  id?: string | null;
 }
 
 export interface ErrorResult {
   code?: number;
-  status?: string;
-  errors?: ResultError[];
+  status?: string | null;
+  errors?: ResultError[] | null;
 }
 
 export interface ResultError {
   code?: ResultErrorCode;
-  message?: string;
-  errors?: ValidationError[];
+  message?: string | null;
+  errors?: ValidationError[] | null;
 }
 
 export interface ValidationError {
-  field?: string;
-  message?: string;
+  field?: string | null;
+  message?: string | null;
 }
 
 export interface DeploymentScopeDefinition {
-  readonly slug?: string;
-  displayName?: string;
-  managementGroupId?: string;
+  /**
+   * NOTE: This property will not be serialized. It can only be populated by the server.
+   */
+  readonly slug?: string | null;
+  displayName?: string | null;
+  managementGroupId?: string | null;
   isDefault?: boolean;
 }
 
 export interface DeploymentScopeDataResult {
   code?: number;
-  status?: string;
+  status?: string | null;
   data?: DeploymentScope;
-  location?: string;
+  location?: string | null;
 }
 
 export interface OrganizationListDataResult {
   code?: number;
-  status?: string;
-  readonly data?: Organization[];
-  location?: string;
+  status?: string | null;
+  /**
+   * NOTE: This property will not be serialized. It can only be populated by the server.
+   */
+  readonly data?: Organization[] | null;
+  location?: string | null;
 }
 
 export interface Organization {
-  tenant?: string;
-  readonly slug?: string;
-  displayName?: string;
+  tenant?: string | null;
+  /**
+   * NOTE: This property will not be serialized. It can only be populated by the server.
+   */
+  readonly slug?: string | null;
+  displayName?: string | null;
   /**
    * Dictionary of <string>
    */
-  tags?: { [propertyName: string]: string };
-  id?: string;
+  tags?: { [propertyName: string]: string } | null;
+  id?: string | null;
 }
 
 export interface OrganizationDefinition {
-  readonly slug?: string;
-  displayName?: string;
+  /**
+   * NOTE: This property will not be serialized. It can only be populated by the server.
+   */
+  readonly slug?: string | null;
+  displayName?: string | null;
 }
 
 export interface OrganizationDataResult {
   code?: number;
-  status?: string;
+  status?: string | null;
   data?: Organization;
-  location?: string;
+  location?: string | null;
 }
 
 export interface StatusResult {
   code?: number;
-  status?: string;
-  readonly state?: string;
-  stateMessage?: string;
-  location?: string;
-  errors?: ResultError[];
-  trackingId?: string;
+  status?: string | null;
+  /**
+   * NOTE: This property will not be serialized. It can only be populated by the server.
+   */
+  readonly state?: string | null;
+  stateMessage?: string | null;
+  location?: string | null;
+  errors?: ResultError[] | null;
+  trackingId?: string | null;
 }
 
 export interface UserListDataResult {
   code?: number;
-  status?: string;
-  readonly data?: User[];
-  location?: string;
+  status?: string | null;
+  /**
+   * NOTE: This property will not be serialized. It can only be populated by the server.
+   */
+  readonly data?: User[] | null;
+  location?: string | null;
 }
 
 export interface User {
-  organization?: string;
+  organization?: string | null;
   userType?: UserType;
   role?: UserRole;
-  projectMemberships?: ProjectMembership[];
+  projectMemberships?: ProjectMembership[] | null;
   /**
    * Dictionary of <string>
    */
-  properties?: { [propertyName: string]: string };
-  id?: string;
+  properties?: { [propertyName: string]: string } | null;
+  id?: string | null;
 }
 
 export interface ProjectMembership {
-  projectId?: string;
+  projectId?: string | null;
   role?: ProjectMembershipRole;
   /**
    * Dictionary of <string>
    */
-  properties?: { [propertyName: string]: string };
+  properties?: { [propertyName: string]: string } | null;
 }
 
 export interface UserDefinition {
-  identifier?: string;
-  role?: string;
+  identifier?: string | null;
+  role?: string | null;
   /**
    * Dictionary of <string>
    */
-  properties?: { [propertyName: string]: string };
+  properties?: { [propertyName: string]: string } | null;
 }
 
 export interface UserDataResult {
   code?: number;
-  status?: string;
+  status?: string | null;
   data?: User;
-  location?: string;
+  location?: string | null;
 }
 
 export interface ProjectListDataResult {
   code?: number;
-  status?: string;
-  readonly data?: Project[];
-  location?: string;
+  status?: string | null;
+  /**
+   * NOTE: This property will not be serialized. It can only be populated by the server.
+   */
+  readonly data?: Project[] | null;
+  location?: string | null;
 }
 
 export interface Project {
-  organization?: string;
-  readonly slug?: string;
-  displayName?: string;
-  template?: string;
-  templateInput?: string;
-  users?: User[];
+  organization?: string | null;
+  /**
+   * NOTE: This property will not be serialized. It can only be populated by the server.
+   */
+  readonly slug?: string | null;
+  displayName?: string | null;
+  template?: string | null;
+  templateInput?: string | null;
+  users?: User[] | null;
   /**
    * Dictionary of <string>
    */
-  tags?: { [propertyName: string]: string };
-  id?: string;
+  tags?: { [propertyName: string]: string } | null;
+  id?: string | null;
 }
 
 export interface ProjectDefinition {
-  readonly slug?: string;
-  displayName?: string;
-  template?: string;
-  templateInput?: string;
-  users?: UserDefinition[];
+  /**
+   * NOTE: This property will not be serialized. It can only be populated by the server.
+   */
+  readonly slug?: string | null;
+  displayName?: string | null;
+  template?: string | null;
+  templateInput?: string | null;
+  users?: UserDefinition[] | null;
 }
 
 export interface ProjectDataResult {
   code?: number;
-  status?: string;
+  status?: string | null;
   data?: Project;
-  location?: string;
+  location?: string | null;
 }
 
 export interface ComponentListDataResult {
   code?: number;
-  status?: string;
-  readonly data?: Component[];
-  location?: string;
+  status?: string | null;
+  /**
+   * NOTE: This property will not be serialized. It can only be populated by the server.
+   */
+  readonly data?: Component[] | null;
+  location?: string | null;
 }
 
 export interface Component {
-  href?: string;
-  templateId?: string;
-  organization?: string;
-  projectId?: string;
-  providerId?: string;
-  requestedBy?: string;
-  displayName?: string;
-  description?: string;
-  inputJson?: string;
-  valueJson?: string;
+  href?: string | null;
+  templateId?: string | null;
+  organization?: string | null;
+  projectId?: string | null;
+  providerId?: string | null;
+  requestedBy?: string | null;
+  displayName?: string | null;
+  description?: string | null;
+  inputJson?: string | null;
+  valueJson?: string | null;
   scope: ComponentScope;
   type: ComponentType;
-  id?: string;
+  id?: string | null;
 }
 
 export interface ComponentRequest {
   templateId: string;
-  inputJson?: string;
+  inputJson?: string | null;
 }
 
 export interface ComponentDataResult {
   code?: number;
-  status?: string;
+  status?: string | null;
   data?: Component;
-  location?: string;
+  location?: string | null;
 }
 
 export interface ComponentTemplateListDataResult {
   code?: number;
-  status?: string;
-  readonly data?: ComponentTemplate[];
-  location?: string;
+  status?: string | null;
+  /**
+   * NOTE: This property will not be serialized. It can only be populated by the server.
+   */
+  readonly data?: ComponentTemplate[] | null;
+  location?: string | null;
 }
 
 export interface ComponentTemplate {
-  organization?: string;
-  parentId?: string;
-  providerId?: string;
-  displayName?: string;
-  description?: string;
+  organization?: string | null;
+  parentId?: string | null;
+  providerId?: string | null;
+  displayName?: string | null;
+  description?: string | null;
   repository?: RepositoryReference;
-  inputJsonSchema?: string;
+  inputJsonSchema?: string | null;
   scope?: ComponentTemplateScope;
   type?: ComponentTemplateType;
-  id?: string;
+  id?: string | null;
 }
 
 export interface RepositoryReference {
-  url?: string;
-  token?: string;
-  version?: string;
-  baselUrl?: string;
-  mountUrl?: string;
-  ref?: string;
+  url?: string | null;
+  token?: string | null;
+  version?: string | null;
+  baselUrl?: string | null;
+  mountUrl?: string | null;
+  ref?: string | null;
   provider?: RepositoryReferenceProvider;
   type?: RepositoryReferenceType;
-  organization?: string;
-  repository?: string;
-  project?: string;
+  organization?: string | null;
+  repository?: string | null;
+  project?: string | null;
 }
 
 export interface ComponentTemplateDataResult {
   code?: number;
-  status?: string;
+  status?: string | null;
   data?: ComponentTemplate;
-  location?: string;
+  location?: string | null;
 }
 
 export interface StringDictionaryDataResult {
   code?: number;
-  status?: string;
+  status?: string | null;
   /**
    * Dictionary of <string>
+   * NOTE: This property will not be serialized. It can only be populated by the server.
    */
-  readonly data?: { [propertyName: string]: string };
-  location?: string;
+  readonly data?: { [propertyName: string]: string } | null;
+  location?: string | null;
 }
 
 export interface ProjectTemplateListDataResult {
   code?: number;
-  status?: string;
-  readonly data?: ProjectTemplate[];
-  location?: string;
+  status?: string | null;
+  /**
+   * NOTE: This property will not be serialized. It can only be populated by the server.
+   */
+  readonly data?: ProjectTemplate[] | null;
+  location?: string | null;
 }
 
 export interface ProjectTemplate {
-  organization?: string;
-  readonly slug?: string;
-  name?: string;
-  displayName?: string;
-  components?: string[];
+  organization?: string | null;
+  /**
+   * NOTE: This property will not be serialized. It can only be populated by the server.
+   */
+  readonly slug?: string | null;
+  name?: string | null;
+  displayName?: string | null;
+  components?: string[] | null;
   repository?: RepositoryReference;
-  description?: string;
+  description?: string | null;
   isDefault?: boolean;
-  inputJsonSchema?: string;
-  id?: string;
+  inputJsonSchema?: string | null;
+  id?: string | null;
 }
 
 export interface ProjectTemplateDefinition {
-  displayName?: string;
+  displayName?: string | null;
   repository?: RepositoryDefinition;
 }
 
 export interface RepositoryDefinition {
-  url?: string;
-  token?: string;
-  version?: string;
+  url?: string | null;
+  token?: string | null;
+  version?: string | null;
 }
 
 export interface ProjectTemplateDataResult {
   code?: number;
-  status?: string;
+  status?: string | null;
   data?: ProjectTemplate;
-  location?: string;
+  location?: string | null;
 }
 
 /**

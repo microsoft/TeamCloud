@@ -21,6 +21,7 @@ export const DeploymentScopeListDataResult: coreHttp.CompositeMapper = {
       },
       status: {
         serializedName: "status",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -28,13 +29,20 @@ export const DeploymentScopeListDataResult: coreHttp.CompositeMapper = {
       data: {
         serializedName: "data",
         readOnly: true,
+        nullable: true,
         type: {
           name: "Sequence",
-          element: { type: { name: "Composite", className: "DeploymentScope" } }
+          element: {
+            type: {
+              name: "Composite",
+              className: "DeploymentScope"
+            }
+          }
         }
       },
       location: {
         serializedName: "location",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -50,6 +58,7 @@ export const DeploymentScope: coreHttp.CompositeMapper = {
     modelProperties: {
       organization: {
         serializedName: "organization",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -57,18 +66,21 @@ export const DeploymentScope: coreHttp.CompositeMapper = {
       slug: {
         serializedName: "slug",
         readOnly: true,
+        nullable: true,
         type: {
           name: "String"
         }
       },
       displayName: {
         serializedName: "displayName",
+        nullable: true,
         type: {
           name: "String"
         }
       },
       managementGroupId: {
         serializedName: "managementGroupId",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -81,6 +93,7 @@ export const DeploymentScope: coreHttp.CompositeMapper = {
       },
       id: {
         serializedName: "id",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -102,15 +115,22 @@ export const ErrorResult: coreHttp.CompositeMapper = {
       },
       status: {
         serializedName: "status",
+        nullable: true,
         type: {
           name: "String"
         }
       },
       errors: {
         serializedName: "errors",
+        nullable: true,
         type: {
           name: "Sequence",
-          element: { type: { name: "Composite", className: "ResultError" } }
+          element: {
+            type: {
+              name: "Composite",
+              className: "ResultError"
+            }
+          }
         }
       }
     }
@@ -130,15 +150,22 @@ export const ResultError: coreHttp.CompositeMapper = {
       },
       message: {
         serializedName: "message",
+        nullable: true,
         type: {
           name: "String"
         }
       },
       errors: {
         serializedName: "errors",
+        nullable: true,
         type: {
           name: "Sequence",
-          element: { type: { name: "Composite", className: "ValidationError" } }
+          element: {
+            type: {
+              name: "Composite",
+              className: "ValidationError"
+            }
+          }
         }
       }
     }
@@ -152,12 +179,14 @@ export const ValidationError: coreHttp.CompositeMapper = {
     modelProperties: {
       field: {
         serializedName: "field",
+        nullable: true,
         type: {
           name: "String"
         }
       },
       message: {
         serializedName: "message",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -174,18 +203,21 @@ export const DeploymentScopeDefinition: coreHttp.CompositeMapper = {
       slug: {
         serializedName: "slug",
         readOnly: true,
+        nullable: true,
         type: {
           name: "String"
         }
       },
       displayName: {
         serializedName: "displayName",
+        nullable: true,
         type: {
           name: "String"
         }
       },
       managementGroupId: {
         serializedName: "managementGroupId",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -213,6 +245,7 @@ export const DeploymentScopeDataResult: coreHttp.CompositeMapper = {
       },
       status: {
         serializedName: "status",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -226,6 +259,7 @@ export const DeploymentScopeDataResult: coreHttp.CompositeMapper = {
       },
       location: {
         serializedName: "location",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -247,6 +281,7 @@ export const OrganizationListDataResult: coreHttp.CompositeMapper = {
       },
       status: {
         serializedName: "status",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -254,13 +289,20 @@ export const OrganizationListDataResult: coreHttp.CompositeMapper = {
       data: {
         serializedName: "data",
         readOnly: true,
+        nullable: true,
         type: {
           name: "Sequence",
-          element: { type: { name: "Composite", className: "Organization" } }
+          element: {
+            type: {
+              name: "Composite",
+              className: "Organization"
+            }
+          }
         }
       },
       location: {
         serializedName: "location",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -276,6 +318,7 @@ export const Organization: coreHttp.CompositeMapper = {
     modelProperties: {
       tenant: {
         serializedName: "tenant",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -283,18 +326,21 @@ export const Organization: coreHttp.CompositeMapper = {
       slug: {
         serializedName: "slug",
         readOnly: true,
+        nullable: true,
         type: {
           name: "String"
         }
       },
       displayName: {
         serializedName: "displayName",
+        nullable: true,
         type: {
           name: "String"
         }
       },
       tags: {
         serializedName: "tags",
+        nullable: true,
         type: {
           name: "Dictionary",
           value: { type: { name: "String" } }
@@ -302,6 +348,7 @@ export const Organization: coreHttp.CompositeMapper = {
       },
       id: {
         serializedName: "id",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -318,12 +365,14 @@ export const OrganizationDefinition: coreHttp.CompositeMapper = {
       slug: {
         serializedName: "slug",
         readOnly: true,
+        nullable: true,
         type: {
           name: "String"
         }
       },
       displayName: {
         serializedName: "displayName",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -345,6 +394,7 @@ export const OrganizationDataResult: coreHttp.CompositeMapper = {
       },
       status: {
         serializedName: "status",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -358,6 +408,7 @@ export const OrganizationDataResult: coreHttp.CompositeMapper = {
       },
       location: {
         serializedName: "location",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -379,6 +430,7 @@ export const StatusResult: coreHttp.CompositeMapper = {
       },
       status: {
         serializedName: "status",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -386,31 +438,41 @@ export const StatusResult: coreHttp.CompositeMapper = {
       state: {
         serializedName: "state",
         readOnly: true,
+        nullable: true,
         type: {
           name: "String"
         }
       },
       stateMessage: {
         serializedName: "stateMessage",
+        nullable: true,
         type: {
           name: "String"
         }
       },
       location: {
         serializedName: "location",
+        nullable: true,
         type: {
           name: "String"
         }
       },
       errors: {
         serializedName: "errors",
+        nullable: true,
         type: {
           name: "Sequence",
-          element: { type: { name: "Composite", className: "ResultError" } }
+          element: {
+            type: {
+              name: "Composite",
+              className: "ResultError"
+            }
+          }
         }
       },
       trackingId: {
         serializedName: "_trackingId",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -432,6 +494,7 @@ export const UserListDataResult: coreHttp.CompositeMapper = {
       },
       status: {
         serializedName: "status",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -439,13 +502,20 @@ export const UserListDataResult: coreHttp.CompositeMapper = {
       data: {
         serializedName: "data",
         readOnly: true,
+        nullable: true,
         type: {
           name: "Sequence",
-          element: { type: { name: "Composite", className: "User" } }
+          element: {
+            type: {
+              name: "Composite",
+              className: "User"
+            }
+          }
         }
       },
       location: {
         serializedName: "location",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -461,6 +531,7 @@ export const User: coreHttp.CompositeMapper = {
     modelProperties: {
       organization: {
         serializedName: "organization",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -479,15 +550,20 @@ export const User: coreHttp.CompositeMapper = {
       },
       projectMemberships: {
         serializedName: "projectMemberships",
+        nullable: true,
         type: {
           name: "Sequence",
           element: {
-            type: { name: "Composite", className: "ProjectMembership" }
+            type: {
+              name: "Composite",
+              className: "ProjectMembership"
+            }
           }
         }
       },
       properties: {
         serializedName: "properties",
+        nullable: true,
         type: {
           name: "Dictionary",
           value: { type: { name: "String" } }
@@ -495,6 +571,7 @@ export const User: coreHttp.CompositeMapper = {
       },
       id: {
         serializedName: "id",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -510,6 +587,7 @@ export const ProjectMembership: coreHttp.CompositeMapper = {
     modelProperties: {
       projectId: {
         serializedName: "projectId",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -522,6 +600,7 @@ export const ProjectMembership: coreHttp.CompositeMapper = {
       },
       properties: {
         serializedName: "properties",
+        nullable: true,
         type: {
           name: "Dictionary",
           value: { type: { name: "String" } }
@@ -538,18 +617,21 @@ export const UserDefinition: coreHttp.CompositeMapper = {
     modelProperties: {
       identifier: {
         serializedName: "identifier",
+        nullable: true,
         type: {
           name: "String"
         }
       },
       role: {
         serializedName: "role",
+        nullable: true,
         type: {
           name: "String"
         }
       },
       properties: {
         serializedName: "properties",
+        nullable: true,
         type: {
           name: "Dictionary",
           value: { type: { name: "String" } }
@@ -572,6 +654,7 @@ export const UserDataResult: coreHttp.CompositeMapper = {
       },
       status: {
         serializedName: "status",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -585,6 +668,7 @@ export const UserDataResult: coreHttp.CompositeMapper = {
       },
       location: {
         serializedName: "location",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -606,6 +690,7 @@ export const ProjectListDataResult: coreHttp.CompositeMapper = {
       },
       status: {
         serializedName: "status",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -613,13 +698,20 @@ export const ProjectListDataResult: coreHttp.CompositeMapper = {
       data: {
         serializedName: "data",
         readOnly: true,
+        nullable: true,
         type: {
           name: "Sequence",
-          element: { type: { name: "Composite", className: "Project" } }
+          element: {
+            type: {
+              name: "Composite",
+              className: "Project"
+            }
+          }
         }
       },
       location: {
         serializedName: "location",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -635,6 +727,7 @@ export const Project: coreHttp.CompositeMapper = {
     modelProperties: {
       organization: {
         serializedName: "organization",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -642,37 +735,48 @@ export const Project: coreHttp.CompositeMapper = {
       slug: {
         serializedName: "slug",
         readOnly: true,
+        nullable: true,
         type: {
           name: "String"
         }
       },
       displayName: {
         serializedName: "displayName",
+        nullable: true,
         type: {
           name: "String"
         }
       },
       template: {
         serializedName: "template",
+        nullable: true,
         type: {
           name: "String"
         }
       },
       templateInput: {
         serializedName: "templateInput",
+        nullable: true,
         type: {
           name: "String"
         }
       },
       users: {
         serializedName: "users",
+        nullable: true,
         type: {
           name: "Sequence",
-          element: { type: { name: "Composite", className: "User" } }
+          element: {
+            type: {
+              name: "Composite",
+              className: "User"
+            }
+          }
         }
       },
       tags: {
         serializedName: "tags",
+        nullable: true,
         type: {
           name: "Dictionary",
           value: { type: { name: "String" } }
@@ -680,6 +784,7 @@ export const Project: coreHttp.CompositeMapper = {
       },
       id: {
         serializedName: "id",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -696,33 +801,43 @@ export const ProjectDefinition: coreHttp.CompositeMapper = {
       slug: {
         serializedName: "slug",
         readOnly: true,
+        nullable: true,
         type: {
           name: "String"
         }
       },
       displayName: {
         serializedName: "displayName",
+        nullable: true,
         type: {
           name: "String"
         }
       },
       template: {
         serializedName: "template",
+        nullable: true,
         type: {
           name: "String"
         }
       },
       templateInput: {
         serializedName: "templateInput",
+        nullable: true,
         type: {
           name: "String"
         }
       },
       users: {
         serializedName: "users",
+        nullable: true,
         type: {
           name: "Sequence",
-          element: { type: { name: "Composite", className: "UserDefinition" } }
+          element: {
+            type: {
+              name: "Composite",
+              className: "UserDefinition"
+            }
+          }
         }
       }
     }
@@ -742,6 +857,7 @@ export const ProjectDataResult: coreHttp.CompositeMapper = {
       },
       status: {
         serializedName: "status",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -755,6 +871,7 @@ export const ProjectDataResult: coreHttp.CompositeMapper = {
       },
       location: {
         serializedName: "location",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -776,6 +893,7 @@ export const ComponentListDataResult: coreHttp.CompositeMapper = {
       },
       status: {
         serializedName: "status",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -783,13 +901,20 @@ export const ComponentListDataResult: coreHttp.CompositeMapper = {
       data: {
         serializedName: "data",
         readOnly: true,
+        nullable: true,
         type: {
           name: "Sequence",
-          element: { type: { name: "Composite", className: "Component" } }
+          element: {
+            type: {
+              name: "Composite",
+              className: "Component"
+            }
+          }
         }
       },
       location: {
         serializedName: "location",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -805,60 +930,70 @@ export const Component: coreHttp.CompositeMapper = {
     modelProperties: {
       href: {
         serializedName: "href",
+        nullable: true,
         type: {
           name: "String"
         }
       },
       templateId: {
         serializedName: "templateId",
+        nullable: true,
         type: {
           name: "String"
         }
       },
       organization: {
         serializedName: "organization",
+        nullable: true,
         type: {
           name: "String"
         }
       },
       projectId: {
         serializedName: "projectId",
+        nullable: true,
         type: {
           name: "String"
         }
       },
       providerId: {
         serializedName: "providerId",
+        nullable: true,
         type: {
           name: "String"
         }
       },
       requestedBy: {
         serializedName: "requestedBy",
+        nullable: true,
         type: {
           name: "String"
         }
       },
       displayName: {
         serializedName: "displayName",
+        nullable: true,
         type: {
           name: "String"
         }
       },
       description: {
         serializedName: "description",
+        nullable: true,
         type: {
           name: "String"
         }
       },
       inputJson: {
         serializedName: "inputJson",
+        nullable: true,
         type: {
           name: "String"
         }
       },
       valueJson: {
         serializedName: "valueJson",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -879,6 +1014,7 @@ export const Component: coreHttp.CompositeMapper = {
       },
       id: {
         serializedName: "id",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -901,6 +1037,7 @@ export const ComponentRequest: coreHttp.CompositeMapper = {
       },
       inputJson: {
         serializedName: "inputJson",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -922,6 +1059,7 @@ export const ComponentDataResult: coreHttp.CompositeMapper = {
       },
       status: {
         serializedName: "status",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -935,6 +1073,7 @@ export const ComponentDataResult: coreHttp.CompositeMapper = {
       },
       location: {
         serializedName: "location",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -956,6 +1095,7 @@ export const ComponentTemplateListDataResult: coreHttp.CompositeMapper = {
       },
       status: {
         serializedName: "status",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -963,15 +1103,20 @@ export const ComponentTemplateListDataResult: coreHttp.CompositeMapper = {
       data: {
         serializedName: "data",
         readOnly: true,
+        nullable: true,
         type: {
           name: "Sequence",
           element: {
-            type: { name: "Composite", className: "ComponentTemplate" }
+            type: {
+              name: "Composite",
+              className: "ComponentTemplate"
+            }
           }
         }
       },
       location: {
         serializedName: "location",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -987,30 +1132,35 @@ export const ComponentTemplate: coreHttp.CompositeMapper = {
     modelProperties: {
       organization: {
         serializedName: "organization",
+        nullable: true,
         type: {
           name: "String"
         }
       },
       parentId: {
         serializedName: "parentId",
+        nullable: true,
         type: {
           name: "String"
         }
       },
       providerId: {
         serializedName: "providerId",
+        nullable: true,
         type: {
           name: "String"
         }
       },
       displayName: {
         serializedName: "displayName",
+        nullable: true,
         type: {
           name: "String"
         }
       },
       description: {
         serializedName: "description",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -1024,6 +1174,7 @@ export const ComponentTemplate: coreHttp.CompositeMapper = {
       },
       inputJsonSchema: {
         serializedName: "inputJsonSchema",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -1042,6 +1193,7 @@ export const ComponentTemplate: coreHttp.CompositeMapper = {
       },
       id: {
         serializedName: "id",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -1057,36 +1209,42 @@ export const RepositoryReference: coreHttp.CompositeMapper = {
     modelProperties: {
       url: {
         serializedName: "url",
+        nullable: true,
         type: {
           name: "String"
         }
       },
       token: {
         serializedName: "token",
+        nullable: true,
         type: {
           name: "String"
         }
       },
       version: {
         serializedName: "version",
+        nullable: true,
         type: {
           name: "String"
         }
       },
       baselUrl: {
         serializedName: "baselUrl",
+        nullable: true,
         type: {
           name: "String"
         }
       },
       mountUrl: {
         serializedName: "mountUrl",
+        nullable: true,
         type: {
           name: "String"
         }
       },
       ref: {
         serializedName: "ref",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -1105,18 +1263,21 @@ export const RepositoryReference: coreHttp.CompositeMapper = {
       },
       organization: {
         serializedName: "organization",
+        nullable: true,
         type: {
           name: "String"
         }
       },
       repository: {
         serializedName: "repository",
+        nullable: true,
         type: {
           name: "String"
         }
       },
       project: {
         serializedName: "project",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -1138,6 +1299,7 @@ export const ComponentTemplateDataResult: coreHttp.CompositeMapper = {
       },
       status: {
         serializedName: "status",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -1151,6 +1313,7 @@ export const ComponentTemplateDataResult: coreHttp.CompositeMapper = {
       },
       location: {
         serializedName: "location",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -1172,6 +1335,7 @@ export const StringDictionaryDataResult: coreHttp.CompositeMapper = {
       },
       status: {
         serializedName: "status",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -1179,6 +1343,7 @@ export const StringDictionaryDataResult: coreHttp.CompositeMapper = {
       data: {
         serializedName: "data",
         readOnly: true,
+        nullable: true,
         type: {
           name: "Dictionary",
           value: { type: { name: "String" } }
@@ -1186,6 +1351,7 @@ export const StringDictionaryDataResult: coreHttp.CompositeMapper = {
       },
       location: {
         serializedName: "location",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -1207,6 +1373,7 @@ export const ProjectTemplateListDataResult: coreHttp.CompositeMapper = {
       },
       status: {
         serializedName: "status",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -1214,13 +1381,20 @@ export const ProjectTemplateListDataResult: coreHttp.CompositeMapper = {
       data: {
         serializedName: "data",
         readOnly: true,
+        nullable: true,
         type: {
           name: "Sequence",
-          element: { type: { name: "Composite", className: "ProjectTemplate" } }
+          element: {
+            type: {
+              name: "Composite",
+              className: "ProjectTemplate"
+            }
+          }
         }
       },
       location: {
         serializedName: "location",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -1236,6 +1410,7 @@ export const ProjectTemplate: coreHttp.CompositeMapper = {
     modelProperties: {
       organization: {
         serializedName: "organization",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -1243,27 +1418,35 @@ export const ProjectTemplate: coreHttp.CompositeMapper = {
       slug: {
         serializedName: "slug",
         readOnly: true,
+        nullable: true,
         type: {
           name: "String"
         }
       },
       name: {
         serializedName: "name",
+        nullable: true,
         type: {
           name: "String"
         }
       },
       displayName: {
         serializedName: "displayName",
+        nullable: true,
         type: {
           name: "String"
         }
       },
       components: {
         serializedName: "components",
+        nullable: true,
         type: {
           name: "Sequence",
-          element: { type: { name: "String" } }
+          element: {
+            type: {
+              name: "String"
+            }
+          }
         }
       },
       repository: {
@@ -1275,6 +1458,7 @@ export const ProjectTemplate: coreHttp.CompositeMapper = {
       },
       description: {
         serializedName: "description",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -1287,12 +1471,14 @@ export const ProjectTemplate: coreHttp.CompositeMapper = {
       },
       inputJsonSchema: {
         serializedName: "inputJsonSchema",
+        nullable: true,
         type: {
           name: "String"
         }
       },
       id: {
         serializedName: "id",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -1308,6 +1494,7 @@ export const ProjectTemplateDefinition: coreHttp.CompositeMapper = {
     modelProperties: {
       displayName: {
         serializedName: "displayName",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -1330,18 +1517,21 @@ export const RepositoryDefinition: coreHttp.CompositeMapper = {
     modelProperties: {
       url: {
         serializedName: "url",
+        nullable: true,
         type: {
           name: "String"
         }
       },
       token: {
         serializedName: "token",
+        nullable: true,
         type: {
           name: "String"
         }
       },
       version: {
         serializedName: "version",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -1363,6 +1553,7 @@ export const ProjectTemplateDataResult: coreHttp.CompositeMapper = {
       },
       status: {
         serializedName: "status",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -1376,6 +1567,7 @@ export const ProjectTemplateDataResult: coreHttp.CompositeMapper = {
       },
       location: {
         serializedName: "location",
+        nullable: true,
         type: {
           name: "String"
         }

@@ -71,18 +71,6 @@ export const body: OperationParameter = {
   mapper: DeploymentScopeDefinitionMapper
 };
 
-export const accept1: OperationParameter = {
-  parameterPath: "accept",
-  mapper: {
-    defaultValue: "application/json",
-    isConstant: true,
-    serializedName: "Accept",
-    type: {
-      name: "String"
-    }
-  }
-};
-
 export const id: OperationURLParameter = {
   parameterPath: "id",
   mapper: {
