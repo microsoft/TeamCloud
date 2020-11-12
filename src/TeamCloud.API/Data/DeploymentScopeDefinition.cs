@@ -14,8 +14,10 @@ namespace TeamCloud.API.Data
     {
         public string Slug => (this as ISlug).GetSlug();
 
+        [JsonProperty(Required = Required.Always)]
         public string DisplayName { get; set; }
 
+        [JsonProperty(Required = Required.Always)]
         public string ManagementGroupId { get; set; }
 
         public bool IsDefault { get; set; }

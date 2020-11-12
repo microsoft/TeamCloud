@@ -11,6 +11,9 @@ namespace TeamCloud.Model.Data
     [JsonConverter(typeof(StringEnumConverter))]
     public enum OrganizationUserRole
     {
-        None, Provider, Creator, Admin
+        None,
+        Provider,
+        Creator,
+        Admin
     }
 }

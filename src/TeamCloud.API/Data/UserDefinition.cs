@@ -12,8 +12,10 @@ namespace TeamCloud.API.Data
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
     public sealed class UserDefinition
     {
+        [JsonProperty(Required = Required.Always)]
         public string Identifier { get; set; }
 
+        [JsonProperty(Required = Required.Always)]
         public string Role { get; set; }
 
         public Dictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();

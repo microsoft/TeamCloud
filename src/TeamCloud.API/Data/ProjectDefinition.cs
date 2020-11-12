@@ -15,10 +15,13 @@ namespace TeamCloud.API.Data
     {
         public string Slug => (this as ISlug).GetSlug();
 
+        [JsonProperty(Required = Required.Always)]
         public string DisplayName { get; set; }
 
+        [JsonProperty(Required = Required.Always)]
         public string Template { get; set; }
 
+        [JsonProperty(Required = Required.Always)]
         public string TemplateInput { get; set; }
 
         public List<UserDefinition> Users { get; set; } = new List<UserDefinition>();

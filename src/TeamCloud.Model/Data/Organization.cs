@@ -16,11 +16,14 @@ namespace TeamCloud.Model.Data
     public sealed class Organization : ContainerDocument, ISlug, IEquatable<Organization>, ITags
     {
         [PartitionKey]
+        [JsonProperty(Required = Required.Always)]
         public string Tenant { get; set; }
 
         [UniqueKey]
+        [JsonProperty(Required = Required.Always)]
         public string Slug => (this as ISlug).GetSlug();
 
+        [JsonProperty(Required = Required.Always)]
         public string DisplayName { get; set; }
 
         public IDictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();

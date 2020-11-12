@@ -15,15 +15,20 @@ namespace TeamCloud.Model.Data
     public sealed class DeploymentScope : ContainerDocument, IOrganizationChild, ISlug, IEquatable<DeploymentScope>, IValidatable
     {
         [PartitionKey]
+        [JsonProperty(Required = Required.Always)]
         public string Organization { get; set; }
 
         [UniqueKey]
+        [JsonProperty(Required = Required.Always)]
         public string Slug => (this as ISlug).GetSlug();
 
+        [JsonProperty(Required = Required.Always)]
         public string DisplayName { get; set; }
 
+        [JsonProperty(Required = Required.Always)]
         public string ManagementGroupId { get; set; }
 
+        [JsonProperty(Required = Required.Always)]
         public bool IsDefault { get; set; }
 
 

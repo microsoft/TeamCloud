@@ -25,6 +25,7 @@ namespace TeamCloud.Model.Data
         [JsonProperty(Required = Required.Always)]
         public string Secret { get; set; }
 
+
         public bool Equals(ProjectIdentity other)
             => Id.Equals(other?.Id, StringComparison.Ordinal);
 

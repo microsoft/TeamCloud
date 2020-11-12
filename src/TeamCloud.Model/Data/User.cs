@@ -17,12 +17,16 @@ namespace TeamCloud.Model.Data
     public sealed class User : ContainerDocument, IOrganizationChild, IEquatable<User>, IProperties
     {
         [PartitionKey]
+        [JsonProperty(Required = Required.Always)]
         public string Organization { get; set; }
 
+        [JsonProperty(Required = Required.Always)]
         public UserType UserType { get; set; }
 
+        [JsonProperty(Required = Required.Always)]
         public OrganizationUserRole Role { get; set; }
 
+        [JsonProperty(Required = Required.Always)]
         public IList<ProjectMembership> ProjectMemberships { get; set; } = new List<ProjectMembership>();
 
         public IDictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();

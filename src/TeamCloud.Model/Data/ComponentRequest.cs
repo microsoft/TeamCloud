@@ -15,6 +15,7 @@ namespace TeamCloud.Model.Data
         [JsonProperty(Required = Required.Always)]
         public string TemplateId { get; set; }
 
+        // [JsonProperty(Required = Required.Always)]
         public string InputJson { get; set; }
     }
 }

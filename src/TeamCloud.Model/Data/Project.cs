@@ -16,16 +16,21 @@ namespace TeamCloud.Model.Data
     public sealed class Project : ContainerDocument, IOrganizationChild, ISlug, IEquatable<Project>//ReferenceLinksAccessor<Project, ProjectReferenceLinks>
     {
         [PartitionKey]
+        [JsonProperty(Required = Required.Always)]
         public string Organization { get; set; }
 
         [UniqueKey]
+        [JsonProperty(Required = Required.Always)]
         public string Slug => (this as ISlug).GetSlug();
 
         [UniqueKey]
+        [JsonProperty(Required = Required.Always)]
         public string DisplayName { get; set; }
 
+        [JsonProperty(Required = Required.Always)]
         public string Template { get; set; }
 
+        [JsonProperty(Required = Required.Always)]
         public string TemplateInput { get; set; }
 
         [DatabaseIgnore]

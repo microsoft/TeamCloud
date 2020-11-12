@@ -16,21 +16,26 @@ namespace TeamCloud.Model.Data
     public sealed class ProjectTemplate : ContainerDocument, ISlug, IOrganizationChild, IRepositoryReference, IEquatable<ProjectTemplate>, IValidatable
     {
         [PartitionKey]
+        [JsonProperty(Required = Required.Always)]
         public string Organization { get; set; }
 
         [UniqueKey]
+        [JsonProperty(Required = Required.Always)]
         public string Slug => (this as ISlug).GetSlug();
 
         public string Name { get; set; }
 
+        [JsonProperty(Required = Required.Always)]
         public string DisplayName { get; set; }
 
         public List<string> Components { get; set; } = new List<string>();
 
+        [JsonProperty(Required = Required.Always)]
         public RepositoryReference Repository { get; set; }
 
         public string Description { get; set; }
 
+        [JsonProperty(Required = Required.Always)]
         public bool IsDefault { get; set; }
 
         public string InputJsonSchema { get; set; }

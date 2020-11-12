@@ -14,6 +14,7 @@ namespace TeamCloud.API.Data
     {
         public string Slug => (this as ISlug).GetSlug();
 
+        [JsonProperty(Required = Required.Always)]
         public string DisplayName { get; set; }
     }
 }

@@ -12,6 +12,7 @@ namespace TeamCloud.API.Data
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
     public class RepositoryDefinition : IValidatable
     {
+        [JsonProperty(Required = Required.Always)]
         public string Url { get; set; }
 
         public string Token { get; set; }

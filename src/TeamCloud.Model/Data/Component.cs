@@ -17,21 +17,27 @@ namespace TeamCloud.Model.Data
         [JsonProperty("href")]
         public string HRef { get; set; }
 
-        public string TemplateId { get; set; }
-
         [PartitionKey]
+        [JsonProperty(Required = Required.Always)]
         public string Organization { get; set; }
 
+        [JsonProperty(Required = Required.Always)]
+        public string TemplateId { get; set; }
+
+        [JsonProperty(Required = Required.Always)]
         public string ProjectId { get; set; }
 
+        [JsonProperty(Required = Required.Always)]
         public string ProviderId { get; set; }
 
+        [JsonProperty(Required = Required.Always)]
         public string RequestedBy { get; set; }
 
         public string DisplayName { get; set; }
 
         public string Description { get; set; }
 
+        [JsonProperty(Required = Required.Always)]
         public string InputJson { get; set; }
 
         public string ValueJson { get; set; }
