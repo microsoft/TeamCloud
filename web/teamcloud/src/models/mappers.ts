@@ -94,7 +94,7 @@ export const DeploymentScope: coreHttp.CompositeMapper = {
       },
       id: {
         serializedName: "id",
-        nullable: true,
+        required: true,
         type: {
           name: "String"
         }
@@ -349,7 +349,7 @@ export const Organization: coreHttp.CompositeMapper = {
       },
       id: {
         serializedName: "id",
-        nullable: true,
+        required: true,
         type: {
           name: "String"
         }
@@ -574,7 +574,7 @@ export const User: coreHttp.CompositeMapper = {
       },
       id: {
         serializedName: "id",
-        nullable: true,
+        required: true,
         type: {
           name: "String"
         }
@@ -788,7 +788,7 @@ export const Project: coreHttp.CompositeMapper = {
       },
       id: {
         serializedName: "id",
-        nullable: true,
+        required: true,
         type: {
           name: "String"
         }
@@ -1018,7 +1018,7 @@ export const Component: coreHttp.CompositeMapper = {
       },
       id: {
         serializedName: "id",
-        nullable: true,
+        required: true,
         type: {
           name: "String"
         }
@@ -1199,7 +1199,7 @@ export const ComponentTemplate: coreHttp.CompositeMapper = {
       },
       id: {
         serializedName: "id",
-        nullable: true,
+        required: true,
         type: {
           name: "String"
         }
@@ -1487,7 +1487,7 @@ export const ProjectTemplate: coreHttp.CompositeMapper = {
       },
       id: {
         serializedName: "id",
-        nullable: true,
+        required: true,
         type: {
           name: "String"
         }

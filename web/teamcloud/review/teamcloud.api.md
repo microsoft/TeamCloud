@@ -7,33 +7,21 @@
 import * as coreHttp from '@azure/core-http';
 
 // @public (undocumented)
-export interface AzureResourceGroup {
-    // (undocumented)
-    id: string;
-    // (undocumented)
-    name: string;
-    // (undocumented)
-    region: string;
-    // (undocumented)
-    subscriptionId: string;
-}
-
-// @public (undocumented)
 export interface Component {
     // (undocumented)
-    description?: string;
+    description?: string | null;
     // (undocumented)
-    displayName?: string;
+    displayName?: string | null;
     // (undocumented)
-    href?: string;
+    href?: string | null;
     // (undocumented)
-    id: string;
+    id?: string | null;
     // (undocumented)
-    inputJson?: string;
+    inputJson: string;
     // (undocumented)
-    offerId?: string;
+    organization: string;
     // (undocumented)
-    projectId?: string;
+    projectId: string;
     // (undocumented)
     providerId: string;
     // (undocumented)
@@ -41,9 +29,11 @@ export interface Component {
     // (undocumented)
     scope: ComponentScope;
     // (undocumented)
+    templateId: string;
+    // (undocumented)
     type: ComponentType;
     // (undocumented)
-    valueJson?: string;
+    valueJson?: string | null;
 }
 
 // @public (undocumented)
@@ -53,115 +43,210 @@ export interface ComponentDataResult {
     // (undocumented)
     data?: Component;
     // (undocumented)
-    location?: string;
+    location?: string | null;
     // (undocumented)
-    status?: string;
+    status?: string | null;
 }
 
 // @public (undocumented)
 export interface ComponentListDataResult {
     // (undocumented)
     code?: number;
+    readonly data?: Component[] | null;
     // (undocumented)
-    readonly data?: Component[];
+    location?: string | null;
     // (undocumented)
-    location?: string;
-    // (undocumented)
-    status?: string;
+    status?: string | null;
 }
-
-// @public (undocumented)
-export interface ComponentOffer {
-    // (undocumented)
-    description?: string;
-    // (undocumented)
-    displayName?: string;
-    // (undocumented)
-    id: string;
-    // (undocumented)
-    inputJsonSchema?: string;
-    // (undocumented)
-    providerId: string;
-    // (undocumented)
-    scope: ComponentOfferScope;
-    // (undocumented)
-    type: ComponentOfferType;
-}
-
-// @public (undocumented)
-export interface ComponentOfferDataResult {
-    // (undocumented)
-    code?: number;
-    // (undocumented)
-    data?: ComponentOffer;
-    // (undocumented)
-    location?: string;
-    // (undocumented)
-    status?: string;
-}
-
-// @public (undocumented)
-export interface ComponentOfferListDataResult {
-    // (undocumented)
-    code?: number;
-    // (undocumented)
-    readonly data?: ComponentOffer[];
-    // (undocumented)
-    location?: string;
-    // (undocumented)
-    status?: string;
-}
-
-// @public
-export type ComponentOfferScope = "System" | "Project" | "All" | string;
-
-// @public
-export type ComponentOfferType = "Custom" | "GitRepository" | string;
 
 // @public (undocumented)
 export interface ComponentRequest {
     // (undocumented)
-    inputJson?: string;
+    inputJson?: string | null;
     // (undocumented)
-    offerId: string;
+    templateId: string;
 }
 
 // @public
 export type ComponentScope = "System" | "Project" | "All" | string;
 
+// @public (undocumented)
+export interface ComponentTemplate {
+    // (undocumented)
+    description?: string | null;
+    // (undocumented)
+    displayName?: string | null;
+    // (undocumented)
+    id?: string | null;
+    // (undocumented)
+    inputJsonSchema?: string | null;
+    // (undocumented)
+    organization: string;
+    // (undocumented)
+    parentId: string;
+    // (undocumented)
+    providerId?: string | null;
+    // (undocumented)
+    repository: RepositoryReference;
+    // (undocumented)
+    scope: ComponentTemplateScope;
+    // (undocumented)
+    type: ComponentTemplateType;
+}
+
+// @public (undocumented)
+export interface ComponentTemplateDataResult {
+    // (undocumented)
+    code?: number;
+    // (undocumented)
+    data?: ComponentTemplate;
+    // (undocumented)
+    location?: string | null;
+    // (undocumented)
+    status?: string | null;
+}
+
+// @public (undocumented)
+export interface ComponentTemplateListDataResult {
+    // (undocumented)
+    code?: number;
+    readonly data?: ComponentTemplate[] | null;
+    // (undocumented)
+    location?: string | null;
+    // (undocumented)
+    status?: string | null;
+}
+
 // @public
-export type ComponentType = "Custom" | "GitRepository" | string;
+export type ComponentTemplateScope = "System" | "Project" | "All" | string;
+
+// @public
+export type ComponentTemplateType = "Custom" | "AzureResource" | "Environment" | "GitRepository" | string;
+
+// @public
+export type ComponentType = "Custom" | "AzureResource" | "Environment" | "GitRepository" | string;
+
+// @public (undocumented)
+export interface DeploymentScope {
+    // (undocumented)
+    displayName: string;
+    // (undocumented)
+    id?: string | null;
+    // (undocumented)
+    isDefault: boolean;
+    // (undocumented)
+    managementGroupId: string;
+    // (undocumented)
+    organization: string;
+    readonly slug: string;
+}
+
+// @public (undocumented)
+export interface DeploymentScopeDataResult {
+    // (undocumented)
+    code?: number;
+    // (undocumented)
+    data?: DeploymentScope;
+    // (undocumented)
+    location?: string | null;
+    // (undocumented)
+    status?: string | null;
+}
+
+// @public (undocumented)
+export interface DeploymentScopeDefinition {
+    // (undocumented)
+    displayName: string;
+    // (undocumented)
+    isDefault?: boolean;
+    // (undocumented)
+    managementGroupId: string;
+    readonly slug?: string | null;
+}
+
+// @public (undocumented)
+export interface DeploymentScopeListDataResult {
+    // (undocumented)
+    code?: number;
+    readonly data?: DeploymentScope[] | null;
+    // (undocumented)
+    location?: string | null;
+    // (undocumented)
+    status?: string | null;
+}
 
 // @public (undocumented)
 export interface ErrorResult {
     // (undocumented)
     code?: number;
     // (undocumented)
-    errors?: ResultError[];
+    errors?: ResultError[] | null;
     // (undocumented)
-    status?: string;
+    status?: string | null;
+}
+
+// @public (undocumented)
+export interface Organization {
+    // (undocumented)
+    displayName: string;
+    // (undocumented)
+    id?: string | null;
+    readonly slug: string;
+    tags?: {
+        [propertyName: string]: string;
+    } | null;
+    // (undocumented)
+    tenant: string;
+}
+
+// @public (undocumented)
+export interface OrganizationDataResult {
+    // (undocumented)
+    code?: number;
+    // (undocumented)
+    data?: Organization;
+    // (undocumented)
+    location?: string | null;
+    // (undocumented)
+    status?: string | null;
+}
+
+// @public (undocumented)
+export interface OrganizationDefinition {
+    // (undocumented)
+    displayName: string;
+    readonly slug?: string | null;
+}
+
+// @public (undocumented)
+export interface OrganizationListDataResult {
+    // (undocumented)
+    code?: number;
+    readonly data?: Organization[] | null;
+    // (undocumented)
+    location?: string | null;
+    // (undocumented)
+    status?: string | null;
 }
 
 // @public (undocumented)
 export interface Project {
     // (undocumented)
-    id: string;
+    displayName: string;
     // (undocumented)
-    links?: ProjectReferenceLinks;
+    id?: string | null;
     // (undocumented)
-    name: string;
-    properties?: {
-        [propertyName: string]: string;
-    };
-    // (undocumented)
-    resourceGroup?: AzureResourceGroup;
+    organization: string;
+    readonly slug: string;
     tags?: {
         [propertyName: string]: string;
-    };
+    } | null;
     // (undocumented)
-    type: ProjectType;
+    template: string;
     // (undocumented)
-    users: User[];
+    templateInput: string;
+    // (undocumented)
+    users?: User[] | null;
 }
 
 // @public (undocumented)
@@ -171,100 +256,33 @@ export interface ProjectDataResult {
     // (undocumented)
     data?: Project;
     // (undocumented)
-    location?: string;
+    location?: string | null;
     // (undocumented)
-    status?: string;
+    status?: string | null;
 }
 
 // @public (undocumented)
 export interface ProjectDefinition {
     // (undocumented)
-    name?: string;
+    displayName: string;
+    readonly slug?: string | null;
     // (undocumented)
-    projectType?: string;
-    properties?: {
-        [propertyName: string]: string;
-    };
-    tags?: {
-        [propertyName: string]: string;
-    };
+    template: string;
     // (undocumented)
-    users?: UserDefinition[];
+    templateInput: string;
+    // (undocumented)
+    users?: UserDefinition[] | null;
 }
-
-// @public (undocumented)
-export interface ProjectIdentity {
-    // (undocumented)
-    applicationId: string;
-    // (undocumented)
-    id: string;
-    // (undocumented)
-    secret: string;
-    // (undocumented)
-    tenantId: string;
-}
-
-// @public (undocumented)
-export interface ProjectIdentityDataResult {
-    // (undocumented)
-    code?: number;
-    // (undocumented)
-    data?: ProjectIdentity;
-    // (undocumented)
-    location?: string;
-    // (undocumented)
-    status?: string;
-}
-
-// @public (undocumented)
-export interface ProjectLink {
-    // (undocumented)
-    href: string;
-    // (undocumented)
-    id: string;
-    // (undocumented)
-    title?: string;
-    // (undocumented)
-    type: ProjectLinkType;
-}
-
-// @public (undocumented)
-export interface ProjectLinkDataResult {
-    // (undocumented)
-    code?: number;
-    // (undocumented)
-    data?: ProjectLink;
-    // (undocumented)
-    location?: string;
-    // (undocumented)
-    status?: string;
-}
-
-// @public (undocumented)
-export interface ProjectLinkListDataResult {
-    // (undocumented)
-    code?: number;
-    // (undocumented)
-    readonly data?: ProjectLink[];
-    // (undocumented)
-    location?: string;
-    // (undocumented)
-    status?: string;
-}
-
-// @public
-export type ProjectLinkType = "Link" | "Readme" | "Service" | "GitRepository" | "AzureResource" | string;
 
 // @public (undocumented)
 export interface ProjectListDataResult {
     // (undocumented)
     code?: number;
+    readonly data?: Project[] | null;
     // (undocumented)
-    readonly data?: Project[];
+    location?: string | null;
     // (undocumented)
-    location?: string;
-    // (undocumented)
-    status?: string;
+    status?: string | null;
 }
 
 // @public (undocumented)
@@ -273,7 +291,7 @@ export interface ProjectMembership {
     projectId: string;
     properties?: {
         [propertyName: string]: string;
-    };
+    } | null;
     // (undocumented)
     role: ProjectMembershipRole;
 }
@@ -282,214 +300,109 @@ export interface ProjectMembership {
 export type ProjectMembershipRole = "None" | "Provider" | "Member" | "Owner" | string;
 
 // @public (undocumented)
-export interface ProjectReferenceLinks {
+export interface ProjectTemplate {
     // (undocumented)
-    components?: ReferenceLink;
+    components?: string[] | null;
     // (undocumented)
-    identity?: ReferenceLink;
+    description?: string | null;
     // (undocumented)
-    links?: ReferenceLink;
+    displayName: string;
     // (undocumented)
-    offers?: ReferenceLink;
+    id?: string | null;
     // (undocumented)
-    self?: ReferenceLink;
+    inputJsonSchema?: string | null;
     // (undocumented)
-    users?: ReferenceLink;
+    isDefault: boolean;
+    // (undocumented)
+    name?: string | null;
+    // (undocumented)
+    organization: string;
+    // (undocumented)
+    repository: RepositoryReference;
+    readonly slug: string;
 }
 
 // @public (undocumented)
-export interface ProjectType {
-    // (undocumented)
-    id: string;
-    // (undocumented)
-    isDefault?: boolean;
-    properties?: {
-        [propertyName: string]: string;
-    };
-    // (undocumented)
-    providers: ProviderReference[];
-    // (undocumented)
-    region: string;
-    // (undocumented)
-    resourceGroupNamePrefix?: string;
-    // (undocumented)
-    subscriptionCapacity?: number;
-    // (undocumented)
-    subscriptions: string[];
-    tags?: {
-        [propertyName: string]: string;
-    };
-}
-
-// @public (undocumented)
-export interface ProjectTypeDataResult {
+export interface ProjectTemplateDataResult {
     // (undocumented)
     code?: number;
     // (undocumented)
-    data?: ProjectType;
+    data?: ProjectTemplate;
     // (undocumented)
-    location?: string;
+    location?: string | null;
     // (undocumented)
-    status?: string;
+    status?: string | null;
 }
 
 // @public (undocumented)
-export interface ProjectTypeListDataResult {
+export interface ProjectTemplateDefinition {
+    // (undocumented)
+    displayName: string;
+    // (undocumented)
+    repository: RepositoryDefinition;
+}
+
+// @public (undocumented)
+export interface ProjectTemplateListDataResult {
     // (undocumented)
     code?: number;
+    readonly data?: ProjectTemplate[] | null;
     // (undocumented)
-    readonly data?: ProjectType[];
+    location?: string | null;
     // (undocumented)
-    location?: string;
-    // (undocumented)
-    status?: string;
+    status?: string | null;
 }
 
 // @public (undocumented)
-export interface Provider {
+export interface RepositoryDefinition {
     // (undocumented)
-    authCode: string;
-    // (undocumented)
-    commandMode: ProviderCommandMode;
-    // (undocumented)
-    events?: string[];
-    // (undocumented)
-    eventSubscriptions?: ProviderEventSubscription[];
-    // (undocumented)
-    id: string;
-    // (undocumented)
-    principalId?: string;
-    properties?: {
-        [propertyName: string]: string;
-    };
-    // (undocumented)
-    registered?: Date;
-    // (undocumented)
-    resourceGroup?: AzureResourceGroup;
-    // (undocumented)
-    type: ProviderType;
+    token?: string | null;
     // (undocumented)
     url: string;
     // (undocumented)
-    version?: string;
+    version?: string | null;
+}
+
+// @public (undocumented)
+export interface RepositoryReference {
+    // (undocumented)
+    baselUrl?: string | null;
+    // (undocumented)
+    mountUrl?: string | null;
+    // (undocumented)
+    organization: string;
+    // (undocumented)
+    project?: string | null;
+    // (undocumented)
+    provider: RepositoryReferenceProvider;
+    // (undocumented)
+    ref: string;
+    // (undocumented)
+    repository: string;
+    // (undocumented)
+    token?: string | null;
+    // (undocumented)
+    type: RepositoryReferenceType;
+    // (undocumented)
+    url: string;
+    // (undocumented)
+    version?: string | null;
 }
 
 // @public
-export type ProviderCommandMode = "Simple" | "Extended" | string;
-
-// @public (undocumented)
-export interface ProviderData {
-    // (undocumented)
-    dataType: ProviderDataType;
-    // (undocumented)
-    id: string;
-    // (undocumented)
-    isSecret?: boolean;
-    // (undocumented)
-    isShared?: boolean;
-    // (undocumented)
-    location?: string;
-    // (undocumented)
-    name?: string;
-    // (undocumented)
-    scope: ProviderDataScope;
-    // (undocumented)
-    readonly stringValue?: string;
-}
-
-// @public (undocumented)
-export interface ProviderDataListDataResult {
-    // (undocumented)
-    code?: number;
-    // (undocumented)
-    readonly data?: ProviderData[];
-    // (undocumented)
-    location?: string;
-    // (undocumented)
-    status?: string;
-}
-
-// @public (undocumented)
-export interface ProviderDataResult {
-    // (undocumented)
-    code?: number;
-    // (undocumented)
-    data?: Provider;
-    // (undocumented)
-    location?: string;
-    // (undocumented)
-    status?: string;
-}
-
-// @public (undocumented)
-export interface ProviderDataReturnResult {
-    // (undocumented)
-    code?: number;
-    // (undocumented)
-    data?: ProviderData;
-    // (undocumented)
-    location?: string;
-    // (undocumented)
-    status?: string;
-}
+export type RepositoryReferenceProvider = "Unknown" | "GitHub" | "DevOps" | string;
 
 // @public
-export type ProviderDataScope = "System" | "Project" | string;
-
-// @public
-export type ProviderDataType = "Property" | "Service" | string;
-
-// @public (undocumented)
-export interface ProviderEventSubscription {
-    // (undocumented)
-    eventType?: string;
-}
-
-// @public (undocumented)
-export interface ProviderListDataResult {
-    // (undocumented)
-    code?: number;
-    // (undocumented)
-    readonly data?: Provider[];
-    // (undocumented)
-    location?: string;
-    // (undocumented)
-    status?: string;
-}
-
-// @public (undocumented)
-export interface ProviderReference {
-    // (undocumented)
-    dependsOn?: string[];
-    // (undocumented)
-    id: string;
-    metadata?: {
-        [propertyName: string]: any;
-    };
-    properties?: {
-        [propertyName: string]: string;
-    };
-}
-
-// @public
-export type ProviderType = "Standard" | "Service" | "Virtual" | string;
-
-// @public (undocumented)
-export interface ReferenceLink {
-    // (undocumented)
-    href?: string;
-    // (undocumented)
-    readonly templated?: boolean;
-}
+export type RepositoryReferenceType = "Unknown" | "Tag" | "Branch" | "Hash" | string;
 
 // @public (undocumented)
 export interface ResultError {
     // (undocumented)
     code?: ResultErrorCode;
     // (undocumented)
-    errors?: ValidationError[];
+    errors?: ValidationError[] | null;
     // (undocumented)
-    message?: string;
+    message?: string | null;
 }
 
 // @public
@@ -500,17 +413,16 @@ export interface StatusResult {
     // (undocumented)
     code?: number;
     // (undocumented)
-    errors?: ResultError[];
+    errors?: ResultError[] | null;
     // (undocumented)
-    location?: string;
+    location?: string | null;
+    readonly state?: string | null;
     // (undocumented)
-    readonly state?: string;
+    stateMessage?: string | null;
     // (undocumented)
-    stateMessage?: string;
+    status?: string | null;
     // (undocumented)
-    status?: string;
-    // (undocumented)
-    trackingId?: string;
+    trackingId?: string | null;
 }
 
 // @public (undocumented)
@@ -519,106 +431,63 @@ export interface StringDictionaryDataResult {
     code?: number;
     readonly data?: {
         [propertyName: string]: string;
-    };
+    } | null;
     // (undocumented)
-    location?: string;
+    location?: string | null;
     // (undocumented)
-    status?: string;
+    status?: string | null;
 }
 
 // @public (undocumented)
 export class TeamCloud extends TeamCloudContext {
     constructor(credentials: coreHttp.TokenCredential | coreHttp.ServiceClientCredentials, $host: string, options?: TeamCloudOptionalParams);
-    createProject(options?: TeamCloudCreateProjectOptionalParams): Promise<TeamCloudCreateProjectResponse>;
-    createProjectComponent(projectId: string, options?: TeamCloudCreateProjectComponentOptionalParams): Promise<TeamCloudCreateProjectComponentResponse>;
-    createProjectLink(projectId: string, options?: TeamCloudCreateProjectLinkOptionalParams): Promise<TeamCloudCreateProjectLinkResponse>;
-    createProjectProviderData(projectId: string, providerId: string, options?: TeamCloudCreateProjectProviderDataOptionalParams): Promise<TeamCloudCreateProjectProviderDataResponse>;
-    createProjectTag(projectId: string, options?: TeamCloudCreateProjectTagOptionalParams): Promise<TeamCloudCreateProjectTagResponse>;
-    createProjectType(options?: TeamCloudCreateProjectTypeOptionalParams): Promise<TeamCloudCreateProjectTypeResponse>;
-    createProjectUser(projectId: string, options?: TeamCloudCreateProjectUserOptionalParams): Promise<TeamCloudCreateProjectUserResponse>;
-    createProvider(options?: TeamCloudCreateProviderOptionalParams): Promise<TeamCloudCreateProviderResponse>;
-    createProviderData(providerId: string, options?: TeamCloudCreateProviderDataOptionalParams): Promise<TeamCloudCreateProviderDataResponse>;
-    createProviderOffer(providerId: string, options?: TeamCloudCreateProviderOfferOptionalParams): Promise<TeamCloudCreateProviderOfferResponse>;
-    createProviderProjectComponent(projectId: string, providerId: string, options?: TeamCloudCreateProviderProjectComponentOptionalParams): Promise<TeamCloudCreateProviderProjectComponentResponse>;
-    createTeamCloudAdminUser(options?: TeamCloudCreateTeamCloudAdminUserOptionalParams): Promise<TeamCloudCreateTeamCloudAdminUserResponse>;
-    createTeamCloudInstance(options?: TeamCloudCreateTeamCloudInstanceOptionalParams): Promise<TeamCloudCreateTeamCloudInstanceResponse>;
-    createTeamCloudTag(options?: TeamCloudCreateTeamCloudTagOptionalParams): Promise<TeamCloudCreateTeamCloudTagResponse>;
-    createTeamCloudUser(options?: TeamCloudCreateTeamCloudUserOptionalParams): Promise<TeamCloudCreateTeamCloudUserResponse>;
-    deleteProject(projectNameOrId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectResponse>;
-    deleteProjectComponent(componentId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectComponentResponse>;
-    deleteProjectLink(linkId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectLinkResponse>;
-    deleteProjectProviderData(providerDataId: string, projectId: string, providerId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectProviderDataResponse>;
-    deleteProjectTag(tagKey: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectTagResponse>;
-    deleteProjectType(projectTypeId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectTypeResponse>;
-    deleteProjectUser(userNameOrId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectUserResponse>;
-    deleteProvider(providerId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProviderResponse>;
-    deleteProviderData(providerDataId: string, providerId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProviderDataResponse>;
-    deleteProviderOffer(offerId: string, providerId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProviderOfferResponse>;
-    deleteProviderProjectComponent(componentId: string, projectId: string, providerId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProviderProjectComponentResponse>;
-    deleteTeamCloudTag(tagKey: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteTeamCloudTagResponse>;
-    deleteTeamCloudUser(userNameOrId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteTeamCloudUserResponse>;
-    getProjectByNameOrId(projectNameOrId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectByNameOrIdResponse>;
-    getProjectComponentById(componentId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectComponentByIdResponse>;
-    getProjectComponents(projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectComponentsResponse>;
-    getProjectIdentity(projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectIdentityResponse>;
-    getProjectLinkByKey(linkId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectLinkByKeyResponse>;
-    getProjectLinks(projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectLinksResponse>;
-    getProjectOfferById(offerId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectOfferByIdResponse>;
-    getProjectOffers(projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectOffersResponse>;
-    getProjectProviderData(projectId: string, providerId: string, options?: TeamCloudGetProjectProviderDataOptionalParams): Promise<TeamCloudGetProjectProviderDataResponse>;
-    getProjectProviderDataById(providerDataId: string, projectId: string, providerId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectProviderDataByIdResponse>;
-    getProjects(options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectsResponse>;
-    getProjectStatus(projectId: string, trackingId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectStatusResponse>;
-    getProjectTagByKey(tagKey: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectTagByKeyResponse>;
-    getProjectTags(projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectTagsResponse>;
-    getProjectTypeById(projectTypeId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectTypeByIdResponse>;
-    getProjectTypes(options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectTypesResponse>;
-    getProjectUserByNameOrId(userNameOrId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectUserByNameOrIdResponse>;
-    getProjectUserMe(projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectUserMeResponse>;
-    getProjectUsers(projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectUsersResponse>;
-    getProviderById(providerId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProviderByIdResponse>;
-    getProviderData(providerId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProviderDataResponse>;
-    getProviderDataById(providerDataId: string, providerId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProviderDataByIdResponse>;
-    getProviderOfferById(offerId: string, providerId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProviderOfferByIdResponse>;
-    getProviderOffers(providerId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProviderOffersResponse>;
-    getProviderProjectComponentById(componentId: string, projectId: string, providerId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProviderProjectComponentByIdResponse>;
-    getProviderProjectComponents(projectId: string, providerId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProviderProjectComponentsResponse>;
-    getProviders(options?: coreHttp.OperationOptions): Promise<TeamCloudGetProvidersResponse>;
-    getStatus(trackingId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetStatusResponse>;
-    getTeamCloudInstance(options?: coreHttp.OperationOptions): Promise<TeamCloudGetTeamCloudInstanceResponse>;
-    getTeamCloudTagByKey(tagKey: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetTeamCloudTagByKeyResponse>;
-    getTeamCloudTags(options?: coreHttp.OperationOptions): Promise<TeamCloudGetTeamCloudTagsResponse>;
-    getTeamCloudUserByNameOrId(userNameOrId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetTeamCloudUserByNameOrIdResponse>;
-    getTeamCloudUserMe(options?: coreHttp.OperationOptions): Promise<TeamCloudGetTeamCloudUserMeResponse>;
-    getTeamCloudUsers(options?: coreHttp.OperationOptions): Promise<TeamCloudGetTeamCloudUsersResponse>;
-    getUserProjects(userId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetUserProjectsResponse>;
-    getUserProjectsMe(options?: coreHttp.OperationOptions): Promise<TeamCloudGetUserProjectsMeResponse>;
-    updateProjectLink(linkId: string, projectId: string, options?: TeamCloudUpdateProjectLinkOptionalParams): Promise<TeamCloudUpdateProjectLinkResponse>;
-    updateProjectProviderData(providerDataId: string, projectId: string, providerId: string, options?: TeamCloudUpdateProjectProviderDataOptionalParams): Promise<TeamCloudUpdateProjectProviderDataResponse>;
-    updateProjectTag(projectId: string, options?: TeamCloudUpdateProjectTagOptionalParams): Promise<TeamCloudUpdateProjectTagResponse>;
-    updateProjectType(projectTypeId: string, options?: TeamCloudUpdateProjectTypeOptionalParams): Promise<TeamCloudUpdateProjectTypeResponse>;
-    updateProjectUser(userNameOrId: string, projectId: string, options?: TeamCloudUpdateProjectUserOptionalParams): Promise<TeamCloudUpdateProjectUserResponse>;
-    updateProjectUserMe(projectId: string, options?: TeamCloudUpdateProjectUserMeOptionalParams): Promise<TeamCloudUpdateProjectUserMeResponse>;
-    updateProvider(providerId: string, options?: TeamCloudUpdateProviderOptionalParams): Promise<TeamCloudUpdateProviderResponse>;
-    updateProviderData(providerDataId: string, providerId: string, options?: TeamCloudUpdateProviderDataOptionalParams): Promise<TeamCloudUpdateProviderDataResponse>;
-    updateProviderOffer(offerId: string, providerId: string, options?: TeamCloudUpdateProviderOfferOptionalParams): Promise<TeamCloudUpdateProviderOfferResponse>;
-    updateProviderProjectComponent(componentId: string, projectId: string, providerId: string, options?: TeamCloudUpdateProviderProjectComponentOptionalParams): Promise<TeamCloudUpdateProviderProjectComponentResponse>;
-    updateTeamCloudInstance(options?: TeamCloudUpdateTeamCloudInstanceOptionalParams): Promise<TeamCloudUpdateTeamCloudInstanceResponse>;
-    updateTeamCloudTag(options?: TeamCloudUpdateTeamCloudTagOptionalParams): Promise<TeamCloudUpdateTeamCloudTagResponse>;
-    updateTeamCloudUser(userNameOrId: string, options?: TeamCloudUpdateTeamCloudUserOptionalParams): Promise<TeamCloudUpdateTeamCloudUserResponse>;
-    updateTeamCloudUserMe(options?: TeamCloudUpdateTeamCloudUserMeOptionalParams): Promise<TeamCloudUpdateTeamCloudUserMeResponse>;
-}
-
-// @public (undocumented)
-export interface TeamCloudApplication {
-    // (undocumented)
-    resourceGroup?: AzureResourceGroup;
-    // (undocumented)
-    type?: "Web";
-    // (undocumented)
-    url?: string;
-    // (undocumented)
-    version?: string;
+    createDeploymentScope(org: string, options?: TeamCloudCreateDeploymentScopeOptionalParams): Promise<TeamCloudCreateDeploymentScopeResponse>;
+    createOrganization(options?: TeamCloudCreateOrganizationOptionalParams): Promise<TeamCloudCreateOrganizationResponse>;
+    createOrganizationUser(org: string, options?: TeamCloudCreateOrganizationUserOptionalParams): Promise<TeamCloudCreateOrganizationUserResponse>;
+    createProject(org: string, options?: TeamCloudCreateProjectOptionalParams): Promise<TeamCloudCreateProjectResponse>;
+    createProjectComponent(org: string, projectId: string | null, options?: TeamCloudCreateProjectComponentOptionalParams): Promise<TeamCloudCreateProjectComponentResponse>;
+    createProjectTag(org: string, projectId: string | null, options?: TeamCloudCreateProjectTagOptionalParams): Promise<TeamCloudCreateProjectTagResponse>;
+    createProjectTemplate(org: string, options?: TeamCloudCreateProjectTemplateOptionalParams): Promise<TeamCloudCreateProjectTemplateResponse>;
+    createProjectUser(org: string, projectId: string | null, options?: TeamCloudCreateProjectUserOptionalParams): Promise<TeamCloudCreateProjectUserResponse>;
+    deleteDeploymentScope(id: string | null, org: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteDeploymentScopeResponse>;
+    deleteOrganization(org: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteOrganizationResponse>;
+    deleteOrganizationUser(userId: string | null, org: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteOrganizationUserResponse>;
+    deleteProject(projectId: string | null, org: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectResponse>;
+    deleteProjectComponent(id: string | null, org: string, projectId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectComponentResponse>;
+    deleteProjectTag(tagKey: string | null, org: string, projectId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectTagResponse>;
+    deleteProjectTemplate(projectTemplateId: string | null, org: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectTemplateResponse>;
+    deleteProjectUser(userId: string | null, org: string, projectId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectUserResponse>;
+    getDeploymentScope(id: string | null, org: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetDeploymentScopeResponse>;
+    getDeploymentScopes(org: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetDeploymentScopesResponse>;
+    getOrganization(org: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetOrganizationResponse>;
+    getOrganizations(options?: coreHttp.OperationOptions): Promise<TeamCloudGetOrganizationsResponse>;
+    getOrganizationUser(userId: string | null, org: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetOrganizationUserResponse>;
+    getOrganizationUserMe(org: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetOrganizationUserMeResponse>;
+    getOrganizationUsers(org: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetOrganizationUsersResponse>;
+    getProject(projectId: string | null, org: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectResponse>;
+    getProjectComponent(id: string | null, org: string, projectId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectComponentResponse>;
+    getProjectComponents(org: string, projectId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectComponentsResponse>;
+    getProjectComponentTemplate(id: string | null, org: string, projectId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectComponentTemplateResponse>;
+    getProjectComponentTemplates(org: string, projectId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectComponentTemplatesResponse>;
+    getProjects(org: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectsResponse>;
+    getProjectStatus(projectId: string | null, trackingId: string, org: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectStatusResponse>;
+    getProjectTagByKey(tagKey: string | null, org: string, projectId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectTagByKeyResponse>;
+    getProjectTags(org: string, projectId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectTagsResponse>;
+    getProjectTemplate(projectTemplateId: string | null, org: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectTemplateResponse>;
+    getProjectTemplates(org: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectTemplatesResponse>;
+    getProjectUserByNameOrId(userId: string | null, org: string, projectId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectUserByNameOrIdResponse>;
+    getProjectUserMe(org: string, projectId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectUserMeResponse>;
+    getProjectUsers(org: string, projectId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectUsersResponse>;
+    getStatus(trackingId: string, org: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetStatusResponse>;
+    getUserProjects(org: string, userId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetUserProjectsResponse>;
+    getUserProjectsMe(org: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetUserProjectsMeResponse>;
+    updateDeploymentScope(id: string | null, org: string, options?: TeamCloudUpdateDeploymentScopeOptionalParams): Promise<TeamCloudUpdateDeploymentScopeResponse>;
+    updateOrganizationUser(userId: string | null, org: string, options?: TeamCloudUpdateOrganizationUserOptionalParams): Promise<TeamCloudUpdateOrganizationUserResponse>;
+    updateOrganizationUserMe(org: string, options?: TeamCloudUpdateOrganizationUserMeOptionalParams): Promise<TeamCloudUpdateOrganizationUserMeResponse>;
+    updateProjectTag(org: string, projectId: string | null, options?: TeamCloudUpdateProjectTagOptionalParams): Promise<TeamCloudUpdateProjectTagResponse>;
+    updateProjectTemplate(projectTemplateId: string | null, org: string, options?: TeamCloudUpdateProjectTemplateOptionalParams): Promise<TeamCloudUpdateProjectTemplateResponse>;
+    updateProjectUser(userId: string | null, org: string, projectId: string | null, options?: TeamCloudUpdateProjectUserOptionalParams): Promise<TeamCloudUpdateProjectUserResponse>;
+    updateProjectUserMe(org: string, projectId: string | null, options?: TeamCloudUpdateProjectUserMeOptionalParams): Promise<TeamCloudUpdateProjectUserMeResponse>;
 }
 
 // @public (undocumented)
@@ -627,6 +496,48 @@ export class TeamCloudContext extends coreHttp.ServiceClient {
     $host: string;
     constructor(credentials: coreHttp.TokenCredential | coreHttp.ServiceClientCredentials, $host: string, options?: TeamCloudOptionalParams);
 }
+
+// @public
+export interface TeamCloudCreateDeploymentScopeOptionalParams extends coreHttp.OperationOptions {
+    // (undocumented)
+    body?: DeploymentScopeDefinition;
+}
+
+// @public
+export type TeamCloudCreateDeploymentScopeResponse = DeploymentScopeDataResult & {
+    _response: coreHttp.HttpResponse & {
+        bodyAsText: string;
+        parsedBody: DeploymentScopeDataResult;
+    };
+};
+
+// @public
+export interface TeamCloudCreateOrganizationOptionalParams extends coreHttp.OperationOptions {
+    // (undocumented)
+    body?: OrganizationDefinition;
+}
+
+// @public
+export type TeamCloudCreateOrganizationResponse = ErrorResult & {
+    _response: coreHttp.HttpResponse & {
+        bodyAsText: string;
+        parsedBody: ErrorResult;
+    };
+};
+
+// @public
+export interface TeamCloudCreateOrganizationUserOptionalParams extends coreHttp.OperationOptions {
+    // (undocumented)
+    body?: UserDefinition;
+}
+
+// @public
+export type TeamCloudCreateOrganizationUserResponse = StatusResult & {
+    _response: coreHttp.HttpResponse & {
+        bodyAsText: string;
+        parsedBody: StatusResult;
+    };
+};
 
 // @public
 export interface TeamCloudCreateProjectComponentOptionalParams extends coreHttp.OperationOptions {
@@ -643,38 +554,10 @@ export type TeamCloudCreateProjectComponentResponse = ComponentDataResult & {
 };
 
 // @public
-export interface TeamCloudCreateProjectLinkOptionalParams extends coreHttp.OperationOptions {
-    // (undocumented)
-    body?: ProjectLink;
-}
-
-// @public
-export type TeamCloudCreateProjectLinkResponse = ProjectLinkDataResult & {
-    _response: coreHttp.HttpResponse & {
-        bodyAsText: string;
-        parsedBody: ProjectLinkDataResult;
-    };
-};
-
-// @public
 export interface TeamCloudCreateProjectOptionalParams extends coreHttp.OperationOptions {
     // (undocumented)
     body?: ProjectDefinition;
 }
-
-// @public
-export interface TeamCloudCreateProjectProviderDataOptionalParams extends coreHttp.OperationOptions {
-    // (undocumented)
-    body?: ProviderData;
-}
-
-// @public
-export type TeamCloudCreateProjectProviderDataResponse = ProviderDataReturnResult & {
-    _response: coreHttp.HttpResponse & {
-        bodyAsText: string;
-        parsedBody: ProviderDataReturnResult;
-    };
-};
 
 // @public
 export type TeamCloudCreateProjectResponse = StatusResult & {
@@ -700,16 +583,16 @@ export type TeamCloudCreateProjectTagResponse = StatusResult & {
 };
 
 // @public
-export interface TeamCloudCreateProjectTypeOptionalParams extends coreHttp.OperationOptions {
+export interface TeamCloudCreateProjectTemplateOptionalParams extends coreHttp.OperationOptions {
     // (undocumented)
-    body?: ProjectType;
+    body?: ProjectTemplateDefinition;
 }
 
 // @public
-export type TeamCloudCreateProjectTypeResponse = ProjectTypeDataResult & {
+export type TeamCloudCreateProjectTemplateResponse = ProjectTemplateDataResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
-        parsedBody: ProjectTypeDataResult;
+        parsedBody: ProjectTemplateDataResult;
     };
 };
 
@@ -728,55 +611,15 @@ export type TeamCloudCreateProjectUserResponse = StatusResult & {
 };
 
 // @public
-export interface TeamCloudCreateProviderDataOptionalParams extends coreHttp.OperationOptions {
-    // (undocumented)
-    body?: ProviderData;
-}
-
-// @public
-export type TeamCloudCreateProviderDataResponse = ProviderDataReturnResult & {
+export type TeamCloudDeleteDeploymentScopeResponse = DeploymentScopeDataResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
-        parsedBody: ProviderDataReturnResult;
+        parsedBody: DeploymentScopeDataResult;
     };
 };
 
 // @public
-export interface TeamCloudCreateProviderOfferOptionalParams extends coreHttp.OperationOptions {
-    // (undocumented)
-    body?: ComponentOffer;
-}
-
-// @public
-export type TeamCloudCreateProviderOfferResponse = ComponentOfferDataResult & {
-    _response: coreHttp.HttpResponse & {
-        bodyAsText: string;
-        parsedBody: ComponentOfferDataResult;
-    };
-};
-
-// @public
-export interface TeamCloudCreateProviderOptionalParams extends coreHttp.OperationOptions {
-    // (undocumented)
-    body?: Provider;
-}
-
-// @public
-export interface TeamCloudCreateProviderProjectComponentOptionalParams extends coreHttp.OperationOptions {
-    // (undocumented)
-    body?: Component;
-}
-
-// @public
-export type TeamCloudCreateProviderProjectComponentResponse = ComponentDataResult & {
-    _response: coreHttp.HttpResponse & {
-        bodyAsText: string;
-        parsedBody: ComponentDataResult;
-    };
-};
-
-// @public
-export type TeamCloudCreateProviderResponse = StatusResult & {
+export type TeamCloudDeleteOrganizationResponse = StatusResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
         parsedBody: StatusResult;
@@ -784,56 +627,7 @@ export type TeamCloudCreateProviderResponse = StatusResult & {
 };
 
 // @public
-export interface TeamCloudCreateTeamCloudAdminUserOptionalParams extends coreHttp.OperationOptions {
-    // (undocumented)
-    body?: UserDefinition;
-}
-
-// @public
-export type TeamCloudCreateTeamCloudAdminUserResponse = StatusResult & {
-    _response: coreHttp.HttpResponse & {
-        bodyAsText: string;
-        parsedBody: StatusResult;
-    };
-};
-
-// @public
-export interface TeamCloudCreateTeamCloudInstanceOptionalParams extends coreHttp.OperationOptions {
-    // (undocumented)
-    body?: TeamCloudInstance;
-}
-
-// @public
-export type TeamCloudCreateTeamCloudInstanceResponse = TeamCloudInstanceDataResult & {
-    _response: coreHttp.HttpResponse & {
-        bodyAsText: string;
-        parsedBody: TeamCloudInstanceDataResult;
-    };
-};
-
-// @public
-export interface TeamCloudCreateTeamCloudTagOptionalParams extends coreHttp.OperationOptions {
-    body?: {
-        [propertyName: string]: string;
-    };
-}
-
-// @public
-export type TeamCloudCreateTeamCloudTagResponse = StatusResult & {
-    _response: coreHttp.HttpResponse & {
-        bodyAsText: string;
-        parsedBody: StatusResult;
-    };
-};
-
-// @public
-export interface TeamCloudCreateTeamCloudUserOptionalParams extends coreHttp.OperationOptions {
-    // (undocumented)
-    body?: UserDefinition;
-}
-
-// @public
-export type TeamCloudCreateTeamCloudUserResponse = StatusResult & {
+export type TeamCloudDeleteOrganizationUserResponse = StatusResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
         parsedBody: StatusResult;
@@ -845,22 +639,6 @@ export type TeamCloudDeleteProjectComponentResponse = StatusResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
         parsedBody: StatusResult;
-    };
-};
-
-// @public
-export type TeamCloudDeleteProjectLinkResponse = StatusResult & {
-    _response: coreHttp.HttpResponse & {
-        bodyAsText: string;
-        parsedBody: StatusResult;
-    };
-};
-
-// @public
-export type TeamCloudDeleteProjectProviderDataResponse = ProviderDataReturnResult & {
-    _response: coreHttp.HttpResponse & {
-        bodyAsText: string;
-        parsedBody: ProviderDataReturnResult;
     };
 };
 
@@ -881,10 +659,10 @@ export type TeamCloudDeleteProjectTagResponse = StatusResult & {
 };
 
 // @public
-export type TeamCloudDeleteProjectTypeResponse = ProjectTypeDataResult & {
+export type TeamCloudDeleteProjectTemplateResponse = ProjectTemplateDataResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
-        parsedBody: ProjectTypeDataResult;
+        parsedBody: ProjectTemplateDataResult;
     };
 };
 
@@ -897,63 +675,63 @@ export type TeamCloudDeleteProjectUserResponse = StatusResult & {
 };
 
 // @public
-export type TeamCloudDeleteProviderDataResponse = ProviderDataReturnResult & {
+export type TeamCloudGetDeploymentScopeResponse = DeploymentScopeDataResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
-        parsedBody: ProviderDataReturnResult;
+        parsedBody: DeploymentScopeDataResult;
     };
 };
 
 // @public
-export type TeamCloudDeleteProviderOfferResponse = ComponentOfferDataResult & {
+export type TeamCloudGetDeploymentScopesResponse = DeploymentScopeListDataResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
-        parsedBody: ComponentOfferDataResult;
+        parsedBody: DeploymentScopeListDataResult;
     };
 };
 
 // @public
-export type TeamCloudDeleteProviderProjectComponentResponse = StatusResult & {
+export type TeamCloudGetOrganizationResponse = OrganizationDataResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
-        parsedBody: StatusResult;
+        parsedBody: OrganizationDataResult;
     };
 };
 
 // @public
-export type TeamCloudDeleteProviderResponse = StatusResult & {
+export type TeamCloudGetOrganizationsResponse = OrganizationListDataResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
-        parsedBody: StatusResult;
+        parsedBody: OrganizationListDataResult;
     };
 };
 
 // @public
-export type TeamCloudDeleteTeamCloudTagResponse = StatusResult & {
+export type TeamCloudGetOrganizationUserMeResponse = UserDataResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
-        parsedBody: StatusResult;
+        parsedBody: UserDataResult;
     };
 };
 
 // @public
-export type TeamCloudDeleteTeamCloudUserResponse = StatusResult & {
+export type TeamCloudGetOrganizationUserResponse = UserDataResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
-        parsedBody: StatusResult;
+        parsedBody: UserDataResult;
     };
 };
 
 // @public
-export type TeamCloudGetProjectByNameOrIdResponse = ProjectDataResult & {
+export type TeamCloudGetOrganizationUsersResponse = UserListDataResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
-        parsedBody: ProjectDataResult;
+        parsedBody: UserListDataResult;
     };
 };
 
 // @public
-export type TeamCloudGetProjectComponentByIdResponse = ComponentDataResult & {
+export type TeamCloudGetProjectComponentResponse = ComponentDataResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
         parsedBody: ComponentDataResult;
@@ -969,64 +747,26 @@ export type TeamCloudGetProjectComponentsResponse = ComponentListDataResult & {
 };
 
 // @public
-export type TeamCloudGetProjectIdentityResponse = ProjectIdentityDataResult & {
+export type TeamCloudGetProjectComponentTemplateResponse = ComponentTemplateDataResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
-        parsedBody: ProjectIdentityDataResult;
+        parsedBody: ComponentTemplateDataResult;
     };
 };
 
 // @public
-export type TeamCloudGetProjectLinkByKeyResponse = ProjectLinkDataResult & {
+export type TeamCloudGetProjectComponentTemplatesResponse = ComponentTemplateListDataResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
-        parsedBody: ProjectLinkDataResult;
+        parsedBody: ComponentTemplateListDataResult;
     };
 };
 
 // @public
-export type TeamCloudGetProjectLinksResponse = ProjectLinkListDataResult & {
+export type TeamCloudGetProjectResponse = ProjectDataResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
-        parsedBody: ProjectLinkListDataResult;
-    };
-};
-
-// @public
-export type TeamCloudGetProjectOfferByIdResponse = ComponentOfferDataResult & {
-    _response: coreHttp.HttpResponse & {
-        bodyAsText: string;
-        parsedBody: ComponentOfferDataResult;
-    };
-};
-
-// @public
-export type TeamCloudGetProjectOffersResponse = ComponentOfferListDataResult & {
-    _response: coreHttp.HttpResponse & {
-        bodyAsText: string;
-        parsedBody: ComponentOfferListDataResult;
-    };
-};
-
-// @public
-export type TeamCloudGetProjectProviderDataByIdResponse = ProviderDataReturnResult & {
-    _response: coreHttp.HttpResponse & {
-        bodyAsText: string;
-        parsedBody: ProviderDataReturnResult;
-    };
-};
-
-// @public
-export interface TeamCloudGetProjectProviderDataOptionalParams extends coreHttp.OperationOptions {
-    // (undocumented)
-    includeShared?: boolean;
-}
-
-// @public
-export type TeamCloudGetProjectProviderDataResponse = ProviderDataReturnResult & {
-    _response: coreHttp.HttpResponse & {
-        bodyAsText: string;
-        parsedBody: ProviderDataReturnResult;
+        parsedBody: ProjectDataResult;
     };
 };
 
@@ -1063,18 +803,18 @@ export type TeamCloudGetProjectTagsResponse = StringDictionaryDataResult & {
 };
 
 // @public
-export type TeamCloudGetProjectTypeByIdResponse = ProjectTypeDataResult & {
+export type TeamCloudGetProjectTemplateResponse = ProjectTemplateDataResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
-        parsedBody: ProjectTypeDataResult;
+        parsedBody: ProjectTemplateDataResult;
     };
 };
 
 // @public
-export type TeamCloudGetProjectTypesResponse = ProjectTypeListDataResult & {
+export type TeamCloudGetProjectTemplatesResponse = ProjectTemplateListDataResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
-        parsedBody: ProjectTypeListDataResult;
+        parsedBody: ProjectTemplateListDataResult;
     };
 };
 
@@ -1103,122 +843,10 @@ export type TeamCloudGetProjectUsersResponse = UserListDataResult & {
 };
 
 // @public
-export type TeamCloudGetProviderByIdResponse = ProviderDataResult & {
-    _response: coreHttp.HttpResponse & {
-        bodyAsText: string;
-        parsedBody: ProviderDataResult;
-    };
-};
-
-// @public
-export type TeamCloudGetProviderDataByIdResponse = ProviderDataReturnResult & {
-    _response: coreHttp.HttpResponse & {
-        bodyAsText: string;
-        parsedBody: ProviderDataReturnResult;
-    };
-};
-
-// @public
-export type TeamCloudGetProviderDataResponse = ProviderDataListDataResult & {
-    _response: coreHttp.HttpResponse & {
-        bodyAsText: string;
-        parsedBody: ProviderDataListDataResult;
-    };
-};
-
-// @public
-export type TeamCloudGetProviderOfferByIdResponse = ComponentOfferDataResult & {
-    _response: coreHttp.HttpResponse & {
-        bodyAsText: string;
-        parsedBody: ComponentOfferDataResult;
-    };
-};
-
-// @public
-export type TeamCloudGetProviderOffersResponse = ComponentOfferListDataResult & {
-    _response: coreHttp.HttpResponse & {
-        bodyAsText: string;
-        parsedBody: ComponentOfferListDataResult;
-    };
-};
-
-// @public
-export type TeamCloudGetProviderProjectComponentByIdResponse = ComponentDataResult & {
-    _response: coreHttp.HttpResponse & {
-        bodyAsText: string;
-        parsedBody: ComponentDataResult;
-    };
-};
-
-// @public
-export type TeamCloudGetProviderProjectComponentsResponse = ComponentListDataResult & {
-    _response: coreHttp.HttpResponse & {
-        bodyAsText: string;
-        parsedBody: ComponentListDataResult;
-    };
-};
-
-// @public
-export type TeamCloudGetProvidersResponse = ProviderListDataResult & {
-    _response: coreHttp.HttpResponse & {
-        bodyAsText: string;
-        parsedBody: ProviderListDataResult;
-    };
-};
-
-// @public
 export type TeamCloudGetStatusResponse = StatusResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
         parsedBody: StatusResult;
-    };
-};
-
-// @public
-export type TeamCloudGetTeamCloudInstanceResponse = TeamCloudInstanceDataResult & {
-    _response: coreHttp.HttpResponse & {
-        bodyAsText: string;
-        parsedBody: TeamCloudInstanceDataResult;
-    };
-};
-
-// @public
-export type TeamCloudGetTeamCloudTagByKeyResponse = StringDictionaryDataResult & {
-    _response: coreHttp.HttpResponse & {
-        bodyAsText: string;
-        parsedBody: StringDictionaryDataResult;
-    };
-};
-
-// @public
-export type TeamCloudGetTeamCloudTagsResponse = StringDictionaryDataResult & {
-    _response: coreHttp.HttpResponse & {
-        bodyAsText: string;
-        parsedBody: StringDictionaryDataResult;
-    };
-};
-
-// @public
-export type TeamCloudGetTeamCloudUserByNameOrIdResponse = UserDataResult & {
-    _response: coreHttp.HttpResponse & {
-        bodyAsText: string;
-        parsedBody: UserDataResult;
-    };
-};
-
-// @public
-export type TeamCloudGetTeamCloudUserMeResponse = UserDataResult & {
-    _response: coreHttp.HttpResponse & {
-        bodyAsText: string;
-        parsedBody: UserDataResult;
-    };
-};
-
-// @public
-export type TeamCloudGetTeamCloudUsersResponse = UserListDataResult & {
-    _response: coreHttp.HttpResponse & {
-        bodyAsText: string;
-        parsedBody: UserListDataResult;
     };
 };
 
@@ -1238,61 +866,50 @@ export type TeamCloudGetUserProjectsResponse = ProjectListDataResult & {
     };
 };
 
-// @public (undocumented)
-export interface TeamCloudInstance {
-    // (undocumented)
-    applications?: TeamCloudApplication[];
-    // (undocumented)
-    resourceGroup?: AzureResourceGroup;
-    tags?: {
-        [propertyName: string]: string;
-    };
-    // (undocumented)
-    version?: string;
-}
-
-// @public (undocumented)
-export interface TeamCloudInstanceDataResult {
-    // (undocumented)
-    code?: number;
-    // (undocumented)
-    data?: TeamCloudInstance;
-    // (undocumented)
-    location?: string;
-    // (undocumented)
-    status?: string;
-}
-
 // @public
 export interface TeamCloudOptionalParams extends coreHttp.ServiceClientOptions {
     endpoint?: string;
 }
 
 // @public
-export interface TeamCloudUpdateProjectLinkOptionalParams extends coreHttp.OperationOptions {
+export interface TeamCloudUpdateDeploymentScopeOptionalParams extends coreHttp.OperationOptions {
     // (undocumented)
-    body?: ProjectLink;
+    body?: DeploymentScope;
 }
 
 // @public
-export type TeamCloudUpdateProjectLinkResponse = ProjectLinkDataResult & {
+export type TeamCloudUpdateDeploymentScopeResponse = DeploymentScopeDataResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
-        parsedBody: ProjectLinkDataResult;
+        parsedBody: DeploymentScopeDataResult;
     };
 };
 
 // @public
-export interface TeamCloudUpdateProjectProviderDataOptionalParams extends coreHttp.OperationOptions {
+export interface TeamCloudUpdateOrganizationUserMeOptionalParams extends coreHttp.OperationOptions {
     // (undocumented)
-    body?: ProviderData;
+    body?: User;
 }
 
 // @public
-export type TeamCloudUpdateProjectProviderDataResponse = ProviderDataReturnResult & {
+export type TeamCloudUpdateOrganizationUserMeResponse = StatusResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
-        parsedBody: ProviderDataReturnResult;
+        parsedBody: StatusResult;
+    };
+};
+
+// @public
+export interface TeamCloudUpdateOrganizationUserOptionalParams extends coreHttp.OperationOptions {
+    // (undocumented)
+    body?: User;
+}
+
+// @public
+export type TeamCloudUpdateOrganizationUserResponse = StatusResult & {
+    _response: coreHttp.HttpResponse & {
+        bodyAsText: string;
+        parsedBody: StatusResult;
     };
 };
 
@@ -1312,16 +929,16 @@ export type TeamCloudUpdateProjectTagResponse = StatusResult & {
 };
 
 // @public
-export interface TeamCloudUpdateProjectTypeOptionalParams extends coreHttp.OperationOptions {
+export interface TeamCloudUpdateProjectTemplateOptionalParams extends coreHttp.OperationOptions {
     // (undocumented)
-    body?: ProjectType;
+    body?: ProjectTemplate;
 }
 
 // @public
-export type TeamCloudUpdateProjectTypeResponse = ProjectTypeDataResult & {
+export type TeamCloudUpdateProjectTemplateResponse = ProjectTemplateDataResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
-        parsedBody: ProjectTypeDataResult;
+        parsedBody: ProjectTemplateDataResult;
     };
 };
 
@@ -1353,128 +970,17 @@ export type TeamCloudUpdateProjectUserResponse = StatusResult & {
     };
 };
 
-// @public
-export interface TeamCloudUpdateProviderDataOptionalParams extends coreHttp.OperationOptions {
-    // (undocumented)
-    body?: ProviderData;
-}
-
-// @public
-export type TeamCloudUpdateProviderDataResponse = ProviderDataReturnResult & {
-    _response: coreHttp.HttpResponse & {
-        bodyAsText: string;
-        parsedBody: ProviderDataReturnResult;
-    };
-};
-
-// @public
-export interface TeamCloudUpdateProviderOfferOptionalParams extends coreHttp.OperationOptions {
-    // (undocumented)
-    body?: ComponentOffer;
-}
-
-// @public
-export type TeamCloudUpdateProviderOfferResponse = ComponentOfferDataResult & {
-    _response: coreHttp.HttpResponse & {
-        bodyAsText: string;
-        parsedBody: ComponentOfferDataResult;
-    };
-};
-
-// @public
-export interface TeamCloudUpdateProviderOptionalParams extends coreHttp.OperationOptions {
-    // (undocumented)
-    body?: Provider;
-}
-
-// @public
-export interface TeamCloudUpdateProviderProjectComponentOptionalParams extends coreHttp.OperationOptions {
-    // (undocumented)
-    body?: Component;
-}
-
-// @public
-export type TeamCloudUpdateProviderProjectComponentResponse = ComponentDataResult & {
-    _response: coreHttp.HttpResponse & {
-        bodyAsText: string;
-        parsedBody: ComponentDataResult;
-    };
-};
-
-// @public
-export type TeamCloudUpdateProviderResponse = StatusResult & {
-    _response: coreHttp.HttpResponse & {
-        bodyAsText: string;
-        parsedBody: StatusResult;
-    };
-};
-
-// @public
-export interface TeamCloudUpdateTeamCloudInstanceOptionalParams extends coreHttp.OperationOptions {
-    // (undocumented)
-    body?: TeamCloudInstance;
-}
-
-// @public
-export type TeamCloudUpdateTeamCloudInstanceResponse = TeamCloudInstanceDataResult & {
-    _response: coreHttp.HttpResponse & {
-        bodyAsText: string;
-        parsedBody: TeamCloudInstanceDataResult;
-    };
-};
-
-// @public
-export interface TeamCloudUpdateTeamCloudTagOptionalParams extends coreHttp.OperationOptions {
-    body?: {
-        [propertyName: string]: string;
-    };
-}
-
-// @public
-export type TeamCloudUpdateTeamCloudTagResponse = StatusResult & {
-    _response: coreHttp.HttpResponse & {
-        bodyAsText: string;
-        parsedBody: StatusResult;
-    };
-};
-
-// @public
-export interface TeamCloudUpdateTeamCloudUserMeOptionalParams extends coreHttp.OperationOptions {
-    // (undocumented)
-    body?: User;
-}
-
-// @public
-export type TeamCloudUpdateTeamCloudUserMeResponse = StatusResult & {
-    _response: coreHttp.HttpResponse & {
-        bodyAsText: string;
-        parsedBody: StatusResult;
-    };
-};
-
-// @public
-export interface TeamCloudUpdateTeamCloudUserOptionalParams extends coreHttp.OperationOptions {
-    // (undocumented)
-    body?: User;
-}
-
-// @public
-export type TeamCloudUpdateTeamCloudUserResponse = StatusResult & {
-    _response: coreHttp.HttpResponse & {
-        bodyAsText: string;
-        parsedBody: StatusResult;
-    };
-};
-
 // @public (undocumented)
 export interface User {
     // (undocumented)
-    id: string;
+    id?: string | null;
     // (undocumented)
-    projectMemberships?: ProjectMembership[];
+    organization: string;
+    // (undocumented)
+    projectMemberships: ProjectMembership[];
     properties?: {
         [propertyName: string]: string;
-    };
+    } | null;
     // (undocumented)
     role: UserRole;
     // (undocumented)
@@ -1488,32 +994,31 @@ export interface UserDataResult {
     // (undocumented)
     data?: User;
     // (undocumented)
-    location?: string;
+    location?: string | null;
     // (undocumented)
-    status?: string;
+    status?: string | null;
 }
 
 // @public (undocumented)
 export interface UserDefinition {
     // (undocumented)
-    identifier?: string;
+    identifier: string;
     properties?: {
         [propertyName: string]: string;
-    };
+    } | null;
     // (undocumented)
-    role?: string;
+    role: string;
 }
 
 // @public (undocumented)
 export interface UserListDataResult {
     // (undocumented)
     code?: number;
+    readonly data?: User[] | null;
     // (undocumented)
-    readonly data?: User[];
+    location?: string | null;
     // (undocumented)
-    location?: string;
-    // (undocumented)
-    status?: string;
+    status?: string | null;
 }
 
 // @public
@@ -1525,9 +1030,9 @@ export type UserType = "User" | "System" | "Provider" | "Application" | string;
 // @public (undocumented)
 export interface ValidationError {
     // (undocumented)
-    field?: string;
+    field?: string | null;
     // (undocumented)
-    message?: string;
+    message?: string | null;
 }
 
 

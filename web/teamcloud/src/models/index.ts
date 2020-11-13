@@ -27,7 +27,7 @@ export interface DeploymentScope {
   displayName: string;
   managementGroupId: string;
   isDefault: boolean;
-  id?: string | null;
+  id: string;
 }
 
 export interface ErrorResult {
@@ -85,7 +85,7 @@ export interface Organization {
    * Dictionary of <string>
    */
   tags?: { [propertyName: string]: string } | null;
-  id?: string | null;
+  id: string;
 }
 
 export interface OrganizationDefinition {
@@ -135,7 +135,7 @@ export interface User {
    * Dictionary of <string>
    */
   properties?: { [propertyName: string]: string } | null;
-  id?: string | null;
+  id: string;
 }
 
 export interface ProjectMembership {
@@ -187,7 +187,7 @@ export interface Project {
    * Dictionary of <string>
    */
   tags?: { [propertyName: string]: string } | null;
-  id?: string | null;
+  id: string;
 }
 
 export interface ProjectDefinition {
@@ -231,7 +231,7 @@ export interface Component {
   valueJson?: string | null;
   scope: ComponentScope;
   type: ComponentType;
-  id?: string | null;
+  id: string;
 }
 
 export interface ComponentRequest {
@@ -266,7 +266,7 @@ export interface ComponentTemplate {
   inputJsonSchema?: string | null;
   scope: ComponentTemplateScope;
   type: ComponentTemplateType;
-  id?: string | null;
+  id: string;
 }
 
 export interface RepositoryReference {
@@ -324,7 +324,7 @@ export interface ProjectTemplate {
   description?: string | null;
   isDefault: boolean;
   inputJsonSchema?: string | null;
-  id?: string | null;
+  id: string;
 }
 
 export interface ProjectTemplateDefinition {
