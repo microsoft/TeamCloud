@@ -1966,6 +1966,7 @@ components:
     DeploymentScope:
       required:
         - displayName
+        - id
         - isDefault
         - managementGroupId
         - organization
@@ -1985,7 +1986,6 @@ components:
           type: boolean
         id:
           type: string
-          nullable: true
       additionalProperties: false
     DeploymentScopeListDataResult:
       type: object
@@ -2089,6 +2089,7 @@ components:
     Organization:
       required:
         - displayName
+        - id
         - slug
         - tenant
       type: object
@@ -2107,7 +2108,6 @@ components:
           nullable: true
         id:
           type: string
-          nullable: true
       additionalProperties: false
     OrganizationListDataResult:
       type: object
@@ -2206,6 +2206,7 @@ components:
       additionalProperties: false
     User:
       required:
+        - id
         - organization
         - projectMemberships
         - role
@@ -2239,7 +2240,6 @@ components:
           nullable: true
         id:
           type: string
-          nullable: true
       additionalProperties: false
     UserListDataResult:
       type: object
@@ -2294,6 +2294,7 @@ components:
     Project:
       required:
         - displayName
+        - id
         - organization
         - slug
         - template
@@ -2323,7 +2324,6 @@ components:
           nullable: true
         id:
           type: string
-          nullable: true
       additionalProperties: false
     ProjectListDataResult:
       type: object
@@ -2384,6 +2384,7 @@ components:
       additionalProperties: false
     Component:
       required:
+        - id
         - inputJson
         - organization
         - projectId
@@ -2433,7 +2434,6 @@ components:
           type: string
         id:
           type: string
-          nullable: true
       additionalProperties: false
     ComponentListDataResult:
       type: object
@@ -2529,6 +2529,7 @@ components:
       additionalProperties: false
     ComponentTemplate:
       required:
+        - id
         - organization
         - parentId
         - repository
@@ -2569,7 +2570,6 @@ components:
           type: string
         id:
           type: string
-          nullable: true
       additionalProperties: false
     ComponentTemplateListDataResult:
       type: object
@@ -2627,6 +2627,7 @@ components:
     ProjectTemplate:
       required:
         - displayName
+        - id
         - isDefault
         - organization
         - repository
@@ -2660,7 +2661,6 @@ components:
           nullable: true
         id:
           type: string
-          nullable: true
       additionalProperties: false
     ProjectTemplateListDataResult:
       type: object

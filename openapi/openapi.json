@@ -3179,6 +3179,7 @@
       "DeploymentScope": {
         "required": [
           "displayName",
+          "id",
           "isDefault",
           "managementGroupId",
           "organization",
@@ -3203,8 +3204,7 @@
             "type": "boolean"
           },
           "id": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           }
         },
         "additionalProperties": false
@@ -3348,6 +3348,7 @@
       "Organization": {
         "required": [
           "displayName",
+          "id",
           "slug",
           "tenant"
         ],
@@ -3371,8 +3372,7 @@
             "nullable": true
           },
           "id": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           }
         },
         "additionalProperties": false
@@ -3510,6 +3510,7 @@
       },
       "User": {
         "required": [
+          "id",
           "organization",
           "projectMemberships",
           "role",
@@ -3552,8 +3553,7 @@
             "nullable": true
           },
           "id": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           }
         },
         "additionalProperties": false
@@ -3631,6 +3631,7 @@
       "Project": {
         "required": [
           "displayName",
+          "id",
           "organization",
           "slug",
           "template",
@@ -3669,8 +3670,7 @@
             "nullable": true
           },
           "id": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           }
         },
         "additionalProperties": false
@@ -3756,6 +3756,7 @@
       },
       "Component": {
         "required": [
+          "id",
           "inputJson",
           "organization",
           "projectId",
@@ -3819,8 +3820,7 @@
             "type": "string"
           },
           "id": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           }
         },
         "additionalProperties": false
@@ -3953,6 +3953,7 @@
       },
       "ComponentTemplate": {
         "required": [
+          "id",
           "organization",
           "parentId",
           "repository",
@@ -4004,8 +4005,7 @@
             "type": "string"
           },
           "id": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           }
         },
         "additionalProperties": false
@@ -4086,6 +4086,7 @@
       "ProjectTemplate": {
         "required": [
           "displayName",
+          "id",
           "isDefault",
           "organization",
           "repository",
@@ -4129,8 +4130,7 @@
             "nullable": true
           },
           "id": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           }
         },
         "additionalProperties": false

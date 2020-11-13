@@ -25,6 +25,7 @@ namespace TeamCloud.Model.Data.Core
 
     public abstract class ContainerDocument : IContainerDocument
     {
+        [JsonProperty(Required = Required.Always)]
         public virtual string Id { get; set; } = Guid.NewGuid().ToString();
 
         DateTime? IContainerDocument.Timestamp { get; set; }
