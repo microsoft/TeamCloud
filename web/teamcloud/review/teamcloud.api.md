@@ -15,7 +15,7 @@ export interface Component {
     // (undocumented)
     href?: string | null;
     // (undocumented)
-    id?: string | null;
+    id: string;
     // (undocumented)
     inputJson: string;
     // (undocumented)
@@ -77,7 +77,7 @@ export interface ComponentTemplate {
     // (undocumented)
     displayName?: string | null;
     // (undocumented)
-    id?: string | null;
+    id: string;
     // (undocumented)
     inputJsonSchema?: string | null;
     // (undocumented)
@@ -131,7 +131,7 @@ export interface DeploymentScope {
     // (undocumented)
     displayName: string;
     // (undocumented)
-    id?: string | null;
+    id: string;
     // (undocumented)
     isDefault: boolean;
     // (undocumented)
@@ -190,7 +190,7 @@ export interface Organization {
     // (undocumented)
     displayName: string;
     // (undocumented)
-    id?: string | null;
+    id: string;
     readonly slug: string;
     tags?: {
         [propertyName: string]: string;
@@ -234,7 +234,7 @@ export interface Project {
     // (undocumented)
     displayName: string;
     // (undocumented)
-    id?: string | null;
+    id: string;
     // (undocumented)
     organization: string;
     readonly slug: string;
@@ -308,7 +308,7 @@ export interface ProjectTemplate {
     // (undocumented)
     displayName: string;
     // (undocumented)
-    id?: string | null;
+    id: string;
     // (undocumented)
     inputJsonSchema?: string | null;
     // (undocumented)
@@ -973,7 +973,7 @@ export type TeamCloudUpdateProjectUserResponse = StatusResult & {
 // @public (undocumented)
 export interface User {
     // (undocumented)
-    id?: string | null;
+    id: string;
     // (undocumented)
     organization: string;
     // (undocumented)

@@ -13,7 +13,7 @@ export declare interface Component {
     valueJson?: string | null;
     scope: ComponentScope;
     type: ComponentType;
-    id?: string | null;
+    id: string;
 }
 
 export declare interface ComponentDataResult {
@@ -53,7 +53,7 @@ export declare interface ComponentTemplate {
     inputJsonSchema?: string | null;
     scope: ComponentTemplateScope;
     type: ComponentTemplateType;
-    id?: string | null;
+    id: string;
 }
 
 export declare interface ComponentTemplateDataResult {
@@ -97,7 +97,7 @@ export declare interface DeploymentScope {
     displayName: string;
     managementGroupId: string;
     isDefault: boolean;
-    id?: string | null;
+    id: string;
 }
 
 export declare interface DeploymentScopeDataResult {
@@ -146,7 +146,7 @@ export declare interface Organization {
     tags?: {
         [propertyName: string]: string;
     } | null;
-    id?: string | null;
+    id: string;
 }
 
 export declare interface OrganizationDataResult {
@@ -190,7 +190,7 @@ export declare interface Project {
     tags?: {
         [propertyName: string]: string;
     } | null;
-    id?: string | null;
+    id: string;
 }
 
 export declare interface ProjectDataResult {
@@ -250,7 +250,7 @@ export declare interface ProjectTemplate {
     description?: string | null;
     isDefault: boolean;
     inputJsonSchema?: string | null;
-    id?: string | null;
+    id: string;
 }
 
 export declare interface ProjectTemplateDataResult {
@@ -1713,7 +1713,7 @@ export declare interface User {
     properties?: {
         [propertyName: string]: string;
     } | null;
-    id?: string | null;
+    id: string;
 }
 
 export declare interface UserDataResult {

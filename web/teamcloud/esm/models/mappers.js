@@ -90,7 +90,7 @@ export var DeploymentScope = {
             },
             id: {
                 serializedName: "id",
-                nullable: true,
+                required: true,
                 type: {
                     name: "String"
                 }
@@ -338,7 +338,7 @@ export var Organization = {
             },
             id: {
                 serializedName: "id",
-                nullable: true,
+                required: true,
                 type: {
                     name: "String"
                 }
@@ -558,7 +558,7 @@ export var User = {
             },
             id: {
                 serializedName: "id",
-                nullable: true,
+                required: true,
                 type: {
                     name: "String"
                 }
@@ -767,7 +767,7 @@ export var Project = {
             },
             id: {
                 serializedName: "id",
-                nullable: true,
+                required: true,
                 type: {
                     name: "String"
                 }
@@ -993,7 +993,7 @@ export var Component = {
             },
             id: {
                 serializedName: "id",
-                nullable: true,
+                required: true,
                 type: {
                     name: "String"
                 }
@@ -1170,7 +1170,7 @@ export var ComponentTemplate = {
             },
             id: {
                 serializedName: "id",
-                nullable: true,
+                required: true,
                 type: {
                     name: "String"
                 }
@@ -1453,7 +1453,7 @@ export var ProjectTemplate = {
             },
             id: {
                 serializedName: "id",
-                nullable: true,
+                required: true,
                 type: {
                     name: "String"
                 }

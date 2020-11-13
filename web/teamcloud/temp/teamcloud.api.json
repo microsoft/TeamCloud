@@ -110,11 +110,11 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "id?: "
+                  "text": "id: "
                 },
                 {
                   "kind": "Content",
-                  "text": "string | null"
+                  "text": "string"
                 },
                 {
                   "kind": "Content",
@@ -757,11 +757,11 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "id?: "
+                  "text": "id: "
                 },
                 {
                   "kind": "Content",
-                  "text": "string | null"
+                  "text": "string"
                 },
                 {
                   "kind": "Content",
@@ -1314,11 +1314,11 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "id?: "
+                  "text": "id: "
                 },
                 {
                   "kind": "Content",
-                  "text": "string | null"
+                  "text": "string"
                 },
                 {
                   "kind": "Content",
@@ -1930,11 +1930,11 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "id?: "
+                  "text": "id: "
                 },
                 {
                   "kind": "Content",
-                  "text": "string | null"
+                  "text": "string"
                 },
                 {
                   "kind": "Content",
@@ -2375,11 +2375,11 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "id?: "
+                  "text": "id: "
                 },
                 {
                   "kind": "Content",
-                  "text": "string | null"
+                  "text": "string"
                 },
                 {
                   "kind": "Content",
@@ -3147,11 +3147,11 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "id?: "
+                  "text": "id: "
                 },
                 {
                   "kind": "Content",
-                  "text": "string | null"
+                  "text": "string"
                 },
                 {
                   "kind": "Content",
@@ -12154,11 +12154,11 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "id?: "
+                  "text": "id: "
                 },
                 {
                   "kind": "Content",
-                  "text": "string | null"
+                  "text": "string"
                 },
                 {
                   "kind": "Content",
