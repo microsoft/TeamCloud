@@ -21,6 +21,7 @@ export interface IProjectMembersProps {
 }
 
 export const ProjectMembers: React.FunctionComponent<IProjectMembersProps> = (props) => {
+    // return (<></>);
 
     const [members, setMembers] = useState<ProjectMember[]>();
     const [addMembersPanelOpen, setAddMembersPanelOpen] = useState(false);
@@ -28,19 +29,23 @@ export const ProjectMembers: React.FunctionComponent<IProjectMembersProps> = (pr
     useEffect(() => {
         if (props.project) {
             const _setMembers = async () => {
-                let _members = await Promise.all(props.project.users.map(async u => ({
-                    user: u,
-                    graphUser: u.userType === 'User' ? await getGraphUser(u.id) : u.userType === 'Provider' ? await getGraphDirectoryObject(u.id) : undefined,
-                    projectMembership: u.projectMemberships!.find(m => m.projectId === props.project.id)!
-                })));
-                setMembers(_members);
+                let _users = await api.getProjectUsers(props.project.organization, props.project.id);
+                if (_users.data) {
+                    console.warn('foo')
+                    let _members = await Promise.all(_users.data.map(async u => ({
+                        user: u,
+                        graphUser: u.userType === 'User' ? await getGraphUser(u.id) : u.userType === 'Provider' ? await getGraphDirectoryObject(u.id) : undefined,
+                        projectMembership: u.projectMemberships!.find(m => m.projectId === props.project.id)!
+                    })));
+                    setMembers(_members);
+                }
             };
             _setMembers();
         }
     }, [props.project]);
 
     const _removeMemberFromProject = async (member: ProjectMember) => {
-        let result = await api.deleteProjectUser(member.user.id, props.project.id);
+        let result = await api.deleteProjectUser(member.user.id, props.project.organization, props.project.id);
         if (result.code !== 202 && (result as ErrorResult).errors) {
             console.log(result as ErrorResult);
         }
@@ -57,10 +62,10 @@ export const ProjectMembers: React.FunctionComponent<IProjectMembersProps> = (pr
     };
 
     const _removeButtonDisabled = (member: ProjectMember) => {
-        return member.projectMembership.role === 'Owner'
-            && props.project.users.filter(u => u.userType === 'User'
-                && u.projectMemberships
-                && u.projectMemberships!.find(pm => pm.projectId === props.project.id && pm.role === 'Owner')).length === 1
+        return members && member.projectMembership.role === 'Owner'
+            && members.filter(m => m.user.userType === 'User'
+                && m.user.projectMemberships
+                && m.user.projectMemberships!.find(pm => pm.projectId === props.project.id && pm.role === 'Owner')).length === 1
     };
 
     const _userIsProjectOwner = () =>
@@ -171,7 +176,7 @@ export const ProjectMembers: React.FunctionComponent<IProjectMembersProps> = (pr
                 commandBarItems={_getCommandBarItems()}>
                 <Shimmer
                     customElementsGroup={_getShimmerElements()}
-                    isDataLoaded={members ? members.length > 0 : false}
+                    isDataLoaded={members !== undefined}
                     width={152} >
                     <Facepile
                         styles={{ itemButton: _personaCoinStyles }}

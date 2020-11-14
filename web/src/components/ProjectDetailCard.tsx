@@ -19,8 +19,9 @@ export const ProjectDetailCard: React.FunctionComponent<IProjectDetailCardProps>
             width: '100%',
             margin: '8px',
             padding: '20px 0',
-            bordeRadius: theme.effects.roundedCorner2,
-            boxShadow: theme.effects.elevation4
+            borderRadius: theme.effects.roundedCorner4,
+            boxShadow: theme.effects.elevation4,
+            backgroundColor: theme.palette.white
         }
     }
 

@@ -1,14 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React from 'react';
-import { Text, ITextStyles, Stack, getTheme, IStackStyles } from '@fluentui/react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Text, ITextStyles, Stack, getTheme, IStackStyles, Separator } from '@fluentui/react';
 import { UserInfo } from '.';
-import { User } from 'teamcloud';
+// import { User } from 'teamcloud';
 import { GraphUser } from '../model';
+import { getMe } from '../MSGraph';
 
 export interface IHeaderBarProps {
-    user?: User;
+    // user?: User;
     graphUser?: GraphUser;
     onSignOut: () => void;
 }
@@ -19,17 +20,19 @@ export const HeaderBar: React.FunctionComponent<IHeaderBarProps> = (props) => {
 
     const stackStyles: IStackStyles = {
         root: {
-            minHeight: '56px',
-            background: theme.palette.themePrimary,
+            height: '48px',
+            borderBottom: `${theme.palette.neutralLight} solid 1px`
         }
     };
 
     const titleStyles: ITextStyles = {
         root: {
-            minHeight: '56px',
+            height: '48px',
+            width: '260px',
+            fontWeight: 'bold',
             paddingLeft: '12px',
-            fontSize: theme.fonts.xxLarge.fontSize,
-            color: theme.palette.white
+            color: theme.palette.themePrimary,
+            fontSize: theme.fonts.mediumPlus.fontSize
         }
     };
 
@@ -44,7 +47,10 @@ export const HeaderBar: React.FunctionComponent<IHeaderBarProps> = (props) => {
                     <Text styles={titleStyles}>TeamCloud</Text>
                 </Stack.Item>
                 <Stack.Item>
-                    <UserInfo user={props.user} graphUser={props.graphUser} onSignOut={props.onSignOut} />
+                    <UserInfo
+                        // user={props.user}
+                        graphUser={props.graphUser}
+                        onSignOut={props.onSignOut} />
                 </Stack.Item>
             </Stack>
         </header>

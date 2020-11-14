@@ -55,7 +55,7 @@ namespace TeamCloud.API.Controllers
 
         [HttpGet("{userId:userId}")]
         [Authorize(Policy = AuthPolicies.ProjectRead)]
-        [SwaggerOperation(OperationId = "GetProjectUserByNameOrId", Summary = "Gets a Project User by ID or email address.")]
+        [SwaggerOperation(OperationId = "GetProjectUser", Summary = "Gets a Project User by ID or email address.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns Project User", typeof(DataResult<User>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a User with the provided identifier was not found.", typeof(ErrorResult))]

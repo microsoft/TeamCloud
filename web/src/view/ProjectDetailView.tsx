@@ -2,42 +2,47 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect } from 'react';
-import { Stack, Spinner, IBreadcrumbItem, ICommandBarItemProps } from '@fluentui/react';
+import { Stack, Spinner, IBreadcrumbItem, ICommandBarItemProps, Text, Persona, PersonaSize, getTheme, Rating, IconButton } from '@fluentui/react';
 import { IProjectViewDetailProps, ProjectViewDetail, SubheaderBar, ProjectMembersForm, ProjectMembers, ProjectMemberForm, ProjectLinks, ProjectComponents } from '../components';
 import { Project, User } from 'teamcloud';
 import { ProjectMember } from '../model';
 import { api } from '../API';
+import { useParams } from 'react-router-dom';
 
 export interface IProjectDetailViewProps {
     user?: User;
     project?: Project;
-    projectId: string;
+    // orgId: string;
+    // projectId: string;
 }
 
 export const ProjectDetailView: React.FunctionComponent<IProjectDetailViewProps> = (props) => {
 
     const [project, setProject] = useState(props.project);
+    const [favorite, setFavorate] = useState(false);
     const [selectedMember, setSelectedMember] = useState<ProjectMember>();
     const [newUsersPanelOpen, setNewUsersPanelOpen] = useState(false);
     const [editUsersPanelOpen, setEditUsersPanelOpen] = useState(false);
 
+    const { orgId, projectId } = useParams() as { orgId: string, projectId: string };
+
     useEffect(() => {
         if (project === undefined) {
             const _setProject = async () => {
-                const result = await api.getProjectByNameOrId(props.projectId);
+                const result = await api.getProject(projectId, orgId);
                 setProject(result.data);
             };
             _setProject();
         }
-    }, [project, props.projectId]);
+    }, [project, projectId, orgId]);
 
     const _refresh = async () => {
-        let result = await api.getProjectByNameOrId(project?.id ?? props.projectId);
+        let result = await api.getProject(project?.id ?? projectId, project?.organization ?? orgId);
         setProject(result.data);
     };
 
     // const _userIsProjectOwner = () =>
-    //     props.user?.projectMemberships?.find(m => m.projectId === project?.id ?? props.projectId)?.role === 'Owner';
+    //     props.user?.projectMemberships?.find(m => m.projectId === project?.id ?? projectId)?.role === 'Owner';
 
     const _commandBarItems = (): ICommandBarItemProps[] => [
         { key: 'refresh', text: 'Refresh', iconProps: { iconName: 'Refresh' }, onClick: () => { _refresh() } },
@@ -48,7 +53,7 @@ export const ProjectDetailView: React.FunctionComponent<IProjectDetailViewProps>
 
     const _ensureBreadcrumb = () => {
         if (project && _breadcrumbs.length === 1)
-            _breadcrumbs.push({ text: project.name ?? '', key: 'project', isCurrentItem: true })
+            _breadcrumbs.push({ text: project.displayName ?? '', key: 'project', isCurrentItem: true })
     };
 
 
@@ -57,39 +62,39 @@ export const ProjectDetailView: React.FunctionComponent<IProjectDetailViewProps>
         const detailProps: IProjectViewDetailProps = {
             title: 'Project', details: [
                 { label: 'ID', value: project.id ?? '' },
-                { label: 'Name', value: project.name }
+                { label: 'Name', value: project.displayName }
             ]
         };
         return (<ProjectViewDetail key={detailProps.title} title={detailProps.title} details={detailProps.details} />);
     };
 
-    const projectDetailProjectTypeStackProps = () => {
-        if (!project || !project.type) return null;
-        const detailProps: IProjectViewDetailProps = {
-            title: 'Project Type', details: [
-                { label: 'ID', value: project.type.id ?? '' },
-                { label: 'Default', value: project.type.isDefault ? 'Yes' : 'No' },
-                { label: 'Location', value: project.type.region ?? '' },
-                { label: 'Providers', value: project.type.providers?.map(p => p.id).join(', ') ?? '' },
-                { label: 'Subscription Capacity', value: project.type.subscriptionCapacity?.toString() ?? '' },
-                { label: 'Subscriptions', value: project.type.subscriptions?.join(', ') ?? '' },
-                { label: 'Resource Group Name Prefix', value: project.type.resourceGroupNamePrefix ?? '' },
-            ]
-        };
-        return (<ProjectViewDetail key={detailProps.title} title={detailProps.title} details={detailProps.details} />);
-    };
+    // const projectDetailProjectTemplateStackProps = () => {
+    //     if (!project || !project.template) return null;
+    //     const detailProps: IProjectViewDetailProps = {
+    //         title: 'Project Type', details: [
+    //             { label: 'ID', value: project.type.id ?? '' },
+    //             { label: 'Default', value: project.type.isDefault ? 'Yes' : 'No' },
+    //             { label: 'Location', value: project.type.region ?? '' },
+    //             { label: 'Providers', value: project.type.providers?.map(p => p.id).join(', ') ?? '' },
+    //             { label: 'Subscription Capacity', value: project.type.subscriptionCapacity?.toString() ?? '' },
+    //             { label: 'Subscriptions', value: project.type.subscriptions?.join(', ') ?? '' },
+    //             { label: 'Resource Group Name Prefix', value: project.type.resourceGroupNamePrefix ?? '' },
+    //         ]
+    //     };
+    //     return (<ProjectViewDetail key={detailProps.title} title={detailProps.title} details={detailProps.details} />);
+    // };
 
-    const projectDetailResourceGroupStackProps = () => {
-        if (!project || !project.resourceGroup) return null;
-        const detailProps: IProjectViewDetailProps = {
-            title: 'Resource Group', details: [
-                { label: 'Name', value: project.resourceGroup.name ?? '' },
-                { label: 'Location', value: project.resourceGroup.region ?? '' },
-                { label: 'Subscription', value: project.resourceGroup.subscriptionId ?? '' },
-            ]
-        };
-        return (<ProjectViewDetail key={detailProps.title} title={detailProps.title} details={detailProps.details} />);
-    };
+    // const projectDetailResourceGroupStackProps = () => {
+    //     if (!project || !project.resourceGroup) return null;
+    //     const detailProps: IProjectViewDetailProps = {
+    //         title: 'Resource Group', details: [
+    //             { label: 'Name', value: project.resourceGroup.name ?? '' },
+    //             { label: 'Location', value: project.resourceGroup.region ?? '' },
+    //             { label: 'Subscription', value: project.resourceGroup.subscriptionId ?? '' },
+    //         ]
+    //     };
+    //     return (<ProjectViewDetail key={detailProps.title} title={detailProps.title} details={detailProps.details} />);
+    // };
 
     const _onEditMember = (member?: ProjectMember) => {
         setSelectedMember(member)
@@ -97,40 +102,61 @@ export const ProjectDetailView: React.FunctionComponent<IProjectDetailViewProps>
     };
 
 
+    const theme = getTheme();
+
     if (project?.id) {
         _ensureBreadcrumb();
 
         return (
             <>
                 <Stack>
-                    <SubheaderBar
-                        breadcrumbs={_breadcrumbs}
-                        commandBarItems={_commandBarItems()}
-                        breadcrumbsWidth='300px'
-                        commandBarWidth='90px' />
-                    <Stack
-                        wrap
-                        horizontal
-                        styles={{ root: { padding: '0 24px' } }}
-                        horizontalAlign='center'
-                        verticalAlign='start'>
-                        {/* <Stack.Item grow styles={{ root: { minWidth: '367px', marginRight: '16px' } }}> */}
-                        <Stack.Item grow styles={{ root: { minWidth: '40%', marginRight: '16px' } }}>
-                            <ProjectMembers
-                                user={props.user}
-                                project={project}
-                                onEditMember={_onEditMember} />
-                            <ProjectComponents user={props.user} project={project} />
-                            {projectDetailProjectTypeStackProps()}
-                        </Stack.Item>
-                        {/* <Stack.Item grow styles={{ root: { minWidth: '367px', marginRight: '16px' } }}> */}
-                        <Stack.Item grow styles={{ root: { minWidth: '40%', marginRight: '16px' } }}>
-                            {projectDetailProjectStackProps()}
-                            <ProjectLinks project={project} />
-                            {projectDetailResourceGroupStackProps()}
-                        </Stack.Item>
-                        {/* {projectDetailStack(projectDetailStackProps())} */}
-                    </Stack>
+                    <Stack.Item styles={{ root: { margin: '0px', padding: '24px 30px 20px 32px', backgroundColor: theme.palette.white, borderBottom: `${theme.palette.neutralLight} solid 1px` } }}>
+                        <Stack horizontal
+                            verticalFill
+                            horizontalAlign='space-between'
+                            verticalAlign='baseline'>
+                            <Stack.Item>
+                                <Persona
+                                    text={project.displayName}
+                                    size={PersonaSize.size48}
+                                    coinProps={{ styles: { initials: { borderRadius: '4px', fontSize: '20px', fontWeight: '400' } } }}
+                                    styles={{ primaryText: { fontSize: theme.fonts.xxLarge.fontSize, fontWeight: '700', letterSpacing: '-1.12px', marginLeft: '20px' } }}
+                                    imageInitials={project.displayName.split(' ').map(s => s[0].toUpperCase()).join('')} />
+                            </Stack.Item>
+                            <Stack.Item>
+                                <IconButton
+                                    toggle
+                                    checked={favorite}
+                                    onClick={() => setFavorate(!favorite)}
+                                    iconProps={{ iconName: favorite ? 'FavoriteStarFill' : 'FavoriteStar', color: 'yellow' }} />
+                                {/* <PrimaryButton iconProps={{ iconName: 'Add' }} text='New project' /> */}
+                            </Stack.Item>
+                        </Stack>
+                    </Stack.Item>
+                    <Stack.Item styles={{ root: { padding: '24px' } }}>
+                        <Stack
+                            wrap
+                            horizontal
+                            horizontalAlign='center'
+                            verticalAlign='start'>
+                            {/* <Stack.Item grow styles={{ root: { minWidth: '367px', marginRight: '16px' } }}> */}
+                            {/* <Stack.Item grow styles={{ root: { minWidth: '367px', marginRight: '16px' } }}> */}
+                            <Stack.Item grow styles={{ root: { minWidth: '60%', marginRight: '16px' } }}>
+                                <ProjectComponents user={props.user} project={project} />
+                                {/* {projectDetailProjectStackProps()} */}
+                                {/* {projectDetailResourceGroupStackProps()} */}
+                            </Stack.Item>
+                            {/* {projectDetailStack(projectDetailStackProps())} */}
+                            <Stack.Item grow styles={{ root: { minWidth: '20%', marginRight: '16px' } }}>
+                                <ProjectMembers
+                                    user={props.user}
+                                    project={project}
+                                    onEditMember={_onEditMember} />
+                                <ProjectLinks project={project} />
+                                {/* {projectDetailProjectTemplateStackProps()} */}
+                            </Stack.Item>
+                        </Stack>
+                    </Stack.Item>
                 </Stack>
                 <ProjectMembersForm
                     project={project}

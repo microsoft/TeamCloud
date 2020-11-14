@@ -48,14 +48,14 @@ export const UserForm: React.FunctionComponent<IUserFormProps> = (props) => {
                 user.role = userRole ?? props.user.role;
                 user.properties = newProps;
 
-                const result = await api.updateTeamCloudUser(props.user!.id, { body: user });
+                const result = await api.updateOrganizationUser(props.user!.id, props.user!.organization, { body: user });
 
                 if (result.code === 202) {
                     props.user = user;
                     _resetAndCloseForm();
                 } else {
                     // console.log(JSON.stringify(result));
-                    setErrorText(result.status);
+                    setErrorText(result.status ?? undefined);
                 }
             } else {
                 setErrorText('nothing changed')
