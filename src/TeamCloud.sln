@@ -1,4 +1,5 @@
-﻿Microsoft Visual Studio Solution File, Format Version 12.00
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29613.14
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -184,6 +185,7 @@ Global
 		{4FB79741-4723-479C-A2F6-0A3BAE8D230E} = {907EB108-924F-4487-8263-BD94AEFA63B6}
 		{3C57D479-B5B1-4667-A150-8BAA239F980D} = {907EB108-924F-4487-8263-BD94AEFA63B6}
 		{A39DE429-4AA7-4170-B04D-A2F458CBE812} = {907EB108-924F-4487-8263-BD94AEFA63B6}
+		{CB4CCEB0-BCF5-4088-A8DE-7961272A2485} = {907EB108-924F-4487-8263-BD94AEFA63B6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E5BA7A63-87D1-481D-896E-2E9923B298B4}
