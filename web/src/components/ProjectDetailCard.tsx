@@ -66,6 +66,7 @@ export const ProjectDetailCard: React.FunctionComponent<IProjectDetailCardProps>
     const _getTitle = (): JSX.Element | null => props.title ? <Text styles={_titleStyles}>{props.title}</Text> : null;
 
     const _getCammandBar = (): JSX.Element | null => props.commandBarItems ? <CommandBar
+        onReduceData={() => undefined}
         styles={_commandBarStyles}
         items={props.commandBarItems}
         ariaLabel='Use left and right arrow keys to navigate between commands' />

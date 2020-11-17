@@ -1,9 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { ImplicitMSALAuthenticationProvider } from '@microsoft/microsoft-graph-client/lib/src/ImplicitMSALAuthenticationProvider';
-import { MSALAuthenticationProviderOptions } from '@microsoft/microsoft-graph-client/lib/src/MSALAuthenticationProviderOptions';
-
 import { Client as GraphClient, GraphError, ResponseType } from '@microsoft/microsoft-graph-client'
 import { auth } from './API'
 import { GraphUser } from './model';
@@ -20,14 +17,8 @@ export enum PhotoSize {
     size648x648 = '648x648'
 }
 
-const graphScopes = ['User.Read', 'User.ReadBasic.All', 'Directory.Read.All', 'People.Read']; // An array of graph scopes
-
-const options = new MSALAuthenticationProviderOptions(graphScopes);
-
-const graphAuthProvider = new ImplicitMSALAuthenticationProvider(auth.authProvider, options);
-
 const Client = GraphClient;
-const client = Client.initWithMiddleware({ authProvider: graphAuthProvider });
+const client = Client.initWithMiddleware({ authProvider: auth });
 
 const _userSelect = ['id', 'userPrincipalName', 'displayName', 'givenName', 'sirname', 'mail', 'companyName', 'jobTitle', 'preferredLanguage', 'userType', 'department']
 
@@ -92,8 +83,9 @@ export const searchGraphUsers = async (search: string): Promise<GraphUser[]> => 
 
 export const getMePhoto = async (size: PhotoSize = PhotoSize.size240x240): Promise<string | undefined> => {
     try {
+        let api = `/me/photos/${size}/$value`;
         let response = await client
-            .api(`/me/photos/${size}/$value`)
+            .api(api)
             .header('Cache-Control', 'no-cache')
             .version('beta') // currently only work in beta: https://github.com/microsoftgraph/msgraph-sdk-dotnet/issues/568
             .responseType(ResponseType.BLOB)
@@ -108,8 +100,9 @@ export const getMePhoto = async (size: PhotoSize = PhotoSize.size240x240): Promi
 
 export const getUserPhoto = async (id: string, size: PhotoSize = PhotoSize.size240x240): Promise<string | undefined> => {
     try {
+        let api = `/users/${id}/photos/${size}/$value`;
         let response = await client
-            .api(`/users/${id}/photos/${size}/$value`)
+            .api(api)
             .header('Cache-Control', 'no-cache')
             .version('beta') // currently only work in beta: https://github.com/microsoftgraph/msgraph-sdk-dotnet/issues/568
             .responseType(ResponseType.BLOB)

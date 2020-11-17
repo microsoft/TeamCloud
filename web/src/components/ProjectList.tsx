@@ -2,44 +2,61 @@
 // Licensed under the MIT License.
 
 import React, { useState } from 'react';
-import { Organization, Project } from 'teamcloud';
-import { Link, useHistory } from 'react-router-dom';
-import { ShimmeredDetailsList, DetailsListLayoutMode, IColumn, CommandButton, IContextualMenuProps, IContextualMenuItem, IRenderFunction, IDetailsRowProps, CheckboxVisibility, SelectionMode, Dialog, DialogType, DialogFooter, PrimaryButton, DefaultButton, Persona, PersonaSize, getTheme, DetailsList, Stack } from '@fluentui/react';
+import { Project } from 'teamcloud';
+import { useHistory, useParams } from 'react-router-dom';
+import { DetailsListLayoutMode, IColumn, IRenderFunction, IDetailsRowProps, CheckboxVisibility, SelectionMode, Persona, PersonaSize, getTheme, DetailsList, Stack, Text } from '@fluentui/react';
 
 export interface IProjectListProps {
-    org?: Organization;
+    // org?: Organization;
     projects?: Project[];
-    projectFilter?: string;
+    // projectFilter?: string;
     onProjectSelected?: (project: Project) => void;
-    onProjectDeleted?: (project?: Project) => void;
+    // onProjectDeleted?: (project?: Project) => void;
 }
 
 export const ProjectList: React.FunctionComponent<IProjectListProps> = (props) => {
 
-    const [project, setProject] = useState<Project>();
-    const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-
     const history = useHistory();
 
-    const _itemMenuProps = (project: Project): IContextualMenuProps => ({
-        items: [
-            {
-                key: 'delete',
-                text: 'Delete project',
-                iconProps: { iconName: 'Delete' },
-                data: project,
-                onClick: _onItemButtonClicked
-            }
-        ]
-    });
+    let { orgId } = useParams() as { orgId: string };
 
-    const _onItemButtonClicked = (ev?: React.MouseEvent<HTMLElement> | React.KeyboardEvent<HTMLElement>, item?: IContextualMenuItem): boolean | void => {
-        let project = item?.data as Project;
-        if (project) {
-            setProject(project);
-            setDeleteConfirmOpen(true);
-        }
-    };
+    // const isAuthenticated = useIsAuthenticated();
+
+    // const [projects, setProjects] = useState<Project[]>();
+    const [projectFilter, setProjectFilter] = useState<string>();
+
+    // useEffect(() => {
+    //     if (isAuthenticated && orgId) {
+    //         console.error('getProjects');
+    //         setProjects(undefined);
+    //         const _setProjects = async () => {
+    //             const result = await api.getProjects(orgId);
+    //             setProjects(result.data ?? []);
+    //         };
+    //         _setProjects();
+    //     }
+    // }, [isAuthenticated, orgId]);
+
+
+    // const _itemMenuProps = (project: Project): IContextualMenuProps => ({
+    //     items: [
+    //         {
+    //             key: 'delete',
+    //             text: 'Delete project',
+    //             iconProps: { iconName: 'Delete' },
+    //             data: project,
+    //             onClick: _onItemButtonClicked
+    //         }
+    //     ]
+    // });
+
+    // const _onItemButtonClicked = (ev?: React.MouseEvent<HTMLElement> | React.KeyboardEvent<HTMLElement>, item?: IContextualMenuItem): boolean | void => {
+    //     let project = item?.data as Project;
+    //     if (project) {
+    //         setProject(project);
+    //         setDeleteConfirmOpen(true);
+    //     }
+    // };
 
     // const columns: IColumn[] = [
     // { key: 'name', name: 'Project Name', onRender: (p: Project) => (<Link onClick={() => _onLinkClicked(p)} to={'/projects/' + p.id} style={{ textDecoration: 'none' }}>{p.displayName}</Link>), minWidth: 100, isResizable: true },
@@ -83,7 +100,7 @@ export const ProjectList: React.FunctionComponent<IProjectListProps> = (props) =
 
 
     const _applyProjectFilter = (project: Project): boolean => {
-        return props.projectFilter ? project.displayName.toUpperCase().includes(props.projectFilter.toUpperCase()) : true;
+        return projectFilter ? project.displayName.toUpperCase().includes(projectFilter.toUpperCase()) : true;
     }
 
     const _onLinkClicked = (project: Project): void => {
@@ -92,11 +109,11 @@ export const ProjectList: React.FunctionComponent<IProjectListProps> = (props) =
     }
 
     const _onItemInvoked = (project: Project): void => {
-        if (props.org) {
+        if (project) {
             _onLinkClicked(project);
-            history.push(`/orgs/${props.org.slug}/projects/${project.slug}`)
+            history.push(`${orgId}/projects/${project.slug}`);
         } else {
-            console.warn('nope');
+            console.error('nope');
         }
     };
 
@@ -105,15 +122,15 @@ export const ProjectList: React.FunctionComponent<IProjectListProps> = (props) =
         return defaultRender ? defaultRender(props) : null;
     };
 
-    const _onProjectDelete = () => {
-        if (project && props.onProjectDeleted) {
-            props.onProjectDeleted(project)
-            setProject(undefined);
-        }
-        setDeleteConfirmOpen(false);
-    };
+    // const _onProjectDelete = () => {
+    //     // if (project && props.onProjectDeleted) {
+    //     //     props.onProjectDeleted(project)
+    //     //     setProject(undefined);
+    //     // }
+    //     setDeleteConfirmOpen(false);
+    // };
 
-    const _confirmDialogSubtext = (): string => `This will permanently delete '${project ? project.displayName : 'this project'}'. This action connot be undone.`;
+    // const _confirmDialogSubtext = (): string => `This will permanently delete '${project ? project.displayName : 'this project'}'. This action connot be undone.`;
 
     // const _onColumnHeaderClicked = (ev?: React.MouseEvent<HTMLElement>, column?: IColumn) => {
     //     console.log(column?.key);
@@ -121,34 +138,31 @@ export const ProjectList: React.FunctionComponent<IProjectListProps> = (props) =
 
     const items = props.projects ? props.projects.filter(_applyProjectFilter) : new Array<Project>();
 
-    return (
-        <>
-            <DetailsList
-                items={items}
-                columns={columns}
-                isHeaderVisible={false}
-                onRenderRow={_onRenderRow}
-                selectionMode={SelectionMode.none}
-                layoutMode={DetailsListLayoutMode.justified}
-                checkboxVisibility={CheckboxVisibility.hidden}
-                selectionPreservedOnEmptyClick={true}
-                onItemInvoked={_onItemInvoked}
-                styles={{
-                    root: {
-                        borderRadius: theme.effects.roundedCorner4,
-                        boxShadow: theme.effects.elevation4,
-                        backgroundColor: theme.palette.white
-                    }
-                }} />
+    if (props.projects === undefined)
+        return (<></>);
 
-            <Dialog
-                hidden={!deleteConfirmOpen}
-                dialogContentProps={{ type: DialogType.normal, title: 'Confirm Delete', subText: _confirmDialogSubtext() }}>
-                <DialogFooter>
-                    <PrimaryButton text='Delete' onClick={() => _onProjectDelete()} />
-                    <DefaultButton text='Cancel' onClick={() => setDeleteConfirmOpen(false)} />
-                </DialogFooter>
-            </Dialog>
-        </>
+    if (props.projects.length === 0)
+        return (<Text styles={{ root: { width: '100%', paddingLeft: '8px' } }}>No projects</Text>)
+
+    return (
+
+        <DetailsList
+            items={items}
+            columns={columns}
+            isHeaderVisible={false}
+            onRenderRow={_onRenderRow}
+            selectionMode={SelectionMode.none}
+            layoutMode={DetailsListLayoutMode.justified}
+            checkboxVisibility={CheckboxVisibility.hidden}
+            selectionPreservedOnEmptyClick={true}
+            onItemInvoked={_onItemInvoked}
+            styles={{
+                root: {
+                    borderRadius: theme.effects.roundedCorner4,
+                    boxShadow: theme.effects.elevation4,
+                    backgroundColor: theme.palette.white
+                }
+            }} />
+
     );
 }

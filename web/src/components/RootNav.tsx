@@ -1,46 +1,53 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState } from 'react';
-import { Nav, INavLinkGroup, INavLink, Stack, ActionButton, Persona, PersonaSize, Text, getTheme } from '@fluentui/react';
-import { Organization, Project } from 'teamcloud'
-import { useParams } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useHistory, useParams } from 'react-router-dom';
+import { useIsAuthenticated } from '@azure/msal-react';
+import { Nav, INavLinkGroup, INavLink, Stack, ActionButton, Persona, PersonaSize, getTheme } from '@fluentui/react';
+import { Organization } from 'teamcloud'
+import { api } from '../API';
 
-export interface IRootNavProps {
-    // org?: Organization;
-    orgs?: Organization[];
-    // orgId?: string;
-    // projectId?: string;
-    // project?: Project;
-    onOrgSelected: (org?: Organization) => void;
-}
+export interface IRootNavProps { }
 
 export const RootNav: React.FunctionComponent<IRootNavProps> = (props) => {
 
     let { orgId, projectId } = useParams() as { orgId: string, projectId: string };
 
-    // const { orgs } = props;
+    const history = useHistory();
 
-    // const [org, setOrg] = useState<Organization>();
+    const isAuthenticated = useIsAuthenticated();
 
-    const _onOrgSelected = (o: Organization) => {
-        console.error(orgId);
-        console.error(projectId);
-        // setOrg(o);
-        props.onOrgSelected(o);
-    }
+    const [orgs, setOrgs] = useState<Organization[]>();
 
-    const _navLinkGroups = (): INavLinkGroup[] => (orgId && projectId) ? _projectLinkGroups() : _orgsLinkGroups();
+    const newOrgView = orgId !== undefined && orgId.toLowerCase() === 'new';
 
-    const _orgsLinkGroups = (): INavLinkGroup[] => {
-        const links: INavLink[] = props.orgs?.map(o => ({
+    useEffect(() => {
+        if (isAuthenticated && orgs === undefined) {
+            // console.error('getOrganizations');
+            const _setOrgs = async () => {
+                const result = await api.getOrganizations();
+                setOrgs(result.data ?? undefined);
+            };
+            _setOrgs();
+        }
+    }, [isAuthenticated, orgs]);
+
+    const _navLinkGroups = (): INavLinkGroup[] => {
+        const links: INavLink[] = orgs?.map(o => ({
             key: o.slug,
             name: o.displayName,
-            url: `/orgs/${o.slug}`,
-            onClick: () => _onOrgSelected(o),
+            url: '',
+            onClick: () => history.push(`/orgs/${o.slug}`),
         })) ?? [];
 
-        links.push({ key: 'new', name: "New organization", url: '#' })
+        if (!newOrgView)
+            links.push({
+                key: 'new',
+                name: "New organization",
+                url: '',
+                onClick: () => history.push('/orgs/new')
+            });
 
         return [{ links: links }];
     };
@@ -50,20 +57,20 @@ export const RootNav: React.FunctionComponent<IRootNavProps> = (props) => {
             {
                 key: 'overview',
                 name: 'Overview',
-                url: `/orgs/${orgId}/projects/${projectId}`,
-                onClick: () => { },
+                url: '',
+                onClick: () => history.push(`/orgs/${orgId}/projects/${projectId}`),
             },
             {
                 key: 'components',
                 name: 'Components',
-                url: `/orgs/${orgId}/projects/${projectId}/components`,
-                onClick: () => { },
+                url: '',
+                onClick: () => history.push(`/orgs/${orgId}/projects/${projectId}/components`),
             },
             {
                 key: 'members',
                 name: 'Members',
-                url: `/orgs/${orgId}/projects/${projectId}/members`,
-                onClick: () => { },
+                url: '',
+                onClick: () => history.push(`/orgs/${orgId}/projects/${projectId}/members`),
             },
         ] : []
     }];
@@ -88,16 +95,18 @@ export const RootNav: React.FunctionComponent<IRootNavProps> = (props) => {
             verticalAlign="space-between">
             <Stack.Item>
                 <Nav
-                    // selectedKey={projectId ? 'overview' : orgId}
+                    selectedKey={orgId}
                     groups={_navLinkGroups()}
                     onRenderLink={_onRenderLink}
                     styles={{ root: [{ width: '100%' }], link: { padding: '8px 4px 8px 12px' } }} />
             </Stack.Item>
             <Stack.Item>
                 <ActionButton
+                    disabled={newOrgView || orgId === undefined}
                     iconProps={{ iconName: 'Settings' }}
                     styles={{ root: { padding: '10px 8px 10px 12px' } }}
-                    text='Organization settings' />
+                    text={'Organization settings'}
+                    onClick={() => history.push(`/orgs/${orgId}/settings`)} />
             </Stack.Item>
         </Stack>
     );

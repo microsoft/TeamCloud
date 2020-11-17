@@ -2,12 +2,13 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect } from 'react';
-import { Stack, Spinner, IBreadcrumbItem, ICommandBarItemProps, Text, Persona, PersonaSize, getTheme, Rating, IconButton } from '@fluentui/react';
-import { IProjectViewDetailProps, ProjectViewDetail, SubheaderBar, ProjectMembersForm, ProjectMembers, ProjectMemberForm, ProjectLinks, ProjectComponents } from '../components';
+import { Stack, Spinner, IBreadcrumbItem, Persona, PersonaSize, getTheme, IconButton, ProgressIndicator } from '@fluentui/react';
+import { ProjectMembersForm, ProjectMembers, ProjectMemberForm, ProjectLinks, ProjectComponents } from '../components';
 import { Project, User } from 'teamcloud';
 import { ProjectMember } from '../model';
 import { api } from '../API';
 import { useParams } from 'react-router-dom';
+import { useIsAuthenticated } from '@azure/msal-react';
 
 export interface IProjectDetailViewProps {
     user?: User;
@@ -18,55 +19,68 @@ export interface IProjectDetailViewProps {
 
 export const ProjectDetailView: React.FunctionComponent<IProjectDetailViewProps> = (props) => {
 
+    let isAuthenticated = useIsAuthenticated();
+    let { orgId, projectId } = useParams() as { orgId: string, projectId: string };
+
     const [project, setProject] = useState(props.project);
     const [favorite, setFavorate] = useState(false);
     const [selectedMember, setSelectedMember] = useState<ProjectMember>();
     const [newUsersPanelOpen, setNewUsersPanelOpen] = useState(false);
     const [editUsersPanelOpen, setEditUsersPanelOpen] = useState(false);
 
-    const { orgId, projectId } = useParams() as { orgId: string, projectId: string };
 
     useEffect(() => {
-        if (project === undefined) {
+        if (isAuthenticated && orgId && projectId) {
+
+            if (project && (project.id === projectId || project.slug === projectId))
+                return;
+
+            setProject(undefined);
+
             const _setProject = async () => {
                 const result = await api.getProject(projectId, orgId);
                 setProject(result.data);
             };
+
             _setProject();
         }
-    }, [project, projectId, orgId]);
+    }, [isAuthenticated, project, projectId, orgId]);
 
-    const _refresh = async () => {
-        let result = await api.getProject(project?.id ?? projectId, project?.organization ?? orgId);
-        setProject(result.data);
-    };
+    // const _refresh = async () => {
+    //     let o = project?.organization ?? orgId;
+    //     let p = project?.id ?? projectId;
+    //     if (o && p) {
+    //         let result = await api.getProject(p, o);
+    //         setProject(result.data);
+    //     }
+    // };
 
     // const _userIsProjectOwner = () =>
     //     props.user?.projectMemberships?.find(m => m.projectId === project?.id ?? projectId)?.role === 'Owner';
 
-    const _commandBarItems = (): ICommandBarItemProps[] => [
-        { key: 'refresh', text: 'Refresh', iconProps: { iconName: 'Refresh' }, onClick: () => { _refresh() } },
-        // { key: 'addUser', text: 'Add users', iconProps: { iconName: 'PeopleAdd' }, onClick: () => { setNewUsersPanelOpen(true) }, disabled: !_userIsProjectOwner() },
-    ];
+    // const _commandBarItems = (): ICommandBarItemProps[] => [
+    //     { key: 'refresh', text: 'Refresh', iconProps: { iconName: 'Refresh' }, onClick: () => { _refresh() } },
+    //     // { key: 'addUser', text: 'Add users', iconProps: { iconName: 'PeopleAdd' }, onClick: () => { setNewUsersPanelOpen(true) }, disabled: !_userIsProjectOwner() },
+    // ];
 
-    const _breadcrumbs: IBreadcrumbItem[] = [{ text: '', key: 'root', href: '/' }];
+    // const _breadcrumbs: IBreadcrumbItem[] = [{ text: '', key: 'root', href: '/' }];
 
-    const _ensureBreadcrumb = () => {
-        if (project && _breadcrumbs.length === 1)
-            _breadcrumbs.push({ text: project.displayName ?? '', key: 'project', isCurrentItem: true })
-    };
+    // const _ensureBreadcrumb = () => {
+    //     if (project && _breadcrumbs.length === 1)
+    //         _breadcrumbs.push({ text: project.displayName ?? '', key: 'project', isCurrentItem: true })
+    // };
 
 
-    const projectDetailProjectStackProps = () => {
-        if (!project) return null;
-        const detailProps: IProjectViewDetailProps = {
-            title: 'Project', details: [
-                { label: 'ID', value: project.id ?? '' },
-                { label: 'Name', value: project.displayName }
-            ]
-        };
-        return (<ProjectViewDetail key={detailProps.title} title={detailProps.title} details={detailProps.details} />);
-    };
+    // const projectDetailProjectStackProps = () => {
+    //     if (!project) return null;
+    //     const detailProps: IProjectViewDetailProps = {
+    //         title: 'Project', details: [
+    //             { label: 'ID', value: project.id ?? '' },
+    //             { label: 'Name', value: project.displayName }
+    //         ]
+    //     };
+    //     return (<ProjectViewDetail key={detailProps.title} title={detailProps.title} details={detailProps.details} />);
+    // };
 
     // const projectDetailProjectTemplateStackProps = () => {
     //     if (!project || !project.template) return null;
@@ -101,11 +115,10 @@ export const ProjectDetailView: React.FunctionComponent<IProjectDetailViewProps>
         setEditUsersPanelOpen(true)
     };
 
-
     const theme = getTheme();
 
     if (project?.id) {
-        _ensureBreadcrumb();
+        // _ensureBreadcrumb();
 
         return (
             <>
@@ -142,7 +155,7 @@ export const ProjectDetailView: React.FunctionComponent<IProjectDetailViewProps>
                             {/* <Stack.Item grow styles={{ root: { minWidth: '367px', marginRight: '16px' } }}> */}
                             {/* <Stack.Item grow styles={{ root: { minWidth: '367px', marginRight: '16px' } }}> */}
                             <Stack.Item grow styles={{ root: { minWidth: '60%', marginRight: '16px' } }}>
-                                <ProjectComponents user={props.user} project={project} />
+                                <ProjectComponents project={project} />
                                 {/* {projectDetailProjectStackProps()} */}
                                 {/* {projectDetailResourceGroupStackProps()} */}
                             </Stack.Item>
@@ -172,5 +185,5 @@ export const ProjectDetailView: React.FunctionComponent<IProjectDetailViewProps>
         );
     }
 
-    return (<Stack verticalFill verticalAlign='center' horizontalAlign='center'><Spinner /></Stack>);
+    return (<ProgressIndicator progressHidden={project !== undefined} styles={{ itemProgress: { padding: '0px', marginTop: '-2px' } }} />);
 }

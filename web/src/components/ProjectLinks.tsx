@@ -1,7 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+// import React, { useState, useEffect } from 'react';
 // import { Stack, Shimmer, DefaultButton, IButtonStyles, getTheme, Image } from '@fluentui/react';
 import { Project } from 'teamcloud';
 // import { ProjectDetailCard } from './ProjectDetailCard';

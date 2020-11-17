@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect } from 'react';
-import { Project, Component, User, ErrorResult, Organization } from 'teamcloud';
-import { Stack, Shimmer, DefaultButton, IButtonStyles, getTheme, Image, ICommandBarItemProps, Dialog, DialogType, DialogFooter, PrimaryButton, IContextualMenuProps, IContextualMenuItem } from '@fluentui/react';
+import { Stack, Shimmer, DefaultButton, IButtonStyles, getTheme, ICommandBarItemProps, Dialog, DialogType, DialogFooter, PrimaryButton, IContextualMenuProps, IContextualMenuItem } from '@fluentui/react';
+import { Project, Component, ErrorResult } from 'teamcloud';
 import { ProjectDetailCard, ProjectComponentForm } from '.';
 // import AppInsights from '../img/appinsights.svg';
 // import DevOps from '../img/devops.svg';
@@ -12,7 +12,6 @@ import { ProjectDetailCard, ProjectComponentForm } from '.';
 import { api } from '../API';
 
 export interface IProjectComponentsProps {
-    user?: User;
     project: Project;
 }
 
@@ -135,7 +134,7 @@ export const ProjectComponents: React.FunctionComponent<IProjectComponentsProps>
                 </Shimmer>
             </ProjectDetailCard>
             <ProjectComponentForm
-                user={props.user}
+                // user={props.user}
                 project={props.project}
                 panelIsOpen={addComponentPanelOpen}
                 onFormClose={() => setAddComponentPanelOpen(false)} />

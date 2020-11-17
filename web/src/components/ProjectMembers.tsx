@@ -21,8 +21,6 @@ export interface IProjectMembersProps {
 }
 
 export const ProjectMembers: React.FunctionComponent<IProjectMembersProps> = (props) => {
-    // return (<></>);
-
     const [members, setMembers] = useState<ProjectMember[]>();
     const [addMembersPanelOpen, setAddMembersPanelOpen] = useState(false);
 
@@ -31,7 +29,6 @@ export const ProjectMembers: React.FunctionComponent<IProjectMembersProps> = (pr
             const _setMembers = async () => {
                 let _users = await api.getProjectUsers(props.project.organization, props.project.id);
                 if (_users.data) {
-                    console.warn('foo')
                     let _members = await Promise.all(_users.data.map(async u => ({
                         user: u,
                         graphUser: u.userType === 'User' ? await getGraphUser(u.id) : u.userType === 'Provider' ? await getGraphDirectoryObject(u.id) : undefined,
