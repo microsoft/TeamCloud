@@ -27,7 +27,7 @@ namespace TeamCloud.Model.Data
         [JsonProperty(Required = Required.Always)]
         public string ProjectId { get; set; }
 
-        [JsonProperty(Required = Required.Always)]
+        // [JsonProperty(Required = Required.Always)]
         public string ProviderId { get; set; }
 
         [JsonProperty(Required = Required.Always)]
@@ -37,7 +37,7 @@ namespace TeamCloud.Model.Data
 
         public string Description { get; set; }
 
-        [JsonProperty(Required = Required.Always)]
+        // [JsonProperty(Required = Required.Always)]
         public string InputJson { get; set; }
 
         public string ValueJson { get; set; }
