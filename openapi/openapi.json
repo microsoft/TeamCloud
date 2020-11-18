@@ -391,6 +391,16 @@
           }
         },
         "responses": {
+          "201": {
+            "description": "The new Organization was created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrganizationDataResult"
+                }
+              }
+            }
+          },
           "400": {
             "description": "A validation error occured.",
             "content": {
@@ -616,12 +626,12 @@
           }
         },
         "responses": {
-          "202": {
-            "description": "Starts creating the new User. Returns a StatusResult object that can be used to track progress of the long-running operation.",
+          "201": {
+            "description": "The new Organization User was created.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/StatusResult"
+                  "$ref": "#/components/schemas/UserDataResult"
                 }
               }
             }
@@ -1051,6 +1061,16 @@
           }
         },
         "responses": {
+          "201": {
+            "description": "The new Project was created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectDataResult"
+                }
+              }
+            }
+          },
           "202": {
             "description": "Started creating the new Project. Returns a StatusResult object that can be used to track progress of the long-running operation.",
             "content": {
@@ -2457,6 +2477,16 @@
           }
         },
         "responses": {
+          "201": {
+            "description": "The new Project User was created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDataResult"
+                }
+              }
+            }
+          },
           "202": {
             "description": "Starts creating the new Project User. Returns a StatusResult object that can be used to track progress of the long-running operation.",
             "content": {
@@ -2512,7 +2542,7 @@
           "ProjectUsers"
         ],
         "summary": "Gets a Project User by ID or email address.",
-        "operationId": "GetProjectUserByNameOrId",
+        "operationId": "GetProjectUser",
         "parameters": [
           {
             "name": "userId",
@@ -2622,6 +2652,16 @@
           }
         },
         "responses": {
+          "200": {
+            "description": "The Project User was updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDataResult"
+                }
+              }
+            }
+          },
           "202": {
             "description": "Starts updating the Project UserProject. Returns a StatusResult object that can be used to track progress of the long-running operation.",
             "content": {
@@ -2831,6 +2871,16 @@
           }
         },
         "responses": {
+          "200": {
+            "description": "The Project User was updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDataResult"
+                }
+              }
+            }
+          },
           "202": {
             "description": "Starts updating the Project User. Returns a StatusResult object that can be used to track progress of the long-running operation.",
             "content": {
@@ -3512,7 +3562,6 @@
         "required": [
           "id",
           "organization",
-          "projectMemberships",
           "role",
           "userType"
         ],
@@ -3543,7 +3592,8 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ProjectMembership"
-            }
+            },
+            "nullable": true
           },
           "properties": {
             "type": "object",
@@ -3634,8 +3684,7 @@
           "id",
           "organization",
           "slug",
-          "template",
-          "templateInput"
+          "template"
         ],
         "type": "object",
         "properties": {
@@ -3653,7 +3702,8 @@
             "type": "string"
           },
           "templateInput": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "users": {
             "type": "array",
@@ -3757,10 +3807,8 @@
       "Component": {
         "required": [
           "id",
-          "inputJson",
           "organization",
           "projectId",
-          "providerId",
           "requestedBy",
           "scope",
           "templateId",
@@ -3782,7 +3830,8 @@
             "type": "string"
           },
           "providerId": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "requestedBy": {
             "type": "string"
@@ -3796,7 +3845,8 @@
             "nullable": true
           },
           "inputJson": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "valueJson": {
             "type": "string",
@@ -3890,10 +3940,7 @@
       },
       "RepositoryReference": {
         "required": [
-          "organization",
           "provider",
-          "ref",
-          "repository",
           "type",
           "url"
         ],
@@ -3919,7 +3966,8 @@
             "nullable": true
           },
           "ref": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "provider": {
             "enum": [
@@ -3939,10 +3987,12 @@
             "type": "string"
           },
           "organization": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "repository": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "project": {
             "type": "string",

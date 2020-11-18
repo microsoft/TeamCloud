@@ -17,13 +17,13 @@ export interface Component {
     // (undocumented)
     id: string;
     // (undocumented)
-    inputJson: string;
+    inputJson?: string | null;
     // (undocumented)
     organization: string;
     // (undocumented)
     projectId: string;
     // (undocumented)
-    providerId: string;
+    providerId?: string | null;
     // (undocumented)
     requestedBy: string;
     // (undocumented)
@@ -244,7 +244,7 @@ export interface Project {
     // (undocumented)
     template: string;
     // (undocumented)
-    templateInput: string;
+    templateInput?: string | null;
     // (undocumented)
     users?: User[] | null;
 }
@@ -370,15 +370,15 @@ export interface RepositoryReference {
     // (undocumented)
     mountUrl?: string | null;
     // (undocumented)
-    organization: string;
+    organization?: string | null;
     // (undocumented)
     project?: string | null;
     // (undocumented)
     provider: RepositoryReferenceProvider;
     // (undocumented)
-    ref: string;
+    ref?: string | null;
     // (undocumented)
-    repository: string;
+    repository?: string | null;
     // (undocumented)
     token?: string | null;
     // (undocumented)
@@ -475,7 +475,7 @@ export class TeamCloud extends TeamCloudContext {
     getProjectTags(org: string, projectId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectTagsResponse>;
     getProjectTemplate(projectTemplateId: string | null, org: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectTemplateResponse>;
     getProjectTemplates(org: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectTemplatesResponse>;
-    getProjectUserByNameOrId(userId: string | null, org: string, projectId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectUserByNameOrIdResponse>;
+    getProjectUser(userId: string | null, org: string, projectId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectUserResponse>;
     getProjectUserMe(org: string, projectId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectUserMeResponse>;
     getProjectUsers(org: string, projectId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectUsersResponse>;
     getStatus(trackingId: string, org: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetStatusResponse>;
@@ -518,10 +518,10 @@ export interface TeamCloudCreateOrganizationOptionalParams extends coreHttp.Oper
 }
 
 // @public
-export type TeamCloudCreateOrganizationResponse = ErrorResult & {
+export type TeamCloudCreateOrganizationResponse = OrganizationDataResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
-        parsedBody: ErrorResult;
+        parsedBody: OrganizationDataResult;
     };
 };
 
@@ -532,10 +532,10 @@ export interface TeamCloudCreateOrganizationUserOptionalParams extends coreHttp.
 }
 
 // @public
-export type TeamCloudCreateOrganizationUserResponse = StatusResult & {
+export type TeamCloudCreateOrganizationUserResponse = UserDataResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
-        parsedBody: StatusResult;
+        parsedBody: UserDataResult;
     };
 };
 
@@ -560,10 +560,10 @@ export interface TeamCloudCreateProjectOptionalParams extends coreHttp.Operation
 }
 
 // @public
-export type TeamCloudCreateProjectResponse = StatusResult & {
+export type TeamCloudCreateProjectResponse = ProjectDataResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
-        parsedBody: StatusResult;
+        parsedBody: ProjectDataResult;
     };
 };
 
@@ -603,10 +603,10 @@ export interface TeamCloudCreateProjectUserOptionalParams extends coreHttp.Opera
 }
 
 // @public
-export type TeamCloudCreateProjectUserResponse = StatusResult & {
+export type TeamCloudCreateProjectUserResponse = UserDataResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
-        parsedBody: StatusResult;
+        parsedBody: UserDataResult;
     };
 };
 
@@ -819,7 +819,7 @@ export type TeamCloudGetProjectTemplatesResponse = ProjectTemplateListDataResult
 };
 
 // @public
-export type TeamCloudGetProjectUserByNameOrIdResponse = UserDataResult & {
+export type TeamCloudGetProjectUserMeResponse = UserDataResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
         parsedBody: UserDataResult;
@@ -827,7 +827,7 @@ export type TeamCloudGetProjectUserByNameOrIdResponse = UserDataResult & {
 };
 
 // @public
-export type TeamCloudGetProjectUserMeResponse = UserDataResult & {
+export type TeamCloudGetProjectUserResponse = UserDataResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
         parsedBody: UserDataResult;
@@ -949,10 +949,10 @@ export interface TeamCloudUpdateProjectUserMeOptionalParams extends coreHttp.Ope
 }
 
 // @public
-export type TeamCloudUpdateProjectUserMeResponse = StatusResult & {
+export type TeamCloudUpdateProjectUserMeResponse = UserDataResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
-        parsedBody: StatusResult;
+        parsedBody: UserDataResult;
     };
 };
 
@@ -963,10 +963,10 @@ export interface TeamCloudUpdateProjectUserOptionalParams extends coreHttp.Opera
 }
 
 // @public
-export type TeamCloudUpdateProjectUserResponse = StatusResult & {
+export type TeamCloudUpdateProjectUserResponse = UserDataResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
-        parsedBody: StatusResult;
+        parsedBody: UserDataResult;
     };
 };
 
@@ -977,7 +977,7 @@ export interface User {
     // (undocumented)
     organization: string;
     // (undocumented)
-    projectMemberships: ProjectMembership[];
+    projectMemberships?: ProjectMembership[] | null;
     properties?: {
         [propertyName: string]: string;
     } | null;

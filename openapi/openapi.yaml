@@ -245,6 +245,12 @@ paths:
             schema:
               $ref: '#/components/schemas/OrganizationDefinition'
       responses:
+        '201':
+          description: The new Organization was created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationDataResult'
         '400':
           description: A validation error occured.
           content:
@@ -384,12 +390,12 @@ paths:
             schema:
               $ref: '#/components/schemas/UserDefinition'
       responses:
-        '202':
-          description: Starts creating the new User. Returns a StatusResult object that can be used to track progress of the long-running operation.
+        '201':
+          description: The new Organization User was created.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StatusResult'
+                $ref: '#/components/schemas/UserDataResult'
         '400':
           description: A validation error occured.
           content:
@@ -652,6 +658,12 @@ paths:
             schema:
               $ref: '#/components/schemas/ProjectDefinition'
       responses:
+        '201':
+          description: The new Project was created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectDataResult'
         '202':
           description: Started creating the new Project. Returns a StatusResult object that can be used to track progress of the long-running operation.
           content:
@@ -1521,6 +1533,12 @@ paths:
             schema:
               $ref: '#/components/schemas/UserDefinition'
       responses:
+        '201':
+          description: The new Project User was created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDataResult'
         '202':
           description: Starts creating the new Project User. Returns a StatusResult object that can be used to track progress of the long-running operation.
           content:
@@ -1554,7 +1572,7 @@ paths:
       tags:
         - ProjectUsers
       summary: Gets a Project User by ID or email address.
-      operationId: GetProjectUserByNameOrId
+      operationId: GetProjectUser
       parameters:
         - name: userId
           in: path
@@ -1623,6 +1641,12 @@ paths:
             schema:
               $ref: '#/components/schemas/User'
       responses:
+        '200':
+          description: The Project User was updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDataResult'
         '202':
           description: Starts updating the Project UserProject. Returns a StatusResult object that can be used to track progress of the long-running operation.
           content:
@@ -1752,6 +1776,12 @@ paths:
             schema:
               $ref: '#/components/schemas/User'
       responses:
+        '200':
+          description: The Project User was updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDataResult'
         '202':
           description: Starts updating the Project User. Returns a StatusResult object that can be used to track progress of the long-running operation.
           content:
@@ -2208,7 +2238,6 @@ components:
       required:
         - id
         - organization
-        - projectMemberships
         - role
         - userType
       type: object
@@ -2233,6 +2262,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ProjectMembership'
+          nullable: true
         properties:
           type: object
           additionalProperties:
@@ -2298,7 +2328,6 @@ components:
         - organization
         - slug
         - template
-        - templateInput
       type: object
       properties:
         organization:
@@ -2312,6 +2341,7 @@ components:
           type: string
         templateInput:
           type: string
+          nullable: true
         users:
           type: array
           items:
@@ -2385,10 +2415,8 @@ components:
     Component:
       required:
         - id
-        - inputJson
         - organization
         - projectId
-        - providerId
         - requestedBy
         - scope
         - templateId
@@ -2406,6 +2434,7 @@ components:
           type: string
         providerId:
           type: string
+          nullable: true
         requestedBy:
           type: string
         displayName:
@@ -2416,6 +2445,7 @@ components:
           nullable: true
         inputJson:
           type: string
+          nullable: true
         valueJson:
           type: string
           nullable: true
@@ -2482,10 +2512,7 @@ components:
       additionalProperties: false
     RepositoryReference:
       required:
-        - organization
         - provider
-        - ref
-        - repository
         - type
         - url
       type: object
@@ -2506,6 +2533,7 @@ components:
           nullable: true
         ref:
           type: string
+          nullable: true
         provider:
           enum:
             - Unknown
@@ -2521,8 +2549,10 @@ components:
           type: string
         organization:
           type: string
+          nullable: true
         repository:
           type: string
+          nullable: true
         project:
           type: string
           nullable: true

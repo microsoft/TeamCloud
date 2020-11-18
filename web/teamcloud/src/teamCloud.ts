@@ -63,7 +63,7 @@ import {
   TeamCloudGetProjectUsersResponse,
   TeamCloudCreateProjectUserOptionalParams,
   TeamCloudCreateProjectUserResponse,
-  TeamCloudGetProjectUserByNameOrIdResponse,
+  TeamCloudGetProjectUserResponse,
   TeamCloudUpdateProjectUserOptionalParams,
   TeamCloudUpdateProjectUserResponse,
   TeamCloudDeleteProjectUserResponse,
@@ -836,19 +836,19 @@ export class TeamCloud extends TeamCloudContext {
    * @param projectId
    * @param options The options parameters.
    */
-  getProjectUserByNameOrId(
+  getProjectUser(
     userId: string | null,
     org: string,
     projectId: string | null,
     options?: coreHttp.OperationOptions
-  ): Promise<TeamCloudGetProjectUserByNameOrIdResponse> {
+  ): Promise<TeamCloudGetProjectUserResponse> {
     const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
       options || {}
     );
     return this.sendOperationRequest(
       { userId, org, projectId, options: operationOptions },
-      getProjectUserByNameOrIdOperationSpec
-    ) as Promise<TeamCloudGetProjectUserByNameOrIdResponse>;
+      getProjectUserOperationSpec
+    ) as Promise<TeamCloudGetProjectUserResponse>;
   }
 
   /**
@@ -1144,6 +1144,9 @@ const createOrganizationOperationSpec: coreHttp.OperationSpec = {
   path: "/orgs",
   httpMethod: "POST",
   responses: {
+    201: {
+      bodyMapper: Mappers.OrganizationDataResult
+    },
     400: {
       bodyMapper: Mappers.ErrorResult
     },
@@ -1223,8 +1226,8 @@ const createOrganizationUserOperationSpec: coreHttp.OperationSpec = {
   path: "/orgs/{org}/users",
   httpMethod: "POST",
   responses: {
-    202: {
-      bodyMapper: Mappers.StatusResult
+    201: {
+      bodyMapper: Mappers.UserDataResult
     },
     400: {
       bodyMapper: Mappers.ErrorResult
@@ -1366,6 +1369,9 @@ const createProjectOperationSpec: coreHttp.OperationSpec = {
   path: "/orgs/{org}/projects",
   httpMethod: "POST",
   responses: {
+    201: {
+      bodyMapper: Mappers.ProjectDataResult
+    },
     202: {
       bodyMapper: Mappers.StatusResult
     },
@@ -1824,6 +1830,9 @@ const createProjectUserOperationSpec: coreHttp.OperationSpec = {
   path: "/orgs/{org}/projects/{projectId}/users",
   httpMethod: "POST",
   responses: {
+    201: {
+      bodyMapper: Mappers.UserDataResult
+    },
     202: {
       bodyMapper: Mappers.StatusResult
     },
@@ -1845,7 +1854,7 @@ const createProjectUserOperationSpec: coreHttp.OperationSpec = {
   mediaType: "json",
   serializer
 };
-const getProjectUserByNameOrIdOperationSpec: coreHttp.OperationSpec = {
+const getProjectUserOperationSpec: coreHttp.OperationSpec = {
   path: "/orgs/{org}/projects/{projectId}/users/{userId}",
   httpMethod: "GET",
   responses: {
@@ -1874,6 +1883,9 @@ const updateProjectUserOperationSpec: coreHttp.OperationSpec = {
   path: "/orgs/{org}/projects/{projectId}/users/{userId}",
   httpMethod: "PUT",
   responses: {
+    200: {
+      bodyMapper: Mappers.UserDataResult
+    },
     202: {
       bodyMapper: Mappers.StatusResult
     },
@@ -1946,6 +1958,9 @@ const updateProjectUserMeOperationSpec: coreHttp.OperationSpec = {
   path: "/orgs/{org}/projects/{projectId}/users/me",
   httpMethod: "PUT",
   responses: {
+    200: {
+      bodyMapper: Mappers.UserDataResult
+    },
     202: {
       bodyMapper: Mappers.StatusResult
     },
