@@ -50,6 +50,9 @@ export const NewProjectView: React.FunctionComponent<INewProjectViewProps> = (pr
                 const result = await api.getProjectTemplates(orgId);
                 setProjectTemplates(result.data ?? undefined);
                 setProjectTemplateOptions(_projectTemplateOptions(result.data ?? []));
+                if (result.data && !projectTemplate) {
+                    setProjectTemplate(result.data.find(t => t.isDefault));
+                }
             };
             _setProjectTemplates();
         }
@@ -57,6 +60,7 @@ export const NewProjectView: React.FunctionComponent<INewProjectViewProps> = (pr
 
     const _submitForm = async (e: ISubmitEvent<any>) => {
         setFormEnabled(false);
+
 
         if (orgId && projectName && projectTemplate && e.formData) {
             // let userDefinitions: UserDefinition[] = [{ identifier: props.user.id, role: 'Owner' as ProjectMembershipRole }];
@@ -72,12 +76,14 @@ export const NewProjectView: React.FunctionComponent<INewProjectViewProps> = (pr
                 templateInput: JSON.stringify(e.formData),
                 // users: userDefinitions
             };
-            const result = await api.createProject(orgId, { body: projectDefinition });
-            if (result.code === 202)
-                _resetAndCloseForm();
+            const projectResult = await api.createProject(orgId, { body: projectDefinition });
+            const project = projectResult.data;
+
+            if (project)
+                history.push(`/orgs/${orgId}/projects/${project.slug}`);
             else {
                 // console.log(JSON.stringify(result));
-                setErrorText(result.status ?? undefined);
+                setErrorText(projectResult.status ?? 'failed to create project');
             }
         }
     };
@@ -91,7 +97,7 @@ export const NewProjectView: React.FunctionComponent<INewProjectViewProps> = (pr
 
     const _projectTemplateOptions = (data?: ProjectTemplate[]): IDropdownOption[] => {
         if (!data) return [];
-        return data.map(pt => ({ key: pt.id, text: pt.displayName } as IDropdownOption));
+        return data.map(pt => ({ key: pt.id, text: pt.isDefault ? `${pt.displayName} (default)` : pt.displayName } as IDropdownOption));
     };
 
     const _onDropdownChange = (event: React.FormEvent<HTMLDivElement>, option?: IDropdownOption, index?: number): void => {
@@ -104,7 +110,7 @@ export const NewProjectView: React.FunctionComponent<INewProjectViewProps> = (pr
 
     const _onRenderPanelFooterContent = () => (
         <div style={{ paddingTop: '24px' }}>
-            <PrimaryButton text='Create project' disabled={!formEnabled || !(projectName && projectTemplate)} styles={{ root: { marginRight: 8 } }} />
+            <PrimaryButton type='submit' text='Create project' disabled={!formEnabled || !(projectName && projectTemplate)} styles={{ root: { marginRight: 8 } }} />
             <DefaultButton text='Cancel' disabled={!formEnabled} onClick={() => _resetAndCloseForm()} />
             <Spinner styles={{ root: { visibility: formEnabled ? 'hidden' : 'visible' } }} />
         </div>
@@ -147,6 +153,7 @@ export const NewProjectView: React.FunctionComponent<INewProjectViewProps> = (pr
                             label='Project Template'
                             // errorMessage='Project Type is required.'
                             // placeholder='Select a Project Type'
+                            selectedKey={projectTemplate?.id}
                             disabled={!formEnabled}
                             options={projectTemplateOptions || []}
                             onChange={_onDropdownChange} />

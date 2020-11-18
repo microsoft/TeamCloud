@@ -10,14 +10,14 @@ import { Project, User } from 'teamcloud';
 import { ProjectMember } from '../model';
 import { api } from '../API';
 
-export interface IProjectDetailViewProps {
+export interface IProjectViewProps {
     user?: User;
     project?: Project;
     // orgId: string;
     // projectId: string;
 }
 
-export const ProjectDetailView: React.FunctionComponent<IProjectDetailViewProps> = (props) => {
+export const ProjectView: React.FunctionComponent<IProjectViewProps> = (props) => {
 
     let isAuthenticated = useIsAuthenticated();
     let { orgId, projectId } = useParams() as { orgId: string, projectId: string };

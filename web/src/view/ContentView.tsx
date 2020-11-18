@@ -4,7 +4,7 @@
 import React, { useState } from 'react';
 import { Route, Switch } from 'react-router-dom';
 import { Project } from 'teamcloud';
-import { Error404, NewOrganizationView, NewProjectView, ProjectDetailView, ProjectsView } from '.';
+import { Error404, NewOrganizationView, NewProjectView, ProjectView, ProjectsView } from '.';
 
 
 export interface IContentViewProps { }
@@ -52,7 +52,7 @@ export const ContentView: React.FunctionComponent<IContentViewProps> = (props: I
             </Route>
 
             <Route exact path='/orgs/:orgId/projects/:projectId'>
-                <ProjectDetailView {...{ project: project }} />
+                <ProjectView {...{ project: project }} />
             </Route>
             <Route exact path='/orgs/:orgId/projects/:projectId/settings'>
                 <></>
@@ -65,7 +65,7 @@ export const ContentView: React.FunctionComponent<IContentViewProps> = (props: I
             </Route>
 
             <Route exact path='/orgs/:orgId/projects/:projectId/:navId'>
-                <ProjectDetailView {...{ project: project }} />
+                <ProjectView {...{ project: project }} />
             </Route>
 
             <Route path='*'>

@@ -95,18 +95,61 @@ export const NewOrganizationView: React.FunctionComponent<INewOrganizationViewPr
 
     const _submitForm = async () => {
         if (_formComplete()) {
+
             setFormEnabled(false);
 
-            const orgDef = { displayName: orgName } as OrganizationDefinition;
+            setPercentComplete(.25);
+
+            const orgDef = {
+                displayName: orgName
+            } as OrganizationDefinition;
 
             const orgResult = await api.createOrganization({ body: orgDef });
 
-            orgResult.
+            const org = orgResult.data;
+
+            setPercentComplete(.5);
+
+            if (org) {
+
+                const scopeDef = {
+                    displayName: scopeName,
+                    managementGroupId: scopeManagementGroup,
+                    isDefault: true
+                } as DeploymentScopeDefinition;
+
+                const scopeResult = await api.createDeploymentScope(org.id, { body: scopeDef, });
+
+                const scope = scopeResult.data;
+
+                setPercentComplete(.75);
+
+                const templateDef = {
+                    displayName: templateName,
+                    repository: {
+                        url: templateUrl,
+                        version: templateVersion ?? null,
+                        token: templateToken ?? null
+                    }
+                } as ProjectTemplateDefinition;
+
+                const templateResult = await api.createProjectTemplate(org.id, { body: templateDef });
+
+                const temlate = templateResult.data;
+
+                setPercentComplete(1);
+                history.push(`/orgs/${org?.slug}`);
+
+            } else {
+                setPercentComplete(1);
+                setErrorText(orgResult.status ?? 'failed to create new org');
+            }
         }
     };
 
     const _resetAndCloseForm = async () => {
 
+        setFormEnabled(false);
         // await msal.instance.acquireTokenRedirect({ scopes: ['https://management.azure.com/.default'] })
         // const authResult = await msal.instance.handleRedirectPromise()
         // console.error(authResult)

@@ -23,7 +23,7 @@ export const RootNav: React.FunctionComponent<IRootNavProps> = (props) => {
     const newOrgView = orgId !== undefined && orgId.toLowerCase() === 'new';
 
     useEffect(() => {
-        if (isAuthenticated && orgs === undefined) {
+        if (isAuthenticated && (orgs === undefined || (orgId && orgId !== 'new' && !orgs.some(o => o.id === orgId || o.slug === orgId)))) {
             // console.error('getOrganizations');
             const _setOrgs = async () => {
                 const result = await api.getOrganizations();
@@ -31,7 +31,7 @@ export const RootNav: React.FunctionComponent<IRootNavProps> = (props) => {
             };
             _setOrgs();
         }
-    }, [isAuthenticated, orgs]);
+    }, [isAuthenticated, orgId, orgs]);
 
     const _navLinkGroups = (): INavLinkGroup[] => {
         const links: INavLink[] = orgs?.map(o => ({
