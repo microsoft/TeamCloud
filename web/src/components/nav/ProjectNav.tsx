@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { useHistory, useParams } from 'react-router-dom';
-import { Nav, INavLinkGroup, INavLink, Stack, ActionButton, Persona, PersonaSize, getTheme } from '@fluentui/react';
+import { Nav, INavLinkGroup, INavLink, Stack, ActionButton, Persona, PersonaSize } from '@fluentui/react';
 
 export interface IProjectNavProps { }
 
@@ -36,15 +36,11 @@ export const ProjectNav: React.FunctionComponent<IProjectNavProps> = (props) => 
         ] : []
     }];
 
-    const theme = getTheme();
-
-    function _onRenderLink(link?: INavLink): JSX.Element {
-        return <Persona
-            text={link?.name}
-            size={PersonaSize.size24}
-            coinProps={{ styles: { initials: { borderRadius: '4px' } } }}
-            imageInitials={link?.name[0].toUpperCase()} />;
-    };
+    const _onRenderLink = (link?: INavLink): JSX.Element => <Persona
+        text={link?.name}
+        size={PersonaSize.size24}
+        coinProps={{ styles: { initials: { borderRadius: '4px' } } }}
+        imageInitials={link?.name[0].toUpperCase()} />;
 
     return (
         <Stack

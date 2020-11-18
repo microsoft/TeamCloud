@@ -2,21 +2,15 @@
 // Licensed under the MIT License.
 
 import React, { useEffect, useState } from 'react';
-import { useHistory, useParams } from 'react-router-dom';
 import { useIsAuthenticated } from '@azure/msal-react';
-import { Text, ITextStyles, Stack, getTheme, IStackStyles, Link, Breadcrumb, IBreadcrumbItem } from '@fluentui/react';
-import { UserInfo } from '.';
-import { GraphUser } from '../model';
-import { getMe } from '../MSGraph';
-import { HeaderBreadcrumb } from './HeaderBreadcrumb';
+import { ITextStyles, Stack, getTheme, IStackStyles, Link } from '@fluentui/react';
+import { getMe } from '../../MSGraph';
+import { GraphUser } from '../../model';
+import { HeaderBreadcrumb, UserInfo } from '.';
 
 export interface IHeaderBarProps { }
 
 export const HeaderBar: React.FunctionComponent<IHeaderBarProps> = (props) => {
-
-    let history = useHistory();
-
-    let { orgId, projectId, navId, settingId } = useParams() as { orgId: string, projectId: string, navId: string, settingId: string };
 
     const isAuthenticated = useIsAuthenticated();
 
@@ -54,15 +48,13 @@ export const HeaderBar: React.FunctionComponent<IHeaderBarProps> = (props) => {
 
     return (
         <header>
-            <Stack horizontal
-                verticalFill
-                verticalAlign='center'
-                horizontalAlign='space-between'
-                styles={stackStyles}>
+            <Stack horizontal verticalFill verticalAlign='center' horizontalAlign='space-between' styles={stackStyles}>
                 <Stack.Item>
                     <Stack horizontal verticalFill verticalAlign='center'>
                         <Stack.Item styles={{ root: { width: '260px' } }}>
-                            <Link styles={titleStyles} href='/'>TeamCloud</Link>
+                            <Link styles={titleStyles} href='/'>
+                                TeamCloud
+                            </Link>
                         </Stack.Item>
                         <Stack.Item styles={{ root: { paddingLeft: '12px' } }}>
                             <HeaderBreadcrumb />

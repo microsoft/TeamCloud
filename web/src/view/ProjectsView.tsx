@@ -4,10 +4,10 @@
 import React, { useState, useEffect } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { Stack, Text, PrimaryButton, Pivot, PivotItem, ProgressIndicator } from '@fluentui/react';
-import { Organization, Project } from 'teamcloud'
-import { ProjectList, ProjectForm } from '../components';
-import { api } from '../API';
 import { useIsAuthenticated } from '@azure/msal-react';
+import { Organization, Project } from 'teamcloud'
+import { ProjectList } from '../components';
+import { api } from '../API';
 
 export interface IProjectsViewProps {
     // org?: Organization
@@ -94,7 +94,7 @@ export const ProjectsView: React.FunctionComponent<IProjectsViewProps> = (props:
                     </Stack.Item>
                     <Stack.Item>
                         <PrimaryButton
-                            disabled={org == undefined}
+                            disabled={org === undefined}
                             iconProps={{ iconName: 'Add' }} text='New project' onClick={() => history.push(`/orgs/${orgId}/projects/new`)} />
                     </Stack.Item>
                 </Stack>

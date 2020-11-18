@@ -31,7 +31,7 @@ export class Auth implements TokenCredential, AuthenticationProvider {
 
     clientApplication = new PublicClientApplication(this.configuration);
 
-    getScopes = (scopes: string | string[] = 'openid'): string[] => {
+    getScopes = (scopes: string | string[] = 'openid', parseScopes: boolean = true): string[] => {
 
         const oidScope = 'openid'
         const hostScope = '{$host}/.default';
@@ -43,18 +43,39 @@ export class Auth implements TokenCredential, AuthenticationProvider {
         if (!Array.isArray(scopes))
             scopes = [scopes];
 
-        const hostIndex = scopes.indexOf(hostScope);
 
-        if (hostIndex >= -1)
-            scopes.splice(hostIndex, 1)
+        if (parseScopes) {
 
-        if (!scopes.includes(oidScope))
-            scopes.push(oidScope);
+            const hostIndex = scopes.indexOf(hostScope);
 
-        if (!scopes.includes(tcwebScope))
-            scopes.push(tcwebScope);
+            if (hostIndex >= -1)
+                scopes.splice(hostIndex, 1)
+
+            if (!scopes.includes(oidScope))
+                scopes.push(oidScope);
+
+            if (!scopes.includes(tcwebScope))
+                scopes.push(tcwebScope);
+        }
 
         return scopes;
+    }
+
+    getManagementToken = async (): Promise<AccessToken | null> => {
+
+        const scopes = ['https://management.azure.com/.default'];
+
+        if (this.clientApplication.getAllAccounts().length <= 0) {
+            console.error('nope')
+            return null;
+        }
+
+        const account = this.clientApplication.getAllAccounts()[0];
+
+        // var authResult = await this.clientApplication.acquireTokenSilent({ account: account, scopes: scopes as string[] });
+        var authResult = await this.clientApplication.acquireTokenSilent({ account: account, scopes: scopes as string[] });
+
+        return { token: authResult.accessToken, expiresOnTimestamp: authResult.expiresOn.getTime() };
     }
 
     getToken = async (scopes: string | string[] = 'openid'): Promise<AccessToken | null> => {

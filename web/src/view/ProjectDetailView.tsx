@@ -2,13 +2,13 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect } from 'react';
-import { Stack, Spinner, IBreadcrumbItem, Persona, PersonaSize, getTheme, IconButton, ProgressIndicator } from '@fluentui/react';
+import { useParams } from 'react-router-dom';
+import { Stack, Persona, PersonaSize, getTheme, IconButton, ProgressIndicator } from '@fluentui/react';
+import { useIsAuthenticated } from '@azure/msal-react';
 import { ProjectMembersForm, ProjectMembers, ProjectMemberForm, ProjectLinks, ProjectComponents } from '../components';
 import { Project, User } from 'teamcloud';
 import { ProjectMember } from '../model';
 import { api } from '../API';
-import { useParams } from 'react-router-dom';
-import { useIsAuthenticated } from '@azure/msal-react';
 
 export interface IProjectDetailViewProps {
     user?: User;

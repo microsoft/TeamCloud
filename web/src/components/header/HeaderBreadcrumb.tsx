@@ -53,14 +53,14 @@ export const HeaderBreadcrumb: React.FunctionComponent<IHeaderBreadcrumbProps> =
 
         // never only show the org
         if (crumbs.length > 0)
-            crumbs.unshift(orgCrumb)
+            crumbs.unshift(orgCrumb);
 
         return crumbs;
     };
 
     const bcSize = '14px';
     const bcWeight = 400;
-    const bcColor = 'rgba(0,0,0,.55)'
+    const bcColor = 'rgba(0,0,0,.55)';
 
     const _bcTextStyles: any = {
         root: { fontSize: bcSize, fontWeight: bcWeight, color: bcColor, padding: '0px 6px' }
@@ -68,16 +68,12 @@ export const HeaderBreadcrumb: React.FunctionComponent<IHeaderBreadcrumbProps> =
 
     const _bcItemStyles: any = {
         textTransform: 'capitalize', fontSize: bcSize, fontWeight: bcWeight, color: bcColor,
-        selectors: {
-            ':last-child.ms-Breadcrumb-item': { fontSize: bcSize, fontWeight: bcWeight, color: bcColor }
-        }
+        selectors: { ':last-child.ms-Breadcrumb-item': { fontSize: bcSize, fontWeight: bcWeight, color: bcColor } }
     }
 
     const _bcItemLinkStyles: any = {
         textTransform: 'capitalize', fontSize: bcSize, fontWeight: bcWeight, color: bcColor, lineHeight: '27px', borderRadius: '2px',
-        selectors: {
-            ':last-child.ms-Breadcrumb-itemLink': { fontSize: bcSize, fontWeight: bcWeight, color: bcColor }
-        }
+        selectors: { ':last-child.ms-Breadcrumb-itemLink': { fontSize: bcSize, fontWeight: bcWeight, color: bcColor } }
     }
 
     return (

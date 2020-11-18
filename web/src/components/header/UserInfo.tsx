@@ -3,7 +3,7 @@
 
 import React, { useState } from 'react';
 import { DefaultButton, Stack, Panel, Persona, PersonaSize, getTheme, Separator, PrimaryButton } from '@fluentui/react';
-import { GraphUser } from '../model';
+import { GraphUser } from '../../model';
 // import { User } from 'teamcloud';
 // import { UserForm } from './UserForm';
 

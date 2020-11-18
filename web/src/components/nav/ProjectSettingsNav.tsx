@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { useHistory, useParams } from 'react-router-dom';
-import { Nav, INavLinkGroup, INavLink, Stack, ActionButton, Persona, PersonaSize, getTheme } from '@fluentui/react';
+import { Nav, INavLinkGroup, Stack, getTheme } from '@fluentui/react';
 
 export interface IProjectSettingsNavProps { }
 
@@ -41,14 +41,6 @@ export const ProjectSettingsNav: React.FunctionComponent<IProjectSettingsNavProp
 
     const theme = getTheme();
 
-    function _onRenderLink(link?: INavLink): JSX.Element {
-        return <Persona
-            text={link?.name}
-            size={PersonaSize.size24}
-            coinProps={{ styles: { initials: { borderRadius: '4px' } } }}
-            imageInitials={link?.name[0].toUpperCase()} />;
-    };
-
     return (
         <Stack
             verticalFill
@@ -57,16 +49,9 @@ export const ProjectSettingsNav: React.FunctionComponent<IProjectSettingsNavProp
                 <Nav
                     selectedKey={settingId ?? 'overview'}
                     groups={_navLinkGroups()}
-                    // onRenderLink={_onRenderLink}
                     styles={{ root: [{ width: '100%' }], link: { color: theme.palette.neutralDark, padding: '8px 4px 8px 12px' } }} />
             </Stack.Item>
             <Stack.Item>
-                {/* <ActionButton
-                    disabled={orgId === undefined || projectId === undefined}
-                    iconProps={{ iconName: 'Settings' }}
-                    styles={{ root: { padding: '10px 8px 10px 12px' } }}
-                    text={'Project settings'}
-                    onClick={() => history.push(`/orgs/${orgId}/projects/${projectId}/settings`)} /> */}
             </Stack.Item>
         </Stack>
     );

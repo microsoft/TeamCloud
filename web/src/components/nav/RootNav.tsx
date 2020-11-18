@@ -4,15 +4,15 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { useIsAuthenticated } from '@azure/msal-react';
-import { Nav, INavLinkGroup, INavLink, Stack, ActionButton, Persona, PersonaSize, getTheme } from '@fluentui/react';
+import { Nav, INavLinkGroup, INavLink, Stack, ActionButton, Persona, PersonaSize, getTheme, Text } from '@fluentui/react';
 import { Organization } from 'teamcloud'
-import { api } from '../API';
+import { api } from '../../API';
 
 export interface IRootNavProps { }
 
 export const RootNav: React.FunctionComponent<IRootNavProps> = (props) => {
 
-    let { orgId, projectId } = useParams() as { orgId: string, projectId: string };
+    let { orgId } = useParams() as { orgId: string };
 
     const history = useHistory();
 
@@ -52,42 +52,16 @@ export const RootNav: React.FunctionComponent<IRootNavProps> = (props) => {
         return [{ links: links }];
     };
 
-    const _projectLinkGroups = (): INavLinkGroup[] => [{
-        links: (orgId && projectId) ? [
-            {
-                key: 'overview',
-                name: 'Overview',
-                url: '',
-                onClick: () => history.push(`/orgs/${orgId}/projects/${projectId}`),
-            },
-            {
-                key: 'components',
-                name: 'Components',
-                url: '',
-                onClick: () => history.push(`/orgs/${orgId}/projects/${projectId}/components`),
-            },
-            {
-                key: 'members',
-                name: 'Members',
-                url: '',
-                onClick: () => history.push(`/orgs/${orgId}/projects/${projectId}/members`),
-            },
-        ] : []
-    }];
-
     const theme = getTheme();
 
-    function _onRenderLink(link?: INavLink): JSX.Element {
-        if (link?.key && link.key === 'new')
-            return <ActionButton text={link.name}
-                styles={{ root: { color: theme.palette.themePrimary, padding: '0px' } }} />
-        else
-            return <Persona
-                text={link?.name}
-                size={PersonaSize.size24}
-                coinProps={{ styles: { initials: { borderRadius: '4px' } } }}
-                imageInitials={link?.name[0].toUpperCase()} />;
-    };
+    const _onRenderLink = (link?: INavLink): JSX.Element => (link?.key && link.key === 'new')
+        ? <Text styles={{ root: { color: theme.palette.themePrimary, padding: '0px' } }}>{link.name}</Text>
+        : <Persona
+            text={link?.name}
+            size={PersonaSize.size24}
+            coinProps={{ styles: { initials: { borderRadius: '4px' } } }}
+            imageInitials={link?.name[0].toUpperCase()} />;
+
 
     return (
         <Stack

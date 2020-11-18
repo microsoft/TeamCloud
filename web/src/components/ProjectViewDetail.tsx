@@ -7,7 +7,7 @@ import { ProjectDetailCard } from '.';
 
 export interface IProjectViewDetailProps {
     title: string;
-    details: { label: string, value: string }[]
+    details: { label: string, value?: string }[]
 }
 
 export const ProjectViewDetail: React.FunctionComponent<IProjectViewDetailProps> = (props) => {
