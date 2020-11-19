@@ -12,7 +12,7 @@ namespace TeamCloud.Orchestrator.Handlers
 {
     public interface ICommandHandler
     {
-        public bool CanHandle(ICommand orchestratorCommand)
+        public bool CanHandle(ICommand orchestratorCommand, bool fallback = false)
         {
             if (orchestratorCommand is null)
                 throw new ArgumentNullException(nameof(orchestratorCommand));

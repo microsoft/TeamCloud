@@ -133,11 +133,10 @@ namespace TeamCloud.API.Controllers
                 TemplateId = componentTemplate.Id,
                 Organization = project.Organization,
                 ProjectId = project.Id,
-                ProviderId = componentTemplate.ProviderId,
+                Provider = componentTemplate.Provider,
                 RequestedBy = currentUser.Id,
                 DisplayName = componentTemplate.DisplayName,
                 InputJson = request.InputJson,
-                Scope = componentTemplate.Scope,
                 Type = componentTemplate.Type
             };
 

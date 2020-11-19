@@ -19,16 +19,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Templates\CreateProjectTemplate.json" />
+    <None Remove="Templates\ComponentDeployTemplate.json" />
+    <None Remove="Templates\ComponentResetTemplate.json" />
     <None Remove="Templates\CreateProjectTemplate_ProjectResources.json" />
-    <None Remove="Templates\InitializeSubscriptionTemplate.json" />
-    <None Remove="Templates\ResetResourceGroupTemplate.json" />
+    <None Remove="Templates\ProjectCreateTemplate.json" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Templates\InitializeSubscriptionTemplate.json" />
-    <EmbeddedResource Include="Templates\ResetResourceGroupTemplate.json" />
-    <EmbeddedResource Include="Templates\CreateProjectTemplate.json" />
+    <EmbeddedResource Include="Templates\ComponentDeployTemplate.json" />
+    <EmbeddedResource Include="Templates\ComponentResetTemplate.json" />
+    <EmbeddedResource Include="Templates\ProjectCreateTemplate.json" />
   </ItemGroup>
 
   <ItemGroup>

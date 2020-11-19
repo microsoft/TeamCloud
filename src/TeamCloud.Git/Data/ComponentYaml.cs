@@ -16,8 +16,6 @@ namespace TeamCloud.Git.Data
 
         public ComponentType Type { get; set; }
 
-        public ComponentScope Scope { get; set; } = ComponentScope.Project;
-
         public List<YamlParameter<dynamic>> Parameters { get; set; }
 
         public string Provider { get; set; }

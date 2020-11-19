@@ -160,11 +160,10 @@ namespace TeamCloud.Git
                 Id = Guid.NewGuid().ToString(),
                 Organization = projectTemplate.Organization,
                 ParentId = projectTemplate.Id,
-                ProviderId = yaml.Provider,
+                Provider = yaml.Provider,
                 DisplayName = name,
                 Description = yaml.Description,
                 Repository = projectTemplate.Repository,
-                Scope = yaml.Scope,
                 Type = yaml.Type,
                 InputJsonSchema = yaml.Parameters.ToSchema().ToString()
             };

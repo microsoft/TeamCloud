@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using TeamCloud.Audit;
 using TeamCloud.Model.Commands.Core;
-using TeamCloud.Orchestrator.Orchestrations.Utilities;
+using TeamCloud.Orchestrator.Operations.Orchestrations.Utilities;
 
 namespace TeamCloud.Orchestrator.API
 {

@@ -19,11 +19,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Audit;
 using TeamCloud.Http;
-using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Validation;
 using TeamCloud.Orchestrator.Handlers;
-using TeamCloud.Orchestrator.Orchestrations.Utilities;
+using TeamCloud.Orchestrator.Operations.Orchestrations.Utilities;
 
 namespace TeamCloud.Orchestrator.API
 {
@@ -171,9 +170,11 @@ namespace TeamCloud.Orchestrator.API
             {
                 using var scope = httpContextAccessor.HttpContext.RequestServices.CreateScope();
 
-                orchestratorCommandHandler = scope.ServiceProvider
-                    .GetServices<ICommandHandler>()
-                    .SingleOrDefault(handler => handler.CanHandle(orchestratorCommand));
+                var orchestratorCommandHandlers = scope.ServiceProvider
+                    .GetServices<ICommandHandler>();
+
+                orchestratorCommandHandler = orchestratorCommandHandlers.SingleOrDefault(handler => handler.CanHandle(orchestratorCommand))
+                    ?? orchestratorCommandHandlers.SingleOrDefault(handler => handler.CanHandle(orchestratorCommand, true));
 
                 return !(orchestratorCommandHandler is null);
             }

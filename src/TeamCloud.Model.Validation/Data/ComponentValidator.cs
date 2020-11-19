@@ -3,7 +3,6 @@
  *  Licensed under the MIT License.
  */
 
-using System;
 using FluentValidation;
 using TeamCloud.Model.Data;
 
@@ -19,7 +18,7 @@ namespace TeamCloud.Model.Validation.Data
             RuleFor(obj => obj.ProjectId)
                 .MustBeGuid();
 
-            RuleFor(obj => obj.ProviderId)
+            RuleFor(obj => obj.Provider)
                 .MustBeProviderId();
 
             RuleFor(obj => obj.RequestedBy)

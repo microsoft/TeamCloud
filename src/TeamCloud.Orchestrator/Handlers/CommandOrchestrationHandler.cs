@@ -6,10 +6,9 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Orchestration;
-using TeamCloud.Orchestrator.Orchestrations.Utilities;
+using TeamCloud.Orchestrator.Operations.Orchestrations.Utilities;
 
 namespace TeamCloud.Orchestrator.Handlers
 {
@@ -30,14 +29,24 @@ namespace TeamCloud.Orchestrator.Handlers
         internal static string GetCommandOrchestrationWrapperInstanceId(ICommand command)
             => GetCommandOrchestrationWrapperInstanceId(command.CommandId);
 
-        public bool CanHandle(ICommand command)
+        public bool CanHandle(ICommand command, bool fallback = false)
         {
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
 
-            var orchestrationName = GetCommandOrchestrationName(command);
+            if (fallback)
+            {
+                // this handler operates in fallback mode only !!!
+                // so orchestration will be used as a fallback, if
+                // there is no other handler that handles the
+                // command in a first try.
 
-            return FunctionsEnvironment.FunctionExists(orchestrationName);
+                var orchestrationName = GetCommandOrchestrationName(command);
+
+                return FunctionsEnvironment.FunctionExists(orchestrationName);
+            }
+
+            return false;
         }
 
         public async Task<ICommandResult> HandleAsync(ICommand command, IDurableClient durableClient = null)
@@ -48,7 +57,7 @@ namespace TeamCloud.Orchestrator.Handlers
             if (durableClient is null)
                 throw new ArgumentNullException(nameof(durableClient));
 
-            if (CanHandle(command))
+            if (CanHandle(command, true))
             {
                 var wrapperInstanceId = GetCommandOrchestrationWrapperInstanceId(command.CommandId);
 
