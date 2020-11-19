@@ -3,9 +3,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { PrimaryButton, DefaultButton, Panel, Stack, TextField, Dropdown, Label, Spinner, Persona, PersonaSize, Text } from '@fluentui/react';
-import { GraphUser, Properties } from '../model'
 import { User, UserRole } from 'teamcloud';
-import { api } from '../API'
+import { GraphUser, Properties } from '../../model'
+import { api } from '../../API'
 
 export interface IUserFormProps {
     me: boolean;
@@ -48,14 +48,14 @@ export const UserForm: React.FunctionComponent<IUserFormProps> = (props) => {
                 user.role = userRole ?? props.user.role;
                 user.properties = newProps;
 
-                const result = await api.updateTeamCloudUser(props.user!.id, { body: user });
+                const result = await api.updateOrganizationUser(props.user!.id, props.user!.organization, { body: user });
 
                 if (result.code === 202) {
                     props.user = user;
                     _resetAndCloseForm();
                 } else {
                     // console.log(JSON.stringify(result));
-                    setErrorText(result.status);
+                    setErrorText(result.status ?? undefined);
                 }
             } else {
                 setErrorText('nothing changed')

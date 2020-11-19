@@ -114,6 +114,7 @@ namespace TeamCloud.API.Controllers
         [Authorize(Policy = AuthPolicies.ProjectCreate)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "CreateProject", Summary = "Creates a new Project.")]
+        [SwaggerResponse(StatusCodes.Status201Created, "The new Project was created.", typeof(DataResult<Project>))]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Started creating the new Project. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status409Conflict, "A Project already exists with the name specified in the request body.", typeof(ErrorResult))]

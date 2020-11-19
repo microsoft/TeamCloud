@@ -1,85 +1,51 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState, useEffect } from 'react';
-import { initializeIcons } from '@uifabric/icons';
-import { BrowserRouter, Switch, Route, useParams } from 'react-router-dom';
-import { HeaderBar } from './components';
-import { Error404, ProjectDetailView, ProjectsView, ProvidersView, ProjectTypesView } from './view';
-import { GraphUser } from './model';
-import { Project, User } from 'teamcloud';
-import { getMe } from './MSGraph';
-import { api } from './API';
+import React, { useEffect } from 'react';
+import { BrowserRouter } from 'react-router-dom';
+import { getTheme, Stack } from '@fluentui/react';
+import { InteractionType } from '@azure/msal-browser';
+import { AuthenticatedTemplate, UnauthenticatedTemplate, MsalAuthenticationResult, useMsalAuthentication } from '@azure/msal-react';
+import { Error403, ContentView, NavView, HeaderView } from './view';
+import { auth } from './API';
 
-interface IAppProps {
-    onSignOut: () => void;
-}
+interface IAppProps { }
 
+export const App: React.FunctionComponent<IAppProps> = () => {
 
-export const App: React.FunctionComponent<IAppProps> = (props) => {
-    initializeIcons();
-
-    const [user, setUser] = useState<User>();
-    const [project, setProject] = useState<Project>();
-    const [graphUser, setGraphUser] = useState<GraphUser>();
+    const authResult: MsalAuthenticationResult = useMsalAuthentication(InteractionType.Redirect, { scopes: auth.getScopes() });
 
     useEffect(() => {
-        if (graphUser === undefined) {
-            const _setGraphUser = async () => {
-                const result = await getMe();
-                setGraphUser(result);
-                if (result && user === undefined) {
-                    const _setUser = async (gu: GraphUser) => {
-                        const result = await api.getTeamCloudUserByNameOrId(gu.id);
-                        setUser(result.data)
-                    };
-                    _setUser(result);
-                }
-            };
-            _setGraphUser();
+        if (authResult.error) {
+            console.warn('logging in...')
+            authResult.login(InteractionType.Redirect, { scopes: auth.getScopes() });
         }
-    }, [graphUser, user]);
+    }, [authResult]);
 
-    const _onProjectSelected = (project?: Project) => {
-        setProject(project);
-    }
+    // const [org, setOrg] = useState<Organization>();
+
+    const theme = getTheme();
 
     return (
-        <BrowserRouter>
-            <Switch>
-                <Route path='/projects/:projectId'>
-                    <HeaderBar user={user} graphUser={graphUser} onSignOut={props.onSignOut} />
-                    <ProjectViewWrapper {...{ project: project, user: user }} />
-                </Route>
-                <Route path='/' exact={true}>
-                    <HeaderBar user={user} graphUser={graphUser} onSignOut={props.onSignOut} />
-                    <ProjectsView user={user} onProjectSelected={_onProjectSelected} />
-                </Route>
-                <Route path='/projectTypes' exact={true}>
-                    <HeaderBar user={user} graphUser={graphUser} onSignOut={props.onSignOut} />
-                    <ProjectTypesView user={user} />
-                </Route>
-                <Route path='/providers' exact={true}>
-                    <HeaderBar user={user} graphUser={graphUser} onSignOut={props.onSignOut} />
-                    <ProvidersView user={user} />
-                </Route>
-                <Route path='*'>
-                    <HeaderBar user={user} graphUser={graphUser} onSignOut={props.onSignOut} />
-                    <Error404 />;
-                    </Route>
-            </Switch>
-        </BrowserRouter>
+        <Stack verticalFill>
+            <BrowserRouter>
+                <HeaderView />
+                <UnauthenticatedTemplate>
+                    <Error403 error={authResult.result ?? 'Unauthenticated'} />
+                </UnauthenticatedTemplate>
+                <AuthenticatedTemplate>
+                    <Stack horizontal disableShrink verticalFill verticalAlign='stretch'>
+                        <Stack.Item styles={{ root: { width: '260px', paddingTop: '20px', paddingBottom: '10px', borderRight: `${theme.palette.neutralLight} solid 1px` } }}>
+                            <NavView />
+                        </Stack.Item>
+                        <Stack.Item grow styles={{ root: { backgroundColor: theme.palette.neutralLighterAlt } }}>
+                            <ContentView />
+                        </Stack.Item>
+                    </Stack>
+                </AuthenticatedTemplate>
+            </BrowserRouter>
+        </Stack>
     );
-}
-
-interface IProjectViewWrapperProps {
-    user?: User;
-    project?: Project;
-}
-
-function ProjectViewWrapper(props: IProjectViewWrapperProps) {
-    let { projectId } = useParams() as { projectId: string };
-    return <ProjectDetailView projectId={projectId} project={props.project} user={props.user} />;
 }
 
 export default App;

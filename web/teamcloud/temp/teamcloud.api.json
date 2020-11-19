@@ -135,11 +135,11 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "inputJson: "
+                  "text": "inputJson?: "
                 },
                 {
                   "kind": "Content",
-                  "text": "string"
+                  "text": "string | null"
                 },
                 {
                   "kind": "Content",
@@ -210,11 +210,11 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "providerId: "
+                  "text": "providerId?: "
                 },
                 {
                   "kind": "Content",
-                  "text": "string"
+                  "text": "string | null"
                 },
                 {
                   "kind": "Content",
@@ -2500,11 +2500,11 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "templateInput: "
+                  "text": "templateInput?: "
                 },
                 {
                   "kind": "Content",
-                  "text": "string"
+                  "text": "string | null"
                 },
                 {
                   "kind": "Content",
@@ -3785,11 +3785,11 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "organization: "
+                  "text": "organization?: "
                 },
                 {
                   "kind": "Content",
-                  "text": "string"
+                  "text": "string | null"
                 },
                 {
                   "kind": "Content",
@@ -3861,11 +3861,11 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "ref: "
+                  "text": "ref?: "
                 },
                 {
                   "kind": "Content",
-                  "text": "string"
+                  "text": "string | null"
                 },
                 {
                   "kind": "Content",
@@ -3886,11 +3886,11 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "repository: "
+                  "text": "repository?: "
                 },
                 {
                   "kind": "Content",
-                  "text": "string"
+                  "text": "string | null"
                 },
                 {
                   "kind": "Content",
@@ -7601,12 +7601,12 @@
             },
             {
               "kind": "Method",
-              "canonicalReference": "teamcloud!TeamCloud#getProjectUserByNameOrId:member(1)",
+              "canonicalReference": "teamcloud!TeamCloud#getProjectUser:member(1)",
               "docComment": "/**\n * Gets a Project User by ID or email address.\n *\n * @param userId - \n *\n * @param org - \n *\n * @param projectId - \n *\n * @param options - The options parameters.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "getProjectUserByNameOrId(userId: "
+                  "text": "getProjectUser(userId: "
                 },
                 {
                   "kind": "Content",
@@ -7656,8 +7656,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "TeamCloudGetProjectUserByNameOrIdResponse",
-                  "canonicalReference": "teamcloud!TeamCloudGetProjectUserByNameOrIdResponse:type"
+                  "text": "TeamCloudGetProjectUserResponse",
+                  "canonicalReference": "teamcloud!TeamCloudGetProjectUserResponse:type"
                 },
                 {
                   "kind": "Content",
@@ -7705,7 +7705,7 @@
                   }
                 }
               ],
-              "name": "getProjectUserByNameOrId"
+              "name": "getProjectUser"
             },
             {
               "kind": "Method",
@@ -9100,8 +9100,8 @@
             },
             {
               "kind": "Reference",
-              "text": "ErrorResult",
-              "canonicalReference": "teamcloud!ErrorResult:interface"
+              "text": "OrganizationDataResult",
+              "canonicalReference": "teamcloud!OrganizationDataResult:interface"
             },
             {
               "kind": "Content",
@@ -9118,8 +9118,8 @@
             },
             {
               "kind": "Reference",
-              "text": "ErrorResult",
-              "canonicalReference": "teamcloud!ErrorResult:interface"
+              "text": "OrganizationDataResult",
+              "canonicalReference": "teamcloud!OrganizationDataResult:interface"
             },
             {
               "kind": "Content",
@@ -9208,8 +9208,8 @@
             },
             {
               "kind": "Reference",
-              "text": "StatusResult",
-              "canonicalReference": "teamcloud!StatusResult:interface"
+              "text": "UserDataResult",
+              "canonicalReference": "teamcloud!UserDataResult:interface"
             },
             {
               "kind": "Content",
@@ -9226,8 +9226,8 @@
             },
             {
               "kind": "Reference",
-              "text": "StatusResult",
-              "canonicalReference": "teamcloud!StatusResult:interface"
+              "text": "UserDataResult",
+              "canonicalReference": "teamcloud!UserDataResult:interface"
             },
             {
               "kind": "Content",
@@ -9424,8 +9424,8 @@
             },
             {
               "kind": "Reference",
-              "text": "StatusResult",
-              "canonicalReference": "teamcloud!StatusResult:interface"
+              "text": "ProjectDataResult",
+              "canonicalReference": "teamcloud!ProjectDataResult:interface"
             },
             {
               "kind": "Content",
@@ -9442,8 +9442,8 @@
             },
             {
               "kind": "Reference",
-              "text": "StatusResult",
-              "canonicalReference": "teamcloud!StatusResult:interface"
+              "text": "ProjectDataResult",
+              "canonicalReference": "teamcloud!ProjectDataResult:interface"
             },
             {
               "kind": "Content",
@@ -9747,8 +9747,8 @@
             },
             {
               "kind": "Reference",
-              "text": "StatusResult",
-              "canonicalReference": "teamcloud!StatusResult:interface"
+              "text": "UserDataResult",
+              "canonicalReference": "teamcloud!UserDataResult:interface"
             },
             {
               "kind": "Content",
@@ -9765,8 +9765,8 @@
             },
             {
               "kind": "Reference",
-              "text": "StatusResult",
-              "canonicalReference": "teamcloud!StatusResult:interface"
+              "text": "UserDataResult",
+              "canonicalReference": "teamcloud!UserDataResult:interface"
             },
             {
               "kind": "Content",
@@ -11034,54 +11034,6 @@
         },
         {
           "kind": "TypeAlias",
-          "canonicalReference": "teamcloud!TeamCloudGetProjectUserByNameOrIdResponse:type",
-          "docComment": "/**\n * Contains response data for the getProjectUserByNameOrId operation.\n */\n",
-          "excerptTokens": [
-            {
-              "kind": "Content",
-              "text": "export declare type TeamCloudGetProjectUserByNameOrIdResponse = "
-            },
-            {
-              "kind": "Reference",
-              "text": "UserDataResult",
-              "canonicalReference": "teamcloud!UserDataResult:interface"
-            },
-            {
-              "kind": "Content",
-              "text": " & {\n    _response: coreHttp."
-            },
-            {
-              "kind": "Reference",
-              "text": "HttpResponse",
-              "canonicalReference": "@azure/core-http!HttpResponse:interface"
-            },
-            {
-              "kind": "Content",
-              "text": " & {\n        bodyAsText: string;\n        parsedBody: "
-            },
-            {
-              "kind": "Reference",
-              "text": "UserDataResult",
-              "canonicalReference": "teamcloud!UserDataResult:interface"
-            },
-            {
-              "kind": "Content",
-              "text": ";\n    };\n}"
-            },
-            {
-              "kind": "Content",
-              "text": ";"
-            }
-          ],
-          "releaseTag": "Public",
-          "name": "TeamCloudGetProjectUserByNameOrIdResponse",
-          "typeTokenRange": {
-            "startIndex": 1,
-            "endIndex": 7
-          }
-        },
-        {
-          "kind": "TypeAlias",
           "canonicalReference": "teamcloud!TeamCloudGetProjectUserMeResponse:type",
           "docComment": "/**\n * Contains response data for the getProjectUserMe operation.\n */\n",
           "excerptTokens": [
@@ -11123,6 +11075,54 @@
           ],
           "releaseTag": "Public",
           "name": "TeamCloudGetProjectUserMeResponse",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 7
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "teamcloud!TeamCloudGetProjectUserResponse:type",
+          "docComment": "/**\n * Contains response data for the getProjectUser operation.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare type TeamCloudGetProjectUserResponse = "
+            },
+            {
+              "kind": "Reference",
+              "text": "UserDataResult",
+              "canonicalReference": "teamcloud!UserDataResult:interface"
+            },
+            {
+              "kind": "Content",
+              "text": " & {\n    _response: coreHttp."
+            },
+            {
+              "kind": "Reference",
+              "text": "HttpResponse",
+              "canonicalReference": "@azure/core-http!HttpResponse:interface"
+            },
+            {
+              "kind": "Content",
+              "text": " & {\n        bodyAsText: string;\n        parsedBody: "
+            },
+            {
+              "kind": "Reference",
+              "text": "UserDataResult",
+              "canonicalReference": "teamcloud!UserDataResult:interface"
+            },
+            {
+              "kind": "Content",
+              "text": ";\n    };\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "TeamCloudGetProjectUserResponse",
           "typeTokenRange": {
             "startIndex": 1,
             "endIndex": 7
@@ -11989,8 +11989,8 @@
             },
             {
               "kind": "Reference",
-              "text": "StatusResult",
-              "canonicalReference": "teamcloud!StatusResult:interface"
+              "text": "UserDataResult",
+              "canonicalReference": "teamcloud!UserDataResult:interface"
             },
             {
               "kind": "Content",
@@ -12007,8 +12007,8 @@
             },
             {
               "kind": "Reference",
-              "text": "StatusResult",
-              "canonicalReference": "teamcloud!StatusResult:interface"
+              "text": "UserDataResult",
+              "canonicalReference": "teamcloud!UserDataResult:interface"
             },
             {
               "kind": "Content",
@@ -12097,8 +12097,8 @@
             },
             {
               "kind": "Reference",
-              "text": "StatusResult",
-              "canonicalReference": "teamcloud!StatusResult:interface"
+              "text": "UserDataResult",
+              "canonicalReference": "teamcloud!UserDataResult:interface"
             },
             {
               "kind": "Content",
@@ -12115,8 +12115,8 @@
             },
             {
               "kind": "Reference",
-              "text": "StatusResult",
-              "canonicalReference": "teamcloud!StatusResult:interface"
+              "text": "UserDataResult",
+              "canonicalReference": "teamcloud!UserDataResult:interface"
             },
             {
               "kind": "Content",
@@ -12204,7 +12204,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "projectMemberships: "
+                  "text": "projectMemberships?: "
                 },
                 {
                   "kind": "Reference",
@@ -12213,7 +12213,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "[]"
+                  "text": "[] | null"
                 },
                 {
                   "kind": "Content",

@@ -110,7 +110,7 @@ export interface User {
     organization: string;
     userType: UserType;
     role: UserRole;
-    projectMemberships: ProjectMembership[];
+    projectMemberships?: ProjectMembership[] | null;
     /**
      * Dictionary of <string>
      */
@@ -162,7 +162,7 @@ export interface Project {
     readonly slug: string;
     displayName: string;
     template: string;
-    templateInput: string;
+    templateInput?: string | null;
     users?: User[] | null;
     /**
      * Dictionary of <string>
@@ -202,11 +202,11 @@ export interface Component {
     organization: string;
     templateId: string;
     projectId: string;
-    providerId: string;
+    providerId?: string | null;
     requestedBy: string;
     displayName?: string | null;
     description?: string | null;
-    inputJson: string;
+    inputJson?: string | null;
     valueJson?: string | null;
     scope: ComponentScope;
     type: ComponentType;
@@ -249,11 +249,11 @@ export interface RepositoryReference {
     version?: string | null;
     baselUrl?: string | null;
     mountUrl?: string | null;
-    ref: string;
+    ref?: string | null;
     provider: RepositoryReferenceProvider;
     type: RepositoryReferenceType;
-    organization: string;
-    repository: string;
+    organization?: string | null;
+    repository?: string | null;
     project?: string | null;
 }
 export interface ComponentTemplateDataResult {
@@ -482,7 +482,7 @@ export interface TeamCloudCreateOrganizationOptionalParams extends coreHttp.Oper
 /**
  * Contains response data for the createOrganization operation.
  */
-export declare type TeamCloudCreateOrganizationResponse = ErrorResult & {
+export declare type TeamCloudCreateOrganizationResponse = OrganizationDataResult & {
     /**
      * The underlying HTTP response.
      */
@@ -494,7 +494,7 @@ export declare type TeamCloudCreateOrganizationResponse = ErrorResult & {
         /**
          * The response body as parsed JSON or XML
          */
-        parsedBody: ErrorResult;
+        parsedBody: OrganizationDataResult;
     };
 };
 /**
@@ -560,7 +560,7 @@ export interface TeamCloudCreateOrganizationUserOptionalParams extends coreHttp.
 /**
  * Contains response data for the createOrganizationUser operation.
  */
-export declare type TeamCloudCreateOrganizationUserResponse = StatusResult & {
+export declare type TeamCloudCreateOrganizationUserResponse = UserDataResult & {
     /**
      * The underlying HTTP response.
      */
@@ -572,7 +572,7 @@ export declare type TeamCloudCreateOrganizationUserResponse = StatusResult & {
         /**
          * The response body as parsed JSON or XML
          */
-        parsedBody: StatusResult;
+        parsedBody: UserDataResult;
     };
 };
 /**
@@ -704,7 +704,7 @@ export interface TeamCloudCreateProjectOptionalParams extends coreHttp.Operation
 /**
  * Contains response data for the createProject operation.
  */
-export declare type TeamCloudCreateProjectResponse = StatusResult & {
+export declare type TeamCloudCreateProjectResponse = ProjectDataResult & {
     /**
      * The underlying HTTP response.
      */
@@ -716,7 +716,7 @@ export declare type TeamCloudCreateProjectResponse = StatusResult & {
         /**
          * The response body as parsed JSON or XML
          */
-        parsedBody: StatusResult;
+        parsedBody: ProjectDataResult;
     };
 };
 /**
@@ -1110,7 +1110,7 @@ export interface TeamCloudCreateProjectUserOptionalParams extends coreHttp.Opera
 /**
  * Contains response data for the createProjectUser operation.
  */
-export declare type TeamCloudCreateProjectUserResponse = StatusResult & {
+export declare type TeamCloudCreateProjectUserResponse = UserDataResult & {
     /**
      * The underlying HTTP response.
      */
@@ -1122,13 +1122,13 @@ export declare type TeamCloudCreateProjectUserResponse = StatusResult & {
         /**
          * The response body as parsed JSON or XML
          */
-        parsedBody: StatusResult;
+        parsedBody: UserDataResult;
     };
 };
 /**
- * Contains response data for the getProjectUserByNameOrId operation.
+ * Contains response data for the getProjectUser operation.
  */
-export declare type TeamCloudGetProjectUserByNameOrIdResponse = UserDataResult & {
+export declare type TeamCloudGetProjectUserResponse = UserDataResult & {
     /**
      * The underlying HTTP response.
      */
@@ -1152,7 +1152,7 @@ export interface TeamCloudUpdateProjectUserOptionalParams extends coreHttp.Opera
 /**
  * Contains response data for the updateProjectUser operation.
  */
-export declare type TeamCloudUpdateProjectUserResponse = StatusResult & {
+export declare type TeamCloudUpdateProjectUserResponse = UserDataResult & {
     /**
      * The underlying HTTP response.
      */
@@ -1164,7 +1164,7 @@ export declare type TeamCloudUpdateProjectUserResponse = StatusResult & {
         /**
          * The response body as parsed JSON or XML
          */
-        parsedBody: StatusResult;
+        parsedBody: UserDataResult;
     };
 };
 /**
@@ -1212,7 +1212,7 @@ export interface TeamCloudUpdateProjectUserMeOptionalParams extends coreHttp.Ope
 /**
  * Contains response data for the updateProjectUserMe operation.
  */
-export declare type TeamCloudUpdateProjectUserMeResponse = StatusResult & {
+export declare type TeamCloudUpdateProjectUserMeResponse = UserDataResult & {
     /**
      * The underlying HTTP response.
      */
@@ -1224,7 +1224,7 @@ export declare type TeamCloudUpdateProjectUserMeResponse = StatusResult & {
         /**
          * The response body as parsed JSON or XML
          */
-        parsedBody: StatusResult;
+        parsedBody: UserDataResult;
     };
 };
 /**

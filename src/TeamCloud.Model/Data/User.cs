@@ -26,7 +26,7 @@ namespace TeamCloud.Model.Data
         [JsonProperty(Required = Required.Always)]
         public OrganizationUserRole Role { get; set; }
 
-        [JsonProperty(Required = Required.Always)]
+        // [JsonProperty(Required = Required.Always)]
         public IList<ProjectMembership> ProjectMemberships { get; set; } = new List<ProjectMembership>();
 
         public IDictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();

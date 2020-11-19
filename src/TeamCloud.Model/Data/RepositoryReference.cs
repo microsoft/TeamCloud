@@ -25,7 +25,7 @@ namespace TeamCloud.Model.Data
 
         public string MountUrl { get; set; }
 
-        [JsonProperty(Required = Required.Always)]
+        // [JsonProperty(Required = Required.Always)]
         public string Ref { get; set; }
 
         [JsonProperty(Required = Required.Always)]
@@ -34,10 +34,10 @@ namespace TeamCloud.Model.Data
         [JsonProperty(Required = Required.Always)]
         public RepositoryReferenceType Type { get; set; }
 
-        [JsonProperty(Required = Required.Always)]
+        // [JsonProperty(Required = Required.Always)]
         public string Organization { get; set; }
 
-        [JsonProperty(Required = Required.Always)]
+        // [JsonProperty(Required = Required.Always)]
         public string Repository { get; set; }
 
         public string Project { get; set; }

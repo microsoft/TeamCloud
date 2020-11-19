@@ -3,13 +3,14 @@
 
 import React, { useState, useEffect } from 'react';
 import { Stack, TextField, Dropdown, IDropdownOption, Spinner, Panel, Text, PrimaryButton, DefaultButton, Label } from '@fluentui/react';
-import { ProjectType, User, ProjectDefinition, ProjectMembershipRole, UserDefinition } from 'teamcloud';
+import { ProjectTemplate, User, ProjectDefinition, ProjectMembershipRole, UserDefinition, Organization } from 'teamcloud';
 import { ProjectMemberPicker } from '.';
 import { GraphUser } from '../model'
 import { api } from '../API';
 
 
 export interface IProjectFormProps {
+    org?: Organization;
     user?: User;
     panelIsOpen: boolean;
     onFormClose: () => void;
@@ -18,27 +19,29 @@ export interface IProjectFormProps {
 export const ProjectForm: React.FunctionComponent<IProjectFormProps> = (props) => {
 
     const [projectName, setProjectName] = useState<string>();
-    const [projectType, setProjectType] = useState<ProjectType>();
-    const [projectTypes, setProjectTypes] = useState<ProjectType[]>();
-    const [projectTypeOptions, setProjectTypeOptions] = useState<IDropdownOption[]>();
+    const [projectTemplate, setProjectTemplate] = useState<ProjectTemplate>();
+    const [projectTemplates, setProjectTemplates] = useState<ProjectTemplate[]>();
+    const [projectTemplateOptions, setProjectTemplateOptions] = useState<IDropdownOption[]>();
     const [userIdentifiers, setUserIdentifiers] = useState<string[]>();
     const [formEnabled, setFormEnabled] = useState<boolean>(true);
     const [errorText, setErrorText] = useState<string>();
 
     useEffect(() => {
-        if (projectTypes === undefined) {
-            const _setProjectTypes = async () => {
-                const result = await api.getProjectTypes();
-                setProjectTypes(result.data);
-                setProjectTypeOptions(_projectTypeOptions(result.data));
+        if (projectTemplates === undefined) {
+            const _setProjectTemplates = async () => {
+                if (props.org) {
+                    const result = await api.getProjectTemplates(props.org.id);
+                    setProjectTemplates(result.data ?? undefined);
+                    setProjectTemplateOptions(_projectTemplateOptions(result.data ?? []));
+                }
             };
-            _setProjectTypes();
+            _setProjectTemplates();
         }
-    }, [projectTypes]);
+    }, [props.org, projectTemplates]);
 
     const _submitForm = async () => {
         setFormEnabled(false);
-        if (props.user && projectName && projectType) {
+        if (props.user && props.org && projectName && projectTemplate) {
             let userDefinitions: UserDefinition[] = [{ identifier: props.user.id, role: 'Owner' as ProjectMembershipRole }];
             if (userIdentifiers?.length && userIdentifiers.length > 0) {
                 userDefinitions = userDefinitions.concat(userIdentifiers.map(i => ({
@@ -47,34 +50,35 @@ export const ProjectForm: React.FunctionComponent<IProjectFormProps> = (props) =
                 })));
             }
             const projectDefinition: ProjectDefinition = {
-                name: projectName,
-                projectType: projectType.id,
+                displayName: projectName,
+                template: projectTemplate.id,
+                templateInput: '',
                 users: userDefinitions
             };
-            const result = await api.createProject({ body: projectDefinition });
+            const result = await api.createProject(props.org.id, { body: projectDefinition });
             if (result.code === 202)
                 _resetAndCloseForm();
             else {
                 // console.log(JSON.stringify(result));
-                setErrorText(result.status);
+                setErrorText(result.status ?? undefined);
             }
         }
     };
 
     const _resetAndCloseForm = () => {
         setProjectName(undefined);
-        setProjectType(undefined);
+        setProjectTemplate(undefined);
         setFormEnabled(true);
         props.onFormClose();
     };
 
-    const _projectTypeOptions = (data?: ProjectType[]): IDropdownOption[] => {
+    const _projectTemplateOptions = (data?: ProjectTemplate[]): IDropdownOption[] => {
         if (!data) return [];
         return data.map(pt => ({ key: pt.id, text: pt.id } as IDropdownOption));
     };
 
     const _onDropdownChange = (event: React.FormEvent<HTMLDivElement>, option?: IDropdownOption, index?: number): void => {
-        setProjectType((projectTypes && option) ? projectTypes.find(pt => pt.id === option.key) : undefined);
+        setProjectTemplate((projectTemplates && option) ? projectTemplates.find(pt => pt.id === option.key) : undefined);
     };
 
     const _onMembersChanged = (users?: GraphUser[]) => {
@@ -83,7 +87,7 @@ export const ProjectForm: React.FunctionComponent<IProjectFormProps> = (props) =
 
     const _onRenderPanelFooterContent = () => (
         <div>
-            <PrimaryButton text='Create project' disabled={!formEnabled || !(projectName && projectType)} onClick={() => _submitForm()} styles={{ root: { marginRight: 8 } }} />
+            <PrimaryButton text='Create project' disabled={!formEnabled || !(projectName && projectTemplate)} onClick={() => _submitForm()} styles={{ root: { marginRight: 8 } }} />
             <DefaultButton text='Cancel' disabled={!formEnabled} onClick={() => _resetAndCloseForm()} />
             <Spinner styles={{ root: { visibility: formEnabled ? 'hidden' : 'visible' } }} />
         </div>
@@ -111,7 +115,7 @@ export const ProjectForm: React.FunctionComponent<IProjectFormProps> = (props) =
                         // errorMessage='Project Type is required.'
                         // placeholder='Select a Project Type'
                         disabled={!formEnabled}
-                        options={projectTypeOptions || []}
+                        options={projectTemplateOptions || []}
                         onChange={_onDropdownChange} />
                 </Stack.Item>
                 <Stack.Item>

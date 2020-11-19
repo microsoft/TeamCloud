@@ -59,12 +59,12 @@ export const ProjectMemberForm: React.FunctionComponent<IProjectMemberFormProps>
                 const index = props.user.projectMemberships?.findIndex(m => m.projectId === projectMembership.projectId)
                 if (index !== undefined && index >= 0) {
                     props.user.projectMemberships![index] = newProjectMembership;
-                    const result = await api.updateProjectUser(props.user.id, props.project.id, { body: props.user });
+                    const result = await api.updateProjectUser(props.user.id, props.project.organization, props.project.id, { body: props.user });
                     if (result.code === 202)
                         _resetAndCloseForm();
                     else {
                         // console.log(JSON.stringify(result));
-                        setErrorText(result.status);
+                        setErrorText(result.status ?? undefined);
                     }
                 } else {
                     setErrorText('index not found')
@@ -131,12 +131,13 @@ export const ProjectMemberForm: React.FunctionComponent<IProjectMemberFormProps>
         )
     };
 
-    const _roleDropdownDisabled = () => {
-        return !formEnabled || !projectMembership || (projectMembership.role === 'Owner'
-            && props.project.users.filter(u => u.userType === 'User'
-                && u.projectMemberships
-                && u.projectMemberships!.find(pm => pm.projectId === props.project.id && pm.role === 'Owner')).length === 1)
-    };
+    const _roleDropdownDisabled = () => false;
+    // {
+    //     return !formEnabled || !projectMembership || (projectMembership.role === 'Owner'
+    //         && props.project.users.filter(u => u.userType === 'User'
+    //             && u.projectMemberships
+    //             && u.projectMemberships!.find(pm => pm.projectId === props.project.id && pm.role === 'Owner')).length === 1)
+    // };
 
     return (
         <Panel

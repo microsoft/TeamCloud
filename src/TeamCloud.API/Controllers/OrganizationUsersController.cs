@@ -85,7 +85,7 @@ namespace TeamCloud.API.Controllers
         [Authorize(Policy = AuthPolicies.UserWrite)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "CreateOrganizationUser", Summary = "Creates a new User.")]
-        [SwaggerResponse(StatusCodes.Status202Accepted, "Starts creating the new User. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
+        [SwaggerResponse(StatusCodes.Status201Created, "The new Organization User was created.", typeof(DataResult<User>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "The Organization was not found, or a User with the email address provided in the request body was not found.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status409Conflict, "A User already exists with the email address provided in the request body.", typeof(ErrorResult))]

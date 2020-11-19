@@ -29,7 +29,7 @@ export const ProjectMembersForm: React.FunctionComponent<IProjectMembersFormProp
                 role: userRole
             }));
             const results = await Promise
-                .all(userDefinitions.map(async d => await api.createProjectUser(props.project.id, { body: d })));
+                .all(userDefinitions.map(async d => await api.createProjectUser(props.project.organization, props.project.id, { body: d })));
 
             let errors: ErrorResult[] = [];
             results.forEach(r => {

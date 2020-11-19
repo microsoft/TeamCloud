@@ -30,7 +30,7 @@ namespace TeamCloud.Model.Data
         [JsonProperty(Required = Required.Always)]
         public string Template { get; set; }
 
-        [JsonProperty(Required = Required.Always)]
+        // [JsonProperty(Required = Required.Always)]
         public string TemplateInput { get; set; }
 
         [DatabaseIgnore]

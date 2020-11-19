@@ -17,6 +17,7 @@ using TeamCloud.API.Data;
 using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
+using TeamCloud.Git.Services;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
 using TeamCloud.Model.Validation;
@@ -28,8 +29,8 @@ namespace TeamCloud.API.Controllers
     [Produces("application/json")]
     public class ProjectTemplatesController : ApiController
     {
-        public ProjectTemplatesController(UserService userService, Orchestrator orchestrator, IOrganizationRepository organizationRepository, IProjectTemplateRepository projectTemplateRepository)
-            : base(userService, orchestrator, organizationRepository, projectTemplateRepository)
+        public ProjectTemplatesController(UserService userService, Orchestrator orchestrator, IOrganizationRepository organizationRepository, IProjectTemplateRepository projectTemplateRepository, IRepositoryService repositoryService)
+            : base(userService, orchestrator, organizationRepository, projectTemplateRepository, repositoryService)
         { }
 
 
@@ -45,8 +46,12 @@ namespace TeamCloud.API.Controllers
                 .ToListAsync()
                 .ConfigureAwait(false);
 
+            var freshTemplates = await Task
+                .WhenAll(projectTemplates.Select(pt => RepositoryService.UpdateProjectTemplateAsync(pt)))
+                .ConfigureAwait(false);
+
             return DataResult<List<ProjectTemplate>>
-                .Ok(projectTemplates)
+                .Ok(freshTemplates?.ToList() ?? projectTemplates)
                 .ToActionResult();
         });
 
@@ -59,11 +64,11 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status404NotFound, "A ProjectTemplate with the projectTemplateId provided was not found.", typeof(ErrorResult))]
         [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
         public Task<IActionResult> Get(string projectTemplateId) => EnsureProjectTemplateAsync(projectTemplate =>
-        {
-            return DataResult<ProjectTemplate>
-                .Ok(projectTemplate)
-                .ToActionResult();
-        });
+       {
+           return DataResult<ProjectTemplate>
+               .Ok(projectTemplate)
+               .ToActionResult();
+       });
 
 
         [HttpPost]

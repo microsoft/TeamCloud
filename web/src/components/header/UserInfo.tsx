@@ -3,48 +3,48 @@
 
 import React, { useState } from 'react';
 import { DefaultButton, Stack, Panel, Persona, PersonaSize, getTheme, Separator, PrimaryButton } from '@fluentui/react';
-import { GraphUser } from '../model';
-import { User } from 'teamcloud';
-import { UserForm } from './UserForm';
+import { GraphUser } from '../../model';
+// import { User } from 'teamcloud';
+// import { UserForm } from './UserForm';
 
 export interface IUserInfoProps {
-    user?: User;
+    // user?: User;
     graphUser?: GraphUser;
-    onSignOut: () => void;
+    // onSignOut: () => void;
 }
 
 export const UserInfo: React.FunctionComponent<IUserInfoProps> = (props) => {
 
     const [panelOpen, setPanelOpen] = useState(false);
-    const [editPanelOpen, setEditPanelOpen] = useState(false);
+    // const [editPanelOpen, setEditPanelOpen] = useState(false);
 
     const theme = getTheme();
 
     const personaStyles = {
         root: {
-            minHeight: '56px',
+            minHeight: '48px',
             paddingLeft: '10px',
             selectors: {
                 ':hover': {
                     cursor: 'pointer',
-                    background: theme.palette.themeDark
+                    background: theme.palette.neutralLighter
                 }
             }
         },
         primaryText: {
-            color: theme.palette.white,
+            color: theme.palette.themePrimary,
             selectors: {
                 ':hover': {
                     cursor: 'pointer',
-                    color: theme.palette.white,
-                    background: theme.palette.themeDark
+                    color: theme.palette.themePrimary,
+                    background: theme.palette.neutralLighter
                 }
             }
         }
     };
 
     const panelStyles = {
-        root: { marginTop: '56px' },
+        root: { marginTop: '48px' },
         content: { paddingTop: '12px' },
         main: { height: 'fit-content' }
     };
@@ -52,10 +52,10 @@ export const UserInfo: React.FunctionComponent<IUserInfoProps> = (props) => {
     if (props.graphUser) {
         return <>
             <Persona
-                text={props.graphUser.displayName}
+                // text={props.graphUser.displayName}
                 // secondaryText={this.state.tenant.displayName || this.props.tenantId}
                 imageUrl={props.graphUser.imageUrl}
-                size={PersonaSize.size40}
+                size={PersonaSize.size32}
                 styles={personaStyles}
                 onClick={() => setPanelOpen(true)}
             />
@@ -74,17 +74,19 @@ export const UserInfo: React.FunctionComponent<IUserInfoProps> = (props) => {
                         size={PersonaSize.size72} />
                     <Separator />
                     <Stack tokens={{ childrenGap: '8px' }}>
-                        <PrimaryButton text='Edit' onClick={() => setEditPanelOpen(true)} />
-                        <DefaultButton text='Sign out' onClick={() => props.onSignOut()} />
+                        <PrimaryButton text='Edit' onClick={() => { }} />
+                        {/* <PrimaryButton text='Edit' onClick={() => setEditPanelOpen(true)} /> */}
+                        <DefaultButton text='Sign out' onClick={() => { }} />
+                        {/* <DefaultButton text='Sign out' onClick={() => props.onSignOut()} /> */}
                     </Stack>
                 </Stack>
             </Panel>
-            <UserForm
+            {/* <UserForm
                 me={true}
                 user={props.user}
                 graphUser={props.graphUser}
                 panelIsOpen={editPanelOpen}
-                onFormClose={() => setEditPanelOpen(false)} />
+                onFormClose={() => setEditPanelOpen(false)} /> */}
         </>;
     } else {
         return <></>;

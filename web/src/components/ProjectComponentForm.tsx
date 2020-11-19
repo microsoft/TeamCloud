@@ -2,25 +2,26 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect } from 'react';
-import { Project, ComponentOffer, ComponentRequest, User } from 'teamcloud';
+import { Project, ComponentRequest, ComponentTemplate } from 'teamcloud';
 import { DefaultButton, Dropdown, IDropdownOption, Panel, PrimaryButton, Spinner, Stack, Text } from '@fluentui/react';
 import { FuiForm } from '@rjsf/fluent-ui'
 // import { JSONSchema7 } from 'json-schema'
 import { ISubmitEvent } from '@rjsf/core';
 import { api } from '../API';
+import ReactMarkdown from 'react-markdown';
 
 export interface IProjectComponentFormProps {
-    user?: User;
+    // user?: User;
     project: Project;
     panelIsOpen: boolean;
     onFormClose: () => void;
 }
 
 export const ProjectComponentForm: React.FunctionComponent<IProjectComponentFormProps> = (props) => {
-
-    const [offer, setOffer] = useState<ComponentOffer>();
-    const [offers, setOffers] = useState<ComponentOffer[]>();
-    const [offerOptions, setOfferOptions] = useState<IDropdownOption[]>();
+    // return (<></>);
+    const [componentTemplate, setComponentTemplate] = useState<ComponentTemplate>();
+    const [componentTemplates, setComponentTemplates] = useState<ComponentTemplate[]>();
+    const [componentTemplateOptions, setComponentTemplateOptions] = useState<IDropdownOption[]>();
     // const [offerInputSchema, setOfferInputSchema] = useState<JSONSchema7>();
     const [formEnabled, setFormEnabled] = useState<boolean>(true);
     const [errorText, setErrorText] = useState<string>();
@@ -29,51 +30,51 @@ export const ProjectComponentForm: React.FunctionComponent<IProjectComponentForm
 
     useEffect(() => {
         if (props.project) {
-            const _setOffers = async () => {
-                const result = await api.getProjectOffers(props.project.id!);
-                setOffers(result.data);
-                setOfferOptions(_offerOptions(result.data));
+            const _setComponentTemplates = async () => {
+                const result = await api.getProjectComponentTemplates(props.project.organization, props.project.id);
+                setComponentTemplates(result.data ?? undefined);
+                setComponentTemplateOptions(_componentTemplateOptions(result.data ?? undefined));
             };
-            _setOffers();
+            _setComponentTemplates();
         }
     }, [props.project]);
 
     const _submitForm = async (e: ISubmitEvent<any>) => {
         setFormEnabled(false);
 
-        if (offer && e.formData) {
+        if (componentTemplate && e.formData) {
             const request: ComponentRequest = {
-                offerId: offer.id,
+                templateId: componentTemplate.id,
                 inputJson: JSON.stringify(e.formData)
             };
-            const result = await api.createProjectComponent(props.project.id, { body: request });
+            const result = await api.createProjectComponent(props.project.organization, props.project.id, { body: request });
             if (result.code === 202)
                 _resetAndCloseForm();
             else {
                 // console.log(JSON.stringify(result));
-                setErrorText(result.status);
+                setErrorText(result.status ?? 'unknown');
             }
         }
     };
 
     const _resetAndCloseForm = () => {
-        setOffer(undefined);
+        setComponentTemplate(undefined);
         setFormEnabled(true);
         props.onFormClose();
     };
 
-    const _offerOptions = (data?: ComponentOffer[]): IDropdownOption[] => {
+    const _componentTemplateOptions = (data?: ComponentTemplate[]): IDropdownOption[] => {
         if (!data) return [];
-        return data.map(pt => ({ key: pt.id, text: pt.id } as IDropdownOption));
+        return data.map(ct => ({ key: ct.id, text: ct.displayName ?? ct.id } as IDropdownOption));
     };
 
     const _onDropdownChange = (event: React.FormEvent<HTMLDivElement>, option?: IDropdownOption, index?: number): void => {
-        setOffer((offers && option) ? offers.find(pt => pt.id === option.key) : undefined);
+        setComponentTemplate((componentTemplates && option) ? componentTemplates.find(ct => ct.id === option.key) : undefined);
     };
 
     const _onRenderPanelFooterContent = () => (
         <div style={{ paddingTop: '24px' }}>
-            <PrimaryButton type='submit' text='Create component' disabled={!formEnabled || !(offer)} styles={{ root: { marginRight: 8 } }} />
+            <PrimaryButton type='submit' text='Create component' disabled={!formEnabled || !(componentTemplate)} styles={{ root: { marginRight: 8 } }} />
             <DefaultButton text='Cancel' disabled={!formEnabled} onClick={() => _resetAndCloseForm()} />
             <Spinner styles={{ root: { visibility: formEnabled ? 'hidden' : 'visible' } }} />
         </div>
@@ -91,16 +92,19 @@ export const ProjectComponentForm: React.FunctionComponent<IProjectComponentForm
                         required
                         label='Offer'
                         disabled={!formEnabled}
-                        options={offerOptions || []}
+                        options={componentTemplateOptions || []}
                         onChange={_onDropdownChange} />
                 </Stack.Item>
                 <Stack.Item>
                     <FuiForm
                         disabled={!formEnabled}
                         onSubmit={_submitForm}
-                        schema={offer?.inputJsonSchema ? JSON.parse(offer.inputJsonSchema) : {}}>
+                        schema={componentTemplate?.inputJsonSchema ? JSON.parse(componentTemplate.inputJsonSchema) : {}}>
                         {_onRenderPanelFooterContent()}
                     </FuiForm>
+                </Stack.Item>
+                <Stack.Item>
+                    <ReactMarkdown>{componentTemplate?.description ?? undefined as any}</ReactMarkdown>
                 </Stack.Item>
             </Stack>
             <Text>{errorText}</Text>

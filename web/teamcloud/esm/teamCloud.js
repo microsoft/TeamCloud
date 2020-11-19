@@ -397,9 +397,9 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param projectId
      * @param options The options parameters.
      */
-    TeamCloud.prototype.getProjectUserByNameOrId = function (userId, org, projectId, options) {
+    TeamCloud.prototype.getProjectUser = function (userId, org, projectId, options) {
         var operationOptions = coreHttp.operationOptionsToRequestOptionsBase(options || {});
-        return this.sendOperationRequest({ userId: userId, org: org, projectId: projectId, options: operationOptions }, getProjectUserByNameOrIdOperationSpec);
+        return this.sendOperationRequest({ userId: userId, org: org, projectId: projectId, options: operationOptions }, getProjectUserOperationSpec);
     };
     /**
      * Updates an existing Project User.
@@ -613,6 +613,9 @@ var createOrganizationOperationSpec = {
     path: "/orgs",
     httpMethod: "POST",
     responses: {
+        201: {
+            bodyMapper: Mappers.OrganizationDataResult
+        },
         400: {
             bodyMapper: Mappers.ErrorResult
         },
@@ -692,8 +695,8 @@ var createOrganizationUserOperationSpec = {
     path: "/orgs/{org}/users",
     httpMethod: "POST",
     responses: {
-        202: {
-            bodyMapper: Mappers.StatusResult
+        201: {
+            bodyMapper: Mappers.UserDataResult
         },
         400: {
             bodyMapper: Mappers.ErrorResult
@@ -835,6 +838,9 @@ var createProjectOperationSpec = {
     path: "/orgs/{org}/projects",
     httpMethod: "POST",
     responses: {
+        201: {
+            bodyMapper: Mappers.ProjectDataResult
+        },
         202: {
             bodyMapper: Mappers.StatusResult
         },
@@ -1293,6 +1299,9 @@ var createProjectUserOperationSpec = {
     path: "/orgs/{org}/projects/{projectId}/users",
     httpMethod: "POST",
     responses: {
+        201: {
+            bodyMapper: Mappers.UserDataResult
+        },
         202: {
             bodyMapper: Mappers.StatusResult
         },
@@ -1314,7 +1323,7 @@ var createProjectUserOperationSpec = {
     mediaType: "json",
     serializer: serializer
 };
-var getProjectUserByNameOrIdOperationSpec = {
+var getProjectUserOperationSpec = {
     path: "/orgs/{org}/projects/{projectId}/users/{userId}",
     httpMethod: "GET",
     responses: {
@@ -1343,6 +1352,9 @@ var updateProjectUserOperationSpec = {
     path: "/orgs/{org}/projects/{projectId}/users/{userId}",
     httpMethod: "PUT",
     responses: {
+        200: {
+            bodyMapper: Mappers.UserDataResult
+        },
         202: {
             bodyMapper: Mappers.StatusResult
         },
@@ -1415,6 +1427,9 @@ var updateProjectUserMeOperationSpec = {
     path: "/orgs/{org}/projects/{projectId}/users/me",
     httpMethod: "PUT",
     responses: {
+        200: {
+            bodyMapper: Mappers.UserDataResult
+        },
         202: {
             bodyMapper: Mappers.StatusResult
         },

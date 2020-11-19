@@ -4,11 +4,13 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
+using TeamCloud.Model.Data;
 
 namespace TeamCloud.Orchestrator.Handlers
 {
@@ -17,11 +19,13 @@ namespace TeamCloud.Orchestrator.Handlers
           ICommandHandler<ProjectUpdateCommand>,
           ICommandHandler<ProjectDeleteCommand>
     {
+        private readonly IUserRepository userRepository;
         private readonly IProjectRepository projectRepository;
 
-        public ProjectCommandHandler(IProjectRepository projectRepository)
+        public ProjectCommandHandler(IProjectRepository projectRepository, IUserRepository userRepository)
         {
             this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
+            this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         }
 
         public async Task<ICommandResult> HandleAsync(ProjectCreateCommand command, IDurableClient durableClient = null)
@@ -35,6 +39,10 @@ namespace TeamCloud.Orchestrator.Handlers
             {
                 commandResult.Result = await projectRepository
                     .AddAsync(command.Payload)
+                    .ConfigureAwait(false);
+
+                await userRepository
+                    .AddProjectMembershipAsync(command.User, commandResult.Result.Id, ProjectUserRole.Owner, new Dictionary<string, string>())
                     .ConfigureAwait(false);
 
                 commandResult.RuntimeStatus = CommandRuntimeStatus.Completed;

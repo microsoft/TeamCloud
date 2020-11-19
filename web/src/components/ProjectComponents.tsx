@@ -2,17 +2,16 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect } from 'react';
-import { Project, Component, User, ErrorResult } from 'teamcloud';
-import { Stack, Shimmer, DefaultButton, IButtonStyles, getTheme, Image, ICommandBarItemProps, Dialog, DialogType, DialogFooter, PrimaryButton, IContextualMenuProps, IContextualMenuItem } from '@fluentui/react';
+import { Stack, Shimmer, DefaultButton, IButtonStyles, getTheme, ICommandBarItemProps, Dialog, DialogType, DialogFooter, PrimaryButton, IContextualMenuProps, IContextualMenuItem } from '@fluentui/react';
+import { Project, Component, ErrorResult } from 'teamcloud';
 import { ProjectDetailCard, ProjectComponentForm } from '.';
-import AppInsights from '../img/appinsights.svg';
-import DevOps from '../img/devops.svg';
-import DevTestLabs from '../img/devtestlabs.svg';
-import GitHub from '../img/github.svg';
+// import AppInsights from '../img/appinsights.svg';
+// import DevOps from '../img/devops.svg';
+// import DevTestLabs from '../img/devtestlabs.svg';
+// import GitHub from '../img/github.svg';
 import { api } from '../API';
 
 export interface IProjectComponentsProps {
-    user?: User;
     project: Project;
 }
 
@@ -27,22 +26,22 @@ export const ProjectComponents: React.FunctionComponent<IProjectComponentsProps>
     useEffect(() => {
         if (props.project) {
             const _setComponents = async () => {
-                const result = await api.getProjectComponents(props.project.id);
-                setComponents(result.data);
+                const result = await api.getProjectComponents(props.project.organization, props.project.id);
+                setComponents(result.data ?? undefined);
             };
             _setComponents();
         }
     }, [props.project]);
 
-    const _findKnownProviderImage = (component: Component) => {
-        if (component.offerId) {
-            if (component.offerId.includes('azure.appinsights')) return AppInsights;
-            if (component.offerId.includes('azure.devops')) return DevOps;
-            if (component.offerId.includes('azure.devtestlabs')) return DevTestLabs;
-            if (component.offerId.includes('github')) return GitHub;
-        }
-        return undefined;
-    }
+    // const _findKnownProviderImage = (component: Component) => {
+    //     if (component.offerId) {
+    //         if (component.offerId.includes('azure.appinsights')) return AppInsights;
+    //         if (component.offerId.includes('azure.devops')) return DevOps;
+    //         if (component.offerId.includes('azure.devtestlabs')) return DevTestLabs;
+    //         if (component.offerId.includes('github')) return GitHub;
+    //     }
+    //     return undefined;
+    // }
 
     const _itemMenuProps = (component: Component): IContextualMenuProps => ({
         items: [
@@ -71,7 +70,7 @@ export const ProjectComponents: React.FunctionComponent<IProjectComponentsProps>
 
     const _onComponentDelete = async () => {
         if (component) {
-            const result = await api.deleteProjectComponent(component.id, props.project.id);
+            const result = await api.deleteProjectComponent(component.id, props.project.organization, props.project.id);
             if (result.code !== 202 && (result as ErrorResult).errors) {
                 console.log(result as ErrorResult);
             }
@@ -100,20 +99,20 @@ export const ProjectComponents: React.FunctionComponent<IProjectComponentsProps>
         }
     }
 
-    const _getComponentStacks = () => components?.sort((a, b) => a.offerId === b.offerId ? 0 : (a.offerId ?? '') > (b.offerId ?? '') ? 1 : -1).map(c => (
+    const _getComponentStacks = () => components?.sort((a, b) => a.templateId === b.templateId ? 0 : (a.templateId ?? '') > (b.templateId ?? '') ? 1 : -1).map(c => (
         <Stack key={c.id} horizontal tokens={{ childrenGap: '12px' }}>
             <Stack.Item styles={{ root: { width: '100%' } }}>
                 <DefaultButton
                     // iconProps={{ iconName: _getLinkTypeIcon(l) }}
                     text={c.displayName ?? c.id}
-                    secondaryText={c.description ?? c.offerId}
+                    secondaryText={c.description ?? c.templateId}
                     // href={l.href}
                     target='_blank'
                     styles={_componentButtonStyles}
                     menuProps={_itemMenuProps(c)}>
-                    <Image
+                    {/* <Image
                         src={_findKnownProviderImage(c)}
-                        height={24} width={24} />
+                        height={24} width={24} /> */}
                 </DefaultButton>
             </Stack.Item>
         </Stack>
@@ -135,7 +134,7 @@ export const ProjectComponents: React.FunctionComponent<IProjectComponentsProps>
                 </Shimmer>
             </ProjectDetailCard>
             <ProjectComponentForm
-                user={props.user}
+                // user={props.user}
                 project={props.project}
                 panelIsOpen={addComponentPanelOpen}
                 onFormClose={() => setAddComponentPanelOpen(false)} />

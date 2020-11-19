@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
+using TeamCloud.Git.Services;
 using TeamCloud.Model.Data;
 
 namespace TeamCloud.API.Controllers
@@ -34,16 +35,18 @@ namespace TeamCloud.API.Controllers
             UserRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         }
 
-        protected ApiController(UserService userService, Orchestrator orchestrator, IOrganizationRepository organizationRepository, IProjectTemplateRepository projectTemplateRepository)
+        protected ApiController(UserService userService, Orchestrator orchestrator, IOrganizationRepository organizationRepository, IProjectTemplateRepository projectTemplateRepository, IRepositoryService repositoryService)
             : this(userService, orchestrator, organizationRepository)
         {
             ProjectTemplateRepository = projectTemplateRepository ?? throw new ArgumentNullException(nameof(projectTemplateRepository));
+            RepositoryService = repositoryService ?? throw new ArgumentNullException(nameof(repositoryService));
         }
 
-        protected ApiController(UserService userService, Orchestrator orchestrator, IOrganizationRepository organizationRepository, IProjectRepository projectRepository, IProjectTemplateRepository projectTemplateRepository)
+        protected ApiController(UserService userService, Orchestrator orchestrator, IOrganizationRepository organizationRepository, IProjectRepository projectRepository, IProjectTemplateRepository projectTemplateRepository, IRepositoryService repositoryService)
             : this(userService, orchestrator, organizationRepository, projectRepository)
         {
             ProjectTemplateRepository = projectTemplateRepository ?? throw new ArgumentNullException(nameof(projectTemplateRepository));
+            RepositoryService = repositoryService ?? throw new ArgumentNullException(nameof(repositoryService));
         }
 
         protected ApiController(UserService userService, Orchestrator orchestrator, IOrganizationRepository organizationRepository, IProjectRepository projectRepository, IUserRepository userRepository)
@@ -75,6 +78,8 @@ namespace TeamCloud.API.Controllers
         public IOrganizationRepository OrganizationRepository { get; }
 
         public IProjectTemplateRepository ProjectTemplateRepository { get; }
+
+        public IRepositoryService RepositoryService { get; }
 
 
         [NonAction]
@@ -355,11 +360,15 @@ namespace TeamCloud.API.Controllers
                         .NotFound($"A Project Template with the name or id '{ProjectTemplateId}' was not found.")
                         .ToActionResult();
 
+                var freshTemplate = await RepositoryService
+                    .UpdateProjectTemplateAsync(template)
+                    .ConfigureAwait(false);
+
                 if (!(callback is null))
-                    return callback(template);
+                    return callback(freshTemplate ?? template);
 
                 if (!(asyncCallback is null))
-                    return await asyncCallback(template)
+                    return await asyncCallback(freshTemplate ?? template)
                         .ConfigureAwait(false);
 
                 throw new InvalidOperationException("asyncCallback or callback must have a value");
@@ -427,21 +436,26 @@ namespace TeamCloud.API.Controllers
                         .BadRequest($"Project Template name or id provided in the url path is invalid.  Must be a valid project template name or id (guid).", ResultErrorCode.ValidationError)
                         .ToActionResult();
 
-                var projectTemplate = await ProjectTemplateRepository
+                var template = await ProjectTemplateRepository
                     .GetAsync(OrgId, templateId)
                     .ConfigureAwait(false);
 
-                if (projectTemplate is null)
+                if (template is null)
                     return ErrorResult
                         .NotFound($"A Project Template with the name or id '{templateId}' was not found.")
                         .ToActionResult();
 
+                var freshTemplate = await RepositoryService
+                    .UpdateProjectTemplateAsync(template)
+                    .ConfigureAwait(false);
+
                 if (!(callback is null))
-                    return callback(project, projectTemplate);
+                    return callback(project, freshTemplate ?? template);
 
                 if (!(asyncCallback is null))
-                    return await asyncCallback(project, projectTemplate)
+                    return await asyncCallback(project, freshTemplate ?? template)
                         .ConfigureAwait(false);
+
 
                 throw new InvalidOperationException("asyncCallback or callback must have a value");
             }

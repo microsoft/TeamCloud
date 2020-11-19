@@ -39,7 +39,7 @@ namespace TeamCloud.Git.Services
             if (projectTemplate is null)
                 throw new ArgumentNullException(nameof(projectTemplate));
 
-            if (projectTemplate.Repository.Provider == RepositoryProvider.Unknown)
+            if (projectTemplate.Repository.Provider == RepositoryProvider.Unknown || projectTemplate.Repository.Type == RepositoryReferenceType.Branch)
                 projectTemplate.Repository = await GetRepositoryReferenceAsync(projectTemplate.Repository)
                     .ConfigureAwait(false);
 

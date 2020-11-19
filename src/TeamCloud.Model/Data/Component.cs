@@ -67,7 +67,6 @@ namespace TeamCloud.Model.Data
         /// <summary>
         /// Gets or sets the input json.
         /// </summary>
-        [JsonProperty(Required = Required.Always)]
         public string InputJson { get; set; }
 
         /// <summary>

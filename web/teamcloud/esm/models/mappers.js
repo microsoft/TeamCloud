@@ -537,7 +537,7 @@ export var User = {
             },
             projectMemberships: {
                 serializedName: "projectMemberships",
-                required: true,
+                nullable: true,
                 type: {
                     name: "Sequence",
                     element: {
@@ -739,7 +739,7 @@ export var Project = {
             },
             templateInput: {
                 serializedName: "templateInput",
-                required: true,
+                nullable: true,
                 type: {
                     name: "String"
                 }
@@ -937,7 +937,7 @@ export var Component = {
             },
             providerId: {
                 serializedName: "providerId",
-                required: true,
+                nullable: true,
                 type: {
                     name: "String"
                 }
@@ -965,7 +965,7 @@ export var Component = {
             },
             inputJson: {
                 serializedName: "inputJson",
-                required: true,
+                nullable: true,
                 type: {
                     name: "String"
                 }
@@ -1220,7 +1220,7 @@ export var RepositoryReference = {
             },
             ref: {
                 serializedName: "ref",
-                required: true,
+                nullable: true,
                 type: {
                     name: "String"
                 }
@@ -1241,14 +1241,14 @@ export var RepositoryReference = {
             },
             organization: {
                 serializedName: "organization",
-                required: true,
+                nullable: true,
                 type: {
                     name: "String"
                 }
             },
             repository: {
                 serializedName: "repository",
-                required: true,
+                nullable: true,
                 type: {
                     name: "String"
                 }

@@ -553,7 +553,7 @@ export const User: coreHttp.CompositeMapper = {
       },
       projectMemberships: {
         serializedName: "projectMemberships",
-        required: true,
+        nullable: true,
         type: {
           name: "Sequence",
           element: {
@@ -760,7 +760,7 @@ export const Project: coreHttp.CompositeMapper = {
       },
       templateInput: {
         serializedName: "templateInput",
-        required: true,
+        nullable: true,
         type: {
           name: "String"
         }
@@ -962,7 +962,7 @@ export const Component: coreHttp.CompositeMapper = {
       },
       providerId: {
         serializedName: "providerId",
-        required: true,
+        nullable: true,
         type: {
           name: "String"
         }
@@ -990,7 +990,7 @@ export const Component: coreHttp.CompositeMapper = {
       },
       inputJson: {
         serializedName: "inputJson",
-        required: true,
+        nullable: true,
         type: {
           name: "String"
         }
@@ -1250,7 +1250,7 @@ export const RepositoryReference: coreHttp.CompositeMapper = {
       },
       ref: {
         serializedName: "ref",
-        required: true,
+        nullable: true,
         type: {
           name: "String"
         }
@@ -1271,14 +1271,14 @@ export const RepositoryReference: coreHttp.CompositeMapper = {
       },
       organization: {
         serializedName: "organization",
-        required: true,
+        nullable: true,
         type: {
           name: "String"
         }
       },
       repository: {
         serializedName: "repository",
-        required: true,
+        nullable: true,
         type: {
           name: "String"
         }
