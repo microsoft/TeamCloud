@@ -17,6 +17,7 @@ using TeamCloud.API.Auth;
 using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
+using TeamCloud.Git.Services;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
 using ValidationError = TeamCloud.API.Data.Results.ValidationError;
@@ -31,8 +32,8 @@ namespace TeamCloud.API.Controllers
         private readonly IComponentRepository componentRepository;
         private readonly IComponentTemplateRepository componentTemplateRepository;
 
-        public ProjectComponentsController(UserService userService, Orchestrator orchestrator, IOrganizationRepository organizationRepository, IProjectRepository projectRepository, IComponentRepository componentRepository, IComponentTemplateRepository componentTemplateRepository)
-            : base(userService, orchestrator, organizationRepository, projectRepository)
+        public ProjectComponentsController(UserService userService, Orchestrator orchestrator, IOrganizationRepository organizationRepository, IProjectRepository projectRepository, IProjectTemplateRepository projectTemplateRepository, IRepositoryService repositoryService, IComponentRepository componentRepository, IComponentTemplateRepository componentTemplateRepository)
+            : base(userService, orchestrator, organizationRepository, projectRepository, projectTemplateRepository, repositoryService)
         {
             this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
             this.componentTemplateRepository = componentTemplateRepository ?? throw new ArgumentNullException(nameof(componentTemplateRepository));

@@ -83,6 +83,7 @@ export const NewProjectView: React.FunctionComponent<INewProjectViewProps> = (pr
                 history.push(`/orgs/${orgId}/projects/${project.slug}`);
             else {
                 // console.log(JSON.stringify(result));
+                console.error(projectResult)
                 setErrorText(projectResult.status ?? 'failed to create project');
             }
         }

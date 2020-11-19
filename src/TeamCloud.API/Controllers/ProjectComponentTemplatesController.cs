@@ -15,6 +15,7 @@ using TeamCloud.API.Auth;
 using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
+using TeamCloud.Git.Services;
 using TeamCloud.Model.Data;
 
 namespace TeamCloud.API.Controllers
@@ -26,8 +27,8 @@ namespace TeamCloud.API.Controllers
     {
         private readonly IComponentTemplateRepository componentTemplateRepository;
 
-        public ProjectComponentTemplatesController(UserService userService, Orchestrator orchestrator, IOrganizationRepository organizationRepository, IProjectRepository projectRepository, IProjectTemplateRepository projectTemplateRepository, IComponentTemplateRepository componentTemplateRepository)
-            : base(userService, orchestrator, organizationRepository, projectRepository, projectTemplateRepository)
+        public ProjectComponentTemplatesController(UserService userService, Orchestrator orchestrator, IOrganizationRepository organizationRepository, IProjectRepository projectRepository, IProjectTemplateRepository projectTemplateRepository, IRepositoryService repositoryService, IComponentTemplateRepository componentTemplateRepository)
+            : base(userService, orchestrator, organizationRepository, projectRepository, projectTemplateRepository, repositoryService)
         {
             this.componentTemplateRepository = componentTemplateRepository ?? throw new ArgumentNullException(nameof(componentTemplateRepository));
         }
