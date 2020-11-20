@@ -25,7 +25,6 @@ using Microsoft.Extensions.ObjectPool;
 using Microsoft.IO;
 using Microsoft.OpenApi.Models;
 using TeamCloud.API.Auth;
-using TeamCloud.API.Initialization;
 using TeamCloud.API.Middleware;
 using TeamCloud.API.Routing;
 using TeamCloud.API.Services;
@@ -77,7 +76,7 @@ namespace TeamCloud.API
                 .UseSwagger()
                 .UseSwaggerUI(c =>
                 {
-                    c.SwaggerEndpoint("/openapi/v1/openapi.json", "TeamCloud API v1");
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "TeamCloud API v1");
                     c.OAuthClientId(resourceManagerOptions.ClientId);
                     c.OAuthClientSecret("");
                     c.OAuthUsePkce();

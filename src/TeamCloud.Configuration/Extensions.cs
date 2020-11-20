@@ -5,8 +5,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -32,7 +35,7 @@ namespace TeamCloud.Configuration
             if (string.IsNullOrWhiteSpace(connectionString))
                 return configurationBuilder;
 
-            var connectionStringExpanded = Environment.ExpandEnvironmentVariables(connectionString);
+            var connectionStringExpanded = Regex.Replace(Environment.ExpandEnvironmentVariables(connectionString), "%CWD%", Environment.CurrentDirectory.Replace('\\', '/'));
 
             if (Uri.IsWellFormedUriString(connectionStringExpanded, UriKind.Absolute))
             {
@@ -40,6 +43,9 @@ namespace TeamCloud.Configuration
 
                 if (!configurationServiceFile.IsFile)
                     throw new NotSupportedException($"Scheme '{configurationServiceFile.Scheme}' is not supported - use file:// instead");
+
+                if (!File.Exists(configurationServiceFile.LocalPath))
+                    Debug.WriteLine($"CAUTION !!! Configuration file {configurationServiceFile.LocalPath} could not be found.");
 
                 return configurationBuilder.AddJsonFile(configurationServiceFile.LocalPath, false, true);
             }
