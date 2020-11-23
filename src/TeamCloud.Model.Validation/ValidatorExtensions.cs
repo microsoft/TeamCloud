@@ -293,9 +293,9 @@ namespace TeamCloud.Model.Validation
                 .Must(BeValidTag)
                     .WithMessage("'{PropertyName}' must contain valid tag name/values");
 
-        private static bool BeGuid(string guid)
-            => !string.IsNullOrEmpty(guid)
-            && Guid.TryParse(guid, out var outGuid)
+        private static bool BeGuid(string id)
+            => !string.IsNullOrEmpty(id)
+            && Guid.TryParse(id, out var outGuid)
             && !outGuid.Equals(Guid.Empty);
 
         private static bool BeUrl(string url)
