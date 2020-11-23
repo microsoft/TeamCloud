@@ -25,8 +25,9 @@ export interface DeploymentScope {
    */
   readonly slug: string;
   displayName: string;
-  managementGroupId: string;
   isDefault: boolean;
+  managementGroupId?: string | null;
+  subscriptionIds?: string[] | null;
   id: string;
 }
 
@@ -53,8 +54,9 @@ export interface DeploymentScopeDefinition {
    */
   readonly slug?: string | null;
   displayName: string;
-  managementGroupId: string;
   isDefault?: boolean;
+  managementGroupId?: string | null;
+  subscriptionIds?: string[] | null;
 }
 
 export interface DeploymentScopeDataResult {
@@ -223,14 +225,14 @@ export interface Component {
   organization: string;
   templateId: string;
   projectId: string;
-  providerId?: string | null;
+  provider: string;
   requestedBy: string;
   displayName?: string | null;
   description?: string | null;
   inputJson?: string | null;
   valueJson?: string | null;
-  scope: ComponentScope;
   type: ComponentType;
+  resourceId?: string | null;
   id: string;
 }
 
@@ -259,12 +261,11 @@ export interface ComponentTemplateListDataResult {
 export interface ComponentTemplate {
   organization: string;
   parentId: string;
-  providerId?: string | null;
+  provider?: string | null;
   displayName?: string | null;
   description?: string | null;
   repository: RepositoryReference;
   inputJsonSchema?: string | null;
-  scope: ComponentTemplateScope;
   type: ComponentTemplateType;
   id: string;
 }
@@ -376,10 +377,6 @@ export type ProjectMembershipRole =
   | "Owner"
   | string;
 /**
- * Defines values for ComponentScope.
- */
-export type ComponentScope = "System" | "Project" | "All" | string;
-/**
  * Defines values for ComponentType.
  */
 export type ComponentType =
@@ -405,10 +402,6 @@ export type RepositoryReferenceType =
   | "Branch"
   | "Hash"
   | string;
-/**
- * Defines values for ComponentTemplateScope.
- */
-export type ComponentTemplateScope = "System" | "Project" | "All" | string;
 /**
  * Defines values for ComponentTemplateType.
  */

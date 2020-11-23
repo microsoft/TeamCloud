@@ -3231,7 +3231,6 @@
           "displayName",
           "id",
           "isDefault",
-          "managementGroupId",
           "organization",
           "slug"
         ],
@@ -3247,11 +3246,20 @@
           "displayName": {
             "type": "string"
           },
-          "managementGroupId": {
-            "type": "string"
-          },
           "isDefault": {
             "type": "boolean"
+          },
+          "managementGroupId": {
+            "type": "string",
+            "nullable": true
+          },
+          "subscriptionIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "nullable": true
           },
           "id": {
             "type": "string"
@@ -3352,8 +3360,7 @@
       },
       "DeploymentScopeDefinition": {
         "required": [
-          "displayName",
-          "managementGroupId"
+          "displayName"
         ],
         "type": "object",
         "properties": {
@@ -3365,11 +3372,20 @@
           "displayName": {
             "type": "string"
           },
-          "managementGroupId": {
-            "type": "string"
-          },
           "isDefault": {
             "type": "boolean"
+          },
+          "managementGroupId": {
+            "type": "string",
+            "nullable": true
+          },
+          "subscriptionIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -3809,8 +3825,8 @@
           "id",
           "organization",
           "projectId",
+          "provider",
           "requestedBy",
-          "scope",
           "templateId",
           "type"
         ],
@@ -3829,9 +3845,8 @@
           "projectId": {
             "type": "string"
           },
-          "providerId": {
-            "type": "string",
-            "nullable": true
+          "provider": {
+            "type": "string"
           },
           "requestedBy": {
             "type": "string"
@@ -3852,14 +3867,6 @@
             "type": "string",
             "nullable": true
           },
-          "scope": {
-            "enum": [
-              "System",
-              "Project",
-              "All"
-            ],
-            "type": "string"
-          },
           "type": {
             "enum": [
               "Custom",
@@ -3868,6 +3875,10 @@
               "GitRepository"
             ],
             "type": "string"
+          },
+          "resourceId": {
+            "type": "string",
+            "nullable": true
           },
           "id": {
             "type": "string"
@@ -4007,7 +4018,6 @@
           "organization",
           "parentId",
           "repository",
-          "scope",
           "type"
         ],
         "type": "object",
@@ -4018,7 +4028,7 @@
           "parentId": {
             "type": "string"
           },
-          "providerId": {
+          "provider": {
             "type": "string",
             "nullable": true
           },
@@ -4036,14 +4046,6 @@
           "inputJsonSchema": {
             "type": "string",
             "nullable": true
-          },
-          "scope": {
-            "enum": [
-              "System",
-              "Project",
-              "All"
-            ],
-            "type": "string"
           },
           "type": {
             "enum": [

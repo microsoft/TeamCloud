@@ -23,11 +23,11 @@ export interface Component {
     // (undocumented)
     projectId: string;
     // (undocumented)
-    providerId?: string | null;
+    provider: string;
     // (undocumented)
     requestedBy: string;
     // (undocumented)
-    scope: ComponentScope;
+    resourceId?: string | null;
     // (undocumented)
     templateId: string;
     // (undocumented)
@@ -67,9 +67,6 @@ export interface ComponentRequest {
     templateId: string;
 }
 
-// @public
-export type ComponentScope = "System" | "Project" | "All" | string;
-
 // @public (undocumented)
 export interface ComponentTemplate {
     // (undocumented)
@@ -85,11 +82,9 @@ export interface ComponentTemplate {
     // (undocumented)
     parentId: string;
     // (undocumented)
-    providerId?: string | null;
+    provider?: string | null;
     // (undocumented)
     repository: RepositoryReference;
-    // (undocumented)
-    scope: ComponentTemplateScope;
     // (undocumented)
     type: ComponentTemplateType;
 }
@@ -118,9 +113,6 @@ export interface ComponentTemplateListDataResult {
 }
 
 // @public
-export type ComponentTemplateScope = "System" | "Project" | "All" | string;
-
-// @public
 export type ComponentTemplateType = "Custom" | "AzureResource" | "Environment" | "GitRepository" | string;
 
 // @public
@@ -135,10 +127,12 @@ export interface DeploymentScope {
     // (undocumented)
     isDefault: boolean;
     // (undocumented)
-    managementGroupId: string;
+    managementGroupId?: string | null;
     // (undocumented)
     organization: string;
     readonly slug: string;
+    // (undocumented)
+    subscriptionIds?: string[] | null;
 }
 
 // @public (undocumented)
@@ -160,8 +154,10 @@ export interface DeploymentScopeDefinition {
     // (undocumented)
     isDefault?: boolean;
     // (undocumented)
-    managementGroupId: string;
+    managementGroupId?: string | null;
     readonly slug?: string | null;
+    // (undocumented)
+    subscriptionIds?: string[] | null;
 }
 
 // @public (undocumented)
