@@ -15,10 +15,10 @@ namespace TeamCloud.Data.Utilities
         private Lazy<T> lazy;
 
         public ResetLazy(Func<T> valueFactory, bool isThreadSafe)
-            : this(valueFactory, isThreadSafe ? LazyThreadSafetyMode.ExecutionAndPublication : LazyThreadSafetyMode.None)
+            : this(valueFactory, isThreadSafe ? LazyThreadSafetyMode.PublicationOnly : LazyThreadSafetyMode.None)
         { }
 
-        public ResetLazy(Func<T> valueFactory, LazyThreadSafetyMode lazyThreadSafetyMode = LazyThreadSafetyMode.ExecutionAndPublication)
+        public ResetLazy(Func<T> valueFactory, LazyThreadSafetyMode lazyThreadSafetyMode = LazyThreadSafetyMode.PublicationOnly)
         {
             factory = valueFactory ?? throw new ArgumentNullException(nameof(valueFactory));
             lazy = new Lazy<T>(factory, LazyThreadSafetyMode);
