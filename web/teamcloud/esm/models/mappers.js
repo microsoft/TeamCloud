@@ -74,18 +74,30 @@ export var DeploymentScope = {
                     name: "String"
                 }
             },
-            managementGroupId: {
-                serializedName: "managementGroupId",
-                required: true,
-                type: {
-                    name: "String"
-                }
-            },
             isDefault: {
                 serializedName: "isDefault",
                 required: true,
                 type: {
                     name: "Boolean"
+                }
+            },
+            managementGroupId: {
+                serializedName: "managementGroupId",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
+            subscriptionIds: {
+                serializedName: "subscriptionIds",
+                nullable: true,
+                type: {
+                    name: "Sequence",
+                    element: {
+                        type: {
+                            name: "Uuid"
+                        }
+                    }
                 }
             },
             id: {
@@ -208,17 +220,29 @@ export var DeploymentScopeDefinition = {
                     name: "String"
                 }
             },
-            managementGroupId: {
-                serializedName: "managementGroupId",
-                required: true,
-                type: {
-                    name: "String"
-                }
-            },
             isDefault: {
                 serializedName: "isDefault",
                 type: {
                     name: "Boolean"
+                }
+            },
+            managementGroupId: {
+                serializedName: "managementGroupId",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
+            subscriptionIds: {
+                serializedName: "subscriptionIds",
+                nullable: true,
+                type: {
+                    name: "Sequence",
+                    element: {
+                        type: {
+                            name: "Uuid"
+                        }
+                    }
                 }
             }
         }
@@ -935,9 +959,9 @@ export var Component = {
                     name: "String"
                 }
             },
-            providerId: {
-                serializedName: "providerId",
-                nullable: true,
+            provider: {
+                serializedName: "provider",
+                required: true,
                 type: {
                     name: "String"
                 }
@@ -977,16 +1001,16 @@ export var Component = {
                     name: "String"
                 }
             },
-            scope: {
-                serializedName: "scope",
+            type: {
+                serializedName: "type",
                 required: true,
                 type: {
                     name: "String"
                 }
             },
-            type: {
-                serializedName: "type",
-                required: true,
+            resourceId: {
+                serializedName: "resourceId",
+                nullable: true,
                 type: {
                     name: "String"
                 }
@@ -1119,8 +1143,8 @@ export var ComponentTemplate = {
                     name: "String"
                 }
             },
-            providerId: {
-                serializedName: "providerId",
+            provider: {
+                serializedName: "provider",
                 nullable: true,
                 type: {
                     name: "String"
@@ -1150,13 +1174,6 @@ export var ComponentTemplate = {
             inputJsonSchema: {
                 serializedName: "inputJsonSchema",
                 nullable: true,
-                type: {
-                    name: "String"
-                }
-            },
-            scope: {
-                serializedName: "scope",
-                required: true,
                 type: {
                     name: "String"
                 }

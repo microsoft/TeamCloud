@@ -1998,7 +1998,6 @@ components:
         - displayName
         - id
         - isDefault
-        - managementGroupId
         - organization
         - slug
       type: object
@@ -2010,10 +2009,17 @@ components:
           readOnly: true
         displayName:
           type: string
-        managementGroupId:
-          type: string
         isDefault:
           type: boolean
+        managementGroupId:
+          type: string
+          nullable: true
+        subscriptionIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+          nullable: true
         id:
           type: string
       additionalProperties: false
@@ -2087,7 +2093,6 @@ components:
     DeploymentScopeDefinition:
       required:
         - displayName
-        - managementGroupId
       type: object
       properties:
         slug:
@@ -2096,10 +2101,17 @@ components:
           readOnly: true
         displayName:
           type: string
-        managementGroupId:
-          type: string
         isDefault:
           type: boolean
+        managementGroupId:
+          type: string
+          nullable: true
+        subscriptionIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+          nullable: true
       additionalProperties: false
     DeploymentScopeDataResult:
       type: object
@@ -2417,8 +2429,8 @@ components:
         - id
         - organization
         - projectId
+        - provider
         - requestedBy
-        - scope
         - templateId
         - type
       type: object
@@ -2432,9 +2444,8 @@ components:
           type: string
         projectId:
           type: string
-        providerId:
+        provider:
           type: string
-          nullable: true
         requestedBy:
           type: string
         displayName:
@@ -2449,12 +2460,6 @@ components:
         valueJson:
           type: string
           nullable: true
-        scope:
-          enum:
-            - System
-            - Project
-            - All
-          type: string
         type:
           enum:
             - Custom
@@ -2462,6 +2467,9 @@ components:
             - Environment
             - GitRepository
           type: string
+        resourceId:
+          type: string
+          nullable: true
         id:
           type: string
       additionalProperties: false
@@ -2563,7 +2571,6 @@ components:
         - organization
         - parentId
         - repository
-        - scope
         - type
       type: object
       properties:
@@ -2571,7 +2578,7 @@ components:
           type: string
         parentId:
           type: string
-        providerId:
+        provider:
           type: string
           nullable: true
         displayName:
@@ -2585,12 +2592,6 @@ components:
         inputJsonSchema:
           type: string
           nullable: true
-        scope:
-          enum:
-            - System
-            - Project
-            - All
-          type: string
         type:
           enum:
             - Custom

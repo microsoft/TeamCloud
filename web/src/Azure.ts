@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 // import { auth } from './API'
+import { auth } from './API';
 import { ManagementGroup, ManagementGroups, ResourceGroup, ResourceGroups, Subscription, Subscriptions } from './model';
 
 export enum PhotoSize {
@@ -16,18 +17,21 @@ export enum PhotoSize {
     size648x648 = '648x648'
 }
 
-const token =
-
 export const getManagementGroups = async (): Promise<ManagementGroup[]> => {
 
     const url = 'https://management.azure.com/providers/Microsoft.Management/managementGroups?api-version=2020-02-01';
+
+    const token = await auth.getManagementToken();
+
+    if (!token?.token)
+        throw 'Unable to get access token';
 
     console.log('==> GET ' + url);
 
     let response: Response = await fetch(url, {
         method: 'GET',
         headers: {
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${token?.token}`
         }
     });
 
@@ -50,12 +54,15 @@ export const getManagementGroup = async (id: string): Promise<ManagementGroup> =
 
     console.log('==> GET ' + url);
 
-    console.log(token)
+    const token = await auth.getManagementToken();
+
+    if (!token?.token)
+        throw 'Unable to get access token';
 
     let response: Response = await fetch(url, {
         method: 'GET',
         headers: {
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${token?.token}`
         }
     });
 
@@ -78,12 +85,15 @@ export const getSubscriptions = async (): Promise<Subscription[]> => {
 
     console.log('==> GET ' + url);
 
-    console.log(token)
+    const token = await auth.getManagementToken();
+
+    if (!token?.token)
+        throw 'Unable to get access token';
 
     let response: Response = await fetch(url, {
         method: 'GET',
         headers: {
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${token?.token}`
         }
     });
 
@@ -105,12 +115,15 @@ export const getResourceGroups = async (subscription: string): Promise<ResourceG
 
     console.log('==> GET ' + url);
 
-    console.log(token)
+    const token = await auth.getManagementToken();
+
+    if (!token?.token)
+        throw 'Unable to get access token';
 
     let response: Response = await fetch(url, {
         method: 'GET',
         headers: {
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${token?.token}`
         }
     });
 

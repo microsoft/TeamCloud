@@ -107,6 +107,7 @@ namespace TeamCloud.API.Controllers
                 Organization = organizationId,
                 DisplayName = deploymentScopeDefinition.DisplayName,
                 ManagementGroupId = deploymentScopeDefinition.ManagementGroupId,
+                SubscriptionIds = deploymentScopeDefinition.SubscriptionIds,
                 IsDefault = deploymentScopeDefinition.IsDefault
             };
 

@@ -78,18 +78,30 @@ export const DeploymentScope: coreHttp.CompositeMapper = {
           name: "String"
         }
       },
-      managementGroupId: {
-        serializedName: "managementGroupId",
-        required: true,
-        type: {
-          name: "String"
-        }
-      },
       isDefault: {
         serializedName: "isDefault",
         required: true,
         type: {
           name: "Boolean"
+        }
+      },
+      managementGroupId: {
+        serializedName: "managementGroupId",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      subscriptionIds: {
+        serializedName: "subscriptionIds",
+        nullable: true,
+        type: {
+          name: "Sequence",
+          element: {
+            type: {
+              name: "Uuid"
+            }
+          }
         }
       },
       id: {
@@ -216,17 +228,29 @@ export const DeploymentScopeDefinition: coreHttp.CompositeMapper = {
           name: "String"
         }
       },
-      managementGroupId: {
-        serializedName: "managementGroupId",
-        required: true,
-        type: {
-          name: "String"
-        }
-      },
       isDefault: {
         serializedName: "isDefault",
         type: {
           name: "Boolean"
+        }
+      },
+      managementGroupId: {
+        serializedName: "managementGroupId",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      subscriptionIds: {
+        serializedName: "subscriptionIds",
+        nullable: true,
+        type: {
+          name: "Sequence",
+          element: {
+            type: {
+              name: "Uuid"
+            }
+          }
         }
       }
     }
@@ -960,9 +984,9 @@ export const Component: coreHttp.CompositeMapper = {
           name: "String"
         }
       },
-      providerId: {
-        serializedName: "providerId",
-        nullable: true,
+      provider: {
+        serializedName: "provider",
+        required: true,
         type: {
           name: "String"
         }
@@ -1002,16 +1026,16 @@ export const Component: coreHttp.CompositeMapper = {
           name: "String"
         }
       },
-      scope: {
-        serializedName: "scope",
+      type: {
+        serializedName: "type",
         required: true,
         type: {
           name: "String"
         }
       },
-      type: {
-        serializedName: "type",
-        required: true,
+      resourceId: {
+        serializedName: "resourceId",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -1148,8 +1172,8 @@ export const ComponentTemplate: coreHttp.CompositeMapper = {
           name: "String"
         }
       },
-      providerId: {
-        serializedName: "providerId",
+      provider: {
+        serializedName: "provider",
         nullable: true,
         type: {
           name: "String"
@@ -1179,13 +1203,6 @@ export const ComponentTemplate: coreHttp.CompositeMapper = {
       inputJsonSchema: {
         serializedName: "inputJsonSchema",
         nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      scope: {
-        serializedName: "scope",
-        required: true,
         type: {
           name: "String"
         }
