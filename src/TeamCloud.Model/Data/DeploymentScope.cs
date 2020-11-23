@@ -4,6 +4,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 using TeamCloud.Model.Common;
 using TeamCloud.Model.Data.Core;
@@ -26,10 +27,11 @@ namespace TeamCloud.Model.Data
         public string DisplayName { get; set; }
 
         [JsonProperty(Required = Required.Always)]
+        public bool IsDefault { get; set; }
+
         public string ManagementGroupId { get; set; }
 
-        [JsonProperty(Required = Required.Always)]
-        public bool IsDefault { get; set; }
+        public List<Guid> SubscriptionIds { get; set; }
 
 
         public bool Equals(DeploymentScope other)

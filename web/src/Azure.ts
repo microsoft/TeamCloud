@@ -24,7 +24,7 @@ export const getManagementGroups = async (): Promise<ManagementGroup[]> => {
     const token = await auth.getManagementToken();
 
     if (!token?.token)
-        Promise.reject('Unable to get access token');
+        throw 'Unable to get access token';
 
     console.log('==> GET ' + url);
 
@@ -57,7 +57,7 @@ export const getManagementGroup = async (id: string): Promise<ManagementGroup> =
     const token = await auth.getManagementToken();
 
     if (!token?.token)
-        Promise.reject('Unable to get access token');
+        throw 'Unable to get access token';
 
     let response: Response = await fetch(url, {
         method: 'GET',
@@ -88,7 +88,7 @@ export const getSubscriptions = async (): Promise<Subscription[]> => {
     const token = await auth.getManagementToken();
 
     if (!token?.token)
-        Promise.reject('Unable to get access token');
+        throw 'Unable to get access token';
 
     let response: Response = await fetch(url, {
         method: 'GET',
@@ -118,7 +118,7 @@ export const getResourceGroups = async (subscription: string): Promise<ResourceG
     const token = await auth.getManagementToken();
 
     if (!token?.token)
-        Promise.reject('Unable to get access token');
+        throw 'Unable to get access token';
 
     let response: Response = await fetch(url, {
         method: 'GET',
