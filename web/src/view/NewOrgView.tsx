@@ -148,6 +148,7 @@ export const NewOrgView: React.FunctionComponent<INewOrgViewProps> = (props) => 
                 const scopeDef = {
                     displayName: scopeName,
                     managementGroupId: scopeManagementGroup,
+                    subscriptionIds: scopeSubscriptions,
                     isDefault: true
                 } as DeploymentScopeDefinition;
 
