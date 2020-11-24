@@ -28,7 +28,11 @@ export const getMe = async (): Promise<GraphUser> => {
         .select(_userSelect)
         .get();
     let me = response as GraphUser;
-    me.imageUrl = await getMePhoto();
+    try {
+        me.imageUrl = await getMePhoto();
+    } catch (error) {
+        console.error(error);
+    }
     return me;
 }
 
