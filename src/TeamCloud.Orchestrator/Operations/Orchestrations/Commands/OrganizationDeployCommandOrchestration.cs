@@ -5,6 +5,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
+using TeamCloud.Model.Common;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestration.Deployment;
@@ -47,7 +48,7 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Commands
                             .StartDeploymentAsync(nameof(OrganizationDeployActivity), new OrganizationDeployActivity.Input() { Organization = organization }, deploymentOutputEventName)
                             .ConfigureAwait(true);
 
-                        organization.ResourceState = Model.Data.Core.ResourceState.Provisioning;
+                        organization.ResourceState = ResourceState.Provisioning;
 
                         organization = await context
                             .CallActivityWithRetryAsync<Organization>(nameof(OrganizationSetActivity), new OrganizationSetActivity.Input() { Organization = organization })
@@ -58,12 +59,12 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Commands
                             .ConfigureAwait(true);
 
                         organization.ResourceId = deploymentOutput["resourceId"].ToString();
-                        organization.ResourceState = Model.Data.Core.ResourceState.Succeeded;
+                        organization.ResourceState = ResourceState.Succeeded;
                     }
                     catch (Exception deploymentExc)
                     {
                         log.LogError(deploymentExc, $"Failed to deploy resources for organization {organization.Id}: {deploymentExc.Message}");
-                        organization.ResourceState = Model.Data.Core.ResourceState.Failed;
+                        organization.ResourceState = ResourceState.Failed;
                     }
                     finally
                     {

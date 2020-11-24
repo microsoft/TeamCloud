@@ -1,6 +1,6 @@
-﻿namespace TeamCloud.Model.Data.Core
+﻿namespace TeamCloud.Model.Common
 {
-    public interface IResourceLink
+    public interface IResourceReference
     {
         public string ResourceId { get; set; }
 

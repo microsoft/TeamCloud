@@ -1,4 +1,4 @@
-﻿namespace TeamCloud.Model.Data.Core
+﻿namespace TeamCloud.Model.Common
 {
     public enum ResourceState
     {
