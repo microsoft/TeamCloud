@@ -56,7 +56,7 @@ export const NewOrgView: React.FunctionComponent<INewOrgViewProps> = (props) => 
         && orgSubscription
         && orgRegion
         && scopeName
-        && scopeManagementGroup
+        && (scopeManagementGroup || scopeSubscriptions)
         && templateName
         && templateUrl;
 
@@ -132,7 +132,9 @@ export const NewOrgView: React.FunctionComponent<INewOrgViewProps> = (props) => 
             setPercentComplete(undefined);
 
             const orgDef = {
-                displayName: orgName
+                displayName: orgName,
+                subscriptionId: orgSubscription,
+                location: orgRegion
             } as OrganizationDefinition;
 
             const orgResult = await api.createOrganization({ body: orgDef });
