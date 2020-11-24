@@ -4,7 +4,8 @@
 import React, { useState } from 'react';
 import { DefaultButton, Stack, Panel, Persona, PersonaSize, getTheme, Separator, PrimaryButton } from '@fluentui/react';
 import { GraphUser } from '../../model';
-// import { User } from 'teamcloud';
+import { useMsal } from '@azure/msal-react';
+import { auth } from '../../API';
 // import { UserForm } from './UserForm';
 
 export interface IUserInfoProps {
@@ -24,6 +25,7 @@ export const UserInfo: React.FunctionComponent<IUserInfoProps> = (props) => {
         root: {
             minHeight: '48px',
             paddingLeft: '10px',
+            paddingRight: '10px',
             selectors: {
                 ':hover': {
                     cursor: 'pointer',
@@ -52,13 +54,13 @@ export const UserInfo: React.FunctionComponent<IUserInfoProps> = (props) => {
     if (props.graphUser) {
         return <>
             <Persona
-                // text={props.graphUser.displayName}
-                // secondaryText={this.state.tenant.displayName || this.props.tenantId}
+                hidePersonaDetails
+                showInitialsUntilImageLoads
+                text={props.graphUser.displayName}
                 imageUrl={props.graphUser.imageUrl}
                 size={PersonaSize.size32}
                 styles={personaStyles}
-                onClick={() => setPanelOpen(true)}
-            />
+                onClick={() => setPanelOpen(true)} />
             <Panel
                 isLightDismiss
                 styles={panelStyles}
@@ -67,16 +69,16 @@ export const UserInfo: React.FunctionComponent<IUserInfoProps> = (props) => {
                 onDismiss={() => setPanelOpen(false)} >
                 <Stack>
                     <Persona
-                        text={props.graphUser?.displayName}
-                        secondaryText={props.graphUser?.jobTitle}
-                        tertiaryText={props.graphUser?.department}
-                        imageUrl={props.graphUser?.imageUrl}
+                        text={props.graphUser.displayName}
+                        secondaryText={props.graphUser.jobTitle}
+                        tertiaryText={props.graphUser.department}
+                        imageUrl={props.graphUser.imageUrl}
                         size={PersonaSize.size72} />
                     <Separator />
                     <Stack tokens={{ childrenGap: '8px' }}>
                         <PrimaryButton text='Edit' onClick={() => { }} />
                         {/* <PrimaryButton text='Edit' onClick={() => setEditPanelOpen(true)} /> */}
-                        <DefaultButton text='Sign out' onClick={() => { }} />
+                        <DefaultButton text='Sign out' onClick={() => auth.logout()} />
                         {/* <DefaultButton text='Sign out' onClick={() => props.onSignOut()} /> */}
                     </Stack>
                 </Stack>

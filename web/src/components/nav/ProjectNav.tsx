@@ -39,8 +39,7 @@ export const ProjectNav: React.FunctionComponent<IProjectNavProps> = (props) => 
     const _onRenderLink = (link?: INavLink): JSX.Element => <Persona
         text={link?.name}
         size={PersonaSize.size24}
-        coinProps={{ styles: { initials: { borderRadius: '4px' } } }}
-        imageInitials={link?.name[0].toUpperCase()} />;
+        coinProps={{ styles: { initials: { borderRadius: '4px' } } }} />
 
     return (
         <Stack

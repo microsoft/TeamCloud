@@ -42,8 +42,7 @@ export const ProjectList: React.FunctionComponent<IProjectListProps> = (props) =
                                 fontSize: theme.fonts.xLarge.fontSize,
                                 fontWeight: theme.fonts.xLarge.fontWeight
                             }
-                        }}
-                        imageInitials={p.displayName.split(' ').map(s => s[0].toUpperCase()).join('')} />
+                        }} />
                 </Stack>
             )
         }
