@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-// import { auth } from './API'
 import { auth } from './API';
 import { ManagementGroup, ManagementGroups, ResourceGroup, ResourceGroups, Subscription, Subscriptions } from './model';
 
@@ -24,7 +23,7 @@ export const getManagementGroups = async (): Promise<ManagementGroup[]> => {
     const token = await auth.getManagementToken();
 
     if (!token?.token)
-        throw 'Unable to get access token';
+        throw 'Failed to get access token';
 
     console.log('==> GET ' + url);
 
@@ -39,8 +38,8 @@ export const getManagementGroups = async (): Promise<ManagementGroup[]> => {
 
     const json = await response.json();
 
-    console.log('=== JSON (' + url + ')');
-    console.log(JSON.stringify(json));
+    // console.log('=== JSON (' + url + ')');
+    // console.log(JSON.stringify(json));
 
     const groups = json as ManagementGroups;
 
@@ -57,7 +56,7 @@ export const getManagementGroup = async (id: string): Promise<ManagementGroup> =
     const token = await auth.getManagementToken();
 
     if (!token?.token)
-        throw 'Unable to get access token';
+        throw 'Failed to get access token';
 
     let response: Response = await fetch(url, {
         method: 'GET',
@@ -70,8 +69,8 @@ export const getManagementGroup = async (id: string): Promise<ManagementGroup> =
 
     const json = await response.json();
 
-    console.log('=== JSON (' + url + ')');
-    console.log(JSON.stringify(json));
+    // console.log('=== JSON (' + url + ')');
+    // console.log(JSON.stringify(json));
 
     const group = json as ManagementGroup;
 
@@ -88,7 +87,7 @@ export const getSubscriptions = async (): Promise<Subscription[]> => {
     const token = await auth.getManagementToken();
 
     if (!token?.token)
-        throw 'Unable to get access token';
+        throw 'Failed to get access token';
 
     let response: Response = await fetch(url, {
         method: 'GET',
@@ -101,8 +100,8 @@ export const getSubscriptions = async (): Promise<Subscription[]> => {
 
     const json = await response.json();
 
-    console.log('=== JSON (' + url + ')');
-    console.log(JSON.stringify(json));
+    // console.log('=== JSON (' + url + ')');
+    // console.log(JSON.stringify(json));
 
     const subscriptions = json as Subscriptions;
 
@@ -118,7 +117,7 @@ export const getResourceGroups = async (subscription: string): Promise<ResourceG
     const token = await auth.getManagementToken();
 
     if (!token?.token)
-        throw 'Unable to get access token';
+        throw 'Failed to get access token';
 
     let response: Response = await fetch(url, {
         method: 'GET',
@@ -131,8 +130,8 @@ export const getResourceGroups = async (subscription: string): Promise<ResourceG
 
     const json = await response.json();
 
-    console.log('=== JSON (' + url + ')');
-    console.log(JSON.stringify(json));
+    // console.log('=== JSON (' + url + ')');
+    // console.log(JSON.stringify(json));
 
     const groups = json as ResourceGroups;
 

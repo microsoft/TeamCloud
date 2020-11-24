@@ -82,8 +82,8 @@ export class Auth implements TokenCredential, AuthenticationProvider {
 
         scopes = this.getScopes(scopes);
 
-        console.warn(`getToken (${scopes.includes('User.Read') ? 'graph' : 'api'})`);
-        // scopes.forEach(scope => console.warn(`scope: ${scope}`));
+        console.log(`getToken (${scopes.includes('User.Read') ? 'graph' : 'api'})`);
+        // scopes.forEach(scope => console.log(`scope: ${scope}`));
 
         // var authParameters: AuthenticationParameters = { scopes: scopes };
         // var authResponse = await this.authProvider.getAccessToken(authParameters);
