@@ -92,10 +92,10 @@ namespace TeamCloud.API.Controllers
                     .BadRequest("Request body must not be empty.", ResultErrorCode.ValidationError)
                     .ToActionResult();
 
-            // if (!projectTemplate.TryValidate(out var validationResult, serviceProvider: HttpContext.RequestServices))
-            //     return ErrorResult
-            //         .BadRequest(validationResult)
-            //         .ToActionResult();
+            if (!deploymentScopeDefinition.TryValidate(out var validationResult, serviceProvider: HttpContext.RequestServices))
+                return ErrorResult
+                    .BadRequest(validationResult)
+                    .ToActionResult();
 
             var currentUser = await UserService
                 .CurrentUserAsync(organizationId)
