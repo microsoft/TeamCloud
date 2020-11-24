@@ -15,7 +15,7 @@ namespace TeamCloud.API.Data.Validators
             RuleFor(obj => obj.DisplayName).NotEmpty();
 
             RuleFor(obj => obj.ManagementGroupId)
-                .Must(BeGuid)
+                .NotNull()
                 .When(obj => obj.SubscriptionIds is null || obj.SubscriptionIds.Count == 0)
                 .WithMessage("'{PropertyName}' must be a valid, non-empty GUID if no Subscription IDs are provided.");
 
@@ -24,9 +24,5 @@ namespace TeamCloud.API.Data.Validators
                 .When(obj => string.IsNullOrEmpty(obj.ManagementGroupId))
                 .WithMessage("'{PropertyName}' must contain at least 1 item/s if no Management Group ID is provided.");
         }
-        private static bool BeGuid(string guid)
-            => !string.IsNullOrEmpty(guid)
-            && Guid.TryParse(guid, out var outGuid)
-            && !outGuid.Equals(Guid.Empty);
     }
 }
