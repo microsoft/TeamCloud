@@ -24,10 +24,15 @@ export const RootNav: React.FunctionComponent<IRootNavProps> = (props) => {
 
     useEffect(() => {
         if (isAuthenticated && (orgs === undefined || (orgId && orgId !== 'new' && !orgs.some(o => o.id === orgId || o.slug === orgId)))) {
-            // console.error('getOrganizations');
             const _setOrgs = async () => {
                 const result = await api.getOrganizations();
                 setOrgs(result.data ?? undefined);
+                if (result.code === 200 && result.data) {
+                    if (result.data.length === 0)
+                        history.push('/orgs/new');
+                    else if (result.data.length === 1)
+                        history.push(`/orgs/${result.data[0].slug}`);
+                }
             };
             _setOrgs();
         }
@@ -75,12 +80,12 @@ export const RootNav: React.FunctionComponent<IRootNavProps> = (props) => {
                     styles={{ root: [{ width: '100%' }], link: { padding: '8px 4px 8px 12px' } }} />
             </Stack.Item>
             <Stack.Item>
-                <ActionButton
+                {!newOrgView && orgId !== undefined && (<ActionButton
                     disabled={newOrgView || orgId === undefined}
                     iconProps={{ iconName: 'Settings' }}
                     styles={{ root: { padding: '10px 8px 10px 12px' } }}
                     text={'Organization settings'}
-                    onClick={() => history.push(`/orgs/${orgId}/settings`)} />
+                    onClick={() => history.push(`/orgs/${orgId}/settings`)} />)}
             </Stack.Item>
         </Stack>
     );

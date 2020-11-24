@@ -4,7 +4,7 @@
 import React, { useState } from 'react';
 import { Route, Switch } from 'react-router-dom';
 import { Project } from 'teamcloud';
-import { Error404, NewOrganizationView, NewProjectView, ProjectView, ProjectsView } from '.';
+import { Error404, NewOrgView, NewProjectView, ProjectView, ProjectsView, OrgSettingsView, ProjectSettingsView } from '.';
 
 
 export interface IContentViewProps { }
@@ -21,7 +21,7 @@ export const ContentView: React.FunctionComponent<IContentViewProps> = (props: I
                 <></>
             </Route>
             <Route exact path='/orgs/new'>
-                <NewOrganizationView />
+                <NewOrgView />
             </Route>
             <Route exact path='/orgs/:orgId'>
                 <ProjectsView {...{ onProjectSelected: onProjectSelected }} />
@@ -29,45 +29,15 @@ export const ContentView: React.FunctionComponent<IContentViewProps> = (props: I
             <Route exact path='/orgs/:orgId/projects/new'>
                 <NewProjectView {...{}} />
             </Route>
-            <Route exact path='/orgs/:orgId/settings'>
-                <></>
+            <Route exact path={['/orgs/:orgId/settings', '/orgs/:orgId/settings/:settingId']}>
+                <OrgSettingsView {...{}} />
             </Route>
-            <Route exact path='/orgs/:orgId/settings/members'>
-                <></>
+            <Route exact path={['/orgs/:orgId/projects/:projectId/settings', '/orgs/:orgId/projects/:projectId/settings/:settingId']}>
+                <ProjectSettingsView {...{ project: project }} />
             </Route>
-            <Route exact path='/orgs/:orgId/settings/configuration'>
-                <></>
-            </Route>
-            <Route exact path='/orgs/:orgId/settings/organization'>
-                <></>
-            </Route>
-            <Route exact path='/orgs/:orgId/settings/scopes'>
-                <></>
-            </Route>
-            <Route exact path='/orgs/:orgId/settings/templates'>
-                <></>
-            </Route>
-            <Route exact path='/orgs/:orgId/settings/providers'>
-                <></>
-            </Route>
-
-            <Route exact path='/orgs/:orgId/projects/:projectId'>
+            <Route exact path={['/orgs/:orgId/projects/:projectId', '/orgs/:orgId/projects/:projectId/:navId']}>
                 <ProjectView {...{ project: project }} />
             </Route>
-            <Route exact path='/orgs/:orgId/projects/:projectId/settings'>
-                <></>
-            </Route>
-            <Route exact path='/orgs/:orgId/projects/:projectId/settings/components'>
-                <></>
-            </Route>
-            <Route exact path='/orgs/:orgId/projects/:projectId/settings/members'>
-                <></>
-            </Route>
-
-            <Route exact path='/orgs/:orgId/projects/:projectId/:navId'>
-                <ProjectView {...{ project: project }} />
-            </Route>
-
             <Route path='*'>
                 <Error404 />
             </Route>

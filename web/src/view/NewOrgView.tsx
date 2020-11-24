@@ -3,16 +3,16 @@
 
 import React, { useState, useEffect } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
-import { Stack, TextField, Dropdown, IDropdownOption, ProgressIndicator, Text, PrimaryButton, DefaultButton, getTheme, IconButton, Pivot, PivotItem, ComboBox, ChoiceGroup, Label, IComboBoxOption } from '@fluentui/react';
+import { Stack, TextField, Dropdown, IDropdownOption, ProgressIndicator, Text, PrimaryButton, DefaultButton, getTheme, IconButton, Pivot, PivotItem, ComboBox, ChoiceGroup, Label, IComboBoxOption, IComboBox } from '@fluentui/react';
 import { OrganizationDefinition, DeploymentScopeDefinition, ProjectTemplateDefinition } from 'teamcloud'
 import { getManagementGroups, getSubscriptions } from '../Azure'
 import { AzureRegions, Tags } from '../model';
-import { OrgSettingsDetail } from '../components';
+import { ContentContainer, ContentHeader, ContentProgress, OrgSettingsDetail } from '../components';
 import { api } from '../API';
 
-export interface INewOrganizationViewProps { }
+export interface INewOrgViewProps { }
 
-export const NewOrganizationView: React.FunctionComponent<INewOrganizationViewProps> = (props) => {
+export const NewOrgView: React.FunctionComponent<INewOrgViewProps> = (props) => {
 
     let history = useHistory();
 
@@ -29,6 +29,8 @@ export const NewOrganizationView: React.FunctionComponent<INewOrganizationViewPr
     const [scopeName, setScopeName] = useState<string>();
     const [scopeManagementGroup, setManagementScopeGroup] = useState<string>();
     const [scopeManagementGroupOptions, setScopeManagementGroupOptions] = useState<IDropdownOption[]>();
+    const [scopeSubscriptions, setScopeSubscriptions] = useState<string[]>();
+    const [scopeSubscriptionOptions, setScopeSubscriptionOptions] = useState<IComboBoxOption[]>();
 
     // Project Template
     const [templateName, setTemplateName] = useState<string>();
@@ -42,7 +44,7 @@ export const NewOrganizationView: React.FunctionComponent<INewOrganizationViewPr
     // Misc.
     const [pivotKey, setPivotKey] = useState<string>('Basic Settings');
     const [formEnabled, setFormEnabled] = useState<boolean>(true);
-    const [percentComplete, setPercentComplete] = useState(0);
+    const [percentComplete, setPercentComplete] = useState<number>();
     const [errorText, setErrorText] = useState<string>();
 
 
@@ -60,6 +62,15 @@ export const NewOrganizationView: React.FunctionComponent<INewOrganizationViewPr
 
 
     useEffect(() => {
+        if (!templateUrl) {
+            setTemplateUrl('https://github.com/microsoft/TeamCloud-Project-Sample.git');
+            setTemplateVersion('main');
+            if (!templateName)
+                setTemplateName('Sample Project Template');
+        }
+    }, [templateUrl, templateName]);
+
+    useEffect(() => {
         const newTags: Tags = {}
         newTags[''] = ''
         setTags(newTags)
@@ -68,25 +79,45 @@ export const NewOrganizationView: React.FunctionComponent<INewOrganizationViewPr
     useEffect(() => {
         const _resolveScopeGroup = async () => {
 
-            const groups = await getManagementGroups();
+            try {
+                const groups = await getManagementGroups();
 
-            if (!groups)
-                return;
+                if (!groups)
+                    return;
 
-            setScopeManagementGroupOptions(groups.map(g => ({ key: g.id, text: g.properties.displayName })))
+                setScopeManagementGroupOptions(groups.map(g => ({ key: g.id, text: g.properties.displayName })))
 
-            if (groups.length === 1 && groups[0].id === '/providers/Microsoft.Management/managementGroups/default') {
+                if (groups.length === 1 && groups[0].id === '/providers/Microsoft.Management/managementGroups/default') {
 
-                setScopeName(groups[0].properties.displayName);
-                setManagementScopeGroup(groups[0].id);
+                    setScopeName(groups[0].properties.displayName);
+                    setManagementScopeGroup(groups[0].id);
+                }
+            } catch (error) {
+                console.error(error);
             }
+        };
+        _resolveScopeGroup();
+    }, []);
 
-            const subscriptions = await getSubscriptions();
 
-            setOrgSubscriptionOptions(subscriptions.map(s => ({ key: s.subscriptionId, text: s.displayName })));
+    useEffect(() => {
+        const _resolveScopeGroup = async () => {
 
-            if (subscriptions.length === 1) {
-                setOrgSubscription(subscriptions[0].subscriptionId)
+            try {
+                const subscriptions = await getSubscriptions();
+
+                if (!subscriptions)
+                    return;
+
+                const options = subscriptions.map(s => ({ key: s.subscriptionId, text: s.displayName }));
+                setOrgSubscriptionOptions(options);
+                setScopeSubscriptionOptions(options);
+
+                if (subscriptions.length === 1) {
+                    setOrgSubscription(subscriptions[0].subscriptionId)
+                }
+            } catch (error) {
+                console.error(error)
             }
         };
         _resolveScopeGroup();
@@ -98,7 +129,7 @@ export const NewOrganizationView: React.FunctionComponent<INewOrganizationViewPr
 
             setFormEnabled(false);
 
-            setPercentComplete(.25);
+            setPercentComplete(undefined);
 
             const orgDef = {
                 displayName: orgName
@@ -108,7 +139,7 @@ export const NewOrganizationView: React.FunctionComponent<INewOrganizationViewPr
 
             const org = orgResult.data;
 
-            setPercentComplete(.5);
+            setPercentComplete(.3);
 
             if (org) {
 
@@ -122,7 +153,7 @@ export const NewOrganizationView: React.FunctionComponent<INewOrganizationViewPr
 
                 const scope = scopeResult.data;
 
-                setPercentComplete(.75);
+                setPercentComplete(.7);
 
                 const templateDef = {
                     displayName: templateName,
@@ -150,14 +181,6 @@ export const NewOrganizationView: React.FunctionComponent<INewOrganizationViewPr
     const _resetAndCloseForm = async () => {
 
         setFormEnabled(false);
-        // await msal.instance.acquireTokenRedirect({ scopes: ['https://management.azure.com/.default'] })
-        // const authResult = await msal.instance.handleRedirectPromise()
-        // console.error(authResult)
-        // if (authResult?.accessToken)
-
-        // setOrgName(undefined);
-        // setFormEnabled(true);
-        // props.onFormClose();
     };
 
 
@@ -192,6 +215,29 @@ export const NewOrganizationView: React.FunctionComponent<INewOrganizationViewPr
 
     const _onReview = (): boolean => pivotKeys.indexOf(pivotKey) === pivotKeys.length - 1;
 
+    const _onScopeSubscriptionsChange = (event: React.FormEvent<IComboBox>, option?: IComboBoxOption, index?: number, value?: string) => {
+        if (value) {
+            const values = value.split(',');
+            if (values.length > 0) {
+                const newOptions = values.map(v => ({ key: v.trim(), text: v.trim() }));
+                setScopeSubscriptionOptions(orgSubscriptionOptions?.concat(newOptions) ?? newOptions);
+                const validSubs = scopeSubscriptions?.filter(s => orgSubscriptionOptions?.findIndex(o => o ? o.key === s : false) ?? -1 >= 0) ?? [];
+                setScopeSubscriptions(validSubs.concat(newOptions.map(no => no.key.trim())));
+            }
+        } else if (option?.key && option.selected !== undefined) {
+            const sub = option.key as string;
+            if (scopeSubscriptions) {
+                if (!option.selected && scopeSubscriptions.indexOf(sub) >= 0) {
+                    setScopeSubscriptions(scopeSubscriptions.filter(s => s !== sub));
+                } else if (option.selected) {
+                    setScopeSubscriptions(scopeSubscriptions.concat([sub]));
+                }
+            } else if (option.selected) {
+                setScopeSubscriptions([sub]);
+            }
+        }
+    };
+
     const _getPrimaryButtonText = (): string => {
         const currentIndex = pivotKeys.indexOf(pivotKey);
         return currentIndex === pivotKeys.length - 1 ? 'Create organization' : `Next: ${pivotKeys[currentIndex + 1]}`;
@@ -199,37 +245,15 @@ export const NewOrganizationView: React.FunctionComponent<INewOrganizationViewPr
 
     const theme = getTheme();
 
-    // React.useEffect(() => {
-    //     const id = setInterval(() => {
-    //         setPercentComplete((0.1 + percentComplete) % 1);
-    //     }, 1000);
-    //     return () => {
-    //         clearInterval(id);
-    //     };
-    // });
-
     return (
         <Stack styles={{ root: { height: '100%' } }}>
-            <ProgressIndicator
+            <ContentProgress
                 percentComplete={percentComplete}
-                progressHidden={formEnabled}
-                styles={{ itemProgress: { padding: '0px', marginTop: '-2px' } }} />
-            <Stack.Item styles={{ root: { margin: '0px', padding: '24px 30px 20px 32px', backgroundColor: theme.palette.white, borderBottom: `${theme.palette.neutralLight} solid 1px` } }}>
-                <Stack horizontal
-                    verticalFill
-                    horizontalAlign='space-between'
-                    verticalAlign='baseline'>
-                    <Stack.Item>
-                        <Text styles={{ root: { fontSize: theme.fonts.xxLarge.fontSize, fontWeight: '700', letterSpacing: '-1.12px', marginLeft: '12px' } }}>
-                            New Organization
-                        </Text>
-                    </Stack.Item>
-                    <Stack.Item styles={{ root: { paddingRight: '12px' } }}>
-                        <IconButton iconProps={{ iconName: 'ChromeClose' }} onClick={() => history.replace('/')} />
-                    </Stack.Item>
-                </Stack>
-            </Stack.Item>
-            <Stack.Item styles={{ root: { padding: '24px 44px', height: '100%' } }}>
+                progressHidden={formEnabled} />
+            <ContentHeader title='New Organization' coin={false} wide>
+                <IconButton iconProps={{ iconName: 'ChromeClose' }} onClick={() => history.replace('/')} />
+            </ContentHeader>
+            <ContentContainer wide full>
                 <Pivot selectedKey={pivotKey} onLinkClick={(i, ev) => setPivotKey(i?.props.itemKey ?? 'Basic Settings')} styles={{ root: { height: '100%' } }}>
                     <PivotItem headerText='Basic Settings' itemKey='Basic Settings'>
                         <Stack tokens={{ childrenGap: '20px' }} styles={{ root: { padding: '24px 8px' } }}>
@@ -288,15 +312,36 @@ export const NewOrganizationView: React.FunctionComponent<INewOrganizationViewPr
                                     value={scopeName}
                                     onChange={(_ev, val) => setScopeName(val)} />
                             </Stack.Item>
-                            <Stack.Item>
-                                <Dropdown
-                                    required
-                                    label='Management Group'
-                                    disabled={!formEnabled || !scopeManagementGroupOptions}
-                                    selectedKey={scopeManagementGroup}
-                                    options={scopeManagementGroupOptions ?? []}
-                                    onChange={(_ev, val) => setManagementScopeGroup(val ? val.key as string : undefined)} />
-                            </Stack.Item>
+                            {scopeManagementGroupOptions && !scopeSubscriptions && (
+                                <Stack.Item>
+                                    <Dropdown
+                                        // required
+                                        label='Management Group'
+                                        disabled={!formEnabled || !scopeManagementGroupOptions}
+                                        selectedKey={scopeManagementGroup}
+                                        options={scopeManagementGroupOptions ?? []}
+                                        onChange={(_ev, val) => setManagementScopeGroup(val ? val.key as string : undefined)} />
+                                </Stack.Item>
+                            )}
+                            {scopeManagementGroupOptions && !scopeSubscriptions && !scopeManagementGroup && (
+                                <Stack.Item>
+                                    <Text>OR</Text>
+                                </Stack.Item>
+                            )}
+                            {scopeSubscriptionOptions && !scopeManagementGroup && (
+
+                                <Stack.Item>
+                                    <ComboBox
+                                        required={!scopeManagementGroupOptions}
+                                        label='Subscriptions'
+                                        disabled={!formEnabled}
+                                        multiSelect
+                                        allowFreeform
+                                        selectedKey={scopeSubscriptions}
+                                        options={scopeSubscriptionOptions ?? []}
+                                        onChange={_onScopeSubscriptionsChange} />
+                                </Stack.Item>
+                            )}
                         </Stack>
                     </PivotItem>
                     <PivotItem headerText='Project Template' itemKey='Project Template'>
@@ -359,12 +404,22 @@ export const NewOrganizationView: React.FunctionComponent<INewOrganizationViewPr
                                     { label: 'Web Portal', value: webPortalEnabled ? 'Enabled' : 'Disabled', required: true }
                                 ]} />
                             </Stack.Item>
-                            <Stack.Item>
-                                <OrgSettingsDetail title='Deployment Scope' details={[
-                                    { label: 'Name', value: scopeName, required: true },
-                                    { label: 'Management Group', value: scopeManagementGroup, required: true }
-                                ]} />
-                            </Stack.Item>
+                            {scopeManagementGroup && (
+                                <Stack.Item>
+                                    <OrgSettingsDetail title='Deployment Scope' details={[
+                                        { label: 'Name', value: scopeName, required: true },
+                                        { label: 'Management Group', value: scopeManagementGroup, required: true }
+                                    ]} />
+                                </Stack.Item>
+                            )}
+                            {scopeSubscriptions && (
+                                <Stack.Item>
+                                    <OrgSettingsDetail title='Deployment Scope' details={[
+                                        { label: 'Name', value: scopeName, required: true },
+                                        { label: 'Subscriptions', value: scopeSubscriptions.join(', '), required: true }
+                                    ]} />
+                                </Stack.Item>
+                            )}
                             <Stack.Item>
                                 <OrgSettingsDetail title='Project Template' details={[
                                     { label: 'Name', value: templateName, required: true },
@@ -376,7 +431,7 @@ export const NewOrganizationView: React.FunctionComponent<INewOrganizationViewPr
                         </Stack>
                     </PivotItem>
                 </Pivot>
-            </Stack.Item>
+            </ContentContainer>
             <Stack.Item styles={{ root: { padding: '24px 52px' } }}>
                 <PrimaryButton text={_getPrimaryButtonText()} disabled={!formEnabled || (_onReview() && !_formComplete())} onClick={() => _onReview() ? _submitForm() : setPivotKey(pivotKeys[pivotKeys.indexOf(pivotKey) + 1])} styles={{ root: { marginRight: 8 } }} />
                 <DefaultButton text='Cancel' disabled={!formEnabled} onClick={() => _resetAndCloseForm()} />

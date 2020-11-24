@@ -14,13 +14,13 @@ import GitHub from '../img/github.svg';
 import { api } from '../API';
 
 
-export interface IProjectMembersProps {
+export interface IProjectOverviewMembersProps {
     user?: User;
     project: Project;
     onEditMember: (member?: ProjectMember) => void;
 }
 
-export const ProjectMembers: React.FunctionComponent<IProjectMembersProps> = (props) => {
+export const ProjectOverviewMembers: React.FunctionComponent<IProjectOverviewMembersProps> = (props) => {
     const [members, setMembers] = useState<ProjectMember[]>();
     const [addMembersPanelOpen, setAddMembersPanelOpen] = useState(false);
 
@@ -31,7 +31,7 @@ export const ProjectMembers: React.FunctionComponent<IProjectMembersProps> = (pr
                 if (_users.data) {
                     let _members = await Promise.all(_users.data.map(async u => ({
                         user: u,
-                        graphUser: await getGraphUser(u.id),
+                        graphUser: u.userType === 'User' ? await getGraphUser(u.id) : u.userType === 'Provider' ? await getGraphDirectoryObject(u.id) : undefined,
                         projectMembership: u.projectMemberships!.find(m => m.projectId === props.project.id)!
                     })));
                     setMembers(_members);
@@ -48,15 +48,15 @@ export const ProjectMembers: React.FunctionComponent<IProjectMembersProps> = (pr
         }
     };
 
-    // const _findKnownProviderImage = (member: ProjectMember) => {
-    //     if (member.graphUser?.displayName) {
-    //         if (member.graphUser.displayName.startsWith('appinsights')) return AppInsights
-    //         if (member.graphUser.displayName.startsWith('devops')) return DevOps
-    //         if (member.graphUser.displayName.startsWith('devtestlabs')) return DevTestLabs
-    //         if (member.graphUser.displayName.startsWith('github')) return GitHub
-    //     }
-    //     return undefined;
-    // };
+    const _findKnownProviderImage = (member: ProjectMember) => {
+        if (member.graphUser?.displayName) {
+            if (member.graphUser.displayName.startsWith('appinsights')) return AppInsights
+            if (member.graphUser.displayName.startsWith('devops')) return DevOps
+            if (member.graphUser.displayName.startsWith('devtestlabs')) return DevTestLabs
+            if (member.graphUser.displayName.startsWith('github')) return GitHub
+        }
+        return undefined;
+    };
 
     const _removeButtonDisabled = (member: ProjectMember) => {
         return members && member.projectMembership.role === 'Owner'
@@ -90,7 +90,7 @@ export const ProjectMembers: React.FunctionComponent<IProjectMembersProps> = (pr
 
     const _facepilePersonas = (): IFacepilePersona[] => members?.map(m => ({
         personaName: m.graphUser?.displayName,
-        imageUrl: m.graphUser?.imageUrl,
+        imageUrl: m.graphUser?.imageUrl ?? _findKnownProviderImage(m),
         data: m,
     })) ?? [];
 
@@ -167,7 +167,6 @@ export const ProjectMembers: React.FunctionComponent<IProjectMembersProps> = (pr
 
     return (
         <>
-
             <ProjectDetailCard
                 title='Members'
                 callout={members?.length.toString()}

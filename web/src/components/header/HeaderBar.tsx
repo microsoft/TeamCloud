@@ -18,7 +18,6 @@ export const HeaderBar: React.FunctionComponent<IHeaderBarProps> = (props) => {
 
     useEffect(() => {
         if (isAuthenticated && graphUser === undefined) {
-            // console.error('getMe');
             const _setGraphUser = async () => {
                 const result = await getMe();
                 setGraphUser(result);
