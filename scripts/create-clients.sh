@@ -37,18 +37,62 @@ pushd $cdir/../src/TeamCloud.API > /dev/null
 
 popd > /dev/null
 
+pushd $cdir/../web > /dev/null
+
+    echo "Uninstalling teamcloud from web"
+    npm uninstall teamcloud
+    echo ""
+
+popd > /dev/null
+
+pushd $cdir/../web/teamcloud > /dev/null
+
+    if [ -d ./node_modules ]; then
+        echo "[TypeScript] Deleteing old node_modules"
+        rm -rf ./node_modules
+        echo ""
+    fi
+
+    if [ -f ./package-lock.json ]; then
+        echo "[TypeScript] Deleteing package.lock"
+        rm ./package-lock.json
+        echo ""
+    fi
+
+popd > /dev/null
+
 pushd $cdir/../openapi > /dev/null
 
     echo "Reseting autorest"
     autorest --reset
     echo ""
 
-    echo "Generating python client"
-    autorest --v3 python.md
+    # echo "Generating python client"
+    # autorest --v3 python.md
+    # echo ""
+
+    echo "[TypeScript] Generating client"
+    autorest --v3 typescript.md
     echo ""
 
-    echo "Generating typescript client"
-    autorest --v3 typescript.md
+popd > /dev/null
+
+pushd $cdir/../web/teamcloud > /dev/null
+
+    echo "[TypeScript] Installing node packages"
+    npm install
+    echo ""
+
+    echo "[TypeScript] Building client"
+    npm run-script build
+    echo ""
+
+popd > /dev/null
+
+pushd $cdir/../web > /dev/null
+
+    echo "[TypeScript] Installing temacloud to web"
+    npm install ./teamcloud
     echo ""
 
 popd > /dev/null
