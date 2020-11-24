@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands;
@@ -28,10 +29,13 @@ namespace TeamCloud.Orchestrator.Handlers
             this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         }
 
-        public async Task<ICommandResult> HandleAsync(ProjectCreateCommand command, IDurableClient durableClient = null)
+        public async Task<ICommandResult> HandleAsync(ProjectCreateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient durableClient = null)
         {
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
+
+            if (commandQueue is null)
+                throw new ArgumentNullException(nameof(commandQueue));
 
             var commandResult = command.CreateResult();
 
@@ -55,10 +59,13 @@ namespace TeamCloud.Orchestrator.Handlers
             return commandResult;
         }
 
-        public async Task<ICommandResult> HandleAsync(ProjectUpdateCommand command, IDurableClient durableClient = null)
+        public async Task<ICommandResult> HandleAsync(ProjectUpdateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient durableClient = null)
         {
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
+
+            if (commandQueue is null)
+                throw new ArgumentNullException(nameof(commandQueue));
 
             var commandResult = command.CreateResult();
 
@@ -78,10 +85,13 @@ namespace TeamCloud.Orchestrator.Handlers
             return commandResult;
         }
 
-        public async Task<ICommandResult> HandleAsync(ProjectDeleteCommand command, IDurableClient durableClient = null)
+        public async Task<ICommandResult> HandleAsync(ProjectDeleteCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient durableClient = null)
         {
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
+
+            if (commandQueue is null)
+                throw new ArgumentNullException(nameof(commandQueue));
 
             var commandResult = command.CreateResult();
 

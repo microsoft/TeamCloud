@@ -5,6 +5,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands;
@@ -24,10 +25,13 @@ namespace TeamCloud.Orchestrator.Handlers
             this.componentTemplateRepository = componentTemplateRepository ?? throw new ArgumentNullException(nameof(componentTemplateRepository));
         }
 
-        public async Task<ICommandResult> HandleAsync(ComponentTemplateCreateCommand command, IDurableClient durableClient = null)
+        public async Task<ICommandResult> HandleAsync(ComponentTemplateCreateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient durableClient = null)
         {
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
+
+            if (commandQueue is null)
+                throw new ArgumentNullException(nameof(commandQueue));
 
             var commandResult = command.CreateResult();
 
@@ -47,10 +51,13 @@ namespace TeamCloud.Orchestrator.Handlers
             return commandResult;
         }
 
-        public async Task<ICommandResult> HandleAsync(ComponentTemplateUpdateCommand command, IDurableClient durableClient = null)
+        public async Task<ICommandResult> HandleAsync(ComponentTemplateUpdateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient durableClient = null)
         {
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
+
+            if (commandQueue is null)
+                throw new ArgumentNullException(nameof(commandQueue));
 
             var commandResult = command.CreateResult();
 
@@ -70,10 +77,13 @@ namespace TeamCloud.Orchestrator.Handlers
             return commandResult;
         }
 
-        public async Task<ICommandResult> HandleAsync(ComponentTemplateDeleteCommand command, IDurableClient durableClient = null)
+        public async Task<ICommandResult> HandleAsync(ComponentTemplateDeleteCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient durableClient = null)
         {
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
+
+            if (commandQueue is null)
+                throw new ArgumentNullException(nameof(commandQueue));
 
             var commandResult = command.CreateResult();
 

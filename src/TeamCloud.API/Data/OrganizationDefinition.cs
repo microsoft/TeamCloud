@@ -16,5 +16,12 @@ namespace TeamCloud.API.Data
 
         [JsonProperty(Required = Required.Always)]
         public string DisplayName { get; set; }
+
+        [JsonProperty(Required = Required.Always)]
+        public string SubscriptionId { get; set; }
+
+        [JsonProperty(Required = Required.Always)]
+        public string Location { get; set; }
+
     }
 }

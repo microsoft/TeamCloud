@@ -5,6 +5,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Orchestration;
@@ -49,7 +50,7 @@ namespace TeamCloud.Orchestrator.Handlers
             return false;
         }
 
-        public async Task<ICommandResult> HandleAsync(ICommand command, IDurableClient durableClient = null)
+        public async Task<ICommandResult> HandleAsync(ICommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient durableClient = null)
         {
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
@@ -57,34 +58,29 @@ namespace TeamCloud.Orchestrator.Handlers
             if (durableClient is null)
                 throw new ArgumentNullException(nameof(durableClient));
 
-            if (CanHandle(command, true))
+            var wrapperInstanceId = GetCommandOrchestrationWrapperInstanceId(command.CommandId);
+
+            try
             {
-                var wrapperInstanceId = GetCommandOrchestrationWrapperInstanceId(command.CommandId);
-
-                try
-                {
-                    _ = await durableClient
-                        .StartNewAsync(nameof(OrchestratorCommandOrchestration), wrapperInstanceId, command)
-                        .ConfigureAwait(false);
-                }
-                catch (InvalidOperationException exc)
-                {
-                    if ((await durableClient.GetCommandResultAsync(command).ConfigureAwait(false)) is null)
-                    {
-                        throw; // bubble exception - as we can't find a command wrapper orchestration.
-                    }
-                    else
-                    {
-                        throw new NotSupportedException($"Orchstration for command {command.CommandId} can only started once", exc);
-                    }
-                }
-
-                return await durableClient
-                    .GetCommandResultAsync(command)
+                _ = await durableClient
+                    .StartNewAsync(nameof(OrchestratorCommandOrchestration), wrapperInstanceId, command)
                     .ConfigureAwait(false);
             }
+            catch (InvalidOperationException exc)
+            {
+                if ((await durableClient.GetCommandResultAsync(command).ConfigureAwait(false)) is null)
+                {
+                    throw; // bubble exception - as we can't find a command wrapper orchestration.
+                }
+                else
+                {
+                    throw new NotSupportedException($"Orchstration for command {command.CommandId} can only started once", exc);
+                }
+            }
 
-            throw new NotImplementedException($"Missing orchestration to handle {command.GetType().Name} at {GetType()}");
+            return await durableClient
+                .GetCommandResultAsync(command)
+                .ConfigureAwait(false);
         }
     }
 }

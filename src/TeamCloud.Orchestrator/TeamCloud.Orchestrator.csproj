@@ -22,12 +22,14 @@
     <None Remove="Templates\ComponentDeployTemplate.json" />
     <None Remove="Templates\ComponentResetTemplate.json" />
     <None Remove="Templates\CreateProjectTemplate_ProjectResources.json" />
+    <None Remove="Templates\OrganizationDeployTemplate.json" />
     <None Remove="Templates\ProjectCreateTemplate.json" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Templates\ComponentDeployTemplate.json" />
     <EmbeddedResource Include="Templates\ComponentResetTemplate.json" />
+    <EmbeddedResource Include="Templates\OrganizationDeployTemplate.json" />
     <EmbeddedResource Include="Templates\ProjectCreateTemplate.json" />
   </ItemGroup>
 

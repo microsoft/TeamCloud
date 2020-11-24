@@ -100,7 +100,9 @@ namespace TeamCloud.API.Controllers
             {
                 Id = Guid.NewGuid().ToString(),
                 Tenant = UserService.CurrentUserTenant,
-                DisplayName = organizationDefinition.DisplayName
+                DisplayName = organizationDefinition.DisplayName,
+                SubscriptionId = organizationDefinition.SubscriptionId,
+                Location = organizationDefinition.Location
             };
 
             var currentUser = await UserService

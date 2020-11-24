@@ -6,6 +6,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Data;
 using TeamCloud.Git.Services;
@@ -30,10 +31,13 @@ namespace TeamCloud.Orchestrator.Handlers
             this.componentTemplateRepository = componentTemplateRepository ?? throw new ArgumentNullException(nameof(componentTemplateRepository));
         }
 
-        public async Task<ICommandResult> HandleAsync(ProjectTemplateCreateCommand command, IDurableClient durableClient = null)
+        public async Task<ICommandResult> HandleAsync(ProjectTemplateCreateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient durableClient = null)
         {
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
+
+            if (commandQueue is null)
+                throw new ArgumentNullException(nameof(commandQueue));
 
             var commandResult = command.CreateResult();
             var projectTemplate = command.Payload;
@@ -69,10 +73,13 @@ namespace TeamCloud.Orchestrator.Handlers
             return commandResult;
         }
 
-        public async Task<ICommandResult> HandleAsync(ProjectTemplateUpdateCommand command, IDurableClient durableClient = null)
+        public async Task<ICommandResult> HandleAsync(ProjectTemplateUpdateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient durableClient = null)
         {
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
+
+            if (commandQueue is null)
+                throw new ArgumentNullException(nameof(commandQueue));
 
             var commandResult = command.CreateResult();
 
@@ -92,10 +99,13 @@ namespace TeamCloud.Orchestrator.Handlers
             return commandResult;
         }
 
-        public async Task<ICommandResult> HandleAsync(ProjectTemplateDeleteCommand command, IDurableClient durableClient = null)
+        public async Task<ICommandResult> HandleAsync(ProjectTemplateDeleteCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient durableClient = null)
         {
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
+
+            if (commandQueue is null)
+                throw new ArgumentNullException(nameof(commandQueue));
 
             var commandResult = command.CreateResult();
             var projectTemplate = command.Payload;

@@ -3,7 +3,7 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Model.Commands
 {
-    public sealed class ComponentDeployCommandResult : CommandResult<Deployment>
+    public sealed class ComponentDeployCommandResult : CommandResult<Component>
     {
     }
 }

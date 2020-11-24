@@ -13,7 +13,7 @@ using TeamCloud.Serialization;
 namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public sealed class Organization : ContainerDocument, ISlug, IEquatable<Organization>, ITags
+    public sealed class Organization : ContainerDocument, ISlug, IEquatable<Organization>, ITags, IResourceLink
     {
         [PartitionKey]
         [JsonProperty(Required = Required.Always)]
@@ -26,8 +26,17 @@ namespace TeamCloud.Model.Data
         [JsonProperty(Required = Required.Always)]
         public string DisplayName { get; set; }
 
+        [JsonProperty(Required = Required.Always)]
+        public string SubscriptionId { get; set; }
+
+        [JsonProperty(Required = Required.Always)]
+        public string Location { get; set; }
+
         public IDictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();
 
+        public string ResourceId { get; set; }
+
+        public ResourceState ResourceState { get; set; } = ResourceState.Pending;
 
         public bool Equals(Organization other)
             => Id.Equals(other?.Id, StringComparison.OrdinalIgnoreCase);

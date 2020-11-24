@@ -5,6 +5,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands;
@@ -26,10 +27,13 @@ namespace TeamCloud.Orchestrator.Handlers
             this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         }
 
-        public async Task<ICommandResult> HandleAsync(OrganizationCreateCommand command, IDurableClient durableClient = null)
+        public async Task<ICommandResult> HandleAsync(OrganizationCreateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient durableClient = null)
         {
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
+
+            if (commandQueue is null)
+                throw new ArgumentNullException(nameof(commandQueue));
 
             var commandResult = command.CreateResult();
 
@@ -43,6 +47,10 @@ namespace TeamCloud.Orchestrator.Handlers
                     .AddAsync(command.User)
                     .ConfigureAwait(false);
 
+                await commandQueue
+                    .AddAsync(new OrganizationDeployCommand(command.User, commandResult.Result))
+                    .ConfigureAwait(false);
+
                 commandResult.RuntimeStatus = CommandRuntimeStatus.Completed;
             }
             catch (Exception exc)
@@ -53,10 +61,13 @@ namespace TeamCloud.Orchestrator.Handlers
             return commandResult;
         }
 
-        public async Task<ICommandResult> HandleAsync(OrganizationUpdateCommand command, IDurableClient durableClient = null)
+        public async Task<ICommandResult> HandleAsync(OrganizationUpdateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient durableClient = null)
         {
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
+
+            if (commandQueue is null)
+                throw new ArgumentNullException(nameof(commandQueue));
 
             var commandResult = command.CreateResult();
 
@@ -76,10 +87,13 @@ namespace TeamCloud.Orchestrator.Handlers
             return commandResult;
         }
 
-        public Task<ICommandResult> HandleAsync(OrganizationDeleteCommand command, IDurableClient durableClient = null)
+        public Task<ICommandResult> HandleAsync(OrganizationDeleteCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient durableClient = null)
         {
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
+
+            if (commandQueue is null)
+                throw new ArgumentNullException(nameof(commandQueue));
 
             throw new NotSupportedException();
 

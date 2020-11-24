@@ -87,4 +87,12 @@ namespace TeamCloud.Model.Commands.Core
         protected DeleteCommand(User user, TPayload payload) : base(CommandAction.Delete, user, payload)
         { }
     }
+
+    public abstract class DeployCommand<TPayload, TCommandResult> : Command<TPayload, TCommandResult>
+        where TPayload : class, new()
+        where TCommandResult : ICommandResult, new()
+    {
+        protected DeployCommand(User user, TPayload payload) : base(CommandAction.Create, user, payload)
+        { }
+    }
 }

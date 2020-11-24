@@ -5,6 +5,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Model.Commands.Core;
 
@@ -22,7 +23,7 @@ namespace TeamCloud.Orchestrator.Handlers
                 .IsAssignableFrom(GetType());
         }
 
-        public Task<ICommandResult> HandleAsync(ICommand command, IDurableClient durableClient = null)
+        public Task<ICommandResult> HandleAsync(ICommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient durableClient = null)
         {
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
@@ -31,10 +32,10 @@ namespace TeamCloud.Orchestrator.Handlers
             {
                 var handleMethod = typeof(ICommandHandler<>)
                     .MakeGenericType(command.GetType())
-                    .GetMethod(nameof(HandleAsync), new Type[] { command.GetType(), typeof(IDurableClient) });
+                    .GetMethod(nameof(HandleAsync), new Type[] { command.GetType(), typeof(IAsyncCollector<ICommand>), typeof(IDurableClient) });
 
                 return (Task<ICommandResult>)handleMethod
-                    .Invoke(this, new object[] { command, durableClient });
+                    .Invoke(this, new object[] { command, commandQueue, durableClient });
             }
 
             throw new NotImplementedException($"Missing orchestrator command handler implementation ICommandHandler<{command.GetType().Name}> at {GetType()}");
@@ -44,6 +45,6 @@ namespace TeamCloud.Orchestrator.Handlers
     public interface ICommandHandler<T> : ICommandHandler
         where T : class, ICommand
     {
-        Task<ICommandResult> HandleAsync(T command, IDurableClient durableClient = null);
+        Task<ICommandResult> HandleAsync(T command, IAsyncCollector<ICommand> commandQueue, IDurableClient durableClient = null);
     }
 }

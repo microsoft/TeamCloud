@@ -1,0 +1,91 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "organizationId": {
+      "type": "string"
+    }
+  },
+  "variables": {
+    "ResourceGroupPrefix": "TCOrganization",
+    "ResourceGroupDeployment":"[concat(deployment().name, '-deploy')]",
+    "ResourceGroupName": "[concat(variables('ResourceGroupPrefix'), '-', parameters('organizationId'))]"
+  },
+  "resources": [
+    {
+      "name": "[variables('ResourceGroupName')]",
+      "type": "Microsoft.Resources/resourceGroups",
+      "apiVersion": "2020-06-01",
+      "location": "[deployment().location]",
+      "tags": {},
+      "properties": {}
+    },
+    {
+      "name": "[variables('ResourceGroupDeployment')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-06-01",
+      "resourceGroup": "[variables('ResourceGroupName')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroupName'))]"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "parameters": {
+          "organizationId": {
+            "value": "[parameters('organizationId')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "organizationId": {
+              "type": "string"
+            }
+          },
+          "variables": {
+            "ResourcePrefix": "TC",
+            "ResourceName_SharedImageGallery": "[toLower(concat(variables('ResourcePrefix'), replace(parameters('organizationId'), '-', '')))]",
+            "ResourceName_ContainerRegistry": "[toLower(concat(variables('ResourcePrefix'), replace(parameters('organizationId'), '-', '')))]"
+          },
+          "resources": [
+            {
+              "name": "[variables('ResourceName_SharedImageGallery')]",
+              "type": "Microsoft.Compute/galleries",
+              "apiVersion": "2019-12-01",
+              "location": "[resourceGroup().location]"
+            },
+            {
+              "name": "[variables('ResourceName_ContainerRegistry')]",
+              "type": "Microsoft.ContainerRegistry/registries",
+              "apiVersion": "2019-12-01-preview",
+              "location": "[resourceGroup().location]",
+              "sku": {
+                "name": "Standard",
+                "tier": "Standard"
+              },
+              "properties": {
+                "adminUserEnabled": false
+              }
+            }
+          ],
+          "outputs": {
+            "resourceId": {
+              "type": "string",
+              "value": "[resourceGroup().id]"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "resourceId": {
+      "type": "string",
+      "value": "[reference(variables('ResourceGroupDeployment'), '2020-06-01').outputs.resourceId.value]"
+    }
+  }
+}

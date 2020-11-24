@@ -3,6 +3,7 @@
  *  Licensed under the MIT License.
  */
 
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -12,6 +13,17 @@ namespace TeamCloud.Orchestration.Deployment
 {
     public static class AzureDeploymentExtensions
     {
+        public static Task<IReadOnlyDictionary<string, object>> WaitForDeploymentOutput(this IDurableOrchestrationContext orchestrationContext, string deploymentOutputEventName, TimeSpan timeout)
+        {
+            if (orchestrationContext is null)
+                throw new ArgumentNullException(nameof(orchestrationContext));
+
+            if (string.IsNullOrEmpty(deploymentOutputEventName))
+                throw new ArgumentException($"'{nameof(deploymentOutputEventName)}' cannot be null or empty", nameof(deploymentOutputEventName));
+
+            return orchestrationContext.WaitForExternalEvent<IReadOnlyDictionary<string, object>>(deploymentOutputEventName, timeout);
+        }
+
         public static Task<IReadOnlyDictionary<string, object>> GetDeploymentOutputAsync(this IDurableOrchestrationContext orchestrationContext, string deploymentResourceId)
         {
             if (orchestrationContext is null)
