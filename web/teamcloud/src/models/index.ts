@@ -83,10 +83,14 @@ export interface Organization {
    */
   readonly slug: string;
   displayName: string;
+  subscriptionId: string;
+  location: string;
   /**
    * Dictionary of <string>
    */
   tags?: { [propertyName: string]: string } | null;
+  resourceId?: string | null;
+  resourceState?: Enum1;
   id: string;
 }
 
@@ -96,6 +100,8 @@ export interface OrganizationDefinition {
    */
   readonly slug?: string | null;
   displayName: string;
+  subscriptionId: string;
+  location: string;
 }
 
 export interface OrganizationDataResult {
@@ -359,6 +365,10 @@ export type ResultErrorCode =
   | "Unauthorized"
   | "Forbidden"
   | string;
+/**
+ * Defines values for Enum1.
+ */
+export type Enum1 = 0 | 1 | 2 | 3 | number;
 /**
  * Defines values for UserType.
  */

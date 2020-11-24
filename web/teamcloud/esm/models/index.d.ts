@@ -66,12 +66,16 @@ export interface Organization {
      */
     readonly slug: string;
     displayName: string;
+    subscriptionId: string;
+    location: string;
     /**
      * Dictionary of <string>
      */
     tags?: {
         [propertyName: string]: string;
     } | null;
+    resourceId?: string | null;
+    resourceState?: Enum1;
     id: string;
 }
 export interface OrganizationDefinition {
@@ -80,6 +84,8 @@ export interface OrganizationDefinition {
      */
     readonly slug?: string | null;
     displayName: string;
+    subscriptionId: string;
+    location: string;
 }
 export interface OrganizationDataResult {
     code?: number;
@@ -318,6 +324,10 @@ export interface ProjectTemplateDataResult {
  * Defines values for ResultErrorCode.
  */
 export declare type ResultErrorCode = "Unknown" | "Failed" | "Conflict" | "NotFound" | "ServerError" | "ValidationError" | "Unauthorized" | "Forbidden" | string;
+/**
+ * Defines values for Enum1.
+ */
+export declare type Enum1 = 0 | 1 | 2 | 3 | number;
 /**
  * Defines values for UserType.
  */

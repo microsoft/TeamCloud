@@ -2132,7 +2132,9 @@ components:
       required:
         - displayName
         - id
+        - location
         - slug
+        - subscriptionId
         - tenant
       type: object
       properties:
@@ -2143,11 +2145,26 @@ components:
           readOnly: true
         displayName:
           type: string
+        subscriptionId:
+          type: string
+        location:
+          type: string
         tags:
           type: object
           additionalProperties:
             type: string
           nullable: true
+        resourceId:
+          type: string
+          nullable: true
+        resourceState:
+          enum:
+            - 0
+            - 1
+            - 2
+            - 3
+          type: integer
+          format: int32
         id:
           type: string
       additionalProperties: false
@@ -2173,6 +2190,8 @@ components:
     OrganizationDefinition:
       required:
         - displayName
+        - location
+        - subscriptionId
       type: object
       properties:
         slug:
@@ -2180,6 +2199,10 @@ components:
           nullable: true
           readOnly: true
         displayName:
+          type: string
+        subscriptionId:
+          type: string
+        location:
           type: string
       additionalProperties: false
     OrganizationDataResult:

@@ -171,6 +171,9 @@ export interface DeploymentScopeListDataResult {
     status?: string | null;
 }
 
+// @public
+export type Enum1 = 0 | 1 | 2 | 3 | number;
+
 // @public (undocumented)
 export interface ErrorResult {
     // (undocumented)
@@ -187,7 +190,15 @@ export interface Organization {
     displayName: string;
     // (undocumented)
     id: string;
+    // (undocumented)
+    location: string;
+    // (undocumented)
+    resourceId?: string | null;
+    // (undocumented)
+    resourceState?: Enum1;
     readonly slug: string;
+    // (undocumented)
+    subscriptionId: string;
     tags?: {
         [propertyName: string]: string;
     } | null;
@@ -211,7 +222,11 @@ export interface OrganizationDataResult {
 export interface OrganizationDefinition {
     // (undocumented)
     displayName: string;
+    // (undocumented)
+    location: string;
     readonly slug?: string | null;
+    // (undocumented)
+    subscriptionId: string;
 }
 
 // @public (undocumented)

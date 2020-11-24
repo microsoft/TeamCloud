@@ -3415,7 +3415,9 @@
         "required": [
           "displayName",
           "id",
+          "location",
           "slug",
+          "subscriptionId",
           "tenant"
         ],
         "type": "object",
@@ -3430,12 +3432,32 @@
           "displayName": {
             "type": "string"
           },
+          "subscriptionId": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
           "tags": {
             "type": "object",
             "additionalProperties": {
               "type": "string"
             },
             "nullable": true
+          },
+          "resourceId": {
+            "type": "string",
+            "nullable": true
+          },
+          "resourceState": {
+            "enum": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "type": "integer",
+            "format": "int32"
           },
           "id": {
             "type": "string"
@@ -3471,7 +3493,9 @@
       },
       "OrganizationDefinition": {
         "required": [
-          "displayName"
+          "displayName",
+          "location",
+          "subscriptionId"
         ],
         "type": "object",
         "properties": {
@@ -3481,6 +3505,12 @@
             "readOnly": true
           },
           "displayName": {
+            "type": "string"
+          },
+          "subscriptionId": {
+            "type": "string"
+          },
+          "location": {
             "type": "string"
           }
         },

@@ -118,6 +118,11 @@ export declare interface DeploymentScopeListDataResult {
     location?: string | null;
 }
 
+/**
+ * Defines values for Enum1.
+ */
+export declare type Enum1 = 0 | 1 | 2 | 3 | number;
+
 export declare interface ErrorResult {
     code?: number;
     status?: string | null;
@@ -131,12 +136,16 @@ export declare interface Organization {
      */
     readonly slug: string;
     displayName: string;
+    subscriptionId: string;
+    location: string;
     /**
      * Dictionary of <string>
      */
     tags?: {
         [propertyName: string]: string;
     } | null;
+    resourceId?: string | null;
+    resourceState?: Enum1;
     id: string;
 }
 
@@ -153,6 +162,8 @@ export declare interface OrganizationDefinition {
      */
     readonly slug?: string | null;
     displayName: string;
+    subscriptionId: string;
+    location: string;
 }
 
 export declare interface OrganizationListDataResult {

@@ -363,12 +363,39 @@ export const Organization: coreHttp.CompositeMapper = {
           name: "String"
         }
       },
+      subscriptionId: {
+        serializedName: "subscriptionId",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
+      location: {
+        serializedName: "location",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
       tags: {
         serializedName: "tags",
         nullable: true,
         type: {
           name: "Dictionary",
           value: { type: { name: "String" } }
+        }
+      },
+      resourceId: {
+        serializedName: "resourceId",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      resourceState: {
+        serializedName: "resourceState",
+        type: {
+          name: "Number"
         }
       },
       id: {
@@ -397,6 +424,20 @@ export const OrganizationDefinition: coreHttp.CompositeMapper = {
       },
       displayName: {
         serializedName: "displayName",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
+      subscriptionId: {
+        serializedName: "subscriptionId",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
+      location: {
+        serializedName: "location",
         required: true,
         type: {
           name: "String"
