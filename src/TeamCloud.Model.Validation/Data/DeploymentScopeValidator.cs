@@ -20,7 +20,7 @@ namespace TeamCloud.Model.Validation.Data
                 .NotEmpty();
 
             RuleFor(obj => obj.ManagementGroupId)
-                .MustBeGuid()
+                .NotNull()
                 .When(obj => obj.SubscriptionIds is null || obj.SubscriptionIds.Count == 0);
 
             RuleFor(obj => obj.SubscriptionIds)
