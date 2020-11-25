@@ -9,7 +9,7 @@ export interface IContentProgressProps {
     percentComplete?: number;
 }
 
-export const ContentProgress: React.FunctionComponent<IContentProgressProps> = (props) => {
+export const ContentProgress: React.FC<IContentProgressProps> = (props) => {
 
     return (
         <ProgressIndicator

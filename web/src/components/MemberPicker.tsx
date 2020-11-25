@@ -7,7 +7,7 @@ import { Project } from 'teamcloud';
 import { searchGraphUsers } from '../MSGraph';
 import { GraphUser } from '../model'
 
-export interface IProjectMemberPickerProps {
+export interface IMemberPickerProps {
     project?: Project;
     formEnabled: boolean;
     onChange: (users?: GraphUser[]) => void;
@@ -17,7 +17,7 @@ export interface IGraphUserPersonaProps extends IPersonaProps {
     graphUser?: GraphUser;
 }
 
-export const ProjectMemberPicker: React.FunctionComponent<IProjectMemberPickerProps> = (props) => {
+export const MemberPicker: React.FC<IMemberPickerProps> = (props) => {
 
     const _onResolveSuggestions = async (filter: string, selectedItems?: IGraphUserPersonaProps[], limitResults?: number): Promise<IGraphUserPersonaProps[]> => {
         if (!filter || !filter.length || filter.length === 0) return [];

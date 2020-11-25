@@ -1,22 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Stack, Shimmer, DefaultButton, IButtonStyles, getTheme, ICommandBarItemProps, Dialog, DialogType, DialogFooter, PrimaryButton, IContextualMenuProps, IContextualMenuItem } from '@fluentui/react';
 import { Project, Component, ErrorResult } from 'teamcloud';
-import { ProjectDetailCard, ProjectComponentForm } from '.';
-// import AppInsights from '../img/appinsights.svg';
-// import DevOps from '../img/devops.svg';
-// import DevTestLabs from '../img/devtestlabs.svg';
-// import GitHub from '../img/github.svg';
+import { DetailCard, ComponentForm } from '.';
 import { api } from '../API';
 
-export interface IProjectComponentsProps {
+export interface IComponentListProps {
     project: Project;
     components?: Component[];
 }
 
-export const ProjectComponents: React.FunctionComponent<IProjectComponentsProps> = (props) => {
+export const ComponentList: React.FC<IComponentListProps> = (props) => {
 
     const [component, setComponent] = useState<Component>();
     const [addComponentPanelOpen, setAddComponentPanelOpen] = useState(false);
@@ -99,7 +95,7 @@ export const ProjectComponents: React.FunctionComponent<IProjectComponentsProps>
 
     return (
         <>
-            <ProjectDetailCard
+            <DetailCard
                 title='Components'
                 callout={props.components?.length.toString()}
                 commandBarItems={_getCommandBarItems()} >
@@ -111,8 +107,8 @@ export const ProjectComponents: React.FunctionComponent<IProjectComponentsProps>
                         {_getComponentStacks()}
                     </Stack>
                 </Shimmer>
-            </ProjectDetailCard>
-            <ProjectComponentForm
+            </DetailCard>
+            <ComponentForm
                 // user={props.user}
                 project={props.project}
                 panelIsOpen={addComponentPanelOpen}

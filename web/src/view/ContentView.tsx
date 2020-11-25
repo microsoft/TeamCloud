@@ -9,7 +9,7 @@ import { Error404, NewOrgView, NewProjectView, ProjectView, ProjectsView, OrgSet
 
 export interface IContentViewProps { }
 
-export const ContentView: React.FunctionComponent<IContentViewProps> = (props: IContentViewProps) => {
+export const ContentView: React.FC<IContentViewProps> = (props: IContentViewProps) => {
 
     const [project, setProject] = useState<Project>();
 

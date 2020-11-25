@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
-import { Stack, Text, PrimaryButton, Pivot, PivotItem } from '@fluentui/react';
+import { Stack, PrimaryButton, Pivot, PivotItem } from '@fluentui/react';
 import { useIsAuthenticated } from '@azure/msal-react';
 import { Organization, Project } from 'teamcloud'
 import { ContentContainer, ContentHeader, ContentProgress, ProjectList } from '../components';
@@ -13,7 +13,7 @@ export interface IProjectsViewProps {
     onProjectSelected?: (project: Project) => void;
 }
 
-export const ProjectsView: React.FunctionComponent<IProjectsViewProps> = (props: IProjectsViewProps) => {
+export const ProjectsView: React.FC<IProjectsViewProps> = (props: IProjectsViewProps) => {
 
     let history = useHistory();
     let { orgId } = useParams() as { orgId: string };

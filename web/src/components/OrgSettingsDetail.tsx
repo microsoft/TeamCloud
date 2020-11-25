@@ -9,7 +9,7 @@ export interface IOrgSettingsDetailProps {
     details: { label: string, value?: string, required?: boolean }[]
 }
 
-export const OrgSettingsDetail: React.FunctionComponent<IOrgSettingsDetailProps> = (props) => {
+export const OrgSettingsDetail: React.FC<IOrgSettingsDetailProps> = (props) => {
 
     const _titleStyles: ITextStyles = {
         root: {

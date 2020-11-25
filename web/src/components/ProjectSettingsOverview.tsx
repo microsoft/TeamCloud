@@ -1,16 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 
 export interface IProjectSettingsOverviewProps {
 
 }
 
-export const ProjectSettingsOverview: React.FunctionComponent<IProjectSettingsOverviewProps> = (props) => {
-
-
-    return (
-        <></>
-    );
+export const ProjectSettingsOverview: React.FC<IProjectSettingsOverviewProps> = (props) => {
+    return (<></>);
 }

@@ -4,13 +4,13 @@
 import React, { useEffect, useState } from 'react';
 import { useIsAuthenticated } from '@azure/msal-react';
 import { ITextStyles, Stack, getTheme, IStackStyles, Link } from '@fluentui/react';
-import { getMe } from '../../MSGraph';
-import { GraphUser } from '../../model';
+import { getMe } from '../MSGraph';
+import { GraphUser } from '../model';
 import { HeaderBreadcrumb, UserInfo } from '.';
 
 export interface IHeaderBarProps { }
 
-export const HeaderBar: React.FunctionComponent<IHeaderBarProps> = (props) => {
+export const HeaderBar: React.FC<IHeaderBarProps> = (props) => {
 
     const isAuthenticated = useIsAuthenticated();
 

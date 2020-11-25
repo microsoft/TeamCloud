@@ -6,17 +6,17 @@ import { useHistory, useParams } from 'react-router-dom';
 import { useIsAuthenticated } from '@azure/msal-react';
 import { Nav, INavLinkGroup, INavLink, Stack, ActionButton, Persona, PersonaSize, getTheme, Text } from '@fluentui/react';
 import { Organization } from 'teamcloud'
-import { api } from '../../API';
+import { api } from '../API';
 
 export interface IRootNavProps { }
 
-export const RootNav: React.FunctionComponent<IRootNavProps> = (props) => {
+export const RootNav: React.FC<IRootNavProps> = (props) => {
 
     let { orgId } = useParams() as { orgId: string };
 
-    const history = useHistory();
+    let history = useHistory();
 
-    const isAuthenticated = useIsAuthenticated();
+    let isAuthenticated = useIsAuthenticated();
 
     const [orgs, setOrgs] = useState<Organization[]>();
 
@@ -36,7 +36,7 @@ export const RootNav: React.FunctionComponent<IRootNavProps> = (props) => {
             };
             _setOrgs();
         }
-    }, [isAuthenticated, orgId, orgs]);
+    }, [isAuthenticated, history, orgId, orgs]);
 
     const _navLinkGroups = (): INavLinkGroup[] => {
         const links: INavLink[] = orgs?.map(o => ({

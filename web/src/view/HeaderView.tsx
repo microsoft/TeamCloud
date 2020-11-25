@@ -7,7 +7,7 @@ import { HeaderBar } from '../components';
 
 export interface IHeaderViewProps { }
 
-export const HeaderView: React.FunctionComponent<IHeaderViewProps> = (props) => {
+export const HeaderView: React.FC<IHeaderViewProps> = (props) => {
 
     return (
         <Switch>

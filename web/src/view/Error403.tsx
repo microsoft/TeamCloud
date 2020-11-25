@@ -8,7 +8,7 @@ export interface IError403Props {
     error?: any;
 }
 
-export const Error403: React.FunctionComponent<IError403Props> = (props) => {
+export const Error403: React.FC<IError403Props> = (props) => {
     // if (props.error) {
     //     console.log(props.error)
     // }

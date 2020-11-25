@@ -1,73 +1,51 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState, useEffect } from 'react';
-import { ProjectMember } from '../model'
+import React, { useState } from 'react';
+import { Member, ProjectMember } from '../model'
 import { Project, ErrorResult, User } from 'teamcloud';
 import { Stack, Facepile, IFacepilePersona, PersonaSize, IRenderFunction, HoverCard, HoverCardType, Persona, Shimmer, ShimmerElementsGroup, ShimmerElementType, CommandBar, ICommandBarItemProps, Separator, Label, Text } from '@fluentui/react';
-import { getGraphUser, getGraphDirectoryObject } from '../MSGraph';
-import { ProjectDetailCard, ProjectMembersForm } from '.';
-import AppInsights from '../img/appinsights.svg';
-import DevOps from '../img/devops.svg';
-import DevTestLabs from '../img/devtestlabs.svg';
-import GitHub from '../img/github.svg';
+import { DetailCard, MembersForm } from '.';
 import { api } from '../API';
+import { useParams } from 'react-router-dom';
 
 
-export interface IProjectOverviewMembersProps {
+export interface IMembersCardProps {
     user?: User;
-    project: Project;
-    members?: ProjectMember[]
-    onEditMember: (member?: ProjectMember) => void;
+    project?: Project;
+    members?: Member[];
+    onEditMember: (member?: Member) => void;
 }
 
-export const ProjectOverviewMembers: React.FunctionComponent<IProjectOverviewMembersProps> = (props) => {
-    // const [members, setMembers] = useState<ProjectMember[]>();
+export const MembersCard: React.FC<IMembersCardProps> = (props) => {
+
+    let { orgId } = useParams() as { orgId: string };
+
     const [addMembersPanelOpen, setAddMembersPanelOpen] = useState(false);
 
-    // useEffect(() => {
-    //     if (props.project) {
-    //         const _setMembers = async () => {
-    //             let _users = await api.getProjectUsers(props.project.organization, props.project.id);
-    //             if (_users.data) {
-    //                 let _members = await Promise.all(_users.data.map(async u => ({
-    //                     user: u,
-    //                     graphUser: u.userType === 'User' ? await getGraphUser(u.id) : u.userType === 'Provider' ? await getGraphDirectoryObject(u.id) : undefined,
-    //                     projectMembership: u.projectMemberships!.find(m => m.projectId === props.project.id)!
-    //                 })));
-    //                 setMembers(_members);
-    //             }
-    //         };
-    //         _setMembers();
-    //     }
-    // }, [props.project]);
-
-    const _removeMemberFromProject = async (member: ProjectMember) => {
-        let result = await api.deleteProjectUser(member.user.id, props.project.organization, props.project.id);
-        if (result.code !== 202 && (result as ErrorResult).errors) {
-            console.log(result as ErrorResult);
+    const _removeMember = async (member: Member) => {
+        if (props.project && (member as ProjectMember)?.projectMembership !== undefined) {
+            let result = await api.deleteProjectUser(member.user.id, props.project.organization, props.project.id);
+            if (result.code !== 202 && (result as ErrorResult).errors) {
+                console.log(result as ErrorResult);
+            }
+        } else if (orgId) {
+            let result = await api.deleteOrganizationUser(member.user.id, orgId);
+            if (result.code !== 202 && (result as ErrorResult).errors) {
+                console.log(result as ErrorResult);
+            }
         }
-    };
-
-    const _findKnownProviderImage = (member: ProjectMember) => {
-        if (member.graphUser?.displayName) {
-            if (member.graphUser.displayName.startsWith('appinsights')) return AppInsights
-            if (member.graphUser.displayName.startsWith('devops')) return DevOps
-            if (member.graphUser.displayName.startsWith('devtestlabs')) return DevTestLabs
-            if (member.graphUser.displayName.startsWith('github')) return GitHub
-        }
-        return undefined;
     };
 
     const _removeButtonDisabled = (member: ProjectMember) => {
-        return props.members && member.projectMembership.role === 'Owner'
+        return props.project && props.members && member.projectMembership.role === 'Owner'
             && props.members.filter(m => m.user.userType === 'User'
                 && m.user.projectMemberships
-                && m.user.projectMemberships!.find(pm => pm.projectId === props.project.id && pm.role === 'Owner')).length === 1
+                && m.user.projectMemberships!.find(pm => pm.projectId === props.project!.id && pm.role === 'Owner')).length === 1
     };
 
     const _userIsProjectOwner = () =>
-        props.user?.projectMemberships?.find(m => m.projectId === props.project.id)?.role === 'Owner';
+        props.project && props.user?.projectMemberships?.find(m => m.projectId === props.project!.id)?.role === 'Owner';
 
     const _getCommandBarItems = (): ICommandBarItemProps[] => [
         { key: 'addUser', text: 'Add', iconProps: { iconName: 'PeopleAdd' }, onClick: () => { setAddMembersPanelOpen(true) }, disabled: !_userIsProjectOwner() },
@@ -75,7 +53,7 @@ export const ProjectOverviewMembers: React.FunctionComponent<IProjectOverviewMem
 
     const _getMemberCommandBarItems = (member: ProjectMember): ICommandBarItemProps[] => [
         { key: 'edit', text: 'Edit', iconProps: { iconName: 'EditContact' }, onClick: () => props.onEditMember(member) },
-        { key: 'remove', text: 'Remove', iconProps: { iconName: 'UserRemove' }, disabled: _removeButtonDisabled(member), onClick: () => { _removeMemberFromProject(member) } },
+        { key: 'remove', text: 'Remove', iconProps: { iconName: 'UserRemove' }, disabled: _removeButtonDisabled(member), onClick: () => { _removeMember(member) } },
     ];
 
     const _getShimmerElements = (): JSX.Element => (
@@ -91,7 +69,7 @@ export const ProjectOverviewMembers: React.FunctionComponent<IProjectOverviewMem
 
     const _facepilePersonas = (): IFacepilePersona[] => props.members?.map(m => ({
         personaName: m.graphUser?.displayName,
-        imageUrl: m.graphUser?.imageUrl ?? _findKnownProviderImage(m),
+        imageUrl: m.graphUser?.imageUrl,
         data: m,
     })) ?? [];
 
@@ -168,7 +146,7 @@ export const ProjectOverviewMembers: React.FunctionComponent<IProjectOverviewMem
 
     return (
         <>
-            <ProjectDetailCard
+            <DetailCard
                 title='Members'
                 callout={props.members?.length.toString()}
                 commandBarItems={_getCommandBarItems()}>
@@ -183,8 +161,8 @@ export const ProjectOverviewMembers: React.FunctionComponent<IProjectOverviewMem
                         maxDisplayablePersonas={20}
                         onRenderPersonaCoin={_onRenderPersonaCoin} />
                 </Shimmer>
-            </ProjectDetailCard>
-            <ProjectMembersForm
+            </DetailCard>
+            <MembersForm
                 project={props.project}
                 panelIsOpen={addMembersPanelOpen}
                 onFormClose={() => setAddMembersPanelOpen(false)} />

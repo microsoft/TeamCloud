@@ -4,13 +4,13 @@
 import React from 'react';
 import { Stack, IStackStyles, ITextStyles, getTheme, FontWeights, Text, ICommandBarItemProps, CommandBar, ICommandBarStyles } from '@fluentui/react';
 
-export interface IProjectDetailCardProps {
+export interface IDetailCardProps {
     title?: string;
     callout?: string;
     commandBarItems?: ICommandBarItemProps[];
 }
 
-export const ProjectDetailCard: React.FunctionComponent<IProjectDetailCardProps> = (props) => {
+export const DetailCard: React.FC<IDetailCardProps> = (props) => {
 
     const theme = getTheme();
 

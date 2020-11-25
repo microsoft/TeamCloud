@@ -4,15 +4,15 @@
 import React, { useState } from 'react';
 import { Stack, Shimmer, DefaultButton, IButtonStyles, getTheme, ICommandBarItemProps, Dialog, DialogType, DialogFooter, PrimaryButton, IContextualMenuProps, IContextualMenuItem } from '@fluentui/react';
 import { Project, Component, ErrorResult } from 'teamcloud';
-import { ProjectDetailCard, ProjectComponentForm } from '.';
+import { DetailCard, ComponentForm } from '.';
 import { api } from '../API';
 
-export interface IProjectOverviewComponentsProps {
-    project: Project;
+export interface IComponentsCardProps {
+    project?: Project;
     components?: Component[];
 }
 
-export const ProjectOverviewComponents: React.FunctionComponent<IProjectOverviewComponentsProps> = (props) => {
+export const ComponentsCard: React.FC<IComponentsCardProps> = (props) => {
 
     const [component, setComponent] = useState<Component>();
     const [addComponentPanelOpen, setAddComponentPanelOpen] = useState(false);
@@ -44,7 +44,7 @@ export const ProjectOverviewComponents: React.FunctionComponent<IProjectOverview
 
 
     const _onComponentDelete = async () => {
-        if (component) {
+        if (component && props.project) {
             const result = await api.deleteProjectComponent(component.id, props.project.organization, props.project.id);
             if (result.code !== 202 && (result as ErrorResult).errors) {
                 console.log(result as ErrorResult);
@@ -95,7 +95,7 @@ export const ProjectOverviewComponents: React.FunctionComponent<IProjectOverview
 
     return (
         <>
-            <ProjectDetailCard
+            <DetailCard
                 title='Components'
                 callout={props.components?.length.toString()}
                 commandBarItems={_getCommandBarItems()} >
@@ -107,8 +107,8 @@ export const ProjectOverviewComponents: React.FunctionComponent<IProjectOverview
                         {_getComponentStacks()}
                     </Stack>
                 </Shimmer>
-            </ProjectDetailCard>
-            <ProjectComponentForm
+            </DetailCard>
+            <ComponentForm
                 // user={props.user}
                 project={props.project}
                 panelIsOpen={addComponentPanelOpen}

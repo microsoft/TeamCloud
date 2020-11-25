@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect } from 'react';
-import { useHistory, useParams } from 'react-router-dom';
-import { Stack, TextField, Dropdown, IDropdownOption, ProgressIndicator, Text, PrimaryButton, DefaultButton, getTheme, IconButton, Pivot, PivotItem, ComboBox, ChoiceGroup, Label, IComboBoxOption, IComboBox } from '@fluentui/react';
+import { useHistory } from 'react-router-dom';
+import { Stack, TextField, Dropdown, IDropdownOption, Text, PrimaryButton, DefaultButton, IconButton, Pivot, PivotItem, ComboBox, ChoiceGroup, Label, IComboBoxOption, IComboBox } from '@fluentui/react';
 import { OrganizationDefinition, DeploymentScopeDefinition, ProjectTemplateDefinition } from 'teamcloud'
 import { getManagementGroups, getSubscriptions } from '../Azure'
 import { AzureRegions, Tags } from '../model';
@@ -12,7 +12,7 @@ import { api } from '../API';
 
 export interface INewOrgViewProps { }
 
-export const NewOrgView: React.FunctionComponent<INewOrgViewProps> = (props) => {
+export const NewOrgView: React.FC<INewOrgViewProps> = (props) => {
 
     let history = useHistory();
 
@@ -149,9 +149,7 @@ export const NewOrgView: React.FunctionComponent<INewOrgViewProps> = (props) => 
                         isDefault: true
                     } as DeploymentScopeDefinition;
 
-                    const scopeResult = await api.createDeploymentScope(org.id, { body: scopeDef, });
-
-                    const scope = scopeResult.data;
+                    await api.createDeploymentScope(org.id, { body: scopeDef, });
                 }
 
                 setPercentComplete(.4);
@@ -167,9 +165,7 @@ export const NewOrgView: React.FunctionComponent<INewOrgViewProps> = (props) => 
                         }
                     } as ProjectTemplateDefinition;
 
-                    const templateResult = await api.createProjectTemplate(org.id, { body: templateDef });
-
-                    const temlate = templateResult.data;
+                    await api.createProjectTemplate(org.id, { body: templateDef });
                 }
 
                 setPercentComplete(1);
@@ -246,8 +242,6 @@ export const NewOrgView: React.FunctionComponent<INewOrgViewProps> = (props) => 
         const currentIndex = pivotKeys.indexOf(pivotKey);
         return currentIndex === pivotKeys.length - 1 ? 'Create organization' : `Next: ${pivotKeys[currentIndex + 1]}`;
     };
-
-    const theme = getTheme();
 
     return (
         <Stack styles={{ root: { height: '100%' } }}>

@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Project } from 'teamcloud';
 import { useHistory, useParams } from 'react-router-dom';
-import { DetailsListLayoutMode, IColumn, IRenderFunction, IDetailsRowProps, CheckboxVisibility, SelectionMode, Persona, PersonaSize, getTheme, DetailsList, Stack, Text } from '@fluentui/react';
+import { DetailsListLayoutMode, IColumn, IRenderFunction, IDetailsRowProps, CheckboxVisibility, SelectionMode, Persona, PersonaSize, getTheme, DetailsList, Stack } from '@fluentui/react';
 import { NoData } from '.';
 import collaboration from '../img/MSC17_collaboration_010_noBG.png'
 
@@ -14,13 +14,13 @@ export interface IProjectListProps {
     onProjectSelected?: (project: Project) => void;
 }
 
-export const ProjectList: React.FunctionComponent<IProjectListProps> = (props) => {
+export const ProjectList: React.FC<IProjectListProps> = (props) => {
 
     const history = useHistory();
 
     let { orgId } = useParams() as { orgId: string };
 
-    const [projectFilter, setProjectFilter] = useState<string>();
+    // const [projectFilter, setProjectFilter] = useState<string>();
 
     const theme = getTheme();
 
@@ -52,9 +52,9 @@ export const ProjectList: React.FunctionComponent<IProjectListProps> = (props) =
     ];
 
 
-    const _applyProjectFilter = (project: Project): boolean => {
-        return projectFilter ? project.displayName.toUpperCase().includes(projectFilter.toUpperCase()) : true;
-    }
+    // const _applyProjectFilter = (project: Project): boolean => {
+    //     return projectFilter ? project.displayName.toUpperCase().includes(projectFilter.toUpperCase()) : true;
+    // }
 
     const _onLinkClicked = (project: Project): void => {
         if (props.onProjectSelected)
@@ -76,7 +76,7 @@ export const ProjectList: React.FunctionComponent<IProjectListProps> = (props) =
     };
 
 
-    const items = props.projects ? props.projects.filter(_applyProjectFilter) : new Array<Project>();
+    // const items = props.projects ? props.projects.filter(_applyProjectFilter) : new Array<Project>();
 
     if (props.projects === undefined)
         return (<></>);
@@ -93,7 +93,7 @@ export const ProjectList: React.FunctionComponent<IProjectListProps> = (props) =
 
     return (
         <DetailsList
-            items={items}
+            items={props.projects}
             columns={columns}
             isHeaderVisible={false}
             onRenderRow={_onRenderRow}

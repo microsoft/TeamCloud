@@ -1,4 +1,6 @@
-// import { MsalProvider } from '@azure/msal-react';
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { Configuration, PublicClientApplication } from '@azure/msal-browser';
 import { AccessToken, TokenCredential } from '@azure/core-auth'
 import { AuthenticationProvider, AuthenticationProviderOptions } from "@microsoft/microsoft-graph-client";
@@ -36,13 +38,9 @@ export class Auth implements TokenCredential, AuthenticationProvider {
         const oidScope = 'openid'
         const hostScope = '{$host}/.default';
         const tcwebScope = 'http://TeamCloud.Web/user_impersonation';
-        // console.log(authProvider.UserAgentApplication.getAccount());
-
-        // if (reAuth) { await authProvider.getAccessToken(parameters); }
 
         if (!Array.isArray(scopes))
             scopes = [scopes];
-
 
         if (parseScopes) {
 
@@ -72,7 +70,6 @@ export class Auth implements TokenCredential, AuthenticationProvider {
 
         const account = this.clientApplication.getAllAccounts()[0];
 
-        // var authResult = await this.clientApplication.acquireTokenSilent({ account: account, scopes: scopes as string[] });
         var authResult = await this.clientApplication.acquireTokenSilent({ account: account, scopes: scopes as string[] });
 
         return { token: authResult.accessToken, expiresOnTimestamp: authResult.expiresOn.getTime() };
@@ -82,11 +79,7 @@ export class Auth implements TokenCredential, AuthenticationProvider {
 
         scopes = this.getScopes(scopes);
 
-        console.log(`getToken (${scopes.includes('User.Read') ? 'graph' : 'api'})`);
-        // scopes.forEach(scope => console.log(`scope: ${scope}`));
-
-        // var authParameters: AuthenticationParameters = { scopes: scopes };
-        // var authResponse = await this.authProvider.getAccessToken(authParameters);
+        // console.log(`getToken (${scopes.includes('User.Read') ? 'graph' : 'api'})`);
 
         if (this.clientApplication.getAllAccounts().length <= 0) {
             console.error('nope')
@@ -96,12 +89,6 @@ export class Auth implements TokenCredential, AuthenticationProvider {
         const account = this.clientApplication.getAllAccounts()[0];
 
         var authResult = await this.clientApplication.acquireTokenSilent({ account: account, scopes: scopes as string[] });
-        // const tokenResponse = await this.clientApplication.acquireTokenSilent({ scopes: scopes }).catch(error => {
-        //     if (error instanceof InteractionRequiredAuthError) {
-        //         // fallback to interaction when silent call fails
-        //         return myMSALObj.acquireTokenRedirect(request)
-        //     }
-        // });
 
         // console.log('TOKEN (' + (authParameters.scopes || []).join(' | ') + ' | ' + authResponse.expiresOn + ') ' + authResponse.accessToken);
 
@@ -118,7 +105,6 @@ export class Auth implements TokenCredential, AuthenticationProvider {
 
         return token?.token ?? Promise.reject('Unable to get token');
     }
-
 
     logout = async (): Promise<void> => this.clientApplication.logout();
 }

@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { getTheme, Image, PrimaryButton, Stack, Text } from '@fluentui/react';
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { Image, PrimaryButton, Stack, Text } from '@fluentui/react';
 
 export interface INoDataProps {
     title?: string;
@@ -13,14 +13,11 @@ export interface INoDataProps {
     onButtonClick?: () => void;
 }
 
-export const NoData: React.FunctionComponent<INoDataProps> = (props) => {
-
-    const theme = getTheme();
+export const NoData: React.FC<INoDataProps> = (props) => {
 
     return (
         <Stack
             horizontalAlign='center'
-            // tokens={{ childrenGap: '12px' }}
             styles={{ root: { height: '100%' } }}>
             <Stack.Item>
                 <Image

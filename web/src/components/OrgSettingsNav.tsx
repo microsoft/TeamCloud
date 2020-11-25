@@ -7,7 +7,7 @@ import { Nav, INavLinkGroup, Stack, getTheme } from '@fluentui/react';
 
 export interface IOrgSettingsNavProps { }
 
-export const OrgSettingsNav: React.FunctionComponent<IOrgSettingsNavProps> = (props) => {
+export const OrgSettingsNav: React.FC<IOrgSettingsNavProps> = (props) => {
 
     let { orgId, settingId } = useParams() as { orgId: string, settingId: string };
 
@@ -29,13 +29,13 @@ export const OrgSettingsNav: React.FunctionComponent<IOrgSettingsNavProps> = (pr
                 onClick: () => history.push(`/orgs/${orgId}/settings/members`),
                 iconProps: { iconName: 'Group' }
             },
-            {
-                key: 'configuration',
-                name: 'Configuration',
-                url: '',
-                onClick: () => history.push(`/orgs/${orgId}/settings/configuration`),
-                iconProps: { iconName: 'Processing' } // Repair
-            },
+            // {
+            //     key: 'configuration',
+            //     name: 'Configuration',
+            //     url: '',
+            //     onClick: () => history.push(`/orgs/${orgId}/settings/configuration`),
+            //     iconProps: { iconName: 'Processing' } // Repair
+            // },
             {
                 key: 'scopes',
                 name: 'Deployment Scopes',

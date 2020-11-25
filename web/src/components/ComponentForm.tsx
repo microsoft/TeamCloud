@@ -10,14 +10,14 @@ import { ISubmitEvent } from '@rjsf/core';
 import { api } from '../API';
 import ReactMarkdown from 'react-markdown';
 
-export interface IProjectComponentFormProps {
+export interface IComponentFormProps {
     // user?: User;
-    project: Project;
+    project?: Project;
     panelIsOpen: boolean;
     onFormClose: () => void;
 }
 
-export const ProjectComponentForm: React.FunctionComponent<IProjectComponentFormProps> = (props) => {
+export const ComponentForm: React.FC<IComponentFormProps> = (props) => {
     // return (<></>);
     const [componentTemplate, setComponentTemplate] = useState<ComponentTemplate>();
     const [componentTemplates, setComponentTemplates] = useState<ComponentTemplate[]>();
@@ -31,7 +31,7 @@ export const ProjectComponentForm: React.FunctionComponent<IProjectComponentForm
     useEffect(() => {
         if (props.project) {
             const _setComponentTemplates = async () => {
-                const result = await api.getProjectComponentTemplates(props.project.organization, props.project.id);
+                const result = await api.getProjectComponentTemplates(props.project!.organization, props.project!.id);
                 setComponentTemplates(result.data ?? undefined);
                 setComponentTemplateOptions(_componentTemplateOptions(result.data ?? undefined));
             };
@@ -42,7 +42,7 @@ export const ProjectComponentForm: React.FunctionComponent<IProjectComponentForm
     const _submitForm = async (e: ISubmitEvent<any>) => {
         setFormEnabled(false);
 
-        if (componentTemplate && e.formData) {
+        if (componentTemplate && e.formData && props.project) {
             const request: ComponentRequest = {
                 templateId: componentTemplate.id,
                 inputJson: JSON.stringify(e.formData)
