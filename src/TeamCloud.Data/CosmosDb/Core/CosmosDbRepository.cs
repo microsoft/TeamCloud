@@ -89,8 +89,7 @@ namespace TeamCloud.Data.CosmosDb.Core
             var containerEntry = cosmosContainers.GetOrAdd(typeof(T), containerType
                 => new AsyncLazy<(Container, ChangeFeedProcessor)>(() => CreateContainerAsync(database, typeof(T), HandleChangesAsync)));
 
-            var (container, processor) = await containerEntry
-                .ConfigureAwait(false);
+            var (container, processor) = await containerEntry.Value.ConfigureAwait(false);
 
             return container;
         }
