@@ -39,7 +39,7 @@ namespace TeamCloud.Git.Services
                     .ConfigureAwait(false);
             }
 
-            var cacheKey = request.Endpoint.ToString();
+            var cacheKey = new Uri(request.BaseAddress, request.Endpoint).ToString();
 
             var response = await ReadCacheAsync(cacheKey, cancellationToken)
                 .ConfigureAwait(false);
