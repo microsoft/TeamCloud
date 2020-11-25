@@ -8,6 +8,7 @@ export interface GraphUser {
     givenName?: string;
     sirname?: string;
     mail?: string;
+    otherMails?: string[];
     companyName?: string;
     jobTitle?: string;
     preferredLanguage?: string;

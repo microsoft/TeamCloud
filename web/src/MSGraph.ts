@@ -20,7 +20,7 @@ export enum PhotoSize {
 const Client = GraphClient;
 const client = Client.initWithMiddleware({ authProvider: auth });
 
-const _userSelect = ['id', 'userPrincipalName', 'displayName', 'givenName', 'sirname', 'mail', 'companyName', 'jobTitle', 'preferredLanguage', 'userType', 'department']
+const _userSelect = ['id', 'userPrincipalName', 'displayName', 'givenName', 'sirname', 'mail', 'otherMails', 'companyName', 'jobTitle', 'preferredLanguage', 'userType', 'department']
 
 export const getMe = async (): Promise<GraphUser> => {
     let response = await client

@@ -5,6 +5,9 @@ import React, { useState } from 'react';
 import { Project } from 'teamcloud';
 import { useHistory, useParams } from 'react-router-dom';
 import { DetailsListLayoutMode, IColumn, IRenderFunction, IDetailsRowProps, CheckboxVisibility, SelectionMode, Persona, PersonaSize, getTheme, DetailsList, Stack, Text } from '@fluentui/react';
+import { NoData } from '.';
+import collaboration from '../img/MSC17_collaboration_010_noBG.png'
+
 
 export interface IProjectListProps {
     projects?: Project[];
@@ -79,7 +82,14 @@ export const ProjectList: React.FunctionComponent<IProjectListProps> = (props) =
         return (<></>);
 
     if (props.projects.length === 0)
-        return (<Text styles={{ root: { width: '100%', paddingLeft: '8px' } }}>No projects</Text>)
+        return (
+            <NoData
+                title='You do not have any projects yet'
+                image={collaboration}
+                description='Projects are home to collaboration and cloud development.'
+                buttonText='New project'
+                buttonIcon='Add'
+                onButtonClick={() => history.push(`/orgs/${orgId}/projects/new`)} />)
 
     return (
         <DetailsList

@@ -90,8 +90,7 @@ export const NewProjectView: React.FunctionComponent<INewProjectViewProps> = (pr
 
     return (
         <Stack styles={{ root: { height: '100%' } }}>
-            <ContentProgress
-                progressHidden={formEnabled} />
+            <ContentProgress progressHidden={formEnabled} />
             <ContentHeader title='New Project'>
                 <IconButton iconProps={{ iconName: 'ChromeClose' }} onClick={() => history.replace(`/orgs/${orgId}`)} />
             </ContentHeader>

@@ -1,193 +1,166 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { ProjectMember } from '../model'
-import { Project, ErrorResult, User } from 'teamcloud';
-import { Stack, Facepile, IFacepilePersona, PersonaSize, IRenderFunction, HoverCard, HoverCardType, Persona, Shimmer, ShimmerElementsGroup, ShimmerElementType, CommandBar, ICommandBarItemProps, Separator, Label, Text } from '@fluentui/react';
-import { getGraphUser, getGraphDirectoryObject } from '../MSGraph';
-import { ProjectDetailCard, ProjectMembersForm } from '.';
-import AppInsights from '../img/appinsights.svg';
-import DevOps from '../img/devops.svg';
-import DevTestLabs from '../img/devtestlabs.svg';
-import GitHub from '../img/github.svg';
-import { api } from '../API';
-
+import { Project, User } from 'teamcloud';
+import { Stack, PersonaSize, IRenderFunction, Persona, Text, ITextStyles, FontWeights, IDetailsHeaderProps, IDetailsRowProps, IColumn, getTheme, SearchBox, PrimaryButton, DetailsList, DetailsListLayoutMode, CheckboxVisibility } from '@fluentui/react';
 
 export interface IProjectMembersProps {
     user?: User;
     project: Project;
+    members?: ProjectMember[];
     onEditMember: (member?: ProjectMember) => void;
 }
 
 export const ProjectMembers: React.FunctionComponent<IProjectMembersProps> = (props) => {
-    const [members, setMembers] = useState<ProjectMember[]>();
     const [addMembersPanelOpen, setAddMembersPanelOpen] = useState(false);
 
-    useEffect(() => {
-        if (props.project) {
-            const _setMembers = async () => {
-                let _users = await api.getProjectUsers(props.project.organization, props.project.id);
-                if (_users.data) {
-                    let _members = await Promise.all(_users.data.map(async u => ({
-                        user: u,
-                        graphUser: await getGraphUser(u.id),
-                        projectMembership: u.projectMemberships!.find(m => m.projectId === props.project.id)!
-                    })));
-                    setMembers(_members);
-                }
-            };
-            _setMembers();
-        }
-    }, [props.project]);
 
-    const _removeMemberFromProject = async (member: ProjectMember) => {
-        let result = await api.deleteProjectUser(member.user.id, props.project.organization, props.project.id);
-        if (result.code !== 202 && (result as ErrorResult).errors) {
-            console.log(result as ErrorResult);
-        }
-    };
-
-    // const _findKnownProviderImage = (member: ProjectMember) => {
-    //     if (member.graphUser?.displayName) {
-    //         if (member.graphUser.displayName.startsWith('appinsights')) return AppInsights
-    //         if (member.graphUser.displayName.startsWith('devops')) return DevOps
-    //         if (member.graphUser.displayName.startsWith('devtestlabs')) return DevTestLabs
-    //         if (member.graphUser.displayName.startsWith('github')) return GitHub
-    //     }
-    //     return undefined;
-    // };
-
-    const _removeButtonDisabled = (member: ProjectMember) => {
-        return members && member.projectMembership.role === 'Owner'
-            && members.filter(m => m.user.userType === 'User'
-                && m.user.projectMemberships
-                && m.user.projectMemberships!.find(pm => pm.projectId === props.project.id && pm.role === 'Owner')).length === 1
-    };
+    const [memberFilter, setMemberFilter] = useState<string>();
+    const theme = getTheme();
 
     const _userIsProjectOwner = () =>
         props.user?.projectMemberships?.find(m => m.projectId === props.project.id)?.role === 'Owner';
 
-    const _getCommandBarItems = (): ICommandBarItemProps[] => [
-        { key: 'addUser', text: 'Add', iconProps: { iconName: 'PeopleAdd' }, onClick: () => { setAddMembersPanelOpen(true) }, disabled: !_userIsProjectOwner() },
+    const columns: IColumn[] = [
+        {
+            key: 'member', name: 'Member', minWidth: 240, isResizable: false, onRender: (m: ProjectMember) => (
+                <Persona
+                    text={m.graphUser?.displayName ?? m.user.id}
+                    showSecondaryText
+                    secondaryText={m.graphUser?.mail ?? (m.graphUser?.otherMails && m.graphUser.otherMails.length > 0 ? m.graphUser.otherMails[0] : undefined)}
+                    imageUrl={m.graphUser?.imageUrl}
+                    size={PersonaSize.size32} />
+            )
+        },
+        { key: 'role', name: 'Role', minWidth: 240, onRender: (m: ProjectMember) => m.projectMembership.role },
+        { key: 'type', name: 'Type', minWidth: 240, onRender: (m: ProjectMember) => m.user.userType }
     ];
 
-    const _getMemberCommandBarItems = (member: ProjectMember): ICommandBarItemProps[] => [
-        { key: 'edit', text: 'Edit', iconProps: { iconName: 'EditContact' }, onClick: () => props.onEditMember(member) },
-        { key: 'remove', text: 'Remove', iconProps: { iconName: 'UserRemove' }, disabled: _removeButtonDisabled(member), onClick: () => { _removeMemberFromProject(member) } },
-    ];
 
-    const _getShimmerElements = (): JSX.Element => (
-        <ShimmerElementsGroup
-            shimmerElements={[
-                { type: ShimmerElementType.circle, height: 48 },
-                { type: ShimmerElementType.gap, width: 4 },
-                { type: ShimmerElementType.circle, height: 48 },
-                { type: ShimmerElementType.gap, width: 4 },
-                { type: ShimmerElementType.circle, height: 48 }
-            ]} />
-    );
+    const _applyMemberFilter = (member: ProjectMember): boolean => {
+        return memberFilter ? member.graphUser?.displayName?.toUpperCase().includes(memberFilter.toUpperCase()) ?? false : true;
+    }
 
-    const _facepilePersonas = (): IFacepilePersona[] => members?.map(m => ({
-        personaName: m.graphUser?.displayName,
-        imageUrl: m.graphUser?.imageUrl,
-        data: m,
-    })) ?? [];
+    const _onLinkClicked = (member: ProjectMember): void => {
+        // if (props.onProjectSelected)
+        //     props.onProjectSelected(project);
+    }
 
-    const _onRenderPersonaCoin: IRenderFunction<IFacepilePersona> = (props?: IFacepilePersona, defaultRender?: (props?: IFacepilePersona) => JSX.Element | null): JSX.Element | null => {
-        if (defaultRender && props?.data) {
-            let _onRenderPlainCard = (): JSX.Element | null => {
-                let member: ProjectMember = props.data;
-                let _isUserType = member.user.userType === 'User';
-                let _getCommandBar = _isUserType ?
-                    (<>
-                        <Stack.Item>
-                            <Separator />
-                        </Stack.Item>
-                        <Stack.Item align='end'>
-                            <CommandBar
-                                styles={{ root: { minWidth: '160px' } }}
-                                items={_getMemberCommandBarItems(member)}
-                                ariaLabel='Use left and right arrow keys to navigate between commands' />
-                        </Stack.Item>
-                    </>) : null;
-                return (
-                    <Stack
-                        tokens={{ padding: _isUserType ? '20px 20px 0 20px' : '20px' }}>
-                        <Stack.Item>
-                            <Persona
-                                text={member.graphUser?.displayName ?? member.user.id}
-                                secondaryText={member.graphUser?.jobTitle ?? member.user.userType}
-                                tertiaryText={member.graphUser?.department}
-                                imageUrl={member.graphUser?.imageUrl}
-                                size={PersonaSize.size72} />
-                        </Stack.Item>
-                        <Stack.Item>
-                            <Separator />
-                        </Stack.Item>
-                        <Stack.Item>
-                            <Stack tokens={{ childrenGap: 0 }}>
-                                <Stack horizontal verticalAlign='baseline' tokens={{ childrenGap: 6 }}>
-                                    <Label>Type:</Label>
-                                    <Text>{member.user.userType}</Text>
-                                </Stack>
-                                <Stack horizontal verticalAlign='baseline' tokens={{ childrenGap: 6 }}>
-                                    <Label>Role:</Label>
-                                    <Text>{member.projectMembership?.role ?? 'Unknown'}</Text>
-                                </Stack>
-                            </Stack>
-                        </Stack.Item>
-                        {_getCommandBar}
-                    </Stack>
-                );
-            };
-
-            return (
-                <HoverCard
-                    instantOpenOnClick
-                    type={HoverCardType.plain}
-                    cardOpenDelay={1000}
-                    plainCardProps={{ onRenderPlainCard: _onRenderPlainCard }}>
-                    {defaultRender(props)}
-                </HoverCard>
-            );
-        }
-
-        return null;
+    const _onItemInvoked = (member: ProjectMember): void => {
+        console.error(member);
+        // if (project) {
+        //     _onLinkClicked(project);
+        //     history.push(`${orgId}/projects/${project.slug}`);
+        // } else {
+        //     console.error('nope');
+        // }
     };
 
-    const _personaCoinStyles = {
-        cursor: 'pointer',
-        selectors: {
-            ':hover': {
-                cursor: 'pointer'
-            }
+    const _onRenderRow: IRenderFunction<IDetailsRowProps> = (props?: IDetailsRowProps, defaultRender?: (props?: IDetailsRowProps) => JSX.Element | null): JSX.Element | null => {
+        if (props) props.styles = { fields: { alignItems: 'center' }, check: { minHeight: '62px' }, cell: { fontSize: '14px' } }
+        return defaultRender ? defaultRender(props) : null;
+    };
+
+    const _onRenderDetailsHeader: IRenderFunction<IDetailsHeaderProps> = (props?: IDetailsHeaderProps, defaultRender?: (props?: IDetailsHeaderProps) => JSX.Element | null): JSX.Element | null => {
+        if (props) props.styles = { root: { paddingTop: '8px' } }
+        return defaultRender ? defaultRender(props) : null;
+    };
+
+    const items = props.members ? props.members.filter(_applyMemberFilter) : new Array<ProjectMember>();
+
+    const _titleStyles: ITextStyles = {
+        root: {
+            fontSize: '14px',
+            fontWeight: FontWeights.regular,
         }
     }
 
-    return (
-        <>
+    const _calloutStyles: ITextStyles = {
+        root: {
+            fontSize: '11px',
+            fontWeight: FontWeights.regular,
+            color: 'rgb(102, 102, 102)',
+            backgroundColor: theme.palette.neutralLighter,
+            padding: '2px 9px',
+            borderRadius: '14px',
+        }
+    }
 
-            <ProjectDetailCard
-                title='Members'
-                callout={members?.length.toString()}
-                commandBarItems={_getCommandBarItems()}>
-                <Shimmer
-                    customElementsGroup={_getShimmerElements()}
-                    isDataLoaded={members !== undefined}
-                    width={152} >
-                    <Facepile
-                        styles={{ itemButton: _personaCoinStyles }}
-                        personas={_facepilePersonas()}
-                        personaSize={PersonaSize.size48}
-                        maxDisplayablePersonas={20}
-                        onRenderPersonaCoin={_onRenderPersonaCoin} />
-                </Shimmer>
-            </ProjectDetailCard>
-            <ProjectMembersForm
-                project={props.project}
-                panelIsOpen={addMembersPanelOpen}
-                onFormClose={() => setAddMembersPanelOpen(false)} />
-        </>
+
+    if (props.members === undefined)
+        return (<></>);
+
+    if (props.members.length === 0)
+        return (<Text styles={{ root: { width: '100%', paddingLeft: '8px' } }}>No projects</Text>)
+
+    return (
+        <Stack tokens={{ childrenGap: '20px' }}>
+            <Stack styles={{
+                root: {
+                    padding: '10px 16px 10px 6px',
+                    borderRadius: theme.effects.roundedCorner4,
+                    boxShadow: theme.effects.elevation4,
+                    backgroundColor: theme.palette.white
+                }
+            }} >
+                <SearchBox
+                    placeholder='Filter members'
+                    iconProps={{ iconName: 'Filter' }}
+                    onChange={(_ev, val) => setMemberFilter(val)}
+                    styles={{
+                        root: {
+                            border: 'none !important', selectors: {
+                                '::after': { border: 'none !important' },
+                                ':hover .ms-SearchBox-iconContainer': { color: theme.palette.neutralTertiary }
+                            }
+                        },
+                        iconContainer: { color: theme.palette.neutralTertiary, },
+                        field: { border: 'none !important' }
+                    }} />
+            </Stack>
+            <Stack styles={{
+                root: {
+                    borderRadius: theme.effects.roundedCorner4,
+                    boxShadow: theme.effects.elevation4,
+                    backgroundColor: theme.palette.white
+                }
+            }} >
+                <Stack horizontal verticalFill verticalAlign='baseline' horizontalAlign='space-between'
+                    styles={{ root: { padding: '16px 16px 0px 16px', } }}>
+                    <Stack.Item>
+                        <Stack horizontal verticalFill verticalAlign='baseline' tokens={{ childrenGap: '5px' }}>
+                            <Stack.Item>
+                                <Text styles={_titleStyles}>Total</Text>
+                            </Stack.Item>
+                            <Stack.Item>
+                                <Text styles={_calloutStyles}>{props.members.length}</Text>
+                            </Stack.Item>
+                        </Stack>
+                    </Stack.Item>
+                    <Stack.Item>
+                        <PrimaryButton
+                            disabled={props.project === undefined}
+                            // iconProps={{ iconName: 'Add' }}
+                            text='Add members'
+                        // onClick={() => history.push(`/orgs/${orgId}/projects/new`)}
+                        />
+                    </Stack.Item>
+                </Stack>
+
+                <DetailsList
+                    items={items}
+                    columns={columns}
+                    // isHeaderVisible={false}
+                    onRenderRow={_onRenderRow}
+                    onRenderDetailsHeader={_onRenderDetailsHeader}
+                    // selectionMode={SelectionMode.none}
+                    layoutMode={DetailsListLayoutMode.justified}
+                    checkboxVisibility={CheckboxVisibility.always}
+                    selectionPreservedOnEmptyClick={true}
+                    onItemInvoked={_onItemInvoked} />
+            </Stack>
+        </Stack>
     );
 }

@@ -25,7 +25,7 @@ export const UserInfo: React.FunctionComponent<IUserInfoProps> = (props) => {
         root: {
             minHeight: '48px',
             paddingLeft: '10px',
-            paddingRight: '10px',
+            paddingRight: '16px',
             selectors: {
                 ':hover': {
                     cursor: 'pointer',

@@ -1,47 +1,22 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Stack, Shimmer, DefaultButton, IButtonStyles, getTheme, ICommandBarItemProps, Dialog, DialogType, DialogFooter, PrimaryButton, IContextualMenuProps, IContextualMenuItem } from '@fluentui/react';
 import { Project, Component, ErrorResult } from 'teamcloud';
 import { ProjectDetailCard, ProjectComponentForm } from '.';
-// import AppInsights from '../img/appinsights.svg';
-// import DevOps from '../img/devops.svg';
-// import DevTestLabs from '../img/devtestlabs.svg';
-// import GitHub from '../img/github.svg';
 import { api } from '../API';
 
 export interface IProjectOverviewComponentsProps {
     project: Project;
+    components?: Component[];
 }
 
 export const ProjectOverviewComponents: React.FunctionComponent<IProjectOverviewComponentsProps> = (props) => {
 
     const [component, setComponent] = useState<Component>();
-    const [components, setComponents] = useState<Component[]>();
     const [addComponentPanelOpen, setAddComponentPanelOpen] = useState(false);
-    // const [showContextualMenu, setShowContextualMenu] = useState(false);
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-
-    useEffect(() => {
-        if (props.project) {
-            const _setComponents = async () => {
-                const result = await api.getProjectComponents(props.project.organization, props.project.id);
-                setComponents(result.data ?? undefined);
-            };
-            _setComponents();
-        }
-    }, [props.project]);
-
-    // const _findKnownProviderImage = (component: Component) => {
-    //     if (component.offerId) {
-    //         if (component.offerId.includes('azure.appinsights')) return AppInsights;
-    //         if (component.offerId.includes('azure.devops')) return DevOps;
-    //         if (component.offerId.includes('azure.devtestlabs')) return DevTestLabs;
-    //         if (component.offerId.includes('github')) return GitHub;
-    //     }
-    //     return undefined;
-    // }
 
     const _itemMenuProps = (component: Component): IContextualMenuProps => ({
         items: [
@@ -99,7 +74,7 @@ export const ProjectOverviewComponents: React.FunctionComponent<IProjectOverview
         }
     }
 
-    const _getComponentStacks = () => components?.sort((a, b) => a.templateId === b.templateId ? 0 : (a.templateId ?? '') > (b.templateId ?? '') ? 1 : -1).map(c => (
+    const _getComponentStacks = () => props.components?.sort((a, b) => a.templateId === b.templateId ? 0 : (a.templateId ?? '') > (b.templateId ?? '') ? 1 : -1).map(c => (
         <Stack key={c.id} horizontal tokens={{ childrenGap: '12px' }}>
             <Stack.Item styles={{ root: { width: '100%' } }}>
                 <DefaultButton
@@ -122,11 +97,11 @@ export const ProjectOverviewComponents: React.FunctionComponent<IProjectOverview
         <>
             <ProjectDetailCard
                 title='Components'
-                callout={components?.length.toString()}
+                callout={props.components?.length.toString()}
                 commandBarItems={_getCommandBarItems()} >
                 <Shimmer
                     // customElementsGroup={_getShimmerElements()}
-                    isDataLoaded={components !== undefined}
+                    isDataLoaded={props.components !== undefined}
                     width={152} >
                     <Stack tokens={{ childrenGap: '0' }} >
                         {_getComponentStacks()}

@@ -2,18 +2,18 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect } from 'react';
-import { Checkbox, CheckboxVisibility, DetailsList, DetailsListLayoutMode, FontWeights, getTheme, IColumn, IDetailsHeaderProps, IDetailsRowProps, IRenderFunction, ITextStyles, Label, Panel, PanelType, PrimaryButton, Stack, Text } from '@fluentui/react';
+import { Checkbox, CheckboxVisibility, DetailsList, DetailsListLayoutMode, FontWeights, getTheme, IColumn, IDetailsHeaderProps, IDetailsRowProps, IRenderFunction, ITextStyles, Panel, PanelType, PrimaryButton, Stack, Text } from '@fluentui/react';
 import { useParams } from 'react-router-dom';
-import { ProjectTemplate } from 'teamcloud';
+import { Organization, ProjectTemplate } from 'teamcloud';
 import { api } from '../API';
 import ReactMarkdown from 'react-markdown';
 
 
-export interface IOrgSettingsProjectTemplatesProps {
+export interface IOrgSettingsProjectTemplateProps {
     templates?: ProjectTemplate[]
 }
 
-export const OrgSettingsProjectTemplates: React.FunctionComponent<IOrgSettingsProjectTemplatesProps> = (props) => {
+export const OrgSettingsProjectTemplate: React.FunctionComponent<IOrgSettingsProjectTemplateProps> = (props) => {
 
     let { orgId } = useParams() as { orgId: string };
 
@@ -47,7 +47,7 @@ export const OrgSettingsProjectTemplates: React.FunctionComponent<IOrgSettingsPr
     }
 
     const _onItemInvoked = (template: ProjectTemplate): void => {
-        // console.error(template)
+        console.error(template)
         if (template) {
             setSelectedTemplate(template);
             setPanelIsOpen(true);
@@ -132,7 +132,7 @@ export const OrgSettingsProjectTemplates: React.FunctionComponent<IOrgSettingsPr
                     // selectionMode={SelectionMode.none}
                     layoutMode={DetailsListLayoutMode.justified}
                     checkboxVisibility={CheckboxVisibility.always}
-                    // selectionPreservedOnEmptyClick={true}
+                    selectionPreservedOnEmptyClick={true}
                     onItemInvoked={_onItemInvoked} />
             </Stack>
             <Panel
@@ -143,8 +143,6 @@ export const OrgSettingsProjectTemplates: React.FunctionComponent<IOrgSettingsPr
                 onDismiss={() => { setSelectedTemplate(undefined); setPanelIsOpen(false) }}>
                 <Stack tokens={{ childrenGap: '12px' }}>
                     <Stack.Item>
-                        <Label >Repository</Label>
-                        <Text>{selectedTemplate?.repository.url}</Text>
                     </Stack.Item>
                     <Stack.Item>
                     </Stack.Item>
