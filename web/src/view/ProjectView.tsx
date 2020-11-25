@@ -3,10 +3,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { Route, useParams } from 'react-router-dom';
-import { Stack, getTheme, IconButton } from '@fluentui/react';
+import { Stack, IconButton } from '@fluentui/react';
 import { useIsAuthenticated } from '@azure/msal-react';
 import { Project, User, Component } from 'teamcloud';
-import { ProjectMembersForm, ProjectMemberForm, ProjectMembers, ProjectComponents, ProjectOverview, ContentHeader, ContentProgress, ContentContainer } from '../components';
+import { MembersForm, MemberForm, ComponentsCard, ProjectOverview, ContentHeader, ContentProgress, ContentContainer, MemberList } from '../components';
 import { ProjectMember } from '../model';
 import { api } from '../API';
 import { getGraphDirectoryObject, getGraphUser } from '../MSGraph';
@@ -16,7 +16,7 @@ export interface IProjectViewProps {
     project?: Project;
 }
 
-export const ProjectView: React.FunctionComponent<IProjectViewProps> = (props) => {
+export const ProjectView: React.FC<IProjectViewProps> = (props) => {
 
     let isAuthenticated = useIsAuthenticated();
 
@@ -50,9 +50,23 @@ export const ProjectView: React.FunctionComponent<IProjectViewProps> = (props) =
         }
     }, [isAuthenticated, project, projectId, orgId]);
 
+    useEffect(() => {
+        if (isAuthenticated && project && user === undefined) {
+
+            console.log('setProject');
+            setUser(undefined);
+
+            const _setUser = async () => {
+                const result = await api.getProjectUserMe(project.organization, project.id);
+                setUser(result.data);
+            };
+
+            _setUser();
+        }
+    }, [isAuthenticated, project, user]);
 
     useEffect(() => {
-        if (project && (navId === undefined || navId === 'members')) {
+        if (isAuthenticated && project && (navId === undefined || navId === 'members')) {
             if (members && members.length > 0 && members[0].projectMembership.projectId === project.id)
                 return;
             console.log('setProjectMembers');
@@ -69,11 +83,11 @@ export const ProjectView: React.FunctionComponent<IProjectViewProps> = (props) =
             };
             _setMembers();
         }
-    }, [isAuthenticated, project, navId]);
+    }, [isAuthenticated, project, members, navId]);
 
 
     useEffect(() => {
-        if (project && (navId === undefined || navId === 'components')) {
+        if (isAuthenticated && project && (navId === undefined || navId === 'components')) {
             if (components === undefined || (components.length > 0 && components[0].projectId !== project.id)) {
                 console.log('setProjectComponents');
                 const _setComponents = async () => {
@@ -83,20 +97,13 @@ export const ProjectView: React.FunctionComponent<IProjectViewProps> = (props) =
                 _setComponents();
             }
         }
-    }, [isAuthenticated, project, navId]);
+    }, [isAuthenticated, project, components, navId]);
 
-
-    const _onEditMember = (member?: ProjectMember) => {
-        setSelectedMember(member)
-        setEditUsersPanelOpen(true)
-    };
-
-    const theme = getTheme();
-
-    return project?.id ? (
+    return (
         <>
             <Stack>
-                <ContentHeader title={navId ? navId : project.displayName} coin={!navId}>
+                <ContentProgress progressHidden={project !== undefined} />
+                <ContentHeader title={navId ? navId : project?.displayName} coin={!navId}>
                     {!navId && (
                         <IconButton
                             toggle
@@ -110,23 +117,23 @@ export const ProjectView: React.FunctionComponent<IProjectViewProps> = (props) =
                         <ProjectOverview {...{ project: project, user: user, members: members, components: components }} />
                     </Route>
                     <Route exact path='/orgs/:orgId/projects/:projectId/componenets'>
-                        <ProjectComponents {...{ project: project, user: user, components: components }} />
+                        <ComponentsCard {...{ project: project, user: user, components: components }} />
                     </Route>
                     <Route exact path='/orgs/:orgId/projects/:projectId/members'>
-                        <ProjectMembers {...{ project: project, members: members, onEditMember: _onEditMember }} />
+                        <MemberList {...{ project: project, members: members }} />
                     </Route>
                 </ContentContainer>
             </Stack>
-            <ProjectMembersForm
+            <MembersForm
                 project={project}
                 panelIsOpen={newUsersPanelOpen}
                 onFormClose={() => setNewUsersPanelOpen(false)} />
-            <ProjectMemberForm
+            <MemberForm
                 user={selectedMember?.user}
                 project={project}
                 graphUser={selectedMember?.graphUser}
                 panelIsOpen={editUsersPanelOpen}
                 onFormClose={() => { setEditUsersPanelOpen(false); setSelectedMember(undefined) }} />
         </>
-    ) : (<ContentProgress progressHidden={project !== undefined} />);
+    );
 }

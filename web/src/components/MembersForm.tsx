@@ -6,15 +6,15 @@ import { Stack, Dropdown, IDropdownOption, Label, Panel, PrimaryButton, DefaultB
 import { ProjectMembershipRole, Project, UserDefinition, ErrorResult, StatusResult } from 'teamcloud';
 import { GraphUser } from '../model'
 import { api } from '../API';
-import { ProjectMemberPicker } from '.';
+import { MemberPicker } from '.';
 
-export interface IProjectMembersFormProps {
-    project: Project;
+export interface IMembersFormProps {
+    project?: Project;
     panelIsOpen: boolean;
     onFormClose: () => void;
 }
 
-export const ProjectMembersForm: React.FunctionComponent<IProjectMembersFormProps> = (props) => {
+export const MembersForm: React.FC<IMembersFormProps> = (props) => {
 
     const [formEnabled, setFormEnabled] = useState<boolean>(true);
     const [userIdentifiers, setUserIdentifiers] = useState<string[]>();
@@ -29,7 +29,7 @@ export const ProjectMembersForm: React.FunctionComponent<IProjectMembersFormProp
                 role: userRole
             }));
             const results = await Promise
-                .all(userDefinitions.map(async d => await api.createProjectUser(props.project.organization, props.project.id, { body: d })));
+                .all(userDefinitions.map(async d => await api.createProjectUser(props.project!.organization, props.project!.id, { body: d })));
 
             let errors: ErrorResult[] = [];
             results.forEach(r => {
@@ -87,7 +87,7 @@ export const ProjectMembersForm: React.FunctionComponent<IProjectMembersFormProp
                     options={_projectRoleOptions()}
                     onChange={_onUserRoleDropdownChange} />
                 <Label required>Users</Label>
-                <ProjectMemberPicker
+                <MemberPicker
                     project={props.project}
                     formEnabled={formEnabled}
                     onChange={_onMembersChanged} />

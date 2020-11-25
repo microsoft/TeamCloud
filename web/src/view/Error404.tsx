@@ -8,7 +8,7 @@ export interface IError404Props {
 
 }
 
-export const Error404: React.FunctionComponent<IError404Props> = (props) => {
+export const Error404: React.FC<IError404Props> = (props) => {
 
     let location = useLocation();
 

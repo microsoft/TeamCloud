@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { GraphUser, Member } from '.';
-import { User, ProjectMembership } from 'teamcloud';
+import { ProjectMembership } from 'teamcloud';
+import { Member } from '.';
 
 export interface ProjectMember extends Member {
     projectMembership: ProjectMembership;

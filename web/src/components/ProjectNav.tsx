@@ -7,7 +7,7 @@ import { Nav, INavLinkGroup, INavLink, Stack, ActionButton, Persona, PersonaSize
 
 export interface IProjectNavProps { }
 
-export const ProjectNav: React.FunctionComponent<IProjectNavProps> = (props) => {
+export const ProjectNav: React.FC<IProjectNavProps> = (props) => {
 
     let { orgId, projectId, navId } = useParams() as { orgId: string, projectId: string, navId: string };
 

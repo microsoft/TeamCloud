@@ -6,7 +6,7 @@ import { Route, useParams } from 'react-router-dom';
 import { Stack } from '@fluentui/react';
 import { useIsAuthenticated } from '@azure/msal-react';
 import { DeploymentScope, Organization, ProjectTemplate, User } from 'teamcloud';
-import { OrgSettingsOverview, OrgSettingsMembers, OrgSettingsConfiguration, OrgSettingsDeploymentScopes, OrgSettingsProjectTemplates, ContentHeader, ContentContainer, ContentProgress } from '../components';
+import { OrgSettingsOverview, DeploymentScopeList, ProjectTemplateList, ContentHeader, ContentContainer, ContentProgress, MemberList } from '../components';
 import { getGraphUser } from '../MSGraph';
 import { Member } from '../model';
 import { api } from '../API';
@@ -16,16 +16,16 @@ export interface IOrgSettingsViewProps {
     user?: User;
 }
 
-export const OrgSettingsView: React.FunctionComponent<IOrgSettingsViewProps> = (props) => {
+export const OrgSettingsView: React.FC<IOrgSettingsViewProps> = (props) => {
 
     let isAuthenticated = useIsAuthenticated();
+
     let { orgId, settingId } = useParams() as { orgId: string, settingId: string };
 
     const [org, setOrg] = useState(props.org);
     const [members, setMembers] = useState<Member[]>();
     const [scopes, setScopes] = useState<DeploymentScope[]>();
     const [templates, setTemplates] = useState<ProjectTemplate[]>();
-    // const [user, setUser] = useState(props.user);
 
     useEffect(() => {
         if (isAuthenticated && orgId) {
@@ -85,7 +85,8 @@ export const OrgSettingsView: React.FunctionComponent<IOrgSettingsViewProps> = (
             };
             _setTemplates();
         }
-    }, [isAuthenticated, orgId, settingId, scopes]);
+    }, [isAuthenticated, orgId, settingId, templates]);
+
 
     return (
         <Stack>
@@ -97,10 +98,6 @@ export const OrgSettingsView: React.FunctionComponent<IOrgSettingsViewProps> = (
                 <ContentProgress progressHidden={members !== undefined} />
                 <ContentHeader title='Members' />
             </Route>
-            <Route exact path='/orgs/:orgId/settings/configuration'>
-                <ContentProgress progressHidden={org !== undefined} />
-                <ContentHeader title='Configuration' />
-            </Route>
             <Route exact path='/orgs/:orgId/settings/scopes'>
                 <ContentProgress progressHidden={scopes !== undefined} />
                 <ContentHeader title='Deployment Scopes' />
@@ -109,29 +106,19 @@ export const OrgSettingsView: React.FunctionComponent<IOrgSettingsViewProps> = (
                 <ContentProgress progressHidden={templates !== undefined} />
                 <ContentHeader title='Project Templates' />
             </Route>
-            <Route exact path='/orgs/:orgId/settings/providers'>
-                <ContentProgress progressHidden={org !== undefined} />
-                <ContentHeader title='Custom Providers' />
-            </Route>
 
             <ContentContainer>
                 <Route exact path='/orgs/:orgId/settings'>
                     <OrgSettingsOverview {...{ org: org }} />
                 </Route>
                 <Route exact path='/orgs/:orgId/settings/members'>
-                    <OrgSettingsMembers {...{ members: members }} />
-                </Route>
-                <Route exact path='/orgs/:orgId/settings/configuration'>
-                    <OrgSettingsConfiguration {...{ org: org }} />
+                    <MemberList {...{ members: members }} />
                 </Route>
                 <Route exact path='/orgs/:orgId/settings/scopes'>
-                    <OrgSettingsDeploymentScopes {...{ scopes: scopes }} />
+                    <DeploymentScopeList {...{ scopes: scopes }} />
                 </Route>
                 <Route exact path='/orgs/:orgId/settings/templates'>
-                    <OrgSettingsProjectTemplates {...{ templates: templates }} />
-                </Route>
-                <Route exact path='/orgs/:orgId/settings/providers'>
-                    <OrgSettingsOverview {...{ org: org }} />
+                    <ProjectTemplateList {...{ templates: templates }} />
                 </Route>
             </ContentContainer>
         </Stack>

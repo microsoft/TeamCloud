@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { Stack, TextField, Dropdown, IDropdownOption, Spinner, Panel, Text, PrimaryButton, DefaultButton, Label } from '@fluentui/react';
 import { ProjectTemplate, User, ProjectDefinition, ProjectMembershipRole, UserDefinition, Organization } from 'teamcloud';
-import { ProjectMemberPicker } from '.';
+import { MemberPicker } from '.';
 import { GraphUser } from '../model'
 import { api } from '../API';
 
@@ -16,7 +16,7 @@ export interface IProjectFormProps {
     onFormClose: () => void;
 }
 
-export const ProjectForm: React.FunctionComponent<IProjectFormProps> = (props) => {
+export const ProjectForm: React.FC<IProjectFormProps> = (props) => {
 
     const [projectName, setProjectName] = useState<string>();
     const [projectTemplate, setProjectTemplate] = useState<ProjectTemplate>();
@@ -120,7 +120,7 @@ export const ProjectForm: React.FunctionComponent<IProjectFormProps> = (props) =
                 </Stack.Item>
                 <Stack.Item>
                     <Label>Members</Label>
-                    <ProjectMemberPicker
+                    <MemberPicker
                         formEnabled={formEnabled}
                         onChange={_onMembersChanged} />
                 </Stack.Item>

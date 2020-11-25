@@ -7,7 +7,7 @@ import { Text, Breadcrumb, IBreadcrumbItem } from '@fluentui/react';
 
 export interface IHeaderBreadcrumbProps { }
 
-export const HeaderBreadcrumb: React.FunctionComponent<IHeaderBreadcrumbProps> = (props) => {
+export const HeaderBreadcrumb: React.FC<IHeaderBreadcrumbProps> = (props) => {
 
     let history = useHistory();
 

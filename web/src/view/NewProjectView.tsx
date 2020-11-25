@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { ISubmitEvent } from '@rjsf/core';
 import { FuiForm } from '@rjsf/fluent-ui';
-import { Stack, TextField, Dropdown, IDropdownOption, Text, PrimaryButton, DefaultButton, getTheme, IconButton } from '@fluentui/react';
+import { Stack, TextField, Dropdown, IDropdownOption, Text, PrimaryButton, DefaultButton, IconButton } from '@fluentui/react';
 import { ProjectTemplate, ProjectDefinition } from 'teamcloud';
 import { ContentContainer, ContentHeader, ContentProgress } from '../components';
 import { api } from '../API';
@@ -14,7 +14,7 @@ import { api } from '../API';
 export interface INewProjectViewProps {
 }
 
-export const NewProjectView: React.FunctionComponent<INewProjectViewProps> = (props) => {
+export const NewProjectView: React.FC<INewProjectViewProps> = (props) => {
 
     let history = useHistory();
     let { orgId } = useParams() as { orgId: string };
@@ -40,7 +40,7 @@ export const NewProjectView: React.FunctionComponent<INewProjectViewProps> = (pr
             };
             _setProjectTemplates();
         }
-    }, [orgId, projectTemplates]);
+    }, [orgId, projectTemplates, projectTemplate]);
 
     const _submitForm = async (e: ISubmitEvent<any>) => {
         setFormEnabled(false);
@@ -85,8 +85,6 @@ export const NewProjectView: React.FunctionComponent<INewProjectViewProps> = (pr
             <DefaultButton text='Cancel' disabled={!formEnabled} onClick={() => _resetAndCloseForm()} />
         </div>
     );
-
-    const theme = getTheme();
 
     return (
         <Stack styles={{ root: { height: '100%' } }}>

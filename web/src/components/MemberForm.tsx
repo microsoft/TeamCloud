@@ -7,15 +7,15 @@ import { ProjectMembershipRole, Project, ProjectMembership, User } from 'teamclo
 import { GraphUser, Properties } from '../model'
 import { api } from '../API';
 
-export interface IProjectMemberFormProps {
+export interface IMemberFormProps {
     user?: User;
-    project: Project;
+    project?: Project;
     graphUser?: GraphUser;
     panelIsOpen: boolean;
     onFormClose: () => void;
 }
 
-export const ProjectMemberForm: React.FunctionComponent<IProjectMemberFormProps> = (props) => {
+export const MemberForm: React.FC<IMemberFormProps> = (props) => {
 
     const [formEnabled, setFormEnabled] = useState<boolean>(true);
     const [projectMembership, setProjectMembership] = useState<ProjectMembership>();
@@ -24,8 +24,9 @@ export const ProjectMemberForm: React.FunctionComponent<IProjectMemberFormProps>
     const [errorText, setErrorText] = useState<string>();
 
     useEffect(() => {
-        setProjectMembership(props.user?.projectMemberships?.find(pm => pm.projectId === props.project.id))
-    }, [props.user, props.project.id]);
+        if (props.project)
+            setProjectMembership(props.user?.projectMemberships?.find(pm => pm.projectId === props.project!.id))
+    }, [props.user, props.project]);
 
     useEffect(() => {
         if (projectMembership) {
@@ -41,7 +42,7 @@ export const ProjectMemberForm: React.FunctionComponent<IProjectMemberFormProps>
 
 
     const _submitForm = async () => {
-        if (props.user && projectMembership) {
+        if (props.user && props.project && projectMembership) {
             setFormEnabled(false);
             if ((newProjectRole && newProjectRole !== projectMembership.role)
                 || (newProjectProperties && newProjectProperties !== projectMembership.properties)) {

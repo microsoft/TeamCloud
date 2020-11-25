@@ -7,7 +7,7 @@ import { OrgSettingsNav, ProjectNav, ProjectSettingsNav, RootNav } from '../comp
 
 export interface INavViewProps { }
 
-export const NavView: React.FunctionComponent<INavViewProps> = (props: INavViewProps) => {
+export const NavView: React.FC<INavViewProps> = (props: INavViewProps) => {
 
     return (
         <Switch>

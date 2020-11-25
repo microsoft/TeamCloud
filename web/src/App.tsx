@@ -11,7 +11,7 @@ import { auth } from './API';
 
 interface IAppProps { }
 
-export const App: React.FunctionComponent<IAppProps> = () => {
+export const App: React.FC<IAppProps> = () => {
 
     const authResult: MsalAuthenticationResult = useMsalAuthentication(InteractionType.Redirect, { scopes: auth.getScopes() });
 

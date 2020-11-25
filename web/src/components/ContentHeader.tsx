@@ -10,7 +10,7 @@ export interface IContentHeaderProps {
     title?: string;
 }
 
-export const ContentHeader: React.FunctionComponent<IContentHeaderProps> = (props) => {
+export const ContentHeader: React.FC<IContentHeaderProps> = (props) => {
 
     const theme = getTheme();
 

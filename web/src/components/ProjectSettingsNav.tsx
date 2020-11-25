@@ -7,7 +7,7 @@ import { Nav, INavLinkGroup, Stack, getTheme } from '@fluentui/react';
 
 export interface IProjectSettingsNavProps { }
 
-export const ProjectSettingsNav: React.FunctionComponent<IProjectSettingsNavProps> = (props) => {
+export const ProjectSettingsNav: React.FC<IProjectSettingsNavProps> = (props) => {
 
     let { orgId, projectId, settingId } = useParams() as { orgId: string, projectId: string, settingId: string };
 
@@ -22,20 +22,20 @@ export const ProjectSettingsNav: React.FunctionComponent<IProjectSettingsNavProp
                 onClick: () => history.push(`/orgs/${orgId}/projects/${projectId}/settings`),
                 iconProps: { iconName: 'Settings' }
             },
-            {
-                key: 'components',
-                name: 'Components',
-                url: '',
-                onClick: () => history.push(`/orgs/${orgId}/projects/${projectId}/settings/components`),
-                iconProps: { iconName: 'Rocket' } // WebComponent SplitObject ModelingView WebAppBuilderFragment
-            },
-            {
-                key: 'members',
-                name: 'Members',
-                url: '',
-                onClick: () => history.push(`/orgs/${orgId}/projects/${projectId}/settings/members`),
-                iconProps: { iconName: 'Group' }
-            }
+            // {
+            //     key: 'components',
+            //     name: 'Components',
+            //     url: '',
+            //     onClick: () => history.push(`/orgs/${orgId}/projects/${projectId}/settings/components`),
+            //     iconProps: { iconName: 'Rocket' } // WebComponent SplitObject ModelingView WebAppBuilderFragment
+            // },
+            // {
+            //     key: 'members',
+            //     name: 'Members',
+            //     url: '',
+            //     onClick: () => history.push(`/orgs/${orgId}/projects/${projectId}/settings/members`),
+            //     iconProps: { iconName: 'Group' }
+            // }
         ] : []
     }];
 

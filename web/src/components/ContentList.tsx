@@ -1,62 +1,28 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState } from 'react';
-import { ProjectMember } from '../model'
-import { Project, User } from 'teamcloud';
-import { Stack, PersonaSize, IRenderFunction, Persona, Text, ITextStyles, FontWeights, IDetailsHeaderProps, IDetailsRowProps, IColumn, getTheme, SearchBox, PrimaryButton, DetailsList, DetailsListLayoutMode, CheckboxVisibility } from '@fluentui/react';
+import React, { PropsWithChildren, useState } from 'react';
+import { CheckboxVisibility, DetailsList, DetailsListLayoutMode, FontWeights, getTheme, IColumn, IDetailsHeaderProps, IDetailsRowProps, IRenderFunction, ITextStyles, PrimaryButton, SearchBox, Stack, Text } from '@fluentui/react';
 
-export interface IProjectMembersProps {
-    user?: User;
-    project: Project;
-    members?: ProjectMember[];
-    onEditMember: (member?: ProjectMember) => void;
+export interface IContentListProps<T> {
+    items?: T[];
+    columns?: IColumn[];
+    filterPlaceholder?: string;
+    applyFilter?: (item: T, filter: string) => boolean;
+    onItemInvoked?: (item: T) => void;
+    buttonText?: string;
+    buttonIcon?: string;
+    onButtonClick?: () => void;
+    secondaryButtonText?: string;
+    secondaryButtonIcon?: string;
+    onSecondaryButtonClick?: () => void;
 }
 
-export const ProjectMembers: React.FunctionComponent<IProjectMembersProps> = (props) => {
-    const [addMembersPanelOpen, setAddMembersPanelOpen] = useState(false);
+export const ContentList = <T,>(props: PropsWithChildren<IContentListProps<T>>) => {
 
+    const [itemFilter, setItemFilter] = useState<string>();
 
-    const [memberFilter, setMemberFilter] = useState<string>();
     const theme = getTheme();
-
-    const _userIsProjectOwner = () =>
-        props.user?.projectMemberships?.find(m => m.projectId === props.project.id)?.role === 'Owner';
-
-    const columns: IColumn[] = [
-        {
-            key: 'member', name: 'Member', minWidth: 240, isResizable: false, onRender: (m: ProjectMember) => (
-                <Persona
-                    text={m.graphUser?.displayName ?? m.user.id}
-                    showSecondaryText
-                    secondaryText={m.graphUser?.mail ?? (m.graphUser?.otherMails && m.graphUser.otherMails.length > 0 ? m.graphUser.otherMails[0] : undefined)}
-                    imageUrl={m.graphUser?.imageUrl}
-                    size={PersonaSize.size32} />
-            )
-        },
-        { key: 'role', name: 'Role', minWidth: 240, onRender: (m: ProjectMember) => m.projectMembership.role },
-        { key: 'type', name: 'Type', minWidth: 240, onRender: (m: ProjectMember) => m.user.userType }
-    ];
-
-
-    const _applyMemberFilter = (member: ProjectMember): boolean => {
-        return memberFilter ? member.graphUser?.displayName?.toUpperCase().includes(memberFilter.toUpperCase()) ?? false : true;
-    }
-
-    const _onLinkClicked = (member: ProjectMember): void => {
-        // if (props.onProjectSelected)
-        //     props.onProjectSelected(project);
-    }
-
-    const _onItemInvoked = (member: ProjectMember): void => {
-        console.error(member);
-        // if (project) {
-        //     _onLinkClicked(project);
-        //     history.push(`${orgId}/projects/${project.slug}`);
-        // } else {
-        //     console.error('nope');
-        // }
-    };
 
     const _onRenderRow: IRenderFunction<IDetailsRowProps> = (props?: IDetailsRowProps, defaultRender?: (props?: IDetailsRowProps) => JSX.Element | null): JSX.Element | null => {
         if (props) props.styles = { fields: { alignItems: 'center' }, check: { minHeight: '62px' }, cell: { fontSize: '14px' } }
@@ -68,7 +34,7 @@ export const ProjectMembers: React.FunctionComponent<IProjectMembersProps> = (pr
         return defaultRender ? defaultRender(props) : null;
     };
 
-    const items = props.members ? props.members.filter(_applyMemberFilter) : new Array<ProjectMember>();
+    const items: T[] = props.items ? (itemFilter && props.applyFilter !== undefined) ? props.items.filter(i => props.applyFilter!(i, itemFilter)) : props.items : [];
 
     const _titleStyles: ITextStyles = {
         root: {
@@ -89,15 +55,15 @@ export const ProjectMembers: React.FunctionComponent<IProjectMembersProps> = (pr
     }
 
 
-    if (props.members === undefined)
+    if (props.items === undefined)
         return (<></>);
 
-    if (props.members.length === 0)
+    if (props.items.length === 0)
         return (<Text styles={{ root: { width: '100%', paddingLeft: '8px' } }}>No projects</Text>)
 
     return (
         <Stack tokens={{ childrenGap: '20px' }}>
-            <Stack styles={{
+            { props.applyFilter && (<Stack styles={{
                 root: {
                     padding: '10px 16px 10px 6px',
                     borderRadius: theme.effects.roundedCorner4,
@@ -106,9 +72,9 @@ export const ProjectMembers: React.FunctionComponent<IProjectMembersProps> = (pr
                 }
             }} >
                 <SearchBox
-                    placeholder='Filter members'
+                    placeholder={props.filterPlaceholder ?? 'Filter members'}
                     iconProps={{ iconName: 'Filter' }}
-                    onChange={(_ev, val) => setMemberFilter(val)}
+                    onChange={(_ev, val) => setItemFilter(val)}
                     styles={{
                         root: {
                             border: 'none !important', selectors: {
@@ -119,7 +85,7 @@ export const ProjectMembers: React.FunctionComponent<IProjectMembersProps> = (pr
                         iconContainer: { color: theme.palette.neutralTertiary, },
                         field: { border: 'none !important' }
                     }} />
-            </Stack>
+            </Stack>)}
             <Stack styles={{
                 root: {
                     borderRadius: theme.effects.roundedCorner4,
@@ -135,23 +101,23 @@ export const ProjectMembers: React.FunctionComponent<IProjectMembersProps> = (pr
                                 <Text styles={_titleStyles}>Total</Text>
                             </Stack.Item>
                             <Stack.Item>
-                                <Text styles={_calloutStyles}>{props.members.length}</Text>
+                                <Text styles={_calloutStyles}>{props.items.length}</Text>
                             </Stack.Item>
                         </Stack>
                     </Stack.Item>
-                    <Stack.Item>
-                        <PrimaryButton
-                            disabled={props.project === undefined}
-                            // iconProps={{ iconName: 'Add' }}
-                            text='Add members'
-                        // onClick={() => history.push(`/orgs/${orgId}/projects/new`)}
-                        />
-                    </Stack.Item>
+                    {props.buttonText && (
+                        <Stack.Item>
+                            <PrimaryButton
+                                text={props.buttonText}
+                                iconProps={props.buttonIcon ? { iconName: props.buttonIcon } : undefined}
+                                onClick={props.onButtonClick} />
+                        </Stack.Item>
+                    )}
                 </Stack>
 
                 <DetailsList
                     items={items}
-                    columns={columns}
+                    columns={props.columns}
                     // isHeaderVisible={false}
                     onRenderRow={_onRenderRow}
                     onRenderDetailsHeader={_onRenderDetailsHeader}
@@ -159,7 +125,7 @@ export const ProjectMembers: React.FunctionComponent<IProjectMembersProps> = (pr
                     layoutMode={DetailsListLayoutMode.justified}
                     checkboxVisibility={CheckboxVisibility.always}
                     selectionPreservedOnEmptyClick={true}
-                    onItemInvoked={_onItemInvoked} />
+                    onItemInvoked={props.onItemInvoked} />
             </Stack>
         </Stack>
     );

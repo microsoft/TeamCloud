@@ -4,8 +4,8 @@
 import React, { useState, useEffect } from 'react';
 import { PrimaryButton, DefaultButton, Panel, Stack, TextField, Dropdown, Label, Spinner, Persona, PersonaSize, Text } from '@fluentui/react';
 import { User, UserRole } from 'teamcloud';
-import { GraphUser, Properties } from '../../model'
-import { api } from '../../API'
+import { GraphUser, Properties } from '../model'
+import { api } from '../API'
 
 export interface IUserFormProps {
     me: boolean;
@@ -15,7 +15,7 @@ export interface IUserFormProps {
     onFormClose: () => void;
 }
 
-export const UserForm: React.FunctionComponent<IUserFormProps> = (props) => {
+export const UserForm: React.FC<IUserFormProps> = (props) => {
 
     const [formEnabled, setFormEnabled] = useState<boolean>(true);
     const [userRole, setUserRole] = useState<UserRole>();

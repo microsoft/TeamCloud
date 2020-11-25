@@ -3,9 +3,8 @@
 
 import React, { useState } from 'react';
 import { DefaultButton, Stack, Panel, Persona, PersonaSize, getTheme, Separator, PrimaryButton } from '@fluentui/react';
-import { GraphUser } from '../../model';
-import { useMsal } from '@azure/msal-react';
-import { auth } from '../../API';
+import { GraphUser } from '../model';
+import { auth } from '../API';
 // import { UserForm } from './UserForm';
 
 export interface IUserInfoProps {
@@ -14,7 +13,7 @@ export interface IUserInfoProps {
     // onSignOut: () => void;
 }
 
-export const UserInfo: React.FunctionComponent<IUserInfoProps> = (props) => {
+export const UserInfo: React.FC<IUserInfoProps> = (props) => {
 
     const [panelOpen, setPanelOpen] = useState(false);
     // const [editPanelOpen, setEditPanelOpen] = useState(false);
