@@ -10,6 +10,8 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Schema;
 using Octokit;
+using Octokit.Internal;
+using TeamCloud.Git.Caching;
 using TeamCloud.Git.Data;
 using TeamCloud.Model.Data;
 using YamlDotNet.Serialization;
@@ -25,9 +27,14 @@ namespace TeamCloud.Git.Services
         private readonly GitHubClient client;
         private readonly IDeserializer yamlDeserializer;
 
-        internal GitHubService()
+        internal GitHubService(IRepositoryCache cache)
         {
-            client = new GitHubClient(new ProductHeaderValue(ProductHeaderName, ProductHeaderVersion));
+            var connection = new Connection(
+                new ProductHeaderValue(ProductHeaderName, ProductHeaderVersion),
+                new GitHubCache(new HttpClientAdapter(HttpMessageHandlerFactory.CreateDefault), cache));
+
+            client = new GitHubClient(connection);
+
             yamlDeserializer = new DeserializerBuilder()
                 .IgnoreUnmatchedProperties()
                 .WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
