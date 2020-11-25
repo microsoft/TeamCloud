@@ -25,6 +25,7 @@ using TeamCloud.Configuration.Options;
 using TeamCloud.Data;
 using TeamCloud.Data.Caching;
 using TeamCloud.Data.CosmosDb;
+using TeamCloud.Git.Caching;
 using TeamCloud.Git.Services;
 using TeamCloud.Http;
 using TeamCloud.Orchestration;
@@ -61,13 +62,15 @@ namespace TeamCloud.Orchestrator
             {
                 builder.Services
                     .AddDistributedMemoryCache()
-                    .AddSingleton<IContainerDocumentCache, ContainerDocumentCache>();
+                    .AddSingleton<IContainerDocumentCache, ContainerDocumentCache>()
+                    .AddSingleton<IRepositoryCache, RepositoryCache>();
             }
             else
             {
                 builder.Services
                     .AddDistributedRedisCache(options => configuration.Bind("Cache", options))
-                    .AddSingleton<IContainerDocumentCache, ContainerDocumentCache>();
+                    .AddSingleton<IContainerDocumentCache, ContainerDocumentCache>()
+                    .AddSingleton<IRepositoryCache, RepositoryCache>();
             }
 
             builder.Services

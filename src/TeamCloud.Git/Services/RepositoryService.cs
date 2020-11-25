@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using TeamCloud.Git.Caching;
 using TeamCloud.Model.Data;
 
 namespace TeamCloud.Git.Services
@@ -15,9 +16,9 @@ namespace TeamCloud.Git.Services
         private readonly GitHubService github;
         private readonly DevOpsService devops;
 
-        public RepositoryService()
+        public RepositoryService(IRepositoryCache cache)
         {
-            github = new GitHubService();
+            github = new GitHubService(cache);
             devops = new DevOpsService();
         }
 

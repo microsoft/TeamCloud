@@ -37,6 +37,7 @@ using TeamCloud.Configuration.Options;
 using TeamCloud.Data;
 using TeamCloud.Data.Caching;
 using TeamCloud.Data.CosmosDb;
+using TeamCloud.Git.Caching;
 using TeamCloud.Git.Services;
 using TeamCloud.Http;
 
@@ -113,13 +114,15 @@ namespace TeamCloud.API
             {
                 services
                     .AddDistributedMemoryCache()
-                    .AddSingleton<IContainerDocumentCache, ContainerDocumentCache>();
+                    .AddSingleton<IContainerDocumentCache, ContainerDocumentCache>()
+                    .AddSingleton<IRepositoryCache, RepositoryCache>();
             }
             else
             {
                 services
                     .AddDistributedRedisCache(options => Configuration.Bind("Cache", options))
-                    .AddSingleton<IContainerDocumentCache, ContainerDocumentCache>();
+                    .AddSingleton<IContainerDocumentCache, ContainerDocumentCache>()
+                    .AddSingleton<IRepositoryCache, RepositoryCache>();
             }
 
             services
