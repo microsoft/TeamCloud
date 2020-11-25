@@ -50,13 +50,13 @@ export const OrgSettingsNav: React.FunctionComponent<IOrgSettingsNavProps> = (pr
                 onClick: () => history.push(`/orgs/${orgId}/settings/templates`),
                 iconProps: { iconName: 'Rocket' }
             },
-            {
-                key: 'providers',
-                name: 'Custom Providers',
-                url: '',
-                onClick: () => history.push(`/orgs/${orgId}/settings/providers`),
-                iconProps: { iconName: 'WebAppBuilderFragment' }
-            }
+            // {
+            //     key: 'providers',
+            //     name: 'Custom Providers',
+            //     url: '',
+            //     onClick: () => history.push(`/orgs/${orgId}/settings/providers`),
+            //     iconProps: { iconName: 'WebAppBuilderFragment' }
+            // }
         ] : []
     }];
 

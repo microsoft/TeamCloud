@@ -118,4 +118,7 @@ export class Auth implements TokenCredential, AuthenticationProvider {
 
         return token?.token ?? Promise.reject('Unable to get token');
     }
+
+
+    logout = async (): Promise<void> => this.clientApplication.logout();
 }

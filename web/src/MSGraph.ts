@@ -20,7 +20,7 @@ export enum PhotoSize {
 const Client = GraphClient;
 const client = Client.initWithMiddleware({ authProvider: auth });
 
-const _userSelect = ['id', 'userPrincipalName', 'displayName', 'givenName', 'sirname', 'mail', 'companyName', 'jobTitle', 'preferredLanguage', 'userType', 'department']
+const _userSelect = ['id', 'userPrincipalName', 'displayName', 'givenName', 'sirname', 'mail', 'otherMails', 'companyName', 'jobTitle', 'preferredLanguage', 'userType', 'department']
 
 export const getMe = async (): Promise<GraphUser> => {
     let response = await client
@@ -30,8 +30,8 @@ export const getMe = async (): Promise<GraphUser> => {
     let me = response as GraphUser;
     try {
         me.imageUrl = await getMePhoto();
-    } catch (error) {
-        console.error(error);
+    } catch {
+        // swollow this error
     }
     return me;
 }
@@ -47,7 +47,7 @@ export const getGraphUser = async (id: string): Promise<GraphUser> => {
         user.imageUrl = await getUserPhoto(user.id);
         return user;
     } catch (error) {
-        console.log(error as GraphError);
+        console.error(error as GraphError);
         throw error;
     }
 }
@@ -63,7 +63,7 @@ export const getGraphUsers = async (): Promise<GraphUser[]> => {
         await Promise.all(users.map(async u => u.imageUrl = await getUserPhoto(u.id)));
         return users;
     } catch (error) {
-        console.log(error as GraphError);
+        console.error(error as GraphError);
         throw error;
     }
 }
@@ -80,7 +80,7 @@ export const searchGraphUsers = async (search: string): Promise<GraphUser[]> => 
         await Promise.all(users.map(async u => u.imageUrl = await getUserPhoto(u.id)));
         return users;
     } catch (error) {
-        console.log(error as GraphError);
+        console.error(error as GraphError);
         throw error;
     }
 }
@@ -97,7 +97,7 @@ export const getMePhoto = async (size: PhotoSize = PhotoSize.size240x240): Promi
         return URL.createObjectURL(response);
     } catch (error) {
         if ((error as GraphError).statusCode === 404) return undefined;
-        console.log(error as GraphError);
+        console.error(error as GraphError);
         throw error;
     }
 }
@@ -114,7 +114,7 @@ export const getUserPhoto = async (id: string, size: PhotoSize = PhotoSize.size2
         return URL.createObjectURL(response);
     } catch (error) {
         if ((error as GraphError).statusCode === 404) return undefined;
-        console.log(error as GraphError);
+        console.error(error as GraphError);
         throw error;
     }
 }
@@ -127,7 +127,7 @@ export const getGraphDirectoryObject = async (id: string): Promise<GraphUser> =>
             .get();
         return response as GraphUser;
     } catch (error) {
-        console.log(error as GraphError);
+        console.error(error as GraphError);
         throw error;
     }
 }
@@ -140,7 +140,7 @@ export const getGraphDirectoryObjects = async (): Promise<GraphUser[]> => {
             .get();
         return response.value as GraphUser[];
     } catch (error) {
-        console.log(error as GraphError);
+        console.error(error as GraphError);
         throw error;
     }
 }

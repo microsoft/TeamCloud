@@ -3,11 +3,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { Route, useParams } from 'react-router-dom';
-import { Stack, Persona, PersonaSize, getTheme, IconButton, ProgressIndicator } from '@fluentui/react';
+import { Stack } from '@fluentui/react';
 import { useIsAuthenticated } from '@azure/msal-react';
-import { Organization, Project, User } from 'teamcloud';
-import { ProjectMembersForm, ProjectMemberForm, ProjectMembers, ProjectComponents, ProjectOverview, OrgSettingsOverview, OrgSettingsMembers, OrgSettingsConfiguration, OrgSettingsDeploymentScopes, OrgSettingsProjectTemplates, ContentHeader, ContentContainer, ContentProgress } from '../components';
-import { ProjectMember } from '../model';
+import { DeploymentScope, Organization, ProjectTemplate, User } from 'teamcloud';
+import { OrgSettingsOverview, OrgSettingsMembers, OrgSettingsConfiguration, OrgSettingsDeploymentScopes, OrgSettingsProjectTemplates, ContentHeader, ContentContainer, ContentProgress } from '../components';
+import { getGraphUser } from '../MSGraph';
+import { Member } from '../model';
 import { api } from '../API';
 
 export interface IOrgSettingsViewProps {
@@ -21,7 +22,10 @@ export const OrgSettingsView: React.FunctionComponent<IOrgSettingsViewProps> = (
     let { orgId, settingId } = useParams() as { orgId: string, settingId: string };
 
     const [org, setOrg] = useState(props.org);
-    const [user, setUser] = useState(props.user);
+    const [members, setMembers] = useState<Member[]>();
+    const [scopes, setScopes] = useState<DeploymentScope[]>();
+    const [templates, setTemplates] = useState<ProjectTemplate[]>();
+    // const [user, setUser] = useState(props.user);
 
     useEffect(() => {
         if (isAuthenticated && orgId) {
@@ -40,31 +44,96 @@ export const OrgSettingsView: React.FunctionComponent<IOrgSettingsViewProps> = (
         }
     }, [isAuthenticated, org, orgId]);
 
-    const theme = getTheme();
 
-    return org?.id ? (
+    useEffect(() => {
+        if (isAuthenticated && orgId && settingId === 'members' && members === undefined) {
+            console.log('setMembers');
+            const _setMembers = async () => {
+                let _users = await api.getOrganizationUsers(orgId);
+                if (_users.data) {
+                    let _members = await Promise.all(_users.data.map(async u => ({
+                        user: u,
+                        graphUser: await getGraphUser(u.id)
+                    })));
+                    _members.forEach(m => console.log(m));
+                    setMembers(_members);
+                }
+            };
+            _setMembers();
+        }
+    }, [isAuthenticated, orgId, settingId, members]);
+
+
+    useEffect(() => {
+        if (isAuthenticated && orgId && settingId === 'scopes' && scopes === undefined) {
+            console.log('setScopes');
+            const _setScopes = async () => {
+                let _scopes = await api.getDeploymentScopes(orgId);
+                setScopes(_scopes.data ?? undefined)
+            };
+            _setScopes();
+        }
+    }, [isAuthenticated, orgId, settingId, scopes]);
+
+
+    useEffect(() => {
+        if (isAuthenticated && orgId && settingId === 'templates' && templates === undefined) {
+            console.log('setTemplates');
+            const _setTemplates = async () => {
+                let _templates = await api.getProjectTemplates(orgId);
+                setTemplates(_templates.data ?? undefined)
+            };
+            _setTemplates();
+        }
+    }, [isAuthenticated, orgId, settingId, scopes]);
+
+    return (
         <Stack>
-            <ContentHeader title={org.displayName} />
+            <Route exact path='/orgs/:orgId/settings'>
+                <ContentProgress progressHidden={org !== undefined} />
+                <ContentHeader title={org?.displayName} />
+            </Route>
+            <Route exact path='/orgs/:orgId/settings/members'>
+                <ContentProgress progressHidden={members !== undefined} />
+                <ContentHeader title='Members' />
+            </Route>
+            <Route exact path='/orgs/:orgId/settings/configuration'>
+                <ContentProgress progressHidden={org !== undefined} />
+                <ContentHeader title='Configuration' />
+            </Route>
+            <Route exact path='/orgs/:orgId/settings/scopes'>
+                <ContentProgress progressHidden={scopes !== undefined} />
+                <ContentHeader title='Deployment Scopes' />
+            </Route>
+            <Route exact path='/orgs/:orgId/settings/templates'>
+                <ContentProgress progressHidden={templates !== undefined} />
+                <ContentHeader title='Project Templates' />
+            </Route>
+            <Route exact path='/orgs/:orgId/settings/providers'>
+                <ContentProgress progressHidden={org !== undefined} />
+                <ContentHeader title='Custom Providers' />
+            </Route>
+
             <ContentContainer>
                 <Route exact path='/orgs/:orgId/settings'>
-                    <OrgSettingsOverview {...{ org: org, user: user }} />
+                    <OrgSettingsOverview {...{ org: org }} />
                 </Route>
                 <Route exact path='/orgs/:orgId/settings/members'>
-                    <OrgSettingsMembers {...{ org: org, user: user }} />
+                    <OrgSettingsMembers {...{ members: members }} />
                 </Route>
                 <Route exact path='/orgs/:orgId/settings/configuration'>
-                    <OrgSettingsConfiguration {...{ org: org, user: user }} />
+                    <OrgSettingsConfiguration {...{ org: org }} />
                 </Route>
                 <Route exact path='/orgs/:orgId/settings/scopes'>
-                    <OrgSettingsDeploymentScopes {...{ org: org, user: user }} />
+                    <OrgSettingsDeploymentScopes {...{ scopes: scopes }} />
                 </Route>
                 <Route exact path='/orgs/:orgId/settings/templates'>
-                    <OrgSettingsProjectTemplates {...{ org: org, user: user }} />
+                    <OrgSettingsProjectTemplates {...{ templates: templates }} />
                 </Route>
                 <Route exact path='/orgs/:orgId/settings/providers'>
-                    <OrgSettingsOverview {...{ org: org, user: user }} />
+                    <OrgSettingsOverview {...{ org: org }} />
                 </Route>
             </ContentContainer>
         </Stack>
-    ) : (<ContentProgress progressHidden={org !== undefined} />);
+    );
 }

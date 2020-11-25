@@ -26,8 +26,7 @@ export const ContentHeader: React.FunctionComponent<IContentHeaderProps> = (prop
                             text={props.title}
                             size={PersonaSize.size48}
                             coinProps={{ styles: { initials: { borderRadius: '4px', fontSize: '20px', fontWeight: '400' } } }}
-                            styles={{ primaryText: { fontSize: theme.fonts.xxLarge.fontSize, fontWeight: '700', letterSpacing: '-1.12px', marginLeft: '20px' } }}
-                            imageInitials={props.title?.split(' ').map(s => s[0].toUpperCase()).join('')} />
+                            styles={{ primaryText: { fontSize: theme.fonts.xxLarge.fontSize, fontWeight: '700', letterSpacing: '-1.12px', marginLeft: '20px' } }} />
                     )}
                     {props.title && !(props.coin ?? false) && (
                         <Text

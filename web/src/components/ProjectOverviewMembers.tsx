@@ -17,29 +17,30 @@ import { api } from '../API';
 export interface IProjectOverviewMembersProps {
     user?: User;
     project: Project;
+    members?: ProjectMember[]
     onEditMember: (member?: ProjectMember) => void;
 }
 
 export const ProjectOverviewMembers: React.FunctionComponent<IProjectOverviewMembersProps> = (props) => {
-    const [members, setMembers] = useState<ProjectMember[]>();
+    // const [members, setMembers] = useState<ProjectMember[]>();
     const [addMembersPanelOpen, setAddMembersPanelOpen] = useState(false);
 
-    useEffect(() => {
-        if (props.project) {
-            const _setMembers = async () => {
-                let _users = await api.getProjectUsers(props.project.organization, props.project.id);
-                if (_users.data) {
-                    let _members = await Promise.all(_users.data.map(async u => ({
-                        user: u,
-                        graphUser: u.userType === 'User' ? await getGraphUser(u.id) : u.userType === 'Provider' ? await getGraphDirectoryObject(u.id) : undefined,
-                        projectMembership: u.projectMemberships!.find(m => m.projectId === props.project.id)!
-                    })));
-                    setMembers(_members);
-                }
-            };
-            _setMembers();
-        }
-    }, [props.project]);
+    // useEffect(() => {
+    //     if (props.project) {
+    //         const _setMembers = async () => {
+    //             let _users = await api.getProjectUsers(props.project.organization, props.project.id);
+    //             if (_users.data) {
+    //                 let _members = await Promise.all(_users.data.map(async u => ({
+    //                     user: u,
+    //                     graphUser: u.userType === 'User' ? await getGraphUser(u.id) : u.userType === 'Provider' ? await getGraphDirectoryObject(u.id) : undefined,
+    //                     projectMembership: u.projectMemberships!.find(m => m.projectId === props.project.id)!
+    //                 })));
+    //                 setMembers(_members);
+    //             }
+    //         };
+    //         _setMembers();
+    //     }
+    // }, [props.project]);
 
     const _removeMemberFromProject = async (member: ProjectMember) => {
         let result = await api.deleteProjectUser(member.user.id, props.project.organization, props.project.id);
@@ -59,8 +60,8 @@ export const ProjectOverviewMembers: React.FunctionComponent<IProjectOverviewMem
     };
 
     const _removeButtonDisabled = (member: ProjectMember) => {
-        return members && member.projectMembership.role === 'Owner'
-            && members.filter(m => m.user.userType === 'User'
+        return props.members && member.projectMembership.role === 'Owner'
+            && props.members.filter(m => m.user.userType === 'User'
                 && m.user.projectMemberships
                 && m.user.projectMemberships!.find(pm => pm.projectId === props.project.id && pm.role === 'Owner')).length === 1
     };
@@ -88,7 +89,7 @@ export const ProjectOverviewMembers: React.FunctionComponent<IProjectOverviewMem
             ]} />
     );
 
-    const _facepilePersonas = (): IFacepilePersona[] => members?.map(m => ({
+    const _facepilePersonas = (): IFacepilePersona[] => props.members?.map(m => ({
         personaName: m.graphUser?.displayName,
         imageUrl: m.graphUser?.imageUrl ?? _findKnownProviderImage(m),
         data: m,
@@ -169,11 +170,11 @@ export const ProjectOverviewMembers: React.FunctionComponent<IProjectOverviewMem
         <>
             <ProjectDetailCard
                 title='Members'
-                callout={members?.length.toString()}
+                callout={props.members?.length.toString()}
                 commandBarItems={_getCommandBarItems()}>
                 <Shimmer
                     customElementsGroup={_getShimmerElements()}
-                    isDataLoaded={members !== undefined}
+                    isDataLoaded={props.members !== undefined}
                     width={152} >
                     <Facepile
                         styles={{ itemButton: _personaCoinStyles }}

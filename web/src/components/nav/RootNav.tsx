@@ -30,7 +30,7 @@ export const RootNav: React.FunctionComponent<IRootNavProps> = (props) => {
                 if (result.code === 200 && result.data) {
                     if (result.data.length === 0)
                         history.push('/orgs/new');
-                    else if (result.data.length === 1)
+                    else if (history.location.pathname === '/' && result.data.length === 1)
                         history.push(`/orgs/${result.data[0].slug}`);
                 }
             };
@@ -64,9 +64,7 @@ export const RootNav: React.FunctionComponent<IRootNavProps> = (props) => {
         : <Persona
             text={link?.name}
             size={PersonaSize.size24}
-            coinProps={{ styles: { initials: { borderRadius: '4px' } } }}
-            imageInitials={link?.name[0].toUpperCase()} />;
-
+            coinProps={{ styles: { initials: { borderRadius: '4px' } } }} />
 
     return (
         <Stack

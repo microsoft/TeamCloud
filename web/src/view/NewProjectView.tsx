@@ -23,7 +23,7 @@ export const NewProjectView: React.FunctionComponent<INewProjectViewProps> = (pr
     const [projectTemplate, setProjectTemplate] = useState<ProjectTemplate>();
     const [projectTemplates, setProjectTemplates] = useState<ProjectTemplate[]>();
     const [projectTemplateOptions, setProjectTemplateOptions] = useState<IDropdownOption[]>();
-    const [formEnabled, setFormEnabled] = useState<boolean>(true);
+    const [formEnabled, setFormEnabled] = useState<boolean>(false);
     const [errorText, setErrorText] = useState<string>();
 
 
@@ -36,6 +36,7 @@ export const NewProjectView: React.FunctionComponent<INewProjectViewProps> = (pr
                 if (result.data && !projectTemplate) {
                     setProjectTemplate(result.data.find(t => t.isDefault));
                 }
+                setFormEnabled(true);
             };
             _setProjectTemplates();
         }
@@ -89,8 +90,7 @@ export const NewProjectView: React.FunctionComponent<INewProjectViewProps> = (pr
 
     return (
         <Stack styles={{ root: { height: '100%' } }}>
-            <ContentProgress
-                progressHidden={formEnabled} />
+            <ContentProgress progressHidden={formEnabled} />
             <ContentHeader title='New Project'>
                 <IconButton iconProps={{ iconName: 'ChromeClose' }} onClick={() => history.replace(`/orgs/${orgId}`)} />
             </ContentHeader>

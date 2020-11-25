@@ -51,15 +51,11 @@ export const NewOrgView: React.FunctionComponent<INewOrgViewProps> = (props) => 
     const pivotKeys = ['Basic Settings', 'Configuration', 'Deployment Scope', 'Project Template', 'Tags', 'Review + create'];
 
 
-    const _formComplete = () =>
-        orgName
-        && orgSubscription
-        && orgRegion
-        && scopeName
-        && (scopeManagementGroup || scopeSubscriptions)
-        && templateName
-        && templateUrl;
+    const _orgComplete = () => orgName && orgSubscription && orgRegion;
 
+    const _scopeComplete = () => scopeName && (scopeManagementGroup || scopeSubscriptions);
+
+    const _templateComplete = () => templateName && templateUrl;
 
     useEffect(() => {
         if (!templateUrl) {
@@ -125,7 +121,7 @@ export const NewOrgView: React.FunctionComponent<INewOrgViewProps> = (props) => 
 
 
     const _submitForm = async () => {
-        if (_formComplete()) {
+        if (_orgComplete()) {
 
             setFormEnabled(false);
 
@@ -141,35 +137,40 @@ export const NewOrgView: React.FunctionComponent<INewOrgViewProps> = (props) => 
 
             const org = orgResult.data;
 
-            setPercentComplete(.3);
+            setPercentComplete(.2);
 
             if (org) {
 
-                const scopeDef = {
-                    displayName: scopeName,
-                    managementGroupId: scopeManagementGroup,
-                    subscriptionIds: scopeSubscriptions,
-                    isDefault: true
-                } as DeploymentScopeDefinition;
+                if (_scopeComplete()) {
+                    const scopeDef = {
+                        displayName: scopeName,
+                        managementGroupId: scopeManagementGroup,
+                        subscriptionIds: scopeSubscriptions,
+                        isDefault: true
+                    } as DeploymentScopeDefinition;
 
-                const scopeResult = await api.createDeploymentScope(org.id, { body: scopeDef, });
+                    const scopeResult = await api.createDeploymentScope(org.id, { body: scopeDef, });
 
-                const scope = scopeResult.data;
+                    const scope = scopeResult.data;
+                }
 
-                setPercentComplete(.7);
+                setPercentComplete(.4);
 
-                const templateDef = {
-                    displayName: templateName,
-                    repository: {
-                        url: templateUrl,
-                        version: templateVersion ?? null,
-                        token: templateToken ?? null
-                    }
-                } as ProjectTemplateDefinition;
+                if (_templateComplete()) {
 
-                const templateResult = await api.createProjectTemplate(org.id, { body: templateDef });
+                    const templateDef = {
+                        displayName: templateName,
+                        repository: {
+                            url: templateUrl,
+                            version: templateVersion ?? null,
+                            token: templateToken ?? null
+                        }
+                    } as ProjectTemplateDefinition;
 
-                const temlate = templateResult.data;
+                    const templateResult = await api.createProjectTemplate(org.id, { body: templateDef });
+
+                    const temlate = templateResult.data;
+                }
 
                 setPercentComplete(1);
                 history.push(`/orgs/${org?.slug}`);
@@ -436,7 +437,7 @@ export const NewOrgView: React.FunctionComponent<INewOrgViewProps> = (props) => 
                 </Pivot>
             </ContentContainer>
             <Stack.Item styles={{ root: { padding: '24px 52px' } }}>
-                <PrimaryButton text={_getPrimaryButtonText()} disabled={!formEnabled || (_onReview() && !_formComplete())} onClick={() => _onReview() ? _submitForm() : setPivotKey(pivotKeys[pivotKeys.indexOf(pivotKey) + 1])} styles={{ root: { marginRight: 8 } }} />
+                <PrimaryButton text={_getPrimaryButtonText()} disabled={!formEnabled || (_onReview() && !_orgComplete())} onClick={() => _onReview() ? _submitForm() : setPivotKey(pivotKeys[pivotKeys.indexOf(pivotKey) + 1])} styles={{ root: { marginRight: 8 } }} />
                 <DefaultButton text='Cancel' disabled={!formEnabled} onClick={() => _resetAndCloseForm()} />
             </Stack.Item>
             <Text>{errorText}</Text>
