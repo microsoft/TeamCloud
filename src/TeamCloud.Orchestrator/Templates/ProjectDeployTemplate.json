@@ -2,14 +2,14 @@
   "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "organizationId": {
+    "projectId": {
       "type": "string"
     }
   },
   "variables": {
-    "ResourceGroupPrefix": "TCOrganization",
-    "ResourceGroupDeployment":"[concat(deployment().name, '-deploy')]",
-    "ResourceGroupName": "[concat(variables('ResourceGroupPrefix'), '-', parameters('organizationId'))]"
+    "ResourceGroupPrefix": "TCProject",
+    "ResourceGroupDeployment": "[concat(deployment().name, '-deploy')]",
+    "ResourceGroupName": "[concat(variables('ResourceGroupPrefix'), '-', parameters('projectId'))]"
   },
   "resources": [
     {
@@ -34,7 +34,7 @@
           "scope": "inner"
         },
         "parameters": {
-
+          
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -44,28 +44,38 @@
           },
           "variables": {
             "ResourcePrefix": "tc",
-            "ResourceName_SharedImageGallery": "[concat(variables('ResourcePrefix'), uniqueString(resourceGroup().id))]",
-            "ResourceName_ContainerRegistry": "[concat(variables('ResourcePrefix'), uniqueString(resourceGroup().id))]"
+            "ResourceName_KeyVault": "[concat(variables('ResourcePrefix'), uniqueString(resourceGroup().id))]",
+            "ResourceName_StorageAccount": "[concat(variables('ResourcePrefix'), uniqueString(resourceGroup().id))]"
           },
           "resources": [
             {
-              "name": "[variables('ResourceName_SharedImageGallery')]",
-              "type": "Microsoft.Compute/galleries",
-              "apiVersion": "2019-12-01",
-              "location": "[resourceGroup().location]"
+              "name": "[variables('ResourceName_KeyVault')]",
+              "type": "Microsoft.KeyVault/vaults",
+              "apiVersion": "2019-09-01",
+              "location": "[resourceGroup().location]",
+              "properties": {
+                "sku": {
+                  "name": "Standard",
+                  "family": "A"
+                },
+                "enabledForDeployment": true,
+                "enabledForDiskEncryption": true,
+                "enabledForTemplateDeployment": true,
+                "enableSoftDelete": true,
+                "tenantId": "[subscription().tenantId]",
+                "accessPolicies": []
+              }
             },
             {
-              "name": "[variables('ResourceName_ContainerRegistry')]",
-              "type": "Microsoft.ContainerRegistry/registries",
-              "apiVersion": "2019-12-01-preview",
+              "type": "Microsoft.Storage/storageAccounts",
+              "apiVersion": "2019-06-01",
+              "name": "[variables('ResourceName_StorageAccount')]",
               "location": "[resourceGroup().location]",
               "sku": {
-                "name": "Standard",
-                "tier": "Standard"
+                "name": "Standard_LRS"
               },
-              "properties": {
-                "adminUserEnabled": false
-              }
+              "kind": "StorageV2",
+              "properties": {}
             }
           ],
           "outputs": {

@@ -7,6 +7,6 @@ using TeamCloud.Azure.Deployment.Templates;
 
 namespace TeamCloud.Orchestrator.Templates
 {
-    public class ProjectCreateTemplate : EmbeddedDeploymentTemplate
+    public class ProjectDeployTemplate : EmbeddedDeploymentTemplate
     { }
 }

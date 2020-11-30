@@ -3,15 +3,13 @@
  *  Licensed under the MIT License.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Text;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 
 namespace TeamCloud.Model.Commands
 {
-    public sealed class OrganizationDeployCommandResult : CommandResult<Organization>
+    public class ProjectDeployCommand : DeployCommand<Project, ProjectDeployCommandResult>
     {
+        public ProjectDeployCommand(User user, Project payload) : base(user, payload) { }
     }
 }

@@ -20,9 +20,9 @@ using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.Operations.Orchestrations.Commands
 {
-    public static class OrganizationDeployCommandOrchestration
+    public static class ProjectDeployCommandOrchestration
     {
-        [FunctionName(nameof(OrganizationDeployCommandOrchestration))]
+        [FunctionName(nameof(ProjectDeployCommandOrchestration))]
         public static async Task Run(
             [OrchestrationTrigger] IDurableOrchestrationContext context,
             ILogger log)
@@ -30,7 +30,7 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Commands
             if (context is null)
                 throw new ArgumentNullException(nameof(context));
 
-            var command = context.GetInput<OrganizationDeployCommand>();
+            var command = context.GetInput<ProjectDeployCommand>();
             var commandResult = command.CreateResult();
 
             try
@@ -38,50 +38,58 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Commands
                 using (await context.LockContainerDocumentAsync(command.Payload).ConfigureAwait(true))
                 {
                     // just to make sure we are dealing with the latest version
-                    // of the organization entity, we re-fetch the entity and
+                    // of the Project entity, we re-fetch the entity and
                     // use the passed in one as a potential fallback.
 
-                    var organization = (await context
-                        .CallActivityWithRetryAsync<Organization>(nameof(OrganizationGetActivity), new OrganizationGetActivity.Input() { Id = command.Payload.Id })
+                    var project = (await context
+                        .CallActivityWithRetryAsync<Project>(nameof(ProjectGetActivity), new ProjectGetActivity.Input() { Id = command.Payload.Id, Organization = command.Payload.Organization })
                         .ConfigureAwait(true)) ?? command.Payload;
+
+                    // fetch the organization the project belongs to as
+                    // we need some org level information to deploy
+                    // project related resources.
+
+                    var organization = await context
+                        .CallActivityWithRetryAsync<Organization>(nameof(OrganizationGetActivity), new OrganizationGetActivity.Input() { Id = project.Organization })
+                        .ConfigureAwait(true);
 
                     try
                     {
                         var deploymentOutputEventName = context.NewGuid().ToString();
 
                         _ = await context
-                            .StartDeploymentAsync(nameof(OrganizationDeployActivity), new OrganizationDeployActivity.Input() { Organization = organization }, deploymentOutputEventName)
+                            .StartDeploymentAsync(nameof(ProjectDeployActivity), new ProjectDeployActivity.Input() { Project = project, Organization = organization }, deploymentOutputEventName)
                             .ConfigureAwait(true);
 
-                        organization.ResourceState = ResourceState.Provisioning;
+                        project.ResourceState = ResourceState.Provisioning;
 
-                        organization = await context
-                            .CallActivityWithRetryAsync<Organization>(nameof(OrganizationSetActivity), new OrganizationSetActivity.Input() { Organization = organization })
+                        project = await context
+                            .CallActivityWithRetryAsync<Project>(nameof(ProjectSetActivity), new ProjectSetActivity.Input() { Project = project })
                             .ConfigureAwait(true);
 
                         var deploymentOutput = await context
                             .WaitForDeploymentOutput(deploymentOutputEventName, TimeSpan.FromMinutes(5))
                             .ConfigureAwait(true);
 
-                        organization.ResourceId = deploymentOutput["resourceId"].ToString();
-                        organization.ResourceState = ResourceState.Succeeded;
+                        project.ResourceId = deploymentOutput["resourceId"].ToString();
+                        project.ResourceState = ResourceState.Succeeded;
                     }
                     catch (Exception deploymentExc)
                     {
-                        log.LogError(deploymentExc, $"Failed to deploy resources for organization {organization.Id}: {deploymentExc.Message}");
-                        organization.ResourceState = ResourceState.Failed;
+                        log.LogError(deploymentExc, $"Failed to deploy resources for project {project.Id}: {deploymentExc.Message}");
+                        project.ResourceState = ResourceState.Failed;
                     }
                     finally
                     {
                         commandResult.Result = await context
-                            .CallActivityWithRetryAsync<Organization>(nameof(OrganizationSetActivity), new OrganizationSetActivity.Input() { Organization = organization })
+                            .CallActivityWithRetryAsync<Project>(nameof(ProjectSetActivity), new ProjectSetActivity.Input() { Project = project })
                             .ConfigureAwait(true);
                     }
                 }
             }
             catch (Exception exc)
             {
-                log.LogError(exc, $"{nameof(OrganizationDeployCommandOrchestration)} failed: {exc.Message}");
+                log.LogError(exc, $"{nameof(ProjectDeployCommandOrchestration)} failed: {exc.Message}");
 
                 commandResult.Errors.Add(exc);
 

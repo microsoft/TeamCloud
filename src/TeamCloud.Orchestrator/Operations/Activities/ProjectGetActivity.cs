@@ -12,17 +12,17 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Orchestrator.Operations.Activities
 {
-    public sealed class OrganizationSetActivity
+    public sealed class ProjectGetActivity
     {
-        private readonly IOrganizationRepository organizationRepository;
+        private readonly IProjectRepository projectRepository;
 
-        public OrganizationSetActivity(IOrganizationRepository organizationRepository)
+        public ProjectGetActivity(IProjectRepository projectRepository)
         {
-            this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
+            this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
         }
 
-        [FunctionName(nameof(OrganizationSetActivity))]
-        public async Task<Organization> Run(
+        [FunctionName(nameof(ProjectGetActivity))]
+        public async Task<Project> Run(
             [ActivityTrigger] IDurableActivityContext context)
         {
             if (context is null)
@@ -30,16 +30,16 @@ namespace TeamCloud.Orchestrator.Operations.Activities
 
             var input = context.GetInput<Input>();
 
-            var organization = await organizationRepository
-                .SetAsync(input.Organization)
+            return await projectRepository
+                .GetAsync(input.Organization, input.Id)
                 .ConfigureAwait(false);
-
-            return organization;
         }
 
         public struct Input
         {
-            public Organization Organization { get; set; }
+            public string Id { get; set; }
+
+            public string Organization { get; set; }
         }
     }
 }

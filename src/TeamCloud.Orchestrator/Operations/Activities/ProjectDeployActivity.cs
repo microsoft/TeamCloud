@@ -13,16 +13,16 @@ using TeamCloud.Orchestrator.Templates;
 
 namespace TeamCloud.Orchestrator.Operations.Activities
 {
-    public sealed class OrganizationDeployActivity
+    public sealed class ProjectDeployActivity
     {
         private readonly IAzureDeploymentService azureDeploymentService;
 
-        public OrganizationDeployActivity(IAzureDeploymentService azureDeploymentService)
+        public ProjectDeployActivity(IAzureDeploymentService azureDeploymentService)
         {
             this.azureDeploymentService = azureDeploymentService ?? throw new System.ArgumentNullException(nameof(azureDeploymentService));
         }
 
-        [FunctionName(nameof(OrganizationDeployActivity))]
+        [FunctionName(nameof(ProjectDeployActivity))]
         public async Task<string> Run(
             [ActivityTrigger] IDurableActivityContext context)
         {
@@ -31,9 +31,9 @@ namespace TeamCloud.Orchestrator.Operations.Activities
 
             var input = context.GetInput<Input>();
 
-            var template = new OrganizationDeployTemplate();
+            var template = new ProjectDeployTemplate();
 
-            template.Parameters["organizationId"] = input.Organization.Id;
+            template.Parameters["projectId"] = input.Project.Id;
 
             var deployment = await azureDeploymentService
                 .DeploySubscriptionTemplateAsync(template, Guid.Parse(input.Organization.SubscriptionId), input.Organization.Location)
@@ -45,6 +45,8 @@ namespace TeamCloud.Orchestrator.Operations.Activities
         public struct Input
         {
             public Organization Organization { get; set; }
+
+            public Project Project { get; set; }
         }
     }
 }

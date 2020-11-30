@@ -49,6 +49,10 @@ namespace TeamCloud.Orchestrator.Handlers
                     .AddProjectMembershipAsync(command.User, commandResult.Result.Id, ProjectUserRole.Owner, new Dictionary<string, string>())
                     .ConfigureAwait(false);
 
+                await commandQueue
+                    .AddAsync(new ProjectDeployCommand(command.User, command.Payload))
+                    .ConfigureAwait(false);
+
                 commandResult.RuntimeStatus = CommandRuntimeStatus.Completed;
             }
             catch (Exception exc)
