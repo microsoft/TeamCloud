@@ -1,17 +1,52 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { Nav, INavLinkGroup, INavLink, Stack, ActionButton, Persona, PersonaSize } from '@fluentui/react';
+import { Organization, Project } from 'teamcloud';
 
-export interface IProjectNavProps { }
+export interface IProjectNavProps {
+    org?: Organization;
+    orgs?: Organization[];
+    project?: Project;
+    projects?: Project[];
+    onOrgSelected: (org?: Organization) => void;
+    onProjectSelected: (project?: Project) => void;
+}
 
 export const ProjectNav: React.FC<IProjectNavProps> = (props) => {
 
-    let { orgId, projectId, navId } = useParams() as { orgId: string, projectId: string, navId: string };
-
     const history = useHistory();
+    const { orgId, projectId, navId } = useParams() as { orgId: string, projectId: string, navId: string };
+
+    useEffect(() => {
+        if (orgId) {
+            if (props.org && (props.org.id.toLowerCase() === orgId.toLowerCase() || props.org.slug.toLowerCase() === orgId.toLowerCase())) {
+                return;
+            } else if (props.orgs) {
+                const find = props.orgs.find(o => o.id.toLowerCase() === orgId.toLowerCase() || o.slug.toLowerCase() === orgId.toLowerCase());
+                if (find) {
+                    console.log(`setOrg (${orgId})`);
+                    props.onOrgSelected(find);
+                }
+            }
+        }
+    }, [orgId, props]);
+
+    useEffect(() => {
+        if (projectId) {
+            if (props.project && (props.project.id.toLowerCase() === projectId.toLowerCase() || props.project.slug.toLowerCase() === projectId.toLowerCase())) {
+                return;
+            } else if (props.projects) {
+                const find = props.projects.find(p => p.id.toLowerCase() === projectId.toLowerCase() || p.slug.toLowerCase() === projectId.toLowerCase());
+                if (find) {
+                    console.log(`setProject (${projectId})`);
+                    props.onProjectSelected(find);
+                }
+            }
+        }
+    }, [projectId, props]);
 
     const _navLinkGroups = (): INavLinkGroup[] => [{
         links: (orgId && projectId) ? [

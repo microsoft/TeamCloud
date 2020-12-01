@@ -5,8 +5,11 @@ import React from 'react';
 import { ITextStyles, Stack, getTheme, IStackStyles, Link } from '@fluentui/react';
 import { GraphUser } from '../model';
 import { HeaderBreadcrumb, UserInfo } from '.';
+import { Organization, Project } from 'teamcloud';
 
 export interface IHeaderBarProps {
+    orgs?: Organization[];
+    projects?: Project[];
     graphUser?: GraphUser;
 }
 
@@ -30,7 +33,6 @@ export const HeaderBar: React.FC<IHeaderBarProps> = (props) => {
         }
     };
 
-
     return (
         <header>
             <Stack horizontal verticalFill verticalAlign='center' horizontalAlign='space-between' styles={stackStyles}>
@@ -42,7 +44,7 @@ export const HeaderBar: React.FC<IHeaderBarProps> = (props) => {
                             </Link>
                         </Stack.Item>
                         <Stack.Item styles={{ root: { paddingLeft: '12px' } }}>
-                            <HeaderBreadcrumb />
+                            <HeaderBreadcrumb orgs={props.orgs} projects={props.projects} />
                         </Stack.Item>
                     </Stack>
                 </Stack.Item>

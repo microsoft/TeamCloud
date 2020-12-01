@@ -1,91 +1,45 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState, useEffect } from 'react';
-import { ComboBox, DefaultButton, Dropdown, IComboBox, IComboBoxOption, IDropdownOption, Label, PrimaryButton, Stack, Text, TextField } from '@fluentui/react';
+import React, { useEffect, useState } from 'react';
+import { ComboBox, DefaultButton, Dropdown, IComboBox, IComboBoxOption, IDropdownOption, Label, PrimaryButton, Stack, TextField } from '@fluentui/react';
 import { DeploymentScopeDefinition } from 'teamcloud';
 import { useHistory, useParams } from 'react-router-dom';
-import { getManagementGroups, getSubscriptions } from '../Azure';
+import { ManagementGroup, Subscription } from '../model';
 
 export interface IDeploymentScopeFormProps {
-    showProgress: (show: boolean) => void;
+    subscriptions?: Subscription[];
+    managementGroups?: ManagementGroup[];
     onCreateDeploymentScope: (scope: DeploymentScopeDefinition) => Promise<void>;
 }
 
 export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) => {
 
-    let history = useHistory();
-    let { orgId } = useParams() as { orgId: string };
+    const history = useHistory();
+    const { orgId } = useParams() as { orgId: string };
 
     const [scopeName, setScopeName] = useState<string>();
-    const [scopeManagementGroup, setManagementScopeGroup] = useState<string>();
+    const [scopeManagementGroup, setScopeManagementGroup] = useState<string>();
     const [scopeManagementGroupOptions, setScopeManagementGroupOptions] = useState<IDropdownOption[]>();
     const [scopeSubscriptions, setScopeSubscriptions] = useState<string[]>();
     const [scopeSubscriptionOptions, setScopeSubscriptionOptions] = useState<IComboBoxOption[]>();
 
-    const [orgSubscriptionOptions, setOrgSubscriptionOptions] = useState<IComboBoxOption[]>();
-
     const [formEnabled, setFormEnabled] = useState<boolean>(true);
-    const [errorText, setErrorText] = useState<string>();
 
     const _scopeComplete = () => scopeName && (scopeManagementGroup || scopeSubscriptions);
 
-    useEffect(() => {
-        const _resolveScopeGroup = async () => {
-            try {
-                const groups = await getManagementGroups();
-
-                if (!groups) {
-                    setScopeManagementGroupOptions([]);
-                    return;
-                }
-
-                setScopeManagementGroupOptions(groups.map(g => ({ key: g.id, text: g.properties.displayName })));
-
-                if (groups.length === 1 && groups[0].id === '/providers/Microsoft.Management/managementGroups/default') {
-
-                    // setScopeName(groups[0].properties.displayName);
-                    // setManagementScopeGroup(groups[0].id);
-                }
-            } catch (error) {
-                console.error(error);
-                setScopeManagementGroupOptions([]);
-            }
-        };
-        _resolveScopeGroup();
-    }, []);
-
+    const { subscriptions, managementGroups } = props;
 
     useEffect(() => {
-        const _resolveSubscriptions = async () => {
-            try {
-                const subscriptions = await getSubscriptions();
-
-                if (!subscriptions) {
-                    setOrgSubscriptionOptions([]);
-                    setScopeSubscriptionOptions([])
-                    return;
-                }
-
-                const options = subscriptions.map(s => ({ key: s.subscriptionId, text: s.displayName }));
-                setOrgSubscriptionOptions(options);
-                setScopeSubscriptionOptions(options);
-
-            } catch (error) {
-                console.error(error)
-                setOrgSubscriptionOptions([]);
-                setScopeSubscriptionOptions([])
-            }
-        };
-        _resolveSubscriptions();
-    }, []);
+        if (subscriptions)
+            setScopeSubscriptionOptions(subscriptions?.map(s => ({ key: s.subscriptionId, text: s.displayName })));
+    }, [subscriptions]);
 
     useEffect(() => {
-        updateProgress(scopeManagementGroupOptions === undefined || orgSubscriptionOptions === undefined)
-    }, [scopeManagementGroupOptions, orgSubscriptionOptions]);
+        if (managementGroups)
+            setScopeManagementGroupOptions(managementGroups?.map(s => ({ key: s.id, text: s.properties.displayName })));
+    }, [managementGroups]);
 
-
-    const updateProgress = (show: boolean) => props.showProgress(show);
 
     const _submitForm = () => {
         if (orgId && _scopeComplete()) {
@@ -104,20 +58,18 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
     };
 
     const _resetAndCloseForm = () => {
-        // setComponentTemplate(undefined);
         setFormEnabled(true);
         history.replace(`/orgs/${orgId}/settings/scopes`);
-        // props.onFormClose();
     };
-
 
     const _onScopeSubscriptionsChange = (event: React.FormEvent<IComboBox>, option?: IComboBoxOption, index?: number, value?: string) => {
         if (value) {
             const values = value.split(',');
             if (values.length > 0) {
+                const subscriptionOptions = subscriptions?.map(s => ({ key: s.subscriptionId, text: s.displayName })) ?? [];
                 const newOptions = values.map(v => ({ key: v.trim(), text: v.trim() }));
-                setScopeSubscriptionOptions(orgSubscriptionOptions?.concat(newOptions) ?? newOptions);
-                const validSubs = scopeSubscriptions?.filter(s => orgSubscriptionOptions?.findIndex(o => o ? o.key === s : false) ?? -1 >= 0) ?? [];
+                setScopeSubscriptionOptions(subscriptionOptions.concat(newOptions) ?? newOptions);
+                const validSubs = scopeSubscriptions?.filter(s => subscriptionOptions.findIndex(o => o ? o.key === s : false) ?? -1 >= 0) ?? [];
                 setScopeSubscriptions(validSubs.concat(newOptions.map(no => no.key.trim())));
             }
         } else if (option?.key && option.selected !== undefined) {
@@ -133,7 +85,6 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
             }
         }
     };
-
 
     return (
         <Stack
@@ -154,7 +105,7 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
                     disabled={!formEnabled || !scopeManagementGroupOptions || (scopeSubscriptions && scopeSubscriptions.length > 0)}
                     selectedKey={scopeManagementGroup}
                     options={scopeManagementGroupOptions ?? []}
-                    onChange={(_ev, val) => setManagementScopeGroup(val ? val.key as string : undefined)} />
+                    onChange={(_ev, val) => setScopeManagementGroup(val ? val.key as string : undefined)} />
             </Stack.Item>
             <Stack.Item>
                 <Label disabled={!(scopeManagementGroup === undefined || scopeManagementGroup === '') || (scopeSubscriptions && scopeSubscriptions.length > 0)}>OR</Label>
@@ -167,14 +118,13 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
                     multiSelect
                     allowFreeform
                     selectedKey={scopeSubscriptions}
-                    options={scopeSubscriptionOptions ?? []}
+                    options={scopeSubscriptionOptions}
                     onChange={_onScopeSubscriptionsChange} />
             </Stack.Item>
             <Stack.Item styles={{ root: { paddingTop: '24px' } }}>
                 <PrimaryButton text='Create scope' disabled={!formEnabled || !_scopeComplete()} onClick={() => _submitForm()} styles={{ root: { marginRight: 8 } }} />
                 <DefaultButton text='Cancel' disabled={!formEnabled} onClick={() => _resetAndCloseForm()} />
             </Stack.Item>
-            <Text>{errorText}</Text>
         </Stack>
     );
 }

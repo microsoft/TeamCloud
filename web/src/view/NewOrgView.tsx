@@ -4,17 +4,19 @@
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Stack, TextField, Dropdown, IDropdownOption, Text, PrimaryButton, DefaultButton, IconButton, Pivot, PivotItem, ComboBox, ChoiceGroup, Label, IComboBoxOption, IComboBox } from '@fluentui/react';
-import { OrganizationDefinition, DeploymentScopeDefinition, ProjectTemplateDefinition } from 'teamcloud'
+import { OrganizationDefinition, DeploymentScopeDefinition, ProjectTemplateDefinition, Organization } from 'teamcloud'
 import { getManagementGroups, getSubscriptions } from '../Azure'
 import { AzureRegions, Tags } from '../model';
 import { ContentContainer, ContentHeader, ContentProgress, OrgSettingsDetail } from '../components';
 import { api } from '../API';
 
-export interface INewOrgViewProps { }
+export interface INewOrgViewProps {
+    onOrgSelected: (org?: Organization) => void;
+}
 
 export const NewOrgView: React.FC<INewOrgViewProps> = (props) => {
 
-    let history = useHistory();
+    const history = useHistory();
 
     // Basic Settings
     const [orgName, setOrgName] = useState<string>();
@@ -81,6 +83,8 @@ export const NewOrgView: React.FC<INewOrgViewProps> = (props) => {
                 if (!groups)
                     return;
 
+                console.log(groups);
+
                 setScopeManagementGroupOptions(groups.map(g => ({ key: g.id, text: g.properties.displayName })))
 
                 if (groups.length === 1 && groups[0].id === '/providers/Microsoft.Management/managementGroups/default') {
@@ -141,6 +145,8 @@ export const NewOrgView: React.FC<INewOrgViewProps> = (props) => {
 
             if (org) {
 
+                props.onOrgSelected(org);
+
                 if (_scopeComplete()) {
                     const scopeDef = {
                         displayName: scopeName,
@@ -169,7 +175,7 @@ export const NewOrgView: React.FC<INewOrgViewProps> = (props) => {
                 }
 
                 setPercentComplete(1);
-                history.push(`/orgs/${org?.slug}`);
+                history.push(`/orgs/${org.slug}`);
 
             } else {
                 setPercentComplete(1);

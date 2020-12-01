@@ -16,8 +16,7 @@ export interface IComponentListProps {
 export const ComponentList: React.FC<IComponentListProps> = (props) => {
 
     const history = useHistory();
-
-    let { orgId, projectId } = useParams() as { orgId: string, projectId: string; };
+    const { orgId, projectId } = useParams() as { orgId: string, projectId: string; };
 
     const columns: IColumn[] = [
         { key: 'displayName', name: 'Name', minWidth: 240, isResizable: false, fieldName: 'displayName' },

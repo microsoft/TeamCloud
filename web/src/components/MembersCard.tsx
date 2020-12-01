@@ -19,18 +19,18 @@ export interface IMembersCardProps {
 
 export const MembersCard: React.FC<IMembersCardProps> = (props) => {
 
-    let { orgId } = useParams() as { orgId: string };
+    const { orgId } = useParams() as { orgId: string };
 
     const [addMembersPanelOpen, setAddMembersPanelOpen] = useState(false);
 
     const _removeMember = async (member: Member) => {
         if (props.project && (member as ProjectMember)?.projectMembership !== undefined) {
-            let result = await api.deleteProjectUser(member.user.id, props.project.organization, props.project.id);
+            const result = await api.deleteProjectUser(member.user.id, props.project.organization, props.project.id);
             if (result.code !== 202 && (result as ErrorResult).errors) {
                 console.log(result as ErrorResult);
             }
         } else if (orgId) {
-            let result = await api.deleteOrganizationUser(member.user.id, orgId);
+            const result = await api.deleteOrganizationUser(member.user.id, orgId);
             if (result.code !== 202 && (result as ErrorResult).errors) {
                 console.log(result as ErrorResult);
             }

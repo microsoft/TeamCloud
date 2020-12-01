@@ -15,11 +15,10 @@ export interface IComponentsCardProps {
 
 export const ComponentsCard: React.FC<IComponentsCardProps> = (props) => {
 
-    let history = useHistory();
-    let { orgId, projectId } = useParams() as { orgId: string, projectId: string };
+    const history = useHistory();
+    const { orgId, projectId } = useParams() as { orgId: string, projectId: string };
 
     const [component, setComponent] = useState<Component>();
-    // const [addComponentPanelOpen, setAddComponentPanelOpen] = useState(false);
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
     const _itemMenuProps = (component: Component): IContextualMenuProps => ({

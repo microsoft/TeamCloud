@@ -18,12 +18,10 @@ export interface IProjectViewProps {
 
 export const ProjectView: React.FC<IProjectViewProps> = (props) => {
 
-    let isAuthenticated = useIsAuthenticated();
+    const isAuthenticated = useIsAuthenticated();
 
-    let { orgId, projectId, navId } = useParams() as { orgId: string, projectId: string, navId: string };
+    const { navId } = useParams() as { navId: string };
 
-    const [user, setUser] = useState(props.user);
-    const [project, setProject] = useState(props.project);
     const [members, setMembers] = useState<ProjectMember[]>();
     const [components, setComponents] = useState<Component[]>();
     const [favorite, setFavorate] = useState(false);
@@ -31,52 +29,20 @@ export const ProjectView: React.FC<IProjectViewProps> = (props) => {
     const [newUsersPanelOpen, setNewUsersPanelOpen] = useState(false);
     const [editUsersPanelOpen, setEditUsersPanelOpen] = useState(false);
 
-
-    useEffect(() => {
-        if (isAuthenticated && orgId && projectId) {
-
-            if (project && (project.id === projectId || project.slug === projectId))
-                return;
-
-            console.log('setProject');
-            setProject(undefined);
-
-            const _setProject = async () => {
-                const result = await api.getProject(projectId, orgId);
-                setProject(result.data);
-            };
-
-            _setProject();
-        }
-    }, [isAuthenticated, project, projectId, orgId]);
-
-    useEffect(() => {
-        if (isAuthenticated && project && user === undefined) {
-
-            console.log('setUser');
-            setUser(undefined);
-
-            const _setUser = async () => {
-                const result = await api.getProjectUserMe(project.organization, project.id);
-                setUser(result.data);
-            };
-
-            _setUser();
-        }
-    }, [isAuthenticated, project, user]);
+    const { project, user } = props;
 
     useEffect(() => {
         if (isAuthenticated && project && (navId === undefined || navId === 'members')) {
             if (members && members.length > 0 && members[0].projectMembership.projectId === project.id)
                 return;
-            console.log('setProjectMembers');
             const _setMembers = async () => {
-                let _users = await api.getProjectUsers(project.organization, project.id);
+                console.log(`setProjectMembers (${project.slug})`);
+                let _users = await api.getProjectUsers(project!.organization, project!.id);
                 if (_users.data) {
                     let _members = await Promise.all(_users.data.map(async u => ({
                         user: u,
                         graphUser: u.userType === 'User' ? await getGraphUser(u.id) : u.userType === 'Provider' ? await getGraphDirectoryObject(u.id) : undefined,
-                        projectMembership: u.projectMemberships!.find(m => m.projectId === project.id)!
+                        projectMembership: u.projectMemberships!.find(m => m.projectId === project!.id)!
                     })));
                     setMembers(_members);
                 }
@@ -89,15 +55,16 @@ export const ProjectView: React.FC<IProjectViewProps> = (props) => {
     useEffect(() => {
         if (isAuthenticated && project && (navId === undefined || navId === 'components')) {
             if (components === undefined || (components.length > 0 && components[0].projectId !== project.id)) {
-                console.log('setProjectComponents');
                 const _setComponents = async () => {
-                    const result = await api.getProjectComponents(project.organization, project.id);
+                    console.log(`setProjectComponents (${project.slug})`);
+                    const result = await api.getProjectComponents(project!.organization, project!.id);
                     setComponents(result.data ?? undefined);
                 };
                 _setComponents();
             }
         }
     }, [isAuthenticated, project, components, navId]);
+
 
     return (
         <>

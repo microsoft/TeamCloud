@@ -3,10 +3,13 @@
 
 import React from 'react';
 import { Route, Switch } from 'react-router-dom';
+import { Organization, Project } from 'teamcloud';
 import { HeaderBar } from '../components';
 import { GraphUser } from '../model';
 
 export interface IHeaderViewProps {
+    orgs?: Organization[];
+    projects?: Project[];
     graphUser?: GraphUser;
 }
 
@@ -28,7 +31,7 @@ export const HeaderView: React.FC<IHeaderViewProps> = (props) => {
                 '/orgs/:orgId/projects/:projectId/:navId',
                 '/orgs/:orgId/projects/:projectId/:navId/new'
             ]}>
-                <HeaderBar {...{ graphUser: props.graphUser }} />
+                <HeaderBar {...{ orgs: props.orgs, projects: props.projects, graphUser: props.graphUser }} />
             </Route>
         </Switch>
     );

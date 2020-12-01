@@ -1,20 +1,23 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Route, Switch } from 'react-router-dom';
-import { Project } from 'teamcloud';
+import { Organization, Project, User } from 'teamcloud';
 import { Error404, NewOrgView, NewProjectView, ProjectView, ProjectsView, OrgSettingsView, ProjectSettingsView } from '.';
 import { NewComponentView } from './NewComponentView';
 
 
-export interface IContentViewProps { }
+export interface IContentViewProps {
+    org?: Organization;
+    user?: User;
+    project?: Project;
+    projects?: Project[];
+    onOrgSelected: (org?: Organization) => void;
+    onProjectSelected: (project: Project) => void;
+}
 
 export const ContentView: React.FC<IContentViewProps> = (props: IContentViewProps) => {
-
-    const [project, setProject] = useState<Project>();
-
-    const onProjectSelected = (project: Project) => setProject(project);
 
     return (
         <Switch>
@@ -22,25 +25,25 @@ export const ContentView: React.FC<IContentViewProps> = (props: IContentViewProp
                 <></>
             </Route>
             <Route exact path='/orgs/new'>
-                <NewOrgView />
+                <NewOrgView onOrgSelected={props.onOrgSelected} />
             </Route>
             <Route exact path='/orgs/:orgId'>
-                <ProjectsView {...{ onProjectSelected: onProjectSelected }} />
+                <ProjectsView {...{ org: props.org, projects: props.projects, onProjectSelected: props.onProjectSelected }} />
             </Route>
             <Route exact path='/orgs/:orgId/projects/new'>
-                <NewProjectView {...{}} />
+                <NewProjectView {...{ org: props.org, onProjectSelected: props.onProjectSelected }} />
             </Route>
             <Route exact path={['/orgs/:orgId/settings', '/orgs/:orgId/settings/:settingId', '/orgs/:orgId/settings/:settingId/new']}>
-                <OrgSettingsView {...{}} />
+                <OrgSettingsView {...{ org: props.org, }} />
             </Route>
             <Route exact path={['/orgs/:orgId/projects/:projectId/settings', '/orgs/:orgId/projects/:projectId/settings/:settingId']}>
-                <ProjectSettingsView {...{ project: project }} />
+                <ProjectSettingsView {...{ project: props.project }} />
             </Route>
             <Route exact path={['/orgs/:orgId/projects/:projectId', '/orgs/:orgId/projects/:projectId/:navId']}>
-                <ProjectView {...{ project: project }} />
+                <ProjectView {...{ user: props.user, project: props.project }} />
             </Route>
             <Route exact path='/orgs/:orgId/projects/:projectId/components/new'>
-                <NewComponentView {...{ project: project }} />
+                <NewComponentView {...{ org: props.org, project: props.project }} />
             </Route>
             <Route path='*'>
                 <Error404 />

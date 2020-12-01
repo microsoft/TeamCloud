@@ -63,12 +63,14 @@ export class Auth implements TokenCredential, AuthenticationProvider {
 
         const scopes = ['https://management.azure.com/.default'];
 
-        if (this.clientApplication.getAllAccounts().length <= 0) {
+        const accounts = this.clientApplication.getAllAccounts();
+
+        if (accounts.length <= 0) {
             console.error('nope')
             return null;
         }
 
-        const account = this.clientApplication.getAllAccounts()[0];
+        const account = accounts[0];
 
         var authResult = await this.clientApplication.acquireTokenSilent({ account: account, scopes: scopes as string[] });
 
@@ -80,13 +82,13 @@ export class Auth implements TokenCredential, AuthenticationProvider {
         scopes = this.getScopes(scopes);
 
         // console.log(`getToken (${scopes.includes('User.Read') ? 'graph' : 'api'})`);
+        const accounts = this.clientApplication.getAllAccounts();
 
-        if (this.clientApplication.getAllAccounts().length <= 0) {
+        if (accounts.length <= 0) {
             console.error('nope')
             return null;
         }
-
-        const account = this.clientApplication.getAllAccounts()[0];
+        const account = accounts[0];
 
         try {
 
@@ -96,8 +98,32 @@ export class Auth implements TokenCredential, AuthenticationProvider {
 
         } catch (error) {
 
-            if (error instanceof InteractionRequiredAuthError)
-                await this.clientApplication.acquireTokenRedirect({ account: account, scopes: scopes as string[] })
+            if (error instanceof InteractionRequiredAuthError) {
+                // console.error(error);
+                console.error(`errorCode : ${error.errorCode}`);
+                console.error(`errorMessage : ${error.errorMessage}`);
+                console.error(`message : ${error.message}`);
+                console.error(`name : ${error.name}`);
+                console.error(`subError : ${error.subError}`);
+                console.error(`suberror : ${error.suberror}`);
+
+                try {
+
+                    await this.clientApplication.acquireTokenRedirect({ account: account, scopes: scopes as string[] })
+
+                } catch (err) {
+
+                    if (err instanceof InteractionRequiredAuthError) {
+                        console.error(`err.errorCode : ${err.errorCode}`);
+                        console.error(`err.errorMessage : ${err.errorMessage}`);
+                        console.error(`err.message : ${err.message}`);
+                        console.error(`err.name : ${err.name}`);
+                        console.error(`err.subError : ${err.subError}`);
+                        console.error(`err.suberror : ${err.suberror}`);
+
+                    }
+                }
+            }
 
             return null;
         }

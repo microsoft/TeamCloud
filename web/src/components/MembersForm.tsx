@@ -17,7 +17,7 @@ export interface IMembersFormProps {
 
 export const MembersForm: React.FC<IMembersFormProps> = (props) => {
 
-    let { orgId, projectId } = useParams() as { orgId: string, projectId: string };
+    const { orgId, projectId } = useParams() as { orgId: string, projectId: string };
 
     const [formEnabled, setFormEnabled] = useState<boolean>(true);
     const [userIdentifiers, setUserIdentifiers] = useState<string[]>();

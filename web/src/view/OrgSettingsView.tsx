@@ -5,11 +5,12 @@ import React, { useState, useEffect } from 'react';
 import { Route, useHistory, useParams } from 'react-router-dom';
 import { IconButton, Stack } from '@fluentui/react';
 import { useIsAuthenticated } from '@azure/msal-react';
-import { DeploymentScope, DeploymentScopeDefinition, Organization, ProjectTemplate, User } from 'teamcloud';
-import { OrgSettingsOverview, DeploymentScopeList, ProjectTemplateList, ContentHeader, ContentContainer, ContentProgress, MemberList, DeploymentScopeForm } from '../components';
+import { DeploymentScope, DeploymentScopeDefinition, Organization, ProjectTemplate, ProjectTemplateDefinition, User } from 'teamcloud';
+import { OrgSettingsOverview, DeploymentScopeList, ProjectTemplateList, ContentHeader, ContentContainer, ContentProgress, MemberList, DeploymentScopeForm, ProjectTemplateForm } from '../components';
 import { getGraphUser } from '../MSGraph';
-import { Member } from '../model';
+import { ManagementGroup, Member, Subscription } from '../model';
 import { api } from '../API';
+import { getManagementGroups, getSubscriptions } from '../Azure';
 
 export interface IOrgSettingsViewProps {
     org?: Organization;
@@ -18,120 +19,153 @@ export interface IOrgSettingsViewProps {
 
 export const OrgSettingsView: React.FC<IOrgSettingsViewProps> = (props) => {
 
-    let isAuthenticated = useIsAuthenticated();
+    const history = useHistory();
+    const isAuthenticated = useIsAuthenticated();
 
-    let history = useHistory();
-    let { orgId, settingId } = useParams() as { orgId: string, settingId: string };
+    const { orgId, settingId } = useParams() as { orgId: string, settingId: string };
 
-    const [org, setOrg] = useState(props.org);
     const [members, setMembers] = useState<Member[]>();
     const [scopes, setScopes] = useState<DeploymentScope[]>();
     const [templates, setTemplates] = useState<ProjectTemplate[]>();
     const [progressHidden, setProgressHidden] = useState(true);
+    const [subscriptions, setSubscriptions] = useState<Subscription[]>();
+    const [managementGroups, setManagementGroups] = useState<ManagementGroup[]>();
+
+    const { org } = props;
 
     useEffect(() => {
-        if (isAuthenticated && orgId) {
-
-            if (org && (org.id === orgId || org.slug === orgId))
-                return;
-
-            setOrg(undefined);
-
-            const _setOrg = async () => {
-                const result = await api.getOrganization(orgId);
-                setOrg(result.data);
-            };
-
-            _setOrg();
-        }
-    }, [isAuthenticated, org, orgId]);
-
-
-    useEffect(() => {
-        if (isAuthenticated && orgId && settingId === 'members' && members === undefined) {
-            console.log('setMembers');
+        if (isAuthenticated && org && settingId === 'members' && members === undefined) {
             const _setMembers = async () => {
-                let _users = await api.getOrganizationUsers(orgId);
+                console.log(`setMembers (${org.slug})`);
+                let _users = await api.getOrganizationUsers(org.id);
                 if (_users.data) {
                     let _members = await Promise.all(_users.data.map(async u => ({
                         user: u,
                         graphUser: await getGraphUser(u.id)
                     })));
-                    _members.forEach(m => console.log(m));
                     setMembers(_members);
                 }
             };
             _setMembers();
         }
-    }, [isAuthenticated, orgId, settingId, members]);
+    }, [isAuthenticated, org, settingId, members]);
 
 
     useEffect(() => {
-        if (isAuthenticated && orgId && settingId === 'scopes' && scopes === undefined) {
-            console.log('setScopes');
+        if (isAuthenticated && org && settingId === 'scopes' && scopes === undefined) {
             const _setScopes = async () => {
-                let _scopes = await api.getDeploymentScopes(orgId);
+                console.log(`setDeploymentScopes (${org.slug})`);
+                let _scopes = await api.getDeploymentScopes(org.id);
                 setScopes(_scopes.data ?? undefined)
             };
             _setScopes();
         }
-    }, [isAuthenticated, orgId, settingId, scopes]);
+    }, [isAuthenticated, org, settingId, scopes]);
 
 
     useEffect(() => {
-        if (isAuthenticated && orgId && settingId === 'templates' && templates === undefined) {
-            console.log('setTemplates');
+        if (isAuthenticated && org && settingId === 'templates' && templates === undefined) {
             const _setTemplates = async () => {
-                let _templates = await api.getProjectTemplates(orgId);
+                console.log(`setProjectTemplates (${org.slug})`);
+                let _templates = await api.getProjectTemplates(org.id);
                 setTemplates(_templates.data ?? undefined)
             };
             _setTemplates();
         }
-    }, [isAuthenticated, orgId, settingId, templates]);
+    }, [isAuthenticated, org, settingId, templates]);
+
+
+    useEffect(() => {
+        if (isAuthenticated && org && settingId === 'scopes' && history.location.pathname.endsWith('/new') && subscriptions === undefined) {
+            const _setSubscriptions = async () => {
+                console.log(`setSubscriptions (${org.slug})`);
+                try {
+                    const subs = await getSubscriptions();
+                    setSubscriptions(subs ?? []);
+                } catch (error) {
+                    setSubscriptions([]);
+                }
+            };
+            _setSubscriptions();
+        }
+    }, [isAuthenticated, history, org, settingId, subscriptions]);
+
+
+    useEffect(() => {
+        if (isAuthenticated && org && settingId === 'scopes' && history.location.pathname.endsWith('/new') && managementGroups === undefined) {
+            const _setManagementGroups = async () => {
+                console.log(`setManagementGroups (${org.slug})`);
+                try {
+                    const groups = await getManagementGroups();
+                    setManagementGroups(groups ?? []);
+                } catch (error) {
+                    setManagementGroups([]);
+                }
+            };
+            _setManagementGroups();
+        }
+    }, [isAuthenticated, history, org, settingId, managementGroups]);
 
 
     const onCreateDeploymentScope = async (scope: DeploymentScopeDefinition) => {
-        setProgressHidden(false);
-
-        const result = await api.createDeploymentScope(orgId, { body: scope, });
-
-        if (result.data) {
-
-            setScopes(undefined);
-            history.replace(`/orgs/${orgId}/settings/scopes`);
-
-        } else {
-            // setErrorText(result.status ?? 'unknown');
+        if (org) {
+            setProgressHidden(false);
+            const result = await api.createDeploymentScope(org.id, { body: scope, });
+            if (result.data) {
+                setScopes(scopes ? [...scopes, result.data] : [result.data]);
+                history.replace(`/orgs/${org.slug}/settings/scopes`);
+            } else {
+                console.error(`Failed to create new DeploymentScope: ${result}`);
+            }
+            setProgressHidden(true);
         }
-
-        setProgressHidden(true);
     };
 
-    const showProgress = (show: boolean) => setProgressHidden(!show);
+
+    const onCreateProjectTemplate = async (template: ProjectTemplateDefinition) => {
+        if (org) {
+            setProgressHidden(false);
+            const result = await api.createProjectTemplate(org.id, { body: template, });
+            if (result.data) {
+                setTemplates(templates ? [...templates, result.data] : [result.data]);
+                history.replace(`/orgs/${org.slug}/settings/templates`);
+            } else {
+                console.error(`Failed to create new ProjectTemplate: ${result}`);
+            }
+            setProgressHidden(true);
+        }
+    };
+
 
     return (
         <Stack>
             <Route exact path='/orgs/:orgId/settings'>
-                <ContentProgress progressHidden={org !== undefined} />
+                <ContentProgress progressHidden={progressHidden && org !== undefined} />
                 <ContentHeader title={org?.displayName} />
             </Route>
             <Route exact path='/orgs/:orgId/settings/members'>
-                <ContentProgress progressHidden={members !== undefined} />
+                <ContentProgress progressHidden={progressHidden && members !== undefined} />
                 <ContentHeader title='Members' />
             </Route>
             <Route exact path={['/orgs/:orgId/settings/scopes']}>
-                <ContentProgress progressHidden={scopes !== undefined} />
+                <ContentProgress progressHidden={progressHidden && scopes !== undefined} />
                 <ContentHeader title='Deployment Scopes' />
             </Route>
             <Route exact path={['/orgs/:orgId/settings/scopes/new']}>
-                <ContentProgress progressHidden={progressHidden} />
+                <ContentProgress progressHidden={progressHidden && subscriptions !== undefined && managementGroups !== undefined} />
                 <ContentHeader title='New Deployment Scope'>
                     <IconButton iconProps={{ iconName: 'ChromeClose' }} onClick={() => history.replace(`/orgs/${orgId}/settings/scopes`)} />
                 </ContentHeader>
             </Route>
             <Route exact path='/orgs/:orgId/settings/templates'>
-                <ContentProgress progressHidden={templates !== undefined} />
+                <ContentProgress progressHidden={progressHidden && templates !== undefined} />
                 <ContentHeader title='Project Templates' />
+            </Route>
+            <Route exact path={['/orgs/:orgId/settings/templates/new']}>
+                <ContentProgress progressHidden={progressHidden && templates !== undefined} />
+                <ContentHeader title='New Project Template'>
+                    <IconButton iconProps={{ iconName: 'ChromeClose' }} onClick={() => history.replace(`/orgs/${orgId}/settings/templates`)} />
+                </ContentHeader>
             </Route>
 
             <ContentContainer>
@@ -145,10 +179,13 @@ export const OrgSettingsView: React.FC<IOrgSettingsViewProps> = (props) => {
                     <DeploymentScopeList {...{ scopes: scopes }} />
                 </Route>
                 <Route exact path='/orgs/:orgId/settings/scopes/new'>
-                    <DeploymentScopeForm {...{ showProgress: showProgress, onCreateDeploymentScope: onCreateDeploymentScope }} />
+                    <DeploymentScopeForm {...{ subscriptions: subscriptions, managementGroups: managementGroups, onCreateDeploymentScope: onCreateDeploymentScope }} />
                 </Route>
                 <Route exact path='/orgs/:orgId/settings/templates'>
                     <ProjectTemplateList {...{ templates: templates }} />
+                </Route>
+                <Route exact path='/orgs/:orgId/settings/templates/new'>
+                    <ProjectTemplateForm {...{ onCreateProjectTemplate: onCreateProjectTemplate }} />
                 </Route>
             </ContentContainer>
         </Stack>

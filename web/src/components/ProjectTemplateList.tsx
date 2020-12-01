@@ -3,9 +3,11 @@
 
 import React, { useState } from 'react';
 import { Checkbox, IColumn, Label, Panel, PanelType, Stack, Text } from '@fluentui/react';
+import { useHistory, useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { ProjectTemplate } from 'teamcloud';
 import { ContentList } from '.';
+import collaboration from '../img/MSC17_collaboration_010_noBG.png'
 
 
 export interface IProjectTemplateListProps {
@@ -13,6 +15,9 @@ export interface IProjectTemplateListProps {
 }
 
 export const ProjectTemplateList: React.FC<IProjectTemplateListProps> = (props) => {
+
+    const history = useHistory();
+    const { orgId } = useParams() as { orgId: string };
 
     const [selectedTemplate, setSelectedTemplate] = useState<ProjectTemplate>();
     const [panelIsOpen, setPanelIsOpen] = useState(false);
@@ -40,10 +45,16 @@ export const ProjectTemplateList: React.FC<IProjectTemplateListProps> = (props) 
                 columns={columns}
                 items={props.templates}
                 onItemInvoked={_onItemInvoked}
-                // filterPlaceholder='Filter scopes'
+                filterPlaceholder='Filter templates'
                 buttonText='New template'
                 buttonIcon='Add'
-            // onButtonClick={() => history.push(`/orgs/${orgId}/projects/new`)}
+                onButtonClick={() => history.push(`/orgs/${orgId}/settings/templates/new`)}
+                noDataTitle='You do not have any project templates yet'
+                noDataImage={collaboration}
+                noDataDescription='Project templates are...'
+                noDataButtonText='Create template'
+                noDataButtonIcon='Add'
+                onNoDataButtonClick={() => history.push(`/orgs/${orgId}/settings/templates/new`)}
             />
             <Panel
                 isLightDismiss

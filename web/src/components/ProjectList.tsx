@@ -17,8 +17,7 @@ export interface IProjectListProps {
 export const ProjectList: React.FC<IProjectListProps> = (props) => {
 
     const history = useHistory();
-
-    let { orgId } = useParams() as { orgId: string };
+    const { orgId } = useParams() as { orgId: string };
 
     // const [projectFilter, setProjectFilter] = useState<string>();
 

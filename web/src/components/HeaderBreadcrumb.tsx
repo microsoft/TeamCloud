@@ -4,14 +4,17 @@
 import React from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { Text, Breadcrumb, IBreadcrumbItem } from '@fluentui/react';
+import { Organization, Project } from 'teamcloud';
 
-export interface IHeaderBreadcrumbProps { }
+export interface IHeaderBreadcrumbProps {
+    orgs?: Organization[];
+    projects?: Project[];
+}
 
 export const HeaderBreadcrumb: React.FC<IHeaderBreadcrumbProps> = (props) => {
 
-    let history = useHistory();
-
-    let { orgId, projectId, navId, settingId } = useParams() as { orgId: string, projectId: string, navId: string, settingId: string };
+    const history = useHistory();
+    const { orgId, projectId, navId, settingId } = useParams() as { orgId: string, projectId: string, navId: string, settingId: string };
 
     const _breadcrumbs = (): IBreadcrumbItem[] => {
         const crumbs: IBreadcrumbItem[] = [];
@@ -20,7 +23,8 @@ export const HeaderBreadcrumb: React.FC<IHeaderBreadcrumbProps> = (props) => {
             return crumbs;
 
         const orgPath = `/orgs/${orgId}`;
-        const orgCrumb = { key: orgId, text: orgId, onClick: () => history.push(orgPath) };
+        const orgName = props.orgs?.find(o => o.id.toLowerCase() === orgId.toLowerCase() || o.slug.toLowerCase() === orgId.toLowerCase())?.displayName ?? orgId;
+        const orgCrumb = { key: orgId, text: orgName, onClick: () => history.push(orgPath) };
 
         if (history.location.pathname.endsWith('/projects/new')) {
 
@@ -30,8 +34,9 @@ export const HeaderBreadcrumb: React.FC<IHeaderBreadcrumbProps> = (props) => {
         } else if (projectId !== undefined) {
 
             // Org / Projects / Project
+            const projectName = props.projects?.find(p => p.id.toLowerCase() === projectId.toLowerCase() || p.slug.toLowerCase() === projectId.toLowerCase())?.displayName ?? projectId;
             crumbs.push({ key: 'projects', text: 'Projects', onClick: () => history.push(orgPath) });
-            crumbs.push({ key: projectId, text: projectId, onClick: () => history.push(`${orgPath}/projects/${projectId}`) });
+            crumbs.push({ key: projectId, text: projectName, onClick: () => history.push(`${orgPath}/projects/${projectId}`) });
 
             // Org / Projects / Project / Category
             if (navId !== undefined)
@@ -51,7 +56,8 @@ export const HeaderBreadcrumb: React.FC<IHeaderBreadcrumbProps> = (props) => {
                 crumbs.push({ key: settingId, text: settingId, onClick: () => history.push(`${settingPath}/${settingId}`) });
         }
 
-        // never only show the org
+        // check for any crumbs before adding the org
+        // so we never only show the org crumb
         if (crumbs.length > 0)
             crumbs.unshift(orgCrumb);
 

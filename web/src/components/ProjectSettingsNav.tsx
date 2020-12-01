@@ -9,9 +9,8 @@ export interface IProjectSettingsNavProps { }
 
 export const ProjectSettingsNav: React.FC<IProjectSettingsNavProps> = (props) => {
 
-    let { orgId, projectId, settingId } = useParams() as { orgId: string, projectId: string, settingId: string };
-
     const history = useHistory();
+    const { orgId, projectId, settingId } = useParams() as { orgId: string, projectId: string, settingId: string };
 
     const _navLinkGroups = (): INavLinkGroup[] => [{
         links: (orgId && projectId) ? [

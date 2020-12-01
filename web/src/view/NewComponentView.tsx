@@ -3,21 +3,22 @@
 
 import React, { useState, useEffect } from 'react';
 import { DefaultButton, Dropdown, IconButton, IDropdownOption, PrimaryButton, Spinner, Stack, Text } from '@fluentui/react';
-import { ComponentRequest, ComponentTemplate } from 'teamcloud';
-import { useHistory, useParams } from 'react-router-dom';
+import { ComponentRequest, ComponentTemplate, Organization, Project } from 'teamcloud';
+import { useHistory } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { FuiForm } from '@rjsf/fluent-ui'
 import { ISubmitEvent } from '@rjsf/core';
 import { api } from '../API';
 import { ContentContainer, ContentHeader, ContentProgress } from '../components';
 
-export interface INewComponentViewProps { }
+export interface INewComponentViewProps {
+    org?: Organization;
+    project?: Project;
+}
 
 export const NewComponentView: React.FC<INewComponentViewProps> = (props) => {
 
-    let history = useHistory();
-    let { orgId, projectId } = useParams() as { orgId: string, projectId: string };
-
+    const history = useHistory();
 
     const [componentTemplate, setComponentTemplate] = useState<ComponentTemplate>();
     const [componentTemplates, setComponentTemplates] = useState<ComponentTemplate[]>();
@@ -25,30 +26,32 @@ export const NewComponentView: React.FC<INewComponentViewProps> = (props) => {
     const [formEnabled, setFormEnabled] = useState<boolean>(true);
     const [errorText, setErrorText] = useState<string>();
 
+    const { org, project } = props;
+
     useEffect(() => {
-        if (orgId && projectId && componentTemplates === undefined) {
+        if (project && componentTemplates === undefined) {
             const _setComponentTemplates = async () => {
-                const result = await api.getProjectComponentTemplates(orgId, projectId);
+                const result = await api.getProjectComponentTemplates(project.organization, project.id);
                 setComponentTemplates(result.data ?? undefined);
                 setComponentTemplateOptions(_componentTemplateOptions(result.data ?? undefined));
             };
             _setComponentTemplates();
         }
-    }, [orgId, projectId, componentTemplates]);
+    }, [project, componentTemplates]);
 
     const _submitForm = async (e: ISubmitEvent<any>) => {
         setFormEnabled(false);
 
-        if (orgId && projectId && componentTemplate && e.formData) {
+        if (org && project && componentTemplate && e.formData) {
             const request: ComponentRequest = {
                 templateId: componentTemplate.id,
                 inputJson: JSON.stringify(e.formData)
             };
-            const result = await api.createProjectComponent(orgId, projectId, { body: request });
+            const result = await api.createProjectComponent(project.organization, project.id, { body: request });
             const component = result.data;
 
             if (component)
-                history.push(`/orgs/${orgId}/projects/${projectId}/components`);
+                history.push(`/orgs/${org.slug}/projects/${project.slug}/components`);
             else {
                 // console.log(JSON.stringify(result));
                 setErrorText(result.status ?? 'unknown');

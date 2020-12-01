@@ -14,8 +14,8 @@ export interface IDeploymentScopeListProps {
 
 export const DeploymentScopeList: React.FC<IDeploymentScopeListProps> = (props) => {
 
-    let history = useHistory();
-    let { orgId } = useParams() as { orgId: string };
+    const history = useHistory();
+    const { orgId } = useParams() as { orgId: string };
 
     const columns: IColumn[] = [
         { key: 'displayName', name: 'Name', minWidth: 240, fieldName: 'displayName' },

@@ -1,49 +1,53 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
-import { useIsAuthenticated } from '@azure/msal-react';
+// import { useIsAuthenticated } from '@azure/msal-react';
 import { Nav, INavLinkGroup, INavLink, Stack, ActionButton, Persona, PersonaSize, getTheme, Text } from '@fluentui/react';
 import { Organization } from 'teamcloud'
-import { api } from '../API';
+// import { api } from '../API';
 
-export interface IRootNavProps { }
+export interface IRootNavProps {
+    org?: Organization;
+    orgs?: Organization[];
+    onOrgSelected: (org?: Organization) => void;
+}
 
 export const RootNav: React.FC<IRootNavProps> = (props) => {
 
-    let { orgId } = useParams() as { orgId: string };
+    // const isAuthenticated = useIsAuthenticated();
 
-    let history = useHistory();
+    const history = useHistory();
+    const { orgId } = useParams() as { orgId: string };
 
-    let isAuthenticated = useIsAuthenticated();
-
-    const [orgs, setOrgs] = useState<Organization[]>();
+    // const [orgs, setOrgs] = useState<Organization[]>();
 
     const newOrgView = orgId !== undefined && orgId.toLowerCase() === 'new';
 
     useEffect(() => {
-        if (isAuthenticated && (orgs === undefined || (orgId && orgId !== 'new' && !orgs.some(o => o.id === orgId || o.slug === orgId)))) {
-            const _setOrgs = async () => {
-                const result = await api.getOrganizations();
-                setOrgs(result.data ?? undefined);
-                if (result.code === 200 && result.data) {
-                    if (result.data.length === 0)
-                        history.push('/orgs/new');
-                    else if (history.location.pathname === '/' && result.data.length === 1)
-                        history.push(`/orgs/${result.data[0].slug}`);
+        if (orgId && orgId.toLowerCase() !== 'new') {
+            if (props.org && (props.org.id.toLowerCase() === orgId.toLowerCase() || props.org.slug.toLowerCase() === orgId.toLowerCase())) {
+                return;
+            } else if (props.orgs) {
+                const find = props.orgs.find(o => o.id.toLowerCase() === orgId.toLowerCase() || o.slug.toLowerCase() === orgId.toLowerCase());
+                if (find) {
+                    console.log(`setOrg (${orgId})`);
+                    props.onOrgSelected(find);
                 }
-            };
-            _setOrgs();
+            }
         }
-    }, [isAuthenticated, history, orgId, orgs]);
+    }, [orgId, props]);
 
     const _navLinkGroups = (): INavLinkGroup[] => {
-        const links: INavLink[] = orgs?.map(o => ({
+        const links: INavLink[] = props.orgs?.map(o => ({
             key: o.slug,
             name: o.displayName,
             url: '',
-            onClick: () => history.push(`/orgs/${o.slug}`),
+            onClick: () => {
+                props.onOrgSelected(o);
+                history.push(`/orgs/${o.slug}`)
+            },
         })) ?? [];
 
         if (!newOrgView)
@@ -51,7 +55,10 @@ export const RootNav: React.FC<IRootNavProps> = (props) => {
                 key: 'new',
                 name: "New organization",
                 url: '',
-                onClick: () => history.push('/orgs/new')
+                onClick: () => {
+                    props.onOrgSelected(undefined);
+                    history.push('/orgs/new')
+                }
             });
 
         return [{ links: links }];
