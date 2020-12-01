@@ -77,7 +77,7 @@ export const ProjectSettingsView: React.FC<IProjectSettingsViewProps> = (props) 
                 </ContentContainer>
             </Stack>
             <MembersForm
-                project={project}
+                members={[]}
                 panelIsOpen={newUsersPanelOpen}
                 onFormClose={() => setNewUsersPanelOpen(false)} />
             <MemberForm

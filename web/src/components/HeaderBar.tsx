@@ -1,30 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useEffect, useState } from 'react';
-import { useIsAuthenticated } from '@azure/msal-react';
+import React from 'react';
 import { ITextStyles, Stack, getTheme, IStackStyles, Link } from '@fluentui/react';
-import { getMe } from '../MSGraph';
 import { GraphUser } from '../model';
 import { HeaderBreadcrumb, UserInfo } from '.';
 
-export interface IHeaderBarProps { }
+export interface IHeaderBarProps {
+    graphUser?: GraphUser;
+}
 
 export const HeaderBar: React.FC<IHeaderBarProps> = (props) => {
-
-    const isAuthenticated = useIsAuthenticated();
-
-    const [graphUser, setGraphUser] = useState<GraphUser>();
-
-    useEffect(() => {
-        if (isAuthenticated && graphUser === undefined) {
-            const _setGraphUser = async () => {
-                const result = await getMe();
-                setGraphUser(result);
-            };
-            _setGraphUser();
-        }
-    }, [isAuthenticated, graphUser]);
 
     const theme = getTheme();
 
@@ -63,7 +49,7 @@ export const HeaderBar: React.FC<IHeaderBarProps> = (props) => {
                 <Stack.Item>
                     <UserInfo
                         // user={props.user}
-                        graphUser={graphUser}
+                        graphUser={props.graphUser}
                     // onSignOut={onSignOut}
                     />
                 </Stack.Item>

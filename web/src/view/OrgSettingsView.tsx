@@ -2,11 +2,11 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect } from 'react';
-import { Route, useParams } from 'react-router-dom';
-import { Stack } from '@fluentui/react';
+import { Route, useHistory, useParams } from 'react-router-dom';
+import { IconButton, Stack } from '@fluentui/react';
 import { useIsAuthenticated } from '@azure/msal-react';
-import { DeploymentScope, Organization, ProjectTemplate, User } from 'teamcloud';
-import { OrgSettingsOverview, DeploymentScopeList, ProjectTemplateList, ContentHeader, ContentContainer, ContentProgress, MemberList } from '../components';
+import { DeploymentScope, DeploymentScopeDefinition, Organization, ProjectTemplate, User } from 'teamcloud';
+import { OrgSettingsOverview, DeploymentScopeList, ProjectTemplateList, ContentHeader, ContentContainer, ContentProgress, MemberList, DeploymentScopeForm } from '../components';
 import { getGraphUser } from '../MSGraph';
 import { Member } from '../model';
 import { api } from '../API';
@@ -20,12 +20,14 @@ export const OrgSettingsView: React.FC<IOrgSettingsViewProps> = (props) => {
 
     let isAuthenticated = useIsAuthenticated();
 
+    let history = useHistory();
     let { orgId, settingId } = useParams() as { orgId: string, settingId: string };
 
     const [org, setOrg] = useState(props.org);
     const [members, setMembers] = useState<Member[]>();
     const [scopes, setScopes] = useState<DeploymentScope[]>();
     const [templates, setTemplates] = useState<ProjectTemplate[]>();
+    const [progressHidden, setProgressHidden] = useState(true);
 
     useEffect(() => {
         if (isAuthenticated && orgId) {
@@ -88,6 +90,25 @@ export const OrgSettingsView: React.FC<IOrgSettingsViewProps> = (props) => {
     }, [isAuthenticated, orgId, settingId, templates]);
 
 
+    const onCreateDeploymentScope = async (scope: DeploymentScopeDefinition) => {
+        setProgressHidden(false);
+
+        const result = await api.createDeploymentScope(orgId, { body: scope, });
+
+        if (result.data) {
+
+            setScopes(undefined);
+            history.replace(`/orgs/${orgId}/settings/scopes`);
+
+        } else {
+            // setErrorText(result.status ?? 'unknown');
+        }
+
+        setProgressHidden(true);
+    };
+
+    const showProgress = (show: boolean) => setProgressHidden(!show);
+
     return (
         <Stack>
             <Route exact path='/orgs/:orgId/settings'>
@@ -98,9 +119,15 @@ export const OrgSettingsView: React.FC<IOrgSettingsViewProps> = (props) => {
                 <ContentProgress progressHidden={members !== undefined} />
                 <ContentHeader title='Members' />
             </Route>
-            <Route exact path='/orgs/:orgId/settings/scopes'>
+            <Route exact path={['/orgs/:orgId/settings/scopes']}>
                 <ContentProgress progressHidden={scopes !== undefined} />
                 <ContentHeader title='Deployment Scopes' />
+            </Route>
+            <Route exact path={['/orgs/:orgId/settings/scopes/new']}>
+                <ContentProgress progressHidden={progressHidden} />
+                <ContentHeader title='New Deployment Scope'>
+                    <IconButton iconProps={{ iconName: 'ChromeClose' }} onClick={() => history.replace(`/orgs/${orgId}/settings/scopes`)} />
+                </ContentHeader>
             </Route>
             <Route exact path='/orgs/:orgId/settings/templates'>
                 <ContentProgress progressHidden={templates !== undefined} />
@@ -116,6 +143,9 @@ export const OrgSettingsView: React.FC<IOrgSettingsViewProps> = (props) => {
                 </Route>
                 <Route exact path='/orgs/:orgId/settings/scopes'>
                     <DeploymentScopeList {...{ scopes: scopes }} />
+                </Route>
+                <Route exact path='/orgs/:orgId/settings/scopes/new'>
+                    <DeploymentScopeForm {...{ showProgress: showProgress, onCreateDeploymentScope: onCreateDeploymentScope }} />
                 </Route>
                 <Route exact path='/orgs/:orgId/settings/templates'>
                     <ProjectTemplateList {...{ templates: templates }} />

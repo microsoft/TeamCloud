@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import { Route, Switch } from 'react-router-dom';
 import { Project } from 'teamcloud';
 import { Error404, NewOrgView, NewProjectView, ProjectView, ProjectsView, OrgSettingsView, ProjectSettingsView } from '.';
+import { NewComponentView } from './NewComponentView';
 
 
 export interface IContentViewProps { }
@@ -29,7 +30,7 @@ export const ContentView: React.FC<IContentViewProps> = (props: IContentViewProp
             <Route exact path='/orgs/:orgId/projects/new'>
                 <NewProjectView {...{}} />
             </Route>
-            <Route exact path={['/orgs/:orgId/settings', '/orgs/:orgId/settings/:settingId']}>
+            <Route exact path={['/orgs/:orgId/settings', '/orgs/:orgId/settings/:settingId', '/orgs/:orgId/settings/:settingId/new']}>
                 <OrgSettingsView {...{}} />
             </Route>
             <Route exact path={['/orgs/:orgId/projects/:projectId/settings', '/orgs/:orgId/projects/:projectId/settings/:settingId']}>
@@ -37,6 +38,9 @@ export const ContentView: React.FC<IContentViewProps> = (props: IContentViewProp
             </Route>
             <Route exact path={['/orgs/:orgId/projects/:projectId', '/orgs/:orgId/projects/:projectId/:navId']}>
                 <ProjectView {...{ project: project }} />
+            </Route>
+            <Route exact path='/orgs/:orgId/projects/:projectId/components/new'>
+                <NewComponentView {...{ project: project }} />
             </Route>
             <Route path='*'>
                 <Error404 />

@@ -97,7 +97,7 @@ export const NewOrgView: React.FC<INewOrgViewProps> = (props) => {
 
 
     useEffect(() => {
-        const _resolveScopeGroup = async () => {
+        const _resolveSubscriptions = async () => {
 
             try {
                 const subscriptions = await getSubscriptions();
@@ -116,7 +116,7 @@ export const NewOrgView: React.FC<INewOrgViewProps> = (props) => {
                 console.error(error)
             }
         };
-        _resolveScopeGroup();
+        _resolveSubscriptions();
     }, []);
 
 
@@ -310,36 +310,29 @@ export const NewOrgView: React.FC<INewOrgViewProps> = (props) => {
                                     value={scopeName}
                                     onChange={(_ev, val) => setScopeName(val)} />
                             </Stack.Item>
-                            {scopeManagementGroupOptions && !scopeSubscriptions && (
-                                <Stack.Item>
-                                    <Dropdown
-                                        // required
-                                        label='Management Group'
-                                        disabled={!formEnabled || !scopeManagementGroupOptions}
-                                        selectedKey={scopeManagementGroup}
-                                        options={scopeManagementGroupOptions ?? []}
-                                        onChange={(_ev, val) => setManagementScopeGroup(val ? val.key as string : undefined)} />
-                                </Stack.Item>
-                            )}
-                            {scopeManagementGroupOptions && !scopeSubscriptions && !scopeManagementGroup && (
-                                <Stack.Item>
-                                    <Text>OR</Text>
-                                </Stack.Item>
-                            )}
-                            {scopeSubscriptionOptions && !scopeManagementGroup && (
-
-                                <Stack.Item>
-                                    <ComboBox
-                                        required={!scopeManagementGroupOptions}
-                                        label='Subscriptions'
-                                        disabled={!formEnabled}
-                                        multiSelect
-                                        allowFreeform
-                                        selectedKey={scopeSubscriptions}
-                                        options={scopeSubscriptionOptions ?? []}
-                                        onChange={_onScopeSubscriptionsChange} />
-                                </Stack.Item>
-                            )}
+                            <Stack.Item>
+                                <Dropdown
+                                    required={!scopeSubscriptions || scopeSubscriptions.length === 0}
+                                    label='Management Group'
+                                    disabled={!formEnabled || !scopeManagementGroupOptions || (scopeSubscriptions && scopeSubscriptions.length > 0)}
+                                    selectedKey={scopeManagementGroup}
+                                    options={scopeManagementGroupOptions ?? []}
+                                    onChange={(_ev, val) => setManagementScopeGroup(val ? val.key as string : undefined)} />
+                            </Stack.Item>
+                            <Stack.Item>
+                                <Label disabled={!(scopeManagementGroup === undefined || scopeManagementGroup === '') || (scopeSubscriptions && scopeSubscriptions.length > 0)}>OR</Label>
+                            </Stack.Item>
+                            <Stack.Item>
+                                <ComboBox
+                                    required={!scopeManagementGroup}
+                                    label='Subscriptions'
+                                    disabled={!formEnabled || !(scopeManagementGroup === undefined || scopeManagementGroup === '')}
+                                    multiSelect
+                                    allowFreeform
+                                    selectedKey={scopeSubscriptions}
+                                    options={scopeSubscriptionOptions ?? []}
+                                    onChange={_onScopeSubscriptionsChange} />
+                            </Stack.Item>
                         </Stack>
                     </PivotItem>
                     <PivotItem headerText='Project Template' itemKey='Project Template'>

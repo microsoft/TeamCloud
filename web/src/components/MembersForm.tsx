@@ -3,18 +3,21 @@
 
 import React, { useState } from 'react';
 import { Stack, Dropdown, IDropdownOption, Label, Panel, PrimaryButton, DefaultButton, Spinner, Text } from '@fluentui/react';
-import { ProjectMembershipRole, Project, UserDefinition, ErrorResult, StatusResult } from 'teamcloud';
-import { GraphUser } from '../model'
+import { ProjectMembershipRole, UserDefinition, ErrorResult, StatusResult } from 'teamcloud';
+import { GraphUser, Member } from '../model'
 import { api } from '../API';
 import { MemberPicker } from '.';
+import { useParams } from 'react-router-dom';
 
 export interface IMembersFormProps {
-    project?: Project;
+    members?: Member[];
     panelIsOpen: boolean;
     onFormClose: () => void;
 }
 
 export const MembersForm: React.FC<IMembersFormProps> = (props) => {
+
+    let { orgId, projectId } = useParams() as { orgId: string, projectId: string };
 
     const [formEnabled, setFormEnabled] = useState<boolean>(true);
     const [userIdentifiers, setUserIdentifiers] = useState<string[]>();
@@ -23,13 +26,16 @@ export const MembersForm: React.FC<IMembersFormProps> = (props) => {
 
     const _submitForm = async () => {
         setFormEnabled(false);
-        if (props.project && userRole && userIdentifiers?.length && userIdentifiers.length > 0) {
+
+        if (orgId && userRole && userIdentifiers?.length && userIdentifiers.length > 0) {
+
             const userDefinitions: UserDefinition[] = userIdentifiers!.map(i => ({
                 identifier: i,
                 role: userRole
             }));
+
             const results = await Promise
-                .all(userDefinitions.map(async d => await api.createProjectUser(props.project!.organization, props.project!.id, { body: d })));
+                .all(userDefinitions.map(async d => projectId ? await api.createProjectUser(orgId, projectId, { body: d }) : await api.createOrganizationUser(orgId, { body: d })));
 
             let errors: ErrorResult[] = [];
             results.forEach(r => {
@@ -52,9 +58,9 @@ export const MembersForm: React.FC<IMembersFormProps> = (props) => {
         props.onFormClose();
     };
 
-    const _projectRoleOptions = (): IDropdownOption[] => {
-        return ['Member', 'Owner'].map(r => ({ key: r, text: r } as IDropdownOption));
-    };
+    const _projectRoleOptions = (): IDropdownOption[] => projectId
+        ? ['Member', 'Owner'].map(r => ({ key: r, text: r } as IDropdownOption))
+        : ['Creator', 'Owner'].map(r => ({ key: r, text: r } as IDropdownOption));
 
     const _onUserRoleDropdownChange = (event: React.FormEvent<HTMLDivElement>, option?: IDropdownOption): void => {
         setUserRole(option ? option.key as ProjectMembershipRole : undefined);
@@ -66,7 +72,7 @@ export const MembersForm: React.FC<IMembersFormProps> = (props) => {
 
     const _onRenderPanelFooterContent = () => (
         <div>
-            <PrimaryButton text='Add users' disabled={!formEnabled || !(userRole && userIdentifiers?.length && userIdentifiers.length > 0)} onClick={() => _submitForm()} styles={{ root: { marginRight: 8 } }} />
+            <PrimaryButton text='Add members' disabled={!formEnabled || !(userRole && userIdentifiers?.length && userIdentifiers.length > 0)} onClick={() => _submitForm()} styles={{ root: { marginRight: 8 } }} />
             <DefaultButton text='Cancel' disabled={!formEnabled} onClick={() => _resetAndCloseForm()} />
             <Spinner styles={{ root: { visibility: formEnabled ? 'hidden' : 'visible' } }} />
         </div>
@@ -74,7 +80,7 @@ export const MembersForm: React.FC<IMembersFormProps> = (props) => {
 
     return (
         <Panel
-            headerText='Add Users'
+            headerText='Add Members'
             isOpen={props.panelIsOpen}
             onDismiss={() => _resetAndCloseForm()}
             onRenderFooterContent={_onRenderPanelFooterContent}>
@@ -88,7 +94,7 @@ export const MembersForm: React.FC<IMembersFormProps> = (props) => {
                     onChange={_onUserRoleDropdownChange} />
                 <Label required>Users</Label>
                 <MemberPicker
-                    project={props.project}
+                    members={props.members}
                     formEnabled={formEnabled}
                     onChange={_onMembersChanged} />
             </Stack>

@@ -48,7 +48,7 @@ export const MembersCard: React.FC<IMembersCardProps> = (props) => {
         props.project && props.user?.projectMemberships?.find(m => m.projectId === props.project!.id)?.role === 'Owner';
 
     const _getCommandBarItems = (): ICommandBarItemProps[] => [
-        { key: 'addUser', text: 'Add', iconProps: { iconName: 'PeopleAdd' }, onClick: () => { setAddMembersPanelOpen(true) }, disabled: !_userIsProjectOwner() },
+        { key: 'addUser', text: 'Add', iconProps: { iconName: 'PeopleAdd' }, onClick: () => setAddMembersPanelOpen(true), disabled: !_userIsProjectOwner() },
     ];
 
     const _getMemberCommandBarItems = (member: ProjectMember): ICommandBarItemProps[] => [
@@ -163,7 +163,7 @@ export const MembersCard: React.FC<IMembersCardProps> = (props) => {
                 </Shimmer>
             </DetailCard>
             <MembersForm
-                project={props.project}
+                members={props.members}
                 panelIsOpen={addMembersPanelOpen}
                 onFormClose={() => setAddMembersPanelOpen(false)} />
         </>

@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-export * from './ComponentForm'
 export * from './ComponentsCard'
 export * from './ComponentList'
 export * from './ContentContainer'
 export * from './ContentHeader'
 export * from './ContentList'
 export * from './ContentProgress'
+export * from './DeploymentScopeForm'
 export * from './DeploymentScopeList'
 export * from './DetailCard'
 export * from './HeaderBar'
@@ -21,7 +21,6 @@ export * from './NoData'
 export * from './OrgSettingsDetail'
 export * from './OrgSettingsNav'
 export * from './OrgSettingsOverview'
-export * from './ProjectForm'
 export * from './ProjectNav'
 export * from './ProjectOverview'
 export * from './ProjectSettingsNav'

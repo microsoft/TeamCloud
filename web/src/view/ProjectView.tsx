@@ -6,7 +6,7 @@ import { Route, useParams } from 'react-router-dom';
 import { Stack, IconButton } from '@fluentui/react';
 import { useIsAuthenticated } from '@azure/msal-react';
 import { Project, User, Component } from 'teamcloud';
-import { MembersForm, MemberForm, ComponentsCard, ProjectOverview, ContentHeader, ContentProgress, ContentContainer, MemberList } from '../components';
+import { MembersForm, MemberForm, ProjectOverview, ContentHeader, ContentProgress, ContentContainer, MemberList, ComponentList } from '../components';
 import { ProjectMember } from '../model';
 import { api } from '../API';
 import { getGraphDirectoryObject, getGraphUser } from '../MSGraph';
@@ -53,7 +53,7 @@ export const ProjectView: React.FC<IProjectViewProps> = (props) => {
     useEffect(() => {
         if (isAuthenticated && project && user === undefined) {
 
-            console.log('setProject');
+            console.log('setUser');
             setUser(undefined);
 
             const _setUser = async () => {
@@ -116,8 +116,8 @@ export const ProjectView: React.FC<IProjectViewProps> = (props) => {
                     <Route exact path='/orgs/:orgId/projects/:projectId'>
                         <ProjectOverview {...{ project: project, user: user, members: members, components: components }} />
                     </Route>
-                    <Route exact path='/orgs/:orgId/projects/:projectId/componenets'>
-                        <ComponentsCard {...{ project: project, user: user, components: components }} />
+                    <Route exact path='/orgs/:orgId/projects/:projectId/components'>
+                        <ComponentList {...{ project: project, user: user, components: components }} />
                     </Route>
                     <Route exact path='/orgs/:orgId/projects/:projectId/members'>
                         <MemberList {...{ project: project, members: members }} />
@@ -125,7 +125,7 @@ export const ProjectView: React.FC<IProjectViewProps> = (props) => {
                 </ContentContainer>
             </Stack>
             <MembersForm
-                project={project}
+                members={members}
                 panelIsOpen={newUsersPanelOpen}
                 onFormClose={() => setNewUsersPanelOpen(false)} />
             <MemberForm

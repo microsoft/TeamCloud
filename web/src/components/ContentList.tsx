@@ -3,6 +3,7 @@
 
 import React, { PropsWithChildren, useState } from 'react';
 import { CheckboxVisibility, DetailsList, DetailsListLayoutMode, FontWeights, getTheme, IColumn, IDetailsHeaderProps, IDetailsRowProps, IRenderFunction, ITextStyles, PrimaryButton, SearchBox, Stack, Text } from '@fluentui/react';
+import { NoData } from '.';
 
 export interface IContentListProps<T> {
     items?: T[];
@@ -16,6 +17,12 @@ export interface IContentListProps<T> {
     secondaryButtonText?: string;
     secondaryButtonIcon?: string;
     onSecondaryButtonClick?: () => void;
+    noDataTitle?: string;
+    noDataDescription?: string;
+    noDataImage?: string;
+    noDataButtonText?: string;
+    noDataButtonIcon?: string;
+    onNoDataButtonClick?: () => void;
 }
 
 export const ContentList = <T,>(props: PropsWithChildren<IContentListProps<T>>) => {
@@ -41,7 +48,7 @@ export const ContentList = <T,>(props: PropsWithChildren<IContentListProps<T>>) 
             fontSize: '14px',
             fontWeight: FontWeights.regular,
         }
-    }
+    };
 
     const _calloutStyles: ITextStyles = {
         root: {
@@ -52,14 +59,21 @@ export const ContentList = <T,>(props: PropsWithChildren<IContentListProps<T>>) 
             padding: '2px 9px',
             borderRadius: '14px',
         }
-    }
+    };
 
 
     if (props.items === undefined)
         return (<></>);
 
     if (props.items.length === 0)
-        return (<Text styles={{ root: { width: '100%', paddingLeft: '8px' } }}>No projects</Text>)
+        return (
+            <NoData
+                title={props.noDataTitle ?? 'No data'}
+                image={props.noDataImage}
+                description={props.noDataDescription}
+                buttonText={props.noDataButtonText}
+                buttonIcon={props.noDataButtonIcon}
+                onButtonClick={props.onNoDataButtonClick} />)
 
     return (
         <Stack tokens={{ childrenGap: '20px' }}>

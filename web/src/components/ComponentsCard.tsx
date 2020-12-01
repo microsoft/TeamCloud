@@ -4,8 +4,9 @@
 import React, { useState } from 'react';
 import { Stack, Shimmer, DefaultButton, IButtonStyles, getTheme, ICommandBarItemProps, Dialog, DialogType, DialogFooter, PrimaryButton, IContextualMenuProps, IContextualMenuItem } from '@fluentui/react';
 import { Project, Component, ErrorResult } from 'teamcloud';
-import { DetailCard, ComponentForm } from '.';
+import { DetailCard } from '.';
 import { api } from '../API';
+import { useHistory, useParams } from 'react-router-dom';
 
 export interface IComponentsCardProps {
     project?: Project;
@@ -14,8 +15,11 @@ export interface IComponentsCardProps {
 
 export const ComponentsCard: React.FC<IComponentsCardProps> = (props) => {
 
+    let history = useHistory();
+    let { orgId, projectId } = useParams() as { orgId: string, projectId: string };
+
     const [component, setComponent] = useState<Component>();
-    const [addComponentPanelOpen, setAddComponentPanelOpen] = useState(false);
+    // const [addComponentPanelOpen, setAddComponentPanelOpen] = useState(false);
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
     const _itemMenuProps = (component: Component): IContextualMenuProps => ({
@@ -39,7 +43,7 @@ export const ComponentsCard: React.FC<IComponentsCardProps> = (props) => {
     };
 
     const _getCommandBarItems = (): ICommandBarItemProps[] => [
-        { key: 'newComponent', text: 'New', iconProps: { iconName: 'WebAppBuilderFragmentCreate' }, onClick: () => { setAddComponentPanelOpen(true) } },
+        { key: 'newComponent', text: 'New', iconProps: { iconName: 'WebAppBuilderFragmentCreate' }, onClick: () => history.push(`/orgs/${orgId}/projects/${projectId}/components/new`) },
     ];
 
 
@@ -108,11 +112,6 @@ export const ComponentsCard: React.FC<IComponentsCardProps> = (props) => {
                     </Stack>
                 </Shimmer>
             </DetailCard>
-            <ComponentForm
-                // user={props.user}
-                project={props.project}
-                panelIsOpen={addComponentPanelOpen}
-                onFormClose={() => setAddComponentPanelOpen(false)} />
             <Dialog
                 hidden={!deleteConfirmOpen}
                 dialogContentProps={{ type: DialogType.normal, title: 'Confirm Delete', subText: _confirmDialogSubtext() }}>

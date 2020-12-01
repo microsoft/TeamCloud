@@ -25,7 +25,8 @@ export const NavView: React.FC<INavViewProps> = (props: INavViewProps) => {
             </Route>
             <Route exact path={[
                 '/orgs/:orgId/settings',
-                '/orgs/:orgId/settings/:settingId'
+                '/orgs/:orgId/settings/:settingId',
+                '/orgs/:orgId/settings/:settingId/new'
             ]}>
                 <OrgSettingsNav {...{}} />
             </Route>
@@ -37,7 +38,8 @@ export const NavView: React.FC<INavViewProps> = (props: INavViewProps) => {
             </Route>
             <Route exact path={[
                 '/orgs/:orgId/projects/:projectId',
-                '/orgs/:orgId/projects/:projectId/:navId'
+                '/orgs/:orgId/projects/:projectId/:navId',
+                '/orgs/:orgId/projects/:projectId/:navId/new'
             ]}>
                 <ProjectNav {...{}} />
             </Route>

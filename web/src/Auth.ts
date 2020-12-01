@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { Configuration, PublicClientApplication } from '@azure/msal-browser';
+import { Configuration, InteractionRequiredAuthError, PublicClientApplication } from '@azure/msal-browser';
 import { AccessToken, TokenCredential } from '@azure/core-auth'
 import { AuthenticationProvider, AuthenticationProviderOptions } from "@microsoft/microsoft-graph-client";
 
@@ -88,11 +88,21 @@ export class Auth implements TokenCredential, AuthenticationProvider {
 
         const account = this.clientApplication.getAllAccounts()[0];
 
-        var authResult = await this.clientApplication.acquireTokenSilent({ account: account, scopes: scopes as string[] });
+        try {
+
+            var authResult = await this.clientApplication.acquireTokenSilent({ account: account, scopes: scopes as string[] });
+
+            return { token: authResult.accessToken, expiresOnTimestamp: authResult.expiresOn.getTime() };
+
+        } catch (error) {
+
+            if (error instanceof InteractionRequiredAuthError)
+                await this.clientApplication.acquireTokenRedirect({ account: account, scopes: scopes as string[] })
+
+            return null;
+        }
 
         // console.log('TOKEN (' + (authParameters.scopes || []).join(' | ') + ' | ' + authResponse.expiresOn + ') ' + authResponse.accessToken);
-
-        return { token: authResult.accessToken, expiresOnTimestamp: authResult.expiresOn.getTime() };
     }
 
     getAccessToken = async (authenticationProviderOptions?: AuthenticationProviderOptions): Promise<string> => {

@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React from 'react';
+import React, { useState } from 'react';
 import { IColumn, Persona, PersonaSize } from '@fluentui/react';
 import { Project } from 'teamcloud';
 import { Member, ProjectMember } from '../model';
-import { ContentList } from '.';
+import { ContentList, MembersForm } from '.';
 
 export interface IMemberListProps {
     project?: Project;
@@ -13,6 +13,8 @@ export interface IMemberListProps {
 }
 
 export const MemberList: React.FC<IMemberListProps> = (props) => {
+
+    const [addMembersPanelOpen, setAddMembersPanelOpen] = useState(false);
 
     const onRenderMemberColumn = (member?: Member, index?: number, column?: IColumn) => (
         <Persona
@@ -39,15 +41,22 @@ export const MemberList: React.FC<IMemberListProps> = (props) => {
     };
 
     return (
-        <ContentList
-            columns={columns}
-            items={props.members}
-            applyFilter={_applyFilter}
-            onItemInvoked={_onItemInvoked}
-            filterPlaceholder='Filter members'
-            buttonText='Add member'
-            buttonIcon='Add'
-        // onButtonClick={() => history.push(`/orgs/${orgId}/projects/new`)}
-        />
+        <>
+            <ContentList
+                columns={columns}
+                items={props.members}
+                applyFilter={_applyFilter}
+                onItemInvoked={_onItemInvoked}
+                filterPlaceholder='Filter members'
+                buttonText='Add members'
+                buttonIcon='Add'
+                onButtonClick={() => setAddMembersPanelOpen(true)}
+            />
+            <MembersForm
+                members={props.members}
+                panelIsOpen={addMembersPanelOpen}
+                onFormClose={() => setAddMembersPanelOpen(false)} />
+
+        </>
     );
 }

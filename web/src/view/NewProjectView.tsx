@@ -11,8 +11,7 @@ import { ContentContainer, ContentHeader, ContentProgress } from '../components'
 import { api } from '../API';
 
 
-export interface INewProjectViewProps {
-}
+export interface INewProjectViewProps { }
 
 export const NewProjectView: React.FC<INewProjectViewProps> = (props) => {
 
