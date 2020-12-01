@@ -17,9 +17,9 @@ namespace TeamCloud.API.Data.Validators
                 .NotEmpty();
 
             RuleFor(obj => obj.ManagementGroupId)
-                .MustBeGuid()
+                .NotEmpty()
                     .When(obj => !(obj.SubscriptionIds?.Any() ?? false))
-                    .WithMessage("'{PropertyName}' must be a valid, non-empty GUID if no Subscription IDs are provided.");
+                    .WithMessage("'{PropertyName}' must be a valid resource ID if no Subscription IDs are provided.");
 
             RuleFor(obj => obj.SubscriptionIds)
                 .Cascade(CascadeMode.Stop)
