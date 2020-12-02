@@ -7,15 +7,16 @@ using Newtonsoft.Json;
 using TeamCloud.Model.Common;
 using TeamCloud.Serialization;
 
-namespace TeamCloud.Model.Data
+namespace TeamCloud.API.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public sealed class ComponentRequest : IValidatable
+    public sealed class ProjectComponentDefinition : IValidatable
     {
         [JsonProperty(Required = Required.Always)]
         public string TemplateId { get; set; }
 
-        // [JsonProperty(Required = Required.Always)]
         public string InputJson { get; set; }
+
+        public string DeploymentScopeId { get; set; }
     }
 }

@@ -52,17 +52,6 @@ namespace TeamCloud.Orchestrator.Handlers
                     .AddAsync(projectTemplate)
                     .ConfigureAwait(false);
 
-                var componentTemplates = await repositoryService
-                    .GetComponentTemplatesAsync(projectTemplate)
-                    .ConfigureAwait(false);
-
-                var componentSaveTasks = componentTemplates
-                    .Select(c => componentTemplateRepository.SetAsync(c));
-
-                await Task
-                    .WhenAll(componentSaveTasks)
-                    .ConfigureAwait(false);
-
                 commandResult.RuntimeStatus = CommandRuntimeStatus.Completed;
             }
             catch (Exception exc)
@@ -112,10 +101,6 @@ namespace TeamCloud.Orchestrator.Handlers
 
             try
             {
-                await componentTemplateRepository
-                    .RemoveAllAsync(projectTemplate.Organization, projectTemplate.Id)
-                    .ConfigureAwait(false);
-
                 commandResult.Result = await projectTemplateRepository
                     .RemoveAsync(projectTemplate)
                     .ConfigureAwait(false);

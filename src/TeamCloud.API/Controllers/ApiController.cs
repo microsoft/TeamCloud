@@ -360,15 +360,11 @@ namespace TeamCloud.API.Controllers
                         .NotFound($"A Project Template with the name or id '{ProjectTemplateId}' was not found.")
                         .ToActionResult();
 
-                var freshTemplate = await RepositoryService
-                    .UpdateProjectTemplateAsync(template)
-                    .ConfigureAwait(false);
-
                 if (!(callback is null))
-                    return callback(freshTemplate ?? template);
+                    return callback(template);
 
                 if (!(asyncCallback is null))
-                    return await asyncCallback(freshTemplate ?? template)
+                    return await asyncCallback(template)
                         .ConfigureAwait(false);
 
                 throw new InvalidOperationException("asyncCallback or callback must have a value");
@@ -445,15 +441,11 @@ namespace TeamCloud.API.Controllers
                         .NotFound($"A Project Template with the name or id '{templateId}' was not found.")
                         .ToActionResult();
 
-                var freshTemplate = await RepositoryService
-                    .UpdateProjectTemplateAsync(template)
-                    .ConfigureAwait(false);
-
                 if (!(callback is null))
-                    return callback(project, freshTemplate ?? template);
+                    return callback(project, template);
 
                 if (!(asyncCallback is null))
-                    return await asyncCallback(project, freshTemplate ?? template)
+                    return await asyncCallback(project, template)
                         .ConfigureAwait(false);
 
 

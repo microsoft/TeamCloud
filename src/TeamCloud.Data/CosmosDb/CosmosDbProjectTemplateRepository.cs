@@ -10,6 +10,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
 using TeamCloud.Data.CosmosDb.Core;
+using TeamCloud.Git.Services;
 using TeamCloud.Model.Data;
 using TeamCloud.Model.Validation;
 
@@ -17,9 +18,16 @@ namespace TeamCloud.Data.CosmosDb
 {
     public class CosmosDbProjectTemplateRepository : CosmosDbRepository<ProjectTemplate>, IProjectTemplateRepository
     {
-        public CosmosDbProjectTemplateRepository(ICosmosDbOptions cosmosOptions)
+        private readonly IRepositoryService repositoryService;
+
+        public CosmosDbProjectTemplateRepository(ICosmosDbOptions cosmosOptions, IRepositoryService repositoryService)
             : base(cosmosOptions)
-        { }
+        {
+            this.repositoryService = repositoryService ?? throw new ArgumentNullException(nameof(repositoryService));
+        }
+
+        private Task<ProjectTemplate> AugmentAsync(ProjectTemplate projectTemplate)
+            => repositoryService.UpdateProjectTemplateAsync(projectTemplate);
 
         public async Task<ProjectTemplate> AddAsync(ProjectTemplate projectTemplate)
         {
@@ -82,7 +90,8 @@ namespace TeamCloud.Data.CosmosDb
                         .CreateItemAsync(projectTemplate, GetPartitionKey(projectTemplate))
                         .ConfigureAwait(false);
 
-                    return response.Resource;
+                    return await AugmentAsync(response.Resource)
+                        .ConfigureAwait(false);
                 }
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.Conflict)
@@ -102,22 +111,14 @@ namespace TeamCloud.Data.CosmosDb
                     .ReadItemAsync<ProjectTemplate>(id, GetPartitionKey(organization))
                     .ConfigureAwait(false);
 
-                return response.Resource;
+                return await AugmentAsync(response.Resource)
+                    .ConfigureAwait(false);
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
             {
                 return null;
             }
         }
-
-        // public async Task<int> GetInstanceCountAsync(string id, Guid? subscriptionId = null)
-        // {
-        //     return await projectRepository.ListAsync()
-        //         .Where(project => project.Type.Id.Equals(id, StringComparison.Ordinal))
-        //         .Where(project => !subscriptionId.HasValue || project.ResourceGroup?.SubscriptionId == subscriptionId.GetValueOrDefault())
-        //         .CountAsync()
-        //         .ConfigureAwait(false);
-        // }
 
         public async Task<ProjectTemplate> GetDefaultAsync(string organization)
         {
@@ -160,7 +161,8 @@ namespace TeamCloud.Data.CosmosDb
                 await (nonDefaultBatch?.ExecuteAsync() ?? Task.CompletedTask)
                     .ConfigureAwait(false);
 
-                return defaultprojectTemplate;
+                return await AugmentAsync(defaultprojectTemplate)
+                    .ConfigureAwait(false);
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
             {
@@ -225,7 +227,8 @@ namespace TeamCloud.Data.CosmosDb
                     .UpsertItemAsync(projectTemplate, GetPartitionKey(projectTemplate))
                     .ConfigureAwait(false);
 
-                return response.Resource;
+                return await AugmentAsync(response.Resource)
+                    .ConfigureAwait(false);
             }
         }
 
@@ -244,8 +247,20 @@ namespace TeamCloud.Data.CosmosDb
                     .ReadNextAsync()
                     .ConfigureAwait(false);
 
-                foreach (var queryResult in queryResponse)
-                    yield return queryResult;
+                var tasks = queryResponse
+                    .Select(qr => repositoryService.UpdateProjectTemplateAsync(qr))
+                    .ToList();
+
+                while (tasks.Any())
+                {
+                    var completed = await Task
+                        .WhenAny(tasks)
+                        .ConfigureAwait(false);
+
+                    yield return completed.Result;
+
+                    tasks.Remove(completed);
+                }
             }
         }
 

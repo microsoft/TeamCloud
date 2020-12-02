@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 using Microsoft.TeamFoundation.SourceControl.WebApi;
 using Microsoft.VisualStudio.Services.Common;
 using Microsoft.VisualStudio.Services.WebApi;
-using Newtonsoft.Json.Schema;
 using TeamCloud.Git.Data;
 using TeamCloud.Model.Data;
 using YamlDotNet.Serialization;
@@ -30,49 +29,6 @@ namespace TeamCloud.Git.Services
                 .WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
         }
 
-        // internal async Task<ProjectTemplate> GetProjectTemplateAsync(RepositoryReference repository)
-        // {
-        //     if (repository is null)
-        //         throw new ArgumentNullException(nameof(repository));
-
-        //     var creds = new VssBasicCredential(string.Empty, repository.Token);
-        //     using var connection = new VssConnection(new Uri(repository.BaselUrl), creds);
-        //     using var client = connection.GetClient<GitHttpClient>();
-
-        //     var commit = await client
-        //         .GetCommitAsync(project: repository.Project, repository.Ref, repository.Repository)
-        //         .ConfigureAwait(false);
-
-        //     var tree = await client
-        //         .GetTreeAsync(project: repository.Project, repository.Repository, commit.TreeId, recursive: true)
-        //         .ConfigureAwait(false);
-
-        //     var template = await GetProjectTemplateAsync(client, repository, tree.TreeEntries)
-        //         .ConfigureAwait(false);
-
-        //     return template;
-        // }
-
-        // private async Task<ProjectTemplate> GetProjectTemplateAsync(GitHttpClient client, RepositoryReference repo, IEnumerable<GitTreeEntryRef> tree)
-        // {
-        //     var projectYamlFileStream = await client
-        //         .GetItemContentAsync(project: repo.Project, repo.Repository, Constants.ProjectYaml, download: true, versionDescriptor: repo.VersionDescriptor())
-        //         .ConfigureAwait(false);
-
-        //     using var streamReader = new StreamReader(projectYamlFileStream);
-
-        //     var projectYamlFile = await streamReader
-        //         .ReadToEndAsync()
-        //         .ConfigureAwait(false);
-
-        //     var projectYaml = yamlDeserializer.Deserialize<ProjectYaml>(projectYamlFile);
-
-        //     projectYaml.Description = await CheckAndPopulateFileContentAsync(client, repo, tree, projectYaml.Description)
-        //         .ConfigureAwait(false);
-
-        //     return projectYaml.ToProjectTemplate(repo);
-        // }
-
         internal async Task<ProjectTemplate> UpdateProjectTemplateAsync(ProjectTemplate projectTemplate)
         {
             if (projectTemplate is null)
@@ -88,17 +44,9 @@ namespace TeamCloud.Git.Services
                 .GetCommitAsync(project: repository.Project, repository.Ref, repository.Repository)
                 .ConfigureAwait(false);
 
-            var tree = await client
+            var result = await client
                 .GetTreeAsync(project: repository.Project, repository.Repository, commit.TreeId, recursive: true)
                 .ConfigureAwait(false);
-
-            return await UpdateProjectTemplateAsync(client, projectTemplate, tree.TreeEntries)
-                .ConfigureAwait(false);
-        }
-
-        private async Task<ProjectTemplate> UpdateProjectTemplateAsync(GitHttpClient client, ProjectTemplate projectTemplate, IEnumerable<GitTreeEntryRef> tree)
-        {
-            var repository = projectTemplate.Repository;
 
             var projectYamlFileStream = await client
                 .GetItemContentAsync(project: repository.Project, repository.Repository, Constants.ProjectYaml, download: true, versionDescriptor: repository.VersionDescriptor())
@@ -112,14 +60,14 @@ namespace TeamCloud.Git.Services
 
             var projectYaml = yamlDeserializer.Deserialize<ProjectYaml>(projectYamlFile);
 
-            projectYaml.Description = await CheckAndPopulateFileContentAsync(client, repository, tree, projectYaml.Description)
+            projectYaml.Description = await CheckAndPopulateFileContentAsync(client, repository, result.TreeEntries, projectYaml.Description)
                 .ConfigureAwait(false);
 
             return projectTemplate.UpdateFromYaml(projectYaml);
         }
 
 
-        internal async Task<List<ComponentTemplate>> GetComponentTemplatesAsync(ProjectTemplate projectTemplate)
+        internal async IAsyncEnumerable<ComponentTemplate> GetComponentTemplatesAsync(ProjectTemplate projectTemplate)
         {
             if (projectTemplate is null)
                 throw new ArgumentNullException(nameof(projectTemplate));
@@ -134,24 +82,19 @@ namespace TeamCloud.Git.Services
                 .GetCommitAsync(project: repository.Project, repository.Ref, repository.Repository)
                 .ConfigureAwait(false);
 
-            var tree = await client
+            var result = await client
                 .GetTreeAsync(project: repository.Project, repository.Repository, commit.TreeId, recursive: true)
                 .ConfigureAwait(false);
 
-            return await GetComponentTemplatesAsync(client, projectTemplate, tree.TreeEntries)
-                .ConfigureAwait(false);
-        }
+            var componentTemplates = result.TreeEntries
+                .Where(t => t.RelativePath.EndsWith(Constants.ComponentYaml, StringComparison.Ordinal))
+                .Select(te => ResolveComponentTemplate(te))
+                .ToAsyncEnumerable();
 
+            await foreach (var componentTemplate in componentTemplates)
+                yield return componentTemplate;
 
-        private async Task<List<ComponentTemplate>> GetComponentTemplatesAsync(GitHttpClient client, ProjectTemplate projectTemplate, IEnumerable<GitTreeEntryRef> tree)
-        {
-            var repository = projectTemplate.Repository;
-
-            var componentTemplates = new List<ComponentTemplate>();
-
-            var componentItems = tree.Where(t => t.RelativePath.EndsWith(Constants.ComponentYaml, StringComparison.Ordinal));
-
-            foreach (var componentItem in componentItems)
+            async Task<ComponentTemplate> ResolveComponentTemplate(GitTreeEntryRef componentItem)
             {
                 var folder = componentItem.RelativePath.Split(Constants.ComponentYaml).First().TrimEnd('/');
 
@@ -167,17 +110,11 @@ namespace TeamCloud.Git.Services
 
                 var componentYaml = yamlDeserializer.Deserialize<ComponentYaml>(componentFile);
 
-                componentYaml.Description = await CheckAndPopulateFileContentAsync(client, repository, tree, componentYaml.Description, folder)
+                componentYaml.Description = await CheckAndPopulateFileContentAsync(client, repository, result.TreeEntries, componentYaml.Description, folder)
                     .ConfigureAwait(false);
 
-                foreach (var parameter in componentYaml.Parameters.Where(p => p.Type == JSchemaType.String))
-                    parameter.Value = await CheckAndPopulateFileContentAsync(client, repository, tree, parameter.StringValue, folder)
-                        .ConfigureAwait(false);
-
-                componentTemplates.Add(componentYaml.ToComponentTemplate(projectTemplate, folder));
+                return componentYaml.ToTemplate(projectTemplate, folder);
             }
-
-            return componentTemplates;
         }
 
         private static async Task<string> CheckAndPopulateFileContentAsync(GitHttpClient client, RepositoryReference repo, IEnumerable<GitTreeEntryRef> tree, string value, string folder = null)

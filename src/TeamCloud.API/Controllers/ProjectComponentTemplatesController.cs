@@ -43,7 +43,7 @@ namespace TeamCloud.API.Controllers
         public Task<IActionResult> Get() => EnsureProjectAndProjectTemplateAsync(async (project, projectTemplate) =>
         {
             var componenetTemplates = await componentTemplateRepository
-                .ListAsync(projectTemplate.Organization, projectTemplate.Id)
+                .ListAsync(projectTemplate.Organization, ProjectId)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
@@ -67,7 +67,7 @@ namespace TeamCloud.API.Controllers
                     .ToActionResult();
 
             var componentTemplate = await componentTemplateRepository
-                .GetAsync(OrgId, id)
+                .GetAsync(OrgId, ProjectId, id)
                 .ConfigureAwait(false);
 
             if (!(componentTemplate?.ParentId?.Equals(projectTemplate.Id, StringComparison.Ordinal) ?? false))

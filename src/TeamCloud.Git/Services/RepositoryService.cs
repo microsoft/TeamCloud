@@ -56,7 +56,7 @@ namespace TeamCloud.Git.Services
         } ?? throw new ArgumentNullException(nameof(projectTemplate));
 
 
-        public Task<List<ComponentTemplate>> GetComponentTemplatesAsync(ProjectTemplate projectTemplate) => projectTemplate?.Repository?.Provider switch
+        public IAsyncEnumerable<ComponentTemplate> GetComponentTemplatesAsync(ProjectTemplate projectTemplate) => projectTemplate?.Repository?.Provider switch
         {
             RepositoryProvider.DevOps => devops.GetComponentTemplatesAsync(projectTemplate),
             RepositoryProvider.GitHub => github.GetComponentTemplatesAsync(projectTemplate),

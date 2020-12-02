@@ -11,6 +11,8 @@ using Microsoft.Extensions.Logging;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
+using TeamCloud.Orchestration;
+using TeamCloud.Orchestrator.Operations.Activities;
 using TeamCloud.Orchestrator.Operations.Entities;
 using TeamCloud.Serialization;
 
@@ -36,10 +38,14 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Commands
 
                 using (await context.LockContainerDocumentAsync(command.Payload).ConfigureAwait(true))
                 {
-                    var commandResultTask = command.Payload.Type switch
+                    var component = (await context
+                            .CallActivityWithRetryAsync<Component>(nameof(ComponentGetActivity), new ComponentGetActivity.Input() { Id = command.Payload.Id, Organization = command.Payload.Organization })
+                            .ConfigureAwait(true)) ?? command.Payload;
+
+                    var commandResultTask = component.Type switch
                     {
                         ComponentType.Environment => DeployEnvironmentAsync(context, command, log),
-                        _ => throw new NotSupportedException($"Component of type '{command.Payload.Type}' is not supported.")
+                        _ => throw new NotSupportedException($"Component of type '{component.Type}' is not supported.")
                     };
 
                     commandResult = await commandResultTask.ConfigureAwait(true);

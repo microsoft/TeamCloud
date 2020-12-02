@@ -7,8 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Schema;
 using Octokit;
 using Octokit.Internal;
 using TeamCloud.Git.Caching;
@@ -40,39 +40,6 @@ namespace TeamCloud.Git.Services
                 .WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
         }
 
-        // internal async Task<ProjectTemplate> GetProjectTemplateAsync(RepositoryReference repository)
-        // {
-        //     if (repository is null)
-        //         throw new ArgumentNullException(nameof(repository));
-
-        //     if (!string.IsNullOrEmpty(repository.Token))
-        //         client.Credentials = new Credentials(repository.Token);
-
-        //     var trees = await client.Git.Tree
-        //         .GetRecursive(repository.Organization, repository.Repository, repository.Ref)
-        //         .ConfigureAwait(false);
-
-        //     var template = await GetProjectTemplateAsync(repository, trees.Tree)
-        //         .ConfigureAwait(false);
-
-        //     return template;
-        // }
-
-        // private async Task<ProjectTemplate> GetProjectTemplateAsync(RepositoryReference repo, IReadOnlyList<TreeItem> tree)
-        // {
-        //     var projectYamlFile = await client.Repository.Content
-        //         .GetAllContents(repo.Organization, repo.Repository, Constants.ProjectYaml)
-        //         .ConfigureAwait(false);
-
-        //     var projectYaml = yamlDeserializer.Deserialize<ProjectYaml>(projectYamlFile.First().Content);
-
-        //     projectYaml.Description = await CheckAndPopulateFileContentAsync(repo, tree, projectYaml.Description)
-        //         .ConfigureAwait(false);
-
-        //     return projectYaml.ToProjectTemplate(repo);
-        // }
-
-
         internal async Task<ProjectTemplate> UpdateProjectTemplateAsync(ProjectTemplate projectTemplate)
         {
             if (projectTemplate is null)
@@ -83,32 +50,24 @@ namespace TeamCloud.Git.Services
             if (!string.IsNullOrEmpty(repository.Token))
                 client.Credentials = new Credentials(repository.Token);
 
-            var trees = await client.Git.Tree
-                .GetRecursive(repository.Organization, repository.Repository, repository.Ref)
-                .ConfigureAwait(false);
-
-            return await UpdateProjectTemplateAsync(projectTemplate, trees.Tree)
-                .ConfigureAwait(false);
-        }
-
-        private async Task<ProjectTemplate> UpdateProjectTemplateAsync(ProjectTemplate projectTemplate, IReadOnlyList<TreeItem> tree)
-        {
-            var repository = projectTemplate.Repository;
-
             var projectYamlFile = await client.Repository.Content
                 .GetAllContents(repository.Organization, repository.Repository, Constants.ProjectYaml)
                 .ConfigureAwait(false);
 
             var projectYaml = yamlDeserializer.Deserialize<ProjectYaml>(projectYamlFile.First().Content);
 
-            projectYaml.Description = await CheckAndPopulateFileContentAsync(repository, tree, projectYaml.Description)
+            var result = await client.Git.Tree
+                .GetRecursive(repository.Organization, repository.Repository, repository.Ref)
+                .ConfigureAwait(false);
+
+            projectYaml.Description = await CheckAndPopulateFileContentAsync(repository, result.Tree, projectYaml.Description)
                 .ConfigureAwait(false);
 
             return projectTemplate.UpdateFromYaml(projectYaml);
         }
 
 
-        internal async Task<List<ComponentTemplate>> GetComponentTemplatesAsync(ProjectTemplate projectTemplate)
+        internal async IAsyncEnumerable<ComponentTemplate> GetComponentTemplatesAsync(ProjectTemplate projectTemplate)
         {
             if (projectTemplate is null)
                 throw new ArgumentNullException(nameof(projectTemplate));
@@ -118,43 +77,33 @@ namespace TeamCloud.Git.Services
             if (!string.IsNullOrEmpty(repository.Token))
                 client.Credentials = new Credentials(repository.Token);
 
-            var trees = await client.Git.Tree
+            var result = await client.Git.Tree
                 .GetRecursive(repository.Organization, repository.Repository, repository.Ref)
                 .ConfigureAwait(false);
 
-            return await GetComponentTemplatesAsync(projectTemplate, trees.Tree)
-                .ConfigureAwait(false);
-        }
+            var componentTemplates = result.Tree
+                .Where(ti => ti.Path.EndsWith(Constants.ComponentYaml, StringComparison.Ordinal))
+                .Select(ti => ResolveComponentTemplate(ti))
+                .ToAsyncEnumerable();
 
-        private async Task<List<ComponentTemplate>> GetComponentTemplatesAsync(ProjectTemplate projectTemplate, IReadOnlyList<TreeItem> tree)
-        {
-            var repository = projectTemplate.Repository;
+            await foreach (var componentTemplate in componentTemplates)
+                yield return componentTemplate;
 
-            var componenetTemplates = new List<ComponentTemplate>();
-
-            var componentItems = tree.Where(t => t.Path.EndsWith(Constants.ComponentYaml, StringComparison.Ordinal));
-
-            foreach (var componentItem in componentItems)
+            async Task<ComponentTemplate> ResolveComponentTemplate(TreeItem componentItem)
             {
-                var folder = componentItem.Path.Split(Constants.ComponentYaml).First().TrimEnd('/');
-
                 var componentFiles = await client.Repository.Content
                     .GetAllContents(repository.Organization, repository.Repository, componentItem.Path)
                     .ConfigureAwait(false);
 
                 var componentYaml = yamlDeserializer.Deserialize<ComponentYaml>(componentFiles.First().Content);
 
-                componentYaml.Description = await CheckAndPopulateFileContentAsync(repository, tree, componentYaml.Description, folder)
+                var folder = Regex.Replace(componentItem.Path, $"/{Constants.ComponentYaml}$", string.Empty, RegexOptions.IgnoreCase);
+
+                componentYaml.Description = await CheckAndPopulateFileContentAsync(repository, result.Tree, componentYaml.Description, folder)
                     .ConfigureAwait(false);
 
-                foreach (var parameter in componentYaml.Parameters.Where(p => p.Type == JSchemaType.String))
-                    parameter.Value = await CheckAndPopulateFileContentAsync(repository, tree, parameter.StringValue, folder)
-                        .ConfigureAwait(false);
-
-                componenetTemplates.Add(componentYaml.ToComponentTemplate(projectTemplate, folder));
+                return componentYaml.ToTemplate(projectTemplate, folder);
             }
-
-            return componenetTemplates;
         }
 
 
@@ -204,47 +153,50 @@ namespace TeamCloud.Git.Services
             // use latest release
             if (string.IsNullOrEmpty(repository.Version))
             {
-                var latest = await client
+                var releases = await client
                     .Repository
                     .Release
-                    .GetLatest(repository.Organization, repository.Repository)
+                    .GetAll(repository.Organization, repository.Repository)
                     .ConfigureAwait(false);
 
-                if (latest?.TagName is null)
+                if (!releases.Any())
                     throw new NotFoundException("No releases found", System.Net.HttpStatusCode.NotFound);
 
-                repository.Version = latest.TagName;
+                repository.Version = releases
+                    .OrderByDescending(rel => rel.CreatedAt)
+                    .First()
+                    .TagName;
             }
 
-            try
+            var references = await client.Git.Reference
+                .GetAll(repository.Organization, repository.Repository)
+                .ConfigureAwait(false);
+
+            var reference = references
+                .FirstOrDefault(r => r.Ref == Constants.BranchRef(repository.Version) || r.Ref == Constants.TagRef(repository.Version));
+
+            switch (reference?.Ref)
             {
-                var tag = await client.Git.Reference
-                    .Get(repository.Organization, repository.Repository, Constants.TagRef(repository.Version))
-                    .ConfigureAwait(false);
+                case string branchVersion when branchVersion == Constants.BranchRef(repository.Version):
 
-                repository.Ref = tag.Object?.Sha ?? Constants.TagRef(repository.Version);
-                repository.Type = RepositoryReferenceType.Tag;
-
-                return repository;
-            }
-            catch (NotFoundException)
-            {
-                try
-                {
-                    var branch = await client.Git.Reference
-                        .Get(repository.Organization, repository.Repository, Constants.BranchRef(repository.Version))
-                        .ConfigureAwait(false);
-
-                    repository.Ref = branch.Object?.Sha ?? Constants.BranchRef(repository.Version);
+                    repository.Ref = reference.Object?.Sha ?? Constants.BranchRef(repository.Version);
                     repository.Type = RepositoryReferenceType.Branch;
 
-                    return repository;
-                }
-                catch (NotFoundException)
-                {
-                    throw;
-                }
+                    break;
+
+                case string tagVersion when tagVersion == Constants.TagRef(repository.Version):
+
+                    repository.Ref = reference.Object?.Sha ?? Constants.TagRef(repository.Version);
+                    repository.Type = RepositoryReferenceType.Tag;
+
+                    break;
+
+                default:
+
+                    throw new NotFoundException($"No branch/tag found by version {repository.Version}", System.Net.HttpStatusCode.NotFound);
             }
+
+            return repository;
         }
     }
 }

@@ -15,6 +15,6 @@ namespace TeamCloud.Git.Services
 
         Task<ProjectTemplate> UpdateProjectTemplateAsync(ProjectTemplate projectTemplate);
 
-        Task<List<ComponentTemplate>> GetComponentTemplatesAsync(ProjectTemplate projectTemplate);
+        IAsyncEnumerable<ComponentTemplate> GetComponentTemplatesAsync(ProjectTemplate projectTemplate);
     }
 }

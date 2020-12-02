@@ -41,6 +41,10 @@ namespace TeamCloud.Orchestrator.Handlers
                     .AddAsync(command.Payload)
                     .ConfigureAwait(false);
 
+                await commandQueue
+                    .AddAsync(new ComponentDeployCommand(command.User, command.Payload))
+                    .ConfigureAwait(false);
+
                 commandResult.RuntimeStatus = CommandRuntimeStatus.Completed;
             }
             catch (Exception exc)

@@ -92,7 +92,6 @@ namespace TeamCloud.Orchestrator
             builder.Services
                 .AddScoped<ICommandHandler, CommandOrchestrationHandler>()
                 .AddScoped<ICommandHandler, ComponentCommandHandler>()
-                .AddScoped<ICommandHandler, ComponentTemplateCommandHandler>()
                 .AddScoped<ICommandHandler, DeploymentScopeCommandHandler>()
                 .AddScoped<ICommandHandler, OrganizationCommandHandler>()
                 .AddScoped<ICommandHandler, OrganizationUserCommandHandler>()

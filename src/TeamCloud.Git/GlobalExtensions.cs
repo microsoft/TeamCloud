@@ -5,7 +5,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Schema;
 using TeamCloud.Git.Data;
 using TeamCloud.Model.Data;
@@ -35,6 +40,25 @@ namespace TeamCloud.Git
             }
 
             return repository;
+        }
+
+        internal static async IAsyncEnumerable<TSource> ToAsyncEnumerable<TSource>(this IEnumerable<Task<TSource>> source)
+        {
+            if (source is null)
+                throw new ArgumentNullException(nameof(source));
+
+            var tasks = source.ToList();
+
+            while (tasks.Any())
+            {
+                var result = await Task
+                    .WhenAny(tasks)
+                    .ConfigureAwait(false);
+
+                tasks.Remove(result);
+
+                yield return await result.ConfigureAwait(false);
+            }
         }
 
         private static RepositoryReference ParseGitHubUrl(this RepositoryReference repository)
@@ -108,6 +132,15 @@ namespace TeamCloud.Git
         internal static bool IsTag(this Microsoft.TeamFoundation.SourceControl.WebApi.GitRef gitRef)
             => gitRef?.Name?.StartsWith("refs/tags/", StringComparison.Ordinal) ?? throw new ArgumentNullException(nameof(gitRef));
 
+        internal static Guid ToGuid(this string value)
+        {
+            var buffer = Encoding.UTF8.GetBytes(value);
+
+            using var hasher = MD5.Create();
+
+            return new Guid(hasher.ComputeHash(buffer));
+        }
+
         internal static JSchema ToSchema(this IEnumerable<YamlParameter<dynamic>> parameters)
         {
             if (parameters is null)
@@ -142,7 +175,7 @@ namespace TeamCloud.Git
         }
 
 
-        internal static ComponentTemplate ToComponentTemplate(this ComponentYaml yaml, ProjectTemplate projectTemplate, string folder)
+        internal static ComponentTemplate ToTemplate(this ComponentYaml yaml, ProjectTemplate projectTemplate, string folder)
         {
             if (yaml is null)
                 throw new ArgumentNullException(nameof(yaml));
@@ -157,7 +190,7 @@ namespace TeamCloud.Git
 
             return new ComponentTemplate
             {
-                Id = Guid.NewGuid().ToString(),
+                Id = folder.ToGuid().ToString(),
                 Organization = projectTemplate.Organization,
                 ParentId = projectTemplate.Id,
                 Provider = yaml.Provider,
@@ -165,11 +198,11 @@ namespace TeamCloud.Git
                 Description = yaml.Description,
                 Repository = projectTemplate.Repository,
                 Type = yaml.Type,
-                InputJsonSchema = yaml.Parameters.ToSchema().ToString()
+                InputJsonSchema = yaml.Parameters.ToSchema().ToString(Formatting.None)
             };
         }
 
-        internal static ProjectTemplate ToProjectTemplate(this ProjectYaml yaml, RepositoryReference repo)
+        internal static ProjectTemplate ToTemplate(this ProjectYaml yaml, RepositoryReference repo)
         {
             if (yaml is null)
                 throw new ArgumentNullException(nameof(yaml));
@@ -179,12 +212,12 @@ namespace TeamCloud.Git
 
             return new ProjectTemplate
             {
-                Id = repo.Url,
+                Id = repo.Url.ToGuid().ToString(),
                 Repository = repo,
                 DisplayName = yaml.Name,
                 Description = yaml.Description,
                 Components = yaml.Components,
-                InputJsonSchema = yaml.Parameters.ToSchema().ToString()
+                InputJsonSchema = yaml.Parameters.ToSchema().ToString(Formatting.None)
             };
         }
 
@@ -199,11 +232,23 @@ namespace TeamCloud.Git
             template.Name = yaml.Name;
             template.Description = yaml.Description;
             template.Components = yaml.Components;
-            template.InputJsonSchema = yaml.Parameters.ToSchema().ToString();
+            template.InputJsonSchema = yaml.Parameters.ToSchema().ToString(Formatting.None);
 
             template.DisplayName ??= template.Name;
 
             return template;
+        }
+
+        internal static string ToString(this JSchema schema, Formatting formatting)
+        {
+            var sb = new StringBuilder();
+
+            using var sw = new StringWriter(sb);
+            using var jw = new JsonTextWriter(sw) { Formatting = formatting };
+
+            schema.WriteTo(jw);
+
+            return sb.ToString();
         }
     }
 }

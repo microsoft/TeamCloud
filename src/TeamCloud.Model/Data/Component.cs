@@ -12,7 +12,7 @@ using TeamCloud.Serialization;
 namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public sealed class Component : ContainerDocument, IOrganizationChild, IEquatable<Component>, IValidatable
+    public sealed class Component : ContainerDocument, IOrganizationChild, IEquatable<Component>, IValidatable, IResourceReference
     {
         /// <summary>
         /// Gets or sets a browsable link pointing to the component resource.
@@ -84,6 +84,17 @@ namespace TeamCloud.Model.Data
         /// Get or set the Azure resource ID (subscription or resource group) this component is linked to
         /// </summary>
         public string ResourceId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the state of the resource.
+        /// </summary>
+        public ResourceState ResourceState { get; set; } = ResourceState.Pending;
+
+        /// <summary>
+        /// Gets or sets the deployment scope identifier for this component
+        /// </summary>
+        public string DeploymentScopeId { get; set; }
+
 
         /// <summary>
         /// Indicates whether the current object is equal to another object of the same type.

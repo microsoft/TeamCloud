@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json.Linq;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Common;
 using TeamCloud.Model.Data;
@@ -232,6 +233,15 @@ namespace TeamCloud.Model.Validation
                     .WithMessage("'{PropertyName}' must be a valid, non-empty GUID.");
 
 
+
+        public static IRuleBuilderOptions<T, string> MustBeJson<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
+            => ruleBuilder
+                .Cascade(CascadeMode.Stop)
+                .NotEmpty()
+                .Must(BeJson)
+                    .WithMessage("'{PropertyName}' must be a valid JSON string.");
+
+
         public static IRuleBuilderOptions<T, string> MustBeUrl<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
             => ruleBuilder
                 .Cascade(CascadeMode.Stop)
@@ -297,6 +307,20 @@ namespace TeamCloud.Model.Validation
             => !string.IsNullOrEmpty(id)
             && Guid.TryParse(id, out var outGuid)
             && !outGuid.Equals(Guid.Empty);
+
+        private static bool BeJson(string json)
+        {
+            try
+            {
+                _ = JToken.Parse(json);
+            }
+            catch
+            {
+                return false;
+            }
+
+            return true;
+        }
 
         private static bool BeUrl(string url)
             => !string.IsNullOrEmpty(url)

@@ -6,152 +6,62 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
-using Microsoft.Azure.Cosmos;
-using TeamCloud.Data.CosmosDb.Core;
+using Microsoft.Extensions.Caching.Memory;
+using TeamCloud.Git.Services;
 using TeamCloud.Model.Data;
-using TeamCloud.Model.Validation;
 
 namespace TeamCloud.Data.CosmosDb
 {
-    public class CosmosDbComponentTemplateRepository : CosmosDbRepository<ComponentTemplate>, IComponentTemplateRepository
+    public class CosmosDbComponentTemplateRepository : IComponentTemplateRepository
     {
-        public CosmosDbComponentTemplateRepository(ICosmosDbOptions cosmosOptions)
-            : base(cosmosOptions)
-        { }
+        private readonly IRepositoryService repositoryService;
+        private readonly IProjectRepository projectRepository;
+        private readonly IProjectTemplateRepository projectTemplateRepository;
+        private readonly IMemoryCache cache;
 
-        public async Task<ComponentTemplate> AddAsync(ComponentTemplate componentTemplate)
+        public CosmosDbComponentTemplateRepository(IRepositoryService repositoryService, IProjectRepository projectRepository, IProjectTemplateRepository projectTemplateRepository, IMemoryCache cache)
         {
-            if (componentTemplate is null)
-                throw new ArgumentNullException(nameof(componentTemplate));
-
-            await componentTemplate
-                .ValidateAsync(throwOnValidationError: true)
-                .ConfigureAwait(false);
-
-            var container = await GetContainerAsync()
-                .ConfigureAwait(false);
-
-            var response = await container
-                .CreateItemAsync(componentTemplate, GetPartitionKey(componentTemplate))
-                .ConfigureAwait(false);
-
-            return response.Resource;
+            this.repositoryService = repositoryService ?? throw new ArgumentNullException(nameof(repositoryService));
+            this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
+            this.projectTemplateRepository = projectTemplateRepository ?? throw new ArgumentNullException(nameof(projectTemplateRepository));
+            this.cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }
 
-        public async Task<ComponentTemplate> GetAsync(string organization, string id)
+        private Task<string> GetTemplateIdAsync(string organization, string projectId)
         {
-            var container = await GetContainerAsync()
-                .ConfigureAwait(false);
+            var cacheKey = $"{this.GetType().Name}|{organization}|{projectId}";
 
-            try
+            return cache.GetOrCreateAsync(cacheKey, async (entry) =>
             {
-                var response = await container
-                    .ReadItemAsync<ComponentTemplate>(id, GetPartitionKey(organization))
+                entry.SetSlidingExpiration(TimeSpan.FromMinutes(5));
+
+                var project = await projectRepository
+                    .GetAsync(organization, projectId)
                     .ConfigureAwait(false);
 
-                return response.Resource;
-            }
-            catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
-            {
-                return null;
-            }
+                return project.Template;
+            });
         }
 
-        public async Task<ComponentTemplate> SetAsync(ComponentTemplate componentTemplate)
+        public async Task<ComponentTemplate> GetAsync(string organization, string projectId, string id)
         {
-            if (componentTemplate is null)
-                throw new ArgumentNullException(nameof(componentTemplate));
-
-            await componentTemplate
-                .ValidateAsync(throwOnValidationError: true)
+            return await ListAsync(organization, projectId)
+                .FirstOrDefaultAsync(ct => ct.Id.Equals(id, StringComparison.OrdinalIgnoreCase))
                 .ConfigureAwait(false);
-
-            var container = await GetContainerAsync()
-                .ConfigureAwait(false);
-
-            var response = await container
-                .UpsertItemAsync(componentTemplate, GetPartitionKey(componentTemplate))
-                .ConfigureAwait(false);
-
-            return response.Resource;
         }
 
-        public IAsyncEnumerable<ComponentTemplate> ListAsync(string organization)
-            => ListWithQueryAsync(organization, $"SELECT * FROM o");
-
-        public IAsyncEnumerable<ComponentTemplate> ListAsync(string organization, string parentId)
-            => ListWithQueryAsync(organization, $"SELECT * FROM o WHERE o.parentId = '{parentId}'");
-
-        public IAsyncEnumerable<ComponentTemplate> ListAsync(string organization, IEnumerable<string> parentIds)
+        public async IAsyncEnumerable<ComponentTemplate> ListAsync(string organization, string projectId)
         {
-            var search = "'" + string.Join("', '", parentIds) + "'";
-            return ListWithQueryAsync(organization, $"SELECT * FROM o WHERE o.parentId IN ({search})");
-        }
-
-        private async IAsyncEnumerable<ComponentTemplate> ListWithQueryAsync(string organization, string queryString)
-        {
-            var container = await GetContainerAsync()
+            var templateId = await GetTemplateIdAsync(organization, projectId)
                 .ConfigureAwait(false);
 
-            var query = new QueryDefinition(queryString);
-
-            var queryIterator = container
-                .GetItemQueryIterator<ComponentTemplate>(query, requestOptions: GetQueryRequestOptions(organization));
-
-            while (queryIterator.HasMoreResults)
-            {
-                var queryResponse = await queryIterator
-                    .ReadNextAsync()
-                    .ConfigureAwait(false);
-
-                foreach (var queryResult in queryResponse)
-                    yield return queryResult;
-            }
-        }
-
-        public async Task<ComponentTemplate> RemoveAsync(ComponentTemplate componentTemplate)
-        {
-            if (componentTemplate is null)
-                throw new ArgumentNullException(nameof(componentTemplate));
-
-            var container = await GetContainerAsync()
+            var projectTemplate = await projectTemplateRepository
+                .GetAsync(organization, templateId)
                 .ConfigureAwait(false);
 
-            try
-            {
-                var response = await container
-                    .DeleteItemAsync<ComponentTemplate>(componentTemplate.Id, GetPartitionKey(componentTemplate))
-                    .ConfigureAwait(false);
-
-                return response.Resource;
-            }
-            catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
-            {
-                return null; // already deleted
-            }
-        }
-
-        public async Task RemoveAllAsync(string organization, string parentId)
-        {
-            var templates = ListAsync(organization, parentId);
-
-            if (await templates.AnyAsync().ConfigureAwait(false))
-            {
-                var container = await GetContainerAsync()
-                    .ConfigureAwait(false);
-
-                var batch = container
-                    .CreateTransactionalBatch(GetPartitionKey(organization));
-
-                await foreach (var template in templates.ConfigureAwait(false))
-                    batch = batch.DeleteItem(template.Id);
-
-                await batch
-                    .ExecuteAsync()
-                    .ConfigureAwait(false);
-            }
+            await foreach (var componentTemplate in repositoryService.GetComponentTemplatesAsync(projectTemplate))
+                yield return componentTemplate;
         }
     }
 }

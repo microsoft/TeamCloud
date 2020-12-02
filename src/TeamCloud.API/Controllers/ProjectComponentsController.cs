@@ -14,12 +14,14 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema;
 using Swashbuckle.AspNetCore.Annotations;
 using TeamCloud.API.Auth;
+using TeamCloud.API.Data;
 using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
 using TeamCloud.Git.Services;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
+using TeamCloud.Model.Validation;
 using ValidationError = TeamCloud.API.Data.Results.ValidationError;
 
 namespace TeamCloud.API.Controllers
@@ -31,12 +33,22 @@ namespace TeamCloud.API.Controllers
     {
         private readonly IComponentRepository componentRepository;
         private readonly IComponentTemplateRepository componentTemplateRepository;
+        private readonly IDeploymentScopeRepository deploymentScopeRepository;
 
-        public ProjectComponentsController(UserService userService, Orchestrator orchestrator, IOrganizationRepository organizationRepository, IProjectRepository projectRepository, IProjectTemplateRepository projectTemplateRepository, IRepositoryService repositoryService, IComponentRepository componentRepository, IComponentTemplateRepository componentTemplateRepository)
+        public ProjectComponentsController(UserService userService,
+                                           Orchestrator orchestrator,
+                                           IOrganizationRepository organizationRepository,
+                                           IProjectRepository projectRepository,
+                                           IProjectTemplateRepository projectTemplateRepository,
+                                           IRepositoryService repositoryService,
+                                           IComponentRepository componentRepository,
+                                           IComponentTemplateRepository componentTemplateRepository,
+                                           IDeploymentScopeRepository deploymentScopeRepository)
             : base(userService, orchestrator, organizationRepository, projectRepository, projectTemplateRepository, repositoryService)
         {
             this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
             this.componentTemplateRepository = componentTemplateRepository ?? throw new ArgumentNullException(nameof(componentTemplateRepository));
+            this.deploymentScopeRepository = deploymentScopeRepository ?? throw new ArgumentNullException(nameof(deploymentScopeRepository));
         }
 
 
@@ -96,34 +108,49 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status409Conflict, "A Project Component already exists with the id provided in the request body.", typeof(ErrorResult))]
-        public Task<IActionResult> Post([FromBody] ComponentRequest request) => EnsureProjectAndProjectTemplateAsync(async (project, projectTemplate) =>
+        public Task<IActionResult> Post([FromBody] ProjectComponentDefinition componentDefinition) => EnsureProjectAndProjectTemplateAsync(async (project, projectTemplate) =>
         {
-            if (request is null)
+            if (componentDefinition is null)
                 return ErrorResult
                     .BadRequest($"The request body must not be EMPTY.", ResultErrorCode.ValidationError)
                     .ToActionResult();
 
-            // if (!component.TryValidate(out var validationResult, serviceProvider: HttpContext.RequestServices))
-            //     return ErrorResult
-            //         .BadRequest(validationResult)
-            //         .ToActionResult();
+            if (!componentDefinition.TryValidate(out var validationResult, serviceProvider: HttpContext.RequestServices))
+                return ErrorResult
+                    .BadRequest(validationResult)
+                    .ToActionResult();
 
             var componentTemplate = await componentTemplateRepository
-                .GetAsync(OrgId, request.TemplateId)
+                .GetAsync(OrgId, ProjectId, componentDefinition.TemplateId)
                 .ConfigureAwait(false);
 
             if (componentTemplate is null || !componentTemplate.ParentId.Equals(projectTemplate.Id, StringComparison.OrdinalIgnoreCase))
                 return ErrorResult
-                    .NotFound($"A ComponentTemplate with the id '{request.TemplateId}' could not be found for Project {project.Id}.")
+                    .NotFound($"A ComponentTemplate with the id '{componentDefinition.TemplateId}' could not be found for Project {project.Id}.")
                     .ToActionResult();
 
-            var input = JObject.Parse(request.InputJson);
-            var schema = JSchema.Parse(componentTemplate.InputJsonSchema);
+            if (!string.IsNullOrWhiteSpace(componentDefinition.InputJson))
+            {
+                var input = JObject.Parse(componentDefinition.InputJson);
+                var schema = JSchema.Parse(componentTemplate.InputJsonSchema);
 
-            if (!input.IsValid(schema, out IList<string> schemaErrors))
-                return ErrorResult
-                    .BadRequest(new ValidationError { Field = "input", Message = $"ComponentRequest's input does not match the the Component Templates inputJsonSchema.  Errors: {string.Join(", ", schemaErrors)}." })
-                    .ToActionResult();
+                if (!input.IsValid(schema, out IList<string> schemaErrors))
+                    return ErrorResult
+                        .BadRequest(new ValidationError { Field = "input", Message = $"ComponentRequest's input does not match the the Component Templates inputJsonSchema.  Errors: {string.Join(", ", schemaErrors)}." })
+                        .ToActionResult();
+            }
+
+            if (Guid.TryParse(componentDefinition.DeploymentScopeId, out Guid deploymentScopeId))
+            {
+                var deploymentScope = await deploymentScopeRepository
+                    .GetAsync(OrgId, deploymentScopeId.ToString())
+                    .ConfigureAwait(false);
+
+                if (deploymentScope is null)
+                    return ErrorResult
+                        .NotFound($"A DeploymentScope with the id '{deploymentScopeId}' could not be found for Project {project.Id}.")
+                        .ToActionResult();
+            }
 
             var currentUser = await UserService
                 .CurrentUserAsync(OrgId)
@@ -132,12 +159,13 @@ namespace TeamCloud.API.Controllers
             var component = new Component
             {
                 TemplateId = componentTemplate.Id,
+                DeploymentScopeId = componentDefinition.DeploymentScopeId,
                 Organization = project.Organization,
                 ProjectId = project.Id,
                 Provider = componentTemplate.Provider,
                 RequestedBy = currentUser.Id,
                 DisplayName = componentTemplate.DisplayName,
-                InputJson = request.InputJson,
+                InputJson = componentDefinition.InputJson,
                 Type = componentTemplate.Type
             };
 
