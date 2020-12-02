@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { Route, Switch } from 'react-router-dom';
-import { Error404, NewComponentView, NewOrgView, NewProjectView, ProjectView, ProjectsView, OrgSettingsView, ProjectSettingsView } from '.';
+import { Error404, NewOrgView, NewProjectView, ProjectView, ProjectsView, OrgSettingsView, ProjectSettingsView } from '.';
 
 export const ContentView: React.FC = () => (
     <Switch>
@@ -34,12 +34,10 @@ export const ContentView: React.FC = () => (
         </Route>
         <Route exact path={[
             '/orgs/:orgId/projects/:projectId',
-            '/orgs/:orgId/projects/:projectId/:navId'
+            '/orgs/:orgId/projects/:projectId/:navId',
+            '/orgs/:orgId/projects/:projectId/:navId/new'
         ]}>
             <ProjectView />
-        </Route>
-        <Route exact path='/orgs/:orgId/projects/:projectId/components/new'>
-            <NewComponentView />
         </Route>
         <Route path='*'>
             <Error404 />

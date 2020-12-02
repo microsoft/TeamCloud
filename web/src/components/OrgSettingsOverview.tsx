@@ -24,7 +24,6 @@ export const OrgSettingsOverview: React.FC<IOrgSettingsOverviewProps> = (props) 
     useEffect(() => {
         if (members && owner === undefined) {
             const find = members?.find(m => m.user.role.toLowerCase() === 'admin');
-            console.log(`setOwner (${find})`);
             setOwner(find);
         }
     }, [members, owner])

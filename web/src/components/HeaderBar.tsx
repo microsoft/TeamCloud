@@ -4,8 +4,11 @@
 import React from 'react';
 import { Stack, getTheme, Link } from '@fluentui/react';
 import { HeaderBreadcrumb, UserInfo } from '.';
+import { useHistory } from 'react-router-dom';
 
 export const HeaderBar: React.FC = () => {
+
+    const history = useHistory();
 
     const theme = getTheme();
 
@@ -20,7 +23,7 @@ export const HeaderBar: React.FC = () => {
                 <Stack.Item>
                     <Stack horizontal verticalFill verticalAlign='center'>
                         <Stack.Item styles={{ root: { width: '260px' } }}>
-                            <Link styles={{ root: { fontWeight: 'bold', paddingLeft: '12px', color: theme.palette.themePrimary, fontSize: theme.fonts.mediumPlus.fontSize } }} href='/'>TeamCloud</Link>
+                            <Link styles={{ root: { fontWeight: 'bold', paddingLeft: '12px', color: theme.palette.themePrimary, fontSize: theme.fonts.mediumPlus.fontSize } }} onClick={() => history.push('/')}>TeamCloud</Link>
                         </Stack.Item>
                         <Stack.Item styles={{ root: { paddingLeft: '12px' } }}>
                             <HeaderBreadcrumb />

@@ -56,7 +56,6 @@ export const ComponentList: React.FC = () => {
             noDataDescription='Components are project resources like cloud environments'
             noDataButtonText='Create component'
             noDataButtonIcon='Add'
-            onNoDataButtonClick={() => history.push(`/orgs/${orgId}/projects/${projectId}/components/new`)}
-        />
+            onNoDataButtonClick={() => history.push(`/orgs/${orgId}/projects/${projectId}/components/new`)} />
     );
 }

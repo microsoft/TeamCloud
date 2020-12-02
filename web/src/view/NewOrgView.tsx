@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Stack, TextField, Dropdown, IDropdownOption, Text, PrimaryButton, DefaultButton, IconButton, Pivot, PivotItem, ComboBox, ChoiceGroup, Label, IComboBoxOption, IComboBox } from '@fluentui/react';
-import { OrganizationDefinition, DeploymentScopeDefinition, ProjectTemplateDefinition, Organization } from 'teamcloud'
+import { OrganizationDefinition, DeploymentScopeDefinition, ProjectTemplateDefinition } from 'teamcloud'
 import { getManagementGroups, getSubscriptions } from '../Azure'
 import { AzureRegions, Tags } from '../model';
 import { ContentContainer, ContentHeader, ContentProgress, OrgSettingsDetail } from '../components';

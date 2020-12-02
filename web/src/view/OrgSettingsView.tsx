@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect, useContext } from 'react';
-import { Route, useHistory, useParams } from 'react-router-dom';
+import { Route, useHistory, useLocation, useParams } from 'react-router-dom';
 import { IconButton, Stack } from '@fluentui/react';
 import { useIsAuthenticated } from '@azure/msal-react';
 import { DeploymentScope, DeploymentScopeDefinition, ProjectTemplate, ProjectTemplateDefinition, UserDefinition } from 'teamcloud';
@@ -15,6 +15,7 @@ import { OrgContext } from '../Context';
 
 export const OrgSettingsView: React.FC = () => {
 
+    const location = useLocation();
     const history = useHistory();
 
     const isAuthenticated = useIsAuthenticated();
@@ -49,7 +50,7 @@ export const OrgSettingsView: React.FC = () => {
 
 
     useEffect(() => {
-        if (isAuthenticated && org && settingId?.toLowerCase() === 'scopes' && scopes === undefined) {
+        if (isAuthenticated && org && settingId?.toLowerCase() === 'scopes' && !location.pathname.toLowerCase().endsWith('/new') && scopes === undefined) {
             const _setScopes = async () => {
                 console.log(`setDeploymentScopes (${org.slug})`);
                 let _scopes = await api.getDeploymentScopes(org.id);
@@ -57,11 +58,11 @@ export const OrgSettingsView: React.FC = () => {
             };
             _setScopes();
         }
-    }, [isAuthenticated, org, settingId, scopes]);
+    }, [isAuthenticated, org, scopes, settingId, location]);
 
 
     useEffect(() => {
-        if (isAuthenticated && org && settingId?.toLowerCase() === 'templates' && templates === undefined) {
+        if (isAuthenticated && org && settingId?.toLowerCase() === 'templates' && !location.pathname.toLowerCase().endsWith('/new') && templates === undefined) {
             const _setTemplates = async () => {
                 console.log(`setProjectTemplates (${org.slug})`);
                 let _templates = await api.getProjectTemplates(org.id);
@@ -69,11 +70,11 @@ export const OrgSettingsView: React.FC = () => {
             };
             _setTemplates();
         }
-    }, [isAuthenticated, org, settingId, templates]);
+    }, [isAuthenticated, org, templates, settingId, location]);
 
 
     useEffect(() => {
-        if (isAuthenticated && org && settingId?.toLowerCase() === 'scopes' && history.location.pathname.toLowerCase().endsWith('/new') && subscriptions === undefined) {
+        if (isAuthenticated && org && settingId?.toLowerCase() === 'scopes' && location.pathname.toLowerCase().endsWith('/new') && subscriptions === undefined) {
             const _setSubscriptions = async () => {
                 console.log(`setSubscriptions (${org.slug})`);
                 try {
@@ -85,11 +86,11 @@ export const OrgSettingsView: React.FC = () => {
             };
             _setSubscriptions();
         }
-    }, [isAuthenticated, history, org, settingId, subscriptions]);
+    }, [isAuthenticated, org, subscriptions, settingId, location]);
 
 
     useEffect(() => {
-        if (isAuthenticated && org && settingId?.toLowerCase() === 'scopes' && history.location.pathname.toLowerCase().endsWith('/new') && managementGroups === undefined) {
+        if (isAuthenticated && org && settingId?.toLowerCase() === 'scopes' && location.pathname.toLowerCase().endsWith('/new') && managementGroups === undefined) {
             const _setManagementGroups = async () => {
                 console.log(`setManagementGroups (${org.slug})`);
                 try {
@@ -101,7 +102,7 @@ export const OrgSettingsView: React.FC = () => {
             };
             _setManagementGroups();
         }
-    }, [isAuthenticated, history, org, settingId, managementGroups]);
+    }, [isAuthenticated, org, managementGroups, settingId, location]);
 
 
     const onCreateDeploymentScope = async (scope: DeploymentScopeDefinition) => {

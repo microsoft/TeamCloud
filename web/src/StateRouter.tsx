@@ -42,7 +42,7 @@ export interface IStateRouterContainerProps { }
 
 export const StateRouterContainer: React.FC<IStateRouterContainerProps> = (props) => {
 
-    const { orgId, projectId, navId, settingId } = useParams() as { orgId: string, projectId: string, navId: string, settingId: string };
+    const { orgId, projectId } = useParams() as { orgId: string, projectId: string, navId: string, settingId: string };
 
     const { org, orgs, onOrgSelected, project, projects, onProjectSelected } = useContext(OrgContext);
 
@@ -57,8 +57,11 @@ export const StateRouterContainer: React.FC<IStateRouterContainerProps> = (props
                     onOrgSelected(find);
                 }
             }
+        } else if (org) {
+            console.log(`setOrg (undefined)`);
+            onOrgSelected(undefined);
         }
-    }, [orgId, org, orgs]);
+    }, [orgId, org, orgs, onOrgSelected]);
 
     useEffect(() => {
         if (projectId) {
@@ -71,8 +74,11 @@ export const StateRouterContainer: React.FC<IStateRouterContainerProps> = (props
                     onProjectSelected(find);
                 }
             }
+        } else if (project) {
+            console.log(`setProject (undefined)`);
+            onProjectSelected(undefined);
         }
-    }, [projectId, project, projects]);
+    }, [projectId, project, projects, onProjectSelected]);
 
     return <>{props.children}</>;
 }

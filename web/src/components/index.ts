@@ -1,8 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-export * from './ComponentsCard'
+export * from './ComponentForm'
 export * from './ComponentList'
+export * from './ComponentsCard'
 export * from './ContentContainer'
 export * from './ContentHeader'
 export * from './ContentList'
