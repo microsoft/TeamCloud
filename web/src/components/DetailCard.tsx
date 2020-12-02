@@ -23,13 +23,13 @@ export const DetailCard: React.FC<IDetailCardProps> = (props) => {
             boxShadow: theme.effects.elevation4,
             backgroundColor: theme.palette.white
         }
-    }
+    };
 
     const _cardStackContentStyles: IStackStyles = {
         root: {
             padding: '0 20px',
         }
-    }
+    };
 
     const _titleStyles: ITextStyles = {
         root: {
@@ -37,7 +37,7 @@ export const DetailCard: React.FC<IDetailCardProps> = (props) => {
             fontWeight: FontWeights.semibold,
             marginBottom: '12px'
         }
-    }
+    };
 
     const _calloutStyles: ITextStyles = {
         root: {
@@ -50,7 +50,7 @@ export const DetailCard: React.FC<IDetailCardProps> = (props) => {
             padding: '2px 12px',
             borderRadius: '14px',
         }
-    }
+    };
 
     const _commandBarStyles: ICommandBarStyles = {
         root: {
@@ -59,7 +59,7 @@ export const DetailCard: React.FC<IDetailCardProps> = (props) => {
             padding: '0px',
             // minWidth: '150px',
         }
-    }
+    };
 
     const _getCallout = (): JSX.Element | null => props.callout ? <Text styles={_calloutStyles}>{props.callout}</Text> : null;
 

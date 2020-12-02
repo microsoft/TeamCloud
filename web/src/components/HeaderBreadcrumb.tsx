@@ -1,17 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React from 'react';
-import { useHistory, useParams } from 'react-router-dom';
+import React, { useContext } from 'react';
+import { useHistory, useLocation, useParams } from 'react-router-dom';
 import { Text, Breadcrumb, IBreadcrumbItem } from '@fluentui/react';
+import { OrgContext } from '../Context';
 
-export interface IHeaderBreadcrumbProps { }
+export const HeaderBreadcrumb: React.FC = () => {
 
-export const HeaderBreadcrumb: React.FC<IHeaderBreadcrumbProps> = (props) => {
+    const location = useLocation();
+    const history = useHistory();
+    const { orgId, projectId, navId, settingId } = useParams() as { orgId: string, projectId: string, navId: string, settingId: string };
 
-    let history = useHistory();
-
-    let { orgId, projectId, navId, settingId } = useParams() as { orgId: string, projectId: string, navId: string, settingId: string };
+    const { orgs, projects } = useContext(OrgContext);
 
     const _breadcrumbs = (): IBreadcrumbItem[] => {
         const crumbs: IBreadcrumbItem[] = [];
@@ -20,25 +21,31 @@ export const HeaderBreadcrumb: React.FC<IHeaderBreadcrumbProps> = (props) => {
             return crumbs;
 
         const orgPath = `/orgs/${orgId}`;
-        const orgCrumb = { key: orgId, text: orgId, onClick: () => history.push(orgPath) };
+        const orgName = orgs?.find(o => o.id.toLowerCase() === orgId.toLowerCase() || o.slug.toLowerCase() === orgId.toLowerCase())?.displayName ?? orgId;
+        const orgCrumb = { key: orgId, text: orgName, onClick: () => history.push(orgPath) };
 
-        if (history.location.pathname.endsWith('/projects/new')) {
+        if (location.pathname.toLowerCase().endsWith('/projects/new')) {
 
-            // Org / New Project
+            // Org / Projects / New Project
+            crumbs.push({ key: 'projects', text: 'Projects', onClick: () => history.push(orgPath) });
             crumbs.push({ key: 'new', text: 'New Project' });
 
         } else if (projectId !== undefined) {
 
             // Org / Projects / Project
+            const projectName = projects?.find(p => p.id.toLowerCase() === projectId.toLowerCase() || p.slug.toLowerCase() === projectId.toLowerCase())?.displayName ?? projectId;
             crumbs.push({ key: 'projects', text: 'Projects', onClick: () => history.push(orgPath) });
-            crumbs.push({ key: projectId, text: projectId, onClick: () => history.push(`${orgPath}/projects/${projectId}`) });
+            crumbs.push({ key: projectId, text: projectName, onClick: () => history.push(`${orgPath}/projects/${projectId}`) });
 
             // Org / Projects / Project / Category
-            if (navId !== undefined)
+            if (navId !== undefined) {
                 crumbs.push({ key: navId, text: navId, onClick: () => history.push(`${orgPath}/projects/${projectId}/${navId}`) });
+                if (location.pathname.toLowerCase().endsWith('/new'))
+                    crumbs.push({ key: 'new', text: `New ${navId.slice(0, -1)}` });
+            }
         }
 
-        if (history.location.pathname.includes('/settings')) {
+        if (location.pathname.toLowerCase().includes('/settings')) {
 
             // Org / Settings
             // Org / Projects / Project / Settings
@@ -47,11 +54,15 @@ export const HeaderBreadcrumb: React.FC<IHeaderBreadcrumbProps> = (props) => {
 
             // Org / Settings / Setting
             // Org / Projects / Project / Settings / Setting
-            if (settingId !== undefined)
+            if (settingId !== undefined) {
                 crumbs.push({ key: settingId, text: settingId, onClick: () => history.push(`${settingPath}/${settingId}`) });
+                if (projectId === undefined && location.pathname.toLowerCase().endsWith('/new'))
+                    crumbs.push({ key: 'new', text: `New ${settingId.slice(0, -1)}` });
+            }
         }
 
-        // never only show the org
+        // check for any crumbs before adding the org
+        // so we never only show the org crumb
         if (crumbs.length > 0)
             crumbs.unshift(orgCrumb);
 

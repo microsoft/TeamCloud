@@ -38,7 +38,7 @@ namespace TeamCloud.Orchestrator.Handlers
             try
             {
                 commandResult.Result = await userRepository
-                    .AddAsync(command.Payload)
+                    .SetAsync(command.Payload)
                     .ConfigureAwait(false);
 
                 commandResult.RuntimeStatus = CommandRuntimeStatus.Completed;

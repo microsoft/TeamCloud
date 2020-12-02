@@ -1,59 +1,29 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useEffect, useState } from 'react';
-import { useIsAuthenticated } from '@azure/msal-react';
-import { ITextStyles, Stack, getTheme, IStackStyles, Link } from '@fluentui/react';
-import { getMe } from '../MSGraph';
-import { GraphUser } from '../model';
+import React from 'react';
+import { Stack, getTheme, Link } from '@fluentui/react';
 import { HeaderBreadcrumb, UserInfo } from '.';
+import { useHistory } from 'react-router-dom';
 
-export interface IHeaderBarProps { }
+export const HeaderBar: React.FC = () => {
 
-export const HeaderBar: React.FC<IHeaderBarProps> = (props) => {
-
-    const isAuthenticated = useIsAuthenticated();
-
-    const [graphUser, setGraphUser] = useState<GraphUser>();
-
-    useEffect(() => {
-        if (isAuthenticated && graphUser === undefined) {
-            const _setGraphUser = async () => {
-                const result = await getMe();
-                setGraphUser(result);
-            };
-            _setGraphUser();
-        }
-    }, [isAuthenticated, graphUser]);
+    const history = useHistory();
 
     const theme = getTheme();
 
-    const stackStyles: IStackStyles = {
-        root: {
-            height: '48px',
-            borderBottom: `${theme.palette.neutralLight} solid 1px`
-        }
-    };
-
-    const titleStyles: ITextStyles = {
-        root: {
-            fontWeight: 'bold',
-            paddingLeft: '12px',
-            color: theme.palette.themePrimary,
-            fontSize: theme.fonts.mediumPlus.fontSize
-        }
-    };
-
-
     return (
         <header>
-            <Stack horizontal verticalFill verticalAlign='center' horizontalAlign='space-between' styles={stackStyles}>
+            <Stack
+                horizontal
+                verticalFill
+                verticalAlign='center'
+                horizontalAlign='space-between'
+                styles={{ root: { height: '48px', borderBottom: `${theme.palette.neutralLight} solid 1px` } }}>
                 <Stack.Item>
                     <Stack horizontal verticalFill verticalAlign='center'>
                         <Stack.Item styles={{ root: { width: '260px' } }}>
-                            <Link styles={titleStyles} href='/'>
-                                TeamCloud
-                            </Link>
+                            <Link styles={{ root: { fontWeight: 'bold', paddingLeft: '12px', color: theme.palette.themePrimary, fontSize: theme.fonts.mediumPlus.fontSize } }} onClick={() => history.push('/')}>TeamCloud</Link>
                         </Stack.Item>
                         <Stack.Item styles={{ root: { paddingLeft: '12px' } }}>
                             <HeaderBreadcrumb />
@@ -61,11 +31,7 @@ export const HeaderBar: React.FC<IHeaderBarProps> = (props) => {
                     </Stack>
                 </Stack.Item>
                 <Stack.Item>
-                    <UserInfo
-                        // user={props.user}
-                        graphUser={graphUser}
-                    // onSignOut={onSignOut}
-                    />
+                    <UserInfo />
                 </Stack.Item>
             </Stack>
         </header>

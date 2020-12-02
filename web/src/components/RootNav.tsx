@@ -1,49 +1,29 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
-import { useIsAuthenticated } from '@azure/msal-react';
 import { Nav, INavLinkGroup, INavLink, Stack, ActionButton, Persona, PersonaSize, getTheme, Text } from '@fluentui/react';
-import { Organization } from 'teamcloud'
-import { api } from '../API';
+import { OrgContext } from '../Context';
 
-export interface IRootNavProps { }
+export const RootNav: React.FC = () => {
 
-export const RootNav: React.FC<IRootNavProps> = (props) => {
+    const history = useHistory();
+    const { orgId } = useParams() as { orgId: string };
 
-    let { orgId } = useParams() as { orgId: string };
-
-    let history = useHistory();
-
-    let isAuthenticated = useIsAuthenticated();
-
-    const [orgs, setOrgs] = useState<Organization[]>();
+    const { orgs, onOrgSelected } = useContext(OrgContext);
 
     const newOrgView = orgId !== undefined && orgId.toLowerCase() === 'new';
-
-    useEffect(() => {
-        if (isAuthenticated && (orgs === undefined || (orgId && orgId !== 'new' && !orgs.some(o => o.id === orgId || o.slug === orgId)))) {
-            const _setOrgs = async () => {
-                const result = await api.getOrganizations();
-                setOrgs(result.data ?? undefined);
-                if (result.code === 200 && result.data) {
-                    if (result.data.length === 0)
-                        history.push('/orgs/new');
-                    else if (history.location.pathname === '/' && result.data.length === 1)
-                        history.push(`/orgs/${result.data[0].slug}`);
-                }
-            };
-            _setOrgs();
-        }
-    }, [isAuthenticated, history, orgId, orgs]);
 
     const _navLinkGroups = (): INavLinkGroup[] => {
         const links: INavLink[] = orgs?.map(o => ({
             key: o.slug,
             name: o.displayName,
             url: '',
-            onClick: () => history.push(`/orgs/${o.slug}`),
+            onClick: () => {
+                onOrgSelected(o);
+                history.push(`/orgs/${o.slug}`)
+            },
         })) ?? [];
 
         if (!newOrgView)
@@ -51,7 +31,10 @@ export const RootNav: React.FC<IRootNavProps> = (props) => {
                 key: 'new',
                 name: "New organization",
                 url: '',
-                onClick: () => history.push('/orgs/new')
+                onClick: () => {
+                    onOrgSelected(undefined);
+                    history.push('/orgs/new')
+                }
             });
 
         return [{ links: links }];

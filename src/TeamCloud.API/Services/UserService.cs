@@ -105,7 +105,8 @@ namespace TeamCloud.API.Services
             user ??= new User
             {
                 Id = userId,
-                UserType = userType
+                UserType = userType,
+                Organization = organizationId
             };
 
             return user;

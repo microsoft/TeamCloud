@@ -1,126 +1,61 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState } from 'react';
-import { Stack, Shimmer, DefaultButton, IButtonStyles, getTheme, ICommandBarItemProps, Dialog, DialogType, DialogFooter, PrimaryButton, IContextualMenuProps, IContextualMenuItem } from '@fluentui/react';
-import { Project, Component, ErrorResult } from 'teamcloud';
-import { DetailCard, ComponentForm } from '.';
-import { api } from '../API';
+import React, { useContext } from 'react';
+import { IColumn } from '@fluentui/react';
+import { useHistory, useParams } from 'react-router-dom';
+import { Component } from 'teamcloud';
+import { ContentList } from '.';
+import { ProjectContext } from '../Context';
+import collaboration from '../img/MSC17_collaboration_010_noBG.png'
 
-export interface IComponentListProps {
-    project: Project;
-    components?: Component[];
-}
+export const ComponentList: React.FC = () => {
 
-export const ComponentList: React.FC<IComponentListProps> = (props) => {
+    const history = useHistory();
+    const { orgId, projectId } = useParams() as { orgId: string, projectId: string; };
 
-    const [component, setComponent] = useState<Component>();
-    const [addComponentPanelOpen, setAddComponentPanelOpen] = useState(false);
-    const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+    const { components } = useContext(ProjectContext);
 
-    const _itemMenuProps = (component: Component): IContextualMenuProps => ({
-        items: [
-            {
-                key: 'delete',
-                text: 'Delete component',
-                iconProps: { iconName: 'Delete' },
-                data: component,
-                onClick: _onItemButtonClicked
-            }
-        ]
-    });
-
-    const _onItemButtonClicked = (ev?: React.MouseEvent<HTMLElement> | React.KeyboardEvent<HTMLElement>, item?: IContextualMenuItem): boolean | void => {
-        let component = item?.data as Component;
-        if (component) {
-            setComponent(component);
-            setDeleteConfirmOpen(true);
-        }
-    };
-
-    const _getCommandBarItems = (): ICommandBarItemProps[] => [
-        { key: 'newComponent', text: 'New', iconProps: { iconName: 'WebAppBuilderFragmentCreate' }, onClick: () => { setAddComponentPanelOpen(true) } },
+    const columns: IColumn[] = [
+        { key: 'displayName', name: 'Name', minWidth: 240, isResizable: false, fieldName: 'displayName' },
+        { key: 'description', name: 'Description', minWidth: 460, fieldName: 'description' },
+        { key: 'provider', name: 'Provider', minWidth: 240, fieldName: 'provider' },
+        { key: 'type', name: 'Type', minWidth: 240, fieldName: 'type' },
+        { key: 'requestedBy', name: 'Creator', minWidth: 240, fieldName: 'requestedBy' },
     ];
 
+    const _applyFilter = (component: Component, filter: string): boolean => {
+        const f = filter?.toUpperCase();
+        if (!f) return true;
+        return (
+            component.displayName?.toUpperCase().includes(f)
+            || component.id?.toUpperCase().includes(f)
+            || component.description?.toUpperCase().includes(f)
+            || component.templateId?.toUpperCase().includes(f)
+            || component.provider?.toUpperCase().includes(f)
+        ) ?? false
 
-    const _onComponentDelete = async () => {
-        if (component) {
-            const result = await api.deleteProjectComponent(component.id, props.project.organization, props.project.id);
-            if (result.code !== 202 && (result as ErrorResult).errors) {
-                console.log(result as ErrorResult);
-            }
-            setComponent(undefined);
-            setDeleteConfirmOpen(false);
-        }
-    }
+    };
 
-    const _confirmDialogSubtext = (): string => `This will permanently delete '${component?.displayName ? component.displayName : 'this component'}'. This action connot be undone.`;
-
-    const theme = getTheme();
-
-    const _componentButtonStyles: IButtonStyles = {
-        root: {
-            // border: 'none',
-            width: '100%',
-            textAlign: 'start',
-            borderBottom: '1px',
-            borderStyle: 'none none solid none',
-            borderRadius: '0',
-            borderColor: theme.palette.neutralLighter,
-            padding: '24px 6px'
-        },
-        menuIcon: {
-            display: 'none'
-        }
-    }
-
-    const _getComponentStacks = () => props.components?.sort((a, b) => a.templateId === b.templateId ? 0 : (a.templateId ?? '') > (b.templateId ?? '') ? 1 : -1).map(c => (
-        <Stack key={c.id} horizontal tokens={{ childrenGap: '12px' }}>
-            <Stack.Item styles={{ root: { width: '100%' } }}>
-                <DefaultButton
-                    // iconProps={{ iconName: _getLinkTypeIcon(l) }}
-                    text={c.displayName ?? c.id}
-                    secondaryText={c.description ?? c.templateId}
-                    // href={l.href}
-                    target='_blank'
-                    styles={_componentButtonStyles}
-                    menuProps={_itemMenuProps(c)}>
-                    {/* <Image
-                        src={_findKnownProviderImage(c)}
-                        height={24} width={24} /> */}
-                </DefaultButton>
-            </Stack.Item>
-        </Stack>
-    ));
+    const _onItemInvoked = (component: Component): void => {
+        console.log(component);
+    };
 
     return (
-        <>
-            <DetailCard
-                title='Components'
-                callout={props.components?.length.toString()}
-                commandBarItems={_getCommandBarItems()} >
-                <Shimmer
-                    // customElementsGroup={_getShimmerElements()}
-                    isDataLoaded={props.components !== undefined}
-                    width={152} >
-                    <Stack tokens={{ childrenGap: '0' }} >
-                        {_getComponentStacks()}
-                    </Stack>
-                </Shimmer>
-            </DetailCard>
-            <ComponentForm
-                // user={props.user}
-                project={props.project}
-                panelIsOpen={addComponentPanelOpen}
-                onFormClose={() => setAddComponentPanelOpen(false)} />
-            <Dialog
-                hidden={!deleteConfirmOpen}
-                dialogContentProps={{ type: DialogType.normal, title: 'Confirm Delete', subText: _confirmDialogSubtext() }}>
-                <DialogFooter>
-                    <PrimaryButton text='Delete' onClick={() => _onComponentDelete()} />
-                    <DefaultButton text='Cancel' onClick={() => setDeleteConfirmOpen(false)} />
-                </DialogFooter>
-            </Dialog>
-        </>
+        <ContentList
+            columns={columns}
+            items={components}
+            applyFilter={_applyFilter}
+            onItemInvoked={_onItemInvoked}
+            filterPlaceholder='Filter components'
+            buttonText='Create component'
+            buttonIcon='Add'
+            onButtonClick={() => history.push(`/orgs/${orgId}/projects/${projectId}/components/new`)}
+            noDataTitle='You do not have any components yet'
+            noDataImage={collaboration}
+            noDataDescription='Components are project resources like cloud environments'
+            noDataButtonText='Create component'
+            noDataButtonIcon='Add'
+            onNoDataButtonClick={() => history.push(`/orgs/${orgId}/projects/${projectId}/components/new`)} />
     );
 }

@@ -1,22 +1,23 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Stack, Shimmer, DefaultButton, IButtonStyles, getTheme, ICommandBarItemProps, Dialog, DialogType, DialogFooter, PrimaryButton, IContextualMenuProps, IContextualMenuItem } from '@fluentui/react';
-import { Project, Component, ErrorResult } from 'teamcloud';
-import { DetailCard, ComponentForm } from '.';
+import { Component, ErrorResult } from 'teamcloud';
+import { DetailCard } from '.';
 import { api } from '../API';
+import { useHistory, useParams } from 'react-router-dom';
+import { ProjectContext } from '../Context';
 
-export interface IComponentsCardProps {
-    project?: Project;
-    components?: Component[];
-}
+export const ComponentsCard: React.FC = () => {
 
-export const ComponentsCard: React.FC<IComponentsCardProps> = (props) => {
+    const history = useHistory();
+    const { orgId, projectId } = useParams() as { orgId: string, projectId: string };
 
     const [component, setComponent] = useState<Component>();
-    const [addComponentPanelOpen, setAddComponentPanelOpen] = useState(false);
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+
+    const { project, components } = useContext(ProjectContext);
 
     const _itemMenuProps = (component: Component): IContextualMenuProps => ({
         items: [
@@ -39,13 +40,13 @@ export const ComponentsCard: React.FC<IComponentsCardProps> = (props) => {
     };
 
     const _getCommandBarItems = (): ICommandBarItemProps[] => [
-        { key: 'newComponent', text: 'New', iconProps: { iconName: 'WebAppBuilderFragmentCreate' }, onClick: () => { setAddComponentPanelOpen(true) } },
+        { key: 'newComponent', text: 'New', iconProps: { iconName: 'WebAppBuilderFragmentCreate' }, onClick: () => history.push(`/orgs/${orgId}/projects/${projectId}/components/new`) },
     ];
 
 
     const _onComponentDelete = async () => {
-        if (component && props.project) {
-            const result = await api.deleteProjectComponent(component.id, props.project.organization, props.project.id);
+        if (component && project) {
+            const result = await api.deleteProjectComponent(component.id, project.organization, project.id);
             if (result.code !== 202 && (result as ErrorResult).errors) {
                 console.log(result as ErrorResult);
             }
@@ -74,7 +75,7 @@ export const ComponentsCard: React.FC<IComponentsCardProps> = (props) => {
         }
     }
 
-    const _getComponentStacks = () => props.components?.sort((a, b) => a.templateId === b.templateId ? 0 : (a.templateId ?? '') > (b.templateId ?? '') ? 1 : -1).map(c => (
+    const _getComponentStacks = () => components?.sort((a, b) => a.templateId === b.templateId ? 0 : (a.templateId ?? '') > (b.templateId ?? '') ? 1 : -1).map(c => (
         <Stack key={c.id} horizontal tokens={{ childrenGap: '12px' }}>
             <Stack.Item styles={{ root: { width: '100%' } }}>
                 <DefaultButton
@@ -97,22 +98,17 @@ export const ComponentsCard: React.FC<IComponentsCardProps> = (props) => {
         <>
             <DetailCard
                 title='Components'
-                callout={props.components?.length.toString()}
+                callout={components?.length.toString()}
                 commandBarItems={_getCommandBarItems()} >
                 <Shimmer
                     // customElementsGroup={_getShimmerElements()}
-                    isDataLoaded={props.components !== undefined}
+                    isDataLoaded={components !== undefined}
                     width={152} >
                     <Stack tokens={{ childrenGap: '0' }} >
                         {_getComponentStacks()}
                     </Stack>
                 </Shimmer>
             </DetailCard>
-            <ComponentForm
-                // user={props.user}
-                project={props.project}
-                panelIsOpen={addComponentPanelOpen}
-                onFormClose={() => setAddComponentPanelOpen(false)} />
             <Dialog
                 hidden={!deleteConfirmOpen}
                 dialogContentProps={{ type: DialogType.normal, title: 'Confirm Delete', subText: _confirmDialogSubtext() }}>

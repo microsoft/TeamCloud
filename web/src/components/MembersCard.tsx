@@ -1,58 +1,51 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Member, ProjectMember } from '../model'
-import { Project, ErrorResult, User } from 'teamcloud';
+import { ErrorResult } from 'teamcloud';
 import { Stack, Facepile, IFacepilePersona, PersonaSize, IRenderFunction, HoverCard, HoverCardType, Persona, Shimmer, ShimmerElementsGroup, ShimmerElementType, CommandBar, ICommandBarItemProps, Separator, Label, Text } from '@fluentui/react';
 import { DetailCard, MembersForm } from '.';
 import { api } from '../API';
-import { useParams } from 'react-router-dom';
+import { ProjectContext } from '../Context';
 
 
 export interface IMembersCardProps {
-    user?: User;
-    project?: Project;
-    members?: Member[];
-    onEditMember: (member?: Member) => void;
+    // onEditMember: (member?: Member) => void;
 }
 
 export const MembersCard: React.FC<IMembersCardProps> = (props) => {
 
-    let { orgId } = useParams() as { orgId: string };
-
     const [addMembersPanelOpen, setAddMembersPanelOpen] = useState(false);
 
+    const { user, project, members, onAddUsers } = useContext(ProjectContext);
+
     const _removeMember = async (member: Member) => {
-        if (props.project && (member as ProjectMember)?.projectMembership !== undefined) {
-            let result = await api.deleteProjectUser(member.user.id, props.project.organization, props.project.id);
-            if (result.code !== 202 && (result as ErrorResult).errors) {
-                console.log(result as ErrorResult);
-            }
-        } else if (orgId) {
-            let result = await api.deleteOrganizationUser(member.user.id, orgId);
-            if (result.code !== 202 && (result as ErrorResult).errors) {
-                console.log(result as ErrorResult);
+        if (project && (member as ProjectMember)?.projectMembership !== undefined) {
+            const result = await api.deleteProjectUser(member.user.id, project.organization, project.id);
+            if (result.code !== 204 && (result as ErrorResult).errors) {
+                console.error(result as ErrorResult);
             }
         }
     };
 
     const _removeButtonDisabled = (member: ProjectMember) => {
-        return props.project && props.members && member.projectMembership.role === 'Owner'
-            && props.members.filter(m => m.user.userType === 'User'
+        return project && members && member.projectMembership.role.toLowerCase() === 'owner'
+            && members.filter(m => m.user.userType.toLowerCase() === 'user'
                 && m.user.projectMemberships
-                && m.user.projectMemberships!.find(pm => pm.projectId === props.project!.id && pm.role === 'Owner')).length === 1
+                && m.user.projectMemberships!.find(pm => pm.projectId === project!.id && pm.role.toLowerCase() === 'owner')).length === 1
     };
 
     const _userIsProjectOwner = () =>
-        props.project && props.user?.projectMemberships?.find(m => m.projectId === props.project!.id)?.role === 'Owner';
+        project && user?.projectMemberships?.find(m => m.projectId === project!.id)?.role.toLowerCase() === 'owner';
 
     const _getCommandBarItems = (): ICommandBarItemProps[] => [
-        { key: 'addUser', text: 'Add', iconProps: { iconName: 'PeopleAdd' }, onClick: () => { setAddMembersPanelOpen(true) }, disabled: !_userIsProjectOwner() },
+        { key: 'addUser', text: 'Add', iconProps: { iconName: 'PeopleAdd' }, onClick: () => setAddMembersPanelOpen(true), disabled: !_userIsProjectOwner() },
     ];
 
     const _getMemberCommandBarItems = (member: ProjectMember): ICommandBarItemProps[] => [
-        { key: 'edit', text: 'Edit', iconProps: { iconName: 'EditContact' }, onClick: () => props.onEditMember(member) },
+        // { key: 'edit', text: 'Edit', iconProps: { iconName: 'EditContact' }, onClick: () => props.onEditMember(member) },
+        { key: 'edit', text: 'Edit', iconProps: { iconName: 'EditContact' }, onClick: () => { } },
         { key: 'remove', text: 'Remove', iconProps: { iconName: 'UserRemove' }, disabled: _removeButtonDisabled(member), onClick: () => { _removeMember(member) } },
     ];
 
@@ -67,7 +60,7 @@ export const MembersCard: React.FC<IMembersCardProps> = (props) => {
             ]} />
     );
 
-    const _facepilePersonas = (): IFacepilePersona[] => props.members?.map(m => ({
+    const _facepilePersonas = (): IFacepilePersona[] => members?.map(m => ({
         personaName: m.graphUser?.displayName,
         imageUrl: m.graphUser?.imageUrl,
         data: m,
@@ -148,11 +141,11 @@ export const MembersCard: React.FC<IMembersCardProps> = (props) => {
         <>
             <DetailCard
                 title='Members'
-                callout={props.members?.length.toString()}
+                callout={members?.length.toString()}
                 commandBarItems={_getCommandBarItems()}>
                 <Shimmer
                     customElementsGroup={_getShimmerElements()}
-                    isDataLoaded={props.members !== undefined}
+                    isDataLoaded={members !== undefined}
                     width={152} >
                     <Facepile
                         styles={{ itemButton: _personaCoinStyles }}
@@ -163,9 +156,10 @@ export const MembersCard: React.FC<IMembersCardProps> = (props) => {
                 </Shimmer>
             </DetailCard>
             <MembersForm
-                project={props.project}
+                members={members}
                 panelIsOpen={addMembersPanelOpen}
-                onFormClose={() => setAddMembersPanelOpen(false)} />
+                onFormClose={() => setAddMembersPanelOpen(false)}
+                onAddUsers={onAddUsers} />
         </>
     );
 }

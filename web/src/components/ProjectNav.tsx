@@ -5,13 +5,10 @@ import React from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { Nav, INavLinkGroup, INavLink, Stack, ActionButton, Persona, PersonaSize } from '@fluentui/react';
 
-export interface IProjectNavProps { }
-
-export const ProjectNav: React.FC<IProjectNavProps> = (props) => {
-
-    let { orgId, projectId, navId } = useParams() as { orgId: string, projectId: string, navId: string };
+export const ProjectNav: React.FC = () => {
 
     const history = useHistory();
+    const { orgId, projectId, navId } = useParams() as { orgId: string, projectId: string, navId: string };
 
     const _navLinkGroups = (): INavLinkGroup[] => [{
         links: (orgId && projectId) ? [

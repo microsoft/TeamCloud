@@ -124,7 +124,8 @@ namespace TeamCloud.API.Controllers
                 Id = userId,
                 Role = Enum.Parse<OrganizationUserRole>(userDefinition.Role, true),
                 Properties = userDefinition.Properties,
-                UserType = UserType.User
+                UserType = UserType.User,
+                Organization = organizationId
             };
 
             var currentUser = await UserService

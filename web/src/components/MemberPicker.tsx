@@ -3,12 +3,11 @@
 
 import React from 'react';
 import { ListPeoplePicker, IPersonaProps, IBasePickerSuggestionsProps } from '@fluentui/react';
-import { Project } from 'teamcloud';
 import { searchGraphUsers } from '../MSGraph';
-import { GraphUser } from '../model'
+import { GraphUser, Member } from '../model'
 
 export interface IMemberPickerProps {
-    project?: Project;
+    members?: Member[];
     formEnabled: boolean;
     onChange: (users?: GraphUser[]) => void;
 }
@@ -22,8 +21,8 @@ export const MemberPicker: React.FC<IMemberPickerProps> = (props) => {
     const _onResolveSuggestions = async (filter: string, selectedItems?: IGraphUserPersonaProps[], limitResults?: number): Promise<IGraphUserPersonaProps[]> => {
         if (!filter || !filter.length || filter.length === 0) return [];
         let graphUsers = await searchGraphUsers(filter);
-        if (props.project?.users) {
-            let projectUserIds = props.project.users.map(u => u.id);
+        if (props.members) {
+            let projectUserIds = props.members.map(m => m.user.id);
             graphUsers = graphUsers.filter(gu => !projectUserIds.find(i => i === gu.id));
         }
         let personaProps = graphUsers.map(gu => ({ text: gu.displayName, secondaryText: gu.jobTitle, imageUrl: gu.imageUrl, graphUser: gu } as IGraphUserPersonaProps));

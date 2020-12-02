@@ -1,25 +1,20 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React from 'react';
+import React, { useContext } from 'react';
 import { Project } from 'teamcloud';
 import { useHistory, useParams } from 'react-router-dom';
 import { DetailsListLayoutMode, IColumn, IRenderFunction, IDetailsRowProps, CheckboxVisibility, SelectionMode, Persona, PersonaSize, getTheme, DetailsList, Stack } from '@fluentui/react';
 import { NoData } from '.';
+import { OrgContext } from '../Context';
 import collaboration from '../img/MSC17_collaboration_010_noBG.png'
 
-
-export interface IProjectListProps {
-    projects?: Project[];
-    onProjectSelected?: (project: Project) => void;
-}
-
-export const ProjectList: React.FC<IProjectListProps> = (props) => {
+export const ProjectList: React.FC = () => {
 
     const history = useHistory();
+    const { orgId } = useParams() as { orgId: string };
 
-    let { orgId } = useParams() as { orgId: string };
-
+    const { projects, onProjectSelected } = useContext(OrgContext);
     // const [projectFilter, setProjectFilter] = useState<string>();
 
     const theme = getTheme();
@@ -57,8 +52,7 @@ export const ProjectList: React.FC<IProjectListProps> = (props) => {
     // }
 
     const _onLinkClicked = (project: Project): void => {
-        if (props.onProjectSelected)
-            props.onProjectSelected(project);
+        onProjectSelected(project);
     }
 
     const _onItemInvoked = (project: Project): void => {
@@ -78,10 +72,10 @@ export const ProjectList: React.FC<IProjectListProps> = (props) => {
 
     // const items = props.projects ? props.projects.filter(_applyProjectFilter) : new Array<Project>();
 
-    if (props.projects === undefined)
+    if (projects === undefined)
         return (<></>);
 
-    if (props.projects.length === 0)
+    if (projects.length === 0)
         return (
             <NoData
                 title='You do not have any projects yet'
@@ -93,7 +87,7 @@ export const ProjectList: React.FC<IProjectListProps> = (props) => {
 
     return (
         <DetailsList
-            items={props.projects}
+            items={projects}
             columns={columns}
             isHeaderVisible={false}
             onRenderRow={_onRenderRow}
