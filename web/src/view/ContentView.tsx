@@ -7,7 +7,6 @@ import { Organization, Project, User } from 'teamcloud';
 import { Error404, NewOrgView, NewProjectView, ProjectView, ProjectsView, OrgSettingsView, ProjectSettingsView } from '.';
 import { NewComponentView } from './NewComponentView';
 
-
 export interface IContentViewProps {
     org?: Organization;
     user?: User;

@@ -3,18 +3,20 @@
 
 import React, { useState } from 'react';
 import { Member, ProjectMember } from '../model'
-import { Project, ErrorResult, User } from 'teamcloud';
+import { Project, ErrorResult, User, Organization, UserDefinition } from 'teamcloud';
 import { Stack, Facepile, IFacepilePersona, PersonaSize, IRenderFunction, HoverCard, HoverCardType, Persona, Shimmer, ShimmerElementsGroup, ShimmerElementType, CommandBar, ICommandBarItemProps, Separator, Label, Text } from '@fluentui/react';
+import { useParams } from 'react-router-dom';
 import { DetailCard, MembersForm } from '.';
 import { api } from '../API';
-import { useParams } from 'react-router-dom';
 
 
 export interface IMembersCardProps {
     user?: User;
+    org?: Organization;
     project?: Project;
     members?: Member[];
     onEditMember: (member?: Member) => void;
+    onAddUsers: (users: UserDefinition[]) => Promise<void>;
 }
 
 export const MembersCard: React.FC<IMembersCardProps> = (props) => {
@@ -165,7 +167,8 @@ export const MembersCard: React.FC<IMembersCardProps> = (props) => {
             <MembersForm
                 members={props.members}
                 panelIsOpen={addMembersPanelOpen}
-                onFormClose={() => setAddMembersPanelOpen(false)} />
+                onFormClose={() => setAddMembersPanelOpen(false)}
+                onAddUsers={props.onAddUsers} />
         </>
     );
 }

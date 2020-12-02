@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { Stack } from '@fluentui/react';
-import { Project, User, Component } from 'teamcloud';
+import { Project, User, Component, UserDefinition } from 'teamcloud';
 import { Member, ProjectMember } from '../model';
 import { MembersCard, ComponentsCard } from '../components';
 
@@ -12,6 +12,7 @@ export interface IProjectOverviewProps {
     project?: Project;
     members?: ProjectMember[];
     components?: Component[];
+    onAddUsers: (users: UserDefinition[]) => Promise<void>;
 }
 
 export const ProjectOverview: React.FC<IProjectOverviewProps> = (props) => {
@@ -37,7 +38,8 @@ export const ProjectOverview: React.FC<IProjectOverviewProps> = (props) => {
                     user={props.user}
                     project={props.project}
                     members={props.members}
-                    onEditMember={_onEditMember} />
+                    onEditMember={_onEditMember}
+                    onAddUsers={props.onAddUsers} />
             </Stack.Item>
         </Stack>
     );

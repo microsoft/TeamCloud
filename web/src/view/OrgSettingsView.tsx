@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { Route, useHistory, useParams } from 'react-router-dom';
 import { IconButton, Stack } from '@fluentui/react';
 import { useIsAuthenticated } from '@azure/msal-react';
-import { DeploymentScope, DeploymentScopeDefinition, Organization, ProjectTemplate, ProjectTemplateDefinition, User } from 'teamcloud';
+import { DeploymentScope, DeploymentScopeDefinition, Organization, ProjectTemplate, ProjectTemplateDefinition, User, UserDefinition } from 'teamcloud';
 import { OrgSettingsOverview, DeploymentScopeList, ProjectTemplateList, ContentHeader, ContentContainer, ContentProgress, MemberList, DeploymentScopeForm, ProjectTemplateForm } from '../components';
 import { getGraphUser } from '../MSGraph';
 import { ManagementGroup, Member, Subscription } from '../model';
@@ -20,6 +20,7 @@ export interface IOrgSettingsViewProps {
 export const OrgSettingsView: React.FC<IOrgSettingsViewProps> = (props) => {
 
     const history = useHistory();
+
     const isAuthenticated = useIsAuthenticated();
 
     const { orgId, settingId } = useParams() as { orgId: string, settingId: string };
@@ -34,7 +35,7 @@ export const OrgSettingsView: React.FC<IOrgSettingsViewProps> = (props) => {
     const { org } = props;
 
     useEffect(() => {
-        if (isAuthenticated && org && settingId === 'members' && members === undefined) {
+        if (isAuthenticated && org && (settingId === undefined || settingId === 'members') && members === undefined) {
             const _setMembers = async () => {
                 console.log(`setMembers (${org.slug})`);
                 let _users = await api.getOrganizationUsers(org.id);
@@ -137,11 +138,37 @@ export const OrgSettingsView: React.FC<IOrgSettingsViewProps> = (props) => {
     };
 
 
+    const onAddUsers = async (users: UserDefinition[]) => {
+        if (org) {
+            setProgressHidden(false);
+            console.log(`addMembers (${org.slug})`);
+            const results = await Promise
+                .all(users.map(async d => await api.createOrganizationUser(org.id, { body: d })));
+
+            results.forEach(r => {
+                if (!r.data)
+                    console.error(r);
+            });
+
+            const newMembers = await Promise.all(results
+                .filter(r => r.data)
+                .map(r => r.data!)
+                .map(async u => ({
+                    user: u,
+                    graphUser: await getGraphUser(u.id)
+                })));
+
+            setMembers(members ? [...members, ...newMembers] : newMembers)
+
+            setProgressHidden(true);
+        }
+    }
+
     return (
         <Stack>
             <Route exact path='/orgs/:orgId/settings'>
-                <ContentProgress progressHidden={progressHidden && org !== undefined} />
-                <ContentHeader title={org?.displayName} />
+                <ContentProgress progressHidden={progressHidden && props.org !== undefined} />
+                <ContentHeader title={props.org?.displayName} />
             </Route>
             <Route exact path='/orgs/:orgId/settings/members'>
                 <ContentProgress progressHidden={progressHidden && members !== undefined} />
@@ -170,10 +197,10 @@ export const OrgSettingsView: React.FC<IOrgSettingsViewProps> = (props) => {
 
             <ContentContainer>
                 <Route exact path='/orgs/:orgId/settings'>
-                    <OrgSettingsOverview {...{ org: org }} />
+                    <OrgSettingsOverview {...{ org: props.org, members: members }} />
                 </Route>
                 <Route exact path='/orgs/:orgId/settings/members'>
-                    <MemberList {...{ members: members }} />
+                    <MemberList {...{ members: members, onAddUsers: onAddUsers }} />
                 </Route>
                 <Route exact path='/orgs/:orgId/settings/scopes'>
                     <DeploymentScopeList {...{ scopes: scopes }} />

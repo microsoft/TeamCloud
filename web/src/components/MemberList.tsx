@@ -3,13 +3,15 @@
 
 import React, { useState } from 'react';
 import { IColumn, Persona, PersonaSize } from '@fluentui/react';
-import { Project } from 'teamcloud';
+import { Organization, Project, UserDefinition } from 'teamcloud';
 import { Member, ProjectMember } from '../model';
 import { ContentList, MembersForm } from '.';
 
 export interface IMemberListProps {
+    org?: Organization;
     project?: Project;
     members?: Member[];
+    onAddUsers: (users: UserDefinition[]) => Promise<void>;
 }
 
 export const MemberList: React.FC<IMemberListProps> = (props) => {
@@ -25,7 +27,14 @@ export const MemberList: React.FC<IMemberListProps> = (props) => {
             size={PersonaSize.size32} />
     );
 
-    const onRenderRoleColumn = (member?: Member, index?: number, column?: IColumn) => props.project ? (member as ProjectMember)?.projectMembership.role : member?.user.role;
+    const onRenderRoleColumn = (member?: Member, index?: number, column?: IColumn) => {
+        if (props.project) {
+            return (member as ProjectMember)?.projectMembership.role;
+        } else {
+            const role = member?.user.role;
+            return role?.toLowerCase() === 'none' ? 'Member' : role;
+        }
+    }
 
     const columns: IColumn[] = [
         { key: 'member', name: 'Member', minWidth: 240, isResizable: false, onRender: onRenderMemberColumn },
@@ -55,8 +64,8 @@ export const MemberList: React.FC<IMemberListProps> = (props) => {
             <MembersForm
                 members={props.members}
                 panelIsOpen={addMembersPanelOpen}
-                onFormClose={() => setAddMembersPanelOpen(false)} />
-
+                onFormClose={() => setAddMembersPanelOpen(false)}
+                onAddUsers={props.onAddUsers} />
         </>
     );
 }
