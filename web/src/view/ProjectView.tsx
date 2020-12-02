@@ -29,7 +29,7 @@ export const ProjectView: React.FC<IProjectViewProps> = (props) => {
     const { project, user } = props;
 
     useEffect(() => {
-        if (isAuthenticated && project && (navId === undefined || navId === 'members')) {
+        if (isAuthenticated && project && (navId === undefined || navId.toLowerCase() === 'members')) {
             if (members && members.length > 0 && members[0].projectMembership.projectId === project.id)
                 return;
             const _setMembers = async () => {
@@ -50,7 +50,7 @@ export const ProjectView: React.FC<IProjectViewProps> = (props) => {
 
 
     useEffect(() => {
-        if (isAuthenticated && project && (navId === undefined || navId === 'components')) {
+        if (isAuthenticated && project && (navId === undefined || navId.toLowerCase() === 'components')) {
             if (components === undefined || (components.length > 0 && components[0].projectId !== project.id)) {
                 const _setComponents = async () => {
                     console.log(`setProjectComponents (${project.slug})`);

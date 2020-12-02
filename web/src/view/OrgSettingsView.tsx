@@ -35,7 +35,7 @@ export const OrgSettingsView: React.FC<IOrgSettingsViewProps> = (props) => {
     const { org } = props;
 
     useEffect(() => {
-        if (isAuthenticated && org && (settingId === undefined || settingId === 'members') && members === undefined) {
+        if (isAuthenticated && org && (settingId === undefined || settingId.toLowerCase() === 'members') && members === undefined) {
             const _setMembers = async () => {
                 console.log(`setMembers (${org.slug})`);
                 let _users = await api.getOrganizationUsers(org.id);
@@ -53,7 +53,7 @@ export const OrgSettingsView: React.FC<IOrgSettingsViewProps> = (props) => {
 
 
     useEffect(() => {
-        if (isAuthenticated && org && settingId === 'scopes' && scopes === undefined) {
+        if (isAuthenticated && org && settingId?.toLowerCase() === 'scopes' && scopes === undefined) {
             const _setScopes = async () => {
                 console.log(`setDeploymentScopes (${org.slug})`);
                 let _scopes = await api.getDeploymentScopes(org.id);
@@ -65,7 +65,7 @@ export const OrgSettingsView: React.FC<IOrgSettingsViewProps> = (props) => {
 
 
     useEffect(() => {
-        if (isAuthenticated && org && settingId === 'templates' && templates === undefined) {
+        if (isAuthenticated && org && settingId?.toLowerCase() === 'templates' && templates === undefined) {
             const _setTemplates = async () => {
                 console.log(`setProjectTemplates (${org.slug})`);
                 let _templates = await api.getProjectTemplates(org.id);
@@ -77,7 +77,7 @@ export const OrgSettingsView: React.FC<IOrgSettingsViewProps> = (props) => {
 
 
     useEffect(() => {
-        if (isAuthenticated && org && settingId === 'scopes' && history.location.pathname.endsWith('/new') && subscriptions === undefined) {
+        if (isAuthenticated && org && settingId?.toLowerCase() === 'scopes' && history.location.pathname.toLowerCase().endsWith('/new') && subscriptions === undefined) {
             const _setSubscriptions = async () => {
                 console.log(`setSubscriptions (${org.slug})`);
                 try {
@@ -93,7 +93,7 @@ export const OrgSettingsView: React.FC<IOrgSettingsViewProps> = (props) => {
 
 
     useEffect(() => {
-        if (isAuthenticated && org && settingId === 'scopes' && history.location.pathname.endsWith('/new') && managementGroups === undefined) {
+        if (isAuthenticated && org && settingId?.toLowerCase() === 'scopes' && history.location.pathname.toLowerCase().endsWith('/new') && managementGroups === undefined) {
             const _setManagementGroups = async () => {
                 console.log(`setManagementGroups (${org.slug})`);
                 try {
@@ -114,7 +114,7 @@ export const OrgSettingsView: React.FC<IOrgSettingsViewProps> = (props) => {
             const result = await api.createDeploymentScope(org.id, { body: scope, });
             if (result.data) {
                 setScopes(scopes ? [...scopes, result.data] : [result.data]);
-                history.replace(`/orgs/${org.slug}/settings/scopes`);
+                history.push(`/orgs/${org.slug}/settings/scopes`);
             } else {
                 console.error(`Failed to create new DeploymentScope: ${result}`);
             }
@@ -129,7 +129,7 @@ export const OrgSettingsView: React.FC<IOrgSettingsViewProps> = (props) => {
             const result = await api.createProjectTemplate(org.id, { body: template, });
             if (result.data) {
                 setTemplates(templates ? [...templates, result.data] : [result.data]);
-                history.replace(`/orgs/${org.slug}/settings/templates`);
+                history.push(`/orgs/${org.slug}/settings/templates`);
             } else {
                 console.error(`Failed to create new ProjectTemplate: ${result}`);
             }
@@ -181,7 +181,7 @@ export const OrgSettingsView: React.FC<IOrgSettingsViewProps> = (props) => {
             <Route exact path={['/orgs/:orgId/settings/scopes/new']}>
                 <ContentProgress progressHidden={progressHidden && subscriptions !== undefined && managementGroups !== undefined} />
                 <ContentHeader title='New Deployment Scope'>
-                    <IconButton iconProps={{ iconName: 'ChromeClose' }} onClick={() => history.replace(`/orgs/${orgId}/settings/scopes`)} />
+                    <IconButton iconProps={{ iconName: 'ChromeClose' }} onClick={() => history.push(`/orgs/${orgId}/settings/scopes`)} />
                 </ContentHeader>
             </Route>
             <Route exact path='/orgs/:orgId/settings/templates'>
@@ -191,7 +191,7 @@ export const OrgSettingsView: React.FC<IOrgSettingsViewProps> = (props) => {
             <Route exact path={['/orgs/:orgId/settings/templates/new']}>
                 <ContentProgress progressHidden={progressHidden && templates !== undefined} />
                 <ContentHeader title='New Project Template'>
-                    <IconButton iconProps={{ iconName: 'ChromeClose' }} onClick={() => history.replace(`/orgs/${orgId}/settings/templates`)} />
+                    <IconButton iconProps={{ iconName: 'ChromeClose' }} onClick={() => history.push(`/orgs/${orgId}/settings/templates`)} />
                 </ContentHeader>
             </Route>
 
@@ -203,7 +203,7 @@ export const OrgSettingsView: React.FC<IOrgSettingsViewProps> = (props) => {
                     <MemberList {...{ members: members, onAddUsers: onAddUsers }} />
                 </Route>
                 <Route exact path='/orgs/:orgId/settings/scopes'>
-                    <DeploymentScopeList {...{ scopes: scopes }} />
+                    <DeploymentScopeList {...{ org: props.org, scopes: scopes }} />
                 </Route>
                 <Route exact path='/orgs/:orgId/settings/scopes/new'>
                     <DeploymentScopeForm {...{ subscriptions: subscriptions, managementGroups: managementGroups, onCreateDeploymentScope: onCreateDeploymentScope }} />

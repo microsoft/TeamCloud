@@ -46,7 +46,7 @@ export const ProjectTemplateForm: React.FC<IProjectTemplateFormProps> = (props) 
 
     const _resetAndCloseForm = () => {
         setFormEnabled(true);
-        history.replace(`/orgs/${orgId}/settings/templates`);
+        history.push(`/orgs/${orgId}/settings/templates`);
     };
 
     return (

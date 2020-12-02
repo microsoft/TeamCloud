@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import React, { useState } from 'react';
-import { Checkbox, IColumn, Label, Panel, PanelType, Stack, Text } from '@fluentui/react';
+import { Checkbox, getTheme, IColumn, IconButton, Label, Modal, Separator, Stack, Text } from '@fluentui/react';
 import { useHistory, useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { ProjectTemplate } from 'teamcloud';
@@ -20,7 +20,9 @@ export const ProjectTemplateList: React.FC<IProjectTemplateListProps> = (props) 
     const { orgId } = useParams() as { orgId: string };
 
     const [selectedTemplate, setSelectedTemplate] = useState<ProjectTemplate>();
-    const [panelIsOpen, setPanelIsOpen] = useState(false);
+    const [modalIsOpen, setModalIsOpen] = useState(false);
+
+    const theme = getTheme();
 
     const columns: IColumn[] = [
         { key: 'displayName', name: 'Name', minWidth: 240, fieldName: 'displayName' },
@@ -33,7 +35,7 @@ export const ProjectTemplateList: React.FC<IProjectTemplateListProps> = (props) 
         // console.error(template)
         if (template) {
             setSelectedTemplate(template);
-            setPanelIsOpen(true);
+            setModalIsOpen(true);
         } else {
             console.error('nope');
         }
@@ -56,24 +58,38 @@ export const ProjectTemplateList: React.FC<IProjectTemplateListProps> = (props) 
                 noDataButtonIcon='Add'
                 onNoDataButtonClick={() => history.push(`/orgs/${orgId}/settings/templates/new`)}
             />
-            <Panel
-                isLightDismiss
-                headerText={selectedTemplate?.displayName}
-                type={PanelType.medium}
-                isOpen={panelIsOpen}
-                onDismiss={() => { setSelectedTemplate(undefined); setPanelIsOpen(false) }}>
+            <Modal
+                // isLightDismiss
+                // headerText={selectedTemplate?.displayName}
+                // type={PanelType.medium}
+                styles={{ main: { margin: 'auto 100px' }, scrollableContent: { padding: '50px' } }}
+                isBlocking={false}
+                isOpen={modalIsOpen}
+                onDismiss={() => { setSelectedTemplate(undefined); setModalIsOpen(false) }}>
                 <Stack tokens={{ childrenGap: '12px' }}>
                     <Stack.Item>
-                        <Label >Repository</Label>
-                        <Text>{selectedTemplate?.repository.url}</Text>
+                        <Stack horizontal horizontalAlign='space-between'>
+                            <Stack.Item>
+                                <Text variant='xxLargePlus'>{selectedTemplate?.displayName}</Text>
+                            </Stack.Item>
+                            <Stack.Item>
+                                <IconButton iconProps={{ iconName: 'ChromeClose' }}
+                                    onClick={() => setModalIsOpen(false)} />
+                            </Stack.Item>
+                        </Stack>
+                    </Stack.Item>
+                    <Label >Repository</Label>
+                    <Text>{selectedTemplate?.repository.url}</Text>
+                    <Stack.Item>
                     </Stack.Item>
                     <Stack.Item>
+                        <Separator styles={{ root: { selectors: { '::before': { backgroundColor: theme.palette.neutralQuaternary } } } }} />
                     </Stack.Item>
                     <Stack.Item>
                         <ReactMarkdown>{selectedTemplate?.description ?? undefined as any}</ReactMarkdown>
                     </Stack.Item>
                 </Stack>
-            </Panel>
+            </Modal>
         </>
     );
 }

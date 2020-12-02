@@ -66,11 +66,11 @@ export const NewProjectView: React.FC<INewProjectViewProps> = (props) => {
         }
     };
 
-    const _resetAndCloseForm = () => {
-        setProjectName(undefined);
-        setProjectTemplate(undefined);
-        setFormEnabled(true);
-    };
+    // const _resetAndCloseForm = () => {
+    //     setProjectName(undefined);
+    //     setProjectTemplate(undefined);
+    //     setFormEnabled(true);
+    // };
 
     const _projectTemplateOptions = (data?: ProjectTemplate[]): IDropdownOption[] => {
         if (!data) return [];
@@ -84,7 +84,7 @@ export const NewProjectView: React.FC<INewProjectViewProps> = (props) => {
     const _onRenderPanelFooterContent = () => (
         <div style={{ paddingTop: '24px' }}>
             <PrimaryButton type='submit' text='Create project' disabled={!formEnabled || !(projectName && projectTemplate)} styles={{ root: { marginRight: 8 } }} />
-            <DefaultButton text='Cancel' disabled={!formEnabled} onClick={() => _resetAndCloseForm()} />
+            <DefaultButton text='Cancel' disabled={!formEnabled} onClick={() => history.push(`/orgs/${org?.slug}`)} />
         </div>
     );
 
@@ -92,7 +92,7 @@ export const NewProjectView: React.FC<INewProjectViewProps> = (props) => {
         <Stack styles={{ root: { height: '100%' } }}>
             <ContentProgress progressHidden={formEnabled} />
             <ContentHeader title='New Project'>
-                <IconButton iconProps={{ iconName: 'ChromeClose' }} onClick={() => history.replace(`/orgs/${org?.slug}`)} />
+                <IconButton iconProps={{ iconName: 'ChromeClose' }} onClick={() => history.push(`/orgs/${org?.slug}`)} />
             </ContentHeader>
             <ContentContainer wide full>
                 <Stack

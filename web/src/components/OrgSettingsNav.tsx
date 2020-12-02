@@ -91,12 +91,6 @@ export const OrgSettingsNav: React.FC<IOrgSettingsNavProps> = (props) => {
                     styles={{ root: [{ width: '100%' }], link: { color: theme.palette.neutralDark, padding: '8px 4px 8px 12px' } }} />
             </Stack.Item>
             <Stack.Item>
-                {/* <ActionButton
-                    disabled={orgId === undefined || projectId === undefined}
-                    iconProps={{ iconName: 'Settings' }}
-                    styles={{ root: { padding: '10px 8px 10px 12px' } }}
-                    text={'Project settings'}
-                    onClick={() => history.push(`/orgs/${orgId}/projects/${projectId}/settings`)} /> */}
             </Stack.Item>
         </Stack>
     );

@@ -59,7 +59,7 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
 
     const _resetAndCloseForm = () => {
         setFormEnabled(true);
-        history.replace(`/orgs/${orgId}/settings/scopes`);
+        history.push(`/orgs/${orgId}/settings/scopes`);
     };
 
     const _onScopeSubscriptionsChange = (event: React.FormEvent<IComboBox>, option?: IComboBoxOption, index?: number, value?: string) => {

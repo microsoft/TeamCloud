@@ -26,7 +26,7 @@ export const HeaderBreadcrumb: React.FC<IHeaderBreadcrumbProps> = (props) => {
         const orgName = props.orgs?.find(o => o.id.toLowerCase() === orgId.toLowerCase() || o.slug.toLowerCase() === orgId.toLowerCase())?.displayName ?? orgId;
         const orgCrumb = { key: orgId, text: orgName, onClick: () => history.push(orgPath) };
 
-        if (history.location.pathname.endsWith('/projects/new')) {
+        if (history.location.pathname.toLowerCase().endsWith('/projects/new')) {
 
             // Org / New Project
             crumbs.push({ key: 'new', text: 'New Project' });
@@ -43,7 +43,7 @@ export const HeaderBreadcrumb: React.FC<IHeaderBreadcrumbProps> = (props) => {
                 crumbs.push({ key: navId, text: navId, onClick: () => history.push(`${orgPath}/projects/${projectId}/${navId}`) });
         }
 
-        if (history.location.pathname.includes('/settings')) {
+        if (history.location.pathname.toLowerCase().includes('/settings')) {
 
             // Org / Settings
             // Org / Projects / Project / Settings

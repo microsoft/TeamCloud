@@ -59,11 +59,11 @@ export const NewComponentView: React.FC<INewComponentViewProps> = (props) => {
         }
     };
 
-    const _resetAndCloseForm = () => {
-        setComponentTemplate(undefined);
-        setFormEnabled(true);
-        // props.onFormClose();
-    };
+    // const _resetAndCloseForm = () => {
+    //     setComponentTemplate(undefined);
+    //     setFormEnabled(true);
+    //     // props.onFormClose();
+    // };
 
     const _componentTemplateOptions = (data?: ComponentTemplate[]): IDropdownOption[] => {
         if (!data) return [];
@@ -77,7 +77,7 @@ export const NewComponentView: React.FC<INewComponentViewProps> = (props) => {
     const _onRenderPanelFooterContent = () => (
         <div style={{ paddingTop: '24px' }}>
             <PrimaryButton type='submit' text='Create component' disabled={!formEnabled || !(componentTemplate)} styles={{ root: { marginRight: 8 } }} />
-            <DefaultButton text='Cancel' disabled={!formEnabled} onClick={() => _resetAndCloseForm()} />
+            <DefaultButton text='Cancel' disabled={!formEnabled} onClick={() => history.push(`/orgs/${props.org?.slug}/projects/${props.project?.slug}`)} />
             <Spinner styles={{ root: { visibility: formEnabled ? 'hidden' : 'visible' } }} />
         </div>
     );
@@ -87,9 +87,9 @@ export const NewComponentView: React.FC<INewComponentViewProps> = (props) => {
         <Stack styles={{ root: { height: '100%' } }}>
             <ContentProgress progressHidden={formEnabled} />
             <ContentHeader title='New Component'>
-                <IconButton iconProps={{ iconName: 'ChromeClose' }}
-                // onClick={() => history.replace(`/orgs/${orgId}`)}
-                />
+                <IconButton
+                    iconProps={{ iconName: 'ChromeClose' }}
+                    onClick={() => history.push(`/orgs/${props.org?.slug}/projects/${props.project?.slug}`)} />
             </ContentHeader>
             <ContentContainer wide full>
                 <Stack

@@ -255,7 +255,7 @@ export const NewOrgView: React.FC<INewOrgViewProps> = (props) => {
                 percentComplete={percentComplete}
                 progressHidden={formEnabled} />
             <ContentHeader title='New Organization' coin={false} wide>
-                <IconButton iconProps={{ iconName: 'ChromeClose' }} onClick={() => history.replace('/')} />
+                <IconButton iconProps={{ iconName: 'ChromeClose' }} onClick={() => history.push('/')} />
             </ContentHeader>
             <ContentContainer wide full>
                 <Pivot selectedKey={pivotKey} onLinkClick={(i, ev) => setPivotKey(i?.props.itemKey ?? 'Basic Settings')} styles={{ root: { height: '100%' } }}>

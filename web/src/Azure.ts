@@ -22,7 +22,7 @@ export const getManagementGroups = async (): Promise<ManagementGroup[]> => {
 
     const token = await auth.getManagementToken();
 
-    console.log('==> GET ' + url);
+    // console.log('==> GET ' + url);
 
     let response: Response = await fetch(url, {
         method: 'GET',
@@ -31,7 +31,7 @@ export const getManagementGroups = async (): Promise<ManagementGroup[]> => {
         }
     });
 
-    console.log('<== GET ' + url);
+    // console.log('<== GET ' + url);
 
     const json = await response.json();
 
@@ -48,7 +48,7 @@ export const getManagementGroup = async (id: string): Promise<ManagementGroup> =
 
     const url = `https://management.azure.com/providers/Microsoft.Management/managementGroups/${id}?api-version=2020-02-01&$expand=children`;
 
-    console.log('==> GET ' + url);
+    // console.log('==> GET ' + url);
 
     const token = await auth.getManagementToken();
 
@@ -59,7 +59,7 @@ export const getManagementGroup = async (id: string): Promise<ManagementGroup> =
         }
     });
 
-    console.log('<== GET ' + url);
+    // console.log('<== GET ' + url);
 
     const json = await response.json();
 
@@ -76,7 +76,7 @@ export const getSubscriptions = async (): Promise<Subscription[]> => {
 
     const url = `https://management.azure.com/subscriptions?api-version=2020-01-01`;
 
-    console.log('==> GET ' + url);
+    // console.log('==> GET ' + url);
 
     const token = await auth.getManagementToken();
 
@@ -87,7 +87,7 @@ export const getSubscriptions = async (): Promise<Subscription[]> => {
         }
     });
 
-    console.log('<== GET ' + url);
+    // console.log('<== GET ' + url);
 
     const json = await response.json();
 
@@ -103,7 +103,7 @@ export const getResourceGroups = async (subscription: string): Promise<ResourceG
 
     const url = `https://management.azure.com/subscriptions/${subscription}/resourceGroups?api-version=2020-06-01`;
 
-    console.log('==> GET ' + url);
+    // console.log('==> GET ' + url);
 
     const token = await auth.getManagementToken();
 
@@ -114,7 +114,7 @@ export const getResourceGroups = async (subscription: string): Promise<ResourceG
         }
     });
 
-    console.log('<== GET ' + url);
+    // console.log('<== GET ' + url);
 
     const json = await response.json();
 
