@@ -7,6 +7,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
 using TeamCloud.Data.Utilities;
@@ -87,7 +88,7 @@ namespace TeamCloud.Data.CosmosDb.Core
                 .ConfigureAwait(false);
 
             var containerEntry = cosmosContainers.GetOrAdd(typeof(T), containerType
-                => new AsyncLazy<(Container, ChangeFeedProcessor)>(() => CreateContainerAsync(database, typeof(T), HandleChangesAsync)));
+                => new AsyncLazy<(Container, ChangeFeedProcessor)>(() => CreateContainerAsync(database, typeof(T), HandleChangesAsync), LazyThreadSafetyMode.PublicationOnly));
 
             var (container, processor) = await containerEntry.Value.ConfigureAwait(false);
 

@@ -5,16 +5,19 @@
 
 using System;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace TeamCloud.Data.Utilities
 {
     internal sealed class AsyncLazy<T> : ResetLazy<Task<T>>
     {
-        public AsyncLazy(Func<T> valueFactory) : base(() => Task.Factory.StartNew(valueFactory, default, TaskCreationOptions.AttachedToParent, TaskScheduler.Current))
+        public AsyncLazy(Func<T> valueFactory, LazyThreadSafetyMode lazyThreadSafetyMode = LazyThreadSafetyMode.None)
+            : base(() => Task.Factory.StartNew(valueFactory, default, TaskCreationOptions.AttachedToParent, TaskScheduler.Current), lazyThreadSafetyMode)
         { }
 
-        public AsyncLazy(Func<Task<T>> taskFactory) : base(() => taskFactory())
+        public AsyncLazy(Func<Task<T>> taskFactory, LazyThreadSafetyMode lazyThreadSafetyMode = LazyThreadSafetyMode.None)
+            : base(() => taskFactory(), lazyThreadSafetyMode)
         { }
 
         public TaskAwaiter<T> GetAwaiter()
