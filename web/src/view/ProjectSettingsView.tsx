@@ -1,25 +1,22 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Route } from 'react-router-dom';
 import { Stack, IconButton } from '@fluentui/react';
-import { Project, User } from 'teamcloud';
 import { ProjectSettingsOverview, ContentHeader, ContentContainer, ContentProgress } from '../components';
+import { OrgContext } from '../Context';
 
-export interface IProjectSettingsViewProps {
-    user?: User;
-    project?: Project;
-}
-
-export const ProjectSettingsView: React.FC<IProjectSettingsViewProps> = (props) => {
+export const ProjectSettingsView: React.FC = () => {
 
     const [favorite, setFavorate] = useState(false);
 
+    const { project } = useContext(OrgContext);
+
     return (
         <Stack>
-            <ContentProgress progressHidden={props.project !== undefined} />
-            <ContentHeader title={props.project?.displayName}>
+            <ContentProgress progressHidden={project !== undefined} />
+            <ContentHeader title={project?.displayName}>
                 <IconButton
                     toggle
                     checked={favorite}
@@ -28,7 +25,7 @@ export const ProjectSettingsView: React.FC<IProjectSettingsViewProps> = (props) 
             </ContentHeader>
             <ContentContainer>
                 <Route exact path='/orgs/:orgId/projects/:projectId/settings'>
-                    <ProjectSettingsOverview {...{ project: props.project, user: props.user }} />
+                    <ProjectSettingsOverview />
                 </Route>
             </ContentContainer>
         </Stack>

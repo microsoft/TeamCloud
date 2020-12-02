@@ -1,35 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { Nav, INavLinkGroup, Stack, getTheme } from '@fluentui/react';
-import { Organization } from 'teamcloud';
 
-export interface IOrgSettingsNavProps {
-    org?: Organization;
-    orgs?: Organization[];
-    onOrgSelected: (org?: Organization) => void;
-}
-
-export const OrgSettingsNav: React.FC<IOrgSettingsNavProps> = (props) => {
+export const OrgSettingsNav: React.FC = () => {
 
     const history = useHistory();
     const { orgId, settingId } = useParams() as { orgId: string, settingId: string };
-
-    useEffect(() => {
-        if (orgId) {
-            if (props.org && (props.org.id.toLowerCase() === orgId.toLowerCase() || props.org.slug.toLowerCase() === orgId.toLowerCase())) {
-                return;
-            } else if (props.orgs) {
-                const find = props.orgs.find(o => o.id.toLowerCase() === orgId.toLowerCase() || o.slug.toLowerCase() === orgId.toLowerCase());
-                if (find) {
-                    console.log(`setOrg (${orgId})`);
-                    props.onOrgSelected(find);
-                }
-            }
-        }
-    }, [orgId, props]);
 
     const _navLinkGroups = (): INavLinkGroup[] => [{
         links: orgId ? [

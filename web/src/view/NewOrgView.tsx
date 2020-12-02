@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Stack, TextField, Dropdown, IDropdownOption, Text, PrimaryButton, DefaultButton, IconButton, Pivot, PivotItem, ComboBox, ChoiceGroup, Label, IComboBoxOption, IComboBox } from '@fluentui/react';
 import { OrganizationDefinition, DeploymentScopeDefinition, ProjectTemplateDefinition, Organization } from 'teamcloud'
@@ -9,14 +9,13 @@ import { getManagementGroups, getSubscriptions } from '../Azure'
 import { AzureRegions, Tags } from '../model';
 import { ContentContainer, ContentHeader, ContentProgress, OrgSettingsDetail } from '../components';
 import { api } from '../API';
+import { OrgContext } from '../Context';
 
-export interface INewOrgViewProps {
-    onOrgSelected: (org?: Organization) => void;
-}
-
-export const NewOrgView: React.FC<INewOrgViewProps> = (props) => {
+export const NewOrgView: React.FC = () => {
 
     const history = useHistory();
+
+    const { onOrgSelected } = useContext(OrgContext);
 
     // Basic Settings
     const [orgName, setOrgName] = useState<string>();
@@ -145,7 +144,7 @@ export const NewOrgView: React.FC<INewOrgViewProps> = (props) => {
 
             if (org) {
 
-                props.onOrgSelected(org);
+                onOrgSelected(org);
 
                 if (_scopeComplete()) {
                     const scopeDef = {

@@ -3,10 +3,6 @@
 
 import React from 'react';
 
-export interface IProjectSettingsOverviewProps {
-
-}
-
-export const ProjectSettingsOverview: React.FC<IProjectSettingsOverviewProps> = (props) => {
+export const ProjectSettingsOverview: React.FC = (props) => {
     return (<></>);
 }

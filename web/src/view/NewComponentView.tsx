@@ -1,22 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { DefaultButton, Dropdown, IconButton, IDropdownOption, PrimaryButton, Spinner, Stack, Text } from '@fluentui/react';
-import { ComponentRequest, ComponentTemplate, Organization, Project } from 'teamcloud';
+import { ComponentRequest, ComponentTemplate } from 'teamcloud';
 import { useHistory } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { FuiForm } from '@rjsf/fluent-ui'
 import { ISubmitEvent } from '@rjsf/core';
 import { api } from '../API';
 import { ContentContainer, ContentHeader, ContentProgress } from '../components';
+import { OrgContext } from '../Context';
 
-export interface INewComponentViewProps {
-    org?: Organization;
-    project?: Project;
-}
-
-export const NewComponentView: React.FC<INewComponentViewProps> = (props) => {
+export const NewComponentView: React.FC = (props) => {
 
     const history = useHistory();
 
@@ -26,7 +22,7 @@ export const NewComponentView: React.FC<INewComponentViewProps> = (props) => {
     const [formEnabled, setFormEnabled] = useState<boolean>(true);
     const [errorText, setErrorText] = useState<string>();
 
-    const { org, project } = props;
+    const { org, project } = useContext(OrgContext);
 
     useEffect(() => {
         if (project && componentTemplates === undefined) {
@@ -62,7 +58,7 @@ export const NewComponentView: React.FC<INewComponentViewProps> = (props) => {
     // const _resetAndCloseForm = () => {
     //     setComponentTemplate(undefined);
     //     setFormEnabled(true);
-    //     // props.onFormClose();
+    //     // onFormClose();
     // };
 
     const _componentTemplateOptions = (data?: ComponentTemplate[]): IDropdownOption[] => {
@@ -77,7 +73,7 @@ export const NewComponentView: React.FC<INewComponentViewProps> = (props) => {
     const _onRenderPanelFooterContent = () => (
         <div style={{ paddingTop: '24px' }}>
             <PrimaryButton type='submit' text='Create component' disabled={!formEnabled || !(componentTemplate)} styles={{ root: { marginRight: 8 } }} />
-            <DefaultButton text='Cancel' disabled={!formEnabled} onClick={() => history.push(`/orgs/${props.org?.slug}/projects/${props.project?.slug}`)} />
+            <DefaultButton text='Cancel' disabled={!formEnabled} onClick={() => history.push(`/orgs/${org?.slug}/projects/${project?.slug}`)} />
             <Spinner styles={{ root: { visibility: formEnabled ? 'hidden' : 'visible' } }} />
         </div>
     );
@@ -89,7 +85,7 @@ export const NewComponentView: React.FC<INewComponentViewProps> = (props) => {
             <ContentHeader title='New Component'>
                 <IconButton
                     iconProps={{ iconName: 'ChromeClose' }}
-                    onClick={() => history.push(`/orgs/${props.org?.slug}/projects/${props.project?.slug}`)} />
+                    onClick={() => history.push(`/orgs/${org?.slug}/projects/${project?.slug}`)} />
             </ContentHeader>
             <ContentContainer wide full>
                 <Stack

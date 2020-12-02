@@ -1,20 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React from 'react';
+import React, { useContext } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { Text, Breadcrumb, IBreadcrumbItem } from '@fluentui/react';
-import { Organization, Project } from 'teamcloud';
+import { OrgContext } from '../Context';
 
-export interface IHeaderBreadcrumbProps {
-    orgs?: Organization[];
-    projects?: Project[];
-}
-
-export const HeaderBreadcrumb: React.FC<IHeaderBreadcrumbProps> = (props) => {
+export const HeaderBreadcrumb: React.FC = () => {
 
     const history = useHistory();
     const { orgId, projectId, navId, settingId } = useParams() as { orgId: string, projectId: string, navId: string, settingId: string };
+
+    const { orgs, projects } = useContext(OrgContext);
 
     const _breadcrumbs = (): IBreadcrumbItem[] => {
         const crumbs: IBreadcrumbItem[] = [];
@@ -23,7 +20,7 @@ export const HeaderBreadcrumb: React.FC<IHeaderBreadcrumbProps> = (props) => {
             return crumbs;
 
         const orgPath = `/orgs/${orgId}`;
-        const orgName = props.orgs?.find(o => o.id.toLowerCase() === orgId.toLowerCase() || o.slug.toLowerCase() === orgId.toLowerCase())?.displayName ?? orgId;
+        const orgName = orgs?.find(o => o.id.toLowerCase() === orgId.toLowerCase() || o.slug.toLowerCase() === orgId.toLowerCase())?.displayName ?? orgId;
         const orgCrumb = { key: orgId, text: orgName, onClick: () => history.push(orgPath) };
 
         if (history.location.pathname.toLowerCase().endsWith('/projects/new')) {
@@ -34,7 +31,7 @@ export const HeaderBreadcrumb: React.FC<IHeaderBreadcrumbProps> = (props) => {
         } else if (projectId !== undefined) {
 
             // Org / Projects / Project
-            const projectName = props.projects?.find(p => p.id.toLowerCase() === projectId.toLowerCase() || p.slug.toLowerCase() === projectId.toLowerCase())?.displayName ?? projectId;
+            const projectName = projects?.find(p => p.id.toLowerCase() === projectId.toLowerCase() || p.slug.toLowerCase() === projectId.toLowerCase())?.displayName ?? projectId;
             crumbs.push({ key: 'projects', text: 'Projects', onClick: () => history.push(orgPath) });
             crumbs.push({ key: projectId, text: projectName, onClick: () => history.push(`${orgPath}/projects/${projectId}`) });
 

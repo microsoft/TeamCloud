@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter } from 'react-router-dom';
-import { getTheme, Stack } from '@fluentui/react';
+import { Stack } from '@fluentui/react';
 import { InteractionType } from '@azure/msal-browser';
 import { AuthenticatedTemplate, MsalAuthenticationResult, useMsalAuthentication, useIsAuthenticated } from '@azure/msal-react';
 import { ContentView, NavView, HeaderView } from './view';
@@ -11,6 +11,9 @@ import { api, auth } from './API';
 import { GraphUser } from './model';
 import { getMe } from './MSGraph';
 import { Organization, Project, User } from 'teamcloud';
+import { BodyView } from './view';
+import { StateRouter } from './StateRouter';
+import { GraphUserContext, OrgContext } from './Context'
 
 interface IAppProps { }
 
@@ -26,6 +29,7 @@ export const App: React.FC<IAppProps> = () => {
             authResult.login(InteractionType.Redirect, { scopes: auth.getScopes() });
         }
     }, [authResult]);
+
 
     const [orgs, setOrgs] = useState<Organization[]>();
     const [user, setUser] = useState<User>();
@@ -124,28 +128,29 @@ export const App: React.FC<IAppProps> = () => {
     };
 
 
-    const theme = getTheme();
-
-
     return (
-        <Stack verticalFill>
-            <BrowserRouter>
-                <HeaderView orgs={orgs} projects={projects} graphUser={graphUser} />
-                {/* <UnauthenticatedTemplate>
-                    <Error403 error={authResult.result ?? 'Unauthenticated'} />
-                </UnauthenticatedTemplate> */}
-                <AuthenticatedTemplate>
-                    <Stack horizontal disableShrink verticalFill verticalAlign='stretch'>
-                        <Stack.Item styles={{ root: { width: '260px', paddingTop: '20px', paddingBottom: '10px', borderRight: `${theme.palette.neutralLight} solid 1px` } }}>
-                            <NavView org={selectedOrg} user={user} orgs={orgs} onOrgSelected={onOrgSelected} project={selectedProject} projects={projects} onProjectSelected={onProjectSelected} />
-                        </Stack.Item>
-                        <Stack.Item grow styles={{ root: { backgroundColor: theme.palette.neutralLighterAlt } }}>
-                            <ContentView org={selectedOrg} user={user} onOrgSelected={onOrgSelected} project={selectedProject} projects={projects} onProjectSelected={onProjectSelected} />
-                        </Stack.Item>
-                    </Stack>
-                </AuthenticatedTemplate>
-            </BrowserRouter>
-        </Stack>
+        <GraphUserContext.Provider value={{ graphUser: graphUser, setGraphUser: setGraphUser }}>
+            <OrgContext.Provider value={{
+                orgs: orgs,
+                org: selectedOrg,
+                onOrgSelected: onOrgSelected,
+                user: user,
+                projects: projects,
+                project: selectedProject,
+                onProjectSelected: onProjectSelected
+            }}>
+                <Stack verticalFill>
+                    <BrowserRouter>
+                        <StateRouter>
+                            <HeaderView />
+                            <AuthenticatedTemplate>
+                                <BodyView nav={<NavView />} content={<ContentView />} />
+                            </AuthenticatedTemplate>
+                        </StateRouter>
+                    </BrowserRouter>
+                </Stack>
+            </OrgContext.Provider>
+        </GraphUserContext.Provider>
     );
 }
 

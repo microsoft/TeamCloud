@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+export * from './BodyView'
 export * from './ContentView'
 export * from './Error403'
 export * from './Error404'

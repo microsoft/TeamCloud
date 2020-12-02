@@ -1,22 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useHistory } from 'react-router-dom';
 import { ISubmitEvent } from '@rjsf/core';
 import { FuiForm } from '@rjsf/fluent-ui';
 import { Stack, TextField, Dropdown, IDropdownOption, Text, PrimaryButton, DefaultButton, IconButton } from '@fluentui/react';
-import { ProjectTemplate, ProjectDefinition, Organization, Project } from 'teamcloud';
+import { ProjectTemplate, ProjectDefinition } from 'teamcloud';
 import { ContentContainer, ContentHeader, ContentProgress } from '../components';
 import { api } from '../API';
+import { OrgContext } from '../Context';
 
-
-export interface INewProjectViewProps {
-    org?: Organization;
-    onProjectSelected: (project: Project) => void;
-}
-
-export const NewProjectView: React.FC<INewProjectViewProps> = (props) => {
+export const NewProjectView: React.FC = () => {
 
     const history = useHistory();
 
@@ -27,11 +22,12 @@ export const NewProjectView: React.FC<INewProjectViewProps> = (props) => {
     const [formEnabled, setFormEnabled] = useState<boolean>(false);
     const [errorText, setErrorText] = useState<string>();
 
-    const { org } = props;
+    const { org, onProjectSelected } = useContext(OrgContext);
 
     useEffect(() => {
         if (org && projectTemplates === undefined) {
             const _setProjectTemplates = async () => {
+                console.log(`setProjectTemplates (${org.slug})`);
                 const result = await api.getProjectTemplates(org.id);
                 setProjectTemplates(result.data ?? undefined);
                 setProjectTemplateOptions(_projectTemplateOptions(result.data ?? []));
@@ -57,7 +53,7 @@ export const NewProjectView: React.FC<INewProjectViewProps> = (props) => {
             const project = projectResult.data;
 
             if (project) {
-                props.onProjectSelected(project);
+                onProjectSelected(project);
                 history.push(`/orgs/${org.slug}/projects/${project.slug}`);
             } else {
                 console.error(projectResult)

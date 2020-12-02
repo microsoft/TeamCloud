@@ -1,23 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Route, useHistory, useParams } from 'react-router-dom';
 import { IconButton, Stack } from '@fluentui/react';
 import { useIsAuthenticated } from '@azure/msal-react';
-import { DeploymentScope, DeploymentScopeDefinition, Organization, ProjectTemplate, ProjectTemplateDefinition, User, UserDefinition } from 'teamcloud';
+import { DeploymentScope, DeploymentScopeDefinition, ProjectTemplate, ProjectTemplateDefinition, UserDefinition } from 'teamcloud';
 import { OrgSettingsOverview, DeploymentScopeList, ProjectTemplateList, ContentHeader, ContentContainer, ContentProgress, MemberList, DeploymentScopeForm, ProjectTemplateForm } from '../components';
 import { getGraphUser } from '../MSGraph';
 import { ManagementGroup, Member, Subscription } from '../model';
 import { api } from '../API';
 import { getManagementGroups, getSubscriptions } from '../Azure';
+import { OrgContext } from '../Context';
 
-export interface IOrgSettingsViewProps {
-    org?: Organization;
-    user?: User;
-}
-
-export const OrgSettingsView: React.FC<IOrgSettingsViewProps> = (props) => {
+export const OrgSettingsView: React.FC = () => {
 
     const history = useHistory();
 
@@ -32,7 +28,7 @@ export const OrgSettingsView: React.FC<IOrgSettingsViewProps> = (props) => {
     const [subscriptions, setSubscriptions] = useState<Subscription[]>();
     const [managementGroups, setManagementGroups] = useState<ManagementGroup[]>();
 
-    const { org } = props;
+    const { org } = useContext(OrgContext);
 
     useEffect(() => {
         if (isAuthenticated && org && (settingId === undefined || settingId.toLowerCase() === 'members') && members === undefined) {
@@ -162,13 +158,13 @@ export const OrgSettingsView: React.FC<IOrgSettingsViewProps> = (props) => {
 
             setProgressHidden(true);
         }
-    }
+    };
 
     return (
         <Stack>
             <Route exact path='/orgs/:orgId/settings'>
-                <ContentProgress progressHidden={progressHidden && props.org !== undefined} />
-                <ContentHeader title={props.org?.displayName} />
+                <ContentProgress progressHidden={progressHidden && org !== undefined} />
+                <ContentHeader title={org?.displayName} />
             </Route>
             <Route exact path='/orgs/:orgId/settings/members'>
                 <ContentProgress progressHidden={progressHidden && members !== undefined} />
@@ -197,13 +193,13 @@ export const OrgSettingsView: React.FC<IOrgSettingsViewProps> = (props) => {
 
             <ContentContainer>
                 <Route exact path='/orgs/:orgId/settings'>
-                    <OrgSettingsOverview {...{ org: props.org, members: members }} />
+                    <OrgSettingsOverview {...{ org: org, members: members }} />
                 </Route>
                 <Route exact path='/orgs/:orgId/settings/members'>
                     <MemberList {...{ members: members, onAddUsers: onAddUsers }} />
                 </Route>
                 <Route exact path='/orgs/:orgId/settings/scopes'>
-                    <DeploymentScopeList {...{ org: props.org, scopes: scopes }} />
+                    <DeploymentScopeList {...{ org: org, scopes: scopes }} />
                 </Route>
                 <Route exact path='/orgs/:orgId/settings/scopes/new'>
                     <DeploymentScopeForm {...{ subscriptions: subscriptions, managementGroups: managementGroups, onCreateDeploymentScope: onCreateDeploymentScope }} />

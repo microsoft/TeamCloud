@@ -1,22 +1,20 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React from 'react';
+import React, { useContext } from 'react';
 import { IColumn } from '@fluentui/react';
 import { useHistory, useParams } from 'react-router-dom';
-import { Project, Component } from 'teamcloud';
+import { Component } from 'teamcloud';
 import { ContentList } from '.';
+import { ProjectContext } from '../Context';
 import collaboration from '../img/MSC17_collaboration_010_noBG.png'
 
-export interface IComponentListProps {
-    project?: Project;
-    components?: Component[];
-}
-
-export const ComponentList: React.FC<IComponentListProps> = (props) => {
+export const ComponentList: React.FC = () => {
 
     const history = useHistory();
     const { orgId, projectId } = useParams() as { orgId: string, projectId: string; };
+
+    const { components } = useContext(ProjectContext);
 
     const columns: IColumn[] = [
         { key: 'displayName', name: 'Name', minWidth: 240, isResizable: false, fieldName: 'displayName' },
@@ -46,7 +44,7 @@ export const ComponentList: React.FC<IComponentListProps> = (props) => {
     return (
         <ContentList
             columns={columns}
-            items={props.components}
+            items={components}
             applyFilter={_applyFilter}
             onItemInvoked={_onItemInvoked}
             filterPlaceholder='Filter components'

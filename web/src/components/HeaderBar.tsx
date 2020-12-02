@@ -2,58 +2,33 @@
 // Licensed under the MIT License.
 
 import React from 'react';
-import { ITextStyles, Stack, getTheme, IStackStyles, Link } from '@fluentui/react';
-import { GraphUser } from '../model';
+import { Stack, getTheme, Link } from '@fluentui/react';
 import { HeaderBreadcrumb, UserInfo } from '.';
-import { Organization, Project } from 'teamcloud';
 
-export interface IHeaderBarProps {
-    orgs?: Organization[];
-    projects?: Project[];
-    graphUser?: GraphUser;
-}
-
-export const HeaderBar: React.FC<IHeaderBarProps> = (props) => {
+export const HeaderBar: React.FC = () => {
 
     const theme = getTheme();
 
-    const stackStyles: IStackStyles = {
-        root: {
-            height: '48px',
-            borderBottom: `${theme.palette.neutralLight} solid 1px`
-        }
-    };
-
-    const titleStyles: ITextStyles = {
-        root: {
-            fontWeight: 'bold',
-            paddingLeft: '12px',
-            color: theme.palette.themePrimary,
-            fontSize: theme.fonts.mediumPlus.fontSize
-        }
-    };
-
     return (
         <header>
-            <Stack horizontal verticalFill verticalAlign='center' horizontalAlign='space-between' styles={stackStyles}>
+            <Stack
+                horizontal
+                verticalFill
+                verticalAlign='center'
+                horizontalAlign='space-between'
+                styles={{ root: { height: '48px', borderBottom: `${theme.palette.neutralLight} solid 1px` } }}>
                 <Stack.Item>
                     <Stack horizontal verticalFill verticalAlign='center'>
                         <Stack.Item styles={{ root: { width: '260px' } }}>
-                            <Link styles={titleStyles} href='/'>
-                                TeamCloud
-                            </Link>
+                            <Link styles={{ root: { fontWeight: 'bold', paddingLeft: '12px', color: theme.palette.themePrimary, fontSize: theme.fonts.mediumPlus.fontSize } }} href='/'>TeamCloud</Link>
                         </Stack.Item>
                         <Stack.Item styles={{ root: { paddingLeft: '12px' } }}>
-                            <HeaderBreadcrumb orgs={props.orgs} projects={props.projects} />
+                            <HeaderBreadcrumb />
                         </Stack.Item>
                     </Stack>
                 </Stack.Item>
                 <Stack.Item>
-                    <UserInfo
-                        // user={props.user}
-                        graphUser={props.graphUser}
-                    // onSignOut={onSignOut}
-                    />
+                    <UserInfo />
                 </Stack.Item>
             </Stack>
         </header>

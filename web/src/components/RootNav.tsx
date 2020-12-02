@@ -1,51 +1,27 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useEffect } from 'react';
+import React, { useContext } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
-// import { useIsAuthenticated } from '@azure/msal-react';
 import { Nav, INavLinkGroup, INavLink, Stack, ActionButton, Persona, PersonaSize, getTheme, Text } from '@fluentui/react';
-import { Organization } from 'teamcloud'
-// import { api } from '../API';
+import { OrgContext } from '../Context';
 
-export interface IRootNavProps {
-    org?: Organization;
-    orgs?: Organization[];
-    onOrgSelected: (org?: Organization) => void;
-}
-
-export const RootNav: React.FC<IRootNavProps> = (props) => {
-
-    // const isAuthenticated = useIsAuthenticated();
+export const RootNav: React.FC = () => {
 
     const history = useHistory();
     const { orgId } = useParams() as { orgId: string };
 
-    // const [orgs, setOrgs] = useState<Organization[]>();
+    const { orgs, onOrgSelected } = useContext(OrgContext);
 
     const newOrgView = orgId !== undefined && orgId.toLowerCase() === 'new';
 
-    useEffect(() => {
-        if (orgId && orgId.toLowerCase() !== 'new') {
-            if (props.org && (props.org.id.toLowerCase() === orgId.toLowerCase() || props.org.slug.toLowerCase() === orgId.toLowerCase())) {
-                return;
-            } else if (props.orgs) {
-                const find = props.orgs.find(o => o.id.toLowerCase() === orgId.toLowerCase() || o.slug.toLowerCase() === orgId.toLowerCase());
-                if (find) {
-                    console.log(`setOrg (${orgId})`);
-                    props.onOrgSelected(find);
-                }
-            }
-        }
-    }, [orgId, props]);
-
     const _navLinkGroups = (): INavLinkGroup[] => {
-        const links: INavLink[] = props.orgs?.map(o => ({
+        const links: INavLink[] = orgs?.map(o => ({
             key: o.slug,
             name: o.displayName,
             url: '',
             onClick: () => {
-                props.onOrgSelected(o);
+                onOrgSelected(o);
                 history.push(`/orgs/${o.slug}`)
             },
         })) ?? [];
@@ -56,7 +32,7 @@ export const RootNav: React.FC<IRootNavProps> = (props) => {
                 name: "New organization",
                 url: '',
                 onClick: () => {
-                    props.onOrgSelected(undefined);
+                    onOrgSelected(undefined);
                     history.push('/orgs/new')
                 }
             });
