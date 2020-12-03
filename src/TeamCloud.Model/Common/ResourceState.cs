@@ -9,6 +9,8 @@ namespace TeamCloud.Model.Common
     {
         Pending,
 
+        Initializing,
+
         Provisioning,
 
         Succeeded,
