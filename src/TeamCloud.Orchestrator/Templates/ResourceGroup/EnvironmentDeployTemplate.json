@@ -28,11 +28,12 @@
   },
   "variables": {
     "deploymentHost": "[concat(guid(parameters('environmentId')), '.', toLower(replace(resourceGroup().location, ' ', '')), '.azurecontainer.io')]",
+    "deploymentRunnerName" : "[guid(deployment().name)]",
     "environmentSegments": "[split(parameters('environmentId'), '/')]"
   },
   "resources": [
     {
-      "name": "[guid(parameters('environmentId'))]",
+      "name": "[variables('deploymentRunnerName')]",
       "type": "Microsoft.ContainerInstance/containerGroups",
       "apiVersion": "2019-12-01",
       "location": "[resourceGroup().location]",
@@ -146,9 +147,9 @@
     }
   ],
   "outputs":{
-    "resourceId": {
+    "runnerId": {
       "type": "string",
-      "value": "[resourceId('Microsoft.ContainerInstance/containerGroups', guid(parameters('environmentId')))]"
+      "value": "[resourceId('Microsoft.ContainerInstance/containerGroups', variables('deploymentRunnerName'))]"
     }
   }
 }
