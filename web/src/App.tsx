@@ -10,7 +10,7 @@ import { ContentView, NavView, HeaderView } from './view';
 import { api, auth } from './API';
 import { GraphUser } from './model';
 import { getMe } from './MSGraph';
-import { Organization, Project, User } from 'teamcloud';
+import { DeploymentScope, Organization, Project, User } from 'teamcloud';
 import { BodyView } from './view';
 import { StateRouter } from './StateRouter';
 import { GraphUserContext, OrgContext } from './Context'
@@ -34,6 +34,8 @@ export const App: React.FC<IAppProps> = () => {
     const [orgs, setOrgs] = useState<Organization[]>();
     const [user, setUser] = useState<User>();
     const [projects, setProjects] = useState<Project[]>();
+    const [scopes, setScopes] = useState<DeploymentScope[]>();
+    // const [templates, setTemplates] = useState<ProjectTemplate[]>();
     const [selectedOrg, setSelectedOrg] = useState<Organization>();
     const [selectedProject, setSelectedProject] = useState<Project>();
     const [graphUser, setGraphUser] = useState<GraphUser>();
@@ -111,6 +113,34 @@ export const App: React.FC<IAppProps> = () => {
     }, [isAuthenticated, selectedOrg, user]);
 
 
+    useEffect(() => {
+        if (isAuthenticated && selectedOrg
+            // && (location.pathname.toLowerCase().endsWith('/settings/scopes') || location.pathname.toLowerCase().endsWith('components/new'))
+            && scopes === undefined) {
+            const _setScopes = async () => {
+                console.log(`setDeploymentScopes (${selectedOrg.slug})`);
+                let _scopes = await api.getDeploymentScopes(selectedOrg.id);
+                setScopes(_scopes.data ?? undefined)
+            };
+            _setScopes();
+        }
+    }, [isAuthenticated, selectedOrg, scopes]);
+
+
+    // useEffect(() => {
+    //     if (isAuthenticated && selectedOrg
+    //         // && location.pathname.toLowerCase().endsWith('/settings/templates') && !location.pathname.toLowerCase().endsWith('/new')
+    //         && templates === undefined) {
+    //         const _setTemplates = async () => {
+    //             console.log(`setProjectTemplates (${selectedOrg.slug})`);
+    //             let _templates = await api.getProjectTemplates(selectedOrg.id);
+    //             setTemplates(_templates.data ?? undefined)
+    //         };
+    //         _setTemplates();
+    //     }
+    // }, [isAuthenticated, selectedOrg, templates]);
+
+
     const onOrgSelected = (org?: Organization) => {
         if (org && selectedOrg && selectedOrg.id === org.id)
             return;
@@ -135,6 +165,8 @@ export const App: React.FC<IAppProps> = () => {
                 org: selectedOrg,
                 onOrgSelected: onOrgSelected,
                 user: user,
+                scopes: scopes,
+                // templates: templates,
                 projects: projects,
                 project: selectedProject,
                 onProjectSelected: onProjectSelected
