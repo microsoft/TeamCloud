@@ -95,6 +95,10 @@ namespace TeamCloud.Model.Data
         /// </summary>
         public string DeploymentScopeId { get; set; }
 
+        /// <summary>
+        /// Gets or sets the managed identity used by this component
+        /// </summary>
+        public string IdentityId { get; set; }
 
         /// <summary>
         /// Indicates whether the current object is equal to another object of the same type.
