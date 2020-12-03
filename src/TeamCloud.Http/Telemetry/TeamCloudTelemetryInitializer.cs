@@ -3,6 +3,7 @@
  *  Licensed under the MIT License.
  */
 
+using System.Diagnostics;
 using System.Reflection;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.Extensibility;
@@ -18,6 +19,7 @@ namespace TeamCloud.Http.Telemetry
             this.assembly = assembly ?? throw new System.ArgumentNullException(nameof(assembly));
         }
 
+        [DebuggerStepThrough]
         public void Initialize(ITelemetry telemetry)
         {
             if (telemetry is null)
