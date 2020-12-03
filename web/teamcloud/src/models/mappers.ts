@@ -395,7 +395,7 @@ export const Organization: coreHttp.CompositeMapper = {
       resourceState: {
         serializedName: "resourceState",
         type: {
-          name: "Number"
+          name: "String"
         }
       },
       id: {
@@ -851,6 +851,19 @@ export const Project: coreHttp.CompositeMapper = {
           value: { type: { name: "String" } }
         }
       },
+      resourceId: {
+        serializedName: "resourceId",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      resourceState: {
+        serializedName: "resourceState",
+        type: {
+          name: "String"
+        }
+      },
       id: {
         serializedName: "id",
         required: true,
@@ -1081,6 +1094,19 @@ export const Component: coreHttp.CompositeMapper = {
           name: "String"
         }
       },
+      resourceState: {
+        serializedName: "resourceState",
+        type: {
+          name: "String"
+        }
+      },
+      deploymentScopeId: {
+        serializedName: "deploymentScopeId",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
       id: {
         serializedName: "id",
         required: true,
@@ -1092,10 +1118,10 @@ export const Component: coreHttp.CompositeMapper = {
   }
 };
 
-export const ComponentRequest: coreHttp.CompositeMapper = {
+export const ProjectComponentDefinition: coreHttp.CompositeMapper = {
   type: {
     name: "Composite",
-    className: "ComponentRequest",
+    className: "ProjectComponentDefinition",
     modelProperties: {
       templateId: {
         serializedName: "templateId",
@@ -1104,8 +1130,22 @@ export const ComponentRequest: coreHttp.CompositeMapper = {
           name: "String"
         }
       },
+      displayName: {
+        serializedName: "displayName",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
       inputJson: {
         serializedName: "inputJson",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      deploymentScopeId: {
+        serializedName: "deploymentScopeId",
         nullable: true,
         type: {
           name: "String"

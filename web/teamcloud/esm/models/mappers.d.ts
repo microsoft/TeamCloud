@@ -22,7 +22,7 @@ export declare const ProjectDefinition: coreHttp.CompositeMapper;
 export declare const ProjectDataResult: coreHttp.CompositeMapper;
 export declare const ComponentListDataResult: coreHttp.CompositeMapper;
 export declare const Component: coreHttp.CompositeMapper;
-export declare const ComponentRequest: coreHttp.CompositeMapper;
+export declare const ProjectComponentDefinition: coreHttp.CompositeMapper;
 export declare const ComponentDataResult: coreHttp.CompositeMapper;
 export declare const ComponentTemplateListDataResult: coreHttp.CompositeMapper;
 export declare const ComponentTemplate: coreHttp.CompositeMapper;

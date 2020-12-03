@@ -14,7 +14,7 @@ import {
   UserDefinition as UserDefinitionMapper,
   User as UserMapper,
   ProjectDefinition as ProjectDefinitionMapper,
-  ComponentRequest as ComponentRequestMapper,
+  ProjectComponentDefinition as ProjectComponentDefinitionMapper,
   ProjectTemplateDefinition as ProjectTemplateDefinitionMapper,
   ProjectTemplate as ProjectTemplateMapper
 } from "../models/mappers";
@@ -131,7 +131,7 @@ export const projectId: OperationURLParameter = {
 
 export const body6: OperationParameter = {
   parameterPath: ["options", "body"],
-  mapper: ComponentRequestMapper
+  mapper: ProjectComponentDefinitionMapper
 };
 
 export const body7: OperationParameter = {

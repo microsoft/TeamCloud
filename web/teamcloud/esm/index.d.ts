@@ -13,6 +13,8 @@ export declare interface Component {
     valueJson?: string | null;
     type: ComponentType;
     resourceId?: string | null;
+    resourceState?: ComponentResourceState;
+    deploymentScopeId?: string | null;
     id: string;
 }
 
@@ -33,10 +35,10 @@ export declare interface ComponentListDataResult {
     location?: string | null;
 }
 
-export declare interface ComponentRequest {
-    templateId: string;
-    inputJson?: string | null;
-}
+/**
+ * Defines values for ComponentResourceState.
+ */
+export declare type ComponentResourceState = "Pending" | "Provisioning" | "Succeeded" | "Failed" | string;
 
 export declare interface ComponentTemplate {
     organization: string;
@@ -118,11 +120,6 @@ export declare interface DeploymentScopeListDataResult {
     location?: string | null;
 }
 
-/**
- * Defines values for Enum1.
- */
-export declare type Enum1 = 0 | 1 | 2 | 3 | number;
-
 export declare interface ErrorResult {
     code?: number;
     status?: string | null;
@@ -145,7 +142,7 @@ export declare interface Organization {
         [propertyName: string]: string;
     } | null;
     resourceId?: string | null;
-    resourceState?: Enum1;
+    resourceState?: OrganizationResourceState;
     id: string;
 }
 
@@ -176,6 +173,11 @@ export declare interface OrganizationListDataResult {
     location?: string | null;
 }
 
+/**
+ * Defines values for OrganizationResourceState.
+ */
+export declare type OrganizationResourceState = "Pending" | "Provisioning" | "Succeeded" | "Failed" | string;
+
 export declare interface Project {
     organization: string;
     /**
@@ -192,7 +194,16 @@ export declare interface Project {
     tags?: {
         [propertyName: string]: string;
     } | null;
+    resourceId?: string | null;
+    resourceState?: ProjectResourceState;
     id: string;
+}
+
+export declare interface ProjectComponentDefinition {
+    templateId: string;
+    displayName: string;
+    inputJson?: string | null;
+    deploymentScopeId?: string | null;
 }
 
 export declare interface ProjectDataResult {
@@ -238,6 +249,11 @@ export declare interface ProjectMembership {
  * Defines values for ProjectMembershipRole.
  */
 export declare type ProjectMembershipRole = "None" | "Provider" | "Member" | "Owner" | string;
+
+/**
+ * Defines values for ProjectResourceState.
+ */
+export declare type ProjectResourceState = "Pending" | "Provisioning" | "Succeeded" | "Failed" | string;
 
 export declare interface ProjectTemplate {
     organization: string;
@@ -768,7 +784,7 @@ export declare type TeamCloudCreateOrganizationUserResponse = UserDataResult & {
  * Optional parameters.
  */
 export declare interface TeamCloudCreateProjectComponentOptionalParams extends coreHttp.OperationOptions {
-    body?: ComponentRequest;
+    body?: ProjectComponentDefinition;
 }
 
 /**
