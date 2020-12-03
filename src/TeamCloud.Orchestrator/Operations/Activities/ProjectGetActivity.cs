@@ -35,7 +35,7 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                 .ConfigureAwait(false);
         }
 
-        public struct Input
+        internal struct Input
         {
             public string Id { get; set; }
 

@@ -107,7 +107,6 @@ namespace TeamCloud.Git.Services
         }
 
 
-
         private async Task<string> CheckAndPopulateFileContentAsync(RepositoryReference repo, IReadOnlyList<TreeItem> tree, string value, string folder = null)
         {
             if (string.IsNullOrEmpty(value) || !Uri.IsWellFormedUriString(value, UriKind.Relative))
@@ -133,6 +132,7 @@ namespace TeamCloud.Git.Services
                 return value;
             }
         }
+
 
         internal async Task<RepositoryReference> GetRepositoryReferenceAsync(RepositoryReference repository)
         {
