@@ -1332,7 +1332,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ComponentRequest"
+                "$ref": "#/components/schemas/ProjectComponentDefinition"
               }
             }
           }
@@ -3451,13 +3451,12 @@
           },
           "resourceState": {
             "enum": [
-              0,
-              1,
-              2,
-              3
+              "Pending",
+              "Provisioning",
+              "Succeeded",
+              "Failed"
             ],
-            "type": "integer",
-            "format": "int32"
+            "type": "string"
           },
           "id": {
             "type": "string"
@@ -3765,6 +3764,19 @@
             },
             "nullable": true
           },
+          "resourceId": {
+            "type": "string",
+            "nullable": true
+          },
+          "resourceState": {
+            "enum": [
+              "Pending",
+              "Provisioning",
+              "Succeeded",
+              "Failed"
+            ],
+            "type": "string"
+          },
           "id": {
             "type": "string"
           }
@@ -3910,6 +3922,19 @@
             "type": "string",
             "nullable": true
           },
+          "resourceState": {
+            "enum": [
+              "Pending",
+              "Provisioning",
+              "Succeeded",
+              "Failed"
+            ],
+            "type": "string"
+          },
+          "deploymentScopeId": {
+            "type": "string",
+            "nullable": true
+          },
           "id": {
             "type": "string"
           }
@@ -3942,8 +3967,9 @@
         },
         "additionalProperties": false
       },
-      "ComponentRequest": {
+      "ProjectComponentDefinition": {
         "required": [
+          "displayName",
           "templateId"
         ],
         "type": "object",
@@ -3951,7 +3977,14 @@
           "templateId": {
             "type": "string"
           },
+          "displayName": {
+            "type": "string"
+          },
           "inputJson": {
+            "type": "string",
+            "nullable": true
+          },
+          "deploymentScopeId": {
             "type": "string",
             "nullable": true
           }

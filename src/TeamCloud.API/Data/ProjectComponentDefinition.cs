@@ -15,6 +15,9 @@ namespace TeamCloud.API.Data
         [JsonProperty(Required = Required.Always)]
         public string TemplateId { get; set; }
 
+        [JsonProperty(Required = Required.Always)]
+        public string DisplayName { get; set; }
+
         public string InputJson { get; set; }
 
         public string DeploymentScopeId { get; set; }

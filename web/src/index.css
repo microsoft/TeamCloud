@@ -14,3 +14,12 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.component-type-icon {
+  font-size: 18px;
+}
+
+.repo-type-icon {
+  width: 18px;
+  height: 18px;
+}

@@ -384,7 +384,7 @@ export var Organization = {
             resourceState: {
                 serializedName: "resourceState",
                 type: {
-                    name: "Number"
+                    name: "String"
                 }
             },
             id: {
@@ -830,6 +830,19 @@ export var Project = {
                     value: { type: { name: "String" } }
                 }
             },
+            resourceId: {
+                serializedName: "resourceId",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
+            resourceState: {
+                serializedName: "resourceState",
+                type: {
+                    name: "String"
+                }
+            },
             id: {
                 serializedName: "id",
                 required: true,
@@ -1056,6 +1069,19 @@ export var Component = {
                     name: "String"
                 }
             },
+            resourceState: {
+                serializedName: "resourceState",
+                type: {
+                    name: "String"
+                }
+            },
+            deploymentScopeId: {
+                serializedName: "deploymentScopeId",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
             id: {
                 serializedName: "id",
                 required: true,
@@ -1066,10 +1092,10 @@ export var Component = {
         }
     }
 };
-export var ComponentRequest = {
+export var ProjectComponentDefinition = {
     type: {
         name: "Composite",
-        className: "ComponentRequest",
+        className: "ProjectComponentDefinition",
         modelProperties: {
             templateId: {
                 serializedName: "templateId",
@@ -1078,8 +1104,22 @@ export var ComponentRequest = {
                     name: "String"
                 }
             },
+            displayName: {
+                serializedName: "displayName",
+                required: true,
+                type: {
+                    name: "String"
+                }
+            },
             inputJson: {
                 serializedName: "inputJson",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
+            deploymentScopeId: {
+                serializedName: "deploymentScopeId",
                 nullable: true,
                 type: {
                     name: "String"

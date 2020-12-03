@@ -90,7 +90,7 @@ export interface Organization {
    */
   tags?: { [propertyName: string]: string } | null;
   resourceId?: string | null;
-  resourceState?: Enum1;
+  resourceState?: OrganizationResourceState;
   id: string;
 }
 
@@ -195,6 +195,8 @@ export interface Project {
    * Dictionary of <string>
    */
   tags?: { [propertyName: string]: string } | null;
+  resourceId?: string | null;
+  resourceState?: ProjectResourceState;
   id: string;
 }
 
@@ -239,12 +241,16 @@ export interface Component {
   valueJson?: string | null;
   type: ComponentType;
   resourceId?: string | null;
+  resourceState?: ComponentResourceState;
+  deploymentScopeId?: string | null;
   id: string;
 }
 
-export interface ComponentRequest {
+export interface ProjectComponentDefinition {
   templateId: string;
+  displayName: string;
   inputJson?: string | null;
+  deploymentScopeId?: string | null;
 }
 
 export interface ComponentDataResult {
@@ -366,9 +372,14 @@ export type ResultErrorCode =
   | "Forbidden"
   | string;
 /**
- * Defines values for Enum1.
+ * Defines values for OrganizationResourceState.
  */
-export type Enum1 = 0 | 1 | 2 | 3 | number;
+export type OrganizationResourceState =
+  | "Pending"
+  | "Provisioning"
+  | "Succeeded"
+  | "Failed"
+  | string;
 /**
  * Defines values for UserType.
  */
@@ -387,6 +398,15 @@ export type ProjectMembershipRole =
   | "Owner"
   | string;
 /**
+ * Defines values for ProjectResourceState.
+ */
+export type ProjectResourceState =
+  | "Pending"
+  | "Provisioning"
+  | "Succeeded"
+  | "Failed"
+  | string;
+/**
  * Defines values for ComponentType.
  */
 export type ComponentType =
@@ -394,6 +414,15 @@ export type ComponentType =
   | "AzureResource"
   | "Environment"
   | "GitRepository"
+  | string;
+/**
+ * Defines values for ComponentResourceState.
+ */
+export type ComponentResourceState =
+  | "Pending"
+  | "Provisioning"
+  | "Succeeded"
+  | "Failed"
   | string;
 /**
  * Defines values for RepositoryReferenceProvider.
@@ -903,7 +932,7 @@ export type TeamCloudGetProjectComponentsResponse = ComponentListDataResult & {
  */
 export interface TeamCloudCreateProjectComponentOptionalParams
   extends coreHttp.OperationOptions {
-  body?: ComponentRequest;
+  body?: ProjectComponentDefinition;
 }
 
 /**

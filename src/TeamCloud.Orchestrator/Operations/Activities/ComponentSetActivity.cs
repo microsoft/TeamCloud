@@ -37,7 +37,7 @@ namespace TeamCloud.Orchestrator.Operations.Activities
             return Component;
         }
 
-        public struct Input
+        internal struct Input
         {
             public Component Component { get; set; }
         }

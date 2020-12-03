@@ -164,7 +164,7 @@ namespace TeamCloud.API.Controllers
                 ProjectId = project.Id,
                 Provider = componentTemplate.Provider,
                 RequestedBy = currentUser.Id,
-                DisplayName = componentTemplate.DisplayName,
+                DisplayName = componentDefinition.DisplayName,
                 InputJson = componentDefinition.InputJson,
                 Type = componentTemplate.Type
             };

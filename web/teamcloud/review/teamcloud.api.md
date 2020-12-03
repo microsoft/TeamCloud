@@ -9,6 +9,8 @@ import * as coreHttp from '@azure/core-http';
 // @public (undocumented)
 export interface Component {
     // (undocumented)
+    deploymentScopeId?: string | null;
+    // (undocumented)
     description?: string | null;
     // (undocumented)
     displayName?: string | null;
@@ -28,6 +30,8 @@ export interface Component {
     requestedBy: string;
     // (undocumented)
     resourceId?: string | null;
+    // (undocumented)
+    resourceState?: ComponentResourceState;
     // (undocumented)
     templateId: string;
     // (undocumented)
@@ -59,13 +63,8 @@ export interface ComponentListDataResult {
     status?: string | null;
 }
 
-// @public (undocumented)
-export interface ComponentRequest {
-    // (undocumented)
-    inputJson?: string | null;
-    // (undocumented)
-    templateId: string;
-}
+// @public
+export type ComponentResourceState = "Pending" | "Provisioning" | "Succeeded" | "Failed" | string;
 
 // @public (undocumented)
 export interface ComponentTemplate {
@@ -171,9 +170,6 @@ export interface DeploymentScopeListDataResult {
     status?: string | null;
 }
 
-// @public
-export type Enum1 = 0 | 1 | 2 | 3 | number;
-
 // @public (undocumented)
 export interface ErrorResult {
     // (undocumented)
@@ -195,7 +191,7 @@ export interface Organization {
     // (undocumented)
     resourceId?: string | null;
     // (undocumented)
-    resourceState?: Enum1;
+    resourceState?: OrganizationResourceState;
     readonly slug: string;
     // (undocumented)
     subscriptionId: string;
@@ -240,6 +236,9 @@ export interface OrganizationListDataResult {
     status?: string | null;
 }
 
+// @public
+export type OrganizationResourceState = "Pending" | "Provisioning" | "Succeeded" | "Failed" | string;
+
 // @public (undocumented)
 export interface Project {
     // (undocumented)
@@ -248,6 +247,10 @@ export interface Project {
     id: string;
     // (undocumented)
     organization: string;
+    // (undocumented)
+    resourceId?: string | null;
+    // (undocumented)
+    resourceState?: ProjectResourceState;
     readonly slug: string;
     tags?: {
         [propertyName: string]: string;
@@ -258,6 +261,18 @@ export interface Project {
     templateInput?: string | null;
     // (undocumented)
     users?: User[] | null;
+}
+
+// @public (undocumented)
+export interface ProjectComponentDefinition {
+    // (undocumented)
+    deploymentScopeId?: string | null;
+    // (undocumented)
+    displayName: string;
+    // (undocumented)
+    inputJson?: string | null;
+    // (undocumented)
+    templateId: string;
 }
 
 // @public (undocumented)
@@ -309,6 +324,9 @@ export interface ProjectMembership {
 
 // @public
 export type ProjectMembershipRole = "None" | "Provider" | "Member" | "Owner" | string;
+
+// @public
+export type ProjectResourceState = "Pending" | "Provisioning" | "Succeeded" | "Failed" | string;
 
 // @public (undocumented)
 export interface ProjectTemplate {
@@ -553,7 +571,7 @@ export type TeamCloudCreateOrganizationUserResponse = UserDataResult & {
 // @public
 export interface TeamCloudCreateProjectComponentOptionalParams extends coreHttp.OperationOptions {
     // (undocumented)
-    body?: ComponentRequest;
+    body?: ProjectComponentDefinition;
 }
 
 // @public

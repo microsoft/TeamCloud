@@ -30,6 +30,31 @@
           "members": [
             {
               "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!Component#deploymentScopeId:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "deploymentScopeId?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "deploymentScopeId",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
               "canonicalReference": "teamcloud!Component#description:member",
               "docComment": "",
               "excerptTokens": [
@@ -273,6 +298,32 @@
               ],
               "releaseTag": "Public",
               "name": "resourceId",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!Component#resourceState:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "resourceState?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ComponentResourceState",
+                  "canonicalReference": "teamcloud!ComponentResourceState:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "resourceState",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
@@ -596,70 +647,29 @@
           "extendsTokenRanges": []
         },
         {
-          "kind": "Interface",
-          "canonicalReference": "teamcloud!ComponentRequest:interface",
-          "docComment": "",
+          "kind": "TypeAlias",
+          "canonicalReference": "teamcloud!ComponentResourceState:type",
+          "docComment": "/**\n * Defines values for ComponentResourceState.\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "export interface ComponentRequest "
+              "text": "export declare type ComponentResourceState = "
+            },
+            {
+              "kind": "Content",
+              "text": "\"Pending\" | \"Provisioning\" | \"Succeeded\" | \"Failed\" | string"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
             }
           ],
           "releaseTag": "Public",
-          "name": "ComponentRequest",
-          "members": [
-            {
-              "kind": "PropertySignature",
-              "canonicalReference": "teamcloud!ComponentRequest#inputJson:member",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "inputJson?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string | null"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "releaseTag": "Public",
-              "name": "inputJson",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              }
-            },
-            {
-              "kind": "PropertySignature",
-              "canonicalReference": "teamcloud!ComponentRequest#templateId:member",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "templateId: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "releaseTag": "Public",
-              "name": "templateId",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              }
-            }
-          ],
-          "extendsTokenRanges": []
+          "name": "ComponentResourceState",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          }
         },
         {
           "kind": "Interface",
@@ -1763,31 +1773,6 @@
           "extendsTokenRanges": []
         },
         {
-          "kind": "TypeAlias",
-          "canonicalReference": "teamcloud!Enum1:type",
-          "docComment": "/**\n * Defines values for Enum1.\n */\n",
-          "excerptTokens": [
-            {
-              "kind": "Content",
-              "text": "export declare type Enum1 = "
-            },
-            {
-              "kind": "Content",
-              "text": "0 | 1 | 2 | 3 | number"
-            },
-            {
-              "kind": "Content",
-              "text": ";"
-            }
-          ],
-          "releaseTag": "Public",
-          "name": "Enum1",
-          "typeTokenRange": {
-            "startIndex": 1,
-            "endIndex": 2
-          }
-        },
-        {
           "kind": "Interface",
           "canonicalReference": "teamcloud!ErrorResult:interface",
           "docComment": "",
@@ -2007,8 +1992,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "Enum1",
-                  "canonicalReference": "teamcloud!Enum1:type"
+                  "text": "OrganizationResourceState",
+                  "canonicalReference": "teamcloud!OrganizationResourceState:type"
                 },
                 {
                   "kind": "Content",
@@ -2480,6 +2465,31 @@
           "extendsTokenRanges": []
         },
         {
+          "kind": "TypeAlias",
+          "canonicalReference": "teamcloud!OrganizationResourceState:type",
+          "docComment": "/**\n * Defines values for OrganizationResourceState.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare type OrganizationResourceState = "
+            },
+            {
+              "kind": "Content",
+              "text": "\"Pending\" | \"Provisioning\" | \"Succeeded\" | \"Failed\" | string"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "OrganizationResourceState",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          }
+        },
+        {
           "kind": "Interface",
           "canonicalReference": "teamcloud!Project:interface",
           "docComment": "",
@@ -2562,6 +2572,57 @@
               ],
               "releaseTag": "Public",
               "name": "organization",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!Project#resourceId:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "resourceId?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "resourceId",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!Project#resourceState:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "resourceState?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ProjectResourceState",
+                  "canonicalReference": "teamcloud!ProjectResourceState:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "resourceState",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
@@ -2695,6 +2756,122 @@
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 3
+              }
+            }
+          ],
+          "extendsTokenRanges": []
+        },
+        {
+          "kind": "Interface",
+          "canonicalReference": "teamcloud!ProjectComponentDefinition:interface",
+          "docComment": "",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export interface ProjectComponentDefinition "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "ProjectComponentDefinition",
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!ProjectComponentDefinition#deploymentScopeId:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "deploymentScopeId?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "deploymentScopeId",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!ProjectComponentDefinition#displayName:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "displayName: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "displayName",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!ProjectComponentDefinition#inputJson:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "inputJson?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "inputJson",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!ProjectComponentDefinition#templateId:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "templateId: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "templateId",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
               }
             }
           ],
@@ -3196,6 +3373,31 @@
           ],
           "releaseTag": "Public",
           "name": "ProjectMembershipRole",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "teamcloud!ProjectResourceState:type",
+          "docComment": "/**\n * Defines values for ProjectResourceState.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare type ProjectResourceState = "
+            },
+            {
+              "kind": "Content",
+              "text": "\"Pending\" | \"Provisioning\" | \"Succeeded\" | \"Failed\" | string"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "ProjectResourceState",
           "typeTokenRange": {
             "startIndex": 1,
             "endIndex": 2
@@ -9431,8 +9633,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "ComponentRequest",
-                  "canonicalReference": "teamcloud!ComponentRequest:interface"
+                  "text": "ProjectComponentDefinition",
+                  "canonicalReference": "teamcloud!ProjectComponentDefinition:interface"
                 },
                 {
                   "kind": "Content",

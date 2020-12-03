@@ -5,7 +5,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Route, Switch, useHistory, useLocation, useParams } from 'react-router-dom';
 import { Stack, IconButton } from '@fluentui/react';
 import { useIsAuthenticated } from '@azure/msal-react';
-import { Component, ComponentTemplate, UserDefinition } from 'teamcloud';
+import { Component, ComponentTemplate, ProjectComponentDefinition, UserDefinition } from 'teamcloud';
 import { ProjectOverview, ContentHeader, ContentProgress, ContentContainer, MemberList, ComponentList, ComponentForm } from '../components';
 import { ProjectMember } from '../model';
 import { api } from '../API';
@@ -96,22 +96,37 @@ export const ProjectView: React.FC = () => {
                     projectMembership: u.projectMemberships!.find(m => m.projectId === project.id)!
                 })));
 
-            setMembers(members ? [...members, ...newMembers] : newMembers)
+            setMembers(members ? [...members, ...newMembers] : newMembers);
         }
-    }
+    };
+
+
+    const onCreateComponent = async (component: ProjectComponentDefinition) => {
+        if (project) {
+            console.log(`createComponent (${project.slug})`);
+            const result = await api.createProjectComponent(project.organization, project.id, { body: component });
+            if (result.data) {
+                setComponents(components ? [...components, result.data] : [result.data]);
+            } else {
+                console.error(result);
+            }
+        } else {
+            console.error('No project specified');
+        }
+    };
 
     // const { members, components, onAddUsers } = useProject(isAuthenticated, project, navId);
     // const { navId, user, project, members, components, onAddUsers } = useProject();
 
     return (
         <ProjectContext.Provider value={{
-            org: org,
             user: user,
             project: project,
             members: members,
             components: components,
             templates: templates,
-            onAddUsers: onAddUsers
+            onAddUsers: onAddUsers,
+            onCreateComponent: onCreateComponent
         }}>
             <Stack>
                 <Switch>

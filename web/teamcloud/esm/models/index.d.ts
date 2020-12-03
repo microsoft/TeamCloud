@@ -75,7 +75,7 @@ export interface Organization {
         [propertyName: string]: string;
     } | null;
     resourceId?: string | null;
-    resourceState?: Enum1;
+    resourceState?: OrganizationResourceState;
     id: string;
 }
 export interface OrganizationDefinition {
@@ -178,6 +178,8 @@ export interface Project {
     tags?: {
         [propertyName: string]: string;
     } | null;
+    resourceId?: string | null;
+    resourceState?: ProjectResourceState;
     id: string;
 }
 export interface ProjectDefinition {
@@ -218,11 +220,15 @@ export interface Component {
     valueJson?: string | null;
     type: ComponentType;
     resourceId?: string | null;
+    resourceState?: ComponentResourceState;
+    deploymentScopeId?: string | null;
     id: string;
 }
-export interface ComponentRequest {
+export interface ProjectComponentDefinition {
     templateId: string;
+    displayName: string;
     inputJson?: string | null;
+    deploymentScopeId?: string | null;
 }
 export interface ComponentDataResult {
     code?: number;
@@ -325,9 +331,9 @@ export interface ProjectTemplateDataResult {
  */
 export declare type ResultErrorCode = "Unknown" | "Failed" | "Conflict" | "NotFound" | "ServerError" | "ValidationError" | "Unauthorized" | "Forbidden" | string;
 /**
- * Defines values for Enum1.
+ * Defines values for OrganizationResourceState.
  */
-export declare type Enum1 = 0 | 1 | 2 | 3 | number;
+export declare type OrganizationResourceState = "Pending" | "Provisioning" | "Succeeded" | "Failed" | string;
 /**
  * Defines values for UserType.
  */
@@ -341,9 +347,17 @@ export declare type UserRole = "None" | "Provider" | "Creator" | "Admin" | strin
  */
 export declare type ProjectMembershipRole = "None" | "Provider" | "Member" | "Owner" | string;
 /**
+ * Defines values for ProjectResourceState.
+ */
+export declare type ProjectResourceState = "Pending" | "Provisioning" | "Succeeded" | "Failed" | string;
+/**
  * Defines values for ComponentType.
  */
 export declare type ComponentType = "Custom" | "AzureResource" | "Environment" | "GitRepository" | string;
+/**
+ * Defines values for ComponentResourceState.
+ */
+export declare type ComponentResourceState = "Pending" | "Provisioning" | "Succeeded" | "Failed" | string;
 /**
  * Defines values for RepositoryReferenceProvider.
  */
@@ -780,7 +794,7 @@ export declare type TeamCloudGetProjectComponentsResponse = ComponentListDataRes
  * Optional parameters.
  */
 export interface TeamCloudCreateProjectComponentOptionalParams extends coreHttp.OperationOptions {
-    body?: ComponentRequest;
+    body?: ProjectComponentDefinition;
 }
 /**
  * Contains response data for the createProjectComponent operation.

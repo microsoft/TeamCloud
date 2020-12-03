@@ -118,7 +118,7 @@ namespace TeamCloud.Orchestrator.API
 
             command.Validate(throwOnValidationError: true);
 
-            _ = await ProcessCommandAsync(durableClient, command, commandProcessor, commandMonitor, log)
+            _ = await ProcessCommandAsync(durableClient, command, commandProcessor, commandMonitor)
                 .ConfigureAwait(false);
         }
 
@@ -205,11 +205,11 @@ namespace TeamCloud.Orchestrator.API
                 return new BadRequestResult();
             }
 
-            return await ProcessCommandAsync(durableClient, command, commandQueue, commandMonitor, log)
+            return await ProcessCommandAsync(durableClient, command, commandQueue, commandMonitor)
                 .ConfigureAwait(false);
         }
 
-        private async Task<IActionResult> ProcessCommandAsync(IDurableClient durableClient, ICommand command, IAsyncCollector<ICommand> commandQueue, IAsyncCollector<string> commandMonitor, ILogger log)
+        private async Task<IActionResult> ProcessCommandAsync(IDurableClient durableClient, ICommand command, IAsyncCollector<ICommand> commandQueue, IAsyncCollector<string> commandMonitor)
         {
             if (TryGetCommandHandler(command, out var commandHandler))
             {
