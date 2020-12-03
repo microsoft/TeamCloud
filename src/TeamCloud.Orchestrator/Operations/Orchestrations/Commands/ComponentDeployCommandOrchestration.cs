@@ -13,7 +13,7 @@ using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Operations.Activities;
-using TeamCloud.Orchestrator.Operations.Entities;
+using TeamCloud.Orchestrator.Operations.Orchestrations.Utilities;
 using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.Operations.Orchestrations.Commands
@@ -33,23 +33,18 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Commands
 
             try
             {
-                // we lock the component entity provided as payload 
-                // to avoid concurrent deploy / reset operations
+                command.Payload = (await context
+                    .CallActivityWithRetryAsync<Component>(nameof(ComponentGetActivity), new ComponentGetActivity.Input() { Id = command.Payload.Id, ProjectId = command.Payload.ProjectId })
+                    .ConfigureAwait(true)) ?? command.Payload;
 
-                using (await context.LockContainerDocumentAsync(command.Payload).ConfigureAwait(true))
+                var commandResultTask = command.Payload.Type switch
                 {
-                    var component = (await context
-                            .CallActivityWithRetryAsync<Component>(nameof(ComponentGetActivity), new ComponentGetActivity.Input() { Id = command.Payload.Id, Organization = command.Payload.Organization })
-                            .ConfigureAwait(true)) ?? command.Payload;
+                    ComponentType.Environment => DeployEnvironmentAsync(context, command.Payload, log),
 
-                    var commandResultTask = component.Type switch
-                    {
-                        ComponentType.Environment => DeployEnvironmentAsync(context, command, log),
-                        _ => throw new NotSupportedException($"Component of type '{component.Type}' is not supported.")
-                    };
+                    _ => throw new NotSupportedException($"Component of type '{command.Payload.Type}' is not supported.")
+                };
 
-                    commandResult = await commandResultTask.ConfigureAwait(true);
-                }
+                commandResult.Result = await commandResultTask.ConfigureAwait(true);
             }
             catch (Exception exc)
             {
@@ -65,19 +60,17 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Commands
             }
         }
 
-        private static Task<ComponentDeployCommandResult> DeployEnvironmentAsync(IDurableOrchestrationContext context, ComponentDeployCommand command, ILogger log)
+        private static async Task<Component> DeployEnvironmentAsync(IDurableOrchestrationContext context, Component component, ILogger log)
         {
-            // resolve deployment scope defined by component
+            component = await context
+                .CallSubOrchestratorWithRetryAsync<Component>(nameof(EnvironmentDeployOrchestration), new EnvironmentDeployOrchestration.Input() { Component = component })
+                .ConfigureAwait(true);
 
-            // initialize deployment scope for project context
+            component = await context
+                .CallActivityWithRetryAsync<Component>(nameof(EnvironmentDeployActivity), new EnvironmentDeployActivity.Input() { Component = component })
+                .ConfigureAwait(true);
 
-            // allocate component deployment target from scope
-
-            // start component deployment
-
-            // offload component deployment monitoring
-
-            return Task.FromResult(command.CreateResult());
+            return component;
         }
     }
 }

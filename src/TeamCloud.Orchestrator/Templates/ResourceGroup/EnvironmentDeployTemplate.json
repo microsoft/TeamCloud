@@ -1,0 +1,154 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "environmentId": {
+      "type": "string"
+    },
+    "environmentTemplatePath": {
+      "type": "string"
+    },
+    "environmentTemplateRepository": {
+      "type": "string"
+    },
+    "environmentTemplateRevision": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "environmentTemplateParameters": {
+      "type": "object",
+      "defaultValue": {}
+    },
+    "deploymentRunner": {
+      "type": "string"
+    },
+    "deploymentIdentity": {
+      "type": "string"
+    }
+  },
+  "variables": {
+    "deploymentHost": "[concat(guid(parameters('environmentId')), '.', toLower(replace(resourceGroup().location, ' ', '')), '.azurecontainer.io')]",
+    "environmentSegments": "[split(parameters('environmentId'), '/')]"
+  },
+  "resources": [
+    {
+      "name": "[guid(parameters('environmentId'))]",
+      "type": "Microsoft.ContainerInstance/containerGroups",
+      "apiVersion": "2019-12-01",
+      "location": "[resourceGroup().location]",
+      "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "[parameters('deploymentIdentity')]": {}
+        }
+      },
+      "properties": {
+        "containers": [
+          {
+            "name": "runner",
+            "properties": {
+              "command": [],
+              "image": "[parameters('deploymentRunner')]",
+              "ports": [
+                {
+                  "port": 80
+                },
+                {
+                  "port": 443
+                }
+              ],
+              "resources": {
+                "requests": {
+                  "cpu": 1,
+                  "memoryInGB": 1
+                }
+              },
+              "environmentVariables": [
+                {
+                  "name": "DeploymentId",
+                  "value": "[guid(parameters('environmentId'))]"
+                },
+                {
+                  "name": "DeploymentHost",
+                  "value": "[variables('deploymentHost')]"
+                },
+                {
+                  "name": "EnvironmentId",
+                  "value": "[parameters('environmentId')]"
+                },
+                {
+                  "name": "EnvironmentLocation",
+                  "value": "[resourceGroup().location]"
+                },
+                {
+                  "name": "EnvironmentTemplateUrl",
+                  "value": "[uri(concat('http://', variables('deploymentHost')), if (startsWith(parameters('environmentTemplatePath'), '/'), skip(parameters('environmentTemplatePath'), 1), parameters('environmentTemplatePath')))]"
+                },
+                {
+                  "name": "EnvironmentTemplateToken",
+                  "value": "[uniqueString(resourceId('Microsoft.ContainerInstance/containerGroups', guid(parameters('environmentId'))))]"
+                },
+                {
+                  "name": "EnvironmentTemplateFile",
+                  "value": "[uri('file:///mnt/templates/root/', if (startsWith(parameters('environmentTemplatePath'), '/'), skip(parameters('environmentTemplatePath'), 1), parameters('environmentTemplatePath')))]"
+                },
+                {
+                  "name": "EnvironmentTemplateParameters",
+                  "value": "[string(parameters('environmentTemplateParameters'))]"
+                },
+                {
+                  "name": "EnvironmentResourceGroup",
+                  "value": "[if(greaterOrEquals(length(variables('environmentSegments')),5), variables('environmentSegments')[4], '')]"
+                },
+                {
+                  "name": "EnvironmentSubscription",
+                  "value": "[if(greaterOrEquals(length(variables('environmentSegments')),3), variables('environmentSegments')[2], '')]"
+                }
+              ],
+              "volumeMounts": [
+                {
+                  "name": "templates",
+                  "mountPath": "/mnt/templates",
+                  "readOnly": false
+                }
+              ]
+            }
+          }
+        ],
+        "osType": "Linux",
+        "restartPolicy": "Never",
+        "ipAddress": {
+          "type": "Public",
+          "dnsNameLabel": "[guid(parameters('environmentId'))]",
+          "ports": [
+            {
+              "protocol": "tcp",
+              "port": 80
+            },
+            {
+              "protocol": "tcp",
+              "port": 443
+            }
+          ]
+        },
+        "volumes": [
+          {
+
+            "name": "templates",
+            "gitRepo": {
+              "directory": "root",
+              "repository": "[parameters('environmentTemplateRepository')]",
+              "revision": "[parameters('environmentTemplateRevision')]"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "outputs":{
+    "resourceId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.ContainerInstance/containerGroups', guid(parameters('environmentId')))]"
+    }
+  }
+}

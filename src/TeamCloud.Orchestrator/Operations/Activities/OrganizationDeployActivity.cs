@@ -10,6 +10,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Azure.Deployment;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestrator.Templates;
+using TeamCloud.Orchestrator.Templates.Subscription;
 
 namespace TeamCloud.Orchestrator.Operations.Activities
 {

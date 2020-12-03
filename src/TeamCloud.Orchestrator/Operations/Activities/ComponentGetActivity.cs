@@ -31,7 +31,7 @@ namespace TeamCloud.Orchestrator.Operations.Activities
             var input = context.GetInput<Input>();
 
             return await componentRepository
-                .GetAsync(input.Organization, input.Id)
+                .GetAsync(input.ProjectId, input.Id)
                 .ConfigureAwait(false);
         }
 
@@ -39,7 +39,7 @@ namespace TeamCloud.Orchestrator.Operations.Activities
         {
             public string Id { get; set; }
 
-            public string Organization { get; set; }
+            public string ProjectId { get; set; }
         }
     }
 }

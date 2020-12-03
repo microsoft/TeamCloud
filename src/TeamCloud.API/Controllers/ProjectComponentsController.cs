@@ -61,7 +61,7 @@ namespace TeamCloud.API.Controllers
         public Task<IActionResult> Get() => EnsureProjectIdAsync(async projectId =>
         {
             var components = await componentRepository
-                .ListAsync(OrgId, projectId)
+                .ListAsync(projectId)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
@@ -85,10 +85,10 @@ namespace TeamCloud.API.Controllers
                     .ToActionResult();
 
             var component = await componentRepository
-                .GetAsync(OrgId, id)
+                .GetAsync(projectId, id)
                 .ConfigureAwait(false);
 
-            if (component is null || !component.ProjectId.Equals(projectId, StringComparison.Ordinal))
+            if (component is null)
                 return ErrorResult
                     .NotFound($"A Component with the ID '{id}' could not be found for Project {projectId}.")
                     .ToActionResult();
@@ -192,7 +192,7 @@ namespace TeamCloud.API.Controllers
                     .ToActionResult();
 
             var component = await componentRepository
-                .GetAsync(OrgId, id)
+                .GetAsync(projectId, id)
                 .ConfigureAwait(false);
 
             if (component is null || component.ProjectId.Equals(projectId, StringComparison.Ordinal))

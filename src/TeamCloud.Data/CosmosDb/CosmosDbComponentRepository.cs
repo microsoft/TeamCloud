@@ -40,8 +40,11 @@ namespace TeamCloud.Data.CosmosDb
             return response.Resource;
         }
 
-        public async Task<Component> GetAsync(string organization, string id)
+        public async Task<Component> GetAsync(string projectId, string id)
         {
+            if (projectId is null)
+                throw new ArgumentNullException(nameof(projectId));
+
             if (id is null)
                 throw new ArgumentNullException(nameof(id));
 
@@ -54,7 +57,7 @@ namespace TeamCloud.Data.CosmosDb
             try
             {
                 var response = await container
-                    .ReadItemAsync<Component>(idParsed.ToString(), GetPartitionKey(organization))
+                    .ReadItemAsync<Component>(idParsed.ToString(), GetPartitionKey(projectId))
                     .ConfigureAwait(false);
 
                 return response.Resource;
@@ -65,7 +68,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async IAsyncEnumerable<Component> ListAsync(string organization, string projectId)
+        public async IAsyncEnumerable<Component> ListAsync(string projectId)
         {
             if (projectId is null)
                 throw new ArgumentNullException(nameof(projectId));
@@ -84,7 +87,7 @@ namespace TeamCloud.Data.CosmosDb
             var query = new QueryDefinition(queryString);
 
             var queryIterator = container
-                .GetItemQueryIterator<Component>(query, requestOptions: GetQueryRequestOptions(organization));
+                .GetItemQueryIterator<Component>(query, requestOptions: GetQueryRequestOptions(projectId));
 
             while (queryIterator.HasMoreResults)
             {
@@ -119,9 +122,9 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async Task RemoveAllAsync(string organization, string projectId)
+        public async Task RemoveAllAsync(string projectId)
         {
-            var components = ListAsync(organization, projectId);
+            var components = ListAsync(projectId);
 
             if (await components.AnyAsync().ConfigureAwait(false))
             {
@@ -129,7 +132,7 @@ namespace TeamCloud.Data.CosmosDb
                     .ConfigureAwait(false);
 
                 var batch = container
-                    .CreateTransactionalBatch(GetPartitionKey(organization));
+                    .CreateTransactionalBatch(GetPartitionKey(projectId));
 
                 await foreach (var component in components.ConfigureAwait(false))
                     batch = batch.DeleteItem(component.Id);
@@ -140,9 +143,9 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async Task RemoveAsync(string organization, string id)
+        public async Task RemoveAsync(string projectId, string id)
         {
-            var component = await GetAsync(organization, id)
+            var component = await GetAsync(projectId, id)
                 .ConfigureAwait(false);
 
             if (component != null)

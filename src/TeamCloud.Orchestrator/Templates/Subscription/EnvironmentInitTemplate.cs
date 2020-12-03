@@ -7,6 +7,6 @@ using TeamCloud.Azure.Deployment.Templates;
 
 namespace TeamCloud.Orchestrator.Templates.Subscription
 {
-    public sealed class ComponentInitTemplate : EmbeddedDeploymentTemplate
+    public sealed class EnvironmentInitTemplate : EmbeddedDeploymentTemplate
     { }
 }

@@ -198,6 +198,7 @@ namespace TeamCloud.Git
                 Description = yaml.Description,
                 Repository = projectTemplate.Repository,
                 Type = yaml.Type,
+                Folder = folder,
                 InputJsonSchema = yaml.Parameters.ToSchema().ToString(Formatting.None)
             };
         }

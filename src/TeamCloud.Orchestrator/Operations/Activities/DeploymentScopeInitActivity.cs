@@ -8,21 +8,22 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Azure.Deployment;
+using TeamCloud.Azure.Resources;
 using TeamCloud.Model.Data;
-using TeamCloud.Orchestrator.Templates;
+using TeamCloud.Orchestrator.Templates.ResourceGroup;
 
 namespace TeamCloud.Orchestrator.Operations.Activities
 {
-    public sealed class ComponentDeployActivity
+    public sealed class DeploymentScopeInitAcitivity
     {
         private readonly IAzureDeploymentService azureDeploymentService;
 
-        public ComponentDeployActivity(IAzureDeploymentService azureDeploymentService)
+        public DeploymentScopeInitAcitivity(IAzureDeploymentService azureDeploymentService)
         {
             this.azureDeploymentService = azureDeploymentService ?? throw new System.ArgumentNullException(nameof(azureDeploymentService));
         }
 
-        [FunctionName(nameof(ComponentDeployActivity))]
+        [FunctionName(nameof(DeploymentScopeInitAcitivity))]
         public async Task<string> Run(
             [ActivityTrigger] IDurableActivityContext context)
         {
@@ -31,12 +32,14 @@ namespace TeamCloud.Orchestrator.Operations.Activities
 
             var input = context.GetInput<Input>();
 
-            var template = new ComponentDeployTemplate();
+            var template = new DeployementScopeInitTemplate();
 
-            template.Parameters["ComponentId"] = input.Component.Id;
+            template.Parameters["deployementScopeId"] = input.DeploymentScope.Id;
+
+            var projectResourceGroupId = AzureResourceIdentifier.Parse(input.Project.ResourceId);
 
             var deployment = await azureDeploymentService
-                .DeploySubscriptionTemplateAsync(template, Guid.Parse(input.Organization.SubscriptionId), input.Organization.Location)
+                .DeployResourceGroupTemplateAsync(template, projectResourceGroupId.SubscriptionId, projectResourceGroupId.ResourceGroup)
                 .ConfigureAwait(false);
 
             return deployment.ResourceId;
@@ -44,9 +47,9 @@ namespace TeamCloud.Orchestrator.Operations.Activities
 
         public struct Input
         {
-            public Organization Organization { get; set; }
+            public Project Project { get; set; }
 
-            public Component Component { get; set; }
+            public DeploymentScope DeploymentScope { get; set; }
         }
     }
 }

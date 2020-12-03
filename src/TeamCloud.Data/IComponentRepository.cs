@@ -13,16 +13,16 @@ namespace TeamCloud.Data
     {
         Task<Component> AddAsync(Component component);
 
-        Task<Component> GetAsync(string organization, string id);
+        Task<Component> GetAsync(string projectId, string id);
 
-        IAsyncEnumerable<Component> ListAsync(string organization, string projectId);
+        IAsyncEnumerable<Component> ListAsync(string projectId);
 
         Task<Component> SetAsync(Component component);
 
         Task<Component> RemoveAsync(Component component);
 
-        Task RemoveAllAsync(string organization, string projectId);
+        Task RemoveAllAsync(string projectId);
 
-        Task RemoveAsync(string organization, string id);
+        Task RemoveAsync(string projectId, string id);
     }
 }

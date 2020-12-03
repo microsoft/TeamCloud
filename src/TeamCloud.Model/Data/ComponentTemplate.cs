@@ -57,6 +57,11 @@ namespace TeamCloud.Model.Data
         public ComponentType Type { get; set; }
 
         /// <summary>
+        /// Gets or sets the folder of the component in the repo
+        /// </summary>
+        public string Folder { get; set; }
+
+        /// <summary>
         /// Equalses the specified other.
         /// </summary>
         /// <param name="other">The other.</param>
