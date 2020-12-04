@@ -27,7 +27,9 @@ namespace TeamCloud.Data.CosmosDb
         }
 
         private Task<ProjectTemplate> AugmentAsync(ProjectTemplate projectTemplate)
-            => repositoryService.UpdateProjectTemplateAsync(projectTemplate);
+            => projectTemplate is null 
+            ? Task.FromResult(projectTemplate)
+            : repositoryService.UpdateProjectTemplateAsync(projectTemplate);
 
         public async Task<ProjectTemplate> AddAsync(ProjectTemplate projectTemplate)
         {
