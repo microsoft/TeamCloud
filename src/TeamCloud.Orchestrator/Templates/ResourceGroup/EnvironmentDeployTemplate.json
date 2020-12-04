@@ -5,7 +5,7 @@
     "environmentId": {
       "type": "string"
     },
-    "environmentTemplatePath": {
+    "environmentTemplateFolder": {
       "type": "string"
     },
     "environmentTemplateRepository": {
@@ -27,13 +27,13 @@
     }
   },
   "variables": {
-    "deploymentHost": "[concat(guid(parameters('environmentId')), '.', toLower(replace(resourceGroup().location, ' ', '')), '.azurecontainer.io')]",
-    "deploymentRunnerName" : "[guid(deployment().name)]",
+    "deploymentName" : "[guid(deployment().name)]",
+    "deploymentHost": "[concat(variables('deploymentName'), '.', toLower(replace(resourceGroup().location, ' ', '')), '.azurecontainer.io')]",
     "environmentSegments": "[split(parameters('environmentId'), '/')]"
   },
   "resources": [
     {
-      "name": "[variables('deploymentRunnerName')]",
+      "name": "[variables('deploymentName')]",
       "type": "Microsoft.ContainerInstance/containerGroups",
       "apiVersion": "2019-12-01",
       "location": "[resourceGroup().location]",
@@ -82,16 +82,16 @@
                   "value": "[resourceGroup().location]"
                 },
                 {
-                  "name": "EnvironmentTemplateUrl",
-                  "value": "[uri(concat('http://', variables('deploymentHost')), if (startsWith(parameters('environmentTemplatePath'), '/'), skip(parameters('environmentTemplatePath'), 1), parameters('environmentTemplatePath')))]"
+                  "name": "EnvironmentTemplateBaseUrl",
+                  "value": "[uri(concat('http://', variables('deploymentHost')), if (startsWith(parameters('environmentTemplateFolder'), '/'), skip(parameters('environmentTemplateFolder'), 1), parameters('environmentTemplateFolder')))]"
                 },
                 {
                   "name": "EnvironmentTemplateToken",
                   "value": "[uniqueString(resourceId('Microsoft.ContainerInstance/containerGroups', guid(parameters('environmentId'))))]"
                 },
                 {
-                  "name": "EnvironmentTemplateFile",
-                  "value": "[uri('file:///mnt/templates/root/', if (startsWith(parameters('environmentTemplatePath'), '/'), skip(parameters('environmentTemplatePath'), 1), parameters('environmentTemplatePath')))]"
+                  "name": "EnvironmentTemplateFolder",
+                  "value": "[uri('file:///mnt/templates/root/', if (startsWith(parameters('environmentTemplateFolder'), '/'), skip(parameters('environmentTemplateFolder'), 1), parameters('environmentTemplateFolder')))]"
                 },
                 {
                   "name": "EnvironmentTemplateParameters",
@@ -120,7 +120,7 @@
         "restartPolicy": "Never",
         "ipAddress": {
           "type": "Public",
-          "dnsNameLabel": "[guid(parameters('environmentId'))]",
+          "dnsNameLabel": "[variables('deploymentName')]",
           "ports": [
             {
               "protocol": "tcp",
@@ -149,7 +149,7 @@
   "outputs":{
     "runnerId": {
       "type": "string",
-      "value": "[resourceId('Microsoft.ContainerInstance/containerGroups', variables('deploymentRunnerName'))]"
+      "value": "[resourceId('Microsoft.ContainerInstance/containerGroups', variables('deploymentName'))]"
     }
   }
 }

@@ -40,17 +40,21 @@ namespace TeamCloud.Orchestrator.Operations.Activities
             var template = new EnvironmentDeployTemplate();
 
             template.Parameters["environmentId"] = input.Component.ResourceId;
-            template.Parameters["environmentTemplatePath"] = componentTemplate.Folder;
+            template.Parameters["environmentTemplateFolder"] = componentTemplate.Folder;
             template.Parameters["environmentTemplateRepository"] = componentTemplate.Repository.Url;
             template.Parameters["environmentTemplateRevision"] = componentTemplate.Repository.Ref;
             template.Parameters["environmentTemplateParameters"] = JsonConvert.DeserializeObject(input.Component.InputJson);
             template.Parameters["deploymentRunner"] = $"markusheiliger/tcrunner-arm";
             template.Parameters["deploymentIdentity"] = input.Component.IdentityId;
 
-            var componentResourceId = AzureResourceIdentifier.Parse(input.Component.ResourceId);
+            var project = await projectRepository
+                .GetAsync(input.Component.Organization, input.Component.ProjectId)
+                .ConfigureAwait(false);
+
+            var projectResourceId = AzureResourceIdentifier.Parse(project.ResourceId);
 
             var deployment = await azureDeploymentService
-                .DeployResourceGroupTemplateAsync(template, componentResourceId.SubscriptionId, componentResourceId.ResourceGroup, input.Complete)
+                .DeployResourceGroupTemplateAsync(template, projectResourceId.SubscriptionId, projectResourceId.ResourceGroup, input.Complete)
                 .ConfigureAwait(false);
 
             return deployment.ResourceId;

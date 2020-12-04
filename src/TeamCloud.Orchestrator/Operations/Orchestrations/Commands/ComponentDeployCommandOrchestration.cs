@@ -66,10 +66,6 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Commands
                 .CallSubOrchestratorWithRetryAsync<Component>(nameof(EnvironmentDeployOrchestration), new EnvironmentDeployOrchestration.Input() { Component = component })
                 .ConfigureAwait(true);
 
-            component = await context
-                .CallActivityWithRetryAsync<Component>(nameof(EnvironmentDeployActivity), new EnvironmentDeployActivity.Input() { Component = component })
-                .ConfigureAwait(true);
-
             return component;
         }
     }
