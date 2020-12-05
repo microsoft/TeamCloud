@@ -1,21 +1,22 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Stack, TextField, Dropdown, IDropdownOption, Text, PrimaryButton, DefaultButton, IconButton, Pivot, PivotItem, ComboBox, ChoiceGroup, Label, IComboBoxOption, IComboBox } from '@fluentui/react';
 import { OrganizationDefinition, DeploymentScopeDefinition, ProjectTemplateDefinition } from 'teamcloud'
 import { getManagementGroups, getSubscriptions } from '../Azure'
 import { AzureRegions, Tags } from '../model';
-import { ContentContainer, ContentHeader, ContentProgress, OrgSettingsDetail } from '../components';
+import { ContentContainer, ContentHeader, ContentProgress, DeploymentScopeForm, OrgSettingsDetail, ProjectTemplateForm } from '../components';
 import { api } from '../API';
-import { OrgContext } from '../Context';
+import { GraphUserContext, OrgContext } from '../Context';
 
 export const NewOrgView: React.FC = () => {
 
     const history = useHistory();
 
-    const { onOrgSelected } = useContext(OrgContext);
+    const { onOrgSelected, onCreateDeploymentScope, onCreateProjectTemplate } = useContext(OrgContext);
+    const { subscriptions, managementGroups } = useContext(GraphUserContext);
 
     // Basic Settings
     const [orgName, setOrgName] = useState<string>();
@@ -27,17 +28,19 @@ export const NewOrgView: React.FC = () => {
     const [webPortalEnabled, setWebPortalEnabled] = useState(true);
 
     // Deployment Scope
-    const [scopeName, setScopeName] = useState<string>();
-    const [scopeManagementGroup, setManagementScopeGroup] = useState<string>();
-    const [scopeManagementGroupOptions, setScopeManagementGroupOptions] = useState<IDropdownOption[]>();
-    const [scopeSubscriptions, setScopeSubscriptions] = useState<string[]>();
-    const [scopeSubscriptionOptions, setScopeSubscriptionOptions] = useState<IComboBoxOption[]>();
+    const [scope, setScope] = useState<DeploymentScopeDefinition>();
+    // const [scopeName, setScopeName] = useState<string>();
+    // const [scopeManagementGroup, setManagementScopeGroup] = useState<string>();
+    // const [scopeManagementGroupOptions, setScopeManagementGroupOptions] = useState<IDropdownOption[]>();
+    // const [scopeSubscriptions, setScopeSubscriptions] = useState<string[]>();
+    // const [scopeSubscriptionOptions, setScopeSubscriptionOptions] = useState<IComboBoxOption[]>();
 
     // Project Template
-    const [templateName, setTemplateName] = useState<string>();
-    const [templateUrl, setTemplateUrl] = useState<string>();
-    const [templateVersion, setTemplateVersion] = useState<string>();
-    const [templateToken, setTemplateToken] = useState<string>();
+    const [template, setTemplate] = useState<ProjectTemplateDefinition>();
+    // const [templateName, setTemplateName] = useState<string>();
+    // const [templateUrl, setTemplateUrl] = useState<string>();
+    // const [templateVersion, setTemplateVersion] = useState<string>();
+    // const [templateToken, setTemplateToken] = useState<string>();
 
     // Tags
     const [tags, setTags] = useState<Tags>();
@@ -54,72 +57,23 @@ export const NewOrgView: React.FC = () => {
 
     const _orgComplete = () => orgName && orgSubscription && orgRegion;
 
-    const _scopeComplete = () => scopeName && (scopeManagementGroup || scopeSubscriptions);
+    const _scopeComplete = () => scope?.displayName && (scope.subscriptionIds || scope.managementGroupId);
 
-    const _templateComplete = () => templateName && templateUrl;
+    const _templateComplete = () => template?.displayName && template.repository.url;
 
-    useEffect(() => {
-        if (!templateUrl) {
-            setTemplateUrl('https://github.com/microsoft/TeamCloud-Project-Sample.git');
-            setTemplateVersion('main');
-            if (!templateName)
-                setTemplateName('Sample Project Template');
-        }
-    }, [templateUrl, templateName]);
+    // useEffect(() => {
+    //     if (!templateUrl) {
+    //         setTemplateUrl('https://github.com/microsoft/TeamCloud-Project-Sample.git');
+    //         setTemplateVersion('main');
+    //         if (!templateName)
+    //             setTemplateName('Sample Project Template');
+    //     }
+    // }, [templateUrl, templateName]);
 
     useEffect(() => {
         const newTags: Tags = {}
         newTags[''] = ''
         setTags(newTags)
-    }, []);
-
-    useEffect(() => {
-        const _resolveScopeGroup = async () => {
-
-            try {
-                const groups = await getManagementGroups();
-
-                if (!groups)
-                    return;
-
-                console.log(groups);
-
-                setScopeManagementGroupOptions(groups.map(g => ({ key: g.id, text: g.properties.displayName })))
-
-                if (groups.length === 1 && groups[0].id === '/providers/Microsoft.Management/managementGroups/default') {
-
-                    setScopeName(groups[0].properties.displayName);
-                    setManagementScopeGroup(groups[0].id);
-                }
-            } catch (error) {
-                console.error(error);
-            }
-        };
-        _resolveScopeGroup();
-    }, []);
-
-
-    useEffect(() => {
-        const _resolveSubscriptions = async () => {
-
-            try {
-                const subscriptions = await getSubscriptions();
-
-                if (!subscriptions)
-                    return;
-
-                const options = subscriptions.map(s => ({ key: s.subscriptionId, text: s.displayName }));
-                setOrgSubscriptionOptions(options);
-                setScopeSubscriptionOptions(options);
-
-                if (subscriptions.length === 1) {
-                    setOrgSubscription(subscriptions[0].subscriptionId)
-                }
-            } catch (error) {
-                console.error(error)
-            }
-        };
-        _resolveSubscriptions();
     }, []);
 
 
@@ -144,34 +98,15 @@ export const NewOrgView: React.FC = () => {
 
             if (org) {
 
-                onOrgSelected(org);
-
-                if (_scopeComplete()) {
-                    const scopeDef = {
-                        displayName: scopeName,
-                        managementGroupId: scopeManagementGroup,
-                        subscriptionIds: scopeSubscriptions,
-                        isDefault: true
-                    } as DeploymentScopeDefinition;
-
-                    await api.createDeploymentScope(org.id, { body: scopeDef, });
-                }
+                if (scope && _scopeComplete())
+                    await onCreateDeploymentScope(scope, org);
 
                 setPercentComplete(.4);
 
-                if (_templateComplete()) {
+                if (template && _templateComplete())
+                    await onCreateProjectTemplate(template, org);
 
-                    const templateDef = {
-                        displayName: templateName,
-                        repository: {
-                            url: templateUrl,
-                            version: templateVersion ?? null,
-                            token: templateToken ?? null
-                        }
-                    } as ProjectTemplateDefinition;
-
-                    await api.createProjectTemplate(org.id, { body: templateDef });
-                }
+                onOrgSelected(org);
 
                 setPercentComplete(1);
                 history.push(`/orgs/${org.slug}`);
@@ -220,32 +155,37 @@ export const NewOrgView: React.FC = () => {
 
     const _onReview = (): boolean => pivotKeys.indexOf(pivotKey) === pivotKeys.length - 1;
 
-    const _onScopeSubscriptionsChange = (event: React.FormEvent<IComboBox>, option?: IComboBoxOption, index?: number, value?: string) => {
-        if (value) {
-            const values = value.split(',');
-            if (values.length > 0) {
-                const newOptions = values.map(v => ({ key: v.trim(), text: v.trim() }));
-                setScopeSubscriptionOptions(orgSubscriptionOptions?.concat(newOptions) ?? newOptions);
-                const validSubs = scopeSubscriptions?.filter(s => orgSubscriptionOptions?.findIndex(o => o ? o.key === s : false) ?? -1 >= 0) ?? [];
-                setScopeSubscriptions(validSubs.concat(newOptions.map(no => no.key.trim())));
-            }
-        } else if (option?.key && option.selected !== undefined) {
-            const sub = option.key as string;
-            if (scopeSubscriptions) {
-                if (!option.selected && scopeSubscriptions.indexOf(sub) >= 0) {
-                    setScopeSubscriptions(scopeSubscriptions.filter(s => s !== sub));
-                } else if (option.selected) {
-                    setScopeSubscriptions(scopeSubscriptions.concat([sub]));
-                }
-            } else if (option.selected) {
-                setScopeSubscriptions([sub]);
-            }
-        }
-    };
 
     const _getPrimaryButtonText = (): string => {
         const currentIndex = pivotKeys.indexOf(pivotKey);
         return currentIndex === pivotKeys.length - 1 ? 'Create organization' : `Next: ${pivotKeys[currentIndex + 1]}`;
+    };
+
+    const onScopeChange = useCallback((scope?: DeploymentScopeDefinition) => {
+        console.log(`onScopeChange: ${scope}`)
+        setScope(scope);
+    }, []);
+
+
+    const onTemplateChange = useCallback((template?: ProjectTemplateDefinition) => {
+        console.log(`onTemplateChange: ${template}`)
+        setTemplate(template);
+    }, []);
+
+    const getScopeDetail = () => {
+
+        const details = [{ label: 'Name', value: scope?.displayName ?? '', required: true }];
+
+        if (scope?.managementGroupId)
+            details.push({ label: 'Management Group', value: scope.managementGroupId, required: true });
+        else if (scope?.subscriptionIds)
+            details.push({ label: 'Subscriptions', value: scope.subscriptionIds.join(', '), required: true });
+        else {
+            details.push({ label: 'Management Group', value: '', required: true });
+            details.push({ label: 'Subscriptions', value: '', required: true });
+        }
+
+        return details;
     };
 
     return (
@@ -305,78 +245,10 @@ export const NewOrgView: React.FC = () => {
                         </Stack>
                     </PivotItem>
                     <PivotItem headerText='Deployment Scope' itemKey='Deployment Scope'>
-                        <Stack tokens={{ childrenGap: '20px' }} styles={{ root: { padding: '24px 8px' } }}>
-                            <Stack.Item>
-                                <TextField
-                                    required
-                                    label='Name'
-                                    description='Deployment scope display name'
-                                    disabled={!formEnabled}
-                                    value={scopeName}
-                                    onChange={(_ev, val) => setScopeName(val)} />
-                            </Stack.Item>
-                            <Stack.Item>
-                                <Dropdown
-                                    required={!scopeSubscriptions || scopeSubscriptions.length === 0}
-                                    label='Management Group'
-                                    disabled={!formEnabled || !scopeManagementGroupOptions || (scopeSubscriptions && scopeSubscriptions.length > 0)}
-                                    selectedKey={scopeManagementGroup}
-                                    options={scopeManagementGroupOptions ?? []}
-                                    onChange={(_ev, val) => setManagementScopeGroup(val ? val.key as string : undefined)} />
-                            </Stack.Item>
-                            <Stack.Item>
-                                <Label disabled={!(scopeManagementGroup === undefined || scopeManagementGroup === '') || (scopeSubscriptions && scopeSubscriptions.length > 0)}>OR</Label>
-                            </Stack.Item>
-                            <Stack.Item>
-                                <ComboBox
-                                    required={!scopeManagementGroup}
-                                    label='Subscriptions'
-                                    disabled={!formEnabled || !(scopeManagementGroup === undefined || scopeManagementGroup === '')}
-                                    multiSelect
-                                    allowFreeform
-                                    selectedKey={scopeSubscriptions}
-                                    options={scopeSubscriptionOptions ?? []}
-                                    onChange={_onScopeSubscriptionsChange} />
-                            </Stack.Item>
-                        </Stack>
+                        <DeploymentScopeForm embedded onScopeChange={onScopeChange} />
                     </PivotItem>
                     <PivotItem headerText='Project Template' itemKey='Project Template'>
-                        <Stack tokens={{ childrenGap: '20px' }} styles={{ root: { padding: '24px 8px' } }}>
-                            <Stack.Item>
-                                <TextField
-                                    required
-                                    label='Name'
-                                    description='Project template display name'
-                                    disabled={!formEnabled}
-                                    value={templateName}
-                                    onChange={(_ev, val) => setTemplateName(val)} />
-                            </Stack.Item>
-                            <Stack.Item>
-                                <TextField
-                                    required
-                                    label='Url'
-                                    description='Git repository https url'
-                                    disabled={!formEnabled}
-                                    value={templateUrl}
-                                    onChange={(_ev, val) => setTemplateUrl(val)} />
-                            </Stack.Item>
-                            <Stack.Item>
-                                <TextField
-                                    label='Version'
-                                    description='Branch/Tag/SHA'
-                                    disabled={!formEnabled}
-                                    value={templateVersion}
-                                    onChange={(_ev, val) => setTemplateVersion(val)} />
-                            </Stack.Item>
-                            <Stack.Item>
-                                <TextField
-                                    label='Token'
-                                    description='Personal access token (required for private repositories)'
-                                    disabled={!formEnabled}
-                                    value={templateToken}
-                                    onChange={(_ev, val) => setTemplateToken(val)} />
-                            </Stack.Item>
-                        </Stack>
+                        <ProjectTemplateForm embedded onTemplateChange={onTemplateChange} />
                     </PivotItem>
                     <PivotItem headerText='Tags' itemKey='Tags'>
                         <Stack tokens={{ childrenGap: '20px' }} styles={{ root: { padding: '24px 8px' } }}>
@@ -400,28 +272,15 @@ export const NewOrgView: React.FC = () => {
                                     { label: 'Web Portal', value: webPortalEnabled ? 'Enabled' : 'Disabled', required: true }
                                 ]} />
                             </Stack.Item>
-                            {scopeManagementGroup && (
-                                <Stack.Item>
-                                    <OrgSettingsDetail title='Deployment Scope' details={[
-                                        { label: 'Name', value: scopeName, required: true },
-                                        { label: 'Management Group', value: scopeManagementGroup, required: true }
-                                    ]} />
-                                </Stack.Item>
-                            )}
-                            {scopeSubscriptions && (
-                                <Stack.Item>
-                                    <OrgSettingsDetail title='Deployment Scope' details={[
-                                        { label: 'Name', value: scopeName, required: true },
-                                        { label: 'Subscriptions', value: scopeSubscriptions.join(', '), required: true }
-                                    ]} />
-                                </Stack.Item>
-                            )}
+                            <Stack.Item>
+                                <OrgSettingsDetail title='Deployment Scope' details={getScopeDetail()} />
+                            </Stack.Item>
                             <Stack.Item>
                                 <OrgSettingsDetail title='Project Template' details={[
-                                    { label: 'Name', value: templateName, required: true },
-                                    { label: 'Url', value: templateUrl, required: true },
-                                    { label: 'Version', value: templateVersion },
-                                    { label: 'Token', value: templateToken }
+                                    { label: 'Name', value: template?.displayName, required: true },
+                                    { label: 'Url', value: template?.repository.url, required: true },
+                                    { label: 'Version', value: template?.repository.version ?? undefined },
+                                    { label: 'Token', value: template?.repository.token ?? undefined }
                                 ]} />
                             </Stack.Item>
                         </Stack>

@@ -273,11 +273,11 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
     }, [projectId, selectedProject, projects, onProjectSelected]);
 
 
-    const onCreateDeploymentScope = async (scope: DeploymentScopeDefinition) => {
-        if (selectedOrg) {
-            const result = await api.createDeploymentScope(selectedOrg.id, { body: scope, });
+    const onCreateDeploymentScope = async (scope: DeploymentScopeDefinition, org?: Organization) => {
+        if (org ?? selectedOrg) {
+            const result = await api.createDeploymentScope(org?.id ?? selectedOrg!.id, { body: scope, });
             if (result.data) {
-                console.log(`createTemplate (${selectedOrg.slug})`);
+                console.log(`createTemplate (${org?.slug ?? selectedOrg!.slug})`);
                 setScopes(scopes ? [...scopes, result.data] : [result.data]);
             } else {
                 console.error(`Failed to create new DeploymentScope: ${result}`);
@@ -286,12 +286,13 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
     };
 
 
-    const onCreateProjectTemplate = async (template: ProjectTemplateDefinition) => {
-        if (selectedOrg) {
-            const result = await api.createProjectTemplate(selectedOrg.id, { body: template, });
+    const onCreateProjectTemplate = async (template: ProjectTemplateDefinition, org?: Organization) => {
+        if (org || selectedOrg) {
+            const result = await api.createProjectTemplate(org?.id ?? selectedOrg!.id, { body: template, });
             if (result.data) {
-                console.log(`createTemplate (${selectedOrg.slug})`);
-                setTemplates(templates ? [...templates, result.data] : [result.data]);
+                console.log(`createTemplate (${org?.slug ?? selectedOrg!.slug})`);
+                if (selectedOrg)
+                    setTemplates(templates ? [...templates, result.data] : [result.data]);
             } else {
                 console.error(`Failed to create new ProjectTemplate: ${result}`);
             }

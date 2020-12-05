@@ -24,8 +24,8 @@ export const OrgContext = React.createContext({
     onOrgSelected: (org?: Organization) => { },
     onProjectSelected: (project?: Project) => { },
     onAddUsers: (users: UserDefinition[]) => Promise.resolve(),
-    onCreateDeploymentScope: (scope: DeploymentScopeDefinition) => Promise.resolve(),
-    onCreateProjectTemplate: (template: ProjectTemplateDefinition) => Promise.resolve(),
+    onCreateDeploymentScope: (scope: DeploymentScopeDefinition, org?: Organization) => Promise.resolve(),
+    onCreateProjectTemplate: (template: ProjectTemplateDefinition, org?: Organization) => Promise.resolve(),
     // setMembers: (members?: Member[]) => { },
 });
 
