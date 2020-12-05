@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { Route, Switch } from 'react-router-dom';
-import { Error404, NewOrgView, NewProjectView, ProjectView, ProjectsView, OrgSettingsView, ProjectSettingsView } from '.';
+import { Error404, NewOrgView, NewProjectView, ProjectView, ProjectsView, OrgSettingsView } from '.';
 
 export const ContentView: React.FC = () => (
     <Switch>
@@ -27,13 +27,9 @@ export const ContentView: React.FC = () => (
             <OrgSettingsView />
         </Route>
         <Route exact path={[
-            '/orgs/:orgId/projects/:projectId/settings',
-            '/orgs/:orgId/projects/:projectId/settings/:settingId'
-        ]}>
-            <ProjectSettingsView />
-        </Route>
-        <Route exact path={[
             '/orgs/:orgId/projects/:projectId',
+            '/orgs/:orgId/projects/:projectId/settings',
+            '/orgs/:orgId/projects/:projectId/settings/:settingId',
             '/orgs/:orgId/projects/:projectId/:navId',
             '/orgs/:orgId/projects/:projectId/:navId/new'
         ]}>

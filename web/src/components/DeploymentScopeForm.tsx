@@ -1,15 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { ComboBox, DefaultButton, Dropdown, IComboBox, IComboBoxOption, IDropdownOption, Label, PrimaryButton, Stack, TextField } from '@fluentui/react';
 import { DeploymentScopeDefinition } from 'teamcloud';
 import { useHistory, useParams } from 'react-router-dom';
-import { ManagementGroup, Subscription } from '../model';
+import { GraphUserContext } from '../Context';
 
 export interface IDeploymentScopeFormProps {
-    subscriptions?: Subscription[];
-    managementGroups?: ManagementGroup[];
     onCreateDeploymentScope: (scope: DeploymentScopeDefinition) => Promise<void>;
 }
 
@@ -17,6 +15,7 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
 
     const history = useHistory();
     const { orgId } = useParams() as { orgId: string };
+    const { subscriptions, managementGroups } = useContext(GraphUserContext);
 
     const [scopeName, setScopeName] = useState<string>();
     const [scopeManagementGroup, setScopeManagementGroup] = useState<string>();
@@ -26,9 +25,9 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
 
     const [formEnabled, setFormEnabled] = useState<boolean>(true);
 
+
     const _scopeComplete = () => scopeName && (scopeManagementGroup || scopeSubscriptions);
 
-    const { subscriptions, managementGroups } = props;
 
     useEffect(() => {
         if (subscriptions)

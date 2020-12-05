@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect, useContext } from 'react';
-import { DefaultButton, Dropdown, FontIcon, getTheme, IColumn, IDropdownOption, Image, Persona, PersonaSize, PrimaryButton, Separator, Spinner, Stack, Text, TextField } from '@fluentui/react';
+import { DefaultButton, Dropdown, FontIcon, getTheme, IColumn, IDropdownOption, Image, Persona, PersonaSize, PrimaryButton, Separator, Stack, Text, TextField } from '@fluentui/react';
 import { ProjectComponentDefinition, ComponentTemplate } from 'teamcloud';
 import { useHistory } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
@@ -224,7 +224,6 @@ export const ComponentForm: React.FC = () => {
                                         <div style={{ paddingTop: '24px' }}>
                                             <PrimaryButton type='submit' text='Create component' disabled={!formEnabled || !(template)} styles={{ root: { marginRight: 8 } }} />
                                             <DefaultButton text='Cancel' disabled={!formEnabled} onClick={() => setTemplate(undefined)} />
-                                            <Spinner styles={{ root: { visibility: formEnabled ? 'hidden' : 'visible' } }} />
                                         </div>
                                     </FuiForm>
                                 </Stack.Item>
