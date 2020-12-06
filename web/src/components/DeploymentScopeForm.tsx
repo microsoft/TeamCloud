@@ -1,22 +1,23 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { ComboBox, DefaultButton, Dropdown, IComboBox, IComboBoxOption, IDropdownOption, Label, PrimaryButton, Stack, TextField } from '@fluentui/react';
 import { DeploymentScopeDefinition } from 'teamcloud';
 import { useHistory, useParams } from 'react-router-dom';
-import { ManagementGroup, Subscription } from '../model';
+import { GraphUserContext } from '../Context';
 
 export interface IDeploymentScopeFormProps {
-    subscriptions?: Subscription[];
-    managementGroups?: ManagementGroup[];
-    onCreateDeploymentScope: (scope: DeploymentScopeDefinition) => Promise<void>;
+    embedded?: boolean,
+    onScopeChange?: (scope?: DeploymentScopeDefinition) => void;
+    onCreateDeploymentScope?: (scope: DeploymentScopeDefinition) => Promise<void>;
 }
 
 export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) => {
 
     const history = useHistory();
     const { orgId } = useParams() as { orgId: string };
+    const { subscriptions, managementGroups } = useContext(GraphUserContext);
 
     const [scopeName, setScopeName] = useState<string>();
     const [scopeManagementGroup, setScopeManagementGroup] = useState<string>();
@@ -26,9 +27,10 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
 
     const [formEnabled, setFormEnabled] = useState<boolean>(true);
 
+    const { onScopeChange } = props;
+
     const _scopeComplete = () => scopeName && (scopeManagementGroup || scopeSubscriptions);
 
-    const { subscriptions, managementGroups } = props;
 
     useEffect(() => {
         if (subscriptions)
@@ -41,8 +43,22 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
     }, [managementGroups]);
 
 
+    useEffect(() => {
+        if (onScopeChange !== undefined) {
+            const scopeDef = {
+                displayName: scopeName,
+                managementGroupId: scopeManagementGroup,
+                subscriptionIds: scopeSubscriptions,
+                isDefault: true
+            } as DeploymentScopeDefinition;
+            // console.log(`onScopeChange ${templateDef}`);
+            onScopeChange(scopeDef);
+        }
+    }, [onScopeChange, scopeName, scopeManagementGroup, scopeSubscriptions]);
+
+
     const _submitForm = () => {
-        if (orgId && _scopeComplete()) {
+        if (orgId && props.onCreateDeploymentScope !== undefined && _scopeComplete()) {
 
             setFormEnabled(false);
 
@@ -87,8 +103,7 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
     };
 
     return (
-        <Stack
-            tokens={{ childrenGap: '20px' }}>
+        <Stack tokens={{ childrenGap: '20px' }} styles={{ root: props.embedded ? { padding: '24px 8px' } : undefined }}>
             <Stack.Item>
                 <TextField
                     required
@@ -121,10 +136,12 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
                     options={scopeSubscriptionOptions}
                     onChange={_onScopeSubscriptionsChange} />
             </Stack.Item>
-            <Stack.Item styles={{ root: { paddingTop: '24px' } }}>
-                <PrimaryButton text='Create scope' disabled={!formEnabled || !_scopeComplete()} onClick={() => _submitForm()} styles={{ root: { marginRight: 8 } }} />
-                <DefaultButton text='Cancel' disabled={!formEnabled} onClick={() => _resetAndCloseForm()} />
-            </Stack.Item>
+            {!(props.embedded ?? false) && (
+                <Stack.Item styles={{ root: { paddingTop: '24px' } }}>
+                    <PrimaryButton text='Create scope' disabled={!formEnabled || !_scopeComplete()} onClick={() => _submitForm()} styles={{ root: { marginRight: 8 } }} />
+                    <DefaultButton text='Cancel' disabled={!formEnabled} onClick={() => _resetAndCloseForm()} />
+                </Stack.Item>
+            )}
         </Stack>
     );
 }

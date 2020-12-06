@@ -1,13 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { DefaultButton, PrimaryButton, Stack, TextField } from '@fluentui/react';
 import { ProjectTemplateDefinition } from 'teamcloud';
 import { useHistory, useParams } from 'react-router-dom';
 
 export interface IProjectTemplateFormProps {
-    onCreateProjectTemplate: (template: ProjectTemplateDefinition) => Promise<void>;
+    embedded?: boolean,
+    onTemplateChange?: (template?: ProjectTemplateDefinition) => void;
+    onCreateProjectTemplate?: (template: ProjectTemplateDefinition) => Promise<void>;
 }
 
 export const ProjectTemplateForm: React.FC<IProjectTemplateFormProps> = (props) => {
@@ -22,12 +24,41 @@ export const ProjectTemplateForm: React.FC<IProjectTemplateFormProps> = (props) 
     const [templateToken, setTemplateToken] = useState<string>();
 
     const [formEnabled, setFormEnabled] = useState<boolean>(true);
-    // const [errorText, setErrorText] = useState<string>();
+    const [sampleOffered, setSampleOffered] = useState<boolean>(false);
 
     const _templateComplete = () => templateName && templateUrl;
 
+    const { embedded, onTemplateChange } = props;
+
+    useEffect(() => {
+        if (onTemplateChange !== undefined) {
+            const templateDef = {
+                displayName: templateName,
+                repository: {
+                    url: templateUrl,
+                    version: templateVersion ?? null,
+                    token: templateToken ?? null
+                }
+            } as ProjectTemplateDefinition;
+
+            onTemplateChange(templateDef);
+        }
+    }, [onTemplateChange, templateName, templateUrl, templateVersion, templateToken]);
+
+
+    useEffect(() => {
+        if (!sampleOffered && embedded && !templateUrl) {
+            setTemplateUrl('https://github.com/microsoft/TeamCloud-Project-Sample.git');
+            setTemplateVersion('main');
+            if (!templateName)
+                setTemplateName('Sample Project Template');
+            setSampleOffered(true);
+        }
+    }, [embedded, sampleOffered, templateUrl, templateName, templateVersion]);
+
+
     const _submitForm = () => {
-        if (orgId && _templateComplete()) {
+        if (orgId && props.onCreateProjectTemplate !== undefined && _templateComplete()) {
 
             setFormEnabled(false);
 
@@ -50,7 +81,7 @@ export const ProjectTemplateForm: React.FC<IProjectTemplateFormProps> = (props) 
     };
 
     return (
-        <Stack tokens={{ childrenGap: '20px' }}>
+        <Stack tokens={{ childrenGap: '20px' }} styles={{ root: props.embedded ? { padding: '24px 8px' } : undefined }}>
             <Stack.Item>
                 <TextField
                     required
@@ -85,11 +116,12 @@ export const ProjectTemplateForm: React.FC<IProjectTemplateFormProps> = (props) 
                     value={templateToken}
                     onChange={(_ev, val) => setTemplateToken(val)} />
             </Stack.Item>
-            <Stack.Item styles={{ root: { paddingTop: '24px' } }}>
-                <PrimaryButton text='Create template' disabled={!formEnabled || !_templateComplete()} onClick={() => _submitForm()} styles={{ root: { marginRight: 8 } }} />
-                <DefaultButton text='Cancel' disabled={!formEnabled} onClick={() => _resetAndCloseForm()} />
-            </Stack.Item>
-            {/* <Text>{errorText}</Text> */}
+            {!(props.embedded ?? false) && (
+                <Stack.Item styles={{ root: { paddingTop: '24px' } }}>
+                    <PrimaryButton text='Create template' disabled={!formEnabled || !_templateComplete()} onClick={() => _submitForm()} styles={{ root: { marginRight: 8 } }} />
+                    <DefaultButton text='Cancel' disabled={!formEnabled} onClick={() => _resetAndCloseForm()} />
+                </Stack.Item>
+            )}
         </Stack>
     );
 }

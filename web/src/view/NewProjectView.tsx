@@ -17,28 +17,30 @@ export const NewProjectView: React.FC = () => {
 
     const [projectName, setProjectName] = useState<string>();
     const [projectTemplate, setProjectTemplate] = useState<ProjectTemplate>();
-    const [projectTemplates, setProjectTemplates] = useState<ProjectTemplate[]>();
     const [projectTemplateOptions, setProjectTemplateOptions] = useState<IDropdownOption[]>();
     const [formEnabled, setFormEnabled] = useState<boolean>(false);
     const [errorText, setErrorText] = useState<string>();
 
-    const { org, onProjectSelected } = useContext(OrgContext);
+    const { org, templates, onProjectSelected } = useContext(OrgContext);
 
     useEffect(() => {
-        if (org && projectTemplates === undefined) {
-            const _setProjectTemplates = async () => {
-                console.log(`setProjectTemplates (${org.slug})`);
-                const result = await api.getProjectTemplates(org.id);
-                setProjectTemplates(result.data ?? undefined);
-                setProjectTemplateOptions(_projectTemplateOptions(result.data ?? []));
-                if (result.data && !projectTemplate) {
-                    setProjectTemplate(result.data.find(t => t.isDefault));
-                }
-                setFormEnabled(true);
-            };
-            _setProjectTemplates();
+        if (org && templates) {
+            console.log(`setProjectTemplateOptions (${org.slug})`);
+            const options = templates.map(t => ({ key: t.id, text: t.isDefault ? `${t.displayName} (default)` : t.displayName } as IDropdownOption));
+            setProjectTemplateOptions(options);
+            if (templates)
+                setProjectTemplate(templates.find(t => t.isDefault));
         }
-    }, [org, projectTemplates, projectTemplate]);
+    }, [org, templates]);
+
+
+    useEffect(() => {
+        if (org && templates) {
+            console.log(`setFormEnabled (${org.slug})`);
+            setFormEnabled(true);
+        }
+    }, [org, templates]);
+
 
     const _submitForm = async (e: ISubmitEvent<any>) => {
         setFormEnabled(false);
@@ -62,27 +64,11 @@ export const NewProjectView: React.FC = () => {
         }
     };
 
-    // const _resetAndCloseForm = () => {
-    //     setProjectName(undefined);
-    //     setProjectTemplate(undefined);
-    //     setFormEnabled(true);
-    // };
-
-    const _projectTemplateOptions = (data?: ProjectTemplate[]): IDropdownOption[] => {
-        if (!data) return [];
-        return data.map(pt => ({ key: pt.id, text: pt.isDefault ? `${pt.displayName} (default)` : pt.displayName } as IDropdownOption));
-    };
 
     const _onDropdownChange = (event: React.FormEvent<HTMLDivElement>, option?: IDropdownOption, index?: number): void => {
-        setProjectTemplate((projectTemplates && option) ? projectTemplates.find(pt => pt.id === option.key) : undefined);
+        setProjectTemplate((templates && option) ? templates.find(t => t.id === option.key) : undefined);
     };
 
-    const _onRenderPanelFooterContent = () => (
-        <div style={{ paddingTop: '24px' }}>
-            <PrimaryButton type='submit' text='Create project' disabled={!formEnabled || !(projectName && projectTemplate)} styles={{ root: { marginRight: 8 } }} />
-            <DefaultButton text='Cancel' disabled={!formEnabled} onClick={() => history.push(`/orgs/${org?.slug}`)} />
-        </div>
-    );
 
     return (
         <Stack styles={{ root: { height: '100%' } }}>
@@ -114,7 +100,10 @@ export const NewProjectView: React.FC = () => {
                             disabled={!formEnabled}
                             onSubmit={_submitForm}
                             schema={projectTemplate?.inputJsonSchema ? JSON.parse(projectTemplate.inputJsonSchema) : {}}>
-                            {_onRenderPanelFooterContent()}
+                            <div style={{ paddingTop: '24px' }}>
+                                <PrimaryButton type='submit' text='Create project' disabled={!formEnabled || !(projectName && projectTemplate)} styles={{ root: { marginRight: 8 } }} />
+                                <DefaultButton text='Cancel' disabled={!formEnabled} onClick={() => history.push(`/orgs/${org?.slug}`)} />
+                            </div>
                         </FuiForm>
                     </Stack.Item>
                 </Stack>

@@ -6,7 +6,7 @@ import { Route, Switch, useHistory, useLocation, useParams } from 'react-router-
 import { Stack, IconButton } from '@fluentui/react';
 import { useIsAuthenticated } from '@azure/msal-react';
 import { Component, ComponentTemplate, ProjectComponentDefinition, UserDefinition } from 'teamcloud';
-import { ProjectOverview, ContentHeader, ContentProgress, ContentContainer, MemberList, ComponentList, ComponentForm } from '../components';
+import { ProjectOverview, ContentHeader, ContentProgress, ContentContainer, MemberList, ComponentList, ComponentForm, ProjectSettingsOverview } from '../components';
 import { ProjectMember } from '../model';
 import { api } from '../API';
 import { getGraphUser } from '../MSGraph';
@@ -14,70 +14,90 @@ import { OrgContext, ProjectContext } from '../Context';
 
 export const ProjectView: React.FC = () => {
 
+    const isAuthenticated = useIsAuthenticated();
+
     const location = useLocation();
     const history = useHistory();
     const { navId } = useParams() as { orgId: string, navId: string };
 
     const [favorite, setFavorate] = useState(false);
 
-    const isAuthenticated = useIsAuthenticated();
     const [members, setMembers] = useState<ProjectMember[]>();
     const [components, setComponents] = useState<Component[]>();
     const [templates, setTemplates] = useState<ComponentTemplate[]>();
+    const [progressHidden, setProgressHidden] = useState(true);
 
     const { org, project, user } = useContext(OrgContext);
 
-    useEffect(() => {
-        if (isAuthenticated && project && (navId === undefined || navId.toLowerCase() === 'members')) {
-            if (members && members.length > 0 && members[0].projectMembership.projectId === project.id)
-                return;
-            const _setMembers = async () => {
-                console.log(`setProjectMembers (${project.slug})`);
-                let _users = await api.getProjectUsers(project!.organization, project!.id);
-                if (_users.data) {
-                    let _members = await Promise.all(_users.data.map(async u => ({
-                        user: u,
-                        graphUser: await getGraphUser(u.id),
-                        projectMembership: u.projectMemberships!.find(m => m.projectId === project!.id)!
-                    })));
-                    setMembers(_members);
+    useEffect(() => { // Members
+        if (isAuthenticated && project) {
+            if (navId === undefined || navId.toLowerCase() === 'members' || navId.toLowerCase() === 'components') {
+                if (members === undefined || (members.length > 0 && members[0].projectMembership.projectId !== project.id)) {
+                    const _setMembers = async () => {
+                        console.log(`setProjectMembers (${project.slug})`);
+                        let _users = await api.getProjectUsers(project!.organization, project!.id);
+                        if (_users.data) {
+                            let _members = await Promise.all(_users.data.map(async u => ({
+                                user: u,
+                                graphUser: await getGraphUser(u.id),
+                                projectMembership: u.projectMemberships!.find(m => m.projectId === project!.id)!
+                            })));
+                            setMembers(_members);
+                        }
+                    };
+                    _setMembers();
                 }
-            };
-            _setMembers();
+            }
+        } else if (members) {
+            console.log('setProjectMembers (undefined)');
+            setMembers(undefined);
         }
     }, [isAuthenticated, project, members, navId]);
 
 
-    useEffect(() => {
-        if (isAuthenticated && project && (navId === undefined || (navId.toLowerCase() === 'components' && !location.pathname.toLowerCase().endsWith('/new')))) {
-            if (components === undefined || (components.length > 0 && components[0].projectId !== project.id)) {
-                const _setComponents = async () => {
-                    console.log(`setProjectComponents (${project.slug})`);
-                    const result = await api.getProjectComponents(project!.organization, project!.id);
-                    setComponents(result.data ?? undefined);
-                };
-                _setComponents();
+    useEffect(() => { // Components
+        if (isAuthenticated && project) {
+            if ((navId === undefined && !location.pathname.toLowerCase().endsWith('/settings'))
+                || (navId && navId.toLowerCase() === 'components' && !location.pathname.toLowerCase().endsWith('/new'))) {
+                if (components === undefined || (components.length > 0 && components[0].projectId !== project.id)) {
+                    const _setComponents = async () => {
+                        console.log(`setProjectComponents (${project.slug})`);
+                        const result = await api.getProjectComponents(project!.organization, project!.id);
+                        setComponents(result.data ?? undefined);
+                    };
+                    _setComponents();
+                }
             }
+        } else if (components) {
+            console.log('setProjectComponents (undefined)');
+            setComponents(undefined);
         }
     }, [isAuthenticated, project, components, navId, location]);
 
 
-    useEffect(() => {
-        if (isAuthenticated && project && navId?.toLowerCase() === 'components' && location.pathname.toLowerCase().endsWith('/new')) {
-            if (templates === undefined) {
-                const _setTemplates = async () => {
-                    console.log(`setProjectComponentTemplates (${project.slug})`);
-                    const result = await api.getProjectComponentTemplates(project!.organization, project!.id);
-                    setTemplates(result.data ?? undefined);
-                };
-                _setTemplates();
+    useEffect(() => {// Component Templates
+        if (isAuthenticated && project) {
+            if (navId?.toLowerCase() === 'components') {
+                // if (templates === undefined || (templates.length > 0 && templates[0].projectId !== project.id)) {
+                if (templates === undefined) {
+                    const _setTemplates = async () => {
+                        console.log(`setProjectComponentTemplates (${project.slug})`);
+                        const result = await api.getProjectComponentTemplates(project!.organization, project!.id);
+                        setTemplates(result.data ?? undefined);
+                    };
+                    _setTemplates();
+                }
             }
+        } else if (templates) {
+            console.log('setProjectComponentTemplates (undefined)');
+            setTemplates(undefined);
         }
-    }, [isAuthenticated, project, templates, navId, location]);
+    }, [isAuthenticated, project, templates, navId]);
 
 
     const onAddUsers = async (users: UserDefinition[]) => {
         if (project) {
+            setProgressHidden(false);
             console.log(`addMembers (${project.slug})`);
             const results = await Promise
                 .all(users.map(async d => await api.createProjectUser(project.organization, project.id, { body: d })));
@@ -97,12 +117,14 @@ export const ProjectView: React.FC = () => {
                 })));
 
             setMembers(members ? [...members, ...newMembers] : newMembers);
+            setProgressHidden(true);
         }
     };
 
 
     const onCreateComponent = async (component: ProjectComponentDefinition) => {
         if (project) {
+            setProgressHidden(false);
             console.log(`createComponent (${project.slug})`);
             const result = await api.createProjectComponent(project.organization, project.id, { body: component });
             if (result.data) {
@@ -113,6 +135,7 @@ export const ProjectView: React.FC = () => {
         } else {
             console.error('No project specified');
         }
+        setProgressHidden(true);
     };
 
     // const { members, components, onAddUsers } = useProject(isAuthenticated, project, navId);
@@ -131,7 +154,7 @@ export const ProjectView: React.FC = () => {
             <Stack>
                 <Switch>
                     <Route exact path='/orgs/:orgId/projects/:projectId'>
-                        <ContentProgress progressHidden={project !== undefined && components !== undefined && members !== undefined} />
+                        <ContentProgress progressHidden={progressHidden && project !== undefined && components !== undefined && members !== undefined} />
                         <ContentHeader title={project?.displayName} coin>
                             <IconButton toggle checked={favorite} onClick={() => setFavorate(!favorite)}
                                 iconProps={{ iconName: favorite ? 'FavoriteStarFill' : 'FavoriteStar', color: 'yellow' }} />
@@ -141,7 +164,7 @@ export const ProjectView: React.FC = () => {
                         </ContentContainer>
                     </Route>
                     <Route exact path='/orgs/:orgId/projects/:projectId/components/new'>
-                        <ContentProgress progressHidden={project !== undefined && templates !== undefined} />
+                        <ContentProgress progressHidden={progressHidden && project !== undefined && templates !== undefined} />
                         <ContentHeader title='New Component'>
                             <IconButton iconProps={{ iconName: 'ChromeClose' }}
                                 onClick={() => history.push(`/orgs/${org?.slug}/projects/${project?.slug}`)} />
@@ -151,17 +174,24 @@ export const ProjectView: React.FC = () => {
                         </ContentContainer>
                     </Route>
                     <Route exact path='/orgs/:orgId/projects/:projectId/components'>
-                        <ContentProgress progressHidden={project !== undefined && components !== undefined} />
+                        <ContentProgress progressHidden={progressHidden && project !== undefined && components !== undefined && templates !== undefined && members !== undefined} />
                         <ContentHeader title={navId} />
                         <ContentContainer>
                             <ComponentList />
                         </ContentContainer>
                     </Route>
                     <Route exact path='/orgs/:orgId/projects/:projectId/members'>
-                        <ContentProgress progressHidden={project !== undefined && members !== undefined} />
+                        <ContentProgress progressHidden={progressHidden && project !== undefined && members !== undefined} />
                         <ContentHeader title={navId} />
                         <ContentContainer>
                             <MemberList {...{ project: project, members: members, onAddUsers: onAddUsers }} />
+                        </ContentContainer>
+                    </Route>
+                    <Route exact path='/orgs/:orgId/projects/:projectId/settings'>
+                        <ContentProgress progressHidden={progressHidden && project !== undefined && members !== undefined} />
+                        <ContentHeader title={project?.displayName} />
+                        <ContentContainer>
+                            <ProjectSettingsOverview />
                         </ContentContainer>
                     </Route>
                 </Switch>

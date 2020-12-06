@@ -1,23 +1,20 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Checkbox, getTheme, IColumn, IconButton, Label, Modal, Separator, Stack, Text } from '@fluentui/react';
 import { useHistory, useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { ProjectTemplate } from 'teamcloud';
 import { ContentList } from '.';
 import collaboration from '../img/MSC17_collaboration_010_noBG.png'
+import { OrgContext } from '../Context';
 
-
-export interface IProjectTemplateListProps {
-    templates?: ProjectTemplate[]
-}
-
-export const ProjectTemplateList: React.FC<IProjectTemplateListProps> = (props) => {
+export const ProjectTemplateList: React.FC = () => {
 
     const history = useHistory();
     const { orgId } = useParams() as { orgId: string };
+    const { templates } = useContext(OrgContext);
 
     const [selectedTemplate, setSelectedTemplate] = useState<ProjectTemplate>();
     const [modalIsOpen, setModalIsOpen] = useState(false);
@@ -32,7 +29,6 @@ export const ProjectTemplateList: React.FC<IProjectTemplateListProps> = (props) 
     ];
 
     const _onItemInvoked = (template: ProjectTemplate): void => {
-        // console.error(template)
         if (template) {
             setSelectedTemplate(template);
             setModalIsOpen(true);
@@ -45,7 +41,7 @@ export const ProjectTemplateList: React.FC<IProjectTemplateListProps> = (props) 
         <>
             <ContentList
                 columns={columns}
-                items={props.templates}
+                items={templates}
                 onItemInvoked={_onItemInvoked}
                 filterPlaceholder='Filter templates'
                 buttonText='New template'

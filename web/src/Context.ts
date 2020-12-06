@@ -2,25 +2,30 @@
 // Licensed under the MIT License.
 
 import React from 'react';
-import { Component, ComponentTemplate, DeploymentScope, Organization, Project, ProjectComponentDefinition, User, UserDefinition } from 'teamcloud'
-import { GraphUser, ProjectMember } from './model';
+import { Component, ComponentTemplate, DeploymentScope, DeploymentScopeDefinition, Organization, Project, ProjectComponentDefinition, ProjectTemplate, ProjectTemplateDefinition, User, UserDefinition } from 'teamcloud'
+import { GraphUser, Member, ProjectMember, Subscription, ManagementGroup } from './model';
 
 export const GraphUserContext = React.createContext({
     graphUser: undefined as GraphUser | undefined,
-    setGraphUser: (graphUser?: GraphUser) => { }
+    setGraphUser: (graphUser?: GraphUser) => { },
+    subscriptions: undefined as Subscription[] | undefined,
+    managementGroups: undefined as ManagementGroup[] | undefined,
 });
 
 export const OrgContext = React.createContext({
     org: undefined as Organization | undefined,
     orgs: undefined as Organization[] | undefined,
-    onOrgSelected: (org?: Organization) => { },
     user: undefined as User | undefined,
-    // setUser: (user?: User) => { },
+    members: undefined as Member[] | undefined,
     scopes: undefined as DeploymentScope[] | undefined,
-    // templates: undefined as ProjectTemplate[] | undefined,
+    templates: undefined as ProjectTemplate[] | undefined,
     project: undefined as Project | undefined,
     projects: undefined as Project[] | undefined,
-    onProjectSelected: (project?: Project) => { }
+    onOrgSelected: (org?: Organization) => { },
+    onProjectSelected: (project?: Project) => { },
+    onAddUsers: (users: UserDefinition[]) => Promise.resolve(),
+    onCreateDeploymentScope: (scope: DeploymentScopeDefinition, org?: Organization) => Promise.resolve(),
+    onCreateProjectTemplate: (template: ProjectTemplateDefinition, org?: Organization) => Promise.resolve(),
     // setMembers: (members?: Member[]) => { },
 });
 
