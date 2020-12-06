@@ -32,11 +32,12 @@ namespace TeamCloud.API.Controllers
     [Produces("application/json")]
     public class ProjectController : ApiController
     {
+        private readonly IProjectRepository projectRepository;
         private readonly IProjectTemplateRepository projectTemplateRepository;
 
-        public ProjectController(UserService userService, Orchestrator orchestrator, IOrganizationRepository organizationRepository, IProjectRepository projectRepository, IProjectTemplateRepository projectTemplateRepository)
-            : base(userService, orchestrator, organizationRepository, projectRepository)
+        public ProjectController(IProjectRepository projectRepository, IProjectTemplateRepository projectTemplateRepository) : base()
         {
+            this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
             this.projectTemplateRepository = projectTemplateRepository ?? throw new ArgumentNullException(nameof(projectTemplateRepository));
         }
 
@@ -84,7 +85,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         public Task<IActionResult> Get() => ResolveOrganizationIdAsync(async organizationId =>
         {
-            var projects = await ProjectRepository
+            var projects = await projectRepository
                 .ListAsync(organizationId)
                 .ToListAsync()
                 .ConfigureAwait(false);
@@ -130,7 +131,7 @@ namespace TeamCloud.API.Controllers
                     .BadRequest(validation)
                     .ToActionResult();
 
-            var nameExists = await ProjectRepository
+            var nameExists = await projectRepository
                 .NameExistsAsync(organizationId, projectDefinition.DisplayName)
                 .ConfigureAwait(false);
 

@@ -17,6 +17,9 @@ namespace TeamCloud.Azure.Resources
 
         Task<AzureResourceGroup> GetResourceGroupAsync(Guid subscriptionId, string resourceGroupName, bool throwIfNotExists = false);
 
+        async Task<bool> ExistsResourceAsync(string resourceId)
+            => (await GetResourceAsync(resourceId).ConfigureAwait(false)) != null;
+
         Task<AzureResource> GetResourceAsync(string resourceId, bool throwIfNotExists = false);
 
         Task<TAzureResource> GetResourceAsync<TAzureResource>(string resourceId, bool throwIfNotExists = false)

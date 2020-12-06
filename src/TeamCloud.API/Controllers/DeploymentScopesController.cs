@@ -30,8 +30,7 @@ namespace TeamCloud.API.Controllers
     {
         private readonly IDeploymentScopeRepository deploymentScopeRepository;
 
-        public DeploymentScopesController(UserService userService, Orchestrator orchestrator, IOrganizationRepository organizationRepository, IDeploymentScopeRepository deploymentScopeRepository)
-            : base(userService, orchestrator, organizationRepository)
+        public DeploymentScopesController(IDeploymentScopeRepository deploymentScopeRepository) : base()      
         {
             this.deploymentScopeRepository = deploymentScopeRepository ?? throw new ArgumentNullException(nameof(deploymentScopeRepository));
         }

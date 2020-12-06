@@ -35,22 +35,12 @@ namespace TeamCloud.API.Controllers
         private readonly IComponentTemplateRepository componentTemplateRepository;
         private readonly IDeploymentScopeRepository deploymentScopeRepository;
 
-        public ProjectComponentsController(UserService userService,
-                                           Orchestrator orchestrator,
-                                           IOrganizationRepository organizationRepository,
-                                           IProjectRepository projectRepository,
-                                           IProjectTemplateRepository projectTemplateRepository,
-                                           IRepositoryService repositoryService,
-                                           IComponentRepository componentRepository,
-                                           IComponentTemplateRepository componentTemplateRepository,
-                                           IDeploymentScopeRepository deploymentScopeRepository)
-            : base(userService, orchestrator, organizationRepository, projectRepository, projectTemplateRepository, repositoryService)
+        public ProjectComponentsController(IComponentRepository componentRepository, IComponentTemplateRepository componentTemplateRepository, IDeploymentScopeRepository deploymentScopeRepository) : base()
         {
             this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
             this.componentTemplateRepository = componentTemplateRepository ?? throw new ArgumentNullException(nameof(componentTemplateRepository));
             this.deploymentScopeRepository = deploymentScopeRepository ?? throw new ArgumentNullException(nameof(deploymentScopeRepository));
         }
-
 
         [HttpGet]
         [Authorize(Policy = AuthPolicies.ProjectRead)]

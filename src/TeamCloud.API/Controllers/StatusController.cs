@@ -13,7 +13,6 @@ using Swashbuckle.AspNetCore.Annotations;
 using TeamCloud.API.Auth;
 using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
-using TeamCloud.Data;
 using TeamCloud.Model.Commands.Core;
 
 namespace TeamCloud.API.Controllers
@@ -23,8 +22,7 @@ namespace TeamCloud.API.Controllers
     [Produces("application/json")]
     public class StatusController : ApiController
     {
-        public StatusController(UserService userService, Orchestrator orchestrator, IOrganizationRepository organizationRepository)
-            : base(userService, orchestrator, organizationRepository)
+        public StatusController() : base()
         { }
 
         [Authorize(Policy = AuthPolicies.Admin)]

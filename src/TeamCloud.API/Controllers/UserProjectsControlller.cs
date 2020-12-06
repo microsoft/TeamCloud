@@ -12,7 +12,6 @@ using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TeamCloud.API.Auth;
 using TeamCloud.API.Data.Results;
-using TeamCloud.API.Services;
 using TeamCloud.Data;
 using TeamCloud.Model.Data;
 
@@ -22,9 +21,12 @@ namespace TeamCloud.API.Controllers
     [Produces("application/json")]
     public class UserProjectsController : ApiController
     {
-        public UserProjectsController(UserService userService, Orchestrator orchestrator, IOrganizationRepository organizationRepository, IUserRepository userRepository, IProjectRepository projectRepository)
-            : base(userService, orchestrator, organizationRepository, projectRepository, userRepository)
-        { }
+        private readonly IProjectRepository projectRepository;
+
+        public UserProjectsController(IProjectRepository projectRepository) : base()
+        {
+            this.projectRepository = projectRepository ?? throw new System.ArgumentNullException(nameof(projectRepository));
+        }
 
 
         [HttpGet("orgs/{org}/users/{userId:userId}/projects")]
@@ -42,7 +44,7 @@ namespace TeamCloud.API.Controllers
                     .Ok(new List<Project>())
                     .ToActionResult();
 
-            var projects = await ProjectRepository
+            var projects = await projectRepository
                 .ListAsync(OrgId, projectIds)
                 .ToListAsync()
                 .ConfigureAwait(false);
@@ -68,7 +70,7 @@ namespace TeamCloud.API.Controllers
                     .Ok(new List<Project>())
                     .ToActionResult();
 
-            var projects = await ProjectRepository
+            var projects = await projectRepository
                 .ListAsync(OrgId, projectIds)
                 .ToListAsync()
                 .ConfigureAwait(false);

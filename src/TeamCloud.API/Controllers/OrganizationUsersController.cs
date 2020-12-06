@@ -29,9 +29,12 @@ namespace TeamCloud.API.Controllers
     [Produces("application/json")]
     public class OrganizationUsersController : ApiController
     {
-        public OrganizationUsersController(UserService userService, Orchestrator orchestrator, IOrganizationRepository organizationRepository, IUserRepository userRepository)
-            : base(userService, orchestrator, organizationRepository, userRepository)
-        { }
+        private readonly IUserRepository userRepository;
+
+        public OrganizationUsersController(IUserRepository userRepository) : base()
+        {
+            this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+        }
 
 
         [HttpGet("orgs/{org}/users")]
@@ -42,7 +45,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status404NotFound, "The Organization was not found.", typeof(ErrorResult))]
         public Task<IActionResult> Get() => ResolveOrganizationIdAsync(async organizationId =>
         {
-            var users = await UserRepository
+            var users = await userRepository
                 .ListAsync(organizationId)
                 .ToListAsync()
                 .ConfigureAwait(false);
@@ -110,7 +113,7 @@ namespace TeamCloud.API.Controllers
                     .NotFound($"The user '{userDefinition.Identifier}' could not be found.")
                     .ToActionResult();
 
-            var user = await UserRepository
+            var user = await userRepository
                 .GetAsync(organizationId, userId)
                 .ConfigureAwait(false);
 
@@ -162,7 +165,7 @@ namespace TeamCloud.API.Controllers
 
             if (existingUser.IsAdmin() && !user.IsAdmin())
             {
-                var otherAdmins = await UserRepository
+                var otherAdmins = await userRepository
                     .ListAdminsAsync(OrgId)
                     .AnyAsync(a => a.Id != user.Id)
                     .ConfigureAwait(false);
@@ -216,7 +219,7 @@ namespace TeamCloud.API.Controllers
 
             if (currentUser.IsAdmin() && !user.IsAdmin())
             {
-                var otherAdmins = await UserRepository
+                var otherAdmins = await userRepository
                     .ListAdminsAsync(OrgId)
                     .AnyAsync(a => a.Id != user.Id)
                     .ConfigureAwait(false);
@@ -250,7 +253,7 @@ namespace TeamCloud.API.Controllers
         {
             if (user.IsAdmin())
             {
-                var otherAdmins = await UserRepository
+                var otherAdmins = await userRepository
                     .ListAdminsAsync(OrgId)
                     .AnyAsync(a => a.Id != user.Id)
                     .ConfigureAwait(false);
