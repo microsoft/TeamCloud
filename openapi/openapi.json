@@ -4026,6 +4026,7 @@
           "projectId",
           "provider",
           "requestedBy",
+          "slug",
           "templateId",
           "type"
         ],
@@ -4096,6 +4097,10 @@
           "identityId": {
             "type": "string",
             "nullable": true
+          },
+          "slug": {
+            "type": "string",
+            "readOnly": true
           },
           "id": {
             "type": "string"

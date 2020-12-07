@@ -16,6 +16,10 @@ export declare interface Component {
     resourceState?: ComponentResourceState;
     deploymentScopeId?: string | null;
     identityId?: string | null;
+    /**
+     * NOTE: This property will not be serialized. It can only be populated by the server.
+     */
+    readonly slug: string;
     id: string;
 }
 
