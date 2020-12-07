@@ -14,7 +14,7 @@ export const OrgSettingsView: React.FC = () => {
 
     const [progressHidden, setProgressHidden] = useState(true);
 
-    const { subscriptions, managementGroups } = useContext(GraphUserContext);
+    const { subscriptions } = useContext(GraphUserContext);
     const { org, members, scopes, templates, onCreateDeploymentScope, onCreateProjectTemplate, onAddUsers } = useContext(OrgContext);
 
 
@@ -49,7 +49,8 @@ export const OrgSettingsView: React.FC = () => {
                 <ContentHeader title='Deployment Scopes' />
             </Route>
             <Route exact path={['/orgs/:orgId/settings/scopes/new']}>
-                <ContentProgress progressHidden={progressHidden && subscriptions !== undefined && managementGroups !== undefined} />
+                {/* <ContentProgress progressHidden={progressHidden && subscriptions !== undefined && managementGroups !== undefined} /> */}
+                <ContentProgress progressHidden={progressHidden && subscriptions !== undefined} />
                 <ContentHeader title='New Deployment Scope'>
                     <IconButton iconProps={{ iconName: 'ChromeClose' }} onClick={() => history.push(`/orgs/${org?.slug}/settings/scopes`)} />
                 </ContentHeader>

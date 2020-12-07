@@ -44,10 +44,10 @@ export const HeaderBreadcrumb: React.FC = () => {
 
                 if (endsWithLowerCase(location.pathname, '/new')) {
                     crumbs.push({ key: 'new', text: `New ${navId.slice(0, -1)}` });
+
                 } else if (itemId !== undefined) {
 
                     if (matchesLowerCase(navId, 'components')) {
-                        const componentName = component?.displayName ?? itemId;
                         crumbs.push({ key: itemId, text: component?.displayName ?? itemId, onClick: () => history.push(`${orgPath}/projects/${projectId}/components/${component?.slug}`) });
                     }
                 }

@@ -147,7 +147,7 @@ export const ComponentOverview: React.FC = (props) => {
                             showSecondaryText
                             secondaryText={creator?.graphUser?.mail ?? (creator?.graphUser?.otherMails && creator.graphUser.otherMails.length > 0 ? creator.graphUser.otherMails[0] : undefined)}
                             imageUrl={creator?.graphUser?.imageUrl}
-                            // styles={{ primaryText: { fontSize: '16px' } }}
+                            styles={{ root: { minWidth: '220px' } }}
                             size={PersonaSize.size32} />
                     </ComponentOverviewHeaderSection>
                 </Stack>
@@ -184,34 +184,7 @@ export const ComponentOverview: React.FC = (props) => {
                         </Stack>
                     </PivotItem>
                     <PivotItem headerText='Deployments' itemKey='Deployments'>
-                        <Stack
-                            horizontal
-                            verticalFill
-                            tokens={{ childrenGap: '40px' }}
-                            styles={{ root: { padding: '24px 8px' } }}>
-                            <Stack.Item grow styles={{ root: { minWidth: '40%', } }}>
-                                <ComponentDeploymentList />
-                            </Stack.Item>
-                            <Stack.Item grow styles={{
-                                root: {
-                                    height: '100%',
-                                    minWidth: '40%',
-                                    padding: '10px 40px',
-                                    borderRadius: theme.effects.roundedCorner4,
-                                    // boxShadow: theme.effects.elevation4,
-                                    backgroundColor: theme.palette.black
-                                }
-                            }}>
-                                <Text block styles={{ root: { color: theme.palette.white } }}>
-                                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis nesciunt dolor dolore nemo aperiam tenetur ullam, tempora nostrum nisi voluptates quod delectus, repudiandae suscipit consequuntur voluptate voluptatum dolorum animi illum.
-                                </Text>
-                                {/* <ReactMarkdown>{template?.description ?? undefined as any}</ReactMarkdown> */}
-                            </Stack.Item>
-                        </Stack>
-
-                        {/* <Stack tokens={{ childrenGap: '20px' }} styles={{ root: { padding: '24px 8px' } }}> */}
-
-                        {/* </Stack> */}
+                        <ComponentDeploymentList />
                     </PivotItem>
                     <PivotItem headerText='Settings' itemKey='Settings'>
                         <Stack tokens={{ childrenGap: '20px' }} styles={{ root: { padding: '24px 8px' } }}>

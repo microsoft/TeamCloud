@@ -5,11 +5,11 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { InteractionType } from '@azure/msal-browser';
 import { useLocation, useParams } from 'react-router-dom';
 import { MsalAuthenticationResult, useIsAuthenticated, useMsalAuthentication } from '@azure/msal-react';
-import { Component, ComponentTemplate, DeploymentScope, DeploymentScopeDefinition, Organization, Project, ProjectTemplate, ProjectTemplateDefinition, User, UserDefinition } from 'teamcloud';
+import { Component, ComponentDeployment, ComponentTemplate, DeploymentScope, DeploymentScopeDefinition, Organization, Project, ProjectTemplate, ProjectTemplateDefinition, User, UserDefinition } from 'teamcloud';
 import { matchesRouteParam, matchesLowerCase, endsWithLowerCase, endsWithAnyLowerCase, includesLowerCase, matchesAnyLowerCase } from './Utils'
-import { GraphUser, ManagementGroup, Member, ProjectMember, Subscription } from './model';
+import { GraphUser, Member, ProjectMember, Subscription } from './model';
 import { GraphUserContext, OrgContext, ProjectContext } from './Context'
-import { getManagementGroups, getSubscriptions } from './Azure';
+import { getSubscriptions } from './Azure';
 import { getGraphUser, getMe } from './MSGraph';
 import { api, auth } from './API';
 
@@ -48,8 +48,10 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
     const [projectComponents, setProjectComponents] = useState<Component[]>();
     const [projectComponentTemplates, setProjectComponentTemplates] = useState<ComponentTemplate[]>();
 
+    const [projectComponentDeployments, setProjectComponentDeployments] = useState<ComponentDeployment[]>();
+
     const [subscriptions, setSubscriptions] = useState<Subscription[]>();
-    const [managementGroups, setManagementGroups] = useState<ManagementGroup[]>();
+    // const [managementGroups, setManagementGroups] = useState<ManagementGroup[]>();
 
 
     useEffect(() => { // Graph User
@@ -308,31 +310,31 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
                 _setSubscriptions();
             }
         } else if (subscriptions) {
-            console.log(`setManagementGroups (undefined)`);
+            console.log(`setSubscriptions (undefined)`);
             setSubscriptions(undefined);
         }
     }, [isAuthenticated, subscriptions, location]);
 
 
-    useEffect(() => {
-        if (isAuthenticated) {
-            if (endsWithAnyLowerCase(location.pathname, '/orgs/new', '/scopes/new') && managementGroups === undefined) {
-                const _setManagementGroups = async () => {
-                    console.log(`setManagementGroups`);
-                    try {
-                        const groups = await getManagementGroups();
-                        setManagementGroups(groups ?? []);
-                    } catch (error) {
-                        setManagementGroups([]);
-                    }
-                };
-                _setManagementGroups();
-            }
-        } else {
-            console.log(`setManagementGroups (undefined)`);
-            setManagementGroups(undefined);
-        }
-    }, [isAuthenticated, managementGroups, location]);
+    // useEffect(() => { // Azure Management Groups
+    //     if (isAuthenticated) {
+    //         if (endsWithAnyLowerCase(location.pathname, '/orgs/new', '/scopes/new') && managementGroups === undefined) {
+    //             const _setManagementGroups = async () => {
+    //                 console.log(`setManagementGroups`);
+    //                 try {
+    //                     const groups = await getManagementGroups();
+    //                     setManagementGroups(groups ?? []);
+    //                 } catch (error) {
+    //                     setManagementGroups([]);
+    //                 }
+    //             };
+    //             _setManagementGroups();
+    //         }
+    //     } else {
+    //         console.log(`setManagementGroups (undefined)`);
+    //         setManagementGroups(undefined);
+    //     }
+    // }, [isAuthenticated, managementGroups, location]);
 
 
 
@@ -363,7 +365,7 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
     }, [isAuthenticated, projectId, project, projectMembers, navId]);
 
 
-    useEffect(() => { // Components
+    useEffect(() => { // Project Components
         if (isAuthenticated && projectId && project) {
             if ((navId === undefined && !endsWithLowerCase(location.pathname, '/settings'))
                 || (navId && matchesLowerCase(navId, 'components') && !endsWithLowerCase(location.pathname, '/new'))) {
@@ -384,7 +386,7 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
     }, [isAuthenticated, projectId, project, projectComponents, projectComponent, navId, location]);
 
 
-    useEffect(() => {// Component Templates
+    useEffect(() => {// Project Component Templates
         if (isAuthenticated && projectId && project) {
             if (navId === undefined || matchesLowerCase(navId, 'components')) {
                 if (projectComponentTemplates === undefined) {
@@ -411,7 +413,7 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
     }, [projectComponent]);
 
 
-    useEffect(() => { // Esure selected item matches route
+    useEffect(() => { // Esure selected Project Component matches route
         if (projectId && navId && itemId && includesLowerCase(location.pathname, '/components')) {
             if (projectComponent && matchesRouteParam(projectComponent, itemId)) {
                 return;
@@ -427,6 +429,27 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
             onComponentSelected(undefined);
         }
     }, [itemId, navId, projectId, projectComponents, projectComponent, location, onComponentSelected]);
+
+
+
+    useEffect(() => {// Project Component Deployments
+        if (isAuthenticated && projectId && project && projectComponent) {
+            if (matchesLowerCase(navId, 'components') && itemId && projectComponent && matchesRouteParam(projectComponent, itemId)) {
+                if (projectComponentDeployments === undefined || projectComponentDeployments.some(d => d.componentId !== projectComponent.id)) {
+                    const _setComponentDeployments = async () => {
+                        console.log(`setProjectComponentDeployments (${projectComponent.slug})`);
+                        const result = await api.getProjectDeployments(project.organization, project.id, projectComponent.id);
+                        setProjectComponentDeployments(result.data ?? undefined);
+                    };
+                    _setComponentDeployments();
+                }
+            }
+        } else if (projectComponentDeployments) {
+            console.log('setProjectComponentDeployments (undefined)');
+            setProjectComponentDeployments(undefined);
+        }
+    }, [isAuthenticated, projectId, project, projectComponent, navId, itemId, projectComponentDeployments]);
+
 
 
     const onAddProjectUsers = async (users: UserDefinition[]) => {
@@ -460,7 +483,7 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
             graphUser: graphUser,
             setGraphUser: setGraphUser,
             subscriptions: subscriptions,
-            managementGroups: managementGroups
+            // managementGroups: managementGroups
         }}>
             <OrgContext.Provider value={{
                 org: org,
@@ -483,6 +506,7 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
                     component: projectComponent,
                     components: projectComponents,
                     templates: projectComponentTemplates,
+                    componentDeployments: projectComponentDeployments,
                     onAddUsers: onAddProjectUsers,
                     onComponentSelected: onComponentSelected
                 }}>

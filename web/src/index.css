@@ -24,6 +24,31 @@ code {
   height: 18px;
 }
 
+.deployment-state-icon-pending {
+  font-size: 26px;
+  color: lightskyblue;
+}
+
+.deployment-state-icon-initializing {
+  font-size: 26px;
+  color: lightskyblue;
+}
+
+.deployment-state-icon-provisioning {
+  font-size: 26px;
+  color: lightskyblue;
+}
+
+.deployment-state-icon-succeeded {
+  font-size: 26px;
+  color: green;
+}
+
+.deployment-state-icon-failed {
+  font-size: 26px;
+  color: red;
+}
+
 /* .rjsf label {
   display: none;
 } */
