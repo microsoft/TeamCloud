@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Flurl.Http;
 using Microsoft.Azure.Management.Graph.RBAC.Fluent.Models;
 using Microsoft.Azure.Management.ResourceManager.Fluent;
+using Microsoft.Azure.Management.ResourceManager.Fluent.Core;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Rest.Azure;
 using Newtonsoft.Json;
@@ -38,6 +39,23 @@ namespace TeamCloud.Azure.Resources
                 throw new ArgumentNullException(nameof(resourceId));
 
             return AzureResourceIdentifier.TryParse(resourceId, out var _);
+        }
+
+        public static async IAsyncEnumerable<T> AsContinuousCollectionAsync<T>(
+            this IPagedCollection<T> page
+        )
+        {
+            while (page?.Any() ?? false)
+            {
+                foreach (var element in page)
+                {
+                    yield return element;
+                }
+
+                page = await page
+                    .GetNextPageAsync()
+                    .ConfigureAwait(false);
+            }
         }
 
         public static async IAsyncEnumerable<T> AsContinuousCollectionAsync<T>(
