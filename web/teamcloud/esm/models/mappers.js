@@ -1089,6 +1089,14 @@ export var Component = {
                     name: "String"
                 }
             },
+            slug: {
+                serializedName: "slug",
+                required: true,
+                readOnly: true,
+                type: {
+                    name: "String"
+                }
+            },
             id: {
                 serializedName: "id",
                 required: true,

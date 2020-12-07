@@ -34,6 +34,7 @@ export interface Component {
     resourceId?: string | null;
     // (undocumented)
     resourceState?: ComponentResourceState;
+    readonly slug: string;
     // (undocumented)
     templateId: string;
     // (undocumented)

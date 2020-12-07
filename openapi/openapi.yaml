@@ -2561,6 +2561,7 @@ components:
         - projectId
         - provider
         - requestedBy
+        - slug
         - templateId
         - type
       type: object
@@ -2614,6 +2615,9 @@ components:
         identityId:
           type: string
           nullable: true
+        slug:
+          type: string
+          readOnly: true
         id:
           type: string
       additionalProperties: false
