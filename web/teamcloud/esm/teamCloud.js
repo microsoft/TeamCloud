@@ -271,6 +271,29 @@ var TeamCloud = /** @class */ (function (_super) {
         return this.sendOperationRequest({ id: id, org: org, projectId: projectId, options: operationOptions }, getProjectComponentTemplateOperationSpec);
     };
     /**
+     * Gets all Project Component Deployments.
+     * @param org
+     * @param projectId
+     * @param componentId
+     * @param options The options parameters.
+     */
+    TeamCloud.prototype.getProjectDeployments = function (org, projectId, componentId, options) {
+        var operationOptions = coreHttp.operationOptionsToRequestOptionsBase(options || {});
+        return this.sendOperationRequest({ org: org, projectId: projectId, componentId: componentId, options: operationOptions }, getProjectDeploymentsOperationSpec);
+    };
+    /**
+     * Gets the Component Template.
+     * @param id
+     * @param org
+     * @param projectId
+     * @param componentId
+     * @param options The options parameters.
+     */
+    TeamCloud.prototype.getProjectDeployment = function (id, org, projectId, componentId, options) {
+        var operationOptions = coreHttp.operationOptionsToRequestOptionsBase(options || {});
+        return this.sendOperationRequest({ id: id, org: org, projectId: projectId, componentId: componentId, options: operationOptions }, getProjectDeploymentOperationSpec);
+    };
+    /**
      * Gets all Tags for a Project.
      * @param org
      * @param projectId
@@ -1041,6 +1064,57 @@ var getProjectComponentTemplateOperationSpec = {
         Parameters.org,
         Parameters.id,
         Parameters.projectId
+    ],
+    headerParameters: [Parameters.accept],
+    serializer: serializer
+};
+var getProjectDeploymentsOperationSpec = {
+    path: "/orgs/{org}/projects/{projectId}/components/{componentId}/deployments",
+    httpMethod: "GET",
+    responses: {
+        200: {
+            bodyMapper: Mappers.ComponentDeploymentListDataResult
+        },
+        400: {
+            bodyMapper: Mappers.ErrorResult
+        },
+        401: {},
+        403: {},
+        404: {
+            bodyMapper: Mappers.ErrorResult
+        }
+    },
+    urlParameters: [
+        Parameters.$host,
+        Parameters.org,
+        Parameters.projectId,
+        Parameters.componentId
+    ],
+    headerParameters: [Parameters.accept],
+    serializer: serializer
+};
+var getProjectDeploymentOperationSpec = {
+    path: "/orgs/{org}/projects/{projectId}/components/{componentId}/deployments/{id}",
+    httpMethod: "GET",
+    responses: {
+        200: {
+            bodyMapper: Mappers.ComponentDeploymentDataResult
+        },
+        400: {
+            bodyMapper: Mappers.ErrorResult
+        },
+        401: {},
+        403: {},
+        404: {
+            bodyMapper: Mappers.ErrorResult
+        }
+    },
+    urlParameters: [
+        Parameters.$host,
+        Parameters.org,
+        Parameters.id,
+        Parameters.projectId,
+        Parameters.componentId
     ],
     headerParameters: [Parameters.accept],
     serializer: serializer

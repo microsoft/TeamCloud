@@ -1692,6 +1692,161 @@
         }
       }
     },
+    "/orgs/{org}/projects/{projectId}/components/{componentId}/deployments": {
+      "get": {
+        "tags": [
+          "ProjectDeployments"
+        ],
+        "summary": "Gets all Project Component Deployments.",
+        "operationId": "GetProjectDeployments",
+        "parameters": [
+          {
+            "name": "org",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "componentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns all Project Component Deployments",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComponentDeploymentListDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Project Component Deployments with the provided providerId was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/orgs/{org}/projects/{projectId}/components/{componentId}/deployments/{id}": {
+      "get": {
+        "tags": [
+          "ProjectDeployments"
+        ],
+        "summary": "Gets the Component Template.",
+        "operationId": "GetProjectDeployment",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "org",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "componentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns a Component Template",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComponentDeploymentDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Project Component Template with the provided id was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
     "/orgs/{org}/projects/{projectId}/tags": {
       "get": {
         "tags": [
@@ -3452,6 +3607,7 @@
           "resourceState": {
             "enum": [
               "Pending",
+              "Initializing",
               "Provisioning",
               "Succeeded",
               "Failed"
@@ -3771,6 +3927,7 @@
           "resourceState": {
             "enum": [
               "Pending",
+              "Initializing",
               "Provisioning",
               "Succeeded",
               "Failed"
@@ -3925,6 +4082,7 @@
           "resourceState": {
             "enum": [
               "Pending",
+              "Initializing",
               "Provisioning",
               "Succeeded",
               "Failed"
@@ -3932,6 +4090,10 @@
             "type": "string"
           },
           "deploymentScopeId": {
+            "type": "string",
+            "nullable": true
+          },
+          "identityId": {
             "type": "string",
             "nullable": true
           },
@@ -4119,6 +4281,10 @@
             ],
             "type": "string"
           },
+          "folder": {
+            "type": "string",
+            "nullable": true
+          },
           "id": {
             "type": "string"
           }
@@ -4164,6 +4330,106 @@
           },
           "data": {
             "$ref": "#/components/schemas/ComponentTemplate"
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ComponentDeployment": {
+        "required": [
+          "componentId",
+          "id",
+          "projectId"
+        ],
+        "type": "object",
+        "properties": {
+          "componentId": {
+            "type": "string"
+          },
+          "projectId": {
+            "type": "string"
+          },
+          "started": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "finished": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "output": {
+            "type": "string",
+            "nullable": true
+          },
+          "resourceId": {
+            "type": "string",
+            "nullable": true
+          },
+          "resourceState": {
+            "enum": [
+              "Pending",
+              "Initializing",
+              "Provisioning",
+              "Succeeded",
+              "Failed"
+            ],
+            "type": "string"
+          },
+          "exitCode": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "id": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ComponentDeploymentListDataResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ComponentDeployment"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ComponentDeploymentDataResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/ComponentDeployment"
           },
           "location": {
             "type": "string",

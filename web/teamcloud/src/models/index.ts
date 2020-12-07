@@ -243,6 +243,7 @@ export interface Component {
   resourceId?: string | null;
   resourceState?: ComponentResourceState;
   deploymentScopeId?: string | null;
+  identityId?: string | null;
   id: string;
 }
 
@@ -279,6 +280,7 @@ export interface ComponentTemplate {
   repository: RepositoryReference;
   inputJsonSchema?: string | null;
   type: ComponentTemplateType;
+  folder?: string | null;
   id: string;
 }
 
@@ -300,6 +302,35 @@ export interface ComponentTemplateDataResult {
   code?: number;
   status?: string | null;
   data?: ComponentTemplate;
+  location?: string | null;
+}
+
+export interface ComponentDeploymentListDataResult {
+  code?: number;
+  status?: string | null;
+  /**
+   * NOTE: This property will not be serialized. It can only be populated by the server.
+   */
+  readonly data?: ComponentDeployment[] | null;
+  location?: string | null;
+}
+
+export interface ComponentDeployment {
+  componentId: string;
+  projectId: string;
+  started?: Date | null;
+  finished?: Date | null;
+  output?: string | null;
+  resourceId?: string | null;
+  resourceState?: ComponentDeploymentResourceState;
+  exitCode?: number | null;
+  id: string;
+}
+
+export interface ComponentDeploymentDataResult {
+  code?: number;
+  status?: string | null;
+  data?: ComponentDeployment;
   location?: string | null;
 }
 
@@ -376,6 +407,7 @@ export type ResultErrorCode =
  */
 export type OrganizationResourceState =
   | "Pending"
+  | "Initializing"
   | "Provisioning"
   | "Succeeded"
   | "Failed"
@@ -402,6 +434,7 @@ export type ProjectMembershipRole =
  */
 export type ProjectResourceState =
   | "Pending"
+  | "Initializing"
   | "Provisioning"
   | "Succeeded"
   | "Failed"
@@ -420,6 +453,7 @@ export type ComponentType =
  */
 export type ComponentResourceState =
   | "Pending"
+  | "Initializing"
   | "Provisioning"
   | "Succeeded"
   | "Failed"
@@ -449,6 +483,16 @@ export type ComponentTemplateType =
   | "AzureResource"
   | "Environment"
   | "GitRepository"
+  | string;
+/**
+ * Defines values for ComponentDeploymentResourceState.
+ */
+export type ComponentDeploymentResourceState =
+  | "Pending"
+  | "Initializing"
+  | "Provisioning"
+  | "Succeeded"
+  | "Failed"
   | string;
 
 /**
@@ -1032,6 +1076,46 @@ export type TeamCloudGetProjectComponentTemplateResponse = ComponentTemplateData
      * The response body as parsed JSON or XML
      */
     parsedBody: ComponentTemplateDataResult;
+  };
+};
+
+/**
+ * Contains response data for the getProjectDeployments operation.
+ */
+export type TeamCloudGetProjectDeploymentsResponse = ComponentDeploymentListDataResult & {
+  /**
+   * The underlying HTTP response.
+   */
+  _response: coreHttp.HttpResponse & {
+    /**
+     * The response body as text (string format)
+     */
+    bodyAsText: string;
+
+    /**
+     * The response body as parsed JSON or XML
+     */
+    parsedBody: ComponentDeploymentListDataResult;
+  };
+};
+
+/**
+ * Contains response data for the getProjectDeployment operation.
+ */
+export type TeamCloudGetProjectDeploymentResponse = ComponentDeploymentDataResult & {
+  /**
+   * The underlying HTTP response.
+   */
+  _response: coreHttp.HttpResponse & {
+    /**
+     * The response body as text (string format)
+     */
+    bodyAsText: string;
+
+    /**
+     * The response body as parsed JSON or XML
+     */
+    parsedBody: ComponentDeploymentDataResult;
   };
 };
 

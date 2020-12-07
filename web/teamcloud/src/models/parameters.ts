@@ -134,6 +134,17 @@ export const body6: OperationParameter = {
   mapper: ProjectComponentDefinitionMapper
 };
 
+export const componentId: OperationURLParameter = {
+  parameterPath: "componentId",
+  mapper: {
+    serializedName: "componentId",
+    required: true,
+    type: {
+      name: "String"
+    }
+  }
+};
+
 export const body7: OperationParameter = {
   parameterPath: ["options", "body"],
   mapper: {

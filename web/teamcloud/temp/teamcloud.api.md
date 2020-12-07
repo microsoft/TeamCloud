@@ -19,6 +19,8 @@ export interface Component {
     // (undocumented)
     id: string;
     // (undocumented)
+    identityId?: string | null;
+    // (undocumented)
     inputJson?: string | null;
     // (undocumented)
     organization: string;
@@ -53,6 +55,54 @@ export interface ComponentDataResult {
 }
 
 // @public (undocumented)
+export interface ComponentDeployment {
+    // (undocumented)
+    componentId: string;
+    // (undocumented)
+    exitCode?: number | null;
+    // (undocumented)
+    finished?: Date | null;
+    // (undocumented)
+    id: string;
+    // (undocumented)
+    output?: string | null;
+    // (undocumented)
+    projectId: string;
+    // (undocumented)
+    resourceId?: string | null;
+    // (undocumented)
+    resourceState?: ComponentDeploymentResourceState;
+    // (undocumented)
+    started?: Date | null;
+}
+
+// @public (undocumented)
+export interface ComponentDeploymentDataResult {
+    // (undocumented)
+    code?: number;
+    // (undocumented)
+    data?: ComponentDeployment;
+    // (undocumented)
+    location?: string | null;
+    // (undocumented)
+    status?: string | null;
+}
+
+// @public (undocumented)
+export interface ComponentDeploymentListDataResult {
+    // (undocumented)
+    code?: number;
+    readonly data?: ComponentDeployment[] | null;
+    // (undocumented)
+    location?: string | null;
+    // (undocumented)
+    status?: string | null;
+}
+
+// @public
+export type ComponentDeploymentResourceState = "Pending" | "Initializing" | "Provisioning" | "Succeeded" | "Failed" | string;
+
+// @public (undocumented)
 export interface ComponentListDataResult {
     // (undocumented)
     code?: number;
@@ -64,7 +114,7 @@ export interface ComponentListDataResult {
 }
 
 // @public
-export type ComponentResourceState = "Pending" | "Provisioning" | "Succeeded" | "Failed" | string;
+export type ComponentResourceState = "Pending" | "Initializing" | "Provisioning" | "Succeeded" | "Failed" | string;
 
 // @public (undocumented)
 export interface ComponentTemplate {
@@ -72,6 +122,8 @@ export interface ComponentTemplate {
     description?: string | null;
     // (undocumented)
     displayName?: string | null;
+    // (undocumented)
+    folder?: string | null;
     // (undocumented)
     id: string;
     // (undocumented)
@@ -237,7 +289,7 @@ export interface OrganizationListDataResult {
 }
 
 // @public
-export type OrganizationResourceState = "Pending" | "Provisioning" | "Succeeded" | "Failed" | string;
+export type OrganizationResourceState = "Pending" | "Initializing" | "Provisioning" | "Succeeded" | "Failed" | string;
 
 // @public (undocumented)
 export interface Project {
@@ -326,7 +378,7 @@ export interface ProjectMembership {
 export type ProjectMembershipRole = "None" | "Provider" | "Member" | "Owner" | string;
 
 // @public
-export type ProjectResourceState = "Pending" | "Provisioning" | "Succeeded" | "Failed" | string;
+export type ProjectResourceState = "Pending" | "Initializing" | "Provisioning" | "Succeeded" | "Failed" | string;
 
 // @public (undocumented)
 export interface ProjectTemplate {
@@ -498,6 +550,8 @@ export class TeamCloud extends TeamCloudContext {
     getProjectComponents(org: string, projectId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectComponentsResponse>;
     getProjectComponentTemplate(id: string | null, org: string, projectId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectComponentTemplateResponse>;
     getProjectComponentTemplates(org: string, projectId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectComponentTemplatesResponse>;
+    getProjectDeployment(id: string | null, org: string, projectId: string | null, componentId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectDeploymentResponse>;
+    getProjectDeployments(org: string, projectId: string | null, componentId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectDeploymentsResponse>;
     getProjects(org: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectsResponse>;
     getProjectStatus(projectId: string | null, trackingId: string, org: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectStatusResponse>;
     getProjectTagByKey(tagKey: string | null, org: string, projectId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectTagByKeyResponse>;
@@ -788,6 +842,22 @@ export type TeamCloudGetProjectComponentTemplatesResponse = ComponentTemplateLis
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
         parsedBody: ComponentTemplateListDataResult;
+    };
+};
+
+// @public
+export type TeamCloudGetProjectDeploymentResponse = ComponentDeploymentDataResult & {
+    _response: coreHttp.HttpResponse & {
+        bodyAsText: string;
+        parsedBody: ComponentDeploymentDataResult;
+    };
+};
+
+// @public
+export type TeamCloudGetProjectDeploymentsResponse = ComponentDeploymentListDataResult & {
+    _response: coreHttp.HttpResponse & {
+        bodyAsText: string;
+        parsedBody: ComponentDeploymentListDataResult;
     };
 };
 
