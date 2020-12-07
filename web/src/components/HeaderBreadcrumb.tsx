@@ -4,15 +4,17 @@
 import React, { useContext } from 'react';
 import { useHistory, useLocation, useParams } from 'react-router-dom';
 import { Text, Breadcrumb, IBreadcrumbItem } from '@fluentui/react';
-import { OrgContext } from '../Context';
+import { OrgContext, ProjectContext } from '../Context';
+import { endsWithLowerCase, includesLowerCase, matchesLowerCase, matchesRouteParam } from '../Utils';
 
 export const HeaderBreadcrumb: React.FC = () => {
 
     const location = useLocation();
     const history = useHistory();
-    const { orgId, projectId, navId, settingId, itemId } = useParams() as { orgId: string, projectId: string, navId: string, settingId: string, itemId: string };
+    const { orgId, projectId, navId, itemId, settingId } = useParams() as { orgId: string, projectId: string, navId: string, itemId: string, settingId: string };
 
-    const { orgs, projects } = useContext(OrgContext);
+    const { orgs } = useContext(OrgContext);
+    const { project, component } = useContext(ProjectContext);
 
     const _breadcrumbs = (): IBreadcrumbItem[] => {
         const crumbs: IBreadcrumbItem[] = [];
@@ -21,7 +23,7 @@ export const HeaderBreadcrumb: React.FC = () => {
             return crumbs;
 
         const orgPath = `/orgs/${orgId}`;
-        const orgName = orgs?.find(o => o.id.toLowerCase() === orgId.toLowerCase() || o.slug.toLowerCase() === orgId.toLowerCase())?.displayName ?? orgId;
+        const orgName = orgs?.find(o => matchesRouteParam(o, orgId))?.displayName ?? orgId;
         const orgCrumb = { key: orgId, text: orgName, onClick: () => history.push(orgPath) };
 
         if (location.pathname.toLowerCase().endsWith('/projects/new')) {
@@ -33,22 +35,26 @@ export const HeaderBreadcrumb: React.FC = () => {
         } else if (projectId !== undefined) {
 
             // Org / Projects / Project
-            const projectName = projects?.find(p => p.id.toLowerCase() === projectId.toLowerCase() || p.slug.toLowerCase() === projectId.toLowerCase())?.displayName ?? projectId;
             crumbs.push({ key: 'projects', text: 'Projects', onClick: () => history.push(orgPath) });
-            crumbs.push({ key: projectId, text: projectName, onClick: () => history.push(`${orgPath}/projects/${projectId}`) });
+            crumbs.push({ key: projectId, text: project?.displayName ?? projectId, onClick: () => history.push(`${orgPath}/projects/${projectId}`) });
 
             // Org / Projects / Project / Category
             if (navId !== undefined) {
                 crumbs.push({ key: navId, text: navId, onClick: () => history.push(`${orgPath}/projects/${projectId}/${navId}`) });
 
-                if (location.pathname.toLowerCase().endsWith('/new'))
+                if (endsWithLowerCase(location.pathname, '/new')) {
                     crumbs.push({ key: 'new', text: `New ${navId.slice(0, -1)}` });
-                else if (itemId !== undefined)
-                    crumbs.push({ key: itemId, text: itemId, onClick: () => history.push(`${orgPath}/projects/${projectId}/${navId}/${itemId}`) });
+                } else if (itemId !== undefined) {
+
+                    if (matchesLowerCase(navId, 'components')) {
+                        const componentName = component?.displayName ?? itemId;
+                        crumbs.push({ key: itemId, text: component?.displayName ?? itemId, onClick: () => history.push(`${orgPath}/projects/${projectId}/components/${component?.slug}`) });
+                    }
+                }
             }
         }
 
-        if (location.pathname.toLowerCase().includes('/settings')) {
+        if (includesLowerCase(location.pathname, '/settings')) {
 
             // Org / Settings
             // Org / Projects / Project / Settings
@@ -59,7 +65,7 @@ export const HeaderBreadcrumb: React.FC = () => {
             // Org / Projects / Project / Settings / Setting
             if (settingId !== undefined) {
                 crumbs.push({ key: settingId, text: settingId, onClick: () => history.push(`${settingPath}/${settingId}`) });
-                if (projectId === undefined && location.pathname.toLowerCase().endsWith('/new'))
+                if (projectId === undefined && endsWithLowerCase(location.pathname, '/new'))
                     crumbs.push({ key: 'new', text: `New ${settingId.slice(0, -1)}` });
             }
         }

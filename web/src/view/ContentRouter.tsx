@@ -5,7 +5,7 @@ import React from 'react';
 import { Route, Switch } from 'react-router-dom';
 import { Error404, NewOrgView, NewProjectView, ProjectView, ProjectsView, OrgSettingsView } from '.';
 
-export const ContentView: React.FC = () => (
+export const ContentRouter: React.FC = () => (
     <Switch>
         <Route exact path='/'>
             <></>

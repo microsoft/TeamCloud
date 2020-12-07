@@ -96,10 +96,10 @@ export const getMePhoto = async (size: PhotoSize = PhotoSize.size240x240): Promi
 
         if ((error as GraphError).statusCode === 404) return undefined;
 
-        console.warn('Failed to get me photo.');
+        // console.warn('Failed to get me photo.');
         // console.warn(error as GraphError);
 
-        // swollow this error
+        // swollow this error see: https://docs.microsoft.com/en-us/graph/known-issues#photo-restrictions
         return undefined;
         // throw error;
     }
@@ -118,10 +118,10 @@ export const getUserPhoto = async (id: string, size: PhotoSize = PhotoSize.size2
     } catch (error) {
         if ((error as GraphError).statusCode === 404) return undefined;
 
-        console.warn(`Failed to get user photo (${id}).`);
+        // console.warn(`Failed to get user photo (${id}).`);
         // console.error(error as GraphError);
 
-        // swollow this error
+        // swollow this error see: https://docs.microsoft.com/en-us/graph/known-issues#photo-restrictions
         return undefined;
         // throw error;
     }

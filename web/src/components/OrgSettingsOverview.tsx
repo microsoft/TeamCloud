@@ -17,7 +17,7 @@ export const OrgSettingsOverview: React.FC = () => {
     useEffect(() => {
         if (org && members) {
             if (owner === undefined || owner.user.organization !== org.id) {
-                const find = members?.find(m => m.user.role.toLowerCase() === 'admin');
+                const find = members.find(m => m.user.role.toLowerCase() === 'admin');
                 console.log(`setOwner (${org.slug})`)
                 setOwner(find);
             }

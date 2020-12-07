@@ -159,7 +159,7 @@ export const ComponentList: React.FC<IComponentListProps> = (props) => {
     const _onItemInvoked = (item: { component: Component, template: ComponentTemplate }): void => {
         // console.log(item);
         onComponentSelected(item.component);
-        history.push(`/orgs/${orgId}/projects/${projectId}/components/${item.component.id}`);
+        history.push(`/orgs/${orgId}/projects/${projectId}/components/${item.component.slug}`);
     };
 
     return (

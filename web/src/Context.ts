@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import React from 'react';
-import { Component, ComponentTemplate, DeploymentScope, DeploymentScopeDefinition, Organization, Project, ProjectComponentDefinition, ProjectTemplate, ProjectTemplateDefinition, User, UserDefinition } from 'teamcloud'
+import { Component, ComponentTemplate, DeploymentScope, DeploymentScopeDefinition, Organization, Project, ProjectTemplate, ProjectTemplateDefinition, User, UserDefinition } from 'teamcloud'
 import { GraphUser, Member, ProjectMember, Subscription, ManagementGroup } from './model';
 
 export const GraphUserContext = React.createContext({
@@ -19,7 +19,7 @@ export const OrgContext = React.createContext({
     members: undefined as Member[] | undefined,
     scopes: undefined as DeploymentScope[] | undefined,
     templates: undefined as ProjectTemplate[] | undefined,
-    project: undefined as Project | undefined,
+    // project: undefined as Project | undefined,
     projects: undefined as Project[] | undefined,
     onOrgSelected: (org?: Organization) => { },
     onProjectSelected: (project?: Project) => { },
@@ -38,5 +38,5 @@ export const ProjectContext = React.createContext({
     templates: undefined as ComponentTemplate[] | undefined,
     onComponentSelected: (component?: Component) => { },
     onAddUsers: (users: UserDefinition[]) => Promise.resolve(),
-    onCreateComponent: (component: ProjectComponentDefinition) => Promise.resolve(),
+    // onCreateComponent: (component: ProjectComponentDefinition) => Promise.resolve(),
 });

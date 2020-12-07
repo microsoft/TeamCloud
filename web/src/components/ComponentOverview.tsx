@@ -2,27 +2,26 @@
 // Licensed under the MIT License.
 
 import React, { useContext, useEffect, useState } from 'react';
-import { FontIcon, getTheme, IColumn, Image, Link, Persona, PersonaSize, Pivot, PivotItem, Separator, Stack, Text, TextField } from '@fluentui/react';
-import { useHistory, useParams } from 'react-router-dom';
-import { Component, ComponentTemplate, DeploymentScope } from 'teamcloud';
-import { ContentList } from '.';
+import { FontIcon, getTheme, Link, Persona, PersonaSize, Pivot, PivotItem, Stack, Text } from '@fluentui/react';
+// import { useParams } from 'react-router-dom';
+import ReactMarkdown from 'react-markdown';
+import { ComponentTemplate, DeploymentScope } from 'teamcloud';
 import { OrgContext, ProjectContext } from '../Context';
-import collaboration from '../img/MSC17_collaboration_010_noBG.png'
-import DevOps from '../img/devops.svg';
-import GitHub from '../img/github.svg';
-import Resource from '../img/resource.svg';
 import { ProjectMember } from '../model';
 import { FuiForm } from '@rjsf/fluent-ui';
-import { ComponentDeploymentList } from './ComponentDeploymentList';
-import ReactMarkdown from 'react-markdown';
-import { FieldTemplateProps } from '@rjsf/core';
+import { ComponentDeploymentList } from '.';
+// import { FieldTemplateProps } from '@rjsf/core';
+// import DevOps from '../img/devops.svg';
+// import GitHub from '../img/github.svg';
+// import Resource from '../img/resource.svg';
+// import collaboration from '../img/MSC17_collaboration_010_noBG.png'
 
 // export const ComponentOverview: React.FC<{component: Component}> = (props) => {
 export const ComponentOverview: React.FC = (props) => {
 
     const theme = getTheme();
 
-    const { orgId, projectId, itemId } = useParams() as { orgId: string, projectId: string, itemId: string };
+    // const { orgId, projectId, itemId } = useParams() as { orgId: string, projectId: string, itemId: string };
 
     const { scopes } = useContext(OrgContext);
     const { component, templates, members } = useContext(ProjectContext);
@@ -40,7 +39,7 @@ export const ComponentOverview: React.FC = (props) => {
     useEffect(() => {
         if (component && templates && (template === undefined || component.templateId.toLowerCase() !== template.id.toLowerCase())) {
             // console.log(component);
-            console.log(component.inputJson);
+            // console.log(component.inputJson);
             setTemplate(templates.find(t => component.templateId.toLowerCase() === t.id.toLowerCase()) ?? undefined);
         }
     }, [component, template, templates])
@@ -62,28 +61,28 @@ export const ComponentOverview: React.FC = (props) => {
     }, [component, scope, scopes])
 
 
-    const _getTypeImage = (template: ComponentTemplate) => {
-        const provider = template.repository.provider.toLowerCase();
-        switch (template.type) {
-            // case 'Custom': return 'Link';
-            // case 'Readme': return 'PageList';
-            case 'Environment': return Resource;
-            case 'AzureResource': return Resource;
-            case 'GitRepository': return provider === 'github' ? GitHub : provider === 'devops' ? DevOps : undefined;
-        }
-        return undefined;
-    };
+    // const _getTypeImage = (template: ComponentTemplate) => {
+    //     const provider = template.repository.provider.toLowerCase();
+    //     switch (template.type) {
+    //         // case 'Custom': return 'Link';
+    //         // case 'Readme': return 'PageList';
+    //         case 'Environment': return Resource;
+    //         case 'AzureResource': return Resource;
+    //         case 'GitRepository': return provider === 'github' ? GitHub : provider === 'devops' ? DevOps : undefined;
+    //     }
+    //     return undefined;
+    // };
 
-    const _getRepoImage = (template?: ComponentTemplate) => {
-        if (template?.repository.provider) {
-            switch (template.repository.provider) {
-                // case 'Unknown': return;
-                case 'DevOps': return DevOps;
-                case 'GitHub': return GitHub;
-            }
-        }
-        return undefined;
-    };
+    // const _getRepoImage = (template?: ComponentTemplate) => {
+    //     if (template?.repository.provider) {
+    //         switch (template.repository.provider) {
+    //             // case 'Unknown': return;
+    //             case 'DevOps': return DevOps;
+    //             case 'GitHub': return GitHub;
+    //         }
+    //     }
+    //     return undefined;
+    // };
 
     const _getTypeIcon = (template?: ComponentTemplate) => {
         if (template?.type)

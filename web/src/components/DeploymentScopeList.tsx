@@ -16,10 +16,10 @@ export const DeploymentScopeList: React.FC = () => {
     const { org, scopes } = useContext(OrgContext);
 
     const columns: IColumn[] = [
-        { key: 'displayName', name: 'Name', minWidth: 240, fieldName: 'displayName' },
-        { key: 'isDefault', name: 'Default', minWidth: 240, onRender: (s: DeploymentScope) => <Checkbox checked={s.isDefault} disabled /> },
-        { key: 'subscriptionIds', name: 'Subscriptions', minWidth: 340, fieldName: 'subscriptionIds' },
-        { key: 'managementGroupId', name: 'Management Group', minWidth: 340, onRender: (s: DeploymentScope) => s.managementGroupId?.split('/')[s.managementGroupId?.split('/').length - 1] },
+        { key: 'displayName', name: 'Name', minWidth: 200, fieldName: 'displayName' },
+        { key: 'isDefault', name: 'Default', minWidth: 100, onRender: (s: DeploymentScope) => <Checkbox checked={s.isDefault} disabled /> },
+        { key: 'subscriptionIds', name: 'Subscriptions', minWidth: 280, fieldName: 'subscriptionIds' },
+        { key: 'managementGroupId', name: 'Management Group', minWidth: 240, onRender: (s: DeploymentScope) => s.managementGroupId?.split('/')[s.managementGroupId?.split('/').length - 1] },
     ];
 
     const _onItemInvoked = (scope: DeploymentScope): void => {

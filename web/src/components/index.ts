@@ -4,6 +4,7 @@
 export * from './ComponentDeploymentList'
 export * from './ComponentForm'
 export * from './ComponentList'
+export * from './ComponentOverview'
 export * from './ComponentsCard'
 export * from './ContentContainer'
 export * from './ContentCardList'

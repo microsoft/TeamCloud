@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import React, { useContext, useEffect, useState } from 'react';
-import { Stack, Shimmer, DefaultButton, IButtonStyles, getTheme, Image, Text, ICommandBarItemProps, Dialog, DialogType, DialogFooter, PrimaryButton, IContextualMenuProps, IContextualMenuItem, FontIcon, IColumn, Persona, PersonaSize, DetailsList, DetailsListLayoutMode, CheckboxVisibility, IDetailsRowProps, IRenderFunction, SelectionMode } from '@fluentui/react';
+import { Stack, DefaultButton, getTheme, Text, ICommandBarItemProps, Dialog, DialogType, DialogFooter, PrimaryButton, FontIcon, IColumn, Persona, PersonaSize, DetailsList, DetailsListLayoutMode, CheckboxVisibility, IDetailsRowProps, IRenderFunction, SelectionMode } from '@fluentui/react';
 import { Component, ComponentTemplate, ErrorResult } from 'teamcloud';
 import { DetailCard } from '.';
 import { api } from '../API';
@@ -24,7 +24,7 @@ export const ComponentsCard: React.FC = () => {
     const [items, setItems] = useState<{ component: Component, template: ComponentTemplate }[]>()
 
     const { scopes } = useContext(OrgContext);
-    const { project, components, templates, members, onComponentSelected } = useContext(ProjectContext);
+    const { project, components, templates, onComponentSelected } = useContext(ProjectContext);
 
     useEffect(() => {
         if (components && templates && (items === undefined || items.length !== components.length)) {
@@ -35,25 +35,7 @@ export const ComponentsCard: React.FC = () => {
     // const { project, components } = useContext(ProjectContext);
 
 
-    const _itemMenuProps = (component: Component): IContextualMenuProps => ({
-        items: [
-            {
-                key: 'delete',
-                text: 'Delete component',
-                iconProps: { iconName: 'Delete' },
-                data: component,
-                onClick: _onItemButtonClicked
-            }
-        ]
-    });
 
-    const _onItemButtonClicked = (ev?: React.MouseEvent<HTMLElement> | React.KeyboardEvent<HTMLElement>, item?: IContextualMenuItem): boolean | void => {
-        let component = item?.data as Component;
-        if (component) {
-            setComponent(component);
-            setDeleteConfirmOpen(true);
-        }
-    };
 
     const _getCommandBarItems = (): ICommandBarItemProps[] => [
         { key: 'newComponent', text: 'New', iconProps: { iconName: 'WebAppBuilderFragmentCreate' }, onClick: () => history.push(`/orgs/${orgId}/projects/${projectId}/components/new`) },
@@ -73,43 +55,8 @@ export const ComponentsCard: React.FC = () => {
 
     const _confirmDialogSubtext = (): string => `This will permanently delete '${component?.displayName ? component.displayName : 'this component'}'. This action connot be undone.`;
 
-    const theme = getTheme();
 
-    const _componentButtonStyles: IButtonStyles = {
-        root: {
-            // border: 'none',
-            width: '100%',
-            textAlign: 'start',
-            borderBottom: '1px',
-            borderStyle: 'none none solid none',
-            borderRadius: '0',
-            borderColor: theme.palette.neutralLighter,
-            padding: '24px 6px'
-        },
-        menuIcon: {
-            display: 'none'
-        }
-    }
 
-    const _getComponentStacks = () => components?.sort((a, b) => a.templateId === b.templateId ? 0 : (a.templateId ?? '') > (b.templateId ?? '') ? 1 : -1).map(c => (
-        <Stack key={c.id} horizontal tokens={{ childrenGap: '12px' }}>
-            <Stack.Item styles={{ root: { width: '100%' } }}>
-                <DefaultButton
-                    // iconProps={{ iconName: _getLinkTypeIcon(l) }}
-                    text={c.displayName ?? c.id}
-                    secondaryText={c.description ?? c.templateId}
-                    // href={l.href}
-                    // target='_blank'
-                    styles={_componentButtonStyles}
-                    // menuProps={_itemMenuProps(c)}
-                    onClick={() => history.push(`/orgs/${orgId}/projects/${project?.slug ?? projectId}/components/${c.id}`)}>
-                    {/* <Image
-                        src={_findKnownProviderImage(c)}
-                        height={24} width={24} /> */}
-                </DefaultButton>
-            </Stack.Item>
-        </Stack>
-    ));
 
 
 
@@ -136,14 +83,6 @@ export const ComponentsCard: React.FC = () => {
         return undefined;
     };
 
-    const _getRepoImage = (template: ComponentTemplate) => {
-        switch (template.repository.provider) {
-            // case 'Unknown': return;
-            case 'DevOps': return DevOps;
-            case 'GitHub': return GitHub;
-        }
-        return undefined;
-    };
 
     const _getTypeIcon = (template: ComponentTemplate) => {
         if (template.type)
@@ -158,7 +97,7 @@ export const ComponentsCard: React.FC = () => {
     };
 
 
-    const onRenderNameColumn = (item?: { component: Component, template: ComponentTemplate }, index?: number, column?: IColumn) => {
+    const onRenderNameColumn = (item?: { component: Component, template: ComponentTemplate }) => {
         if (!item) return undefined;
         // const name = item.displayName?.replaceAll('-', ' ');
         return (
@@ -177,7 +116,7 @@ export const ComponentsCard: React.FC = () => {
     };
 
 
-    const onRenderTypeColumn = (item?: { component: Component, template: ComponentTemplate }, index?: number, column?: IColumn) => {
+    const onRenderTypeColumn = (item?: { component: Component, template: ComponentTemplate }) => {
         if (!item) return undefined;
         return (
             <Stack horizontal >
@@ -187,39 +126,8 @@ export const ComponentsCard: React.FC = () => {
         )
     };
 
-    const onRenderRepoColumn = (item?: { component: Component, template: ComponentTemplate }, index?: number, column?: IColumn) => {
-        if (!item) return undefined;
-        let name = item.template.repository.repository?.replaceAll('-', ' ') ?? item.template.repository.url;
-        // if (name && item.template.repository.version)
-        //     name = `${name} (${item.template.repository.version})`;
-        return (
-            <Stack horizontal >
-                <Image src={_getRepoImage(item.template)} styles={{ image: { width: '18px', height: '18px' } }} />
-                <Text styles={{ root: { paddingLeft: '4px' } }}>{name}</Text>
-            </Stack>
-        )
-    };
 
 
-    const onRenderCreatorColumn = (item?: { component: Component, template: ComponentTemplate }, index?: number, column?: IColumn) => {
-        if (!item) return undefined;
-        const creator = members?.find(m => m.user.id === item.component.requestedBy);
-        return (
-            <Persona
-                text={creator?.graphUser?.displayName ?? creator?.user.id}
-                hidePersonaDetails
-                // showSecondaryText
-                // secondaryText={creator?.graphUser?.mail ?? (creator?.graphUser?.otherMails && creator.graphUser.otherMails.length > 0 ? creator.graphUser.otherMails[0] : undefined)}
-                imageUrl={creator?.graphUser?.imageUrl}
-                // styles={{ root: { paddingTop: '24px' } }}
-                size={PersonaSize.size24} />
-
-            // <Stack horizontal >
-            //     <Image src={_getRepoImage(item.template)} styles={{ image: { width: '18px', height: '18px' } }} />
-            //     <Text styles={{ root: { paddingLeft: '4px' } }}>{name}</Text>
-            // </Stack>
-        )
-    };
 
     const columns: IColumn[] = [
         { key: 'displayName', name: 'Name', minWidth: 200, onRender: onRenderNameColumn },
@@ -237,7 +145,7 @@ export const ComponentsCard: React.FC = () => {
     const _onItemInvoked = (item: { component: Component, template: ComponentTemplate }): void => {
         // console.log(item);
         onComponentSelected(item.component);
-        history.push(`/orgs/${orgId}/projects/${project?.slug ?? projectId}/components/${item.component.id}`);
+        history.push(`/orgs/${orgId}/projects/${project?.slug ?? projectId}/components/${item.component.slug}`);
     };
 
     return (
