@@ -34,7 +34,6 @@ using TeamCloud.Orchestrator;
 using TeamCloud.Orchestrator.Handlers;
 
 [assembly: FunctionsStartup(typeof(TeamCloudOrchestratorStartup))]
-
 [assembly: FunctionsImport(typeof(TeamCloudOrchestrationStartup))]
 [assembly: FunctionsImport(typeof(TeamCloudOrchestrationDeploymentStartup))]
 
@@ -79,6 +78,7 @@ namespace TeamCloud.Orchestrator
                 .AddSingleton<IDeploymentScopeRepository, CosmosDbDeploymentScopeRepository>()
                 .AddSingleton<IProjectTemplateRepository, CosmosDbProjectTemplateRepository>()
                 .AddSingleton<IComponentTemplateRepository, CosmosDbComponentTemplateRepository>()
+                .AddSingleton<IComponentDeploymentRepository, CosmosDbComponentDeploymentRepository>()
                 .AddSingleton<IProjectRepository, CosmosDbProjectRepository>()
                 .AddSingleton<IComponentRepository, CosmosDbComponentRepository>()
                 // .AddSingleton<IProjectLinkRepository, CosmosDbProjectLinkRepository>()
@@ -86,7 +86,7 @@ namespace TeamCloud.Orchestrator
 
             // CAUTION - don't register an orchstrator command handler with the generic
             // ICommandHandler<> interface. purpose of this interface is the
-            // command specific implementation login. to register and identifiy a command
+            // command specific implementation logic. to register and identifiy a command
             // handler use the non-generic ICommandHandler interface.
 
             builder.Services

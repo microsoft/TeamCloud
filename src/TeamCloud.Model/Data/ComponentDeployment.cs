@@ -12,27 +12,32 @@ using TeamCloud.Serialization;
 namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public sealed class Deployment : ContainerDocument, IEquatable<Deployment>, IValidatable
+    public sealed class ComponentDeployment : ContainerDocument, IEquatable<ComponentDeployment>, IValidatable, IResourceReference
     {
         [PartitionKey]
         [JsonProperty(Required = Required.Always)]
         public string ComponentId { get; set; }
 
-        public DateTimeOffset Created { get; }
-            = DateTimeOffset.UtcNow;
+        [JsonProperty(Required = Required.Always)]
+        public string ProjectId { get; set; }
 
-        public DateTimeOffset? Finished { get; set; }
+        public DateTime? Started { get; set; }
 
-        public DeploymentState State { get; set; }
-            = DeploymentState.Pending;
+        public DateTime? Finished { get; set; }
 
-        public string Log { get; set; }
+        public string Output { get; set; }
 
-        public bool Equals(Deployment other)
+        public string ResourceId { get; set; }
+
+        public ResourceState ResourceState { get; set; }
+            = ResourceState.Pending;
+        public int? ExitCode { get; set; }
+
+        public bool Equals(ComponentDeployment other)
             => Id.Equals(other?.Id, StringComparison.Ordinal);
 
         public override bool Equals(object obj)
-            => base.Equals(obj) || Equals(obj as Deployment);
+            => base.Equals(obj) || Equals(obj as ComponentDeployment);
 
         public override int GetHashCode()
             => Id?.GetHashCode(StringComparison.Ordinal) ?? base.GetHashCode();

@@ -27,8 +27,7 @@ namespace TeamCloud.API.Controllers
     {
         private readonly IComponentTemplateRepository componentTemplateRepository;
 
-        public ProjectComponentTemplatesController(UserService userService, Orchestrator orchestrator, IOrganizationRepository organizationRepository, IProjectRepository projectRepository, IProjectTemplateRepository projectTemplateRepository, IRepositoryService repositoryService, IComponentTemplateRepository componentTemplateRepository)
-            : base(userService, orchestrator, organizationRepository, projectRepository, projectTemplateRepository, repositoryService)
+        public ProjectComponentTemplatesController(IComponentTemplateRepository componentTemplateRepository) : base()
         {
             this.componentTemplateRepository = componentTemplateRepository ?? throw new ArgumentNullException(nameof(componentTemplateRepository));
         }

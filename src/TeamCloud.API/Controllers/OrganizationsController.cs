@@ -28,9 +28,12 @@ namespace TeamCloud.API.Controllers
     [Produces("application/json")]
     public class OrganizationsController : ApiController
     {
-        public OrganizationsController(UserService userService, Orchestrator orchestrator, IOrganizationRepository organizationRepository)
-            : base(userService, orchestrator, organizationRepository)
-        { }
+        private readonly IOrganizationRepository organizationRepository;
+
+        public OrganizationsController(IOrganizationRepository organizationRepository) : base()
+        {
+            this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
+        }
 
 
         [HttpGet("orgs")]
@@ -41,7 +44,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Get()
         {
-            var orgs = await OrganizationRepository
+            var orgs = await organizationRepository
                 .ListAsync(UserService.CurrentUserTenant)
                 .ToListAsync()
                 .ConfigureAwait(false);
@@ -87,7 +90,7 @@ namespace TeamCloud.API.Controllers
                     .BadRequest(validation)
                     .ToActionResult();
 
-            var organization = await OrganizationRepository
+            var organization = await organizationRepository
                 .GetAsync(UserService.CurrentUserTenant, organizationDefinition.Slug)
                 .ConfigureAwait(false);
 

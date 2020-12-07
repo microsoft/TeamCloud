@@ -12,8 +12,6 @@ using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TeamCloud.API.Auth;
 using TeamCloud.API.Data.Results;
-using TeamCloud.API.Services;
-using TeamCloud.Data;
 
 namespace TeamCloud.API.Controllers
 {
@@ -22,8 +20,7 @@ namespace TeamCloud.API.Controllers
     [Produces("application/json")]
     public class ProjectTagsController : ApiController
     {
-        public ProjectTagsController(UserService userService, Orchestrator orchestrator, IOrganizationRepository organizationRepository, IProjectRepository projectRepository)
-            : base(userService, orchestrator, organizationRepository, projectRepository)
+        public ProjectTagsController() : base()
         { }
 
 

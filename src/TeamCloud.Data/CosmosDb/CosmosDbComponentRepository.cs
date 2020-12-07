@@ -81,9 +81,6 @@ namespace TeamCloud.Data.CosmosDb
 
             var queryString = $"SELECT * FROM c WHERE c.projectId = '{projectIdParsed}'";
 
-            // if (!string.IsNullOrEmpty(providerId))
-            //     queryString += $" and c.providerId = '{providerId}'";
-
             var query = new QueryDefinition(queryString);
 
             var queryIterator = container

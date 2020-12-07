@@ -29,9 +29,12 @@ namespace TeamCloud.API.Controllers
     [Produces("application/json")]
     public class ProjectUsersController : ApiController
     {
-        public ProjectUsersController(UserService userService, Orchestrator orchestrator, IOrganizationRepository organizationRepository, IProjectRepository projectRepository, IUserRepository userRepository)
-            : base(userService, orchestrator, organizationRepository, projectRepository, userRepository)
-        { }
+        private readonly IUserRepository userRepository;
+
+        public ProjectUsersController(IUserRepository userRepository) : base()
+        {
+            this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+        }
 
 
         [HttpGet]
@@ -42,7 +45,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found.", typeof(ErrorResult))]
         public Task<IActionResult> Get() => EnsureProjectIdAsync(async projectId =>
         {
-            var users = await UserRepository
+            var users = await userRepository
                 .ListAsync(OrgId, projectId)
                 .ToListAsync()
                 .ConfigureAwait(false);
@@ -170,7 +173,7 @@ namespace TeamCloud.API.Controllers
 
             if (existingUser.IsOwner(projectId) && !user.IsOwner(projectId))
             {
-                var otherOwners = await UserRepository
+                var otherOwners = await userRepository
                     .ListOwnersAsync(OrgId, projectId)
                     .AnyAsync(o => o.Id.Equals(user.Id, StringComparison.OrdinalIgnoreCase))
                     .ConfigureAwait(false);
@@ -234,7 +237,7 @@ namespace TeamCloud.API.Controllers
 
             if (currentUser.IsOwner(projectId) && !user.IsOwner(projectId))
             {
-                var otherOwners = await UserRepository
+                var otherOwners = await userRepository
                     .ListOwnersAsync(OrgId, projectId)
                     .AnyAsync(o => o.Id.Equals(user.Id, StringComparison.OrdinalIgnoreCase))
                     .ConfigureAwait(false);
@@ -278,7 +281,7 @@ namespace TeamCloud.API.Controllers
 
             if (user.IsOwner(projectId))
             {
-                var otherOwners = await UserRepository
+                var otherOwners = await userRepository
                     .ListOwnersAsync(OrgId, projectId)
                     .AnyAsync(o => o.Id.Equals(user.Id, StringComparison.OrdinalIgnoreCase))
                     .ConfigureAwait(false);

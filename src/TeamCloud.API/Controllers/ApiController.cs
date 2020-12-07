@@ -5,6 +5,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
@@ -16,46 +17,6 @@ namespace TeamCloud.API.Controllers
 {
     public abstract class ApiController : ControllerBase
     {
-        protected ApiController(UserService userService, Orchestrator orchestrator, IOrganizationRepository organizationRepository)
-        {
-            UserService = userService ?? throw new ArgumentNullException(nameof(userService));
-            Orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
-            OrganizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(orchestrator));
-        }
-
-        protected ApiController(UserService userService, Orchestrator orchestrator, IOrganizationRepository organizationRepository, IProjectRepository projectRepository)
-            : this(userService, orchestrator, organizationRepository)
-        {
-            ProjectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
-        }
-
-        protected ApiController(UserService userService, Orchestrator orchestrator, IOrganizationRepository organizationRepository, IUserRepository userRepository)
-            : this(userService, orchestrator, organizationRepository)
-        {
-            UserRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-        }
-
-        protected ApiController(UserService userService, Orchestrator orchestrator, IOrganizationRepository organizationRepository, IProjectTemplateRepository projectTemplateRepository, IRepositoryService repositoryService)
-            : this(userService, orchestrator, organizationRepository)
-        {
-            ProjectTemplateRepository = projectTemplateRepository ?? throw new ArgumentNullException(nameof(projectTemplateRepository));
-            RepositoryService = repositoryService ?? throw new ArgumentNullException(nameof(repositoryService));
-        }
-
-        protected ApiController(UserService userService, Orchestrator orchestrator, IOrganizationRepository organizationRepository, IProjectRepository projectRepository, IProjectTemplateRepository projectTemplateRepository, IRepositoryService repositoryService)
-            : this(userService, orchestrator, organizationRepository, projectRepository)
-        {
-            ProjectTemplateRepository = projectTemplateRepository ?? throw new ArgumentNullException(nameof(projectTemplateRepository));
-            RepositoryService = repositoryService ?? throw new ArgumentNullException(nameof(repositoryService));
-        }
-
-        protected ApiController(UserService userService, Orchestrator orchestrator, IOrganizationRepository organizationRepository, IProjectRepository projectRepository, IUserRepository userRepository)
-            : this(userService, orchestrator, organizationRepository)
-        {
-            ProjectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
-            UserRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-        }
-
         private string Org => RouteData.ValueOrDefault(nameof(Org));
 
         private string ProjectTemplateId => RouteData.ValueOrDefault(nameof(ProjectTemplateId));
@@ -64,23 +25,18 @@ namespace TeamCloud.API.Controllers
 
         public string ProjectId => RouteData.ValueOrDefault(nameof(ProjectId));
 
+        public string ComponentId => RouteData.ValueOrDefault(nameof(ComponentId));
+
         public string OrgId { get; private set; }
 
+        protected T GetService<T>()
+            => (T)HttpContext.RequestServices.GetService(typeof(T));
 
-        public UserService UserService { get; }
+        public UserService UserService
+            => GetService<UserService>();
 
-        public Orchestrator Orchestrator { get; }
-
-        public IUserRepository UserRepository { get; }
-
-        public IProjectRepository ProjectRepository { get; }
-
-        public IOrganizationRepository OrganizationRepository { get; }
-
-        public IProjectTemplateRepository ProjectTemplateRepository { get; }
-
-        public IRepositoryService RepositoryService { get; }
-
+        public Orchestrator Orchestrator
+            => GetService<Orchestrator>();
 
         [NonAction]
         public Task<IActionResult> ResolveOrganizationIdAsync(Func<string, Task<IActionResult>> callback)
@@ -106,8 +62,8 @@ namespace TeamCloud.API.Controllers
                         .BadRequest($"Organization id or slug provided in the url path is invalid.  Must be a valid organization slug or id (guid).", ResultErrorCode.ValidationError)
                         .ToActionResult();
 
-                OrgId = await OrganizationRepository
-                    .ResolveIdAsync(UserService.CurrentUserTenant, Org)
+                OrgId = await GetService<IOrganizationRepository>()
+                    .ResolveIdAsync(GetService<UserService>().CurrentUserTenant, Org)
                     .ConfigureAwait(false);
 
                 if (string.IsNullOrEmpty(OrgId))
@@ -157,8 +113,8 @@ namespace TeamCloud.API.Controllers
                         .BadRequest($"Organization id or slug provided in the url path is invalid.  Must be a valid organization slug or id (guid).", ResultErrorCode.ValidationError)
                         .ToActionResult();
 
-                var organization = await OrganizationRepository
-                    .GetAsync(UserService.CurrentUserTenant, Org)
+                var organization = await GetService<IOrganizationRepository>()
+                    .GetAsync(GetService<UserService>().CurrentUserTenant, Org)
                     .ConfigureAwait(false);
 
                 if (organization is null)
@@ -207,8 +163,8 @@ namespace TeamCloud.API.Controllers
                         .BadRequest($"Organization id or slug provided in the url path is invalid.  Must be a valid organization slug or id (guid).", ResultErrorCode.ValidationError)
                         .ToActionResult();
 
-                OrgId = await OrganizationRepository
-                    .ResolveIdAsync(UserService.CurrentUserTenant, Org)
+                OrgId = await GetService<IOrganizationRepository>()
+                    .ResolveIdAsync(GetService<UserService>().CurrentUserTenant, Org)
                     .ConfigureAwait(false);
 
                 if (string.IsNullOrEmpty(OrgId))
@@ -221,7 +177,7 @@ namespace TeamCloud.API.Controllers
                         .BadRequest($"Project name or id provided in the url path is invalid.  Must be a valid project name or id (guid).", ResultErrorCode.ValidationError)
                         .ToActionResult();
 
-                var project = await ProjectRepository
+                var project = await GetService<IProjectRepository>()
                     .ResolveIdAsync(OrgId, ProjectId)
                     .ConfigureAwait(false);
 
@@ -272,8 +228,8 @@ namespace TeamCloud.API.Controllers
                         .BadRequest($"Organization id or slug provided in the url path is invalid.  Must be a valid organization slug or id (guid).", ResultErrorCode.ValidationError)
                         .ToActionResult();
 
-                OrgId = await OrganizationRepository
-                    .ResolveIdAsync(UserService.CurrentUserTenant, Org)
+                OrgId = await GetService<IOrganizationRepository>()
+                    .ResolveIdAsync(GetService<UserService>().CurrentUserTenant, Org)
                     .ConfigureAwait(false);
 
                 if (string.IsNullOrEmpty(OrgId))
@@ -286,7 +242,7 @@ namespace TeamCloud.API.Controllers
                         .BadRequest($"Project name or id provided in the url path is invalid.  Must be a valid project name or id (guid).", ResultErrorCode.ValidationError)
                         .ToActionResult();
 
-                var project = await ProjectRepository
+                var project = await GetService<IProjectRepository>()
                     .GetAsync(OrgId, ProjectId)
                     .ConfigureAwait(false);
 
@@ -337,8 +293,8 @@ namespace TeamCloud.API.Controllers
                         .BadRequest($"Organization id or slug provided in the url path is invalid.  Must be a valid organization slug or id (guid).", ResultErrorCode.ValidationError)
                         .ToActionResult();
 
-                OrgId = await OrganizationRepository
-                    .ResolveIdAsync(UserService.CurrentUserTenant, Org)
+                OrgId = await GetService<IOrganizationRepository>()
+                    .ResolveIdAsync(GetService<UserService>().CurrentUserTenant, Org)
                     .ConfigureAwait(false);
 
                 if (string.IsNullOrEmpty(OrgId))
@@ -351,7 +307,7 @@ namespace TeamCloud.API.Controllers
                         .BadRequest($"Project Template name or id provided in the url path is invalid.  Must be a valid project template name or id (guid).", ResultErrorCode.ValidationError)
                         .ToActionResult();
 
-                var template = await ProjectTemplateRepository
+                var template = await GetService<IProjectTemplateRepository>()
                     .GetAsync(OrgId, ProjectTemplateId)
                     .ConfigureAwait(false);
 
@@ -402,8 +358,8 @@ namespace TeamCloud.API.Controllers
                         .BadRequest($"Organization id or slug provided in the url path is invalid.  Must be a valid organization slug or id (guid).", ResultErrorCode.ValidationError)
                         .ToActionResult();
 
-                OrgId = await OrganizationRepository
-                    .ResolveIdAsync(UserService.CurrentUserTenant, Org)
+                OrgId = await GetService<IOrganizationRepository>()
+                    .ResolveIdAsync(GetService<UserService>().CurrentUserTenant, Org)
                     .ConfigureAwait(false);
 
                 if (string.IsNullOrEmpty(OrgId))
@@ -416,7 +372,7 @@ namespace TeamCloud.API.Controllers
                         .BadRequest($"Project name or id provided in the url path is invalid.  Must be a valid project name or id (guid).", ResultErrorCode.ValidationError)
                         .ToActionResult();
 
-                var project = await ProjectRepository
+                var project = await GetService<IProjectRepository>()
                     .GetAsync(OrgId, ProjectId)
                     .ConfigureAwait(false);
 
@@ -432,7 +388,7 @@ namespace TeamCloud.API.Controllers
                         .BadRequest($"Project Template name or id provided in the url path is invalid.  Must be a valid project template name or id (guid).", ResultErrorCode.ValidationError)
                         .ToActionResult();
 
-                var template = await ProjectTemplateRepository
+                var template = await GetService<IProjectTemplateRepository>()
                     .GetAsync(OrgId, templateId)
                     .ConfigureAwait(false);
 
@@ -448,6 +404,79 @@ namespace TeamCloud.API.Controllers
                     return await asyncCallback(project, template)
                         .ConfigureAwait(false);
 
+
+                throw new InvalidOperationException("asyncCallback or callback must have a value");
+            }
+            catch (Exception exc)
+            {
+                return ErrorResult
+                    .ServerError(exc)
+                    .ToActionResult();
+            }
+        }
+
+        [NonAction]
+        public Task<IActionResult> EnsureProjectAndComponentAsync(Func<Project, Component, Task<IActionResult>> callback)
+            => EnsureProjectAndComponentInternalAsync(asyncCallback: callback);
+
+        [NonAction]
+        public Task<IActionResult> EnsureProjectAndComponentAsync(Func<Project, Component, IActionResult> callback)
+            => EnsureProjectAndComponentInternalAsync(callback: callback);
+
+        [NonAction]
+        private async Task<IActionResult> EnsureProjectAndComponentInternalAsync(Func<Project, Component, Task<IActionResult>> asyncCallback = null, Func<Project, Component, IActionResult> callback = null)
+        {
+            try
+            {
+                if (asyncCallback is null && callback is null)
+                    throw new InvalidOperationException("asyncCallback or callback must have a value");
+
+                if (!(asyncCallback is null || callback is null))
+                    throw new InvalidOperationException("Only one of asyncCallback or callback can hava a value");
+
+                if (string.IsNullOrEmpty(Org))
+                    return ErrorResult
+                        .BadRequest($"Organization id or slug provided in the url path is invalid.  Must be a valid organization slug or id (guid).", ResultErrorCode.ValidationError)
+                        .ToActionResult();
+
+                OrgId = await GetService<IOrganizationRepository>()
+                    .ResolveIdAsync(GetService<UserService>().CurrentUserTenant, Org)
+                    .ConfigureAwait(false);
+
+                if (string.IsNullOrEmpty(OrgId))
+                    return ErrorResult
+                        .NotFound($"A Organization with the slug or id '{Org}' was not found.")
+                        .ToActionResult();
+
+                if (string.IsNullOrEmpty(ProjectId))
+                    return ErrorResult
+                        .BadRequest($"Project name or id provided in the url path is invalid.  Must be a valid project name or id (guid).", ResultErrorCode.ValidationError)
+                        .ToActionResult();
+
+                var project = await GetService<IProjectRepository>()
+                    .GetAsync(OrgId, ProjectId)
+                    .ConfigureAwait(false);
+
+                if (project is null)
+                    return ErrorResult
+                        .NotFound($"A Project with the name or id '{ProjectId}' was not found.")
+                        .ToActionResult();
+
+                var component = await GetService<IComponentRepository>()
+                    .GetAsync(project.Id, ComponentId)
+                    .ConfigureAwait(false);
+
+                if (component is null)
+                    return ErrorResult
+                        .NotFound($"A Component with id '{ComponentId}' was not found.")
+                        .ToActionResult();
+
+                if (!(callback is null))
+                    return callback(project, component);
+
+                if (!(asyncCallback is null))
+                    return await asyncCallback(project, component)
+                        .ConfigureAwait(false);
 
                 throw new InvalidOperationException("asyncCallback or callback must have a value");
             }
@@ -484,8 +513,8 @@ namespace TeamCloud.API.Controllers
                         .BadRequest($"Organization id or slug provided in the url path is invalid.  Must be a valid organization slug or id (guid).", ResultErrorCode.ValidationError)
                         .ToActionResult();
 
-                OrgId = await OrganizationRepository
-                    .ResolveIdAsync(UserService.CurrentUserTenant, Org)
+                OrgId = await GetService<IOrganizationRepository>()
+                    .ResolveIdAsync(GetService<UserService>().CurrentUserTenant, Org)
                     .ConfigureAwait(false);
 
                 if (string.IsNullOrEmpty(OrgId))
@@ -498,7 +527,7 @@ namespace TeamCloud.API.Controllers
                         .BadRequest($"User name or id provided in the url path is invalid.  Must be a valid email address, service pricipal name, or GUID.", ResultErrorCode.ValidationError)
                         .ToActionResult();
 
-                var userId = await UserService
+                var userId = await GetService<UserService>()
                     .GetUserIdAsync(UserId)
                     .ConfigureAwait(false);
 
@@ -507,7 +536,7 @@ namespace TeamCloud.API.Controllers
                         .NotFound($"A User with the name or id '{UserId}' was not found.")
                         .ToActionResult();
 
-                var user = await UserRepository
+                var user = await GetService<IUserRepository>()
                     .GetAsync(OrgId, userId)
                     .ConfigureAwait(false);
 
@@ -557,8 +586,8 @@ namespace TeamCloud.API.Controllers
                         .BadRequest($"Organization id or slug provided in the url path is invalid.  Must be a valid organization slug or id (guid).", ResultErrorCode.ValidationError)
                         .ToActionResult();
 
-                OrgId = await OrganizationRepository
-                    .ResolveIdAsync(UserService.CurrentUserTenant, Org)
+                OrgId = await GetService<IOrganizationRepository>()
+                    .ResolveIdAsync(GetService<UserService>().CurrentUserTenant, Org)
                     .ConfigureAwait(false);
 
                 if (string.IsNullOrEmpty(OrgId))
@@ -566,7 +595,7 @@ namespace TeamCloud.API.Controllers
                         .NotFound($"A Organization with the slug or id '{Org}' was not found.")
                         .ToActionResult();
 
-                var user = await UserService
+                var user = await GetService<UserService>()
                     .CurrentUserAsync(OrgId)
                     .ConfigureAwait(false);
 
@@ -616,8 +645,8 @@ namespace TeamCloud.API.Controllers
                         .BadRequest($"Organization id or slug provided in the url path is invalid.  Must be a valid organization slug or id (guid).", ResultErrorCode.ValidationError)
                         .ToActionResult();
 
-                OrgId = await OrganizationRepository
-                    .ResolveIdAsync(UserService.CurrentUserTenant, Org)
+                OrgId = await GetService<IOrganizationRepository>()
+                    .ResolveIdAsync(GetService<UserService>().CurrentUserTenant, Org)
                     .ConfigureAwait(false);
 
                 if (string.IsNullOrEmpty(OrgId))
@@ -635,7 +664,7 @@ namespace TeamCloud.API.Controllers
                         .BadRequest($"User name or id provided in the url path is invalid.  Must be a valid email address, service pricipal name, or GUID.", ResultErrorCode.ValidationError)
                         .ToActionResult();
 
-                var userId = await UserService
+                var userId = await GetService<UserService>()
                     .GetUserIdAsync(UserId)
                     .ConfigureAwait(false);
 
@@ -644,7 +673,7 @@ namespace TeamCloud.API.Controllers
                         .NotFound($"A User with the name or id '{UserId}' was not found.")
                         .ToActionResult();
 
-                var project = await ProjectRepository
+                var project = await GetService<IProjectRepository>()
                     .ResolveIdAsync(OrgId, ProjectId)
                     .ConfigureAwait(false);
 
@@ -653,7 +682,7 @@ namespace TeamCloud.API.Controllers
                         .NotFound($"A Project with the name or id '{ProjectId}' was not found.")
                         .ToActionResult();
 
-                var user = await UserRepository
+                var user = await GetService<IUserRepository>()
                     .GetAsync(OrgId, userId)
                     .ConfigureAwait(false);
 
@@ -703,8 +732,8 @@ namespace TeamCloud.API.Controllers
                         .BadRequest($"Organization id or slug provided in the url path is invalid.  Must be a valid organization slug or id (guid).", ResultErrorCode.ValidationError)
                         .ToActionResult();
 
-                OrgId = await OrganizationRepository
-                    .ResolveIdAsync(UserService.CurrentUserTenant, Org)
+                OrgId = await GetService<IOrganizationRepository>()
+                    .ResolveIdAsync(GetService<UserService>().CurrentUserTenant, Org)
                     .ConfigureAwait(false);
 
                 if (string.IsNullOrEmpty(OrgId))
@@ -717,7 +746,7 @@ namespace TeamCloud.API.Controllers
                         .BadRequest($"Project name or id provided in the url path is invalid.  Must be a valid project name or id (guid).", ResultErrorCode.ValidationError)
                         .ToActionResult();
 
-                var project = await ProjectRepository
+                var project = await GetService<IProjectRepository>()
                     .ResolveIdAsync(OrgId, ProjectId)
                     .ConfigureAwait(false);
 
@@ -726,7 +755,7 @@ namespace TeamCloud.API.Controllers
                         .NotFound($"A Project with the name or id '{ProjectId}' was not found.")
                         .ToActionResult();
 
-                var user = await UserService
+                var user = await GetService<UserService>()
                     .CurrentUserAsync(OrgId)
                     .ConfigureAwait(false);
 

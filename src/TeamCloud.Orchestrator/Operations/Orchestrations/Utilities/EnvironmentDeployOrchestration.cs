@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
+using TeamCloud.Azure.Resources;
 using TeamCloud.Model.Common;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
@@ -26,80 +27,123 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Utilities
             if (log is null)
                 throw new ArgumentNullException(nameof(log));
 
+            var input = context.GetInput<Input>();
+            var component = input.Component;
+            var componentDeployment = input.ComponentDeployment;
+
             try
             {
-                var input = context.GetInput<Input>();
-                var component = input.Component;
-
                 if (component.Type != ComponentType.Environment)
                     throw new NotSupportedException($"Components of type '{component.Type}' are not supported");
 
                 using (await context.LockContainerDocumentAsync(component).ConfigureAwait(true))
                 {
-                    var project = await context
-                        .CallActivityWithRetryAsync<Project>(nameof(ProjectGetActivity), new ProjectGetActivity.Input() { Organization = component.Organization, Id = component.ProjectId })
-                        .ConfigureAwait(true);
-
-                    var deploymentScope = await context
-                        .CallActivityWithRetryAsync<DeploymentScope>(nameof(DeploymentScopeGetActivity), new DeploymentScopeGetActivity.Input() { Organization = component.Organization, Id = component.DeploymentScopeId })
-                        .ConfigureAwait(true);
-
-                    if (string.IsNullOrEmpty(component.IdentityId))
+                    if (componentDeployment is null)
                     {
-                        var deploymentScopeInitAcitivityEvent = context.NewGuid().ToString();
+                        var project = await context
+                            .CallActivityWithRetryAsync<Project>(nameof(ProjectGetActivity), new ProjectGetActivity.Input() { Organization = component.Organization, Id = component.ProjectId })
+                            .ConfigureAwait(true);
+
+                        var deploymentScope = await context
+                            .CallActivityWithRetryAsync<DeploymentScope>(nameof(DeploymentScopeGetActivity), new DeploymentScopeGetActivity.Input() { Organization = component.Organization, Id = component.DeploymentScopeId })
+                            .ConfigureAwait(true);
+
+                        if (!AzureResourceIdentifier.TryParse(component.IdentityId, out var _))
+                        {
+                            var deploymentScopeInitAcitivityEvent = context.NewGuid().ToString();
+
+                            _ = await context
+                                .StartDeploymentAsync(nameof(DeploymentScopeInitAcitivity), new DeploymentScopeInitAcitivity.Input() { Project = project, DeploymentScope = deploymentScope }, deploymentScopeInitAcitivityEvent)
+                                .ConfigureAwait(true);
+
+                            component = await UpdateComponentAsync(component, ResourceState.Initializing)
+                                .ConfigureAwait(true);
+
+                            var deploymentScopeInitAcitivityOutput = await context
+                                .WaitForDeploymentOutput(deploymentScopeInitAcitivityEvent, TimeSpan.FromMinutes(5))
+                                .ConfigureAwait(true);
+
+                            component.IdentityId = deploymentScopeInitAcitivityOutput["identityId"].ToString();
+
+                            component = await UpdateComponentAsync(component)
+                                .ConfigureAwait(true);
+                        }
+
+                        if (!AzureResourceIdentifier.TryParse(component.ResourceId, out var _))
+                        {
+                            var environmentInitActivityEvent = context.NewGuid().ToString();
+
+                            _ = await context
+                                .StartDeploymentAsync(nameof(EnvironmentInitActivity), new EnvironmentInitActivity.Input() { DeploymentScope = deploymentScope, Component = component }, environmentInitActivityEvent)
+                                .ConfigureAwait(true);
+
+                            component = await UpdateComponentAsync(component, ResourceState.Initializing)
+                                .ConfigureAwait(true);
+
+                            var environmentInitActivityOutput = await context
+                                .WaitForDeploymentOutput(environmentInitActivityEvent, TimeSpan.FromMinutes(5))
+                                .ConfigureAwait(true);
+
+                            component.ResourceId = environmentInitActivityOutput["resourceId"].ToString();
+
+                            component = await UpdateComponentAsync(component)
+                                .ConfigureAwait(true);
+                        }
+
+                        var deploymentOutputEventName = context.NewGuid().ToString();
 
                         _ = await context
-                            .StartDeploymentAsync(nameof(DeploymentScopeInitAcitivity), new DeploymentScopeInitAcitivity.Input() { Project = project, DeploymentScope = deploymentScope }, deploymentScopeInitAcitivityEvent)
+                            .StartDeploymentAsync(nameof(EnvironmentDeployActivity), new EnvironmentDeployActivity.Input() { Component = component }, deploymentOutputEventName)
                             .ConfigureAwait(true);
 
                         component = await UpdateComponentAsync(component, ResourceState.Initializing)
                             .ConfigureAwait(true);
 
-                        var deploymentScopeInitAcitivityOutput = await context
-                            .WaitForDeploymentOutput(deploymentScopeInitAcitivityEvent, TimeSpan.FromMinutes(5))
+                        var deploymentOutput = await context
+                            .WaitForDeploymentOutput(deploymentOutputEventName, TimeSpan.FromMinutes(5))
                             .ConfigureAwait(true);
 
-                        component.IdentityId = deploymentScopeInitAcitivityOutput["identityId"].ToString();
-                    }
+                        componentDeployment = new ComponentDeployment()
+                        {
+                            ComponentId = component.Id,
+                            ProjectId = component.ProjectId,
+                            ResourceId = deploymentOutput["runnerId"].ToString()
+                        };
 
-                    if (string.IsNullOrEmpty(component.ResourceId))
+                        componentDeployment = await context
+                            .CallActivityWithRetryAsync<ComponentDeployment>(nameof(ComponentDeploymentSetActivity), new ComponentDeploymentSetActivity.Input() { ComponentDeployment = componentDeployment })
+                            .ConfigureAwait(true);
+
+                        context.ContinueAsNew(new Input() { Component = component, ComponentDeployment = componentDeployment });
+                    }
+                    else
                     {
-                        var environmentInitActivityEvent = context.NewGuid().ToString();
-
-                        _ = await context
-                            .StartDeploymentAsync(nameof(EnvironmentInitActivity), new EnvironmentInitActivity.Input() { DeploymentScope = deploymentScope, Component = component }, environmentInitActivityEvent)
+                        componentDeployment = await context
+                            .CallActivityWithRetryAsync<ComponentDeployment>(nameof(ComponentDeploymentRefreshActivity), new ComponentDeploymentRefreshActivity.Input() { ComponentDeployment = componentDeployment })
                             .ConfigureAwait(true);
 
-                        component = await UpdateComponentAsync(component, ResourceState.Initializing)
-                            .ConfigureAwait(true);
+                        if (componentDeployment.ExitCode.HasValue)
+                        {
+                            component = await context
+                                .CallActivityWithRetryAsync<Component>(nameof(ComponentGetActivity), new ComponentGetActivity.Input() { ProjectId = component.ProjectId, Id = component.Id })
+                                .ConfigureAwait(false);
+                        }
+                        else
+                        {
+                            // deployment is still in progress - restart the orchestration and keep monitoring
+                            context.ContinueAsNew(new Input() { Component = component, ComponentDeployment = componentDeployment });
+                        }
 
-                        var environmentInitActivityOutput = await context
-                            .WaitForDeploymentOutput(environmentInitActivityEvent, TimeSpan.FromMinutes(5))
-                            .ConfigureAwait(true);
-
-                        component.ResourceId = environmentInitActivityOutput["resourceId"].ToString();
                     }
-
-                    var deploymentOutputEventName = context.NewGuid().ToString();
-
-                    _ = await context
-                        .StartDeploymentAsync(nameof(EnvironmentDeployActivity), new EnvironmentDeployActivity.Input() { Component = component }, deploymentOutputEventName)
-                        .ConfigureAwait(true);
-
-                    component = await UpdateComponentAsync(component, ResourceState.Provisioning)
-                        .ConfigureAwait(true);
-
-                    var deploymentOutput = await context
-                        .WaitForDeploymentOutput(deploymentOutputEventName, TimeSpan.FromMinutes(5))
-                        .ConfigureAwait(true);
                 }
 
-                return await context
-                    .CallActivityWithRetryAsync<Component>(nameof(ComponentGetActivity), new ComponentGetActivity.Input() { ProjectId = input.Component.ProjectId, Id = input.Component.Id })
-                    .ConfigureAwait(true);
+                return component;
             }
             catch (Exception exc)
             {
+                _ = await UpdateComponentAsync(component, ResourceState.Failed)
+                    .ConfigureAwait(true);
+
                 throw exc.AsSerializable();
             }
 
@@ -114,6 +158,8 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Utilities
         public struct Input
         {
             public Component Component { get; set; }
+
+            public ComponentDeployment ComponentDeployment { get; set; }
         }
 
     }
