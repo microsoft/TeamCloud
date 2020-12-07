@@ -222,6 +222,7 @@ export interface Component {
     resourceId?: string | null;
     resourceState?: ComponentResourceState;
     deploymentScopeId?: string | null;
+    identityId?: string | null;
     id: string;
 }
 export interface ProjectComponentDefinition {
@@ -254,6 +255,7 @@ export interface ComponentTemplate {
     repository: RepositoryReference;
     inputJsonSchema?: string | null;
     type: ComponentTemplateType;
+    folder?: string | null;
     id: string;
 }
 export interface RepositoryReference {
@@ -273,6 +275,32 @@ export interface ComponentTemplateDataResult {
     code?: number;
     status?: string | null;
     data?: ComponentTemplate;
+    location?: string | null;
+}
+export interface ComponentDeploymentListDataResult {
+    code?: number;
+    status?: string | null;
+    /**
+     * NOTE: This property will not be serialized. It can only be populated by the server.
+     */
+    readonly data?: ComponentDeployment[] | null;
+    location?: string | null;
+}
+export interface ComponentDeployment {
+    componentId: string;
+    projectId: string;
+    started?: Date | null;
+    finished?: Date | null;
+    output?: string | null;
+    resourceId?: string | null;
+    resourceState?: ComponentDeploymentResourceState;
+    exitCode?: number | null;
+    id: string;
+}
+export interface ComponentDeploymentDataResult {
+    code?: number;
+    status?: string | null;
+    data?: ComponentDeployment;
     location?: string | null;
 }
 export interface StringDictionaryDataResult {
@@ -333,7 +361,7 @@ export declare type ResultErrorCode = "Unknown" | "Failed" | "Conflict" | "NotFo
 /**
  * Defines values for OrganizationResourceState.
  */
-export declare type OrganizationResourceState = "Pending" | "Provisioning" | "Succeeded" | "Failed" | string;
+export declare type OrganizationResourceState = "Pending" | "Initializing" | "Provisioning" | "Succeeded" | "Failed" | string;
 /**
  * Defines values for UserType.
  */
@@ -349,7 +377,7 @@ export declare type ProjectMembershipRole = "None" | "Provider" | "Member" | "Ow
 /**
  * Defines values for ProjectResourceState.
  */
-export declare type ProjectResourceState = "Pending" | "Provisioning" | "Succeeded" | "Failed" | string;
+export declare type ProjectResourceState = "Pending" | "Initializing" | "Provisioning" | "Succeeded" | "Failed" | string;
 /**
  * Defines values for ComponentType.
  */
@@ -357,7 +385,7 @@ export declare type ComponentType = "Custom" | "AzureResource" | "Environment" |
 /**
  * Defines values for ComponentResourceState.
  */
-export declare type ComponentResourceState = "Pending" | "Provisioning" | "Succeeded" | "Failed" | string;
+export declare type ComponentResourceState = "Pending" | "Initializing" | "Provisioning" | "Succeeded" | "Failed" | string;
 /**
  * Defines values for RepositoryReferenceProvider.
  */
@@ -370,6 +398,10 @@ export declare type RepositoryReferenceType = "Unknown" | "Tag" | "Branch" | "Ha
  * Defines values for ComponentTemplateType.
  */
 export declare type ComponentTemplateType = "Custom" | "AzureResource" | "Environment" | "GitRepository" | string;
+/**
+ * Defines values for ComponentDeploymentResourceState.
+ */
+export declare type ComponentDeploymentResourceState = "Pending" | "Initializing" | "Provisioning" | "Succeeded" | "Failed" | string;
 /**
  * Contains response data for the getDeploymentScopes operation.
  */
@@ -884,6 +916,42 @@ export declare type TeamCloudGetProjectComponentTemplateResponse = ComponentTemp
          * The response body as parsed JSON or XML
          */
         parsedBody: ComponentTemplateDataResult;
+    };
+};
+/**
+ * Contains response data for the getProjectDeployments operation.
+ */
+export declare type TeamCloudGetProjectDeploymentsResponse = ComponentDeploymentListDataResult & {
+    /**
+     * The underlying HTTP response.
+     */
+    _response: coreHttp.HttpResponse & {
+        /**
+         * The response body as text (string format)
+         */
+        bodyAsText: string;
+        /**
+         * The response body as parsed JSON or XML
+         */
+        parsedBody: ComponentDeploymentListDataResult;
+    };
+};
+/**
+ * Contains response data for the getProjectDeployment operation.
+ */
+export declare type TeamCloudGetProjectDeploymentResponse = ComponentDeploymentDataResult & {
+    /**
+     * The underlying HTTP response.
+     */
+    _response: coreHttp.HttpResponse & {
+        /**
+         * The response body as text (string format)
+         */
+        bodyAsText: string;
+        /**
+         * The response body as parsed JSON or XML
+         */
+        parsedBody: ComponentDeploymentDataResult;
     };
 };
 /**

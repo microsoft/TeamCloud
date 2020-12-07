@@ -1082,6 +1082,13 @@ export var Component = {
                     name: "String"
                 }
             },
+            identityId: {
+                serializedName: "identityId",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
             id: {
                 serializedName: "id",
                 required: true,
@@ -1266,6 +1273,13 @@ export var ComponentTemplate = {
                     name: "String"
                 }
             },
+            folder: {
+                serializedName: "folder",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
             id: {
                 serializedName: "id",
                 required: true,
@@ -1384,6 +1398,153 @@ export var ComponentTemplateDataResult = {
                 type: {
                     name: "Composite",
                     className: "ComponentTemplate"
+                }
+            },
+            location: {
+                serializedName: "location",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            }
+        }
+    }
+};
+export var ComponentDeploymentListDataResult = {
+    type: {
+        name: "Composite",
+        className: "ComponentDeploymentListDataResult",
+        modelProperties: {
+            code: {
+                serializedName: "code",
+                type: {
+                    name: "Number"
+                }
+            },
+            status: {
+                serializedName: "status",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
+            data: {
+                serializedName: "data",
+                readOnly: true,
+                nullable: true,
+                type: {
+                    name: "Sequence",
+                    element: {
+                        type: {
+                            name: "Composite",
+                            className: "ComponentDeployment"
+                        }
+                    }
+                }
+            },
+            location: {
+                serializedName: "location",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            }
+        }
+    }
+};
+export var ComponentDeployment = {
+    type: {
+        name: "Composite",
+        className: "ComponentDeployment",
+        modelProperties: {
+            componentId: {
+                serializedName: "componentId",
+                required: true,
+                type: {
+                    name: "String"
+                }
+            },
+            projectId: {
+                serializedName: "projectId",
+                required: true,
+                type: {
+                    name: "String"
+                }
+            },
+            started: {
+                serializedName: "started",
+                nullable: true,
+                type: {
+                    name: "DateTime"
+                }
+            },
+            finished: {
+                serializedName: "finished",
+                nullable: true,
+                type: {
+                    name: "DateTime"
+                }
+            },
+            output: {
+                serializedName: "output",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
+            resourceId: {
+                serializedName: "resourceId",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
+            resourceState: {
+                serializedName: "resourceState",
+                type: {
+                    name: "String"
+                }
+            },
+            exitCode: {
+                serializedName: "exitCode",
+                nullable: true,
+                type: {
+                    name: "Number"
+                }
+            },
+            id: {
+                serializedName: "id",
+                required: true,
+                type: {
+                    name: "String"
+                }
+            }
+        }
+    }
+};
+export var ComponentDeploymentDataResult = {
+    type: {
+        name: "Composite",
+        className: "ComponentDeploymentDataResult",
+        modelProperties: {
+            code: {
+                serializedName: "code",
+                type: {
+                    name: "Number"
+                }
+            },
+            status: {
+                serializedName: "status",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
+            data: {
+                serializedName: "data",
+                type: {
+                    name: "Composite",
+                    className: "ComponentDeployment"
                 }
             },
             location: {

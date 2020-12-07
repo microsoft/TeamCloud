@@ -15,6 +15,7 @@ export declare interface Component {
     resourceId?: string | null;
     resourceState?: ComponentResourceState;
     deploymentScopeId?: string | null;
+    identityId?: string | null;
     id: string;
 }
 
@@ -24,6 +25,40 @@ export declare interface ComponentDataResult {
     data?: Component;
     location?: string | null;
 }
+
+export declare interface ComponentDeployment {
+    componentId: string;
+    projectId: string;
+    started?: Date | null;
+    finished?: Date | null;
+    output?: string | null;
+    resourceId?: string | null;
+    resourceState?: ComponentDeploymentResourceState;
+    exitCode?: number | null;
+    id: string;
+}
+
+export declare interface ComponentDeploymentDataResult {
+    code?: number;
+    status?: string | null;
+    data?: ComponentDeployment;
+    location?: string | null;
+}
+
+export declare interface ComponentDeploymentListDataResult {
+    code?: number;
+    status?: string | null;
+    /**
+     * NOTE: This property will not be serialized. It can only be populated by the server.
+     */
+    readonly data?: ComponentDeployment[] | null;
+    location?: string | null;
+}
+
+/**
+ * Defines values for ComponentDeploymentResourceState.
+ */
+export declare type ComponentDeploymentResourceState = "Pending" | "Initializing" | "Provisioning" | "Succeeded" | "Failed" | string;
 
 export declare interface ComponentListDataResult {
     code?: number;
@@ -38,7 +73,7 @@ export declare interface ComponentListDataResult {
 /**
  * Defines values for ComponentResourceState.
  */
-export declare type ComponentResourceState = "Pending" | "Provisioning" | "Succeeded" | "Failed" | string;
+export declare type ComponentResourceState = "Pending" | "Initializing" | "Provisioning" | "Succeeded" | "Failed" | string;
 
 export declare interface ComponentTemplate {
     organization: string;
@@ -49,6 +84,7 @@ export declare interface ComponentTemplate {
     repository: RepositoryReference;
     inputJsonSchema?: string | null;
     type: ComponentTemplateType;
+    folder?: string | null;
     id: string;
 }
 
@@ -176,7 +212,7 @@ export declare interface OrganizationListDataResult {
 /**
  * Defines values for OrganizationResourceState.
  */
-export declare type OrganizationResourceState = "Pending" | "Provisioning" | "Succeeded" | "Failed" | string;
+export declare type OrganizationResourceState = "Pending" | "Initializing" | "Provisioning" | "Succeeded" | "Failed" | string;
 
 export declare interface Project {
     organization: string;
@@ -253,7 +289,7 @@ export declare type ProjectMembershipRole = "None" | "Provider" | "Member" | "Ow
 /**
  * Defines values for ProjectResourceState.
  */
-export declare type ProjectResourceState = "Pending" | "Provisioning" | "Succeeded" | "Failed" | string;
+export declare type ProjectResourceState = "Pending" | "Initializing" | "Provisioning" | "Succeeded" | "Failed" | string;
 
 export declare interface ProjectTemplate {
     organization: string;
@@ -539,6 +575,23 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param options The options parameters.
      */
     getProjectComponentTemplate(id: string | null, org: string, projectId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectComponentTemplateResponse>;
+    /**
+     * Gets all Project Component Deployments.
+     * @param org
+     * @param projectId
+     * @param componentId
+     * @param options The options parameters.
+     */
+    getProjectDeployments(org: string, projectId: string | null, componentId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectDeploymentsResponse>;
+    /**
+     * Gets the Component Template.
+     * @param id
+     * @param org
+     * @param projectId
+     * @param componentId
+     * @param options The options parameters.
+     */
+    getProjectDeployment(id: string | null, org: string, projectId: string | null, componentId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectDeploymentResponse>;
     /**
      * Gets all Tags for a Project.
      * @param org
@@ -1273,6 +1326,44 @@ export declare type TeamCloudGetProjectComponentTemplatesResponse = ComponentTem
          * The response body as parsed JSON or XML
          */
         parsedBody: ComponentTemplateListDataResult;
+    };
+};
+
+/**
+ * Contains response data for the getProjectDeployment operation.
+ */
+export declare type TeamCloudGetProjectDeploymentResponse = ComponentDeploymentDataResult & {
+    /**
+     * The underlying HTTP response.
+     */
+    _response: coreHttp.HttpResponse & {
+        /**
+         * The response body as text (string format)
+         */
+        bodyAsText: string;
+        /**
+         * The response body as parsed JSON or XML
+         */
+        parsedBody: ComponentDeploymentDataResult;
+    };
+};
+
+/**
+ * Contains response data for the getProjectDeployments operation.
+ */
+export declare type TeamCloudGetProjectDeploymentsResponse = ComponentDeploymentListDataResult & {
+    /**
+     * The underlying HTTP response.
+     */
+    _response: coreHttp.HttpResponse & {
+        /**
+         * The response body as text (string format)
+         */
+        bodyAsText: string;
+        /**
+         * The response body as parsed JSON or XML
+         */
+        parsedBody: ComponentDeploymentListDataResult;
     };
 };
 

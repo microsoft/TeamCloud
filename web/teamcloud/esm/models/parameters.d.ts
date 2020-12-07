@@ -13,6 +13,7 @@ export declare const body4: OperationParameter;
 export declare const body5: OperationParameter;
 export declare const projectId: OperationURLParameter;
 export declare const body6: OperationParameter;
+export declare const componentId: OperationURLParameter;
 export declare const body7: OperationParameter;
 export declare const tagKey: OperationURLParameter;
 export declare const body8: OperationParameter;

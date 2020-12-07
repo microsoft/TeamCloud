@@ -46,6 +46,8 @@ import {
   TeamCloudDeleteProjectComponentResponse,
   TeamCloudGetProjectComponentTemplatesResponse,
   TeamCloudGetProjectComponentTemplateResponse,
+  TeamCloudGetProjectDeploymentsResponse,
+  TeamCloudGetProjectDeploymentResponse,
   TeamCloudGetProjectTagsResponse,
   TeamCloudCreateProjectTagOptionalParams,
   TeamCloudCreateProjectTagResponse,
@@ -587,6 +589,52 @@ export class TeamCloud extends TeamCloudContext {
       { id, org, projectId, options: operationOptions },
       getProjectComponentTemplateOperationSpec
     ) as Promise<TeamCloudGetProjectComponentTemplateResponse>;
+  }
+
+  /**
+   * Gets all Project Component Deployments.
+   * @param org
+   * @param projectId
+   * @param componentId
+   * @param options The options parameters.
+   */
+  getProjectDeployments(
+    org: string,
+    projectId: string | null,
+    componentId: string,
+    options?: coreHttp.OperationOptions
+  ): Promise<TeamCloudGetProjectDeploymentsResponse> {
+    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
+      options || {}
+    );
+    return this.sendOperationRequest(
+      { org, projectId, componentId, options: operationOptions },
+      getProjectDeploymentsOperationSpec
+    ) as Promise<TeamCloudGetProjectDeploymentsResponse>;
+  }
+
+  /**
+   * Gets the Component Template.
+   * @param id
+   * @param org
+   * @param projectId
+   * @param componentId
+   * @param options The options parameters.
+   */
+  getProjectDeployment(
+    id: string | null,
+    org: string,
+    projectId: string | null,
+    componentId: string,
+    options?: coreHttp.OperationOptions
+  ): Promise<TeamCloudGetProjectDeploymentResponse> {
+    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
+      options || {}
+    );
+    return this.sendOperationRequest(
+      { id, org, projectId, componentId, options: operationOptions },
+      getProjectDeploymentOperationSpec
+    ) as Promise<TeamCloudGetProjectDeploymentResponse>;
   }
 
   /**
@@ -1572,6 +1620,58 @@ const getProjectComponentTemplateOperationSpec: coreHttp.OperationSpec = {
     Parameters.org,
     Parameters.id,
     Parameters.projectId
+  ],
+  headerParameters: [Parameters.accept],
+  serializer
+};
+const getProjectDeploymentsOperationSpec: coreHttp.OperationSpec = {
+  path: "/orgs/{org}/projects/{projectId}/components/{componentId}/deployments",
+  httpMethod: "GET",
+  responses: {
+    200: {
+      bodyMapper: Mappers.ComponentDeploymentListDataResult
+    },
+    400: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    401: {},
+    403: {},
+    404: {
+      bodyMapper: Mappers.ErrorResult
+    }
+  },
+  urlParameters: [
+    Parameters.$host,
+    Parameters.org,
+    Parameters.projectId,
+    Parameters.componentId
+  ],
+  headerParameters: [Parameters.accept],
+  serializer
+};
+const getProjectDeploymentOperationSpec: coreHttp.OperationSpec = {
+  path:
+    "/orgs/{org}/projects/{projectId}/components/{componentId}/deployments/{id}",
+  httpMethod: "GET",
+  responses: {
+    200: {
+      bodyMapper: Mappers.ComponentDeploymentDataResult
+    },
+    400: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    401: {},
+    403: {},
+    404: {
+      bodyMapper: Mappers.ErrorResult
+    }
+  },
+  urlParameters: [
+    Parameters.$host,
+    Parameters.org,
+    Parameters.id,
+    Parameters.projectId,
+    Parameters.componentId
   ],
   headerParameters: [Parameters.accept],
   serializer

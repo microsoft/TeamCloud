@@ -107,6 +107,16 @@ export var body6 = {
     parameterPath: ["options", "body"],
     mapper: ProjectComponentDefinitionMapper
 };
+export var componentId = {
+    parameterPath: "componentId",
+    mapper: {
+        serializedName: "componentId",
+        required: true,
+        type: {
+            name: "String"
+        }
+    }
+};
 export var body7 = {
     parameterPath: ["options", "body"],
     mapper: {
