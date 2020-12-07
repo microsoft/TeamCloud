@@ -34,7 +34,9 @@ export const ProjectContext = React.createContext({
     project: undefined as Project | undefined,
     members: undefined as ProjectMember[] | undefined,
     components: undefined as Component[] | undefined,
+    component: undefined as Component | undefined,
     templates: undefined as ComponentTemplate[] | undefined,
+    onComponentSelected: (component?: Component) => { },
     onAddUsers: (users: UserDefinition[]) => Promise.resolve(),
     onCreateComponent: (component: ProjectComponentDefinition) => Promise.resolve(),
 });

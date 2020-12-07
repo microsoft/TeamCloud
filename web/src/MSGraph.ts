@@ -28,11 +28,7 @@ export const getMe = async (): Promise<GraphUser> => {
         .select(_userSelect)
         .get();
     let me = response as GraphUser;
-    try {
-        me.imageUrl = await getMePhoto();
-    } catch {
-        // swollow this error
-    }
+    me.imageUrl = await getMePhoto();
     return me;
 }
 
@@ -88,6 +84,7 @@ export const searchGraphUsers = async (search: string): Promise<GraphUser[]> => 
 export const getMePhoto = async (size: PhotoSize = PhotoSize.size240x240): Promise<string | undefined> => {
     try {
         let api = `/me/photos/${size}/$value`;
+        // let api = `/me/photo/$value`;
         let response = await client
             .api(api)
             .header('Cache-Control', 'no-cache')
@@ -96,9 +93,15 @@ export const getMePhoto = async (size: PhotoSize = PhotoSize.size240x240): Promi
             .get();
         return URL.createObjectURL(response);
     } catch (error) {
+
         if ((error as GraphError).statusCode === 404) return undefined;
-        console.error(error as GraphError);
-        throw error;
+
+        console.warn('Failed to get me photo.');
+        // console.warn(error as GraphError);
+
+        // swollow this error
+        return undefined;
+        // throw error;
     }
 }
 
@@ -114,8 +117,13 @@ export const getUserPhoto = async (id: string, size: PhotoSize = PhotoSize.size2
         return URL.createObjectURL(response);
     } catch (error) {
         if ((error as GraphError).statusCode === 404) return undefined;
-        console.error(error as GraphError);
-        throw error;
+
+        console.warn(`Failed to get user photo (${id}).`);
+        // console.error(error as GraphError);
+
+        // swollow this error
+        return undefined;
+        // throw error;
     }
 }
 

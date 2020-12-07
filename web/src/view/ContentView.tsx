@@ -31,7 +31,8 @@ export const ContentView: React.FC = () => (
             '/orgs/:orgId/projects/:projectId/settings',
             '/orgs/:orgId/projects/:projectId/settings/:settingId',
             '/orgs/:orgId/projects/:projectId/:navId',
-            '/orgs/:orgId/projects/:projectId/:navId/new'
+            '/orgs/:orgId/projects/:projectId/:navId/new',
+            '/orgs/:orgId/projects/:projectId/:navId/:itemId',
         ]}>
             <ProjectView />
         </Route>

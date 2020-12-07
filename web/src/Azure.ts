@@ -20,27 +20,35 @@ export const getManagementGroups = async (): Promise<ManagementGroup[]> => {
 
     const url = 'https://management.azure.com/providers/Microsoft.Management/managementGroups?api-version=2020-02-01';
 
-    const token = await auth.getManagementToken();
+    try {
 
-    // console.log('==> GET ' + url);
 
-    let response: Response = await fetch(url, {
-        method: 'GET',
-        headers: {
-            'Authorization': `Bearer ${token?.token}`
-        }
-    });
+        const token = await auth.getManagementToken();
 
-    // console.log('<== GET ' + url);
+        console.log('==> GET ' + url);
 
-    const json = await response.json();
+        let response: Response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token?.token}`
+            }
+        });
 
-    // console.log('=== JSON (' + url + ')');
-    // console.log(JSON.stringify(json));
 
-    const groups = json as ManagementGroups;
+        const json = await response.json();
 
-    return groups.value;
+        // console.log('=== JSON (' + url + ')');
+        console.log(JSON.stringify(response));
+        console.log('<== GET ' + url);
+
+        const groups = json as ManagementGroups;
+
+        return groups.value;
+
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
 };
 
 

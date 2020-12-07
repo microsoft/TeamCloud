@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { Route, Switch, useHistory, useLocation, useParams } from 'react-router-dom';
 import { Stack, IconButton } from '@fluentui/react';
 import { useIsAuthenticated } from '@azure/msal-react';
@@ -11,6 +11,7 @@ import { ProjectMember } from '../model';
 import { api } from '../API';
 import { getGraphUser } from '../MSGraph';
 import { OrgContext, ProjectContext } from '../Context';
+import { ComponentOverview } from '../components/ComponentOverview';
 
 export const ProjectView: React.FC = () => {
 
@@ -18,7 +19,7 @@ export const ProjectView: React.FC = () => {
 
     const location = useLocation();
     const history = useHistory();
-    const { navId } = useParams() as { orgId: string, navId: string };
+    const { navId, itemId } = useParams() as { orgId: string, navId: string, itemId: string };
 
     const [favorite, setFavorate] = useState(false);
 
@@ -26,6 +27,8 @@ export const ProjectView: React.FC = () => {
     const [components, setComponents] = useState<Component[]>();
     const [templates, setTemplates] = useState<ComponentTemplate[]>();
     const [progressHidden, setProgressHidden] = useState(true);
+
+    const [selectedComponent, setSelectedComponent] = useState<Component>();
 
     const { org, project, user } = useContext(OrgContext);
 
@@ -77,7 +80,8 @@ export const ProjectView: React.FC = () => {
 
     useEffect(() => {// Component Templates
         if (isAuthenticated && project) {
-            if (navId?.toLowerCase() === 'components') {
+            // if (navId?.toLowerCase() === 'components') {
+            if (navId === undefined || navId.toLowerCase() === 'components') {
                 // if (templates === undefined || (templates.length > 0 && templates[0].projectId !== project.id)) {
                 if (templates === undefined) {
                     const _setTemplates = async () => {
@@ -93,6 +97,34 @@ export const ProjectView: React.FC = () => {
             setTemplates(undefined);
         }
     }, [isAuthenticated, project, templates, navId]);
+
+
+    const onComponentSelected = useCallback((component?: Component) => {
+        if (component && selectedComponent && selectedComponent.id === component.id)
+            return;
+        console.log(`setComponent (${project?.slug})`);
+        setSelectedComponent(component);
+    }, [project, selectedComponent]);
+
+
+    useEffect(() => { // Esure selected item matches route
+        if (itemId) {
+            // if (selectedComponent && (selectedComponent.id.toLowerCase() === itemId.toLowerCase() || selectedComponent.slug.toLowerCase() === itemId.toLowerCase())) {
+            if (selectedComponent && selectedComponent.id.toLowerCase() === itemId.toLowerCase()) {
+                return;
+            } else if (components) {
+                // const find = components.find(c => c.id.toLowerCase() === itemId.toLowerCase() || c.slug.toLowerCase() === projectId.toLowerCase());
+                const find = components.find(c => c.id.toLowerCase() === itemId.toLowerCase());
+                if (find) {
+                    console.log(`getComponentFromRoute (${itemId})`);
+                    onComponentSelected(find);
+                }
+            }
+        } else if (selectedComponent) {
+            console.log(`getComponentFromRoute (undefined)`);
+            onComponentSelected(undefined);
+        }
+    }, [itemId, components, selectedComponent, onComponentSelected]);
 
 
     const onAddUsers = async (users: UserDefinition[]) => {
@@ -147,7 +179,9 @@ export const ProjectView: React.FC = () => {
             project: project,
             members: members,
             components: components,
+            component: selectedComponent,
             templates: templates,
+            onComponentSelected: onComponentSelected,
             onAddUsers: onAddUsers,
             onCreateComponent: onCreateComponent
         }}>
@@ -180,6 +214,13 @@ export const ProjectView: React.FC = () => {
                             <ComponentList />
                         </ContentContainer>
                     </Route>
+                    <Route exact path='/orgs/:orgId/projects/:projectId/components/:itemId'>
+                        <ContentProgress progressHidden={progressHidden && project !== undefined && components !== undefined && templates !== undefined && members !== undefined} />
+                        <ContentHeader title={selectedComponent?.displayName ?? undefined} />
+                        <ContentContainer>
+                            <ComponentOverview />
+                        </ContentContainer>
+                    </Route>
                     <Route exact path='/orgs/:orgId/projects/:projectId/members'>
                         <ContentProgress progressHidden={progressHidden && project !== undefined && members !== undefined} />
                         <ContentHeader title={navId} />
@@ -189,7 +230,7 @@ export const ProjectView: React.FC = () => {
                     </Route>
                     <Route exact path='/orgs/:orgId/projects/:projectId/settings'>
                         <ContentProgress progressHidden={progressHidden && project !== undefined && members !== undefined} />
-                        <ContentHeader title={project?.displayName} />
+                        <ContentHeader title={`${(project?.displayName ? (project.displayName + ' - Settings') : 'Settings')}`} coin={project?.displayName !== undefined} />
                         <ContentContainer>
                             <ProjectSettingsOverview />
                         </ContentContainer>

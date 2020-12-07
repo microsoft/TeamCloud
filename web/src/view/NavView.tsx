@@ -30,7 +30,8 @@ export const NavView: React.FC = () => (
         <Route exact path={[
             '/orgs/:orgId/projects/:projectId',
             '/orgs/:orgId/projects/:projectId/:navId',
-            '/orgs/:orgId/projects/:projectId/:navId/new'
+            '/orgs/:orgId/projects/:projectId/:navId/new',
+            '/orgs/:orgId/projects/:projectId/:navId/:itemId'
         ]}>
             <ProjectNav {...{}} />
         </Route>
