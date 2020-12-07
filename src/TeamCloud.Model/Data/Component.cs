@@ -12,7 +12,7 @@ using TeamCloud.Serialization;
 namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public sealed class Component : ContainerDocument, IOrganizationChild, IEquatable<Component>, IValidatable, IResourceReference
+    public sealed class Component : ContainerDocument, IOrganizationChild, IEquatable<Component>, IValidatable, ISlug, IResourceReference
     {
         /// <summary>
         /// Gets or sets a browsable link pointing to the component resource.
@@ -99,6 +99,13 @@ namespace TeamCloud.Model.Data
         /// Gets or sets the managed identity used by this component
         /// </summary>
         public string IdentityId { get; set; }
+
+        /// <summary>
+        /// Gets the slug of the current component base on its display name.
+        /// </summary>
+        [UniqueKey]
+        [JsonProperty(Required = Required.Always)]
+        public string Slug => (this as ISlug).GetSlug();
 
         /// <summary>
         /// Indicates whether the current object is equal to another object of the same type.

@@ -126,7 +126,7 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Utilities
                         {
                             component = await context
                                 .CallActivityWithRetryAsync<Component>(nameof(ComponentGetActivity), new ComponentGetActivity.Input() { ProjectId = component.ProjectId, Id = component.Id })
-                                .ConfigureAwait(false);
+                                .ConfigureAwait(true);
                         }
                         else
                         {

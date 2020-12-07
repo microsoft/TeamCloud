@@ -72,9 +72,6 @@ namespace TeamCloud.Data.CosmosDb
             if (identifier is null)
                 throw new ArgumentNullException(nameof(identifier));
 
-            // if (!Guid.TryParse(id, out var idParsed))
-            //     throw new ArgumentException("Value is not a valid GUID", nameof(id));
-
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 

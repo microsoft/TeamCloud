@@ -48,24 +48,35 @@ namespace TeamCloud.Data.CosmosDb
             if (id is null)
                 throw new ArgumentNullException(nameof(id));
 
-            if (!Guid.TryParse(id, out var idParsed))
-                throw new ArgumentException("Value is not a valid GUID", nameof(id));
-
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
             try
             {
                 var response = await container
-                    .ReadItemAsync<Component>(idParsed.ToString(), GetPartitionKey(projectId))
+                    .ReadItemAsync<Component>(id, GetPartitionKey(projectId))
                     .ConfigureAwait(false);
 
                 return response.Resource;
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
             {
-                return null;
+                var query = new QueryDefinition($"SELECT * FROM o WHERE o.slug = '{id}'");
+
+                var queryIterator = container
+                    .GetItemQueryIterator<Component>(query, requestOptions: GetQueryRequestOptions(projectId));
+
+                if (queryIterator.HasMoreResults)
+                {
+                    var queryResults = await queryIterator
+                        .ReadNextAsync()
+                        .ConfigureAwait(false);
+
+                    return queryResults.FirstOrDefault();
+                }
             }
+
+            return null;
         }
 
         public async IAsyncEnumerable<Component> ListAsync(string projectId)
