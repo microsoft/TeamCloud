@@ -32,7 +32,7 @@ namespace TeamCloud.Orchestrator.Operations.Activities
             return deploymentScope;
         }
 
-        public struct Input
+        internal struct Input
         {
             public string Id { get; set; }
 

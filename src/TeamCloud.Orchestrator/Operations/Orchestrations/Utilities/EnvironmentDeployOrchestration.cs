@@ -155,7 +155,7 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Utilities
             }
         }
 
-        public struct Input
+        internal struct Input
         {
             public Component Component { get; set; }
 

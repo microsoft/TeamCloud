@@ -60,7 +60,7 @@ namespace TeamCloud.Orchestrator.Operations.Activities
             return deployment.ResourceId;
         }
 
-        public struct Input
+        internal struct Input
         {
             public Component Component { get; set; }
 
