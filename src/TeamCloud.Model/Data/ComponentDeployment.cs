@@ -31,6 +31,7 @@ namespace TeamCloud.Model.Data
 
         public ResourceState ResourceState { get; set; }
             = ResourceState.Pending;
+
         public int? ExitCode { get; set; }
 
         public bool Equals(ComponentDeployment other)
