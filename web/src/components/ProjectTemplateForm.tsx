@@ -18,17 +18,17 @@ export const ProjectTemplateForm: React.FC<IProjectTemplateFormProps> = (props) 
     const { orgId } = useParams() as { orgId: string };
 
     // Project Template
-    const [templateName, setTemplateName] = useState<string>();
-    const [templateUrl, setTemplateUrl] = useState<string>();
-    const [templateVersion, setTemplateVersion] = useState<string>();
+    const [templateName, setTemplateName] = useState<string | undefined>(props.embedded ? 'Sample Project Template' : undefined);
+    const [templateUrl, setTemplateUrl] = useState<string | undefined>(props.embedded ? 'https://github.com/microsoft/TeamCloud-Project-Sample.git' : undefined);
+    const [templateVersion, setTemplateVersion] = useState<string | undefined>(props.embedded ? 'main' : undefined);
     const [templateToken, setTemplateToken] = useState<string>();
 
     const [formEnabled, setFormEnabled] = useState<boolean>(true);
-    const [sampleOffered, setSampleOffered] = useState<boolean>(false);
+    // const [sampleOffered, setSampleOffered] = useState<boolean>(false);
 
     const _templateComplete = () => templateName && templateUrl;
 
-    const { embedded, onTemplateChange } = props;
+    const { onTemplateChange } = props;
 
     useEffect(() => {
         if (onTemplateChange !== undefined) {
@@ -44,17 +44,6 @@ export const ProjectTemplateForm: React.FC<IProjectTemplateFormProps> = (props) 
             onTemplateChange(templateDef);
         }
     }, [onTemplateChange, templateName, templateUrl, templateVersion, templateToken]);
-
-
-    useEffect(() => {
-        if (!sampleOffered && embedded && !templateUrl) {
-            setTemplateUrl('https://github.com/microsoft/TeamCloud-Project-Sample.git');
-            setTemplateVersion('main');
-            if (!templateName)
-                setTemplateName('Sample Project Template');
-            setSampleOffered(true);
-        }
-    }, [embedded, sampleOffered, templateUrl, templateName, templateVersion]);
 
 
     const _submitForm = () => {

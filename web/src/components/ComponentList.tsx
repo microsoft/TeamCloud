@@ -12,15 +12,19 @@ import DevOps from '../img/devops.svg';
 import GitHub from '../img/github.svg';
 import Resource from '../img/resource.svg';
 
-export const ComponentList: React.FC = () => {
+export interface IComponentListProps {
+    onItemInvoked?: (component: Component) => void;
+}
+
+export const ComponentList: React.FC<IComponentListProps> = (props) => {
 
     const history = useHistory();
-    const { orgId, projectId } = useParams() as { orgId: string, projectId: string; };
+    const { orgId, projectId } = useParams() as { orgId: string, projectId: string };
 
     const [items, setItems] = useState<{ component: Component, template: ComponentTemplate }[]>()
 
     const { scopes } = useContext(OrgContext);
-    const { components, templates, members } = useContext(ProjectContext);
+    const { components, templates, members, onComponentSelected } = useContext(ProjectContext);
 
     useEffect(() => {
         if (components && templates && (items === undefined || items.length !== components.length)) {
@@ -146,14 +150,16 @@ export const ComponentList: React.FC = () => {
     //     { key: 'requestedBy', name: 'Creator', minWidth: 240, fieldName: 'requestedBy' },
     // ];
 
-    const _applyFilter = (component: { component: Component, template: ComponentTemplate }, filter: string): boolean => {
+    const _applyFilter = (item: { component: Component, template: ComponentTemplate }, filter: string): boolean => {
         // const f = filter?.toUpperCase();
         // if (!f) return true;
-        return filter ? JSON.stringify(component).toUpperCase().includes(filter.toUpperCase()) : true;
+        return filter ? JSON.stringify(item).toUpperCase().includes(filter.toUpperCase()) : true;
     };
 
-    const _onItemInvoked = (component: { component: Component, template: ComponentTemplate }): void => {
-        console.log(component);
+    const _onItemInvoked = (item: { component: Component, template: ComponentTemplate }): void => {
+        // console.log(item);
+        onComponentSelected(item.component);
+        history.push(`/orgs/${orgId}/projects/${projectId}/components/${item.component.id}`);
     };
 
     return (
@@ -161,6 +167,7 @@ export const ComponentList: React.FC = () => {
             columns={columns}
             items={items}
             applyFilter={_applyFilter}
+            // onItemInvoked={props.onItemInvoked !== undefined ? (i) => props.onItemInvoked!(i.component) : undefined}
             onItemInvoked={_onItemInvoked}
             filterPlaceholder='Filter components'
             buttonText='Create component'

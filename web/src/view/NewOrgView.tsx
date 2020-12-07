@@ -3,9 +3,8 @@
 
 import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
-import { Stack, TextField, Dropdown, IDropdownOption, Text, PrimaryButton, DefaultButton, IconButton, Pivot, PivotItem, ComboBox, ChoiceGroup, Label, IComboBoxOption, IComboBox } from '@fluentui/react';
+import { Stack, TextField, Text, PrimaryButton, DefaultButton, IconButton, Pivot, PivotItem, ComboBox, ChoiceGroup, Label, IComboBoxOption } from '@fluentui/react';
 import { OrganizationDefinition, DeploymentScopeDefinition, ProjectTemplateDefinition } from 'teamcloud'
-import { getManagementGroups, getSubscriptions } from '../Azure'
 import { AzureRegions, Tags } from '../model';
 import { ContentContainer, ContentHeader, ContentProgress, DeploymentScopeForm, OrgSettingsDetail, ProjectTemplateForm } from '../components';
 import { api } from '../API';
@@ -15,8 +14,8 @@ export const NewOrgView: React.FC = () => {
 
     const history = useHistory();
 
+    const { subscriptions } = useContext(GraphUserContext);
     const { onOrgSelected, onCreateDeploymentScope, onCreateProjectTemplate } = useContext(OrgContext);
-    const { subscriptions, managementGroups } = useContext(GraphUserContext);
 
     // Basic Settings
     const [orgName, setOrgName] = useState<string>();
@@ -24,25 +23,9 @@ export const NewOrgView: React.FC = () => {
     const [orgSubscriptionOptions, setOrgSubscriptionOptions] = useState<IComboBoxOption[]>();
     const [orgRegion, setOrgRegion] = useState<string>();
 
-    // Configuration
     const [webPortalEnabled, setWebPortalEnabled] = useState(true);
-
-    // Deployment Scope
     const [scope, setScope] = useState<DeploymentScopeDefinition>();
-    // const [scopeName, setScopeName] = useState<string>();
-    // const [scopeManagementGroup, setManagementScopeGroup] = useState<string>();
-    // const [scopeManagementGroupOptions, setScopeManagementGroupOptions] = useState<IDropdownOption[]>();
-    // const [scopeSubscriptions, setScopeSubscriptions] = useState<string[]>();
-    // const [scopeSubscriptionOptions, setScopeSubscriptionOptions] = useState<IComboBoxOption[]>();
-
-    // Project Template
     const [template, setTemplate] = useState<ProjectTemplateDefinition>();
-    // const [templateName, setTemplateName] = useState<string>();
-    // const [templateUrl, setTemplateUrl] = useState<string>();
-    // const [templateVersion, setTemplateVersion] = useState<string>();
-    // const [templateToken, setTemplateToken] = useState<string>();
-
-    // Tags
     const [tags, setTags] = useState<Tags>();
 
     // Misc.
@@ -61,20 +44,17 @@ export const NewOrgView: React.FC = () => {
 
     const _templateComplete = () => template?.displayName && template.repository.url;
 
-    // useEffect(() => {
-    //     if (!templateUrl) {
-    //         setTemplateUrl('https://github.com/microsoft/TeamCloud-Project-Sample.git');
-    //         setTemplateVersion('main');
-    //         if (!templateName)
-    //             setTemplateName('Sample Project Template');
-    //     }
-    // }, [templateUrl, templateName]);
 
     useEffect(() => {
         const newTags: Tags = {}
         newTags[''] = ''
         setTags(newTags)
     }, []);
+
+    useEffect(() => {
+        if (subscriptions && orgSubscriptionOptions === undefined)
+            setOrgSubscriptionOptions(subscriptions?.map(s => ({ key: s.subscriptionId, text: s.displayName })));
+    }, [subscriptions, orgSubscriptionOptions]);
 
 
     const _submitForm = async () => {

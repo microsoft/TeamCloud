@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { useHistory, useParams } from 'react-router-dom';
-import { Nav, INavLinkGroup, INavLink, Stack, ActionButton, Persona, PersonaSize } from '@fluentui/react';
+import { Nav, INavLinkGroup, INavLink, Stack, ActionButton, Persona, PersonaSize, Text } from '@fluentui/react';
 
 export const ProjectNav: React.FC = () => {
 
@@ -42,7 +42,14 @@ export const ProjectNav: React.FC = () => {
         <Stack
             verticalFill
             verticalAlign="space-between">
-            <Stack.Item>
+            {/* <Stack.Item styles={{ root: { padding: '10px 8px 10px 12px' } }}>
+                <Persona
+                    text='Project Name'
+                    size={PersonaSize.size24}
+                    styles={{ primaryText: { fontWeight: '600' } }}
+                    coinProps={{ styles: { initials: { borderRadius: '4px' } } }} />
+            </Stack.Item> */}
+            <Stack.Item grow>
                 <Nav
                     selectedKey={navId ?? 'overview'}
                     groups={_navLinkGroups()}

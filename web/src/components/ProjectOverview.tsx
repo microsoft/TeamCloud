@@ -11,7 +11,7 @@ export const ProjectOverview: React.FC = () => (
         horizontal
         horizontalAlign='center'
         verticalAlign='start'>
-        <Stack.Item grow styles={{ root: { minWidth: '60%', marginRight: '16px' } }}>
+        <Stack.Item styles={{ root: { minWidth: '60%', marginRight: '16px' } }}>
             <ComponentsCard />
         </Stack.Item>
         <Stack.Item grow styles={{ root: { minWidth: '20%', marginRight: '16px' } }}>

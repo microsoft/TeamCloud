@@ -5,14 +5,15 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { InteractionType } from '@azure/msal-browser';
 import { AuthenticatedTemplate, MsalAuthenticationResult, useIsAuthenticated, useMsalAuthentication } from '@azure/msal-react';
 import { Redirect, Route, Switch, useLocation, useParams } from 'react-router-dom';
-import { Stack } from '@fluentui/react';
+import { getTheme, Stack } from '@fluentui/react';
 import { api, auth } from '../API';
 import { GraphUser, ManagementGroup, Member, Subscription } from '../model';
 import { getGraphUser, getMe } from '../MSGraph';
 import { DeploymentScope, DeploymentScopeDefinition, Organization, Project, ProjectTemplate, ProjectTemplateDefinition, User, UserDefinition } from 'teamcloud';
-import { BodyView, ContentView, HeaderView, NavView } from '../view';
+import { ContentView, NavView } from '../view';
 import { GraphUserContext, OrgContext } from '../Context'
 import { getManagementGroups, getSubscriptions } from '../Azure';
+import { HeaderBar } from '../components';
 
 
 export interface IRootViewProps { }
@@ -38,7 +39,8 @@ export const RootView: React.FC<IRootViewProps> = (props) => {
                 '/orgs/:orgId/projects/:projectId/settings',
                 '/orgs/:orgId/projects/:projectId/settings/:settingId',
                 '/orgs/:orgId/projects/:projectId/:navId',
-                '/orgs/:orgId/projects/:projectId/:navId/new'
+                '/orgs/:orgId/projects/:projectId/:navId/new',
+                '/orgs/:orgId/projects/:projectId/:navId/:itemId',
             ]}>
                 <StateRouter {...{}}>
                     {props.children}
@@ -367,6 +369,23 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
     }, [isAuthenticated, managementGroups, location]);
 
 
+    const theme = getTheme();
+
+    const leftStackStyles = {
+        root: {
+            width: '260px',
+            paddingTop: '20px',
+            paddingBottom: '10px',
+            borderRight: `${theme.palette.neutralLight} solid 1px`
+        }
+    };
+
+    const rightStackStyles = {
+        root: {
+            backgroundColor: theme.palette.neutralLighterAlt
+        }
+    };
+
     return (
         <GraphUserContext.Provider value={{
             graphUser: graphUser,
@@ -390,16 +409,19 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
                 onCreateProjectTemplate: onCreateProjectTemplate
             }}>
                 <Stack verticalFill>
-                    {/* <BrowserRouter> */}
-                    <HeaderView />
+                    <HeaderBar />
                     <AuthenticatedTemplate>
-                        <BodyView nav={<NavView />} content={<ContentView />} />
+                        <Stack horizontal disableShrink verticalFill verticalAlign='stretch'>
+                            <Stack.Item styles={leftStackStyles}>
+                                <NavView />
+                            </Stack.Item>
+                            <Stack.Item grow styles={rightStackStyles}>
+                                <ContentView />
+                            </Stack.Item>
+                        </Stack>
                     </AuthenticatedTemplate>
-                    {/* </BrowserRouter> */}
                 </Stack>
             </OrgContext.Provider>
         </GraphUserContext.Provider>
     );
-
-    // return <>{props.children}</>;
 }

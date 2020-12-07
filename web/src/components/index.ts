@@ -1,10 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+export * from './ComponentDeploymentList'
 export * from './ComponentForm'
 export * from './ComponentList'
 export * from './ComponentsCard'
 export * from './ContentContainer'
+export * from './ContentCardList'
 export * from './ContentHeader'
 export * from './ContentList'
 export * from './ContentProgress'

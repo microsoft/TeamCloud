@@ -10,7 +10,7 @@ export const HeaderBreadcrumb: React.FC = () => {
 
     const location = useLocation();
     const history = useHistory();
-    const { orgId, projectId, navId, settingId } = useParams() as { orgId: string, projectId: string, navId: string, settingId: string };
+    const { orgId, projectId, navId, settingId, itemId } = useParams() as { orgId: string, projectId: string, navId: string, settingId: string, itemId: string };
 
     const { orgs, projects } = useContext(OrgContext);
 
@@ -40,8 +40,11 @@ export const HeaderBreadcrumb: React.FC = () => {
             // Org / Projects / Project / Category
             if (navId !== undefined) {
                 crumbs.push({ key: navId, text: navId, onClick: () => history.push(`${orgPath}/projects/${projectId}/${navId}`) });
+
                 if (location.pathname.toLowerCase().endsWith('/new'))
                     crumbs.push({ key: 'new', text: `New ${navId.slice(0, -1)}` });
+                else if (itemId !== undefined)
+                    crumbs.push({ key: itemId, text: itemId, onClick: () => history.push(`${orgPath}/projects/${projectId}/${navId}/${itemId}`) });
             }
         }
 
