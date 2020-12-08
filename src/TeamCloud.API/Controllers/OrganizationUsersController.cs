@@ -163,18 +163,10 @@ namespace TeamCloud.API.Controllers
                     .BadRequest(validation)
                     .ToActionResult();
 
-            if (existingUser.IsAdmin() && !user.IsAdmin())
-            {
-                var otherAdmins = await userRepository
-                    .ListAdminsAsync(OrgId)
-                    .AnyAsync(a => a.Id != user.Id)
-                    .ConfigureAwait(false);
-
-                if (!otherAdmins)
-                    return ErrorResult
-                        .BadRequest($"The Organization must have at least one Admin user. To change this user's role you must first add another Admin user.", ResultErrorCode.ValidationError)
+            if (existingUser.IsOwner() && !user.IsOwner())
+                return ErrorResult
+                        .BadRequest($"The Organization must have an owner. To change this user's role you must first transfer ownership to another user.", ResultErrorCode.ValidationError)
                         .ToActionResult();
-            }
 
             if (!existingUser.HasEqualMemberships(user))
                 return ErrorResult
@@ -217,18 +209,10 @@ namespace TeamCloud.API.Controllers
                     .BadRequest(new ValidationError { Field = "id", Message = $"User's id does match the id of the current authenticated user." })
                     .ToActionResult();
 
-            if (currentUser.IsAdmin() && !user.IsAdmin())
-            {
-                var otherAdmins = await userRepository
-                    .ListAdminsAsync(OrgId)
-                    .AnyAsync(a => a.Id != user.Id)
-                    .ConfigureAwait(false);
-
-                if (!otherAdmins)
-                    return ErrorResult
-                        .BadRequest($"The Organization must have at least one Admin user. To change this user's role you must first add another Admin user.", ResultErrorCode.ValidationError)
-                        .ToActionResult();
-            }
+            if (currentUser.IsOwner() && !user.IsOwner())
+                return ErrorResult
+                    .BadRequest($"The Organization must have an owner. To change this user's role you must first transfer ownership to another user.", ResultErrorCode.ValidationError)
+                    .ToActionResult();
 
             if (!currentUser.HasEqualMemberships(user))
                 return ErrorResult
@@ -251,18 +235,10 @@ namespace TeamCloud.API.Controllers
         [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
         public Task<IActionResult> Delete([FromRoute] string userId) => EnsureUserAsync(async user =>
         {
-            if (user.IsAdmin())
-            {
-                var otherAdmins = await userRepository
-                    .ListAdminsAsync(OrgId)
-                    .AnyAsync(a => a.Id != user.Id)
-                    .ConfigureAwait(false);
-
-                if (!otherAdmins)
-                    return ErrorResult
-                        .BadRequest($"The Organization must have at least one Admin user. To delete this user you must first add another Admin user.", ResultErrorCode.ValidationError)
-                        .ToActionResult();
-            }
+            if (user.IsOwner())
+                return ErrorResult
+                    .BadRequest($"The Organization must have an owner. To delete this user you must first transfer ownership to another user.", ResultErrorCode.ValidationError)
+                    .ToActionResult();
 
             var currentUser = await UserService
                 .CurrentUserAsync(OrgId)

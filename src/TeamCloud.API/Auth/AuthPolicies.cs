@@ -9,7 +9,13 @@ namespace TeamCloud.API.Auth
     {
         public const string Default = "default";
 
+        public const string Owner = "owner";
+
         public const string Admin = "admin";
+
+        public const string OrganizationRead = "organizationRead";
+
+        public const string OrganizationDelete = "organizationDelete";
 
         public const string UserRead = "userRead";
         public const string UserWrite = "userWrite";
@@ -21,6 +27,7 @@ namespace TeamCloud.API.Auth
         public const string ProjectRead = "projectRead";
         public const string ProjectWrite = "projectWrite";
         public const string ProjectCreate = "projectCreate";
+        public const string ProjectDelete = "projectDelete";
 
         public const string ProjectIdentityRead = "projectIdentityRead";
 

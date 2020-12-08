@@ -51,10 +51,20 @@ export const NewOrgView: React.FC = () => {
         setTags(newTags)
     }, []);
 
+
     useEffect(() => {
-        if (subscriptions && orgSubscriptionOptions === undefined)
+        if (subscriptions && orgSubscriptionOptions === undefined) {
+            console.log('setOrgSubscriptionOptions')
             setOrgSubscriptionOptions(subscriptions?.map(s => ({ key: s.subscriptionId, text: s.displayName })));
+        }
     }, [subscriptions, orgSubscriptionOptions]);
+
+    useEffect(() => {
+        if (orgSubscriptionOptions && orgSubscriptionOptions.length === 1 && orgSubscription === undefined) {
+            console.log('setOrgSubscription')
+            setOrgSubscription(orgSubscriptionOptions[0].key as string);
+        }
+    }, [orgSubscription, orgSubscriptionOptions]);
 
 
     const _submitForm = async () => {
@@ -152,21 +162,21 @@ export const NewOrgView: React.FC = () => {
         setTemplate(template);
     }, []);
 
-    const getScopeDetail = () => {
+    // const getScopeDetail = () => {
 
-        const details = [{ label: 'Name', value: scope?.displayName ?? '', required: true }];
+    //     const details = [{ label: 'Name', value: scope?.displayName ?? '', required: true }];
 
-        if (scope?.managementGroupId)
-            details.push({ label: 'Management Group', value: scope.managementGroupId, required: true });
-        else if (scope?.subscriptionIds)
-            details.push({ label: 'Subscriptions', value: scope.subscriptionIds.join(', '), required: true });
-        else {
-            details.push({ label: 'Management Group', value: '', required: true });
-            details.push({ label: 'Subscriptions', value: '', required: true });
-        }
+    //     if (scope?.managementGroupId)
+    //         details.push({ label: 'Management Group', value: scope.managementGroupId, required: true });
+    //     else if (scope?.subscriptionIds)
+    //         details.push({ label: 'Subscriptions', value: scope.subscriptionIds.join(', '), required: true });
+    //     else {
+    //         details.push({ label: 'Management Group', value: '', required: true });
+    //         details.push({ label: 'Subscriptions', value: '', required: true });
+    //     }
 
-        return details;
-    };
+    //     return details;
+    // };
 
     return (
         <Stack styles={{ root: { height: '100%' } }}>
@@ -253,7 +263,11 @@ export const NewOrgView: React.FC = () => {
                                 ]} />
                             </Stack.Item>
                             <Stack.Item>
-                                <OrgSettingsDetail title='Deployment Scope' details={getScopeDetail()} />
+                                {/* <OrgSettingsDetail title='Deployment Scope' details={getScopeDetail()} /> */}
+                                <OrgSettingsDetail title='Deployment Scope' details={[
+                                    { label: 'Name', value: scope?.displayName ?? '', required: true },
+                                    { label: 'Subscriptions', value: '', required: true }
+                                ]} />
                             </Stack.Item>
                             <Stack.Item>
                                 <OrgSettingsDetail title='Project Template' details={[

@@ -5,6 +5,7 @@ import { DefaultButton, getTheme, Link, Persona, PersonaSize, PrimaryButton, Sep
 import React, { useContext, useEffect, useState } from 'react';
 import { OrgContext } from '../Context';
 import { Member } from '../model';
+import { UserPersona } from '.';
 
 export const OrgSettingsOverview: React.FC = () => {
 
@@ -17,7 +18,7 @@ export const OrgSettingsOverview: React.FC = () => {
     useEffect(() => {
         if (org && members) {
             if (owner === undefined || owner.user.organization !== org.id) {
-                const find = members?.find(m => m.user.role.toLowerCase() === 'admin');
+                const find = members.find(m => m.user.role.toLowerCase() === 'owner');
                 console.log(`setOwner (${org.slug})`)
                 setOwner(find);
             }
@@ -75,17 +76,13 @@ export const OrgSettingsOverview: React.FC = () => {
                         <Text variant='xLarge' >Organization owner</Text>
                     </Stack.Item>
                     <Stack.Item>
-                        <Persona
-                            text={owner?.graphUser?.displayName ?? owner?.user.id}
-                            showSecondaryText
-                            secondaryText={owner?.graphUser?.mail ?? (owner?.graphUser?.otherMails && owner.graphUser.otherMails.length > 0 ? owner.graphUser.otherMails[0] : undefined)}
-                            imageUrl={owner?.graphUser?.imageUrl}
-                            size={PersonaSize.size32} />
+                        <UserPersona user={owner?.graphUser} showSecondaryText />
                     </Stack.Item>
                     <Stack.Item>
                         <DefaultButton
                             disabled={!(owner && user && owner.user.id === user.id)}
-                            text='Change owner' />
+                            text='Change owner'
+                            onClick={() => console.log(owner)} />
                     </Stack.Item>
                 </Stack>
             </Stack.Item>

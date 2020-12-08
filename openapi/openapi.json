@@ -3743,8 +3743,8 @@
           "role": {
             "enum": [
               "None",
-              "Provider",
               "Member",
+              "Admin",
               "Owner"
             ],
             "type": "string"
@@ -3783,9 +3783,9 @@
           "role": {
             "enum": [
               "None",
-              "Provider",
-              "Creator",
-              "Admin"
+              "Member",
+              "Admin",
+              "Owner"
             ],
             "type": "string"
           },

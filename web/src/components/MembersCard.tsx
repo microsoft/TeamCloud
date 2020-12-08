@@ -4,8 +4,8 @@
 import React, { useContext, useState } from 'react';
 import { Member, ProjectMember } from '../model'
 import { ErrorResult } from 'teamcloud';
-import { Stack, Facepile, IFacepilePersona, PersonaSize, IRenderFunction, HoverCard, HoverCardType, Persona, Shimmer, ShimmerElementsGroup, ShimmerElementType, CommandBar, ICommandBarItemProps, Separator, Label, Text } from '@fluentui/react';
-import { DetailCard, MembersForm } from '.';
+import { Stack, Facepile, IFacepilePersona, PersonaSize, IRenderFunction, HoverCard, HoverCardType, Shimmer, ShimmerElementsGroup, ShimmerElementType, CommandBar, ICommandBarItemProps, Separator, Label, Text } from '@fluentui/react';
+import { DetailCard, MembersForm, UserPersona } from '.';
 import { api } from '../API';
 import { ProjectContext } from '../Context';
 
@@ -87,12 +87,7 @@ export const MembersCard: React.FC<IMembersCardProps> = (props) => {
                     <Stack
                         tokens={{ padding: _isUserType ? '20px 20px 0 20px' : '20px' }}>
                         <Stack.Item>
-                            <Persona
-                                text={member.graphUser?.displayName ?? member.user.id}
-                                secondaryText={member.graphUser?.jobTitle ?? member.user.userType}
-                                tertiaryText={member.graphUser?.department}
-                                imageUrl={member.graphUser?.imageUrl}
-                                size={PersonaSize.size72} />
+                            <UserPersona user={member.graphUser} large />
                         </Stack.Item>
                         <Stack.Item>
                             <Separator />

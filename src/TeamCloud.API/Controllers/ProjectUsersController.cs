@@ -172,17 +172,9 @@ namespace TeamCloud.API.Controllers
                     .ToActionResult();
 
             if (existingUser.IsOwner(projectId) && !user.IsOwner(projectId))
-            {
-                var otherOwners = await userRepository
-                    .ListOwnersAsync(OrgId, projectId)
-                    .AnyAsync(o => o.Id.Equals(user.Id, StringComparison.OrdinalIgnoreCase))
-                    .ConfigureAwait(false);
-
-                if (!otherOwners)
-                    return ErrorResult
-                        .BadRequest($"Projects must have at least one Owner. To change this user's role you must first add another Owner.", ResultErrorCode.ValidationError)
-                        .ToActionResult();
-            }
+                return ErrorResult
+                    .BadRequest($"Projects must have an owner. To change this user's role you must first transfer ownersip to another user.", ResultErrorCode.ValidationError)
+                    .ToActionResult();
 
             var membership = user.ProjectMembership(projectId);
 
@@ -236,17 +228,9 @@ namespace TeamCloud.API.Controllers
                     .ToActionResult();
 
             if (currentUser.IsOwner(projectId) && !user.IsOwner(projectId))
-            {
-                var otherOwners = await userRepository
-                    .ListOwnersAsync(OrgId, projectId)
-                    .AnyAsync(o => o.Id.Equals(user.Id, StringComparison.OrdinalIgnoreCase))
-                    .ConfigureAwait(false);
-
-                if (!otherOwners)
-                    return ErrorResult
-                        .BadRequest($"Projects must have at least one Owner. To change this user's role you must first add another Owner.", ResultErrorCode.ValidationError)
-                        .ToActionResult();
-            }
+                return ErrorResult
+                    .BadRequest($"Projects must have an owner. To change this user's role you must first transfer ownersip to another user.", ResultErrorCode.ValidationError)
+                    .ToActionResult();
 
             var membership = user.ProjectMembership(projectId);
 
@@ -280,17 +264,9 @@ namespace TeamCloud.API.Controllers
                     .ToActionResult();
 
             if (user.IsOwner(projectId))
-            {
-                var otherOwners = await userRepository
-                    .ListOwnersAsync(OrgId, projectId)
-                    .AnyAsync(o => o.Id.Equals(user.Id, StringComparison.OrdinalIgnoreCase))
-                    .ConfigureAwait(false);
-
-                if (!otherOwners)
-                    return ErrorResult
-                        .BadRequest($"Projects must have at least one Owner. To delete this user you must first add another Owner.", ResultErrorCode.ValidationError)
-                        .ToActionResult();
-            }
+                return ErrorResult
+                    .BadRequest($"Projects must have an owner. To change this user's role you must first transfer ownersip to another user.", ResultErrorCode.ValidationError)
+                    .ToActionResult();
 
             var currentUser = await UserService
                 .CurrentUserAsync(OrgId)

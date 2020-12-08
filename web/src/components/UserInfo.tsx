@@ -2,9 +2,10 @@
 // Licensed under the MIT License.
 
 import React, { useContext, useState } from 'react';
-import { DefaultButton, Stack, Panel, Persona, PersonaSize, getTheme, Separator, PrimaryButton } from '@fluentui/react';
+import { DefaultButton, Stack, Panel, getTheme, Separator, PrimaryButton } from '@fluentui/react';
 import { GraphUserContext } from '../Context';
 import { auth } from '../API';
+import { UserPersona } from '.';
 
 export const UserInfo: React.FC = () => {
 
@@ -47,12 +48,9 @@ export const UserInfo: React.FC = () => {
 
     return graphUser ? (
         <>
-            <Persona
+            <UserPersona
                 hidePersonaDetails
-                showInitialsUntilImageLoads
-                text={graphUser.displayName}
-                imageUrl={graphUser.imageUrl}
-                size={PersonaSize.size32}
+                user={graphUser}
                 styles={personaStyles}
                 onClick={() => setPanelOpen(true)} />
             <Panel
@@ -62,12 +60,7 @@ export const UserInfo: React.FC = () => {
                 hasCloseButton={false}
                 onDismiss={() => setPanelOpen(false)} >
                 <Stack>
-                    <Persona
-                        text={graphUser.displayName}
-                        secondaryText={graphUser.jobTitle}
-                        tertiaryText={graphUser.department}
-                        imageUrl={graphUser.imageUrl}
-                        size={PersonaSize.size72} />
+                    <UserPersona user={graphUser} large />
                     <Separator />
                     <Stack tokens={{ childrenGap: '8px' }}>
                         <PrimaryButton text='Edit' onClick={() => { }} />

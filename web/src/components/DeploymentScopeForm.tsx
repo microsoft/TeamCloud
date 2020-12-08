@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import React, { useContext, useEffect, useState } from 'react';
-import { ComboBox, DefaultButton, Dropdown, IComboBox, IComboBoxOption, IDropdownOption, Label, PrimaryButton, Stack, TextField } from '@fluentui/react';
+import { ComboBox, DefaultButton, IComboBox, IComboBoxOption, PrimaryButton, Stack, TextField } from '@fluentui/react';
 import { DeploymentScopeDefinition } from 'teamcloud';
 import { useHistory, useParams } from 'react-router-dom';
 import { GraphUserContext } from '../Context';
@@ -17,11 +17,11 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
 
     const history = useHistory();
     const { orgId } = useParams() as { orgId: string };
-    const { subscriptions, managementGroups } = useContext(GraphUserContext);
+    const { subscriptions } = useContext(GraphUserContext);
 
     const [scopeName, setScopeName] = useState<string>();
-    const [scopeManagementGroup, setScopeManagementGroup] = useState<string>();
-    const [scopeManagementGroupOptions, setScopeManagementGroupOptions] = useState<IDropdownOption[]>();
+    // const [scopeManagementGroup, setScopeManagementGroup] = useState<string>();
+    // const [scopeManagementGroupOptions, setScopeManagementGroupOptions] = useState<IDropdownOption[]>();
     const [scopeSubscriptions, setScopeSubscriptions] = useState<string[]>();
     const [scopeSubscriptionOptions, setScopeSubscriptionOptions] = useState<IComboBoxOption[]>();
 
@@ -29,32 +29,38 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
 
     const { onScopeChange } = props;
 
-    const _scopeComplete = () => scopeName && (scopeManagementGroup || scopeSubscriptions);
+    // const _scopeComplete = () => scopeName && (scopeManagementGroup || scopeSubscriptions);
+    const _scopeComplete = () => scopeName && scopeSubscriptions && scopeSubscriptions.length > 0;
 
 
     useEffect(() => {
-        if (subscriptions && scopeSubscriptionOptions === undefined)
+        if (subscriptions && scopeSubscriptionOptions === undefined) {
+            console.log('setScopeSubscriptionOptions')
             setScopeSubscriptionOptions(subscriptions?.map(s => ({ key: s.subscriptionId, text: s.displayName })));
+        }
     }, [subscriptions, scopeSubscriptionOptions]);
 
     useEffect(() => {
-        if (managementGroups && scopeManagementGroupOptions === undefined)
-            setScopeManagementGroupOptions(managementGroups?.map(s => ({ key: s.id, text: s.properties.displayName })));
-    }, [managementGroups, scopeManagementGroupOptions]);
+        if (scopeSubscriptionOptions && scopeSubscriptionOptions.length === 1 && scopeSubscriptions === undefined) {
+            console.log('setScopeSubscriptions')
+            setScopeSubscriptions([scopeSubscriptionOptions[0].key as string]);
+        }
+    }, [scopeSubscriptions, scopeSubscriptionOptions]);
 
 
     useEffect(() => {
         if (onScopeChange !== undefined) {
             const scopeDef = {
                 displayName: scopeName,
-                managementGroupId: scopeManagementGroup,
+                // managementGroupId: scopeManagementGroup,
                 subscriptionIds: scopeSubscriptions,
-                isDefault: true
+                // isDefault: true
             } as DeploymentScopeDefinition;
             // console.log(`onScopeChange ${templateDef}`);
             onScopeChange(scopeDef);
         }
-    }, [onScopeChange, scopeName, scopeManagementGroup, scopeSubscriptions]);
+    }, [onScopeChange, scopeName, scopeSubscriptions]);
+    // }, [onScopeChange, scopeName, scopeManagementGroup, scopeSubscriptions]);
 
 
     const _submitForm = () => {
@@ -64,9 +70,9 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
 
             const scopeDef = {
                 displayName: scopeName,
-                managementGroupId: scopeManagementGroup,
+                // managementGroupId: scopeManagementGroup,
                 subscriptionIds: scopeSubscriptions,
-                isDefault: true
+                // isDefault: true
             } as DeploymentScopeDefinition;
 
             props.onCreateDeploymentScope(scopeDef);
@@ -113,7 +119,7 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
                     value={scopeName}
                     onChange={(_ev, val) => setScopeName(val)} />
             </Stack.Item>
-            <Stack.Item>
+            {/* <Stack.Item>
                 <Dropdown
                     required={!scopeSubscriptions || scopeSubscriptions.length === 0}
                     label='Management Group'
@@ -124,12 +130,14 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
             </Stack.Item>
             <Stack.Item>
                 <Label disabled={!(scopeManagementGroup === undefined || scopeManagementGroup === '') || (scopeSubscriptions && scopeSubscriptions.length > 0)}>OR</Label>
-            </Stack.Item>
+            </Stack.Item> */}
             <Stack.Item>
                 <ComboBox
-                    required={!scopeManagementGroup}
+                    // required={!scopeManagementGroup}
+                    required
                     label='Subscriptions'
-                    disabled={!formEnabled || !(scopeManagementGroup === undefined || scopeManagementGroup === '')}
+                    // disabled={!formEnabled || !(scopeManagementGroup === undefined || scopeManagementGroup === '')}
+                    disabled={!formEnabled}
                     multiSelect
                     allowFreeform
                     selectedKey={scopeSubscriptions}

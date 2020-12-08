@@ -45,9 +45,8 @@ export const MembersForm: React.FC<IMembersFormProps> = (props) => {
         props.onFormClose();
     };
 
-    const _projectRoleOptions = (): IDropdownOption[] => projectId
-        ? ['Member', 'Owner'].map(r => ({ key: r, text: r } as IDropdownOption))
-        : ['Creator', 'Owner'].map(r => ({ key: r, text: r } as IDropdownOption));
+    const _projectRoleOptions = (): IDropdownOption[] =>
+        ['Member', 'Admin'].map(r => ({ key: r, text: r } as IDropdownOption));
 
     const _onUserRoleDropdownChange = (event: React.FormEvent<HTMLDivElement>, option?: IDropdownOption): void => {
         setUserRole(option ? option.key as string : undefined);

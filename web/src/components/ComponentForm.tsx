@@ -2,17 +2,18 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect, useContext } from 'react';
-import { DefaultButton, Dropdown, FontIcon, getTheme, IColumn, IDropdownOption, Image, Persona, PersonaSize, PrimaryButton, Separator, Stack, Text, TextField } from '@fluentui/react';
+import { DefaultButton, Dropdown, FontIcon, getTheme, IColumn, IconButton, IDropdownOption, Image, Persona, PersonaSize, PrimaryButton, Separator, Stack, Text, TextField } from '@fluentui/react';
 import { ProjectComponentDefinition, ComponentTemplate } from 'teamcloud';
 import { useHistory } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { FuiForm } from '@rjsf/fluent-ui'
-import { ISubmitEvent } from '@rjsf/core';
-import { ContentList } from '.';
+import { FieldTemplateProps, ISubmitEvent, WidgetProps } from '@rjsf/core';
+import { ContentContainer, ContentHeader, ContentList, ContentProgress } from '.';
 import { OrgContext, ProjectContext } from '../Context';
 import DevOps from '../img/devops.svg';
 import GitHub from '../img/github.svg';
 import Resource from '../img/resource.svg';
+import { api } from '../API';
 
 
 export const ComponentForm: React.FC = () => {
@@ -28,7 +29,7 @@ export const ComponentForm: React.FC = () => {
     const [deploymentScopeId, setDeploymentScopeId] = useState<string>();
 
     const { org, scopes } = useContext(OrgContext);
-    const { project, templates, onCreateComponent } = useContext(ProjectContext);
+    const { project, templates, onComponentSelected } = useContext(ProjectContext);
 
     const theme = getTheme();
 
@@ -44,17 +45,25 @@ export const ComponentForm: React.FC = () => {
 
 
     const _submitForm = async (e: ISubmitEvent<any>) => {
-        setFormEnabled(false);
-
         if (org && project && template && displayName && e.formData) {
+            setFormEnabled(false);
+
             const componentDef: ProjectComponentDefinition = {
                 displayName: displayName,
                 templateId: template.id,
                 inputJson: JSON.stringify(e.formData),
                 deploymentScopeId: deploymentScopeId
             };
-            await onCreateComponent(componentDef);
-            history.push(`/orgs/${org.slug}/projects/${project.slug}/components`);
+
+            const componentResult = await api.createProjectComponent(project.organization, project.id, { body: componentDef });
+            const component = componentResult.data;
+
+            if (component) {
+                onComponentSelected(component);
+                history.push(`/orgs/${org.slug}/projects/${project.slug}/components/${component.slug}`);
+            } else {
+                console.error(componentResult);
+            }
         }
     };
 
@@ -177,72 +186,122 @@ export const ComponentForm: React.FC = () => {
     };
 
     return (
-        <Stack tokens={{ childrenGap: '40px' }}>
-            <Stack.Item>
-                <ContentList
-                    columns={columns}
-                    items={template ? [template] : templates}
-                    onItemInvoked={_onItemInvoked}
-                    noCheck
-                    noHeader={template !== undefined}
-                    applyFilter={template ? undefined : _applyFilter}
-                    filterPlaceholder='Filter components' />
-            </Stack.Item>
-            {template && (
-                <Stack.Item>
-                    <Stack horizontal tokens={{ childrenGap: '40px' }}>
-                        <Stack.Item grow styles={{ root: { minWidth: '40%', } }}>
-                            <Stack
-                                styles={{ root: { paddingTop: '20px' } }}
-                                tokens={{ childrenGap: '20px' }}>
-                                <Stack.Item>
-                                    <TextField
-                                        required
-                                        label='Name'
-                                        description='Component display name'
-                                        disabled={!formEnabled}
-                                        value={displayName}
-                                        onChange={(_ev, val) => setDisplayName(val)} />
+        <>
+            <ContentProgress progressHidden={formEnabled && project !== undefined && templates !== undefined} />
+            <ContentHeader title='New Component'>
+                <IconButton iconProps={{ iconName: 'ChromeClose' }}
+                    onClick={() => history.push(`/orgs/${org?.slug}/projects/${project?.slug}`)} />
+            </ContentHeader>
+            <ContentContainer>
+                {/* <ComponentForm /> */}
+
+
+                <Stack tokens={{ childrenGap: '40px' }}>
+                    <Stack.Item>
+                        <ContentList
+                            columns={columns}
+                            items={template ? [template] : templates}
+                            onItemInvoked={_onItemInvoked}
+                            noCheck
+                            noHeader={template !== undefined}
+                            applyFilter={template ? undefined : _applyFilter}
+                            filterPlaceholder='Filter components' />
+                    </Stack.Item>
+                    {template && (
+                        <Stack.Item>
+                            <Stack horizontal tokens={{ childrenGap: '40px' }}>
+                                <Stack.Item grow styles={{ root: { minWidth: '40%', } }}>
+                                    <Stack
+                                        styles={{ root: { paddingTop: '20px' } }}
+                                        tokens={{ childrenGap: '20px' }}>
+                                        <Stack.Item>
+                                            <TextField
+                                                required
+                                                label='Name'
+                                                // description='Component display name'
+                                                disabled={!formEnabled}
+                                                value={displayName}
+                                                onChange={(_ev, val) => setDisplayName(val)} />
+                                        </Stack.Item>
+                                        <Stack.Item>
+                                            <Dropdown
+                                                required
+                                                label='Deployment scope'
+                                                disabled={!formEnabled}
+                                                options={deploymentScopeOptions || []}
+                                                onChange={_onDropdownChange} />
+                                        </Stack.Item>
+                                        <Stack.Item>
+                                            <Separator styles={{ root: { selectors: { '::before': { backgroundColor: theme.palette.neutralQuaternary } } } }} />
+                                        </Stack.Item>
+                                        <Stack.Item>
+                                            <FuiForm
+                                                disabled={!formEnabled}
+                                                onSubmit={_submitForm}
+                                                FieldTemplate={TCFieldTemplate}
+                                                // widgets={{ 'SelectWidget': TCSelectWidget }}
+                                                schema={template?.inputJsonSchema ? JSON.parse(template.inputJsonSchema) : {}}>
+                                                <Separator styles={{ root: { selectors: { '::before': { backgroundColor: theme.palette.neutralQuaternary } } } }} />
+                                                <div style={{ paddingTop: '24px' }}>
+                                                    <PrimaryButton type='submit' text='Create component' disabled={!formEnabled || !(template)} styles={{ root: { marginRight: 8 } }} />
+                                                    <DefaultButton text='Cancel' disabled={!formEnabled} onClick={() => setTemplate(undefined)} />
+                                                </div>
+                                            </FuiForm>
+                                        </Stack.Item>
+                                    </Stack>
                                 </Stack.Item>
-                                <Stack.Item>
-                                    <Dropdown
-                                        required
-                                        label='Deployment scope'
-                                        disabled={!formEnabled}
-                                        options={deploymentScopeOptions || []}
-                                        onChange={_onDropdownChange} />
-                                </Stack.Item>
-                                <Stack.Item>
-                                    <Separator styles={{ root: { selectors: { '::before': { backgroundColor: theme.palette.neutralQuaternary } } } }} />
-                                </Stack.Item>
-                                <Stack.Item>
-                                    <FuiForm
-                                        disabled={!formEnabled}
-                                        onSubmit={_submitForm}
-                                        schema={template?.inputJsonSchema ? JSON.parse(template.inputJsonSchema) : {}}>
-                                        <Separator styles={{ root: { selectors: { '::before': { backgroundColor: theme.palette.neutralQuaternary } } } }} />
-                                        <div style={{ paddingTop: '24px' }}>
-                                            <PrimaryButton type='submit' text='Create component' disabled={!formEnabled || !(template)} styles={{ root: { marginRight: 8 } }} />
-                                            <DefaultButton text='Cancel' disabled={!formEnabled} onClick={() => setTemplate(undefined)} />
-                                        </div>
-                                    </FuiForm>
+                                <Stack.Item grow styles={{
+                                    root: {
+                                        minWidth: '40%',
+                                        padding: '10px 40px',
+                                        borderRadius: theme.effects.roundedCorner4,
+                                        boxShadow: theme.effects.elevation4,
+                                        backgroundColor: theme.palette.white
+                                    }
+                                }}>
+                                    <ReactMarkdown>{template?.description ?? undefined as any}</ReactMarkdown>
                                 </Stack.Item>
                             </Stack>
                         </Stack.Item>
-                        <Stack.Item grow styles={{
-                            root: {
-                                minWidth: '40%',
-                                padding: '10px 40px',
-                                borderRadius: theme.effects.roundedCorner4,
-                                boxShadow: theme.effects.elevation4,
-                                backgroundColor: theme.palette.white
-                            }
-                        }}>
-                            <ReactMarkdown>{template?.description ?? undefined as any}</ReactMarkdown>
-                        </Stack.Item>
-                    </Stack>
-                </Stack.Item>
-            )}
-        </Stack>
+                    )}
+                </Stack>
+            </ContentContainer>
+        </>
     );
 }
+
+
+export const TCFieldTemplate: React.FC<FieldTemplateProps> = (props) => {
+    console.log('TCFieldTemplate');
+    console.log(props);
+
+    // if (props.rawDescription)
+    //     props.label = props.rawDescription
+
+    return props.id === 'root' ? (
+        <Stack styles={{ root: { minWidth: '460px' } }} tokens={{ childrenGap: '14px' }}>
+            {props.children}
+        </Stack>
+    ) : (
+            <Stack.Item grow styles={{ root: { paddingBottom: '16px' } }}>
+
+                {props.children}
+            </Stack.Item>
+        );
+}
+
+// export const TCSelectWidget: React.FC<WidgetProps> = (props) => {
+
+//     console.log('TCSelectWidget');
+//     console.log(props);
+//     return (
+
+//         <TextField
+//             readOnly
+//             label={props.schema.description}
+//             defaultValue={props.value}
+//             styles={{
+
+//             }} />
+//     );
+// }

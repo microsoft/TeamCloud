@@ -376,7 +376,7 @@ export interface ProjectMembership {
 }
 
 // @public
-export type ProjectMembershipRole = "None" | "Provider" | "Member" | "Owner" | string;
+export type ProjectMembershipRole = "None" | "Member" | "Admin" | "Owner" | string;
 
 // @public
 export type ProjectResourceState = "Pending" | "Initializing" | "Provisioning" | "Succeeded" | "Failed" | string;
@@ -1122,7 +1122,7 @@ export interface UserListDataResult {
 }
 
 // @public
-export type UserRole = "None" | "Provider" | "Creator" | "Admin" | string;
+export type UserRole = "None" | "Member" | "Admin" | "Owner" | string;
 
 // @public
 export type UserType = "User" | "System" | "Provider" | "Application" | string;

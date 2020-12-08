@@ -17,6 +17,8 @@ namespace TeamCloud.Data
 
         IAsyncEnumerable<Organization> ListAsync(string tenant);
 
+        IAsyncEnumerable<Organization> ListAsync(string tenant, IEnumerable<string> identifiers);
+
         Task<Organization> AddAsync(Organization organization);
 
         Task<Organization> SetAsync(Organization organization);

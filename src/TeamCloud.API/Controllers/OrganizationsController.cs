@@ -29,10 +29,12 @@ namespace TeamCloud.API.Controllers
     public class OrganizationsController : ApiController
     {
         private readonly IOrganizationRepository organizationRepository;
+        private readonly IUserRepository userRepository;
 
-        public OrganizationsController(IOrganizationRepository organizationRepository) : base()
+        public OrganizationsController(IOrganizationRepository organizationRepository, IUserRepository userRepository) : base()
         {
             this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
+            this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         }
 
 
@@ -44,10 +46,17 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status404NotFound, "The TeamCloud instance was not found.", typeof(ErrorResult))]
         public async Task<IActionResult> Get()
         {
-            var orgs = await organizationRepository
-                .ListAsync(UserService.CurrentUserTenant)
+            var orgIds = await userRepository
+                .ListOrgsAsync(UserService.CurrentUserId)
                 .ToListAsync()
                 .ConfigureAwait(false);
+
+            var orgs = !orgIds.Any()
+                ? new List<Organization>()
+                : await organizationRepository
+                    .ListAsync(UserService.CurrentUserTenant, orgIds)
+                    .ToListAsync()
+                    .ConfigureAwait(false);
 
             return DataResult<List<Organization>>
                 .Ok(orgs)
@@ -56,7 +65,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpGet("orgs/{org}")]
-        [Authorize(Policy = AuthPolicies.Default)]
+        [Authorize(Policy = AuthPolicies.OrganizationRead)]
         [SwaggerOperation(OperationId = "GetOrganization", Summary = "Gets an Organization.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns an Organization.", typeof(DataResult<Organization>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
@@ -112,7 +121,7 @@ namespace TeamCloud.API.Controllers
                 .CurrentUserAsync(null, allowUnsafe: true)
                 .ConfigureAwait(false);
 
-            currentUser.Role = OrganizationUserRole.Admin;
+            currentUser.Role = OrganizationUserRole.Owner;
             currentUser.Organization = organization.Id;
 
             var command = new OrganizationCreateCommand(currentUser, organization);
@@ -176,7 +185,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpDelete("orgs/{org}")]
-        [Authorize(Policy = AuthPolicies.Admin)]
+        [Authorize(Policy = AuthPolicies.OrganizationDelete)]
         [SwaggerOperation(OperationId = "DeleteOrganization", Summary = "Deletes an existing Organization.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts deleting the Organization. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "An Organization with the identifier provided was not found.", typeof(ErrorResult))]

@@ -2,10 +2,11 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect } from 'react';
-import { PrimaryButton, DefaultButton, Panel, Stack, TextField, Dropdown, Label, Spinner, Persona, PersonaSize, Text } from '@fluentui/react';
+import { PrimaryButton, DefaultButton, Panel, Stack, TextField, Dropdown, Label, Spinner, Text } from '@fluentui/react';
 import { User, UserRole } from 'teamcloud';
 import { GraphUser, Properties } from '../model'
 import { api } from '../API'
+import { UserPersona } from '.';
 
 export interface IUserFormProps {
     me: boolean;
@@ -125,12 +126,7 @@ export const UserForm: React.FC<IUserFormProps> = (props) => {
             onRenderFooterContent={_onRenderPanelFooterContent}>
             <Stack tokens={{ childrenGap: '12px' }}>
                 <Stack.Item>
-                    <Persona
-                        text={props.graphUser?.displayName ?? props.user?.id}
-                        secondaryText={props.graphUser?.jobTitle ?? props.user?.userType}
-                        tertiaryText={props.graphUser?.department}
-                        imageUrl={props.graphUser?.imageUrl}
-                        size={PersonaSize.size72} />
+                    <UserPersona user={props.graphUser} large />
                 </Stack.Item>
                 <Stack.Item>
                     <TextField
@@ -144,7 +140,7 @@ export const UserForm: React.FC<IUserFormProps> = (props) => {
                         label='Role'
                         disabled
                         selectedKey={userRole}
-                        options={['Admin', 'Creator'].map(r => ({ key: r, text: r, data: r }))}
+                        options={['Member', 'Admin'].map(r => ({ key: r, text: r, data: r }))}
                         onChange={(_ev, val) => setUserRole(val?.key ? val.key as UserRole : undefined)} />
                 </Stack.Item>
                 <Stack.Item>

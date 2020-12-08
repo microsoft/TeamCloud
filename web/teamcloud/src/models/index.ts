@@ -423,14 +423,14 @@ export type UserType = "User" | "System" | "Provider" | "Application" | string;
 /**
  * Defines values for UserRole.
  */
-export type UserRole = "None" | "Provider" | "Creator" | "Admin" | string;
+export type UserRole = "None" | "Member" | "Admin" | "Owner" | string;
 /**
  * Defines values for ProjectMembershipRole.
  */
 export type ProjectMembershipRole =
   | "None"
-  | "Provider"
   | "Member"
+  | "Admin"
   | "Owner"
   | string;
 /**

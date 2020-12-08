@@ -48,7 +48,7 @@ namespace TeamCloud.Data.CosmosDb
 
             AssertContainerDocumentMetadata(user);
 
-            user.Role = OrganizationUserRole.Creator;
+            user.Role = OrganizationUserRole.Member;
 
             var user2 = await Repository
                 .SetAsync(user)

@@ -5,7 +5,7 @@ import React from 'react';
 import { Route, Switch } from 'react-router-dom';
 import { OrgSettingsNav, ProjectNav, ProjectSettingsNav, RootNav } from '../components';
 
-export const NavView: React.FC = () => (
+export const NavRouter: React.FC = () => (
     <Switch>
         <Route exact path={[
             '/',

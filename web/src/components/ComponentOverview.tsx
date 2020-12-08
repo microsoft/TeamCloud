@@ -2,27 +2,26 @@
 // Licensed under the MIT License.
 
 import React, { useContext, useEffect, useState } from 'react';
-import { FontIcon, getTheme, IColumn, Image, Link, Persona, PersonaSize, Pivot, PivotItem, Separator, Stack, Text, TextField } from '@fluentui/react';
-import { useHistory, useParams } from 'react-router-dom';
-import { Component, ComponentTemplate, DeploymentScope } from 'teamcloud';
-import { ContentList } from '.';
+import { FontIcon, getTheme, Link, Pivot, PivotItem, Stack, Text, TextField } from '@fluentui/react';
+// import { useParams } from 'react-router-dom';
+import ReactMarkdown from 'react-markdown';
+import { ComponentTemplate, DeploymentScope } from 'teamcloud';
 import { OrgContext, ProjectContext } from '../Context';
-import collaboration from '../img/MSC17_collaboration_010_noBG.png'
-import DevOps from '../img/devops.svg';
-import GitHub from '../img/github.svg';
-import Resource from '../img/resource.svg';
 import { ProjectMember } from '../model';
 import { FuiForm } from '@rjsf/fluent-ui';
-import { ComponentDeploymentList } from './ComponentDeploymentList';
-import ReactMarkdown from 'react-markdown';
-import { FieldTemplateProps } from '@rjsf/core';
+import { ComponentDeploymentList, UserPersona } from '.';
+import { FieldTemplateProps, WidgetProps } from '@rjsf/core';
+// import DevOps from '../img/devops.svg';
+// import GitHub from '../img/github.svg';
+// import Resource from '../img/resource.svg';
+// import collaboration from '../img/MSC17_collaboration_010_noBG.png'
 
 // export const ComponentOverview: React.FC<{component: Component}> = (props) => {
 export const ComponentOverview: React.FC = (props) => {
 
     const theme = getTheme();
 
-    const { orgId, projectId, itemId } = useParams() as { orgId: string, projectId: string, itemId: string };
+    // const { orgId, projectId, itemId } = useParams() as { orgId: string, projectId: string, itemId: string };
 
     const { scopes } = useContext(OrgContext);
     const { component, templates, members } = useContext(ProjectContext);
@@ -39,8 +38,7 @@ export const ComponentOverview: React.FC = (props) => {
 
     useEffect(() => {
         if (component && templates && (template === undefined || component.templateId.toLowerCase() !== template.id.toLowerCase())) {
-            // console.log(component);
-            console.log(component.inputJson);
+            console.log(`setComponentTemplate (${component.slug})`);
             setTemplate(templates.find(t => component.templateId.toLowerCase() === t.id.toLowerCase()) ?? undefined);
         }
     }, [component, template, templates])
@@ -48,7 +46,7 @@ export const ComponentOverview: React.FC = (props) => {
 
     useEffect(() => {
         if (component && members && (creator === undefined || creator.user.id.toLowerCase() !== component.requestedBy.toLowerCase())) {
-            // console.log(component.resourceId);
+            console.log(`setComponentCreator (${component.slug})`);
             setCreator(members.find(m => component.requestedBy.toLowerCase() === m.user.id.toLowerCase()) ?? undefined);
         }
     }, [component, creator, members])
@@ -56,34 +54,34 @@ export const ComponentOverview: React.FC = (props) => {
 
     useEffect(() => {
         if (component && scopes && (scope === undefined || (component.deploymentScopeId && scope.id.toLowerCase() !== component.deploymentScopeId.toLowerCase()))) {
-            // console.log(component.resourceId);
+            console.log(`setComponentScope (${component.slug})`);
             setScope(scopes.find(s => component.deploymentScopeId?.toLowerCase() === s.id.toLowerCase()) ?? undefined);
         }
     }, [component, scope, scopes])
 
 
-    const _getTypeImage = (template: ComponentTemplate) => {
-        const provider = template.repository.provider.toLowerCase();
-        switch (template.type) {
-            // case 'Custom': return 'Link';
-            // case 'Readme': return 'PageList';
-            case 'Environment': return Resource;
-            case 'AzureResource': return Resource;
-            case 'GitRepository': return provider === 'github' ? GitHub : provider === 'devops' ? DevOps : undefined;
-        }
-        return undefined;
-    };
+    // const _getTypeImage = (template: ComponentTemplate) => {
+    //     const provider = template.repository.provider.toLowerCase();
+    //     switch (template.type) {
+    //         // case 'Custom': return 'Link';
+    //         // case 'Readme': return 'PageList';
+    //         case 'Environment': return Resource;
+    //         case 'AzureResource': return Resource;
+    //         case 'GitRepository': return provider === 'github' ? GitHub : provider === 'devops' ? DevOps : undefined;
+    //     }
+    //     return undefined;
+    // };
 
-    const _getRepoImage = (template?: ComponentTemplate) => {
-        if (template?.repository.provider) {
-            switch (template.repository.provider) {
-                // case 'Unknown': return;
-                case 'DevOps': return DevOps;
-                case 'GitHub': return GitHub;
-            }
-        }
-        return undefined;
-    };
+    // const _getRepoImage = (template?: ComponentTemplate) => {
+    //     if (template?.repository.provider) {
+    //         switch (template.repository.provider) {
+    //             // case 'Unknown': return;
+    //             case 'DevOps': return DevOps;
+    //             case 'GitHub': return GitHub;
+    //         }
+    //     }
+    //     return undefined;
+    // };
 
     const _getTypeIcon = (template?: ComponentTemplate) => {
         if (template?.type)
@@ -143,25 +141,22 @@ export const ComponentOverview: React.FC = (props) => {
                         <Text>{component.resourceState}</Text>
                     </ComponentOverviewHeaderSection>
                     <ComponentOverviewHeaderSection title='Creator'>
-                        <Persona
-                            text={creator?.graphUser?.displayName ?? creator?.user.id}
-                            showSecondaryText
-                            secondaryText={creator?.graphUser?.mail ?? (creator?.graphUser?.otherMails && creator.graphUser.otherMails.length > 0 ? creator.graphUser.otherMails[0] : undefined)}
-                            imageUrl={creator?.graphUser?.imageUrl}
-                            // styles={{ primaryText: { fontSize: '16px' } }}
-                            size={PersonaSize.size32} />
+                        <UserPersona user={creator?.graphUser} showSecondaryText styles={{ root: { minWidth: '220px' } }} />
                     </ComponentOverviewHeaderSection>
                 </Stack>
             </Stack.Item>
             <Stack.Item styles={{ root: { height: '100%', padding: '0px' } }}>
                 <Pivot selectedKey={pivotKey} onLinkClick={(i, ev) => setPivotKey(i?.props.itemKey ?? 'Parameters')} styles={{ root: { height: '100%' } }}>
                     <PivotItem headerText='Parameters' itemKey='Parameters'>
-                        <Stack horizontal tokens={{ childrenGap: '40px' }} styles={{ root: { height: '100%', padding: '24px 8px' } }}>
-                            <Stack.Item grow styles={{ root: { minWidth: '40%', } }}>
+                        <Stack
+                            horizontal
+                            horizontalAlign='start'
+                            tokens={{ childrenGap: '20px' }}
+                            styles={{ root: { height: '100%', padding: '24px 8px' } }}>
+                            <Stack.Item styles={{ root: { minWidth: '460px' } }}>
                                 <FuiForm
-                                    // FieldTemplate={(prps) => { console.log(prps); return (<TextField readOnly label={prps.label} />); }}
-                                    // uiSchema={{ 'ui:field': 'readonly' }}
-                                    disabled
+                                    widgets={{ 'SelectWidget': ReadonlySelectWidget }}
+                                    FieldTemplate={ReadonlyFieldTemplate}
                                     schema={template?.inputJsonSchema ? JSON.parse(template.inputJsonSchema) : {}}
                                     formData={component.inputJson ? JSON.parse(component.inputJson) : undefined}
                                     onChange={() => { }}>
@@ -169,10 +164,12 @@ export const ComponentOverview: React.FC = (props) => {
                                 </FuiForm>
                             </Stack.Item>
                             {template?.description && (
-                                <Stack.Item grow styles={{
+                                <Stack.Item grow={2} styles={{
                                     root: {
-                                        height: '100%',
-                                        minWidth: '40%',
+                                        // height: '100%',
+                                        // minWidth: '400px',
+                                        // maxWidth: '1000px',
+                                        height: '720px',
                                         padding: '10px 40px',
                                         borderRadius: theme.effects.roundedCorner4,
                                         boxShadow: theme.effects.elevation4,
@@ -185,34 +182,7 @@ export const ComponentOverview: React.FC = (props) => {
                         </Stack>
                     </PivotItem>
                     <PivotItem headerText='Deployments' itemKey='Deployments'>
-                        <Stack
-                            horizontal
-                            verticalFill
-                            tokens={{ childrenGap: '40px' }}
-                            styles={{ root: { padding: '24px 8px' } }}>
-                            <Stack.Item grow styles={{ root: { minWidth: '40%', } }}>
-                                <ComponentDeploymentList />
-                            </Stack.Item>
-                            <Stack.Item grow styles={{
-                                root: {
-                                    height: '100%',
-                                    minWidth: '40%',
-                                    padding: '10px 40px',
-                                    borderRadius: theme.effects.roundedCorner4,
-                                    // boxShadow: theme.effects.elevation4,
-                                    backgroundColor: theme.palette.black
-                                }
-                            }}>
-                                <Text block styles={{ root: { color: theme.palette.white } }}>
-                                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis nesciunt dolor dolore nemo aperiam tenetur ullam, tempora nostrum nisi voluptates quod delectus, repudiandae suscipit consequuntur voluptate voluptatum dolorum animi illum.
-                                </Text>
-                                {/* <ReactMarkdown>{template?.description ?? undefined as any}</ReactMarkdown> */}
-                            </Stack.Item>
-                        </Stack>
-
-                        {/* <Stack tokens={{ childrenGap: '20px' }} styles={{ root: { padding: '24px 8px' } }}> */}
-
-                        {/* </Stack> */}
+                        <ComponentDeploymentList />
                     </PivotItem>
                     <PivotItem headerText='Settings' itemKey='Settings'>
                         <Stack tokens={{ childrenGap: '20px' }} styles={{ root: { padding: '24px 8px' } }}>
@@ -248,3 +218,25 @@ export const ComponentOverviewHeaderSection: React.FC<IComponentOverviewHeaderSe
         </Stack.Item>
     );
 }
+
+export const ReadonlyFieldTemplate: React.FC<FieldTemplateProps> = (props) =>
+    props.id === 'root' ? (
+        <Stack styles={{ root: { paddingTop: '16px', minWidth: '460px' } }} tokens={{ childrenGap: '14px' }}>
+            {props.children}
+        </Stack>
+    ) : (
+            <Stack.Item grow styles={{ root: { paddingBottom: '16px' } }}>
+                {props.children}
+            </Stack.Item>
+        );
+
+
+export const ReadonlySelectWidget: React.FC<WidgetProps> = (props) => (
+    <TextField
+        readOnly
+        label={props.schema.description}
+        defaultValue={props.value}
+        styles={{
+
+        }} />
+);

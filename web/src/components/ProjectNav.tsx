@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { useHistory, useParams } from 'react-router-dom';
-import { Nav, INavLinkGroup, INavLink, Stack, ActionButton, Persona, PersonaSize, Text } from '@fluentui/react';
+import { Nav, INavLinkGroup, INavLink, Stack, ActionButton, Persona, PersonaSize } from '@fluentui/react';
 
 export const ProjectNav: React.FC = () => {
 

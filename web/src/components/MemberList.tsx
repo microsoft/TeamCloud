@@ -2,10 +2,10 @@
 // Licensed under the MIT License.
 
 import React, { useState } from 'react';
-import { IColumn, Persona, PersonaSize } from '@fluentui/react';
+import { IColumn } from '@fluentui/react';
 import { Organization, Project, UserDefinition } from 'teamcloud';
 import { Member, ProjectMember } from '../model';
-import { ContentList, MembersForm } from '.';
+import { ContentList, MembersForm, UserPersona } from '.';
 
 export interface IMemberListProps {
     org?: Organization;
@@ -19,12 +19,7 @@ export const MemberList: React.FC<IMemberListProps> = (props) => {
     const [addMembersPanelOpen, setAddMembersPanelOpen] = useState(false);
 
     const onRenderMemberColumn = (member?: Member, index?: number, column?: IColumn) => (
-        <Persona
-            text={member?.graphUser?.displayName ?? member?.user.id}
-            showSecondaryText
-            secondaryText={member?.graphUser?.mail ?? (member?.graphUser?.otherMails && member.graphUser.otherMails.length > 0 ? member.graphUser.otherMails[0] : undefined)}
-            imageUrl={member?.graphUser?.imageUrl}
-            size={PersonaSize.size32} />
+        <UserPersona user={member?.graphUser} showSecondaryText />
     );
 
     const onRenderRoleColumn = (member?: Member, index?: number, column?: IColumn) => {

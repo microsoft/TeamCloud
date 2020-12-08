@@ -28,21 +28,43 @@ namespace TeamCloud.API.Auth
                         policy.RequireAuthenticatedUser();
                     });
 
+                    options.AddPolicy(AuthPolicies.Owner, policy =>
+                    {
+                        policy.RequireRole(OrganizationUserRole.Owner.AuthPolicy());
+                    });
+
+                    options.AddPolicy(AuthPolicies.OrganizationRead, policy =>
+                    {
+                        policy.RequireRole(OrganizationUserRole.Owner.AuthPolicy(),
+                                           OrganizationUserRole.Admin.AuthPolicy(),
+                                           OrganizationUserRole.Member.AuthPolicy(),
+                                           OrganizationUserRole.None.AuthPolicy());
+                    });
+
+                    options.AddPolicy(AuthPolicies.OrganizationDelete, policy =>
+                    {
+                        policy.RequireRole(OrganizationUserRole.Owner.AuthPolicy());
+                    });
+
+
                     options.AddPolicy(AuthPolicies.Admin, policy =>
                     {
-                        policy.RequireRole(OrganizationUserRole.Admin.AuthPolicy());
+                        policy.RequireRole(OrganizationUserRole.Owner.AuthPolicy(),
+                                           OrganizationUserRole.Admin.AuthPolicy());
                     });
 
                     options.AddPolicy(AuthPolicies.UserRead, policy =>
                     {
-                        policy.RequireRole(OrganizationUserRole.Admin.AuthPolicy(),
+                        policy.RequireRole(OrganizationUserRole.Owner.AuthPolicy(),
+                                           OrganizationUserRole.Admin.AuthPolicy(),
                                            UserRolePolicies.UserReadPolicy,
                                            UserRolePolicies.UserWritePolicy);
                     });
 
                     options.AddPolicy(AuthPolicies.UserWrite, policy =>
                     {
-                        policy.RequireRole(OrganizationUserRole.Admin.AuthPolicy(),
+                        policy.RequireRole(OrganizationUserRole.Owner.AuthPolicy(),
+                                           OrganizationUserRole.Admin.AuthPolicy(),
                                            UserRolePolicies.UserWritePolicy);
                     });
 
@@ -56,58 +78,75 @@ namespace TeamCloud.API.Auth
 
                     options.AddPolicy(AuthPolicies.ProjectUserWrite, policy =>
                     {
-                        policy.RequireRole(OrganizationUserRole.Admin.AuthPolicy(),
+                        policy.RequireRole(OrganizationUserRole.Owner.AuthPolicy(),
+                                           OrganizationUserRole.Admin.AuthPolicy(),
                                            ProjectUserRole.Owner.AuthPolicy(),
+                                           ProjectUserRole.Admin.AuthPolicy(),
                                            UserRolePolicies.UserWritePolicy);
                     });
 
                     options.AddPolicy(AuthPolicies.ProjectLinkWrite, policy =>
                     {
-                        policy.RequireRole(OrganizationUserRole.Admin.AuthPolicy(),
+                        policy.RequireRole(OrganizationUserRole.Owner.AuthPolicy(),
+                                           OrganizationUserRole.Admin.AuthPolicy(),
                                            ProjectUserRole.Owner.AuthPolicy(),
-                                           ProjectUserRole.Provider.AuthPolicy());
+                                           ProjectUserRole.Admin.AuthPolicy());
                     });
 
                     options.AddPolicy(AuthPolicies.ProjectRead, policy =>
                     {
-                        policy.RequireRole(OrganizationUserRole.Admin.AuthPolicy(),
+                        policy.RequireRole(OrganizationUserRole.Owner.AuthPolicy(),
+                                           OrganizationUserRole.Admin.AuthPolicy(),
                                            ProjectUserRole.Owner.AuthPolicy(),
-                                           ProjectUserRole.Member.AuthPolicy(),
-                                           ProjectUserRole.Provider.AuthPolicy());
+                                           ProjectUserRole.Admin.AuthPolicy(),
+                                           ProjectUserRole.Member.AuthPolicy());
                     });
 
                     options.AddPolicy(AuthPolicies.ProjectWrite, policy =>
                     {
-                        policy.RequireRole(OrganizationUserRole.Admin.AuthPolicy(),
-                                           ProjectUserRole.Owner.AuthPolicy());
+                        policy.RequireRole(OrganizationUserRole.Owner.AuthPolicy(),
+                                           OrganizationUserRole.Admin.AuthPolicy(),
+                                           ProjectUserRole.Owner.AuthPolicy(),
+                                           ProjectUserRole.Admin.AuthPolicy());
                     });
 
                     options.AddPolicy(AuthPolicies.ProjectCreate, policy =>
                     {
-                        policy.RequireRole(OrganizationUserRole.Admin.AuthPolicy(),
-                                           OrganizationUserRole.Creator.AuthPolicy());
+                        policy.RequireRole(OrganizationUserRole.Owner.AuthPolicy(),
+                                           OrganizationUserRole.Admin.AuthPolicy(),
+                                           OrganizationUserRole.Member.AuthPolicy());
+                    });
+
+                    options.AddPolicy(AuthPolicies.ProjectCreate, policy =>
+                    {
+                        policy.RequireRole(OrganizationUserRole.Owner.AuthPolicy(),
+                                           OrganizationUserRole.Admin.AuthPolicy(),
+                                           ProjectUserRole.Owner.AuthPolicy());
                     });
 
                     options.AddPolicy(AuthPolicies.ProjectComponentRead, policy =>
                     {
-                        policy.RequireRole(OrganizationUserRole.Admin.AuthPolicy(),
+                        policy.RequireRole(OrganizationUserRole.Owner.AuthPolicy(),
+                                           OrganizationUserRole.Admin.AuthPolicy(),
                                            ProjectUserRole.Owner.AuthPolicy(),
-                                           ProjectUserRole.Member.AuthPolicy(),
-                                           ProjectUserRole.Provider.AuthPolicy());
+                                           ProjectUserRole.Admin.AuthPolicy(),
+                                           ProjectUserRole.Member.AuthPolicy());
                     });
 
                     options.AddPolicy(AuthPolicies.ProjectComponentWrite, policy =>
                     {
-                        policy.RequireRole(OrganizationUserRole.Admin.AuthPolicy(),
+                        policy.RequireRole(OrganizationUserRole.Owner.AuthPolicy(),
+                                           OrganizationUserRole.Admin.AuthPolicy(),
                                            ProjectUserRole.Owner.AuthPolicy(),
-                                           ProjectUserRole.Member.AuthPolicy(),
-                                           ProjectUserRole.Provider.AuthPolicy());
+                                           ProjectUserRole.Admin.AuthPolicy(),
+                                           ProjectUserRole.Member.AuthPolicy());
                     });
 
                     options.AddPolicy(AuthPolicies.ProjectComponentUpdate, policy =>
                     {
-                        policy.RequireRole(OrganizationUserRole.Admin.AuthPolicy(),
-                                        UserRolePolicies.ComponentWritePolicy);
+                        policy.RequireRole(OrganizationUserRole.Owner.AuthPolicy(),
+                                           OrganizationUserRole.Admin.AuthPolicy(),
+                                           UserRolePolicies.ComponentWritePolicy);
                     });
                 });
 
