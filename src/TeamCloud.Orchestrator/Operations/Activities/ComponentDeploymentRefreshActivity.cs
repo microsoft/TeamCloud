@@ -46,11 +46,26 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                 // there must be only one runner container
                 var container = runner.Containers.SingleOrDefault().Value;
 
-                var output = await runner
-                    .GetLogContentAsync(container.Name)
-                    .ConfigureAwait(false);
+                if (container is null)
+                    return componentDeployment;
 
-                componentDeployment.Output = MergeOutput(componentDeployment.Output, Regex.Replace(output, @"(?<!\r)\n", Environment.NewLine, RegexOptions.Compiled));
+                var containerLog = default(string);
+
+                try
+                {
+                    containerLog = await runner
+                        .GetLogContentAsync(container.Name)
+                        .ConfigureAwait(false);
+                }
+                catch
+                {
+                    // swallow 
+                }
+
+                if (string.IsNullOrEmpty(containerLog))
+                    return componentDeployment;
+
+                componentDeployment.Output = MergeOutput(componentDeployment.Output, Regex.Replace(containerLog, @"(?<!\r)\n", Environment.NewLine, RegexOptions.Compiled));
                 componentDeployment.ExitCode = container.InstanceView.CurrentState.ExitCode;
                 componentDeployment.Started = container.InstanceView.CurrentState.StartTime;
                 componentDeployment.Finished = container.InstanceView.CurrentState.FinishTime;

@@ -4,6 +4,7 @@
  */
 
 using System.Diagnostics.CodeAnalysis;
+using Slugify;
 
 namespace TeamCloud.Model.Common
 {
@@ -12,8 +13,7 @@ namespace TeamCloud.Model.Common
         [SuppressMessage("Naming", "CA1721: Property names should not match get methods", Justification = "Workaround for default interface property")]
         string Slug { get; }
 
-        public string GetSlug() => DisplayName?
-            .ToLowerInvariant()
-            .Replace(' ', '-');
+        public string GetSlug()
+            => new SlugHelper().GenerateSlug(DisplayName ?? string.Empty);
     }
 }

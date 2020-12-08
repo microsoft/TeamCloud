@@ -2,7 +2,7 @@
   "$schema": "https://schema.management.azure.com/schemas/2018-05-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "environmentId": {
+    "environmentResourceId": {
       "type": "string"
     },
     "environmentTemplateFolder": {
@@ -19,6 +19,10 @@
       "type": "object",
       "defaultValue": {}
     },
+
+    "deploymentId": {
+      "type": "string"
+    },
     "deploymentRunner": {
       "type": "string"
     },
@@ -27,13 +31,12 @@
     }
   },
   "variables": {
-    "deploymentName" : "[guid(deployment().name)]",
-    "deploymentHost": "[concat(variables('deploymentName'), '.', toLower(replace(resourceGroup().location, ' ', '')), '.azurecontainer.io')]",
-    "environmentSegments": "[split(parameters('environmentId'), '/')]"
+    "deploymentHost": "[concat(parameters('deploymentId'), '.', toLower(replace(resourceGroup().location, ' ', '')), '.azurecontainer.io')]",
+    "environmentSegments": "[split(parameters('environmentResourceId'), '/')]"
   },
   "resources": [
     {
-      "name": "[variables('deploymentName')]",
+      "name": "[parameters('deploymentId')]",
       "type": "Microsoft.ContainerInstance/containerGroups",
       "apiVersion": "2019-12-01",
       "location": "[resourceGroup().location]",
@@ -67,15 +70,15 @@
               "environmentVariables": [
                 {
                   "name": "DeploymentId",
-                  "value": "[guid(parameters('environmentId'))]"
+                  "value": "[guid(parameters('environmentResourceId'))]"
                 },
                 {
                   "name": "DeploymentHost",
                   "value": "[variables('deploymentHost')]"
                 },
                 {
-                  "name": "EnvironmentId",
-                  "value": "[parameters('environmentId')]"
+                  "name": "environmentResourceId",
+                  "value": "[parameters('environmentResourceId')]"
                 },
                 {
                   "name": "EnvironmentLocation",
@@ -87,7 +90,7 @@
                 },
                 {
                   "name": "EnvironmentTemplateToken",
-                  "value": "[uniqueString(resourceId('Microsoft.ContainerInstance/containerGroups', guid(parameters('environmentId'))))]"
+                  "value": "[uniqueString(resourceId('Microsoft.ContainerInstance/containerGroups', guid(parameters('environmentResourceId'))))]"
                 },
                 {
                   "name": "EnvironmentTemplateFolder",
@@ -120,7 +123,7 @@
         "restartPolicy": "Never",
         "ipAddress": {
           "type": "Public",
-          "dnsNameLabel": "[variables('deploymentName')]",
+          "dnsNameLabel": "[parameters('deploymentId')]",
           "ports": [
             {
               "protocol": "tcp",
@@ -149,7 +152,7 @@
   "outputs":{
     "runnerId": {
       "type": "string",
-      "value": "[resourceId('Microsoft.ContainerInstance/containerGroups', variables('deploymentName'))]"
+      "value": "[resourceId('Microsoft.ContainerInstance/containerGroups', parameters('deploymentId'))]"
     }
   }
 }

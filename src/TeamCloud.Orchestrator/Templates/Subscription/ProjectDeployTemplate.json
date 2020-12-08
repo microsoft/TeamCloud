@@ -4,12 +4,15 @@
   "parameters": {
     "projectId": {
       "type": "string"
+    },
+    "projectSlug": {
+      "type": "string"
     }
   },
   "variables": {
-    "ResourceGroupPrefix": "TCProject",
+    "ResourceGroupPrefix": "TCP",
     "ResourceGroupDeployment": "[concat(deployment().name, '-deploy')]",
-    "ResourceGroupName": "[concat(variables('ResourceGroupPrefix'), '-', parameters('projectId'))]"
+    "ResourceGroupName": "[concat(variables('ResourceGroupPrefix'), '-', parameters('projectSlug'), '-', uniqueString(parameters('projectId')))]"
   },
   "resources": [
     {

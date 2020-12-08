@@ -5,14 +5,17 @@
     "componentId": {
       "type": "string"
     },
+    "componentSlug": {
+      "type": "string"
+    },
     "identityId": {
       "type": "string"
     }
   },
   "variables": {
-    "ResourceGroupPrefix": "TCComponent",
+    "ResourceGroupPrefix": "TCE",
     "ResourceGroupDeployment": "[concat(deployment().name, '-deploy')]",
-    "ResourceGroupName": "[concat(variables('ResourceGroupPrefix'), '-', parameters('componentId'))]"
+    "ResourceGroupName": "[concat(variables('ResourceGroupPrefix'), '-', parameters('componentSlug'), '-', uniqueString(parameters('componentId')))]"
   },
   "resources": [
     {
@@ -24,6 +27,7 @@
       "properties": {}
     },
     {
+      "condition": "[not(empty(parameters('identityId')))]",
       "name": "[variables('ResourceGroupDeployment')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-06-01",

@@ -10,20 +10,22 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Azure.Deployment;
 using TeamCloud.Azure.Resources;
 using TeamCloud.Model.Data;
+using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Templates.ResourceGroup;
 
 namespace TeamCloud.Orchestrator.Operations.Activities
 {
-    public sealed class DeploymentScopeInitAcitivity
+    public sealed class ComponentIdentityActivity
     {
         private readonly IAzureDeploymentService azureDeploymentService;
 
-        public DeploymentScopeInitAcitivity(IAzureDeploymentService azureDeploymentService)
+        public ComponentIdentityActivity(IAzureDeploymentService azureDeploymentService)
         {
             this.azureDeploymentService = azureDeploymentService ?? throw new System.ArgumentNullException(nameof(azureDeploymentService));
         }
 
-        [FunctionName(nameof(DeploymentScopeInitAcitivity))]
+        [FunctionName(nameof(ComponentIdentityActivity))]
+        [RetryOptions(3)]
         public async Task<string> Run(
             [ActivityTrigger] IDurableActivityContext context)
         {
@@ -32,7 +34,7 @@ namespace TeamCloud.Orchestrator.Operations.Activities
 
             var input = context.GetInput<Input>();
 
-            var template = new DeployementScopeInitTemplate();
+            var template = new ComponentIdentityTemplate();
 
             template.Parameters["deployementScopeId"] = input.DeploymentScope.Id;
 

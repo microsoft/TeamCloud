@@ -19,22 +19,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Templates\ComponentDeployTemplate.json" />
     <None Remove="Templates\ComponentInitSubscriptionTemplate.json" />
-    <None Remove="Templates\ComponentResetTemplate.json" />
     <None Remove="Templates\CreateProjectTemplate_ProjectResources.json" />
     <None Remove="Templates\DeployementScopeInitTemplate.json" />
     <None Remove="Templates\OrganizationDeployTemplate.json" />
     <None Remove="Templates\ProjectDeployTemplate.json" />
-    <None Remove="Templates\ResourceGroup\EnvironmentDeployTemplate.json" />
+    <None Remove="Templates\ResourceGroup\ComponentIdentityTemplate.json" />
+    <None Remove="Templates\ResourceGroup\ComponentRunnerTemplate.json" />
+    <None Remove="Templates\Subscription\EnvironmentDeployTemplate.json" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Templates\ResourceGroup\EnvironmentDeployTemplate.json" />
-    <EmbeddedResource Include="Templates\Subscription\EnvironmentInitTemplate.json" />
-    <EmbeddedResource Include="Templates\ComponentDeployTemplate.json" />
-    <EmbeddedResource Include="Templates\ComponentResetTemplate.json" />
-    <EmbeddedResource Include="Templates\ResourceGroup\DeployementScopeInitTemplate.json" />
+    <EmbeddedResource Include="Templates\ResourceGroup\ComponentIdentityTemplate.json" />
+    <EmbeddedResource Include="Templates\ResourceGroup\ComponentRunnerTemplate.json" />
+    <EmbeddedResource Include="Templates\Subscription\EnvironmentDeployTemplate.json" />
     <EmbeddedResource Include="Templates\Subscription\OrganizationDeployTemplate.json" />
     <EmbeddedResource Include="Templates\Subscription\ProjectDeployTemplate.json" />
   </ItemGroup>
