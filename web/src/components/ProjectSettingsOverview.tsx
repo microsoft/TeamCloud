@@ -5,6 +5,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { DefaultButton, getTheme, Link, Persona, PersonaSize, PrimaryButton, Separator, Stack, Text, TextField } from '@fluentui/react';
 import { OrgContext, ProjectContext } from '../Context';
 import { ProjectMember } from '../model';
+import { UserPersona } from '.';
 
 export const ProjectSettingsOverview: React.FC = () => {
 
@@ -77,12 +78,7 @@ export const ProjectSettingsOverview: React.FC = () => {
                         <Text variant='xLarge' >Project owner</Text>
                     </Stack.Item>
                     <Stack.Item>
-                        <Persona
-                            text={owner?.graphUser?.displayName ?? owner?.user.id}
-                            showSecondaryText
-                            secondaryText={owner?.graphUser?.mail ?? (owner?.graphUser?.otherMails && owner.graphUser.otherMails.length > 0 ? owner.graphUser.otherMails[0] : undefined)}
-                            imageUrl={owner?.graphUser?.imageUrl}
-                            size={PersonaSize.size32} />
+                        <UserPersona user={owner?.graphUser} showSecondaryText />
                     </Stack.Item>
                     <Stack.Item>
                         <DefaultButton

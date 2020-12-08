@@ -5,7 +5,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { FontIcon, IColumn, Image, Persona, PersonaSize, Stack, Text } from '@fluentui/react';
 import { useHistory, useParams } from 'react-router-dom';
 import { Component, ComponentTemplate } from 'teamcloud';
-import { ContentList } from '.';
+import { ContentList, UserPersona } from '.';
 import { OrgContext, ProjectContext } from '../Context';
 import collaboration from '../img/MSC17_collaboration_010_noBG.png'
 import DevOps from '../img/devops.svg';
@@ -114,13 +114,14 @@ export const ComponentList: React.FC<IComponentListProps> = (props) => {
         if (!item) return undefined;
         const creator = members?.find(m => m.user.id === item.component.requestedBy);
         return (
-            <Persona
-                text={creator?.graphUser?.displayName ?? creator?.user.id}
-                // showSecondaryText
-                // secondaryText={creator?.graphUser?.mail ?? (creator?.graphUser?.otherMails && creator.graphUser.otherMails.length > 0 ? creator.graphUser.otherMails[0] : undefined)}
-                imageUrl={creator?.graphUser?.imageUrl}
-                // styles={{ root: { paddingTop: '24px' } }}
-                size={PersonaSize.size24} />
+            <UserPersona user={creator?.graphUser} size={PersonaSize.size24} />
+            // <Persona
+            //     text={creator?.graphUser?.displayName ?? creator?.user.id}
+            //     // showSecondaryText
+            //     // secondaryText={creator?.graphUser?.mail ?? (creator?.graphUser?.otherMails && creator.graphUser.otherMails.length > 0 ? creator.graphUser.otherMails[0] : undefined)}
+            //     imageUrl={creator?.graphUser?.imageUrl}
+            //     // styles={{ root: { paddingTop: '24px' } }}
+            //     size={PersonaSize.size24} />
 
             // <Stack horizontal >
             //     <Image src={_getRepoImage(item.template)} styles={{ image: { width: '18px', height: '18px' } }} />

@@ -2,14 +2,14 @@
 // Licensed under the MIT License.
 
 import React, { useContext, useEffect, useState } from 'react';
-import { FontIcon, getTheme, Link, Persona, PersonaSize, Pivot, PivotItem, Stack, Text, TextField } from '@fluentui/react';
+import { FontIcon, getTheme, Link, Pivot, PivotItem, Stack, Text, TextField } from '@fluentui/react';
 // import { useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { ComponentTemplate, DeploymentScope } from 'teamcloud';
 import { OrgContext, ProjectContext } from '../Context';
 import { ProjectMember } from '../model';
 import { FuiForm } from '@rjsf/fluent-ui';
-import { ComponentDeploymentList } from '.';
+import { ComponentDeploymentList, UserPersona } from '.';
 import { FieldTemplateProps, WidgetProps } from '@rjsf/core';
 // import DevOps from '../img/devops.svg';
 // import GitHub from '../img/github.svg';
@@ -141,13 +141,7 @@ export const ComponentOverview: React.FC = (props) => {
                         <Text>{component.resourceState}</Text>
                     </ComponentOverviewHeaderSection>
                     <ComponentOverviewHeaderSection title='Creator'>
-                        <Persona
-                            text={creator?.graphUser?.displayName ?? creator?.user.id}
-                            showSecondaryText
-                            secondaryText={creator?.graphUser?.mail ?? (creator?.graphUser?.otherMails && creator.graphUser.otherMails.length > 0 ? creator.graphUser.otherMails[0] : undefined)}
-                            imageUrl={creator?.graphUser?.imageUrl}
-                            styles={{ root: { minWidth: '220px' } }}
-                            size={PersonaSize.size32} />
+                        <UserPersona user={creator?.graphUser} showSecondaryText styles={{ root: { minWidth: '220px' } }} />
                     </ComponentOverviewHeaderSection>
                 </Stack>
             </Stack.Item>

@@ -2,10 +2,11 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect } from 'react';
-import { PrimaryButton, DefaultButton, Panel, Stack, TextField, Dropdown, Label, Spinner, Persona, PersonaSize, Text } from '@fluentui/react';
+import { PrimaryButton, DefaultButton, Panel, Stack, TextField, Dropdown, Label, Spinner, Text } from '@fluentui/react';
 import { ProjectMembershipRole, Project, ProjectMembership, User } from 'teamcloud';
 import { GraphUser, Properties } from '../model'
 import { api } from '../API';
+import { UserPersona } from '.';
 
 export interface IMemberFormProps {
     user?: User;
@@ -134,10 +135,10 @@ export const MemberForm: React.FC<IMemberFormProps> = (props) => {
 
     const _roleDropdownDisabled = () => false;
     // {
-    //     return !formEnabled || !projectMembership || (projectMembership.role === 'Owner'
+    //     return !formEnabled || !projectMembership || (projectMembership.role.toLowerCase === 'owner'
     //         && props.project.users.filter(u => u.userType === 'User'
     //             && u.projectMemberships
-    //             && u.projectMemberships!.find(pm => pm.projectId === props.project.id && pm.role === 'Owner')).length === 1)
+    //             && u.projectMemberships!.find(pm => pm.projectId === props.project.id && pm.toLowerCase === 'owner')).length === 1)
     // };
 
     return (
@@ -148,12 +149,7 @@ export const MemberForm: React.FC<IMemberFormProps> = (props) => {
             onRenderFooterContent={_onRenderPanelFooterContent}>
             <Stack tokens={{ childrenGap: '12px' }}>
                 <Stack.Item>
-                    <Persona
-                        text={props.graphUser?.displayName ?? props.user?.id}
-                        secondaryText={props.graphUser?.jobTitle ?? props.user?.userType}
-                        tertiaryText={props.graphUser?.department}
-                        imageUrl={props.graphUser?.imageUrl}
-                        size={PersonaSize.size72} />
+                    <UserPersona user={props.graphUser} large />
                 </Stack.Item>
                 <Stack.Item>
                     <TextField
@@ -167,7 +163,7 @@ export const MemberForm: React.FC<IMemberFormProps> = (props) => {
                         label='Role'
                         disabled={_roleDropdownDisabled()}
                         selectedKey={newProjectRole}
-                        options={['Owner', 'Member'].map(r => ({ key: r, text: r, data: r }))}
+                        options={['Member', 'Admin'].map(r => ({ key: r, text: r, data: r }))}
                         onChange={(_ev, val) => setNewProjectRole(val?.key ? val.key as ProjectMembershipRole : undefined)} />
                 </Stack.Item>
                 <Stack.Item>
