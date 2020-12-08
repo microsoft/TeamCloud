@@ -12,8 +12,8 @@ namespace TeamCloud.Model.Data
     public enum OrganizationUserRole
     {
         None,
-        Provider,
-        Creator,
-        Admin
+        Member,
+        Admin,
+        Owner
     }
 }

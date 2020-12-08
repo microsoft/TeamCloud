@@ -11,25 +11,25 @@ namespace TeamCloud.Model.Data
 {
     public static class UserExtensions
     {
+        public static bool IsOwner(this User user)
+        {
+            if (user is null) throw new ArgumentNullException(nameof(user));
+
+            return user.Role == OrganizationUserRole.Owner;
+        }
+
         public static bool IsAdmin(this User user)
         {
             if (user is null) throw new ArgumentNullException(nameof(user));
 
-            return user.Role == OrganizationUserRole.Admin;
+            return user.Role == OrganizationUserRole.Admin || user.IsOwner();
         }
 
-        public static bool IsCreator(this User user)
+        public static bool IsMember(this User user)
         {
             if (user is null) throw new ArgumentNullException(nameof(user));
 
-            return user.Role == OrganizationUserRole.Creator;
-        }
-
-        public static bool IsAdminOrCreator(this User user)
-        {
-            if (user is null) throw new ArgumentNullException(nameof(user));
-
-            return user.IsAdmin() || user.IsCreator();
+            return user.Role == OrganizationUserRole.Member || user.IsAdmin();
         }
 
         public static bool IsOwner(this User user, string projectId)
@@ -38,6 +38,16 @@ namespace TeamCloud.Model.Data
             if (projectId is null) throw new ArgumentNullException(nameof(projectId));
 
             return user.RoleFor(projectId) == ProjectUserRole.Owner;
+        }
+
+        public static bool IsAdmin(this User user, string projectId)
+        {
+            if (user is null) throw new ArgumentNullException(nameof(user));
+            if (projectId is null) throw new ArgumentNullException(nameof(projectId));
+
+            var role = user.RoleFor(projectId);
+
+            return role == ProjectUserRole.Owner || role == ProjectUserRole.Admin;
         }
 
         public static bool IsMember(this User user, string projectId)
@@ -102,8 +112,7 @@ namespace TeamCloud.Model.Data
                 user.ProjectMemberships.Add(membership);
             else
             {
-                if (!(existingMembership.Role == ProjectUserRole.Owner && membership.Role == ProjectUserRole.Provider))
-                    existingMembership.Role = membership.Role;
+                existingMembership.Role = membership.Role;
                 existingMembership.MergeProperties(membership.Properties, overwriteExistingValues: true);
             }
 

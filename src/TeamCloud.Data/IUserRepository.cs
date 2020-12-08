@@ -21,6 +21,10 @@ namespace TeamCloud.Data
 
         IAsyncEnumerable<User> ListAdminsAsync(string organization);
 
+        IAsyncEnumerable<string> ListOrgsAsync(User user);
+
+        IAsyncEnumerable<string> ListOrgsAsync(string userId);
+
         Task<User> AddAsync(User user);
 
         Task<User> SetAsync(User user);

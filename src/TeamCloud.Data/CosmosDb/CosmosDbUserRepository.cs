@@ -80,6 +80,29 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
+        public IAsyncEnumerable<string> ListOrgsAsync(User user)
+            => ListOrgsAsync(user?.Id ?? throw new ArgumentNullException(nameof(user)));
+
+        public async IAsyncEnumerable<string> ListOrgsAsync(string userId)
+        {
+            var container = await GetContainerAsync()
+                .ConfigureAwait(false);
+
+            var query = new QueryDefinition($"SELECT * FROM u WHERE u.id = '{userId}'");
+
+            var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: new QueryRequestOptions { MaxBufferedItemCount = -1, MaxConcurrency = -1 });
+
+            while (queryIterator.HasMoreResults)
+            {
+                var queryResponse = await queryIterator
+                    .ReadNextAsync()
+                    .ConfigureAwait(false);
+
+                foreach (var user in queryResponse)
+                    yield return user.Organization;
+            }
+        }
+
         public async IAsyncEnumerable<User> ListAsync(string organization)
         {
             var container = await GetContainerAsync()

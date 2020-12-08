@@ -13,8 +13,8 @@ namespace TeamCloud.Model.Data
     public enum ProjectUserRole
     {
         None,
-        Provider,
         Member,
+        Admin,
         Owner
     }
 }

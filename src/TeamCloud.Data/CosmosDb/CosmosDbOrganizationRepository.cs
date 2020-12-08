@@ -126,6 +126,28 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
+        public async IAsyncEnumerable<Organization> ListAsync(string tenant, IEnumerable<string> identifiers)
+        {
+            var container = await GetContainerAsync()
+                .ConfigureAwait(false);
+
+            var search = "'" + string.Join("', '", identifiers) + "'";
+            var query = new QueryDefinition($"SELECT * FROM o WHERE o.id IN ({search}) OR o.slug IN ({search}) OR o.displayName in ({search})");
+
+            var queryIterator = container
+                .GetItemQueryIterator<Organization>(query, requestOptions: GetQueryRequestOptions(tenant));
+
+            while (queryIterator.HasMoreResults)
+            {
+                var queryResponse = await queryIterator
+                    .ReadNextAsync()
+                    .ConfigureAwait(false);
+
+                foreach (var org in queryResponse)
+                    yield return org;
+            }
+        }
+
         public async Task<Organization> RemoveAsync(Organization organization)
         {
             if (organization is null)

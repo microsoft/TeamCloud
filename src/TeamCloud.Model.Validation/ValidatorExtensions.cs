@@ -254,21 +254,21 @@ namespace TeamCloud.Model.Validation
                 .Cascade(CascadeMode.Stop)
                 .NotEmpty()
                 .Must(BeUserRole)
-                    .WithMessage("'{PropertyName}' must be a valid Role. Valid roles for Project users are 'Owner' and 'Member'. Valid roles for Organization users are 'Admin' and 'Creator'.");
+                    .WithMessage("'{PropertyName}' must be a valid Role. Valid roles for Project users are 'Owner', 'Admin', 'Member', 'None'.");
 
         public static IRuleBuilderOptions<T, string> MustBeProjectUserRole<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
             => ruleBuilder
                 .Cascade(CascadeMode.Stop)
                 .NotEmpty()
                 .Must(BeProjectUserRole)
-                    .WithMessage("'{PropertyName}' must be a valid Role. Valid roles for Project users are 'Owner' and 'Member'.");
+                    .WithMessage("'{PropertyName}' must be a valid Role. Valid roles for Project users are 'Owner', 'Admin', 'Member', and 'None'.");
 
         public static IRuleBuilderOptions<T, string> MustBeOrganizationUserRole<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
             => ruleBuilder
                 .Cascade(CascadeMode.Stop)
                 .NotEmpty()
                 .Must(BeOrganizationUserRole)
-                    .WithMessage("'{PropertyName}' must be a valid Role. Valid roles for Organization users are 'Admin' and 'Creator'.");
+                    .WithMessage("'{PropertyName}' must be a valid Role. Valid roles for Organization users are 'Owner', 'Admin', 'Member' and 'None'.");
 
         public static IRuleBuilderOptions<T, string> MustBeProviderId<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
             => ruleBuilder

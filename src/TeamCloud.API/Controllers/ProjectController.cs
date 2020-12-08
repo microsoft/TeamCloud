@@ -202,7 +202,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpDelete("{projectId:projectId}")]
-        [Authorize(Policy = AuthPolicies.ProjectWrite)]
+        [Authorize(Policy = AuthPolicies.ProjectDelete)]
         [SwaggerOperation(OperationId = "DeleteProject", Summary = "Deletes a Project.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts deleting the specified Project. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
