@@ -1,30 +1,36 @@
-﻿using System;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
+
+using System;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Newtonsoft.Json;
+using TeamCloud.Azure;
 using TeamCloud.Azure.Deployment;
-using TeamCloud.Azure.Resources;
 using TeamCloud.Data;
 using TeamCloud.Model.Data;
-using TeamCloud.Orchestrator.Templates.ResourceGroup;
+using TeamCloud.Orchestration;
+using TeamCloud.Orchestrator.Templates.Subscription;
 
 namespace TeamCloud.Orchestrator.Operations.Activities
 {
     public sealed class EnvironmentDeployActivity
     {
-        private readonly IProjectRepository projectRepository;
-        private readonly IComponentTemplateRepository componentTemplateRepository;
         private readonly IAzureDeploymentService azureDeploymentService;
+        private readonly IOrganizationRepository organizationRepository;
+        private readonly IAzureSessionService azureSessionService;
 
-        public EnvironmentDeployActivity(IProjectRepository projectRepository, IComponentTemplateRepository componentTemplateRepository, IAzureDeploymentService azureDeploymentService)
+        public EnvironmentDeployActivity(IAzureDeploymentService azureDeploymentService, IOrganizationRepository organizationRepository, IAzureSessionService azureSessionService)
         {
-            this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
-            this.componentTemplateRepository = componentTemplateRepository ?? throw new ArgumentNullException(nameof(componentTemplateRepository));
-            this.azureDeploymentService = azureDeploymentService ?? throw new ArgumentNullException(nameof(azureDeploymentService));
+            this.azureDeploymentService = azureDeploymentService ?? throw new System.ArgumentNullException(nameof(azureDeploymentService));
+            this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
+            this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
         }
 
         [FunctionName(nameof(EnvironmentDeployActivity))]
+        [RetryOptions(3)]
         public async Task<string> Run(
             [ActivityTrigger] IDurableActivityContext context)
         {
@@ -33,28 +39,21 @@ namespace TeamCloud.Orchestrator.Operations.Activities
 
             var input = context.GetInput<Input>();
 
-            var componentTemplate = await componentTemplateRepository
-                .GetAsync(input.Component.Organization, input.Component.ProjectId, input.Component.TemplateId)
+            var organization = await organizationRepository
+                .GetAsync(azureSessionService.Options.TenantId, input.DeploymentScope.Organization)
                 .ConfigureAwait(false);
+
+            var deployementSubscriptionIndex = DateTime.UtcNow.Ticks % input.DeploymentScope.SubscriptionIds.Count;
+            var deployementSubscription = input.DeploymentScope.SubscriptionIds[(int)deployementSubscriptionIndex];
 
             var template = new EnvironmentDeployTemplate();
 
-            template.Parameters["environmentId"] = input.Component.ResourceId;
-            template.Parameters["environmentTemplateFolder"] = componentTemplate.Folder;
-            template.Parameters["environmentTemplateRepository"] = componentTemplate.Repository.Url;
-            template.Parameters["environmentTemplateRevision"] = componentTemplate.Repository.Ref;
-            template.Parameters["environmentTemplateParameters"] = JsonConvert.DeserializeObject(input.Component.InputJson);
-            template.Parameters["deploymentRunner"] = $"markusheiliger/tcrunner-arm";
-            template.Parameters["deploymentIdentity"] = input.Component.IdentityId;
-
-            var project = await projectRepository
-                .GetAsync(input.Component.Organization, input.Component.ProjectId)
-                .ConfigureAwait(false);
-
-            var projectResourceId = AzureResourceIdentifier.Parse(project.ResourceId);
+            template.Parameters["componentId"] = input.Component.Id;
+            template.Parameters["componentSlug"] = input.Component.Slug;
+            template.Parameters["identityId"] = input.Component.IdentityId;
 
             var deployment = await azureDeploymentService
-                .DeployResourceGroupTemplateAsync(template, projectResourceId.SubscriptionId, projectResourceId.ResourceGroup, input.Complete)
+                .DeploySubscriptionTemplateAsync(template, deployementSubscription, organization.Location)
                 .ConfigureAwait(false);
 
             return deployment.ResourceId;
@@ -62,9 +61,9 @@ namespace TeamCloud.Orchestrator.Operations.Activities
 
         internal struct Input
         {
-            public Component Component { get; set; }
+            public DeploymentScope DeploymentScope { get; set; }
 
-            public bool Complete { get; set; }
+            public Component Component { get; set; }
         }
     }
 }

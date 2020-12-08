@@ -2,7 +2,7 @@
 
 namespace TeamCloud.Orchestrator.Templates.ResourceGroup
 {
-    public sealed class DeployementScopeInitTemplate : EmbeddedDeploymentTemplate
+    public sealed class ComponentIdentityTemplate : EmbeddedDeploymentTemplate
     {
     }
 }

@@ -5,7 +5,7 @@ using TeamCloud.Azure.Deployment.Templates;
 
 namespace TeamCloud.Orchestrator.Templates.ResourceGroup
 {
-    public sealed class EnvironmentDeployTemplate : EmbeddedDeploymentTemplate
+    public sealed class ComponentRunnerTemplate : EmbeddedDeploymentTemplate
     {
     }
 }

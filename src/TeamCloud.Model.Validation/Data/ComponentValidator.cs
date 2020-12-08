@@ -19,7 +19,7 @@ namespace TeamCloud.Model.Validation.Data
                 .MustBeGuid();
 
             RuleFor(obj => obj.Provider)
-                .MustBeProviderId();
+                .NotEmpty();
 
             RuleFor(obj => obj.RequestedBy)
                 .MustBeGuid();

@@ -9,7 +9,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Azure.Deployment;
 using TeamCloud.Model.Data;
-using TeamCloud.Orchestrator.Templates;
+using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Templates.Subscription;
 
 namespace TeamCloud.Orchestrator.Operations.Activities
@@ -24,6 +24,7 @@ namespace TeamCloud.Orchestrator.Operations.Activities
         }
 
         [FunctionName(nameof(OrganizationDeployActivity))]
+        [RetryOptions(3)]
         public async Task<string> Run(
             [ActivityTrigger] IDurableActivityContext context)
         {
@@ -35,6 +36,7 @@ namespace TeamCloud.Orchestrator.Operations.Activities
             var template = new OrganizationDeployTemplate();
 
             template.Parameters["organizationId"] = input.Organization.Id;
+            template.Parameters["organizationSlug"] = input.Organization.Slug;
 
             var deployment = await azureDeploymentService
                 .DeploySubscriptionTemplateAsync(template, Guid.Parse(input.Organization.SubscriptionId), input.Organization.Location)

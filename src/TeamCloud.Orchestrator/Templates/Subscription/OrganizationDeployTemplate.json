@@ -4,12 +4,15 @@
   "parameters": {
     "organizationId": {
       "type": "string"
+    },
+    "organizationSlug": {
+      "type": "string"
     }
   },
   "variables": {
-    "ResourceGroupPrefix": "TCOrganization",
+    "ResourceGroupPrefix": "TCO",
     "ResourceGroupDeployment":"[concat(deployment().name, '-deploy')]",
-    "ResourceGroupName": "[concat(variables('ResourceGroupPrefix'), '-', parameters('organizationId'))]"
+    "ResourceGroupName": "[concat(variables('ResourceGroupPrefix'), '-', parameters('organizationSlug'), '-', uniqueString(parameters('organizationId')))]"
   },
   "resources": [
     {
@@ -17,7 +20,10 @@
       "type": "Microsoft.Resources/resourceGroups",
       "apiVersion": "2020-06-01",
       "location": "[deployment().location]",
-      "tags": {},
+      "tags": {
+        "TeamCloud.OrganizationId" : "[parameters('organizationId')]",
+        "TeamCloud.OrganizationSlug" : "[parameters('organizationSlug')]"
+      },
       "properties": {}
     },
     {
