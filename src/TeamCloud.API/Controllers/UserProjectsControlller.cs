@@ -30,7 +30,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpGet("orgs/{org}/users/{userId:userId}/projects")]
-        [Authorize(Policy = AuthPolicies.ProjectRead)]
+        [Authorize(Policy = AuthPolicies.OrganizationRead)]
         [SwaggerOperation(OperationId = "GetUserProjects", Summary = "Gets all Projects for a User.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all User Projects", typeof(DataResult<List<Project>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
@@ -56,7 +56,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpGet("orgs/{org}/me/projects")] // TODO: change to users/orgs/{org}/projects
-        [Authorize(Policy = AuthPolicies.ProjectRead)]
+        [Authorize(Policy = AuthPolicies.OrganizationRead)]
         [SwaggerOperation(OperationId = "GetUserProjectsMe", Summary = "Gets all Projects for a User.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all User Projects", typeof(DataResult<List<Project>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]

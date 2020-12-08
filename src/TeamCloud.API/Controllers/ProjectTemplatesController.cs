@@ -40,7 +40,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpGet]
-        [Authorize(Policy = AuthPolicies.Admin)]
+        [Authorize(Policy = AuthPolicies.OrganizationRead)]
         [SwaggerOperation(OperationId = "GetProjectTemplates", Summary = "Gets all Project Templates.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all Project Templates.", typeof(DataResult<List<ProjectTemplate>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
@@ -62,7 +62,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpGet("{projectTemplateId}")]
-        [Authorize(Policy = AuthPolicies.Admin)]
+        [Authorize(Policy = AuthPolicies.OrganizationRead)]
         [SwaggerOperation(OperationId = "GetProjectTemplate", Summary = "Gets a Project Template.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns a ProjectTemplate.", typeof(DataResult<ProjectTemplate>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
@@ -81,7 +81,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpPost]
-        [Authorize(Policy = AuthPolicies.Admin)]
+        [Authorize(Policy = AuthPolicies.OrganizationAdmin)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "CreateProjectTemplate", Summary = "Creates a new Project Template.")]
         [SwaggerResponse(StatusCodes.Status201Created, "The new Project Template was created.", typeof(DataResult<ProjectTemplate>))]
@@ -120,7 +120,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpPut("{projectTemplateId}")]
-        [Authorize(Policy = AuthPolicies.Admin)]
+        [Authorize(Policy = AuthPolicies.OrganizationAdmin)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "UpdateProjectTemplate", Summary = "Updates an existing Project Template.")]
         [SwaggerResponse(StatusCodes.Status200OK, "The ProjectTemplate was updated.", typeof(DataResult<ProjectTemplate>))]
@@ -157,7 +157,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpDelete("{projectTemplateId}")]
-        [Authorize(Policy = AuthPolicies.Admin)]
+        [Authorize(Policy = AuthPolicies.OrganizationAdmin)]
         [SwaggerOperation(OperationId = "DeleteProjectTemplate", Summary = "Deletes a Project Template.")]
         [SwaggerResponse(StatusCodes.Status204NoContent, "The ProjectTemplate was deleted.", typeof(DataResult<ProjectTemplate>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]

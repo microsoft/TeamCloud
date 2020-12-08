@@ -25,7 +25,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpGet]
-        [Authorize(Policy = AuthPolicies.ProjectRead)]
+        [Authorize(Policy = AuthPolicies.ProjectMember)]
         [SwaggerOperation(OperationId = "GetProjectTags", Summary = "Gets all Tags for a Project.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all Project Tags", typeof(DataResult<Dictionary<string, string>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
@@ -41,7 +41,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpGet("{tagKey}")]
-        [Authorize(Policy = AuthPolicies.ProjectRead)]
+        [Authorize(Policy = AuthPolicies.ProjectMember)]
         [SwaggerOperation(OperationId = "GetProjectTagByKey", Summary = "Gets a Project Tag by Key.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns Project Tag", typeof(DataResult<Dictionary<string, string>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
@@ -65,7 +65,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpPost]
-        [Authorize(Policy = AuthPolicies.ProjectWrite)]
+        [Authorize(Policy = AuthPolicies.ProjectAdmin)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "CreateProjectTag", Summary = "Creates a new Project Tag.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts creating the new Project Tag. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
@@ -97,7 +97,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpPut]
-        [Authorize(Policy = AuthPolicies.ProjectWrite)]
+        [Authorize(Policy = AuthPolicies.ProjectAdmin)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "UpdateProjectTag", Summary = "Updates an existing Project Tag.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts updating the Project Tag. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
@@ -128,7 +128,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpDelete("{tagKey}")]
-        [Authorize(Policy = AuthPolicies.ProjectWrite)]
+        [Authorize(Policy = AuthPolicies.ProjectAdmin)]
         [SwaggerOperation(OperationId = "DeleteProjectTag", Summary = "Deletes an existing Project Tag.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts deleting the Project Tag. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]

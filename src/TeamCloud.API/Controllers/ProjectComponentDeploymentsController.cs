@@ -32,7 +32,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpGet]
-        [Authorize(Policy = AuthPolicies.ProjectRead)]
+        [Authorize(Policy = AuthPolicies.ProjectMember)]
         [SwaggerOperation(OperationId = "GetProjectDeployments", Summary = "Gets all Project Component Deployments.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all Project Component Deployments", typeof(DataResult<List<ComponentDeployment>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
@@ -51,7 +51,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpGet("{id}")]
-        [Authorize(Policy = AuthPolicies.ProjectRead)]
+        [Authorize(Policy = AuthPolicies.ProjectMember)]
         [SwaggerOperation(OperationId = "GetProjectDeployment", Summary = "Gets the Component Template.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns a Component Template", typeof(DataResult<ComponentDeployment>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]

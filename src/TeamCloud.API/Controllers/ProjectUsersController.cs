@@ -38,7 +38,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpGet]
-        [Authorize(Policy = AuthPolicies.ProjectRead)]
+        [Authorize(Policy = AuthPolicies.ProjectMember)]
         [SwaggerOperation(OperationId = "GetProjectUsers", Summary = "Gets all Users for a Project.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all Project Users", typeof(DataResult<List<User>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
@@ -57,7 +57,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpGet("{userId:userId}")]
-        [Authorize(Policy = AuthPolicies.ProjectRead)]
+        [Authorize(Policy = AuthPolicies.ProjectMember)]
         [SwaggerOperation(OperationId = "GetProjectUser", Summary = "Gets a Project User by ID or email address.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns Project User", typeof(DataResult<User>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
@@ -77,7 +77,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpGet("me")]
-        [Authorize(Policy = AuthPolicies.ProjectRead)]
+        [Authorize(Policy = AuthPolicies.ProjectMember)]
         [SwaggerOperation(OperationId = "GetProjectUserMe", Summary = "Gets a Project User for the calling user.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns Project User", typeof(DataResult<User>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]

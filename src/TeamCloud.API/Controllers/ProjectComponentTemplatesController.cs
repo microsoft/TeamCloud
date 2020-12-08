@@ -13,9 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TeamCloud.API.Auth;
 using TeamCloud.API.Data.Results;
-using TeamCloud.API.Services;
 using TeamCloud.Data;
-using TeamCloud.Git.Services;
 using TeamCloud.Model.Data;
 
 namespace TeamCloud.API.Controllers
@@ -34,7 +32,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpGet]
-        [Authorize(Policy = AuthPolicies.ProjectRead)]
+        [Authorize(Policy = AuthPolicies.ProjectMember)]
         [SwaggerOperation(OperationId = "GetProjectComponentTemplates", Summary = "Gets all Project Component Templates.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all Project Component Templates", typeof(DataResult<List<ComponentTemplate>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
@@ -53,7 +51,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpGet("{id}")]
-        [Authorize(Policy = AuthPolicies.ProjectRead)]
+        [Authorize(Policy = AuthPolicies.ProjectMember)]
         [SwaggerOperation(OperationId = "GetProjectComponentTemplate", Summary = "Gets the Component Template.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns a Component Template", typeof(DataResult<ComponentTemplate>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]

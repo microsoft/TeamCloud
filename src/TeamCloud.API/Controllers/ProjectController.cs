@@ -79,7 +79,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpGet]
-        [Authorize(Policy = AuthPolicies.ProjectRead)]
+        [Authorize(Policy = AuthPolicies.OrganizationMember)]
         [SwaggerOperation(OperationId = "GetProjects", Summary = "Gets all Projects.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all Projects.", typeof(DataResult<List<Project>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
@@ -97,7 +97,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpGet("{projectId:projectId}")]
-        [Authorize(Policy = AuthPolicies.ProjectRead)]
+        [Authorize(Policy = AuthPolicies.ProjectMember)]
         [SwaggerOperation(OperationId = "GetProject", Summary = "Gets a Project.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns a Project.", typeof(DataResult<Project>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
@@ -112,7 +112,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpPost]
-        [Authorize(Policy = AuthPolicies.ProjectCreate)]
+        [Authorize(Policy = AuthPolicies.OrganizationMember)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "CreateProject", Summary = "Creates a new Project.")]
         [SwaggerResponse(StatusCodes.Status201Created, "The new Project was created.", typeof(DataResult<Project>))]
@@ -202,7 +202,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpDelete("{projectId:projectId}")]
-        [Authorize(Policy = AuthPolicies.ProjectDelete)]
+        [Authorize(Policy = AuthPolicies.ProjectOwner)]
         [SwaggerOperation(OperationId = "DeleteProject", Summary = "Deletes a Project.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts deleting the specified Project. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
