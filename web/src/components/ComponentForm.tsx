@@ -7,7 +7,7 @@ import { ProjectComponentDefinition, ComponentTemplate } from 'teamcloud';
 import { useHistory } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { FuiForm } from '@rjsf/fluent-ui'
-import { FieldTemplateProps, ISubmitEvent, WidgetProps } from '@rjsf/core';
+import { FieldTemplateProps, ISubmitEvent } from '@rjsf/core';
 import { ContentContainer, ContentHeader, ContentList, ContentProgress } from '.';
 import { OrgContext, ProjectContext } from '../Context';
 import DevOps from '../img/devops.svg';
@@ -272,36 +272,13 @@ export const ComponentForm: React.FC = () => {
 
 
 export const TCFieldTemplate: React.FC<FieldTemplateProps> = (props) => {
-    console.log('TCFieldTemplate');
-    console.log(props);
-
-    // if (props.rawDescription)
-    //     props.label = props.rawDescription
-
     return props.id === 'root' ? (
         <Stack styles={{ root: { minWidth: '460px' } }} tokens={{ childrenGap: '14px' }}>
             {props.children}
         </Stack>
     ) : (
             <Stack.Item grow styles={{ root: { paddingBottom: '16px' } }}>
-
                 {props.children}
             </Stack.Item>
         );
 }
-
-// export const TCSelectWidget: React.FC<WidgetProps> = (props) => {
-
-//     console.log('TCSelectWidget');
-//     console.log(props);
-//     return (
-
-//         <TextField
-//             readOnly
-//             label={props.schema.description}
-//             defaultValue={props.value}
-//             styles={{
-
-//             }} />
-//     );
-// }

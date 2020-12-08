@@ -14,7 +14,8 @@ export const ComponentDeploymentList: React.FunctionComponent<IComponentDeployme
 
     const theme = getTheme();
 
-    const { component, componentDeployments } = useContext(ProjectContext);
+    // const { component, componentDeployments } = useContext(ProjectContext);
+    const { componentDeployments } = useContext(ProjectContext);
 
     const [deployment, setDeployment] = useState<ComponentDeployment>();
 
@@ -24,6 +25,19 @@ export const ComponentDeploymentList: React.FunctionComponent<IComponentDeployme
             setDeployment(componentDeployments[0]);
         }
     }, [deployment, componentDeployments])
+
+    // useEffect(() => {
+    //     if (deployment?.started) {
+    //         console.log(`toDateString ${deployment.started.toDateString()}`);
+    //         console.log(`toTimeString ${deployment.started.toTimeString()}`);
+    //         console.log(`toLocaleDateString ${deployment.started.toLocaleDateString()}`);
+    //         console.log(`toLocaleString ${deployment.started.toLocaleString()}`);
+    //         console.log(`toLocaleTimeString ${deployment.started.toLocaleTimeString()}`);
+    //         console.log(`toString ${deployment.started.toString()}`);
+    //         console.log(`toISOString ${deployment.started.toISOString()}`);
+    //         console.log(`toUTCString ${deployment.started.toUTCString()}`);
+    //     }
+    // }, [deployment]);
 
 
     const _getStateIcon = (deployment?: ComponentDeployment) => {
@@ -38,7 +52,6 @@ export const ComponentDeploymentList: React.FunctionComponent<IComponentDeployme
             }
     };
 
-
     const columns: IColumn[] = [
         {
             key: 'componentId', name: 'ComponentId', minWidth: 440, maxWidth: 440, onRender: (d: ComponentDeployment) => (
@@ -48,7 +61,10 @@ export const ComponentDeploymentList: React.FunctionComponent<IComponentDeployme
                     horizontalAlign='space-between'
                     tokens={{ childrenGap: '20px' }}
                     styles={{ root: { padding: '5px' } }}>
-                    <Text>{d.id}</Text>
+                    <Stack tokens={{ childrenGap: '6px' }}>
+                        <Text styles={{ root: { color: theme.palette.neutralPrimary } }} variant='medium'>{_getDeploymentName(d)}</Text>
+                        <Text styles={{ root: { color: theme.palette.neutralSecondary } }} variant='small'>{_getDeploymentStatus(d)}</Text>
+                    </Stack>
                     <FontIcon iconName={_getStateIcon(d)} className={`deployment-state-icon-${d.resourceState?.toLowerCase() ?? 'pending'}`} />
                 </Stack>
             )
@@ -78,6 +94,20 @@ export const ComponentDeploymentList: React.FunctionComponent<IComponentDeployme
         // history.push(`/orgs/${orgId}/projects/${project?.slug ?? projectId}/components/${item.component.slug}`);
     };
 
+    const _getDeploymentName = (d?: ComponentDeployment) => d ? `Deployment: ${d.id}` : undefined;
+
+    const _getDeploymentStatus = (d?: ComponentDeployment) => {
+        if (d?.resourceState) {
+            if (d.resourceState.toLowerCase() === 'succeeded' || d.resourceState.toLowerCase() === 'failed') {
+                return d.finished ? `${d.resourceState} ${d.finished.toLocaleString()}` : d.resourceState;
+            } else {
+                return d.resourceState;
+            }
+        } else if (d?.started) {
+            return `Started ${d.started.toLocaleString()}`;
+        }
+        return undefined;
+    };
 
 
     return (
@@ -122,8 +152,8 @@ export const ComponentDeploymentList: React.FunctionComponent<IComponentDeployme
                         <Stack styles={{ root: { padding: '14px 24px 0px 24px' } }} horizontal verticalFill horizontalAlign='space-between' verticalAlign='center'>
                             <Stack.Item>
                                 <Stack tokens={{ childrenGap: '4px' }}>
-                                    <Text styles={{ root: { fontSize: '16px', fontWeight: '600' } }}>Deployment One</Text>
-                                    <Text styles={{ root: { color: 'rgb(149,157,165)', fontSize: '12px', fontWeight: '600' } }}>failed 2 hours ago</Text>
+                                    <Text styles={{ root: { fontSize: '16px', fontWeight: '600' } }}>{_getDeploymentName(deployment)}</Text>
+                                    <Text styles={{ root: { color: 'rgb(149,157,165)', fontSize: '12px', fontWeight: '600' } }}>{_getDeploymentStatus(deployment)}</Text>
                                 </Stack>
                             </Stack.Item>
                             <Stack.Item>
@@ -134,7 +164,6 @@ export const ComponentDeploymentList: React.FunctionComponent<IComponentDeployme
                                             borderRadius: theme.effects.roundedCorner4,
                                             backgroundColor: 'rgb(47,54,61)',
                                             color: 'rgb(149,157,165)',
-
                                         },
                                         field: {
                                             backgroundColor: 'rgb(47,54,61)',
@@ -177,7 +206,6 @@ export const ComponentDeploymentList: React.FunctionComponent<IComponentDeployme
                                         lineHeight: '20px',
                                         fontFamily: 'SFMono-Regular,Consolas,Liberation Mono,Menlo,monospace!important',
                                         // fontFamily: "Menlo, Consolas, Monaco, 'Andale Mono', monospace",//'Monaco, Menlo, Consolas, monospace',
-
                                     },
                                     field: {
                                         height: '720px',

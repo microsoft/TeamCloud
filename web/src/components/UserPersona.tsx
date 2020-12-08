@@ -36,6 +36,7 @@ export const UserPersona: React.FunctionComponent<IUserPersonaProps> = (props) =
             tertiaryText={tertiaryText}
             imageUrl={imageUrl}
             styles={props.styles}
+            onClick={props.onClick}
             size={props.size ? props.size : (props.large ? PersonaSize.size72 : PersonaSize.size32)} />
     );
 }
