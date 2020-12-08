@@ -373,11 +373,11 @@ export declare type UserType = "User" | "System" | "Provider" | "Application" | 
 /**
  * Defines values for UserRole.
  */
-export declare type UserRole = "None" | "Provider" | "Creator" | "Admin" | string;
+export declare type UserRole = "None" | "Member" | "Admin" | "Owner" | string;
 /**
  * Defines values for ProjectMembershipRole.
  */
-export declare type ProjectMembershipRole = "None" | "Provider" | "Member" | "Owner" | string;
+export declare type ProjectMembershipRole = "None" | "Member" | "Admin" | "Owner" | string;
 /**
  * Defines values for ProjectResourceState.
  */

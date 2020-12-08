@@ -3954,7 +3954,7 @@
             },
             {
               "kind": "Content",
-              "text": "\"None\" | \"Provider\" | \"Member\" | \"Owner\" | string"
+              "text": "\"None\" | \"Member\" | \"Admin\" | \"Owner\" | string"
             },
             {
               "kind": "Content",
@@ -13915,7 +13915,7 @@
             },
             {
               "kind": "Content",
-              "text": "\"None\" | \"Provider\" | \"Creator\" | \"Admin\" | string"
+              "text": "\"None\" | \"Member\" | \"Admin\" | \"Owner\" | string"
             },
             {
               "kind": "Content",

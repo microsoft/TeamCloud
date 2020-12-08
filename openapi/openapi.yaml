@@ -2355,8 +2355,8 @@ components:
         role:
           enum:
             - None
-            - Provider
             - Member
+            - Admin
             - Owner
           type: string
         properties:
@@ -2385,9 +2385,9 @@ components:
         role:
           enum:
             - None
-            - Provider
-            - Creator
+            - Member
             - Admin
+            - Owner
           type: string
         projectMemberships:
           type: array
