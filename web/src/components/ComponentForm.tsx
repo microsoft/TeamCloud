@@ -7,7 +7,7 @@ import { ProjectComponentDefinition, ComponentTemplate } from 'teamcloud';
 import { useHistory } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { FuiForm } from '@rjsf/fluent-ui'
-import { ISubmitEvent } from '@rjsf/core';
+import { FieldTemplateProps, ISubmitEvent, WidgetProps } from '@rjsf/core';
 import { ContentContainer, ContentHeader, ContentList, ContentProgress } from '.';
 import { OrgContext, ProjectContext } from '../Context';
 import DevOps from '../img/devops.svg';
@@ -218,7 +218,7 @@ export const ComponentForm: React.FC = () => {
                                             <TextField
                                                 required
                                                 label='Name'
-                                                description='Component display name'
+                                                // description='Component display name'
                                                 disabled={!formEnabled}
                                                 value={displayName}
                                                 onChange={(_ev, val) => setDisplayName(val)} />
@@ -238,6 +238,8 @@ export const ComponentForm: React.FC = () => {
                                             <FuiForm
                                                 disabled={!formEnabled}
                                                 onSubmit={_submitForm}
+                                                FieldTemplate={TCFieldTemplate}
+                                                // widgets={{ 'SelectWidget': TCSelectWidget }}
                                                 schema={template?.inputJsonSchema ? JSON.parse(template.inputJsonSchema) : {}}>
                                                 <Separator styles={{ root: { selectors: { '::before': { backgroundColor: theme.palette.neutralQuaternary } } } }} />
                                                 <div style={{ paddingTop: '24px' }}>
@@ -267,3 +269,39 @@ export const ComponentForm: React.FC = () => {
         </>
     );
 }
+
+
+export const TCFieldTemplate: React.FC<FieldTemplateProps> = (props) => {
+    console.log('TCFieldTemplate');
+    console.log(props);
+
+    // if (props.rawDescription)
+    //     props.label = props.rawDescription
+
+    return props.id === 'root' ? (
+        <Stack styles={{ root: { minWidth: '460px' } }} tokens={{ childrenGap: '14px' }}>
+            {props.children}
+        </Stack>
+    ) : (
+            <Stack.Item grow styles={{ root: { paddingBottom: '16px' } }}>
+
+                {props.children}
+            </Stack.Item>
+        );
+}
+
+// export const TCSelectWidget: React.FC<WidgetProps> = (props) => {
+
+//     console.log('TCSelectWidget');
+//     console.log(props);
+//     return (
+
+//         <TextField
+//             readOnly
+//             label={props.schema.description}
+//             defaultValue={props.value}
+//             styles={{
+
+//             }} />
+//     );
+// }

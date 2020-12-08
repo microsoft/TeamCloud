@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect, useContext } from 'react';
-import { CheckboxVisibility, DetailsList, DetailsListLayoutMode, FontIcon, getTheme, IColumn, IDetailsRowProps, IRenderFunction, SelectionMode, Stack, Text, TextField } from '@fluentui/react';
+import { CheckboxVisibility, DetailsList, DetailsListLayoutMode, FontIcon, getTheme, IColumn, IDetailsRowProps, IRenderFunction, SearchBox, SelectionMode, Separator, Stack, Text, TextField } from '@fluentui/react';
 import { ProjectContext } from '../Context';
 import { ComponentDeployment } from 'teamcloud';
 
@@ -41,7 +41,7 @@ export const ComponentDeploymentList: React.FunctionComponent<IComponentDeployme
 
     const columns: IColumn[] = [
         {
-            key: 'componentId', name: 'ComponentId', minWidth: 400, maxWidth: 400, onRender: (d: ComponentDeployment) => (
+            key: 'componentId', name: 'ComponentId', minWidth: 440, maxWidth: 440, onRender: (d: ComponentDeployment) => (
                 <Stack
                     horizontal
                     verticalAlign='center'
@@ -79,6 +79,7 @@ export const ComponentDeploymentList: React.FunctionComponent<IComponentDeployme
     };
 
 
+
     return (
         <Stack
             horizontal
@@ -100,53 +101,100 @@ export const ComponentDeploymentList: React.FunctionComponent<IComponentDeployme
                     checkboxVisibility={CheckboxVisibility.hidden}
                     selectionMode={SelectionMode.none}
                     onItemInvoked={_onItemInvoked}
-                    styles={{ focusZone: { minWidth: '1px' } }}
+                    styles={{ focusZone: { minWidth: '1px' }, root: { minWidth: '460px', boxShadow: theme.effects.elevation8 } }}
                 />
             </Stack.Item>
             <Stack.Item grow={2} styles={{
                 root: {
                     height: '100%',
                     // minWidth: '60%',
-                    padding: '10px 40px',
+                    // padding: '10px 20px',
                     borderRadius: theme.effects.roundedCorner4,
-                    // boxShadow: theme.effects.elevation4,
-                    backgroundColor: theme.palette.black
+                    color: 'rgb(225,228,232)',
+                    backgroundColor: 'rgb(36,41,46)',
+                    fontSize: '12px',
+                    lineHeight: '20px',
+                    fontFamily: 'SFMono-Regular,Consolas,Liberation Mono,Menlo,monospace!important',
                 }
             }}>
-                {deployment?.output && (
-                    <TextField
-                        readOnly
-                        multiline
-                        borderless
-                        resizable={false}
-                        defaultValue={deployment?.output ?? undefined}
-                        styles={{
-                            root: {
-                                color: theme.palette.white,
-                                minHeight: '50%'
-                            },
-                            fieldGroup: {
-                                backgroundColor: theme.palette.black,
-                                border: 'none',
-                                color: theme.palette.white,
-                                height: '600px'
-                            },
-                            field: {
-                                // backgroundColor: theme.palette.black,
-                                // border: 'none',
-                                color: theme.palette.white,
-                            },
-                            wrapper: {
-                                color: theme.palette.white,
-                            }
+                <Stack>
+                    <Stack.Item>
+                        <Stack styles={{ root: { padding: '14px 24px 0px 24px' } }} horizontal verticalFill horizontalAlign='space-between' verticalAlign='center'>
+                            <Stack.Item>
+                                <Stack tokens={{ childrenGap: '4px' }}>
+                                    <Text styles={{ root: { fontSize: '16px', fontWeight: '600' } }}>Deployment One</Text>
+                                    <Text styles={{ root: { color: 'rgb(149,157,165)', fontSize: '12px', fontWeight: '600' } }}>failed 2 hours ago</Text>
+                                </Stack>
+                            </Stack.Item>
+                            <Stack.Item>
+                                <SearchBox
+                                    styles={{
+                                        root: {
+                                            border: '1px solid transparent',
+                                            borderRadius: theme.effects.roundedCorner4,
+                                            backgroundColor: 'rgb(47,54,61)',
+                                            color: 'rgb(149,157,165)',
 
-                        }} />
-                )}
-                {/* <Text block styles={{ root: { color: theme.palette.white } }}>
-                        {deployment?.output}
-                    </Text> */}
+                                        },
+                                        field: {
+                                            backgroundColor: 'rgb(47,54,61)',
+                                            color: 'rgb(225,228,232)',
+                                        },
+                                        icon: {
+                                            color: 'rgb(149,157,165)',
+                                        }
+                                    }}
+                                />
+                            </Stack.Item>
+                        </Stack>
+                    </Stack.Item>
 
-                {/* <ReactMarkdown>{template?.description ?? undefined as any}</ReactMarkdown> */}
+                    <Stack.Item>
+                        <Separator styles={{ root: { selectors: { '::before': { backgroundColor: theme.palette.neutralPrimary } } } }} />
+                    </Stack.Item>
+
+                    {deployment?.output && (
+                        <Stack.Item styles={{ root: { padding: '0px 16px 16px 16px' } }}>
+                            <TextField
+                                readOnly
+                                multiline
+                                borderless
+                                resizable={false}
+                                defaultValue={deployment?.output ?? undefined}
+                                styles={{
+                                    root: {
+                                        color: 'rgb(225,228,232)',
+                                        minHeight: '50%'
+                                    },
+                                    fieldGroup: {
+                                        height: '720px',
+                                        whiteSpace: 'pre-wrap',
+                                        overflowWrap: 'break-word',
+                                        border: 'none',
+                                        color: 'rgb(225,228,232)',
+                                        backgroundColor: 'rgb(36,41,46)',
+                                        fontSize: '12px',
+                                        lineHeight: '20px',
+                                        fontFamily: 'SFMono-Regular,Consolas,Liberation Mono,Menlo,monospace!important',
+                                        // fontFamily: "Menlo, Consolas, Monaco, 'Andale Mono', monospace",//'Monaco, Menlo, Consolas, monospace',
+
+                                    },
+                                    field: {
+                                        height: '720px',
+                                        whiteSpace: 'pre-wrap',
+                                        overflowWrap: 'break-word',
+                                        border: 'none',
+                                        color: 'rgb(225,228,232)',
+                                        backgroundColor: 'rgb(36,41,46)',
+                                        fontSize: '12px',
+                                        lineHeight: '20px',
+                                        fontFamily: 'SFMono-Regular,Consolas,Liberation Mono,Menlo,monospace!important',
+                                        //fontFamily: "Menlo, Consolas, Monaco, 'Andale Mono', monospace",//'Monaco, Menlo, Consolas, monospace',
+                                    }
+                                }} />
+                        </Stack.Item>
+                    )}
+                </Stack>
             </Stack.Item>
         </Stack >
 

@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import React, { useContext, useEffect, useState } from 'react';
-import { FontIcon, getTheme, Link, Persona, PersonaSize, Pivot, PivotItem, Stack, Text } from '@fluentui/react';
+import { FontIcon, getTheme, Link, Persona, PersonaSize, Pivot, PivotItem, Stack, Text, TextField } from '@fluentui/react';
 // import { useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { ComponentTemplate, DeploymentScope } from 'teamcloud';
@@ -10,7 +10,7 @@ import { OrgContext, ProjectContext } from '../Context';
 import { ProjectMember } from '../model';
 import { FuiForm } from '@rjsf/fluent-ui';
 import { ComponentDeploymentList } from '.';
-// import { FieldTemplateProps } from '@rjsf/core';
+import { FieldTemplateProps, WidgetProps } from '@rjsf/core';
 // import DevOps from '../img/devops.svg';
 // import GitHub from '../img/github.svg';
 // import Resource from '../img/resource.svg';
@@ -38,8 +38,7 @@ export const ComponentOverview: React.FC = (props) => {
 
     useEffect(() => {
         if (component && templates && (template === undefined || component.templateId.toLowerCase() !== template.id.toLowerCase())) {
-            // console.log(component);
-            // console.log(component.inputJson);
+            console.log(`setComponentTemplate (${component.slug})`);
             setTemplate(templates.find(t => component.templateId.toLowerCase() === t.id.toLowerCase()) ?? undefined);
         }
     }, [component, template, templates])
@@ -47,7 +46,7 @@ export const ComponentOverview: React.FC = (props) => {
 
     useEffect(() => {
         if (component && members && (creator === undefined || creator.user.id.toLowerCase() !== component.requestedBy.toLowerCase())) {
-            // console.log(component.resourceId);
+            console.log(`setComponentCreator (${component.slug})`);
             setCreator(members.find(m => component.requestedBy.toLowerCase() === m.user.id.toLowerCase()) ?? undefined);
         }
     }, [component, creator, members])
@@ -55,7 +54,7 @@ export const ComponentOverview: React.FC = (props) => {
 
     useEffect(() => {
         if (component && scopes && (scope === undefined || (component.deploymentScopeId && scope.id.toLowerCase() !== component.deploymentScopeId.toLowerCase()))) {
-            // console.log(component.resourceId);
+            console.log(`setComponentScope (${component.slug})`);
             setScope(scopes.find(s => component.deploymentScopeId?.toLowerCase() === s.id.toLowerCase()) ?? undefined);
         }
     }, [component, scope, scopes])
@@ -155,12 +154,15 @@ export const ComponentOverview: React.FC = (props) => {
             <Stack.Item styles={{ root: { height: '100%', padding: '0px' } }}>
                 <Pivot selectedKey={pivotKey} onLinkClick={(i, ev) => setPivotKey(i?.props.itemKey ?? 'Parameters')} styles={{ root: { height: '100%' } }}>
                     <PivotItem headerText='Parameters' itemKey='Parameters'>
-                        <Stack horizontal tokens={{ childrenGap: '40px' }} styles={{ root: { height: '100%', padding: '24px 8px' } }}>
-                            <Stack.Item grow styles={{ root: { minWidth: '40%', } }}>
+                        <Stack
+                            horizontal
+                            horizontalAlign='start'
+                            tokens={{ childrenGap: '20px' }}
+                            styles={{ root: { height: '100%', padding: '24px 8px' } }}>
+                            <Stack.Item styles={{ root: { minWidth: '460px' } }}>
                                 <FuiForm
-                                    // FieldTemplate={(prps) => { console.log(prps); return (<TextField readOnly label={prps.label} />); }}
-                                    // uiSchema={{ 'ui:field': 'readonly' }}
-                                    disabled
+                                    widgets={{ 'SelectWidget': ReadonlySelectWidget }}
+                                    FieldTemplate={ReadonlyFieldTemplate}
                                     schema={template?.inputJsonSchema ? JSON.parse(template.inputJsonSchema) : {}}
                                     formData={component.inputJson ? JSON.parse(component.inputJson) : undefined}
                                     onChange={() => { }}>
@@ -168,10 +170,12 @@ export const ComponentOverview: React.FC = (props) => {
                                 </FuiForm>
                             </Stack.Item>
                             {template?.description && (
-                                <Stack.Item grow styles={{
+                                <Stack.Item grow={2} styles={{
                                     root: {
-                                        height: '100%',
-                                        minWidth: '40%',
+                                        // height: '100%',
+                                        // minWidth: '400px',
+                                        // maxWidth: '1000px',
+                                        height: '720px',
                                         padding: '10px 40px',
                                         borderRadius: theme.effects.roundedCorner4,
                                         boxShadow: theme.effects.elevation4,
@@ -220,3 +224,25 @@ export const ComponentOverviewHeaderSection: React.FC<IComponentOverviewHeaderSe
         </Stack.Item>
     );
 }
+
+export const ReadonlyFieldTemplate: React.FC<FieldTemplateProps> = (props) =>
+    props.id === 'root' ? (
+        <Stack styles={{ root: { paddingTop: '16px', minWidth: '460px' } }} tokens={{ childrenGap: '14px' }}>
+            {props.children}
+        </Stack>
+    ) : (
+            <Stack.Item grow styles={{ root: { paddingBottom: '16px' } }}>
+                {props.children}
+            </Stack.Item>
+        );
+
+
+export const ReadonlySelectWidget: React.FC<WidgetProps> = (props) => (
+    <TextField
+        readOnly
+        label={props.schema.description}
+        defaultValue={props.value}
+        styles={{
+
+        }} />
+);
