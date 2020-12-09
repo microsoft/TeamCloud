@@ -12,29 +12,27 @@ using TeamCloud.Azure;
 using TeamCloud.Azure.Deployment;
 using TeamCloud.Azure.Resources;
 using TeamCloud.Data;
-using TeamCloud.Model.Common;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
-using TeamCloud.Orchestrator.Templates;
 
 namespace TeamCloud.Orchestrator.Operations.Activities
 {
-    public sealed class OrganizationDeployActivity
+    public sealed class OrganizationInitActivity
     {
         private readonly IOrganizationRepository organizationRepository;
         private readonly IAzureSessionService azureSessionService;
         private readonly IAzureDeploymentService azureDeploymentService;
 
-        public OrganizationDeployActivity(IOrganizationRepository organizationRepository, IAzureSessionService azureSessionService, IAzureDeploymentService azureDeploymentService)
+        public OrganizationInitActivity(IOrganizationRepository organizationRepository, IAzureSessionService azureSessionService, IAzureDeploymentService azureDeploymentService)
         {
             this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
             this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
             this.azureDeploymentService = azureDeploymentService ?? throw new System.ArgumentNullException(nameof(azureDeploymentService));
         }
 
-        [FunctionName(nameof(OrganizationDeployActivity))]
+        [FunctionName(nameof(OrganizationInitActivity))]
         [RetryOptions(3)]
-        public async Task<string> Run(
+        public async Task<Organization> Run(
             [ActivityTrigger] IDurableActivityContext context)
         {
             if (context is null)
@@ -72,22 +70,9 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                     .SetAsync(organization)
                     .ConfigureAwait(false);
 
-                organizationResourceId = AzureResourceIdentifier.Parse(organization.ResourceId);
             }
 
-            var template = new OrganizationDeployTemplate();
-
-            var deployment = await azureDeploymentService
-                .DeployResourceGroupTemplateAsync(template, Guid.Parse(organization.SubscriptionId), organizationResourceId.ResourceGroup)
-                .ConfigureAwait(false);
-
-            organization.ResourceState = ResourceState.Provisioning;
-
-            organization = await organizationRepository
-                .SetAsync(organization)
-                .ConfigureAwait(false);
-
-            return deployment.ResourceId;
+            return organization;
         }
 
         internal struct Input

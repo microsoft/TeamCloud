@@ -12,18 +12,18 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Orchestrator.Operations.Activities
 {
-    public sealed class ComponentDeploymentRefreshActivity
+    public sealed class ComponentDeploymentUpdateActivity
     {
         private readonly IComponentDeploymentRepository componentDeploymentRepository;
         private readonly IAzureResourceService azureResourceService;
 
-        public ComponentDeploymentRefreshActivity(IComponentDeploymentRepository componentDeploymentRepository, IAzureResourceService azureResourceService)
+        public ComponentDeploymentUpdateActivity(IComponentDeploymentRepository componentDeploymentRepository, IAzureResourceService azureResourceService)
         {
             this.componentDeploymentRepository = componentDeploymentRepository ?? throw new ArgumentNullException(nameof(componentDeploymentRepository));
             this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
         }
 
-        [FunctionName(nameof(ComponentDeploymentRefreshActivity))]
+        [FunctionName(nameof(ComponentDeploymentUpdateActivity))]
         public async Task<ComponentDeployment> Run(
             [ActivityTrigger] IDurableActivityContext context)
         {
@@ -47,7 +47,13 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                 var container = runner.Containers.SingleOrDefault().Value;
 
                 if (container is null)
-                    return componentDeployment;
+                {
+                    componentDeployment.ResourceState = ResourceState.Initializing;
+
+                    return await componentDeploymentRepository
+                        .SetAsync(componentDeployment)
+                        .ConfigureAwait(false); ;
+                }
 
                 var containerLog = default(string);
 
@@ -63,7 +69,13 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                 }
 
                 if (string.IsNullOrEmpty(containerLog))
-                    return componentDeployment;
+                {
+                    componentDeployment.ResourceState = ResourceState.Provisioning;
+
+                    return await componentDeploymentRepository
+                        .SetAsync(componentDeployment)
+                        .ConfigureAwait(false); ;
+                }
 
                 componentDeployment.Output = MergeOutput(componentDeployment.Output, Regex.Replace(containerLog, @"(?<!\r)\n", Environment.NewLine, RegexOptions.Compiled));
                 componentDeployment.ExitCode = container.InstanceView.CurrentState.ExitCode;

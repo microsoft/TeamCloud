@@ -47,35 +47,43 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Commands
 
                     try
                     {
+                        organization = await context
+                            .CallActivityWithRetryAsync<Organization>(nameof(OrganizationSetActivity), new OrganizationSetActivity.Input() { Organization = organization, ResourceState = ResourceState.Initializing })
+                            .ConfigureAwait(true);
+
+                        organization = await context
+                            .CallActivityWithRetryAsync<Organization>(nameof(OrganizationInitActivity), new OrganizationInitActivity.Input() { Organization = organization })
+                            .ConfigureAwait(true);
+
                         var deploymentOutputEventName = context.NewGuid().ToString();
 
                         _ = await context
                             .StartDeploymentAsync(nameof(OrganizationDeployActivity), new OrganizationDeployActivity.Input() { Organization = organization }, deploymentOutputEventName)
                             .ConfigureAwait(true);
 
-                        organization.ResourceState = ResourceState.Provisioning;
-
                         organization = await context
-                            .CallActivityWithRetryAsync<Organization>(nameof(OrganizationSetActivity), new OrganizationSetActivity.Input() { Organization = organization })
+                            .CallActivityWithRetryAsync<Organization>(nameof(OrganizationSetActivity), new OrganizationSetActivity.Input() { Organization = organization, ResourceState = ResourceState.Provisioning })
                             .ConfigureAwait(true);
 
-                        var deploymentOutput = await context
+                        _ = await context
                             .WaitForDeploymentOutput(deploymentOutputEventName, TimeSpan.FromMinutes(5))
                             .ConfigureAwait(true);
 
-                        organization.ResourceId = deploymentOutput["resourceId"].ToString();
-                        organization.ResourceState = ResourceState.Succeeded;
+                        organization = await context
+                            .CallActivityWithRetryAsync<Organization>(nameof(OrganizationSetActivity), new OrganizationSetActivity.Input() { Organization = organization, ResourceState = ResourceState.Succeeded })
+                            .ConfigureAwait(true);
                     }
                     catch (Exception deploymentExc)
                     {
                         log.LogError(deploymentExc, $"Failed to deploy resources for organization {organization.Id}: {deploymentExc.Message}");
-                        organization.ResourceState = ResourceState.Failed;
+
+                        organization = await context
+                            .CallActivityWithRetryAsync<Organization>(nameof(OrganizationSetActivity), new OrganizationSetActivity.Input() { Organization = organization, ResourceState = ResourceState.Failed })
+                            .ConfigureAwait(true);
                     }
                     finally
                     {
-                        commandResult.Result = await context
-                            .CallActivityWithRetryAsync<Organization>(nameof(OrganizationSetActivity), new OrganizationSetActivity.Input() { Organization = organization })
-                            .ConfigureAwait(true);
+                        commandResult.Result = organization;
                     }
                 }
             }
@@ -92,6 +100,5 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Commands
                 context.SetOutput(commandResult);
             }
         }
-
     }
 }

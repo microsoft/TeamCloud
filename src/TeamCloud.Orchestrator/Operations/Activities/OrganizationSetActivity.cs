@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Data;
+using TeamCloud.Model.Common;
 using TeamCloud.Model.Data;
 
 namespace TeamCloud.Orchestrator.Operations.Activities
@@ -28,10 +29,12 @@ namespace TeamCloud.Orchestrator.Operations.Activities
             if (context is null)
                 throw new ArgumentNullException(nameof(context));
 
-            var input = context.GetInput<Input>();
+            var organization = context.GetInput<Input>().Organization;
 
-            var organization = await organizationRepository
-                .SetAsync(input.Organization)
+            organization.ResourceState = context.GetInput<Input>().ResourceState.GetValueOrDefault(organization.ResourceState);
+
+            organization = await organizationRepository
+                .SetAsync(organization)
                 .ConfigureAwait(false);
 
             return organization;
@@ -40,6 +43,8 @@ namespace TeamCloud.Orchestrator.Operations.Activities
         internal struct Input
         {
             public Organization Organization { get; set; }
+
+            public ResourceState? ResourceState { get; set; }
         }
     }
 }
