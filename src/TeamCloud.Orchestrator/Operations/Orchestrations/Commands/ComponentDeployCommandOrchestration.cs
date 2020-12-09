@@ -4,6 +4,7 @@
  */
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -36,6 +37,23 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Commands
                 command.Payload = (await context
                     .CallActivityWithRetryAsync<Component>(nameof(ComponentGetActivity), new ComponentGetActivity.Input() { Id = command.Payload.Id, ProjectId = command.Payload.ProjectId })
                     .ConfigureAwait(true)) ?? command.Payload;
+
+                var ready = await context
+                    .CallActivityWithRetryAsync<bool>(nameof(ComponentGuardActivity), new ComponentGuardActivity.Input() { Component = command.Payload })
+                    .ConfigureAwait(true);
+
+                if (!ready)
+                {
+                    context
+                        .CreateReplaySafeLogger(log)
+                        .LogInformation($"!!! Component '{command.Payload.Slug}' needs to wait for Organization/Project resource to be provisioned.");
+
+                    await context
+                        .CreateTimer(context.CurrentUtcDateTime.AddSeconds(2), CancellationToken.None)
+                        .ConfigureAwait(true);
+
+                    context.ContinueAsNew(command);
+                }
 
                 var commandResultTask = command.Payload.Type switch
                 {

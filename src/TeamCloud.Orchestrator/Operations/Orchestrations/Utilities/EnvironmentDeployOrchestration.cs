@@ -53,7 +53,7 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Utilities
                             .ConfigureAwait(true);
 
                         componentDeployment = await context
-                            .CallActivityWithRetryAsync<ComponentDeployment>(nameof(ComponentRunnerActivity), new ComponentRunnerActivity.Input() { Component = component })
+                            .CallActivityWithRetryAsync<ComponentDeployment>(nameof(ComponentDeploymentStartActivity), new ComponentDeploymentStartActivity.Input() { Component = component })
                             .ConfigureAwait(true);
 
                         context.ContinueAsNew(new Input() { Component = component, ComponentDeployment = componentDeployment });
@@ -61,10 +61,10 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Utilities
                     else
                     {
                         componentDeployment = await context
-                            .CallActivityWithRetryAsync<ComponentDeployment>(nameof(ComponentDeploymentRefreshActivity), new ComponentDeploymentRefreshActivity.Input() { ComponentDeployment = componentDeployment })
+                            .CallActivityWithRetryAsync<ComponentDeployment>(nameof(ComponentDeploymentUpdateActivity), new ComponentDeploymentUpdateActivity.Input() { ComponentDeployment = componentDeployment })
                             .ConfigureAwait(true);
 
-                        if (componentDeployment.ExitCode.HasValue)
+                        if (componentDeployment.ResourceState == ResourceState.Succeeded || componentDeployment.ResourceState == ResourceState.Failed)
                         {
                             component = await context
                                 .CallActivityWithRetryAsync<Component>(nameof(ComponentGetActivity), new ComponentGetActivity.Input() { ProjectId = component.ProjectId, Id = component.Id })

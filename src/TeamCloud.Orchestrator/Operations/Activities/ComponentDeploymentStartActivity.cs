@@ -14,7 +14,7 @@ using TeamCloud.Orchestration;
 
 namespace TeamCloud.Orchestrator.Operations.Activities
 {
-    public sealed class ComponentRunnerActivity
+    public sealed class ComponentDeploymentStartActivity
     {
         private readonly IOrganizationRepository organizationRepository;
         private readonly IProjectRepository projectRepository;
@@ -23,7 +23,7 @@ namespace TeamCloud.Orchestrator.Operations.Activities
         private readonly IComponentDeploymentRepository componentDeploymentRepository;
         private readonly IAzureSessionService azureSessionService;
 
-        public ComponentRunnerActivity(IOrganizationRepository organizationRepository,
+        public ComponentDeploymentStartActivity(IOrganizationRepository organizationRepository,
                                        IProjectRepository projectRepository,
                                        IComponentTemplateRepository componentTemplateRepository,
                                        IComponentDeploymentRepository componentDeploymentRepository,
@@ -36,7 +36,7 @@ namespace TeamCloud.Orchestrator.Operations.Activities
             this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
         }
 
-        [FunctionName(nameof(ComponentRunnerActivity))]
+        [FunctionName(nameof(ComponentDeploymentStartActivity))]
         [RetryOptions(3)]
         public async Task<ComponentDeployment> Run(
             [ActivityTrigger] IDurableActivityContext context)

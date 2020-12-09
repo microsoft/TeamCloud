@@ -45,45 +45,45 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Commands
                         .CallActivityWithRetryAsync<Project>(nameof(ProjectGetActivity), new ProjectGetActivity.Input() { Id = command.Payload.Id, Organization = command.Payload.Organization })
                         .ConfigureAwait(true)) ?? command.Payload;
 
-                    // fetch the organization the project belongs to as
-                    // we need some org level information to deploy
-                    // project related resources.
-
-                    var organization = await context
-                        .CallActivityWithRetryAsync<Organization>(nameof(OrganizationGetActivity), new OrganizationGetActivity.Input() { Id = project.Organization })
-                        .ConfigureAwait(true);
-
                     try
                     {
+                        project = await context
+                            .CallActivityWithRetryAsync<Project>(nameof(ProjectSetActivity), new ProjectSetActivity.Input() { Project = project, ResourceState = ResourceState.Initializing })
+                            .ConfigureAwait(true);
+
+                        project = await context
+                            .CallActivityWithRetryAsync<Project>(nameof(ProjectInitActivity), new ProjectInitActivity.Input() { Project = project })
+                            .ConfigureAwait(true);
+
                         var deploymentOutputEventName = context.NewGuid().ToString();
 
                         _ = await context
-                            .StartDeploymentAsync(nameof(ProjectDeployActivity), new ProjectDeployActivity.Input() { Project = project, Organization = organization }, deploymentOutputEventName)
+                            .StartDeploymentAsync(nameof(ProjectDeployActivity), new ProjectDeployActivity.Input() { Project = project }, deploymentOutputEventName)
                             .ConfigureAwait(true);
-
-                        project.ResourceState = ResourceState.Provisioning;
 
                         project = await context
-                            .CallActivityWithRetryAsync<Project>(nameof(ProjectSetActivity), new ProjectSetActivity.Input() { Project = project })
+                            .CallActivityWithRetryAsync<Project>(nameof(ProjectSetActivity), new ProjectSetActivity.Input() { Project = project, ResourceState = ResourceState.Provisioning })
                             .ConfigureAwait(true);
 
-                        var deploymentOutput = await context
+                        _ = await context
                             .WaitForDeploymentOutput(deploymentOutputEventName, TimeSpan.FromMinutes(5))
                             .ConfigureAwait(true);
 
-                        project.ResourceId = deploymentOutput["resourceId"].ToString();
-                        project.ResourceState = ResourceState.Succeeded;
+                        project = await context
+                            .CallActivityWithRetryAsync<Project>(nameof(ProjectSetActivity), new ProjectSetActivity.Input() { Project = project, ResourceState = ResourceState.Succeeded })
+                            .ConfigureAwait(true);
                     }
                     catch (Exception deploymentExc)
                     {
                         log.LogError(deploymentExc, $"Failed to deploy resources for project {project.Id}: {deploymentExc.Message}");
-                        project.ResourceState = ResourceState.Failed;
+
+                        project = await context
+                            .CallActivityWithRetryAsync<Project>(nameof(ProjectSetActivity), new ProjectSetActivity.Input() { Project = project, ResourceState = ResourceState.Failed })
+                            .ConfigureAwait(true);
                     }
                     finally
                     {
-                        commandResult.Result = await context
-                            .CallActivityWithRetryAsync<Project>(nameof(ProjectSetActivity), new ProjectSetActivity.Input() { Project = project })
-                            .ConfigureAwait(true);
+                        commandResult.Result = project;
                     }
                 }
             }

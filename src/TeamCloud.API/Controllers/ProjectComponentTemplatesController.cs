@@ -45,7 +45,7 @@ namespace TeamCloud.API.Controllers
                 .ConfigureAwait(false);
 
             return DataResult<List<ComponentTemplate>>
-                .Ok(componenetTemplates)
+                .Ok(componenetTemplates.OrderBy(ct => ct.DisplayName).ToList())
                 .ToActionResult();
         });
 
