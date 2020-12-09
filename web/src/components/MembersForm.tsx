@@ -6,7 +6,6 @@ import { Stack, Dropdown, IDropdownOption, Label, Panel, PrimaryButton, DefaultB
 import { UserDefinition } from 'teamcloud';
 import { GraphUser, Member } from '../model'
 import { MemberPicker } from '.';
-import { useParams } from 'react-router-dom';
 
 export interface IMembersFormProps {
     members?: Member[];
@@ -16,8 +15,6 @@ export interface IMembersFormProps {
 }
 
 export const MembersForm: React.FC<IMembersFormProps> = (props) => {
-
-    const { projectId } = useParams() as { projectId: string }
 
     const [formEnabled, setFormEnabled] = useState<boolean>(true);
     const [userIdentifiers, setUserIdentifiers] = useState<string[]>();
@@ -45,8 +42,7 @@ export const MembersForm: React.FC<IMembersFormProps> = (props) => {
         props.onFormClose();
     };
 
-    const _projectRoleOptions = (): IDropdownOption[] =>
-        ['Member', 'Admin'].map(r => ({ key: r, text: r } as IDropdownOption));
+    const _projectRoleOptions = (): IDropdownOption[] => ['Member', 'Admin'].map(r => ({ key: r, text: r } as IDropdownOption));
 
     const _onUserRoleDropdownChange = (event: React.FormEvent<HTMLDivElement>, option?: IDropdownOption): void => {
         setUserRole(option ? option.key as string : undefined);

@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { MouseEventHandler } from 'react';
+import React from 'react';
 import { IPersonaStyleProps, IPersonaStyles, IStyleFunctionOrObject, Persona, PersonaSize } from '@fluentui/react';
-import { GraphUser, Member } from '../model';
+import { GraphUser } from '../model';
 
 export interface IUserPersonaProps {
     size?: PersonaSize;
@@ -19,13 +19,11 @@ export const UserPersona: React.FunctionComponent<IUserPersonaProps> = (props) =
 
     const text = props.user?.displayName;
 
-    const mail = props.user?.mail
-        ?? ((props.user?.otherMails?.length ?? 0 > 0) ? props.user!.otherMails![0] : props.user?.userPrincipalName);
+    const mail = props.user?.mail ?? (props.user?.otherMails?.length ?? 0) > 0 ? props.user!.otherMails![0] : props.user?.userPrincipalName;
 
-    const secondaryText = props.large ? mail : undefined;
+    const secondaryText = props.large ? props.user?.jobTitle : mail;
 
     const tertiaryText = props.large ? props.user?.department : undefined;
-    // const tertiaryText = props.user?.department;
 
     const imageUrl = props.user?.imageUrl;
 
@@ -38,6 +36,7 @@ export const UserPersona: React.FunctionComponent<IUserPersonaProps> = (props) =
             tertiaryText={tertiaryText}
             imageUrl={imageUrl}
             styles={props.styles}
-            size={props.size ?? props.large ? PersonaSize.size72 : PersonaSize.size32} />
+            onClick={props.onClick}
+            size={props.size ? props.size : (props.large ? PersonaSize.size72 : PersonaSize.size32)} />
     );
 }

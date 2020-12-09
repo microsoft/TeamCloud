@@ -368,8 +368,9 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
     useEffect(() => { // Project Components
         if (isAuthenticated && projectId && project) {
             if ((navId === undefined && !endsWithLowerCase(location.pathname, '/settings'))
-                || (navId && matchesLowerCase(navId, 'components') && !endsWithLowerCase(location.pathname, '/new'))) {
-                if (projectComponents === undefined || projectComponents.some(c => c.projectId !== project.id)
+                || (navId && matchesLowerCase(navId, 'components'))) {
+                if (projectComponents === undefined
+                    || projectComponents.some(c => c.projectId !== project.id)
                     || (projectComponent && !projectComponents.some(c => c.id === projectComponent.id))) {
                     const _setComponents = async () => {
                         console.log(`setProjectComponents (${project.slug})`);
@@ -414,7 +415,7 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
 
 
     useEffect(() => { // Esure selected Project Component matches route
-        if (projectId && navId && itemId && includesLowerCase(location.pathname, '/components')) {
+        if (projectId && navId && matchesLowerCase(navId, 'components') && itemId) {
             if (projectComponent && matchesRouteParam(projectComponent, itemId)) {
                 return;
             } else if (projectComponents) {

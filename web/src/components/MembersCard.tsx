@@ -29,15 +29,17 @@ export const MembersCard: React.FC<IMembersCardProps> = (props) => {
         }
     };
 
-    const _removeButtonDisabled = (member: ProjectMember) => {
-        return project && members && member.projectMembership.role.toLowerCase() === 'owner'
-            && members.filter(m => m.user.userType.toLowerCase() === 'user'
-                && m.user.projectMemberships
-                && m.user.projectMemberships!.find(pm => pm.projectId === project!.id && pm.role.toLowerCase() === 'owner')).length === 1
-    };
+    const _removeButtonDisabled = (member: ProjectMember) =>
+        member.projectMembership.role.toLowerCase() === 'owner';
 
-    const _userIsProjectOwner = () =>
-        project && user?.projectMemberships?.find(m => m.projectId === project!.id)?.role.toLowerCase() === 'owner';
+    const _userIsProjectOwner = () => {
+        if (project && members && user) {
+            const role = user.projectMemberships?.find(m => m.projectId === project.id)?.role.toLowerCase();
+            if (role)
+                return role === 'owner' || role === 'admin';
+        }
+        return false;
+    };
 
     const _getCommandBarItems = (): ICommandBarItemProps[] => [
         { key: 'addUser', text: 'Add', iconProps: { iconName: 'PeopleAdd' }, onClick: () => setAddMembersPanelOpen(true), disabled: !_userIsProjectOwner() },

@@ -18,7 +18,6 @@ using TeamCloud.API.Data;
 using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
-using TeamCloud.Git.Services;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
 using TeamCloud.Model.Validation;
@@ -43,7 +42,7 @@ namespace TeamCloud.API.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = AuthPolicies.ProjectRead)]
+        [Authorize(Policy = AuthPolicies.ProjectMember)]
         [SwaggerOperation(OperationId = "GetProjectComponents", Summary = "Gets all Components for a Project.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all Project Components", typeof(DataResult<List<Component>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
@@ -62,7 +61,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpGet("{id}")]
-        [Authorize(Policy = AuthPolicies.ProjectRead)]
+        [Authorize(Policy = AuthPolicies.ProjectMember)]
         [SwaggerOperation(OperationId = "GetProjectComponent", Summary = "Gets a Project Component.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns Project Component", typeof(DataResult<Component>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
@@ -90,7 +89,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpPost]
-        [Authorize(Policy = AuthPolicies.ProjectComponentWrite)]
+        [Authorize(Policy = AuthPolicies.ProjectMember)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "CreateProjectComponent", Summary = "Creates a new Project Component.")]
         [SwaggerResponse(StatusCodes.Status201Created, "The created Project Component.", typeof(DataResult<Component>))]
@@ -168,7 +167,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpDelete("{id}")]
-        [Authorize(Policy = AuthPolicies.ProjectComponentUpdate)]
+        [Authorize(Policy = AuthPolicies.ProjectComponentOwner)]
         [SwaggerOperation(OperationId = "DeleteProjectComponent", Summary = "Deletes an existing Project Component.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts deleting the Project Component. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status204NoContent, "The Project Component was deleted.", typeof(DataResult<Component>))]

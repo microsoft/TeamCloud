@@ -25,7 +25,7 @@ namespace TeamCloud.API.Controllers
         public StatusController() : base()
         { }
 
-        [Authorize(Policy = AuthPolicies.Admin)]
+        [Authorize(Policy = AuthPolicies.OrganizationRead)]
         [HttpGet("orgs/{org}/status/{trackingId:guid}")]
         [SwaggerOperation(OperationId = "GetStatus", Summary = "Gets the status of a long-running operation.")]
         [SwaggerResponse(StatusCodes.Status200OK, "The long-running operation completed.", typeof(StatusResult))]
@@ -42,7 +42,7 @@ namespace TeamCloud.API.Controllers
             return GetStatusResult(result);
         }
 
-        [Authorize(Policy = AuthPolicies.ProjectRead)]
+        [Authorize(Policy = AuthPolicies.ProjectMember)]
         [HttpGet("orgs/{org}/projects/{projectId:projectId}/status/{trackingId:guid}")]
         [SwaggerOperation(OperationId = "GetProjectStatus", Summary = "Gets the status of a long-running operation.")]
         [SwaggerResponse(StatusCodes.Status200OK, "The long-running operation completed.", typeof(StatusResult))]

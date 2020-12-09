@@ -9,39 +9,18 @@ namespace TeamCloud.API.Auth
     {
         public const string Default = "default";
 
-        public const string Owner = "owner";
+        public const string OrganizationOwner = nameof(OrganizationOwner);
+        public const string OrganizationAdmin = nameof(OrganizationAdmin);
+        public const string OrganizationMember = nameof(OrganizationMember);
+        public const string OrganizationRead = nameof(OrganizationRead);
 
-        public const string Admin = "admin";
+        public const string ProjectOwner = nameof(ProjectOwner);
+        public const string ProjectAdmin = nameof(ProjectAdmin);
+        public const string ProjectMember = nameof(ProjectMember);
 
-        public const string OrganizationRead = "organizationRead";
+        public const string OrganizationUserWrite = nameof(OrganizationUserWrite);
+        public const string ProjectUserWrite = nameof(ProjectUserWrite);
 
-        public const string OrganizationDelete = "organizationDelete";
-
-        public const string UserRead = "userRead";
-        public const string UserWrite = "userWrite";
-
-        public const string ProjectUserWrite = "projectUserWrite";
-
-        public const string ProjectLinkWrite = "projectLinkWrite";
-
-        public const string ProjectRead = "projectRead";
-        public const string ProjectWrite = "projectWrite";
-        public const string ProjectCreate = "projectCreate";
-        public const string ProjectDelete = "projectDelete";
-
-        public const string ProjectIdentityRead = "projectIdentityRead";
-
-        public const string ProviderDataRead = "providerDataRead";
-        public const string ProviderDataWrite = "providerDataWrite";
-
-        public const string ProviderOfferRead = "ProviderOfferRead";
-
-        public const string ProviderOfferWrite = "providerOfferWrite";
-        public const string ProviderComponentWrite = "providerComponentWrite";
-
-        public const string ProjectComponentRead = "projectComponentRead";
-        public const string ProjectComponentWrite = "projectComponentWrite";
-
-        public const string ProjectComponentUpdate = "ProjectComponentUpdate";
+        public const string ProjectComponentOwner = nameof(ProjectComponentOwner);
     }
 }

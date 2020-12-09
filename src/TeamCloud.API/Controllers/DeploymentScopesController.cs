@@ -30,14 +30,14 @@ namespace TeamCloud.API.Controllers
     {
         private readonly IDeploymentScopeRepository deploymentScopeRepository;
 
-        public DeploymentScopesController(IDeploymentScopeRepository deploymentScopeRepository) : base()      
+        public DeploymentScopesController(IDeploymentScopeRepository deploymentScopeRepository) : base()
         {
             this.deploymentScopeRepository = deploymentScopeRepository ?? throw new ArgumentNullException(nameof(deploymentScopeRepository));
         }
 
 
         [HttpGet]
-        [Authorize(Policy = AuthPolicies.Admin)]
+        [Authorize(Policy = AuthPolicies.OrganizationRead)]
         [SwaggerOperation(OperationId = "GetDeploymentScopes", Summary = "Gets all Deployment Scopes.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all Deployment Scopes.", typeof(DataResult<List<DeploymentScope>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
@@ -55,7 +55,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpGet("{id}")]
-        [Authorize(Policy = AuthPolicies.Admin)]
+        [Authorize(Policy = AuthPolicies.OrganizationRead)]
         [SwaggerOperation(OperationId = "GetDeploymentScope", Summary = "Gets a Deployment Scope.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns a DeploymentScope.", typeof(DataResult<DeploymentScope>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
@@ -78,7 +78,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpPost]
-        [Authorize(Policy = AuthPolicies.Admin)]
+        [Authorize(Policy = AuthPolicies.OrganizationAdmin)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "CreateDeploymentScope", Summary = "Creates a new Deployment Scope.")]
         [SwaggerResponse(StatusCodes.Status201Created, "The new Deployment Scope was created.", typeof(DataResult<DeploymentScope>))]
@@ -119,7 +119,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpPut("{id}")]
-        [Authorize(Policy = AuthPolicies.Admin)]
+        [Authorize(Policy = AuthPolicies.OrganizationAdmin)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "UpdateDeploymentScope", Summary = "Updates an existing Deployment Scope.")]
         [SwaggerResponse(StatusCodes.Status200OK, "The DeploymentScope was updated.", typeof(DataResult<DeploymentScope>))]
@@ -160,7 +160,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpDelete("{id}")]
-        [Authorize(Policy = AuthPolicies.Admin)]
+        [Authorize(Policy = AuthPolicies.OrganizationAdmin)]
         [SwaggerOperation(OperationId = "DeleteDeploymentScope", Summary = "Deletes a Deployment Scope.")]
         [SwaggerResponse(StatusCodes.Status204NoContent, "The DeploymentScope was deleted.", typeof(DataResult<DeploymentScope>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]

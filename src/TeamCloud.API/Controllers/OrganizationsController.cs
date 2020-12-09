@@ -185,7 +185,7 @@ namespace TeamCloud.API.Controllers
 
 
         [HttpDelete("orgs/{org}")]
-        [Authorize(Policy = AuthPolicies.OrganizationDelete)]
+        [Authorize(Policy = AuthPolicies.OrganizationOwner)]
         [SwaggerOperation(OperationId = "DeleteOrganization", Summary = "Deletes an existing Organization.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts deleting the Organization. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "An Organization with the identifier provided was not found.", typeof(ErrorResult))]
