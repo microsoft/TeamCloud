@@ -19,6 +19,11 @@ code {
   font-size: 18px;
 }
 
+.component-link-icon {
+  font-size: 15px;
+  color: rgb(0, 120, 212);
+}
+
 .repo-type-icon {
   width: 18px;
   height: 18px;

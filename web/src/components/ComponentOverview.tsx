@@ -29,9 +29,9 @@ export const ComponentOverview: React.FC = (props) => {
     const [template, setTemplate] = useState<ComponentTemplate>();
     const [creator, setCreator] = useState<ProjectMember>();
     const [scope, setScope] = useState<DeploymentScope>();
-    const [pivotKey, setPivotKey] = useState<string>('Parameters');
+    const [pivotKey, setPivotKey] = useState<string>('Deployments');
 
-    // const pivotKeys = ['Parameters', 'Deployments', 'Settings'];
+    // const pivotKeys = ['Overview', 'Deployments', 'Settings'];
 
     // const [component, setComponent] = useState<Component>();
     // const [template, setTemplate] = useState<ComponentTemplate>();
@@ -46,10 +46,8 @@ export const ComponentOverview: React.FC = (props) => {
 
     useEffect(() => {
         if (component && members && (creator === undefined || creator.user.id.toLowerCase() !== component.requestedBy.toLowerCase())) {
-            console.log(component)
-            members.forEach(m => {
-                console.log(m);
-            });
+            // console.log(component);
+            // members.forEach(m => console.log(m));
             const ctr = members.find(m => component.requestedBy.toLowerCase() === m.user.id.toLowerCase()) ?? undefined
             console.log(`+ setComponentCreator (${ctr?.graphUser?.displayName})`);
             setCreator(ctr);
@@ -151,8 +149,8 @@ export const ComponentOverview: React.FC = (props) => {
                 </Stack>
             </Stack.Item>
             <Stack.Item styles={{ root: { height: '100%', padding: '0px' } }}>
-                <Pivot selectedKey={pivotKey} onLinkClick={(i, ev) => setPivotKey(i?.props.itemKey ?? 'Parameters')} styles={{ root: { height: '100%' } }}>
-                    <PivotItem headerText='Parameters' itemKey='Parameters'>
+                <Pivot selectedKey={pivotKey} onLinkClick={(i, ev) => setPivotKey(i?.props.itemKey ?? 'Deployments')} styles={{ root: { height: '100%' } }}>
+                    <PivotItem headerText='Overview' itemKey='Overview'>
                         <Stack
                             horizontal
                             horizontalAlign='start'
@@ -211,7 +209,7 @@ export const ComponentOverviewHeaderSection: React.FC<IComponentOverviewHeaderSe
     const theme = getTheme();
 
     return (
-        <Stack.Item grow={props.grow} styles={{ root: { minWidth: props.minWidth } }}>
+        <Stack.Item grow={props.grow} styles={{ root: { minWidth: props.minWidth, minHeight: '70px' } }}>
             <Stack tokens={{ childrenGap: props.gap ?? '16px' }}>
                 <Stack.Item>
                     <Text variant='medium' styles={{ root: { color: theme.palette.neutralSecondaryAlt, fontWeight: '600' } }}>{props.title}</Text>

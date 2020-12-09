@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import React, { useContext, useEffect, useState } from 'react';
-import { FontIcon, IColumn, Image, Persona, PersonaSize, Stack, Text } from '@fluentui/react';
+import { FontIcon, IColumn, Image, Link, Persona, PersonaSize, Stack, Text } from '@fluentui/react';
 import { useHistory, useParams } from 'react-router-dom';
 import { Component, ComponentTemplate } from 'teamcloud';
 import { ContentList, UserPersona } from '.';
@@ -23,7 +23,7 @@ export const ComponentList: React.FC<IComponentListProps> = (props) => {
 
     const [items, setItems] = useState<{ component: Component, template: ComponentTemplate }[]>()
 
-    const { scopes } = useContext(OrgContext);
+    const { org, scopes } = useContext(OrgContext);
     const { components, templates, members, onComponentSelected } = useContext(ProjectContext);
 
     useEffect(() => {
@@ -130,16 +130,29 @@ export const ComponentList: React.FC<IComponentListProps> = (props) => {
         )
     };
 
+    const onRenderLinkColumn = (item?: { component: Component, template: ComponentTemplate }) => {
+        if (!item || !org) return undefined;
+        return (
+            <Stack horizontal tokens={{ childrenGap: '4px' }} >
+                <Link target='_blank' href={`https://portal.azure.com/#@${org.tenant}/resource${item.component.resourceId}`}>
+                    View in Azure Portal
+                </Link>
+                <FontIcon iconName='NavigateExternalInline' className='component-link-icon' />
+            </Stack>
+        )
+    };
+
     const columns: IColumn[] = [
         { key: 'displayName', name: 'Name', minWidth: 220, isResizable: false, onRender: onRenderNameColumn, styles: { cellName: { paddingLeft: '5px' } } },
         { key: 'type', name: 'Type', minWidth: 150, maxWidth: 150, isResizable: false, onRender: onRenderTypeColumn },
-        { key: 'scope', name: 'Scope', minWidth: 120, maxWidth: 120, isResizable: false, onRender: (i: { component: Component, template: ComponentTemplate }) => scopes?.find(s => s.id === i.component.deploymentScopeId)?.displayName },
+        { key: 'scope', name: 'Scope', minWidth: 110, maxWidth: 110, isResizable: false, onRender: (i: { component: Component, template: ComponentTemplate }) => scopes?.find(s => s.id === i.component.deploymentScopeId)?.displayName },
         { key: 'state', name: 'State', minWidth: 120, maxWidth: 120, onRender: (i: { component: Component, template: ComponentTemplate }) => i.component.resourceState },
         // { key: 'description', name: 'Description', minWidth: 460, fieldName: 'description' },
         // { key: 'blank', name: '', minWidth: 40, maxWidth: 40, onRender: (_: ComponentTemplate) => undefined },
         { key: 'repository', name: 'Repository', minWidth: 240, maxWidth: 240, onRender: onRenderRepoColumn },
-        { key: 'version', name: 'Version', minWidth: 90, maxWidth: 90, onRender: (i: { component: Component, template: ComponentTemplate }) => i.template.repository.version },
-        { key: 'requestedBy', name: 'Creator', minWidth: 220, maxWidth: 220, onRender: onRenderCreatorColumn },
+        { key: 'version', name: 'Version', minWidth: 80, maxWidth: 80, onRender: (i: { component: Component, template: ComponentTemplate }) => i.template.repository.version },
+        { key: 'requestedBy', name: 'Creator', minWidth: 180, maxWidth: 180, onRender: onRenderCreatorColumn },
+        { key: 'link', name: 'Link', minWidth: 200, maxWidth: 200, onRender: onRenderLinkColumn },
     ];
 
 

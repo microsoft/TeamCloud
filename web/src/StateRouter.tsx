@@ -144,6 +144,14 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
                     }
                     console.log(`+ setMembers (${org.slug})`);
                 };
+                console.log('----------------------------')
+                console.log(isAuthenticated);
+                console.log(org);
+                console.log(members);
+                console.log(projectId);
+                console.log(settingId);
+                console.log(location);
+                console.log('----------------------------')
                 _setMembers();
             }
         } else if (members) {

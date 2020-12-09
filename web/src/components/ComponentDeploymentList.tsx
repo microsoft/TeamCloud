@@ -22,7 +22,8 @@ export const ComponentDeploymentList: React.FunctionComponent<IComponentDeployme
 
     const [deployment, setDeployment] = useState<ComponentDeployment>();
     const [deployments, setDeployments] = useState<ComponentDeployment[]>();
-    const [pollDeployment, setPollDeployment] = useState(false);
+    const [pollDeployment, setPollDeployment] = useState(true);
+    const [output, setOutput] = useState<string>(' ');
 
     useEffect(() => {
         if (componentDeployments && deployment === undefined) {
@@ -43,8 +44,16 @@ export const ComponentDeploymentList: React.FunctionComponent<IComponentDeployme
     useEffect(() => {
         const poll = (org !== undefined && deployment !== undefined && deployment.finished === undefined && deployment.exitCode === undefined);
         if (pollDeployment !== poll) {
-            console.log('+ setPollDeployment');
+            console.log(`+ setPollDeployment (${poll})`);
             setPollDeployment(poll);
+        }
+    }, [deployment])
+
+
+    useEffect(() => {
+        if (deployment?.output) {
+            console.log('+ setOutput');
+            setOutput(deployment.output);
         }
     }, [deployment])
 
@@ -61,8 +70,14 @@ export const ComponentDeploymentList: React.FunctionComponent<IComponentDeployme
             }
             console.log('+ refreshDeployment');
         }
-    }, pollDeployment ? 5000 : undefined);
+    }, pollDeployment ? 3000 : undefined);
 
+    const [dots, setDots] = useState('');
+
+    useInterval(() => {
+        const d = dots.length < 3 ? `${dots}.` : '';
+        setDots(d);
+    }, pollDeployment ? 1000 : undefined);
 
     // useEffect(() => {
     //     if (deployment?.started) {
@@ -139,7 +154,7 @@ export const ComponentDeploymentList: React.FunctionComponent<IComponentDeployme
             if (d.resourceState.toLowerCase() === 'succeeded' || d.resourceState.toLowerCase() === 'failed') {
                 return d.finished ? `${d.resourceState} ${d.finished.toLocaleString()}` : d.resourceState;
             } else {
-                return d.resourceState;
+                return `${d.resourceState}${dots}`;
             }
         } else if (d?.started) {
             return `Started ${d.started.toLocaleString()}`;
@@ -220,47 +235,35 @@ export const ComponentDeploymentList: React.FunctionComponent<IComponentDeployme
                         <Separator styles={{ root: { selectors: { '::before': { backgroundColor: theme.palette.neutralPrimary } } } }} />
                     </Stack.Item>
 
-                    {deployment && (
-                        <Stack.Item styles={{ root: { padding: '0px 16px 16px 16px' } }}>
-                            <TextField
-                                readOnly
-                                multiline
-                                borderless
-                                resizable={false}
-                                value={deployment.output ?? undefined}
-                                // defaultValue={deployment?.output ?? undefined}
-                                styles={{
-                                    root: {
-                                        color: 'rgb(225,228,232)',
-                                        minHeight: '50%'
-                                    },
-                                    fieldGroup: {
-                                        height: '720px',
-                                        whiteSpace: 'pre-wrap',
-                                        overflowWrap: 'break-word',
-                                        border: 'none',
-                                        color: 'rgb(225,228,232)',
-                                        backgroundColor: 'rgb(36,41,46)',
-                                        fontSize: '12px',
-                                        lineHeight: '20px',
-                                        fontFamily: 'SFMono-Regular,Consolas,Liberation Mono,Menlo,monospace!important',
-                                        // fontFamily: "Menlo, Consolas, Monaco, 'Andale Mono', monospace",//'Monaco, Menlo, Consolas, monospace',
-                                    },
-                                    field: {
-                                        height: '720px',
-                                        whiteSpace: 'pre-wrap',
-                                        overflowWrap: 'break-word',
-                                        border: 'none',
-                                        color: 'rgb(225,228,232)',
-                                        backgroundColor: 'rgb(36,41,46)',
-                                        fontSize: '12px',
-                                        lineHeight: '20px',
-                                        fontFamily: 'SFMono-Regular,Consolas,Liberation Mono,Menlo,monospace!important',
-                                        //fontFamily: "Menlo, Consolas, Monaco, 'Andale Mono', monospace",//'Monaco, Menlo, Consolas, monospace',
-                                    }
-                                }} />
-                        </Stack.Item>
-                    )}
+                    {/* {deployment && ( */}
+                    <Stack.Item styles={{ root: { padding: '0px 16px 16px 16px' } }}>
+                        <TextField
+                            readOnly
+                            multiline
+                            borderless
+                            resizable={false}
+                            value={output}
+                            // defaultValue={deployment?.output ?? undefined}
+                            styles={{
+                                root: {
+                                    color: 'rgb(225,228,232)',
+                                    minHeight: '50%'
+                                },
+                                field: {
+                                    height: '480px',
+                                    whiteSpace: 'pre-wrap',
+                                    overflowWrap: 'break-word',
+                                    border: 'none',
+                                    color: 'rgb(225,228,232)',
+                                    backgroundColor: 'rgb(36,41,46)',
+                                    fontSize: '12px',
+                                    lineHeight: '20px',
+                                    fontFamily: 'SFMono-Regular,Consolas,Liberation Mono,Menlo,monospace!important',
+                                    //fontFamily: "Menlo, Consolas, Monaco, 'Andale Mono', monospace",//'Monaco, Menlo, Consolas, monospace',
+                                }
+                            }} />
+                    </Stack.Item>
+                    {/* )} */}
                 </Stack>
             </Stack.Item>
         </Stack >

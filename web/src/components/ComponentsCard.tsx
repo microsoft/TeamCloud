@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import React, { useContext, useEffect, useState } from 'react';
-import { Stack, DefaultButton, Text, ICommandBarItemProps, Dialog, DialogType, DialogFooter, PrimaryButton, FontIcon, IColumn, Persona, PersonaSize, DetailsList, DetailsListLayoutMode, CheckboxVisibility, IDetailsRowProps, IRenderFunction, SelectionMode } from '@fluentui/react';
+import { Stack, DefaultButton, Text, ICommandBarItemProps, Dialog, DialogType, DialogFooter, PrimaryButton, FontIcon, IColumn, Persona, PersonaSize, DetailsList, DetailsListLayoutMode, CheckboxVisibility, IDetailsRowProps, IRenderFunction, SelectionMode, Link, IconButton, ActionButton } from '@fluentui/react';
 import { Component, ComponentTemplate, ErrorResult } from 'teamcloud';
 import { DetailCard } from '.';
 import { api } from '../API';
@@ -16,15 +16,16 @@ import Resource from '../img/resource.svg';
 export const ComponentsCard: React.FC = () => {
 
     const history = useHistory();
+
     const { orgId, projectId } = useParams() as { orgId: string, projectId: string };
+    const { org, scopes } = useContext(OrgContext);
+    const { project, components, templates, onComponentSelected } = useContext(ProjectContext);
 
     const [component, setComponent] = useState<Component>();
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
     const [items, setItems] = useState<{ component: Component, template: ComponentTemplate }[]>()
 
-    const { scopes } = useContext(OrgContext);
-    const { project, components, templates, onComponentSelected } = useContext(ProjectContext);
 
     useEffect(() => {
         if (components && templates && (items === undefined || items.length !== components.length)) {
@@ -131,13 +132,26 @@ export const ComponentsCard: React.FC = () => {
     };
 
 
+    const onRenderLinkColumn = (item?: { component: Component, template: ComponentTemplate }) => {
+        if (!item || !org) return undefined;
+        return (
+            <Stack horizontal tokens={{ childrenGap: '4px' }} >
+                <Link target='_blank' href={`https://portal.azure.com/#@${org.tenant}/resource${component?.resourceId}`}>
+                    View in Azure Portal
+                </Link>
+                <FontIcon iconName='NavigateExternalInline' className='component-link-icon' />
+            </Stack>
+        )
+    };
+
 
 
     const columns: IColumn[] = [
         { key: 'displayName', name: 'Name', minWidth: 200, onRender: onRenderNameColumn },
         { key: 'scope', name: 'Scope', minWidth: 140, onRender: (i: { component: Component, template: ComponentTemplate }) => scopes?.find(s => s.id === i.component.deploymentScopeId)?.displayName },
         { key: 'state', name: 'State', minWidth: 140, onRender: (i: { component: Component, template: ComponentTemplate }) => i.component.resourceState },
-        { key: 'type', name: 'Type', minWidth: 140, onRender: onRenderTypeColumn },
+        { key: 'type', name: 'Type', minWidth: 160, onRender: onRenderTypeColumn },
+        { key: 'link', name: 'Link', minWidth: 140, onRender: onRenderLinkColumn },
         // { key: 'description', name: 'Description', minWidth: 460, fieldName: 'description' },
         // { key: 'blank', name: '', minWidth: 40, maxWidth: 40, onRender: (_: ComponentTemplate) => undefined },
         // { key: 'repository', name: 'Repository', minWidth: 240, maxWidth: 240, onRender: onRenderRepoColumn },
@@ -149,7 +163,7 @@ export const ComponentsCard: React.FC = () => {
     const _onItemInvoked = (item: { component: Component, template: ComponentTemplate }): void => {
         // console.log(item);
         onComponentSelected(item.component);
-        history.push(`/orgs/${orgId}/projects/${project?.slug ?? projectId}/components/${item.component.slug}`);
+        history.push(`/orgs/${org?.slug ?? orgId}/projects/${project?.slug ?? projectId}/components/${item.component.slug}`);
     };
 
     return (
