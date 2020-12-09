@@ -64,7 +64,7 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Utilities
                             .CallActivityWithRetryAsync<ComponentDeployment>(nameof(ComponentDeploymentUpdateActivity), new ComponentDeploymentUpdateActivity.Input() { ComponentDeployment = componentDeployment })
                             .ConfigureAwait(true);
 
-                        if (componentDeployment.ExitCode.HasValue)
+                        if (componentDeployment.ResourceState == ResourceState.Succeeded || componentDeployment.ResourceState == ResourceState.Failed)
                         {
                             component = await context
                                 .CallActivityWithRetryAsync<Component>(nameof(ComponentGetActivity), new ComponentGetActivity.Input() { ProjectId = component.ProjectId, Id = component.Id })
