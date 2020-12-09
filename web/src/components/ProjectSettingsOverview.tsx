@@ -20,11 +20,11 @@ export const ProjectSettingsOverview: React.FC = () => {
         if (project && members) {
             if (owner === undefined || owner.projectMembership.projectId !== project.id) {
                 const find = members?.find(m => m.projectMembership.role.toLowerCase() === 'owner');
-                console.log(`setProjectOwner (${project.slug})`)
+                console.log(`+ setProjectOwner (${project.slug})`)
                 setOwner(find);
             }
         } else if (owner) {
-            console.log(`setProjectOwner (undefined)`)
+            console.log(`+ setProjectOwner (undefined)`)
             setOwner(undefined);
         }
     }, [project, members, owner])

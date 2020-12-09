@@ -58,14 +58,15 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
         if (isAuthenticated) {
             if (graphUser === undefined) {
                 const _setGraphUser = async () => {
-                    console.log(`setGraphUser`);
+                    console.log(`- setGraphUser`);
                     const result = await getMe();
                     setGraphUser(result);
+                    console.log(`+ setGraphUser`);
                 };
                 _setGraphUser();
             }
         } else if (graphUser) {
-            console.log(`setGraphUser (undefined)`);
+            console.log(`+ setGraphUser (undefined)`);
             setGraphUser(undefined);
         }
     }, [isAuthenticated, graphUser]);
@@ -75,14 +76,15 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
         if (isAuthenticated) {
             if (orgs === undefined || (org && !orgs.some(o => o.id === org.id))) {
                 const _setOrgs = async () => {
-                    console.log('setOrgs');
+                    console.log('- setOrgs');
                     const result = await api.getOrganizations();
                     setOrgs(result.data ?? undefined);
+                    console.log('+ setOrgs');
                 };
                 _setOrgs();
             }
         } else if (orgs) {
-            console.log('setOrgs (undefined)');
+            console.log('+ setOrgs (undefined)');
             setOrgs(undefined);
         }
     }, [isAuthenticated, org, orgs]);
@@ -92,14 +94,15 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
         if (isAuthenticated && org) {
             if (user === undefined || user.organization !== org.id) {
                 const _setUser = async () => {
-                    console.log(`setUser (${org.slug})`);
+                    console.log(`- setUser (${org.slug})`);
                     const result = await api.getOrganizationUserMe(org.id);
                     setUser(result.data ?? undefined);
+                    console.log(`+ setUser (${org.slug})`);
                 };
                 _setUser();
             }
         } else if (user) {
-            console.log('setUser (undefined)');
+            console.log('+ setUser (undefined)');
             setUser(undefined);
         }
     }, [isAuthenticated, org, user]);
@@ -110,14 +113,15 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
             if (projects === undefined || projects.some(p => p.organization !== org.id)
                 || (project && !projects.some(p => p.id === project.id))) {
                 const _setProjects = async () => {
-                    console.log(`setProjects (${org.slug})`);
+                    console.log(`- setProjects (${org.slug})`);
                     const result = await api.getProjects(org.id);
                     setProjects(result.data ?? undefined);
+                    console.log(`+ setProjects (${org.slug})`);
                 };
                 _setProjects();
             }
         } else if (projects) {
-            console.log('setProjects (undefined)');
+            console.log('+ setProjects (undefined)');
             setProjects(undefined);
         }
     }, [isAuthenticated, org, projects, project]);
@@ -129,7 +133,7 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
                 && (settingId === undefined || matchesLowerCase(settingId, 'members'))
                 && (members === undefined || members.some(m => m.user.organization !== org.id))) {
                 const _setMembers = async () => {
-                    console.log(`setMembers (${org.slug})`);
+                    console.log(`- setMembers (${org.slug})`);
                     let _users = await api.getOrganizationUsers(org.id);
                     if (_users.data) {
                         let _members = await Promise.all(_users.data.map(async u => ({
@@ -138,11 +142,12 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
                         })));
                         setMembers(_members);
                     }
+                    console.log(`+ setMembers (${org.slug})`);
                 };
                 _setMembers();
             }
         } else if (members) {
-            console.log('setMembers (undefined)');
+            console.log('+ setMembers (undefined)');
             setMembers(undefined);
         }
     }, [isAuthenticated, org, members, projectId, settingId, location]);
@@ -152,14 +157,15 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
         if (isAuthenticated && org) {
             if (scopes === undefined || scopes.some(s => s.organization !== org.id)) {
                 const _setScopes = async () => {
-                    console.log(`setDeploymentScopes (${org.slug})`);
+                    console.log(`- setDeploymentScopes (${org.slug})`);
                     let _scopes = await api.getDeploymentScopes(org.id);
                     setScopes(_scopes.data ?? undefined)
+                    console.log(`+ setDeploymentScopes (${org.slug})`);
                 };
                 _setScopes();
             }
         } else if (scopes) {
-            console.log('setDeploymentScopes (undefined)');
+            console.log('+ setDeploymentScopes (undefined)');
             setTemplates(undefined);
         }
     }, [isAuthenticated, org, scopes]);
@@ -170,14 +176,15 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
             if (((projectId === undefined && matchesLowerCase(settingId, 'templates')) || endsWithLowerCase(location.pathname, '/projects/new'))
                 && (templates === undefined || templates.some(t => t.organization !== org.id))) {
                 const _setTemplates = async () => {
-                    console.log(`setProjectTemplates (${org.slug})`);
+                    console.log(`- setProjectTemplates (${org.slug})`);
                     let _templates = await api.getProjectTemplates(org.id);
                     setTemplates(_templates.data ?? undefined)
+                    console.log(`+ setProjectTemplates (${org.slug})`);
                 };
                 _setTemplates();
             }
         } else if (templates) {
-            console.log('setProjectTemplates (undefined)');
+            console.log('+ setProjectTemplates (undefined)');
             setTemplates(undefined);
         }
     }, [isAuthenticated, org, templates, projectId, settingId, location]);
@@ -185,7 +192,7 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
 
     useEffect(() => { // Project
         if ((!org && project) || (org && project && org.id !== project.organization)) {
-            console.log('setProject (undefined)');
+            console.log('+ setProject (undefined)');
             setProject(undefined);
         }
     }, [org, project]);
@@ -194,7 +201,7 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
     const onOrgSelected = useCallback((selectedOrg?: Organization) => {
         if (selectedOrg && org && selectedOrg.id === org.id)
             return;
-        console.log(`setOrg (${selectedOrg?.slug})`);
+        console.log(`+ setOrg (${selectedOrg?.slug})`);
         setOrg(selectedOrg);
         setProjects(undefined);
     }, [org]);
@@ -203,7 +210,7 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
     const onProjectSelected = useCallback((selectedProject?: Project) => {
         if (selectedProject && project && selectedProject.id === project.id)
             return;
-        console.log(`setProject (${selectedProject?.slug})`);
+        console.log(`+ setProject (${selectedProject?.slug})`);
         setProject(selectedProject);
     }, [project]);
 
@@ -215,12 +222,12 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
             } else if (orgs) {
                 const find = orgs.find(o => matchesRouteParam(o, orgId));
                 if (find) {
-                    console.log(`getOrgFromRoute (${orgId})`);
+                    console.log(`+ getOrgFromRoute (${orgId})`);
                     onOrgSelected(find);
                 }
             }
         } else if (org) {
-            console.log(`getOrgFromRoute (undefined)`);
+            console.log(`+ getOrgFromRoute (undefined)`);
             onOrgSelected(undefined);
         }
     }, [orgId, org, orgs, onOrgSelected]);
@@ -233,12 +240,12 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
             } else if (projects) {
                 const find = projects.find(p => matchesRouteParam(p, projectId));
                 if (find) {
-                    console.log(`getProjectFromRoute (${projectId})`);
+                    console.log(`+ getProjectFromRoute (${projectId})`);
                     onProjectSelected(find);
                 }
             }
         } else if (project) {
-            console.log(`getProjectFromRoute (undefined)`);
+            console.log(`+ getProjectFromRoute (undefined)`);
             onProjectSelected(undefined);
         }
     }, [projectId, project, projects, onProjectSelected]);
@@ -246,34 +253,39 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
 
     const onCreateDeploymentScope = async (scope: DeploymentScopeDefinition, parentOrg?: Organization) => {
         if (parentOrg ?? org) {
+            console.log(`- createDeploymentScope (${parentOrg?.slug ?? org!.slug})`);
             const result = await api.createDeploymentScope(parentOrg?.id ?? org!.id, { body: scope, });
             if (result.data) {
-                console.log(`createTemplate (${parentOrg?.slug ?? org!.slug})`);
-                setScopes(scopes ? [...scopes, result.data] : [result.data]);
+                if (org) {
+                    setScopes(scopes ? [...scopes, result.data] : [result.data]);
+                }
             } else {
                 console.error(`Failed to create new DeploymentScope: ${result}`);
             }
+            console.log(`+ createDeploymentScope (${parentOrg?.slug ?? org!.slug})`);
         }
     };
 
 
     const onCreateProjectTemplate = async (template: ProjectTemplateDefinition, parentOrg?: Organization) => {
         if (parentOrg || org) {
+            console.log(`- createTemplate (${parentOrg?.slug ?? org!.slug})`);
             const result = await api.createProjectTemplate(parentOrg?.id ?? org!.id, { body: template, });
             if (result.data) {
-                console.log(`createTemplate (${parentOrg?.slug ?? org!.slug})`);
-                if (org)
+                if (org) {
                     setTemplates(templates ? [...templates, result.data] : [result.data]);
+                }
             } else {
                 console.error(`Failed to create new ProjectTemplate: ${result}`);
             }
+            console.log(`+ createTemplate (${parentOrg?.slug ?? org!.slug})`);
         }
     };
 
 
     const onAddOrgUsers = async (users: UserDefinition[]) => {
         if (org) {
-            console.log(`addMembers (${org.slug})`);
+            console.log(`- addMembers (${org.slug})`);
             const results = await Promise
                 .all(users.map(async d => await api.createOrganizationUser(org.id, { body: d })));
 
@@ -291,6 +303,7 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
                 })));
 
             setMembers(members ? [...members, ...newMembers] : newMembers)
+            console.log(`+ addMembers (${org.slug})`);
         }
     };
 
@@ -299,18 +312,20 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
         if (isAuthenticated) {
             if (endsWithAnyLowerCase(location.pathname, '/orgs/new', '/scopes/new') && subscriptions === undefined) {
                 const _setSubscriptions = async () => {
-                    console.log(`setSubscriptions`);
+                    console.log(`- setSubscriptions`);
                     try {
                         const subs = await getSubscriptions();
                         setSubscriptions(subs ?? []);
                     } catch (error) {
                         setSubscriptions([]);
+                    } finally {
+                        console.log(`+ setSubscriptions`);
                     }
                 };
                 _setSubscriptions();
             }
         } else if (subscriptions) {
-            console.log(`setSubscriptions (undefined)`);
+            console.log(`+ setSubscriptions (undefined)`);
             setSubscriptions(undefined);
         }
     }, [isAuthenticated, subscriptions, location]);
@@ -343,8 +358,8 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
         if (isAuthenticated && projectId && project) {
             if (navId === undefined || matchesAnyLowerCase(navId, 'members', 'components')) {
                 if (projectMembers === undefined || projectMembers.some(m => m.projectMembership.projectId !== project.id)) {
-                    const _setMembers = async () => {
-                        console.log(`setProjectMembers (${project.slug})`);
+                    const _setProjectMembers = async () => {
+                        console.log(`- setProjectMembers (${project.slug})`);
                         let _users = await api.getProjectUsers(project!.organization, project!.id);
                         if (_users.data) {
                             let _members = await Promise.all(_users.data.map(async u => ({
@@ -354,12 +369,13 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
                             })));
                             setProjectMembers(_members);
                         }
+                        console.log(`+ setProjectMembers (${project.slug})`);
                     };
-                    _setMembers();
+                    _setProjectMembers();
                 }
             }
         } else if (projectMembers) {
-            console.log('setProjectMembers (undefined)');
+            console.log('+ setProjectMembers (undefined)');
             setProjectMembers(undefined);
         }
     }, [isAuthenticated, projectId, project, projectMembers, navId]);
@@ -372,16 +388,17 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
                 if (projectComponents === undefined
                     || projectComponents.some(c => c.projectId !== project.id)
                     || (projectComponent && !projectComponents.some(c => c.id === projectComponent.id))) {
-                    const _setComponents = async () => {
-                        console.log(`setProjectComponents (${project.slug})`);
+                    const _setProjectComponents = async () => {
+                        console.log(`- setProjectComponents (${project.slug})`);
                         const result = await api.getProjectComponents(project!.organization, project!.id);
                         setProjectComponents(result.data ?? undefined);
+                        console.log(`+ setProjectComponents (${project.slug})`);
                     };
-                    _setComponents();
+                    _setProjectComponents();
                 }
             }
         } else if (projectComponents) {
-            console.log('setProjectComponents (undefined)');
+            console.log('+ setProjectComponents (undefined)');
             setProjectComponents(undefined);
         }
     }, [isAuthenticated, projectId, project, projectComponents, projectComponent, navId, location]);
@@ -392,15 +409,16 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
             if (navId === undefined || matchesLowerCase(navId, 'components')) {
                 if (projectComponentTemplates === undefined) {
                     const _setComponentTemplates = async () => {
-                        console.log(`setProjectComponentTemplates (${project.slug})`);
+                        console.log(`- setProjectComponentTemplates (${project.slug})`);
                         const result = await api.getProjectComponentTemplates(project!.organization, project!.id);
                         setProjectComponentTemplates(result.data ?? undefined);
+                        console.log(`+ setProjectComponentTemplates (${project.slug})`);
                     };
                     _setComponentTemplates();
                 }
             }
         } else if (projectComponentTemplates) {
-            console.log('setProjectComponentTemplates (undefined)');
+            console.log('+ setProjectComponentTemplates (undefined)');
             setProjectComponentTemplates(undefined);
         }
     }, [isAuthenticated, projectId, project, projectComponentTemplates, navId]);
@@ -409,7 +427,7 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
     const onComponentSelected = useCallback((selectedComponent?: Component) => {
         if (selectedComponent && projectComponent && selectedComponent.id === projectComponent.id)
             return;
-        console.log(`setComponent (${selectedComponent?.slug})`);
+        console.log(`+ setComponent (${selectedComponent?.slug})`);
         setProjectComponent(selectedComponent);
     }, [projectComponent]);
 
@@ -421,12 +439,12 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
             } else if (projectComponents) {
                 const find = projectComponents.find(c => matchesRouteParam(c, itemId));
                 if (find) {
-                    console.log(`getComponentFromRoute (${itemId})`);
+                    console.log(`+ getComponentFromRoute (${itemId})`);
                     onComponentSelected(find);
                 }
             }
         } else if (projectComponent) {
-            console.log(`getComponentFromRoute (undefined)`);
+            console.log(`+ getComponentFromRoute (undefined)`);
             onComponentSelected(undefined);
         }
     }, [itemId, navId, projectId, projectComponents, projectComponent, location, onComponentSelected]);
@@ -438,15 +456,16 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
             if (matchesLowerCase(navId, 'components') && itemId && projectComponent && matchesRouteParam(projectComponent, itemId)) {
                 if (projectComponentDeployments === undefined || projectComponentDeployments.some(d => d.componentId !== projectComponent.id)) {
                     const _setComponentDeployments = async () => {
-                        console.log(`setProjectComponentDeployments (${projectComponent.slug})`);
+                        console.log(`- setProjectComponentDeployments (${projectComponent.slug})`);
                         const result = await api.getProjectDeployments(project.organization, project.id, projectComponent.id);
                         setProjectComponentDeployments(result.data ?? undefined);
+                        console.log(`+ setProjectComponentDeployments (${projectComponent.slug})`);
                     };
                     _setComponentDeployments();
                 }
             }
         } else if (projectComponentDeployments) {
-            console.log('setProjectComponentDeployments (undefined)');
+            console.log('+ setProjectComponentDeployments (undefined)');
             setProjectComponentDeployments(undefined);
         }
     }, [isAuthenticated, projectId, project, projectComponent, navId, itemId, projectComponentDeployments]);
@@ -455,8 +474,7 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
 
     const onAddProjectUsers = async (users: UserDefinition[]) => {
         if (project) {
-            // setProgressHidden(false);
-            console.log(`addProjectMembers (${project.slug})`);
+            console.log(`- addProjectMembers (${project.slug})`);
             const results = await Promise
                 .all(users.map(async d => await api.createProjectUser(project.organization, project.id, { body: d })));
 
@@ -475,7 +493,7 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
                 })));
 
             setProjectMembers(projectMembers ? [...projectMembers, ...newMembers] : newMembers);
-            // setProgressHidden(true);
+            console.log(`+ addProjectMembers (${project.slug})`);
         }
     };
 

@@ -19,11 +19,11 @@ export const OrgSettingsOverview: React.FC = () => {
         if (org && members) {
             if (owner === undefined || owner.user.organization !== org.id) {
                 const find = members.find(m => m.user.role.toLowerCase() === 'owner');
-                console.log(`setOwner (${org.slug})`)
+                console.log(`+ setOwner (${org.slug})`)
                 setOwner(find);
             }
         } else if (owner) {
-            console.log(`setOwner (undefined})`)
+            console.log(`+ setOwner (undefined})`)
             setOwner(undefined);
         }
     }, [org, members, owner])

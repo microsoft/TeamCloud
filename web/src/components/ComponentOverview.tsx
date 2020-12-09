@@ -38,7 +38,7 @@ export const ComponentOverview: React.FC = (props) => {
 
     useEffect(() => {
         if (component && templates && (template === undefined || component.templateId.toLowerCase() !== template.id.toLowerCase())) {
-            console.log(`setComponentTemplate (${component.slug})`);
+            console.log(`+ setComponentTemplate (${component.slug})`);
             setTemplate(templates.find(t => component.templateId.toLowerCase() === t.id.toLowerCase()) ?? undefined);
         }
     }, [component, template, templates])
@@ -46,15 +46,20 @@ export const ComponentOverview: React.FC = (props) => {
 
     useEffect(() => {
         if (component && members && (creator === undefined || creator.user.id.toLowerCase() !== component.requestedBy.toLowerCase())) {
-            console.log(`setComponentCreator (${component.slug})`);
-            setCreator(members.find(m => component.requestedBy.toLowerCase() === m.user.id.toLowerCase()) ?? undefined);
+            console.log(component)
+            members.forEach(m => {
+                console.log(m);
+            });
+            const ctr = members.find(m => component.requestedBy.toLowerCase() === m.user.id.toLowerCase()) ?? undefined
+            console.log(`+ setComponentCreator (${ctr?.graphUser?.displayName})`);
+            setCreator(ctr);
         }
     }, [component, creator, members])
 
 
     useEffect(() => {
         if (component && scopes && (scope === undefined || (component.deploymentScopeId && scope.id.toLowerCase() !== component.deploymentScopeId.toLowerCase()))) {
-            console.log(`setComponentScope (${component.slug})`);
+            console.log(`+ setComponentScope (${component.slug})`);
             setScope(scopes.find(s => component.deploymentScopeId?.toLowerCase() === s.id.toLowerCase()) ?? undefined);
         }
     }, [component, scope, scopes])
@@ -107,7 +112,7 @@ export const ComponentOverview: React.FC = (props) => {
     //     return (<TextField readOnly label={prps.label} />);
     //     }
 
-    return component ? (
+    return (
         <Stack styles={{ root: { height: '100%', } }} tokens={{ childrenGap: '40px' }}>
             <Stack.Item>
                 <Stack
@@ -138,7 +143,7 @@ export const ComponentOverview: React.FC = (props) => {
                         <Text>{scope?.displayName}</Text>
                     </ComponentOverviewHeaderSection>
                     <ComponentOverviewHeaderSection grow title='State'>
-                        <Text>{component.resourceState}</Text>
+                        <Text>{component?.resourceState}</Text>
                     </ComponentOverviewHeaderSection>
                     <ComponentOverviewHeaderSection title='Creator'>
                         <UserPersona user={creator?.graphUser} showSecondaryText styles={{ root: { minWidth: '220px' } }} />
@@ -158,7 +163,7 @@ export const ComponentOverview: React.FC = (props) => {
                                     widgets={{ 'SelectWidget': ReadonlySelectWidget }}
                                     FieldTemplate={ReadonlyFieldTemplate}
                                     schema={template?.inputJsonSchema ? JSON.parse(template.inputJsonSchema) : {}}
-                                    formData={component.inputJson ? JSON.parse(component.inputJson) : undefined}
+                                    formData={component?.inputJson ? JSON.parse(component.inputJson) : undefined}
                                     onChange={() => { }}>
                                     <></>
                                 </FuiForm>
@@ -191,7 +196,7 @@ export const ComponentOverview: React.FC = (props) => {
                 </Pivot>
             </Stack.Item>
         </Stack>
-    ) : <></>;
+    );
 }
 
 

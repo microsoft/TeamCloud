@@ -64,7 +64,11 @@ export const ComponentsCard: React.FC = () => {
     const _onRenderRow: IRenderFunction<IDetailsRowProps> = (rowProps?: IDetailsRowProps, defaultRender?: (rowProps?: IDetailsRowProps) => JSX.Element | null): JSX.Element | null => {
         if (rowProps) rowProps.styles = {
             // root: { borderBottom: (props.noHeader ?? false) && items.length === 1 ? 0 : undefined },
-            fields: { alignItems: 'center' }, check: { minHeight: '62px' }, cell: { fontSize: '14px' }
+
+            root: { border: 'none' },
+            fields: { alignItems: 'center' },
+            check: { minHeight: '62px' },
+            cell: { fontSize: '14px', paddingLeft: '0px' },
         }
         return defaultRender ? defaultRender(rowProps) : null;
     };

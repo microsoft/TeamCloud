@@ -72,22 +72,9 @@ export const MembersCard: React.FC<IMembersCardProps> = (props) => {
         if (defaultRender && props?.data) {
             let _onRenderPlainCard = (): JSX.Element | null => {
                 let member: ProjectMember = props.data;
-                let _isUserType = member.user.userType === 'User';
-                let _getCommandBar = _isUserType ?
-                    (<>
-                        <Stack.Item>
-                            <Separator />
-                        </Stack.Item>
-                        <Stack.Item align='end'>
-                            <CommandBar
-                                styles={{ root: { minWidth: '160px' } }}
-                                items={_getMemberCommandBarItems(member)}
-                                ariaLabel='Use left and right arrow keys to navigate between commands' />
-                        </Stack.Item>
-                    </>) : null;
                 return (
                     <Stack
-                        tokens={{ padding: _isUserType ? '20px 20px 0 20px' : '20px' }}>
+                        tokens={{ padding: '20px 20px 0 20px' }}>
                         <Stack.Item>
                             <UserPersona user={member.graphUser} large />
                         </Stack.Item>
@@ -95,18 +82,18 @@ export const MembersCard: React.FC<IMembersCardProps> = (props) => {
                             <Separator />
                         </Stack.Item>
                         <Stack.Item>
-                            <Stack tokens={{ childrenGap: 0 }}>
-                                <Stack horizontal verticalAlign='baseline' tokens={{ childrenGap: 6 }}>
-                                    <Label>Type:</Label>
-                                    <Text>{member.user.userType}</Text>
-                                </Stack>
-                                <Stack horizontal verticalAlign='baseline' tokens={{ childrenGap: 6 }}>
-                                    <Label>Role:</Label>
+                            <Stack horizontal horizontalAlign='space-between' verticalAlign='center'>
+                                <Stack.Item>
                                     <Text>{member.projectMembership?.role ?? 'Unknown'}</Text>
-                                </Stack>
+                                </Stack.Item>
+                                <Stack.Item>
+                                    <CommandBar
+                                        styles={{ root: { minWidth: '160px' } }}
+                                        items={_getMemberCommandBarItems(member)}
+                                        ariaLabel='Use left and right arrow keys to navigate between commands' />
+                                </Stack.Item>
                             </Stack>
                         </Stack.Item>
-                        {_getCommandBar}
                     </Stack>
                 );
             };

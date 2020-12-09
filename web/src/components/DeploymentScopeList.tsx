@@ -6,8 +6,8 @@ import { Checkbox, IColumn } from '@fluentui/react';
 import { DeploymentScope } from 'teamcloud';
 import { useHistory } from 'react-router-dom';
 import { ContentList } from '.';
-import collaboration from '../img/MSC17_collaboration_010_noBG.png'
 import { OrgContext } from '../Context';
+import collaboration from '../img/MSC17_collaboration_010_noBG.png'
 
 export const DeploymentScopeList: React.FC = () => {
 

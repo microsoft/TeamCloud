@@ -47,6 +47,20 @@ export const OrgSettingsNav: React.FC = () => {
                 onClick: () => history.push(`/orgs/${orgId}/settings/templates`),
                 iconProps: { iconName: 'Rocket' }
             },
+            {
+                key: 'auditing',
+                name: 'Auditing',
+                url: '',
+                onClick: () => history.push(`/orgs/${orgId}/settings/audit`),
+                iconProps: { iconName: 'WaitlistConfirm' } // MultiSelectMirrored, ActivateOrders, IssueTrackingMirrored
+            },
+            {
+                key: 'usage',
+                name: 'Usage',
+                url: '',
+                onClick: () => history.push(`/orgs/${orgId}/settings/usage`),
+                iconProps: { iconName: 'BarChartVertical' } // BarChart4, BIDashboard
+            },
             // {
             //     key: 'providers',
             //     name: 'Custom Providers',

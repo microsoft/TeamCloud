@@ -35,7 +35,7 @@ export const ComponentForm: React.FC = () => {
 
     useEffect(() => {
         if (project && scopes) {
-            console.log(`setDeploymentScopeOptions (${project.slug})`);
+            console.log(`+ setDeploymentScopeOptions (${project.slug})`);
             const options = scopes.map(s => ({ key: s.id, text: s.displayName ?? s.id } as IDropdownOption))
             setDeploymentScopeOptions(options);
             if (scopes.length === 1)

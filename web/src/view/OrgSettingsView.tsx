@@ -5,8 +5,9 @@ import React, { useState, useContext } from 'react';
 import { Route, useHistory } from 'react-router-dom';
 import { IconButton, Stack } from '@fluentui/react';
 import { DeploymentScopeDefinition, ProjectTemplateDefinition } from 'teamcloud';
-import { OrgSettingsOverview, DeploymentScopeList, ProjectTemplateList, ContentHeader, ContentContainer, ContentProgress, MemberList, DeploymentScopeForm, ProjectTemplateForm } from '../components';
+import { OrgSettingsOverview, DeploymentScopeList, ProjectTemplateList, ContentHeader, ContentContainer, ContentProgress, MemberList, DeploymentScopeForm, ProjectTemplateForm, NoData } from '../components';
 import { GraphUserContext, OrgContext } from '../Context';
+import business from '../img/MSC17_business_001_noBG.png'
 
 export const OrgSettingsView: React.FC = () => {
 
@@ -65,6 +66,15 @@ export const OrgSettingsView: React.FC = () => {
                     <IconButton iconProps={{ iconName: 'ChromeClose' }} onClick={() => history.push(`/orgs/${org?.slug}/settings/templates`)} />
                 </ContentHeader>
             </Route>
+            <Route exact path='/orgs/:orgId/settings/audit'>
+                <ContentProgress progressHidden={true} />
+                <ContentHeader title='Auditing' />
+            </Route>
+            <Route exact path='/orgs/:orgId/settings/usage'>
+                <ContentProgress progressHidden={true} />
+                <ContentHeader title='Usage' />
+            </Route>
+
 
             <ContentContainer>
                 <Route exact path='/orgs/:orgId/settings'>
@@ -85,6 +95,13 @@ export const OrgSettingsView: React.FC = () => {
                 <Route exact path='/orgs/:orgId/settings/templates/new'>
                     <ProjectTemplateForm {...{ onCreateProjectTemplate: _onCreateProjectTemplate }} />
                 </Route>
+                <Route exact path='/orgs/:orgId/settings/audit'>
+                    <NoData image={business} title='Coming soon' description='Come back to see usage policy and compliance infomation.' />
+                </Route>
+                <Route exact path='/orgs/:orgId/settings/usage'>
+                    <NoData image={business} title='Coming soon' description='Come back to see usage information per org, project, and user.' />
+                </Route>
+
             </ContentContainer>
         </Stack>
     );

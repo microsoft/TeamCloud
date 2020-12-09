@@ -3,8 +3,10 @@
 
 import React, { useState, useEffect, useContext } from 'react';
 import { CheckboxVisibility, DetailsList, DetailsListLayoutMode, FontIcon, getTheme, IColumn, IDetailsRowProps, IRenderFunction, SearchBox, SelectionMode, Separator, Stack, Text, TextField } from '@fluentui/react';
-import { ProjectContext } from '../Context';
+import { OrgContext, ProjectContext } from '../Context';
 import { ComponentDeployment } from 'teamcloud';
+import { useInterval } from '../Hooks';
+import { api } from '../API';
 
 export interface IComponentDeploymentListProps {
 
@@ -15,16 +17,52 @@ export const ComponentDeploymentList: React.FunctionComponent<IComponentDeployme
     const theme = getTheme();
 
     // const { component, componentDeployments } = useContext(ProjectContext);
+    const { org } = useContext(OrgContext);
     const { componentDeployments } = useContext(ProjectContext);
 
     const [deployment, setDeployment] = useState<ComponentDeployment>();
+    const [deployments, setDeployments] = useState<ComponentDeployment[]>();
+    const [pollDeployment, setPollDeployment] = useState(false);
 
     useEffect(() => {
         if (componentDeployments && deployment === undefined) {
-            console.log('setDeployment');
+            console.log('+ setDeployment');
             setDeployment(componentDeployments[0]);
         }
     }, [deployment, componentDeployments])
+
+
+    useEffect(() => {
+        if (componentDeployments) {
+            console.log('+ setDeployments');
+            setDeployments(deployment ? [deployment, ...componentDeployments.filter(d => d.id !== deployment.id)] : componentDeployments);
+        }
+    }, [deployment, componentDeployments]);
+
+
+    useEffect(() => {
+        const poll = (org !== undefined && deployment !== undefined && deployment.finished === undefined && deployment.exitCode === undefined);
+        if (pollDeployment !== poll) {
+            console.log('+ setPollDeployment');
+            setPollDeployment(poll);
+        }
+    }, [deployment])
+
+
+    useInterval(async () => {
+        console.log('...hello...');
+        if (org && deployment && deployment.finished === undefined && deployment.exitCode === undefined) {
+            console.log('- refreshDeployment');
+            const result = await api.getProjectDeployment(deployment.id, org.id, deployment.projectId, deployment.componentId);
+            if (result.data) {
+                setDeployment(result.data);
+            } else {
+                console.error(result);
+            }
+            console.log('+ refreshDeployment');
+        }
+    }, pollDeployment ? 5000 : undefined);
+
 
     // useEffect(() => {
     //     if (deployment?.started) {
@@ -123,7 +161,7 @@ export const ComponentDeploymentList: React.FunctionComponent<IComponentDeployme
                 }
             }}>
                 <DetailsList
-                    items={componentDeployments ?? []}
+                    items={deployments ?? []}
                     columns={columns}
                     isHeaderVisible={false}
                     onRenderRow={_onRenderRow}
@@ -182,14 +220,15 @@ export const ComponentDeploymentList: React.FunctionComponent<IComponentDeployme
                         <Separator styles={{ root: { selectors: { '::before': { backgroundColor: theme.palette.neutralPrimary } } } }} />
                     </Stack.Item>
 
-                    {deployment?.output && (
+                    {deployment && (
                         <Stack.Item styles={{ root: { padding: '0px 16px 16px 16px' } }}>
                             <TextField
                                 readOnly
                                 multiline
                                 borderless
                                 resizable={false}
-                                defaultValue={deployment?.output ?? undefined}
+                                value={deployment.output ?? undefined}
+                                // defaultValue={deployment?.output ?? undefined}
                                 styles={{
                                     root: {
                                         color: 'rgb(225,228,232)',
