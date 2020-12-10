@@ -2,12 +2,12 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect, useContext } from 'react';
-import { CheckboxVisibility, DetailsList, DetailsListLayoutMode, FontIcon, getTheme, IColumn, IDetailsRowProps, IRenderFunction, SearchBox, SelectionMode, Stack, Text, TextField } from '@fluentui/react';
+import { CheckboxVisibility, DetailsList, DetailsListLayoutMode, FontIcon, getTheme, IColumn, IDetailsRowProps, IRenderFunction, SelectionMode, Stack, Text } from '@fluentui/react';
 import { OrgContext, ProjectContext } from '../Context';
 import { ComponentDeployment } from 'teamcloud';
 import { useInterval } from '../Hooks';
 import { api } from '../API';
-import { ContentSeparator } from '.';
+import { DeploymentConsole } from './DeploymentConsole';
 
 export interface IDeploymentListProps {
 
@@ -18,12 +18,12 @@ export const DeploymentList: React.FunctionComponent<IDeploymentListProps> = (pr
     const theme = getTheme();
 
     const { org } = useContext(OrgContext);
-    const { componentDeployments } = useContext(ProjectContext);
+    const { component, componentDeployments } = useContext(ProjectContext);
 
     const [deployment, setDeployment] = useState<ComponentDeployment>();
     const [deployments, setDeployments] = useState<ComponentDeployment[]>();
-    const [pollDeployment, setPollDeployment] = useState(true);
-    const [output, setOutput] = useState<string>(' ');
+    const [isPolling, setIsPolling] = useState(true);
+    // const [output, setOutput] = useState<string>(' ');
 
     useEffect(() => {
         if (componentDeployments && deployment === undefined) {
@@ -42,20 +42,27 @@ export const DeploymentList: React.FunctionComponent<IDeploymentListProps> = (pr
 
 
     useEffect(() => {
-        const poll = (org !== undefined && deployment !== undefined && deployment.finished === undefined && deployment.exitCode === undefined);
-        if (pollDeployment !== poll) {
+        const poll = (
+            org !== undefined
+            && component !== undefined
+            && component.resourceState?.toLowerCase() !== 'succeeded'
+            && component.resourceState?.toLowerCase() !== 'failed'
+            && deployment !== undefined
+            && deployment.finished === undefined
+            && deployment.exitCode === undefined);
+        if (isPolling !== poll) {
             console.log(`+ setPollDeployment (${poll})`);
-            setPollDeployment(poll);
+            setIsPolling(poll);
         }
-    }, [org, deployment, pollDeployment])
+    }, [org, deployment, component, isPolling])
 
 
-    useEffect(() => {
-        if (deployment?.output) {
-            console.log('+ setOutput');
-            setOutput(deployment.output);
-        }
-    }, [deployment])
+    // useEffect(() => {
+    //     if (deployment?.output) {
+    //         console.log('+ setOutput');
+    //         setOutput(deployment.output);
+    //     }
+    // }, [deployment])
 
 
     useInterval(async () => {
@@ -70,14 +77,14 @@ export const DeploymentList: React.FunctionComponent<IDeploymentListProps> = (pr
             }
             console.log('+ refreshDeployment');
         }
-    }, pollDeployment ? 3000 : undefined);
+    }, isPolling ? 3000 : undefined);
 
     const [dots, setDots] = useState('');
 
     useInterval(() => {
         const d = dots.length < 3 ? `${dots}.` : '';
         setDots(d);
-    }, pollDeployment ? 1000 : undefined);
+    }, isPolling ? 1000 : undefined);
 
     // useEffect(() => {
     //     if (deployment?.started) {
@@ -187,84 +194,8 @@ export const DeploymentList: React.FunctionComponent<IDeploymentListProps> = (pr
                     styles={{ focusZone: { minWidth: '1px' }, root: { minWidth: '460px', boxShadow: theme.effects.elevation8 } }}
                 />
             </Stack.Item>
-            <Stack.Item grow={2} styles={{
-                root: {
-                    height: '100%',
-                    // minWidth: '60%',
-                    // padding: '10px 20px',
-                    borderRadius: theme.effects.roundedCorner4,
-                    color: 'rgb(225,228,232)',
-                    backgroundColor: 'rgb(36,41,46)',
-                    fontSize: '12px',
-                    lineHeight: '20px',
-                    fontFamily: 'SFMono-Regular,Consolas,Liberation Mono,Menlo,monospace!important',
-                }
-            }}>
-                <Stack>
-                    <Stack.Item>
-                        <Stack styles={{ root: { padding: '14px 24px 0px 24px' } }} horizontal verticalFill horizontalAlign='space-between' verticalAlign='center'>
-                            <Stack.Item>
-                                <Stack tokens={{ childrenGap: '4px' }}>
-                                    <Text styles={{ root: { fontSize: '16px', fontWeight: '600' } }}>{_getDeploymentName(deployment)}</Text>
-                                    <Text styles={{ root: { color: 'rgb(149,157,165)', fontSize: '12px', fontWeight: '600' } }}>{_getDeploymentStatus(deployment)}</Text>
-                                </Stack>
-                            </Stack.Item>
-                            <Stack.Item>
-                                <SearchBox
-                                    styles={{
-                                        root: {
-                                            border: '1px solid transparent',
-                                            borderRadius: theme.effects.roundedCorner4,
-                                            backgroundColor: 'rgb(47,54,61)',
-                                            color: 'rgb(149,157,165)',
-                                        },
-                                        field: {
-                                            backgroundColor: 'rgb(47,54,61)',
-                                            color: 'rgb(225,228,232)',
-                                        },
-                                        icon: {
-                                            color: 'rgb(149,157,165)',
-                                        }
-                                    }}
-                                />
-                            </Stack.Item>
-                        </Stack>
-                    </Stack.Item>
-
-                    <Stack.Item>
-                        <ContentSeparator color={theme.palette.neutralPrimary} />
-                    </Stack.Item>
-
-                    {/* {deployment && ( */}
-                    <Stack.Item styles={{ root: { padding: '0px 16px 16px 16px' } }}>
-                        <TextField
-                            readOnly
-                            multiline
-                            borderless
-                            resizable={false}
-                            value={output}
-                            // defaultValue={deployment?.output ?? undefined}
-                            styles={{
-                                root: {
-                                    color: 'rgb(225,228,232)',
-                                    minHeight: '50%'
-                                },
-                                field: {
-                                    height: '480px',
-                                    whiteSpace: 'pre-wrap',
-                                    overflowWrap: 'break-word',
-                                    border: 'none',
-                                    color: 'rgb(225,228,232)',
-                                    backgroundColor: 'rgb(36,41,46)',
-                                    fontSize: '12px',
-                                    lineHeight: '20px',
-                                    fontFamily: 'SFMono-Regular,Consolas,Liberation Mono,Menlo,monospace!important',
-                                    //fontFamily: "Menlo, Consolas, Monaco, 'Andale Mono', monospace",//'Monaco, Menlo, Consolas, monospace',
-                                }
-                            }} />
-                    </Stack.Item>
-                    {/* )} */}
-                </Stack>
+            <Stack.Item grow={2}>
+                <DeploymentConsole deployment={deployment} isPolling={isPolling} />
             </Stack.Item>
         </Stack >
 

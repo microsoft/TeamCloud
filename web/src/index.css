@@ -11,8 +11,25 @@ html,body,#root {
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+pre {
+  /* font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace; */
+  font-size: 12px;
+  font-weight: 600;
+  font-family: SFMono-Regular, Consolas, 'Liberation Mono' , Menlo, monospace!important;
+  margin: auto;
+  white-space: pre-wrap;
+  word-wrap: normal;
+}
+
+pre.success {
+  color: forestgreen;
+}
+
+pre.failure {
+  color: rgb(249, 117, 131);
 }
 
 .component-type-icon {
