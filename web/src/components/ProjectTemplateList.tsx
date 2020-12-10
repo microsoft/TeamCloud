@@ -2,11 +2,11 @@
 // Licensed under the MIT License.
 
 import React, { useContext, useState } from 'react';
-import { Checkbox, getTheme, IColumn, IconButton, Label, Modal, Separator, Stack, Text } from '@fluentui/react';
+import { Checkbox, getTheme, IColumn, IconButton, Label, Modal, Stack, Text } from '@fluentui/react';
 import { useHistory, useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { ProjectTemplate } from 'teamcloud';
-import { ContentList } from '.';
+import { ContentList, ContentSeparator } from '.';
 import collaboration from '../img/MSC17_collaboration_010_noBG.png'
 import { OrgContext } from '../Context';
 
@@ -79,7 +79,7 @@ export const ProjectTemplateList: React.FC = () => {
                     <Stack.Item>
                     </Stack.Item>
                     <Stack.Item>
-                        <Separator styles={{ root: { selectors: { '::before': { backgroundColor: theme.palette.neutralQuaternary } } } }} />
+                        <ContentSeparator />
                     </Stack.Item>
                     <Stack.Item>
                         <ReactMarkdown>{selectedTemplate?.description ?? undefined as any}</ReactMarkdown>

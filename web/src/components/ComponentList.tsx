@@ -98,7 +98,7 @@ export const ComponentList: React.FC<IComponentListProps> = (props) => {
 
     const onRenderRepoColumn = (item?: { component: Component, template: ComponentTemplate }, index?: number, column?: IColumn) => {
         if (!item) return undefined;
-        let name = item.template.repository.repository?.replaceAll('-', ' ') ?? item.template.repository.url;
+        let name = (item.template.repository.repository?.replaceAll('-', ' ') ?? item.template.repository.url) + ` @${item.template.repository.version}`;
         // if (name && item.template.repository.version)
         //     name = `${name} (${item.template.repository.version})`;
         return (
@@ -146,11 +146,11 @@ export const ComponentList: React.FC<IComponentListProps> = (props) => {
         { key: 'displayName', name: 'Name', minWidth: 220, isResizable: false, onRender: onRenderNameColumn, styles: { cellName: { paddingLeft: '5px' } } },
         { key: 'type', name: 'Type', minWidth: 150, maxWidth: 150, isResizable: false, onRender: onRenderTypeColumn },
         { key: 'scope', name: 'Scope', minWidth: 110, maxWidth: 110, isResizable: false, onRender: (i: { component: Component, template: ComponentTemplate }) => scopes?.find(s => s.id === i.component.deploymentScopeId)?.displayName },
-        { key: 'state', name: 'State', minWidth: 120, maxWidth: 120, onRender: (i: { component: Component, template: ComponentTemplate }) => i.component.resourceState },
+        // { key: 'state', name: 'State', minWidth: 120, maxWidth: 120, onRender: (i: { component: Component, template: ComponentTemplate }) => i.component.resourceState },
         // { key: 'description', name: 'Description', minWidth: 460, fieldName: 'description' },
         // { key: 'blank', name: '', minWidth: 40, maxWidth: 40, onRender: (_: ComponentTemplate) => undefined },
-        { key: 'repository', name: 'Repository', minWidth: 240, maxWidth: 240, onRender: onRenderRepoColumn },
-        { key: 'version', name: 'Version', minWidth: 80, maxWidth: 80, onRender: (i: { component: Component, template: ComponentTemplate }) => i.template.repository.version },
+        { key: 'repository', name: 'Repository', minWidth: 280, maxWidth: 280, onRender: onRenderRepoColumn },
+        // { key: 'version', name: 'Version', minWidth: 80, maxWidth: 80, onRender: (i: { component: Component, template: ComponentTemplate }) => i.template.repository.version },
         { key: 'requestedBy', name: 'Creator', minWidth: 180, maxWidth: 180, onRender: onRenderCreatorColumn },
         { key: 'link', name: 'Link', minWidth: 200, maxWidth: 200, onRender: onRenderLinkColumn },
     ];

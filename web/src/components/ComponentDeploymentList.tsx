@@ -2,11 +2,12 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect, useContext } from 'react';
-import { CheckboxVisibility, DetailsList, DetailsListLayoutMode, FontIcon, getTheme, IColumn, IDetailsRowProps, IRenderFunction, SearchBox, SelectionMode, Separator, Stack, Text, TextField } from '@fluentui/react';
+import { CheckboxVisibility, DetailsList, DetailsListLayoutMode, FontIcon, getTheme, IColumn, IDetailsRowProps, IRenderFunction, SearchBox, SelectionMode, Stack, Text, TextField } from '@fluentui/react';
 import { OrgContext, ProjectContext } from '../Context';
 import { ComponentDeployment } from 'teamcloud';
 import { useInterval } from '../Hooks';
 import { api } from '../API';
+import { ContentSeparator } from '.';
 
 export interface IComponentDeploymentListProps {
 
@@ -232,7 +233,7 @@ export const ComponentDeploymentList: React.FunctionComponent<IComponentDeployme
                     </Stack.Item>
 
                     <Stack.Item>
-                        <Separator styles={{ root: { selectors: { '::before': { backgroundColor: theme.palette.neutralPrimary } } } }} />
+                        <ContentSeparator color={theme.palette.neutralPrimary} />
                     </Stack.Item>
 
                     {/* {deployment && ( */}
