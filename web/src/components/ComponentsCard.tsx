@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import React, { useContext, useEffect, useState } from 'react';
-import { Stack, DefaultButton, Text, ICommandBarItemProps, Dialog, DialogType, DialogFooter, PrimaryButton, FontIcon, IColumn, Persona, PersonaSize, DetailsList, DetailsListLayoutMode, CheckboxVisibility, IDetailsRowProps, IRenderFunction, SelectionMode, Link, IconButton, ActionButton, ConstrainMode } from '@fluentui/react';
+import { Stack, DefaultButton, Text, ICommandBarItemProps, Dialog, DialogType, DialogFooter, PrimaryButton, FontIcon, IColumn, Persona, PersonaSize, DetailsList, DetailsListLayoutMode, CheckboxVisibility, IDetailsRowProps, IRenderFunction, SelectionMode, Link } from '@fluentui/react';
 import { Component, ComponentTemplate, ErrorResult } from 'teamcloud';
 import { DetailCard } from '.';
 import { api } from '../API';
@@ -170,7 +170,7 @@ export const ComponentsCard: React.FC = () => {
         <>
             <DetailCard
                 title='Components'
-                callout={components?.length.toString()}
+                callout={components?.length}
                 commandBarItems={_getCommandBarItems()}>
                 <DetailsList
                     items={items ?? []}

@@ -4,7 +4,7 @@
 import React, { useContext, useState } from 'react';
 import { Member, ProjectMember } from '../model'
 import { ErrorResult } from 'teamcloud';
-import { Stack, Facepile, IFacepilePersona, PersonaSize, IRenderFunction, HoverCard, HoverCardType, Shimmer, ShimmerElementsGroup, ShimmerElementType, CommandBar, ICommandBarItemProps, Separator, Label, Text } from '@fluentui/react';
+import { Stack, Facepile, IFacepilePersona, PersonaSize, IRenderFunction, HoverCard, HoverCardType, Shimmer, ShimmerElementsGroup, ShimmerElementType, CommandBar, ICommandBarItemProps, Separator, Text } from '@fluentui/react';
 import { DetailCard, MembersForm, UserPersona } from '.';
 import { api } from '../API';
 import { ProjectContext } from '../Context';
@@ -125,7 +125,7 @@ export const MembersCard: React.FC<IMembersCardProps> = (props) => {
         <>
             <DetailCard
                 title='Members'
-                callout={members?.length.toString()}
+                callout={members?.length}
                 commandBarItems={_getCommandBarItems()}>
                 <Shimmer
                     customElementsGroup={_getShimmerElements()}

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+export * from './CalloutLabel'
 export * from './ContentContainer'
 export * from './ContentCardList'
 export * from './ContentHeader'

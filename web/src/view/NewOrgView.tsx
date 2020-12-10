@@ -6,7 +6,7 @@ import { useHistory } from 'react-router-dom';
 import { Stack, TextField, Text, PrimaryButton, DefaultButton, IconButton, Pivot, PivotItem, ComboBox, ChoiceGroup, Label, IComboBoxOption } from '@fluentui/react';
 import { OrganizationDefinition, DeploymentScopeDefinition, ProjectTemplateDefinition } from 'teamcloud'
 import { AzureRegions, Tags } from '../model';
-import { ContentContainer, ContentHeader, ContentProgress, DeploymentScopeForm, OrgSettingsDetail, ProjectTemplateForm } from '../components';
+import { CalloutLabel, ContentContainer, ContentHeader, ContentProgress, DeploymentScopeForm, ProjectTemplateForm } from '../components';
 import { api } from '../API';
 import { GraphUserContext, OrgContext } from '../Context';
 
@@ -251,26 +251,26 @@ export const NewOrgView: React.FC = () => {
                     <PivotItem headerText='Review + create' itemKey='Review + create'>
                         <Stack tokens={{ childrenGap: '40px' }} styles={{ root: { padding: '24px 8px' } }}>
                             <Stack.Item>
-                                <OrgSettingsDetail title='Basic Settings' details={[
+                                <NewOrgReviewSection title='Basic Settings' details={[
                                     { label: 'Name', value: orgName, required: true },
                                     { label: 'Subscription', value: orgSubscription, required: true },
                                     { label: 'Location', value: orgRegion, required: true }
                                 ]} />
                             </Stack.Item>
                             <Stack.Item>
-                                <OrgSettingsDetail title='Configuration' details={[
+                                <NewOrgReviewSection title='Configuration' details={[
                                     { label: 'Web Portal', value: webPortalEnabled ? 'Enabled' : 'Disabled', required: true }
                                 ]} />
                             </Stack.Item>
                             <Stack.Item>
-                                {/* <OrgSettingsDetail title='Deployment Scope' details={getScopeDetail()} /> */}
-                                <OrgSettingsDetail title='Deployment Scope' details={[
+                                {/* <NewOrgReviewSection title='Deployment Scope' details={getScopeDetail()} /> */}
+                                <NewOrgReviewSection title='Deployment Scope' details={[
                                     { label: 'Name', value: scope?.displayName ?? '', required: true },
                                     { label: 'Subscriptions', value: scope?.subscriptionIds?.join(', '), required: true }
                                 ]} />
                             </Stack.Item>
                             <Stack.Item>
-                                <OrgSettingsDetail title='Project Template' details={[
+                                <NewOrgReviewSection title='Project Template' details={[
                                     { label: 'Name', value: template?.displayName, required: true },
                                     { label: 'Url', value: template?.repository.url, required: true },
                                     { label: 'Version', value: template?.repository.version ?? undefined },
@@ -286,6 +286,32 @@ export const NewOrgView: React.FC = () => {
                 <DefaultButton text='Cancel' disabled={!formEnabled} onClick={() => _resetAndCloseForm()} />
             </Stack.Item>
             <Text>{errorText}</Text>
+        </Stack>
+    );
+}
+
+export interface INewOrgReviewSection {
+    title: string;
+    details: { label: string, value?: string, required?: boolean }[]
+}
+
+export const NewOrgReviewSection: React.FC<INewOrgReviewSection> = (props) => {
+
+    const _getDetailStacks = () => props.details.map(d => (
+        <Stack
+            horizontal
+            verticalAlign='baseline'
+            key={`${props.title}${d.label}`}
+            tokens={{ childrenGap: 10 }}>
+            <Label required={d.required}>{d.label}:</Label>
+            <Text>{d.value}</Text>
+        </Stack>
+    ));
+
+    return (
+        <Stack>
+            <CalloutLabel title={props.title} />
+            {_getDetailStacks()}
         </Stack>
     );
 }

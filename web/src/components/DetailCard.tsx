@@ -2,11 +2,12 @@
 // Licensed under the MIT License.
 
 import React from 'react';
-import { Stack, IStackStyles, ITextStyles, getTheme, FontWeights, Text, ICommandBarItemProps, CommandBar, ICommandBarStyles } from '@fluentui/react';
+import { Stack, IStackStyles, getTheme, ICommandBarItemProps, CommandBar, ICommandBarStyles } from '@fluentui/react';
+import { CalloutLabel } from './common';
 
 export interface IDetailCardProps {
     title?: string;
-    callout?: string;
+    callout?: string | number;
     commandBarItems?: ICommandBarItemProps[];
 }
 
@@ -31,27 +32,6 @@ export const DetailCard: React.FC<IDetailCardProps> = (props) => {
         }
     };
 
-    const _titleStyles: ITextStyles = {
-        root: {
-            fontSize: '21px',
-            fontWeight: FontWeights.semibold,
-            marginBottom: '12px'
-        }
-    };
-
-    const _calloutStyles: ITextStyles = {
-        root: {
-            fontSize: '13px',
-            fontWeight: FontWeights.regular,
-            color: 'rgb(102, 102, 102)',
-            backgroundColor: theme.palette.neutralLighter,
-            marginBottom: '14px',
-            marginTop: '5px',
-            padding: '2px 12px',
-            borderRadius: '14px',
-        }
-    };
-
     const _commandBarStyles: ICommandBarStyles = {
         root: {
             marginTop: '-4px',
@@ -60,10 +40,6 @@ export const DetailCard: React.FC<IDetailCardProps> = (props) => {
             // minWidth: '150px',
         }
     };
-
-    const _getCallout = (): JSX.Element | null => props.callout ? <Text styles={_calloutStyles}>{props.callout}</Text> : null;
-
-    const _getTitle = (): JSX.Element | null => props.title ? <Text styles={_titleStyles}>{props.title}</Text> : null;
 
     const _getCammandBar = (): JSX.Element | null => props.commandBarItems ? <CommandBar
         onReduceData={() => undefined}
@@ -77,10 +53,7 @@ export const DetailCard: React.FC<IDetailCardProps> = (props) => {
             <Stack styles={_cardStackContentStyles} >
                 <Stack styles={{ root: { minHeight: '44px' } }} horizontal horizontalAlign='space-between'>
                     <Stack.Item>
-                        <Stack horizontal tokens={{ childrenGap: '5px' }}>
-                            {_getTitle()}
-                            {_getCallout()}
-                        </Stack>
+                        <CalloutLabel large title={props.title} callout={props.callout} />
                     </Stack.Item>
                     <Stack.Item>
                         {_getCammandBar()}
