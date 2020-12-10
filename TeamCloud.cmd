@@ -24,7 +24,7 @@ echo - Building API and Orchestrator
 start /min /D .\src "" 9>"%lock%1" dotnet build --force -c Debug
 
 echo - Building Web UI
-start /min /D .\web\teamcloud "" 9>"%lock%2" cmd /C npm install
+start /min /D .\web "" 9>"%lock%2" cmd /C npm install
 
 :Wait 
 1>nul 2>nul ping /n 2 ::1
@@ -34,8 +34,8 @@ for %%N in (1 2) do (
 
 del "%lock%*"
 
-SET terminal=wt -d .\src\TeamCloud.API cmd /C "dotnet run --no-build" ;
-SET terminal=%terminal% split-pane -V -d .\src\TeamCloud.Orchestrator cmd /C "func host start --no-build --script-root bin/Debug/netcoreapp3.1" ;
-SET terminal=%terminal% split-pane -H -d .\web\teamcloud cmd /C "npm start"
+SET terminal=wt -d .\web cmd /C "npm start" ;
+SET terminal=%terminal% split-pane -V -d .\src\TeamCloud.API cmd /C "dotnet run --no-build" ;
+SET terminal=%terminal% split-pane -H -d .\src\TeamCloud.Orchestrator cmd /C "func host start --no-build --script-root bin/Debug/netcoreapp3.1" 
 
 start "" /B %terminal%
