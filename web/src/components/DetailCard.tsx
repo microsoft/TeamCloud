@@ -37,7 +37,6 @@ export const DetailCard: React.FC<IDetailCardProps> = (props) => {
             marginTop: '-4px',
             marginBottom: '4px',
             padding: '0px',
-            // minWidth: '150px',
         }
     };
 
@@ -59,7 +58,6 @@ export const DetailCard: React.FC<IDetailCardProps> = (props) => {
                         {_getCammandBar()}
                     </Stack.Item>
                 </Stack>
-                {/* {_getTitle()} */}
                 {props.children}
             </Stack>
         </Stack>

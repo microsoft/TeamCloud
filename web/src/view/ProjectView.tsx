@@ -11,7 +11,7 @@ export const ProjectView: React.FC = () => {
 
     const [favorite, setFavorate] = useState(false);
 
-    const { project, members, components, component, templates, onAddUsers } = useContext(ProjectContext)
+    const { project, members, components, component, templates, onAddUsers } = useContext(ProjectContext);
 
     return (
         <Stack>
