@@ -9,7 +9,7 @@ import { ComponentTemplate, DeploymentScope } from 'teamcloud';
 import { OrgContext, ProjectContext } from '../Context';
 import { ProjectMember } from '../model';
 import { FuiForm } from '@rjsf/fluent-ui';
-import { ComponentDeploymentList, UserPersona } from '.';
+import { DeploymentList, UserPersona } from '.';
 import { FieldTemplateProps, WidgetProps } from '@rjsf/core';
 // import DevOps from '../img/devops.svg';
 // import GitHub from '../img/github.svg';
@@ -185,7 +185,7 @@ export const ComponentOverview: React.FC = (props) => {
                         </Stack>
                     </PivotItem>
                     <PivotItem headerText='Deployments' itemKey='Deployments'>
-                        <ComponentDeploymentList />
+                        <DeploymentList />
                     </PivotItem>
                     <PivotItem headerText='Settings' itemKey='Settings'>
                         <Stack tokens={{ childrenGap: '20px' }} styles={{ root: { padding: '24px 8px' } }}>

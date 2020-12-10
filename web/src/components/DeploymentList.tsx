@@ -2,21 +2,21 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect, useContext } from 'react';
-import { CheckboxVisibility, DetailsList, DetailsListLayoutMode, FontIcon, getTheme, IColumn, IDetailsRowProps, IRenderFunction, SearchBox, SelectionMode, Separator, Stack, Text, TextField } from '@fluentui/react';
+import { CheckboxVisibility, DetailsList, DetailsListLayoutMode, FontIcon, getTheme, IColumn, IDetailsRowProps, IRenderFunction, SearchBox, SelectionMode, Stack, Text, TextField } from '@fluentui/react';
 import { OrgContext, ProjectContext } from '../Context';
 import { ComponentDeployment } from 'teamcloud';
 import { useInterval } from '../Hooks';
 import { api } from '../API';
+import { ContentSeparator } from '.';
 
-export interface IComponentDeploymentListProps {
+export interface IDeploymentListProps {
 
 }
 
-export const ComponentDeploymentList: React.FunctionComponent<IComponentDeploymentListProps> = (props) => {
+export const DeploymentList: React.FunctionComponent<IDeploymentListProps> = (props) => {
 
     const theme = getTheme();
 
-    // const { component, componentDeployments } = useContext(ProjectContext);
     const { org } = useContext(OrgContext);
     const { componentDeployments } = useContext(ProjectContext);
 
@@ -47,7 +47,7 @@ export const ComponentDeploymentList: React.FunctionComponent<IComponentDeployme
             console.log(`+ setPollDeployment (${poll})`);
             setPollDeployment(poll);
         }
-    }, [deployment])
+    }, [org, deployment, pollDeployment])
 
 
     useEffect(() => {
@@ -232,7 +232,7 @@ export const ComponentDeploymentList: React.FunctionComponent<IComponentDeployme
                     </Stack.Item>
 
                     <Stack.Item>
-                        <Separator styles={{ root: { selectors: { '::before': { backgroundColor: theme.palette.neutralPrimary } } } }} />
+                        <ContentSeparator color={theme.palette.neutralPrimary} />
                     </Stack.Item>
 
                     {/* {deployment && ( */}

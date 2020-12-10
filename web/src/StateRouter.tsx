@@ -144,14 +144,6 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
                     }
                     console.log(`+ setMembers (${org.slug})`);
                 };
-                console.log('----------------------------')
-                console.log(isAuthenticated);
-                console.log(org);
-                console.log(members);
-                console.log(projectId);
-                console.log(settingId);
-                console.log(location);
-                console.log('----------------------------')
                 _setMembers();
             }
         } else if (members) {
@@ -521,6 +513,7 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
                 projects: projects,
                 templates: templates,
                 onAddUsers: onAddOrgUsers,
+                onRemoveUsers: () => Promise.resolve(),
                 onOrgSelected: onOrgSelected,
                 onProjectSelected: onProjectSelected,
                 onCreateDeploymentScope: onCreateDeploymentScope,
@@ -535,6 +528,7 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
                     templates: projectComponentTemplates,
                     componentDeployments: projectComponentDeployments,
                     onAddUsers: onAddProjectUsers,
+                    onRemoveUsers: () => Promise.resolve(),
                     onComponentSelected: onComponentSelected
                 }}>
                     {props.children}

@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 import React, { PropsWithChildren, useState } from 'react';
-import { CheckboxVisibility, DetailsList, DetailsListLayoutMode, FontWeights, getTheme, IColumn, IDetailsHeaderProps, IDetailsRowProps, IRenderFunction, ITextStyles, PrimaryButton, SearchBox, Stack, Text } from '@fluentui/react';
-import { NoData } from '.';
+import { CheckboxVisibility, DetailsList, DetailsListLayoutMode, getTheme, IColumn, IDetailsHeaderProps, IDetailsRowProps, IRenderFunction, PrimaryButton, SearchBox, Stack } from '@fluentui/react';
+import { NoData, CalloutLabel } from '.';
 
 export interface IContentListProps<T> {
     items?: T[];
@@ -47,25 +47,6 @@ export const ContentList = <T,>(props: PropsWithChildren<IContentListProps<T>>) 
     };
 
     const items: T[] = props.items ? (itemFilter && props.applyFilter !== undefined) ? props.items.filter(i => props.applyFilter!(i, itemFilter)) : props.items : [];
-
-    const _titleStyles: ITextStyles = {
-        root: {
-            fontSize: '14px',
-            fontWeight: FontWeights.regular,
-        }
-    };
-
-    const _calloutStyles: ITextStyles = {
-        root: {
-            fontSize: '11px',
-            fontWeight: FontWeights.regular,
-            color: 'rgb(102, 102, 102)',
-            backgroundColor: theme.palette.neutralLighter,
-            padding: '2px 9px',
-            borderRadius: '14px',
-        }
-    };
-
 
     if (props.items === undefined)
         return (<></>);
@@ -118,14 +99,7 @@ export const ContentList = <T,>(props: PropsWithChildren<IContentListProps<T>>) 
                     <Stack horizontal verticalFill verticalAlign='baseline' horizontalAlign='space-between'
                         styles={{ root: { padding: '16px 16px 0px 16px', } }}>
                         <Stack.Item>
-                            <Stack horizontal verticalFill verticalAlign='baseline' tokens={{ childrenGap: '5px' }}>
-                                <Stack.Item>
-                                    <Text styles={_titleStyles}>Total</Text>
-                                </Stack.Item>
-                                <Stack.Item>
-                                    <Text styles={_calloutStyles}>{props.items.length}</Text>
-                                </Stack.Item>
-                            </Stack>
+                            <CalloutLabel title='Total' callout={props.items.length} />
                         </Stack.Item>
                         {props.buttonText && (
                             <Stack.Item>

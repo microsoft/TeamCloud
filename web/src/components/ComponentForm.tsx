@@ -2,13 +2,13 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect, useContext } from 'react';
-import { DefaultButton, Dropdown, FontIcon, getTheme, IColumn, IconButton, IDropdownOption, Image, Persona, PersonaSize, PrimaryButton, Separator, Stack, Text, TextField } from '@fluentui/react';
+import { DefaultButton, Dropdown, FontIcon, getTheme, IColumn, IconButton, IDropdownOption, Image, Persona, PersonaSize, PrimaryButton, Stack, Text, TextField } from '@fluentui/react';
 import { ProjectComponentDefinition, ComponentTemplate } from 'teamcloud';
 import { useHistory } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { FuiForm } from '@rjsf/fluent-ui'
 import { FieldTemplateProps, ISubmitEvent } from '@rjsf/core';
-import { ContentContainer, ContentHeader, ContentList, ContentProgress } from '.';
+import { ContentContainer, ContentHeader, ContentList, ContentProgress, ContentSeparator } from '.';
 import { OrgContext, ProjectContext } from '../Context';
 import DevOps from '../img/devops.svg';
 import GitHub from '../img/github.svg';
@@ -232,7 +232,7 @@ export const ComponentForm: React.FC = () => {
                                                 onChange={_onDropdownChange} />
                                         </Stack.Item>
                                         <Stack.Item>
-                                            <Separator styles={{ root: { selectors: { '::before': { backgroundColor: theme.palette.neutralQuaternary } } } }} />
+                                            <ContentSeparator />
                                         </Stack.Item>
                                         <Stack.Item>
                                             <FuiForm
@@ -241,7 +241,7 @@ export const ComponentForm: React.FC = () => {
                                                 FieldTemplate={TCFieldTemplate}
                                                 // widgets={{ 'SelectWidget': TCSelectWidget }}
                                                 schema={template?.inputJsonSchema ? JSON.parse(template.inputJsonSchema) : {}}>
-                                                <Separator styles={{ root: { selectors: { '::before': { backgroundColor: theme.palette.neutralQuaternary } } } }} />
+                                                <ContentSeparator />
                                                 <div style={{ paddingTop: '24px' }}>
                                                     <PrimaryButton type='submit' text='Create component' disabled={!formEnabled || !(template)} styles={{ root: { marginRight: 8 } }} />
                                                     <DefaultButton text='Cancel' disabled={!formEnabled} onClick={() => setTemplate(undefined)} />

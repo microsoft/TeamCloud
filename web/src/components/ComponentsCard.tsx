@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import React, { useContext, useEffect, useState } from 'react';
-import { Stack, DefaultButton, Text, ICommandBarItemProps, Dialog, DialogType, DialogFooter, PrimaryButton, FontIcon, IColumn, Persona, PersonaSize, DetailsList, DetailsListLayoutMode, CheckboxVisibility, IDetailsRowProps, IRenderFunction, SelectionMode, Link, IconButton, ActionButton } from '@fluentui/react';
+import { Stack, DefaultButton, Text, ICommandBarItemProps, Dialog, DialogType, DialogFooter, PrimaryButton, FontIcon, IColumn, Persona, PersonaSize, DetailsList, DetailsListLayoutMode, CheckboxVisibility, IDetailsRowProps, IRenderFunction, SelectionMode, Link } from '@fluentui/react';
 import { Component, ComponentTemplate, ErrorResult } from 'teamcloud';
 import { DetailCard } from '.';
 import { api } from '../API';
@@ -68,7 +68,7 @@ export const ComponentsCard: React.FC = () => {
 
             root: { border: 'none' },
             fields: { alignItems: 'center' },
-            check: { minHeight: '62px' },
+            // check: { minHeight: '62px' },
             cell: { fontSize: '14px', paddingLeft: '0px' },
         }
         return defaultRender ? defaultRender(rowProps) : null;
@@ -147,11 +147,11 @@ export const ComponentsCard: React.FC = () => {
 
 
     const columns: IColumn[] = [
-        { key: 'displayName', name: 'Name', minWidth: 200, onRender: onRenderNameColumn },
-        { key: 'scope', name: 'Scope', minWidth: 140, onRender: (i: { component: Component, template: ComponentTemplate }) => scopes?.find(s => s.id === i.component.deploymentScopeId)?.displayName },
-        { key: 'state', name: 'State', minWidth: 140, onRender: (i: { component: Component, template: ComponentTemplate }) => i.component.resourceState },
-        { key: 'type', name: 'Type', minWidth: 160, onRender: onRenderTypeColumn },
-        { key: 'link', name: 'Link', minWidth: 140, onRender: onRenderLinkColumn },
+        { key: 'displayName', name: 'Name', minWidth: 200, maxWidth: 200, onRender: onRenderNameColumn },
+        { key: 'type', name: 'Type', minWidth: 160, maxWidth: 160, onRender: onRenderTypeColumn },
+        { key: 'scope', name: 'Scope', minWidth: 140, maxWidth: 140, onRender: (i: { component: Component, template: ComponentTemplate }) => scopes?.find(s => s.id === i.component.deploymentScopeId)?.displayName },
+        // { key: 'state', name: 'State', minWidth: 140, onRender: (i: { component: Component, template: ComponentTemplate }) => i.component.resourceState },
+        { key: 'link', name: 'Link', minWidth: 140, maxWidth: 140, onRender: onRenderLinkColumn },
         // { key: 'description', name: 'Description', minWidth: 460, fieldName: 'description' },
         // { key: 'blank', name: '', minWidth: 40, maxWidth: 40, onRender: (_: ComponentTemplate) => undefined },
         // { key: 'repository', name: 'Repository', minWidth: 240, maxWidth: 240, onRender: onRenderRepoColumn },
@@ -170,7 +170,7 @@ export const ComponentsCard: React.FC = () => {
         <>
             <DetailCard
                 title='Components'
-                callout={components?.length.toString()}
+                callout={components?.length}
                 commandBarItems={_getCommandBarItems()}>
                 <DetailsList
                     items={items ?? []}

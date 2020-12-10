@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { DefaultButton, getTheme, Link, Persona, PersonaSize, PrimaryButton, Separator, Stack, Text, TextField } from '@fluentui/react';
+import { DefaultButton, getTheme, Link, Persona, PersonaSize, PrimaryButton, Stack, Text, TextField } from '@fluentui/react';
 import React, { useContext, useEffect, useState } from 'react';
 import { OrgContext } from '../Context';
 import { Member } from '../model';
-import { UserPersona } from '.';
+import { ContentSeparator, UserPersona } from '.';
 
 export const OrgSettingsOverview: React.FC = () => {
 
@@ -68,7 +68,7 @@ export const OrgSettingsOverview: React.FC = () => {
                 </Stack>
             </Stack.Item>
             <Stack.Item>
-                <Separator styles={{ root: { selectors: { '::before': { backgroundColor: theme.palette.neutralQuaternary } } } }} />
+                <ContentSeparator />
             </Stack.Item>
             <Stack.Item>
                 <Stack tokens={{ childrenGap: '14px' }}>
@@ -87,7 +87,7 @@ export const OrgSettingsOverview: React.FC = () => {
                 </Stack>
             </Stack.Item>
             <Stack.Item>
-                <Separator styles={{ root: { selectors: { '::before': { backgroundColor: theme.palette.neutralQuaternary } } } }} />
+                <ContentSeparator />
             </Stack.Item>
             <Stack.Item>
                 <Stack tokens={{ childrenGap: '14px' }}>
@@ -115,7 +115,7 @@ export const OrgSettingsOverview: React.FC = () => {
                 </Stack>
             </Stack.Item>
             <Stack.Item>
-                <Separator styles={{ root: { selectors: { '::before': { backgroundColor: theme.palette.neutralQuaternary } } } }} />
+                <ContentSeparator />
             </Stack.Item>
             <Stack.Item>
                 <Stack tokens={{ childrenGap: '6px' }}>
@@ -139,7 +139,7 @@ export const OrgSettingsOverview: React.FC = () => {
                 </Stack>
             </Stack.Item>
             <Stack.Item>
-                <Separator styles={{ root: { selectors: { '::before': { backgroundColor: theme.palette.neutralQuaternary } } } }} />
+                <ContentSeparator />
             </Stack.Item>
         </Stack>
     ) : <></>;

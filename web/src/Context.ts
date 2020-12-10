@@ -23,6 +23,7 @@ export const OrgContext = React.createContext({
     onOrgSelected: (org?: Organization) => { },
     onProjectSelected: (project?: Project) => { },
     onAddUsers: (users: UserDefinition[]) => Promise.resolve(),
+    onRemoveUsers: (users: User[]) => Promise.resolve(),
     onCreateDeploymentScope: (scope: DeploymentScopeDefinition, org?: Organization) => Promise.resolve(),
     onCreateProjectTemplate: (template: ProjectTemplateDefinition, org?: Organization) => Promise.resolve(),
 });
@@ -37,4 +38,5 @@ export const ProjectContext = React.createContext({
     componentDeployments: undefined as ComponentDeployment[] | undefined,
     onComponentSelected: (component?: Component) => { },
     onAddUsers: (users: UserDefinition[]) => Promise.resolve(),
+    onRemoveUsers: (users: User[]) => Promise.resolve(),
 });

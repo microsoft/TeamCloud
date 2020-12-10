@@ -28,7 +28,8 @@ export const getMe = async (): Promise<GraphUser> => {
         .select(_userSelect)
         .get();
     let me = response as GraphUser;
-    me.imageUrl = await getMePhoto();
+    if (me.userType?.toLowerCase() === 'member')
+        me.imageUrl = await getMePhoto();
     return me;
 }
 
@@ -40,7 +41,8 @@ export const getGraphUser = async (id: string): Promise<GraphUser> => {
             // .header('X-PeopleQuery-QuerySources', 'Directory')
             .get();
         let user = response as GraphUser;
-        user.imageUrl = await getUserPhoto(user.id);
+        if (user.userType?.toLowerCase() === 'member')
+            user.imageUrl = await getUserPhoto(user.id);
         return user;
     } catch (error) {
         console.error(error as GraphError);
@@ -56,7 +58,7 @@ export const getGraphUsers = async (): Promise<GraphUser[]> => {
             // .header('X-PeopleQuery-QuerySources', 'Directory')
             .get();
         let users: GraphUser[] = response.value;
-        await Promise.all(users.map(async u => u.imageUrl = await getUserPhoto(u.id)));
+        await Promise.all(users.map(async u => u.imageUrl = (u.userType?.toLowerCase() === 'member') ? await getUserPhoto(u.id) : undefined));
         return users;
     } catch (error) {
         console.error(error as GraphError);
@@ -73,7 +75,7 @@ export const searchGraphUsers = async (search: string): Promise<GraphUser[]> => 
             // .header('X-PeopleQuery-QuerySources', 'Directory')
             .get();
         let users: GraphUser[] = response.value;
-        await Promise.all(users.map(async u => u.imageUrl = await getUserPhoto(u.id)));
+        await Promise.all(users.map(async u => u.imageUrl = (u.userType?.toLowerCase() === 'member') ? await getUserPhoto(u.id) : undefined));
         return users;
     } catch (error) {
         console.error(error as GraphError);
