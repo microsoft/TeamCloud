@@ -2,11 +2,11 @@
 // Licensed under the MIT License.
 
 export * from './common'
-export * from './ComponentDeploymentList'
 export * from './ComponentForm'
 export * from './ComponentList'
 export * from './ComponentOverview'
 export * from './ComponentsCard'
+export * from './DeploymentList'
 export * from './DeploymentScopeForm'
 export * from './DeploymentScopeList'
 export * from './DetailCard'
