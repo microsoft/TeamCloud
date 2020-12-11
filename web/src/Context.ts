@@ -3,13 +3,13 @@
 
 import React from 'react';
 import { Component, ComponentDeployment, ComponentTemplate, DeploymentScope, DeploymentScopeDefinition, Organization, Project, ProjectTemplate, ProjectTemplateDefinition, User, UserDefinition } from 'teamcloud'
-import { GraphUser, Member, ProjectMember, Subscription } from './model';
+import { GraphUser, ManagementGroup, Member, ProjectMember, Subscription } from './model';
 
 export const GraphUserContext = React.createContext({
     graphUser: undefined as GraphUser | undefined,
     setGraphUser: (graphUser?: GraphUser) => { },
     subscriptions: undefined as Subscription[] | undefined,
-    // managementGroups: undefined as ManagementGroup[] | undefined,
+    managementGroups: undefined as ManagementGroup[] | undefined,
 });
 
 export const OrgContext = React.createContext({

@@ -7,9 +7,9 @@ import { useLocation, useParams } from 'react-router-dom';
 import { MsalAuthenticationResult, useIsAuthenticated, useMsalAuthentication } from '@azure/msal-react';
 import { Component, ComponentDeployment, ComponentTemplate, DeploymentScope, DeploymentScopeDefinition, Organization, Project, ProjectTemplate, ProjectTemplateDefinition, User, UserDefinition } from 'teamcloud';
 import { matchesRouteParam, matchesLowerCase, endsWithLowerCase, endsWithAnyLowerCase, includesLowerCase, matchesAnyLowerCase } from './Utils'
-import { GraphUser, Member, ProjectMember, Subscription } from './model';
+import { GraphUser, ManagementGroup, Member, ProjectMember, Subscription } from './model';
 import { GraphUserContext, OrgContext, ProjectContext } from './Context'
-import { getSubscriptions } from './Azure';
+import { getManagementGroups, getSubscriptions } from './Azure';
 import { getGraphUser, getMe } from './MSGraph';
 import { api, auth } from './API';
 
@@ -51,7 +51,7 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
     const [projectComponentDeployments, setProjectComponentDeployments] = useState<ComponentDeployment[]>();
 
     const [subscriptions, setSubscriptions] = useState<Subscription[]>();
-    // const [managementGroups, setManagementGroups] = useState<ManagementGroup[]>();
+    const [managementGroups, setManagementGroups] = useState<ManagementGroup[]>();
 
 
     useEffect(() => { // Graph User
@@ -331,26 +331,25 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
     }, [isAuthenticated, subscriptions, location]);
 
 
-    // useEffect(() => { // Azure Management Groups
-    //     if (isAuthenticated) {
-    //         if (endsWithAnyLowerCase(location.pathname, '/orgs/new', '/scopes/new') && managementGroups === undefined) {
-    //             const _setManagementGroups = async () => {
-    //                 console.log(`setManagementGroups`);
-    //                 try {
-    //                     const groups = await getManagementGroups();
-    //                     setManagementGroups(groups ?? []);
-    //                 } catch (error) {
-    //                     setManagementGroups([]);
-    //                 }
-    //             };
-    //             _setManagementGroups();
-    //         }
-    //     } else {
-    //         console.log(`setManagementGroups (undefined)`);
-    //         setManagementGroups(undefined);
-    //     }
-    // }, [isAuthenticated, managementGroups, location]);
-
+    useEffect(() => { // Azure Management Groups
+        if (isAuthenticated) {
+            if (endsWithAnyLowerCase(location.pathname, '/orgs/new', '/scopes/new') && managementGroups === undefined) {
+                const _setManagementGroups = async () => {
+                    console.log(`setManagementGroups`);
+                    try {
+                        const groups = await getManagementGroups();
+                        setManagementGroups(groups ?? []);
+                    } catch (error) {
+                        setManagementGroups([]);
+                    }
+                };
+                _setManagementGroups();
+            }
+        } else {
+            console.log(`setManagementGroups (undefined)`);
+            setManagementGroups(undefined);
+        }
+    }, [isAuthenticated, managementGroups, location]);
 
 
 
@@ -502,7 +501,7 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
             graphUser: graphUser,
             setGraphUser: setGraphUser,
             subscriptions: subscriptions,
-            // managementGroups: managementGroups
+            managementGroups: managementGroups
         }}>
             <OrgContext.Provider value={{
                 org: org,

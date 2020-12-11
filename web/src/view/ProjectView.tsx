@@ -3,7 +3,7 @@
 
 import React, { useState, useContext } from 'react';
 import { Route, Switch } from 'react-router-dom';
-import { Stack, IconButton } from '@fluentui/react';
+import { Stack, IconButton, PrimaryButton } from '@fluentui/react';
 import { ComponentOverview, ProjectOverview, ContentHeader, ContentProgress, ContentContainer, MemberList, ComponentList, ComponentForm, ProjectSettingsOverview } from '../components';
 import { ProjectContext } from '../Context';
 
@@ -38,7 +38,16 @@ export const ProjectView: React.FC = () => {
                 </Route>
                 <Route exact path='/orgs/:orgId/projects/:projectId/components/:itemId'>
                     <ContentProgress progressHidden={project !== undefined && components !== undefined && templates !== undefined && members !== undefined} />
-                    <ContentHeader title={component?.displayName ?? undefined} />
+                    <ContentHeader title={component?.displayName ?? undefined}>
+                        <Stack horizontal tokens={{ childrenGap: '6px' }}>
+                            <Stack.Item>
+                                <PrimaryButton text='Reset' />
+                            </Stack.Item>
+                            <Stack.Item>
+                                <PrimaryButton text='Clear' />
+                            </Stack.Item>
+                        </Stack>
+                    </ContentHeader>
                     <ContentContainer>
                         <ComponentOverview />
                     </ContentContainer>
