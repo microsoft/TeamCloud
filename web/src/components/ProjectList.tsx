@@ -6,7 +6,7 @@ import { Project } from 'teamcloud';
 import { useHistory, useParams } from 'react-router-dom';
 import { DetailsListLayoutMode, IColumn, IRenderFunction, IDetailsRowProps, CheckboxVisibility, SelectionMode, Persona, PersonaSize, getTheme, DetailsList, Stack } from '@fluentui/react';
 import { NoData } from '.';
-import { OrgContext } from '../Context';
+import { OrgContext, ProjectContext } from '../Context';
 import collaboration from '../img/MSC17_collaboration_010_noBG.png'
 
 export const ProjectList: React.FC = () => {

@@ -162,21 +162,21 @@ export const NewOrgView: React.FC = () => {
         setTemplate(template);
     }, []);
 
-    // const getScopeDetail = () => {
+    const getScopeDetail = () => {
 
-    //     const details = [{ label: 'Name', value: scope?.displayName ?? '', required: true }];
+        const details = [{ label: 'Name', value: scope?.displayName ?? '', required: true }];
 
-    //     if (scope?.managementGroupId)
-    //         details.push({ label: 'Management Group', value: scope.managementGroupId, required: true });
-    //     else if (scope?.subscriptionIds)
-    //         details.push({ label: 'Subscriptions', value: scope.subscriptionIds.join(', '), required: true });
-    //     else {
-    //         details.push({ label: 'Management Group', value: '', required: true });
-    //         details.push({ label: 'Subscriptions', value: '', required: true });
-    //     }
+        if (scope?.managementGroupId)
+            details.push({ label: 'Management Group', value: scope.managementGroupId, required: true });
+        else if (scope?.subscriptionIds)
+            details.push({ label: 'Subscriptions', value: scope.subscriptionIds.join(', '), required: true });
+        else {
+            details.push({ label: 'Management Group', value: '', required: true });
+            details.push({ label: 'Subscriptions', value: '', required: true });
+        }
 
-    //     return details;
-    // };
+        return details;
+    };
 
     return (
         <Stack styles={{ root: { height: '100%' } }}>
@@ -263,11 +263,11 @@ export const NewOrgView: React.FC = () => {
                                 ]} />
                             </Stack.Item>
                             <Stack.Item>
-                                {/* <NewOrgReviewSection title='Deployment Scope' details={getScopeDetail()} /> */}
-                                <NewOrgReviewSection title='Deployment Scope' details={[
+                                <NewOrgReviewSection title='Deployment Scope' details={getScopeDetail()} />
+                                {/* <NewOrgReviewSection title='Deployment Scope' details={[
                                     { label: 'Name', value: scope?.displayName ?? '', required: true },
                                     { label: 'Subscriptions', value: scope?.subscriptionIds?.join(', '), required: true }
-                                ]} />
+                                ]} /> */}
                             </Stack.Item>
                             <Stack.Item>
                                 <NewOrgReviewSection title='Project Template' details={[
