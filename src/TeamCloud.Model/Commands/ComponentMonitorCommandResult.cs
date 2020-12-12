@@ -8,8 +8,7 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Model.Commands
 {
-    public class ProjectDeployCommand : CustomCommand<Project, ProjectDeployCommandResult>
+    public sealed class ComponentMonitorCommandResult : CommandResult<Component>
     {
-        public ProjectDeployCommand(User user, Project payload) : base(user, payload) { }
     }
 }

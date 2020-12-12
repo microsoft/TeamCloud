@@ -4,7 +4,6 @@
  */
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -19,9 +18,9 @@ using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.Operations.Orchestrations.Commands
 {
-    public static class ComponentDeployCommandOrchestration
+    public static class ComponentMonitorCommandOrchestration
     {
-        [FunctionName(nameof(ComponentDeployCommandOrchestration))]
+        [FunctionName(nameof(ComponentMonitorCommandOrchestration))]
         public static async Task Run(
             [OrchestrationTrigger] IDurableOrchestrationContext context,
             ILogger log)
@@ -29,41 +28,32 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Commands
             if (context is null)
                 throw new ArgumentNullException(nameof(context));
 
-            var command = context.GetInput<ComponentDeployCommand>();
+            var command = context.GetInput<ComponentMonitorCommand>();
             var commandResult = command.CreateResult();
 
             try
             {
-                command.Payload = (await context
+                var component = command.Payload = (await context
                     .CallActivityWithRetryAsync<Component>(nameof(ComponentGetActivity), new ComponentGetActivity.Input() { ComponentId = command.Payload.Id, ProjectId = command.Payload.ProjectId })
                     .ConfigureAwait(true)) ?? command.Payload;
 
+                // we need to call the component guard activity to check if the current component
+                // is ready for processing - means parent org and project must be in a ready state
                 var ready = await context
-                    .CallActivityWithRetryAsync<bool>(nameof(ComponentGuardActivity), new ComponentGuardActivity.Input() { Component = command.Payload })
+                    .CallActivityWithRetryAsync<bool>(nameof(ComponentGuardActivity), new ComponentGuardActivity.Input() { Component = component })
                     .ConfigureAwait(true);
 
-                if (!ready)
+                if (ready)
                 {
                     context
-                        .CreateReplaySafeLogger(log)
-                        .LogInformation($"!!! Component '{command.Payload}' needs to wait for Organization/Project resource to be provisioned.");
-
-                    await context
-                        .CreateTimer(context.CurrentUtcDateTime.AddSeconds(2), CancellationToken.None)
-                        .ConfigureAwait(true);
-
-                    context.ContinueAsNew(command);
+                        .StartNewOrchestration(nameof(ComponentMonitoringOrchestrator), new ComponentMonitoringOrchestrator.Input() { ComponentId = component.Id, ProjectId = component.ProjectId }, component.Id);
                 }
-
-                var commandResultTask = command.Payload.Type switch
-                {
-                    ComponentType.Environment => context
-                        .CallSubOrchestratorWithRetryAsync<Component>(nameof(EnvironmentDeploymentOrchestration), new EnvironmentDeploymentOrchestration.Input() { Component = command.Payload }),
-
-                    _ => throw new NotSupportedException($"Component of type '{command.Payload.Type}' is not supported.")
-                };
-
-                commandResult.Result = await commandResultTask.ConfigureAwait(true);
+                else
+                {                    
+                    await context
+                        .ContinueAsNew(command, TimeSpan.FromSeconds(2))
+                        .ConfigureAwait(true);
+                }
             }
             catch (Exception exc)
             {

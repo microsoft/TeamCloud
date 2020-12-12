@@ -12,7 +12,7 @@ using TeamCloud.Serialization;
 namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public sealed class ComponentTemplate : ContainerDocument, IOrganizationChild, IRepositoryReference, IValidatable
+    public sealed class ComponentTemplate : ContainerDocument, IOrganizationContext, IRepositoryReference, IValidatable
     {
         /// <summary>
         /// Gets or sets the organization this component template belongs to.

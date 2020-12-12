@@ -9,6 +9,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Data;
 using TeamCloud.Model.Data;
+using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.Operations.Activities
 {
@@ -30,11 +31,18 @@ namespace TeamCloud.Orchestrator.Operations.Activities
 
             var input = context.GetInput<Input>();
 
-            var Component = await componentRepository
-                .SetAsync(input.Component)
-                .ConfigureAwait(false);
+            try
+            {
+                var component = await componentRepository
+                    .SetAsync(input.Component)
+                    .ConfigureAwait(false);
 
-            return Component;
+                return component;
+            }
+            catch (Exception exc)
+            {
+                throw exc.AsSerializable();
+            }
         }
 
         internal struct Input

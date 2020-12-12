@@ -14,7 +14,7 @@ using TeamCloud.Orchestration;
 
 namespace TeamCloud.Orchestrator.Operations.Activities
 {
-    public sealed class ComponentDeploymentStartActivity
+    public sealed class ComponentDeploymentRunnerActivity
     {
         private readonly IOrganizationRepository organizationRepository;
         private readonly IProjectRepository projectRepository;
@@ -23,7 +23,7 @@ namespace TeamCloud.Orchestrator.Operations.Activities
         private readonly IComponentDeploymentRepository componentDeploymentRepository;
         private readonly IAzureSessionService azureSessionService;
 
-        public ComponentDeploymentStartActivity(IOrganizationRepository organizationRepository,
+        public ComponentDeploymentRunnerActivity(IOrganizationRepository organizationRepository,
                                        IProjectRepository projectRepository,
                                        IComponentTemplateRepository componentTemplateRepository,
                                        IComponentDeploymentRepository componentDeploymentRepository,
@@ -36,7 +36,7 @@ namespace TeamCloud.Orchestrator.Operations.Activities
             this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
         }
 
-        [FunctionName(nameof(ComponentDeploymentStartActivity))]
+        [FunctionName(nameof(ComponentDeploymentRunnerActivity))]
         [RetryOptions(3)]
         public async Task<ComponentDeployment> Run(
             [ActivityTrigger] IDurableActivityContext context)
@@ -216,9 +216,11 @@ namespace TeamCloud.Orchestrator.Operations.Activities
 
             componentDeployment.ResourceId = responseJson.SelectToken("$.id").ToString();
 
-            return await componentDeploymentRepository
+            componentDeployment = await componentDeploymentRepository
                 .SetAsync(componentDeployment)
                 .ConfigureAwait(false);
+
+            return componentDeployment;
         }
 
         private async Task<string> GetLocationAsync(Component component)

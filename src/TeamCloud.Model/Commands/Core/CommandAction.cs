@@ -11,11 +11,9 @@ namespace TeamCloud.Model.Commands.Core
     [JsonConverter(typeof(StringEnumConverter))]
     public enum CommandAction
     {
-        Unknown,
+        Custom,
         Create,
         Update,
-        Delete,
-        Register,
-        Custom
+        Delete
     }
 }

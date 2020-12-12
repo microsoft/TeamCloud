@@ -5,6 +5,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
@@ -73,6 +74,19 @@ namespace TeamCloud.Orchestration
                 safeLog.LogError(exception, message);
         }
 
+        public static async Task ContinueAsNew(this IDurableOrchestrationContext orchestration, object input, TimeSpan delay, bool preserveUnprocessedEvents = false)
+        {
+            if (orchestration is null)
+                throw new ArgumentNullException(nameof(orchestration));
+
+            var fireAt = orchestration.CurrentUtcDateTime.Add(delay);
+
+            await orchestration
+                .CreateTimer(fireAt, CancellationToken.None)
+                .ConfigureAwait(true);
+
+            orchestration.ContinueAsNew(input, preserveUnprocessedEvents);
+        }
 
         public static Task CallActivityWithRetryAsync(this IDurableOrchestrationContext orchestration, string functionName, object input)
             => (orchestration ?? throw new ArgumentNullException(nameof(orchestration)))

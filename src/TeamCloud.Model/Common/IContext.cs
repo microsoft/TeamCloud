@@ -5,8 +5,13 @@
 
 namespace TeamCloud.Model.Common
 {
-    public interface IOrganizationChild
+    public interface IOrganizationContext
     {
         string Organization { get; set; }
+    }
+
+    public interface IProjectContext : IOrganizationContext
+    {
+        string ProjectId { get; set; }
     }
 }

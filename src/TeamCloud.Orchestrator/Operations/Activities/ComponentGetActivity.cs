@@ -5,10 +5,12 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Data;
 using TeamCloud.Model.Data;
+using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.Operations.Activities
 {
@@ -30,14 +32,23 @@ namespace TeamCloud.Orchestrator.Operations.Activities
 
             var input = context.GetInput<Input>();
 
-            return await componentRepository
-                .GetAsync(input.ProjectId, input.Id)
-                .ConfigureAwait(false);
+            try
+            {
+                var component = await componentRepository
+                    .GetAsync(input.ProjectId, input.ComponentId)
+                    .ConfigureAwait(false);
+
+                return component;
+            }
+            catch(Exception exc)
+            {
+                throw exc.AsSerializable();
+            }
         }
 
         internal struct Input
         {
-            public string Id { get; set; }
+            public string ComponentId { get; set; }
 
             public string ProjectId { get; set; }
         }

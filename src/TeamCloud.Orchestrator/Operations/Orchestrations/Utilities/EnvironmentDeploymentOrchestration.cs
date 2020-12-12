@@ -14,9 +14,9 @@ using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.Operations.Orchestrations.Utilities
 {
-    public static class EnvironmentDeployOrchestration
+    public static class EnvironmentDeploymentOrchestration
     {
-        [FunctionName(nameof(EnvironmentDeployOrchestration))]
+        [FunctionName(nameof(EnvironmentDeploymentOrchestration))]
         public static async Task<Component> Run(
             [OrchestrationTrigger] IDurableOrchestrationContext context,
             ILogger log)
@@ -40,8 +40,6 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Utilities
                 {
                     if (componentDeployment is null)
                     {
-                        var timestamp = context.CurrentUtcDateTime;
-
                         component = await UpdateComponentAsync(component, ResourceState.Initializing)
                             .ConfigureAwait(true);
 
@@ -53,7 +51,7 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Utilities
                             .ConfigureAwait(true);
 
                         componentDeployment = await context
-                            .CallActivityWithRetryAsync<ComponentDeployment>(nameof(ComponentDeploymentStartActivity), new ComponentDeploymentStartActivity.Input() { Component = component })
+                            .CallActivityWithRetryAsync<ComponentDeployment>(nameof(ComponentDeploymentRunnerActivity), new ComponentDeploymentRunnerActivity.Input() { Component = component })
                             .ConfigureAwait(true);
 
                         context.ContinueAsNew(new Input() { Component = component, ComponentDeployment = componentDeployment });
@@ -67,7 +65,7 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Utilities
                         if (componentDeployment.ResourceState == ResourceState.Succeeded || componentDeployment.ResourceState == ResourceState.Failed)
                         {
                             component = await context
-                                .CallActivityWithRetryAsync<Component>(nameof(ComponentGetActivity), new ComponentGetActivity.Input() { ProjectId = component.ProjectId, Id = component.Id })
+                                .CallActivityWithRetryAsync<Component>(nameof(ComponentGetActivity), new ComponentGetActivity.Input() { ProjectId = component.ProjectId, ComponentId = component.Id })
                                 .ConfigureAwait(true);
                         }
                         else

@@ -14,7 +14,7 @@ namespace TeamCloud.Model.Data
 {
 
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public sealed class User : ContainerDocument, IOrganizationChild, IEquatable<User>, IProperties
+    public sealed class User : ContainerDocument, IOrganizationContext, IEquatable<User>, IProperties
     {
         [PartitionKey]
         [JsonProperty(Required = Required.Always)]

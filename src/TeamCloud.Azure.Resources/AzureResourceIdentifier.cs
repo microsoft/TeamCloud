@@ -18,6 +18,7 @@ namespace TeamCloud.Azure.Resources
         private static readonly Regex SubscriptionExpression = new Regex(@"^\/subscriptions\/(.*?)\/.*$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         private static readonly Regex ResourceGroupExpression = new Regex(@"^\/subscriptions\/(.*)\/resourcegroups\/(.*?)\/.*$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         private static readonly Regex ResourceExpression = new Regex(@"^\/subscriptions\/(.*)\/resourceGroups\/(.*)\/providers\/(.*?)\/(.*)\/$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex ManagementExpression = new Regex(@"^\/providers\/(.*?)\/(.*)\/$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         private static string SanitizeResourceId(string resourceId, out bool addedTrailingSlash)
         {
@@ -56,20 +57,28 @@ namespace TeamCloud.Azure.Resources
 
             resourceId = SanitizeResourceId(resourceId, out bool addedTrailingSlash);
 
-            foreach (var expression in new Regex[] { ResourceExpression, ResourceGroupExpression, SubscriptionExpression })
+            foreach (var expression in new Regex[] { ResourceExpression, ResourceGroupExpression, SubscriptionExpression, ManagementExpression })
             {
                 var match = expression.Match(resourceId);
 
-                if (match.Success && Guid.TryParse(match.Groups[1].Value, out Guid subscriptionId))
+                if (match.Success)
                 {
-                    if (expression == ResourceExpression)
-                        azureResourceIdentifier = new AzureResourceIdentifier(subscriptionId, match.Groups[2].Value, match.Groups[3].Value, ParseResourceSegment(match.Groups[4].Value));
-                    else if (expression == ResourceGroupExpression)
-                        azureResourceIdentifier = new AzureResourceIdentifier(subscriptionId, match.Groups[2].Value);
-                    else if (expression == SubscriptionExpression)
-                        azureResourceIdentifier = new AzureResourceIdentifier(subscriptionId);
+                    if (Guid.TryParse(match.Groups[1].Value, out Guid subscriptionId))
+                    {
+                        if (expression == ResourceExpression)
+                            azureResourceIdentifier = new AzureResourceIdentifier(subscriptionId, resourceGroup: match.Groups[2].Value, resourceNamespace: match.Groups[3].Value, resourceTypes: ParseResourceSegment(match.Groups[4].Value));
+                        else if (expression == ResourceGroupExpression)
+                            azureResourceIdentifier = new AzureResourceIdentifier(subscriptionId, resourceGroup: match.Groups[2].Value);
+                        else if (expression == SubscriptionExpression)
+                            azureResourceIdentifier = new AzureResourceIdentifier(subscriptionId);
+                    }
+                    else
+                    {
+                        if (expression == ManagementExpression)
+                            azureResourceIdentifier = new AzureResourceIdentifier(Guid.Empty, resourceNamespace: match.Groups[1].Value, resourceTypes: ParseResourceSegment(match.Groups[2].Value));
+                    }
 
-                    break;
+                    if (azureResourceIdentifier != null) break;
                 }
             }
 
@@ -123,26 +132,47 @@ namespace TeamCloud.Azure.Resources
             : null;
 
         public override string ToString()
-            => ToString(AzureResourceSegment.Resource);
+            => ToString(null);
 
-        public string ToString(AzureResourceSegment segment, int resourceCount = 0)
+        public string ToString(AzureResourceSegment? segment, int resourceCount = 0)
         {
-            resourceCount = Math.Max(resourceCount, 0);
-            resourceCount = Math.Min(resourceCount, ResourceTypes.Count);
+            resourceCount = Math.Min(Math.Max(resourceCount, 0), ResourceTypes.Count);
 
-            var resourceId = new StringBuilder($"/subscriptions/{SubscriptionId}");
+            var resourceSegment = segment.GetValueOrDefault(AzureResourceSegment.Resource);
+            var resourceId = new StringBuilder();
 
-            if (segment != AzureResourceSegment.Subscription && !string.IsNullOrEmpty(ResourceGroup))
+            if (Guid.Empty.Equals(SubscriptionId))
             {
-                resourceId.Append($"/resourceGroups/{ResourceGroup}");
+                resourceId.Append($"/providers/{ResourceNamespace}");
 
-                if (segment != AzureResourceSegment.ResourceGroup && ResourceTypes.Any())
+                if (resourceSegment != AzureResourceSegment.Resource)
+                {
+                    throw new NotSupportedException($"Segment of type '{resourceSegment} is not supported for provider resource identifier.");
+                }
+                else if (ResourceTypes.Any())
                 {
                     for (int i = 0; i < (resourceCount == 0 ? ResourceTypes.Count : resourceCount); i++)
                     {
-                        if (i == 0) resourceId.Append($"/providers/{ResourceNamespace}");
-
                         resourceId.Append($"/{ResourceTypes[i].Key}/{ResourceTypes[i].Value}");
+                    }
+                }
+            }
+            else
+            {
+                resourceId.Append($"/subscriptions/{SubscriptionId}");
+
+                if (resourceSegment != AzureResourceSegment.Subscription && !string.IsNullOrEmpty(ResourceGroup))
+                {
+                    resourceId.Append($"/resourceGroups/{ResourceGroup}");
+
+                    if (resourceSegment != AzureResourceSegment.ResourceGroup && ResourceTypes.Any())
+                    {
+                        for (int i = 0; i < (resourceCount == 0 ? ResourceTypes.Count : resourceCount); i++)
+                        {
+                            if (i == 0) resourceId.Append($"/providers/{ResourceNamespace}");
+
+                            resourceId.Append($"/{ResourceTypes[i].Key}/{ResourceTypes[i].Value}");
+                        }
                     }
                 }
             }

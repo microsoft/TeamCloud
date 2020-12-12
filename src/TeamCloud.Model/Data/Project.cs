@@ -13,7 +13,7 @@ using TeamCloud.Serialization;
 namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public sealed class Project : ContainerDocument, IOrganizationChild, ISlug, IEquatable<Project>, IResourceReference//ReferenceLinksAccessor<Project, ProjectReferenceLinks>
+    public sealed class Project : ContainerDocument, IOrganizationContext, ISlug, IEquatable<Project>, IResourceReference
     {
         [PartitionKey]
         [JsonProperty(Required = Required.Always)]
@@ -30,7 +30,6 @@ namespace TeamCloud.Model.Data
         [JsonProperty(Required = Required.Always)]
         public string Template { get; set; }
 
-        // [JsonProperty(Required = Required.Always)]
         public string TemplateInput { get; set; }
 
         [DatabaseIgnore]
@@ -41,8 +40,6 @@ namespace TeamCloud.Model.Data
         public string ResourceId { get; set; }
 
         public ResourceState ResourceState { get; set; } = ResourceState.Pending;
-
-        // public IDictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
 
         public bool Equals(Project other)
             => Id.Equals(other?.Id, StringComparison.OrdinalIgnoreCase);

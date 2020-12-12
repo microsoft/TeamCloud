@@ -12,7 +12,7 @@ using TeamCloud.Serialization;
 namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public sealed class Component : ContainerDocument, IOrganizationChild, IEquatable<Component>, IValidatable, ISlug, IResourceReference
+    public sealed class Component : ContainerDocument, IProjectContext, IEquatable<Component>, IValidatable, ISlug, IResourceReference
     {
         /// <summary>
         /// Gets or sets a browsable link pointing to the component resource.

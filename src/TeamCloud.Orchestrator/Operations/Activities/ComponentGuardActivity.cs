@@ -8,10 +8,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Extensions.Logging;
 using TeamCloud.Azure;
 using TeamCloud.Data;
 using TeamCloud.Model.Common;
 using TeamCloud.Model.Data;
+using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.Operations.Activities
 {
@@ -30,21 +32,31 @@ namespace TeamCloud.Orchestrator.Operations.Activities
 
         [FunctionName(nameof(ComponentGuardActivity))]
         public async Task<bool> Run(
-            [ActivityTrigger] IDurableActivityContext context)
+            [ActivityTrigger] IDurableActivityContext context,
+            ILogger log)
         {
             if (context is null)
                 throw new ArgumentNullException(nameof(context));
 
             var component = context.GetInput<Input>().Component;
 
-            var results = await Task.WhenAll(
+            try
+            {
+                var results = await Task.WhenAll(
 
-                GuardOrganizationAsync(component),
-                GuardProjectAsync(component)
+                    GuardOrganizationAsync(component),
+                    GuardProjectAsync(component)
 
-            ).ConfigureAwait(false);
+                ).ConfigureAwait(false);
 
-            return results.All(r => r);
+                return results.All(r => r);
+            }
+            catch (Exception exc)
+            {
+                log.LogError(exc, $"Guard evaluation for component {component.Id} ({component.Slug}) in project {component.ProjectId} failed: {exc.Message}");
+
+                throw exc.AsSerializable();
+            }
         }
 
         private async Task<bool> GuardOrganizationAsync(Component component)

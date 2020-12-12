@@ -20,7 +20,7 @@ namespace TeamCloud.Model.Commands.Core
             Payload = payload;
             CommandId = commandId.GetValueOrDefault(Guid.NewGuid());
 
-            if (payload is IOrganizationChild child)
+            if (payload is IProjectContext child)
                 OrganizationId = child.Organization;
         }
 
@@ -88,11 +88,11 @@ namespace TeamCloud.Model.Commands.Core
         { }
     }
 
-    public abstract class DeployCommand<TPayload, TCommandResult> : Command<TPayload, TCommandResult>
+    public abstract class CustomCommand<TPayload, TCommandResult> : Command<TPayload, TCommandResult>
         where TPayload : class, new()
         where TCommandResult : ICommandResult, new()
     {
-        protected DeployCommand(User user, TPayload payload) : base(CommandAction.Create, user, payload)
+        protected CustomCommand(User user, TPayload payload) : base(CommandAction.Custom, user, payload)
         { }
     }
 }
