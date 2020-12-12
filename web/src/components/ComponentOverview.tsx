@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useContext, useEffect, useState } from 'react';
+import React, { Component, useContext, useEffect, useState } from 'react';
 import { FontIcon, getTheme, Link, Pivot, PivotItem, Stack, Text, TextField } from '@fluentui/react';
 // import { useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
@@ -11,6 +11,8 @@ import { ProjectMember } from '../model';
 import { FuiForm } from '@rjsf/fluent-ui';
 import { DeploymentList, UserPersona } from '.';
 import { FieldTemplateProps, WidgetProps } from '@rjsf/core';
+import { ComponentLink } from './ComponentLink';
+import { ComponentTemplateLink } from './ComponentTemplateLink';
 // import DevOps from '../img/devops.svg';
 // import GitHub from '../img/github.svg';
 // import Resource from '../img/resource.svg';
@@ -23,7 +25,7 @@ export const ComponentOverview: React.FC = (props) => {
 
     // const { orgId, projectId, itemId } = useParams() as { orgId: string, projectId: string, itemId: string };
 
-    const { scopes } = useContext(OrgContext);
+    const { org, scopes } = useContext(OrgContext);
     const { component, templates, members } = useContext(ProjectContext);
 
     const [template, setTemplate] = useState<ComponentTemplate>();
@@ -126,16 +128,18 @@ export const ComponentOverview: React.FC = (props) => {
                             backgroundColor: theme.palette.white
                         }
                     }}>
-                    <ComponentOverviewHeaderSection grow title='Template'>
-                        <Link onClick={() => { }} >{template?.repository.repository?.replaceAll('-', ' ') ?? template?.repository.url}</Link>
-                        {/* <Text>{template?.repository.repository?.replaceAll('-', ' ') ?? template?.repository.url}</Text> */}
-                    </ComponentOverviewHeaderSection>
                     <ComponentOverviewHeaderSection grow title='Type'>
                         {/* <Stack horizontal styles={{ root: { color: theme.palette.blue } }}> */}
                         <Stack horizontal>
                             <FontIcon iconName={_getTypeIcon(template)} className='component-type-icon' />
                             <Text styles={{ root: { paddingLeft: '4px' } }}>{template?.type}</Text>
                         </Stack>
+                    </ComponentOverviewHeaderSection>
+                    <ComponentOverviewHeaderSection grow title='Link'>
+                        <ComponentLink component={component} />
+                    </ComponentOverviewHeaderSection>
+                    <ComponentOverviewHeaderSection grow title='Template'>
+                        <ComponentTemplateLink componentTemplate={template} />
                     </ComponentOverviewHeaderSection>
                     <ComponentOverviewHeaderSection grow title='Scope'>
                         <Text>{scope?.displayName}</Text>

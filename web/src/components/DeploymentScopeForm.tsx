@@ -21,7 +21,7 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
 
     const [scopeName, setScopeName] = useState<string>();
     const [scopeManagementGroup, setScopeManagementGroup] = useState<string>();
-    const [scopeManagementGroupOptions, setScopeManagementGroupOptions] = useState<IDropdownOption[]>();
+    const [scopeManagementGroupOptions, setScopeManagementGroupOptions] = useState<IComboBoxOption[]>();
     const [scopeSubscriptions, setScopeSubscriptions] = useState<string[]>();
     const [scopeSubscriptionOptions, setScopeSubscriptionOptions] = useState<IComboBoxOption[]>();
 
@@ -128,7 +128,7 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
                     onChange={(_ev, val) => setScopeName(val)} />
             </Stack.Item>
             <Stack.Item>
-                <Dropdown
+                <ComboBox
                     required={!scopeSubscriptions || scopeSubscriptions.length === 0}
                     label='Management Group'
                     disabled={!formEnabled || !scopeManagementGroupOptions || (scopeSubscriptions && scopeSubscriptions.length > 0)}
@@ -147,7 +147,7 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
                     disabled={!formEnabled || !(scopeManagementGroup === undefined || scopeManagementGroup === '')}
                     // disabled={!formEnabled}
                     multiSelect
-                    allowFreeform
+                    // allowFreeform
                     selectedKey={scopeSubscriptions}
                     options={scopeSubscriptionOptions}
                     onChange={_onScopeSubscriptionsChange} />

@@ -11,6 +11,7 @@ import { OrgContext, ProjectContext } from '../Context';
 import DevOps from '../img/devops.svg';
 import GitHub from '../img/github.svg';
 import Resource from '../img/resource.svg';
+import { ComponentLink } from './ComponentLink';
 
 
 export const ComponentsCard: React.FC = () => {
@@ -134,14 +135,7 @@ export const ComponentsCard: React.FC = () => {
 
     const onRenderLinkColumn = (item?: { component: Component, template: ComponentTemplate }) => {
         if (!item || !org) return undefined;
-        return (
-            <Stack horizontal tokens={{ childrenGap: '4px' }} >
-                <Link target='_blank' href={`https://portal.azure.com/#@${org.tenant}/resource${component?.resourceId}`}>
-                    View in Azure Portal
-                </Link>
-                <FontIcon iconName='NavigateExternalInline' className='component-link-icon' />
-            </Stack>
-        )
+        return <ComponentLink component={item.component} />
     };
 
 
