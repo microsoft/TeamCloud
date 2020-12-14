@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { Component, useContext, useEffect, useState } from 'react';
-import { FontIcon, getTheme, Link, Pivot, PivotItem, Stack, Text, TextField } from '@fluentui/react';
+import React, { useContext, useEffect, useState } from 'react';
+import { FontIcon, getTheme, Pivot, PivotItem, Stack, Text, TextField } from '@fluentui/react';
 // import { useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { ComponentTemplate, DeploymentScope } from 'teamcloud';
@@ -25,7 +25,7 @@ export const ComponentOverview: React.FC = (props) => {
 
     // const { orgId, projectId, itemId } = useParams() as { orgId: string, projectId: string, itemId: string };
 
-    const { org, scopes } = useContext(OrgContext);
+    const { scopes } = useContext(OrgContext);
     const { component, templates, members } = useContext(ProjectContext);
 
     const [template, setTemplate] = useState<ComponentTemplate>();

@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import React, { useContext, useEffect, useState } from 'react';
-import { FontIcon, IColumn, Image, Link, Persona, PersonaSize, Stack, Text } from '@fluentui/react';
+import { FontIcon, IColumn, Persona, PersonaSize, Stack, Text } from '@fluentui/react';
 import { useHistory, useParams } from 'react-router-dom';
 import { Component, ComponentTemplate } from 'teamcloud';
 import { ContentList, UserPersona } from '.';
@@ -43,15 +43,6 @@ export const ComponentList: React.FC<IComponentListProps> = (props) => {
             case 'Environment': return Resource;
             case 'AzureResource': return Resource;
             case 'GitRepository': return provider === 'github' ? GitHub : provider === 'devops' ? DevOps : undefined;
-        }
-        return undefined;
-    };
-
-    const _getRepoImage = (template: ComponentTemplate) => {
-        switch (template.repository.provider) {
-            // case 'Unknown': return;
-            case 'DevOps': return DevOps;
-            case 'GitHub': return GitHub;
         }
         return undefined;
     };

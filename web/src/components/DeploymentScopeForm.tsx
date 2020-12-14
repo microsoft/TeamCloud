@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import React, { useContext, useEffect, useState } from 'react';
-import { ComboBox, DefaultButton, Dropdown, IComboBox, IComboBoxOption, IDropdownOption, Label, PrimaryButton, Stack, TextField } from '@fluentui/react';
+import { ComboBox, DefaultButton, IComboBox, IComboBoxOption, Label, PrimaryButton, Stack, TextField } from '@fluentui/react';
 import { DeploymentScopeDefinition } from 'teamcloud';
 import { useHistory, useParams } from 'react-router-dom';
 import { GraphUserContext } from '../Context';
