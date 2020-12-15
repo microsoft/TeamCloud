@@ -8,9 +8,7 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Model.Commands
 {
-    public sealed class ComponentDeployCommand : CustomCommand<Component, ComponentDeployCommandResult>
+    public sealed class ComponentDeploymentExecuteCommandResult : CommandResult<ComponentDeployment>
     {
-        public ComponentDeployCommand(User user, Component payload) : base(user, payload)
-        { }
     }
 }

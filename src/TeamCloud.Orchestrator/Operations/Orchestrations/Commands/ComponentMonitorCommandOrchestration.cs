@@ -46,10 +46,10 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Commands
                 if (ready)
                 {
                     context
-                        .StartNewOrchestration(nameof(ComponentMonitoringOrchestrator), new ComponentMonitoringOrchestrator.Input() { ComponentId = component.Id, ProjectId = component.ProjectId }, component.Id);
+                        .StartNewOrchestration(nameof(ComponentMonitorOrchestration), new ComponentMonitorOrchestration.Input() { ComponentId = component.Id, ProjectId = component.ProjectId }, component.Id);
                 }
                 else
-                {                    
+                {
                     await context
                         .ContinueAsNew(command, TimeSpan.FromSeconds(2))
                         .ConfigureAwait(true);
@@ -57,7 +57,7 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Commands
             }
             catch (Exception exc)
             {
-                log.LogError(exc, $"{nameof(ComponentDeployCommandOrchestration)} failed: {exc.Message}");
+                log.LogError(exc, $"{nameof(ComponentDeploymentExecuteCommandOrchestration)} failed: {exc.Message}");
 
                 commandResult.Errors.Add(exc);
 

@@ -25,12 +25,14 @@ namespace TeamCloud.Orchestrator.Operations.Activities
 
         public ComponentDeploymentRunnerActivity(IOrganizationRepository organizationRepository,
                                        IProjectRepository projectRepository,
+                                       IComponentRepository componentRepository,
                                        IComponentTemplateRepository componentTemplateRepository,
                                        IComponentDeploymentRepository componentDeploymentRepository,
                                        IAzureSessionService azureSessionService)
         {
             this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
             this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
+            this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
             this.componentTemplateRepository = componentTemplateRepository ?? throw new ArgumentNullException(nameof(componentTemplateRepository));
             this.componentDeploymentRepository = componentDeploymentRepository ?? throw new ArgumentNullException(nameof(componentDeploymentRepository));
             this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
@@ -44,7 +46,11 @@ namespace TeamCloud.Orchestrator.Operations.Activities
             if (context is null)
                 throw new ArgumentNullException(nameof(context));
 
-            var component = context.GetInput<Input>().Component;
+            var componentDeployment = context.GetInput<Input>().ComponentDeployment;
+
+            var component = await componentRepository
+                .GetAsync(componentDeployment.ProjectId, componentDeployment.ComponentId)
+                .ConfigureAwait(false);
 
             var componentResourceId = AzureResourceIdentifier
                 .Parse(component.ResourceId);
@@ -52,13 +58,6 @@ namespace TeamCloud.Orchestrator.Operations.Activities
             var componentTemplate = await componentTemplateRepository
                 .GetAsync(component.Organization, component.ProjectId, component.TemplateId)
                 .ConfigureAwait(false);
-
-            var componentDeployment = await componentDeploymentRepository.AddAsync(new ComponentDeployment()
-            {
-                ComponentId = component.Id,
-                ProjectId = component.ProjectId
-
-            }).ConfigureAwait(false);
 
             var componentLocation = await GetLocationAsync(component)
                 .ConfigureAwait(false);
@@ -237,7 +236,7 @@ namespace TeamCloud.Orchestrator.Operations.Activities
 
         internal struct Input
         {
-            public Component Component { get; set; }
+            public ComponentDeployment ComponentDeployment { get; set; }
         }
     }
 }

@@ -11,20 +11,20 @@ using TeamCloud.Orchestrator.Operations.Activities;
 
 namespace TeamCloud.Orchestrator.Operations.Orchestrations.Utilities
 {
-    public sealed class ComponentMonitoringOrchestrator
+    public sealed class ComponentMonitorOrchestration
     {
         private readonly IComponentRepository componentRepository;
         private readonly IUserRepository userRepository;
         private readonly IAzureResourceService azureResourceService;
 
-        public ComponentMonitoringOrchestrator(IComponentRepository componentRepository, IUserRepository userRepository, IAzureResourceService azureResourceService)
+        public ComponentMonitorOrchestration(IComponentRepository componentRepository, IUserRepository userRepository, IAzureResourceService azureResourceService)
         {
             this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
             this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
         }
 
-        [FunctionName(nameof(ComponentMonitoringOrchestrator))]
+        [FunctionName(nameof(ComponentMonitorOrchestration))]
         public async Task Run(
             [OrchestrationTrigger] IDurableOrchestrationContext context,
             ILogger log)

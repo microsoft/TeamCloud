@@ -12,13 +12,9 @@ namespace TeamCloud.Data.CosmosDb
 {
     public sealed class CosmosDbComponentDeploymentRepository : CosmosDbRepository<ComponentDeployment>, IComponentDeploymentRepository
     {
-        private readonly IComponentRepository componentRepository;
-
-        public CosmosDbComponentDeploymentRepository(ICosmosDbOptions options, IComponentRepository componentRepository)
+        public CosmosDbComponentDeploymentRepository(ICosmosDbOptions options)
             : base(options)
-        {
-            this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
-        }
+        { }
 
         public async Task<ComponentDeployment> AddAsync(ComponentDeployment deployment)
         {
@@ -36,8 +32,7 @@ namespace TeamCloud.Data.CosmosDb
                 .CreateItemAsync(deployment, GetPartitionKey(deployment))
                 .ConfigureAwait(false);
 
-            return await UpdateComponentResourceState(response.Resource)
-                .ConfigureAwait(false);
+            return response.Resource;
         }
 
         public async Task<ComponentDeployment> GetAsync(string componentId, string id)
@@ -168,26 +163,7 @@ namespace TeamCloud.Data.CosmosDb
                 .UpsertItemAsync(deployment, GetPartitionKey(deployment))
                 .ConfigureAwait(false);
 
-            return await UpdateComponentResourceState(response.Resource)
-                .ConfigureAwait(false);
-        }
-
-        private async Task<ComponentDeployment> UpdateComponentResourceState(ComponentDeployment componentDeployment)
-        {
-            var component = await componentRepository
-                .GetAsync(componentDeployment.ProjectId, componentDeployment.ComponentId)
-                .ConfigureAwait(false);
-
-            if ((component?.ResourceState ?? componentDeployment.ResourceState) != componentDeployment.ResourceState)
-            {
-                component.ResourceState = componentDeployment.ResourceState;
-
-                _ = await componentRepository
-                    .SetAsync(component)
-                    .ConfigureAwait(false);
-            }
-
-            return componentDeployment;
+            return response.Resource;
         }
     }
 }

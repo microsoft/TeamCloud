@@ -29,8 +29,8 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
 
     const { onScopeChange } = props;
 
-    // const _scopeComplete = () => scopeName && (scopeManagementGroup || scopeSubscriptions);
-    const _scopeComplete = () => scopeName && scopeSubscriptions && scopeSubscriptions.length > 0;
+    const _scopeComplete = () => scopeName && (scopeManagementGroup || scopeSubscriptions);
+    // const _scopeComplete = () => scopeName && scopeSubscriptions && scopeSubscriptions.length > 0;
 
 
     useEffect(() => {

@@ -21,4 +21,13 @@ namespace TeamCloud.Model.Common
 
         Failed
     }
+
+    public static class ResourceStateExtensions
+    {
+        public static bool IsFinal(this ResourceState resourceState)
+            => resourceState == ResourceState.Succeeded || resourceState == ResourceState.Failed;
+
+        public static bool IsActive(this ResourceState resourceState)
+            => !resourceState.IsFinal();
+    }
 }

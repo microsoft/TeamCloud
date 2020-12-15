@@ -10,6 +10,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
+using TeamCloud.Model.Data;
 
 namespace TeamCloud.Orchestrator.Handlers
 {
@@ -19,10 +20,12 @@ namespace TeamCloud.Orchestrator.Handlers
           ICommandHandler<ComponentDeleteCommand>
     {
         private readonly IComponentRepository componentRepository;
+        private readonly IComponentDeploymentRepository componentDeploymentRepository;
 
-        public ComponentCommandHandler(IComponentRepository componentRepository)
+        public ComponentCommandHandler(IComponentRepository componentRepository, IComponentDeploymentRepository componentDeploymentRepository)
         {
             this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
+            this.componentDeploymentRepository = componentDeploymentRepository ?? throw new ArgumentNullException(nameof(componentDeploymentRepository));
         }
 
         public async Task<ICommandResult> HandleAsync(ComponentCreateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient durableClient = null)
@@ -41,9 +44,23 @@ namespace TeamCloud.Orchestrator.Handlers
                     .AddAsync(command.Payload)
                     .ConfigureAwait(false);
 
-                await commandQueue
-                    .AddAsync(new ComponentDeployCommand(command.User, command.Payload))
-                    .ConfigureAwait(false);
+                if (commandResult.Result.Type == Model.Data.ComponentType.Environment)
+                {
+                    var componentDeployment = new ComponentDeployment()
+                    {
+                        ComponentId = commandResult.Result.Id,
+                        ProjectId = commandResult.Result.ProjectId
+                    };
+
+                    componentDeployment = await componentDeploymentRepository
+                        .AddAsync(componentDeployment)
+                        .ConfigureAwait(false);
+
+
+                    await commandQueue
+                        .AddAsync(new ComponentDeploymentExecuteCommand(command.User, componentDeployment))
+                        .ConfigureAwait(false);
+                }
 
                 await commandQueue
                     .AddAsync(new ComponentMonitorCommand(command.User, command.Payload))

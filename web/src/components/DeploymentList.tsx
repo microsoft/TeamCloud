@@ -18,7 +18,7 @@ export const DeploymentList: React.FunctionComponent<IDeploymentListProps> = (pr
     const theme = getTheme();
 
     const { org } = useContext(OrgContext);
-    const { component, componentDeployments } = useContext(ProjectContext);
+    const { component, componentDeployments, onComponentSelected } = useContext(ProjectContext);
 
     const [deployment, setDeployment] = useState<ComponentDeployment>();
     const [deployments, setDeployments] = useState<ComponentDeployment[]>();
@@ -66,7 +66,18 @@ export const DeploymentList: React.FunctionComponent<IDeploymentListProps> = (pr
 
 
     useInterval(async () => {
-        console.log('...hello...');
+
+        if (org && component && component.resourceState?.toLowerCase() !== 'succeeded' && component.resourceState?.toLowerCase() !== 'failed') {
+            console.log('- refreshComponent');
+            const result = await api.getProjectComponent(component.id, component.organization, component.projectId);
+            if (result.data) {
+                onComponentSelected(result.data);
+            } else {
+                console.error(result);
+            }
+            console.log('+ refreshComponent');
+        }
+
         if (org && deployment && deployment.finished === undefined && deployment.exitCode === undefined) {
             console.log('- refreshDeployment');
             const result = await api.getProjectDeployment(deployment.id, org.id, deployment.projectId, deployment.componentId);
@@ -77,7 +88,8 @@ export const DeploymentList: React.FunctionComponent<IDeploymentListProps> = (pr
             }
             console.log('+ refreshDeployment');
         }
-    }, isPolling ? 3000 : undefined);
+
+    }, isPolling ? 2000 : undefined);
 
     const [dots, setDots] = useState('');
 

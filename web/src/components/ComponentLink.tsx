@@ -15,7 +15,7 @@ export const ComponentLink: React.FunctionComponent<IComponentLinkProps> = (prop
     const { org } = useContext(OrgContext);
     const { component } = props;
 
-    return org && component ? (
+    return org && component?.resourceId ? (
 
         <Stack horizontal tokens={{ childrenGap: '4px' }} >
             <Link
