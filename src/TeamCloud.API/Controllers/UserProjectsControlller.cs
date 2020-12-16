@@ -3,6 +3,7 @@
  *  Licensed under the MIT License.
  */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -29,13 +30,13 @@ namespace TeamCloud.API.Controllers
         }
 
 
-        [HttpGet("orgs/{org}/users/{userId:userId}/projects")]
+        [HttpGet("orgs/{organizationId:organizationId}/users/{userId:userId}/projects")]
         [Authorize(Policy = AuthPolicies.OrganizationRead)]
         [SwaggerOperation(OperationId = "GetUserProjects", Summary = "Gets all Projects for a User.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all User Projects", typeof(DataResult<List<Project>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A User with the provided userId was not found.", typeof(ErrorResult))]
-        public Task<IActionResult> Get() => EnsureUserAsync(async user =>
+        public Task<IActionResult> Get() => ExecuteAsync(new Func<User, Organization, User, Task<IActionResult>>(async (contextUser, organization, user) =>
         {
             var projectIds = user.ProjectMemberships.Select(pm => pm.ProjectId);
 
@@ -45,25 +46,25 @@ namespace TeamCloud.API.Controllers
                     .ToActionResult();
 
             var projects = await projectRepository
-                .ListAsync(OrgId, projectIds)
+                .ListAsync(organization.Id, projectIds)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
             return DataResult<List<Project>>
                 .Ok(projects)
                 .ToActionResult();
-        });
+        }));
 
 
-        [HttpGet("orgs/{org}/me/projects")] // TODO: change to users/orgs/{org}/projects
+        [HttpGet("orgs/{organizationId:organizationId}/me/projects")] // TODO: change to users/orgs/{org}/projects
         [Authorize(Policy = AuthPolicies.OrganizationRead)]
         [SwaggerOperation(OperationId = "GetUserProjectsMe", Summary = "Gets all Projects for a User.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all User Projects", typeof(DataResult<List<Project>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A User with the provided userId was not found.", typeof(ErrorResult))]
-        public Task<IActionResult> GetMe() => EnsureCurrentUserAsync(async user =>
+        public Task<IActionResult> GetMe() => ExecuteAsync(new Func<User, Organization, Task<IActionResult>>(async (contextUser, organization) =>
         {
-            var projectIds = user.ProjectMemberships.Select(pm => pm.ProjectId);
+            var projectIds = contextUser.ProjectMemberships.Select(pm => pm.ProjectId);
 
             if (!projectIds.Any())
                 return DataResult<List<Project>>
@@ -71,13 +72,13 @@ namespace TeamCloud.API.Controllers
                     .ToActionResult();
 
             var projects = await projectRepository
-                .ListAsync(OrgId, projectIds)
+                .ListAsync(organization.Id, projectIds)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
             return DataResult<List<Project>>
                 .Ok(projects)
                 .ToActionResult();
-        });
+        }));
     }
 }

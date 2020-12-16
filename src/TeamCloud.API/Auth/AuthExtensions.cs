@@ -117,7 +117,7 @@ namespace TeamCloud.API.Auth
             if (httpContext.Request.Path.Equals("/orgs", StringComparison.OrdinalIgnoreCase))
                 return claims;
 
-            var org = httpContext.RouteValueOrDefault("org");
+            var org = httpContext.RouteValueOrDefault("organizationId");
 
             if (string.IsNullOrEmpty(org))
                 return claims;

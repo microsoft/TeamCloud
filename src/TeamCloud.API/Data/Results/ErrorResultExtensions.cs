@@ -4,6 +4,7 @@
  */
 
 using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,5 +22,8 @@ namespace TeamCloud.API.Data.Results
             StatusCodes.Status500InternalServerError => new JsonResult(result) { StatusCode = StatusCodes.Status500InternalServerError },
             _ => throw new NotImplementedException()
         };
+
+        public static Task<IActionResult> ToActionResultAsync(this IErrorResult result)
+            => Task.FromResult(result.ToActionResult());
     }
 }

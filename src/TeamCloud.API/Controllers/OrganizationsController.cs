@@ -64,18 +64,18 @@ namespace TeamCloud.API.Controllers
         }
 
 
-        [HttpGet("orgs/{org}")]
+        [HttpGet("orgs/{organizationId:organizationId}")]
         [Authorize(Policy = AuthPolicies.OrganizationRead)]
         [SwaggerOperation(OperationId = "GetOrganization", Summary = "Gets an Organization.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns an Organization.", typeof(DataResult<Organization>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "An Organization with the provided identifier was not found.", typeof(ErrorResult))]
         [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
-        public Task<IActionResult> Get([FromRoute] string org) => EnsureOrganizationAsync(organization =>
+        public Task<IActionResult> Get([FromRoute] string org) => ExecuteAsync((user, organization) =>
         {
             return DataResult<Organization>
                 .Ok(organization)
-                .ToActionResult();
+                .ToActionResultAsync();
         });
 
 
@@ -132,7 +132,7 @@ namespace TeamCloud.API.Controllers
         }
 
 
-        // [HttpPut("orgs/{org}")]
+        // [HttpPut("orgs/{organizationId:organizationId}")]
         // [Authorize(Policy = AuthPolicies.Admin)]
         // [Consumes("application/json")]
         // [SwaggerOperation(OperationId = "UpdateOrganization", Summary = "Updates an existing Organization.")]
@@ -184,19 +184,15 @@ namespace TeamCloud.API.Controllers
         // });
 
 
-        [HttpDelete("orgs/{org}")]
+        [HttpDelete("orgs/{organizationId:organizationId}")]
         [Authorize(Policy = AuthPolicies.OrganizationOwner)]
         [SwaggerOperation(OperationId = "DeleteOrganization", Summary = "Deletes an existing Organization.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts deleting the Organization. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "An Organization with the identifier provided was not found.", typeof(ErrorResult))]
         [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
-        public Task<IActionResult> Delete([FromRoute] string org) => EnsureOrganizationAsync(async organization =>
+        public Task<IActionResult> Delete([FromRoute] string organizationId) => ExecuteAsync(async (user, organization) =>
         {
-            var currentUser = await UserService
-                .CurrentUserAsync(OrgId)
-                .ConfigureAwait(false);
-
-            var command = new OrganizationDeleteCommand(currentUser, organization);
+            var command = new OrganizationDeleteCommand(user, organization);
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync(command, Request)

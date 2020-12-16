@@ -32,7 +32,7 @@ namespace TeamCloud.API.Services
             if (baseUrl is null)
                 return commandResult; // as we couldn't resolve a base url, we can't generate status or location urls for our response object
 
-            var org = commandResult.OrganizationId ?? (commandResult.Result as IProjectContext)?.Organization;
+            var org = commandResult.OrganizationId ?? (commandResult.Result as IOrganizationContext)?.Organization;
 
             if (commandResponse.StatusCode == HttpStatusCode.Accepted)
             {

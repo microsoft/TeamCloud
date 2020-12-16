@@ -163,6 +163,7 @@ namespace TeamCloud.API
                 .AddRouting(options =>
                 {
                     options.ConstraintMap.Add("userId", typeof(UserIdentifierRouteConstraint));
+                    options.ConstraintMap.Add("organizationId", typeof(OrganizationIdentifierRouteConstraint));
                     options.ConstraintMap.Add("projectId", typeof(ProjectIdentifierRouteConstraint));
                     options.ConstraintMap.Add("componentId", typeof(ComponentIdentifierRouteConstraint));
                     // options.ConstraintMap.Add("providerId", typeof(ProviderIdentifierRouteConstraint));

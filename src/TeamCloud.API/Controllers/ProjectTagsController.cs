@@ -16,7 +16,7 @@ using TeamCloud.API.Data.Results;
 namespace TeamCloud.API.Controllers
 {
     [ApiController]
-    [Route("orgs/{org}/projects/{projectId:projectId}/tags")]
+    [Route("orgs/{organizationId:organizationId}/projects/{projectId:projectId}/tags")]
     [Produces("application/json")]
     public class ProjectTagsController : ApiController
     {
@@ -30,13 +30,13 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all Project Tags", typeof(DataResult<Dictionary<string, string>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found.", typeof(ErrorResult))]
-        public Task<IActionResult> Get() => EnsureProjectAsync(project =>
+        public Task<IActionResult> Get() => ExecuteAsync((user, organization, project) =>
         {
             var tags = project?.Tags is null ? new Dictionary<string, string>() : new Dictionary<string, string>(project.Tags);
 
             return DataResult<Dictionary<string, string>>
                 .Ok(tags)
-                .ToActionResult();
+                .ToActionResultAsync();
         });
 
 
@@ -46,21 +46,21 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "Returns Project Tag", typeof(DataResult<Dictionary<string, string>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a Tag with the provided key was not found.", typeof(ErrorResult))]
-        public Task<IActionResult> Get([FromRoute] string tagKey) => EnsureProjectAsync(project =>
+        public Task<IActionResult> Get([FromRoute] string tagKey) => ExecuteAsync((user, organization, project) =>
         {
             if (string.IsNullOrWhiteSpace(tagKey))
                 return ErrorResult
                     .BadRequest($"The key provided in the url path is invalid.  Must be a non-empty string.", ResultErrorCode.ValidationError)
-                    .ToActionResult();
+                    .ToActionResultAsync();
 
             if (!project.Tags.TryGetValue(tagKey, out var tagValue))
                 return ErrorResult
                     .NotFound($"The specified Tag could not be found in this Project.")
-                    .ToActionResult();
+                    .ToActionResultAsync();
 
             return DataResult<Dictionary<string, string>>
                 .Ok(new Dictionary<string, string> { { tagKey, tagValue } })
-                .ToActionResult();
+                .ToActionResultAsync();
         });
 
 
@@ -72,22 +72,22 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status409Conflict, "A Project Tag already exists with the key provided in the request body.", typeof(ErrorResult))]
-        public Task<IActionResult> Post([FromBody] Dictionary<string, string> tags) => EnsureProjectAsync(project =>
+        public Task<IActionResult> Post([FromBody] Dictionary<string, string> tags) => ExecuteAsync((user, organization, project) =>
         {
             var tag = tags.FirstOrDefault();
 
             if (tag.Key is null)
                 return ErrorResult
                     .BadRequest()
-                    .ToActionResult();
+                    .ToActionResultAsync();
 
             if (project.Tags.ContainsKey(tag.Key))
                 return ErrorResult
                     .Conflict($"A Tag with the key '{tag.Key}' already exists on this Project. Please try your request again with a unique key or call PUT to update the existing Tag.")
-                    .ToActionResult();
+                    .ToActionResultAsync();
 
             // TODO:
-            return new OkResult();
+            return Task.FromResult<IActionResult>(new OkResult());
             // var command = new ProjectUserCreateCommand(CurrentUser, newUser, projectId);
 
             // return await orchestrator
@@ -103,22 +103,22 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts updating the Project Tag. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a Tag with the key provided in the request body was not found.", typeof(ErrorResult))]
-        public Task<IActionResult> Put([FromBody] Dictionary<string, string> tags) => EnsureProjectAsync(project =>
+        public Task<IActionResult> Put([FromBody] Dictionary<string, string> tags) => ExecuteAsync((user, organization, project) =>
         {
             var tag = tags.FirstOrDefault();
 
             if (tag.Key is null)
                 return ErrorResult
                     .BadRequest()
-                    .ToActionResult();
+                    .ToActionResultAsync();
 
             if (!project.Tags.ContainsKey(tag.Key))
                 return ErrorResult
                     .NotFound($"A Tag with the key '{tag.Key}' could not be found in this Project.")
-                    .ToActionResult();
+                    .ToActionResultAsync();
 
             // TODO:
-            return new OkResult();
+            return Task.FromResult<IActionResult>(new OkResult());
             // var command = new ProjectUserUpdateCommand(CurrentUser, user, projectId);
 
             // return await orchestrator
@@ -133,20 +133,20 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts deleting the Project Tag. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a Tag with the provided key was not found.", typeof(ErrorResult))]
-        public Task<IActionResult> Delete([FromRoute] string tagKey) => EnsureProjectAsync(project =>
+        public Task<IActionResult> Delete([FromRoute] string tagKey) => ExecuteAsync((user, organization, project) =>
         {
             if (string.IsNullOrWhiteSpace(tagKey))
                 return ErrorResult
                     .BadRequest($"The key provided in the url path is invalid.  Must be a non-empty string.", ResultErrorCode.ValidationError)
-                    .ToActionResult();
+                    .ToActionResultAsync();
 
             if (!project.Tags.TryGetValue(tagKey, out _))
                 return ErrorResult
                     .NotFound($"The specified Tag could not be found in this Project.")
-                    .ToActionResult();
+                    .ToActionResultAsync();
 
             // TODO:
-            return new NoContentResult();
+            return Task.FromResult<IActionResult>(new NoContentResult());
             // var command = new ProjectUserDeleteCommand(CurrentUser, user, projectId);
 
             // return await orchestrator

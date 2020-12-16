@@ -4,6 +4,7 @@
  */
 
 using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,5 +19,8 @@ namespace TeamCloud.API.Data.Results
             StatusCodes.Status204NoContent => new NoContentResult(),
             _ => throw new NotImplementedException()
         };
+
+        public static Task<IActionResult> ToActionResultAsync(this IDataResult result)
+            => Task.FromResult(result.ToActionResult());
     }
 }

@@ -19,7 +19,7 @@ using TeamCloud.Model.Data;
 namespace TeamCloud.API.Controllers
 {
     [ApiController]
-    [Route("orgs/{org}/projects/{projectId:projectId}/components/{componentId:componentId}/deployments")]
+    [Route("orgs/{organizationId:organizationId}/projects/{projectId:projectId}/components/{componentId:componentId}/deployments")]
     [Produces("application/json")]
     public class ProjectDeploymentsController : ApiController
     {
@@ -37,7 +37,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all Project Component Deployments", typeof(DataResult<List<ComponentDeployment>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project Component Deployments with the provided providerId was not found.", typeof(ErrorResult))]
-        public Task<IActionResult> Get() => EnsureProjectAndComponentAsync(async (project, component) =>
+        public Task<IActionResult> Get() => ExecuteAsync(new Func<User, Organization, Project, Component, Task<IActionResult>>(async (user, organization, project, component) =>
         {
             var componenetDeployments = await componentDeploymentRepository
                 .ListAsync(component.Id)
@@ -47,7 +47,7 @@ namespace TeamCloud.API.Controllers
             return DataResult<List<ComponentDeployment>>
                 .Ok(componenetDeployments)
                 .ToActionResult();
-        });
+        }));
 
 
         [HttpGet("{id}")]
@@ -56,7 +56,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "Returns a Component Template", typeof(DataResult<ComponentDeployment>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project Component Template with the provided id was not found.", typeof(ErrorResult))]
-        public Task<IActionResult> Get([FromRoute] string id) => EnsureProjectAndComponentAsync(async (project, component) =>
+        public Task<IActionResult> Get([FromRoute] string id) => ExecuteAsync(new Func<User, Organization, Project, Component, Task<IActionResult>>(async (user, organization, project, component) =>
         {
             if (string.IsNullOrWhiteSpace(id))
                 return ErrorResult
@@ -75,6 +75,6 @@ namespace TeamCloud.API.Controllers
             return DataResult<ComponentDeployment>
                 .Ok(componentDeployment)
                 .ToActionResult();
-        });
+        }));
     }
 }

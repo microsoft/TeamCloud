@@ -19,7 +19,7 @@ using TeamCloud.Model.Data;
 namespace TeamCloud.API.Controllers
 {
     [ApiController]
-    [Route("orgs/{org}/projects/{projectId:projectId}/templates")]
+    [Route("orgs/{organizationId:organizationId}/projects/{projectId:projectId}/templates")]
     [Produces("application/json")]
     public class ProjectComponentTemplatesController : ApiController
     {
@@ -37,17 +37,17 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all Project Component Templates", typeof(DataResult<List<ComponentTemplate>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project Component Templates with the provided providerId was not found.", typeof(ErrorResult))]
-        public Task<IActionResult> Get() => EnsureProjectAndProjectTemplateAsync(async (project, projectTemplate) =>
+        public Task<IActionResult> Get() => ExecuteAsync(new Func<User, Organization, Project, Task<IActionResult>>(async (user, organization, project) =>
         {
             var componenetTemplates = await componentTemplateRepository
-                .ListAsync(projectTemplate.Organization, ProjectId)
+                .ListAsync(project.Organization, ProjectId)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
             return DataResult<List<ComponentTemplate>>
                 .Ok(componenetTemplates.OrderBy(ct => ct.DisplayName).ToList())
                 .ToActionResult();
-        });
+        }));
 
 
         [HttpGet("{id}")]
@@ -56,7 +56,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "Returns a Component Template", typeof(DataResult<ComponentTemplate>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project Component Template with the provided id was not found.", typeof(ErrorResult))]
-        public Task<IActionResult> Get([FromRoute] string id) => EnsureProjectAndProjectTemplateAsync(async (project, projectTemplate) =>
+        public Task<IActionResult> Get([FromRoute] string id) => ExecuteAsync(new Func<User, Organization, Project, ProjectTemplate, Task<IActionResult>>(async (user, organization, project, projectTemplate) =>
         {
             if (string.IsNullOrWhiteSpace(id))
                 return ErrorResult
@@ -64,7 +64,7 @@ namespace TeamCloud.API.Controllers
                     .ToActionResult();
 
             var componentTemplate = await componentTemplateRepository
-                .GetAsync(OrgId, ProjectId, id)
+                .GetAsync(organization.Id, project.Id, id)
                 .ConfigureAwait(false);
 
             if (!(componentTemplate?.ParentId?.Equals(projectTemplate.Id, StringComparison.Ordinal) ?? false))
@@ -75,6 +75,6 @@ namespace TeamCloud.API.Controllers
             return DataResult<ComponentTemplate>
                 .Ok(componentTemplate)
                 .ToActionResult();
-        });
+        }));
     }
 }
