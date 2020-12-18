@@ -293,6 +293,8 @@ export interface ComponentDeploymentListDataResult {
 export interface ComponentDeployment {
     componentId: string;
     projectId: string;
+    type?: Enum11;
+    created?: Date;
     started?: Date | null;
     finished?: Date | null;
     output?: string | null;
@@ -402,6 +404,10 @@ export declare type RepositoryReferenceType = "Unknown" | "Tag" | "Branch" | "Ha
  * Defines values for ComponentTemplateType.
  */
 export declare type ComponentTemplateType = "Custom" | "AzureResource" | "Environment" | "GitRepository" | string;
+/**
+ * Defines values for Enum11.
+ */
+export declare type Enum11 = 0 | 1 | number;
 /**
  * Defines values for ComponentDeploymentResourceState.
  */
@@ -884,6 +890,42 @@ export declare type TeamCloudDeleteProjectComponentResponse = StatusResult & {
          * The response body as parsed JSON or XML
          */
         parsedBody: StatusResult;
+    };
+};
+/**
+ * Contains response data for the resetProjectComponent operation.
+ */
+export declare type TeamCloudResetProjectComponentResponse = ComponentDataResult & {
+    /**
+     * The underlying HTTP response.
+     */
+    _response: coreHttp.HttpResponse & {
+        /**
+         * The response body as text (string format)
+         */
+        bodyAsText: string;
+        /**
+         * The response body as parsed JSON or XML
+         */
+        parsedBody: ComponentDataResult;
+    };
+};
+/**
+ * Contains response data for the clearProjectComponent operation.
+ */
+export declare type TeamCloudClearProjectComponentResponse = ComponentDataResult & {
+    /**
+     * The underlying HTTP response.
+     */
+    _response: coreHttp.HttpResponse & {
+        /**
+         * The response body as text (string format)
+         */
+        bodyAsText: string;
+        /**
+         * The response body as parsed JSON or XML
+         */
+        parsedBody: ComponentDataResult;
     };
 };
 /**

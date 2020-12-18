@@ -21,6 +21,10 @@ namespace TeamCloud.Model.Data
         [JsonProperty(Required = Required.Always)]
         public string ProjectId { get; set; }
 
+        public ComponentDeploymentType Type { get; set; } = ComponentDeploymentType.Template;
+
+        public DateTime Created { get; set; } = DateTime.UtcNow;
+
         public DateTime? Started { get; set; }
 
         public DateTime? Finished { get; set; }

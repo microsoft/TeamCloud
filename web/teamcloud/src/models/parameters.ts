@@ -43,10 +43,10 @@ export const $host: OperationURLParameter = {
   skipEncoding: true
 };
 
-export const org: OperationURLParameter = {
-  parameterPath: "org",
+export const organizationId: OperationURLParameter = {
+  parameterPath: "organizationId",
   mapper: {
-    serializedName: "org",
+    serializedName: "organizationId",
     required: true,
     type: {
       name: "String"
@@ -90,6 +90,17 @@ export const body1: OperationParameter = {
 export const body2: OperationParameter = {
   parameterPath: ["options", "body"],
   mapper: OrganizationDefinitionMapper
+};
+
+export const org: OperationURLParameter = {
+  parameterPath: "org",
+  mapper: {
+    serializedName: "org",
+    required: true,
+    type: {
+      name: "String"
+    }
+  }
 };
 
 export const body3: OperationParameter = {

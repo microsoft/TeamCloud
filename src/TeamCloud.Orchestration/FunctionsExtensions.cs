@@ -79,14 +79,16 @@ namespace TeamCloud.Orchestration
             if (orchestration is null)
                 throw new ArgumentNullException(nameof(orchestration));
 
-            var fireAt = orchestration.CurrentUtcDateTime.Add(delay);
-
             await orchestration
-                .CreateTimer(fireAt, CancellationToken.None)
+                .CreateTimer(delay)
                 .ConfigureAwait(true);
 
             orchestration.ContinueAsNew(input, preserveUnprocessedEvents);
         }
+
+        public static Task CreateTimer(this IDurableOrchestrationContext orchestration, TimeSpan delay, CancellationToken cancellationToken = default)
+            => (orchestration ?? throw new ArgumentNullException(nameof(orchestration)))
+            .CreateTimer(orchestration.CurrentUtcDateTime.Add(delay), cancellationToken);
 
         public static Task CallActivityWithRetryAsync(this IDurableOrchestrationContext orchestration, string functionName, object input)
             => (orchestration ?? throw new ArgumentNullException(nameof(orchestration)))

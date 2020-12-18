@@ -496,6 +496,38 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
         }
     };
 
+    const onResetComponent = async (component?: Component) => {
+        component = component ?? projectComponent;
+        if (component) {
+            console.log(`- onResetComponent (${component.slug})`);
+            const result = await api.resetProjectComponent(component.organization, component.projectId, component.id);
+            if (result.data) {
+                component = result.data as Component;
+                onComponentSelected(component);
+                setProjectComponentDeployments(undefined);
+            } else {
+                console.error(`Failed to reset component ${component.slug}: ${result}`);
+            }
+            console.log(`+ onResetComponent (${component.slug})`);
+        }
+    }
+
+    const onClearComponent = async (component?: Component) => {
+        component = component ?? projectComponent;
+        if (component) {
+            console.log(`- onClearComponent (${component.slug})`);
+            const result = await api.clearProjectComponent(component.organization, component.projectId, component.id);
+            if (result.data) {
+                component = result.data as Component;
+                onComponentSelected(component);
+                setProjectComponentDeployments(undefined);
+            } else {
+                console.error(`Failed to clear component ${component.slug}: ${result}`);
+            }
+            console.log(`+ onClearComponent (${component.slug})`);
+        }
+    }
+
     return (
         <GraphUserContext.Provider value={{
             graphUser: graphUser,
@@ -527,6 +559,8 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
                     templates: projectComponentTemplates,
                     componentDeployments: projectComponentDeployments,
                     onAddUsers: onAddProjectUsers,
+                    onResetComponent: onResetComponent,
+                    onClearComponent: onClearComponent,
                     onRemoveUsers: () => Promise.resolve(),
                     onComponentSelected: onComponentSelected
                 }}>

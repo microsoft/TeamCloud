@@ -17,7 +17,9 @@ namespace TeamCloud.Orchestrator.Handlers
     public sealed class ComponentCommandHandler
         : ICommandHandler<ComponentCreateCommand>,
           ICommandHandler<ComponentUpdateCommand>,
-          ICommandHandler<ComponentDeleteCommand>
+          ICommandHandler<ComponentDeleteCommand>,
+          ICommandHandler<ComponentResetCommand>,
+          ICommandHandler<ComponentClearCommand>
     {
         private readonly IComponentRepository componentRepository;
         private readonly IComponentDeploymentRepository componentDeploymentRepository;
@@ -116,6 +118,100 @@ namespace TeamCloud.Orchestrator.Handlers
             {
                 commandResult.Result = await componentRepository
                     .RemoveAsync(command.Payload)
+                    .ConfigureAwait(false);
+
+                commandResult.RuntimeStatus = CommandRuntimeStatus.Completed;
+            }
+            catch (Exception exc)
+            {
+                commandResult.Errors.Add(exc);
+            }
+
+            return commandResult;
+        }
+
+        public async Task<ICommandResult> HandleAsync(ComponentResetCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient durableClient = null)
+        {
+            if (command is null)
+                throw new ArgumentNullException(nameof(command));
+
+            if (commandQueue is null)
+                throw new ArgumentNullException(nameof(commandQueue));
+
+            var commandResult = command.CreateResult();
+
+            try
+            {
+                if (command.Payload.Type != ComponentType.Environment)
+                {
+                    // ensure the component is of type Environment; otherwise this command is not supported
+                    throw new NotSupportedException($"Command of type {command.GetType().Name} is not supported for components of type {command.Payload.Type}.");
+                }
+
+                var componentDeployment = new ComponentDeployment()
+                {
+                    ComponentId = command.Payload.Id,
+                    ProjectId = command.Payload.ProjectId,
+                    Type = ComponentDeploymentType.Template
+                };
+
+                componentDeployment = await componentDeploymentRepository
+                    .AddAsync(componentDeployment)
+                    .ConfigureAwait(false);
+
+                await commandQueue
+                    .AddAsync(new ComponentDeploymentExecuteCommand(command.User, componentDeployment))
+                    .ConfigureAwait(false);
+
+                commandResult.Result = await componentRepository
+                    .GetAsync(command.Payload.ProjectId, command.Payload.Id)
+                    .ConfigureAwait(false);
+
+                commandResult.RuntimeStatus = CommandRuntimeStatus.Completed;
+            }
+            catch (Exception exc)
+            {
+                commandResult.Errors.Add(exc);
+            }
+
+            return commandResult;
+        }
+
+        public async Task<ICommandResult> HandleAsync(ComponentClearCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient durableClient = null)
+        {
+            if (command is null)
+                throw new ArgumentNullException(nameof(command));
+
+            if (commandQueue is null)
+                throw new ArgumentNullException(nameof(commandQueue));
+
+            var commandResult = command.CreateResult();
+
+            try
+            {
+                if (command.Payload.Type != ComponentType.Environment)
+                {
+                    // ensure the component is of type Environment; otherwise this command is not supported
+                    throw new NotSupportedException($"Command of type {command.GetType().Name} is not supported for components of type {command.Payload.Type}.");
+                }
+
+                var componentDeployment = new ComponentDeployment()
+                {
+                    ComponentId = command.Payload.Id,
+                    ProjectId = command.Payload.ProjectId,
+                    Type = ComponentDeploymentType.Clear
+                };
+
+                componentDeployment = await componentDeploymentRepository
+                    .AddAsync(componentDeployment)
+                    .ConfigureAwait(false);
+
+                await commandQueue
+                    .AddAsync(new ComponentDeploymentExecuteCommand(command.User, componentDeployment))
+                    .ConfigureAwait(false);
+
+                commandResult.Result = await componentRepository
+                    .GetAsync(command.Payload.ProjectId, command.Payload.Id)
                     .ConfigureAwait(false);
 
                 commandResult.RuntimeStatus = CommandRuntimeStatus.Completed;

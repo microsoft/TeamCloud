@@ -63,6 +63,20 @@ namespace TeamCloud.Azure.Resources
             return new AzureResourceGroup(this.ResourceId.SubscriptionId, name, this.AzureResourceService);
         }
 
+        public async IAsyncEnumerable<AzureResourceGroup> GetResourceGroupsAsync()
+        {
+            var session = await AzureResourceService.AzureSessionService
+                .CreateSessionAsync(this.ResourceId.SubscriptionId)
+                .ConfigureAwait(false);
+
+            var resourceGroups = await session.ResourceGroups
+                .ListAsync()
+                .ConfigureAwait(false);
+
+            await foreach (var resourceGroup in resourceGroups.AsContinuousCollectionAsync())
+                yield return new AzureResourceGroup(this.ResourceId.SubscriptionId, resourceGroup.Name);
+        }
+
         public override async Task<IDictionary<string, string>> GetTagsAsync(bool includeHidden = false)
         {
             var token = await AzureResourceService.AzureSessionService

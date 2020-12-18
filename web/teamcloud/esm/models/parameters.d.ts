@@ -1,12 +1,13 @@
 import { OperationParameter, OperationURLParameter } from "@azure/core-http";
 export declare const accept: OperationParameter;
 export declare const $host: OperationURLParameter;
-export declare const org: OperationURLParameter;
+export declare const organizationId: OperationURLParameter;
 export declare const contentType: OperationParameter;
 export declare const body: OperationParameter;
 export declare const id: OperationURLParameter;
 export declare const body1: OperationParameter;
 export declare const body2: OperationParameter;
+export declare const org: OperationURLParameter;
 export declare const body3: OperationParameter;
 export declare const userId: OperationURLParameter;
 export declare const body4: OperationParameter;

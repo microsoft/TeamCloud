@@ -58,7 +58,7 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Utilities
                         .ConfigureAwait(true);
                 }
 
-                using (await context.LockContainerDocumentAsync(component).ConfigureAwait(true))
+                using (await context.LockContainerDocumentAsync(component, nameof(ComponentPrepareOrchestration)).ConfigureAwait(true))
                 {
                     component = (await context
                         .CallActivityWithRetryAsync<Component>(nameof(ComponentGetActivity), new ComponentGetActivity.Input() { ProjectId = component.ProjectId, ComponentId = component.Id })

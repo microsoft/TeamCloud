@@ -8,9 +8,7 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Model.Commands
 {
-    public sealed class ComponentResetCommand : CustomCommand<Component, ComponentResetCommandResult>
+    public sealed class ComponentClearCommandResult : CommandResult<Component>
     {
-        public ComponentResetCommand(User user, Component payload) : base(user, payload)
-        { }
     }
 }

@@ -15,7 +15,7 @@
     "version": "v1"
   },
   "paths": {
-    "/orgs/{org}/scopes": {
+    "/orgs/{organizationId}/scopes": {
       "get": {
         "tags": [
           "DeploymentScopes"
@@ -24,7 +24,7 @@
         "operationId": "GetDeploymentScopes",
         "parameters": [
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -69,7 +69,7 @@
         "operationId": "CreateDeploymentScope",
         "parameters": [
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -126,7 +126,7 @@
         }
       }
     },
-    "/orgs/{org}/scopes/{id}": {
+    "/orgs/{organizationId}/scopes/{id}": {
       "get": {
         "tags": [
           "DeploymentScopes"
@@ -144,7 +144,7 @@
             }
           },
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -208,7 +208,7 @@
             }
           },
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -281,7 +281,7 @@
             }
           },
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -440,7 +440,7 @@
         }
       }
     },
-    "/orgs/{org}": {
+    "/orgs/{organizationId}": {
       "get": {
         "tags": [
           "Organizations"
@@ -455,6 +455,14 @@
             "schema": {
               "type": "string",
               "nullable": true
+            }
+          },
+          {
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -505,7 +513,7 @@
         "operationId": "DeleteOrganization",
         "parameters": [
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -544,7 +552,7 @@
         }
       }
     },
-    "/orgs/{org}/users": {
+    "/orgs/{organizationId}/users": {
       "get": {
         "tags": [
           "OrganizationUsers"
@@ -553,7 +561,7 @@
         "operationId": "GetOrganizationUsers",
         "parameters": [
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -608,7 +616,7 @@
         "operationId": "CreateOrganizationUser",
         "parameters": [
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -675,7 +683,7 @@
         }
       }
     },
-    "/orgs/{org}/users/{userId}": {
+    "/orgs/{organizationId}/users/{userId}": {
       "get": {
         "tags": [
           "OrganizationUsers"
@@ -693,7 +701,7 @@
             }
           },
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -757,7 +765,7 @@
             }
           },
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -830,7 +838,7 @@
             }
           },
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -868,7 +876,7 @@
         }
       }
     },
-    "/orgs/{org}/me": {
+    "/orgs/{organizationId}/me": {
       "get": {
         "tags": [
           "OrganizationUsers"
@@ -877,7 +885,7 @@
         "operationId": "GetOrganizationUserMe",
         "parameters": [
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -932,7 +940,7 @@
         "operationId": "UpdateOrganizationUserMe",
         "parameters": [
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -989,7 +997,7 @@
         }
       }
     },
-    "/orgs/{org}/projects": {
+    "/orgs/{organizationId}/projects": {
       "get": {
         "tags": [
           "Project"
@@ -998,7 +1006,7 @@
         "operationId": "GetProjects",
         "parameters": [
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -1043,7 +1051,7 @@
         "operationId": "CreateProject",
         "parameters": [
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -1110,7 +1118,7 @@
         }
       }
     },
-    "/orgs/{org}/projects/{projectId}": {
+    "/orgs/{organizationId}/projects/{projectId}": {
       "get": {
         "tags": [
           "Project"
@@ -1128,7 +1136,7 @@
             }
           },
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -1192,7 +1200,7 @@
             }
           },
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -1240,7 +1248,7 @@
         }
       }
     },
-    "/orgs/{org}/projects/{projectId}/components": {
+    "/orgs/{organizationId}/projects/{projectId}/components": {
       "get": {
         "tags": [
           "ProjectComponents"
@@ -1249,7 +1257,7 @@
         "operationId": "GetProjectComponents",
         "parameters": [
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -1312,7 +1320,7 @@
         "operationId": "CreateProjectComponent",
         "parameters": [
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -1397,7 +1405,7 @@
         }
       }
     },
-    "/orgs/{org}/projects/{projectId}/components/{id}": {
+    "/orgs/{organizationId}/projects/{projectId}/components/{id}": {
       "get": {
         "tags": [
           "ProjectComponents"
@@ -1415,7 +1423,7 @@
             }
           },
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -1487,7 +1495,7 @@
             }
           },
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -1553,7 +1561,133 @@
         }
       }
     },
-    "/orgs/{org}/projects/{projectId}/templates": {
+    "/orgs/{organizationId}/projects/{projectId}/components/{componentId}/reset": {
+      "post": {
+        "tags": [
+          "ProjectComponents"
+        ],
+        "summary": "Reset a Project Component.",
+        "operationId": "ResetProjectComponent",
+        "parameters": [
+          {
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "componentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Reset a Project Component. Returns the current version of the target Project Component.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComponentDataResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Project Component with the provided componentId was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/orgs/{organizationId}/projects/{projectId}/components/{componentId}/clear": {
+      "post": {
+        "tags": [
+          "ProjectComponents"
+        ],
+        "summary": "Clear a Project Component.",
+        "operationId": "ClearProjectComponent",
+        "parameters": [
+          {
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "componentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Clear a Project Component. Returns the current version of the target Project Component.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComponentDataResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Project Component with the provided componentId was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/orgs/{organizationId}/projects/{projectId}/templates": {
       "get": {
         "tags": [
           "ProjectComponentTemplates"
@@ -1562,7 +1696,7 @@
         "operationId": "GetProjectComponentTemplates",
         "parameters": [
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -1618,7 +1752,7 @@
         }
       }
     },
-    "/orgs/{org}/projects/{projectId}/templates/{id}": {
+    "/orgs/{organizationId}/projects/{projectId}/templates/{id}": {
       "get": {
         "tags": [
           "ProjectComponentTemplates"
@@ -1636,7 +1770,7 @@
             }
           },
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -1692,7 +1826,7 @@
         }
       }
     },
-    "/orgs/{org}/projects/{projectId}/components/{componentId}/deployments": {
+    "/orgs/{organizationId}/projects/{projectId}/components/{componentId}/deployments": {
       "get": {
         "tags": [
           "ProjectDeployments"
@@ -1701,7 +1835,7 @@
         "operationId": "GetProjectDeployments",
         "parameters": [
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -1765,7 +1899,7 @@
         }
       }
     },
-    "/orgs/{org}/projects/{projectId}/components/{componentId}/deployments/{id}": {
+    "/orgs/{organizationId}/projects/{projectId}/components/{componentId}/deployments/{id}": {
       "get": {
         "tags": [
           "ProjectDeployments"
@@ -1783,7 +1917,7 @@
             }
           },
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -1847,7 +1981,7 @@
         }
       }
     },
-    "/orgs/{org}/projects/{projectId}/tags": {
+    "/orgs/{organizationId}/projects/{projectId}/tags": {
       "get": {
         "tags": [
           "ProjectTags"
@@ -1856,7 +1990,7 @@
         "operationId": "GetProjectTags",
         "parameters": [
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -1919,7 +2053,7 @@
         "operationId": "CreateProjectTag",
         "parameters": [
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -2005,7 +2139,7 @@
         "operationId": "UpdateProjectTag",
         "parameters": [
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -2074,7 +2208,7 @@
         }
       }
     },
-    "/orgs/{org}/projects/{projectId}/tags/{tagKey}": {
+    "/orgs/{organizationId}/projects/{projectId}/tags/{tagKey}": {
       "get": {
         "tags": [
           "ProjectTags"
@@ -2092,7 +2226,7 @@
             }
           },
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -2164,7 +2298,7 @@
             }
           },
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -2220,7 +2354,7 @@
         }
       }
     },
-    "/orgs/{org}/templates": {
+    "/orgs/{organizationId}/templates": {
       "get": {
         "tags": [
           "ProjectTemplates"
@@ -2229,7 +2363,7 @@
         "operationId": "GetProjectTemplates",
         "parameters": [
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -2274,7 +2408,7 @@
         "operationId": "CreateProjectTemplate",
         "parameters": [
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -2331,7 +2465,7 @@
         }
       }
     },
-    "/orgs/{org}/templates/{projectTemplateId}": {
+    "/orgs/{organizationId}/templates/{projectTemplateId}": {
       "get": {
         "tags": [
           "ProjectTemplates"
@@ -2349,7 +2483,7 @@
             }
           },
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -2413,7 +2547,7 @@
             }
           },
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -2486,7 +2620,7 @@
             }
           },
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -2534,7 +2668,7 @@
         }
       }
     },
-    "/orgs/{org}/projects/{projectId}/users": {
+    "/orgs/{organizationId}/projects/{projectId}/users": {
       "get": {
         "tags": [
           "ProjectUsers"
@@ -2543,7 +2677,7 @@
         "operationId": "GetProjectUsers",
         "parameters": [
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -2606,7 +2740,7 @@
         "operationId": "CreateProjectUser",
         "parameters": [
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -2691,7 +2825,7 @@
         }
       }
     },
-    "/orgs/{org}/projects/{projectId}/users/{userId}": {
+    "/orgs/{organizationId}/projects/{projectId}/users/{userId}": {
       "get": {
         "tags": [
           "ProjectUsers"
@@ -2709,7 +2843,7 @@
             }
           },
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -2781,7 +2915,7 @@
             }
           },
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -2872,7 +3006,7 @@
             }
           },
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -2928,7 +3062,7 @@
         }
       }
     },
-    "/orgs/{org}/projects/{projectId}/users/me": {
+    "/orgs/{organizationId}/projects/{projectId}/users/me": {
       "get": {
         "tags": [
           "ProjectUsers"
@@ -2937,7 +3071,7 @@
         "operationId": "GetProjectUserMe",
         "parameters": [
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -3000,7 +3134,7 @@
         "operationId": "UpdateProjectUserMe",
         "parameters": [
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -3075,7 +3209,7 @@
         }
       }
     },
-    "/orgs/{org}/status/{trackingId}": {
+    "/orgs/{organizationId}/status/{trackingId}": {
       "get": {
         "tags": [
           "Status"
@@ -3093,7 +3227,7 @@
             }
           },
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -3161,7 +3295,7 @@
         }
       }
     },
-    "/orgs/{org}/projects/{projectId}/status/{trackingId}": {
+    "/orgs/{organizationId}/projects/{projectId}/status/{trackingId}": {
       "get": {
         "tags": [
           "Status"
@@ -3188,7 +3322,7 @@
             }
           },
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -3256,7 +3390,7 @@
         }
       }
     },
-    "/orgs/{org}/users/{userId}/projects": {
+    "/orgs/{organizationId}/users/{userId}/projects": {
       "get": {
         "tags": [
           "UserProjects"
@@ -3265,7 +3399,7 @@
         "operationId": "GetUserProjects",
         "parameters": [
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -3321,7 +3455,7 @@
         }
       }
     },
-    "/orgs/{org}/me/projects": {
+    "/orgs/{organizationId}/me/projects": {
       "get": {
         "tags": [
           "UserProjects"
@@ -3330,7 +3464,7 @@
         "operationId": "GetUserProjectsMe",
         "parameters": [
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -4356,6 +4490,18 @@
           },
           "projectId": {
             "type": "string"
+          },
+          "type": {
+            "enum": [
+              0,
+              1
+            ],
+            "type": "integer",
+            "format": "int32"
+          },
+          "created": {
+            "type": "string",
+            "format": "date-time"
           },
           "started": {
             "type": "string",

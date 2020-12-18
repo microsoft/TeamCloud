@@ -28,10 +28,10 @@ export var $host = {
     },
     skipEncoding: true
 };
-export var org = {
-    parameterPath: "org",
+export var organizationId = {
+    parameterPath: "organizationId",
     mapper: {
-        serializedName: "org",
+        serializedName: "organizationId",
         required: true,
         type: {
             name: "String"
@@ -70,6 +70,16 @@ export var body1 = {
 export var body2 = {
     parameterPath: ["options", "body"],
     mapper: OrganizationDefinitionMapper
+};
+export var org = {
+    parameterPath: "org",
+    mapper: {
+        serializedName: "org",
+        required: true,
+        type: {
+            name: "String"
+        }
+    }
 };
 export var body3 = {
     parameterPath: ["options", "body"],

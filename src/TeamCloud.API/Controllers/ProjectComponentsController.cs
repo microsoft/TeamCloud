@@ -28,7 +28,7 @@ namespace TeamCloud.API.Controllers
     [ApiController]
     [Route("orgs/{organizationId:organizationId}/projects/{projectId:projectId}/components")]
     [Produces("application/json")]
-    public class ProjectComponentsController : ApiController
+    public partial class ProjectComponentsController : ApiController
     {
         private readonly IComponentRepository componentRepository;
         private readonly IComponentTemplateRepository componentTemplateRepository;

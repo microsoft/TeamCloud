@@ -15,24 +15,25 @@ using TeamCloud.Data;
 using TeamCloud.Model.Common;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
-using TeamCloud.Orchestrator.Templates;
 
-namespace TeamCloud.Orchestrator.Operations.Activities
+namespace TeamCloud.Orchestrator.Operations.Activities.Templates
 {
-    public sealed class OrganizationDeployActivity
+    public sealed class ProjectDeployActivity
     {
         private readonly IOrganizationRepository organizationRepository;
-        private readonly IAzureSessionService azureSessionService;
+        private readonly IProjectRepository projectRepository;
         private readonly IAzureDeploymentService azureDeploymentService;
+        private readonly IAzureSessionService azureSessionService;
 
-        public OrganizationDeployActivity(IOrganizationRepository organizationRepository, IAzureSessionService azureSessionService, IAzureDeploymentService azureDeploymentService)
+        public ProjectDeployActivity(IOrganizationRepository organizationRepository, IProjectRepository projectRepository, IAzureDeploymentService azureDeploymentService, IAzureSessionService azureSessionService)
         {
             this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
+            this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
+            this.azureDeploymentService = azureDeploymentService ?? throw new ArgumentNullException(nameof(azureDeploymentService));
             this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
-            this.azureDeploymentService = azureDeploymentService ?? throw new System.ArgumentNullException(nameof(azureDeploymentService));
         }
 
-        [FunctionName(nameof(OrganizationDeployActivity))]
+        [FunctionName(nameof(ProjectDeployActivity))]
         [RetryOptions(3)]
         public async Task<string> Run(
             [ActivityTrigger] IDurableActivityContext context)
@@ -40,9 +41,15 @@ namespace TeamCloud.Orchestrator.Operations.Activities
             if (context is null)
                 throw new ArgumentNullException(nameof(context));
 
-            var organization = context.GetInput<Input>().Organization;
+            var project = context.GetInput<Input>().Project;
 
-            if (!AzureResourceIdentifier.TryParse(organization.ResourceId, out var organizationResourceId))
+            var tenantId = (await azureSessionService.GetIdentityAsync().ConfigureAwait(false)).TenantId;
+
+            var organization = await organizationRepository
+                .GetAsync(tenantId.ToString(), project.Organization)
+                .ConfigureAwait(false);
+
+            if (!AzureResourceIdentifier.TryParse(project.ResourceId, out var projectResourceId))
             {
                 var session = await azureSessionService
                     .CreateSessionAsync(Guid.Parse(organization.SubscriptionId))
@@ -52,7 +59,7 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                     .ListAsync(loadAllPages: true)
                     .ConfigureAwait(false);
 
-                var resourceGroupName = $"TCO-{organization.Slug}-{Math.Abs(Guid.Parse(organization.Id).GetHashCode())}";
+                var resourceGroupName = $"TCP-{project.Slug}-{Math.Abs(Guid.Parse(project.Id).GetHashCode())}";
 
                 var resourceGroup = resourceGroups
                     .SingleOrDefault(rg => rg.Name.Equals(resourceGroupName, StringComparison.OrdinalIgnoreCase));
@@ -66,25 +73,25 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                         .ConfigureAwait(false);
                 }
 
-                organization.ResourceId = resourceGroup.Id;
+                project.ResourceId = resourceGroup.Id;
 
-                organization = await organizationRepository
-                    .SetAsync(organization)
+                project = await projectRepository
+                    .SetAsync(project)
                     .ConfigureAwait(false);
 
-                organizationResourceId = AzureResourceIdentifier.Parse(organization.ResourceId);
+                projectResourceId = AzureResourceIdentifier.Parse(project.ResourceId);
             }
 
-            var template = new OrganizationDeployTemplate();
+            var template = new ProjectDeployTemplate();
 
             var deployment = await azureDeploymentService
-                .DeployResourceGroupTemplateAsync(template, Guid.Parse(organization.SubscriptionId), organizationResourceId.ResourceGroup)
+                .DeployResourceGroupTemplateAsync(template, Guid.Parse(organization.SubscriptionId), projectResourceId.ResourceGroup)
                 .ConfigureAwait(false);
 
-            organization.ResourceState = ResourceState.Provisioning;
+            project.ResourceState = ResourceState.Provisioning;
 
-            organization = await organizationRepository
-                .SetAsync(organization)
+            project = await projectRepository
+                .SetAsync(project)
                 .ConfigureAwait(false);
 
             return deployment.ResourceId;
@@ -92,7 +99,7 @@ namespace TeamCloud.Orchestrator.Operations.Activities
 
         internal struct Input
         {
-            public Organization Organization { get; set; }
+            public Project Project { get; set; }
         }
     }
 }

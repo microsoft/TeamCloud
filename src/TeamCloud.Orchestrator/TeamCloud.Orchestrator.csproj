@@ -19,14 +19,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Templates\ComponentInitSubscriptionTemplate.json" />
-    <None Remove="Templates\CreateProjectTemplate_ProjectResources.json" />
-    <None Remove="Templates\DeployementScopeInitTemplate.json" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="Templates\OrganizationDeployTemplate.json" />
-    <EmbeddedResource Include="Templates\ProjectDeployTemplate.json" />
+    <EmbeddedResource Include="Operations\Activities\Templates\ComponentCleanTemplate.json" />
+    <EmbeddedResource Include="Operations\Activities\Templates\OrganizationDeployTemplate.json" />
+    <EmbeddedResource Include="Operations\Activities\Templates\ProjectDeployTemplate.json" />
   </ItemGroup>
 
   <ItemGroup>

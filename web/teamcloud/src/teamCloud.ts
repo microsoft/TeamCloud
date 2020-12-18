@@ -44,6 +44,8 @@ import {
   TeamCloudCreateProjectComponentResponse,
   TeamCloudGetProjectComponentResponse,
   TeamCloudDeleteProjectComponentResponse,
+  TeamCloudResetProjectComponentResponse,
+  TeamCloudClearProjectComponentResponse,
   TeamCloudGetProjectComponentTemplatesResponse,
   TeamCloudGetProjectComponentTemplateResponse,
   TeamCloudGetProjectDeploymentsResponse,
@@ -95,36 +97,36 @@ export class TeamCloud extends TeamCloudContext {
 
   /**
    * Gets all Deployment Scopes.
-   * @param org
+   * @param organizationId
    * @param options The options parameters.
    */
   getDeploymentScopes(
-    org: string,
+    organizationId: string,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudGetDeploymentScopesResponse> {
     const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
       options || {}
     );
     return this.sendOperationRequest(
-      { org, options: operationOptions },
+      { organizationId, options: operationOptions },
       getDeploymentScopesOperationSpec
     ) as Promise<TeamCloudGetDeploymentScopesResponse>;
   }
 
   /**
    * Creates a new Deployment Scope.
-   * @param org
+   * @param organizationId
    * @param options The options parameters.
    */
   createDeploymentScope(
-    org: string,
+    organizationId: string,
     options?: TeamCloudCreateDeploymentScopeOptionalParams
   ): Promise<TeamCloudCreateDeploymentScopeResponse> {
     const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
       options || {}
     );
     return this.sendOperationRequest(
-      { org, options: operationOptions },
+      { organizationId, options: operationOptions },
       createDeploymentScopeOperationSpec
     ) as Promise<TeamCloudCreateDeploymentScopeResponse>;
   }
@@ -132,19 +134,19 @@ export class TeamCloud extends TeamCloudContext {
   /**
    * Gets a Deployment Scope.
    * @param id
-   * @param org
+   * @param organizationId
    * @param options The options parameters.
    */
   getDeploymentScope(
     id: string | null,
-    org: string,
+    organizationId: string,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudGetDeploymentScopeResponse> {
     const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
       options || {}
     );
     return this.sendOperationRequest(
-      { id, org, options: operationOptions },
+      { id, organizationId, options: operationOptions },
       getDeploymentScopeOperationSpec
     ) as Promise<TeamCloudGetDeploymentScopeResponse>;
   }
@@ -152,19 +154,19 @@ export class TeamCloud extends TeamCloudContext {
   /**
    * Updates an existing Deployment Scope.
    * @param id
-   * @param org
+   * @param organizationId
    * @param options The options parameters.
    */
   updateDeploymentScope(
     id: string | null,
-    org: string,
+    organizationId: string,
     options?: TeamCloudUpdateDeploymentScopeOptionalParams
   ): Promise<TeamCloudUpdateDeploymentScopeResponse> {
     const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
       options || {}
     );
     return this.sendOperationRequest(
-      { id, org, options: operationOptions },
+      { id, organizationId, options: operationOptions },
       updateDeploymentScopeOperationSpec
     ) as Promise<TeamCloudUpdateDeploymentScopeResponse>;
   }
@@ -172,19 +174,19 @@ export class TeamCloud extends TeamCloudContext {
   /**
    * Deletes a Deployment Scope.
    * @param id
-   * @param org
+   * @param organizationId
    * @param options The options parameters.
    */
   deleteDeploymentScope(
     id: string | null,
-    org: string,
+    organizationId: string,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudDeleteDeploymentScopeResponse> {
     const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
       options || {}
     );
     return this.sendOperationRequest(
-      { id, org, options: operationOptions },
+      { id, organizationId, options: operationOptions },
       deleteDeploymentScopeOperationSpec
     ) as Promise<TeamCloudDeleteDeploymentScopeResponse>;
   }
@@ -224,71 +226,73 @@ export class TeamCloud extends TeamCloudContext {
   /**
    * Gets an Organization.
    * @param org
+   * @param organizationId
    * @param options The options parameters.
    */
   getOrganization(
-    org: string,
+    org: string | null,
+    organizationId: string,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudGetOrganizationResponse> {
     const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
       options || {}
     );
     return this.sendOperationRequest(
-      { org, options: operationOptions },
+      { org, organizationId, options: operationOptions },
       getOrganizationOperationSpec
     ) as Promise<TeamCloudGetOrganizationResponse>;
   }
 
   /**
    * Deletes an existing Organization.
-   * @param org
+   * @param organizationId
    * @param options The options parameters.
    */
   deleteOrganization(
-    org: string,
+    organizationId: string,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudDeleteOrganizationResponse> {
     const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
       options || {}
     );
     return this.sendOperationRequest(
-      { org, options: operationOptions },
+      { organizationId, options: operationOptions },
       deleteOrganizationOperationSpec
     ) as Promise<TeamCloudDeleteOrganizationResponse>;
   }
 
   /**
    * Gets all Users.
-   * @param org
+   * @param organizationId
    * @param options The options parameters.
    */
   getOrganizationUsers(
-    org: string,
+    organizationId: string,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudGetOrganizationUsersResponse> {
     const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
       options || {}
     );
     return this.sendOperationRequest(
-      { org, options: operationOptions },
+      { organizationId, options: operationOptions },
       getOrganizationUsersOperationSpec
     ) as Promise<TeamCloudGetOrganizationUsersResponse>;
   }
 
   /**
    * Creates a new User.
-   * @param org
+   * @param organizationId
    * @param options The options parameters.
    */
   createOrganizationUser(
-    org: string,
+    organizationId: string,
     options?: TeamCloudCreateOrganizationUserOptionalParams
   ): Promise<TeamCloudCreateOrganizationUserResponse> {
     const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
       options || {}
     );
     return this.sendOperationRequest(
-      { org, options: operationOptions },
+      { organizationId, options: operationOptions },
       createOrganizationUserOperationSpec
     ) as Promise<TeamCloudCreateOrganizationUserResponse>;
   }
@@ -296,19 +300,19 @@ export class TeamCloud extends TeamCloudContext {
   /**
    * Gets a User.
    * @param userId
-   * @param org
+   * @param organizationId
    * @param options The options parameters.
    */
   getOrganizationUser(
     userId: string | null,
-    org: string,
+    organizationId: string,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudGetOrganizationUserResponse> {
     const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
       options || {}
     );
     return this.sendOperationRequest(
-      { userId, org, options: operationOptions },
+      { userId, organizationId, options: operationOptions },
       getOrganizationUserOperationSpec
     ) as Promise<TeamCloudGetOrganizationUserResponse>;
   }
@@ -316,19 +320,19 @@ export class TeamCloud extends TeamCloudContext {
   /**
    * Updates an existing User.
    * @param userId
-   * @param org
+   * @param organizationId
    * @param options The options parameters.
    */
   updateOrganizationUser(
     userId: string | null,
-    org: string,
+    organizationId: string,
     options?: TeamCloudUpdateOrganizationUserOptionalParams
   ): Promise<TeamCloudUpdateOrganizationUserResponse> {
     const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
       options || {}
     );
     return this.sendOperationRequest(
-      { userId, org, options: operationOptions },
+      { userId, organizationId, options: operationOptions },
       updateOrganizationUserOperationSpec
     ) as Promise<TeamCloudUpdateOrganizationUserResponse>;
   }
@@ -336,91 +340,91 @@ export class TeamCloud extends TeamCloudContext {
   /**
    * Deletes an existing User.
    * @param userId
-   * @param org
+   * @param organizationId
    * @param options The options parameters.
    */
   deleteOrganizationUser(
     userId: string | null,
-    org: string,
+    organizationId: string,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudDeleteOrganizationUserResponse> {
     const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
       options || {}
     );
     return this.sendOperationRequest(
-      { userId, org, options: operationOptions },
+      { userId, organizationId, options: operationOptions },
       deleteOrganizationUserOperationSpec
     ) as Promise<TeamCloudDeleteOrganizationUserResponse>;
   }
 
   /**
    * Gets a User A User matching the current authenticated user.
-   * @param org
+   * @param organizationId
    * @param options The options parameters.
    */
   getOrganizationUserMe(
-    org: string,
+    organizationId: string,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudGetOrganizationUserMeResponse> {
     const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
       options || {}
     );
     return this.sendOperationRequest(
-      { org, options: operationOptions },
+      { organizationId, options: operationOptions },
       getOrganizationUserMeOperationSpec
     ) as Promise<TeamCloudGetOrganizationUserMeResponse>;
   }
 
   /**
    * Updates an existing User.
-   * @param org
+   * @param organizationId
    * @param options The options parameters.
    */
   updateOrganizationUserMe(
-    org: string,
+    organizationId: string,
     options?: TeamCloudUpdateOrganizationUserMeOptionalParams
   ): Promise<TeamCloudUpdateOrganizationUserMeResponse> {
     const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
       options || {}
     );
     return this.sendOperationRequest(
-      { org, options: operationOptions },
+      { organizationId, options: operationOptions },
       updateOrganizationUserMeOperationSpec
     ) as Promise<TeamCloudUpdateOrganizationUserMeResponse>;
   }
 
   /**
    * Gets all Projects.
-   * @param org
+   * @param organizationId
    * @param options The options parameters.
    */
   getProjects(
-    org: string,
+    organizationId: string,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudGetProjectsResponse> {
     const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
       options || {}
     );
     return this.sendOperationRequest(
-      { org, options: operationOptions },
+      { organizationId, options: operationOptions },
       getProjectsOperationSpec
     ) as Promise<TeamCloudGetProjectsResponse>;
   }
 
   /**
    * Creates a new Project.
-   * @param org
+   * @param organizationId
    * @param options The options parameters.
    */
   createProject(
-    org: string,
+    organizationId: string,
     options?: TeamCloudCreateProjectOptionalParams
   ): Promise<TeamCloudCreateProjectResponse> {
     const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
       options || {}
     );
     return this.sendOperationRequest(
-      { org, options: operationOptions },
+      { organizationId, options: operationOptions },
       createProjectOperationSpec
     ) as Promise<TeamCloudCreateProjectResponse>;
   }
@@ -428,19 +432,19 @@ export class TeamCloud extends TeamCloudContext {
   /**
    * Gets a Project.
    * @param projectId
-   * @param org
+   * @param organizationId
    * @param options The options parameters.
    */
   getProject(
     projectId: string | null,
-    org: string,
+    organizationId: string,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudGetProjectResponse> {
     const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
       options || {}
     );
     return this.sendOperationRequest(
-      { projectId, org, options: operationOptions },
+      { projectId, organizationId, options: operationOptions },
       getProjectOperationSpec
     ) as Promise<TeamCloudGetProjectResponse>;
   }
@@ -448,31 +452,31 @@ export class TeamCloud extends TeamCloudContext {
   /**
    * Deletes a Project.
    * @param projectId
-   * @param org
+   * @param organizationId
    * @param options The options parameters.
    */
   deleteProject(
     projectId: string | null,
-    org: string,
+    organizationId: string,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudDeleteProjectResponse> {
     const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
       options || {}
     );
     return this.sendOperationRequest(
-      { projectId, org, options: operationOptions },
+      { projectId, organizationId, options: operationOptions },
       deleteProjectOperationSpec
     ) as Promise<TeamCloudDeleteProjectResponse>;
   }
 
   /**
    * Gets all Components for a Project.
-   * @param org
+   * @param organizationId
    * @param projectId
    * @param options The options parameters.
    */
   getProjectComponents(
-    org: string,
+    organizationId: string,
     projectId: string | null,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudGetProjectComponentsResponse> {
@@ -480,19 +484,19 @@ export class TeamCloud extends TeamCloudContext {
       options || {}
     );
     return this.sendOperationRequest(
-      { org, projectId, options: operationOptions },
+      { organizationId, projectId, options: operationOptions },
       getProjectComponentsOperationSpec
     ) as Promise<TeamCloudGetProjectComponentsResponse>;
   }
 
   /**
    * Creates a new Project Component.
-   * @param org
+   * @param organizationId
    * @param projectId
    * @param options The options parameters.
    */
   createProjectComponent(
-    org: string,
+    organizationId: string,
     projectId: string | null,
     options?: TeamCloudCreateProjectComponentOptionalParams
   ): Promise<TeamCloudCreateProjectComponentResponse> {
@@ -500,7 +504,7 @@ export class TeamCloud extends TeamCloudContext {
       options || {}
     );
     return this.sendOperationRequest(
-      { org, projectId, options: operationOptions },
+      { organizationId, projectId, options: operationOptions },
       createProjectComponentOperationSpec
     ) as Promise<TeamCloudCreateProjectComponentResponse>;
   }
@@ -508,13 +512,13 @@ export class TeamCloud extends TeamCloudContext {
   /**
    * Gets a Project Component.
    * @param id
-   * @param org
+   * @param organizationId
    * @param projectId
    * @param options The options parameters.
    */
   getProjectComponent(
     id: string | null,
-    org: string,
+    organizationId: string,
     projectId: string | null,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudGetProjectComponentResponse> {
@@ -522,7 +526,7 @@ export class TeamCloud extends TeamCloudContext {
       options || {}
     );
     return this.sendOperationRequest(
-      { id, org, projectId, options: operationOptions },
+      { id, organizationId, projectId, options: operationOptions },
       getProjectComponentOperationSpec
     ) as Promise<TeamCloudGetProjectComponentResponse>;
   }
@@ -530,13 +534,13 @@ export class TeamCloud extends TeamCloudContext {
   /**
    * Deletes an existing Project Component.
    * @param id
-   * @param org
+   * @param organizationId
    * @param projectId
    * @param options The options parameters.
    */
   deleteProjectComponent(
     id: string | null,
-    org: string,
+    organizationId: string,
     projectId: string | null,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudDeleteProjectComponentResponse> {
@@ -544,19 +548,63 @@ export class TeamCloud extends TeamCloudContext {
       options || {}
     );
     return this.sendOperationRequest(
-      { id, org, projectId, options: operationOptions },
+      { id, organizationId, projectId, options: operationOptions },
       deleteProjectComponentOperationSpec
     ) as Promise<TeamCloudDeleteProjectComponentResponse>;
   }
 
   /**
+   * Reset a Project Component.
+   * @param organizationId
+   * @param projectId
+   * @param componentId
+   * @param options The options parameters.
+   */
+  resetProjectComponent(
+    organizationId: string,
+    projectId: string | null,
+    componentId: string,
+    options?: coreHttp.OperationOptions
+  ): Promise<TeamCloudResetProjectComponentResponse> {
+    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
+      options || {}
+    );
+    return this.sendOperationRequest(
+      { organizationId, projectId, componentId, options: operationOptions },
+      resetProjectComponentOperationSpec
+    ) as Promise<TeamCloudResetProjectComponentResponse>;
+  }
+
+  /**
+   * Clear a Project Component.
+   * @param organizationId
+   * @param projectId
+   * @param componentId
+   * @param options The options parameters.
+   */
+  clearProjectComponent(
+    organizationId: string,
+    projectId: string | null,
+    componentId: string,
+    options?: coreHttp.OperationOptions
+  ): Promise<TeamCloudClearProjectComponentResponse> {
+    const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
+      options || {}
+    );
+    return this.sendOperationRequest(
+      { organizationId, projectId, componentId, options: operationOptions },
+      clearProjectComponentOperationSpec
+    ) as Promise<TeamCloudClearProjectComponentResponse>;
+  }
+
+  /**
    * Gets all Project Component Templates.
-   * @param org
+   * @param organizationId
    * @param projectId
    * @param options The options parameters.
    */
   getProjectComponentTemplates(
-    org: string,
+    organizationId: string,
     projectId: string | null,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudGetProjectComponentTemplatesResponse> {
@@ -564,7 +612,7 @@ export class TeamCloud extends TeamCloudContext {
       options || {}
     );
     return this.sendOperationRequest(
-      { org, projectId, options: operationOptions },
+      { organizationId, projectId, options: operationOptions },
       getProjectComponentTemplatesOperationSpec
     ) as Promise<TeamCloudGetProjectComponentTemplatesResponse>;
   }
@@ -572,13 +620,13 @@ export class TeamCloud extends TeamCloudContext {
   /**
    * Gets the Component Template.
    * @param id
-   * @param org
+   * @param organizationId
    * @param projectId
    * @param options The options parameters.
    */
   getProjectComponentTemplate(
     id: string | null,
-    org: string,
+    organizationId: string,
     projectId: string | null,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudGetProjectComponentTemplateResponse> {
@@ -586,20 +634,20 @@ export class TeamCloud extends TeamCloudContext {
       options || {}
     );
     return this.sendOperationRequest(
-      { id, org, projectId, options: operationOptions },
+      { id, organizationId, projectId, options: operationOptions },
       getProjectComponentTemplateOperationSpec
     ) as Promise<TeamCloudGetProjectComponentTemplateResponse>;
   }
 
   /**
    * Gets all Project Component Deployments.
-   * @param org
+   * @param organizationId
    * @param projectId
    * @param componentId
    * @param options The options parameters.
    */
   getProjectDeployments(
-    org: string,
+    organizationId: string,
     projectId: string | null,
     componentId: string,
     options?: coreHttp.OperationOptions
@@ -608,7 +656,7 @@ export class TeamCloud extends TeamCloudContext {
       options || {}
     );
     return this.sendOperationRequest(
-      { org, projectId, componentId, options: operationOptions },
+      { organizationId, projectId, componentId, options: operationOptions },
       getProjectDeploymentsOperationSpec
     ) as Promise<TeamCloudGetProjectDeploymentsResponse>;
   }
@@ -616,14 +664,14 @@ export class TeamCloud extends TeamCloudContext {
   /**
    * Gets the Component Template.
    * @param id
-   * @param org
+   * @param organizationId
    * @param projectId
    * @param componentId
    * @param options The options parameters.
    */
   getProjectDeployment(
     id: string | null,
-    org: string,
+    organizationId: string,
     projectId: string | null,
     componentId: string,
     options?: coreHttp.OperationOptions
@@ -632,19 +680,19 @@ export class TeamCloud extends TeamCloudContext {
       options || {}
     );
     return this.sendOperationRequest(
-      { id, org, projectId, componentId, options: operationOptions },
+      { id, organizationId, projectId, componentId, options: operationOptions },
       getProjectDeploymentOperationSpec
     ) as Promise<TeamCloudGetProjectDeploymentResponse>;
   }
 
   /**
    * Gets all Tags for a Project.
-   * @param org
+   * @param organizationId
    * @param projectId
    * @param options The options parameters.
    */
   getProjectTags(
-    org: string,
+    organizationId: string,
     projectId: string | null,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudGetProjectTagsResponse> {
@@ -652,19 +700,19 @@ export class TeamCloud extends TeamCloudContext {
       options || {}
     );
     return this.sendOperationRequest(
-      { org, projectId, options: operationOptions },
+      { organizationId, projectId, options: operationOptions },
       getProjectTagsOperationSpec
     ) as Promise<TeamCloudGetProjectTagsResponse>;
   }
 
   /**
    * Creates a new Project Tag.
-   * @param org
+   * @param organizationId
    * @param projectId
    * @param options The options parameters.
    */
   createProjectTag(
-    org: string,
+    organizationId: string,
     projectId: string | null,
     options?: TeamCloudCreateProjectTagOptionalParams
   ): Promise<TeamCloudCreateProjectTagResponse> {
@@ -672,19 +720,19 @@ export class TeamCloud extends TeamCloudContext {
       options || {}
     );
     return this.sendOperationRequest(
-      { org, projectId, options: operationOptions },
+      { organizationId, projectId, options: operationOptions },
       createProjectTagOperationSpec
     ) as Promise<TeamCloudCreateProjectTagResponse>;
   }
 
   /**
    * Updates an existing Project Tag.
-   * @param org
+   * @param organizationId
    * @param projectId
    * @param options The options parameters.
    */
   updateProjectTag(
-    org: string,
+    organizationId: string,
     projectId: string | null,
     options?: TeamCloudUpdateProjectTagOptionalParams
   ): Promise<TeamCloudUpdateProjectTagResponse> {
@@ -692,7 +740,7 @@ export class TeamCloud extends TeamCloudContext {
       options || {}
     );
     return this.sendOperationRequest(
-      { org, projectId, options: operationOptions },
+      { organizationId, projectId, options: operationOptions },
       updateProjectTagOperationSpec
     ) as Promise<TeamCloudUpdateProjectTagResponse>;
   }
@@ -700,13 +748,13 @@ export class TeamCloud extends TeamCloudContext {
   /**
    * Gets a Project Tag by Key.
    * @param tagKey
-   * @param org
+   * @param organizationId
    * @param projectId
    * @param options The options parameters.
    */
   getProjectTagByKey(
     tagKey: string | null,
-    org: string,
+    organizationId: string,
     projectId: string | null,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudGetProjectTagByKeyResponse> {
@@ -714,7 +762,7 @@ export class TeamCloud extends TeamCloudContext {
       options || {}
     );
     return this.sendOperationRequest(
-      { tagKey, org, projectId, options: operationOptions },
+      { tagKey, organizationId, projectId, options: operationOptions },
       getProjectTagByKeyOperationSpec
     ) as Promise<TeamCloudGetProjectTagByKeyResponse>;
   }
@@ -722,13 +770,13 @@ export class TeamCloud extends TeamCloudContext {
   /**
    * Deletes an existing Project Tag.
    * @param tagKey
-   * @param org
+   * @param organizationId
    * @param projectId
    * @param options The options parameters.
    */
   deleteProjectTag(
     tagKey: string | null,
-    org: string,
+    organizationId: string,
     projectId: string | null,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudDeleteProjectTagResponse> {
@@ -736,43 +784,43 @@ export class TeamCloud extends TeamCloudContext {
       options || {}
     );
     return this.sendOperationRequest(
-      { tagKey, org, projectId, options: operationOptions },
+      { tagKey, organizationId, projectId, options: operationOptions },
       deleteProjectTagOperationSpec
     ) as Promise<TeamCloudDeleteProjectTagResponse>;
   }
 
   /**
    * Gets all Project Templates.
-   * @param org
+   * @param organizationId
    * @param options The options parameters.
    */
   getProjectTemplates(
-    org: string,
+    organizationId: string,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudGetProjectTemplatesResponse> {
     const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
       options || {}
     );
     return this.sendOperationRequest(
-      { org, options: operationOptions },
+      { organizationId, options: operationOptions },
       getProjectTemplatesOperationSpec
     ) as Promise<TeamCloudGetProjectTemplatesResponse>;
   }
 
   /**
    * Creates a new Project Template.
-   * @param org
+   * @param organizationId
    * @param options The options parameters.
    */
   createProjectTemplate(
-    org: string,
+    organizationId: string,
     options?: TeamCloudCreateProjectTemplateOptionalParams
   ): Promise<TeamCloudCreateProjectTemplateResponse> {
     const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
       options || {}
     );
     return this.sendOperationRequest(
-      { org, options: operationOptions },
+      { organizationId, options: operationOptions },
       createProjectTemplateOperationSpec
     ) as Promise<TeamCloudCreateProjectTemplateResponse>;
   }
@@ -780,19 +828,19 @@ export class TeamCloud extends TeamCloudContext {
   /**
    * Gets a Project Template.
    * @param projectTemplateId
-   * @param org
+   * @param organizationId
    * @param options The options parameters.
    */
   getProjectTemplate(
     projectTemplateId: string | null,
-    org: string,
+    organizationId: string,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudGetProjectTemplateResponse> {
     const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
       options || {}
     );
     return this.sendOperationRequest(
-      { projectTemplateId, org, options: operationOptions },
+      { projectTemplateId, organizationId, options: operationOptions },
       getProjectTemplateOperationSpec
     ) as Promise<TeamCloudGetProjectTemplateResponse>;
   }
@@ -800,19 +848,19 @@ export class TeamCloud extends TeamCloudContext {
   /**
    * Updates an existing Project Template.
    * @param projectTemplateId
-   * @param org
+   * @param organizationId
    * @param options The options parameters.
    */
   updateProjectTemplate(
     projectTemplateId: string | null,
-    org: string,
+    organizationId: string,
     options?: TeamCloudUpdateProjectTemplateOptionalParams
   ): Promise<TeamCloudUpdateProjectTemplateResponse> {
     const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
       options || {}
     );
     return this.sendOperationRequest(
-      { projectTemplateId, org, options: operationOptions },
+      { projectTemplateId, organizationId, options: operationOptions },
       updateProjectTemplateOperationSpec
     ) as Promise<TeamCloudUpdateProjectTemplateResponse>;
   }
@@ -820,31 +868,31 @@ export class TeamCloud extends TeamCloudContext {
   /**
    * Deletes a Project Template.
    * @param projectTemplateId
-   * @param org
+   * @param organizationId
    * @param options The options parameters.
    */
   deleteProjectTemplate(
     projectTemplateId: string | null,
-    org: string,
+    organizationId: string,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudDeleteProjectTemplateResponse> {
     const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
       options || {}
     );
     return this.sendOperationRequest(
-      { projectTemplateId, org, options: operationOptions },
+      { projectTemplateId, organizationId, options: operationOptions },
       deleteProjectTemplateOperationSpec
     ) as Promise<TeamCloudDeleteProjectTemplateResponse>;
   }
 
   /**
    * Gets all Users for a Project.
-   * @param org
+   * @param organizationId
    * @param projectId
    * @param options The options parameters.
    */
   getProjectUsers(
-    org: string,
+    organizationId: string,
     projectId: string | null,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudGetProjectUsersResponse> {
@@ -852,19 +900,19 @@ export class TeamCloud extends TeamCloudContext {
       options || {}
     );
     return this.sendOperationRequest(
-      { org, projectId, options: operationOptions },
+      { organizationId, projectId, options: operationOptions },
       getProjectUsersOperationSpec
     ) as Promise<TeamCloudGetProjectUsersResponse>;
   }
 
   /**
    * Creates a new Project User
-   * @param org
+   * @param organizationId
    * @param projectId
    * @param options The options parameters.
    */
   createProjectUser(
-    org: string,
+    organizationId: string,
     projectId: string | null,
     options?: TeamCloudCreateProjectUserOptionalParams
   ): Promise<TeamCloudCreateProjectUserResponse> {
@@ -872,7 +920,7 @@ export class TeamCloud extends TeamCloudContext {
       options || {}
     );
     return this.sendOperationRequest(
-      { org, projectId, options: operationOptions },
+      { organizationId, projectId, options: operationOptions },
       createProjectUserOperationSpec
     ) as Promise<TeamCloudCreateProjectUserResponse>;
   }
@@ -880,13 +928,13 @@ export class TeamCloud extends TeamCloudContext {
   /**
    * Gets a Project User by ID or email address.
    * @param userId
-   * @param org
+   * @param organizationId
    * @param projectId
    * @param options The options parameters.
    */
   getProjectUser(
     userId: string | null,
-    org: string,
+    organizationId: string,
     projectId: string | null,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudGetProjectUserResponse> {
@@ -894,7 +942,7 @@ export class TeamCloud extends TeamCloudContext {
       options || {}
     );
     return this.sendOperationRequest(
-      { userId, org, projectId, options: operationOptions },
+      { userId, organizationId, projectId, options: operationOptions },
       getProjectUserOperationSpec
     ) as Promise<TeamCloudGetProjectUserResponse>;
   }
@@ -902,13 +950,13 @@ export class TeamCloud extends TeamCloudContext {
   /**
    * Updates an existing Project User.
    * @param userId
-   * @param org
+   * @param organizationId
    * @param projectId
    * @param options The options parameters.
    */
   updateProjectUser(
     userId: string | null,
-    org: string,
+    organizationId: string,
     projectId: string | null,
     options?: TeamCloudUpdateProjectUserOptionalParams
   ): Promise<TeamCloudUpdateProjectUserResponse> {
@@ -916,7 +964,7 @@ export class TeamCloud extends TeamCloudContext {
       options || {}
     );
     return this.sendOperationRequest(
-      { userId, org, projectId, options: operationOptions },
+      { userId, organizationId, projectId, options: operationOptions },
       updateProjectUserOperationSpec
     ) as Promise<TeamCloudUpdateProjectUserResponse>;
   }
@@ -924,13 +972,13 @@ export class TeamCloud extends TeamCloudContext {
   /**
    * Deletes an existing Project User.
    * @param userId
-   * @param org
+   * @param organizationId
    * @param projectId
    * @param options The options parameters.
    */
   deleteProjectUser(
     userId: string | null,
-    org: string,
+    organizationId: string,
     projectId: string | null,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudDeleteProjectUserResponse> {
@@ -938,19 +986,19 @@ export class TeamCloud extends TeamCloudContext {
       options || {}
     );
     return this.sendOperationRequest(
-      { userId, org, projectId, options: operationOptions },
+      { userId, organizationId, projectId, options: operationOptions },
       deleteProjectUserOperationSpec
     ) as Promise<TeamCloudDeleteProjectUserResponse>;
   }
 
   /**
    * Gets a Project User for the calling user.
-   * @param org
+   * @param organizationId
    * @param projectId
    * @param options The options parameters.
    */
   getProjectUserMe(
-    org: string,
+    organizationId: string,
     projectId: string | null,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudGetProjectUserMeResponse> {
@@ -958,19 +1006,19 @@ export class TeamCloud extends TeamCloudContext {
       options || {}
     );
     return this.sendOperationRequest(
-      { org, projectId, options: operationOptions },
+      { organizationId, projectId, options: operationOptions },
       getProjectUserMeOperationSpec
     ) as Promise<TeamCloudGetProjectUserMeResponse>;
   }
 
   /**
    * Updates an existing Project User.
-   * @param org
+   * @param organizationId
    * @param projectId
    * @param options The options parameters.
    */
   updateProjectUserMe(
-    org: string,
+    organizationId: string,
     projectId: string | null,
     options?: TeamCloudUpdateProjectUserMeOptionalParams
   ): Promise<TeamCloudUpdateProjectUserMeResponse> {
@@ -978,7 +1026,7 @@ export class TeamCloud extends TeamCloudContext {
       options || {}
     );
     return this.sendOperationRequest(
-      { org, projectId, options: operationOptions },
+      { organizationId, projectId, options: operationOptions },
       updateProjectUserMeOperationSpec
     ) as Promise<TeamCloudUpdateProjectUserMeResponse>;
   }
@@ -986,19 +1034,19 @@ export class TeamCloud extends TeamCloudContext {
   /**
    * Gets the status of a long-running operation.
    * @param trackingId
-   * @param org
+   * @param organizationId
    * @param options The options parameters.
    */
   getStatus(
     trackingId: string,
-    org: string,
+    organizationId: string,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudGetStatusResponse> {
     const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
       options || {}
     );
     return this.sendOperationRequest(
-      { trackingId, org, options: operationOptions },
+      { trackingId, organizationId, options: operationOptions },
       getStatusOperationSpec
     ) as Promise<TeamCloudGetStatusResponse>;
   }
@@ -1007,32 +1055,32 @@ export class TeamCloud extends TeamCloudContext {
    * Gets the status of a long-running operation.
    * @param projectId
    * @param trackingId
-   * @param org
+   * @param organizationId
    * @param options The options parameters.
    */
   getProjectStatus(
     projectId: string | null,
     trackingId: string,
-    org: string,
+    organizationId: string,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudGetProjectStatusResponse> {
     const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
       options || {}
     );
     return this.sendOperationRequest(
-      { projectId, trackingId, org, options: operationOptions },
+      { projectId, trackingId, organizationId, options: operationOptions },
       getProjectStatusOperationSpec
     ) as Promise<TeamCloudGetProjectStatusResponse>;
   }
 
   /**
    * Gets all Projects for a User.
-   * @param org
+   * @param organizationId
    * @param userId
    * @param options The options parameters.
    */
   getUserProjects(
-    org: string,
+    organizationId: string,
     userId: string | null,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudGetUserProjectsResponse> {
@@ -1040,25 +1088,25 @@ export class TeamCloud extends TeamCloudContext {
       options || {}
     );
     return this.sendOperationRequest(
-      { org, userId, options: operationOptions },
+      { organizationId, userId, options: operationOptions },
       getUserProjectsOperationSpec
     ) as Promise<TeamCloudGetUserProjectsResponse>;
   }
 
   /**
    * Gets all Projects for a User.
-   * @param org
+   * @param organizationId
    * @param options The options parameters.
    */
   getUserProjectsMe(
-    org: string,
+    organizationId: string,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudGetUserProjectsMeResponse> {
     const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
       options || {}
     );
     return this.sendOperationRequest(
-      { org, options: operationOptions },
+      { organizationId, options: operationOptions },
       getUserProjectsMeOperationSpec
     ) as Promise<TeamCloudGetUserProjectsMeResponse>;
   }
@@ -1068,7 +1116,7 @@ export class TeamCloud extends TeamCloudContext {
 const serializer = new coreHttp.Serializer(Mappers, /* isXml */ false);
 
 const getDeploymentScopesOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{org}/scopes",
+  path: "/orgs/{organizationId}/scopes",
   httpMethod: "GET",
   responses: {
     200: {
@@ -1080,12 +1128,12 @@ const getDeploymentScopesOperationSpec: coreHttp.OperationSpec = {
     401: {},
     403: {}
   },
-  urlParameters: [Parameters.$host, Parameters.org],
+  urlParameters: [Parameters.$host, Parameters.organizationId],
   headerParameters: [Parameters.accept],
   serializer
 };
 const createDeploymentScopeOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{org}/scopes",
+  path: "/orgs/{organizationId}/scopes",
   httpMethod: "POST",
   responses: {
     201: {
@@ -1101,13 +1149,13 @@ const createDeploymentScopeOperationSpec: coreHttp.OperationSpec = {
     }
   },
   requestBody: Parameters.body,
-  urlParameters: [Parameters.$host, Parameters.org],
+  urlParameters: [Parameters.$host, Parameters.organizationId],
   headerParameters: [Parameters.accept, Parameters.contentType],
   mediaType: "json",
   serializer
 };
 const getDeploymentScopeOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{org}/scopes/{id}",
+  path: "/orgs/{organizationId}/scopes/{id}",
   httpMethod: "GET",
   responses: {
     200: {
@@ -1122,12 +1170,12 @@ const getDeploymentScopeOperationSpec: coreHttp.OperationSpec = {
       bodyMapper: Mappers.ErrorResult
     }
   },
-  urlParameters: [Parameters.$host, Parameters.org, Parameters.id],
+  urlParameters: [Parameters.$host, Parameters.organizationId, Parameters.id],
   headerParameters: [Parameters.accept],
   serializer
 };
 const updateDeploymentScopeOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{org}/scopes/{id}",
+  path: "/orgs/{organizationId}/scopes/{id}",
   httpMethod: "PUT",
   responses: {
     200: {
@@ -1143,13 +1191,13 @@ const updateDeploymentScopeOperationSpec: coreHttp.OperationSpec = {
     }
   },
   requestBody: Parameters.body1,
-  urlParameters: [Parameters.$host, Parameters.org, Parameters.id],
+  urlParameters: [Parameters.$host, Parameters.organizationId, Parameters.id],
   headerParameters: [Parameters.accept, Parameters.contentType],
   mediaType: "json",
   serializer
 };
 const deleteDeploymentScopeOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{org}/scopes/{id}",
+  path: "/orgs/{organizationId}/scopes/{id}",
   httpMethod: "DELETE",
   responses: {
     204: {
@@ -1164,7 +1212,7 @@ const deleteDeploymentScopeOperationSpec: coreHttp.OperationSpec = {
       bodyMapper: Mappers.ErrorResult
     }
   },
-  urlParameters: [Parameters.$host, Parameters.org, Parameters.id],
+  urlParameters: [Parameters.$host, Parameters.organizationId, Parameters.id],
   headerParameters: [Parameters.accept],
   serializer
 };
@@ -1214,7 +1262,7 @@ const createOrganizationOperationSpec: coreHttp.OperationSpec = {
   serializer
 };
 const getOrganizationOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{org}",
+  path: "/orgs/{organizationId}",
   httpMethod: "GET",
   responses: {
     200: {
@@ -1229,12 +1277,12 @@ const getOrganizationOperationSpec: coreHttp.OperationSpec = {
       bodyMapper: Mappers.ErrorResult
     }
   },
-  urlParameters: [Parameters.$host, Parameters.org],
+  urlParameters: [Parameters.$host, Parameters.organizationId, Parameters.org],
   headerParameters: [Parameters.accept],
   serializer
 };
 const deleteOrganizationOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{org}",
+  path: "/orgs/{organizationId}",
   httpMethod: "DELETE",
   responses: {
     202: {
@@ -1246,12 +1294,12 @@ const deleteOrganizationOperationSpec: coreHttp.OperationSpec = {
       bodyMapper: Mappers.ErrorResult
     }
   },
-  urlParameters: [Parameters.$host, Parameters.org],
+  urlParameters: [Parameters.$host, Parameters.organizationId],
   headerParameters: [Parameters.accept],
   serializer
 };
 const getOrganizationUsersOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{org}/users",
+  path: "/orgs/{organizationId}/users",
   httpMethod: "GET",
   responses: {
     200: {
@@ -1266,12 +1314,12 @@ const getOrganizationUsersOperationSpec: coreHttp.OperationSpec = {
       bodyMapper: Mappers.ErrorResult
     }
   },
-  urlParameters: [Parameters.$host, Parameters.org],
+  urlParameters: [Parameters.$host, Parameters.organizationId],
   headerParameters: [Parameters.accept],
   serializer
 };
 const createOrganizationUserOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{org}/users",
+  path: "/orgs/{organizationId}/users",
   httpMethod: "POST",
   responses: {
     201: {
@@ -1290,13 +1338,13 @@ const createOrganizationUserOperationSpec: coreHttp.OperationSpec = {
     }
   },
   requestBody: Parameters.body3,
-  urlParameters: [Parameters.$host, Parameters.org],
+  urlParameters: [Parameters.$host, Parameters.organizationId],
   headerParameters: [Parameters.accept, Parameters.contentType],
   mediaType: "json",
   serializer
 };
 const getOrganizationUserOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{org}/users/{userId}",
+  path: "/orgs/{organizationId}/users/{userId}",
   httpMethod: "GET",
   responses: {
     200: {
@@ -1311,12 +1359,16 @@ const getOrganizationUserOperationSpec: coreHttp.OperationSpec = {
       bodyMapper: Mappers.ErrorResult
     }
   },
-  urlParameters: [Parameters.$host, Parameters.org, Parameters.userId],
+  urlParameters: [
+    Parameters.$host,
+    Parameters.organizationId,
+    Parameters.userId
+  ],
   headerParameters: [Parameters.accept],
   serializer
 };
 const updateOrganizationUserOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{org}/users/{userId}",
+  path: "/orgs/{organizationId}/users/{userId}",
   httpMethod: "PUT",
   responses: {
     202: {
@@ -1332,13 +1384,17 @@ const updateOrganizationUserOperationSpec: coreHttp.OperationSpec = {
     }
   },
   requestBody: Parameters.body4,
-  urlParameters: [Parameters.$host, Parameters.org, Parameters.userId],
+  urlParameters: [
+    Parameters.$host,
+    Parameters.organizationId,
+    Parameters.userId
+  ],
   headerParameters: [Parameters.accept, Parameters.contentType],
   mediaType: "json",
   serializer
 };
 const deleteOrganizationUserOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{org}/users/{userId}",
+  path: "/orgs/{organizationId}/users/{userId}",
   httpMethod: "DELETE",
   responses: {
     202: {
@@ -1350,12 +1406,16 @@ const deleteOrganizationUserOperationSpec: coreHttp.OperationSpec = {
       bodyMapper: Mappers.ErrorResult
     }
   },
-  urlParameters: [Parameters.$host, Parameters.org, Parameters.userId],
+  urlParameters: [
+    Parameters.$host,
+    Parameters.organizationId,
+    Parameters.userId
+  ],
   headerParameters: [Parameters.accept],
   serializer
 };
 const getOrganizationUserMeOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{org}/me",
+  path: "/orgs/{organizationId}/me",
   httpMethod: "GET",
   responses: {
     200: {
@@ -1370,12 +1430,12 @@ const getOrganizationUserMeOperationSpec: coreHttp.OperationSpec = {
       bodyMapper: Mappers.ErrorResult
     }
   },
-  urlParameters: [Parameters.$host, Parameters.org],
+  urlParameters: [Parameters.$host, Parameters.organizationId],
   headerParameters: [Parameters.accept],
   serializer
 };
 const updateOrganizationUserMeOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{org}/me",
+  path: "/orgs/{organizationId}/me",
   httpMethod: "PUT",
   responses: {
     202: {
@@ -1391,13 +1451,13 @@ const updateOrganizationUserMeOperationSpec: coreHttp.OperationSpec = {
     }
   },
   requestBody: Parameters.body4,
-  urlParameters: [Parameters.$host, Parameters.org],
+  urlParameters: [Parameters.$host, Parameters.organizationId],
   headerParameters: [Parameters.accept, Parameters.contentType],
   mediaType: "json",
   serializer
 };
 const getProjectsOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{org}/projects",
+  path: "/orgs/{organizationId}/projects",
   httpMethod: "GET",
   responses: {
     200: {
@@ -1409,12 +1469,12 @@ const getProjectsOperationSpec: coreHttp.OperationSpec = {
     401: {},
     403: {}
   },
-  urlParameters: [Parameters.$host, Parameters.org],
+  urlParameters: [Parameters.$host, Parameters.organizationId],
   headerParameters: [Parameters.accept],
   serializer
 };
 const createProjectOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{org}/projects",
+  path: "/orgs/{organizationId}/projects",
   httpMethod: "POST",
   responses: {
     201: {
@@ -1433,13 +1493,13 @@ const createProjectOperationSpec: coreHttp.OperationSpec = {
     }
   },
   requestBody: Parameters.body5,
-  urlParameters: [Parameters.$host, Parameters.org],
+  urlParameters: [Parameters.$host, Parameters.organizationId],
   headerParameters: [Parameters.accept, Parameters.contentType],
   mediaType: "json",
   serializer
 };
 const getProjectOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{org}/projects/{projectId}",
+  path: "/orgs/{organizationId}/projects/{projectId}",
   httpMethod: "GET",
   responses: {
     200: {
@@ -1454,12 +1514,16 @@ const getProjectOperationSpec: coreHttp.OperationSpec = {
       bodyMapper: Mappers.ErrorResult
     }
   },
-  urlParameters: [Parameters.$host, Parameters.org, Parameters.projectId],
+  urlParameters: [
+    Parameters.$host,
+    Parameters.organizationId,
+    Parameters.projectId
+  ],
   headerParameters: [Parameters.accept],
   serializer
 };
 const deleteProjectOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{org}/projects/{projectId}",
+  path: "/orgs/{organizationId}/projects/{projectId}",
   httpMethod: "DELETE",
   responses: {
     202: {
@@ -1474,12 +1538,16 @@ const deleteProjectOperationSpec: coreHttp.OperationSpec = {
       bodyMapper: Mappers.ErrorResult
     }
   },
-  urlParameters: [Parameters.$host, Parameters.org, Parameters.projectId],
+  urlParameters: [
+    Parameters.$host,
+    Parameters.organizationId,
+    Parameters.projectId
+  ],
   headerParameters: [Parameters.accept],
   serializer
 };
 const getProjectComponentsOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{org}/projects/{projectId}/components",
+  path: "/orgs/{organizationId}/projects/{projectId}/components",
   httpMethod: "GET",
   responses: {
     200: {
@@ -1494,12 +1562,16 @@ const getProjectComponentsOperationSpec: coreHttp.OperationSpec = {
       bodyMapper: Mappers.ErrorResult
     }
   },
-  urlParameters: [Parameters.$host, Parameters.org, Parameters.projectId],
+  urlParameters: [
+    Parameters.$host,
+    Parameters.organizationId,
+    Parameters.projectId
+  ],
   headerParameters: [Parameters.accept],
   serializer
 };
 const createProjectComponentOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{org}/projects/{projectId}/components",
+  path: "/orgs/{organizationId}/projects/{projectId}/components",
   httpMethod: "POST",
   responses: {
     201: {
@@ -1521,13 +1593,17 @@ const createProjectComponentOperationSpec: coreHttp.OperationSpec = {
     }
   },
   requestBody: Parameters.body6,
-  urlParameters: [Parameters.$host, Parameters.org, Parameters.projectId],
+  urlParameters: [
+    Parameters.$host,
+    Parameters.organizationId,
+    Parameters.projectId
+  ],
   headerParameters: [Parameters.accept, Parameters.contentType],
   mediaType: "json",
   serializer
 };
 const getProjectComponentOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{org}/projects/{projectId}/components/{id}",
+  path: "/orgs/{organizationId}/projects/{projectId}/components/{id}",
   httpMethod: "GET",
   responses: {
     200: {
@@ -1544,7 +1620,7 @@ const getProjectComponentOperationSpec: coreHttp.OperationSpec = {
   },
   urlParameters: [
     Parameters.$host,
-    Parameters.org,
+    Parameters.organizationId,
     Parameters.id,
     Parameters.projectId
   ],
@@ -1552,7 +1628,7 @@ const getProjectComponentOperationSpec: coreHttp.OperationSpec = {
   serializer
 };
 const deleteProjectComponentOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{org}/projects/{projectId}/components/{id}",
+  path: "/orgs/{organizationId}/projects/{projectId}/components/{id}",
   httpMethod: "DELETE",
   responses: {
     202: {
@@ -1572,15 +1648,61 @@ const deleteProjectComponentOperationSpec: coreHttp.OperationSpec = {
   },
   urlParameters: [
     Parameters.$host,
-    Parameters.org,
+    Parameters.organizationId,
     Parameters.id,
     Parameters.projectId
   ],
   headerParameters: [Parameters.accept],
   serializer
 };
+const resetProjectComponentOperationSpec: coreHttp.OperationSpec = {
+  path:
+    "/orgs/{organizationId}/projects/{projectId}/components/{componentId}/reset",
+  httpMethod: "POST",
+  responses: {
+    201: {
+      bodyMapper: Mappers.ComponentDataResult
+    },
+    401: {},
+    403: {},
+    404: {
+      bodyMapper: Mappers.ErrorResult
+    }
+  },
+  urlParameters: [
+    Parameters.$host,
+    Parameters.organizationId,
+    Parameters.projectId,
+    Parameters.componentId
+  ],
+  headerParameters: [Parameters.accept],
+  serializer
+};
+const clearProjectComponentOperationSpec: coreHttp.OperationSpec = {
+  path:
+    "/orgs/{organizationId}/projects/{projectId}/components/{componentId}/clear",
+  httpMethod: "POST",
+  responses: {
+    201: {
+      bodyMapper: Mappers.ComponentDataResult
+    },
+    401: {},
+    403: {},
+    404: {
+      bodyMapper: Mappers.ErrorResult
+    }
+  },
+  urlParameters: [
+    Parameters.$host,
+    Parameters.organizationId,
+    Parameters.projectId,
+    Parameters.componentId
+  ],
+  headerParameters: [Parameters.accept],
+  serializer
+};
 const getProjectComponentTemplatesOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{org}/projects/{projectId}/templates",
+  path: "/orgs/{organizationId}/projects/{projectId}/templates",
   httpMethod: "GET",
   responses: {
     200: {
@@ -1595,12 +1717,16 @@ const getProjectComponentTemplatesOperationSpec: coreHttp.OperationSpec = {
       bodyMapper: Mappers.ErrorResult
     }
   },
-  urlParameters: [Parameters.$host, Parameters.org, Parameters.projectId],
+  urlParameters: [
+    Parameters.$host,
+    Parameters.organizationId,
+    Parameters.projectId
+  ],
   headerParameters: [Parameters.accept],
   serializer
 };
 const getProjectComponentTemplateOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{org}/projects/{projectId}/templates/{id}",
+  path: "/orgs/{organizationId}/projects/{projectId}/templates/{id}",
   httpMethod: "GET",
   responses: {
     200: {
@@ -1617,7 +1743,7 @@ const getProjectComponentTemplateOperationSpec: coreHttp.OperationSpec = {
   },
   urlParameters: [
     Parameters.$host,
-    Parameters.org,
+    Parameters.organizationId,
     Parameters.id,
     Parameters.projectId
   ],
@@ -1625,7 +1751,8 @@ const getProjectComponentTemplateOperationSpec: coreHttp.OperationSpec = {
   serializer
 };
 const getProjectDeploymentsOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{org}/projects/{projectId}/components/{componentId}/deployments",
+  path:
+    "/orgs/{organizationId}/projects/{projectId}/components/{componentId}/deployments",
   httpMethod: "GET",
   responses: {
     200: {
@@ -1642,7 +1769,7 @@ const getProjectDeploymentsOperationSpec: coreHttp.OperationSpec = {
   },
   urlParameters: [
     Parameters.$host,
-    Parameters.org,
+    Parameters.organizationId,
     Parameters.projectId,
     Parameters.componentId
   ],
@@ -1651,7 +1778,7 @@ const getProjectDeploymentsOperationSpec: coreHttp.OperationSpec = {
 };
 const getProjectDeploymentOperationSpec: coreHttp.OperationSpec = {
   path:
-    "/orgs/{org}/projects/{projectId}/components/{componentId}/deployments/{id}",
+    "/orgs/{organizationId}/projects/{projectId}/components/{componentId}/deployments/{id}",
   httpMethod: "GET",
   responses: {
     200: {
@@ -1668,7 +1795,7 @@ const getProjectDeploymentOperationSpec: coreHttp.OperationSpec = {
   },
   urlParameters: [
     Parameters.$host,
-    Parameters.org,
+    Parameters.organizationId,
     Parameters.id,
     Parameters.projectId,
     Parameters.componentId
@@ -1677,7 +1804,7 @@ const getProjectDeploymentOperationSpec: coreHttp.OperationSpec = {
   serializer
 };
 const getProjectTagsOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{org}/projects/{projectId}/tags",
+  path: "/orgs/{organizationId}/projects/{projectId}/tags",
   httpMethod: "GET",
   responses: {
     200: {
@@ -1692,12 +1819,16 @@ const getProjectTagsOperationSpec: coreHttp.OperationSpec = {
       bodyMapper: Mappers.ErrorResult
     }
   },
-  urlParameters: [Parameters.$host, Parameters.org, Parameters.projectId],
+  urlParameters: [
+    Parameters.$host,
+    Parameters.organizationId,
+    Parameters.projectId
+  ],
   headerParameters: [Parameters.accept],
   serializer
 };
 const createProjectTagOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{org}/projects/{projectId}/tags",
+  path: "/orgs/{organizationId}/projects/{projectId}/tags",
   httpMethod: "POST",
   responses: {
     202: {
@@ -1716,13 +1847,17 @@ const createProjectTagOperationSpec: coreHttp.OperationSpec = {
     }
   },
   requestBody: Parameters.body7,
-  urlParameters: [Parameters.$host, Parameters.org, Parameters.projectId],
+  urlParameters: [
+    Parameters.$host,
+    Parameters.organizationId,
+    Parameters.projectId
+  ],
   headerParameters: [Parameters.accept, Parameters.contentType],
   mediaType: "json",
   serializer
 };
 const updateProjectTagOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{org}/projects/{projectId}/tags",
+  path: "/orgs/{organizationId}/projects/{projectId}/tags",
   httpMethod: "PUT",
   responses: {
     202: {
@@ -1738,13 +1873,17 @@ const updateProjectTagOperationSpec: coreHttp.OperationSpec = {
     }
   },
   requestBody: Parameters.body7,
-  urlParameters: [Parameters.$host, Parameters.org, Parameters.projectId],
+  urlParameters: [
+    Parameters.$host,
+    Parameters.organizationId,
+    Parameters.projectId
+  ],
   headerParameters: [Parameters.accept, Parameters.contentType],
   mediaType: "json",
   serializer
 };
 const getProjectTagByKeyOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{org}/projects/{projectId}/tags/{tagKey}",
+  path: "/orgs/{organizationId}/projects/{projectId}/tags/{tagKey}",
   httpMethod: "GET",
   responses: {
     200: {
@@ -1761,7 +1900,7 @@ const getProjectTagByKeyOperationSpec: coreHttp.OperationSpec = {
   },
   urlParameters: [
     Parameters.$host,
-    Parameters.org,
+    Parameters.organizationId,
     Parameters.projectId,
     Parameters.tagKey
   ],
@@ -1769,7 +1908,7 @@ const getProjectTagByKeyOperationSpec: coreHttp.OperationSpec = {
   serializer
 };
 const deleteProjectTagOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{org}/projects/{projectId}/tags/{tagKey}",
+  path: "/orgs/{organizationId}/projects/{projectId}/tags/{tagKey}",
   httpMethod: "DELETE",
   responses: {
     202: {
@@ -1786,7 +1925,7 @@ const deleteProjectTagOperationSpec: coreHttp.OperationSpec = {
   },
   urlParameters: [
     Parameters.$host,
-    Parameters.org,
+    Parameters.organizationId,
     Parameters.projectId,
     Parameters.tagKey
   ],
@@ -1794,7 +1933,7 @@ const deleteProjectTagOperationSpec: coreHttp.OperationSpec = {
   serializer
 };
 const getProjectTemplatesOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{org}/templates",
+  path: "/orgs/{organizationId}/templates",
   httpMethod: "GET",
   responses: {
     200: {
@@ -1806,12 +1945,12 @@ const getProjectTemplatesOperationSpec: coreHttp.OperationSpec = {
     401: {},
     403: {}
   },
-  urlParameters: [Parameters.$host, Parameters.org],
+  urlParameters: [Parameters.$host, Parameters.organizationId],
   headerParameters: [Parameters.accept],
   serializer
 };
 const createProjectTemplateOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{org}/templates",
+  path: "/orgs/{organizationId}/templates",
   httpMethod: "POST",
   responses: {
     201: {
@@ -1827,13 +1966,13 @@ const createProjectTemplateOperationSpec: coreHttp.OperationSpec = {
     }
   },
   requestBody: Parameters.body8,
-  urlParameters: [Parameters.$host, Parameters.org],
+  urlParameters: [Parameters.$host, Parameters.organizationId],
   headerParameters: [Parameters.accept, Parameters.contentType],
   mediaType: "json",
   serializer
 };
 const getProjectTemplateOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{org}/templates/{projectTemplateId}",
+  path: "/orgs/{organizationId}/templates/{projectTemplateId}",
   httpMethod: "GET",
   responses: {
     200: {
@@ -1850,14 +1989,14 @@ const getProjectTemplateOperationSpec: coreHttp.OperationSpec = {
   },
   urlParameters: [
     Parameters.$host,
-    Parameters.org,
+    Parameters.organizationId,
     Parameters.projectTemplateId
   ],
   headerParameters: [Parameters.accept],
   serializer
 };
 const updateProjectTemplateOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{org}/templates/{projectTemplateId}",
+  path: "/orgs/{organizationId}/templates/{projectTemplateId}",
   httpMethod: "PUT",
   responses: {
     200: {
@@ -1875,7 +2014,7 @@ const updateProjectTemplateOperationSpec: coreHttp.OperationSpec = {
   requestBody: Parameters.body9,
   urlParameters: [
     Parameters.$host,
-    Parameters.org,
+    Parameters.organizationId,
     Parameters.projectTemplateId
   ],
   headerParameters: [Parameters.accept, Parameters.contentType],
@@ -1883,7 +2022,7 @@ const updateProjectTemplateOperationSpec: coreHttp.OperationSpec = {
   serializer
 };
 const deleteProjectTemplateOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{org}/templates/{projectTemplateId}",
+  path: "/orgs/{organizationId}/templates/{projectTemplateId}",
   httpMethod: "DELETE",
   responses: {
     204: {
@@ -1900,14 +2039,14 @@ const deleteProjectTemplateOperationSpec: coreHttp.OperationSpec = {
   },
   urlParameters: [
     Parameters.$host,
-    Parameters.org,
+    Parameters.organizationId,
     Parameters.projectTemplateId
   ],
   headerParameters: [Parameters.accept],
   serializer
 };
 const getProjectUsersOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{org}/projects/{projectId}/users",
+  path: "/orgs/{organizationId}/projects/{projectId}/users",
   httpMethod: "GET",
   responses: {
     200: {
@@ -1922,12 +2061,16 @@ const getProjectUsersOperationSpec: coreHttp.OperationSpec = {
       bodyMapper: Mappers.ErrorResult
     }
   },
-  urlParameters: [Parameters.$host, Parameters.org, Parameters.projectId],
+  urlParameters: [
+    Parameters.$host,
+    Parameters.organizationId,
+    Parameters.projectId
+  ],
   headerParameters: [Parameters.accept],
   serializer
 };
 const createProjectUserOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{org}/projects/{projectId}/users",
+  path: "/orgs/{organizationId}/projects/{projectId}/users",
   httpMethod: "POST",
   responses: {
     201: {
@@ -1949,13 +2092,17 @@ const createProjectUserOperationSpec: coreHttp.OperationSpec = {
     }
   },
   requestBody: Parameters.body3,
-  urlParameters: [Parameters.$host, Parameters.org, Parameters.projectId],
+  urlParameters: [
+    Parameters.$host,
+    Parameters.organizationId,
+    Parameters.projectId
+  ],
   headerParameters: [Parameters.accept, Parameters.contentType],
   mediaType: "json",
   serializer
 };
 const getProjectUserOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{org}/projects/{projectId}/users/{userId}",
+  path: "/orgs/{organizationId}/projects/{projectId}/users/{userId}",
   httpMethod: "GET",
   responses: {
     200: {
@@ -1972,7 +2119,7 @@ const getProjectUserOperationSpec: coreHttp.OperationSpec = {
   },
   urlParameters: [
     Parameters.$host,
-    Parameters.org,
+    Parameters.organizationId,
     Parameters.userId,
     Parameters.projectId
   ],
@@ -1980,7 +2127,7 @@ const getProjectUserOperationSpec: coreHttp.OperationSpec = {
   serializer
 };
 const updateProjectUserOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{org}/projects/{projectId}/users/{userId}",
+  path: "/orgs/{organizationId}/projects/{projectId}/users/{userId}",
   httpMethod: "PUT",
   responses: {
     200: {
@@ -2001,7 +2148,7 @@ const updateProjectUserOperationSpec: coreHttp.OperationSpec = {
   requestBody: Parameters.body4,
   urlParameters: [
     Parameters.$host,
-    Parameters.org,
+    Parameters.organizationId,
     Parameters.userId,
     Parameters.projectId
   ],
@@ -2010,7 +2157,7 @@ const updateProjectUserOperationSpec: coreHttp.OperationSpec = {
   serializer
 };
 const deleteProjectUserOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{org}/projects/{projectId}/users/{userId}",
+  path: "/orgs/{organizationId}/projects/{projectId}/users/{userId}",
   httpMethod: "DELETE",
   responses: {
     202: {
@@ -2027,7 +2174,7 @@ const deleteProjectUserOperationSpec: coreHttp.OperationSpec = {
   },
   urlParameters: [
     Parameters.$host,
-    Parameters.org,
+    Parameters.organizationId,
     Parameters.userId,
     Parameters.projectId
   ],
@@ -2035,7 +2182,7 @@ const deleteProjectUserOperationSpec: coreHttp.OperationSpec = {
   serializer
 };
 const getProjectUserMeOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{org}/projects/{projectId}/users/me",
+  path: "/orgs/{organizationId}/projects/{projectId}/users/me",
   httpMethod: "GET",
   responses: {
     200: {
@@ -2050,12 +2197,16 @@ const getProjectUserMeOperationSpec: coreHttp.OperationSpec = {
       bodyMapper: Mappers.ErrorResult
     }
   },
-  urlParameters: [Parameters.$host, Parameters.org, Parameters.projectId],
+  urlParameters: [
+    Parameters.$host,
+    Parameters.organizationId,
+    Parameters.projectId
+  ],
   headerParameters: [Parameters.accept],
   serializer
 };
 const updateProjectUserMeOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{org}/projects/{projectId}/users/me",
+  path: "/orgs/{organizationId}/projects/{projectId}/users/me",
   httpMethod: "PUT",
   responses: {
     200: {
@@ -2074,39 +2225,17 @@ const updateProjectUserMeOperationSpec: coreHttp.OperationSpec = {
     }
   },
   requestBody: Parameters.body4,
-  urlParameters: [Parameters.$host, Parameters.org, Parameters.projectId],
+  urlParameters: [
+    Parameters.$host,
+    Parameters.organizationId,
+    Parameters.projectId
+  ],
   headerParameters: [Parameters.accept, Parameters.contentType],
   mediaType: "json",
   serializer
 };
 const getStatusOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{org}/status/{trackingId}",
-  httpMethod: "GET",
-  responses: {
-    200: {
-      bodyMapper: Mappers.StatusResult
-    },
-    202: {
-      bodyMapper: Mappers.StatusResult
-    },
-    302: {
-      bodyMapper: Mappers.StatusResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {},
-    404: {
-      bodyMapper: Mappers.ErrorResult
-    }
-  },
-  urlParameters: [Parameters.$host, Parameters.org, Parameters.trackingId],
-  headerParameters: [Parameters.accept],
-  serializer
-};
-const getProjectStatusOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{org}/projects/{projectId}/status/{trackingId}",
+  path: "/orgs/{organizationId}/status/{trackingId}",
   httpMethod: "GET",
   responses: {
     200: {
@@ -2129,7 +2258,37 @@ const getProjectStatusOperationSpec: coreHttp.OperationSpec = {
   },
   urlParameters: [
     Parameters.$host,
-    Parameters.org,
+    Parameters.organizationId,
+    Parameters.trackingId
+  ],
+  headerParameters: [Parameters.accept],
+  serializer
+};
+const getProjectStatusOperationSpec: coreHttp.OperationSpec = {
+  path: "/orgs/{organizationId}/projects/{projectId}/status/{trackingId}",
+  httpMethod: "GET",
+  responses: {
+    200: {
+      bodyMapper: Mappers.StatusResult
+    },
+    202: {
+      bodyMapper: Mappers.StatusResult
+    },
+    302: {
+      bodyMapper: Mappers.StatusResult
+    },
+    400: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    401: {},
+    403: {},
+    404: {
+      bodyMapper: Mappers.ErrorResult
+    }
+  },
+  urlParameters: [
+    Parameters.$host,
+    Parameters.organizationId,
     Parameters.projectId,
     Parameters.trackingId
   ],
@@ -2137,7 +2296,7 @@ const getProjectStatusOperationSpec: coreHttp.OperationSpec = {
   serializer
 };
 const getUserProjectsOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{org}/users/{userId}/projects",
+  path: "/orgs/{organizationId}/users/{userId}/projects",
   httpMethod: "GET",
   responses: {
     200: {
@@ -2152,12 +2311,16 @@ const getUserProjectsOperationSpec: coreHttp.OperationSpec = {
       bodyMapper: Mappers.ErrorResult
     }
   },
-  urlParameters: [Parameters.$host, Parameters.org, Parameters.userId],
+  urlParameters: [
+    Parameters.$host,
+    Parameters.organizationId,
+    Parameters.userId
+  ],
   headerParameters: [Parameters.accept],
   serializer
 };
 const getUserProjectsMeOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{org}/me/projects",
+  path: "/orgs/{organizationId}/me/projects",
   httpMethod: "GET",
   responses: {
     200: {
@@ -2172,7 +2335,7 @@ const getUserProjectsMeOperationSpec: coreHttp.OperationSpec = {
       bodyMapper: Mappers.ErrorResult
     }
   },
-  urlParameters: [Parameters.$host, Parameters.org],
+  urlParameters: [Parameters.$host, Parameters.organizationId],
   headerParameters: [Parameters.accept],
   serializer
 };

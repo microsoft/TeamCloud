@@ -23,7 +23,6 @@ export const DeploymentList: React.FunctionComponent<IDeploymentListProps> = (pr
     const [deployment, setDeployment] = useState<ComponentDeployment>();
     const [deployments, setDeployments] = useState<ComponentDeployment[]>();
     const [isPolling, setIsPolling] = useState(true);
-    // const [output, setOutput] = useState<string>(' ');
 
     useEffect(() => {
         if (componentDeployments && deployment === undefined) {
@@ -37,33 +36,18 @@ export const DeploymentList: React.FunctionComponent<IDeploymentListProps> = (pr
         if (componentDeployments) {
             console.log('+ setDeployments');
             setDeployments(deployment ? [deployment, ...componentDeployments.filter(d => d.id !== deployment.id)] : componentDeployments);
+
         }
     }, [deployment, componentDeployments]);
 
 
     useEffect(() => {
-        const poll = (
-            org !== undefined
-            && component !== undefined
-            && component.resourceState?.toLowerCase() !== 'succeeded'
-            && component.resourceState?.toLowerCase() !== 'failed'
-            && deployment !== undefined
-            && deployment.finished === undefined
-            && deployment.exitCode === undefined);
+        const poll = (deployments ?? []).some((d) => d.resourceState?.toLowerCase() !== 'succeeded' && d.resourceState?.toLowerCase() !== 'failed');
         if (isPolling !== poll) {
             console.log(`+ setPollDeployment (${poll})`);
             setIsPolling(poll);
         }
-    }, [org, deployment, component, isPolling])
-
-
-    // useEffect(() => {
-    //     if (deployment?.output) {
-    //         console.log('+ setOutput');
-    //         setOutput(deployment.output);
-    //     }
-    // }, [deployment])
-
+    }, [deployments, isPolling])
 
     useInterval(async () => {
 
@@ -78,6 +62,27 @@ export const DeploymentList: React.FunctionComponent<IDeploymentListProps> = (pr
             console.log('+ refreshComponent');
         }
 
+        if (org && deployments) {
+
+            let _deployments = await Promise.all(deployments
+                .map(async d => {
+                    if (d.finished === undefined && d.exitCode === undefined) {
+                        console.log(`- refreshDeployment (${d.id})`);
+                        const result = await api.getProjectDeployment(d.id, org.id, d.projectId, d.componentId);
+                        if (result.data) {
+                            d = result.data;
+                        } else {
+                            console.error(result);
+                        }
+                        console.log(`+ refreshDeployment (${d.id})`);
+                    }
+                    return d;
+                }));
+
+            setDeployments(_deployments);
+        }
+
+
         if (org && deployment && deployment.finished === undefined && deployment.exitCode === undefined) {
             console.log('- refreshDeployment');
             const result = await api.getProjectDeployment(deployment.id, org.id, deployment.projectId, deployment.componentId);
@@ -89,7 +94,7 @@ export const DeploymentList: React.FunctionComponent<IDeploymentListProps> = (pr
             console.log('+ refreshDeployment');
         }
 
-    }, isPolling ? 2000 : undefined);
+    }, isPolling ? 5000 : undefined);
 
     const [dots, setDots] = useState('');
 
@@ -97,20 +102,6 @@ export const DeploymentList: React.FunctionComponent<IDeploymentListProps> = (pr
         const d = dots.length < 3 ? `${dots}.` : '';
         setDots(d);
     }, isPolling ? 1000 : undefined);
-
-    // useEffect(() => {
-    //     if (deployment?.started) {
-    //         console.log(`toDateString ${deployment.started.toDateString()}`);
-    //         console.log(`toTimeString ${deployment.started.toTimeString()}`);
-    //         console.log(`toLocaleDateString ${deployment.started.toLocaleDateString()}`);
-    //         console.log(`toLocaleString ${deployment.started.toLocaleString()}`);
-    //         console.log(`toLocaleTimeString ${deployment.started.toLocaleTimeString()}`);
-    //         console.log(`toString ${deployment.started.toString()}`);
-    //         console.log(`toISOString ${deployment.started.toISOString()}`);
-    //         console.log(`toUTCString ${deployment.started.toUTCString()}`);
-    //     }
-    // }, [deployment]);
-
 
     const _getStateIcon = (deployment?: ComponentDeployment) => {
         if (deployment?.resourceState)
@@ -140,15 +131,7 @@ export const DeploymentList: React.FunctionComponent<IDeploymentListProps> = (pr
                     <FontIcon iconName={_getStateIcon(d)} className={`deployment-state-icon-${d.resourceState?.toLowerCase() ?? 'pending'}`} />
                 </Stack>
             )
-        },
-        // { key: 'projectId', name: 'ProjectId', minWidth: 200, fieldName: 'projectId' },
-        // { key: 'started', name: 'Started', minWidth: 200, fieldName: 'started' },
-        // { key: 'finished', name: 'Finished', minWidth: 200, fieldName: 'finished' },
-        // { key: 'output', name: 'Output', minWidth: 200, fieldName: 'output' },
-        // { key: 'resourceId', name: 'ResourceId', minWidth: 200, fieldName: 'resourceId' },
-        // { key: 'resourceState', name: 'ResourceState', minWidth: 100, fieldName: 'resourceState' },
-        // { key: 'exitCode', name: 'ExitCode', minWidth: 100, fieldName: 'exitCode' },
-        // { key: 'id', name: 'Id', minWidth: 200, fieldName: 'id' },
+        }
     ];
 
     const _onRenderRow: IRenderFunction<IDetailsRowProps> = (rowProps?: IDetailsRowProps, defaultRender?: (rowProps?: IDetailsRowProps) => JSX.Element | null): JSX.Element | null => {
@@ -162,8 +145,6 @@ export const DeploymentList: React.FunctionComponent<IDeploymentListProps> = (pr
     const _onItemInvoked = (item: ComponentDeployment): void => {
         console.log(item);
         setDeployment(item);
-        // onComponentSelected(item.component);
-        // history.push(`/orgs/${orgId}/projects/${project?.slug ?? projectId}/components/${item.component.slug}`);
     };
 
     const _getDeploymentName = (d?: ComponentDeployment) => d ? `Deployment: ${d.id}` : undefined;
@@ -173,7 +154,7 @@ export const DeploymentList: React.FunctionComponent<IDeploymentListProps> = (pr
             if (d.resourceState.toLowerCase() === 'succeeded' || d.resourceState.toLowerCase() === 'failed') {
                 return d.finished ? `${d.resourceState} ${d.finished.toLocaleString()}` : d.resourceState;
             } else {
-                return `${d.resourceState}${dots}`;
+                return `${d.resourceState} ${dots}`;
             }
         } else if (d?.started) {
             return `Started ${d.started.toLocaleString()}`;
@@ -195,13 +176,13 @@ export const DeploymentList: React.FunctionComponent<IDeploymentListProps> = (pr
                 }
             }}>
                 <DetailsList
-                    items={deployments ?? []}
+                    items={(deployments ?? []).sort((a, b) => (b.created?.valueOf() ?? 0) - (a.created?.valueOf() ?? 0))}
                     columns={columns}
                     isHeaderVisible={false}
                     onRenderRow={_onRenderRow}
                     layoutMode={DetailsListLayoutMode.fixedColumns}
                     checkboxVisibility={CheckboxVisibility.hidden}
-                    selectionMode={SelectionMode.none}
+                    selectionMode={SelectionMode.single}
                     onItemInvoked={_onItemInvoked}
                     styles={{ focusZone: { minWidth: '1px' }, root: { minWidth: '460px', boxShadow: theme.effects.elevation8 } }}
                 />

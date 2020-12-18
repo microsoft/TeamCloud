@@ -5,7 +5,7 @@
 
 using TeamCloud.Azure.Deployment.Templates;
 
-namespace TeamCloud.Orchestrator.Templates
+namespace TeamCloud.Orchestrator.Operations.Activities.Templates
 {
     public sealed class OrganizationDeployTemplate : EmbeddedDeploymentTemplate
     {

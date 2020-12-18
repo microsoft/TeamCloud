@@ -11,7 +11,7 @@ export const ProjectView: React.FC = () => {
 
     const [favorite, setFavorate] = useState(false);
 
-    const { project, members, components, component, templates, onAddUsers } = useContext(ProjectContext);
+    const { project, members, components, component, templates, onAddUsers, onResetComponent, onClearComponent } = useContext(ProjectContext);
 
     return (
         <Stack>
@@ -41,10 +41,10 @@ export const ProjectView: React.FC = () => {
                     <ContentHeader title={component?.displayName ?? undefined}>
                         <Stack horizontal tokens={{ childrenGap: '6px' }}>
                             <Stack.Item>
-                                <PrimaryButton text='Reset' />
+                                <PrimaryButton text='Reset' onClick={() => onResetComponent()} />
                             </Stack.Item>
                             <Stack.Item>
-                                <PrimaryButton text='Clear' />
+                                <PrimaryButton text='Clear' onClick={() => onClearComponent()} />
                             </Stack.Item>
                         </Stack>
                     </ContentHeader>

@@ -3,7 +3,6 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Microsoft.Azure.Management.Fluent;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Azure.Resources;
@@ -15,18 +14,18 @@ using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.Operations.Activities
 {
-    public sealed class ComponentDeploymentUpdateActivity
+    public sealed class ComponentDeploymentMonitorActivity
     {
         private readonly IComponentDeploymentRepository componentDeploymentRepository;
         private readonly IAzureResourceService azureResourceService;
 
-        public ComponentDeploymentUpdateActivity(IComponentDeploymentRepository componentDeploymentRepository, IAzureResourceService azureResourceService)
+        public ComponentDeploymentMonitorActivity(IComponentDeploymentRepository componentDeploymentRepository, IAzureResourceService azureResourceService)
         {
             this.componentDeploymentRepository = componentDeploymentRepository ?? throw new ArgumentNullException(nameof(componentDeploymentRepository));
             this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
         }
 
-        [FunctionName(nameof(ComponentDeploymentUpdateActivity))]
+        [FunctionName(nameof(ComponentDeploymentMonitorActivity))]
         [RetryOptions(3)]
         public async Task<ComponentDeployment> Run(
             [ActivityTrigger] IDurableActivityContext context)
@@ -37,34 +36,33 @@ namespace TeamCloud.Orchestrator.Operations.Activities
             try
             {
                 var componentDeployment = context.GetInput<Input>().ComponentDeployment;
-                var componentDeploymentUpdated = false;
 
-                if (AzureResourceIdentifier.TryParse(componentDeployment.ResourceId, out var resourceId))
+                if (AzureResourceIdentifier.TryParse(componentDeployment.ResourceId, out var resourceId)
+                    && await azureResourceService.ExistsResourceAsync(resourceId.ToString()).ConfigureAwait(false))
                 {
-                    IAzure session = null;
+                    var session = await azureResourceService.AzureSessionService
+                        .CreateSessionAsync(resourceId.SubscriptionId)
+                        .ConfigureAwait(false);
 
-                    if (await azureResourceService.ExistsResourceAsync(resourceId.ToString()).ConfigureAwait(false))
+                    var runner = await session.ContainerGroups
+                        .GetByIdAsync(resourceId.ToString())
+                        .ConfigureAwait(false);
+
+                    var container = runner.Containers
+                        .SingleOrDefault()
+                        .Value;
+
+                    if (container?.InstanceView != null)
                     {
-                        session ??= await azureResourceService.AzureSessionService
-                            .CreateSessionAsync(resourceId.SubscriptionId)
-                            .ConfigureAwait(false);
+                        var lines = container.InstanceView.Events
+                            .Where(e => e.LastTimestamp.HasValue)
+                            .OrderBy(e => e.LastTimestamp)
+                            .Select(e => $"{e.LastTimestamp}\t{e.Name}\t\t{e.Message}");
 
-                        var runner = await session.ContainerGroups
-                            .GetByIdAsync(resourceId.ToString())
-                            .ConfigureAwait(false);
+                        if (lines.Any())
+                            lines = lines.Append(string.Empty);
 
-                        // there must be only one runner container
-                        var container = runner.Containers.SingleOrDefault().Value;
-
-                        if (container is null)
-                        {
-                            componentDeployment.ResourceState = ResourceState.Initializing;
-
-                            return await componentDeploymentRepository
-                                .SetAsync(componentDeployment)
-                                .ConfigureAwait(false); ;
-                        }
-
+                        var containerEvents = string.Join(Environment.NewLine, lines);
                         var containerLog = default(string);
 
                         try
@@ -75,24 +73,32 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                         }
                         catch
                         {
-                            // swallow 
+                            containerLog = string.Empty;
                         }
 
                         if (string.IsNullOrEmpty(containerLog))
                         {
-                            componentDeployment.ResourceState = ResourceState.Provisioning;
-
-                            return await componentDeploymentRepository
-                                .SetAsync(componentDeployment)
-                                .ConfigureAwait(false); ;
+                            containerLog = containerEvents;
+                        }
+                        else if (!(componentDeployment.Output?.StartsWith(containerEvents, StringComparison.Ordinal) ?? false))
+                        {
+                            componentDeployment.Output = containerEvents;
                         }
 
                         componentDeployment.Output = MergeOutput(componentDeployment.Output, Regex.Replace(containerLog, @"(?<!\r)\n", Environment.NewLine, RegexOptions.Compiled));
-                        componentDeployment.ExitCode = container.InstanceView.CurrentState.ExitCode;
-                        componentDeployment.Started = container.InstanceView.CurrentState.StartTime;
-                        componentDeployment.Finished = container.InstanceView.CurrentState.FinishTime;
-                        componentDeploymentUpdated = true;
+
+                        if (container.InstanceView.CurrentState != null)
+                        {
+                            componentDeployment.ExitCode = container.InstanceView.CurrentState.ExitCode;
+                            componentDeployment.Started = container.InstanceView.CurrentState.StartTime;
+                            componentDeployment.Finished = container.InstanceView.CurrentState.FinishTime;
+                        }
+
                     }
+
+                    componentDeployment.ResourceState = container?.InstanceView is null
+                        ? ResourceState.Initializing
+                        : ResourceState.Provisioning;
 
                     if (componentDeployment.ExitCode.HasValue)
                     {
@@ -100,26 +106,12 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                             ? ResourceState.Succeeded   // ExitCode indicates successful provisioning
                             : ResourceState.Failed;     // ExitCode indicates failed provisioning
                     }
-                    else if (componentDeployment.Finished.HasValue)
-                    {
-                        // the container instance finished but didn't return an exit code
-                        // we assume something went wrong and set a failed resource state
-                        componentDeployment.ResourceState = ResourceState.Failed;
-                    }
-                    else if (componentDeploymentUpdated)
-                    {
-                        // the component deployment was update with the status information
-                        // provided by our runner - so we must be in a provisioning state
-                        componentDeployment.ResourceState = ResourceState.Provisioning;
-                    }
-                    else
-                    {
-                        // the component deployment wasn't updated - this usually indicates
-                        // that our runner was deleted by some other process or users
-                        componentDeployment.ResourceState = ResourceState.Failed;
-                    }
 
-                    if (componentDeployment.ResourceState != ResourceState.Provisioning)
+                    componentDeployment = await componentDeploymentRepository
+                        .SetAsync(componentDeployment)
+                        .ConfigureAwait(false);
+
+                    if (componentDeployment.ResourceState.IsFinal())
                     {
                         // we left the provisioning state - so its time to clean up
 
@@ -131,10 +123,6 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                             .DeleteByIdAsync(resourceId.ToString())
                             .ConfigureAwait(false);
                     }
-
-                    componentDeployment = await componentDeploymentRepository
-                        .SetAsync(componentDeployment)
-                        .ConfigureAwait(false);
                 }
 
                 return componentDeployment;

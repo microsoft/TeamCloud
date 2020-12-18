@@ -1479,6 +1479,18 @@ export var ComponentDeployment = {
                     name: "String"
                 }
             },
+            type: {
+                serializedName: "type",
+                type: {
+                    name: "Number"
+                }
+            },
+            created: {
+                serializedName: "created",
+                type: {
+                    name: "DateTime"
+                }
+            },
             started: {
                 serializedName: "started",
                 nullable: true,
