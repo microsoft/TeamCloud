@@ -14,6 +14,8 @@ namespace TeamCloud.Model.Data
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
     public sealed class ComponentDeployment : ContainerDocument, IEquatable<ComponentDeployment>, IValidatable, IResourceReference
     {
+        private string typeName;
+
         [PartitionKey]
         [JsonProperty(Required = Required.Always)]
         public string ComponentId { get; set; }
@@ -21,7 +23,13 @@ namespace TeamCloud.Model.Data
         [JsonProperty(Required = Required.Always)]
         public string ProjectId { get; set; }
 
-        public ComponentDeploymentType Type { get; set; } = ComponentDeploymentType.Template;
+        public ComponentDeploymentType Type { get; set; } = ComponentDeploymentType.Create;
+
+        public string TypeName
+        {
+            get => Type == ComponentDeploymentType.Custom ? typeName : default;
+            set => typeName = value;
+        }
 
         public DateTime Created { get; set; } = DateTime.UtcNow;
 

@@ -65,7 +65,7 @@ namespace TeamCloud.Orchestrator.Operations.Activities
 
         private async Task<string> CreateResourceIdAsync(Component component, DeploymentScope deploymentScope, ILogger log)
         {
-            var resourceGroupName = $"TCE-{component.Slug}-{Guid.Parse(component.Id).GetHashCode()}";
+            var resourceGroupName = $"TCE-{component.Slug}-{Math.Abs(Guid.Parse(component.Id).GetHashCode())}";
             var resourceGroupId = default(string);
 
             var subscriptionIds = await GetSubscriptionIdsAsync(deploymentScope, log)

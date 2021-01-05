@@ -2,8 +2,10 @@
 {
     public enum ComponentDeploymentType
     {
-        Template,
+        Create,
 
-        Clear
+        Delete,
+
+        Custom
     }
 }

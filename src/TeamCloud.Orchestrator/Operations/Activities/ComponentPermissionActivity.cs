@@ -4,6 +4,7 @@
  */
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -12,6 +13,7 @@ using TeamCloud.Azure.Resources;
 using TeamCloud.Data;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
+using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.Operations.Activities
 {
@@ -20,12 +22,14 @@ namespace TeamCloud.Orchestrator.Operations.Activities
         private readonly IOrganizationRepository organizationRepository;
         private readonly IProjectRepository projectRepository;
         private readonly IDeploymentScopeRepository deploymentScopeRepository;
+        private readonly IUserRepository userRepository;
         private readonly IAzureResourceService azureResourceService;
 
-        public ComponentPermissionActivity(IOrganizationRepository organizationRepository, IProjectRepository projectRepository, IDeploymentScopeRepository deploymentScopeRepository, IAzureResourceService azureResourceService)
+        public ComponentPermissionActivity(IOrganizationRepository organizationRepository, IProjectRepository projectRepository, IUserRepository userRepository, IDeploymentScopeRepository deploymentScopeRepository, IAzureResourceService azureResourceService)
         {
             this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
             this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
+            this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             this.deploymentScopeRepository = deploymentScopeRepository ?? throw new ArgumentNullException(nameof(deploymentScopeRepository));
             this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
         }
@@ -44,55 +48,71 @@ namespace TeamCloud.Orchestrator.Operations.Activities
 
             var component = context.GetInput<Input>().Component;
 
+            try
+            {
+                var task = component.Type switch
+                {
+                    ComponentType.Environment => HandleEnvironmentAsync(component),
+                    _ => Task.CompletedTask
+                };
+
+                await task.ConfigureAwait(false);
+            }
+            catch (Exception exc)
+            {
+                throw exc.AsSerializable();
+            }
+
+            return component;
+        }
+
+        private async Task HandleEnvironmentAsync(Component component)
+        {
             if (AzureResourceIdentifier.TryParse(component.ResourceId, out var componentResourceId))
             {
-                var identityResourceId = AzureResourceIdentifier.Parse(component.IdentityId);
+                var roleDefinitionId = AzureRoleDefinition.Contributor;
 
-                var session = await azureResourceService.AzureSessionService
-                    .CreateSessionAsync(identityResourceId.SubscriptionId)
+                var roleAssignmentMap = await userRepository
+                    .ListAsync(component.Organization, component.ProjectId)
+                    .ToDictionaryAsync(user => user.Id, user => Enumerable.Repeat(roleDefinitionId, 1))
                     .ConfigureAwait(false);
 
-                var identity = await session.Identities
-                    .GetByIdAsync(identityResourceId.ToString())
-                    .ConfigureAwait(false);
+                if (AzureResourceIdentifier.TryParse(component.IdentityId, out var identityResourceId))
+                {
+                    var session = await azureResourceService.AzureSessionService
+                        .CreateSessionAsync(identityResourceId.SubscriptionId)
+                        .ConfigureAwait(false);
+
+                    var identity = await session.Identities
+                        .GetByIdAsync(identityResourceId.ToString())
+                        .ConfigureAwait(false);
+
+                    roleAssignmentMap
+                        .Add(identity.PrincipalId, Enumerable.Repeat(AzureRoleDefinition.Contributor, 1));
+                }
 
                 if (string.IsNullOrEmpty(componentResourceId.ResourceGroup))
                 {
                     var subscription = await azureResourceService
-                        .GetSubscriptionAsync(componentResourceId.SubscriptionId)
+                        .GetSubscriptionAsync(componentResourceId.SubscriptionId, throwIfNotExists: true)
                         .ConfigureAwait(false);
 
-                    var isContributor = await subscription
-                        .HasRoleAssignmentAsync(identity.PrincipalId, AzureRoleDefinition.Contributor)
+                    await subscription
+                        .SetRoleAssignmentsAsync(roleAssignmentMap)
                         .ConfigureAwait(false);
-
-                    if (!isContributor)
-                    {
-                        await subscription
-                            .AddRoleAssignmentAsync(identity.PrincipalId, AzureRoleDefinition.Contributor)
-                            .ConfigureAwait(false);
-                    }
                 }
                 else
                 {
+
                     var resourceGroup = await azureResourceService
-                        .GetResourceGroupAsync(componentResourceId.SubscriptionId, componentResourceId.ResourceGroup)
+                        .GetResourceGroupAsync(componentResourceId.SubscriptionId, componentResourceId.ResourceGroup, throwIfNotExists: true)
                         .ConfigureAwait(false);
 
-                    var isContributor = await resourceGroup
-                        .HasRoleAssignmentAsync(identity.PrincipalId, AzureRoleDefinition.Contributor)
+                    await resourceGroup
+                        .SetRoleAssignmentsAsync(roleAssignmentMap)
                         .ConfigureAwait(false);
-
-                    if (!isContributor)
-                    {
-                        await resourceGroup
-                            .AddRoleAssignmentAsync(identity.PrincipalId, AzureRoleDefinition.Contributor)
-                            .ConfigureAwait(false);
-                    }
                 }
             }
-
-            return component;
         }
 
         internal struct Input

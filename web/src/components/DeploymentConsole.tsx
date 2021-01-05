@@ -74,7 +74,7 @@ export const DeploymentConsole: React.FunctionComponent<IDeploymentConsoleProps>
     const _getDeploymentStatus = (d?: ComponentDeployment) => {
         if (d?.resourceState) {
             if (d.resourceState.toLowerCase() === 'succeeded' || d.resourceState.toLowerCase() === 'failed') {
-                return d.finished ? `${d.resourceState} ${d.finished.toLocaleString()}` : d.resourceState;
+                return d.finished ? `${d.resourceState} ${d.finished.toLocaleString()} (ExitCode: ${d.exitCode})` : d.resourceState;
             } else {
                 return d.resourceState;
                 // return `${d.resourceState}${dots}`;

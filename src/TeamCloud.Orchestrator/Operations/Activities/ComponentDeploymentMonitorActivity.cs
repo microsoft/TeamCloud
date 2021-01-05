@@ -52,12 +52,16 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                         .SingleOrDefault()
                         .Value;
 
-                    if (container?.InstanceView != null)
+                    if (container?.InstanceView is null)
+                    {
+                        componentDeployment.ResourceState = ResourceState.Initializing;
+                    }
+                    else
                     {
                         var lines = container.InstanceView.Events
                             .Where(e => e.LastTimestamp.HasValue)
                             .OrderBy(e => e.LastTimestamp)
-                            .Select(e => $"{e.LastTimestamp}\t{e.Name}\t\t{e.Message}");
+                            .Select(e => $"{e.LastTimestamp.Value:yyyy-MM-dd hh:mm:ss}\t{e.Name}\t\t{e.Message}");
 
                         if (lines.Any())
                             lines = lines.Append(string.Empty);
@@ -92,19 +96,24 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                             componentDeployment.ExitCode = container.InstanceView.CurrentState.ExitCode;
                             componentDeployment.Started = container.InstanceView.CurrentState.StartTime;
                             componentDeployment.Finished = container.InstanceView.CurrentState.FinishTime;
+
+                            if (componentDeployment.ExitCode.HasValue)
+                            {
+                                componentDeployment.ResourceState = componentDeployment.ExitCode == 0
+                                    ? ResourceState.Succeeded   // ExitCode indicates successful provisioning
+                                    : ResourceState.Failed;     // ExitCode indicates failed provisioning
+                            }
+                            else if (container.InstanceView.CurrentState.State?.Equals("Terminated", StringComparison.OrdinalIgnoreCase) ?? false)
+                            {
+                                // container instance was terminated without exit code
+                                componentDeployment.ResourceState = ResourceState.Failed;
+                            }
+                            else if (componentDeployment.Started.GetValueOrDefault(DateTime.UtcNow) < DateTime.UtcNow.Subtract(TimeSpan.FromMinutes(30)))
+                            {
+                                // container instance needs to be terminated
+                                await runner.StopAsync().ConfigureAwait(false);
+                            }
                         }
-
-                    }
-
-                    componentDeployment.ResourceState = container?.InstanceView is null
-                        ? ResourceState.Initializing
-                        : ResourceState.Provisioning;
-
-                    if (componentDeployment.ExitCode.HasValue)
-                    {
-                        componentDeployment.ResourceState = componentDeployment.ExitCode == 0
-                            ? ResourceState.Succeeded   // ExitCode indicates successful provisioning
-                            : ResourceState.Failed;     // ExitCode indicates failed provisioning
                     }
 
                     componentDeployment = await componentDeploymentRepository

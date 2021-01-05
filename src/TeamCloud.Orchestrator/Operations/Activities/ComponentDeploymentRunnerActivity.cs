@@ -109,6 +109,10 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                                         value = componentRunnerHost
                                     },
                                     new {
+                                        name = "DeploymentType",
+                                        value = componentDeployment.Type == ComponentDeploymentType.Custom ? componentDeployment.TypeName : componentDeployment.Type.ToString()
+                                    },
+                                    new {
                                         name = "EnvironmentResourceId",
                                         value = component.ResourceId
                                     },

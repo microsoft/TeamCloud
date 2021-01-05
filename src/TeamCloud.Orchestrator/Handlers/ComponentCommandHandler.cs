@@ -51,7 +51,8 @@ namespace TeamCloud.Orchestrator.Handlers
                     var componentDeployment = new ComponentDeployment()
                     {
                         ComponentId = commandResult.Result.Id,
-                        ProjectId = commandResult.Result.ProjectId
+                        ProjectId = commandResult.Result.ProjectId,
+                        Type = ComponentDeploymentType.Create
                     };
 
                     componentDeployment = await componentDeploymentRepository
@@ -152,7 +153,7 @@ namespace TeamCloud.Orchestrator.Handlers
                 {
                     ComponentId = command.Payload.Id,
                     ProjectId = command.Payload.ProjectId,
-                    Type = ComponentDeploymentType.Template
+                    Type = ComponentDeploymentType.Create
                 };
 
                 componentDeployment = await componentDeploymentRepository
@@ -199,7 +200,7 @@ namespace TeamCloud.Orchestrator.Handlers
                 {
                     ComponentId = command.Payload.Id,
                     ProjectId = command.Payload.ProjectId,
-                    Type = ComponentDeploymentType.Clear
+                    Type = ComponentDeploymentType.Delete
                 };
 
                 componentDeployment = await componentDeploymentRepository

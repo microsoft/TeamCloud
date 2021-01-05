@@ -17,6 +17,11 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.API.Controllers
 {
+
+    // this controller is going to be removed, once we support
+    // the new task modell !!! keep it alive for now to support
+    // demoing of component tasks.
+
     public partial class ProjectComponentsController : ApiController
     {
         [HttpPost("{componentId:componentId}/reset")]

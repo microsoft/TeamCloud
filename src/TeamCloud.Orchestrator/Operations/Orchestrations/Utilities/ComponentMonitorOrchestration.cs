@@ -48,7 +48,7 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Utilities
                     try
                     {
                         await context
-                            .CallActivityWithRetryAsync(nameof(ComponentSyncRoleAssignmentsActivity), new ComponentSyncRoleAssignmentsActivity.Input() { Component = component })
+                            .CallActivityWithRetryAsync(nameof(ComponentPermissionActivity), new ComponentPermissionActivity.Input() { Component = component })
                             .ConfigureAwait(true);
                     }
                     catch (Exception exc)
