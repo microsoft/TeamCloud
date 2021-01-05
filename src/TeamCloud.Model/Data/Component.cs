@@ -101,6 +101,11 @@ namespace TeamCloud.Model.Data
         public string IdentityId { get; set; }
 
         /// <summary>
+        /// Gets or sets the storage identifier for this component.
+        /// </summary>
+        public string StorageId { get; set; }
+
+        /// <summary>
         /// Gets the slug of the current component base on its display name.
         /// </summary>
         [UniqueKey]

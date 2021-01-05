@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Flurl;
 using Flurl.Http;
@@ -7,6 +8,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Azure;
 using TeamCloud.Azure.Resources;
+using TeamCloud.Azure.Resources.Typed;
 using TeamCloud.Data;
 using TeamCloud.Http;
 using TeamCloud.Model.Data;
@@ -22,13 +24,15 @@ namespace TeamCloud.Orchestrator.Operations.Activities
         private readonly IComponentTemplateRepository componentTemplateRepository;
         private readonly IComponentDeploymentRepository componentDeploymentRepository;
         private readonly IAzureSessionService azureSessionService;
+        private readonly IAzureResourceService azureResourceService;
 
         public ComponentDeploymentRunnerActivity(IOrganizationRepository organizationRepository,
                                        IProjectRepository projectRepository,
                                        IComponentRepository componentRepository,
                                        IComponentTemplateRepository componentTemplateRepository,
                                        IComponentDeploymentRepository componentDeploymentRepository,
-                                       IAzureSessionService azureSessionService)
+                                       IAzureSessionService azureSessionService,
+                                       IAzureResourceService azureResourceService)
         {
             this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
             this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
@@ -36,6 +40,7 @@ namespace TeamCloud.Orchestrator.Operations.Activities
             this.componentTemplateRepository = componentTemplateRepository ?? throw new ArgumentNullException(nameof(componentTemplateRepository));
             this.componentDeploymentRepository = componentDeploymentRepository ?? throw new ArgumentNullException(nameof(componentDeploymentRepository));
             this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
+            this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
         }
 
         [FunctionName(nameof(ComponentDeploymentRunnerActivity))]
@@ -60,6 +65,22 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                 .ConfigureAwait(false);
 
             var componentLocation = await GetLocationAsync(component)
+                .ConfigureAwait(false);
+
+            var componentStorage = await azureResourceService
+                .GetResourceAsync<AzureStorageAccountResource>(component.StorageId, true)
+                .ConfigureAwait(false);
+
+            var componentStorageKeys = await componentStorage
+                .GetKeysAsync()
+                .ConfigureAwait(false);
+
+            var componentShare = await componentStorage
+                .CreateShareClientAsync(component.Id)
+                .ConfigureAwait(false);
+
+            await componentShare
+                .CreateIfNotExistsAsync()
                 .ConfigureAwait(false);
 
             var componentRunnerHost = $"{componentDeployment.Id}.{componentLocation}.azurecontainer.io";
@@ -157,6 +178,11 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                                         name = "templates",
                                         mountPath = "/mnt/templates",
                                         readOnly = false
+                                    },
+                                    new {
+                                        name = "storage",
+                                        mountPath = "/mnt/storage",
+                                        readOnly = false
                                     }
                                 }
                             }
@@ -180,7 +206,7 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                             }
                         }
                     },
-                    volumes = new[]
+                    volumes = new object[]
                     {
                         new {
                             name = "templates",
@@ -189,6 +215,15 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                                 directory = "root",
                                 repository = componentTemplate.Repository.Url,
                                 revision = componentTemplate.Repository.Ref
+                            }
+                        },
+                        new {
+                            name = "storage",
+                            azureFile = new
+                            {
+                                  shareName = componentShare.Name,
+                                  storageAccountName = componentShare.AccountName,
+                                  storageAccountKey = componentStorageKeys.First()
                             }
                         }
                     }
