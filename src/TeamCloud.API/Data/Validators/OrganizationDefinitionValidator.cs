@@ -4,7 +4,6 @@
  */
 
 using FluentValidation;
-using TeamCloud.Model.Validation;
 
 namespace TeamCloud.API.Data.Validators
 {
