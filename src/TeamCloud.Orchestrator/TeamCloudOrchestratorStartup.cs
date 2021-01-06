@@ -75,6 +75,7 @@ namespace TeamCloud.Orchestrator
                 .AddSingleton<IDeploymentScopeRepository, CosmosDbDeploymentScopeRepository>()
                 .AddSingleton<IProjectTemplateRepository, CosmosDbProjectTemplateRepository>()
                 .AddSingleton<IComponentTemplateRepository, CosmosDbComponentTemplateRepository>()
+                .AddSingleton<IComponentTaskRepository, CosmosDbComponentTaskRepository>()
                 .AddSingleton<IComponentDeploymentRepository, CosmosDbComponentDeploymentRepository>()
                 .AddSingleton<IProjectRepository, CosmosDbProjectRepository>()
                 .AddSingleton<IComponentRepository, CosmosDbComponentRepository>()
