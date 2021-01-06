@@ -1,11 +1,16 @@
-﻿using FluentValidation;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
+
+using FluentValidation;
 using TeamCloud.Model.Validation;
 
 namespace TeamCloud.API.Data.Validators
 {
-    public class ProjectComponentDefinitionValidator : AbstractValidator<ProjectComponentDefinition>
+    public class ComponentDefinitionValidator : AbstractValidator<ComponentDefinition>
     {
-        public ProjectComponentDefinitionValidator()
+        public ComponentDefinitionValidator()
         {
             RuleFor(obj => obj.TemplateId)
                 .MustBeGuid();

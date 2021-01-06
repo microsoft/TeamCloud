@@ -16,13 +16,13 @@ namespace TeamCloud.Data.Expanders
 
         public ComponentDeploymentOutputExpander(IAzureResourceService azureResourceService)
         {
-            this.azureResourceService = azureResourceService ?? throw new System.ArgumentNullException(nameof(azureResourceService));
+            this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
         }
 
         public bool CanExpand(ComponentDeployment document)
         {
             if (document is null)
-                throw new System.ArgumentNullException(nameof(document));
+                throw new ArgumentNullException(nameof(document));
 
             return string.IsNullOrEmpty(document.Output);
         }
@@ -30,7 +30,7 @@ namespace TeamCloud.Data.Expanders
         public async Task<ComponentDeployment> ExpandAsync(ComponentDeployment document)
         {
             if (document is null)
-                throw new System.ArgumentNullException(nameof(document));
+                throw new ArgumentNullException(nameof(document));
 
             var output = new StringBuilder();
 
