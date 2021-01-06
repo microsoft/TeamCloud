@@ -158,7 +158,7 @@ namespace TeamCloud.API.Controllers
                 Type = componentTemplate.Type
             };
 
-            var command = new ComponentCreateCommand(currentUser, component, project.Id);
+            var command = new ComponentCreateCommand(currentUser, component);
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync(command, Request)
@@ -189,7 +189,7 @@ namespace TeamCloud.API.Controllers
                     .NotFound($"A Component with the id '{id}' could not be found for Project {project.Id}.")
                     .ToActionResult();
 
-            var command = new ComponentDeleteCommand(contextUser, component, project.Id);
+            var command = new ComponentDeleteCommand(contextUser, component);
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync(command, Request)

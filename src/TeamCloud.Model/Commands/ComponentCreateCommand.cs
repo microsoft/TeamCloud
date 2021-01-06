@@ -10,7 +10,7 @@ namespace TeamCloud.Model.Commands
 {
     public sealed class ComponentCreateCommand : CreateCommand<Component, ComponentCreateCommandResult>
     {
-        public ComponentCreateCommand(User user, Component payload, string projectId) : base(user, payload)
-            => ProjectId = projectId;
+        public ComponentCreateCommand(User user, Component payload) : base(user, payload)
+            => ProjectId = payload?.ProjectId ?? throw new System.ArgumentNullException(nameof(payload));
     }
 }

@@ -10,7 +10,7 @@ namespace TeamCloud.Model.Commands
 {
     public sealed class ComponentDeleteCommand : DeleteCommand<Component, ComponentDeleteCommandResult>
     {
-        public ComponentDeleteCommand(User user, Component payload, string projectId) : base(user, payload)
-            => ProjectId = projectId;
+        public ComponentDeleteCommand(User user, Component payload) : base(user, payload)
+            => ProjectId = payload?.ProjectId ?? throw new System.ArgumentNullException(nameof(payload));
     }
 }
