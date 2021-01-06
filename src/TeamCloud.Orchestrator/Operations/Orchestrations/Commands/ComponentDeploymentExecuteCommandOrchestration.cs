@@ -49,27 +49,39 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Commands
 
                 using (await context.LockContainerDocumentAsync(component, nameof(ComponentDeploymentExecuteCommandOrchestration)).ConfigureAwait(true))
                 {
-                    if (string.IsNullOrEmpty(componentDeployment.ResourceId))
+                    try
                     {
-                        componentDeployment = await UpdateComponentDeploymentAsync(componentDeployment, ResourceState.Initializing)
+                        if (string.IsNullOrEmpty(componentDeployment.ResourceId))
+                        {
+                            componentDeployment = await UpdateComponentDeploymentAsync(componentDeployment, ResourceState.Initializing)
+                                .ConfigureAwait(true);
+
+                            componentDeployment = await context
+                                .CallActivityWithRetryAsync<ComponentDeployment>(nameof(ComponentDeploymentRunnerActivity), new ComponentDeploymentRunnerActivity.Input() { ComponentDeployment = componentDeployment })
+                                .ConfigureAwait(true);
+                        }
+
+                        componentDeployment = await UpdateComponentDeploymentAsync(componentDeployment, ResourceState.Provisioning)
                             .ConfigureAwait(true);
 
-                        componentDeployment = await context
-                            .CallActivityWithRetryAsync<ComponentDeployment>(nameof(ComponentDeploymentRunnerActivity), new ComponentDeploymentRunnerActivity.Input() { ComponentDeployment = componentDeployment })
-                            .ConfigureAwait(true);
+                        while (!componentDeployment.ResourceState.IsFinal())
+                        {
+                            // component deployment's TTL is 30 min max
+                            if (componentDeployment.Created.AddMinutes(30) < DateTime.UtcNow) break;
+
+                            await context
+                                .CreateTimer(TimeSpan.FromSeconds(1))
+                                .ConfigureAwait(true);
+
+                            componentDeployment = await context
+                                .CallActivityWithRetryAsync<ComponentDeployment>(nameof(ComponentDeploymentMonitorActivity), new ComponentDeploymentMonitorActivity.Input() { ComponentDeployment = componentDeployment })
+                                .ConfigureAwait(true);
+                        }
                     }
-
-                    componentDeployment = await UpdateComponentDeploymentAsync(componentDeployment, ResourceState.Provisioning)
-                        .ConfigureAwait(true);
-
-                    while (!componentDeployment.ResourceState.IsFinal())
+                    finally
                     {
-                        await context
-                            .CreateTimer(TimeSpan.FromSeconds(2))
-                            .ConfigureAwait(true);
-
                         componentDeployment = await context
-                            .CallActivityWithRetryAsync<ComponentDeployment>(nameof(ComponentDeploymentMonitorActivity), new ComponentDeploymentMonitorActivity.Input() { ComponentDeployment = componentDeployment })
+                            .CallActivityWithRetryAsync<ComponentDeployment>(nameof(ComponentDeploymentTerminateActivity), new ComponentDeploymentTerminateActivity.Input() { ComponentDeployment = componentDeployment })
                             .ConfigureAwait(true);
                     }
                 }

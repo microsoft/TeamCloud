@@ -4232,6 +4232,10 @@
             "type": "string",
             "nullable": true
           },
+          "storageId": {
+            "type": "string",
+            "nullable": true
+          },
           "slug": {
             "type": "string",
             "readOnly": true
@@ -4491,13 +4495,21 @@
           "projectId": {
             "type": "string"
           },
+          "storageId": {
+            "type": "string",
+            "nullable": true
+          },
           "type": {
             "enum": [
-              0,
-              1
+              "Create",
+              "Delete",
+              "Custom"
             ],
-            "type": "integer",
-            "format": "int32"
+            "type": "string"
+          },
+          "typeName": {
+            "type": "string",
+            "nullable": true
           },
           "created": {
             "type": "string",

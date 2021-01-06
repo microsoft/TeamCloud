@@ -103,7 +103,7 @@ namespace TeamCloud.Data.Expanders
 
             if (output.Length > 0)
             {
-                document.Output = output.ToString();
+                document.Output = output.ToString(); // expand output and do some empty line trimming (left & right)
                 document.Output = Regex.Replace(document.Output, @"^([\s])*", string.Empty, RegexOptions.Singleline);
                 document.Output = Regex.Replace(document.Output, @"([\s])*$", string.Empty, RegexOptions.Singleline);
             }

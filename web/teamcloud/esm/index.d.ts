@@ -16,6 +16,7 @@ export declare interface Component {
     resourceState?: ComponentResourceState;
     deploymentScopeId?: string | null;
     identityId?: string | null;
+    storageId?: string | null;
     /**
      * NOTE: This property will not be serialized. It can only be populated by the server.
      */
@@ -33,7 +34,9 @@ export declare interface ComponentDataResult {
 export declare interface ComponentDeployment {
     componentId: string;
     projectId: string;
-    type?: Enum11;
+    storageId?: string | null;
+    type?: ComponentDeploymentType;
+    typeName?: string | null;
     created?: Date;
     started?: Date | null;
     finished?: Date | null;
@@ -65,6 +68,11 @@ export declare interface ComponentDeploymentListDataResult {
  * Defines values for ComponentDeploymentResourceState.
  */
 export declare type ComponentDeploymentResourceState = "Pending" | "Initializing" | "Provisioning" | "Succeeded" | "Failed" | string;
+
+/**
+ * Defines values for ComponentDeploymentType.
+ */
+export declare type ComponentDeploymentType = "Create" | "Delete" | "Custom" | string;
 
 export declare interface ComponentListDataResult {
     code?: number;
@@ -161,11 +169,6 @@ export declare interface DeploymentScopeListDataResult {
     readonly data?: DeploymentScope[] | null;
     location?: string | null;
 }
-
-/**
- * Defines values for Enum11.
- */
-export declare type Enum11 = 0 | 1 | number;
 
 export declare interface ErrorResult {
     code?: number;

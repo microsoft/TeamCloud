@@ -223,6 +223,7 @@ export interface Component {
     resourceState?: ComponentResourceState;
     deploymentScopeId?: string | null;
     identityId?: string | null;
+    storageId?: string | null;
     /**
      * NOTE: This property will not be serialized. It can only be populated by the server.
      */
@@ -293,7 +294,9 @@ export interface ComponentDeploymentListDataResult {
 export interface ComponentDeployment {
     componentId: string;
     projectId: string;
-    type?: Enum11;
+    storageId?: string | null;
+    type?: ComponentDeploymentType;
+    typeName?: string | null;
     created?: Date;
     started?: Date | null;
     finished?: Date | null;
@@ -405,9 +408,9 @@ export declare type RepositoryReferenceType = "Unknown" | "Tag" | "Branch" | "Ha
  */
 export declare type ComponentTemplateType = "Custom" | "AzureResource" | "Environment" | "GitRepository" | string;
 /**
- * Defines values for Enum11.
+ * Defines values for ComponentDeploymentType.
  */
-export declare type Enum11 = 0 | 1 | number;
+export declare type ComponentDeploymentType = "Create" | "Delete" | "Custom" | string;
 /**
  * Defines values for ComponentDeploymentResourceState.
  */

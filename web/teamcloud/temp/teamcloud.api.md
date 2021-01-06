@@ -36,6 +36,8 @@ export interface Component {
     resourceState?: ComponentResourceState;
     readonly slug: string;
     // (undocumented)
+    storageId?: string | null;
+    // (undocumented)
     templateId: string;
     // (undocumented)
     type: ComponentType;
@@ -78,7 +80,11 @@ export interface ComponentDeployment {
     // (undocumented)
     started?: Date | null;
     // (undocumented)
-    type?: Enum11;
+    storageId?: string | null;
+    // (undocumented)
+    type?: ComponentDeploymentType;
+    // (undocumented)
+    typeName?: string | null;
 }
 
 // @public (undocumented)
@@ -106,6 +112,9 @@ export interface ComponentDeploymentListDataResult {
 
 // @public
 export type ComponentDeploymentResourceState = "Pending" | "Initializing" | "Provisioning" | "Succeeded" | "Failed" | string;
+
+// @public
+export type ComponentDeploymentType = "Create" | "Delete" | "Custom" | string;
 
 // @public (undocumented)
 export interface ComponentListDataResult {
@@ -226,9 +235,6 @@ export interface DeploymentScopeListDataResult {
     // (undocumented)
     status?: string | null;
 }
-
-// @public
-export type Enum11 = 0 | 1 | number;
 
 // @public (undocumented)
 export interface ErrorResult {

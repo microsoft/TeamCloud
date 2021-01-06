@@ -67,26 +67,17 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Utilities
                     component = await UpdateComponentAsync(component, ResourceState.Provisioning)
                         .ConfigureAwait(true);
 
-                    if (string.IsNullOrEmpty(component.IdentityId))
-                    {
-                        component = await context
-                            .CallActivityWithRetryAsync<Component>(nameof(ComponentIdentityActivity), new ComponentIdentityActivity.Input() { Component = component })
-                            .ConfigureAwait(true);
-                    }
+                    component = await context
+                        .CallActivityWithRetryAsync<Component>(nameof(ComponentIdentityActivity), new ComponentIdentityActivity.Input() { Component = component })
+                        .ConfigureAwait(true);
 
-                    if (string.IsNullOrEmpty(component.ResourceId))
-                    {
-                        component = await context
-                            .CallActivityWithRetryAsync<Component>(nameof(ComponentResourceActivity), new ComponentResourceActivity.Input() { Component = component })
-                            .ConfigureAwait(true);
-                    }
+                    component = await context
+                        .CallActivityWithRetryAsync<Component>(nameof(ComponentResourceActivity), new ComponentResourceActivity.Input() { Component = component })
+                        .ConfigureAwait(true);
 
-                    if (string.IsNullOrEmpty(component.StorageId))
-                    {
-                        component = await context
-                            .CallActivityWithRetryAsync<Component>(nameof(ComponentStorageActivity), new ComponentStorageActivity.Input() { Component = component })
-                            .ConfigureAwait(true);
-                    }
+                    component = await context
+                        .CallActivityWithRetryAsync<Component>(nameof(ComponentStorageActivity), new ComponentStorageActivity.Input() { Component = component })
+                        .ConfigureAwait(true);
 
                     component = await context
                         .CallActivityWithRetryAsync<Component>(nameof(ComponentPermissionActivity), new ComponentPermissionActivity.Input() { Component = component })

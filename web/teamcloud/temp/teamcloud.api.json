@@ -381,6 +381,31 @@
             },
             {
               "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!Component#storageId:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "storageId?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "storageId",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
               "canonicalReference": "teamcloud!Component#templateId:member",
               "docComment": "",
               "excerptTokens": [
@@ -852,6 +877,31 @@
             },
             {
               "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!ComponentDeployment#storageId:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "storageId?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "storageId",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
               "canonicalReference": "teamcloud!ComponentDeployment#type:member",
               "docComment": "",
               "excerptTokens": [
@@ -861,8 +911,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "Enum11",
-                  "canonicalReference": "teamcloud!Enum11:type"
+                  "text": "ComponentDeploymentType",
+                  "canonicalReference": "teamcloud!ComponentDeploymentType:type"
                 },
                 {
                   "kind": "Content",
@@ -871,6 +921,31 @@
               ],
               "releaseTag": "Public",
               "name": "type",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!ComponentDeployment#typeName:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "typeName?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "typeName",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
@@ -1137,6 +1212,31 @@
           ],
           "releaseTag": "Public",
           "name": "ComponentDeploymentResourceState",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "teamcloud!ComponentDeploymentType:type",
+          "docComment": "/**\n * Defines values for ComponentDeploymentType.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare type ComponentDeploymentType = "
+            },
+            {
+              "kind": "Content",
+              "text": "\"Create\" | \"Delete\" | \"Custom\" | string"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "ComponentDeploymentType",
           "typeTokenRange": {
             "startIndex": 1,
             "endIndex": 2
@@ -2413,31 +2513,6 @@
             }
           ],
           "extendsTokenRanges": []
-        },
-        {
-          "kind": "TypeAlias",
-          "canonicalReference": "teamcloud!Enum11:type",
-          "docComment": "/**\n * Defines values for Enum11.\n */\n",
-          "excerptTokens": [
-            {
-              "kind": "Content",
-              "text": "export declare type Enum11 = "
-            },
-            {
-              "kind": "Content",
-              "text": "0 | 1 | number"
-            },
-            {
-              "kind": "Content",
-              "text": ";"
-            }
-          ],
-          "releaseTag": "Public",
-          "name": "Enum11",
-          "typeTokenRange": {
-            "startIndex": 1,
-            "endIndex": 2
-          }
         },
         {
           "kind": "Interface",

@@ -1089,6 +1089,13 @@ export var Component = {
                     name: "String"
                 }
             },
+            storageId: {
+                serializedName: "storageId",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
             slug: {
                 serializedName: "slug",
                 required: true,
@@ -1479,10 +1486,24 @@ export var ComponentDeployment = {
                     name: "String"
                 }
             },
+            storageId: {
+                serializedName: "storageId",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
             type: {
                 serializedName: "type",
                 type: {
-                    name: "Number"
+                    name: "String"
+                }
+            },
+            typeName: {
+                serializedName: "typeName",
+                nullable: true,
+                type: {
+                    name: "String"
                 }
             },
             created: {

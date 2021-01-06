@@ -69,7 +69,7 @@ export const DeploymentConsole: React.FunctionComponent<IDeploymentConsoleProps>
         }
     };
 
-    const _getDeploymentName = (d?: ComponentDeployment) => d ? `Deployment: ${d.id}` : undefined;
+    const _getDeploymentName = (d?: ComponentDeployment) => d ? `${d.typeName || d.type}: ${d.id}` : undefined;
 
     const _getDeploymentStatus = (d?: ComponentDeployment) => {
         if (d?.resourceState) {

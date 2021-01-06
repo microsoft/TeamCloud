@@ -2698,6 +2698,9 @@ components:
         identityId:
           type: string
           nullable: true
+        storageId:
+          type: string
+          nullable: true
         slug:
           type: string
           readOnly: true
@@ -2887,12 +2890,18 @@ components:
           type: string
         projectId:
           type: string
+        storageId:
+          type: string
+          nullable: true
         type:
           enum:
-            - 0
-            - 1
-          type: integer
-          format: int32
+            - Create
+            - Delete
+            - Custom
+          type: string
+        typeName:
+          type: string
+          nullable: true
         created:
           type: string
           format: date-time

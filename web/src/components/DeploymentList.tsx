@@ -85,18 +85,6 @@ export const DeploymentList: React.FunctionComponent<IDeploymentListProps> = (pr
             }
         }
 
-
-        // if (org && deployment && deployment.finished === undefined && deployment.exitCode === undefined) {
-        //     console.log('- refreshDeployment');
-        //     const result = await api.getProjectDeployment(deployment.id, org.id, deployment.projectId, deployment.componentId);
-        //     if (result.data) {
-        //         setDeployment(result.data);
-        //     } else {
-        //         console.error(result);
-        //     }
-        //     console.log('+ refreshDeployment');
-        // }
-
     }, isPolling ? 5000 : undefined);
 
     const [dots, setDots] = useState('');
@@ -150,7 +138,7 @@ export const DeploymentList: React.FunctionComponent<IDeploymentListProps> = (pr
         setDeployment(item);
     };
 
-    const _getDeploymentName = (d?: ComponentDeployment) => d ? `Deployment: ${d.id}` : undefined;
+    const _getDeploymentName = (d?: ComponentDeployment) => d ? `${d.typeName || d.type}: ${d.id}` : undefined;
 
     const _getDeploymentStatus = (d?: ComponentDeployment) => {
         if (d?.resourceState) {
@@ -186,7 +174,7 @@ export const DeploymentList: React.FunctionComponent<IDeploymentListProps> = (pr
                     layoutMode={DetailsListLayoutMode.fixedColumns}
                     checkboxVisibility={CheckboxVisibility.hidden}
                     selectionMode={SelectionMode.single}
-                    onItemInvoked={_onItemInvoked}
+                    onActiveItemChanged={_onItemInvoked}
                     styles={{ focusZone: { minWidth: '1px' }, root: { minWidth: '460px', boxShadow: theme.effects.elevation8 } }}
                 />
             </Stack.Item>
