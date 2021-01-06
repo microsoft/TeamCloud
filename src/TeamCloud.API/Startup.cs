@@ -145,8 +145,6 @@ namespace TeamCloud.API
                 .AddSingleton<IRepositoryService, RepositoryService>()
                 .AddScoped<EnsureTeamCloudModelMiddleware>()
                 .AddScoped<RequestResponseTracingMiddleware>();
-            // .AddScoped<EnsureTeamCloudAdminMiddleware>()
-            // .AddTransient<IHostInitializer, TeamCloudAdminInitializer>();
 
             services
                 .AddSingleton<RecyclableMemoryStreamManager>()
@@ -169,7 +167,6 @@ namespace TeamCloud.API
                     options.ConstraintMap.Add("organizationId", typeof(OrganizationIdentifierRouteConstraint));
                     options.ConstraintMap.Add("projectId", typeof(ProjectIdentifierRouteConstraint));
                     options.ConstraintMap.Add("componentId", typeof(ComponentIdentifierRouteConstraint));
-                    // options.ConstraintMap.Add("providerId", typeof(ProviderIdentifierRouteConstraint));
                 })
                 .AddControllers()
                 .AddNewtonsoftJson()
