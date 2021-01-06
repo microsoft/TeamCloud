@@ -3,16 +3,16 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { FocusZone, FocusZoneDirection, getTheme, IList, Link, List, ScrollToMode, SearchBox, Stack, Text } from '@fluentui/react';
-import { ComponentDeployment } from 'teamcloud';
+import { ComponentTask } from 'teamcloud';
 import { ContentSeparator } from '.';
 import { useHistory, useLocation } from 'react-router-dom';
 
-export interface IDeploymentConsoleProps {
-    deployment?: ComponentDeployment;
+export interface IComponentTaskConsoleProps {
+    task?: ComponentTask;
     isPolling?: boolean;
 }
 
-export const DeploymentConsole: React.FunctionComponent<IDeploymentConsoleProps> = (props) => {
+export const ComponentTaskConsole: React.FunctionComponent<IComponentTaskConsoleProps> = (props) => {
 
     const history = useHistory();
     const location = useLocation();
@@ -25,12 +25,12 @@ export const DeploymentConsole: React.FunctionComponent<IDeploymentConsoleProps>
 
     const listRef = useRef<IList>(null);
 
-    const { deployment } = props;
+    const { task } = props;
 
     useEffect(() => {
         console.log(`+ setOutput`);
-        setOutput(deployment?.output?.split('\n').map((t, i) => ({ line: i, text: t, selected: selectedLine === i })));
-    }, [deployment, selectedLine]);
+        setOutput(task?.output?.split('\n').map((t, i) => ({ line: i, text: t, selected: selectedLine === i })));
+    }, [task, selectedLine]);
 
     useEffect(() => {
         if (location.hash !== '' && location.hash.startsWith('#')) {
@@ -69,18 +69,18 @@ export const DeploymentConsole: React.FunctionComponent<IDeploymentConsoleProps>
         }
     };
 
-    const _getDeploymentName = (d?: ComponentDeployment) => d ? `Deployment: ${d.id}` : undefined;
+    const _getTaskName = (t?: ComponentTask) => t ? `Task: ${t.id}` : undefined;
 
-    const _getDeploymentStatus = (d?: ComponentDeployment) => {
-        if (d?.resourceState) {
-            if (d.resourceState.toLowerCase() === 'succeeded' || d.resourceState.toLowerCase() === 'failed') {
-                return d.finished ? `${d.resourceState} ${d.finished.toLocaleString()} (ExitCode: ${d.exitCode})` : d.resourceState;
+    const _getTaskStatus = (t?: ComponentTask) => {
+        if (t?.resourceState) {
+            if (t.resourceState.toLowerCase() === 'succeeded' || t.resourceState.toLowerCase() === 'failed') {
+                return t.finished ? `${t.resourceState} ${t.finished.toLocaleString()} (ExitCode: ${t.exitCode})` : t.resourceState;
             } else {
-                return d.resourceState;
+                return t.resourceState;
                 // return `${d.resourceState}${dots}`;
             }
-        } else if (d?.started) {
-            return `Started ${d.started.toLocaleString()}`;
+        } else if (t?.started) {
+            return `Started ${t.started.toLocaleString()}`;
         }
         return undefined;
     };
@@ -159,8 +159,8 @@ export const DeploymentConsole: React.FunctionComponent<IDeploymentConsoleProps>
                 <Stack styles={{ root: { padding: '14px 24px 0px 24px' } }} horizontal verticalFill horizontalAlign='space-between' verticalAlign='center'>
                     <Stack.Item>
                         <Stack tokens={{ childrenGap: '4px' }}>
-                            <Text styles={{ root: { fontSize: '16px', fontWeight: '600' } }}>{_getDeploymentName(props.deployment)}</Text>
-                            <Text styles={{ root: { color: 'rgb(149,157,165)', fontSize: '12px', fontWeight: '600' } }}>{_getDeploymentStatus(props.deployment)}</Text>
+                            <Text styles={{ root: { fontSize: '16px', fontWeight: '600' } }}>{_getTaskName(props.task)}</Text>
+                            <Text styles={{ root: { color: 'rgb(149,157,165)', fontSize: '12px', fontWeight: '600' } }}>{_getTaskStatus(props.task)}</Text>
                         </Stack>
                     </Stack.Item>
                     <Stack.Item>

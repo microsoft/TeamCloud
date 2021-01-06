@@ -5,7 +5,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { InteractionType } from '@azure/msal-browser';
 import { useLocation, useParams } from 'react-router-dom';
 import { MsalAuthenticationResult, useIsAuthenticated, useMsalAuthentication } from '@azure/msal-react';
-import { Component, ComponentDeployment, ComponentTemplate, DeploymentScope, DeploymentScopeDefinition, Organization, Project, ProjectTemplate, ProjectTemplateDefinition, User, UserDefinition } from 'teamcloud';
+import { Component, ComponentTask, ComponentTemplate, DeploymentScope, DeploymentScopeDefinition, Organization, Project, ProjectTemplate, ProjectTemplateDefinition, User, UserDefinition } from 'teamcloud';
 import { matchesRouteParam, matchesLowerCase, endsWithLowerCase, endsWithAnyLowerCase, includesLowerCase, matchesAnyLowerCase } from './Utils'
 import { GraphUser, ManagementGroup, Member, ProjectMember, Subscription } from './model';
 import { GraphUserContext, OrgContext, ProjectContext } from './Context'
@@ -48,7 +48,7 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
     const [projectComponents, setProjectComponents] = useState<Component[]>();
     const [projectComponentTemplates, setProjectComponentTemplates] = useState<ComponentTemplate[]>();
 
-    const [projectComponentDeployments, setProjectComponentDeployments] = useState<ComponentDeployment[]>();
+    const [projectComponentTasks, setProjectComponentTasks] = useState<ComponentTask[]>();
 
     const [subscriptions, setSubscriptions] = useState<Subscription[]>();
     const [managementGroups, setManagementGroups] = useState<ManagementGroup[]>();
@@ -389,7 +389,7 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
                     || (projectComponent && !projectComponents.some(c => c.id === projectComponent.id))) {
                     const _setProjectComponents = async () => {
                         console.log(`- setProjectComponents (${project.slug})`);
-                        const result = await api.getProjectComponents(project!.organization, project!.id);
+                        const result = await api.getComponents(project!.organization, project!.id);
                         setProjectComponents(result.data ?? undefined);
                         console.log(`+ setProjectComponents (${project.slug})`);
                     };
@@ -409,7 +409,7 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
                 if (projectComponentTemplates === undefined) {
                     const _setComponentTemplates = async () => {
                         console.log(`- setProjectComponentTemplates (${project.slug})`);
-                        const result = await api.getProjectComponentTemplates(project!.organization, project!.id);
+                        const result = await api.getComponentTemplates(project!.organization, project!.id);
                         setProjectComponentTemplates(result.data ?? undefined);
                         console.log(`+ setProjectComponentTemplates (${project.slug})`);
                     };
@@ -453,21 +453,21 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
     useEffect(() => {// Project Component Deployments
         if (isAuthenticated && projectId && project && projectComponent) {
             if (matchesLowerCase(navId, 'components') && itemId && projectComponent && matchesRouteParam(projectComponent, itemId)) {
-                if (projectComponentDeployments === undefined || projectComponentDeployments.some(d => d.componentId !== projectComponent.id)) {
+                if (projectComponentTasks === undefined || projectComponentTasks.some(d => d.componentId !== projectComponent.id)) {
                     const _setComponentDeployments = async () => {
-                        console.log(`- setProjectComponentDeployments (${projectComponent.slug})`);
-                        const result = await api.getProjectDeployments(project.organization, project.id, projectComponent.id);
-                        setProjectComponentDeployments(result.data ?? undefined);
-                        console.log(`+ setProjectComponentDeployments (${projectComponent.slug})`);
+                        console.log(`- setProjectComponentTasks (${projectComponent.slug})`);
+                        const result = await api.getComponentTasks(project.organization, project.id, projectComponent.id);
+                        setProjectComponentTasks(result.data ?? undefined);
+                        console.log(`+ setProjectComponentTasks (${projectComponent.slug})`);
                     };
                     _setComponentDeployments();
                 }
             }
-        } else if (projectComponentDeployments) {
-            console.log('+ setProjectComponentDeployments (undefined)');
-            setProjectComponentDeployments(undefined);
+        } else if (projectComponentTasks) {
+            console.log('+ setProjectComponentTasks (undefined)');
+            setProjectComponentTasks(undefined);
         }
-    }, [isAuthenticated, projectId, project, projectComponent, navId, itemId, projectComponentDeployments]);
+    }, [isAuthenticated, projectId, project, projectComponent, navId, itemId, projectComponentTasks]);
 
 
 
@@ -495,38 +495,6 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
             console.log(`+ addProjectMembers (${project.slug})`);
         }
     };
-
-    const onResetComponent = async (component?: Component) => {
-        component = component ?? projectComponent;
-        if (component) {
-            console.log(`- onResetComponent (${component.slug})`);
-            const result = await api.resetProjectComponent(component.organization, component.projectId, component.id);
-            if (result.data) {
-                component = result.data as Component;
-                onComponentSelected(component);
-                setProjectComponentDeployments(undefined);
-            } else {
-                console.error(`Failed to reset component ${component.slug}: ${result}`);
-            }
-            console.log(`+ onResetComponent (${component.slug})`);
-        }
-    }
-
-    const onClearComponent = async (component?: Component) => {
-        component = component ?? projectComponent;
-        if (component) {
-            console.log(`- onClearComponent (${component.slug})`);
-            const result = await api.clearProjectComponent(component.organization, component.projectId, component.id);
-            if (result.data) {
-                component = result.data as Component;
-                onComponentSelected(component);
-                setProjectComponentDeployments(undefined);
-            } else {
-                console.error(`Failed to clear component ${component.slug}: ${result}`);
-            }
-            console.log(`+ onClearComponent (${component.slug})`);
-        }
-    }
 
     return (
         <GraphUserContext.Provider value={{
@@ -557,10 +525,8 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
                     component: projectComponent,
                     components: projectComponents,
                     templates: projectComponentTemplates,
-                    componentDeployments: projectComponentDeployments,
+                    componentTasks: projectComponentTasks,
                     onAddUsers: onAddProjectUsers,
-                    onResetComponent: onResetComponent,
-                    onClearComponent: onClearComponent,
                     onRemoveUsers: () => Promise.resolve(),
                     onComponentSelected: onComponentSelected
                 }}>

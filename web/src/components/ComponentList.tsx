@@ -97,7 +97,7 @@ export const ComponentList: React.FC<IComponentListProps> = (props) => {
 
     const onRenderCreatorColumn = (item?: { component: Component, template: ComponentTemplate }, index?: number, column?: IColumn) => {
         if (!item) return undefined;
-        const creator = members?.find(m => m.user.id === item.component.requestedBy);
+        const creator = members?.find(m => m.user.id === item.component.creator);
         return (
             <UserPersona user={creator?.graphUser} size={PersonaSize.size24} />
             // <Persona
@@ -117,7 +117,7 @@ export const ComponentList: React.FC<IComponentListProps> = (props) => {
 
     const onRenderLinkColumn = (item?: { component: Component, template: ComponentTemplate }) => {
         if (!item || !org) return undefined;
-        return <ComponentLink component={item.component}/>
+        return <ComponentLink component={item.component} />
     };
 
     const columns: IColumn[] = [

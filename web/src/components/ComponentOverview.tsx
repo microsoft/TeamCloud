@@ -9,7 +9,7 @@ import { ComponentTemplate, DeploymentScope } from 'teamcloud';
 import { OrgContext, ProjectContext } from '../Context';
 import { ProjectMember } from '../model';
 import { FuiForm } from '@rjsf/fluent-ui';
-import { DeploymentList, UserPersona } from '.';
+import { ComponentTaskList, UserPersona } from '.';
 import { FieldTemplateProps, WidgetProps } from '@rjsf/core';
 import { ComponentLink } from './ComponentLink';
 import { ComponentTemplateLink } from './ComponentTemplateLink';
@@ -47,10 +47,10 @@ export const ComponentOverview: React.FC = (props) => {
 
 
     useEffect(() => {
-        if (component && members && (creator === undefined || creator.user.id.toLowerCase() !== component.requestedBy.toLowerCase())) {
+        if (component && members && (creator === undefined || creator.user.id.toLowerCase() !== component.creator.toLowerCase())) {
             // console.log(component);
             // members.forEach(m => console.log(m));
-            const ctr = members.find(m => component.requestedBy.toLowerCase() === m.user.id.toLowerCase()) ?? undefined
+            const ctr = members.find(m => component.creator.toLowerCase() === m.user.id.toLowerCase()) ?? undefined
             console.log(`+ setComponentCreator (${ctr?.graphUser?.displayName})`);
             setCreator(ctr);
         }
@@ -189,7 +189,7 @@ export const ComponentOverview: React.FC = (props) => {
                         </Stack>
                     </PivotItem>
                     <PivotItem headerText='Deployments' itemKey='Deployments'>
-                        <DeploymentList />
+                        <ComponentTaskList />
                     </PivotItem>
                     <PivotItem headerText='Settings' itemKey='Settings'>
                         <Stack tokens={{ childrenGap: '20px' }} styles={{ root: { padding: '24px 8px' } }}>
