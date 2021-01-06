@@ -227,7 +227,7 @@ namespace TeamCloud.API.Auth
                     .GetAsync(projectId, componentId)
                     .ConfigureAwait(false);
 
-                if (!string.IsNullOrEmpty(component?.RequestedBy) && component.RequestedBy.Equals(user.Id, StringComparison.OrdinalIgnoreCase))
+                if (!string.IsNullOrEmpty(component?.Creator) && component.Creator.Equals(user.Id, StringComparison.OrdinalIgnoreCase))
                     claims.Add(new Claim(ClaimTypes.Role, UserRolePolicies.ComponentWritePolicy));
             }
 

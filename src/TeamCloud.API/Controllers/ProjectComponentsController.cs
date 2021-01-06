@@ -152,7 +152,7 @@ namespace TeamCloud.API.Controllers
                 Organization = project.Organization,
                 ProjectId = project.Id,
                 Provider = componentTemplate.Provider,
-                RequestedBy = currentUser.Id,
+                Creator = currentUser.Id,
                 DisplayName = componentDefinition.DisplayName,
                 InputJson = componentDefinition.InputJson,
                 Type = componentTemplate.Type
