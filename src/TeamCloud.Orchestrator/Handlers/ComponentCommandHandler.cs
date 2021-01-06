@@ -21,13 +21,11 @@ namespace TeamCloud.Orchestrator.Handlers
     {
         private readonly IComponentRepository componentRepository;
         private readonly IComponentTaskRepository componentTaskRepository;
-        private readonly IComponentDeploymentRepository componentDeploymentRepository;
 
-        public ComponentCommandHandler(IComponentRepository componentRepository, IComponentTaskRepository componentTaskRepository, IComponentDeploymentRepository componentDeploymentRepository)
+        public ComponentCommandHandler(IComponentRepository componentRepository, IComponentTaskRepository componentTaskRepository)
         {
             this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
             this.componentTaskRepository = componentTaskRepository ?? throw new ArgumentNullException(nameof(componentTaskRepository));
-            this.componentDeploymentRepository = componentDeploymentRepository ?? throw new ArgumentNullException(nameof(componentDeploymentRepository));
         }
 
         public async Task<ICommandResult> HandleAsync(ComponentCreateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient durableClient = null)
