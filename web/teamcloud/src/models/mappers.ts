@@ -8,6 +8,935 @@
 
 import * as coreHttp from "@azure/core-http";
 
+export const ComponentListDataResult: coreHttp.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "ComponentListDataResult",
+    modelProperties: {
+      code: {
+        serializedName: "code",
+        type: {
+          name: "Number"
+        }
+      },
+      status: {
+        serializedName: "status",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      data: {
+        serializedName: "data",
+        readOnly: true,
+        nullable: true,
+        type: {
+          name: "Sequence",
+          element: {
+            type: {
+              name: "Composite",
+              className: "Component"
+            }
+          }
+        }
+      },
+      location: {
+        serializedName: "location",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      }
+    }
+  }
+};
+
+export const Component: coreHttp.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "Component",
+    modelProperties: {
+      href: {
+        serializedName: "href",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      organization: {
+        serializedName: "organization",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
+      templateId: {
+        serializedName: "templateId",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
+      projectId: {
+        serializedName: "projectId",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
+      provider: {
+        serializedName: "provider",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
+      creator: {
+        serializedName: "creator",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
+      displayName: {
+        serializedName: "displayName",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      description: {
+        serializedName: "description",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      inputJson: {
+        serializedName: "inputJson",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      valueJson: {
+        serializedName: "valueJson",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      type: {
+        serializedName: "type",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
+      resourceId: {
+        serializedName: "resourceId",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      resourceState: {
+        serializedName: "resourceState",
+        type: {
+          name: "String"
+        }
+      },
+      deploymentScopeId: {
+        serializedName: "deploymentScopeId",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      identityId: {
+        serializedName: "identityId",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      storageId: {
+        serializedName: "storageId",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      slug: {
+        serializedName: "slug",
+        required: true,
+        readOnly: true,
+        type: {
+          name: "String"
+        }
+      },
+      id: {
+        serializedName: "id",
+        required: true,
+        type: {
+          name: "String"
+        }
+      }
+    }
+  }
+};
+
+export const ErrorResult: coreHttp.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "ErrorResult",
+    modelProperties: {
+      code: {
+        serializedName: "code",
+        type: {
+          name: "Number"
+        }
+      },
+      status: {
+        serializedName: "status",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      errors: {
+        serializedName: "errors",
+        nullable: true,
+        type: {
+          name: "Sequence",
+          element: {
+            type: {
+              name: "Composite",
+              className: "ResultError"
+            }
+          }
+        }
+      }
+    }
+  }
+};
+
+export const ResultError: coreHttp.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "ResultError",
+    modelProperties: {
+      code: {
+        serializedName: "code",
+        type: {
+          name: "String"
+        }
+      },
+      message: {
+        serializedName: "message",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      errors: {
+        serializedName: "errors",
+        nullable: true,
+        type: {
+          name: "Sequence",
+          element: {
+            type: {
+              name: "Composite",
+              className: "ValidationError"
+            }
+          }
+        }
+      }
+    }
+  }
+};
+
+export const ValidationError: coreHttp.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "ValidationError",
+    modelProperties: {
+      field: {
+        serializedName: "field",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      message: {
+        serializedName: "message",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      }
+    }
+  }
+};
+
+export const ComponentDefinition: coreHttp.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "ComponentDefinition",
+    modelProperties: {
+      templateId: {
+        serializedName: "templateId",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
+      displayName: {
+        serializedName: "displayName",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
+      inputJson: {
+        serializedName: "inputJson",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      deploymentScopeId: {
+        serializedName: "deploymentScopeId",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      }
+    }
+  }
+};
+
+export const ComponentDataResult: coreHttp.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "ComponentDataResult",
+    modelProperties: {
+      code: {
+        serializedName: "code",
+        type: {
+          name: "Number"
+        }
+      },
+      status: {
+        serializedName: "status",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      data: {
+        serializedName: "data",
+        type: {
+          name: "Composite",
+          className: "Component"
+        }
+      },
+      location: {
+        serializedName: "location",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      }
+    }
+  }
+};
+
+export const StatusResult: coreHttp.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "StatusResult",
+    modelProperties: {
+      code: {
+        serializedName: "code",
+        type: {
+          name: "Number"
+        }
+      },
+      status: {
+        serializedName: "status",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      state: {
+        serializedName: "state",
+        readOnly: true,
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      stateMessage: {
+        serializedName: "stateMessage",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      location: {
+        serializedName: "location",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      errors: {
+        serializedName: "errors",
+        nullable: true,
+        type: {
+          name: "Sequence",
+          element: {
+            type: {
+              name: "Composite",
+              className: "ResultError"
+            }
+          }
+        }
+      },
+      trackingId: {
+        serializedName: "_trackingId",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      }
+    }
+  }
+};
+
+export const ComponentTaskListDataResult: coreHttp.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "ComponentTaskListDataResult",
+    modelProperties: {
+      code: {
+        serializedName: "code",
+        type: {
+          name: "Number"
+        }
+      },
+      status: {
+        serializedName: "status",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      data: {
+        serializedName: "data",
+        readOnly: true,
+        nullable: true,
+        type: {
+          name: "Sequence",
+          element: {
+            type: {
+              name: "Composite",
+              className: "ComponentTask"
+            }
+          }
+        }
+      },
+      location: {
+        serializedName: "location",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      }
+    }
+  }
+};
+
+export const ComponentTask: coreHttp.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "ComponentTask",
+    modelProperties: {
+      componentId: {
+        serializedName: "componentId",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
+      projectId: {
+        serializedName: "projectId",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
+      storageId: {
+        serializedName: "storageId",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      requestedBy: {
+        serializedName: "requestedBy",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      type: {
+        serializedName: "type",
+        type: {
+          name: "Number"
+        }
+      },
+      typeName: {
+        serializedName: "typeName",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      created: {
+        serializedName: "created",
+        type: {
+          name: "DateTime"
+        }
+      },
+      started: {
+        serializedName: "started",
+        nullable: true,
+        type: {
+          name: "DateTime"
+        }
+      },
+      finished: {
+        serializedName: "finished",
+        nullable: true,
+        type: {
+          name: "DateTime"
+        }
+      },
+      inputJson: {
+        serializedName: "inputJson",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      output: {
+        serializedName: "output",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      resourceId: {
+        serializedName: "resourceId",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      resourceState: {
+        serializedName: "resourceState",
+        type: {
+          name: "String"
+        }
+      },
+      exitCode: {
+        serializedName: "exitCode",
+        nullable: true,
+        type: {
+          name: "Number"
+        }
+      },
+      id: {
+        serializedName: "id",
+        required: true,
+        type: {
+          name: "String"
+        }
+      }
+    }
+  }
+};
+
+export const ComponentTaskDefinition: coreHttp.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "ComponentTaskDefinition",
+    modelProperties: {
+      taskId: {
+        serializedName: "taskId",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
+      inputJson: {
+        serializedName: "inputJson",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      }
+    }
+  }
+};
+
+export const ComponentTaskDataResult: coreHttp.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "ComponentTaskDataResult",
+    modelProperties: {
+      code: {
+        serializedName: "code",
+        type: {
+          name: "Number"
+        }
+      },
+      status: {
+        serializedName: "status",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      data: {
+        serializedName: "data",
+        type: {
+          name: "Composite",
+          className: "ComponentTask"
+        }
+      },
+      location: {
+        serializedName: "location",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      }
+    }
+  }
+};
+
+export const ComponentTemplateListDataResult: coreHttp.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "ComponentTemplateListDataResult",
+    modelProperties: {
+      code: {
+        serializedName: "code",
+        type: {
+          name: "Number"
+        }
+      },
+      status: {
+        serializedName: "status",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      data: {
+        serializedName: "data",
+        readOnly: true,
+        nullable: true,
+        type: {
+          name: "Sequence",
+          element: {
+            type: {
+              name: "Composite",
+              className: "ComponentTemplate"
+            }
+          }
+        }
+      },
+      location: {
+        serializedName: "location",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      }
+    }
+  }
+};
+
+export const ComponentTemplate: coreHttp.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "ComponentTemplate",
+    modelProperties: {
+      organization: {
+        serializedName: "organization",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
+      parentId: {
+        serializedName: "parentId",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
+      provider: {
+        serializedName: "provider",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      displayName: {
+        serializedName: "displayName",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      description: {
+        serializedName: "description",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      repository: {
+        serializedName: "repository",
+        type: {
+          name: "Composite",
+          className: "RepositoryReference"
+        }
+      },
+      inputJsonSchema: {
+        serializedName: "inputJsonSchema",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      tasks: {
+        serializedName: "tasks",
+        nullable: true,
+        type: {
+          name: "Sequence",
+          element: {
+            type: {
+              name: "Composite",
+              className: "ComponentTaskTemplate"
+            }
+          }
+        }
+      },
+      type: {
+        serializedName: "type",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
+      folder: {
+        serializedName: "folder",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      id: {
+        serializedName: "id",
+        required: true,
+        type: {
+          name: "String"
+        }
+      }
+    }
+  }
+};
+
+export const RepositoryReference: coreHttp.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "RepositoryReference",
+    modelProperties: {
+      url: {
+        serializedName: "url",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
+      token: {
+        serializedName: "token",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      version: {
+        serializedName: "version",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      baselUrl: {
+        serializedName: "baselUrl",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      mountUrl: {
+        serializedName: "mountUrl",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      ref: {
+        serializedName: "ref",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      provider: {
+        serializedName: "provider",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
+      type: {
+        serializedName: "type",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
+      organization: {
+        serializedName: "organization",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      repository: {
+        serializedName: "repository",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      project: {
+        serializedName: "project",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      }
+    }
+  }
+};
+
+export const ComponentTaskTemplate: coreHttp.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "ComponentTaskTemplate",
+    modelProperties: {
+      id: {
+        serializedName: "id",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      displayName: {
+        serializedName: "displayName",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      description: {
+        serializedName: "description",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      inputJsonSchema: {
+        serializedName: "inputJsonSchema",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      type: {
+        serializedName: "type",
+        required: true,
+        type: {
+          name: "Number"
+        }
+      },
+      typeName: {
+        serializedName: "typeName",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      }
+    }
+  }
+};
+
+export const ComponentTemplateDataResult: coreHttp.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "ComponentTemplateDataResult",
+    modelProperties: {
+      code: {
+        serializedName: "code",
+        type: {
+          name: "Number"
+        }
+      },
+      status: {
+        serializedName: "status",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      data: {
+        serializedName: "data",
+        type: {
+          name: "Composite",
+          className: "ComponentTemplate"
+        }
+      },
+      location: {
+        serializedName: "location",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      }
+    }
+  }
+};
+
 export const DeploymentScopeListDataResult: coreHttp.CompositeMapper = {
   type: {
     name: "Composite",
@@ -107,99 +1036,6 @@ export const DeploymentScope: coreHttp.CompositeMapper = {
       id: {
         serializedName: "id",
         required: true,
-        type: {
-          name: "String"
-        }
-      }
-    }
-  }
-};
-
-export const ErrorResult: coreHttp.CompositeMapper = {
-  type: {
-    name: "Composite",
-    className: "ErrorResult",
-    modelProperties: {
-      code: {
-        serializedName: "code",
-        type: {
-          name: "Number"
-        }
-      },
-      status: {
-        serializedName: "status",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      errors: {
-        serializedName: "errors",
-        nullable: true,
-        type: {
-          name: "Sequence",
-          element: {
-            type: {
-              name: "Composite",
-              className: "ResultError"
-            }
-          }
-        }
-      }
-    }
-  }
-};
-
-export const ResultError: coreHttp.CompositeMapper = {
-  type: {
-    name: "Composite",
-    className: "ResultError",
-    modelProperties: {
-      code: {
-        serializedName: "code",
-        type: {
-          name: "String"
-        }
-      },
-      message: {
-        serializedName: "message",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      errors: {
-        serializedName: "errors",
-        nullable: true,
-        type: {
-          name: "Sequence",
-          element: {
-            type: {
-              name: "Composite",
-              className: "ValidationError"
-            }
-          }
-        }
-      }
-    }
-  }
-};
-
-export const ValidationError: coreHttp.CompositeMapper = {
-  type: {
-    name: "Composite",
-    className: "ValidationError",
-    modelProperties: {
-      field: {
-        serializedName: "field",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      message: {
-        serializedName: "message",
-        nullable: true,
         type: {
           name: "String"
         }
@@ -474,70 +1310,6 @@ export const OrganizationDataResult: coreHttp.CompositeMapper = {
       },
       location: {
         serializedName: "location",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      }
-    }
-  }
-};
-
-export const StatusResult: coreHttp.CompositeMapper = {
-  type: {
-    name: "Composite",
-    className: "StatusResult",
-    modelProperties: {
-      code: {
-        serializedName: "code",
-        type: {
-          name: "Number"
-        }
-      },
-      status: {
-        serializedName: "status",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      state: {
-        serializedName: "state",
-        readOnly: true,
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      stateMessage: {
-        serializedName: "stateMessage",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      location: {
-        serializedName: "location",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      errors: {
-        serializedName: "errors",
-        nullable: true,
-        type: {
-          name: "Sequence",
-          element: {
-            type: {
-              name: "Composite",
-              className: "ResultError"
-            }
-          }
-        }
-      },
-      trackingId: {
-        serializedName: "_trackingId",
         nullable: true,
         type: {
           name: "String"
@@ -949,656 +1721,6 @@ export const ProjectDataResult: coreHttp.CompositeMapper = {
         type: {
           name: "Composite",
           className: "Project"
-        }
-      },
-      location: {
-        serializedName: "location",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      }
-    }
-  }
-};
-
-export const ComponentListDataResult: coreHttp.CompositeMapper = {
-  type: {
-    name: "Composite",
-    className: "ComponentListDataResult",
-    modelProperties: {
-      code: {
-        serializedName: "code",
-        type: {
-          name: "Number"
-        }
-      },
-      status: {
-        serializedName: "status",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      data: {
-        serializedName: "data",
-        readOnly: true,
-        nullable: true,
-        type: {
-          name: "Sequence",
-          element: {
-            type: {
-              name: "Composite",
-              className: "Component"
-            }
-          }
-        }
-      },
-      location: {
-        serializedName: "location",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      }
-    }
-  }
-};
-
-export const Component: coreHttp.CompositeMapper = {
-  type: {
-    name: "Composite",
-    className: "Component",
-    modelProperties: {
-      href: {
-        serializedName: "href",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      organization: {
-        serializedName: "organization",
-        required: true,
-        type: {
-          name: "String"
-        }
-      },
-      templateId: {
-        serializedName: "templateId",
-        required: true,
-        type: {
-          name: "String"
-        }
-      },
-      projectId: {
-        serializedName: "projectId",
-        required: true,
-        type: {
-          name: "String"
-        }
-      },
-      provider: {
-        serializedName: "provider",
-        required: true,
-        type: {
-          name: "String"
-        }
-      },
-      requestedBy: {
-        serializedName: "requestedBy",
-        required: true,
-        type: {
-          name: "String"
-        }
-      },
-      displayName: {
-        serializedName: "displayName",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      description: {
-        serializedName: "description",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      inputJson: {
-        serializedName: "inputJson",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      valueJson: {
-        serializedName: "valueJson",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      type: {
-        serializedName: "type",
-        required: true,
-        type: {
-          name: "String"
-        }
-      },
-      resourceId: {
-        serializedName: "resourceId",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      resourceState: {
-        serializedName: "resourceState",
-        type: {
-          name: "String"
-        }
-      },
-      deploymentScopeId: {
-        serializedName: "deploymentScopeId",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      identityId: {
-        serializedName: "identityId",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      slug: {
-        serializedName: "slug",
-        required: true,
-        readOnly: true,
-        type: {
-          name: "String"
-        }
-      },
-      id: {
-        serializedName: "id",
-        required: true,
-        type: {
-          name: "String"
-        }
-      }
-    }
-  }
-};
-
-export const ProjectComponentDefinition: coreHttp.CompositeMapper = {
-  type: {
-    name: "Composite",
-    className: "ProjectComponentDefinition",
-    modelProperties: {
-      templateId: {
-        serializedName: "templateId",
-        required: true,
-        type: {
-          name: "String"
-        }
-      },
-      displayName: {
-        serializedName: "displayName",
-        required: true,
-        type: {
-          name: "String"
-        }
-      },
-      inputJson: {
-        serializedName: "inputJson",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      deploymentScopeId: {
-        serializedName: "deploymentScopeId",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      }
-    }
-  }
-};
-
-export const ComponentDataResult: coreHttp.CompositeMapper = {
-  type: {
-    name: "Composite",
-    className: "ComponentDataResult",
-    modelProperties: {
-      code: {
-        serializedName: "code",
-        type: {
-          name: "Number"
-        }
-      },
-      status: {
-        serializedName: "status",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      data: {
-        serializedName: "data",
-        type: {
-          name: "Composite",
-          className: "Component"
-        }
-      },
-      location: {
-        serializedName: "location",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      }
-    }
-  }
-};
-
-export const ComponentTemplateListDataResult: coreHttp.CompositeMapper = {
-  type: {
-    name: "Composite",
-    className: "ComponentTemplateListDataResult",
-    modelProperties: {
-      code: {
-        serializedName: "code",
-        type: {
-          name: "Number"
-        }
-      },
-      status: {
-        serializedName: "status",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      data: {
-        serializedName: "data",
-        readOnly: true,
-        nullable: true,
-        type: {
-          name: "Sequence",
-          element: {
-            type: {
-              name: "Composite",
-              className: "ComponentTemplate"
-            }
-          }
-        }
-      },
-      location: {
-        serializedName: "location",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      }
-    }
-  }
-};
-
-export const ComponentTemplate: coreHttp.CompositeMapper = {
-  type: {
-    name: "Composite",
-    className: "ComponentTemplate",
-    modelProperties: {
-      organization: {
-        serializedName: "organization",
-        required: true,
-        type: {
-          name: "String"
-        }
-      },
-      parentId: {
-        serializedName: "parentId",
-        required: true,
-        type: {
-          name: "String"
-        }
-      },
-      provider: {
-        serializedName: "provider",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      displayName: {
-        serializedName: "displayName",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      description: {
-        serializedName: "description",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      repository: {
-        serializedName: "repository",
-        type: {
-          name: "Composite",
-          className: "RepositoryReference"
-        }
-      },
-      inputJsonSchema: {
-        serializedName: "inputJsonSchema",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      type: {
-        serializedName: "type",
-        required: true,
-        type: {
-          name: "String"
-        }
-      },
-      folder: {
-        serializedName: "folder",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      id: {
-        serializedName: "id",
-        required: true,
-        type: {
-          name: "String"
-        }
-      }
-    }
-  }
-};
-
-export const RepositoryReference: coreHttp.CompositeMapper = {
-  type: {
-    name: "Composite",
-    className: "RepositoryReference",
-    modelProperties: {
-      url: {
-        serializedName: "url",
-        required: true,
-        type: {
-          name: "String"
-        }
-      },
-      token: {
-        serializedName: "token",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      version: {
-        serializedName: "version",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      baselUrl: {
-        serializedName: "baselUrl",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      mountUrl: {
-        serializedName: "mountUrl",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      ref: {
-        serializedName: "ref",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      provider: {
-        serializedName: "provider",
-        required: true,
-        type: {
-          name: "String"
-        }
-      },
-      type: {
-        serializedName: "type",
-        required: true,
-        type: {
-          name: "String"
-        }
-      },
-      organization: {
-        serializedName: "organization",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      repository: {
-        serializedName: "repository",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      project: {
-        serializedName: "project",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      }
-    }
-  }
-};
-
-export const ComponentTemplateDataResult: coreHttp.CompositeMapper = {
-  type: {
-    name: "Composite",
-    className: "ComponentTemplateDataResult",
-    modelProperties: {
-      code: {
-        serializedName: "code",
-        type: {
-          name: "Number"
-        }
-      },
-      status: {
-        serializedName: "status",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      data: {
-        serializedName: "data",
-        type: {
-          name: "Composite",
-          className: "ComponentTemplate"
-        }
-      },
-      location: {
-        serializedName: "location",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      }
-    }
-  }
-};
-
-export const ComponentDeploymentListDataResult: coreHttp.CompositeMapper = {
-  type: {
-    name: "Composite",
-    className: "ComponentDeploymentListDataResult",
-    modelProperties: {
-      code: {
-        serializedName: "code",
-        type: {
-          name: "Number"
-        }
-      },
-      status: {
-        serializedName: "status",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      data: {
-        serializedName: "data",
-        readOnly: true,
-        nullable: true,
-        type: {
-          name: "Sequence",
-          element: {
-            type: {
-              name: "Composite",
-              className: "ComponentDeployment"
-            }
-          }
-        }
-      },
-      location: {
-        serializedName: "location",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      }
-    }
-  }
-};
-
-export const ComponentDeployment: coreHttp.CompositeMapper = {
-  type: {
-    name: "Composite",
-    className: "ComponentDeployment",
-    modelProperties: {
-      componentId: {
-        serializedName: "componentId",
-        required: true,
-        type: {
-          name: "String"
-        }
-      },
-      projectId: {
-        serializedName: "projectId",
-        required: true,
-        type: {
-          name: "String"
-        }
-      },
-      type: {
-        serializedName: "type",
-        type: {
-          name: "Number"
-        }
-      },
-      created: {
-        serializedName: "created",
-        type: {
-          name: "DateTime"
-        }
-      },
-      started: {
-        serializedName: "started",
-        nullable: true,
-        type: {
-          name: "DateTime"
-        }
-      },
-      finished: {
-        serializedName: "finished",
-        nullable: true,
-        type: {
-          name: "DateTime"
-        }
-      },
-      output: {
-        serializedName: "output",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      resourceId: {
-        serializedName: "resourceId",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      resourceState: {
-        serializedName: "resourceState",
-        type: {
-          name: "String"
-        }
-      },
-      exitCode: {
-        serializedName: "exitCode",
-        nullable: true,
-        type: {
-          name: "Number"
-        }
-      },
-      id: {
-        serializedName: "id",
-        required: true,
-        type: {
-          name: "String"
-        }
-      }
-    }
-  }
-};
-
-export const ComponentDeploymentDataResult: coreHttp.CompositeMapper = {
-  type: {
-    name: "Composite",
-    className: "ComponentDeploymentDataResult",
-    modelProperties: {
-      code: {
-        serializedName: "code",
-        type: {
-          name: "Number"
-        }
-      },
-      status: {
-        serializedName: "status",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      data: {
-        serializedName: "data",
-        type: {
-          name: "Composite",
-          className: "ComponentDeployment"
         }
       },
       location: {
