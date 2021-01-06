@@ -12,11 +12,11 @@ namespace TeamCloud.Data.CosmosDb
 {
     public sealed class CosmosDbComponentDeploymentRepository : CosmosDbRepository<ComponentDeployment>, IComponentDeploymentRepository
     {
-        public CosmosDbComponentDeploymentRepository(ICosmosDbOptions options)
-            : base(options)
+        public CosmosDbComponentDeploymentRepository(ICosmosDbOptions options, IEnumerable<IDocumentExpander> expanders)
+            : base(options, expanders)
         { }
 
-        public async Task<ComponentDeployment> AddAsync(ComponentDeployment deployment)
+        public override async Task<ComponentDeployment> AddAsync(ComponentDeployment deployment)
         {
             if (deployment is null)
                 throw new ArgumentNullException(nameof(deployment));
@@ -35,7 +35,7 @@ namespace TeamCloud.Data.CosmosDb
             return response.Resource;
         }
 
-        public async Task<ComponentDeployment> GetAsync(string componentId, string id)
+        public override async Task<ComponentDeployment> GetAsync(string componentId, string id, bool expand = false)
         {
             if (componentId is null)
                 throw new ArgumentNullException(nameof(componentId));
@@ -55,7 +55,11 @@ namespace TeamCloud.Data.CosmosDb
                     .ReadItemAsync<ComponentDeployment>(idParsed.ToString(), GetPartitionKey(componentId))
                     .ConfigureAwait(false);
 
-                return response.Resource;
+                var expandTask = expand
+                    ? ExpandAsync(response.Resource)
+                    : Task.FromResult(response.Resource);
+
+                return await expandTask.ConfigureAwait(false);
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
             {
@@ -63,7 +67,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async IAsyncEnumerable<ComponentDeployment> ListAsync(string componentId)
+        public override async IAsyncEnumerable<ComponentDeployment> ListAsync(string componentId)
         {
             if (componentId is null)
                 throw new ArgumentNullException(nameof(componentId));
@@ -113,7 +117,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async Task<ComponentDeployment> RemoveAsync(ComponentDeployment deployment)
+        public override async Task<ComponentDeployment> RemoveAsync(ComponentDeployment deployment)
         {
             if (deployment is null)
                 throw new ArgumentNullException(nameof(deployment));
@@ -147,7 +151,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async Task<ComponentDeployment> SetAsync(ComponentDeployment deployment)
+        public override async Task<ComponentDeployment> SetAsync(ComponentDeployment deployment)
         {
             if (deployment is null)
                 throw new ArgumentNullException(nameof(deployment));

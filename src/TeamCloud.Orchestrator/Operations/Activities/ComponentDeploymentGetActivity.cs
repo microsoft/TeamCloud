@@ -10,10 +10,12 @@ namespace TeamCloud.Orchestrator.Operations.Activities
     public sealed class ComponentDeploymentGetActivity
     {
         private readonly IComponentDeploymentRepository componentDeploymentRepository;
+        private readonly IComponentRepository componentRepository;
 
-        public ComponentDeploymentGetActivity(IComponentDeploymentRepository componentDeploymentRepository)
+        public ComponentDeploymentGetActivity(IComponentDeploymentRepository componentDeploymentRepository, IComponentRepository componentRepository)
         {
             this.componentDeploymentRepository = componentDeploymentRepository ?? throw new ArgumentNullException(nameof(componentDeploymentRepository));
+            this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
         }
 
         [FunctionName(nameof(ComponentDeploymentGetActivity))]
@@ -28,6 +30,15 @@ namespace TeamCloud.Orchestrator.Operations.Activities
             var componentDeployment = await componentDeploymentRepository
                 .GetAsync(input.ComponentId, input.ComponentDeploymentId)
                 .ConfigureAwait(false);
+
+            if (string.IsNullOrEmpty(componentDeployment.StorageId))
+            {
+                var component = await componentRepository
+                    .GetAsync(componentDeployment.ProjectId, componentDeployment.ComponentId)
+                    .ConfigureAwait(false);
+
+                componentDeployment.StorageId = component.StorageId;
+            }
 
             return componentDeployment;
         }

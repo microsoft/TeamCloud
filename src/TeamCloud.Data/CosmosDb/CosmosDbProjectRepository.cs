@@ -22,8 +22,8 @@ namespace TeamCloud.Data.CosmosDb
 
         private readonly IUserRepository userRepository;
 
-        public CosmosDbProjectRepository(ICosmosDbOptions cosmosOptions, IUserRepository userRepository, IMemoryCache cache)
-            : base(cosmosOptions)
+        public CosmosDbProjectRepository(ICosmosDbOptions options, IEnumerable<IDocumentExpander> expanders, IUserRepository userRepository, IMemoryCache cache)
+            : base(options, expanders)
         {
             this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             this.cache = cache ?? throw new ArgumentNullException(nameof(cache));
@@ -57,7 +57,7 @@ namespace TeamCloud.Data.CosmosDb
             cache.Remove($"{project.Organization}_{project.Id}");
         }
 
-        public async Task<Project> AddAsync(Project project)
+        public override async Task<Project> AddAsync(Project project)
         {
             if (project is null)
                 throw new ArgumentNullException(nameof(project));
@@ -86,7 +86,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async Task<Project> GetAsync(string organization, string identifier)
+        public override async Task<Project> GetAsync(string organization, string identifier, bool expand = false)
         {
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
@@ -121,6 +121,12 @@ namespace TeamCloud.Data.CosmosDb
             await PopulateUsersAsync(project)
                 .ConfigureAwait(false);
 
+            if (expand)
+            {
+                project = await ExpandAsync(project)
+                    .ConfigureAwait(false);
+            }
+
             return project;
         }
 
@@ -132,7 +138,7 @@ namespace TeamCloud.Data.CosmosDb
             return project != null;
         }
 
-        public async Task<Project> SetAsync(Project project)
+        public override async Task<Project> SetAsync(Project project)
         {
             if (project is null)
                 throw new ArgumentNullException(nameof(project));
@@ -154,7 +160,7 @@ namespace TeamCloud.Data.CosmosDb
             return response.Resource;
         }
 
-        public async IAsyncEnumerable<Project> ListAsync(string organization)
+        public override async IAsyncEnumerable<Project> ListAsync(string organization)
         {
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
@@ -234,7 +240,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async Task<Project> RemoveAsync(Project project)
+        public override async Task<Project> RemoveAsync(Project project)
         {
             if (project is null)
                 throw new ArgumentNullException(nameof(project));

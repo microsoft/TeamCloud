@@ -23,6 +23,8 @@ namespace TeamCloud.Model.Data
         [JsonProperty(Required = Required.Always)]
         public string ProjectId { get; set; }
 
+        public string StorageId { get; set; }
+
         public ComponentDeploymentType Type { get; set; } = ComponentDeploymentType.Create;
 
         public string TypeName
@@ -37,6 +39,7 @@ namespace TeamCloud.Model.Data
 
         public DateTime? Finished { get; set; }
 
+        [DatabaseIgnore]
         public string Output { get; set; }
 
         public string ResourceId { get; set; }

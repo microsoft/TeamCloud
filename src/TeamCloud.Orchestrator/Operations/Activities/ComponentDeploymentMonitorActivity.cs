@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -58,41 +57,42 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                     }
                     else
                     {
-                        var lines = container.InstanceView.Events
-                            .Where(e => e.LastTimestamp.HasValue)
-                            .OrderBy(e => e.LastTimestamp)
-                            .Select(e => $"{e.LastTimestamp.Value:yyyy-MM-dd hh:mm:ss}\t{e.Name}\t\t{e.Message}");
+                        //var lines = container.InstanceView.Events
+                        //    .Where(e => e.LastTimestamp.HasValue)
+                        //    .OrderBy(e => e.LastTimestamp)
+                        //    .Select(e => $"{e.LastTimestamp.Value:yyyy-MM-dd hh:mm:ss}\t{e.Name}\t\t{e.Message}");
 
-                        if (lines.Any())
-                            lines = lines.Append(string.Empty);
+                        //if (lines.Any())
+                        //    lines = lines.Append(string.Empty);
 
-                        var containerEvents = string.Join(Environment.NewLine, lines);
-                        var containerLog = default(string);
+                        //var containerEvents = string.Join(Environment.NewLine, lines);
+                        //var containerLog = default(string);
 
-                        try
-                        {
-                            containerLog = await runner
-                                .GetLogContentAsync(container.Name)
-                                .ConfigureAwait(false);
-                        }
-                        catch
-                        {
-                            containerLog = string.Empty;
-                        }
+                        //try
+                        //{
+                        //    containerLog = await runner
+                        //        .GetLogContentAsync(container.Name)
+                        //        .ConfigureAwait(false);
+                        //}
+                        //catch
+                        //{
+                        //    containerLog = string.Empty;
+                        //}
 
-                        if (string.IsNullOrEmpty(containerLog))
-                        {
-                            containerLog = containerEvents;
-                        }
-                        else if (!(componentDeployment.Output?.StartsWith(containerEvents, StringComparison.Ordinal) ?? false))
-                        {
-                            componentDeployment.Output = containerEvents;
-                        }
+                        //if (string.IsNullOrEmpty(containerLog))
+                        //{
+                        //    containerLog = containerEvents;
+                        //}
+                        //else if (!(componentDeployment.Output?.StartsWith(containerEvents, StringComparison.Ordinal) ?? false))
+                        //{
+                        //    componentDeployment.Output = containerEvents;
+                        //}
 
-                        componentDeployment.Output = MergeOutput(componentDeployment.Output, Regex.Replace(containerLog, @"(?<!\r)\n", Environment.NewLine, RegexOptions.Compiled));
+                        //componentDeployment.Output = MergeOutput(componentDeployment.Output, Regex.Replace(containerLog, @"(?<!\r)\n", Environment.NewLine, RegexOptions.Compiled));
 
                         if (container.InstanceView.CurrentState != null)
                         {
+                            componentDeployment.ResourceState = ResourceState.Provisioning;
                             componentDeployment.ExitCode = container.InstanceView.CurrentState.ExitCode;
                             componentDeployment.Started = container.InstanceView.CurrentState.StartTime;
                             componentDeployment.Finished = container.InstanceView.CurrentState.FinishTime;

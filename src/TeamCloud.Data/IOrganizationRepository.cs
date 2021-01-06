@@ -9,20 +9,10 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Data
 {
-    public interface IOrganizationRepository
+    public interface IOrganizationRepository : IDocumentRepository<Organization>
     {
-        Task<Organization> GetAsync(string tenant, string id);
-
         Task<string> ResolveIdAsync(string tenant, string identifier);
 
-        IAsyncEnumerable<Organization> ListAsync(string tenant);
-
         IAsyncEnumerable<Organization> ListAsync(string tenant, IEnumerable<string> identifiers);
-
-        Task<Organization> AddAsync(Organization organization);
-
-        Task<Organization> SetAsync(Organization organization);
-
-        Task<Organization> RemoveAsync(Organization organization);
     }
 }

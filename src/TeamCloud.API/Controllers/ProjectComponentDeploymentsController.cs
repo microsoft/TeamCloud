@@ -64,7 +64,7 @@ namespace TeamCloud.API.Controllers
                     .ToActionResult();
 
             var componentDeployment = await componentDeploymentRepository
-                .GetAsync(component.Id, id)
+                .GetAsync(component.Id, id, true)
                 .ConfigureAwait(false);
 
             if (componentDeployment is null)

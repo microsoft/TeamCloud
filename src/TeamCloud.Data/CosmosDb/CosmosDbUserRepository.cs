@@ -19,11 +19,11 @@ namespace TeamCloud.Data.CosmosDb
 {
     public class CosmosDbUserRepository : CosmosDbRepository<User>, IUserRepository
     {
-        public CosmosDbUserRepository(ICosmosDbOptions cosmosOptions)
-            : base(cosmosOptions)
+        public CosmosDbUserRepository(ICosmosDbOptions options, IEnumerable<IDocumentExpander> expanders)
+            : base(options, expanders)
         { }
 
-        public async Task<User> AddAsync(User user)
+        public override async Task<User> AddAsync(User user)
         {
             if (user is null)
                 throw new ArgumentNullException(nameof(user));
@@ -42,7 +42,7 @@ namespace TeamCloud.Data.CosmosDb
             return response.Resource;
         }
 
-        public async Task<User> GetAsync(string organization, string id)
+        public override async Task<User> GetAsync(string organization, string id, bool expand = false)
         {
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
@@ -53,7 +53,11 @@ namespace TeamCloud.Data.CosmosDb
                     .ReadItemAsync<User>(id, GetPartitionKey(organization))
                     .ConfigureAwait(false);
 
-                return response.Resource;
+                var expandTask = expand
+                    ? ExpandAsync(response.Resource)
+                    : Task.FromResult(response.Resource);
+
+                return await expandTask.ConfigureAwait(false);
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
             {
@@ -103,7 +107,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async IAsyncEnumerable<User> ListAsync(string organization)
+        public override async IAsyncEnumerable<User> ListAsync(string organization)
         {
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
@@ -183,7 +187,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async Task<User> SetAsync(User user)
+        public override async Task<User> SetAsync(User user)
         {
             if (user is null)
                 throw new ArgumentNullException(nameof(user));
@@ -202,7 +206,7 @@ namespace TeamCloud.Data.CosmosDb
             return response.Resource;
         }
 
-        public async Task<User> RemoveAsync(User user)
+        public override async Task<User> RemoveAsync(User user)
         {
             if (user is null)
                 throw new ArgumentNullException(nameof(user));

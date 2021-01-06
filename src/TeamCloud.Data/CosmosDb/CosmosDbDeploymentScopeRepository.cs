@@ -17,11 +17,11 @@ namespace TeamCloud.Data.CosmosDb
 {
     public class CosmosDbDeploymentScopeRepository : CosmosDbRepository<DeploymentScope>, IDeploymentScopeRepository
     {
-        public CosmosDbDeploymentScopeRepository(ICosmosDbOptions cosmosOptions)
-            : base(cosmosOptions)
+        public CosmosDbDeploymentScopeRepository(ICosmosDbOptions options, IEnumerable<IDocumentExpander> expanders)
+            : base(options, expanders)
         { }
 
-        public async Task<DeploymentScope> AddAsync(DeploymentScope deploymentScope)
+        public override async Task<DeploymentScope> AddAsync(DeploymentScope deploymentScope)
         {
             if (deploymentScope is null)
                 throw new ArgumentNullException(nameof(deploymentScope));
@@ -91,7 +91,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async Task<DeploymentScope> GetAsync(string organization, string id)
+        public override async Task<DeploymentScope> GetAsync(string organization, string id, bool expand = false)
         {
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
@@ -101,6 +101,12 @@ namespace TeamCloud.Data.CosmosDb
                 var response = await container
                     .ReadItemAsync<DeploymentScope>(id, GetPartitionKey(organization))
                     .ConfigureAwait(false);
+
+                if (expand)
+                {
+                    return await ExpandAsync(response.Resource)
+                        .ConfigureAwait(false);
+                }
 
                 return response.Resource;
             }
@@ -159,7 +165,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async Task<DeploymentScope> SetAsync(DeploymentScope deploymentScope)
+        public override async Task<DeploymentScope> SetAsync(DeploymentScope deploymentScope)
         {
             if (deploymentScope is null)
                 throw new ArgumentNullException(nameof(deploymentScope));
@@ -220,7 +226,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async IAsyncEnumerable<DeploymentScope> ListAsync(string organization)
+        public override async IAsyncEnumerable<DeploymentScope> ListAsync(string organization)
         {
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
@@ -240,7 +246,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async Task<DeploymentScope> RemoveAsync(DeploymentScope deploymentScope)
+        public override async Task<DeploymentScope> RemoveAsync(DeploymentScope deploymentScope)
         {
             if (deploymentScope is null)
                 throw new ArgumentNullException(nameof(deploymentScope));

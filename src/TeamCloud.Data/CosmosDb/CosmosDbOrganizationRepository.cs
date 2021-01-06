@@ -20,8 +20,8 @@ namespace TeamCloud.Data.CosmosDb
     {
         private readonly IMemoryCache cache;
 
-        public CosmosDbOrganizationRepository(ICosmosDbOptions cosmosOptions, IMemoryCache cache)
-            : base(cosmosOptions)
+        public CosmosDbOrganizationRepository(ICosmosDbOptions options, IEnumerable<IDocumentExpander> expanders, IMemoryCache cache)
+            : base(options, expanders)
         {
             this.cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }
@@ -48,7 +48,7 @@ namespace TeamCloud.Data.CosmosDb
             return id;
         }
 
-        public async Task<Organization> AddAsync(Organization organization)
+        public override async Task<Organization> AddAsync(Organization organization)
         {
             if (organization is null)
                 throw new ArgumentNullException(nameof(organization));
@@ -67,7 +67,7 @@ namespace TeamCloud.Data.CosmosDb
             return response.Resource;
         }
 
-        public async Task<Organization> GetAsync(string tenant, string identifier)
+        public override async Task<Organization> GetAsync(string tenant, string identifier, bool expand = false)
         {
             if (identifier is null)
                 throw new ArgumentNullException(nameof(identifier));
@@ -102,10 +102,16 @@ namespace TeamCloud.Data.CosmosDb
                 }
             }
 
+            if (expand)
+            {
+                organization = await ExpandAsync(organization)
+                    .ConfigureAwait(false);
+            }
+
             return organization;
         }
 
-        public async IAsyncEnumerable<Organization> ListAsync(string tenant)
+        public override async IAsyncEnumerable<Organization> ListAsync(string tenant)
         {
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
@@ -148,7 +154,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async Task<Organization> RemoveAsync(Organization organization)
+        public override async Task<Organization> RemoveAsync(Organization organization)
         {
             if (organization is null)
                 throw new ArgumentNullException(nameof(organization));
@@ -170,7 +176,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async Task<Organization> SetAsync(Organization organization)
+        public override async Task<Organization> SetAsync(Organization organization)
         {
             if (organization is null)
                 throw new ArgumentNullException(nameof(organization));

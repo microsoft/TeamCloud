@@ -17,11 +17,11 @@ namespace TeamCloud.Data.CosmosDb
 {
     public sealed class CosmosDbComponentRepository : CosmosDbRepository<Component>, IComponentRepository
     {
-        public CosmosDbComponentRepository(ICosmosDbOptions cosmosOptions)
-            : base(cosmosOptions)
+        public CosmosDbComponentRepository(ICosmosDbOptions options, IEnumerable<IDocumentExpander> expanders)
+            : base(options, expanders)
         { }
 
-        public async Task<Component> AddAsync(Component component)
+        public override async Task<Component> AddAsync(Component component)
         {
             if (component is null)
                 throw new ArgumentNullException(nameof(component));
@@ -40,7 +40,7 @@ namespace TeamCloud.Data.CosmosDb
             return response.Resource;
         }
 
-        public async Task<Component> GetAsync(string projectId, string id)
+        public override async Task<Component> GetAsync(string projectId, string id, bool expand = false)
         {
             if (projectId is null)
                 throw new ArgumentNullException(nameof(projectId));
@@ -57,7 +57,11 @@ namespace TeamCloud.Data.CosmosDb
                     .ReadItemAsync<Component>(id, GetPartitionKey(projectId))
                     .ConfigureAwait(false);
 
-                return response.Resource;
+                var expandTask = expand
+                    ? ExpandAsync(response.Resource)
+                    : Task.FromResult(response.Resource);
+
+                return await expandTask.ConfigureAwait(false);
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
             {
@@ -79,7 +83,7 @@ namespace TeamCloud.Data.CosmosDb
             return null;
         }
 
-        public async IAsyncEnumerable<Component> ListAsync(string projectId)
+        public override async IAsyncEnumerable<Component> ListAsync(string projectId)
         {
             if (projectId is null)
                 throw new ArgumentNullException(nameof(projectId));
@@ -108,7 +112,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async Task<Component> RemoveAsync(Component component)
+        public override async Task<Component> RemoveAsync(Component component)
         {
             if (component is null)
                 throw new ArgumentNullException(nameof(component));
@@ -163,7 +167,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async Task<Component> SetAsync(Component component)
+        public override async Task<Component> SetAsync(Component component)
         {
             if (component is null)
                 throw new ArgumentNullException(nameof(component));

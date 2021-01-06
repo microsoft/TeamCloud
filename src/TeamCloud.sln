@@ -62,6 +62,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamCloud.Audit", "TeamClou
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamCloud.Git", "TeamCloud.Git\TeamCloud.Git.csproj", "{CB4CCEB0-BCF5-4088-A8DE-7961272A2485}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamCloud.Data.Expanders", "TeamCloud.Data.Expanders\TeamCloud.Data.Expanders.csproj", "{0585D00F-1B03-49AC-85B1-B7A5226EE2FA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -160,6 +162,10 @@ Global
 		{CB4CCEB0-BCF5-4088-A8DE-7961272A2485}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CB4CCEB0-BCF5-4088-A8DE-7961272A2485}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CB4CCEB0-BCF5-4088-A8DE-7961272A2485}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0585D00F-1B03-49AC-85B1-B7A5226EE2FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0585D00F-1B03-49AC-85B1-B7A5226EE2FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0585D00F-1B03-49AC-85B1-B7A5226EE2FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0585D00F-1B03-49AC-85B1-B7A5226EE2FA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -186,6 +192,7 @@ Global
 		{3C57D479-B5B1-4667-A150-8BAA239F980D} = {907EB108-924F-4487-8263-BD94AEFA63B6}
 		{A39DE429-4AA7-4170-B04D-A2F458CBE812} = {907EB108-924F-4487-8263-BD94AEFA63B6}
 		{CB4CCEB0-BCF5-4088-A8DE-7961272A2485} = {907EB108-924F-4487-8263-BD94AEFA63B6}
+		{0585D00F-1B03-49AC-85B1-B7A5226EE2FA} = {907EB108-924F-4487-8263-BD94AEFA63B6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E5BA7A63-87D1-481D-896E-2E9923B298B4}

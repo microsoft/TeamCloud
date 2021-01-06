@@ -10,10 +10,12 @@ namespace TeamCloud.Orchestrator.Operations.Activities
     public sealed class ComponentDeploymentSetActivity
     {
         private readonly IComponentDeploymentRepository componentDeploymentRepository;
+        private readonly IComponentRepository componentRepository;
 
-        public ComponentDeploymentSetActivity(IComponentDeploymentRepository componentDeploymentRepository)
+        public ComponentDeploymentSetActivity(IComponentDeploymentRepository componentDeploymentRepository, IComponentRepository componentRepository)
         {
             this.componentDeploymentRepository = componentDeploymentRepository ?? throw new ArgumentNullException(nameof(componentDeploymentRepository));
+            this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
         }
 
         [FunctionName(nameof(ComponentDeploymentSetActivity))]
@@ -23,10 +25,19 @@ namespace TeamCloud.Orchestrator.Operations.Activities
             if (context is null)
                 throw new ArgumentNullException(nameof(context));
 
-            var input = context.GetInput<Input>();
+            var componentDeployment = context.GetInput<Input>().ComponentDeployment;
 
-            var componentDeployment = await componentDeploymentRepository
-                .SetAsync(input.ComponentDeployment)
+            if (string.IsNullOrEmpty(componentDeployment.StorageId))
+            {
+                var component = await componentRepository
+                    .GetAsync(componentDeployment.ProjectId, componentDeployment.ComponentId)
+                    .ConfigureAwait(false);
+
+                componentDeployment.StorageId = component.StorageId;
+            }
+
+            componentDeployment = await componentDeploymentRepository
+                .SetAsync(componentDeployment)
                 .ConfigureAwait(false);
 
             return componentDeployment;

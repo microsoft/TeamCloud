@@ -20,18 +20,18 @@ namespace TeamCloud.Data.CosmosDb
     {
         private readonly IRepositoryService repositoryService;
 
-        public CosmosDbProjectTemplateRepository(ICosmosDbOptions cosmosOptions, IRepositoryService repositoryService)
-            : base(cosmosOptions)
+        public CosmosDbProjectTemplateRepository(ICosmosDbOptions options, IEnumerable<IDocumentExpander> expanders, IRepositoryService repositoryService)
+            : base(options, expanders)
         {
             this.repositoryService = repositoryService ?? throw new ArgumentNullException(nameof(repositoryService));
         }
 
         private Task<ProjectTemplate> AugmentAsync(ProjectTemplate projectTemplate)
-            => projectTemplate is null 
+            => projectTemplate is null
             ? Task.FromResult(projectTemplate)
             : repositoryService.UpdateProjectTemplateAsync(projectTemplate);
 
-        public async Task<ProjectTemplate> AddAsync(ProjectTemplate projectTemplate)
+        public override async Task<ProjectTemplate> AddAsync(ProjectTemplate projectTemplate)
         {
             if (projectTemplate is null)
                 throw new ArgumentNullException(nameof(projectTemplate));
@@ -102,7 +102,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async Task<ProjectTemplate> GetAsync(string organization, string id)
+        public override async Task<ProjectTemplate> GetAsync(string organization, string id, bool expand = false)
         {
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
@@ -113,8 +113,16 @@ namespace TeamCloud.Data.CosmosDb
                     .ReadItemAsync<ProjectTemplate>(id, GetPartitionKey(organization))
                     .ConfigureAwait(false);
 
-                return await AugmentAsync(response.Resource)
+                var document = await AugmentAsync(response.Resource)
                     .ConfigureAwait(false);
+
+                if (expand)
+                {
+                    document = await ExpandAsync(document)
+                        .ConfigureAwait(false);
+                }
+
+                return document;
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
             {
@@ -172,7 +180,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async Task<ProjectTemplate> SetAsync(ProjectTemplate projectTemplate)
+        public override async Task<ProjectTemplate> SetAsync(ProjectTemplate projectTemplate)
         {
             if (projectTemplate is null)
                 throw new ArgumentNullException(nameof(projectTemplate));
@@ -234,7 +242,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async IAsyncEnumerable<ProjectTemplate> ListAsync(string organization)
+        public override async IAsyncEnumerable<ProjectTemplate> ListAsync(string organization)
         {
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
@@ -266,7 +274,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async Task<ProjectTemplate> RemoveAsync(ProjectTemplate projectTemplate)
+        public override async Task<ProjectTemplate> RemoveAsync(ProjectTemplate projectTemplate)
         {
             if (projectTemplate is null)
                 throw new ArgumentNullException(nameof(projectTemplate));

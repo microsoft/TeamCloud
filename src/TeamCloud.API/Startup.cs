@@ -32,11 +32,12 @@ using TeamCloud.Azure;
 using TeamCloud.Azure.Deployment;
 using TeamCloud.Azure.Deployment.Providers;
 using TeamCloud.Azure.Directory;
+using TeamCloud.Azure.Resources;
 using TeamCloud.Configuration;
 using TeamCloud.Configuration.Options;
 using TeamCloud.Data;
-using TeamCloud.Data.Caching;
 using TeamCloud.Data.CosmosDb;
+using TeamCloud.Data.Expanders;
 using TeamCloud.Git.Caching;
 using TeamCloud.Git.Services;
 using TeamCloud.Http;
@@ -105,6 +106,7 @@ namespace TeamCloud.API
                 {
                     configuration
                         .AddDirectory()
+                        .AddResources()
                         .AddDeployment()
                         .SetDeploymentArtifactsProvider<AzureStorageArtifactsProvider>();
                 })
@@ -114,16 +116,17 @@ namespace TeamCloud.API
             {
                 services
                     .AddDistributedMemoryCache()
-                    .AddSingleton<IContainerDocumentCache, ContainerDocumentCache>()
                     .AddSingleton<IRepositoryCache, RepositoryCache>();
             }
             else
             {
                 services
                     .AddDistributedRedisCache(options => Configuration.Bind("Cache", options))
-                    .AddSingleton<IContainerDocumentCache, ContainerDocumentCache>()
                     .AddSingleton<IRepositoryCache, RepositoryCache>();
             }
+
+            services
+                .AddSingleton<IDocumentExpander, ComponentDeploymentOutputExpander>();
 
             services
                 .AddSingleton<IHttpContextAccessor, HttpContextAccessor>()

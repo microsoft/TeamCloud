@@ -27,7 +27,7 @@ export const DeploymentList: React.FunctionComponent<IDeploymentListProps> = (pr
     useEffect(() => {
         if (componentDeployments && deployment === undefined) {
             console.log('+ setDeployment');
-            setDeployment(componentDeployments[0]);
+            setDeployment(componentDeployments.splice(-1)[0]);
         }
     }, [deployment, componentDeployments])
 
@@ -36,7 +36,6 @@ export const DeploymentList: React.FunctionComponent<IDeploymentListProps> = (pr
         if (componentDeployments) {
             console.log('+ setDeployments');
             setDeployments(deployment ? [deployment, ...componentDeployments.filter(d => d.id !== deployment.id)] : componentDeployments);
-
         }
     }, [deployment, componentDeployments]);
 
@@ -80,19 +79,23 @@ export const DeploymentList: React.FunctionComponent<IDeploymentListProps> = (pr
                 }));
 
             setDeployments(_deployments);
-        }
 
-
-        if (org && deployment && deployment.finished === undefined && deployment.exitCode === undefined) {
-            console.log('- refreshDeployment');
-            const result = await api.getProjectDeployment(deployment.id, org.id, deployment.projectId, deployment.componentId);
-            if (result.data) {
-                setDeployment(result.data);
-            } else {
-                console.error(result);
+            if (deployment && _deployments && _deployments.some(d => d.id === deployment.id)) {
+                setDeployment(_deployments.find(d => d.id === deployment.id));
             }
-            console.log('+ refreshDeployment');
         }
+
+
+        // if (org && deployment && deployment.finished === undefined && deployment.exitCode === undefined) {
+        //     console.log('- refreshDeployment');
+        //     const result = await api.getProjectDeployment(deployment.id, org.id, deployment.projectId, deployment.componentId);
+        //     if (result.data) {
+        //         setDeployment(result.data);
+        //     } else {
+        //         console.error(result);
+        //     }
+        //     console.log('+ refreshDeployment');
+        // }
 
     }, isPolling ? 5000 : undefined);
 

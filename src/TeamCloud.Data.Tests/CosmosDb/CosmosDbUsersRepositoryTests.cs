@@ -4,6 +4,7 @@
  */
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using TeamCloud.Data.Conditional;
 using TeamCloud.Data.CosmosDb.Core;
@@ -18,7 +19,7 @@ namespace TeamCloud.Data.CosmosDb
         private readonly CosmosDbRepositoryFixture fixture;
 
         public CosmosDbuserRepositoryTests(CosmosDbRepositoryFixture fixture)
-            : base(new CosmosDbUserRepository(CosmosDbTestOptions.Instance))
+            : base(new CosmosDbUserRepository(CosmosDbTestOptions.Instance, Enumerable.Empty<IDocumentExpander>()))
         {
             this.fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
         }

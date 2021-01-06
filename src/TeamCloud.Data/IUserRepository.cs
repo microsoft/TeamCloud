@@ -9,12 +9,8 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Data
 {
-    public interface IUserRepository
+    public interface IUserRepository : IDocumentRepository<User>
     {
-        Task<User> GetAsync(string organization, string id);
-
-        IAsyncEnumerable<User> ListAsync(string organization);
-
         IAsyncEnumerable<User> ListAsync(string organization, string projectId);
 
         IAsyncEnumerable<User> ListOwnersAsync(string organization, string projectId);
@@ -24,12 +20,6 @@ namespace TeamCloud.Data
         IAsyncEnumerable<string> ListOrgsAsync(User user);
 
         IAsyncEnumerable<string> ListOrgsAsync(string userId);
-
-        Task<User> AddAsync(User user);
-
-        Task<User> SetAsync(User user);
-
-        Task<User> RemoveAsync(User user);
 
         Task RemoveProjectMembershipsAsync(string organization, string projectId);
 
