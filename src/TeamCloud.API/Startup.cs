@@ -126,7 +126,7 @@ namespace TeamCloud.API
             }
 
             services
-                .AddSingleton<IDocumentExpander, ComponentDeploymentOutputExpander>();
+                .AddSingleton<IDocumentExpander, ComponentTaskOutputExpander>();
 
             services
                 .AddSingleton<IHttpContextAccessor, HttpContextAccessor>()
