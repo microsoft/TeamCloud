@@ -137,6 +137,7 @@ namespace TeamCloud.API
                 .AddSingleton<IComponentTemplateRepository, CosmosDbComponentTemplateRepository>()
                 .AddSingleton<IProjectRepository, CosmosDbProjectRepository>()
                 .AddSingleton<IComponentRepository, CosmosDbComponentRepository>()
+                .AddSingleton<IComponentTaskRepository, CosmosDbComponentTaskRepository>()
                 .AddSingleton<IComponentDeploymentRepository, CosmosDbComponentDeploymentRepository>()
                 // .AddSingleton<IProjectLinkRepository, CosmosDbProjectLinkRepository>()
                 .AddSingleton<IClientErrorFactory, ClientErrorFactory>()
