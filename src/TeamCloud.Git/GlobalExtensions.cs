@@ -203,7 +203,7 @@ namespace TeamCloud.Git
             if (folder is null)
                 throw new ArgumentNullException(nameof(folder));
 
-            var name = !string.IsNullOrEmpty(yaml.Name) ? yaml.Name : folder;
+            var name = !string.IsNullOrEmpty(yaml?.Name) ? yaml.Name : folder;
 
             return new ComponentTemplate
             {
