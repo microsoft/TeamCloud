@@ -74,7 +74,7 @@ namespace TeamCloud.Orchestrator.Handlers
                 }
                 else
                 {
-                    throw new NotSupportedException($"Orchstration for command {command.CommandId} can only started once", exc);
+                    throw new NotSupportedException($"Orchstration for command {command.CommandId} can only be started once", exc);
                 }
             }
 

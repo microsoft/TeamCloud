@@ -8,9 +8,9 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Model.Commands
 {
-    public sealed class ComponentDeleteCommand : DeleteCommand<Component, ComponentDeleteCommandResult>
+    public sealed class ComponentTaskCommand : CustomCommand<ComponentTask, ComponentTaskCommandResult>
     {
-        public ComponentDeleteCommand(User user, Component payload) : base(user, payload)
+        public ComponentTaskCommand(User user, ComponentTask payload) : base(user, payload)
             => ProjectId = payload?.ProjectId ?? throw new System.ArgumentNullException(nameof(payload));
     }
 }

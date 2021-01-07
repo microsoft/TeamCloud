@@ -46,7 +46,7 @@ export const ComponentsCard: React.FC = () => {
 
     const _onComponentDelete = async () => {
         if (component && project) {
-            const result = await api.deleteProjectComponent(component.id, project.organization, project.id);
+            const result = await api.deleteComponent(component.id, project.organization, project.id);
             if (result.code !== 202 && (result as ErrorResult).errors) {
                 console.log(result as ErrorResult);
             }

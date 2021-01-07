@@ -49,10 +49,10 @@ namespace TeamCloud.Model.Data
         public string Provider { get; set; }
 
         /// <summary>
-        /// Gets or sets the identity the component was requested by.
+        /// Gets or sets the identity of the user that created the component.
         /// </summary>
         [JsonProperty(Required = Required.Always)]
-        public string RequestedBy { get; set; }
+        public string Creator { get; set; }
 
         /// <summary>
         /// Gets or sets the component's display name.
@@ -136,7 +136,7 @@ namespace TeamCloud.Model.Data
         /// Returns a hash code for this instance.
         /// </summary>
         /// <returns>
-        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
+        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.
         /// </returns>
         public override int GetHashCode()
             => Id?.GetHashCode(StringComparison.Ordinal) ?? base.GetHashCode();

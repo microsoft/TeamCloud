@@ -16,18 +16,16 @@ namespace TeamCloud.Orchestrator.Handlers
 {
     public sealed class ComponentCommandHandler
         : ICommandHandler<ComponentCreateCommand>,
-          ICommandHandler<ComponentUpdateCommand>,
-          ICommandHandler<ComponentDeleteCommand>,
-          ICommandHandler<ComponentResetCommand>,
-          ICommandHandler<ComponentClearCommand>
+          ICommandHandler<ComponentTaskCommand>,
+          ICommandHandler<ComponentDeleteCommand>
     {
         private readonly IComponentRepository componentRepository;
-        private readonly IComponentDeploymentRepository componentDeploymentRepository;
+        private readonly IComponentTaskRepository componentTaskRepository;
 
-        public ComponentCommandHandler(IComponentRepository componentRepository, IComponentDeploymentRepository componentDeploymentRepository)
+        public ComponentCommandHandler(IComponentRepository componentRepository, IComponentTaskRepository componentTaskRepository)
         {
             this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
-            this.componentDeploymentRepository = componentDeploymentRepository ?? throw new ArgumentNullException(nameof(componentDeploymentRepository));
+            this.componentTaskRepository = componentTaskRepository ?? throw new ArgumentNullException(nameof(componentTaskRepository));
         }
 
         public async Task<ICommandResult> HandleAsync(ComponentCreateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient durableClient = null)
@@ -46,22 +44,23 @@ namespace TeamCloud.Orchestrator.Handlers
                     .AddAsync(command.Payload)
                     .ConfigureAwait(false);
 
-                if (commandResult.Result.Type == Model.Data.ComponentType.Environment)
+                if (commandResult.Result.Type == ComponentType.Environment)
                 {
-                    var componentDeployment = new ComponentDeployment()
+                    var componentTask = new ComponentTask
                     {
                         ComponentId = commandResult.Result.Id,
                         ProjectId = commandResult.Result.ProjectId,
-                        Type = ComponentDeploymentType.Create
+                        Type = ComponentTaskType.Create,
+                        RequestedBy = commandResult.Result.Creator,
+                        InputJson = commandResult.Result.InputJson
                     };
 
-                    componentDeployment = await componentDeploymentRepository
-                        .AddAsync(componentDeployment)
+                    componentTask = await componentTaskRepository
+                        .AddAsync(componentTask)
                         .ConfigureAwait(false);
 
-
                     await commandQueue
-                        .AddAsync(new ComponentDeploymentExecuteCommand(command.User, componentDeployment))
+                        .AddAsync(new ComponentTaskRunCommand(command.User, componentTask))
                         .ConfigureAwait(false);
                 }
 
@@ -79,7 +78,7 @@ namespace TeamCloud.Orchestrator.Handlers
             return commandResult;
         }
 
-        public async Task<ICommandResult> HandleAsync(ComponentUpdateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient durableClient = null)
+        public async Task<ICommandResult> HandleAsync(ComponentTaskCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient durableClient = null)
         {
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
@@ -91,8 +90,22 @@ namespace TeamCloud.Orchestrator.Handlers
 
             try
             {
-                commandResult.Result = await componentRepository
-                    .SetAsync(command.Payload)
+                // var component = await componentRepository
+                //     .GetAsync(command.Payload.ProjectId, command.Payload.ComponentId)
+                //     .ConfigureAwait(false);
+
+                // if (command.Payload.Type != ComponentType.Environment)
+                // {
+                //     // ensure the component is of type Environment; otherwise this command is not supported
+                //     throw new NotSupportedException($"Command of type {command.GetType().Name} is not supported for components of type {command.Payload.Type}.");
+                // }
+
+                commandResult.Result = await componentTaskRepository
+                    .AddAsync(command.Payload)
+                    .ConfigureAwait(false);
+
+                await commandQueue
+                    .AddAsync(new ComponentTaskRunCommand(command.User, commandResult.Result))
                     .ConfigureAwait(false);
 
                 commandResult.RuntimeStatus = CommandRuntimeStatus.Completed;
@@ -121,53 +134,26 @@ namespace TeamCloud.Orchestrator.Handlers
                     .RemoveAsync(command.Payload)
                     .ConfigureAwait(false);
 
-                commandResult.RuntimeStatus = CommandRuntimeStatus.Completed;
-            }
-            catch (Exception exc)
-            {
-                commandResult.Errors.Add(exc);
-            }
-
-            return commandResult;
-        }
-
-        public async Task<ICommandResult> HandleAsync(ComponentResetCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient durableClient = null)
-        {
-            if (command is null)
-                throw new ArgumentNullException(nameof(command));
-
-            if (commandQueue is null)
-                throw new ArgumentNullException(nameof(commandQueue));
-
-            var commandResult = command.CreateResult();
-
-            try
-            {
-                if (command.Payload.Type != ComponentType.Environment)
+                if (commandResult.Result.Type == ComponentType.Environment)
                 {
-                    // ensure the component is of type Environment; otherwise this command is not supported
-                    throw new NotSupportedException($"Command of type {command.GetType().Name} is not supported for components of type {command.Payload.Type}.");
+                    var componentTask = new ComponentTask
+                    {
+                        ComponentId = commandResult.Result.Id,
+                        ProjectId = commandResult.Result.ProjectId,
+                        Type = ComponentTaskType.Delete,
+                        RequestedBy = command.User.Id,
+                        InputJson = commandResult.Result.InputJson
+                    };
+
+                    componentTask = await componentTaskRepository
+                        .AddAsync(componentTask)
+                        .ConfigureAwait(false);
+
+                    await commandQueue
+                        .AddAsync(new ComponentTaskRunCommand(command.User, componentTask))
+                        .ConfigureAwait(false);
                 }
 
-                var componentDeployment = new ComponentDeployment()
-                {
-                    ComponentId = command.Payload.Id,
-                    ProjectId = command.Payload.ProjectId,
-                    Type = ComponentDeploymentType.Create
-                };
-
-                componentDeployment = await componentDeploymentRepository
-                    .AddAsync(componentDeployment)
-                    .ConfigureAwait(false);
-
-                await commandQueue
-                    .AddAsync(new ComponentDeploymentExecuteCommand(command.User, componentDeployment))
-                    .ConfigureAwait(false);
-
-                commandResult.Result = await componentRepository
-                    .GetAsync(command.Payload.ProjectId, command.Payload.Id)
-                    .ConfigureAwait(false);
-
                 commandResult.RuntimeStatus = CommandRuntimeStatus.Completed;
             }
             catch (Exception exc)
@@ -176,53 +162,28 @@ namespace TeamCloud.Orchestrator.Handlers
             }
 
             return commandResult;
-        }
+            // if (command is null)
+            //     throw new ArgumentNullException(nameof(command));
 
-        public async Task<ICommandResult> HandleAsync(ComponentClearCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient durableClient = null)
-        {
-            if (command is null)
-                throw new ArgumentNullException(nameof(command));
+            // if (commandQueue is null)
+            //     throw new ArgumentNullException(nameof(commandQueue));
 
-            if (commandQueue is null)
-                throw new ArgumentNullException(nameof(commandQueue));
+            // var commandResult = command.CreateResult();
 
-            var commandResult = command.CreateResult();
+            // try
+            // {
+            //     commandResult.Result = await componentRepository
+            //         .RemoveAsync(command.Payload)
+            //         .ConfigureAwait(false);
 
-            try
-            {
-                if (command.Payload.Type != ComponentType.Environment)
-                {
-                    // ensure the component is of type Environment; otherwise this command is not supported
-                    throw new NotSupportedException($"Command of type {command.GetType().Name} is not supported for components of type {command.Payload.Type}.");
-                }
+            //     commandResult.RuntimeStatus = CommandRuntimeStatus.Completed;
+            // }
+            // catch (Exception exc)
+            // {
+            //     commandResult.Errors.Add(exc);
+            // }
 
-                var componentDeployment = new ComponentDeployment()
-                {
-                    ComponentId = command.Payload.Id,
-                    ProjectId = command.Payload.ProjectId,
-                    Type = ComponentDeploymentType.Delete
-                };
-
-                componentDeployment = await componentDeploymentRepository
-                    .AddAsync(componentDeployment)
-                    .ConfigureAwait(false);
-
-                await commandQueue
-                    .AddAsync(new ComponentDeploymentExecuteCommand(command.User, componentDeployment))
-                    .ConfigureAwait(false);
-
-                commandResult.Result = await componentRepository
-                    .GetAsync(command.Payload.ProjectId, command.Payload.Id)
-                    .ConfigureAwait(false);
-
-                commandResult.RuntimeStatus = CommandRuntimeStatus.Completed;
-            }
-            catch (Exception exc)
-            {
-                commandResult.Errors.Add(exc);
-            }
-
-            return commandResult;
+            // return commandResult;
         }
     }
 }

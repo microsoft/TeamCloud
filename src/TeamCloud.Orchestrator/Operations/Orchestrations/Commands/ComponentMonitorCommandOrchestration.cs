@@ -57,7 +57,7 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Commands
             }
             catch (Exception exc)
             {
-                log.LogError(exc, $"{nameof(ComponentDeploymentExecuteCommandOrchestration)} failed: {exc.Message}");
+                log.LogError(exc, $"{nameof(ComponentMonitorCommandOrchestration)} failed: {exc.Message}");
 
                 commandResult.Errors.Add(exc);
 

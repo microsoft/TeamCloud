@@ -20,9 +20,9 @@ using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.Operations.Orchestrations.Commands
 {
-    public static class ComponentDeploymentExecuteCommandOrchestration
+    public static class ComponentTaskRunCommandOrchestration
     {
-        [FunctionName(nameof(ComponentDeploymentExecuteCommandOrchestration))]
+        [FunctionName(nameof(ComponentTaskRunCommandOrchestration))]
         public static async Task Run(
             [OrchestrationTrigger] IDurableOrchestrationContext context,
             ILogger log)
@@ -30,11 +30,11 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Commands
             if (context is null)
                 throw new ArgumentNullException(nameof(context));
 
-            var command = context.GetInput<ComponentDeploymentExecuteCommand>();
+            var command = context.GetInput<ComponentTaskRunCommand>();
             var commandResult = command.CreateResult();
 
-            var componentDeployment = await context
-                .CallActivityWithRetryAsync<ComponentDeployment>(nameof(ComponentDeploymentGetActivity), new ComponentDeploymentGetActivity.Input() { ComponentDeploymentId = command.Payload.Id, ComponentId = command.Payload.ComponentId })
+            var componentTask = await context
+                .CallActivityWithRetryAsync<ComponentTask>(nameof(ComponentTaskGetActivity), new ComponentTaskGetActivity.Input() { ComponentTaskId = command.Payload.Id, ComponentId = command.Payload.ComponentId })
                 .ConfigureAwait(true) ?? command.Payload;
 
             try
@@ -47,77 +47,77 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Commands
                     .CallSubOrchestratorWithRetryAsync<Component>(nameof(ComponentPrepareOrchestration), new ComponentPrepareOrchestration.Input() { Component = component })
                     .ConfigureAwait(true);
 
-                using (await context.LockContainerDocumentAsync(component, nameof(ComponentDeploymentExecuteCommandOrchestration)).ConfigureAwait(true))
+                using (await context.LockContainerDocumentAsync(component, nameof(ComponentTaskRunCommandOrchestration)).ConfigureAwait(true))
                 {
                     try
                     {
-                        if (string.IsNullOrEmpty(componentDeployment.ResourceId))
+                        if (string.IsNullOrEmpty(componentTask.ResourceId))
                         {
-                            componentDeployment = await UpdateComponentDeploymentAsync(componentDeployment, ResourceState.Initializing)
+                            componentTask = await UpdateComponentDeploymentAsync(componentTask, ResourceState.Initializing)
                                 .ConfigureAwait(true);
 
-                            componentDeployment = await context
-                                .CallActivityWithRetryAsync<ComponentDeployment>(nameof(ComponentDeploymentRunnerActivity), new ComponentDeploymentRunnerActivity.Input() { ComponentDeployment = componentDeployment })
+                            componentTask = await context
+                                .CallActivityWithRetryAsync<ComponentTask>(nameof(ComponentTaskRunnerActivity), new ComponentTaskRunnerActivity.Input() { ComponentTask = componentTask })
                                 .ConfigureAwait(true);
                         }
 
-                        componentDeployment = await UpdateComponentDeploymentAsync(componentDeployment, ResourceState.Provisioning)
+                        componentTask = await UpdateComponentDeploymentAsync(componentTask, ResourceState.Provisioning)
                             .ConfigureAwait(true);
 
-                        while (!componentDeployment.ResourceState.IsFinal())
+                        while (!componentTask.ResourceState.IsFinal())
                         {
                             // component deployment's TTL is 30 min max
-                            if (componentDeployment.Created.AddMinutes(30) < DateTime.UtcNow) break;
+                            if (componentTask.Created.AddMinutes(30) < context.CurrentUtcDateTime) break;
 
                             await context
                                 .CreateTimer(TimeSpan.FromSeconds(1))
                                 .ConfigureAwait(true);
 
-                            componentDeployment = await context
-                                .CallActivityWithRetryAsync<ComponentDeployment>(nameof(ComponentDeploymentMonitorActivity), new ComponentDeploymentMonitorActivity.Input() { ComponentDeployment = componentDeployment })
+                            componentTask = await context
+                                .CallActivityWithRetryAsync<ComponentTask>(nameof(ComponentDeploymentMonitorActivity), new ComponentDeploymentMonitorActivity.Input() { ComponentTask = componentTask })
                                 .ConfigureAwait(true);
                         }
                     }
                     finally
                     {
-                        componentDeployment = await context
-                            .CallActivityWithRetryAsync<ComponentDeployment>(nameof(ComponentDeploymentTerminateActivity), new ComponentDeploymentTerminateActivity.Input() { ComponentDeployment = componentDeployment })
+                        componentTask = await context
+                            .CallActivityWithRetryAsync<ComponentTask>(nameof(ComponentTaskTerminateActivity), new ComponentTaskTerminateActivity.Input() { ComponentTask = componentTask })
                             .ConfigureAwait(true);
                     }
                 }
 
-                if (!componentDeployment.ResourceState.IsFinal())
+                if (!componentTask.ResourceState.IsFinal())
                 {
                     // the component deployment's resource state wasn't set to a final state by the handler functions.
                     // as there was no exception thrown we assume the processing succeeded an set the appropriate state.
 
-                    componentDeployment = await UpdateComponentDeploymentAsync(componentDeployment, ResourceState.Succeeded)
+                    componentTask = await UpdateComponentDeploymentAsync(componentTask, ResourceState.Succeeded)
                         .ConfigureAwait(true);
                 }
             }
             catch (Exception exc)
             {
-                log.LogError(exc, $"{nameof(ComponentDeploymentExecuteCommandOrchestration)} failed: {exc.Message}");
+                log.LogError(exc, $"{nameof(ComponentTaskRunCommandOrchestration)} failed: {exc.Message}");
 
                 commandResult.Errors.Add(exc);
 
-                componentDeployment = await UpdateComponentDeploymentAsync(componentDeployment, ResourceState.Failed)
+                componentTask = await UpdateComponentDeploymentAsync(componentTask, ResourceState.Failed)
                     .ConfigureAwait(true);
 
                 throw exc.AsSerializable();
             }
             finally
             {
-                commandResult.Result = componentDeployment;
+                commandResult.Result = componentTask;
 
                 context.SetOutput(commandResult);
             }
 
-            Task<ComponentDeployment> UpdateComponentDeploymentAsync(ComponentDeployment componentDeployment, ResourceState? resourceState = null)
+            Task<ComponentTask> UpdateComponentDeploymentAsync(ComponentTask componentTask, ResourceState? resourceState = null)
             {
-                componentDeployment.ResourceState = resourceState.GetValueOrDefault(componentDeployment.ResourceState);
+                componentTask.ResourceState = resourceState.GetValueOrDefault(componentTask.ResourceState);
 
-                return context.CallActivityWithRetryAsync<ComponentDeployment>(nameof(ComponentDeploymentSetActivity), new ComponentDeploymentSetActivity.Input() { ComponentDeployment = componentDeployment });
+                return context.CallActivityWithRetryAsync<ComponentTask>(nameof(ComponentTaskSetActivity), new ComponentTaskSetActivity.Input() { ComponentTask = componentTask });
             }
 
         }

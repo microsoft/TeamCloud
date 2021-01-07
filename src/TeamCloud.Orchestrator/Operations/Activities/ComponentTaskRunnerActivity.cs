@@ -18,21 +18,21 @@ using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.Operations.Activities
 {
-    public sealed class ComponentDeploymentRunnerActivity
+    public sealed class ComponentTaskRunnerActivity
     {
         private readonly IOrganizationRepository organizationRepository;
         private readonly IProjectRepository projectRepository;
         private readonly IComponentRepository componentRepository;
         private readonly IComponentTemplateRepository componentTemplateRepository;
-        private readonly IComponentDeploymentRepository componentDeploymentRepository;
+        private readonly IComponentTaskRepository componentTaskRepository;
         private readonly IAzureSessionService azureSessionService;
         private readonly IAzureResourceService azureResourceService;
 
-        public ComponentDeploymentRunnerActivity(IOrganizationRepository organizationRepository,
+        public ComponentTaskRunnerActivity(IOrganizationRepository organizationRepository,
                                        IProjectRepository projectRepository,
                                        IComponentRepository componentRepository,
                                        IComponentTemplateRepository componentTemplateRepository,
-                                       IComponentDeploymentRepository componentDeploymentRepository,
+                                       IComponentTaskRepository componentTaskRepository,
                                        IAzureSessionService azureSessionService,
                                        IAzureResourceService azureResourceService)
         {
@@ -40,14 +40,14 @@ namespace TeamCloud.Orchestrator.Operations.Activities
             this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
             this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
             this.componentTemplateRepository = componentTemplateRepository ?? throw new ArgumentNullException(nameof(componentTemplateRepository));
-            this.componentDeploymentRepository = componentDeploymentRepository ?? throw new ArgumentNullException(nameof(componentDeploymentRepository));
+            this.componentTaskRepository = componentTaskRepository ?? throw new ArgumentNullException(nameof(componentTaskRepository));
             this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
             this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
         }
 
-        [FunctionName(nameof(ComponentDeploymentRunnerActivity))]
+        [FunctionName(nameof(ComponentTaskRunnerActivity))]
         [RetryOptions(3)]
-        public async Task<ComponentDeployment> Run(
+        public async Task<ComponentTask> Run(
             [ActivityTrigger] IDurableActivityContext context,
             ILogger log)
         {
@@ -57,12 +57,12 @@ namespace TeamCloud.Orchestrator.Operations.Activities
             if (log is null)
                 throw new ArgumentNullException(nameof(log));
 
-            var componentDeployment = context.GetInput<Input>().ComponentDeployment;
+            var componentTask = context.GetInput<Input>().ComponentTask;
 
             try
             {
                 var component = await componentRepository
-                    .GetAsync(componentDeployment.ProjectId, componentDeployment.ComponentId)
+                    .GetAsync(componentTask.ProjectId, componentTask.ComponentId)
                     .ConfigureAwait(false);
 
                 var componentResourceId = AzureResourceIdentifier
@@ -75,7 +75,7 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                 var componentLocation = await GetLocationAsync(component)
                     .ConfigureAwait(false);
 
-                var storageId = componentDeployment.StorageId ?? component.StorageId;
+                var storageId = componentTask.StorageId ?? component.StorageId;
 
                 if (string.IsNullOrEmpty(storageId))
                     throw new NullReferenceException($"Missing storage id for component {component.Id}");
@@ -96,7 +96,7 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                     .CreateIfNotExistsAsync()
                     .ConfigureAwait(false);
 
-                var componentRunnerHost = $"{componentDeployment.Id}.{componentLocation}.azurecontainer.io";
+                var componentRunnerHost = $"{componentTask.Id}.{componentLocation}.azurecontainer.io";
 
                 var componentRunnerDefinition = new
                 {
@@ -136,7 +136,7 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                                 {
                                     new {
                                         name = "DeploymentId",
-                                        value = componentDeployment.Id
+                                        value = componentTask.Id
                                     },
                                     new {
                                         name = "DeploymentHost",
@@ -144,7 +144,7 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                                     },
                                     new {
                                         name = "DeploymentType",
-                                        value = componentDeployment.TypeName ?? componentDeployment.Type.ToString()
+                                        value = componentTask.TypeName ?? componentTask.Type.ToString()
                                     },
                                     new {
                                         name = "EnvironmentResourceId",
@@ -206,7 +206,7 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                         ipAddress = new
                         {
                             type = "Public",
-                            dnsNameLabel = componentDeployment.Id,
+                            dnsNameLabel = componentTask.Id,
                             ports = new[]
                             {
                             new {
@@ -255,7 +255,7 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                     .ConfigureAwait(false);
 
                 var response = await projectResourceId.GetApiUrl(azureSessionService.Environment)
-                    .AppendPathSegment($"/providers/Microsoft.ContainerInstance/containerGroups/{componentDeployment.Id}")
+                    .AppendPathSegment($"/providers/Microsoft.ContainerInstance/containerGroups/{componentTask.Id}")
                     .SetQueryParam("api-version", "2019-12-01")
                     .WithOAuthBearerToken(token)
                     .PutJsonAsync(componentRunnerDefinition)
@@ -265,20 +265,20 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                     .ReadAsJsonAsync()
                     .ConfigureAwait(false);
 
-                componentDeployment.ResourceId = responseJson.SelectToken("$.id").ToString();
+                componentTask.ResourceId = responseJson.SelectToken("$.id").ToString();
 
-                componentDeployment = await componentDeploymentRepository
-                    .SetAsync(componentDeployment)
+                componentTask = await componentTaskRepository
+                    .SetAsync(componentTask)
                     .ConfigureAwait(false);
             }
             catch (Exception exc)
             {
-                log.LogError(exc, $"Failed to create runner for component deployment {componentDeployment}: {exc.Message}");
+                log.LogError(exc, $"Failed to create runner for component deployment {componentTask}: {exc.Message}");
 
                 throw exc.AsSerializable();
             }
 
-            return componentDeployment;
+            return componentTask;
         }
 
         private async Task<string> GetLocationAsync(Component component)
@@ -295,7 +295,7 @@ namespace TeamCloud.Orchestrator.Operations.Activities
 
         internal struct Input
         {
-            public ComponentDeployment ComponentDeployment { get; set; }
+            public ComponentTask ComponentTask { get; set; }
         }
     }
 }

@@ -8,6 +8,7 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Model.Commands
 {
-    public sealed class ComponentUpdateCommandResult : CommandResult<Component>
-    { }
+    public sealed class ComponentTaskCommandResult : CommandResult<ComponentTask>
+    {
+    }
 }

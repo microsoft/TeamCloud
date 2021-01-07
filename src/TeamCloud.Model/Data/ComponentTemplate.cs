@@ -4,6 +4,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 using TeamCloud.Model.Common;
 using TeamCloud.Model.Data.Core;
@@ -51,6 +52,12 @@ namespace TeamCloud.Model.Data
         public string InputJsonSchema { get; set; }
 
         /// <summary>
+        /// Gets or sets the component template's tasks.
+        /// </summary>
+        /// <value></value>
+        public List<ComponentTaskTemplate> Tasks { get; set; }
+
+        /// <summary>
         /// Gets or sets the component template's type.
         /// </summary>
         [JsonProperty(Required = Required.Always)]
@@ -83,7 +90,7 @@ namespace TeamCloud.Model.Data
         /// Returns a hash code for this instance.
         /// </summary>
         /// <returns>
-        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
+        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.
         /// </returns>
         public override int GetHashCode()
             => Id?.GetHashCode(StringComparison.Ordinal) ?? base.GetHashCode();

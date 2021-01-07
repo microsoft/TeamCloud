@@ -4,55 +4,55 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { CheckboxVisibility, DetailsList, DetailsListLayoutMode, FontIcon, getTheme, IColumn, IDetailsRowProps, IRenderFunction, SelectionMode, Stack, Text } from '@fluentui/react';
 import { OrgContext, ProjectContext } from '../Context';
-import { ComponentDeployment } from 'teamcloud';
+import { ComponentTask } from 'teamcloud';
 import { useInterval } from '../Hooks';
 import { api } from '../API';
-import { DeploymentConsole } from './DeploymentConsole';
+import { ComponentTaskConsole } from './ComponentTaskConsole';
 
-export interface IDeploymentListProps {
+export interface IComponentTaskListProps {
 
 }
 
-export const DeploymentList: React.FunctionComponent<IDeploymentListProps> = (props) => {
+export const ComponentTaskList: React.FunctionComponent<IComponentTaskListProps> = (props) => {
 
     const theme = getTheme();
 
     const { org } = useContext(OrgContext);
-    const { component, componentDeployments, onComponentSelected } = useContext(ProjectContext);
+    const { component, componentTasks, onComponentSelected } = useContext(ProjectContext);
 
-    const [deployment, setDeployment] = useState<ComponentDeployment>();
-    const [deployments, setDeployments] = useState<ComponentDeployment[]>();
+    const [task, setTask] = useState<ComponentTask>();
+    const [tasks, setTasks] = useState<ComponentTask[]>();
     const [isPolling, setIsPolling] = useState(true);
 
     useEffect(() => {
-        if (componentDeployments && deployment === undefined) {
-            console.log('+ setDeployment');
-            setDeployment(componentDeployments.splice(-1)[0]);
+        if (componentTasks && task === undefined) {
+            console.log('+ setTask');
+            setTask(componentTasks.splice(-1)[0]);
         }
-    }, [deployment, componentDeployments])
+    }, [task, componentTasks])
 
 
     useEffect(() => {
-        if (componentDeployments) {
-            console.log('+ setDeployments');
-            setDeployments(deployment ? [deployment, ...componentDeployments.filter(d => d.id !== deployment.id)] : componentDeployments);
+        if (componentTasks) {
+            console.log('+ setTasks');
+            setTasks(task ? [task, ...componentTasks.filter(d => d.id !== task.id)] : componentTasks);
         }
-    }, [deployment, componentDeployments]);
+    }, [task, componentTasks]);
 
 
     useEffect(() => {
-        const poll = (deployments ?? []).some((d) => d.resourceState?.toLowerCase() !== 'succeeded' && d.resourceState?.toLowerCase() !== 'failed');
+        const poll = (tasks ?? []).some((d) => d.resourceState?.toLowerCase() !== 'succeeded' && d.resourceState?.toLowerCase() !== 'failed');
         if (isPolling !== poll) {
-            console.log(`+ setPollDeployment (${poll})`);
+            console.log(`+ setPollTask (${poll})`);
             setIsPolling(poll);
         }
-    }, [deployments, isPolling])
+    }, [tasks, isPolling])
 
     useInterval(async () => {
 
         if (org && component && component.resourceState?.toLowerCase() !== 'succeeded' && component.resourceState?.toLowerCase() !== 'failed') {
             console.log('- refreshComponent');
-            const result = await api.getProjectComponent(component.id, component.organization, component.projectId);
+            const result = await api.getComponent(component.id, component.organization, component.projectId);
             if (result.data) {
                 onComponentSelected(result.data);
             } else {
@@ -61,29 +61,41 @@ export const DeploymentList: React.FunctionComponent<IDeploymentListProps> = (pr
             console.log('+ refreshComponent');
         }
 
-        if (org && deployments) {
+        if (org && tasks) {
 
-            let _deployments = await Promise.all(deployments
-                .map(async d => {
-                    if (d.finished === undefined && d.exitCode === undefined) {
-                        console.log(`- refreshDeployment (${d.id})`);
-                        const result = await api.getProjectDeployment(d.id, org.id, d.projectId, d.componentId);
+            let _tasks = await Promise.all(tasks
+                .map(async t => {
+                    if (t.finished === undefined && t.exitCode === undefined) {
+                        console.log(`- refreshTask (${t.id})`);
+                        const result = await api.getComponentTask(t.id, org.id, t.projectId, t.componentId);
                         if (result.data) {
-                            d = result.data;
+                            t = result.data;
                         } else {
                             console.error(result);
                         }
-                        console.log(`+ refreshDeployment (${d.id})`);
+                        console.log(`+ refreshTask (${t.id})`);
                     }
-                    return d;
+                    return t;
                 }));
 
-            setDeployments(_deployments);
+            setTasks(_tasks);
 
-            if (deployment && _deployments && _deployments.some(d => d.id === deployment.id)) {
-                setDeployment(_deployments.find(d => d.id === deployment.id));
+            if (task && _tasks && _tasks.some(t => t.id === task.id)) {
+                setTask(_tasks.find(t => t.id === task.id));
             }
         }
+
+
+        // if (org && task && task.finished === undefined && task.exitCode === undefined) {
+        //     console.log('- refreshTask');
+        //     const result = await api.getComponentTask(task.id, org.id, task.projectId, task.componentId);
+        //     if (result.data) {
+        //         setTask(result.data);
+        //     } else {
+        //         console.error(result);
+        //     }
+        //     console.log('+ refreshTask');
+        // }
 
     }, isPolling ? 5000 : undefined);
 
@@ -94,9 +106,9 @@ export const DeploymentList: React.FunctionComponent<IDeploymentListProps> = (pr
         setDots(d);
     }, isPolling ? 1000 : undefined);
 
-    const _getStateIcon = (deployment?: ComponentDeployment) => {
-        if (deployment?.resourceState)
-            switch (deployment.resourceState) {
+    const _getStateIcon = (task?: ComponentTask) => {
+        if (task?.resourceState)
+            switch (task.resourceState) {
                 case 'Pending': return 'ProgressLoopOuter'; // UnknownSolid, AwayStatus, DRM, Blocked2
                 case 'Initializing': return 'Running'; // Running, Rocket
                 case 'Provisioning': return 'Rocket'; // Processing,
@@ -108,7 +120,7 @@ export const DeploymentList: React.FunctionComponent<IDeploymentListProps> = (pr
 
     const columns: IColumn[] = [
         {
-            key: 'componentId', name: 'ComponentId', minWidth: 440, maxWidth: 440, onRender: (d: ComponentDeployment) => (
+            key: 'componentId', name: 'ComponentId', minWidth: 440, maxWidth: 440, onRender: (t: ComponentTask) => (
                 <Stack
                     horizontal
                     verticalAlign='center'
@@ -116,10 +128,10 @@ export const DeploymentList: React.FunctionComponent<IDeploymentListProps> = (pr
                     tokens={{ childrenGap: '20px' }}
                     styles={{ root: { padding: '5px' } }}>
                     <Stack tokens={{ childrenGap: '6px' }}>
-                        <Text styles={{ root: { color: theme.palette.neutralPrimary } }} variant='medium'>{_getDeploymentName(d)}</Text>
-                        <Text styles={{ root: { color: theme.palette.neutralSecondary } }} variant='small'>{_getDeploymentStatus(d)}</Text>
+                        <Text styles={{ root: { color: theme.palette.neutralPrimary } }} variant='medium'>{_getTaskName(t)}</Text>
+                        <Text styles={{ root: { color: theme.palette.neutralSecondary } }} variant='small'>{_getTaskStatus(t)}</Text>
                     </Stack>
-                    <FontIcon iconName={_getStateIcon(d)} className={`deployment-state-icon-${d.resourceState?.toLowerCase() ?? 'pending'}`} />
+                    <FontIcon iconName={_getStateIcon(t)} className={`deployment-state-icon-${t.resourceState?.toLowerCase() ?? 'pending'}`} />
                 </Stack>
             )
         }
@@ -133,22 +145,22 @@ export const DeploymentList: React.FunctionComponent<IDeploymentListProps> = (pr
         return defaultRender ? defaultRender(rowProps) : null;
     };
 
-    const _onItemInvoked = (item: ComponentDeployment): void => {
+    const _onItemInvoked = (item: ComponentTask): void => {
         console.log(item);
-        setDeployment(item);
+        setTask(item);
     };
 
-    const _getDeploymentName = (d?: ComponentDeployment) => d ? `${d.typeName || d.type}: ${d.id}` : undefined;
+    const _getTaskName = (t?: ComponentTask) => t ? `Task: ${t.id}` : undefined;
 
-    const _getDeploymentStatus = (d?: ComponentDeployment) => {
-        if (d?.resourceState) {
-            if (d.resourceState.toLowerCase() === 'succeeded' || d.resourceState.toLowerCase() === 'failed') {
-                return d.finished ? `${d.resourceState} ${d.finished.toLocaleString()}` : d.resourceState;
+    const _getTaskStatus = (t?: ComponentTask) => {
+        if (t?.resourceState) {
+            if (t.resourceState.toLowerCase() === 'succeeded' || t.resourceState.toLowerCase() === 'failed') {
+                return t.finished ? `${t.resourceState} ${t.finished.toLocaleString()}` : t.resourceState;
             } else {
-                return `${d.resourceState} ${dots}`;
+                return `${t.resourceState} ${dots}`;
             }
-        } else if (d?.started) {
-            return `Started ${d.started.toLocaleString()}`;
+        } else if (t?.started) {
+            return `Started ${t.started.toLocaleString()}`;
         }
         return undefined;
     };
@@ -167,19 +179,19 @@ export const DeploymentList: React.FunctionComponent<IDeploymentListProps> = (pr
                 }
             }}>
                 <DetailsList
-                    items={(deployments ?? []).sort((a, b) => (b.created?.valueOf() ?? 0) - (a.created?.valueOf() ?? 0))}
+                    items={(tasks ?? []).sort((a, b) => (b.created?.valueOf() ?? 0) - (a.created?.valueOf() ?? 0))}
                     columns={columns}
                     isHeaderVisible={false}
                     onRenderRow={_onRenderRow}
                     layoutMode={DetailsListLayoutMode.fixedColumns}
                     checkboxVisibility={CheckboxVisibility.hidden}
                     selectionMode={SelectionMode.single}
-                    onActiveItemChanged={_onItemInvoked}
+                    onItemInvoked={_onItemInvoked}
                     styles={{ focusZone: { minWidth: '1px' }, root: { minWidth: '460px', boxShadow: theme.effects.elevation8 } }}
                 />
             </Stack.Item>
             <Stack.Item grow={2}>
-                <DeploymentConsole deployment={deployment} isPolling={isPolling} />
+                <ComponentTaskConsole task={task} isPolling={isPolling} />
             </Stack.Item>
         </Stack >
 

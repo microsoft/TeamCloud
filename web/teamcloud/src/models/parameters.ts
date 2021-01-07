@@ -8,13 +8,14 @@
 
 import { OperationParameter, OperationURLParameter } from "@azure/core-http";
 import {
+  ComponentDefinition as ComponentDefinitionMapper,
+  ComponentTaskDefinition as ComponentTaskDefinitionMapper,
   DeploymentScopeDefinition as DeploymentScopeDefinitionMapper,
   DeploymentScope as DeploymentScopeMapper,
   OrganizationDefinition as OrganizationDefinitionMapper,
   UserDefinition as UserDefinitionMapper,
   User as UserMapper,
   ProjectDefinition as ProjectDefinitionMapper,
-  ProjectComponentDefinition as ProjectComponentDefinitionMapper,
   ProjectTemplateDefinition as ProjectTemplateDefinitionMapper,
   ProjectTemplate as ProjectTemplateMapper
 } from "../models/mappers";
@@ -54,6 +55,17 @@ export const organizationId: OperationURLParameter = {
   }
 };
 
+export const projectId: OperationURLParameter = {
+  parameterPath: "projectId",
+  mapper: {
+    serializedName: "projectId",
+    required: true,
+    type: {
+      name: "String"
+    }
+  }
+};
+
 export const contentType: OperationParameter = {
   parameterPath: ["options", "contentType"],
   mapper: {
@@ -68,7 +80,7 @@ export const contentType: OperationParameter = {
 
 export const body: OperationParameter = {
   parameterPath: ["options", "body"],
-  mapper: DeploymentScopeDefinitionMapper
+  mapper: ComponentDefinitionMapper
 };
 
 export const id: OperationURLParameter = {
@@ -82,12 +94,33 @@ export const id: OperationURLParameter = {
   }
 };
 
+export const componentId: OperationURLParameter = {
+  parameterPath: "componentId",
+  mapper: {
+    serializedName: "componentId",
+    required: true,
+    type: {
+      name: "String"
+    }
+  }
+};
+
 export const body1: OperationParameter = {
+  parameterPath: ["options", "body"],
+  mapper: ComponentTaskDefinitionMapper
+};
+
+export const body2: OperationParameter = {
+  parameterPath: ["options", "body"],
+  mapper: DeploymentScopeDefinitionMapper
+};
+
+export const body3: OperationParameter = {
   parameterPath: ["options", "body"],
   mapper: DeploymentScopeMapper
 };
 
-export const body2: OperationParameter = {
+export const body4: OperationParameter = {
   parameterPath: ["options", "body"],
   mapper: OrganizationDefinitionMapper
 };
@@ -103,7 +136,7 @@ export const org: OperationURLParameter = {
   }
 };
 
-export const body3: OperationParameter = {
+export const body5: OperationParameter = {
   parameterPath: ["options", "body"],
   mapper: UserDefinitionMapper
 };
@@ -119,44 +152,17 @@ export const userId: OperationURLParameter = {
   }
 };
 
-export const body4: OperationParameter = {
+export const body6: OperationParameter = {
   parameterPath: ["options", "body"],
   mapper: UserMapper
 };
 
-export const body5: OperationParameter = {
+export const body7: OperationParameter = {
   parameterPath: ["options", "body"],
   mapper: ProjectDefinitionMapper
 };
 
-export const projectId: OperationURLParameter = {
-  parameterPath: "projectId",
-  mapper: {
-    serializedName: "projectId",
-    required: true,
-    type: {
-      name: "String"
-    }
-  }
-};
-
-export const body6: OperationParameter = {
-  parameterPath: ["options", "body"],
-  mapper: ProjectComponentDefinitionMapper
-};
-
-export const componentId: OperationURLParameter = {
-  parameterPath: "componentId",
-  mapper: {
-    serializedName: "componentId",
-    required: true,
-    type: {
-      name: "String"
-    }
-  }
-};
-
-export const body7: OperationParameter = {
+export const body8: OperationParameter = {
   parameterPath: ["options", "body"],
   mapper: {
     serializedName: "body",
@@ -178,7 +184,7 @@ export const tagKey: OperationURLParameter = {
   }
 };
 
-export const body8: OperationParameter = {
+export const body9: OperationParameter = {
   parameterPath: ["options", "body"],
   mapper: ProjectTemplateDefinitionMapper
 };
@@ -194,7 +200,7 @@ export const projectTemplateId: OperationURLParameter = {
   }
 };
 
-export const body9: OperationParameter = {
+export const body10: OperationParameter = {
   parameterPath: ["options", "body"],
   mapper: ProjectTemplateMapper
 };

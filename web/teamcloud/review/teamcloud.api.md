@@ -9,6 +9,8 @@ import * as coreHttp from '@azure/core-http';
 // @public (undocumented)
 export interface Component {
     // (undocumented)
+    creator: string;
+    // (undocumented)
     deploymentScopeId?: string | null;
     // (undocumented)
     description?: string | null;
@@ -28,8 +30,6 @@ export interface Component {
     projectId: string;
     // (undocumented)
     provider: string;
-    // (undocumented)
-    requestedBy: string;
     // (undocumented)
     resourceId?: string | null;
     // (undocumented)
@@ -58,63 +58,16 @@ export interface ComponentDataResult {
 }
 
 // @public (undocumented)
-export interface ComponentDeployment {
+export interface ComponentDefinition {
     // (undocumented)
-    componentId: string;
+    deploymentScopeId?: string | null;
     // (undocumented)
-    created?: Date;
+    displayName: string;
     // (undocumented)
-    exitCode?: number | null;
+    inputJson?: string | null;
     // (undocumented)
-    finished?: Date | null;
-    // (undocumented)
-    id: string;
-    // (undocumented)
-    output?: string | null;
-    // (undocumented)
-    projectId: string;
-    // (undocumented)
-    resourceId?: string | null;
-    // (undocumented)
-    resourceState?: ComponentDeploymentResourceState;
-    // (undocumented)
-    started?: Date | null;
-    // (undocumented)
-    storageId?: string | null;
-    // (undocumented)
-    type?: ComponentDeploymentType;
-    // (undocumented)
-    typeName?: string | null;
+    templateId: string;
 }
-
-// @public (undocumented)
-export interface ComponentDeploymentDataResult {
-    // (undocumented)
-    code?: number;
-    // (undocumented)
-    data?: ComponentDeployment;
-    // (undocumented)
-    location?: string | null;
-    // (undocumented)
-    status?: string | null;
-}
-
-// @public (undocumented)
-export interface ComponentDeploymentListDataResult {
-    // (undocumented)
-    code?: number;
-    readonly data?: ComponentDeployment[] | null;
-    // (undocumented)
-    location?: string | null;
-    // (undocumented)
-    status?: string | null;
-}
-
-// @public
-export type ComponentDeploymentResourceState = "Pending" | "Initializing" | "Provisioning" | "Succeeded" | "Failed" | string;
-
-// @public
-export type ComponentDeploymentType = "Create" | "Delete" | "Custom" | string;
 
 // @public (undocumented)
 export interface ComponentListDataResult {
@@ -129,6 +82,90 @@ export interface ComponentListDataResult {
 
 // @public
 export type ComponentResourceState = "Pending" | "Initializing" | "Provisioning" | "Succeeded" | "Failed" | string;
+
+// @public (undocumented)
+export interface ComponentTask {
+    // (undocumented)
+    componentId: string;
+    // (undocumented)
+    created?: Date;
+    // (undocumented)
+    exitCode?: number | null;
+    // (undocumented)
+    finished?: Date | null;
+    // (undocumented)
+    id: string;
+    // (undocumented)
+    inputJson?: string | null;
+    // (undocumented)
+    output?: string | null;
+    // (undocumented)
+    projectId: string;
+    // (undocumented)
+    requestedBy?: string | null;
+    // (undocumented)
+    resourceId?: string | null;
+    // (undocumented)
+    resourceState?: ComponentTaskResourceState;
+    // (undocumented)
+    started?: Date | null;
+    // (undocumented)
+    storageId?: string | null;
+    // (undocumented)
+    type?: Enum3;
+    // (undocumented)
+    typeName?: string | null;
+}
+
+// @public (undocumented)
+export interface ComponentTaskDataResult {
+    // (undocumented)
+    code?: number;
+    // (undocumented)
+    data?: ComponentTask;
+    // (undocumented)
+    location?: string | null;
+    // (undocumented)
+    status?: string | null;
+}
+
+// @public (undocumented)
+export interface ComponentTaskDefinition {
+    // (undocumented)
+    inputJson?: string | null;
+    // (undocumented)
+    taskId: string;
+}
+
+// @public (undocumented)
+export interface ComponentTaskListDataResult {
+    // (undocumented)
+    code?: number;
+    readonly data?: ComponentTask[] | null;
+    // (undocumented)
+    location?: string | null;
+    // (undocumented)
+    status?: string | null;
+}
+
+// @public
+export type ComponentTaskResourceState = "Pending" | "Initializing" | "Provisioning" | "Succeeded" | "Failed" | string;
+
+// @public (undocumented)
+export interface ComponentTaskTemplate {
+    // (undocumented)
+    description?: string | null;
+    // (undocumented)
+    displayName?: string | null;
+    // (undocumented)
+    id?: string | null;
+    // (undocumented)
+    inputJsonSchema?: string | null;
+    // (undocumented)
+    type: Enum3;
+    // (undocumented)
+    typeName?: string | null;
+}
 
 // @public (undocumented)
 export interface ComponentTemplate {
@@ -150,6 +187,8 @@ export interface ComponentTemplate {
     provider?: string | null;
     // (undocumented)
     repository: RepositoryReference;
+    // (undocumented)
+    tasks?: ComponentTaskTemplate[] | null;
     // (undocumented)
     type: ComponentTemplateType;
 }
@@ -235,6 +274,9 @@ export interface DeploymentScopeListDataResult {
     // (undocumented)
     status?: string | null;
 }
+
+// @public
+export type Enum3 = 0 | 1 | 2 | number;
 
 // @public (undocumented)
 export interface ErrorResult {
@@ -327,18 +369,6 @@ export interface Project {
     templateInput?: string | null;
     // (undocumented)
     users?: User[] | null;
-}
-
-// @public (undocumented)
-export interface ProjectComponentDefinition {
-    // (undocumented)
-    deploymentScopeId?: string | null;
-    // (undocumented)
-    displayName: string;
-    // (undocumented)
-    inputJson?: string | null;
-    // (undocumented)
-    templateId: string;
 }
 
 // @public (undocumented)
@@ -536,23 +566,29 @@ export interface StringDictionaryDataResult {
 // @public (undocumented)
 export class TeamCloud extends TeamCloudContext {
     constructor(credentials: coreHttp.TokenCredential | coreHttp.ServiceClientCredentials, $host: string, options?: TeamCloudOptionalParams);
-    clearProjectComponent(organizationId: string, projectId: string | null, componentId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudClearProjectComponentResponse>;
+    createComponent(organizationId: string, projectId: string, options?: TeamCloudCreateComponentOptionalParams): Promise<TeamCloudCreateComponentResponse>;
+    createComponentTask(organizationId: string, projectId: string, componentId: string, options?: TeamCloudCreateComponentTaskOptionalParams): Promise<TeamCloudCreateComponentTaskResponse>;
     createDeploymentScope(organizationId: string, options?: TeamCloudCreateDeploymentScopeOptionalParams): Promise<TeamCloudCreateDeploymentScopeResponse>;
     createOrganization(options?: TeamCloudCreateOrganizationOptionalParams): Promise<TeamCloudCreateOrganizationResponse>;
     createOrganizationUser(organizationId: string, options?: TeamCloudCreateOrganizationUserOptionalParams): Promise<TeamCloudCreateOrganizationUserResponse>;
     createProject(organizationId: string, options?: TeamCloudCreateProjectOptionalParams): Promise<TeamCloudCreateProjectResponse>;
-    createProjectComponent(organizationId: string, projectId: string | null, options?: TeamCloudCreateProjectComponentOptionalParams): Promise<TeamCloudCreateProjectComponentResponse>;
-    createProjectTag(organizationId: string, projectId: string | null, options?: TeamCloudCreateProjectTagOptionalParams): Promise<TeamCloudCreateProjectTagResponse>;
+    createProjectTag(organizationId: string, projectId: string, options?: TeamCloudCreateProjectTagOptionalParams): Promise<TeamCloudCreateProjectTagResponse>;
     createProjectTemplate(organizationId: string, options?: TeamCloudCreateProjectTemplateOptionalParams): Promise<TeamCloudCreateProjectTemplateResponse>;
-    createProjectUser(organizationId: string, projectId: string | null, options?: TeamCloudCreateProjectUserOptionalParams): Promise<TeamCloudCreateProjectUserResponse>;
+    createProjectUser(organizationId: string, projectId: string, options?: TeamCloudCreateProjectUserOptionalParams): Promise<TeamCloudCreateProjectUserResponse>;
+    deleteComponent(id: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteComponentResponse>;
     deleteDeploymentScope(id: string | null, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteDeploymentScopeResponse>;
     deleteOrganization(organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteOrganizationResponse>;
     deleteOrganizationUser(userId: string | null, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteOrganizationUserResponse>;
-    deleteProject(projectId: string | null, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectResponse>;
-    deleteProjectComponent(id: string | null, organizationId: string, projectId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectComponentResponse>;
-    deleteProjectTag(tagKey: string | null, organizationId: string, projectId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectTagResponse>;
+    deleteProject(projectId: string, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectResponse>;
+    deleteProjectTag(tagKey: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectTagResponse>;
     deleteProjectTemplate(projectTemplateId: string | null, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectTemplateResponse>;
-    deleteProjectUser(userId: string | null, organizationId: string, projectId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectUserResponse>;
+    deleteProjectUser(userId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectUserResponse>;
+    getComponent(id: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentResponse>;
+    getComponents(organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentsResponse>;
+    getComponentTask(id: string | null, organizationId: string, projectId: string, componentId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentTaskResponse>;
+    getComponentTasks(organizationId: string, projectId: string, componentId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentTasksResponse>;
+    getComponentTemplate(id: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentTemplateResponse>;
+    getComponentTemplates(organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentTemplatesResponse>;
     getDeploymentScope(id: string | null, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetDeploymentScopeResponse>;
     getDeploymentScopes(organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetDeploymentScopesResponse>;
     getOrganization(org: string | null, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetOrganizationResponse>;
@@ -560,42 +596,27 @@ export class TeamCloud extends TeamCloudContext {
     getOrganizationUser(userId: string | null, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetOrganizationUserResponse>;
     getOrganizationUserMe(organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetOrganizationUserMeResponse>;
     getOrganizationUsers(organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetOrganizationUsersResponse>;
-    getProject(projectId: string | null, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectResponse>;
-    getProjectComponent(id: string | null, organizationId: string, projectId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectComponentResponse>;
-    getProjectComponents(organizationId: string, projectId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectComponentsResponse>;
-    getProjectComponentTemplate(id: string | null, organizationId: string, projectId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectComponentTemplateResponse>;
-    getProjectComponentTemplates(organizationId: string, projectId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectComponentTemplatesResponse>;
-    getProjectDeployment(id: string | null, organizationId: string, projectId: string | null, componentId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectDeploymentResponse>;
-    getProjectDeployments(organizationId: string, projectId: string | null, componentId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectDeploymentsResponse>;
+    getProject(projectId: string, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectResponse>;
     getProjects(organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectsResponse>;
-    getProjectStatus(projectId: string | null, trackingId: string, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectStatusResponse>;
-    getProjectTagByKey(tagKey: string | null, organizationId: string, projectId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectTagByKeyResponse>;
-    getProjectTags(organizationId: string, projectId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectTagsResponse>;
+    getProjectStatus(projectId: string, trackingId: string, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectStatusResponse>;
+    getProjectTagByKey(tagKey: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectTagByKeyResponse>;
+    getProjectTags(organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectTagsResponse>;
     getProjectTemplate(projectTemplateId: string | null, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectTemplateResponse>;
     getProjectTemplates(organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectTemplatesResponse>;
-    getProjectUser(userId: string | null, organizationId: string, projectId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectUserResponse>;
-    getProjectUserMe(organizationId: string, projectId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectUserMeResponse>;
-    getProjectUsers(organizationId: string, projectId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectUsersResponse>;
+    getProjectUser(userId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectUserResponse>;
+    getProjectUserMe(organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectUserMeResponse>;
+    getProjectUsers(organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectUsersResponse>;
     getStatus(trackingId: string, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetStatusResponse>;
     getUserProjects(organizationId: string, userId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetUserProjectsResponse>;
     getUserProjectsMe(organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetUserProjectsMeResponse>;
-    resetProjectComponent(organizationId: string, projectId: string | null, componentId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudResetProjectComponentResponse>;
     updateDeploymentScope(id: string | null, organizationId: string, options?: TeamCloudUpdateDeploymentScopeOptionalParams): Promise<TeamCloudUpdateDeploymentScopeResponse>;
     updateOrganizationUser(userId: string | null, organizationId: string, options?: TeamCloudUpdateOrganizationUserOptionalParams): Promise<TeamCloudUpdateOrganizationUserResponse>;
     updateOrganizationUserMe(organizationId: string, options?: TeamCloudUpdateOrganizationUserMeOptionalParams): Promise<TeamCloudUpdateOrganizationUserMeResponse>;
-    updateProjectTag(organizationId: string, projectId: string | null, options?: TeamCloudUpdateProjectTagOptionalParams): Promise<TeamCloudUpdateProjectTagResponse>;
+    updateProjectTag(organizationId: string, projectId: string, options?: TeamCloudUpdateProjectTagOptionalParams): Promise<TeamCloudUpdateProjectTagResponse>;
     updateProjectTemplate(projectTemplateId: string | null, organizationId: string, options?: TeamCloudUpdateProjectTemplateOptionalParams): Promise<TeamCloudUpdateProjectTemplateResponse>;
-    updateProjectUser(userId: string | null, organizationId: string, projectId: string | null, options?: TeamCloudUpdateProjectUserOptionalParams): Promise<TeamCloudUpdateProjectUserResponse>;
-    updateProjectUserMe(organizationId: string, projectId: string | null, options?: TeamCloudUpdateProjectUserMeOptionalParams): Promise<TeamCloudUpdateProjectUserMeResponse>;
+    updateProjectUser(userId: string | null, organizationId: string, projectId: string, options?: TeamCloudUpdateProjectUserOptionalParams): Promise<TeamCloudUpdateProjectUserResponse>;
+    updateProjectUserMe(organizationId: string, projectId: string, options?: TeamCloudUpdateProjectUserMeOptionalParams): Promise<TeamCloudUpdateProjectUserMeResponse>;
 }
-
-// @public
-export type TeamCloudClearProjectComponentResponse = ComponentDataResult & {
-    _response: coreHttp.HttpResponse & {
-        bodyAsText: string;
-        parsedBody: ComponentDataResult;
-    };
-};
 
 // @public (undocumented)
 export class TeamCloudContext extends coreHttp.ServiceClient {
@@ -603,6 +624,34 @@ export class TeamCloudContext extends coreHttp.ServiceClient {
     $host: string;
     constructor(credentials: coreHttp.TokenCredential | coreHttp.ServiceClientCredentials, $host: string, options?: TeamCloudOptionalParams);
 }
+
+// @public
+export interface TeamCloudCreateComponentOptionalParams extends coreHttp.OperationOptions {
+    // (undocumented)
+    body?: ComponentDefinition;
+}
+
+// @public
+export type TeamCloudCreateComponentResponse = ComponentDataResult & {
+    _response: coreHttp.HttpResponse & {
+        bodyAsText: string;
+        parsedBody: ComponentDataResult;
+    };
+};
+
+// @public
+export interface TeamCloudCreateComponentTaskOptionalParams extends coreHttp.OperationOptions {
+    // (undocumented)
+    body?: ComponentTaskDefinition;
+}
+
+// @public
+export type TeamCloudCreateComponentTaskResponse = ComponentTaskDataResult & {
+    _response: coreHttp.HttpResponse & {
+        bodyAsText: string;
+        parsedBody: ComponentTaskDataResult;
+    };
+};
 
 // @public
 export interface TeamCloudCreateDeploymentScopeOptionalParams extends coreHttp.OperationOptions {
@@ -643,20 +692,6 @@ export type TeamCloudCreateOrganizationUserResponse = UserDataResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
         parsedBody: UserDataResult;
-    };
-};
-
-// @public
-export interface TeamCloudCreateProjectComponentOptionalParams extends coreHttp.OperationOptions {
-    // (undocumented)
-    body?: ProjectComponentDefinition;
-}
-
-// @public
-export type TeamCloudCreateProjectComponentResponse = ComponentDataResult & {
-    _response: coreHttp.HttpResponse & {
-        bodyAsText: string;
-        parsedBody: ComponentDataResult;
     };
 };
 
@@ -718,6 +753,14 @@ export type TeamCloudCreateProjectUserResponse = UserDataResult & {
 };
 
 // @public
+export type TeamCloudDeleteComponentResponse = StatusResult & {
+    _response: coreHttp.HttpResponse & {
+        bodyAsText: string;
+        parsedBody: StatusResult;
+    };
+};
+
+// @public
 export type TeamCloudDeleteDeploymentScopeResponse = DeploymentScopeDataResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
@@ -735,14 +778,6 @@ export type TeamCloudDeleteOrganizationResponse = StatusResult & {
 
 // @public
 export type TeamCloudDeleteOrganizationUserResponse = StatusResult & {
-    _response: coreHttp.HttpResponse & {
-        bodyAsText: string;
-        parsedBody: StatusResult;
-    };
-};
-
-// @public
-export type TeamCloudDeleteProjectComponentResponse = StatusResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
         parsedBody: StatusResult;
@@ -778,6 +813,54 @@ export type TeamCloudDeleteProjectUserResponse = StatusResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
         parsedBody: StatusResult;
+    };
+};
+
+// @public
+export type TeamCloudGetComponentResponse = ComponentDataResult & {
+    _response: coreHttp.HttpResponse & {
+        bodyAsText: string;
+        parsedBody: ComponentDataResult;
+    };
+};
+
+// @public
+export type TeamCloudGetComponentsResponse = ComponentListDataResult & {
+    _response: coreHttp.HttpResponse & {
+        bodyAsText: string;
+        parsedBody: ComponentListDataResult;
+    };
+};
+
+// @public
+export type TeamCloudGetComponentTaskResponse = ComponentTaskDataResult & {
+    _response: coreHttp.HttpResponse & {
+        bodyAsText: string;
+        parsedBody: ComponentTaskDataResult;
+    };
+};
+
+// @public
+export type TeamCloudGetComponentTasksResponse = ComponentTaskListDataResult & {
+    _response: coreHttp.HttpResponse & {
+        bodyAsText: string;
+        parsedBody: ComponentTaskListDataResult;
+    };
+};
+
+// @public
+export type TeamCloudGetComponentTemplateResponse = ComponentTemplateDataResult & {
+    _response: coreHttp.HttpResponse & {
+        bodyAsText: string;
+        parsedBody: ComponentTemplateDataResult;
+    };
+};
+
+// @public
+export type TeamCloudGetComponentTemplatesResponse = ComponentTemplateListDataResult & {
+    _response: coreHttp.HttpResponse & {
+        bodyAsText: string;
+        parsedBody: ComponentTemplateListDataResult;
     };
 };
 
@@ -834,54 +917,6 @@ export type TeamCloudGetOrganizationUsersResponse = UserListDataResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
         parsedBody: UserListDataResult;
-    };
-};
-
-// @public
-export type TeamCloudGetProjectComponentResponse = ComponentDataResult & {
-    _response: coreHttp.HttpResponse & {
-        bodyAsText: string;
-        parsedBody: ComponentDataResult;
-    };
-};
-
-// @public
-export type TeamCloudGetProjectComponentsResponse = ComponentListDataResult & {
-    _response: coreHttp.HttpResponse & {
-        bodyAsText: string;
-        parsedBody: ComponentListDataResult;
-    };
-};
-
-// @public
-export type TeamCloudGetProjectComponentTemplateResponse = ComponentTemplateDataResult & {
-    _response: coreHttp.HttpResponse & {
-        bodyAsText: string;
-        parsedBody: ComponentTemplateDataResult;
-    };
-};
-
-// @public
-export type TeamCloudGetProjectComponentTemplatesResponse = ComponentTemplateListDataResult & {
-    _response: coreHttp.HttpResponse & {
-        bodyAsText: string;
-        parsedBody: ComponentTemplateListDataResult;
-    };
-};
-
-// @public
-export type TeamCloudGetProjectDeploymentResponse = ComponentDeploymentDataResult & {
-    _response: coreHttp.HttpResponse & {
-        bodyAsText: string;
-        parsedBody: ComponentDeploymentDataResult;
-    };
-};
-
-// @public
-export type TeamCloudGetProjectDeploymentsResponse = ComponentDeploymentListDataResult & {
-    _response: coreHttp.HttpResponse & {
-        bodyAsText: string;
-        parsedBody: ComponentDeploymentListDataResult;
     };
 };
 
@@ -993,14 +1028,6 @@ export type TeamCloudGetUserProjectsResponse = ProjectListDataResult & {
 export interface TeamCloudOptionalParams extends coreHttp.ServiceClientOptions {
     endpoint?: string;
 }
-
-// @public
-export type TeamCloudResetProjectComponentResponse = ComponentDataResult & {
-    _response: coreHttp.HttpResponse & {
-        bodyAsText: string;
-        parsedBody: ComponentDataResult;
-    };
-};
 
 // @public
 export interface TeamCloudUpdateDeploymentScopeOptionalParams extends coreHttp.OperationOptions {

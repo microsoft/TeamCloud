@@ -8,6 +8,178 @@
 
 import * as coreHttp from "@azure/core-http";
 
+export interface ComponentListDataResult {
+  code?: number;
+  status?: string | null;
+  /**
+   * NOTE: This property will not be serialized. It can only be populated by the server.
+   */
+  readonly data?: Component[] | null;
+  location?: string | null;
+}
+
+export interface Component {
+  href?: string | null;
+  organization: string;
+  templateId: string;
+  projectId: string;
+  provider: string;
+  creator: string;
+  displayName?: string | null;
+  description?: string | null;
+  inputJson?: string | null;
+  valueJson?: string | null;
+  type: ComponentType;
+  resourceId?: string | null;
+  resourceState?: ComponentResourceState;
+  deploymentScopeId?: string | null;
+  identityId?: string | null;
+  storageId?: string | null;
+  /**
+   * NOTE: This property will not be serialized. It can only be populated by the server.
+   */
+  readonly slug: string;
+  id: string;
+}
+
+export interface ErrorResult {
+  code?: number;
+  status?: string | null;
+  errors?: ResultError[] | null;
+}
+
+export interface ResultError {
+  code?: ResultErrorCode;
+  message?: string | null;
+  errors?: ValidationError[] | null;
+}
+
+export interface ValidationError {
+  field?: string | null;
+  message?: string | null;
+}
+
+export interface ComponentDefinition {
+  templateId: string;
+  displayName: string;
+  inputJson?: string | null;
+  deploymentScopeId?: string | null;
+}
+
+export interface ComponentDataResult {
+  code?: number;
+  status?: string | null;
+  data?: Component;
+  location?: string | null;
+}
+
+export interface StatusResult {
+  code?: number;
+  status?: string | null;
+  /**
+   * NOTE: This property will not be serialized. It can only be populated by the server.
+   */
+  readonly state?: string | null;
+  stateMessage?: string | null;
+  location?: string | null;
+  errors?: ResultError[] | null;
+  trackingId?: string | null;
+}
+
+export interface ComponentTaskListDataResult {
+  code?: number;
+  status?: string | null;
+  /**
+   * NOTE: This property will not be serialized. It can only be populated by the server.
+   */
+  readonly data?: ComponentTask[] | null;
+  location?: string | null;
+}
+
+export interface ComponentTask {
+  componentId: string;
+  projectId: string;
+  storageId?: string | null;
+  requestedBy?: string | null;
+  type?: Enum3;
+  typeName?: string | null;
+  created?: Date;
+  started?: Date | null;
+  finished?: Date | null;
+  inputJson?: string | null;
+  output?: string | null;
+  resourceId?: string | null;
+  resourceState?: ComponentTaskResourceState;
+  exitCode?: number | null;
+  id: string;
+}
+
+export interface ComponentTaskDefinition {
+  taskId: string;
+  inputJson?: string | null;
+}
+
+export interface ComponentTaskDataResult {
+  code?: number;
+  status?: string | null;
+  data?: ComponentTask;
+  location?: string | null;
+}
+
+export interface ComponentTemplateListDataResult {
+  code?: number;
+  status?: string | null;
+  /**
+   * NOTE: This property will not be serialized. It can only be populated by the server.
+   */
+  readonly data?: ComponentTemplate[] | null;
+  location?: string | null;
+}
+
+export interface ComponentTemplate {
+  organization: string;
+  parentId: string;
+  provider?: string | null;
+  displayName?: string | null;
+  description?: string | null;
+  repository: RepositoryReference;
+  inputJsonSchema?: string | null;
+  tasks?: ComponentTaskTemplate[] | null;
+  type: ComponentTemplateType;
+  folder?: string | null;
+  id: string;
+}
+
+export interface RepositoryReference {
+  url: string;
+  token?: string | null;
+  version?: string | null;
+  baselUrl?: string | null;
+  mountUrl?: string | null;
+  ref?: string | null;
+  provider: RepositoryReferenceProvider;
+  type: RepositoryReferenceType;
+  organization?: string | null;
+  repository?: string | null;
+  project?: string | null;
+}
+
+export interface ComponentTaskTemplate {
+  id?: string | null;
+  displayName?: string | null;
+  description?: string | null;
+  inputJsonSchema?: string | null;
+  type: Enum3;
+  typeName?: string | null;
+}
+
+export interface ComponentTemplateDataResult {
+  code?: number;
+  status?: string | null;
+  data?: ComponentTemplate;
+  location?: string | null;
+}
+
 export interface DeploymentScopeListDataResult {
   code?: number;
   status?: string | null;
@@ -29,23 +201,6 @@ export interface DeploymentScope {
   managementGroupId?: string | null;
   subscriptionIds?: string[] | null;
   id: string;
-}
-
-export interface ErrorResult {
-  code?: number;
-  status?: string | null;
-  errors?: ResultError[] | null;
-}
-
-export interface ResultError {
-  code?: ResultErrorCode;
-  message?: string | null;
-  errors?: ValidationError[] | null;
-}
-
-export interface ValidationError {
-  field?: string | null;
-  message?: string | null;
 }
 
 export interface DeploymentScopeDefinition {
@@ -109,19 +264,6 @@ export interface OrganizationDataResult {
   status?: string | null;
   data?: Organization;
   location?: string | null;
-}
-
-export interface StatusResult {
-  code?: number;
-  status?: string | null;
-  /**
-   * NOTE: This property will not be serialized. It can only be populated by the server.
-   */
-  readonly state?: string | null;
-  stateMessage?: string | null;
-  location?: string | null;
-  errors?: ResultError[] | null;
-  trackingId?: string | null;
 }
 
 export interface UserListDataResult {
@@ -218,131 +360,6 @@ export interface ProjectDataResult {
   location?: string | null;
 }
 
-export interface ComponentListDataResult {
-  code?: number;
-  status?: string | null;
-  /**
-   * NOTE: This property will not be serialized. It can only be populated by the server.
-   */
-  readonly data?: Component[] | null;
-  location?: string | null;
-}
-
-export interface Component {
-  href?: string | null;
-  organization: string;
-  templateId: string;
-  projectId: string;
-  provider: string;
-  requestedBy: string;
-  displayName?: string | null;
-  description?: string | null;
-  inputJson?: string | null;
-  valueJson?: string | null;
-  type: ComponentType;
-  resourceId?: string | null;
-  resourceState?: ComponentResourceState;
-  deploymentScopeId?: string | null;
-  identityId?: string | null;
-  storageId?: string | null;
-  /**
-   * NOTE: This property will not be serialized. It can only be populated by the server.
-   */
-  readonly slug: string;
-  id: string;
-}
-
-export interface ProjectComponentDefinition {
-  templateId: string;
-  displayName: string;
-  inputJson?: string | null;
-  deploymentScopeId?: string | null;
-}
-
-export interface ComponentDataResult {
-  code?: number;
-  status?: string | null;
-  data?: Component;
-  location?: string | null;
-}
-
-export interface ComponentTemplateListDataResult {
-  code?: number;
-  status?: string | null;
-  /**
-   * NOTE: This property will not be serialized. It can only be populated by the server.
-   */
-  readonly data?: ComponentTemplate[] | null;
-  location?: string | null;
-}
-
-export interface ComponentTemplate {
-  organization: string;
-  parentId: string;
-  provider?: string | null;
-  displayName?: string | null;
-  description?: string | null;
-  repository: RepositoryReference;
-  inputJsonSchema?: string | null;
-  type: ComponentTemplateType;
-  folder?: string | null;
-  id: string;
-}
-
-export interface RepositoryReference {
-  url: string;
-  token?: string | null;
-  version?: string | null;
-  baselUrl?: string | null;
-  mountUrl?: string | null;
-  ref?: string | null;
-  provider: RepositoryReferenceProvider;
-  type: RepositoryReferenceType;
-  organization?: string | null;
-  repository?: string | null;
-  project?: string | null;
-}
-
-export interface ComponentTemplateDataResult {
-  code?: number;
-  status?: string | null;
-  data?: ComponentTemplate;
-  location?: string | null;
-}
-
-export interface ComponentDeploymentListDataResult {
-  code?: number;
-  status?: string | null;
-  /**
-   * NOTE: This property will not be serialized. It can only be populated by the server.
-   */
-  readonly data?: ComponentDeployment[] | null;
-  location?: string | null;
-}
-
-export interface ComponentDeployment {
-  componentId: string;
-  projectId: string;
-  storageId?: string | null;
-  type?: ComponentDeploymentType;
-  typeName?: string | null;
-  created?: Date;
-  started?: Date | null;
-  finished?: Date | null;
-  output?: string | null;
-  resourceId?: string | null;
-  resourceState?: ComponentDeploymentResourceState;
-  exitCode?: number | null;
-  id: string;
-}
-
-export interface ComponentDeploymentDataResult {
-  code?: number;
-  status?: string | null;
-  data?: ComponentDeployment;
-  location?: string | null;
-}
-
 export interface StringDictionaryDataResult {
   code?: number;
   status?: string | null;
@@ -399,6 +416,25 @@ export interface ProjectTemplateDataResult {
 }
 
 /**
+ * Defines values for ComponentType.
+ */
+export type ComponentType =
+  | "Custom"
+  | "AzureResource"
+  | "Environment"
+  | "GitRepository"
+  | string;
+/**
+ * Defines values for ComponentResourceState.
+ */
+export type ComponentResourceState =
+  | "Pending"
+  | "Initializing"
+  | "Provisioning"
+  | "Succeeded"
+  | "Failed"
+  | string;
+/**
  * Defines values for ResultErrorCode.
  */
 export type ResultErrorCode =
@@ -410,6 +446,46 @@ export type ResultErrorCode =
   | "ValidationError"
   | "Unauthorized"
   | "Forbidden"
+  | string;
+/**
+ * Defines values for Enum3.
+ */
+export type Enum3 = 0 | 1 | 2 | number;
+/**
+ * Defines values for ComponentTaskResourceState.
+ */
+export type ComponentTaskResourceState =
+  | "Pending"
+  | "Initializing"
+  | "Provisioning"
+  | "Succeeded"
+  | "Failed"
+  | string;
+/**
+ * Defines values for RepositoryReferenceProvider.
+ */
+export type RepositoryReferenceProvider =
+  | "Unknown"
+  | "GitHub"
+  | "DevOps"
+  | string;
+/**
+ * Defines values for RepositoryReferenceType.
+ */
+export type RepositoryReferenceType =
+  | "Unknown"
+  | "Tag"
+  | "Branch"
+  | "Hash"
+  | string;
+/**
+ * Defines values for ComponentTemplateType.
+ */
+export type ComponentTemplateType =
+  | "Custom"
+  | "AzureResource"
+  | "Environment"
+  | "GitRepository"
   | string;
 /**
  * Defines values for OrganizationResourceState.
@@ -448,65 +524,202 @@ export type ProjectResourceState =
   | "Succeeded"
   | "Failed"
   | string;
+
 /**
- * Defines values for ComponentType.
+ * Contains response data for the getComponents operation.
  */
-export type ComponentType =
-  | "Custom"
-  | "AzureResource"
-  | "Environment"
-  | "GitRepository"
-  | string;
+export type TeamCloudGetComponentsResponse = ComponentListDataResult & {
+  /**
+   * The underlying HTTP response.
+   */
+  _response: coreHttp.HttpResponse & {
+    /**
+     * The response body as text (string format)
+     */
+    bodyAsText: string;
+
+    /**
+     * The response body as parsed JSON or XML
+     */
+    parsedBody: ComponentListDataResult;
+  };
+};
+
 /**
- * Defines values for ComponentResourceState.
+ * Optional parameters.
  */
-export type ComponentResourceState =
-  | "Pending"
-  | "Initializing"
-  | "Provisioning"
-  | "Succeeded"
-  | "Failed"
-  | string;
+export interface TeamCloudCreateComponentOptionalParams
+  extends coreHttp.OperationOptions {
+  body?: ComponentDefinition;
+}
+
 /**
- * Defines values for RepositoryReferenceProvider.
+ * Contains response data for the createComponent operation.
  */
-export type RepositoryReferenceProvider =
-  | "Unknown"
-  | "GitHub"
-  | "DevOps"
-  | string;
+export type TeamCloudCreateComponentResponse = ComponentDataResult & {
+  /**
+   * The underlying HTTP response.
+   */
+  _response: coreHttp.HttpResponse & {
+    /**
+     * The response body as text (string format)
+     */
+    bodyAsText: string;
+
+    /**
+     * The response body as parsed JSON or XML
+     */
+    parsedBody: ComponentDataResult;
+  };
+};
+
 /**
- * Defines values for RepositoryReferenceType.
+ * Contains response data for the getComponent operation.
  */
-export type RepositoryReferenceType =
-  | "Unknown"
-  | "Tag"
-  | "Branch"
-  | "Hash"
-  | string;
+export type TeamCloudGetComponentResponse = ComponentDataResult & {
+  /**
+   * The underlying HTTP response.
+   */
+  _response: coreHttp.HttpResponse & {
+    /**
+     * The response body as text (string format)
+     */
+    bodyAsText: string;
+
+    /**
+     * The response body as parsed JSON or XML
+     */
+    parsedBody: ComponentDataResult;
+  };
+};
+
 /**
- * Defines values for ComponentTemplateType.
+ * Contains response data for the deleteComponent operation.
  */
-export type ComponentTemplateType =
-  | "Custom"
-  | "AzureResource"
-  | "Environment"
-  | "GitRepository"
-  | string;
+export type TeamCloudDeleteComponentResponse = StatusResult & {
+  /**
+   * The underlying HTTP response.
+   */
+  _response: coreHttp.HttpResponse & {
+    /**
+     * The response body as text (string format)
+     */
+    bodyAsText: string;
+
+    /**
+     * The response body as parsed JSON or XML
+     */
+    parsedBody: StatusResult;
+  };
+};
+
 /**
- * Defines values for ComponentDeploymentType.
+ * Contains response data for the getComponentTasks operation.
  */
-export type ComponentDeploymentType = "Create" | "Delete" | "Custom" | string;
+export type TeamCloudGetComponentTasksResponse = ComponentTaskListDataResult & {
+  /**
+   * The underlying HTTP response.
+   */
+  _response: coreHttp.HttpResponse & {
+    /**
+     * The response body as text (string format)
+     */
+    bodyAsText: string;
+
+    /**
+     * The response body as parsed JSON or XML
+     */
+    parsedBody: ComponentTaskListDataResult;
+  };
+};
+
 /**
- * Defines values for ComponentDeploymentResourceState.
+ * Optional parameters.
  */
-export type ComponentDeploymentResourceState =
-  | "Pending"
-  | "Initializing"
-  | "Provisioning"
-  | "Succeeded"
-  | "Failed"
-  | string;
+export interface TeamCloudCreateComponentTaskOptionalParams
+  extends coreHttp.OperationOptions {
+  body?: ComponentTaskDefinition;
+}
+
+/**
+ * Contains response data for the createComponentTask operation.
+ */
+export type TeamCloudCreateComponentTaskResponse = ComponentTaskDataResult & {
+  /**
+   * The underlying HTTP response.
+   */
+  _response: coreHttp.HttpResponse & {
+    /**
+     * The response body as text (string format)
+     */
+    bodyAsText: string;
+
+    /**
+     * The response body as parsed JSON or XML
+     */
+    parsedBody: ComponentTaskDataResult;
+  };
+};
+
+/**
+ * Contains response data for the getComponentTask operation.
+ */
+export type TeamCloudGetComponentTaskResponse = ComponentTaskDataResult & {
+  /**
+   * The underlying HTTP response.
+   */
+  _response: coreHttp.HttpResponse & {
+    /**
+     * The response body as text (string format)
+     */
+    bodyAsText: string;
+
+    /**
+     * The response body as parsed JSON or XML
+     */
+    parsedBody: ComponentTaskDataResult;
+  };
+};
+
+/**
+ * Contains response data for the getComponentTemplates operation.
+ */
+export type TeamCloudGetComponentTemplatesResponse = ComponentTemplateListDataResult & {
+  /**
+   * The underlying HTTP response.
+   */
+  _response: coreHttp.HttpResponse & {
+    /**
+     * The response body as text (string format)
+     */
+    bodyAsText: string;
+
+    /**
+     * The response body as parsed JSON or XML
+     */
+    parsedBody: ComponentTemplateListDataResult;
+  };
+};
+
+/**
+ * Contains response data for the getComponentTemplate operation.
+ */
+export type TeamCloudGetComponentTemplateResponse = ComponentTemplateDataResult & {
+  /**
+   * The underlying HTTP response.
+   */
+  _response: coreHttp.HttpResponse & {
+    /**
+     * The response body as text (string format)
+     */
+    bodyAsText: string;
+
+    /**
+     * The response body as parsed JSON or XML
+     */
+    parsedBody: ComponentTemplateDataResult;
+  };
+};
 
 /**
  * Contains response data for the getDeploymentScopes operation.
@@ -961,214 +1174,6 @@ export type TeamCloudDeleteProjectResponse = StatusResult & {
      * The response body as parsed JSON or XML
      */
     parsedBody: StatusResult;
-  };
-};
-
-/**
- * Contains response data for the getProjectComponents operation.
- */
-export type TeamCloudGetProjectComponentsResponse = ComponentListDataResult & {
-  /**
-   * The underlying HTTP response.
-   */
-  _response: coreHttp.HttpResponse & {
-    /**
-     * The response body as text (string format)
-     */
-    bodyAsText: string;
-
-    /**
-     * The response body as parsed JSON or XML
-     */
-    parsedBody: ComponentListDataResult;
-  };
-};
-
-/**
- * Optional parameters.
- */
-export interface TeamCloudCreateProjectComponentOptionalParams
-  extends coreHttp.OperationOptions {
-  body?: ProjectComponentDefinition;
-}
-
-/**
- * Contains response data for the createProjectComponent operation.
- */
-export type TeamCloudCreateProjectComponentResponse = ComponentDataResult & {
-  /**
-   * The underlying HTTP response.
-   */
-  _response: coreHttp.HttpResponse & {
-    /**
-     * The response body as text (string format)
-     */
-    bodyAsText: string;
-
-    /**
-     * The response body as parsed JSON or XML
-     */
-    parsedBody: ComponentDataResult;
-  };
-};
-
-/**
- * Contains response data for the getProjectComponent operation.
- */
-export type TeamCloudGetProjectComponentResponse = ComponentDataResult & {
-  /**
-   * The underlying HTTP response.
-   */
-  _response: coreHttp.HttpResponse & {
-    /**
-     * The response body as text (string format)
-     */
-    bodyAsText: string;
-
-    /**
-     * The response body as parsed JSON or XML
-     */
-    parsedBody: ComponentDataResult;
-  };
-};
-
-/**
- * Contains response data for the deleteProjectComponent operation.
- */
-export type TeamCloudDeleteProjectComponentResponse = StatusResult & {
-  /**
-   * The underlying HTTP response.
-   */
-  _response: coreHttp.HttpResponse & {
-    /**
-     * The response body as text (string format)
-     */
-    bodyAsText: string;
-
-    /**
-     * The response body as parsed JSON or XML
-     */
-    parsedBody: StatusResult;
-  };
-};
-
-/**
- * Contains response data for the resetProjectComponent operation.
- */
-export type TeamCloudResetProjectComponentResponse = ComponentDataResult & {
-  /**
-   * The underlying HTTP response.
-   */
-  _response: coreHttp.HttpResponse & {
-    /**
-     * The response body as text (string format)
-     */
-    bodyAsText: string;
-
-    /**
-     * The response body as parsed JSON or XML
-     */
-    parsedBody: ComponentDataResult;
-  };
-};
-
-/**
- * Contains response data for the clearProjectComponent operation.
- */
-export type TeamCloudClearProjectComponentResponse = ComponentDataResult & {
-  /**
-   * The underlying HTTP response.
-   */
-  _response: coreHttp.HttpResponse & {
-    /**
-     * The response body as text (string format)
-     */
-    bodyAsText: string;
-
-    /**
-     * The response body as parsed JSON or XML
-     */
-    parsedBody: ComponentDataResult;
-  };
-};
-
-/**
- * Contains response data for the getProjectComponentTemplates operation.
- */
-export type TeamCloudGetProjectComponentTemplatesResponse = ComponentTemplateListDataResult & {
-  /**
-   * The underlying HTTP response.
-   */
-  _response: coreHttp.HttpResponse & {
-    /**
-     * The response body as text (string format)
-     */
-    bodyAsText: string;
-
-    /**
-     * The response body as parsed JSON or XML
-     */
-    parsedBody: ComponentTemplateListDataResult;
-  };
-};
-
-/**
- * Contains response data for the getProjectComponentTemplate operation.
- */
-export type TeamCloudGetProjectComponentTemplateResponse = ComponentTemplateDataResult & {
-  /**
-   * The underlying HTTP response.
-   */
-  _response: coreHttp.HttpResponse & {
-    /**
-     * The response body as text (string format)
-     */
-    bodyAsText: string;
-
-    /**
-     * The response body as parsed JSON or XML
-     */
-    parsedBody: ComponentTemplateDataResult;
-  };
-};
-
-/**
- * Contains response data for the getProjectDeployments operation.
- */
-export type TeamCloudGetProjectDeploymentsResponse = ComponentDeploymentListDataResult & {
-  /**
-   * The underlying HTTP response.
-   */
-  _response: coreHttp.HttpResponse & {
-    /**
-     * The response body as text (string format)
-     */
-    bodyAsText: string;
-
-    /**
-     * The response body as parsed JSON or XML
-     */
-    parsedBody: ComponentDeploymentListDataResult;
-  };
-};
-
-/**
- * Contains response data for the getProjectDeployment operation.
- */
-export type TeamCloudGetProjectDeploymentResponse = ComponentDeploymentDataResult & {
-  /**
-   * The underlying HTTP response.
-   */
-  _response: coreHttp.HttpResponse & {
-    /**
-     * The response body as text (string format)
-     */
-    bodyAsText: string;
-
-    /**
-     * The response body as parsed JSON or XML
-     */
-    parsedBody: ComponentDeploymentDataResult;
   };
 };
 

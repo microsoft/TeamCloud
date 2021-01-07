@@ -103,7 +103,6 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                 }
                 else
                 {
-
                     var resourceGroup = await azureResourceService
                         .GetResourceGroupAsync(componentResourceId.SubscriptionId, componentResourceId.ResourceGroup, throwIfNotExists: true)
                         .ConfigureAwait(false);

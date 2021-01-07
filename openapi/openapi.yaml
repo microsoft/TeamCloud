@@ -11,6 +11,442 @@ info:
     url: https://github.com/microsoft/TeamCloud/blob/master/LICENSE
   version: v1
 paths:
+  '/orgs/{organizationId}/projects/{projectId}/components':
+    get:
+      tags:
+        - Components
+      summary: Gets all Components for a Project.
+      operationId: GetComponents
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns all Project Components
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComponentListDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A Project with the provided projectId was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    post:
+      tags:
+        - Components
+      summary: Creates a new Project Component.
+      operationId: CreateComponent
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComponentDefinition'
+      responses:
+        '201':
+          description: The created Project Component.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComponentDataResult'
+        '202':
+          description: Starts creating the new Project Component. Returns a StatusResult object that can be used to track progress of the long-running operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A Project with the provided projectId was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '409':
+          description: A Project Component already exists with the id provided in the request body.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  '/orgs/{organizationId}/projects/{projectId}/components/{id}':
+    get:
+      tags:
+        - Components
+      summary: Gets a Project Component.
+      operationId: GetComponent
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns Project Component
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComponentDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: 'A Project with the provided projectId was not found, or a Component with the provided id was not found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    delete:
+      tags:
+        - Components
+      summary: Deletes an existing Project Component.
+      operationId: DeleteComponent
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '202':
+          description: Starts deleting the Project Component. Returns a StatusResult object that can be used to track progress of the long-running operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResult'
+        '204':
+          description: The Project Component was deleted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComponentDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: 'A Project with the provided id was not found, or a Component with the provided id was not found.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  '/orgs/{organizationId}/projects/{projectId}/components/{componentId}/tasks':
+    get:
+      tags:
+        - ComponentTasks
+      summary: Gets all Component Tasks.
+      operationId: GetComponentTasks
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: componentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns all Component Tasks
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComponentTaskListDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A Component with the provided componentId was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    post:
+      tags:
+        - ComponentTasks
+      summary: Creates a new Project Component Task.
+      operationId: CreateComponentTask
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: componentId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComponentTaskDefinition'
+      responses:
+        '201':
+          description: The created Project Component Task.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComponentTaskDataResult'
+        '202':
+          description: Starts creating the new Project Component. Returns a StatusResult object that can be used to track progress of the long-running operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A Project with the provided projectId was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '409':
+          description: A Project Component already exists with the id provided in the request body.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  '/orgs/{organizationId}/projects/{projectId}/components/{componentId}/tasks/{id}':
+    get:
+      tags:
+        - ComponentTasks
+      summary: Gets the Component Task.
+      operationId: GetComponentTask
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: componentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns a Component Task
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComponentTaskDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A Component Task with the provided id was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  '/orgs/{organizationId}/projects/{projectId}/templates':
+    get:
+      tags:
+        - ComponentTemplates
+      summary: Gets all Component Templates for a Project.
+      operationId: GetComponentTemplates
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns all Project Component Templates
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComponentTemplateListDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: Component Templates with the provided projectId was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  '/orgs/{organizationId}/projects/{projectId}/templates/{id}':
+    get:
+      tags:
+        - ComponentTemplates
+      summary: Gets the Component Template.
+      operationId: GetComponentTemplate
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns a Component Template
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComponentTemplateDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A Project Component Template with the provided id was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
   '/orgs/{organizationId}/scopes':
     get:
       tags:
@@ -764,459 +1200,6 @@ paths:
                 $ref: '#/components/schemas/ErrorResult'
         '404':
           description: A Project with the specified name or ID was not found.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResult'
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
-  '/orgs/{organizationId}/projects/{projectId}/components':
-    get:
-      tags:
-        - ProjectComponents
-      summary: Gets all Components for a Project.
-      operationId: GetProjectComponents
-      parameters:
-        - name: organizationId
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: projectId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Returns all Project Components
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ComponentListDataResult'
-        '400':
-          description: A validation error occured.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResult'
-        '404':
-          description: A Project with the provided projectId was not found.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResult'
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
-    post:
-      tags:
-        - ProjectComponents
-      summary: Creates a new Project Component.
-      operationId: CreateProjectComponent
-      parameters:
-        - name: organizationId
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: projectId
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ProjectComponentDefinition'
-      responses:
-        '201':
-          description: The created Project Component.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ComponentDataResult'
-        '202':
-          description: Starts creating the new Project Component. Returns a StatusResult object that can be used to track progress of the long-running operation.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResult'
-        '400':
-          description: A validation error occured.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResult'
-        '404':
-          description: A Project with the provided projectId was not found.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResult'
-        '409':
-          description: A Project Component already exists with the id provided in the request body.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResult'
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
-  '/orgs/{organizationId}/projects/{projectId}/components/{id}':
-    get:
-      tags:
-        - ProjectComponents
-      summary: Gets a Project Component.
-      operationId: GetProjectComponent
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            nullable: true
-        - name: organizationId
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: projectId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Returns Project Component
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ComponentDataResult'
-        '400':
-          description: A validation error occured.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResult'
-        '404':
-          description: 'A Project with the provided projectId was not found, or a Component with the provided id was not found.'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResult'
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
-    delete:
-      tags:
-        - ProjectComponents
-      summary: Deletes an existing Project Component.
-      operationId: DeleteProjectComponent
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            nullable: true
-        - name: organizationId
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: projectId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '202':
-          description: Starts deleting the Project Component. Returns a StatusResult object that can be used to track progress of the long-running operation.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResult'
-        '204':
-          description: The Project Component was deleted.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ComponentDataResult'
-        '400':
-          description: A validation error occured.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResult'
-        '404':
-          description: 'A Project with the provided id was not found, or a Component with the provided id was not found.'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResult'
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
-  '/orgs/{organizationId}/projects/{projectId}/components/{componentId}/reset':
-    post:
-      tags:
-        - ProjectComponents
-      summary: Reset a Project Component.
-      operationId: ResetProjectComponent
-      parameters:
-        - name: organizationId
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: projectId
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: componentId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '201':
-          description: Reset a Project Component. Returns the current version of the target Project Component.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ComponentDataResult'
-        '404':
-          description: A Project Component with the provided componentId was not found.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResult'
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
-  '/orgs/{organizationId}/projects/{projectId}/components/{componentId}/clear':
-    post:
-      tags:
-        - ProjectComponents
-      summary: Clear a Project Component.
-      operationId: ClearProjectComponent
-      parameters:
-        - name: organizationId
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: projectId
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: componentId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '201':
-          description: Clear a Project Component. Returns the current version of the target Project Component.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ComponentDataResult'
-        '404':
-          description: A Project Component with the provided componentId was not found.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResult'
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
-  '/orgs/{organizationId}/projects/{projectId}/templates':
-    get:
-      tags:
-        - ProjectComponentTemplates
-      summary: Gets all Project Component Templates.
-      operationId: GetProjectComponentTemplates
-      parameters:
-        - name: organizationId
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: projectId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Returns all Project Component Templates
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ComponentTemplateListDataResult'
-        '400':
-          description: A validation error occured.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResult'
-        '404':
-          description: A Project Component Templates with the provided providerId was not found.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResult'
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
-  '/orgs/{organizationId}/projects/{projectId}/templates/{id}':
-    get:
-      tags:
-        - ProjectComponentTemplates
-      summary: Gets the Component Template.
-      operationId: GetProjectComponentTemplate
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            nullable: true
-        - name: organizationId
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: projectId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Returns a Component Template
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ComponentTemplateDataResult'
-        '400':
-          description: A validation error occured.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResult'
-        '404':
-          description: A Project Component Template with the provided id was not found.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResult'
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
-  '/orgs/{organizationId}/projects/{projectId}/components/{componentId}/deployments':
-    get:
-      tags:
-        - ProjectDeployments
-      summary: Gets all Project Component Deployments.
-      operationId: GetProjectDeployments
-      parameters:
-        - name: organizationId
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: projectId
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: componentId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Returns all Project Component Deployments
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ComponentDeploymentListDataResult'
-        '400':
-          description: A validation error occured.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResult'
-        '404':
-          description: A Project Component Deployments with the provided providerId was not found.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResult'
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
-  '/orgs/{organizationId}/projects/{projectId}/components/{componentId}/deployments/{id}':
-    get:
-      tags:
-        - ProjectDeployments
-      summary: Gets the Component Template.
-      operationId: GetProjectDeployment
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            nullable: true
-        - name: organizationId
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: projectId
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: componentId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Returns a Component Template
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ComponentDeploymentDataResult'
-        '400':
-          description: A validation error occured.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResult'
-        '404':
-          description: A Project Component Template with the provided id was not found.
           content:
             application/json:
               schema:
@@ -2172,37 +2155,77 @@ paths:
           description: Forbidden
 components:
   schemas:
-    DeploymentScope:
+    Component:
       required:
-        - displayName
+        - creator
         - id
-        - isDefault
         - organization
+        - projectId
+        - provider
         - slug
+        - templateId
+        - type
       type: object
       properties:
+        href:
+          type: string
+          nullable: true
         organization:
           type: string
+        templateId:
+          type: string
+        projectId:
+          type: string
+        provider:
+          type: string
+        creator:
+          type: string
+        displayName:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        inputJson:
+          type: string
+          nullable: true
+        valueJson:
+          type: string
+          nullable: true
+        type:
+          enum:
+            - Custom
+            - AzureResource
+            - Environment
+            - GitRepository
+          type: string
+        resourceId:
+          type: string
+          nullable: true
+        resourceState:
+          enum:
+            - Pending
+            - Initializing
+            - Provisioning
+            - Succeeded
+            - Failed
+          type: string
+        deploymentScopeId:
+          type: string
+          nullable: true
+        identityId:
+          type: string
+          nullable: true
+        storageId:
+          type: string
+          nullable: true
         slug:
           type: string
           readOnly: true
-        displayName:
-          type: string
-        isDefault:
-          type: boolean
-        managementGroupId:
-          type: string
-          nullable: true
-        subscriptionIds:
-          type: array
-          items:
-            type: string
-            format: uuid
-          nullable: true
         id:
           type: string
       additionalProperties: false
-    DeploymentScopeListDataResult:
+    ComponentListDataResult:
       type: object
       properties:
         code:
@@ -2214,7 +2237,7 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/DeploymentScope'
+            $ref: '#/components/schemas/Component'
           nullable: true
           readOnly: true
         location:
@@ -2267,6 +2290,376 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ResultError'
+          nullable: true
+      additionalProperties: false
+    ComponentDefinition:
+      required:
+        - displayName
+        - templateId
+      type: object
+      properties:
+        templateId:
+          type: string
+        displayName:
+          type: string
+        inputJson:
+          type: string
+          nullable: true
+        deploymentScopeId:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ComponentDataResult:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        status:
+          type: string
+          nullable: true
+        data:
+          $ref: '#/components/schemas/Component'
+        location:
+          type: string
+          nullable: true
+      additionalProperties: false
+    StatusResult:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        status:
+          type: string
+          nullable: true
+        state:
+          type: string
+          nullable: true
+          readOnly: true
+        stateMessage:
+          type: string
+          nullable: true
+        location:
+          type: string
+          nullable: true
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResultError'
+          nullable: true
+        _trackingId:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ComponentTask:
+      required:
+        - componentId
+        - id
+        - projectId
+      type: object
+      properties:
+        componentId:
+          type: string
+        projectId:
+          type: string
+        storageId:
+          type: string
+          nullable: true
+        requestedBy:
+          type: string
+          nullable: true
+        type:
+          enum:
+            - 0
+            - 1
+            - 2
+          type: integer
+          format: int32
+        typeName:
+          type: string
+          nullable: true
+        created:
+          type: string
+          format: date-time
+        started:
+          type: string
+          format: date-time
+          nullable: true
+        finished:
+          type: string
+          format: date-time
+          nullable: true
+        inputJson:
+          type: string
+          nullable: true
+        output:
+          type: string
+          nullable: true
+        resourceId:
+          type: string
+          nullable: true
+        resourceState:
+          enum:
+            - Pending
+            - Initializing
+            - Provisioning
+            - Succeeded
+            - Failed
+          type: string
+        exitCode:
+          type: integer
+          format: int32
+          nullable: true
+        id:
+          type: string
+      additionalProperties: false
+    ComponentTaskListDataResult:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        status:
+          type: string
+          nullable: true
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ComponentTask'
+          nullable: true
+          readOnly: true
+        location:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ComponentTaskDefinition:
+      required:
+        - taskId
+      type: object
+      properties:
+        taskId:
+          type: string
+        inputJson:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ComponentTaskDataResult:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        status:
+          type: string
+          nullable: true
+        data:
+          $ref: '#/components/schemas/ComponentTask'
+        location:
+          type: string
+          nullable: true
+      additionalProperties: false
+    RepositoryReference:
+      required:
+        - provider
+        - type
+        - url
+      type: object
+      properties:
+        url:
+          type: string
+        token:
+          type: string
+          nullable: true
+        version:
+          type: string
+          nullable: true
+        baselUrl:
+          type: string
+          nullable: true
+        mountUrl:
+          type: string
+          nullable: true
+        ref:
+          type: string
+          nullable: true
+        provider:
+          enum:
+            - Unknown
+            - GitHub
+            - DevOps
+          type: string
+        type:
+          enum:
+            - Unknown
+            - Tag
+            - Branch
+            - Hash
+          type: string
+        organization:
+          type: string
+          nullable: true
+        repository:
+          type: string
+          nullable: true
+        project:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ComponentTaskTemplate:
+      required:
+        - type
+      type: object
+      properties:
+        id:
+          type: string
+          nullable: true
+        displayName:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        inputJsonSchema:
+          type: string
+          nullable: true
+        type:
+          enum:
+            - 0
+            - 1
+            - 2
+          type: integer
+          format: int32
+        typeName:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ComponentTemplate:
+      required:
+        - id
+        - organization
+        - parentId
+        - repository
+        - type
+      type: object
+      properties:
+        organization:
+          type: string
+        parentId:
+          type: string
+        provider:
+          type: string
+          nullable: true
+        displayName:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        repository:
+          $ref: '#/components/schemas/RepositoryReference'
+        inputJsonSchema:
+          type: string
+          nullable: true
+        tasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/ComponentTaskTemplate'
+          nullable: true
+        type:
+          enum:
+            - Custom
+            - AzureResource
+            - Environment
+            - GitRepository
+          type: string
+        folder:
+          type: string
+          nullable: true
+        id:
+          type: string
+      additionalProperties: false
+    ComponentTemplateListDataResult:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        status:
+          type: string
+          nullable: true
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ComponentTemplate'
+          nullable: true
+          readOnly: true
+        location:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ComponentTemplateDataResult:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        status:
+          type: string
+          nullable: true
+        data:
+          $ref: '#/components/schemas/ComponentTemplate'
+        location:
+          type: string
+          nullable: true
+      additionalProperties: false
+    DeploymentScope:
+      required:
+        - displayName
+        - id
+        - isDefault
+        - organization
+        - slug
+      type: object
+      properties:
+        organization:
+          type: string
+        slug:
+          type: string
+          readOnly: true
+        displayName:
+          type: string
+        isDefault:
+          type: boolean
+        managementGroupId:
+          type: string
+          nullable: true
+        subscriptionIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+          nullable: true
+        id:
+          type: string
+      additionalProperties: false
+    DeploymentScopeListDataResult:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        status:
+          type: string
+          nullable: true
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeploymentScope'
+          nullable: true
+          readOnly: true
+        location:
+          type: string
           nullable: true
       additionalProperties: false
     DeploymentScopeDefinition:
@@ -2396,34 +2789,6 @@ components:
         data:
           $ref: '#/components/schemas/Organization'
         location:
-          type: string
-          nullable: true
-      additionalProperties: false
-    StatusResult:
-      type: object
-      properties:
-        code:
-          type: integer
-          format: int32
-        status:
-          type: string
-          nullable: true
-        state:
-          type: string
-          nullable: true
-          readOnly: true
-        stateMessage:
-          type: string
-          nullable: true
-        location:
-          type: string
-          nullable: true
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/ResultError'
-          nullable: true
-        _trackingId:
           type: string
           nullable: true
       additionalProperties: false
@@ -2633,337 +2998,6 @@ components:
           nullable: true
         data:
           $ref: '#/components/schemas/Project'
-        location:
-          type: string
-          nullable: true
-      additionalProperties: false
-    Component:
-      required:
-        - id
-        - organization
-        - projectId
-        - provider
-        - requestedBy
-        - slug
-        - templateId
-        - type
-      type: object
-      properties:
-        href:
-          type: string
-          nullable: true
-        organization:
-          type: string
-        templateId:
-          type: string
-        projectId:
-          type: string
-        provider:
-          type: string
-        requestedBy:
-          type: string
-        displayName:
-          type: string
-          nullable: true
-        description:
-          type: string
-          nullable: true
-        inputJson:
-          type: string
-          nullable: true
-        valueJson:
-          type: string
-          nullable: true
-        type:
-          enum:
-            - Custom
-            - AzureResource
-            - Environment
-            - GitRepository
-          type: string
-        resourceId:
-          type: string
-          nullable: true
-        resourceState:
-          enum:
-            - Pending
-            - Initializing
-            - Provisioning
-            - Succeeded
-            - Failed
-          type: string
-        deploymentScopeId:
-          type: string
-          nullable: true
-        identityId:
-          type: string
-          nullable: true
-        storageId:
-          type: string
-          nullable: true
-        slug:
-          type: string
-          readOnly: true
-        id:
-          type: string
-      additionalProperties: false
-    ComponentListDataResult:
-      type: object
-      properties:
-        code:
-          type: integer
-          format: int32
-        status:
-          type: string
-          nullable: true
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Component'
-          nullable: true
-          readOnly: true
-        location:
-          type: string
-          nullable: true
-      additionalProperties: false
-    ProjectComponentDefinition:
-      required:
-        - displayName
-        - templateId
-      type: object
-      properties:
-        templateId:
-          type: string
-        displayName:
-          type: string
-        inputJson:
-          type: string
-          nullable: true
-        deploymentScopeId:
-          type: string
-          nullable: true
-      additionalProperties: false
-    ComponentDataResult:
-      type: object
-      properties:
-        code:
-          type: integer
-          format: int32
-        status:
-          type: string
-          nullable: true
-        data:
-          $ref: '#/components/schemas/Component'
-        location:
-          type: string
-          nullable: true
-      additionalProperties: false
-    RepositoryReference:
-      required:
-        - provider
-        - type
-        - url
-      type: object
-      properties:
-        url:
-          type: string
-        token:
-          type: string
-          nullable: true
-        version:
-          type: string
-          nullable: true
-        baselUrl:
-          type: string
-          nullable: true
-        mountUrl:
-          type: string
-          nullable: true
-        ref:
-          type: string
-          nullable: true
-        provider:
-          enum:
-            - Unknown
-            - GitHub
-            - DevOps
-          type: string
-        type:
-          enum:
-            - Unknown
-            - Tag
-            - Branch
-            - Hash
-          type: string
-        organization:
-          type: string
-          nullable: true
-        repository:
-          type: string
-          nullable: true
-        project:
-          type: string
-          nullable: true
-      additionalProperties: false
-    ComponentTemplate:
-      required:
-        - id
-        - organization
-        - parentId
-        - repository
-        - type
-      type: object
-      properties:
-        organization:
-          type: string
-        parentId:
-          type: string
-        provider:
-          type: string
-          nullable: true
-        displayName:
-          type: string
-          nullable: true
-        description:
-          type: string
-          nullable: true
-        repository:
-          $ref: '#/components/schemas/RepositoryReference'
-        inputJsonSchema:
-          type: string
-          nullable: true
-        type:
-          enum:
-            - Custom
-            - AzureResource
-            - Environment
-            - GitRepository
-          type: string
-        folder:
-          type: string
-          nullable: true
-        id:
-          type: string
-      additionalProperties: false
-    ComponentTemplateListDataResult:
-      type: object
-      properties:
-        code:
-          type: integer
-          format: int32
-        status:
-          type: string
-          nullable: true
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/ComponentTemplate'
-          nullable: true
-          readOnly: true
-        location:
-          type: string
-          nullable: true
-      additionalProperties: false
-    ComponentTemplateDataResult:
-      type: object
-      properties:
-        code:
-          type: integer
-          format: int32
-        status:
-          type: string
-          nullable: true
-        data:
-          $ref: '#/components/schemas/ComponentTemplate'
-        location:
-          type: string
-          nullable: true
-      additionalProperties: false
-    ComponentDeployment:
-      required:
-        - componentId
-        - id
-        - projectId
-      type: object
-      properties:
-        componentId:
-          type: string
-        projectId:
-          type: string
-        storageId:
-          type: string
-          nullable: true
-        type:
-          enum:
-            - Create
-            - Delete
-            - Custom
-          type: string
-        typeName:
-          type: string
-          nullable: true
-        created:
-          type: string
-          format: date-time
-        started:
-          type: string
-          format: date-time
-          nullable: true
-        finished:
-          type: string
-          format: date-time
-          nullable: true
-        output:
-          type: string
-          nullable: true
-        resourceId:
-          type: string
-          nullable: true
-        resourceState:
-          enum:
-            - Pending
-            - Initializing
-            - Provisioning
-            - Succeeded
-            - Failed
-          type: string
-        exitCode:
-          type: integer
-          format: int32
-          nullable: true
-        id:
-          type: string
-      additionalProperties: false
-    ComponentDeploymentListDataResult:
-      type: object
-      properties:
-        code:
-          type: integer
-          format: int32
-        status:
-          type: string
-          nullable: true
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/ComponentDeployment'
-          nullable: true
-          readOnly: true
-        location:
-          type: string
-          nullable: true
-      additionalProperties: false
-    ComponentDeploymentDataResult:
-      type: object
-      properties:
-        code:
-          type: integer
-          format: int32
-        status:
-          type: string
-          nullable: true
-        data:
-          $ref: '#/components/schemas/ComponentDeployment'
         location:
           type: string
           nullable: true

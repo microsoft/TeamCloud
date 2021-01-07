@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useContext } from 'react';
 import { DefaultButton, Dropdown, FontIcon, getTheme, IColumn, IconButton, IDropdownOption, Image, Persona, PersonaSize, PrimaryButton, Stack, Text, TextField } from '@fluentui/react';
-import { ProjectComponentDefinition, ComponentTemplate } from 'teamcloud';
+import { ComponentDefinition, ComponentTemplate } from 'teamcloud';
 import { useHistory } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { FuiForm } from '@rjsf/fluent-ui'
@@ -48,14 +48,14 @@ export const ComponentForm: React.FC = () => {
         if (org && project && template && displayName && e.formData) {
             setFormEnabled(false);
 
-            const componentDef: ProjectComponentDefinition = {
+            const componentDef: ComponentDefinition = {
                 displayName: displayName,
                 templateId: template.id,
                 inputJson: JSON.stringify(e.formData),
                 deploymentScopeId: deploymentScopeId
             };
 
-            const componentResult = await api.createProjectComponent(project.organization, project.id, { body: componentDef });
+            const componentResult = await api.createComponent(project.organization, project.id, { body: componentDef });
             const component = componentResult.data;
 
             if (component) {

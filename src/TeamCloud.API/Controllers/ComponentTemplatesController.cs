@@ -21,11 +21,11 @@ namespace TeamCloud.API.Controllers
     [ApiController]
     [Route("orgs/{organizationId:organizationId}/projects/{projectId:projectId}/templates")]
     [Produces("application/json")]
-    public class ProjectComponentTemplatesController : ApiController
+    public class ComponentTemplatesController : ApiController
     {
         private readonly IComponentTemplateRepository componentTemplateRepository;
 
-        public ProjectComponentTemplatesController(IComponentTemplateRepository componentTemplateRepository) : base()
+        public ComponentTemplatesController(IComponentTemplateRepository componentTemplateRepository) : base()
         {
             this.componentTemplateRepository = componentTemplateRepository ?? throw new ArgumentNullException(nameof(componentTemplateRepository));
         }
@@ -33,10 +33,10 @@ namespace TeamCloud.API.Controllers
 
         [HttpGet]
         [Authorize(Policy = AuthPolicies.ProjectMember)]
-        [SwaggerOperation(OperationId = "GetProjectComponentTemplates", Summary = "Gets all Project Component Templates.")]
+        [SwaggerOperation(OperationId = "GetComponentTemplates", Summary = "Gets all Component Templates for a Project.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all Project Component Templates", typeof(DataResult<List<ComponentTemplate>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
-        [SwaggerResponse(StatusCodes.Status404NotFound, "A Project Component Templates with the provided providerId was not found.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Component Templates with the provided projectId was not found.", typeof(ErrorResult))]
         public Task<IActionResult> Get() => ExecuteAsync(new Func<User, Organization, Project, Task<IActionResult>>(async (user, organization, project) =>
         {
             var componenetTemplates = await componentTemplateRepository
@@ -52,7 +52,7 @@ namespace TeamCloud.API.Controllers
 
         [HttpGet("{id}")]
         [Authorize(Policy = AuthPolicies.ProjectMember)]
-        [SwaggerOperation(OperationId = "GetProjectComponentTemplate", Summary = "Gets the Component Template.")]
+        [SwaggerOperation(OperationId = "GetComponentTemplate", Summary = "Gets the Component Template.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns a Component Template", typeof(DataResult<ComponentTemplate>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project Component Template with the provided id was not found.", typeof(ErrorResult))]

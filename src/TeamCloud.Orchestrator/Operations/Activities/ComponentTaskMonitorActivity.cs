@@ -14,24 +14,24 @@ namespace TeamCloud.Orchestrator.Operations.Activities
 {
     public sealed class ComponentDeploymentMonitorActivity
     {
-        private readonly IComponentDeploymentRepository componentDeploymentRepository;
+        private readonly IComponentTaskRepository componentTaskRepository;
         private readonly IAzureResourceService azureResourceService;
 
-        public ComponentDeploymentMonitorActivity(IComponentDeploymentRepository componentDeploymentRepository, IAzureResourceService azureResourceService)
+        public ComponentDeploymentMonitorActivity(IComponentTaskRepository componentTaskRepository, IAzureResourceService azureResourceService)
         {
-            this.componentDeploymentRepository = componentDeploymentRepository ?? throw new ArgumentNullException(nameof(componentDeploymentRepository));
+            this.componentTaskRepository = componentTaskRepository ?? throw new ArgumentNullException(nameof(componentTaskRepository));
             this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
         }
 
         [FunctionName(nameof(ComponentDeploymentMonitorActivity))]
         [RetryOptions(3)]
-        public async Task<ComponentDeployment> Run(
+        public async Task<ComponentTask> Run(
             [ActivityTrigger] IDurableActivityContext context)
         {
             if (context is null)
                 throw new ArgumentNullException(nameof(context));
 
-            var componentDeployment = context.GetInput<Input>().ComponentDeployment;
+            var componentDeployment = context.GetInput<Input>().ComponentTask;
 
             try
             {
@@ -75,7 +75,7 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                         }
                     }
 
-                    componentDeployment = await componentDeploymentRepository
+                    componentDeployment = await componentTaskRepository
                         .SetAsync(componentDeployment)
                         .ConfigureAwait(false);
                 }
@@ -90,7 +90,7 @@ namespace TeamCloud.Orchestrator.Operations.Activities
 
         internal struct Input
         {
-            public ComponentDeployment ComponentDeployment { get; set; }
+            public ComponentTask ComponentTask { get; set; }
         }
     }
 }

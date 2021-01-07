@@ -1,6 +1,6 @@
 import * as coreHttp from "@azure/core-http";
 import { TeamCloudContext } from "./teamCloudContext";
-import { TeamCloudOptionalParams, TeamCloudGetDeploymentScopesResponse, TeamCloudCreateDeploymentScopeOptionalParams, TeamCloudCreateDeploymentScopeResponse, TeamCloudGetDeploymentScopeResponse, TeamCloudUpdateDeploymentScopeOptionalParams, TeamCloudUpdateDeploymentScopeResponse, TeamCloudDeleteDeploymentScopeResponse, TeamCloudGetOrganizationsResponse, TeamCloudCreateOrganizationOptionalParams, TeamCloudCreateOrganizationResponse, TeamCloudGetOrganizationResponse, TeamCloudDeleteOrganizationResponse, TeamCloudGetOrganizationUsersResponse, TeamCloudCreateOrganizationUserOptionalParams, TeamCloudCreateOrganizationUserResponse, TeamCloudGetOrganizationUserResponse, TeamCloudUpdateOrganizationUserOptionalParams, TeamCloudUpdateOrganizationUserResponse, TeamCloudDeleteOrganizationUserResponse, TeamCloudGetOrganizationUserMeResponse, TeamCloudUpdateOrganizationUserMeOptionalParams, TeamCloudUpdateOrganizationUserMeResponse, TeamCloudGetProjectsResponse, TeamCloudCreateProjectOptionalParams, TeamCloudCreateProjectResponse, TeamCloudGetProjectResponse, TeamCloudDeleteProjectResponse, TeamCloudGetProjectComponentsResponse, TeamCloudCreateProjectComponentOptionalParams, TeamCloudCreateProjectComponentResponse, TeamCloudGetProjectComponentResponse, TeamCloudDeleteProjectComponentResponse, TeamCloudResetProjectComponentResponse, TeamCloudClearProjectComponentResponse, TeamCloudGetProjectComponentTemplatesResponse, TeamCloudGetProjectComponentTemplateResponse, TeamCloudGetProjectDeploymentsResponse, TeamCloudGetProjectDeploymentResponse, TeamCloudGetProjectTagsResponse, TeamCloudCreateProjectTagOptionalParams, TeamCloudCreateProjectTagResponse, TeamCloudUpdateProjectTagOptionalParams, TeamCloudUpdateProjectTagResponse, TeamCloudGetProjectTagByKeyResponse, TeamCloudDeleteProjectTagResponse, TeamCloudGetProjectTemplatesResponse, TeamCloudCreateProjectTemplateOptionalParams, TeamCloudCreateProjectTemplateResponse, TeamCloudGetProjectTemplateResponse, TeamCloudUpdateProjectTemplateOptionalParams, TeamCloudUpdateProjectTemplateResponse, TeamCloudDeleteProjectTemplateResponse, TeamCloudGetProjectUsersResponse, TeamCloudCreateProjectUserOptionalParams, TeamCloudCreateProjectUserResponse, TeamCloudGetProjectUserResponse, TeamCloudUpdateProjectUserOptionalParams, TeamCloudUpdateProjectUserResponse, TeamCloudDeleteProjectUserResponse, TeamCloudGetProjectUserMeResponse, TeamCloudUpdateProjectUserMeOptionalParams, TeamCloudUpdateProjectUserMeResponse, TeamCloudGetStatusResponse, TeamCloudGetProjectStatusResponse, TeamCloudGetUserProjectsResponse, TeamCloudGetUserProjectsMeResponse } from "./models";
+import { TeamCloudOptionalParams, TeamCloudGetComponentsResponse, TeamCloudCreateComponentOptionalParams, TeamCloudCreateComponentResponse, TeamCloudGetComponentResponse, TeamCloudDeleteComponentResponse, TeamCloudGetComponentTasksResponse, TeamCloudCreateComponentTaskOptionalParams, TeamCloudCreateComponentTaskResponse, TeamCloudGetComponentTaskResponse, TeamCloudGetComponentTemplatesResponse, TeamCloudGetComponentTemplateResponse, TeamCloudGetDeploymentScopesResponse, TeamCloudCreateDeploymentScopeOptionalParams, TeamCloudCreateDeploymentScopeResponse, TeamCloudGetDeploymentScopeResponse, TeamCloudUpdateDeploymentScopeOptionalParams, TeamCloudUpdateDeploymentScopeResponse, TeamCloudDeleteDeploymentScopeResponse, TeamCloudGetOrganizationsResponse, TeamCloudCreateOrganizationOptionalParams, TeamCloudCreateOrganizationResponse, TeamCloudGetOrganizationResponse, TeamCloudDeleteOrganizationResponse, TeamCloudGetOrganizationUsersResponse, TeamCloudCreateOrganizationUserOptionalParams, TeamCloudCreateOrganizationUserResponse, TeamCloudGetOrganizationUserResponse, TeamCloudUpdateOrganizationUserOptionalParams, TeamCloudUpdateOrganizationUserResponse, TeamCloudDeleteOrganizationUserResponse, TeamCloudGetOrganizationUserMeResponse, TeamCloudUpdateOrganizationUserMeOptionalParams, TeamCloudUpdateOrganizationUserMeResponse, TeamCloudGetProjectsResponse, TeamCloudCreateProjectOptionalParams, TeamCloudCreateProjectResponse, TeamCloudGetProjectResponse, TeamCloudDeleteProjectResponse, TeamCloudGetProjectTagsResponse, TeamCloudCreateProjectTagOptionalParams, TeamCloudCreateProjectTagResponse, TeamCloudUpdateProjectTagOptionalParams, TeamCloudUpdateProjectTagResponse, TeamCloudGetProjectTagByKeyResponse, TeamCloudDeleteProjectTagResponse, TeamCloudGetProjectTemplatesResponse, TeamCloudCreateProjectTemplateOptionalParams, TeamCloudCreateProjectTemplateResponse, TeamCloudGetProjectTemplateResponse, TeamCloudUpdateProjectTemplateOptionalParams, TeamCloudUpdateProjectTemplateResponse, TeamCloudDeleteProjectTemplateResponse, TeamCloudGetProjectUsersResponse, TeamCloudCreateProjectUserOptionalParams, TeamCloudCreateProjectUserResponse, TeamCloudGetProjectUserResponse, TeamCloudUpdateProjectUserOptionalParams, TeamCloudUpdateProjectUserResponse, TeamCloudDeleteProjectUserResponse, TeamCloudGetProjectUserMeResponse, TeamCloudUpdateProjectUserMeOptionalParams, TeamCloudUpdateProjectUserMeResponse, TeamCloudGetStatusResponse, TeamCloudGetProjectStatusResponse, TeamCloudGetUserProjectsResponse, TeamCloudGetUserProjectsMeResponse } from "./models";
 export declare class TeamCloud extends TeamCloudContext {
     /**
      * Initializes a new instance of the TeamCloud class.
@@ -9,6 +9,76 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param options The parameter options
      */
     constructor(credentials: coreHttp.TokenCredential | coreHttp.ServiceClientCredentials, $host: string, options?: TeamCloudOptionalParams);
+    /**
+     * Gets all Components for a Project.
+     * @param organizationId
+     * @param projectId
+     * @param options The options parameters.
+     */
+    getComponents(organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentsResponse>;
+    /**
+     * Creates a new Project Component.
+     * @param organizationId
+     * @param projectId
+     * @param options The options parameters.
+     */
+    createComponent(organizationId: string, projectId: string, options?: TeamCloudCreateComponentOptionalParams): Promise<TeamCloudCreateComponentResponse>;
+    /**
+     * Gets a Project Component.
+     * @param id
+     * @param organizationId
+     * @param projectId
+     * @param options The options parameters.
+     */
+    getComponent(id: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentResponse>;
+    /**
+     * Deletes an existing Project Component.
+     * @param id
+     * @param organizationId
+     * @param projectId
+     * @param options The options parameters.
+     */
+    deleteComponent(id: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteComponentResponse>;
+    /**
+     * Gets all Component Tasks.
+     * @param organizationId
+     * @param projectId
+     * @param componentId
+     * @param options The options parameters.
+     */
+    getComponentTasks(organizationId: string, projectId: string, componentId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentTasksResponse>;
+    /**
+     * Creates a new Project Component Task.
+     * @param organizationId
+     * @param projectId
+     * @param componentId
+     * @param options The options parameters.
+     */
+    createComponentTask(organizationId: string, projectId: string, componentId: string, options?: TeamCloudCreateComponentTaskOptionalParams): Promise<TeamCloudCreateComponentTaskResponse>;
+    /**
+     * Gets the Component Task.
+     * @param id
+     * @param organizationId
+     * @param projectId
+     * @param componentId
+     * @param options The options parameters.
+     */
+    getComponentTask(id: string | null, organizationId: string, projectId: string, componentId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentTaskResponse>;
+    /**
+     * Gets all Component Templates for a Project.
+     * @param organizationId
+     * @param projectId
+     * @param options The options parameters.
+     */
+    getComponentTemplates(organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentTemplatesResponse>;
+    /**
+     * Gets the Component Template.
+     * @param id
+     * @param organizationId
+     * @param projectId
+     * @param options The options parameters.
+     */
+    getComponentTemplate(id: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentTemplateResponse>;
     /**
      * Gets all Deployment Scopes.
      * @param organizationId
@@ -128,113 +198,35 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param organizationId
      * @param options The options parameters.
      */
-    getProject(projectId: string | null, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectResponse>;
+    getProject(projectId: string, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectResponse>;
     /**
      * Deletes a Project.
      * @param projectId
      * @param organizationId
      * @param options The options parameters.
      */
-    deleteProject(projectId: string | null, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectResponse>;
-    /**
-     * Gets all Components for a Project.
-     * @param organizationId
-     * @param projectId
-     * @param options The options parameters.
-     */
-    getProjectComponents(organizationId: string, projectId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectComponentsResponse>;
-    /**
-     * Creates a new Project Component.
-     * @param organizationId
-     * @param projectId
-     * @param options The options parameters.
-     */
-    createProjectComponent(organizationId: string, projectId: string | null, options?: TeamCloudCreateProjectComponentOptionalParams): Promise<TeamCloudCreateProjectComponentResponse>;
-    /**
-     * Gets a Project Component.
-     * @param id
-     * @param organizationId
-     * @param projectId
-     * @param options The options parameters.
-     */
-    getProjectComponent(id: string | null, organizationId: string, projectId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectComponentResponse>;
-    /**
-     * Deletes an existing Project Component.
-     * @param id
-     * @param organizationId
-     * @param projectId
-     * @param options The options parameters.
-     */
-    deleteProjectComponent(id: string | null, organizationId: string, projectId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectComponentResponse>;
-    /**
-     * Reset a Project Component.
-     * @param organizationId
-     * @param projectId
-     * @param componentId
-     * @param options The options parameters.
-     */
-    resetProjectComponent(organizationId: string, projectId: string | null, componentId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudResetProjectComponentResponse>;
-    /**
-     * Clear a Project Component.
-     * @param organizationId
-     * @param projectId
-     * @param componentId
-     * @param options The options parameters.
-     */
-    clearProjectComponent(organizationId: string, projectId: string | null, componentId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudClearProjectComponentResponse>;
-    /**
-     * Gets all Project Component Templates.
-     * @param organizationId
-     * @param projectId
-     * @param options The options parameters.
-     */
-    getProjectComponentTemplates(organizationId: string, projectId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectComponentTemplatesResponse>;
-    /**
-     * Gets the Component Template.
-     * @param id
-     * @param organizationId
-     * @param projectId
-     * @param options The options parameters.
-     */
-    getProjectComponentTemplate(id: string | null, organizationId: string, projectId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectComponentTemplateResponse>;
-    /**
-     * Gets all Project Component Deployments.
-     * @param organizationId
-     * @param projectId
-     * @param componentId
-     * @param options The options parameters.
-     */
-    getProjectDeployments(organizationId: string, projectId: string | null, componentId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectDeploymentsResponse>;
-    /**
-     * Gets the Component Template.
-     * @param id
-     * @param organizationId
-     * @param projectId
-     * @param componentId
-     * @param options The options parameters.
-     */
-    getProjectDeployment(id: string | null, organizationId: string, projectId: string | null, componentId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectDeploymentResponse>;
+    deleteProject(projectId: string, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectResponse>;
     /**
      * Gets all Tags for a Project.
      * @param organizationId
      * @param projectId
      * @param options The options parameters.
      */
-    getProjectTags(organizationId: string, projectId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectTagsResponse>;
+    getProjectTags(organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectTagsResponse>;
     /**
      * Creates a new Project Tag.
      * @param organizationId
      * @param projectId
      * @param options The options parameters.
      */
-    createProjectTag(organizationId: string, projectId: string | null, options?: TeamCloudCreateProjectTagOptionalParams): Promise<TeamCloudCreateProjectTagResponse>;
+    createProjectTag(organizationId: string, projectId: string, options?: TeamCloudCreateProjectTagOptionalParams): Promise<TeamCloudCreateProjectTagResponse>;
     /**
      * Updates an existing Project Tag.
      * @param organizationId
      * @param projectId
      * @param options The options parameters.
      */
-    updateProjectTag(organizationId: string, projectId: string | null, options?: TeamCloudUpdateProjectTagOptionalParams): Promise<TeamCloudUpdateProjectTagResponse>;
+    updateProjectTag(organizationId: string, projectId: string, options?: TeamCloudUpdateProjectTagOptionalParams): Promise<TeamCloudUpdateProjectTagResponse>;
     /**
      * Gets a Project Tag by Key.
      * @param tagKey
@@ -242,7 +234,7 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param projectId
      * @param options The options parameters.
      */
-    getProjectTagByKey(tagKey: string | null, organizationId: string, projectId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectTagByKeyResponse>;
+    getProjectTagByKey(tagKey: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectTagByKeyResponse>;
     /**
      * Deletes an existing Project Tag.
      * @param tagKey
@@ -250,7 +242,7 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param projectId
      * @param options The options parameters.
      */
-    deleteProjectTag(tagKey: string | null, organizationId: string, projectId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectTagResponse>;
+    deleteProjectTag(tagKey: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectTagResponse>;
     /**
      * Gets all Project Templates.
      * @param organizationId
@@ -290,14 +282,14 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param projectId
      * @param options The options parameters.
      */
-    getProjectUsers(organizationId: string, projectId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectUsersResponse>;
+    getProjectUsers(organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectUsersResponse>;
     /**
      * Creates a new Project User
      * @param organizationId
      * @param projectId
      * @param options The options parameters.
      */
-    createProjectUser(organizationId: string, projectId: string | null, options?: TeamCloudCreateProjectUserOptionalParams): Promise<TeamCloudCreateProjectUserResponse>;
+    createProjectUser(organizationId: string, projectId: string, options?: TeamCloudCreateProjectUserOptionalParams): Promise<TeamCloudCreateProjectUserResponse>;
     /**
      * Gets a Project User by ID or email address.
      * @param userId
@@ -305,7 +297,7 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param projectId
      * @param options The options parameters.
      */
-    getProjectUser(userId: string | null, organizationId: string, projectId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectUserResponse>;
+    getProjectUser(userId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectUserResponse>;
     /**
      * Updates an existing Project User.
      * @param userId
@@ -313,7 +305,7 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param projectId
      * @param options The options parameters.
      */
-    updateProjectUser(userId: string | null, organizationId: string, projectId: string | null, options?: TeamCloudUpdateProjectUserOptionalParams): Promise<TeamCloudUpdateProjectUserResponse>;
+    updateProjectUser(userId: string | null, organizationId: string, projectId: string, options?: TeamCloudUpdateProjectUserOptionalParams): Promise<TeamCloudUpdateProjectUserResponse>;
     /**
      * Deletes an existing Project User.
      * @param userId
@@ -321,21 +313,21 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param projectId
      * @param options The options parameters.
      */
-    deleteProjectUser(userId: string | null, organizationId: string, projectId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectUserResponse>;
+    deleteProjectUser(userId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectUserResponse>;
     /**
      * Gets a Project User for the calling user.
      * @param organizationId
      * @param projectId
      * @param options The options parameters.
      */
-    getProjectUserMe(organizationId: string, projectId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectUserMeResponse>;
+    getProjectUserMe(organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectUserMeResponse>;
     /**
      * Updates an existing Project User.
      * @param organizationId
      * @param projectId
      * @param options The options parameters.
      */
-    updateProjectUserMe(organizationId: string, projectId: string | null, options?: TeamCloudUpdateProjectUserMeOptionalParams): Promise<TeamCloudUpdateProjectUserMeResponse>;
+    updateProjectUserMe(organizationId: string, projectId: string, options?: TeamCloudUpdateProjectUserMeOptionalParams): Promise<TeamCloudUpdateProjectUserMeResponse>;
     /**
      * Gets the status of a long-running operation.
      * @param trackingId
@@ -350,7 +342,7 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param organizationId
      * @param options The options parameters.
      */
-    getProjectStatus(projectId: string | null, trackingId: string, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectStatusResponse>;
+    getProjectStatus(projectId: string, trackingId: string, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectStatusResponse>;
     /**
      * Gets all Projects for a User.
      * @param organizationId

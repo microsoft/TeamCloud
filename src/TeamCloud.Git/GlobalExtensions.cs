@@ -175,6 +175,23 @@ namespace TeamCloud.Git
         }
 
 
+        internal static ComponentTaskTemplate ToTemplate(this ComponentTaskYaml yaml)
+        {
+            if (yaml is null)
+                throw new ArgumentNullException(nameof(yaml));
+
+            // var name = !string.IsNullOrEmpty(yaml.Name) ? yaml.Name : folder;
+
+            return new ComponentTaskTemplate
+            {
+                Id = yaml.Id,
+                DisplayName = yaml.Name,
+                Description = yaml.Description,
+                Type = yaml.Type,
+                InputJsonSchema = yaml.Parameters.ToSchema().ToString(Formatting.None)
+            };
+        }
+
         internal static ComponentTemplate ToTemplate(this ComponentYaml yaml, ProjectTemplate projectTemplate, string folder)
         {
             if (yaml is null)
@@ -186,7 +203,7 @@ namespace TeamCloud.Git
             if (folder is null)
                 throw new ArgumentNullException(nameof(folder));
 
-            var name = !string.IsNullOrEmpty(yaml.Name) ? yaml.Name : folder;
+            var name = !string.IsNullOrEmpty(yaml?.Name) ? yaml.Name : folder;
 
             return new ComponentTemplate
             {
@@ -199,7 +216,8 @@ namespace TeamCloud.Git
                 Repository = projectTemplate.Repository,
                 Type = yaml.Type,
                 Folder = folder,
-                InputJsonSchema = yaml.Parameters.ToSchema().ToString(Formatting.None)
+                InputJsonSchema = yaml.Parameters?.ToSchema().ToString(Formatting.None),
+                Tasks = yaml.Tasks?.Select(t => t.ToTemplate()).ToList()
             };
         }
 
@@ -218,7 +236,7 @@ namespace TeamCloud.Git
                 DisplayName = yaml.Name,
                 Description = yaml.Description,
                 Components = yaml.Components,
-                InputJsonSchema = yaml.Parameters.ToSchema().ToString(Formatting.None)
+                InputJsonSchema = yaml.Parameters?.ToSchema().ToString(Formatting.None)
             };
         }
 
@@ -233,7 +251,7 @@ namespace TeamCloud.Git
             template.Name = yaml.Name;
             template.Description = yaml.Description;
             template.Components = yaml.Components;
-            template.InputJsonSchema = yaml.Parameters.ToSchema().ToString(Formatting.None);
+            template.InputJsonSchema = yaml.Parameters?.ToSchema().ToString(Formatting.None);
 
             template.DisplayName ??= template.Name;
 

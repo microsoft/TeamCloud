@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import React from 'react';
-import { Component, ComponentDeployment, ComponentTemplate, DeploymentScope, DeploymentScopeDefinition, Organization, Project, ProjectTemplate, ProjectTemplateDefinition, User, UserDefinition } from 'teamcloud'
+import { Component, ComponentTask, ComponentTemplate, DeploymentScope, DeploymentScopeDefinition, Organization, Project, ProjectTemplate, ProjectTemplateDefinition, User, UserDefinition } from 'teamcloud'
 import { GraphUser, ManagementGroup, Member, ProjectMember, Subscription } from './model';
 
 export const GraphUserContext = React.createContext({
@@ -35,10 +35,8 @@ export const ProjectContext = React.createContext({
     components: undefined as Component[] | undefined,
     component: undefined as Component | undefined,
     templates: undefined as ComponentTemplate[] | undefined,
-    componentDeployments: undefined as ComponentDeployment[] | undefined,
+    componentTasks: undefined as ComponentTask[] | undefined,
     onComponentSelected: (component?: Component) => { },
-    onResetComponent: (component?: Component) => Promise.resolve(),
-    onClearComponent: (component?: Component) => Promise.resolve(),
     onAddUsers: (users: UserDefinition[]) => Promise.resolve(),
     onRemoveUsers: (users: User[]) => Promise.resolve(),
 });

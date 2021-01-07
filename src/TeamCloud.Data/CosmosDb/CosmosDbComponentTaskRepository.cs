@@ -1,4 +1,9 @@
-﻿using System;
+/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -10,18 +15,18 @@ using TeamCloud.Model.Validation;
 
 namespace TeamCloud.Data.CosmosDb
 {
-    public sealed class CosmosDbComponentDeploymentRepository : CosmosDbRepository<ComponentDeployment>, IComponentDeploymentRepository
+    public sealed class CosmosDbComponentTaskRepository : CosmosDbRepository<ComponentTask>, IComponentTaskRepository
     {
-        public CosmosDbComponentDeploymentRepository(ICosmosDbOptions options, IEnumerable<IDocumentExpander> expanders)
+        public CosmosDbComponentTaskRepository(ICosmosDbOptions options, IEnumerable<IDocumentExpander> expanders)
             : base(options, expanders)
         { }
 
-        public override async Task<ComponentDeployment> AddAsync(ComponentDeployment deployment)
+        public override async Task<ComponentTask> AddAsync(ComponentTask task)
         {
-            if (deployment is null)
-                throw new ArgumentNullException(nameof(deployment));
+            if (task is null)
+                throw new ArgumentNullException(nameof(task));
 
-            await deployment
+            await task
                 .ValidateAsync(throwOnValidationError: true)
                 .ConfigureAwait(false);
 
@@ -29,13 +34,13 @@ namespace TeamCloud.Data.CosmosDb
                 .ConfigureAwait(false);
 
             var response = await container
-                .CreateItemAsync(deployment, GetPartitionKey(deployment))
+                .CreateItemAsync(task, GetPartitionKey(task))
                 .ConfigureAwait(false);
 
             return response.Resource;
         }
 
-        public override async Task<ComponentDeployment> GetAsync(string componentId, string id, bool expand = false)
+        public override async Task<ComponentTask> GetAsync(string componentId, string id, bool expand = false)
         {
             if (componentId is null)
                 throw new ArgumentNullException(nameof(componentId));
@@ -52,7 +57,7 @@ namespace TeamCloud.Data.CosmosDb
             try
             {
                 var response = await container
-                    .ReadItemAsync<ComponentDeployment>(idParsed.ToString(), GetPartitionKey(componentId))
+                    .ReadItemAsync<ComponentTask>(idParsed.ToString(), GetPartitionKey(componentId))
                     .ConfigureAwait(false);
 
                 var expandTask = expand
@@ -67,7 +72,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public override async IAsyncEnumerable<ComponentDeployment> ListAsync(string componentId)
+        public override async IAsyncEnumerable<ComponentTask> ListAsync(string componentId)
         {
             if (componentId is null)
                 throw new ArgumentNullException(nameof(componentId));
@@ -83,7 +88,7 @@ namespace TeamCloud.Data.CosmosDb
             var query = new QueryDefinition(queryString);
 
             var queryIterator = container
-                .GetItemQueryIterator<ComponentDeployment>(query, requestOptions: GetQueryRequestOptions(componentId));
+                .GetItemQueryIterator<ComponentTask>(query, requestOptions: GetQueryRequestOptions(componentId));
 
             while (queryIterator.HasMoreResults)
             {
@@ -117,10 +122,10 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public override async Task<ComponentDeployment> RemoveAsync(ComponentDeployment deployment)
+        public override async Task<ComponentTask> RemoveAsync(ComponentTask task)
         {
-            if (deployment is null)
-                throw new ArgumentNullException(nameof(deployment));
+            if (task is null)
+                throw new ArgumentNullException(nameof(task));
 
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
@@ -128,7 +133,7 @@ namespace TeamCloud.Data.CosmosDb
             try
             {
                 var response = await container
-                    .DeleteItemAsync<ComponentDeployment>(deployment.Id, GetPartitionKey(deployment))
+                    .DeleteItemAsync<ComponentTask>(task.Id, GetPartitionKey(task))
                     .ConfigureAwait(false);
 
                 return response.Resource;
@@ -151,12 +156,12 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public override async Task<ComponentDeployment> SetAsync(ComponentDeployment deployment)
+        public override async Task<ComponentTask> SetAsync(ComponentTask task)
         {
-            if (deployment is null)
-                throw new ArgumentNullException(nameof(deployment));
+            if (task is null)
+                throw new ArgumentNullException(nameof(task));
 
-            await deployment
+            await task
                 .ValidateAsync(throwOnValidationError: true)
                 .ConfigureAwait(false);
 
@@ -164,7 +169,7 @@ namespace TeamCloud.Data.CosmosDb
                 .ConfigureAwait(false);
 
             var response = await container
-                .UpsertItemAsync(deployment, GetPartitionKey(deployment))
+                .UpsertItemAsync(task, GetPartitionKey(task))
                 .ConfigureAwait(false);
 
             return response.Resource;

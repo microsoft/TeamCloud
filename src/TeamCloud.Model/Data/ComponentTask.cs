@@ -1,4 +1,4 @@
-﻿/**
+/**
  *  Copyright (c) Microsoft Corporation.
  *  Licensed under the MIT License.
  */
@@ -12,7 +12,7 @@ using TeamCloud.Serialization;
 namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public sealed class ComponentDeployment : ContainerDocument, IEquatable<ComponentDeployment>, IValidatable, IResourceReference
+    public sealed class ComponentTask : ContainerDocument, IEquatable<ComponentTask>, IValidatable, IResourceReference
     {
         private string typeName;
 
@@ -25,11 +25,13 @@ namespace TeamCloud.Model.Data
 
         public string StorageId { get; set; }
 
-        public ComponentDeploymentType Type { get; set; } = ComponentDeploymentType.Create;
+        public string RequestedBy { get; set; }
+
+        public ComponentTaskType Type { get; set; } = ComponentTaskType.Create;
 
         public string TypeName
         {
-            get => Type == ComponentDeploymentType.Custom ? typeName : default;
+            get => Type == ComponentTaskType.Custom ? typeName : default;
             set => typeName = value;
         }
 
@@ -38,6 +40,8 @@ namespace TeamCloud.Model.Data
         public DateTime? Started { get; set; }
 
         public DateTime? Finished { get; set; }
+
+        public string InputJson { get; set; }
 
         [DatabaseIgnore]
         public string Output { get; set; }
@@ -49,11 +53,11 @@ namespace TeamCloud.Model.Data
 
         public int? ExitCode { get; set; }
 
-        public bool Equals(ComponentDeployment other)
+        public bool Equals(ComponentTask other)
             => Id.Equals(other?.Id, StringComparison.Ordinal);
 
         public override bool Equals(object obj)
-            => base.Equals(obj) || Equals(obj as ComponentDeployment);
+            => base.Equals(obj) || Equals(obj as ComponentTask);
 
         public override int GetHashCode()
             => Id?.GetHashCode(StringComparison.Ordinal) ?? base.GetHashCode();

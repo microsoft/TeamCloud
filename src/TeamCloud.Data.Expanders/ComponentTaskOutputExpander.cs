@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -10,27 +10,27 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Data.Expanders
 {
-    public sealed class ComponentDeploymentOutputExpander : IDocumentExpander<ComponentDeployment>
+    public sealed class ComponentTaskOutputExpander : IDocumentExpander<ComponentTask>
     {
         private readonly IAzureResourceService azureResourceService;
 
-        public ComponentDeploymentOutputExpander(IAzureResourceService azureResourceService)
+        public ComponentTaskOutputExpander(IAzureResourceService azureResourceService)
         {
-            this.azureResourceService = azureResourceService ?? throw new System.ArgumentNullException(nameof(azureResourceService));
+            this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
         }
 
-        public bool CanExpand(ComponentDeployment document)
+        public bool CanExpand(ComponentTask document)
         {
             if (document is null)
-                throw new System.ArgumentNullException(nameof(document));
+                throw new ArgumentNullException(nameof(document));
 
             return string.IsNullOrEmpty(document.Output);
         }
 
-        public async Task<ComponentDeployment> ExpandAsync(ComponentDeployment document)
+        public async Task<ComponentTask> ExpandAsync(ComponentTask document)
         {
             if (document is null)
-                throw new System.ArgumentNullException(nameof(document));
+                throw new ArgumentNullException(nameof(document));
 
             var output = new StringBuilder();
 
