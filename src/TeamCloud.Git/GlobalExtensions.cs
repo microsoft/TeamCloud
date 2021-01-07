@@ -216,8 +216,8 @@ namespace TeamCloud.Git
                 Repository = projectTemplate.Repository,
                 Type = yaml.Type,
                 Folder = folder,
-                InputJsonSchema = yaml.Parameters.ToSchema().ToString(Formatting.None),
-                Tasks = yaml.Tasks.Select(t => t.ToTemplate()).ToList()
+                InputJsonSchema = yaml.Parameters?.ToSchema().ToString(Formatting.None),
+                Tasks = yaml.Tasks?.Select(t => t.ToTemplate()).ToList()
             };
         }
 
@@ -236,7 +236,7 @@ namespace TeamCloud.Git
                 DisplayName = yaml.Name,
                 Description = yaml.Description,
                 Components = yaml.Components,
-                InputJsonSchema = yaml.Parameters.ToSchema().ToString(Formatting.None)
+                InputJsonSchema = yaml.Parameters?.ToSchema().ToString(Formatting.None)
             };
         }
 
@@ -251,7 +251,7 @@ namespace TeamCloud.Git
             template.Name = yaml.Name;
             template.Description = yaml.Description;
             template.Components = yaml.Components;
-            template.InputJsonSchema = yaml.Parameters.ToSchema().ToString(Formatting.None);
+            template.InputJsonSchema = yaml.Parameters?.ToSchema().ToString(Formatting.None);
 
             template.DisplayName ??= template.Name;
 
