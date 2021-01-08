@@ -539,6 +539,7 @@ var getComponentsOperationSpec = {
             bodyMapper: Mappers.ErrorResult
         }
     },
+    queryParameters: [Parameters.deleted],
     urlParameters: [
         Parameters.$host,
         Parameters.organizationId,

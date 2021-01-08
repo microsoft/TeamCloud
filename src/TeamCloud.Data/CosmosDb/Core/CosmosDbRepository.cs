@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
 using TeamCloud.Data.Utilities;
+using TeamCloud.Model.Common;
 using TeamCloud.Model.Data.Core;
 using static Microsoft.Azure.Cosmos.Container;
 
@@ -73,6 +74,16 @@ namespace TeamCloud.Data.CosmosDb.Core
             return GetPartitionKey(partitionKeyValue as string);
         }
 
+        protected int GetSoftDeleteTTL()
+        {
+            var softDeleteTTL = SoftDeleteAttribute.GetSoftDeleteTTL<T>();
+
+            if (!softDeleteTTL.HasValue)
+                throw new ArgumentException($"{typeof(T)} does not provide a value soft delete TTL.");
+
+            return softDeleteTTL.Value;
+        }
+
         protected async Task<Database> GetDatabaseAsync()
         {
             if (cosmosClient.IsValueCreated)
@@ -114,6 +125,12 @@ namespace TeamCloud.Data.CosmosDb.Core
                         .Path(containerUniqueKey)
                         .Attach();
                 }
+            }
+
+            if (typeof(ISoftDelete).IsAssignableFrom(containerType) && containerType.IsDefined(typeof(SoftDeleteAttribute), false))
+            {
+                containerBuilder = containerBuilder
+                    .WithDefaultTimeToLive(-1);
             }
 
             _ = await containerBuilder

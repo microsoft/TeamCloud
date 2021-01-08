@@ -47,10 +47,10 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all Project Components", typeof(DataResult<List<Component>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found.", typeof(ErrorResult))]
-        public Task<IActionResult> Get() => ExecuteAsync(new Func<User, Organization, Project, Task<IActionResult>>(async (user, organization, project) =>
+        public Task<IActionResult> Get([FromQuery] bool deleted = false) => ExecuteAsync(new Func<User, Organization, Project, Task<IActionResult>>(async (user, organization, project) =>
         {
             var components = await componentRepository
-                .ListAsync(project.Id)
+                .ListAsync(project.Id, deleted)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
@@ -184,9 +184,14 @@ namespace TeamCloud.API.Controllers
                 .GetAsync(project.Id, id)
                 .ConfigureAwait(false);
 
-            if (component is null || component.ProjectId.Equals(project.Id, StringComparison.Ordinal))
+            if (component is null || !component.ProjectId.Equals(project.Id, StringComparison.Ordinal))
                 return ErrorResult
                     .NotFound($"A Component with the id '{id}' could not be found for Project {project.Id}.")
+                    .ToActionResult();
+
+            if (component.Deleted.HasValue)
+                return ErrorResult
+                    .BadRequest($"The component has already been (soft) deleted and is pending final deletion.", ResultErrorCode.ValidationError)
                     .ToActionResult();
 
             var command = new ComponentDeleteCommand(contextUser, component);

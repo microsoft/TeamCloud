@@ -1,6 +1,7 @@
-import { OperationParameter, OperationURLParameter } from "@azure/core-http";
+import { OperationParameter, OperationURLParameter, OperationQueryParameter } from "@azure/core-http";
 export declare const accept: OperationParameter;
 export declare const $host: OperationURLParameter;
+export declare const deleted: OperationQueryParameter;
 export declare const organizationId: OperationURLParameter;
 export declare const projectId: OperationURLParameter;
 export declare const contentType: OperationParameter;

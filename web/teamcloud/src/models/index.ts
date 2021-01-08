@@ -35,6 +35,8 @@ export interface Component {
   deploymentScopeId?: string | null;
   identityId?: string | null;
   storageId?: string | null;
+  deleted?: Date | null;
+  ttl?: number | null;
   /**
    * NOTE: This property will not be serialized. It can only be populated by the server.
    */
@@ -528,6 +530,14 @@ export type ProjectResourceState =
   | "Succeeded"
   | "Failed"
   | string;
+
+/**
+ * Optional parameters.
+ */
+export interface TeamCloudGetComponentsOptionalParams
+  extends coreHttp.OperationOptions {
+  deleted?: boolean;
+}
 
 /**
  * Contains response data for the getComponents operation.

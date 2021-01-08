@@ -12,6 +12,7 @@ import * as Mappers from "./models/mappers";
 import { TeamCloudContext } from "./teamCloudContext";
 import {
   TeamCloudOptionalParams,
+  TeamCloudGetComponentsOptionalParams,
   TeamCloudGetComponentsResponse,
   TeamCloudCreateComponentOptionalParams,
   TeamCloudCreateComponentResponse,
@@ -104,7 +105,7 @@ export class TeamCloud extends TeamCloudContext {
   getComponents(
     organizationId: string,
     projectId: string,
-    options?: coreHttp.OperationOptions
+    options?: TeamCloudGetComponentsOptionalParams
   ): Promise<TeamCloudGetComponentsResponse> {
     const operationOptions: coreHttp.RequestOptionsBase = coreHttp.operationOptionsToRequestOptionsBase(
       options || {}
@@ -1109,6 +1110,7 @@ const getComponentsOperationSpec: coreHttp.OperationSpec = {
       bodyMapper: Mappers.ErrorResult
     }
   },
+  queryParameters: [Parameters.deleted],
   urlParameters: [
     Parameters.$host,
     Parameters.organizationId,

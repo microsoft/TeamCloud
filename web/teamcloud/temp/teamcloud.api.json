@@ -55,6 +55,36 @@
             },
             {
               "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!Component#deleted:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "deleted?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Date",
+                  "canonicalReference": "!Date:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "deleted",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              }
+            },
+            {
+              "kind": "PropertySignature",
               "canonicalReference": "teamcloud!Component#deploymentScopeId:member",
               "docComment": "",
               "excerptTokens": [
@@ -424,6 +454,31 @@
               ],
               "releaseTag": "Public",
               "name": "templateId",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!Component#ttl:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "ttl?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "ttl",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
@@ -7654,13 +7709,9 @@
                   "text": ", options?: "
                 },
                 {
-                  "kind": "Content",
-                  "text": "coreHttp."
-                },
-                {
                   "kind": "Reference",
-                  "text": "OperationOptions",
-                  "canonicalReference": "@azure/core-http!OperationOptions:interface"
+                  "text": "TeamCloudGetComponentsOptionalParams",
+                  "canonicalReference": "teamcloud!TeamCloudGetComponentsOptionalParams:interface"
                 },
                 {
                   "kind": "Content",
@@ -7691,8 +7742,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 8,
-                "endIndex": 12
+                "startIndex": 7,
+                "endIndex": 11
               },
               "releaseTag": "Public",
               "overloadIndex": 1,
@@ -7715,7 +7766,7 @@
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
-                    "endIndex": 7
+                    "endIndex": 6
                   }
                 }
               ],
@@ -12104,6 +12155,65 @@
             "startIndex": 1,
             "endIndex": 7
           }
+        },
+        {
+          "kind": "Interface",
+          "canonicalReference": "teamcloud!TeamCloudGetComponentsOptionalParams:interface",
+          "docComment": "/**\n * Optional parameters.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export interface TeamCloudGetComponentsOptionalParams extends "
+            },
+            {
+              "kind": "Content",
+              "text": "coreHttp."
+            },
+            {
+              "kind": "Reference",
+              "text": "OperationOptions",
+              "canonicalReference": "@azure/core-http!OperationOptions:interface"
+            },
+            {
+              "kind": "Content",
+              "text": " "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "TeamCloudGetComponentsOptionalParams",
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!TeamCloudGetComponentsOptionalParams#deleted:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "deleted?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "deleted",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ],
+          "extendsTokenRanges": [
+            {
+              "startIndex": 1,
+              "endIndex": 4
+            }
+          ]
         },
         {
           "kind": "TypeAlias",

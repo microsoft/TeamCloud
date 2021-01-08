@@ -28,6 +28,15 @@ export var $host = {
     },
     skipEncoding: true
 };
+export var deleted = {
+    parameterPath: ["options", "deleted"],
+    mapper: {
+        serializedName: "deleted",
+        type: {
+            name: "Boolean"
+        }
+    }
+};
 export var organizationId = {
     parameterPath: "organizationId",
     mapper: {
