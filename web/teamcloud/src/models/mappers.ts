@@ -464,6 +464,13 @@ export const ComponentTask: coreHttp.CompositeMapper = {
     name: "Composite",
     className: "ComponentTask",
     modelProperties: {
+      organization: {
+        serializedName: "organization",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
       componentId: {
         serializedName: "componentId",
         required: true,
@@ -892,6 +899,7 @@ export const ComponentTaskTemplate: coreHttp.CompositeMapper = {
       },
       typeName: {
         serializedName: "typeName",
+        readOnly: true,
         nullable: true,
         type: {
           name: "String"

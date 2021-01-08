@@ -26,6 +26,7 @@ namespace TeamCloud.Model.Commands.Core
 
         public Guid CommandId { get; private set; }
 
+
         public string OrganizationId { get; private set; }
 
         public CommandAction CommandAction { get; private set; }
@@ -53,7 +54,6 @@ namespace TeamCloud.Model.Commands.Core
             var result = Activator.CreateInstance<TCommandResult>();
 
             result.CommandId = CommandId;
-            result.OrganizationId = OrganizationId;
             result.CommandAction = CommandAction;
             result.RuntimeStatus = CommandRuntimeStatus.Unknown;
 

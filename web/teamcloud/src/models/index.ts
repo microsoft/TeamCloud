@@ -97,6 +97,7 @@ export interface ComponentTaskListDataResult {
 }
 
 export interface ComponentTask {
+  organization: string;
   componentId: string;
   projectId: string;
   storageId?: string | null;
@@ -170,7 +171,10 @@ export interface ComponentTaskTemplate {
   description?: string | null;
   inputJsonSchema?: string | null;
   type: Enum3;
-  typeName?: string | null;
+  /**
+   * NOTE: This property will not be serialized. It can only be populated by the server.
+   */
+  readonly typeName?: string | null;
 }
 
 export interface ComponentTemplateDataResult {

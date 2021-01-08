@@ -1033,6 +1033,31 @@
             },
             {
               "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!ComponentTask#organization:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "organization: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "organization",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
               "canonicalReference": "teamcloud!ComponentTask#output:member",
               "docComment": "",
               "excerptTokens": [
@@ -1737,11 +1762,11 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "teamcloud!ComponentTaskTemplate#typeName:member",
-              "docComment": "",
+              "docComment": "/**\n * NOTE: This property will not be serialized. It can only be populated by the server.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "typeName?: "
+                  "text": "readonly typeName?: "
                 },
                 {
                   "kind": "Content",

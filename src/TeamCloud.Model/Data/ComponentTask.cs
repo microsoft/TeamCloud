@@ -12,9 +12,12 @@ using TeamCloud.Serialization;
 namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public sealed class ComponentTask : ContainerDocument, IEquatable<ComponentTask>, IValidatable, IResourceReference
+    public sealed class ComponentTask : ContainerDocument, IEquatable<ComponentTask>, IValidatable, IResourceReference, IComponentContext
     {
         private string typeName;
+
+        [JsonProperty(Required = Required.Always)]
+        public string Organization { get; set; }
 
         [PartitionKey]
         [JsonProperty(Required = Required.Always)]

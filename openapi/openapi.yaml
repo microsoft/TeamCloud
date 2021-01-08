@@ -2356,9 +2356,12 @@ components:
       required:
         - componentId
         - id
+        - organization
         - projectId
       type: object
       properties:
+        organization:
+          type: string
         componentId:
           type: string
         projectId:
@@ -2533,6 +2536,7 @@ components:
         typeName:
           type: string
           nullable: true
+          readOnly: true
       additionalProperties: false
     ComponentTemplate:
       required:

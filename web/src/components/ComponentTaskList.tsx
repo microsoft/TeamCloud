@@ -8,6 +8,7 @@ import { ComponentTask } from 'teamcloud';
 import { useInterval } from '../Hooks';
 import { api } from '../API';
 import { ComponentTaskConsole } from './ComponentTaskConsole';
+import { stringify } from 'querystring';
 
 export interface IComponentTaskListProps {
 
@@ -18,7 +19,7 @@ export const ComponentTaskList: React.FunctionComponent<IComponentTaskListProps>
     const theme = getTheme();
 
     const { org } = useContext(OrgContext);
-    const { component, componentTasks, onComponentSelected } = useContext(ProjectContext);
+    const { component, componentTasks, templates, onComponentSelected } = useContext(ProjectContext);
 
     const [task, setTask] = useState<ComponentTask>();
     const [tasks, setTasks] = useState<ComponentTask[]>();
@@ -85,18 +86,6 @@ export const ComponentTaskList: React.FunctionComponent<IComponentTaskListProps>
             }
         }
 
-
-        // if (org && task && task.finished === undefined && task.exitCode === undefined) {
-        //     console.log('- refreshTask');
-        //     const result = await api.getComponentTask(task.id, org.id, task.projectId, task.componentId);
-        //     if (result.data) {
-        //         setTask(result.data);
-        //     } else {
-        //         console.error(result);
-        //     }
-        //     console.log('+ refreshTask');
-        // }
-
     }, isPolling ? 5000 : undefined);
 
     const [dots, setDots] = useState('');
@@ -145,12 +134,33 @@ export const ComponentTaskList: React.FunctionComponent<IComponentTaskListProps>
         return defaultRender ? defaultRender(rowProps) : null;
     };
 
-    const _onItemInvoked = (item: ComponentTask): void => {
-        console.log(item);
+    const _onSelectTask = async (item: ComponentTask): Promise<void> => {
+        if (item.output === undefined) {
+            item = await _expandTask(item);
+        }
+        console.log(item);        
         setTask(item);
     };
 
-    const _getTaskName = (t?: ComponentTask) => t ? `Task: ${t.id}` : undefined;
+    const _expandTask = async (task: ComponentTask): Promise<ComponentTask> => {
+        console.log(`- expandTask (${task.id})`);
+        const result = await api.getComponentTask(task.id, task.organization, task.projectId, task.componentId);
+        if (result.data) {
+            task = result.data;
+        } else {
+            console.error(result);
+        }
+        console.log(`+ expandTask (${task.id})`);
+        return task;
+    }
+
+    const _getTaskName = (task?: ComponentTask) => {
+        if (task) {
+            let componentTemplate = templates?.find(t => t.id === component?.templateId);
+            let taskTemplate = componentTemplate?.tasks?.find(t => t.id === task.typeName);
+            return `${taskTemplate?.displayName ?? task.typeName ?? task.type}: ${task.id}`;
+        }
+    }
 
     const _getTaskStatus = (t?: ComponentTask) => {
         if (t?.resourceState) {
@@ -186,7 +196,7 @@ export const ComponentTaskList: React.FunctionComponent<IComponentTaskListProps>
                     layoutMode={DetailsListLayoutMode.fixedColumns}
                     checkboxVisibility={CheckboxVisibility.hidden}
                     selectionMode={SelectionMode.single}
-                    onItemInvoked={_onItemInvoked}
+                    onActiveItemChanged={_onSelectTask}
                     styles={{ focusZone: { minWidth: '1px' }, root: { minWidth: '460px', boxShadow: theme.effects.elevation8 } }}
                 />
             </Stack.Item>

@@ -32,20 +32,18 @@ namespace TeamCloud.API.Services
             if (baseUrl is null)
                 return commandResult; // as we couldn't resolve a base url, we can't generate status or location urls for our response object
 
-            var org = commandResult.OrganizationId ?? (commandResult.Result as IOrganizationContext)?.Organization;
-
             if (commandResponse.StatusCode == HttpStatusCode.Accepted)
             {
                 if (string.IsNullOrEmpty(projectId))
-                    commandResult.Links.Add("status", new Uri(baseUrl, $"orgs/{org}/status/{commandResult.CommandId}").ToString());
+                    commandResult.Links.Add("status", new Uri(baseUrl, $"orgs/{commandResult.OrganizationId}/status/{commandResult.CommandId}").ToString());
                 else
-                    commandResult.Links.Add("status", new Uri(baseUrl, $"orgs/{org}/projects/{projectId}/status/{commandResult.CommandId}").ToString());
+                    commandResult.Links.Add("status", new Uri(baseUrl, $"orgs/{commandResult.OrganizationId}/projects/{projectId}/status/{commandResult.CommandId}").ToString());
             }
 
             if (commandResult.CommandAction == CommandAction.Delete)
                 return commandResult; // delete commands don't provide a status location endpoint
 
-            var locationPath = commandResult.GetLocationPath(org, projectId);
+            var locationPath = commandResult.GetLocationPath(commandResult.OrganizationId, projectId);
 
             if (!string.IsNullOrEmpty(locationPath))
                 commandResult.Links.Add("location", new Uri(baseUrl, locationPath).ToString());
@@ -85,7 +83,11 @@ namespace TeamCloud.API.Services
                      : throw new InvalidOperationException("ComponentTemplate must have a value for ProjectId to create location url."),
                 ICommandResult<Component> result
                     => !string.IsNullOrEmpty(projectId ?? result.Result.ProjectId)
-                     ? $"orgs/{org}/projects/{projectId ?? result.Result.ProjectId}/componenets/{result.Result.Id}"
+                     ? $"orgs/{org}/projects/{projectId ?? result.Result.ProjectId}/components/{result.Result.Id}"
+                     : throw new InvalidOperationException("Component must have a value for ProjectId to create location url."),
+                ICommandResult<ComponentTask> result
+                    => !string.IsNullOrEmpty(projectId ?? result.Result.ProjectId)
+                     ? $"orgs/{org}/projects/{projectId ?? result.Result.ProjectId}/components/{result.Result.ComponentId}/tasks/{result.Result.Id}"
                      : throw new InvalidOperationException("Component must have a value for ProjectId to create location url."),
                 _ => null
             };

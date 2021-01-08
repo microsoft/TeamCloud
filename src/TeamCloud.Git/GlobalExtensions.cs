@@ -146,32 +146,37 @@ namespace TeamCloud.Git
             if (parameters is null)
                 throw new ArgumentNullException(nameof(parameters));
 
-            var schema = new JSchema
+            if (parameters.Any())
             {
-                Type = JSchemaType.Object
-            };
-
-            foreach (var parameter in parameters)
-            {
-                var parameterSchema = new JSchema
+                var schema = new JSchema
                 {
-                    Type = parameter.Type,
-                    Default = parameter.Value ?? parameter.Default,
-                    ReadOnly = parameter.Readonly,
-                    Description = parameter.Name
+                    Type = JSchemaType.Object
                 };
 
-                parameter.Allowed?.ForEach(a => parameterSchema.Enum.Add(a));
+                foreach (var parameter in parameters)
+                {
+                    var parameterSchema = new JSchema
+                    {
+                        Type = parameter.Type,
+                        Default = parameter.Value ?? parameter.Default,
+                        ReadOnly = parameter.Readonly,
+                        Description = parameter.Name
+                    };
 
-                schema.Properties.Add(parameter.Id, parameterSchema);
+                    parameter.Allowed?.ForEach(a => parameterSchema.Enum.Add(a));
+
+                    schema.Properties.Add(parameter.Id, parameterSchema);
+                }
+
+                parameters
+                    .Where(p => p.Required)
+                    .ToList()
+                    .ForEach(p => schema.Required.Add(p.Id));
+
+                return schema;
             }
 
-            parameters
-                .Where(p => p.Required)
-                .ToList()
-                .ForEach(p => schema.Required.Add(p.Id));
-
-            return schema;
+            return null;
         }
 
 
@@ -180,15 +185,13 @@ namespace TeamCloud.Git
             if (yaml is null)
                 throw new ArgumentNullException(nameof(yaml));
 
-            // var name = !string.IsNullOrEmpty(yaml.Name) ? yaml.Name : folder;
-
             return new ComponentTaskTemplate
             {
                 Id = yaml.Id,
                 DisplayName = yaml.Name,
                 Description = yaml.Description,
                 Type = yaml.Type,
-                InputJsonSchema = yaml.Parameters.ToSchema().ToString(Formatting.None)
+                InputJsonSchema = yaml.Parameters?.ToSchema().ToString(Formatting.None)
             };
         }
 

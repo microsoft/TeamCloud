@@ -141,6 +141,7 @@ namespace TeamCloud.API.Controllers
 
             var componentTask = new ComponentTask
             {
+                Organization = organization.Id,
                 ComponentId = component.Id,
                 ProjectId = project.Id,
                 RequestedBy = currentUser.Id,

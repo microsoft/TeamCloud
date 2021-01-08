@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TeamCloud.Model.Common;
 
 namespace TeamCloud.Model.Commands.Core
 {
@@ -15,7 +16,7 @@ namespace TeamCloud.Model.Commands.Core
 
         public Guid CommandId { get; set; }
 
-        public string OrganizationId { get; set; }
+        public string OrganizationId => (Result as IOrganizationContext)?.Organization;
 
         public CommandAction CommandAction { get; set; }
 

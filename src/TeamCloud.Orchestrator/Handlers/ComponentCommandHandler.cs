@@ -48,6 +48,7 @@ namespace TeamCloud.Orchestrator.Handlers
                 {
                     var componentTask = new ComponentTask
                     {
+                        Organization = commandResult.Result.Organization,
                         ComponentId = commandResult.Result.Id,
                         ProjectId = commandResult.Result.ProjectId,
                         Type = ComponentTaskType.Create,
@@ -138,6 +139,7 @@ namespace TeamCloud.Orchestrator.Handlers
                 {
                     var componentTask = new ComponentTask
                     {
+                        Organization = commandResult.Result.Organization,
                         ComponentId = commandResult.Result.Id,
                         ProjectId = commandResult.Result.ProjectId,
                         Type = ComponentTaskType.Delete,
