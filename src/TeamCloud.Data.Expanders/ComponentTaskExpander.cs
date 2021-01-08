@@ -10,11 +10,11 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Data.Expanders
 {
-    public sealed class ComponentTaskOutputExpander : IDocumentExpander<ComponentTask>
+    public sealed class ComponentTaskExpander : IDocumentExpander<ComponentTask>
     {
         private readonly IAzureResourceService azureResourceService;
 
-        public ComponentTaskOutputExpander(IAzureResourceService azureResourceService)
+        public ComponentTaskExpander(IAzureResourceService azureResourceService)
         {
             this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
         }

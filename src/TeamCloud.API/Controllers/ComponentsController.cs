@@ -74,7 +74,7 @@ namespace TeamCloud.API.Controllers
                     .ToActionResult();
 
             var component = await componentRepository
-                .GetAsync(project.Id, id)
+                .GetAsync(project.Id, id, true)
                 .ConfigureAwait(false);
 
             if (component is null)
