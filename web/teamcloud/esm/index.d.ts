@@ -17,6 +17,8 @@ export declare interface Component {
     deploymentScopeId?: string | null;
     identityId?: string | null;
     storageId?: string | null;
+    deleted?: Date | null;
+    ttl?: number | null;
     /**
      * NOTE: This property will not be serialized. It can only be populated by the server.
      */
@@ -445,7 +447,7 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param projectId
      * @param options The options parameters.
      */
-    getComponents(organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentsResponse>;
+    getComponents(organizationId: string, projectId: string, options?: TeamCloudGetComponentsOptionalParams): Promise<TeamCloudGetComponentsResponse>;
     /**
      * Creates a new Project Component.
      * @param organizationId
@@ -1208,6 +1210,13 @@ export declare type TeamCloudGetComponentResponse = ComponentDataResult & {
         parsedBody: ComponentDataResult;
     };
 };
+
+/**
+ * Optional parameters.
+ */
+export declare interface TeamCloudGetComponentsOptionalParams extends coreHttp.OperationOptions {
+    deleted?: boolean;
+}
 
 /**
  * Contains response data for the getComponents operation.

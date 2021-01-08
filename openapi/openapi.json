@@ -24,6 +24,14 @@
         "operationId": "GetComponents",
         "parameters": [
           {
+            "name": "deleted",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
             "name": "organizationId",
             "in": "path",
             "required": true,
@@ -3570,6 +3578,16 @@
           },
           "storageId": {
             "type": "string",
+            "nullable": true
+          },
+          "deleted": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "ttl": {
+            "type": "integer",
+            "format": "int32",
             "nullable": true
           },
           "slug": {

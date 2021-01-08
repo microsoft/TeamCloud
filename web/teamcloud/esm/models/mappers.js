@@ -163,6 +163,20 @@ export var Component = {
                     name: "String"
                 }
             },
+            deleted: {
+                serializedName: "deleted",
+                nullable: true,
+                type: {
+                    name: "DateTime"
+                }
+            },
+            ttl: {
+                serializedName: "ttl",
+                nullable: true,
+                type: {
+                    name: "Number"
+                }
+            },
             slug: {
                 serializedName: "slug",
                 required: true,

@@ -6,7 +6,11 @@
  * Changes may cause incorrect behavior and will be lost if the code is regenerated.
  */
 
-import { OperationParameter, OperationURLParameter } from "@azure/core-http";
+import {
+  OperationParameter,
+  OperationURLParameter,
+  OperationQueryParameter
+} from "@azure/core-http";
 import {
   ComponentDefinition as ComponentDefinitionMapper,
   ComponentTaskDefinition as ComponentTaskDefinitionMapper,
@@ -42,6 +46,16 @@ export const $host: OperationURLParameter = {
     }
   },
   skipEncoding: true
+};
+
+export const deleted: OperationQueryParameter = {
+  parameterPath: ["options", "deleted"],
+  mapper: {
+    serializedName: "deleted",
+    type: {
+      name: "Boolean"
+    }
+  }
 };
 
 export const organizationId: OperationURLParameter = {

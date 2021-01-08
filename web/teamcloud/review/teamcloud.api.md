@@ -11,6 +11,8 @@ export interface Component {
     // (undocumented)
     creator: string;
     // (undocumented)
+    deleted?: Date | null;
+    // (undocumented)
     deploymentScopeId?: string | null;
     // (undocumented)
     description?: string | null;
@@ -39,6 +41,8 @@ export interface Component {
     storageId?: string | null;
     // (undocumented)
     templateId: string;
+    // (undocumented)
+    ttl?: number | null;
     // (undocumented)
     type: ComponentType;
     // (undocumented)
@@ -585,7 +589,7 @@ export class TeamCloud extends TeamCloudContext {
     deleteProjectTemplate(projectTemplateId: string | null, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectTemplateResponse>;
     deleteProjectUser(userId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectUserResponse>;
     getComponent(id: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentResponse>;
-    getComponents(organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentsResponse>;
+    getComponents(organizationId: string, projectId: string, options?: TeamCloudGetComponentsOptionalParams): Promise<TeamCloudGetComponentsResponse>;
     getComponentTask(id: string | null, organizationId: string, projectId: string, componentId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentTaskResponse>;
     getComponentTasks(organizationId: string, projectId: string, componentId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentTasksResponse>;
     getComponentTemplate(id: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentTemplateResponse>;
@@ -824,6 +828,12 @@ export type TeamCloudGetComponentResponse = ComponentDataResult & {
         parsedBody: ComponentDataResult;
     };
 };
+
+// @public
+export interface TeamCloudGetComponentsOptionalParams extends coreHttp.OperationOptions {
+    // (undocumented)
+    deleted?: boolean;
+}
 
 // @public
 export type TeamCloudGetComponentsResponse = ComponentListDataResult & {
