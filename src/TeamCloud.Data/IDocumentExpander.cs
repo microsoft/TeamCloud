@@ -45,7 +45,7 @@ namespace TeamCloud.Data
                         .GetProperty(nameof(Task<object>.Result))
                         .GetValue(expandTask);
                 }
-                catch (Exception exc)
+                catch (Exception)
                 {
                     throw;
                 }

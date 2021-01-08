@@ -11,8 +11,9 @@ using TeamCloud.Serialization;
 
 namespace TeamCloud.Model.Data
 {
+    [SoftDelete(60 * 60 * 24)] // 24 hours
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public sealed class Component : ContainerDocument, IProjectContext, IEquatable<Component>, IValidatable, ISlug, IResourceReference
+    public sealed class Component : ContainerDocument, ISoftDelete, IProjectContext, IEquatable<Component>, IValidatable, ISlug, IResourceReference
     {
         /// <summary>
         /// Gets or sets a browsable link pointing to the component resource.
@@ -104,6 +105,16 @@ namespace TeamCloud.Model.Data
         /// Gets or sets the storage identifier for this component.
         /// </summary>
         public string StorageId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the timestamp when the component was deleted.
+        /// </summary>
+        public DateTime? Deleted { get; set; }
+
+        /// <summary>
+        /// Gets or sets the time to live once the component is soft deleted.
+        /// </summary>
+        public int? TTL { get; set; }
 
         /// <summary>
         /// Gets the slug of the current component base on its display name.
