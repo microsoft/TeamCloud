@@ -13,8 +13,6 @@ namespace TeamCloud.Model.Data
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
     public sealed class ComponentTaskTemplate : IValidatable
     {
-        private string typeName;
-
         public string Id { get; set; }
 
         public string DisplayName { get; set; }
@@ -27,10 +25,7 @@ namespace TeamCloud.Model.Data
         public ComponentTaskType Type { get; set; }
 
         public string TypeName
-        {
-            get => Type == ComponentTaskType.Custom ? typeName : default;
-            set => typeName = value;
-        }
+            => Type == ComponentTaskType.Custom ? Id : default;
 
         public bool Equals(ComponentTaskTemplate other)
             => Id.Equals(other?.Id, StringComparison.Ordinal);

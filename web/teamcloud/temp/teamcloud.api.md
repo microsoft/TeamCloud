@@ -98,6 +98,8 @@ export interface ComponentTask {
     // (undocumented)
     inputJson?: string | null;
     // (undocumented)
+    organization: string;
+    // (undocumented)
     output?: string | null;
     // (undocumented)
     projectId: string;
@@ -163,8 +165,7 @@ export interface ComponentTaskTemplate {
     inputJsonSchema?: string | null;
     // (undocumented)
     type: Enum3;
-    // (undocumented)
-    typeName?: string | null;
+    readonly typeName?: string | null;
 }
 
 // @public (undocumented)

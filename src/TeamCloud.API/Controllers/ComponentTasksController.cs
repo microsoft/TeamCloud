@@ -141,12 +141,15 @@ namespace TeamCloud.API.Controllers
 
             var componentTask = new ComponentTask
             {
+                Organization = organization.Id,
                 ComponentId = component.Id,
                 ProjectId = project.Id,
                 RequestedBy = currentUser.Id,
                 Type = ComponentTaskType.Custom,
                 TypeName = componentTaskDefinition.TaskId,
-                InputJson = componentTaskDefinition.InputJson,
+
+                // component input json is used as a fallback !!!
+                InputJson = componentTaskDefinition.InputJson ?? component.InputJson
             };
 
             var command = new ComponentTaskCommand(currentUser, componentTask);

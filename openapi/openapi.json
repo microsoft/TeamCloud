@@ -3760,10 +3760,14 @@
         "required": [
           "componentId",
           "id",
+          "organization",
           "projectId"
         ],
         "type": "object",
         "properties": {
+          "organization": {
+            "type": "string"
+          },
           "componentId": {
             "type": "string"
           },
@@ -3997,7 +4001,8 @@
           },
           "typeName": {
             "type": "string",
-            "nullable": true
+            "nullable": true,
+            "readOnly": true
           }
         },
         "additionalProperties": false

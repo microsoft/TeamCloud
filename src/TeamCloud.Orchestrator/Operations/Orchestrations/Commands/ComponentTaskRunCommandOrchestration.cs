@@ -1,4 +1,4 @@
-/**
+﻿/**
  *  Copyright (c) Microsoft Corporation.
  *  Licensed under the MIT License.
  */
@@ -49,37 +49,49 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Commands
 
                 using (await context.LockContainerDocumentAsync(component, nameof(ComponentTaskRunCommandOrchestration)).ConfigureAwait(true))
                 {
-                    if (string.IsNullOrEmpty(componentTask.ResourceId))
+                    try
                     {
-                        componentTask = await UpdateComponentTaskAsync(componentTask, ResourceState.Initializing)
+                        if (string.IsNullOrEmpty(componentTask.ResourceId))
+                        {
+                            componentTask = await UpdateComponentDeploymentAsync(componentTask, ResourceState.Initializing)
+                                .ConfigureAwait(true);
+
+                            componentTask = await context
+                                .CallActivityWithRetryAsync<ComponentTask>(nameof(ComponentTaskRunnerActivity), new ComponentTaskRunnerActivity.Input() { ComponentTask = componentTask })
+                                .ConfigureAwait(true);
+                        }
+
+                        componentTask = await UpdateComponentDeploymentAsync(componentTask, ResourceState.Provisioning)
                             .ConfigureAwait(true);
 
-                        componentTask = await context
-                            .CallActivityWithRetryAsync<ComponentTask>(nameof(ComponentTaskRunnerActivity), new ComponentTaskRunnerActivity.Input() { ComponentTask = componentTask })
-                            .ConfigureAwait(true);
+                        while (!componentTask.ResourceState.IsFinal())
+                        {
+                            // component deployment's TTL is 30 min max
+                            if (componentTask.Created.AddMinutes(30) < context.CurrentUtcDateTime) break;
+
+                            await context
+                                .CreateTimer(TimeSpan.FromSeconds(1))
+                                .ConfigureAwait(true);
+
+                            componentTask = await context
+                                .CallActivityWithRetryAsync<ComponentTask>(nameof(ComponentDeploymentMonitorActivity), new ComponentDeploymentMonitorActivity.Input() { ComponentTask = componentTask })
+                                .ConfigureAwait(true);
+                        }
                     }
-
-                    componentTask = await UpdateComponentTaskAsync(componentTask, ResourceState.Provisioning)
-                        .ConfigureAwait(true);
-
-                    while (!componentTask.ResourceState.IsFinal())
+                    finally
                     {
-                        await context
-                            .CreateTimer(TimeSpan.FromSeconds(2))
-                            .ConfigureAwait(true);
-
                         componentTask = await context
-                            .CallActivityWithRetryAsync<ComponentTask>(nameof(ComponentTaskMonitorActivity), new ComponentTaskMonitorActivity.Input() { ComponentTask = componentTask })
+                            .CallActivityWithRetryAsync<ComponentTask>(nameof(ComponentTaskTerminateActivity), new ComponentTaskTerminateActivity.Input() { ComponentTask = componentTask })
                             .ConfigureAwait(true);
                     }
                 }
 
                 if (!componentTask.ResourceState.IsFinal())
                 {
-                    // the component task's resource state wasn't set to a final state by the handler functions.
+                    // the component deployment's resource state wasn't set to a final state by the handler functions.
                     // as there was no exception thrown we assume the processing succeeded an set the appropriate state.
 
-                    componentTask = await UpdateComponentTaskAsync(componentTask, ResourceState.Succeeded)
+                    componentTask = await UpdateComponentDeploymentAsync(componentTask, ResourceState.Succeeded)
                         .ConfigureAwait(true);
                 }
             }
@@ -89,7 +101,7 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Commands
 
                 commandResult.Errors.Add(exc);
 
-                componentTask = await UpdateComponentTaskAsync(componentTask, ResourceState.Failed)
+                componentTask = await UpdateComponentDeploymentAsync(componentTask, ResourceState.Failed)
                     .ConfigureAwait(true);
 
                 throw exc.AsSerializable();
@@ -101,12 +113,13 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Commands
                 context.SetOutput(commandResult);
             }
 
-            Task<ComponentTask> UpdateComponentTaskAsync(ComponentTask componentTask, ResourceState? resourceState = null)
+            Task<ComponentTask> UpdateComponentDeploymentAsync(ComponentTask componentTask, ResourceState? resourceState = null)
             {
                 componentTask.ResourceState = resourceState.GetValueOrDefault(componentTask.ResourceState);
 
                 return context.CallActivityWithRetryAsync<ComponentTask>(nameof(ComponentTaskSetActivity), new ComponentTaskSetActivity.Input() { ComponentTask = componentTask });
             }
+
         }
     }
 }

@@ -16,7 +16,7 @@ namespace TeamCloud.Model.Commands.Core
     {
         Guid CommandId { get; set; }
 
-        string OrganizationId { get; set; }
+        string OrganizationId { get; }
 
         CommandAction CommandAction { get; set; }
 

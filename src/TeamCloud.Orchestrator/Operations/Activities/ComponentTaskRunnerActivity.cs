@@ -1,9 +1,4 @@
-/**
- *  Copyright (c) Microsoft Corporation.
- *  Licensed under the MIT License.
- */
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,6 +6,7 @@ using Flurl;
 using Flurl.Http;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Extensions.Logging;
 using TeamCloud.Azure;
 using TeamCloud.Azure.Resources;
 using TeamCloud.Azure.Resources.Typed;
@@ -18,6 +14,7 @@ using TeamCloud.Data;
 using TeamCloud.Http;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
+using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.Operations.Activities
 {
@@ -51,60 +48,71 @@ namespace TeamCloud.Orchestrator.Operations.Activities
         [FunctionName(nameof(ComponentTaskRunnerActivity))]
         [RetryOptions(3)]
         public async Task<ComponentTask> Run(
-            [ActivityTrigger] IDurableActivityContext context)
+            [ActivityTrigger] IDurableActivityContext context,
+            ILogger log)
         {
             if (context is null)
                 throw new ArgumentNullException(nameof(context));
 
+            if (log is null)
+                throw new ArgumentNullException(nameof(log));
+
             var componentTask = context.GetInput<Input>().ComponentTask;
 
-            var component = await componentRepository
-                .GetAsync(componentTask.ProjectId, componentTask.ComponentId)
-                .ConfigureAwait(false);
-
-            var componentResourceId = AzureResourceIdentifier
-                .Parse(component.ResourceId);
-
-            var componentTemplate = await componentTemplateRepository
-                .GetAsync(component.Organization, component.ProjectId, component.TemplateId)
-                .ConfigureAwait(false);
-
-            var componentLocation = await GetLocationAsync(component)
-                .ConfigureAwait(false);
-
-            var componentStorage = await azureResourceService
-                .GetResourceAsync<AzureStorageAccountResource>(component.StorageId, true)
-                .ConfigureAwait(false);
-
-            var componentStorageKeys = await componentStorage
-                .GetKeysAsync()
-                .ConfigureAwait(false);
-
-            var componentShare = await componentStorage
-                .CreateShareClientAsync(component.Id)
-                .ConfigureAwait(false);
-
-            await componentShare
-                .CreateIfNotExistsAsync()
-                .ConfigureAwait(false);
-
-            var componentRunnerHost = $"{componentTask.Id}.{componentLocation}.azurecontainer.io";
-
-            var componentRunnerDefinition = new
+            try
             {
-                location = componentLocation,
-                identity = new
+                var component = await componentRepository
+                    .GetAsync(componentTask.ProjectId, componentTask.ComponentId)
+                    .ConfigureAwait(false);
+
+                var componentResourceId = AzureResourceIdentifier
+                    .Parse(component.ResourceId);
+
+                var componentTemplate = await componentTemplateRepository
+                    .GetAsync(component.Organization, component.ProjectId, component.TemplateId)
+                    .ConfigureAwait(false);
+
+                var componentLocation = await GetLocationAsync(component)
+                    .ConfigureAwait(false);
+
+                var storageId = componentTask.StorageId ?? component.StorageId;
+
+                if (string.IsNullOrEmpty(storageId))
+                    throw new NullReferenceException($"Missing storage id for component {component.Id}");
+
+                var componentStorage = await azureResourceService
+                    .GetResourceAsync<AzureStorageAccountResource>(storageId, true)
+                    .ConfigureAwait(false);
+
+                var componentStorageKeys = await componentStorage
+                    .GetKeysAsync()
+                    .ConfigureAwait(false);
+
+                var componentShare = await componentStorage
+                    .CreateShareClientAsync(component.Id)
+                    .ConfigureAwait(false);
+
+                await componentShare
+                    .CreateIfNotExistsAsync()
+                    .ConfigureAwait(false);
+
+                var componentRunnerHost = $"{componentTask.Id}.{componentLocation}.azurecontainer.io";
+
+                var componentRunnerDefinition = new
                 {
-                    type = "UserAssigned",
-                    userAssignedIdentities = new Dictionary<string, object>()
+                    location = componentLocation,
+                    identity = new
+                    {
+                        type = "UserAssigned",
+                        userAssignedIdentities = new Dictionary<string, object>()
                     {
                         { component.IdentityId, new { } }
                     }
-                },
-                properties = new
-                {
-                    containers = new[]
+                    },
+                    properties = new
                     {
+                        containers = new[]
+                        {
                         new
                         {
                             name = "runner",
@@ -126,7 +134,6 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                                 },
                                 environmentVariables = new []
                                 {
-                                    // TODO: Change thest from Deployment.. to Task..
                                     new {
                                         name = "DeploymentId",
                                         value = componentTask.Id
@@ -137,7 +144,7 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                                     },
                                     new {
                                         name = "DeploymentType",
-                                        value = componentTask.Type == ComponentTaskType.Custom ? componentTask.TypeName : componentTask.Type.ToString()
+                                        value = componentTask.TypeName ?? componentTask.Type.ToString()
                                     },
                                     new {
                                         name = "EnvironmentResourceId",
@@ -194,14 +201,14 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                             }
                         }
                     },
-                    osType = "Linux",
-                    restartPolicy = "Never",
-                    ipAddress = new
-                    {
-                        type = "Public",
-                        dnsNameLabel = componentTask.Id,
-                        ports = new[]
+                        osType = "Linux",
+                        restartPolicy = "Never",
+                        ipAddress = new
                         {
+                            type = "Public",
+                            dnsNameLabel = componentTask.Id,
+                            ports = new[]
+                            {
                             new {
                                 protocol = "tcp",
                                 port = 80
@@ -211,9 +218,9 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                                 port = 443
                             }
                         }
-                    },
-                    volumes = new object[]
-                    {
+                        },
+                        volumes = new object[]
+                        {
                         new {
                             name = "templates",
                             gitRepo = new
@@ -232,37 +239,44 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                                   storageAccountKey = componentStorageKeys.First()
                             }
                         }
+                        }
                     }
-                }
-            };
+                };
 
-            var project = await projectRepository
-                .GetAsync(component.Organization, component.ProjectId)
-                .ConfigureAwait(false);
+                var project = await projectRepository
+                    .GetAsync(component.Organization, component.ProjectId)
+                    .ConfigureAwait(false);
 
-            var projectResourceId = AzureResourceIdentifier
-                .Parse(project.ResourceId);
+                var projectResourceId = AzureResourceIdentifier
+                    .Parse(project.ResourceId);
 
-            var token = await azureSessionService
-                .AcquireTokenAsync()
-                .ConfigureAwait(false);
+                var token = await azureSessionService
+                    .AcquireTokenAsync()
+                    .ConfigureAwait(false);
 
-            var response = await projectResourceId.GetApiUrl(azureSessionService.Environment)
-                .AppendPathSegment($"/providers/Microsoft.ContainerInstance/containerGroups/{componentTask.Id}")
-                .SetQueryParam("api-version", "2019-12-01")
-                .WithOAuthBearerToken(token)
-                .PutJsonAsync(componentRunnerDefinition)
-                .ConfigureAwait(false);
+                var response = await projectResourceId.GetApiUrl(azureSessionService.Environment)
+                    .AppendPathSegment($"/providers/Microsoft.ContainerInstance/containerGroups/{componentTask.Id}")
+                    .SetQueryParam("api-version", "2019-12-01")
+                    .WithOAuthBearerToken(token)
+                    .PutJsonAsync(componentRunnerDefinition)
+                    .ConfigureAwait(false);
 
-            var responseJson = await response.Content
-                .ReadAsJsonAsync()
-                .ConfigureAwait(false);
+                var responseJson = await response.Content
+                    .ReadAsJsonAsync()
+                    .ConfigureAwait(false);
 
-            componentTask.ResourceId = responseJson.SelectToken("$.id").ToString();
+                componentTask.ResourceId = responseJson.SelectToken("$.id").ToString();
 
-            componentTask = await componentTaskRepository
-                .SetAsync(componentTask)
-                .ConfigureAwait(false);
+                componentTask = await componentTaskRepository
+                    .SetAsync(componentTask)
+                    .ConfigureAwait(false);
+            }
+            catch (Exception exc)
+            {
+                log.LogError(exc, $"Failed to create runner for component deployment {componentTask}: {exc.Message}");
+
+                throw exc.AsSerializable();
+            }
 
             return componentTask;
         }

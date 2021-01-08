@@ -13,7 +13,6 @@ using TeamCloud.Azure.Resources;
 using TeamCloud.Data;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
-using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.Operations.Activities
 {
@@ -42,7 +41,7 @@ namespace TeamCloud.Orchestrator.Operations.Activities
 
             var component = context.GetInput<Input>().Component;
 
-            try
+            if (!AzureResourceIdentifier.TryParse(component.StorageId, out var _))
             {
                 var project = await projectRepository
                     .GetAsync(component.Organization, component.ProjectId)
@@ -61,10 +60,6 @@ namespace TeamCloud.Orchestrator.Operations.Activities
 
                     component.StorageId = projectStorageResource?.ResourceId.ToString();
                 }
-            }
-            catch (Exception exc)
-            {
-                throw exc.AsSerializable();
             }
 
             return component;

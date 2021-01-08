@@ -452,6 +452,13 @@ export var ComponentTask = {
         name: "Composite",
         className: "ComponentTask",
         modelProperties: {
+            organization: {
+                serializedName: "organization",
+                required: true,
+                type: {
+                    name: "String"
+                }
+            },
             componentId: {
                 serializedName: "componentId",
                 required: true,
@@ -874,6 +881,7 @@ export var ComponentTaskTemplate = {
             },
             typeName: {
                 serializedName: "typeName",
+                readOnly: true,
                 nullable: true,
                 type: {
                     name: "String"
