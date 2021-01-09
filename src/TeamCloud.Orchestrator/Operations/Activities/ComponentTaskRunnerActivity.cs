@@ -135,53 +135,44 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                                 environmentVariables = new []
                                 {
                                     new {
-                                        name = "DeploymentId",
+                                        name = "TaskId",
                                         value = componentTask.Id
                                     },
                                     new {
-                                        name = "DeploymentHost",
+                                        name = "TaskHost",
                                         value = componentRunnerHost
                                     },
                                     new {
-                                        name = "DeploymentType",
+                                        name = "TaskType",
                                         value = componentTask.TypeName ?? componentTask.Type.ToString()
                                     },
                                     new {
-                                        name = "EnvironmentResourceId",
-                                        value = component.ResourceId
-                                    },
-                                    new {
-                                        name = "EnvironmentLocation",
+                                        name = "ComponentLocation",
                                         value = componentLocation
                                     },
                                     new
                                     {
-                                        name = "EnvironmentTemplateBaseUrl",
+                                        name = "ComponentTemplateBaseUrl",
                                         value = $"http://{componentRunnerHost}/{componentTemplate.Folder.Trim().TrimStart('/')}"
                                     },
                                     new
                                     {
-                                        name = "EnvironmentTemplateToken",
-                                        value = "SECRET"
-                                    },
-                                    new
-                                    {
-                                        name = "EnvironmentTemplateFolder",
+                                        name = "ComponentTemplateFolder",
                                         value = $"file:///mnt/templates/root/{componentTemplate.Folder.Trim().TrimStart('/')}"
                                     },
                                     new
                                     {
-                                        name = "EnvironmentTemplateParameters",
+                                        name = "ComponentTemplateParameters",
                                         value = component.InputJson
                                     },
                                     new
                                     {
-                                        name = "EnvironmentResourceGroup",
+                                        name = "ComponentResourceGroup",
                                         value = componentResourceId.ResourceGroup
                                     },
                                     new
                                     {
-                                        name = "EnvironmentSubscription",
+                                        name = "ComponentSubscription",
                                         value = componentResourceId.SubscriptionId.ToString()
                                     }
                                 },
