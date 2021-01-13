@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TeamCloud.Azure.Resources;
@@ -32,8 +31,25 @@ namespace TeamCloud.Data.Expanders
             if (document is null)
                 throw new ArgumentNullException(nameof(document));
 
-            var output = new StringBuilder();
+            var results = await Task.WhenAll(
 
+                GetEventsAsync(document),
+                GetOutputAsync(document)
+
+            ).ConfigureAwait(false);
+
+            if (results.Any(result => !string.IsNullOrEmpty(result)))
+            {
+                document.Output = string.Join(Environment.NewLine, results); // do some empty line trimming (left & right)
+                document.Output = Regex.Replace(document.Output, @"^([\s])*", string.Empty, RegexOptions.Singleline);
+                document.Output = Regex.Replace(document.Output, @"([\s])*$", string.Empty, RegexOptions.Singleline);
+            }
+
+            return document;
+        }
+
+        private async Task<string> GetEventsAsync(ComponentTask document)
+        {
             if (AzureResourceIdentifier.TryParse(document.ResourceId, out var resourceId))
             {
                 try
@@ -60,7 +76,7 @@ namespace TeamCloud.Data.Expanders
                         if (lines.Any())
                             lines = lines.Append(string.Empty);
 
-                        output.Append(string.Join(Environment.NewLine, lines));
+                        return string.Join(Environment.NewLine, lines);
                     }
                 }
                 catch
@@ -69,6 +85,11 @@ namespace TeamCloud.Data.Expanders
                 }
             }
 
+            return default;
+        }
+
+        private async Task<string> GetOutputAsync(ComponentTask document)
+        {
             if (AzureResourceIdentifier.TryParse(document.StorageId, out var storageId))
             {
                 try
@@ -91,7 +112,7 @@ namespace TeamCloud.Data.Expanders
                         {
                             using var reader = new StreamReader(await fileClient.OpenReadAsync().ConfigureAwait(false));
 
-                            output.Append(await reader.ReadToEndAsync().ConfigureAwait(false));
+                            return await reader.ReadToEndAsync().ConfigureAwait(false);
                         }
                     }
                 }
@@ -101,14 +122,7 @@ namespace TeamCloud.Data.Expanders
                 }
             }
 
-            if (output.Length > 0)
-            {
-                document.Output = output.ToString(); // expand output and do some empty line trimming (left & right)
-                document.Output = Regex.Replace(document.Output, @"^([\s])*", string.Empty, RegexOptions.Singleline);
-                document.Output = Regex.Replace(document.Output, @"([\s])*$", string.Empty, RegexOptions.Singleline);
-            }
-
-            return document;
+            return default;
         }
     }
 }
