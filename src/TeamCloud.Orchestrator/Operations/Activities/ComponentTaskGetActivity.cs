@@ -36,13 +36,24 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                 .GetAsync(input.ComponentId, input.ComponentTaskId)
                 .ConfigureAwait(false);
 
+            var component = default(Component);
+
             if (string.IsNullOrEmpty(componentTask.StorageId))
             {
-                var component = await componentRepository
+                component ??= await componentRepository
                     .GetAsync(componentTask.ProjectId, componentTask.ComponentId)
                     .ConfigureAwait(false);
 
                 componentTask.StorageId = component.StorageId;
+            }
+
+            if (string.IsNullOrEmpty(componentTask.VaultId))
+            {
+                component ??= await componentRepository
+                    .GetAsync(componentTask.ProjectId, componentTask.ComponentId)
+                    .ConfigureAwait(false);
+
+                componentTask.VaultId = component.VaultId;
             }
 
             return componentTask;

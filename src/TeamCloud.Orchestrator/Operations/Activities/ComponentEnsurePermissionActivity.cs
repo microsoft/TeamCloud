@@ -17,7 +17,7 @@ using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.Operations.Activities
 {
-    public sealed class ComponentPermissionActivity
+    public sealed class ComponentEnsurePermissionActivity
     {
         private readonly IOrganizationRepository organizationRepository;
         private readonly IProjectRepository projectRepository;
@@ -25,7 +25,7 @@ namespace TeamCloud.Orchestrator.Operations.Activities
         private readonly IUserRepository userRepository;
         private readonly IAzureResourceService azureResourceService;
 
-        public ComponentPermissionActivity(IOrganizationRepository organizationRepository, IProjectRepository projectRepository, IUserRepository userRepository, IDeploymentScopeRepository deploymentScopeRepository, IAzureResourceService azureResourceService)
+        public ComponentEnsurePermissionActivity(IOrganizationRepository organizationRepository, IProjectRepository projectRepository, IUserRepository userRepository, IDeploymentScopeRepository deploymentScopeRepository, IAzureResourceService azureResourceService)
         {
             this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
             this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
@@ -34,7 +34,7 @@ namespace TeamCloud.Orchestrator.Operations.Activities
             this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
         }
 
-        [FunctionName(nameof(ComponentPermissionActivity))]
+        [FunctionName(nameof(ComponentEnsurePermissionActivity))]
         [RetryOptions(3)]
         public async Task<Component> Run(
             [ActivityTrigger] IDurableActivityContext context,

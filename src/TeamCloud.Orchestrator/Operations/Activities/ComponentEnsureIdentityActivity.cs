@@ -16,14 +16,14 @@ using TeamCloud.Orchestration;
 
 namespace TeamCloud.Orchestrator.Operations.Activities
 {
-    public sealed class ComponentIdentityActivity
+    public sealed class ComponentEnsureIdentityActivity
     {
         private readonly IOrganizationRepository organizationRepository;
         private readonly IProjectRepository projectRepository;
         private readonly IDeploymentScopeRepository deploymentScopeRepository;
         private readonly IAzureResourceService azureResourceService;
 
-        public ComponentIdentityActivity(IOrganizationRepository organizationRepository, IProjectRepository projectRepository, IDeploymentScopeRepository deploymentScopeRepository, IAzureResourceService azureResourceService)
+        public ComponentEnsureIdentityActivity(IOrganizationRepository organizationRepository, IProjectRepository projectRepository, IDeploymentScopeRepository deploymentScopeRepository, IAzureResourceService azureResourceService)
         {
             this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
             this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
@@ -31,7 +31,7 @@ namespace TeamCloud.Orchestrator.Operations.Activities
             this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
         }
 
-        [FunctionName(nameof(ComponentIdentityActivity))]
+        [FunctionName(nameof(ComponentEnsureIdentityActivity))]
         [RetryOptions(3)]
         public async Task<Component> Run(
             [ActivityTrigger] IDurableActivityContext context,

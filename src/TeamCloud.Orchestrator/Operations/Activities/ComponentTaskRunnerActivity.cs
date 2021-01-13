@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Flurl;
 using Flurl.Http;
@@ -75,25 +78,7 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                 var componentLocation = await GetLocationAsync(component)
                     .ConfigureAwait(false);
 
-                var storageId = componentTask.StorageId ?? component.StorageId;
-
-                if (string.IsNullOrEmpty(storageId))
-                    throw new NullReferenceException($"Missing storage id for component {component.Id}");
-
-                var componentStorage = await azureResourceService
-                    .GetResourceAsync<AzureStorageAccountResource>(storageId, true)
-                    .ConfigureAwait(false);
-
-                var componentStorageKeys = await componentStorage
-                    .GetKeysAsync()
-                    .ConfigureAwait(false);
-
-                var componentShare = await componentStorage
-                    .CreateShareClientAsync(component.Id)
-                    .ConfigureAwait(false);
-
-                await componentShare
-                    .CreateIfNotExistsAsync()
+                var (componentShareAccount, componentShareName, componentShareKey) = await GetComponentShareInfoAsync(component)
                     .ConfigureAwait(false);
 
                 var componentRunnerHost = $"{componentTask.Id}.{componentLocation}.azurecontainer.io";
@@ -187,6 +172,11 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                                         name = "storage",
                                         mountPath = "/mnt/storage",
                                         readOnly = false
+                                    },
+                                    new {
+                                        name = "secrets",
+                                        mountPath = "/mnt/secrets",
+                                        readOnly = false
                                     }
                                 }
                             }
@@ -212,24 +202,28 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                         },
                         volumes = new object[]
                         {
-                        new {
-                            name = "templates",
-                            gitRepo = new
-                            {
-                                directory = "root",
-                                repository = componentTemplate.Repository.Url,
-                                revision = componentTemplate.Repository.Ref
+                            new {
+                                name = "templates",
+                                gitRepo = new
+                                {
+                                    directory = "root",
+                                    repository = componentTemplate.Repository.Url,
+                                    revision = componentTemplate.Repository.Ref
+                                }
+                            },
+                            new {
+                                name = "storage",
+                                azureFile = new
+                                {
+                                      shareName = componentShareName,
+                                      storageAccountName = componentShareAccount,
+                                      storageAccountKey = componentShareKey
+                                }
+                            },
+                            new {
+                                name = "secrets",
+                                secret = await GetComponentVaultSecretsAsync(component).ConfigureAwait(false)
                             }
-                        },
-                        new {
-                            name = "storage",
-                            azureFile = new
-                            {
-                                  shareName = componentShare.Name,
-                                  storageAccountName = componentShare.AccountName,
-                                  storageAccountKey = componentStorageKeys.First()
-                            }
-                        }
                         }
                     }
                 };
@@ -264,12 +258,82 @@ namespace TeamCloud.Orchestrator.Operations.Activities
             }
             catch (Exception exc)
             {
-                log.LogError(exc, $"Failed to create runner for component deployment {componentTask}: {exc.Message}");
+                if (exc is FlurlHttpException httpExc)
+                {
+                    var error = await httpExc.Call.Response
+                        .ReadAsJsonAsync()
+                        .ConfigureAwait(false);
+
+                    var errorMessage = error.SelectToken("..message")?.ToString() ?? exc.Message;
+
+                    log.LogError(exc, $"Failed to create runner for component deployment {componentTask}: {errorMessage}");
+                }
+                else
+                {
+                    log.LogError(exc, $"Failed to create runner for component deployment {componentTask}: {exc.Message}");
+                }
 
                 throw exc.AsSerializable();
             }
 
             return componentTask;
+        }
+
+        private async Task<(string, string, string)> GetComponentShareInfoAsync(Component component)
+        {
+            if (!AzureResourceIdentifier.TryParse(component.StorageId, out var _))
+                throw new NullReferenceException($"Missing storage id for component {component.Id}");
+
+            var componentStorage = await azureResourceService
+                .GetResourceAsync<AzureStorageAccountResource>(component.StorageId, true)
+                .ConfigureAwait(false);
+
+            var componentShare = await componentStorage
+                .CreateShareClientAsync(component.Id)
+                .ConfigureAwait(false);
+
+            await componentShare
+                .CreateIfNotExistsAsync()
+                .ConfigureAwait(false);
+
+            var componentStorageKeys = await componentStorage
+                .GetKeysAsync()
+                .ConfigureAwait(false);
+
+            return (componentShare.AccountName, componentShare.Name, componentStorageKeys.First());
+        }
+
+        private async Task<dynamic> GetComponentVaultSecretsAsync(Component component)
+        {
+            if (!AzureResourceIdentifier.TryParse(component.VaultId, out var _))
+                throw new NullReferenceException($"Missing vault id for component {component.Id}");
+
+            var componentVault = await azureResourceService
+                .GetResourceAsync<AzureKeyVaultResource>(component.VaultId, true)
+                .ConfigureAwait(false);
+
+            var identity = await azureResourceService.AzureSessionService
+                .GetIdentityAsync()
+                .ConfigureAwait(false);
+
+            await componentVault
+                .SetAllSecretPermissionsAsync(identity.ObjectId)
+                .ConfigureAwait(false);
+
+            dynamic secretsObject = new ExpandoObject(); // the secrets container
+            var secretsProperties = secretsObject as IDictionary<string, object>;
+
+            await foreach (var secret in componentVault.GetSecretsAsync())
+            {
+                var secretNameSafe = Regex.Replace(secret.Key, "[^A-Za-z0-9_]", string.Empty);
+                var secretValueSafe = Convert.ToBase64String(Encoding.UTF8.GetBytes(secret.Value));
+                secretsProperties.Add(new KeyValuePair<string, object>(secretNameSafe, secretValueSafe));
+            }
+
+            var secretsCount = Convert.ToBase64String(Encoding.UTF8.GetBytes(secretsProperties.Count.ToString()));
+            secretsProperties.Add(new KeyValuePair<string, object>($"_{nameof(secretsCount)}", secretsCount));
+
+            return secretsObject;
         }
 
         private async Task<string> GetLocationAsync(Component component)

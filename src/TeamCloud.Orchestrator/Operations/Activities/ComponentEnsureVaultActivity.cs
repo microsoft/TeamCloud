@@ -16,18 +16,18 @@ using TeamCloud.Orchestration;
 
 namespace TeamCloud.Orchestrator.Operations.Activities
 {
-    public sealed class ComponentStorageActivity
+    public sealed class ComponentEnsureVaultActivity
     {
         private readonly IProjectRepository projectRepository;
         private readonly IAzureResourceService azureResourceService;
 
-        public ComponentStorageActivity(IProjectRepository projectRepository, IAzureResourceService azureResourceService)
+        public ComponentEnsureVaultActivity(IProjectRepository projectRepository, IAzureResourceService azureResourceService)
         {
             this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
             this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
         }
 
-        [FunctionName(nameof(ComponentStorageActivity))]
+        [FunctionName(nameof(ComponentEnsureVaultActivity))]
         [RetryOptions(3)]
         public async Task<Component> Run(
             [ActivityTrigger] IDurableActivityContext context,
@@ -41,7 +41,7 @@ namespace TeamCloud.Orchestrator.Operations.Activities
 
             var component = context.GetInput<Input>().Component;
 
-            if (!AzureResourceIdentifier.TryParse(component.StorageId, out var _))
+            if (!AzureResourceIdentifier.TryParse(component.VaultId, out var _))
             {
                 var project = await projectRepository
                     .GetAsync(component.Organization, component.ProjectId)
@@ -53,12 +53,12 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                         .GetResourceGroupAsync(projectResourceId.SubscriptionId, projectResourceId.ResourceGroup)
                         .ConfigureAwait(false);
 
-                    var projectStorageResource = await projectResourceGroup
-                        .GetResourcesByTypeAsync("Microsoft.Storage/storageAccounts")
+                    var projectVaultResource = await projectResourceGroup
+                        .GetResourcesByTypeAsync("Microsoft.KeyVault/vaults")
                         .SingleOrDefaultAsync()
                         .ConfigureAwait(false);
 
-                    component.StorageId = projectStorageResource?.ResourceId.ToString();
+                    component.VaultId = projectVaultResource?.ResourceId.ToString();
                 }
             }
 

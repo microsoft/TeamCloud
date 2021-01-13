@@ -38,8 +38,7 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Utilities
             if (log is null)
                 throw new ArgumentNullException(nameof(log));
 
-            var input = context.GetInput<Input>();
-            var component = input.Component;
+            var component = context.GetInput<Input>().Component;
 
             try
             {
@@ -54,7 +53,7 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Utilities
                         .LogInformation($"!!! Component deployment '{component}' needs to wait for Organization/Project resource to be provisioned.");
 
                     await context
-                        .ContinueAsNew(input, TimeSpan.FromSeconds(2))
+                        .ContinueAsNew(new Input() { Component = component }, TimeSpan.FromSeconds(2))
                         .ConfigureAwait(true);
                 }
 
@@ -64,23 +63,30 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Utilities
                         .CallActivityWithRetryAsync<Component>(nameof(ComponentGetActivity), new ComponentGetActivity.Input() { ProjectId = component.ProjectId, ComponentId = component.Id })
                         .ConfigureAwait(true)) ?? component;
 
-                    component = await UpdateComponentAsync(component, ResourceState.Provisioning)
+                    if (!component.ResourceState.IsFinal())
+                    {
+                        component = await UpdateComponentAsync(component, ResourceState.Provisioning)
+                            .ConfigureAwait(true);
+                    }
+
+                    component = await context
+                        .CallActivityWithRetryAsync<Component>(nameof(ComponentEnsureIdentityActivity), new ComponentEnsureIdentityActivity.Input() { Component = component })
                         .ConfigureAwait(true);
 
                     component = await context
-                        .CallActivityWithRetryAsync<Component>(nameof(ComponentIdentityActivity), new ComponentIdentityActivity.Input() { Component = component })
+                        .CallActivityWithRetryAsync<Component>(nameof(ComponentEnsureResourceActivity), new ComponentEnsureResourceActivity.Input() { Component = component })
                         .ConfigureAwait(true);
 
                     component = await context
-                        .CallActivityWithRetryAsync<Component>(nameof(ComponentResourceActivity), new ComponentResourceActivity.Input() { Component = component })
+                        .CallActivityWithRetryAsync<Component>(nameof(ComponentEnsureStorageActivity), new ComponentEnsureStorageActivity.Input() { Component = component })
                         .ConfigureAwait(true);
 
                     component = await context
-                        .CallActivityWithRetryAsync<Component>(nameof(ComponentStorageActivity), new ComponentStorageActivity.Input() { Component = component })
+                        .CallActivityWithRetryAsync<Component>(nameof(ComponentEnsureVaultActivity), new ComponentEnsureVaultActivity.Input() { Component = component })
                         .ConfigureAwait(true);
 
                     component = await context
-                        .CallActivityWithRetryAsync<Component>(nameof(ComponentPermissionActivity), new ComponentPermissionActivity.Input() { Component = component })
+                        .CallActivityWithRetryAsync<Component>(nameof(ComponentEnsurePermissionActivity), new ComponentEnsurePermissionActivity.Input() { Component = component })
                         .ConfigureAwait(true);
 
                     component = await UpdateComponentAsync(component, ResourceState.Succeeded)

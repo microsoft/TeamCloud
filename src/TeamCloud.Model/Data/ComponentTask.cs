@@ -28,6 +28,8 @@ namespace TeamCloud.Model.Data
 
         public string StorageId { get; set; }
 
+        public string VaultId { get; set; }
+
         public string RequestedBy { get; set; }
 
         public ComponentTaskType Type { get; set; } = ComponentTaskType.Create;

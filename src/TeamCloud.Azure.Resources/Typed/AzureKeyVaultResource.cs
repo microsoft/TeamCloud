@@ -4,12 +4,15 @@
  */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Azure.KeyVault;
 using Microsoft.Azure.KeyVault.Models;
 using Microsoft.Azure.Management.KeyVault.Fluent;
 using Microsoft.Azure.Management.KeyVault.Fluent.Models;
+using Microsoft.Rest.Azure;
 using Newtonsoft.Json;
 using TeamCloud.Azure.Resources.Utilities;
 
@@ -116,6 +119,33 @@ namespace TeamCloud.Azure.Resources.Typed
                     .ConfigureAwait(false);
 
                 return secret.Value;
+            }
+        }
+
+        public async IAsyncEnumerable<KeyValuePair<string, string>> GetSecretsAsync()
+        {
+            var vault = await vaultInstance
+                .ConfigureAwait(false);
+
+            IPage<SecretItem> page;
+
+            try
+            {
+                page = await vault.Client
+                    .GetSecretsAsync(vault.VaultUri)
+                    .ConfigureAwait(false);
+            }
+            catch (KeyVaultErrorException exc) when (exc.Response.StatusCode == HttpStatusCode.NotFound)
+            {
+                yield break;
+            }
+
+            await foreach (var secretItem in page.AsContinuousCollectionAsync((nextPageLink) => vault.Client.GetSecretsNextAsync(nextPageLink)))
+            {
+                var secretName = secretItem.Id.Split('/').Last();
+                var secretValue = await GetSecretAsync(secretName).ConfigureAwait(false);
+
+                yield return new KeyValuePair<string, string>(secretName, secretValue);
             }
         }
 

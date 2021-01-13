@@ -47,8 +47,8 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Utilities
                 {
                     try
                     {
-                        await context
-                            .CallActivityWithRetryAsync(nameof(ComponentPermissionActivity), new ComponentPermissionActivity.Input() { Component = component })
+                        component = await context
+                            .CallSubOrchestratorWithRetryAsync<Component>(nameof(ComponentPrepareOrchestration), new ComponentPrepareOrchestration.Input() { Component = component })
                             .ConfigureAwait(true);
                     }
                     catch (Exception exc)
