@@ -32,6 +32,7 @@ export const ComponentTaskConsole: React.FunctionComponent<IComponentTaskConsole
         setOutput(task?.output?.split('\n').map((t, i) => ({ line: i, text: t, selected: selectedLine === i })));
     }, [task, selectedLine]);
 
+
     useEffect(() => {
         if (location.hash !== '' && location.hash.startsWith('#')) {
             const index = location.hash.replace('#', '');
@@ -99,7 +100,7 @@ export const ComponentTaskConsole: React.FunctionComponent<IComponentTaskConsole
         if (!item) return (<></>);
 
         const failure = item.text.toLowerCase().includes('failed') || item.text.toLowerCase().includes('error');
-        const bg = item.selected ? bgColorSelected : failure ? bgColorError : undefined;
+        // const bg = item.selected ? bgColorSelected : failure ? bgColorError : undefined;
         //rgb(121, 184, 255)
         return (
             <Stack

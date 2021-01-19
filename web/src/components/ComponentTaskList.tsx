@@ -3,12 +3,11 @@
 
 import React, { useState, useEffect, useContext } from 'react';
 import { CheckboxVisibility, DetailsList, DetailsListLayoutMode, FontIcon, getTheme, IColumn, IDetailsRowProps, IRenderFunction, SelectionMode, Stack, Text } from '@fluentui/react';
-import { OrgContext, ProjectContext } from '../Context';
+import { ProjectContext } from '../Context';
 import { ComponentTask } from 'teamcloud';
 import { useInterval } from '../Hooks';
 import { api } from '../API';
-import { ComponentTaskConsole } from './ComponentTaskConsole';
-import { stringify } from 'querystring';
+import { ComponentTaskConsole } from '.';
 
 export interface IComponentTaskListProps {
 
@@ -18,75 +17,30 @@ export const ComponentTaskList: React.FunctionComponent<IComponentTaskListProps>
 
     const theme = getTheme();
 
-    const { org } = useContext(OrgContext);
-    const { component, componentTasks, templates, onComponentSelected } = useContext(ProjectContext);
+    const { component, componentTask, componentTasks, templates, onComponentTaskSelected } = useContext(ProjectContext);
 
-    const [task, setTask] = useState<ComponentTask>();
-    const [tasks, setTasks] = useState<ComponentTask[]>();
     const [isPolling, setIsPolling] = useState(true);
 
     useEffect(() => {
-        if (componentTasks && task === undefined) {
-            console.log('+ setTask');
-            setTask(componentTasks.splice(-1)[0]);
-        }
-    }, [task, componentTasks])
+        const poll = componentTask?.resourceState !== undefined
+            && componentTask.resourceState.toLowerCase() !== 'succeeded'
+            && componentTask.resourceState.toLowerCase() !== 'failed';
 
-
-    useEffect(() => {
-        if (componentTasks) {
-            console.log('+ setTasks');
-            setTasks(task ? [task, ...componentTasks.filter(d => d.id !== task.id)] : componentTasks);
-        }
-    }, [task, componentTasks]);
-
-
-    useEffect(() => {
-        const poll = (tasks ?? []).some((d) => d.resourceState?.toLowerCase() !== 'succeeded' && d.resourceState?.toLowerCase() !== 'failed');
         if (isPolling !== poll) {
             console.log(`+ setPollTask (${poll})`);
             setIsPolling(poll);
         }
-    }, [tasks, isPolling])
+
+    }, [componentTask, isPolling])
 
     useInterval(async () => {
-
-        if (org && component && component.resourceState?.toLowerCase() !== 'succeeded' && component.resourceState?.toLowerCase() !== 'failed') {
-            console.log('- refreshComponent');
-            const result = await api.getComponent(component.id, component.organization, component.projectId);
-            if (result.data) {
-                onComponentSelected(result.data);
-            } else {
-                console.error(result);
-            }
-            console.log('+ refreshComponent');
+        if (componentTask) {
+            console.log(`- getComponentTask (polling) (${componentTask.id})`);
+            const result = await api.getComponentTask(componentTask.id, componentTask.organization, componentTask.projectId, componentTask.componentId);
+            console.log(`+ getComponentTask (polling) (${componentTask.id})`);
+            onComponentTaskSelected(result.data);
         }
-
-        if (org && tasks) {
-
-            let _tasks = await Promise.all(tasks
-                .map(async t => {
-                    if (t.finished === undefined && t.exitCode === undefined) {
-                        console.log(`- refreshTask (${t.id})`);
-                        const result = await api.getComponentTask(t.id, org.id, t.projectId, t.componentId);
-                        if (result.data) {
-                            t = result.data;
-                        } else {
-                            console.error(result);
-                        }
-                        console.log(`+ refreshTask (${t.id})`);
-                    }
-                    return t;
-                }));
-
-            setTasks(_tasks);
-
-            if (task && _tasks && _tasks.some(t => t.id === task.id)) {
-                setTask(_tasks.find(t => t.id === task.id));
-            }
-        }
-
-    }, isPolling ? 5000 : undefined);
+    }, isPolling ? 3000 : undefined);
 
     const [dots, setDots] = useState('');
 
@@ -134,26 +88,6 @@ export const ComponentTaskList: React.FunctionComponent<IComponentTaskListProps>
         return defaultRender ? defaultRender(rowProps) : null;
     };
 
-    const _onSelectTask = async (item: ComponentTask): Promise<void> => {
-        if (item.output === undefined) {
-            item = await _expandTask(item);
-        }
-        console.log(item);        
-        setTask(item);
-    };
-
-    const _expandTask = async (task: ComponentTask): Promise<ComponentTask> => {
-        console.log(`- expandTask (${task.id})`);
-        const result = await api.getComponentTask(task.id, task.organization, task.projectId, task.componentId);
-        if (result.data) {
-            task = result.data;
-        } else {
-            console.error(result);
-        }
-        console.log(`+ expandTask (${task.id})`);
-        return task;
-    }
-
     const _getTaskName = (task?: ComponentTask) => {
         if (task) {
             let componentTemplate = templates?.find(t => t.id === component?.templateId);
@@ -189,19 +123,19 @@ export const ComponentTaskList: React.FunctionComponent<IComponentTaskListProps>
                 }
             }}>
                 <DetailsList
-                    items={(tasks ?? []).sort((a, b) => (b.created?.valueOf() ?? 0) - (a.created?.valueOf() ?? 0))}
+                    items={(componentTasks ?? []).sort((a, b) => (b.created?.valueOf() ?? 0) - (a.created?.valueOf() ?? 0))}
                     columns={columns}
                     isHeaderVisible={false}
                     onRenderRow={_onRenderRow}
                     layoutMode={DetailsListLayoutMode.fixedColumns}
                     checkboxVisibility={CheckboxVisibility.hidden}
                     selectionMode={SelectionMode.single}
-                    onActiveItemChanged={_onSelectTask}
+                    onActiveItemChanged={onComponentTaskSelected}
                     styles={{ focusZone: { minWidth: '1px' }, root: { minWidth: '460px', boxShadow: theme.effects.elevation8 } }}
                 />
             </Stack.Item>
             <Stack.Item grow={2}>
-                <ComponentTaskConsole task={task} isPolling={isPolling} />
+                <ComponentTaskConsole task={componentTask} isPolling={isPolling} />
             </Stack.Item>
         </Stack >
 

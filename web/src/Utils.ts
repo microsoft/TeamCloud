@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import { Project } from "teamcloud";
+
 export const matchesLowerCase = (id: string, param: string) =>
     (id && param) ? id.toLowerCase() === param.toLowerCase() : id === param;
 
@@ -23,3 +25,13 @@ export const endsWithAnyLowerCase = (path: string, ...checks: string[]) =>
 
 export const includesLowerCase = (path: string, check: string) =>
     (path && check) ? path.toLowerCase().includes(check.toLowerCase()) : false;
+
+
+export const matchesParent = (list: [{ id: string }], parent: { id: string }) =>
+    list && !list.some(i => i.id !== parent.id);
+
+export const matchesProject = (list: [{ projectId: string }], project: Project) =>
+    list && !list.some(i => i.projectId !== project.id);
+
+export const undefinedOrWrongParent = (list: [{ id: string }], parent: { id: string }) =>
+    list === undefined || list.some(i => i.id !== parent.id);

@@ -6,7 +6,7 @@ import { getTheme, PrimaryButton, Stack } from '@fluentui/react';
 import { OrgContext, ProjectContext } from '../Context';
 import { ComponentTaskDefinition, ComponentTaskTemplate } from 'teamcloud';
 import { api } from '../API';
-import { stringify } from 'querystring';
+// import { stringify } from 'querystring';
 
 export interface IComponentTaskMenuProps {
 
@@ -17,27 +17,27 @@ export const ComponentTaskMenu: React.FunctionComponent<IComponentTaskMenuProps>
     const theme = getTheme();
 
     const { org } = useContext(OrgContext);
-    const { component, componentTasks, templates, onComponentSelected } = useContext(ProjectContext);
+    const { component, templates, onComponentSelected } = useContext(ProjectContext);
 
-    const [ taskTemplates, setTaskTemplates] = useState<ComponentTaskTemplate[]>();
+    const [taskTemplates, setTaskTemplates] = useState<ComponentTaskTemplate[]>();
 
     useEffect(() => {
         if (org && component && templates && templates.length > 0) {
             let template = templates.find(t => t.id === component.templateId);
-            if (template && template.tasks) { 
+            if (template && template.tasks) {
                 // console.log(stringify(template.tasks));
                 setTaskTemplates(template.tasks);
-                return; 
+                return;
             }
-        } 
+        }
         setTaskTemplates(new Array<ComponentTaskTemplate>());
     }, [org, component, templates]);
 
-    const onClickTaskButton = async (componentTaskTemplate:ComponentTaskTemplate) => {
+    const onClickTaskButton = async (componentTaskTemplate: ComponentTaskTemplate) => {
         if (org && component) {
             console.log(`- createTask`);
             const result = await api.createComponentTask(org.id, component.projectId, component.id, {
-                body : {
+                body: {
                     taskId: componentTaskTemplate.id
                 } as ComponentTaskDefinition
             })
@@ -55,13 +55,13 @@ export const ComponentTaskMenu: React.FunctionComponent<IComponentTaskMenuProps>
             { taskTemplates ? taskTemplates.map(tt => (
                 <Stack.Item
                     key={tt.id}>
-                    <PrimaryButton 
+                    <PrimaryButton
                         theme={theme}
                         text={tt.displayName ?? ''}
                         alt={tt.description ?? ''}
                         onClick={() => onClickTaskButton(tt)} />
                 </Stack.Item>
-            )) : [] }
+            )) : []}
         </Stack>
     );
 }

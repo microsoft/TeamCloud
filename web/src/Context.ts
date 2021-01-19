@@ -36,7 +36,9 @@ export const ProjectContext = React.createContext({
     component: undefined as Component | undefined,
     templates: undefined as ComponentTemplate[] | undefined,
     componentTasks: undefined as ComponentTask[] | undefined,
+    componentTask: undefined as ComponentTask | undefined,
     onComponentSelected: (component?: Component) => { },
+    onComponentTaskSelected: (componentTask?: ComponentTask) => { },
     onAddUsers: (users: UserDefinition[]) => Promise.resolve(),
     onRemoveUsers: (users: User[]) => Promise.resolve(),
 });

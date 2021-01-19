@@ -9,10 +9,10 @@ import { ComponentTemplate, DeploymentScope } from 'teamcloud';
 import { OrgContext, ProjectContext } from '../Context';
 import { ProjectMember } from '../model';
 import { FuiForm } from '@rjsf/fluent-ui';
-import { ComponentTaskList, UserPersona } from '.';
+import { ComponentTaskList, UserPersona, ComponentLink, ComponentTemplateLink } from '.';
 import { FieldTemplateProps, WidgetProps } from '@rjsf/core';
-import { ComponentLink } from './ComponentLink';
-import { ComponentTemplateLink } from './ComponentTemplateLink';
+// import { ComponentLink } from './ComponentLink';
+// import { ComponentTemplateLink } from './ComponentTemplateLink';
 // import DevOps from '../img/devops.svg';
 // import GitHub from '../img/github.svg';
 // import Resource from '../img/resource.svg';
@@ -31,9 +31,9 @@ export const ComponentOverview: React.FC = (props) => {
     const [template, setTemplate] = useState<ComponentTemplate>();
     const [creator, setCreator] = useState<ProjectMember>();
     const [scope, setScope] = useState<DeploymentScope>();
-    const [pivotKey, setPivotKey] = useState<string>('Deployments');
+    const [pivotKey, setPivotKey] = useState<string>('Runs');
 
-    // const pivotKeys = ['Overview', 'Deployments', 'Settings'];
+    // const pivotKeys = ['Overview', 'Runs', 'Tasks'];
 
     // const [component, setComponent] = useState<Component>();
     // const [template, setTemplate] = useState<ComponentTemplate>();
@@ -48,8 +48,6 @@ export const ComponentOverview: React.FC = (props) => {
 
     useEffect(() => {
         if (component && members && (creator === undefined || creator.user.id.toLowerCase() !== component.creator.toLowerCase())) {
-            // console.log(component);
-            // members.forEach(m => console.log(m));
             const ctr = members.find(m => component.creator.toLowerCase() === m.user.id.toLowerCase()) ?? undefined
             console.log(`+ setComponentCreator (${ctr?.graphUser?.displayName})`);
             setCreator(ctr);
@@ -153,7 +151,7 @@ export const ComponentOverview: React.FC = (props) => {
                 </Stack>
             </Stack.Item>
             <Stack.Item styles={{ root: { height: '100%', padding: '0px' } }}>
-                <Pivot selectedKey={pivotKey} onLinkClick={(i, ev) => setPivotKey(i?.props.itemKey ?? 'Deployments')} styles={{ root: { height: '100%' } }}>
+                <Pivot selectedKey={pivotKey} onLinkClick={(i, ev) => setPivotKey(i?.props.itemKey ?? 'Runs')} styles={{ root: { height: '100%' } }}>
                     <PivotItem headerText='Overview' itemKey='Overview'>
                         <Stack
                             horizontal
@@ -188,10 +186,10 @@ export const ComponentOverview: React.FC = (props) => {
                             )}
                         </Stack>
                     </PivotItem>
-                    <PivotItem headerText='Deployments' itemKey='Deployments'>
+                    <PivotItem headerText='Task Runs' itemKey='Runs'>
                         <ComponentTaskList />
                     </PivotItem>
-                    <PivotItem headerText='Settings' itemKey='Settings'>
+                    <PivotItem headerText='Tasks' itemKey='Tasks'>
                         <Stack tokens={{ childrenGap: '20px' }} styles={{ root: { padding: '24px 8px' } }}>
                         </Stack>
                     </PivotItem>
