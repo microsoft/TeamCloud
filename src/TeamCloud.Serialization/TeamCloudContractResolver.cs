@@ -6,19 +6,26 @@
 using System;
 using System.Collections;
 using System.Reflection;
+using Microsoft.AspNetCore.DataProtection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using TeamCloud.Serialization.Converter;
+using TeamCloud.Serialization.Encryption;
 
 namespace TeamCloud.Serialization
 {
     public class TeamCloudContractResolver : CamelCasePropertyNamesContractResolver
     {
-        public TeamCloudContractResolver()
+        private readonly IDataProtectionProvider dataProtectionProvider;
+
+        public TeamCloudContractResolver(IDataProtectionProvider dataProtectionProvider = null)
         {
             // prevent changing the case of dictionary keys
             NamingStrategy = new TeamCloudNamingStrategy();
+
+            // if not provided we won't support encryption
+            this.dataProtectionProvider = dataProtectionProvider;
         }
 
         protected override JsonConverter ResolveContractConverter(Type objectType)
@@ -33,6 +40,18 @@ namespace TeamCloud.Serialization
                 return new StringEnumConverter();
 
             return base.ResolveContractConverter(objectType);
+        }
+
+        protected override IValueProvider CreateMemberValueProvider(MemberInfo member)
+        {
+            if (member is null)
+                throw new ArgumentNullException(nameof(member));
+
+            var defaultProvider = base.CreateMemberValueProvider(member);
+
+            return dataProtectionProvider is null || member.GetCustomAttribute<EncryptedAttribute>() is null
+                ? defaultProvider
+                : new EncryptedValueProvider(member, defaultProvider, dataProtectionProvider);
         }
 
         protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)

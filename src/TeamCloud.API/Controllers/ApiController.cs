@@ -20,6 +20,8 @@ namespace TeamCloud.API.Controllers
 
         private string ProjectTemplateId => RouteData.ValueOrDefault(nameof(ProjectTemplateId));
 
+        private string ProjectIdentityId => RouteData.ValueOrDefault(nameof(ProjectIdentityId));
+
         public string UserId => RouteData.ValueOrDefault(nameof(UserId));
 
         public string ProjectId => RouteData.ValueOrDefault(nameof(ProjectId));
@@ -225,6 +227,42 @@ namespace TeamCloud.API.Controllers
                             .ToActionResult();
 
                     return await callback(contextUser, organization, project, user)
+                        .ConfigureAwait(false);
+                }
+                catch (Exception exc)
+                {
+                    return ErrorResult
+                        .ServerError(exc)
+                        .ToActionResult();
+                }
+            });
+        }
+
+        [NonAction]
+        internal Task<IActionResult> ExecuteAsync(Func<User, Organization, Project, ProjectIdentity, Task<IActionResult>> callback)
+        {
+            if (callback is null)
+                throw new ArgumentNullException(nameof(callback));
+
+            return ExecuteAsync(async (contextUser, organization, project) =>
+            {
+                try
+                {
+                    if (string.IsNullOrEmpty(ProjectIdentityId))
+                        return ErrorResult
+                            .BadRequest($"Project Identity Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCode.ValidationError)
+                            .ToActionResult();
+
+                    var projectIdentity = await GetService<IProjectIdentityRepository>()
+                        .GetAsync(project.Id, ProjectIdentityId)
+                        .ConfigureAwait(false);
+
+                    if (projectIdentity is null)
+                        return ErrorResult
+                            .NotFound($"A Project Identity with the Id '{ProjectIdentityId}' was not found.")
+                            .ToActionResult();
+
+                    return await callback(contextUser, organization, project, projectIdentity)
                         .ConfigureAwait(false);
                 }
                 catch (Exception exc)

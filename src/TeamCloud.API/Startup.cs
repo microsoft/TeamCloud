@@ -13,11 +13,13 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.AzureAD.UI;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Azure.Management.ResourceManager.Fluent;
+using Microsoft.Azure.Storage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -46,12 +48,14 @@ namespace TeamCloud.API
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IWebHostEnvironment environment)
         {
             Configuration = configuration;
+            Environment = environment;
         }
 
         public IConfiguration Configuration { get; }
+        public IWebHostEnvironment Environment { get; }
 
 #pragma warning disable CA1822 // Mark members as static
 
@@ -125,7 +129,19 @@ namespace TeamCloud.API
                     .AddSingleton<IRepositoryCache, RepositoryCache>();
             }
 
+            var dataProtectionConnectionString = Configuration.GetConnectionStringOrSetting("DataProtectionStorage");
+
+            if (CloudStorageAccount.TryParse(dataProtectionConnectionString, out var _))
+            {
+                services
+                    .AddDataProtection()
+                    .PersistKeysToAzureBlobStorage(dataProtectionConnectionString, "encryption", "keys.xml");
+
+                //TODO: protect keys using keyvault
+            }
+
             services
+                .AddSingleton<IDocumentExpander, ProjectIdentityExpander>()
                 .AddSingleton<IDocumentExpander, ComponentTaskExpander>()
                 .AddSingleton<IDocumentExpander, ComponentExpander>();
 
@@ -134,6 +150,7 @@ namespace TeamCloud.API
                 .AddSingleton<IOrganizationRepository, CosmosDbOrganizationRepository>()
                 .AddSingleton<IUserRepository, CosmosDbUserRepository>()
                 .AddSingleton<IDeploymentScopeRepository, CosmosDbDeploymentScopeRepository>()
+                .AddSingleton<IProjectIdentityRepository, CosmosDbProjectIdentityRepository>()
                 .AddSingleton<IProjectTemplateRepository, CosmosDbProjectTemplateRepository>()
                 .AddSingleton<IComponentTemplateRepository, CosmosDbComponentTemplateRepository>()
                 .AddSingleton<IProjectRepository, CosmosDbProjectRepository>()

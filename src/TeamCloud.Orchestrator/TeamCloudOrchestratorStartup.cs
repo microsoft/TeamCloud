@@ -5,10 +5,12 @@
 
 using System;
 using System.Reflection;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Azure.KeyVault;
 using Microsoft.Azure.Services.AppAuthentication;
+using Microsoft.Azure.Storage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.AzureKeyVault;
 using Microsoft.Extensions.Configuration.UserSecrets;
@@ -69,10 +71,22 @@ namespace TeamCloud.Orchestrator
                     .AddSingleton<IRepositoryCache, RepositoryCache>();
             }
 
+            var dataProtectionConnectionString = configuration.GetConnectionStringOrSetting("DataProtectionStorage");
+
+            if (CloudStorageAccount.TryParse(dataProtectionConnectionString, out var _))
+            {
+                builder.Services
+                    .AddDataProtection()
+                    .PersistKeysToAzureBlobStorage(dataProtectionConnectionString, "encryption", "keys.xml");
+
+                //TODO: protect keys using keyvault
+            }
+
             builder.Services
                 .AddSingleton<IOrganizationRepository, CosmosDbOrganizationRepository>()
                 .AddSingleton<IUserRepository, CosmosDbUserRepository>()
                 .AddSingleton<IDeploymentScopeRepository, CosmosDbDeploymentScopeRepository>()
+                .AddSingleton<IProjectIdentityRepository, CosmosDbProjectIdentityRepository>()
                 .AddSingleton<IProjectTemplateRepository, CosmosDbProjectTemplateRepository>()
                 .AddSingleton<IComponentTemplateRepository, CosmosDbComponentTemplateRepository>()
                 .AddSingleton<IComponentTaskRepository, CosmosDbComponentTaskRepository>()
@@ -95,6 +109,7 @@ namespace TeamCloud.Orchestrator
                 .AddScoped<ICommandHandler, ProjectCommandHandler>()
                 // .AddScoped<ICommandHandler, ProjectLinkCommandHandler>()
                 .AddScoped<ICommandHandler, ProjectTemplateCommandHandler>()
+                .AddScoped<ICommandHandler, ProjectIdentityCommandHandler>()
                 .AddScoped<ICommandHandler, ProjectUserCommandHandler>();
 
             builder.Services

@@ -64,6 +64,8 @@ namespace TeamCloud.API.Services
                     => null,
                 ICommandResult<Project> result
                     => $"orgs/{org}/projects/{result.Result.Id}",
+                ICommandResult<ProjectIdentity> result
+                    => $"orgs/{org}/projects/{result.Result.ProjectId}/identities/{result.Result.Id}",
                 ICommandResult<ProjectTemplate> result
                     => $"orgs/{org}/templates/{result.Result.Id}",
                 ICommandResult<DeploymentScope> result

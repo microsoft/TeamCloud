@@ -23,9 +23,13 @@ namespace TeamCloud.Azure.Directory
 
         Task<AzureServicePrincipal> CreateServicePrincipalAsync(string name, string password = null);
 
-        Task<AzureServicePrincipal> GetServicePrincipalAsync(string name);
+        Task<AzureServicePrincipal> GetServicePrincipalAsync(string identifier);
 
         Task DeleteServicePrincipalAsync(string name);
+
+        Task<IEnumerable<string>> GetServicePrincipalRedirectUrlsAsync(string servicePrincipalIdentifier);
+
+        Task<IEnumerable<string>> SetServicePrincipalRedirectUrlsAsync(string servicePrincipalIdentifier, IEnumerable<string> redirectUrls);
     }
 
     public class AzureDirectoryService : IAzureDirectoryService
@@ -280,18 +284,18 @@ namespace TeamCloud.Azure.Directory
         }
 
 
-        public async Task<AzureServicePrincipal> GetServicePrincipalAsync(string name)
+        public async Task<AzureServicePrincipal> GetServicePrincipalAsync(string identifier)
         {
-            if (name is null)
-                throw new ArgumentNullException(nameof(name));
+            if (identifier is null)
+                throw new ArgumentNullException(nameof(identifier));
 
-            name = SanitizeServicePrincipalName(name);
+            identifier = SanitizeServicePrincipalName(identifier);
 
             using var client = await azureSessionService
                 .CreateClientAsync<GraphRbacManagementClient>(AzureEndpoint.GraphEndpoint)
                 .ConfigureAwait(false);
 
-            var principal = await GetServicePrincipalInnerAsync(client, name)
+            var principal = await GetServicePrincipalInnerAsync(client, identifier)
                 .ConfigureAwait(false);
 
             if (principal is null)
@@ -303,41 +307,108 @@ namespace TeamCloud.Azure.Directory
             if (application is null)
                 return null;
 
+            var expiresOn = application.PasswordCredentials
+                .Where(c => c.CustomKeyIdentifier == Guid.Parse(principal.ObjectId).ToByteArray())
+                .OrderBy(c => c.EndDate)
+                .FirstOrDefault()?.EndDate;
+
             return new AzureServicePrincipal
             {
                 ObjectId = Guid.Parse(principal.ObjectId),
                 ApplicationId = Guid.Parse(principal.AppId),
                 TenantId = Guid.Parse(principal.AppOwnerTenantId),
                 Name = principal.ServicePrincipalNames.FirstOrDefault(),
-                ExpiresOn = application.PasswordCredentials.FirstOrDefault(c => c.CustomKeyIdentifier == Guid.Parse(principal.ObjectId).ToByteArray())?.EndDate
+                ExpiresOn = expiresOn
             };
         }
 
 
-        public async Task DeleteServicePrincipalAsync(string name)
+        public async Task DeleteServicePrincipalAsync(string identifier)
         {
-            if (name is null)
-                throw new ArgumentNullException(nameof(name));
+            if (identifier is null)
+                throw new ArgumentNullException(nameof(identifier));
 
-            name = SanitizeServicePrincipalName(name);
+            identifier = SanitizeServicePrincipalName(identifier);
 
             using var client = await azureSessionService
                 .CreateClientAsync<GraphRbacManagementClient>(AzureEndpoint.GraphEndpoint)
                 .ConfigureAwait(false);
 
-            var principal = await GetServicePrincipalInnerAsync(client, name)
+            var principal = await GetServicePrincipalInnerAsync(client, identifier)
                 .ConfigureAwait(false);
 
-            if (!(principal is null))
+            if (principal != null)
             {
                 var application = await GetServiceApplicationInnerAsync(client, principal.AppId)
                     .ConfigureAwait(false);
 
-                if (!(application is null))
+                if (application != null)
+                {
                     await client.Applications
                         .DeleteAsync(application.ObjectId)
                         .ConfigureAwait(false);
+                }
             }
+        }
+
+        public async Task<IEnumerable<string>> GetServicePrincipalRedirectUrlsAsync(string servicePrincipalIdentifier)
+        {
+            if (servicePrincipalIdentifier is null)
+                throw new ArgumentNullException(nameof(servicePrincipalIdentifier));
+
+            using var client = await azureSessionService
+                .CreateClientAsync<GraphRbacManagementClient>(AzureEndpoint.GraphEndpoint)
+                .ConfigureAwait(false);
+
+            var principal = await GetServicePrincipalInnerAsync(client, servicePrincipalIdentifier)
+                .ConfigureAwait(false);
+
+            if (principal != null)
+            {
+                var application = await GetServiceApplicationInnerAsync(client, principal.AppId)
+                    .ConfigureAwait(false);
+
+                return application?.ReplyUrls;
+            }
+
+            return null;
+        }
+
+        public async Task<IEnumerable<string>> SetServicePrincipalRedirectUrlsAsync(string servicePrincipalIdentifier, IEnumerable<string> redirectUrls)
+        {
+            if (servicePrincipalIdentifier is null)
+                throw new ArgumentNullException(nameof(servicePrincipalIdentifier));
+
+            if (redirectUrls is null)
+                throw new ArgumentNullException(nameof(redirectUrls));
+
+            using var client = await azureSessionService
+                .CreateClientAsync<GraphRbacManagementClient>(AzureEndpoint.GraphEndpoint)
+                .ConfigureAwait(false);
+
+            var principal = await GetServicePrincipalInnerAsync(client, servicePrincipalIdentifier)
+                .ConfigureAwait(false);
+
+            if (principal != null)
+            {
+                var application = await GetServiceApplicationInnerAsync(client, principal.AppId)
+                    .ConfigureAwait(false);
+
+                if (application != null)
+                {
+                    var parameters = new ApplicationUpdateParameters()
+                    {
+                        ReplyUrls = redirectUrls.Distinct(StringComparer.OrdinalIgnoreCase).ToList()
+                    };
+
+                    await client.Applications
+                        .PatchAsync(application.ObjectId, parameters)
+                        .ConfigureAwait(false);
+                }
+            }
+
+            return await GetServicePrincipalRedirectUrlsAsync(servicePrincipalIdentifier)
+                .ConfigureAwait(false);
         }
     }
 }

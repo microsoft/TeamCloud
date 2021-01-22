@@ -4,27 +4,40 @@
  */
 
 using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 using TeamCloud.Model.Common;
+using TeamCloud.Model.Data.Core;
 using TeamCloud.Serialization;
 
 namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public sealed class ProjectIdentity : IIdentifiable, IEquatable<ProjectIdentity>
+    public sealed class ProjectIdentity : ContainerDocument, IIdentifiable, IProjectContext, IEquatable<ProjectIdentity>, IValidatable
     {
         [JsonProperty(Required = Required.Always)]
-        public string Id { get; set; }
+        [PartitionKey]
+        public string ProjectId { get; set; }
 
         [JsonProperty(Required = Required.Always)]
+        public string Organization { get; set; }
+
+        [JsonProperty(Required = Required.Always)]
+        public string DisplayName { get; set; }
+
+        [JsonProperty(Required = Required.Always)]
+        public string DeploymentScopeId { get; set; }
+
         public Guid TenantId { get; set; }
 
-        [JsonProperty(Required = Required.Always)]
-        public Guid ApplicationId { get; set; }
+        public Guid ClientId { get; set; }
 
-        [JsonProperty(Required = Required.Always)]
-        public string Secret { get; set; }
+        public string ClientSecret { get; set; }
 
+        [DatabaseIgnore]
+        public IEnumerable<string> RedirectUrls { get; set; }
+
+        public Guid ObjectId { get; set; }
 
         public bool Equals(ProjectIdentity other)
             => Id.Equals(other?.Id, StringComparison.Ordinal);

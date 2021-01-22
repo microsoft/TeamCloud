@@ -18,6 +18,43 @@ namespace TeamCloud.Configuration
 {
     public static class Extensions
     {
+        public static bool TryGetSection(this IConfiguration configuration, string key, out IConfigurationSection section)
+        {
+            if (configuration is null)
+                throw new ArgumentNullException(nameof(configuration));
+
+            try
+            {
+                section = configuration.GetSection(key);
+            }
+            catch
+            {
+                section = null;
+            }
+
+            return (section != null);
+        }
+
+        public static bool TryBind<TOptions>(this IConfiguration configuration, string key, out TOptions options)
+            where TOptions : class, new()
+        {
+            if (configuration is null)
+                throw new ArgumentNullException(nameof(configuration));
+
+            try
+            {
+                options = Activator.CreateInstance<TOptions>();
+
+                configuration.GetSection(key).Bind(options);
+            }
+            catch
+            {
+                options = null;
+            }
+
+            return (options != null);
+        }
+
         private static readonly MethodInfo AddOptionsMethod = typeof(Extensions).GetMethods(BindingFlags.Static | BindingFlags.NonPublic)
             .SingleOrDefault(mi => mi.Name.StartsWith(nameof(AddOptions), StringComparison.Ordinal) && mi.IsGenericMethodDefinition);
 
