@@ -3,8 +3,6 @@
  *  Licensed under the MIT License.
  */
 
-
-
 using Newtonsoft.Json;
 /**
 *  Copyright (c) Microsoft Corporation.
