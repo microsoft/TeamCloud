@@ -19,7 +19,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Azure.Management.ResourceManager.Fluent;
+using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Azure.Storage;
+using Microsoft.Azure.Storage.Blob;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -43,11 +45,14 @@ using TeamCloud.Data.Expanders;
 using TeamCloud.Git.Caching;
 using TeamCloud.Git.Services;
 using TeamCloud.Http;
+using TeamCloud.Serialization.Encryption;
 
 namespace TeamCloud.API
 {
     public class Startup
     {
+        private readonly AzureServiceTokenProvider tokenProvider = new AzureServiceTokenProvider();
+
         public Startup(IConfiguration configuration, IWebHostEnvironment environment)
         {
             Configuration = configuration;
@@ -129,15 +134,28 @@ namespace TeamCloud.API
                     .AddSingleton<IRepositoryCache, RepositoryCache>();
             }
 
-            var dataProtectionConnectionString = Configuration.GetConnectionStringOrSetting("DataProtectionStorage");
-
-            if (CloudStorageAccount.TryParse(dataProtectionConnectionString, out var _))
+            if (Configuration.TryBind<EncryptionOptions>("Encryption", out var encryptionOptions) && CloudStorageAccount.TryParse(encryptionOptions.KeyStorage, out var keyStorageAccount))
             {
-                services
-                    .AddDataProtection()
-                    .PersistKeysToAzureBlobStorage(dataProtectionConnectionString, "encryption", "keys.xml");
+                const string EncryptionContainerName = "encryption";
 
-                //TODO: protect keys using keyvault
+                keyStorageAccount
+                    .CreateCloudBlobClient()
+                    .GetContainerReference(EncryptionContainerName)
+                    .CreateIfNotExistsAsync().Wait();
+
+                var dataProtectionBuilder = services
+                    .AddDataProtection()
+                    .SetApplicationName("TeamCloud")
+                    .PersistKeysToAzureBlobStorage(encryptionOptions.KeyStorage, EncryptionContainerName, "keys.xml");
+
+                if (!string.IsNullOrEmpty(encryptionOptions.KeyVault))
+                {
+                    //dataProtectionBuilder.ProtectKeysWithAzureKeyVault()
+                    throw new NotImplementedException();
+                }
+
+                EncryptedValueProvider.DefaultDataProtectionProvider = services.BuildServiceProvider().GetDataProtectionProvider();
+
             }
 
             services
@@ -173,9 +191,7 @@ namespace TeamCloud.API
             ConfigureAuthorization(services);
 
             services
-                .AddApplicationInsightsTelemetry();
-
-            services
+                .AddApplicationInsightsTelemetry()
                 .AddMvc();
 
             services

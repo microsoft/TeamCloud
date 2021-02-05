@@ -1,4 +1,9 @@
-﻿using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
+
+using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Newtonsoft.Json;
 using TeamCloud.Serialization;
 
@@ -12,6 +17,6 @@ namespace TeamCloud.Orchestration.Serialization
         // for our command handling, we override the default behavior and return our
         // TeamCloud default serializer settings.
 
-        public JsonSerializerSettings CreateJsonSerializerSettings() => TeamCloudSerializerSettings.Default;
+        public JsonSerializerSettings CreateJsonSerializerSettings() => TeamCloudSerializerSettings.Create();
     }
 }

@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Azure.Cosmos;
 using TeamCloud.Data.Utilities;
 using TeamCloud.Model.Common;
@@ -32,7 +33,7 @@ namespace TeamCloud.Data.CosmosDb.Core
         private readonly ConcurrentDictionary<Type, AsyncLazy<(Container, ChangeFeedProcessor)>> cosmosContainers = new ConcurrentDictionary<Type, AsyncLazy<(Container, ChangeFeedProcessor)>>();
         private readonly IEnumerable<IDocumentExpander> expanders;
 
-        protected CosmosDbRepository(ICosmosDbOptions options, IEnumerable<IDocumentExpander> expanders)
+        protected CosmosDbRepository(ICosmosDbOptions options, IEnumerable<IDocumentExpander> expanders, IDataProtectionProvider dataProtectionProvider)
         {
             Options = options ?? throw new ArgumentNullException(nameof(options));
 
@@ -40,7 +41,7 @@ namespace TeamCloud.Data.CosmosDb.Core
 
             cosmosClient = new Lazy<CosmosClient>(() => new CosmosClient(options.ConnectionString, new CosmosClientOptions()
             {
-                Serializer = new CosmosDbSerializer()
+                Serializer = new CosmosDbSerializer(dataProtectionProvider)
             }));
         }
 

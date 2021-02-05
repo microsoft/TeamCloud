@@ -1,7 +1,13 @@
-﻿using System;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
+
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Azure.Cosmos;
 using TeamCloud.Data.CosmosDb.Core;
 using TeamCloud.Model.Data;
@@ -11,8 +17,8 @@ namespace TeamCloud.Data.CosmosDb
 {
     public sealed class CosmosDbProjectIdentityRepository : CosmosDbRepository<ProjectIdentity>, IProjectIdentityRepository
     {
-        public CosmosDbProjectIdentityRepository(ICosmosDbOptions options, IEnumerable<IDocumentExpander> expanders)
-            : base(options, expanders)
+        public CosmosDbProjectIdentityRepository(ICosmosDbOptions options, IEnumerable<IDocumentExpander> expanders, IDataProtectionProvider dataProtectionProvider = null)
+            : base(options, expanders, dataProtectionProvider)
         { }
 
         public override async Task<ProjectIdentity> AddAsync(ProjectIdentity document)

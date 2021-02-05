@@ -14,7 +14,7 @@ using TeamCloud.Serialization.Resolver;
 
 namespace TeamCloud.Model.Data.Serialization
 {
-    internal class ContainerDocumentContractResolver : SuppressContractResolver<ContainerDocumentConverter>
+    internal class ContainerDocumentContractResolver : SuppressConverterContractResolver<ContainerDocumentConverter>
     {
         protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)
         {

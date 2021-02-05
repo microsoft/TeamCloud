@@ -6,9 +6,12 @@
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using TeamCloud.API.Data.Serialization;
 
 namespace TeamCloud.API.Data.Results
 {
+
+    [JsonConverter(typeof(DataResultConverter))]
     public sealed class DataResult<T> : IDataResult<T>
         where T : new()
     {

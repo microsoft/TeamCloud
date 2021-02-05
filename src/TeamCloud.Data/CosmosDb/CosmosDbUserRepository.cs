@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Azure.Cosmos;
 using TeamCloud.Data.CosmosDb.Core;
 using TeamCloud.Model.Data;
@@ -19,8 +20,8 @@ namespace TeamCloud.Data.CosmosDb
 {
     public class CosmosDbUserRepository : CosmosDbRepository<User>, IUserRepository
     {
-        public CosmosDbUserRepository(ICosmosDbOptions options, IEnumerable<IDocumentExpander> expanders)
-            : base(options, expanders)
+        public CosmosDbUserRepository(ICosmosDbOptions options, IEnumerable<IDocumentExpander> expanders, IDataProtectionProvider dataProtectionProvider = null)
+            : base(options, expanders, dataProtectionProvider)
         { }
 
         public override async Task<User> AddAsync(User user)

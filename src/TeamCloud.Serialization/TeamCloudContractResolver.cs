@@ -3,13 +3,13 @@
  *  Licensed under the MIT License.
  */
 
-using System;
-using System.Collections;
-using System.Reflection;
 using Microsoft.AspNetCore.DataProtection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
+using System;
+using System.Collections;
+using System.Reflection;
 using TeamCloud.Serialization.Converter;
 using TeamCloud.Serialization.Encryption;
 
@@ -24,8 +24,14 @@ namespace TeamCloud.Serialization
             // prevent changing the case of dictionary keys
             NamingStrategy = new TeamCloudNamingStrategy();
 
-            // if not provided we won't support encryption
             this.dataProtectionProvider = dataProtectionProvider;
+        }
+
+        protected override JsonContract CreateContract(Type objectType)
+        {
+            var contract = base.CreateContract(objectType);
+
+            return contract;
         }
 
         protected override JsonConverter ResolveContractConverter(Type objectType)
@@ -47,11 +53,11 @@ namespace TeamCloud.Serialization
             if (member is null)
                 throw new ArgumentNullException(nameof(member));
 
-            var defaultProvider = base.CreateMemberValueProvider(member);
+            var valueProvider = base.CreateMemberValueProvider(member);
 
-            return dataProtectionProvider is null || member.GetCustomAttribute<EncryptedAttribute>() is null
-                ? defaultProvider
-                : new EncryptedValueProvider(member, defaultProvider, dataProtectionProvider);
+            return member.GetCustomAttribute<EncryptedAttribute>() is null
+                ? valueProvider // not marked as encrypted - no need to wrap the value provider
+                : new EncryptedValueProvider(member, valueProvider, dataProtectionProvider);
         }
 
         protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)

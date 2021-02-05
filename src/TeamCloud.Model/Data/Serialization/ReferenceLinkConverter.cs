@@ -13,12 +13,9 @@ namespace TeamCloud.Model.Data.Serialization
     [SuppressMessage("Microsoft.Performance", "CA1812:Avoid Uninstantiated Internal Classes", Justification = "Dynamically instatiated")]
     internal class ReferenceLinkConverter : JsonConverter<ReferenceLink>
     {
-        private static readonly JsonSerializer InnerSerializer = JsonSerializer.CreateDefault(new JsonSerializerSettings
-        {
-            TypeNameHandling = TypeNameHandling.None,
-            NullValueHandling = NullValueHandling.Ignore,
-            ContractResolver = new ReferenceLinkContractResolver { NamingStrategy = new TeamCloudNamingStrategy() }
-        });
+        private static readonly JsonSerializer InnerSerializer = TeamCloudSerializerSettings
+            .Create<ReferenceLinkContractResolver>()
+            .CreateSerializer();
 
         public override ReferenceLink ReadJson(JsonReader reader, Type objectType, [AllowNull] ReferenceLink existingValue, bool hasExistingValue, JsonSerializer serializer)
         {

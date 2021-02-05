@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Azure.Cosmos;
 using TeamCloud.Data.CosmosDb.Core;
 using TeamCloud.Git.Services;
@@ -20,8 +21,8 @@ namespace TeamCloud.Data.CosmosDb
     {
         private readonly IRepositoryService repositoryService;
 
-        public CosmosDbProjectTemplateRepository(ICosmosDbOptions options, IEnumerable<IDocumentExpander> expanders, IRepositoryService repositoryService)
-            : base(options, expanders)
+        public CosmosDbProjectTemplateRepository(ICosmosDbOptions options, IEnumerable<IDocumentExpander> expanders, IRepositoryService repositoryService, IDataProtectionProvider dataProtectionProvider = null)
+            : base(options, expanders, dataProtectionProvider)
         {
             this.repositoryService = repositoryService ?? throw new ArgumentNullException(nameof(repositoryService));
         }

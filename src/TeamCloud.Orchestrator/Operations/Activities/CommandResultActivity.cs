@@ -3,12 +3,13 @@
  *  Licensed under the MIT License.
  */
 
-using System;
-using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Threading.Tasks;
 using TeamCloud.Model.Commands.Core;
+using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.Operations.Activities
 {
@@ -26,7 +27,18 @@ namespace TeamCloud.Orchestrator.Operations.Activities
             if (durableClient is null)
                 throw new ArgumentNullException(nameof(durableClient));
 
-            var commandResult = context.GetInput<ICommandResult>();
+            ICommandResult commandResult;
+
+            try
+            {
+                commandResult = context.GetInput<ICommandResult>();
+            }
+            catch (Exception exc)
+            {
+                log?.LogError(exc, $"Failed deserialize command result from json: {exc.Message}");
+
+                throw exc.AsSerializable();
+            }
 
             try
             {

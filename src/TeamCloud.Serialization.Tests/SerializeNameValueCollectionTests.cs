@@ -1,4 +1,9 @@
-﻿using System.Collections.Specialized;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
+
+using System.Collections.Specialized;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using TeamCloud.Serialization.Converter;

@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.Annotations;
 using TeamCloud.API.Auth;
 using TeamCloud.API.Data;
@@ -20,6 +21,7 @@ using TeamCloud.Data;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
 using TeamCloud.Model.Validation;
+using TeamCloud.Serialization;
 
 namespace TeamCloud.API.Controllers
 {
@@ -67,9 +69,13 @@ namespace TeamCloud.API.Controllers
                 .GetAsync(project.Id, projectIdentityId)
                 .ConfigureAwait(false);
 
-            return DataResult<ProjectIdentity>
+            var result = DataResult<ProjectIdentity>
                 .Ok(projectIdentity)
                 .ToActionResult();
+
+            var resultJson = JsonConvert.SerializeObject(result, TeamCloudSerializerSettings.Default);
+
+            return result;
         }));
 
 

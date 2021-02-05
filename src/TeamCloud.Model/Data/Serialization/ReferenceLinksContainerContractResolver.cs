@@ -10,7 +10,7 @@ using TeamCloud.Serialization.Resolver;
 
 namespace TeamCloud.Model.Data.Serialization
 {
-    internal class ReferenceLinksContainerContractResolver : SuppressContractResolver<ReferenceLinksContainerConverter>
+    internal class ReferenceLinksContainerContractResolver : SuppressConverterContractResolver<ReferenceLinksContainerConverter>
     {
         protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
         {

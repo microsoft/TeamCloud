@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.CodeAnalysis;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -22,6 +23,10 @@ namespace TeamCloud.Data.CosmosDb.Serialization
             { nameof(IContainerDocument.ETag), ("_etag", null) },
             { nameof(IContainerDocument.Timestamp), ("_ts", new CosmosDbTimestampConverter()) }
         };
+
+        public CosmosDbContractResolver(IDataProtectionProvider dataProtectionProvider = null)
+            : base(dataProtectionProvider)
+        { }
 
         protected override JsonObjectContract CreateObjectContract(Type objectType)
         {

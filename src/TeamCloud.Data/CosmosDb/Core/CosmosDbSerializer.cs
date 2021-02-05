@@ -7,10 +7,12 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Azure.Cosmos;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using TeamCloud.Data.CosmosDb.Serialization;
+using TeamCloud.Serialization;
 
 namespace TeamCloud.Data.CosmosDb.Core
 {
@@ -20,18 +22,11 @@ namespace TeamCloud.Data.CosmosDb.Core
 
         private readonly JsonSerializerSettings SerializerSettings;
 
-        public CosmosDbSerializer()
+        public CosmosDbSerializer(IDataProtectionProvider dataProtectionProvider = null)
         {
-            SerializerSettings = new JsonSerializerSettings()
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-                Formatting = Formatting.None,
-                ContractResolver = new CosmosDbContractResolver()
-            };
+            SerializerSettings = TeamCloudSerializerSettings
+                .Create(new CosmosDbContractResolver(dataProtectionProvider));
         }
-
-        private JsonSerializer GetSerializer()
-             => JsonSerializer.Create(SerializerSettings);
 
         public override T FromStream<T>(Stream stream)
         {
@@ -45,7 +40,7 @@ namespace TeamCloud.Data.CosmosDb.Core
                 using var streamReader = new StreamReader(stream, DefaultEncoding, true, 1024, leaveOpen: true);
                 using var jsonReader = new JsonTextReader(streamReader);
 
-                return GetSerializer().Deserialize<T>(jsonReader);
+                return SerializerSettings.CreateSerializer().Deserialize<T>(jsonReader);
             }
             finally
             {
@@ -62,7 +57,7 @@ namespace TeamCloud.Data.CosmosDb.Core
                 using var streamWriter = new StreamWriter(stream, DefaultEncoding, 1024, leaveOpen: true);
                 using var jsonWriter = new JsonTextWriter(streamWriter);
 
-                GetSerializer().Serialize(jsonWriter, input);
+                SerializerSettings.CreateSerializer().Serialize(jsonWriter, input);
 
                 jsonWriter.Flush();
                 streamWriter.Flush();

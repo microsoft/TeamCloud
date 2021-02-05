@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Caching.Memory;
 using TeamCloud.Data.CosmosDb.Core;
@@ -20,8 +21,8 @@ namespace TeamCloud.Data.CosmosDb
     {
         private readonly IMemoryCache cache;
 
-        public CosmosDbOrganizationRepository(ICosmosDbOptions options, IEnumerable<IDocumentExpander> expanders, IMemoryCache cache)
-            : base(options, expanders)
+        public CosmosDbOrganizationRepository(ICosmosDbOptions options, IEnumerable<IDocumentExpander> expanders, IMemoryCache cache, IDataProtectionProvider dataProtectionProvider = null)
+            : base(options, expanders, dataProtectionProvider)
         {
             this.cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }

@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using TeamCloud.Model.Common;
 using TeamCloud.Model.Data.Core;
 using TeamCloud.Serialization;
+using TeamCloud.Serialization.Encryption;
 
 namespace TeamCloud.Model.Data
 {
@@ -32,6 +33,7 @@ namespace TeamCloud.Model.Data
 
         public Guid ClientId { get; set; }
 
+        [Encrypted]
         public string ClientSecret { get; set; }
 
         [DatabaseIgnore]
