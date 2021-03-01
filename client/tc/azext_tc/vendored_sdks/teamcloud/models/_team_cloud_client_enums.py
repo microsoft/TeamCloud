@@ -26,63 +26,77 @@ class _CaseInsensitiveEnumMeta(EnumMeta):
             raise AttributeError(name)
 
 
-class ComponentOfferScope(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
+class ComponentResourceState(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
 
-    SYSTEM = "System"
-    PROJECT = "Project"
-    ALL = "All"
+    PENDING = "Pending"
+    INITIALIZING = "Initializing"
+    PROVISIONING = "Provisioning"
+    SUCCEEDED = "Succeeded"
+    FAILED = "Failed"
 
-class ComponentOfferType(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
+class ComponentTaskResourceState(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
+
+    PENDING = "Pending"
+    INITIALIZING = "Initializing"
+    PROVISIONING = "Provisioning"
+    SUCCEEDED = "Succeeded"
+    FAILED = "Failed"
+
+class ComponentTemplateType(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
 
     CUSTOM = "Custom"
+    AZURE_RESOURCE = "AzureResource"
+    ENVIRONMENT = "Environment"
     GIT_REPOSITORY = "GitRepository"
-
-class ComponentScope(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
-
-    SYSTEM = "System"
-    PROJECT = "Project"
-    ALL = "All"
 
 class ComponentType(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
 
     CUSTOM = "Custom"
-    GIT_REPOSITORY = "GitRepository"
-
-class ProjectLinkType(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
-
-    LINK = "Link"
-    README = "Readme"
-    SERVICE = "Service"
-    GIT_REPOSITORY = "GitRepository"
     AZURE_RESOURCE = "AzureResource"
+    ENVIRONMENT = "Environment"
+    GIT_REPOSITORY = "GitRepository"
+
+class Enum3(with_metaclass(_CaseInsensitiveEnumMeta, int, Enum)):
+
+    ZERO = 0
+    ONE = 1
+    TWO = 2
+
+class OrganizationResourceState(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
+
+    PENDING = "Pending"
+    INITIALIZING = "Initializing"
+    PROVISIONING = "Provisioning"
+    SUCCEEDED = "Succeeded"
+    FAILED = "Failed"
 
 class ProjectMembershipRole(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
 
     NONE = "None"
-    PROVIDER = "Provider"
     MEMBER = "Member"
+    ADMIN = "Admin"
     OWNER = "Owner"
 
-class ProviderCommandMode(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
+class ProjectResourceState(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
 
-    SIMPLE = "Simple"
-    EXTENDED = "Extended"
+    PENDING = "Pending"
+    INITIALIZING = "Initializing"
+    PROVISIONING = "Provisioning"
+    SUCCEEDED = "Succeeded"
+    FAILED = "Failed"
 
-class ProviderDataScope(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
+class RepositoryReferenceProvider(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
 
-    SYSTEM = "System"
-    PROJECT = "Project"
+    UNKNOWN = "Unknown"
+    GIT_HUB = "GitHub"
+    DEV_OPS = "DevOps"
 
-class ProviderDataType(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
+class RepositoryReferenceType(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
 
-    PROPERTY = "Property"
-    SERVICE = "Service"
-
-class ProviderType(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
-
-    STANDARD = "Standard"
-    SERVICE = "Service"
-    VIRTUAL = "Virtual"
+    UNKNOWN = "Unknown"
+    TAG = "Tag"
+    BRANCH = "Branch"
+    HASH = "Hash"
 
 class ResultErrorCode(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
 
@@ -98,9 +112,9 @@ class ResultErrorCode(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
 class UserRole(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
 
     NONE = "None"
-    PROVIDER = "Provider"
-    CREATOR = "Creator"
+    MEMBER = "Member"
     ADMIN = "Admin"
+    OWNER = "Owner"
 
 class UserType(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
 

@@ -47,6 +47,8 @@ export interface Component {
     type: ComponentType;
     // (undocumented)
     valueJson?: string | null;
+    // (undocumented)
+    vaultId?: string | null;
 }
 
 // @public (undocumented)
@@ -85,7 +87,7 @@ export interface ComponentListDataResult {
 }
 
 // @public
-export type ComponentResourceState = "Pending" | "Initializing" | "Provisioning" | "Succeeded" | "Failed" | string;
+export type ComponentResourceState = string;
 
 // @public (undocumented)
 export interface ComponentTask {
@@ -121,6 +123,8 @@ export interface ComponentTask {
     type?: Enum3;
     // (undocumented)
     typeName?: string | null;
+    // (undocumented)
+    vaultId?: string | null;
 }
 
 // @public (undocumented)
@@ -155,7 +159,7 @@ export interface ComponentTaskListDataResult {
 }
 
 // @public
-export type ComponentTaskResourceState = "Pending" | "Initializing" | "Provisioning" | "Succeeded" | "Failed" | string;
+export type ComponentTaskResourceState = string;
 
 // @public (undocumented)
 export interface ComponentTaskTemplate {
@@ -222,10 +226,10 @@ export interface ComponentTemplateListDataResult {
 }
 
 // @public
-export type ComponentTemplateType = "Custom" | "AzureResource" | "Environment" | "GitRepository" | string;
+export type ComponentTemplateType = string;
 
 // @public
-export type ComponentType = "Custom" | "AzureResource" | "Environment" | "GitRepository" | string;
+export type ComponentType = string;
 
 // @public (undocumented)
 export interface DeploymentScope {
@@ -281,7 +285,7 @@ export interface DeploymentScopeListDataResult {
 }
 
 // @public
-export type Enum3 = 0 | 1 | 2 | number;
+export type Enum3 = number;
 
 // @public (undocumented)
 export interface ErrorResult {
@@ -291,6 +295,174 @@ export interface ErrorResult {
     errors?: ResultError[] | null;
     // (undocumented)
     status?: string | null;
+}
+
+// @public
+export const enum KnownComponentResourceState {
+    // (undocumented)
+    Failed = "Failed",
+    // (undocumented)
+    Initializing = "Initializing",
+    // (undocumented)
+    Pending = "Pending",
+    // (undocumented)
+    Provisioning = "Provisioning",
+    // (undocumented)
+    Succeeded = "Succeeded"
+}
+
+// @public
+export const enum KnownComponentTaskResourceState {
+    // (undocumented)
+    Failed = "Failed",
+    // (undocumented)
+    Initializing = "Initializing",
+    // (undocumented)
+    Pending = "Pending",
+    // (undocumented)
+    Provisioning = "Provisioning",
+    // (undocumented)
+    Succeeded = "Succeeded"
+}
+
+// @public
+export const enum KnownComponentTemplateType {
+    // (undocumented)
+    AzureResource = "AzureResource",
+    // (undocumented)
+    Custom = "Custom",
+    // (undocumented)
+    Environment = "Environment",
+    // (undocumented)
+    GitRepository = "GitRepository"
+}
+
+// @public
+export const enum KnownComponentType {
+    // (undocumented)
+    AzureResource = "AzureResource",
+    // (undocumented)
+    Custom = "Custom",
+    // (undocumented)
+    Environment = "Environment",
+    // (undocumented)
+    GitRepository = "GitRepository"
+}
+
+// @public
+export const enum KnownEnum3 {
+    // (undocumented)
+    One = 1,
+    // (undocumented)
+    Two = 2,
+    // (undocumented)
+    Zero = 0
+}
+
+// @public
+export const enum KnownOrganizationResourceState {
+    // (undocumented)
+    Failed = "Failed",
+    // (undocumented)
+    Initializing = "Initializing",
+    // (undocumented)
+    Pending = "Pending",
+    // (undocumented)
+    Provisioning = "Provisioning",
+    // (undocumented)
+    Succeeded = "Succeeded"
+}
+
+// @public
+export const enum KnownProjectMembershipRole {
+    // (undocumented)
+    Admin = "Admin",
+    // (undocumented)
+    Member = "Member",
+    // (undocumented)
+    None = "None",
+    // (undocumented)
+    Owner = "Owner"
+}
+
+// @public
+export const enum KnownProjectResourceState {
+    // (undocumented)
+    Failed = "Failed",
+    // (undocumented)
+    Initializing = "Initializing",
+    // (undocumented)
+    Pending = "Pending",
+    // (undocumented)
+    Provisioning = "Provisioning",
+    // (undocumented)
+    Succeeded = "Succeeded"
+}
+
+// @public
+export const enum KnownRepositoryReferenceProvider {
+    // (undocumented)
+    DevOps = "DevOps",
+    // (undocumented)
+    GitHub = "GitHub",
+    // (undocumented)
+    Unknown = "Unknown"
+}
+
+// @public
+export const enum KnownRepositoryReferenceType {
+    // (undocumented)
+    Branch = "Branch",
+    // (undocumented)
+    Hash = "Hash",
+    // (undocumented)
+    Tag = "Tag",
+    // (undocumented)
+    Unknown = "Unknown"
+}
+
+// @public
+export const enum KnownResultErrorCode {
+    // (undocumented)
+    Conflict = "Conflict",
+    // (undocumented)
+    Failed = "Failed",
+    // (undocumented)
+    Forbidden = "Forbidden",
+    // (undocumented)
+    NotFound = "NotFound",
+    // (undocumented)
+    ServerError = "ServerError",
+    // (undocumented)
+    Unauthorized = "Unauthorized",
+    // (undocumented)
+    Unknown = "Unknown",
+    // (undocumented)
+    ValidationError = "ValidationError"
+}
+
+// @public
+export const enum KnownUserRole {
+    // (undocumented)
+    Admin = "Admin",
+    // (undocumented)
+    Member = "Member",
+    // (undocumented)
+    None = "None",
+    // (undocumented)
+    Owner = "Owner"
+}
+
+// @public
+export const enum KnownUserType {
+    // (undocumented)
+    Application = "Application",
+    // (undocumented)
+    Provider = "Provider",
+    // (undocumented)
+    System = "System",
+    // (undocumented)
+    User = "User"
 }
 
 // @public (undocumented)
@@ -350,7 +522,7 @@ export interface OrganizationListDataResult {
 }
 
 // @public
-export type OrganizationResourceState = "Pending" | "Initializing" | "Provisioning" | "Succeeded" | "Failed" | string;
+export type OrganizationResourceState = string;
 
 // @public (undocumented)
 export interface Project {
@@ -402,6 +574,61 @@ export interface ProjectDefinition {
 }
 
 // @public (undocumented)
+export interface ProjectIdentity {
+    // (undocumented)
+    clientId?: string;
+    // (undocumented)
+    clientSecret?: string | null;
+    // (undocumented)
+    deploymentScopeId: string;
+    // (undocumented)
+    displayName: string;
+    // (undocumented)
+    id: string;
+    // (undocumented)
+    objectId?: string;
+    // (undocumented)
+    organization: string;
+    // (undocumented)
+    projectId: string;
+    // (undocumented)
+    redirectUrls?: string[] | null;
+    // (undocumented)
+    tenantId?: string;
+}
+
+// @public (undocumented)
+export interface ProjectIdentityDataResult {
+    // (undocumented)
+    code?: number;
+    // (undocumented)
+    data?: ProjectIdentity;
+    // (undocumented)
+    location?: string | null;
+    // (undocumented)
+    status?: string | null;
+}
+
+// @public (undocumented)
+export interface ProjectIdentityDefinition {
+    // (undocumented)
+    deploymentScopeId: string;
+    // (undocumented)
+    displayName: string;
+}
+
+// @public (undocumented)
+export interface ProjectIdentityListDataResult {
+    // (undocumented)
+    code?: number;
+    readonly data?: ProjectIdentity[] | null;
+    // (undocumented)
+    location?: string | null;
+    // (undocumented)
+    status?: string | null;
+}
+
+// @public (undocumented)
 export interface ProjectListDataResult {
     // (undocumented)
     code?: number;
@@ -424,10 +651,10 @@ export interface ProjectMembership {
 }
 
 // @public
-export type ProjectMembershipRole = "None" | "Member" | "Admin" | "Owner" | string;
+export type ProjectMembershipRole = string;
 
 // @public
-export type ProjectResourceState = "Pending" | "Initializing" | "Provisioning" | "Succeeded" | "Failed" | string;
+export type ProjectResourceState = string;
 
 // @public (undocumented)
 export interface ProjectTemplate {
@@ -520,10 +747,10 @@ export interface RepositoryReference {
 }
 
 // @public
-export type RepositoryReferenceProvider = "Unknown" | "GitHub" | "DevOps" | string;
+export type RepositoryReferenceProvider = string;
 
 // @public
-export type RepositoryReferenceType = "Unknown" | "Tag" | "Branch" | "Hash" | string;
+export type RepositoryReferenceType = string;
 
 // @public (undocumented)
 export interface ResultError {
@@ -536,7 +763,7 @@ export interface ResultError {
 }
 
 // @public
-export type ResultErrorCode = "Unknown" | "Failed" | "Conflict" | "NotFound" | "ServerError" | "ValidationError" | "Unauthorized" | "Forbidden" | string;
+export type ResultErrorCode = string;
 
 // @public (undocumented)
 export interface StatusResult {
@@ -577,6 +804,7 @@ export class TeamCloud extends TeamCloudContext {
     createOrganization(options?: TeamCloudCreateOrganizationOptionalParams): Promise<TeamCloudCreateOrganizationResponse>;
     createOrganizationUser(organizationId: string, options?: TeamCloudCreateOrganizationUserOptionalParams): Promise<TeamCloudCreateOrganizationUserResponse>;
     createProject(organizationId: string, options?: TeamCloudCreateProjectOptionalParams): Promise<TeamCloudCreateProjectResponse>;
+    createProjectIdentity(organizationId: string, projectId: string, options?: TeamCloudCreateProjectIdentityOptionalParams): Promise<TeamCloudCreateProjectIdentityResponse>;
     createProjectTag(organizationId: string, projectId: string, options?: TeamCloudCreateProjectTagOptionalParams): Promise<TeamCloudCreateProjectTagResponse>;
     createProjectTemplate(organizationId: string, options?: TeamCloudCreateProjectTemplateOptionalParams): Promise<TeamCloudCreateProjectTemplateResponse>;
     createProjectUser(organizationId: string, projectId: string, options?: TeamCloudCreateProjectUserOptionalParams): Promise<TeamCloudCreateProjectUserResponse>;
@@ -585,6 +813,7 @@ export class TeamCloud extends TeamCloudContext {
     deleteOrganization(organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteOrganizationResponse>;
     deleteOrganizationUser(userId: string | null, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteOrganizationUserResponse>;
     deleteProject(projectId: string, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectResponse>;
+    deleteProjectIdentity(projectIdentityId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectIdentityResponse>;
     deleteProjectTag(tagKey: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectTagResponse>;
     deleteProjectTemplate(projectTemplateId: string | null, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectTemplateResponse>;
     deleteProjectUser(userId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectUserResponse>;
@@ -602,6 +831,8 @@ export class TeamCloud extends TeamCloudContext {
     getOrganizationUserMe(organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetOrganizationUserMeResponse>;
     getOrganizationUsers(organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetOrganizationUsersResponse>;
     getProject(projectId: string, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectResponse>;
+    getProjectIdentities(organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectIdentitiesResponse>;
+    getProjectIdentity(projectIdentityId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectIdentityResponse>;
     getProjects(organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectsResponse>;
     getProjectStatus(projectId: string, trackingId: string, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectStatusResponse>;
     getProjectTagByKey(tagKey: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectTagByKeyResponse>;
@@ -617,6 +848,7 @@ export class TeamCloud extends TeamCloudContext {
     updateDeploymentScope(id: string | null, organizationId: string, options?: TeamCloudUpdateDeploymentScopeOptionalParams): Promise<TeamCloudUpdateDeploymentScopeResponse>;
     updateOrganizationUser(userId: string | null, organizationId: string, options?: TeamCloudUpdateOrganizationUserOptionalParams): Promise<TeamCloudUpdateOrganizationUserResponse>;
     updateOrganizationUserMe(organizationId: string, options?: TeamCloudUpdateOrganizationUserMeOptionalParams): Promise<TeamCloudUpdateOrganizationUserMeResponse>;
+    updateProjectIdentity(projectIdentityId: string | null, organizationId: string, projectId: string, options?: TeamCloudUpdateProjectIdentityOptionalParams): Promise<TeamCloudUpdateProjectIdentityResponse>;
     updateProjectTag(organizationId: string, projectId: string, options?: TeamCloudUpdateProjectTagOptionalParams): Promise<TeamCloudUpdateProjectTagResponse>;
     updateProjectTemplate(projectTemplateId: string | null, organizationId: string, options?: TeamCloudUpdateProjectTemplateOptionalParams): Promise<TeamCloudUpdateProjectTemplateResponse>;
     updateProjectUser(userId: string | null, organizationId: string, projectId: string, options?: TeamCloudUpdateProjectUserOptionalParams): Promise<TeamCloudUpdateProjectUserResponse>;
@@ -697,6 +929,20 @@ export type TeamCloudCreateOrganizationUserResponse = UserDataResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
         parsedBody: UserDataResult;
+    };
+};
+
+// @public
+export interface TeamCloudCreateProjectIdentityOptionalParams extends coreHttp.OperationOptions {
+    // (undocumented)
+    body?: ProjectIdentityDefinition;
+}
+
+// @public
+export type TeamCloudCreateProjectIdentityResponse = ProjectIdentityDataResult & {
+    _response: coreHttp.HttpResponse & {
+        bodyAsText: string;
+        parsedBody: ProjectIdentityDataResult;
     };
 };
 
@@ -786,6 +1032,14 @@ export type TeamCloudDeleteOrganizationUserResponse = StatusResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
         parsedBody: StatusResult;
+    };
+};
+
+// @public
+export type TeamCloudDeleteProjectIdentityResponse = ProjectIdentityDataResult & {
+    _response: coreHttp.HttpResponse & {
+        bodyAsText: string;
+        parsedBody: ProjectIdentityDataResult;
     };
 };
 
@@ -928,6 +1182,22 @@ export type TeamCloudGetOrganizationUsersResponse = UserListDataResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
         parsedBody: UserListDataResult;
+    };
+};
+
+// @public
+export type TeamCloudGetProjectIdentitiesResponse = ProjectIdentityListDataResult & {
+    _response: coreHttp.HttpResponse & {
+        bodyAsText: string;
+        parsedBody: ProjectIdentityListDataResult;
+    };
+};
+
+// @public
+export type TeamCloudGetProjectIdentityResponse = ProjectIdentityDataResult & {
+    _response: coreHttp.HttpResponse & {
+        bodyAsText: string;
+        parsedBody: ProjectIdentityDataResult;
     };
 };
 
@@ -1083,6 +1353,20 @@ export type TeamCloudUpdateOrganizationUserResponse = StatusResult & {
 };
 
 // @public
+export interface TeamCloudUpdateProjectIdentityOptionalParams extends coreHttp.OperationOptions {
+    // (undocumented)
+    body?: ProjectIdentity;
+}
+
+// @public
+export type TeamCloudUpdateProjectIdentityResponse = StatusResult & {
+    _response: coreHttp.HttpResponse & {
+        bodyAsText: string;
+        parsedBody: StatusResult;
+    };
+};
+
+// @public
 export interface TeamCloudUpdateProjectTagOptionalParams extends coreHttp.OperationOptions {
     body?: {
         [propertyName: string]: string;
@@ -1191,10 +1475,10 @@ export interface UserListDataResult {
 }
 
 // @public
-export type UserRole = "None" | "Member" | "Admin" | "Owner" | string;
+export type UserRole = string;
 
 // @public
-export type UserType = "User" | "System" | "Provider" | "Application" | string;
+export type UserType = string;
 
 // @public (undocumented)
 export interface ValidationError {

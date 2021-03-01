@@ -12,268 +12,36 @@ from azure.core.exceptions import ClientAuthenticationError, HttpResponseError, 
 from azure.core.pipeline import PipelineResponse
 from azure.core.pipeline.transport import AsyncHttpResponse, HttpRequest
 
-from ... import models
+from ... import models as _models
 
 T = TypeVar('T')
 ClsType = Optional[Callable[[PipelineResponse[HttpRequest, AsyncHttpResponse], T, Dict[str, Any]], Any]]
 
 class TeamCloudClientOperationsMixin:
 
-    async def get_projects(
+    async def get_components(
         self,
-        **kwargs
-    ) -> Optional[Union["models.ProjectListDataResult", "models.ErrorResult"]]:
-        """Gets all Projects.
-
-        Gets all Projects.
-
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ProjectListDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ProjectListDataResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProjectListDataResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        accept = "application/json"
-
-        # Construct URL
-        url = self.get_projects.metadata['url']  # type: ignore
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        request = self._client.get(url, query_parameters, header_parameters)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [200, 400, 401, 403]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 200:
-            deserialized = self._deserialize('ProjectListDataResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    get_projects.metadata = {'url': '/api/projects'}  # type: ignore
-
-    async def create_project(
-        self,
-        body: Optional["models.ProjectDefinition"] = None,
-        **kwargs
-    ) -> Optional[Union["models.StatusResult", "models.ErrorResult"]]:
-        """Creates a new Project.
-
-        Creates a new Project.
-
-        :param body:
-        :type body: ~teamcloud.models.ProjectDefinition
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: StatusResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        content_type = kwargs.pop("content_type", "application/json")
-        accept = "application/json"
-
-        # Construct URL
-        url = self.create_project.metadata['url']  # type: ignore
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        body_content_kwargs = {}  # type: Dict[str, Any]
-        if body is not None:
-            body_content = self._serialize.body(body, 'ProjectDefinition')
-        else:
-            body_content = None
-        body_content_kwargs['content'] = body_content
-        request = self._client.post(url, query_parameters, header_parameters, **body_content_kwargs)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [202, 400, 401, 403, 409]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 202:
-            deserialized = self._deserialize('StatusResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 409:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    create_project.metadata = {'url': '/api/projects'}  # type: ignore
-
-    async def get_project_by_name_or_id(
-        self,
-        project_name_or_id: str,
-        **kwargs
-    ) -> Optional[Union["models.ProjectDataResult", "models.ErrorResult"]]:
-        """Gets a Project by Name or ID.
-
-        Gets a Project by Name or ID.
-
-        :param project_name_or_id:
-        :type project_name_or_id: str
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ProjectDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ProjectDataResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProjectDataResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        accept = "application/json"
-
-        # Construct URL
-        url = self.get_project_by_name_or_id.metadata['url']  # type: ignore
-        path_format_arguments = {
-            'projectNameOrId': self._serialize.url("project_name_or_id", project_name_or_id, 'str'),
-        }
-        url = self._client.format_url(url, **path_format_arguments)
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        request = self._client.get(url, query_parameters, header_parameters)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [200, 400, 401, 403, 404]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 200:
-            deserialized = self._deserialize('ProjectDataResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    get_project_by_name_or_id.metadata = {'url': '/api/projects/{projectNameOrId}'}  # type: ignore
-
-    async def delete_project(
-        self,
-        project_name_or_id: str,
-        **kwargs
-    ) -> Optional[Union["models.StatusResult", "models.ErrorResult"]]:
-        """Deletes a Project.
-
-        Deletes a Project.
-
-        :param project_name_or_id:
-        :type project_name_or_id: str
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: StatusResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        accept = "application/json"
-
-        # Construct URL
-        url = self.delete_project.metadata['url']  # type: ignore
-        path_format_arguments = {
-            'projectNameOrId': self._serialize.url("project_name_or_id", project_name_or_id, 'str'),
-        }
-        url = self._client.format_url(url, **path_format_arguments)
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        request = self._client.delete(url, query_parameters, header_parameters)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [202, 400, 401, 403, 404]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 202:
-            deserialized = self._deserialize('StatusResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    delete_project.metadata = {'url': '/api/projects/{projectNameOrId}'}  # type: ignore
-
-    async def get_project_components(
-        self,
+        organization_id: str,
         project_id: str,
+        deleted: Optional[bool] = False,
         **kwargs
-    ) -> Optional[Union["models.ComponentListDataResult", "models.ErrorResult"]]:
+    ) -> Optional[Union["_models.ComponentListDataResult", "_models.ErrorResult"]]:
         """Gets all Components for a Project.
 
         Gets all Components for a Project.
 
+        :param organization_id:
+        :type organization_id: str
         :param project_id:
         :type project_id: str
+        :param deleted:
+        :type deleted: bool
         :keyword callable cls: A custom type or function that will be passed the direct response
         :return: ComponentListDataResult or ErrorResult, or the result of cls(response)
         :rtype: ~teamcloud.models.ComponentListDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ComponentListDataResult", "models.ErrorResult"]]]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ComponentListDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
@@ -281,14 +49,17 @@ class TeamCloudClientOperationsMixin:
         accept = "application/json"
 
         # Construct URL
-        url = self.get_project_components.metadata['url']  # type: ignore
+        url = self.get_components.metadata['url']  # type: ignore
         path_format_arguments = {
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
             'projectId': self._serialize.url("project_id", project_id, 'str'),
         }
         url = self._client.format_url(url, **path_format_arguments)
 
         # Construct parameters
         query_parameters = {}  # type: Dict[str, Any]
+        if deleted is not None:
+            query_parameters['deleted'] = self._serialize.query("deleted", deleted, 'bool')
 
         # Construct headers
         header_parameters = {}  # type: Dict[str, Any]
@@ -316,28 +87,31 @@ class TeamCloudClientOperationsMixin:
             return cls(pipeline_response, deserialized, {})
 
         return deserialized
-    get_project_components.metadata = {'url': '/api/projects/{projectId}/components'}  # type: ignore
+    get_components.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/components'}  # type: ignore
 
-    async def create_project_component(
+    async def create_component(
         self,
+        organization_id: str,
         project_id: str,
-        body: Optional["models.ComponentRequest"] = None,
+        body: Optional["_models.ComponentDefinition"] = None,
         **kwargs
-    ) -> Optional[Union["models.ComponentDataResult", "models.StatusResult", "models.ErrorResult"]]:
+    ) -> Optional[Union["_models.ComponentDataResult", "_models.StatusResult", "_models.ErrorResult"]]:
         """Creates a new Project Component.
 
         Creates a new Project Component.
 
+        :param organization_id:
+        :type organization_id: str
         :param project_id:
         :type project_id: str
         :param body:
-        :type body: ~teamcloud.models.ComponentRequest
+        :type body: ~teamcloud.models.ComponentDefinition
         :keyword callable cls: A custom type or function that will be passed the direct response
         :return: ComponentDataResult or StatusResult or ErrorResult, or the result of cls(response)
         :rtype: ~teamcloud.models.ComponentDataResult or ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ComponentDataResult", "models.StatusResult", "models.ErrorResult"]]]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ComponentDataResult", "_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
@@ -346,8 +120,9 @@ class TeamCloudClientOperationsMixin:
         accept = "application/json"
 
         # Construct URL
-        url = self.create_project_component.metadata['url']  # type: ignore
+        url = self.create_component.metadata['url']  # type: ignore
         path_format_arguments = {
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
             'projectId': self._serialize.url("project_id", project_id, 'str'),
         }
         url = self._client.format_url(url, **path_format_arguments)
@@ -362,7 +137,7 @@ class TeamCloudClientOperationsMixin:
 
         body_content_kwargs = {}  # type: Dict[str, Any]
         if body is not None:
-            body_content = self._serialize.body(body, 'ComponentRequest')
+            body_content = self._serialize.body(body, 'ComponentDefinition')
         else:
             body_content = None
         body_content_kwargs['content'] = body_content
@@ -394,20 +169,23 @@ class TeamCloudClientOperationsMixin:
             return cls(pipeline_response, deserialized, {})
 
         return deserialized
-    create_project_component.metadata = {'url': '/api/projects/{projectId}/components'}  # type: ignore
+    create_component.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/components'}  # type: ignore
 
-    async def get_project_component_by_id(
+    async def get_component(
         self,
-        component_id: str,
+        id: str,
+        organization_id: str,
         project_id: str,
         **kwargs
-    ) -> Optional[Union["models.ComponentDataResult", "models.ErrorResult"]]:
-        """Gets a Project Component by id.
+    ) -> Optional[Union["_models.ComponentDataResult", "_models.ErrorResult"]]:
+        """Gets a Project Component.
 
-        Gets a Project Component by id.
+        Gets a Project Component.
 
-        :param component_id:
-        :type component_id: str
+        :param id:
+        :type id: str
+        :param organization_id:
+        :type organization_id: str
         :param project_id:
         :type project_id: str
         :keyword callable cls: A custom type or function that will be passed the direct response
@@ -415,7 +193,7 @@ class TeamCloudClientOperationsMixin:
         :rtype: ~teamcloud.models.ComponentDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ComponentDataResult", "models.ErrorResult"]]]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ComponentDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
@@ -423,9 +201,10 @@ class TeamCloudClientOperationsMixin:
         accept = "application/json"
 
         # Construct URL
-        url = self.get_project_component_by_id.metadata['url']  # type: ignore
+        url = self.get_component.metadata['url']  # type: ignore
         path_format_arguments = {
-            'componentId': self._serialize.url("component_id", component_id, 'str'),
+            'id': self._serialize.url("id", id, 'str'),
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
             'projectId': self._serialize.url("project_id", project_id, 'str'),
         }
         url = self._client.format_url(url, **path_format_arguments)
@@ -459,20 +238,23 @@ class TeamCloudClientOperationsMixin:
             return cls(pipeline_response, deserialized, {})
 
         return deserialized
-    get_project_component_by_id.metadata = {'url': '/api/projects/{projectId}/components/{componentId}'}  # type: ignore
+    get_component.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/components/{id}'}  # type: ignore
 
-    async def delete_project_component(
+    async def delete_component(
         self,
-        component_id: str,
+        id: str,
+        organization_id: str,
         project_id: str,
         **kwargs
-    ) -> Optional[Union["models.StatusResult", "models.ComponentDataResult", "models.ErrorResult"]]:
+    ) -> Optional[Union["_models.StatusResult", "_models.ComponentDataResult", "_models.ErrorResult"]]:
         """Deletes an existing Project Component.
 
         Deletes an existing Project Component.
 
-        :param component_id:
-        :type component_id: str
+        :param id:
+        :type id: str
+        :param organization_id:
+        :type organization_id: str
         :param project_id:
         :type project_id: str
         :keyword callable cls: A custom type or function that will be passed the direct response
@@ -480,7 +262,7 @@ class TeamCloudClientOperationsMixin:
         :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ComponentDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ComponentDataResult", "models.ErrorResult"]]]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StatusResult", "_models.ComponentDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
@@ -488,9 +270,10 @@ class TeamCloudClientOperationsMixin:
         accept = "application/json"
 
         # Construct URL
-        url = self.delete_project_component.metadata['url']  # type: ignore
+        url = self.delete_component.metadata['url']  # type: ignore
         path_format_arguments = {
-            'componentId': self._serialize.url("component_id", component_id, 'str'),
+            'id': self._serialize.url("id", id, 'str'),
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
             'projectId': self._serialize.url("project_id", project_id, 'str'),
         }
         url = self._client.format_url(url, **path_format_arguments)
@@ -527,17 +310,1839 @@ class TeamCloudClientOperationsMixin:
             return cls(pipeline_response, deserialized, {})
 
         return deserialized
-    delete_project_component.metadata = {'url': '/api/projects/{projectId}/components/{componentId}'}  # type: ignore
+    delete_component.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/components/{id}'}  # type: ignore
+
+    async def get_component_tasks(
+        self,
+        organization_id: str,
+        project_id: str,
+        component_id: str,
+        **kwargs
+    ) -> Optional[Union["_models.ComponentTaskListDataResult", "_models.ErrorResult"]]:
+        """Gets all Component Tasks.
+
+        Gets all Component Tasks.
+
+        :param organization_id:
+        :type organization_id: str
+        :param project_id:
+        :type project_id: str
+        :param component_id:
+        :type component_id: str
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: ComponentTaskListDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ComponentTaskListDataResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ComponentTaskListDataResult", "_models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
+
+        # Construct URL
+        url = self.get_component_tasks.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
+            'projectId': self._serialize.url("project_id", project_id, 'str'),
+            'componentId': self._serialize.url("component_id", component_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        request = self._client.get(url, query_parameters, header_parameters)
+        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [200, 400, 401, 403, 404]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 200:
+            deserialized = self._deserialize('ComponentTaskListDataResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    get_component_tasks.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/components/{componentId}/tasks'}  # type: ignore
+
+    async def create_component_task(
+        self,
+        organization_id: str,
+        project_id: str,
+        component_id: str,
+        body: Optional["_models.ComponentTaskDefinition"] = None,
+        **kwargs
+    ) -> Optional[Union["_models.ComponentTaskDataResult", "_models.StatusResult", "_models.ErrorResult"]]:
+        """Creates a new Project Component Task.
+
+        Creates a new Project Component Task.
+
+        :param organization_id:
+        :type organization_id: str
+        :param project_id:
+        :type project_id: str
+        :param component_id:
+        :type component_id: str
+        :param body:
+        :type body: ~teamcloud.models.ComponentTaskDefinition
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: ComponentTaskDataResult or StatusResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ComponentTaskDataResult or ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ComponentTaskDataResult", "_models.StatusResult", "_models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        content_type = kwargs.pop("content_type", "application/json")
+        accept = "application/json"
+
+        # Construct URL
+        url = self.create_component_task.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
+            'projectId': self._serialize.url("project_id", project_id, 'str'),
+            'componentId': self._serialize.url("component_id", component_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        body_content_kwargs = {}  # type: Dict[str, Any]
+        if body is not None:
+            body_content = self._serialize.body(body, 'ComponentTaskDefinition')
+        else:
+            body_content = None
+        body_content_kwargs['content'] = body_content
+        request = self._client.post(url, query_parameters, header_parameters, **body_content_kwargs)
+        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [201, 202, 400, 401, 403, 404, 409]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 201:
+            deserialized = self._deserialize('ComponentTaskDataResult', pipeline_response)
+
+        if response.status_code == 202:
+            deserialized = self._deserialize('StatusResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 409:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    create_component_task.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/components/{componentId}/tasks'}  # type: ignore
+
+    async def get_component_task(
+        self,
+        id: str,
+        organization_id: str,
+        project_id: str,
+        component_id: str,
+        **kwargs
+    ) -> Optional[Union["_models.ComponentTaskDataResult", "_models.ErrorResult"]]:
+        """Gets the Component Task.
+
+        Gets the Component Task.
+
+        :param id:
+        :type id: str
+        :param organization_id:
+        :type organization_id: str
+        :param project_id:
+        :type project_id: str
+        :param component_id:
+        :type component_id: str
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: ComponentTaskDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ComponentTaskDataResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ComponentTaskDataResult", "_models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
+
+        # Construct URL
+        url = self.get_component_task.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'id': self._serialize.url("id", id, 'str'),
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
+            'projectId': self._serialize.url("project_id", project_id, 'str'),
+            'componentId': self._serialize.url("component_id", component_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        request = self._client.get(url, query_parameters, header_parameters)
+        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [200, 400, 401, 403, 404]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 200:
+            deserialized = self._deserialize('ComponentTaskDataResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    get_component_task.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/components/{componentId}/tasks/{id}'}  # type: ignore
+
+    async def get_component_templates(
+        self,
+        organization_id: str,
+        project_id: str,
+        **kwargs
+    ) -> Optional[Union["_models.ComponentTemplateListDataResult", "_models.ErrorResult"]]:
+        """Gets all Component Templates for a Project.
+
+        Gets all Component Templates for a Project.
+
+        :param organization_id:
+        :type organization_id: str
+        :param project_id:
+        :type project_id: str
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: ComponentTemplateListDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ComponentTemplateListDataResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ComponentTemplateListDataResult", "_models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
+
+        # Construct URL
+        url = self.get_component_templates.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
+            'projectId': self._serialize.url("project_id", project_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        request = self._client.get(url, query_parameters, header_parameters)
+        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [200, 400, 401, 403, 404]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 200:
+            deserialized = self._deserialize('ComponentTemplateListDataResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    get_component_templates.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/templates'}  # type: ignore
+
+    async def get_component_template(
+        self,
+        id: str,
+        organization_id: str,
+        project_id: str,
+        **kwargs
+    ) -> Optional[Union["_models.ComponentTemplateDataResult", "_models.ErrorResult"]]:
+        """Gets the Component Template.
+
+        Gets the Component Template.
+
+        :param id:
+        :type id: str
+        :param organization_id:
+        :type organization_id: str
+        :param project_id:
+        :type project_id: str
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: ComponentTemplateDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ComponentTemplateDataResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ComponentTemplateDataResult", "_models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
+
+        # Construct URL
+        url = self.get_component_template.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'id': self._serialize.url("id", id, 'str'),
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
+            'projectId': self._serialize.url("project_id", project_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        request = self._client.get(url, query_parameters, header_parameters)
+        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [200, 400, 401, 403, 404]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 200:
+            deserialized = self._deserialize('ComponentTemplateDataResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    get_component_template.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/templates/{id}'}  # type: ignore
+
+    async def get_deployment_scopes(
+        self,
+        organization_id: str,
+        **kwargs
+    ) -> Optional[Union["_models.DeploymentScopeListDataResult", "_models.ErrorResult"]]:
+        """Gets all Deployment Scopes.
+
+        Gets all Deployment Scopes.
+
+        :param organization_id:
+        :type organization_id: str
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: DeploymentScopeListDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.DeploymentScopeListDataResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.DeploymentScopeListDataResult", "_models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
+
+        # Construct URL
+        url = self.get_deployment_scopes.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        request = self._client.get(url, query_parameters, header_parameters)
+        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [200, 400, 401, 403]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 200:
+            deserialized = self._deserialize('DeploymentScopeListDataResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    get_deployment_scopes.metadata = {'url': '/orgs/{organizationId}/scopes'}  # type: ignore
+
+    async def create_deployment_scope(
+        self,
+        organization_id: str,
+        body: Optional["_models.DeploymentScopeDefinition"] = None,
+        **kwargs
+    ) -> Optional[Union["_models.DeploymentScopeDataResult", "_models.ErrorResult"]]:
+        """Creates a new Deployment Scope.
+
+        Creates a new Deployment Scope.
+
+        :param organization_id:
+        :type organization_id: str
+        :param body:
+        :type body: ~teamcloud.models.DeploymentScopeDefinition
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: DeploymentScopeDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.DeploymentScopeDataResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.DeploymentScopeDataResult", "_models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        content_type = kwargs.pop("content_type", "application/json")
+        accept = "application/json"
+
+        # Construct URL
+        url = self.create_deployment_scope.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        body_content_kwargs = {}  # type: Dict[str, Any]
+        if body is not None:
+            body_content = self._serialize.body(body, 'DeploymentScopeDefinition')
+        else:
+            body_content = None
+        body_content_kwargs['content'] = body_content
+        request = self._client.post(url, query_parameters, header_parameters, **body_content_kwargs)
+        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [201, 400, 401, 403, 409]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 201:
+            deserialized = self._deserialize('DeploymentScopeDataResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 409:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    create_deployment_scope.metadata = {'url': '/orgs/{organizationId}/scopes'}  # type: ignore
+
+    async def get_deployment_scope(
+        self,
+        id: str,
+        organization_id: str,
+        **kwargs
+    ) -> Optional[Union["_models.DeploymentScopeDataResult", "_models.ErrorResult"]]:
+        """Gets a Deployment Scope.
+
+        Gets a Deployment Scope.
+
+        :param id:
+        :type id: str
+        :param organization_id:
+        :type organization_id: str
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: DeploymentScopeDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.DeploymentScopeDataResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.DeploymentScopeDataResult", "_models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
+
+        # Construct URL
+        url = self.get_deployment_scope.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'id': self._serialize.url("id", id, 'str'),
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        request = self._client.get(url, query_parameters, header_parameters)
+        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [200, 400, 401, 403, 404]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 200:
+            deserialized = self._deserialize('DeploymentScopeDataResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    get_deployment_scope.metadata = {'url': '/orgs/{organizationId}/scopes/{id}'}  # type: ignore
+
+    async def update_deployment_scope(
+        self,
+        id: str,
+        organization_id: str,
+        body: Optional["_models.DeploymentScope"] = None,
+        **kwargs
+    ) -> Optional[Union["_models.DeploymentScopeDataResult", "_models.ErrorResult"]]:
+        """Updates an existing Deployment Scope.
+
+        Updates an existing Deployment Scope.
+
+        :param id:
+        :type id: str
+        :param organization_id:
+        :type organization_id: str
+        :param body:
+        :type body: ~teamcloud.models.DeploymentScope
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: DeploymentScopeDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.DeploymentScopeDataResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.DeploymentScopeDataResult", "_models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        content_type = kwargs.pop("content_type", "application/json")
+        accept = "application/json"
+
+        # Construct URL
+        url = self.update_deployment_scope.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'id': self._serialize.url("id", id, 'str'),
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        body_content_kwargs = {}  # type: Dict[str, Any]
+        if body is not None:
+            body_content = self._serialize.body(body, 'DeploymentScope')
+        else:
+            body_content = None
+        body_content_kwargs['content'] = body_content
+        request = self._client.put(url, query_parameters, header_parameters, **body_content_kwargs)
+        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [200, 400, 401, 403, 404]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 200:
+            deserialized = self._deserialize('DeploymentScopeDataResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    update_deployment_scope.metadata = {'url': '/orgs/{organizationId}/scopes/{id}'}  # type: ignore
+
+    async def delete_deployment_scope(
+        self,
+        id: str,
+        organization_id: str,
+        **kwargs
+    ) -> Optional[Union["_models.DeploymentScopeDataResult", "_models.ErrorResult"]]:
+        """Deletes a Deployment Scope.
+
+        Deletes a Deployment Scope.
+
+        :param id:
+        :type id: str
+        :param organization_id:
+        :type organization_id: str
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: DeploymentScopeDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.DeploymentScopeDataResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.DeploymentScopeDataResult", "_models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
+
+        # Construct URL
+        url = self.delete_deployment_scope.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'id': self._serialize.url("id", id, 'str'),
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        request = self._client.delete(url, query_parameters, header_parameters)
+        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [204, 400, 401, 403, 404]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 204:
+            deserialized = self._deserialize('DeploymentScopeDataResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    delete_deployment_scope.metadata = {'url': '/orgs/{organizationId}/scopes/{id}'}  # type: ignore
+
+    async def get_organizations(
+        self,
+        **kwargs
+    ) -> Optional[Union["_models.OrganizationListDataResult", "_models.ErrorResult"]]:
+        """Gets all Organizations.
+
+        Gets all Organizations.
+
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: OrganizationListDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.OrganizationListDataResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.OrganizationListDataResult", "_models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
+
+        # Construct URL
+        url = self.get_organizations.metadata['url']  # type: ignore
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        request = self._client.get(url, query_parameters, header_parameters)
+        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [200, 400, 401, 403, 404]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 200:
+            deserialized = self._deserialize('OrganizationListDataResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    get_organizations.metadata = {'url': '/orgs'}  # type: ignore
+
+    async def create_organization(
+        self,
+        body: Optional["_models.OrganizationDefinition"] = None,
+        **kwargs
+    ) -> Optional[Union["_models.OrganizationDataResult", "_models.ErrorResult"]]:
+        """Creates a new Organization.
+
+        Creates a new Organization.
+
+        :param body:
+        :type body: ~teamcloud.models.OrganizationDefinition
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: OrganizationDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.OrganizationDataResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.OrganizationDataResult", "_models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        content_type = kwargs.pop("content_type", "application/json")
+        accept = "application/json"
+
+        # Construct URL
+        url = self.create_organization.metadata['url']  # type: ignore
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        body_content_kwargs = {}  # type: Dict[str, Any]
+        if body is not None:
+            body_content = self._serialize.body(body, 'OrganizationDefinition')
+        else:
+            body_content = None
+        body_content_kwargs['content'] = body_content
+        request = self._client.post(url, query_parameters, header_parameters, **body_content_kwargs)
+        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [201, 400, 401, 403, 404, 409]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 201:
+            deserialized = self._deserialize('OrganizationDataResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 409:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    create_organization.metadata = {'url': '/orgs'}  # type: ignore
+
+    async def get_organization(
+        self,
+        org: str,
+        organization_id: str,
+        **kwargs
+    ) -> Optional[Union["_models.OrganizationDataResult", "_models.ErrorResult"]]:
+        """Gets an Organization.
+
+        Gets an Organization.
+
+        :param org:
+        :type org: str
+        :param organization_id:
+        :type organization_id: str
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: OrganizationDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.OrganizationDataResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.OrganizationDataResult", "_models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
+
+        # Construct URL
+        url = self.get_organization.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'org': self._serialize.url("org", org, 'str'),
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        request = self._client.get(url, query_parameters, header_parameters)
+        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [200, 400, 401, 403, 404]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 200:
+            deserialized = self._deserialize('OrganizationDataResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    get_organization.metadata = {'url': '/orgs/{organizationId}'}  # type: ignore
+
+    async def delete_organization(
+        self,
+        organization_id: str,
+        **kwargs
+    ) -> Optional[Union["_models.StatusResult", "_models.ErrorResult"]]:
+        """Deletes an existing Organization.
+
+        Deletes an existing Organization.
+
+        :param organization_id:
+        :type organization_id: str
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: StatusResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StatusResult", "_models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
+
+        # Construct URL
+        url = self.delete_organization.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        request = self._client.delete(url, query_parameters, header_parameters)
+        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [202, 401, 403, 404]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 202:
+            deserialized = self._deserialize('StatusResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    delete_organization.metadata = {'url': '/orgs/{organizationId}'}  # type: ignore
+
+    async def get_organization_users(
+        self,
+        organization_id: str,
+        **kwargs
+    ) -> Optional[Union["_models.UserListDataResult", "_models.ErrorResult"]]:
+        """Gets all Users.
+
+        Gets all Users.
+
+        :param organization_id:
+        :type organization_id: str
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: UserListDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.UserListDataResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.UserListDataResult", "_models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
+
+        # Construct URL
+        url = self.get_organization_users.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        request = self._client.get(url, query_parameters, header_parameters)
+        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [200, 400, 401, 403, 404]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 200:
+            deserialized = self._deserialize('UserListDataResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    get_organization_users.metadata = {'url': '/orgs/{organizationId}/users'}  # type: ignore
+
+    async def create_organization_user(
+        self,
+        organization_id: str,
+        body: Optional["_models.UserDefinition"] = None,
+        **kwargs
+    ) -> Optional[Union["_models.UserDataResult", "_models.ErrorResult"]]:
+        """Creates a new User.
+
+        Creates a new User.
+
+        :param organization_id:
+        :type organization_id: str
+        :param body:
+        :type body: ~teamcloud.models.UserDefinition
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: UserDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.UserDataResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.UserDataResult", "_models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        content_type = kwargs.pop("content_type", "application/json")
+        accept = "application/json"
+
+        # Construct URL
+        url = self.create_organization_user.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        body_content_kwargs = {}  # type: Dict[str, Any]
+        if body is not None:
+            body_content = self._serialize.body(body, 'UserDefinition')
+        else:
+            body_content = None
+        body_content_kwargs['content'] = body_content
+        request = self._client.post(url, query_parameters, header_parameters, **body_content_kwargs)
+        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [201, 400, 401, 403, 404, 409]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 201:
+            deserialized = self._deserialize('UserDataResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 409:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    create_organization_user.metadata = {'url': '/orgs/{organizationId}/users'}  # type: ignore
+
+    async def get_organization_user(
+        self,
+        user_id: str,
+        organization_id: str,
+        **kwargs
+    ) -> Optional[Union["_models.UserDataResult", "_models.ErrorResult"]]:
+        """Gets a User.
+
+        Gets a User.
+
+        :param user_id:
+        :type user_id: str
+        :param organization_id:
+        :type organization_id: str
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: UserDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.UserDataResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.UserDataResult", "_models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
+
+        # Construct URL
+        url = self.get_organization_user.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'userId': self._serialize.url("user_id", user_id, 'str'),
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        request = self._client.get(url, query_parameters, header_parameters)
+        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [200, 400, 401, 403, 404]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 200:
+            deserialized = self._deserialize('UserDataResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    get_organization_user.metadata = {'url': '/orgs/{organizationId}/users/{userId}'}  # type: ignore
+
+    async def update_organization_user(
+        self,
+        user_id: str,
+        organization_id: str,
+        body: Optional["_models.User"] = None,
+        **kwargs
+    ) -> Optional[Union["_models.StatusResult", "_models.ErrorResult"]]:
+        """Updates an existing User.
+
+        Updates an existing User.
+
+        :param user_id:
+        :type user_id: str
+        :param organization_id:
+        :type organization_id: str
+        :param body:
+        :type body: ~teamcloud.models.User
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: StatusResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StatusResult", "_models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        content_type = kwargs.pop("content_type", "application/json")
+        accept = "application/json"
+
+        # Construct URL
+        url = self.update_organization_user.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'userId': self._serialize.url("user_id", user_id, 'str'),
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        body_content_kwargs = {}  # type: Dict[str, Any]
+        if body is not None:
+            body_content = self._serialize.body(body, 'User')
+        else:
+            body_content = None
+        body_content_kwargs['content'] = body_content
+        request = self._client.put(url, query_parameters, header_parameters, **body_content_kwargs)
+        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [202, 400, 401, 403, 404]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 202:
+            deserialized = self._deserialize('StatusResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    update_organization_user.metadata = {'url': '/orgs/{organizationId}/users/{userId}'}  # type: ignore
+
+    async def delete_organization_user(
+        self,
+        user_id: str,
+        organization_id: str,
+        **kwargs
+    ) -> Optional[Union["_models.StatusResult", "_models.ErrorResult"]]:
+        """Deletes an existing User.
+
+        Deletes an existing User.
+
+        :param user_id:
+        :type user_id: str
+        :param organization_id:
+        :type organization_id: str
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: StatusResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StatusResult", "_models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
+
+        # Construct URL
+        url = self.delete_organization_user.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'userId': self._serialize.url("user_id", user_id, 'str'),
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        request = self._client.delete(url, query_parameters, header_parameters)
+        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [202, 401, 403, 404]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 202:
+            deserialized = self._deserialize('StatusResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    delete_organization_user.metadata = {'url': '/orgs/{organizationId}/users/{userId}'}  # type: ignore
+
+    async def get_organization_user_me(
+        self,
+        organization_id: str,
+        **kwargs
+    ) -> Optional[Union["_models.UserDataResult", "_models.ErrorResult"]]:
+        """Gets a User A User matching the current authenticated user.
+
+        Gets a User A User matching the current authenticated user.
+
+        :param organization_id:
+        :type organization_id: str
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: UserDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.UserDataResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.UserDataResult", "_models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
+
+        # Construct URL
+        url = self.get_organization_user_me.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        request = self._client.get(url, query_parameters, header_parameters)
+        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [200, 400, 401, 403, 404]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 200:
+            deserialized = self._deserialize('UserDataResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    get_organization_user_me.metadata = {'url': '/orgs/{organizationId}/me'}  # type: ignore
+
+    async def update_organization_user_me(
+        self,
+        organization_id: str,
+        body: Optional["_models.User"] = None,
+        **kwargs
+    ) -> Optional[Union["_models.StatusResult", "_models.ErrorResult"]]:
+        """Updates an existing User.
+
+        Updates an existing User.
+
+        :param organization_id:
+        :type organization_id: str
+        :param body:
+        :type body: ~teamcloud.models.User
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: StatusResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StatusResult", "_models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        content_type = kwargs.pop("content_type", "application/json")
+        accept = "application/json"
+
+        # Construct URL
+        url = self.update_organization_user_me.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        body_content_kwargs = {}  # type: Dict[str, Any]
+        if body is not None:
+            body_content = self._serialize.body(body, 'User')
+        else:
+            body_content = None
+        body_content_kwargs['content'] = body_content
+        request = self._client.put(url, query_parameters, header_parameters, **body_content_kwargs)
+        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [202, 400, 401, 403, 404]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 202:
+            deserialized = self._deserialize('StatusResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    update_organization_user_me.metadata = {'url': '/orgs/{organizationId}/me'}  # type: ignore
+
+    async def get_projects(
+        self,
+        organization_id: str,
+        **kwargs
+    ) -> Optional[Union["_models.ProjectListDataResult", "_models.ErrorResult"]]:
+        """Gets all Projects.
+
+        Gets all Projects.
+
+        :param organization_id:
+        :type organization_id: str
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: ProjectListDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ProjectListDataResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ProjectListDataResult", "_models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
+
+        # Construct URL
+        url = self.get_projects.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        request = self._client.get(url, query_parameters, header_parameters)
+        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [200, 400, 401, 403]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 200:
+            deserialized = self._deserialize('ProjectListDataResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    get_projects.metadata = {'url': '/orgs/{organizationId}/projects'}  # type: ignore
+
+    async def create_project(
+        self,
+        organization_id: str,
+        body: Optional["_models.ProjectDefinition"] = None,
+        **kwargs
+    ) -> Optional[Union["_models.ProjectDataResult", "_models.StatusResult", "_models.ErrorResult"]]:
+        """Creates a new Project.
+
+        Creates a new Project.
+
+        :param organization_id:
+        :type organization_id: str
+        :param body:
+        :type body: ~teamcloud.models.ProjectDefinition
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: ProjectDataResult or StatusResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ProjectDataResult or ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ProjectDataResult", "_models.StatusResult", "_models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        content_type = kwargs.pop("content_type", "application/json")
+        accept = "application/json"
+
+        # Construct URL
+        url = self.create_project.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        body_content_kwargs = {}  # type: Dict[str, Any]
+        if body is not None:
+            body_content = self._serialize.body(body, 'ProjectDefinition')
+        else:
+            body_content = None
+        body_content_kwargs['content'] = body_content
+        request = self._client.post(url, query_parameters, header_parameters, **body_content_kwargs)
+        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [201, 202, 400, 401, 403, 409]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 201:
+            deserialized = self._deserialize('ProjectDataResult', pipeline_response)
+
+        if response.status_code == 202:
+            deserialized = self._deserialize('StatusResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 409:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    create_project.metadata = {'url': '/orgs/{organizationId}/projects'}  # type: ignore
+
+    async def get_project(
+        self,
+        project_id: str,
+        organization_id: str,
+        **kwargs
+    ) -> Optional[Union["_models.ProjectDataResult", "_models.ErrorResult"]]:
+        """Gets a Project.
+
+        Gets a Project.
+
+        :param project_id:
+        :type project_id: str
+        :param organization_id:
+        :type organization_id: str
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: ProjectDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ProjectDataResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ProjectDataResult", "_models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
+
+        # Construct URL
+        url = self.get_project.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'projectId': self._serialize.url("project_id", project_id, 'str'),
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        request = self._client.get(url, query_parameters, header_parameters)
+        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [200, 400, 401, 403, 404]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 200:
+            deserialized = self._deserialize('ProjectDataResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    get_project.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}'}  # type: ignore
+
+    async def delete_project(
+        self,
+        project_id: str,
+        organization_id: str,
+        **kwargs
+    ) -> Optional[Union["_models.StatusResult", "_models.ErrorResult"]]:
+        """Deletes a Project.
+
+        Deletes a Project.
+
+        :param project_id:
+        :type project_id: str
+        :param organization_id:
+        :type organization_id: str
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: StatusResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StatusResult", "_models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
+
+        # Construct URL
+        url = self.delete_project.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'projectId': self._serialize.url("project_id", project_id, 'str'),
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        request = self._client.delete(url, query_parameters, header_parameters)
+        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [202, 400, 401, 403, 404]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 202:
+            deserialized = self._deserialize('StatusResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    delete_project.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}'}  # type: ignore
+
+    async def get_project_identities(
+        self,
+        organization_id: str,
+        project_id: str,
+        **kwargs
+    ) -> Optional[Union["_models.ProjectIdentityListDataResult", "_models.ErrorResult"]]:
+        """Gets all Project Identities.
+
+        Gets all Project Identities.
+
+        :param organization_id:
+        :type organization_id: str
+        :param project_id:
+        :type project_id: str
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: ProjectIdentityListDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ProjectIdentityListDataResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ProjectIdentityListDataResult", "_models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
+
+        # Construct URL
+        url = self.get_project_identities.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
+            'projectId': self._serialize.url("project_id", project_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        request = self._client.get(url, query_parameters, header_parameters)
+        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [200, 400, 401, 403]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 200:
+            deserialized = self._deserialize('ProjectIdentityListDataResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    get_project_identities.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/identities'}  # type: ignore
+
+    async def create_project_identity(
+        self,
+        organization_id: str,
+        project_id: str,
+        body: Optional["_models.ProjectIdentityDefinition"] = None,
+        **kwargs
+    ) -> Optional[Union["_models.ProjectIdentityDataResult", "_models.ErrorResult"]]:
+        """Creates a new Project Identity.
+
+        Creates a new Project Identity.
+
+        :param organization_id:
+        :type organization_id: str
+        :param project_id:
+        :type project_id: str
+        :param body:
+        :type body: ~teamcloud.models.ProjectIdentityDefinition
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: ProjectIdentityDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ProjectIdentityDataResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ProjectIdentityDataResult", "_models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        content_type = kwargs.pop("content_type", "application/json")
+        accept = "application/json"
+
+        # Construct URL
+        url = self.create_project_identity.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
+            'projectId': self._serialize.url("project_id", project_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        body_content_kwargs = {}  # type: Dict[str, Any]
+        if body is not None:
+            body_content = self._serialize.body(body, 'ProjectIdentityDefinition')
+        else:
+            body_content = None
+        body_content_kwargs['content'] = body_content
+        request = self._client.post(url, query_parameters, header_parameters, **body_content_kwargs)
+        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [201, 400, 401, 403, 409]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 201:
+            deserialized = self._deserialize('ProjectIdentityDataResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 409:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    create_project_identity.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/identities'}  # type: ignore
 
     async def get_project_identity(
         self,
+        project_identity_id: str,
+        organization_id: str,
         project_id: str,
         **kwargs
-    ) -> Optional[Union["models.ProjectIdentityDataResult", "models.ErrorResult"]]:
-        """Gets the ProjectIdentity for a Project.
+    ) -> Optional[Union["_models.ProjectIdentityDataResult", "_models.ErrorResult"]]:
+        """Gets a Project Identity.
 
-        Gets the ProjectIdentity for a Project.
+        Gets a Project Identity.
 
+        :param project_identity_id:
+        :type project_identity_id: str
+        :param organization_id:
+        :type organization_id: str
         :param project_id:
         :type project_id: str
         :keyword callable cls: A custom type or function that will be passed the direct response
@@ -545,7 +2150,7 @@ class TeamCloudClientOperationsMixin:
         :rtype: ~teamcloud.models.ProjectIdentityDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProjectIdentityDataResult", "models.ErrorResult"]]]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ProjectIdentityDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
@@ -555,6 +2160,8 @@ class TeamCloudClientOperationsMixin:
         # Construct URL
         url = self.get_project_identity.metadata['url']  # type: ignore
         path_format_arguments = {
+            'projectIdentityId': self._serialize.url("project_identity_id", project_identity_id, 'str'),
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
             'projectId': self._serialize.url("project_id", project_id, 'str'),
         }
         url = self._client.format_url(url, **path_format_arguments)
@@ -588,89 +2195,34 @@ class TeamCloudClientOperationsMixin:
             return cls(pipeline_response, deserialized, {})
 
         return deserialized
-    get_project_identity.metadata = {'url': '/api/projects/{projectId}/identity'}  # type: ignore
+    get_project_identity.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/identities/{projectIdentityId}'}  # type: ignore
 
-    async def get_project_links(
+    async def update_project_identity(
         self,
+        project_identity_id: str,
+        organization_id: str,
         project_id: str,
+        body: Optional["_models.ProjectIdentity"] = None,
         **kwargs
-    ) -> Optional[Union["models.ProjectLinkListDataResult", "models.ErrorResult"]]:
-        """Gets all Links for a Project.
+    ) -> Optional[Union["_models.StatusResult", "_models.ErrorResult"]]:
+        """Updates an existing Project Identity.
 
-        Gets all Links for a Project.
+        Updates an existing Project Identity.
 
-        :param project_id:
-        :type project_id: str
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ProjectLinkListDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ProjectLinkListDataResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProjectLinkListDataResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        accept = "application/json"
-
-        # Construct URL
-        url = self.get_project_links.metadata['url']  # type: ignore
-        path_format_arguments = {
-            'projectId': self._serialize.url("project_id", project_id, 'str'),
-        }
-        url = self._client.format_url(url, **path_format_arguments)
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        request = self._client.get(url, query_parameters, header_parameters)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [200, 400, 401, 403, 404]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 200:
-            deserialized = self._deserialize('ProjectLinkListDataResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    get_project_links.metadata = {'url': '/api/projects/{projectId}/links'}  # type: ignore
-
-    async def create_project_link(
-        self,
-        project_id: str,
-        body: Optional["models.ProjectLink"] = None,
-        **kwargs
-    ) -> Optional[Union["models.ProjectLinkDataResult", "models.StatusResult", "models.ErrorResult"]]:
-        """Creates a new Project Link.
-
-        Creates a new Project Link.
-
+        :param project_identity_id:
+        :type project_identity_id: str
+        :param organization_id:
+        :type organization_id: str
         :param project_id:
         :type project_id: str
         :param body:
-        :type body: ~teamcloud.models.ProjectLink
+        :type body: ~teamcloud.models.ProjectIdentity
         :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ProjectLinkDataResult or StatusResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ProjectLinkDataResult or ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
+        :return: StatusResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProjectLinkDataResult", "models.StatusResult", "models.ErrorResult"]]]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
@@ -679,8 +2231,10 @@ class TeamCloudClientOperationsMixin:
         accept = "application/json"
 
         # Construct URL
-        url = self.create_project_link.metadata['url']  # type: ignore
+        url = self.update_project_identity.metadata['url']  # type: ignore
         path_format_arguments = {
+            'projectIdentityId': self._serialize.url("project_identity_id", project_identity_id, 'str'),
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
             'projectId': self._serialize.url("project_id", project_id, 'str'),
         }
         url = self._client.format_url(url, **path_format_arguments)
@@ -695,154 +2249,7 @@ class TeamCloudClientOperationsMixin:
 
         body_content_kwargs = {}  # type: Dict[str, Any]
         if body is not None:
-            body_content = self._serialize.body(body, 'ProjectLink')
-        else:
-            body_content = None
-        body_content_kwargs['content'] = body_content
-        request = self._client.post(url, query_parameters, header_parameters, **body_content_kwargs)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [201, 202, 400, 401, 403, 404, 409]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 201:
-            deserialized = self._deserialize('ProjectLinkDataResult', pipeline_response)
-
-        if response.status_code == 202:
-            deserialized = self._deserialize('StatusResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 409:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    create_project_link.metadata = {'url': '/api/projects/{projectId}/links'}  # type: ignore
-
-    async def get_project_link_by_key(
-        self,
-        link_id: str,
-        project_id: str,
-        **kwargs
-    ) -> Optional[Union["models.ProjectLinkDataResult", "models.ErrorResult"]]:
-        """Gets a Project Link by Key.
-
-        Gets a Project Link by Key.
-
-        :param link_id:
-        :type link_id: str
-        :param project_id:
-        :type project_id: str
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ProjectLinkDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ProjectLinkDataResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProjectLinkDataResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        accept = "application/json"
-
-        # Construct URL
-        url = self.get_project_link_by_key.metadata['url']  # type: ignore
-        path_format_arguments = {
-            'linkId': self._serialize.url("link_id", link_id, 'str'),
-            'projectId': self._serialize.url("project_id", project_id, 'str'),
-        }
-        url = self._client.format_url(url, **path_format_arguments)
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        request = self._client.get(url, query_parameters, header_parameters)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [200, 400, 401, 403, 404]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 200:
-            deserialized = self._deserialize('ProjectLinkDataResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    get_project_link_by_key.metadata = {'url': '/api/projects/{projectId}/links/{linkId}'}  # type: ignore
-
-    async def update_project_link(
-        self,
-        link_id: str,
-        project_id: str,
-        body: Optional["models.ProjectLink"] = None,
-        **kwargs
-    ) -> Optional[Union["models.ProjectLinkDataResult", "models.StatusResult", "models.ErrorResult"]]:
-        """Updates an existing Project Link.
-
-        Updates an existing Project Link.
-
-        :param link_id:
-        :type link_id: str
-        :param project_id:
-        :type project_id: str
-        :param body:
-        :type body: ~teamcloud.models.ProjectLink
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ProjectLinkDataResult or StatusResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ProjectLinkDataResult or ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProjectLinkDataResult", "models.StatusResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        content_type = kwargs.pop("content_type", "application/json")
-        accept = "application/json"
-
-        # Construct URL
-        url = self.update_project_link.metadata['url']  # type: ignore
-        path_format_arguments = {
-            'linkId': self._serialize.url("link_id", link_id, 'str'),
-            'projectId': self._serialize.url("project_id", project_id, 'str'),
-        }
-        url = self._client.format_url(url, **path_format_arguments)
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        body_content_kwargs = {}  # type: Dict[str, Any]
-        if body is not None:
-            body_content = self._serialize.body(body, 'ProjectLink')
+            body_content = self._serialize.body(body, 'ProjectIdentity')
         else:
             body_content = None
         body_content_kwargs['content'] = body_content
@@ -850,75 +2257,7 @@ class TeamCloudClientOperationsMixin:
         pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
         response = pipeline_response.http_response
 
-        if response.status_code not in [200, 202, 400, 401, 403, 404]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 200:
-            deserialized = self._deserialize('ProjectLinkDataResult', pipeline_response)
-
-        if response.status_code == 202:
-            deserialized = self._deserialize('StatusResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    update_project_link.metadata = {'url': '/api/projects/{projectId}/links/{linkId}'}  # type: ignore
-
-    async def delete_project_link(
-        self,
-        link_id: str,
-        project_id: str,
-        **kwargs
-    ) -> Optional[Union["models.StatusResult", "models.ProjectLinkDataResult", "models.ErrorResult"]]:
-        """Deletes an existing Project Link.
-
-        Deletes an existing Project Link.
-
-        :param link_id:
-        :type link_id: str
-        :param project_id:
-        :type project_id: str
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: StatusResult or ProjectLinkDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ProjectLinkDataResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ProjectLinkDataResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        accept = "application/json"
-
-        # Construct URL
-        url = self.delete_project_link.metadata['url']  # type: ignore
-        path_format_arguments = {
-            'linkId': self._serialize.url("link_id", link_id, 'str'),
-            'projectId': self._serialize.url("project_id", project_id, 'str'),
-        }
-        url = self._client.format_url(url, **path_format_arguments)
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        request = self._client.delete(url, query_parameters, header_parameters)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [202, 204, 400, 401, 403, 404]:
+        if response.status_code not in [202, 400, 401, 403, 404]:
             map_error(status_code=response.status_code, response=response, error_map=error_map)
             raise HttpResponseError(response=response)
 
@@ -926,9 +2265,6 @@ class TeamCloudClientOperationsMixin:
         if response.status_code == 202:
             deserialized = self._deserialize('StatusResult', pipeline_response)
 
-        if response.status_code == 204:
-            deserialized = self._deserialize('ProjectLinkDataResult', pipeline_response)
-
         if response.status_code == 400:
             deserialized = self._deserialize('ErrorResult', pipeline_response)
 
@@ -939,25 +2275,31 @@ class TeamCloudClientOperationsMixin:
             return cls(pipeline_response, deserialized, {})
 
         return deserialized
-    delete_project_link.metadata = {'url': '/api/projects/{projectId}/links/{linkId}'}  # type: ignore
+    update_project_identity.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/identities/{projectIdentityId}'}  # type: ignore
 
-    async def get_project_offers(
+    async def delete_project_identity(
         self,
+        project_identity_id: str,
+        organization_id: str,
         project_id: str,
         **kwargs
-    ) -> Optional[Union["models.ComponentOfferListDataResult", "models.ErrorResult"]]:
-        """Gets all Project Offers.
+    ) -> Optional[Union["_models.ProjectIdentityDataResult", "_models.ErrorResult"]]:
+        """Deletes a Project Identity.
 
-        Gets all Project Offers.
+        Deletes a Project Identity.
 
+        :param project_identity_id:
+        :type project_identity_id: str
+        :param organization_id:
+        :type organization_id: str
         :param project_id:
         :type project_id: str
         :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ComponentOfferListDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ComponentOfferListDataResult or ~teamcloud.models.ErrorResult or None
+        :return: ProjectIdentityDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ProjectIdentityDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ComponentOfferListDataResult", "models.ErrorResult"]]]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ProjectIdentityDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
@@ -965,441 +2307,11 @@ class TeamCloudClientOperationsMixin:
         accept = "application/json"
 
         # Construct URL
-        url = self.get_project_offers.metadata['url']  # type: ignore
+        url = self.delete_project_identity.metadata['url']  # type: ignore
         path_format_arguments = {
+            'projectIdentityId': self._serialize.url("project_identity_id", project_identity_id, 'str'),
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
             'projectId': self._serialize.url("project_id", project_id, 'str'),
-        }
-        url = self._client.format_url(url, **path_format_arguments)
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        request = self._client.get(url, query_parameters, header_parameters)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [200, 400, 401, 403, 404]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 200:
-            deserialized = self._deserialize('ComponentOfferListDataResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    get_project_offers.metadata = {'url': '/api/projects/{projectId}/offers'}  # type: ignore
-
-    async def get_project_offer_by_id(
-        self,
-        offer_id: str,
-        project_id: str,
-        **kwargs
-    ) -> Optional[Union["models.ComponentOfferDataResult", "models.ErrorResult"]]:
-        """Gets the Offer by id.
-
-        Gets the Offer by id.
-
-        :param offer_id:
-        :type offer_id: str
-        :param project_id:
-        :type project_id: str
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ComponentOfferDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ComponentOfferDataResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ComponentOfferDataResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        accept = "application/json"
-
-        # Construct URL
-        url = self.get_project_offer_by_id.metadata['url']  # type: ignore
-        path_format_arguments = {
-            'offerId': self._serialize.url("offer_id", offer_id, 'str'),
-            'projectId': self._serialize.url("project_id", project_id, 'str'),
-        }
-        url = self._client.format_url(url, **path_format_arguments)
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        request = self._client.get(url, query_parameters, header_parameters)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [200, 400, 401, 403, 404]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 200:
-            deserialized = self._deserialize('ComponentOfferDataResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    get_project_offer_by_id.metadata = {'url': '/api/projects/{projectId}/offers/{offerId}'}  # type: ignore
-
-    async def get_project_provider_data(
-        self,
-        project_id: str,
-        provider_id: str,
-        include_shared: Optional[bool] = None,
-        **kwargs
-    ) -> Optional[Union["models.ProviderDataReturnResult", "models.ErrorResult"]]:
-        """Gets the ProviderData items for a Project.
-
-        Gets the ProviderData items for a Project.
-
-        :param project_id:
-        :type project_id: str
-        :param provider_id:
-        :type provider_id: str
-        :param include_shared:
-        :type include_shared: bool
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ProviderDataReturnResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ProviderDataReturnResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProviderDataReturnResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        accept = "application/json"
-
-        # Construct URL
-        url = self.get_project_provider_data.metadata['url']  # type: ignore
-        path_format_arguments = {
-            'projectId': self._serialize.url("project_id", project_id, 'str'),
-            'providerId': self._serialize.url("provider_id", provider_id, 'str'),
-        }
-        url = self._client.format_url(url, **path_format_arguments)
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-        if include_shared is not None:
-            query_parameters['includeShared'] = self._serialize.query("include_shared", include_shared, 'bool')
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        request = self._client.get(url, query_parameters, header_parameters)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [200, 400, 401, 403, 404]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 200:
-            deserialized = self._deserialize('ProviderDataReturnResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    get_project_provider_data.metadata = {'url': '/api/projects/{projectId}/providers/{providerId}/data'}  # type: ignore
-
-    async def create_project_provider_data(
-        self,
-        project_id: str,
-        provider_id: str,
-        body: Optional["models.ProviderData"] = None,
-        **kwargs
-    ) -> Optional[Union["models.ProviderDataReturnResult", "models.ErrorResult"]]:
-        """Creates a new ProviderData.
-
-        Creates a new ProviderData.
-
-        :param project_id:
-        :type project_id: str
-        :param provider_id:
-        :type provider_id: str
-        :param body:
-        :type body: ~teamcloud.models.ProviderData
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ProviderDataReturnResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ProviderDataReturnResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProviderDataReturnResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        content_type = kwargs.pop("content_type", "application/json")
-        accept = "application/json"
-
-        # Construct URL
-        url = self.create_project_provider_data.metadata['url']  # type: ignore
-        path_format_arguments = {
-            'projectId': self._serialize.url("project_id", project_id, 'str'),
-            'providerId': self._serialize.url("provider_id", provider_id, 'str'),
-        }
-        url = self._client.format_url(url, **path_format_arguments)
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        body_content_kwargs = {}  # type: Dict[str, Any]
-        if body is not None:
-            body_content = self._serialize.body(body, 'ProviderData')
-        else:
-            body_content = None
-        body_content_kwargs['content'] = body_content
-        request = self._client.post(url, query_parameters, header_parameters, **body_content_kwargs)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [201, 400, 401, 403, 404, 409]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 201:
-            deserialized = self._deserialize('ProviderDataReturnResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 409:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    create_project_provider_data.metadata = {'url': '/api/projects/{projectId}/providers/{providerId}/data'}  # type: ignore
-
-    async def get_project_provider_data_by_id(
-        self,
-        provider_data_id: str,
-        project_id: str,
-        provider_id: str,
-        **kwargs
-    ) -> Optional[Union["models.ProviderDataReturnResult", "models.ErrorResult"]]:
-        """Gets a ProviderData for a Project by ID.
-
-        Gets a ProviderData for a Project by ID.
-
-        :param provider_data_id:
-        :type provider_data_id: str
-        :param project_id:
-        :type project_id: str
-        :param provider_id:
-        :type provider_id: str
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ProviderDataReturnResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ProviderDataReturnResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProviderDataReturnResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        accept = "application/json"
-
-        # Construct URL
-        url = self.get_project_provider_data_by_id.metadata['url']  # type: ignore
-        path_format_arguments = {
-            'providerDataId': self._serialize.url("provider_data_id", provider_data_id, 'str'),
-            'projectId': self._serialize.url("project_id", project_id, 'str'),
-            'providerId': self._serialize.url("provider_id", provider_id, 'str'),
-        }
-        url = self._client.format_url(url, **path_format_arguments)
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        request = self._client.get(url, query_parameters, header_parameters)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [200, 400, 401, 403, 404]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 200:
-            deserialized = self._deserialize('ProviderDataReturnResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    get_project_provider_data_by_id.metadata = {'url': '/api/projects/{projectId}/providers/{providerId}/data/{providerDataId}'}  # type: ignore
-
-    async def update_project_provider_data(
-        self,
-        provider_data_id: str,
-        project_id: str,
-        provider_id: str,
-        body: Optional["models.ProviderData"] = None,
-        **kwargs
-    ) -> Optional[Union["models.ProviderDataReturnResult", "models.ErrorResult"]]:
-        """Updates an existing ProviderData.
-
-        Updates an existing ProviderData.
-
-        :param provider_data_id:
-        :type provider_data_id: str
-        :param project_id:
-        :type project_id: str
-        :param provider_id:
-        :type provider_id: str
-        :param body:
-        :type body: ~teamcloud.models.ProviderData
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ProviderDataReturnResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ProviderDataReturnResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProviderDataReturnResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        content_type = kwargs.pop("content_type", "application/json")
-        accept = "application/json"
-
-        # Construct URL
-        url = self.update_project_provider_data.metadata['url']  # type: ignore
-        path_format_arguments = {
-            'providerDataId': self._serialize.url("provider_data_id", provider_data_id, 'str'),
-            'projectId': self._serialize.url("project_id", project_id, 'str'),
-            'providerId': self._serialize.url("provider_id", provider_id, 'str'),
-        }
-        url = self._client.format_url(url, **path_format_arguments)
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        body_content_kwargs = {}  # type: Dict[str, Any]
-        if body is not None:
-            body_content = self._serialize.body(body, 'ProviderData')
-        else:
-            body_content = None
-        body_content_kwargs['content'] = body_content
-        request = self._client.put(url, query_parameters, header_parameters, **body_content_kwargs)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [200, 400, 401, 403, 404]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 200:
-            deserialized = self._deserialize('ProviderDataReturnResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    update_project_provider_data.metadata = {'url': '/api/projects/{projectId}/providers/{providerId}/data/{providerDataId}'}  # type: ignore
-
-    async def delete_project_provider_data(
-        self,
-        provider_data_id: str,
-        project_id: str,
-        provider_id: str,
-        **kwargs
-    ) -> Optional[Union["models.ProviderDataReturnResult", "models.ErrorResult"]]:
-        """Deletes a ProviderData.
-
-        Deletes a ProviderData.
-
-        :param provider_data_id:
-        :type provider_data_id: str
-        :param project_id:
-        :type project_id: str
-        :param provider_id:
-        :type provider_id: str
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ProviderDataReturnResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ProviderDataReturnResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProviderDataReturnResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        accept = "application/json"
-
-        # Construct URL
-        url = self.delete_project_provider_data.metadata['url']  # type: ignore
-        path_format_arguments = {
-            'providerDataId': self._serialize.url("provider_data_id", provider_data_id, 'str'),
-            'projectId': self._serialize.url("project_id", project_id, 'str'),
-            'providerId': self._serialize.url("provider_id", provider_id, 'str'),
         }
         url = self._client.format_url(url, **path_format_arguments)
 
@@ -1420,7 +2332,7 @@ class TeamCloudClientOperationsMixin:
 
         deserialized = None
         if response.status_code == 204:
-            deserialized = self._deserialize('ProviderDataReturnResult', pipeline_response)
+            deserialized = self._deserialize('ProjectIdentityDataResult', pipeline_response)
 
         if response.status_code == 400:
             deserialized = self._deserialize('ErrorResult', pipeline_response)
@@ -1432,17 +2344,20 @@ class TeamCloudClientOperationsMixin:
             return cls(pipeline_response, deserialized, {})
 
         return deserialized
-    delete_project_provider_data.metadata = {'url': '/api/projects/{projectId}/providers/{providerId}/data/{providerDataId}'}  # type: ignore
+    delete_project_identity.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/identities/{projectIdentityId}'}  # type: ignore
 
     async def get_project_tags(
         self,
+        organization_id: str,
         project_id: str,
         **kwargs
-    ) -> Optional[Union["models.StringDictionaryDataResult", "models.ErrorResult"]]:
+    ) -> Optional[Union["_models.StringDictionaryDataResult", "_models.ErrorResult"]]:
         """Gets all Tags for a Project.
 
         Gets all Tags for a Project.
 
+        :param organization_id:
+        :type organization_id: str
         :param project_id:
         :type project_id: str
         :keyword callable cls: A custom type or function that will be passed the direct response
@@ -1450,7 +2365,7 @@ class TeamCloudClientOperationsMixin:
         :rtype: ~teamcloud.models.StringDictionaryDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StringDictionaryDataResult", "models.ErrorResult"]]]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StringDictionaryDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
@@ -1460,6 +2375,7 @@ class TeamCloudClientOperationsMixin:
         # Construct URL
         url = self.get_project_tags.metadata['url']  # type: ignore
         path_format_arguments = {
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
             'projectId': self._serialize.url("project_id", project_id, 'str'),
         }
         url = self._client.format_url(url, **path_format_arguments)
@@ -1493,18 +2409,21 @@ class TeamCloudClientOperationsMixin:
             return cls(pipeline_response, deserialized, {})
 
         return deserialized
-    get_project_tags.metadata = {'url': '/api/projects/{projectId}/tags'}  # type: ignore
+    get_project_tags.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/tags'}  # type: ignore
 
     async def create_project_tag(
         self,
+        organization_id: str,
         project_id: str,
         body: Optional[Dict[str, str]] = None,
         **kwargs
-    ) -> Optional[Union["models.StatusResult", "models.ErrorResult"]]:
+    ) -> Optional[Union["_models.StatusResult", "_models.ErrorResult"]]:
         """Creates a new Project Tag.
 
         Creates a new Project Tag.
 
+        :param organization_id:
+        :type organization_id: str
         :param project_id:
         :type project_id: str
         :param body:
@@ -1514,7 +2433,7 @@ class TeamCloudClientOperationsMixin:
         :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ErrorResult"]]]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
@@ -1525,6 +2444,7 @@ class TeamCloudClientOperationsMixin:
         # Construct URL
         url = self.create_project_tag.metadata['url']  # type: ignore
         path_format_arguments = {
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
             'projectId': self._serialize.url("project_id", project_id, 'str'),
         }
         url = self._client.format_url(url, **path_format_arguments)
@@ -1568,18 +2488,21 @@ class TeamCloudClientOperationsMixin:
             return cls(pipeline_response, deserialized, {})
 
         return deserialized
-    create_project_tag.metadata = {'url': '/api/projects/{projectId}/tags'}  # type: ignore
+    create_project_tag.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/tags'}  # type: ignore
 
     async def update_project_tag(
         self,
+        organization_id: str,
         project_id: str,
         body: Optional[Dict[str, str]] = None,
         **kwargs
-    ) -> Optional[Union["models.StatusResult", "models.ErrorResult"]]:
+    ) -> Optional[Union["_models.StatusResult", "_models.ErrorResult"]]:
         """Updates an existing Project Tag.
 
         Updates an existing Project Tag.
 
+        :param organization_id:
+        :type organization_id: str
         :param project_id:
         :type project_id: str
         :param body:
@@ -1589,7 +2512,7 @@ class TeamCloudClientOperationsMixin:
         :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ErrorResult"]]]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
@@ -1600,6 +2523,7 @@ class TeamCloudClientOperationsMixin:
         # Construct URL
         url = self.update_project_tag.metadata['url']  # type: ignore
         path_format_arguments = {
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
             'projectId': self._serialize.url("project_id", project_id, 'str'),
         }
         url = self._client.format_url(url, **path_format_arguments)
@@ -1640,20 +2564,23 @@ class TeamCloudClientOperationsMixin:
             return cls(pipeline_response, deserialized, {})
 
         return deserialized
-    update_project_tag.metadata = {'url': '/api/projects/{projectId}/tags'}  # type: ignore
+    update_project_tag.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/tags'}  # type: ignore
 
     async def get_project_tag_by_key(
         self,
         tag_key: str,
+        organization_id: str,
         project_id: str,
         **kwargs
-    ) -> Optional[Union["models.StringDictionaryDataResult", "models.ErrorResult"]]:
+    ) -> Optional[Union["_models.StringDictionaryDataResult", "_models.ErrorResult"]]:
         """Gets a Project Tag by Key.
 
         Gets a Project Tag by Key.
 
         :param tag_key:
         :type tag_key: str
+        :param organization_id:
+        :type organization_id: str
         :param project_id:
         :type project_id: str
         :keyword callable cls: A custom type or function that will be passed the direct response
@@ -1661,7 +2588,7 @@ class TeamCloudClientOperationsMixin:
         :rtype: ~teamcloud.models.StringDictionaryDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StringDictionaryDataResult", "models.ErrorResult"]]]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StringDictionaryDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
@@ -1672,6 +2599,7 @@ class TeamCloudClientOperationsMixin:
         url = self.get_project_tag_by_key.metadata['url']  # type: ignore
         path_format_arguments = {
             'tagKey': self._serialize.url("tag_key", tag_key, 'str'),
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
             'projectId': self._serialize.url("project_id", project_id, 'str'),
         }
         url = self._client.format_url(url, **path_format_arguments)
@@ -1705,20 +2633,23 @@ class TeamCloudClientOperationsMixin:
             return cls(pipeline_response, deserialized, {})
 
         return deserialized
-    get_project_tag_by_key.metadata = {'url': '/api/projects/{projectId}/tags/{tagKey}'}  # type: ignore
+    get_project_tag_by_key.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/tags/{tagKey}'}  # type: ignore
 
     async def delete_project_tag(
         self,
         tag_key: str,
+        organization_id: str,
         project_id: str,
         **kwargs
-    ) -> Optional[Union["models.StatusResult", "models.ErrorResult"]]:
+    ) -> Optional[Union["_models.StatusResult", "_models.ErrorResult"]]:
         """Deletes an existing Project Tag.
 
         Deletes an existing Project Tag.
 
         :param tag_key:
         :type tag_key: str
+        :param organization_id:
+        :type organization_id: str
         :param project_id:
         :type project_id: str
         :keyword callable cls: A custom type or function that will be passed the direct response
@@ -1726,7 +2657,7 @@ class TeamCloudClientOperationsMixin:
         :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ErrorResult"]]]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
@@ -1737,6 +2668,7 @@ class TeamCloudClientOperationsMixin:
         url = self.delete_project_tag.metadata['url']  # type: ignore
         path_format_arguments = {
             'tagKey': self._serialize.url("tag_key", tag_key, 'str'),
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
             'projectId': self._serialize.url("project_id", project_id, 'str'),
         }
         url = self._client.format_url(url, **path_format_arguments)
@@ -1770,22 +2702,25 @@ class TeamCloudClientOperationsMixin:
             return cls(pipeline_response, deserialized, {})
 
         return deserialized
-    delete_project_tag.metadata = {'url': '/api/projects/{projectId}/tags/{tagKey}'}  # type: ignore
+    delete_project_tag.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/tags/{tagKey}'}  # type: ignore
 
-    async def get_project_types(
+    async def get_project_templates(
         self,
+        organization_id: str,
         **kwargs
-    ) -> Optional[Union["models.ProjectTypeListDataResult", "models.ErrorResult"]]:
-        """Gets all Project Types.
+    ) -> Optional[Union["_models.ProjectTemplateListDataResult", "_models.ErrorResult"]]:
+        """Gets all Project Templates.
 
-        Gets all Project Types.
+        Gets all Project Templates.
 
+        :param organization_id:
+        :type organization_id: str
         :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ProjectTypeListDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ProjectTypeListDataResult or ~teamcloud.models.ErrorResult or None
+        :return: ProjectTemplateListDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ProjectTemplateListDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProjectTypeListDataResult", "models.ErrorResult"]]]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ProjectTemplateListDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
@@ -1793,7 +2728,11 @@ class TeamCloudClientOperationsMixin:
         accept = "application/json"
 
         # Construct URL
-        url = self.get_project_types.metadata['url']  # type: ignore
+        url = self.get_project_templates.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
 
         # Construct parameters
         query_parameters = {}  # type: Dict[str, Any]
@@ -1812,7 +2751,7 @@ class TeamCloudClientOperationsMixin:
 
         deserialized = None
         if response.status_code == 200:
-            deserialized = self._deserialize('ProjectTypeListDataResult', pipeline_response)
+            deserialized = self._deserialize('ProjectTemplateListDataResult', pipeline_response)
 
         if response.status_code == 400:
             deserialized = self._deserialize('ErrorResult', pipeline_response)
@@ -1821,25 +2760,28 @@ class TeamCloudClientOperationsMixin:
             return cls(pipeline_response, deserialized, {})
 
         return deserialized
-    get_project_types.metadata = {'url': '/api/projectTypes'}  # type: ignore
+    get_project_templates.metadata = {'url': '/orgs/{organizationId}/templates'}  # type: ignore
 
-    async def create_project_type(
+    async def create_project_template(
         self,
-        body: Optional["models.ProjectType"] = None,
+        organization_id: str,
+        body: Optional["_models.ProjectTemplateDefinition"] = None,
         **kwargs
-    ) -> Optional[Union["models.ProjectTypeDataResult", "models.ErrorResult"]]:
-        """Creates a new Project Type.
+    ) -> Optional[Union["_models.ProjectTemplateDataResult", "_models.ErrorResult"]]:
+        """Creates a new Project Template.
 
-        Creates a new Project Type.
+        Creates a new Project Template.
 
+        :param organization_id:
+        :type organization_id: str
         :param body:
-        :type body: ~teamcloud.models.ProjectType
+        :type body: ~teamcloud.models.ProjectTemplateDefinition
         :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ProjectTypeDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ProjectTypeDataResult or ~teamcloud.models.ErrorResult or None
+        :return: ProjectTemplateDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ProjectTemplateDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProjectTypeDataResult", "models.ErrorResult"]]]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ProjectTemplateDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
@@ -1848,7 +2790,11 @@ class TeamCloudClientOperationsMixin:
         accept = "application/json"
 
         # Construct URL
-        url = self.create_project_type.metadata['url']  # type: ignore
+        url = self.create_project_template.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
 
         # Construct parameters
         query_parameters = {}  # type: Dict[str, Any]
@@ -1860,7 +2806,7 @@ class TeamCloudClientOperationsMixin:
 
         body_content_kwargs = {}  # type: Dict[str, Any]
         if body is not None:
-            body_content = self._serialize.body(body, 'ProjectType')
+            body_content = self._serialize.body(body, 'ProjectTemplateDefinition')
         else:
             body_content = None
         body_content_kwargs['content'] = body_content
@@ -1874,7 +2820,7 @@ class TeamCloudClientOperationsMixin:
 
         deserialized = None
         if response.status_code == 201:
-            deserialized = self._deserialize('ProjectTypeDataResult', pipeline_response)
+            deserialized = self._deserialize('ProjectTemplateDataResult', pipeline_response)
 
         if response.status_code == 400:
             deserialized = self._deserialize('ErrorResult', pipeline_response)
@@ -1886,25 +2832,28 @@ class TeamCloudClientOperationsMixin:
             return cls(pipeline_response, deserialized, {})
 
         return deserialized
-    create_project_type.metadata = {'url': '/api/projectTypes'}  # type: ignore
+    create_project_template.metadata = {'url': '/orgs/{organizationId}/templates'}  # type: ignore
 
-    async def get_project_type_by_id(
+    async def get_project_template(
         self,
-        project_type_id: str,
+        project_template_id: str,
+        organization_id: str,
         **kwargs
-    ) -> Optional[Union["models.ProjectTypeDataResult", "models.ErrorResult"]]:
-        """Gets a Project Type by ID.
+    ) -> Optional[Union["_models.ProjectTemplateDataResult", "_models.ErrorResult"]]:
+        """Gets a Project Template.
 
-        Gets a Project Type by ID.
+        Gets a Project Template.
 
-        :param project_type_id:
-        :type project_type_id: str
+        :param project_template_id:
+        :type project_template_id: str
+        :param organization_id:
+        :type organization_id: str
         :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ProjectTypeDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ProjectTypeDataResult or ~teamcloud.models.ErrorResult or None
+        :return: ProjectTemplateDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ProjectTemplateDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProjectTypeDataResult", "models.ErrorResult"]]]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ProjectTemplateDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
@@ -1912,9 +2861,10 @@ class TeamCloudClientOperationsMixin:
         accept = "application/json"
 
         # Construct URL
-        url = self.get_project_type_by_id.metadata['url']  # type: ignore
+        url = self.get_project_template.metadata['url']  # type: ignore
         path_format_arguments = {
-            'projectTypeId': self._serialize.url("project_type_id", project_type_id, 'str'),
+            'projectTemplateId': self._serialize.url("project_template_id", project_template_id, 'str'),
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
         }
         url = self._client.format_url(url, **path_format_arguments)
 
@@ -1935,7 +2885,7 @@ class TeamCloudClientOperationsMixin:
 
         deserialized = None
         if response.status_code == 200:
-            deserialized = self._deserialize('ProjectTypeDataResult', pipeline_response)
+            deserialized = self._deserialize('ProjectTemplateDataResult', pipeline_response)
 
         if response.status_code == 400:
             deserialized = self._deserialize('ErrorResult', pipeline_response)
@@ -1947,28 +2897,31 @@ class TeamCloudClientOperationsMixin:
             return cls(pipeline_response, deserialized, {})
 
         return deserialized
-    get_project_type_by_id.metadata = {'url': '/api/projectTypes/{projectTypeId}'}  # type: ignore
+    get_project_template.metadata = {'url': '/orgs/{organizationId}/templates/{projectTemplateId}'}  # type: ignore
 
-    async def update_project_type(
+    async def update_project_template(
         self,
-        project_type_id: str,
-        body: Optional["models.ProjectType"] = None,
+        project_template_id: str,
+        organization_id: str,
+        body: Optional["_models.ProjectTemplate"] = None,
         **kwargs
-    ) -> Optional[Union["models.ProjectTypeDataResult", "models.ErrorResult"]]:
-        """Updates an existing Project Type.
+    ) -> Optional[Union["_models.ProjectTemplateDataResult", "_models.ErrorResult"]]:
+        """Updates an existing Project Template.
 
-        Updates an existing Project Type.
+        Updates an existing Project Template.
 
-        :param project_type_id:
-        :type project_type_id: str
+        :param project_template_id:
+        :type project_template_id: str
+        :param organization_id:
+        :type organization_id: str
         :param body:
-        :type body: ~teamcloud.models.ProjectType
+        :type body: ~teamcloud.models.ProjectTemplate
         :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ProjectTypeDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ProjectTypeDataResult or ~teamcloud.models.ErrorResult or None
+        :return: ProjectTemplateDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ProjectTemplateDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProjectTypeDataResult", "models.ErrorResult"]]]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ProjectTemplateDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
@@ -1977,9 +2930,10 @@ class TeamCloudClientOperationsMixin:
         accept = "application/json"
 
         # Construct URL
-        url = self.update_project_type.metadata['url']  # type: ignore
+        url = self.update_project_template.metadata['url']  # type: ignore
         path_format_arguments = {
-            'projectTypeId': self._serialize.url("project_type_id", project_type_id, 'str'),
+            'projectTemplateId': self._serialize.url("project_template_id", project_template_id, 'str'),
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
         }
         url = self._client.format_url(url, **path_format_arguments)
 
@@ -1993,7 +2947,7 @@ class TeamCloudClientOperationsMixin:
 
         body_content_kwargs = {}  # type: Dict[str, Any]
         if body is not None:
-            body_content = self._serialize.body(body, 'ProjectType')
+            body_content = self._serialize.body(body, 'ProjectTemplate')
         else:
             body_content = None
         body_content_kwargs['content'] = body_content
@@ -2007,7 +2961,7 @@ class TeamCloudClientOperationsMixin:
 
         deserialized = None
         if response.status_code == 200:
-            deserialized = self._deserialize('ProjectTypeDataResult', pipeline_response)
+            deserialized = self._deserialize('ProjectTemplateDataResult', pipeline_response)
 
         if response.status_code == 400:
             deserialized = self._deserialize('ErrorResult', pipeline_response)
@@ -2019,25 +2973,28 @@ class TeamCloudClientOperationsMixin:
             return cls(pipeline_response, deserialized, {})
 
         return deserialized
-    update_project_type.metadata = {'url': '/api/projectTypes/{projectTypeId}'}  # type: ignore
+    update_project_template.metadata = {'url': '/orgs/{organizationId}/templates/{projectTemplateId}'}  # type: ignore
 
-    async def delete_project_type(
+    async def delete_project_template(
         self,
-        project_type_id: str,
+        project_template_id: str,
+        organization_id: str,
         **kwargs
-    ) -> Optional[Union["models.ProjectTypeDataResult", "models.ErrorResult"]]:
-        """Deletes a Project Type.
+    ) -> Optional[Union["_models.ProjectTemplateDataResult", "_models.ErrorResult"]]:
+        """Deletes a Project Template.
 
-        Deletes a Project Type.
+        Deletes a Project Template.
 
-        :param project_type_id:
-        :type project_type_id: str
+        :param project_template_id:
+        :type project_template_id: str
+        :param organization_id:
+        :type organization_id: str
         :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ProjectTypeDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ProjectTypeDataResult or ~teamcloud.models.ErrorResult or None
+        :return: ProjectTemplateDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ProjectTemplateDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProjectTypeDataResult", "models.ErrorResult"]]]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ProjectTemplateDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
@@ -2045,9 +3002,10 @@ class TeamCloudClientOperationsMixin:
         accept = "application/json"
 
         # Construct URL
-        url = self.delete_project_type.metadata['url']  # type: ignore
+        url = self.delete_project_template.metadata['url']  # type: ignore
         path_format_arguments = {
-            'projectTypeId': self._serialize.url("project_type_id", project_type_id, 'str'),
+            'projectTemplateId': self._serialize.url("project_template_id", project_template_id, 'str'),
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
         }
         url = self._client.format_url(url, **path_format_arguments)
 
@@ -2068,7 +3026,7 @@ class TeamCloudClientOperationsMixin:
 
         deserialized = None
         if response.status_code == 204:
-            deserialized = self._deserialize('ProjectTypeDataResult', pipeline_response)
+            deserialized = self._deserialize('ProjectTemplateDataResult', pipeline_response)
 
         if response.status_code == 400:
             deserialized = self._deserialize('ErrorResult', pipeline_response)
@@ -2080,17 +3038,20 @@ class TeamCloudClientOperationsMixin:
             return cls(pipeline_response, deserialized, {})
 
         return deserialized
-    delete_project_type.metadata = {'url': '/api/projectTypes/{projectTypeId}'}  # type: ignore
+    delete_project_template.metadata = {'url': '/orgs/{organizationId}/templates/{projectTemplateId}'}  # type: ignore
 
     async def get_project_users(
         self,
+        organization_id: str,
         project_id: str,
         **kwargs
-    ) -> Optional[Union["models.UserListDataResult", "models.ErrorResult"]]:
+    ) -> Optional[Union["_models.UserListDataResult", "_models.ErrorResult"]]:
         """Gets all Users for a Project.
 
         Gets all Users for a Project.
 
+        :param organization_id:
+        :type organization_id: str
         :param project_id:
         :type project_id: str
         :keyword callable cls: A custom type or function that will be passed the direct response
@@ -2098,7 +3059,7 @@ class TeamCloudClientOperationsMixin:
         :rtype: ~teamcloud.models.UserListDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.UserListDataResult", "models.ErrorResult"]]]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.UserListDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
@@ -2108,6 +3069,7 @@ class TeamCloudClientOperationsMixin:
         # Construct URL
         url = self.get_project_users.metadata['url']  # type: ignore
         path_format_arguments = {
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
             'projectId': self._serialize.url("project_id", project_id, 'str'),
         }
         url = self._client.format_url(url, **path_format_arguments)
@@ -2141,28 +3103,31 @@ class TeamCloudClientOperationsMixin:
             return cls(pipeline_response, deserialized, {})
 
         return deserialized
-    get_project_users.metadata = {'url': '/api/projects/{projectId}/users'}  # type: ignore
+    get_project_users.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/users'}  # type: ignore
 
     async def create_project_user(
         self,
+        organization_id: str,
         project_id: str,
-        body: Optional["models.UserDefinition"] = None,
+        body: Optional["_models.UserDefinition"] = None,
         **kwargs
-    ) -> Optional[Union["models.StatusResult", "models.ErrorResult"]]:
+    ) -> Optional[Union["_models.UserDataResult", "_models.StatusResult", "_models.ErrorResult"]]:
         """Creates a new Project User.
 
         Creates a new Project User.
 
+        :param organization_id:
+        :type organization_id: str
         :param project_id:
         :type project_id: str
         :param body:
         :type body: ~teamcloud.models.UserDefinition
         :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: StatusResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
+        :return: UserDataResult or StatusResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.UserDataResult or ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ErrorResult"]]]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.UserDataResult", "_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
@@ -2173,6 +3138,7 @@ class TeamCloudClientOperationsMixin:
         # Construct URL
         url = self.create_project_user.metadata['url']  # type: ignore
         path_format_arguments = {
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
             'projectId': self._serialize.url("project_id", project_id, 'str'),
         }
         url = self._client.format_url(url, **path_format_arguments)
@@ -2195,11 +3161,14 @@ class TeamCloudClientOperationsMixin:
         pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
         response = pipeline_response.http_response
 
-        if response.status_code not in [202, 400, 401, 403, 404, 409]:
+        if response.status_code not in [201, 202, 400, 401, 403, 404, 409]:
             map_error(status_code=response.status_code, response=response, error_map=error_map)
             raise HttpResponseError(response=response)
 
         deserialized = None
+        if response.status_code == 201:
+            deserialized = self._deserialize('UserDataResult', pipeline_response)
+
         if response.status_code == 202:
             deserialized = self._deserialize('StatusResult', pipeline_response)
 
@@ -2216,20 +3185,23 @@ class TeamCloudClientOperationsMixin:
             return cls(pipeline_response, deserialized, {})
 
         return deserialized
-    create_project_user.metadata = {'url': '/api/projects/{projectId}/users'}  # type: ignore
+    create_project_user.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/users'}  # type: ignore
 
-    async def get_project_user_by_name_or_id(
+    async def get_project_user(
         self,
-        user_name_or_id: str,
+        user_id: str,
+        organization_id: str,
         project_id: str,
         **kwargs
-    ) -> Optional[Union["models.UserDataResult", "models.ErrorResult"]]:
+    ) -> Optional[Union["_models.UserDataResult", "_models.ErrorResult"]]:
         """Gets a Project User by ID or email address.
 
         Gets a Project User by ID or email address.
 
-        :param user_name_or_id:
-        :type user_name_or_id: str
+        :param user_id:
+        :type user_id: str
+        :param organization_id:
+        :type organization_id: str
         :param project_id:
         :type project_id: str
         :keyword callable cls: A custom type or function that will be passed the direct response
@@ -2237,7 +3209,7 @@ class TeamCloudClientOperationsMixin:
         :rtype: ~teamcloud.models.UserDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.UserDataResult", "models.ErrorResult"]]]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.UserDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
@@ -2245,9 +3217,10 @@ class TeamCloudClientOperationsMixin:
         accept = "application/json"
 
         # Construct URL
-        url = self.get_project_user_by_name_or_id.metadata['url']  # type: ignore
+        url = self.get_project_user.metadata['url']  # type: ignore
         path_format_arguments = {
-            'userNameOrId': self._serialize.url("user_name_or_id", user_name_or_id, 'str'),
+            'userId': self._serialize.url("user_id", user_id, 'str'),
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
             'projectId': self._serialize.url("project_id", project_id, 'str'),
         }
         url = self._client.format_url(url, **path_format_arguments)
@@ -2281,31 +3254,34 @@ class TeamCloudClientOperationsMixin:
             return cls(pipeline_response, deserialized, {})
 
         return deserialized
-    get_project_user_by_name_or_id.metadata = {'url': '/api/projects/{projectId}/users/{userNameOrId}'}  # type: ignore
+    get_project_user.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/users/{userId}'}  # type: ignore
 
     async def update_project_user(
         self,
-        user_name_or_id: str,
+        user_id: str,
+        organization_id: str,
         project_id: str,
-        body: Optional["models.User"] = None,
+        body: Optional["_models.User"] = None,
         **kwargs
-    ) -> Optional[Union["models.StatusResult", "models.ErrorResult"]]:
+    ) -> Optional[Union["_models.UserDataResult", "_models.StatusResult", "_models.ErrorResult"]]:
         """Updates an existing Project User.
 
         Updates an existing Project User.
 
-        :param user_name_or_id:
-        :type user_name_or_id: str
+        :param user_id:
+        :type user_id: str
+        :param organization_id:
+        :type organization_id: str
         :param project_id:
         :type project_id: str
         :param body:
         :type body: ~teamcloud.models.User
         :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: StatusResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
+        :return: UserDataResult or StatusResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.UserDataResult or ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ErrorResult"]]]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.UserDataResult", "_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
@@ -2316,7 +3292,8 @@ class TeamCloudClientOperationsMixin:
         # Construct URL
         url = self.update_project_user.metadata['url']  # type: ignore
         path_format_arguments = {
-            'userNameOrId': self._serialize.url("user_name_or_id", user_name_or_id, 'str'),
+            'userId': self._serialize.url("user_id", user_id, 'str'),
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
             'projectId': self._serialize.url("project_id", project_id, 'str'),
         }
         url = self._client.format_url(url, **path_format_arguments)
@@ -2332,1181 +3309,6 @@ class TeamCloudClientOperationsMixin:
         body_content_kwargs = {}  # type: Dict[str, Any]
         if body is not None:
             body_content = self._serialize.body(body, 'User')
-        else:
-            body_content = None
-        body_content_kwargs['content'] = body_content
-        request = self._client.put(url, query_parameters, header_parameters, **body_content_kwargs)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [202, 400, 401, 403, 404]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 202:
-            deserialized = self._deserialize('StatusResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    update_project_user.metadata = {'url': '/api/projects/{projectId}/users/{userNameOrId}'}  # type: ignore
-
-    async def delete_project_user(
-        self,
-        user_name_or_id: str,
-        project_id: str,
-        **kwargs
-    ) -> Optional[Union["models.StatusResult", "models.ErrorResult"]]:
-        """Deletes an existing Project User.
-
-        Deletes an existing Project User.
-
-        :param user_name_or_id:
-        :type user_name_or_id: str
-        :param project_id:
-        :type project_id: str
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: StatusResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        accept = "application/json"
-
-        # Construct URL
-        url = self.delete_project_user.metadata['url']  # type: ignore
-        path_format_arguments = {
-            'userNameOrId': self._serialize.url("user_name_or_id", user_name_or_id, 'str'),
-            'projectId': self._serialize.url("project_id", project_id, 'str'),
-        }
-        url = self._client.format_url(url, **path_format_arguments)
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        request = self._client.delete(url, query_parameters, header_parameters)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [202, 400, 401, 403, 404]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 202:
-            deserialized = self._deserialize('StatusResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    delete_project_user.metadata = {'url': '/api/projects/{projectId}/users/{userNameOrId}'}  # type: ignore
-
-    async def get_project_user_me(
-        self,
-        project_id: str,
-        **kwargs
-    ) -> Optional[Union["models.UserDataResult", "models.ErrorResult"]]:
-        """Gets a Project User for the calling user.
-
-        Gets a Project User for the calling user.
-
-        :param project_id:
-        :type project_id: str
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: UserDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.UserDataResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.UserDataResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        accept = "application/json"
-
-        # Construct URL
-        url = self.get_project_user_me.metadata['url']  # type: ignore
-        path_format_arguments = {
-            'projectId': self._serialize.url("project_id", project_id, 'str'),
-        }
-        url = self._client.format_url(url, **path_format_arguments)
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        request = self._client.get(url, query_parameters, header_parameters)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [200, 400, 401, 403, 404]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 200:
-            deserialized = self._deserialize('UserDataResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    get_project_user_me.metadata = {'url': '/api/projects/{projectId}/users/me'}  # type: ignore
-
-    async def update_project_user_me(
-        self,
-        project_id: str,
-        body: Optional["models.User"] = None,
-        **kwargs
-    ) -> Optional[Union["models.StatusResult", "models.ErrorResult"]]:
-        """Updates an existing Project User.
-
-        Updates an existing Project User.
-
-        :param project_id:
-        :type project_id: str
-        :param body:
-        :type body: ~teamcloud.models.User
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: StatusResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        content_type = kwargs.pop("content_type", "application/json")
-        accept = "application/json"
-
-        # Construct URL
-        url = self.update_project_user_me.metadata['url']  # type: ignore
-        path_format_arguments = {
-            'projectId': self._serialize.url("project_id", project_id, 'str'),
-        }
-        url = self._client.format_url(url, **path_format_arguments)
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        body_content_kwargs = {}  # type: Dict[str, Any]
-        if body is not None:
-            body_content = self._serialize.body(body, 'User')
-        else:
-            body_content = None
-        body_content_kwargs['content'] = body_content
-        request = self._client.put(url, query_parameters, header_parameters, **body_content_kwargs)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [202, 400, 401, 403, 404]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 202:
-            deserialized = self._deserialize('StatusResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    update_project_user_me.metadata = {'url': '/api/projects/{projectId}/users/me'}  # type: ignore
-
-    async def get_provider_data(
-        self,
-        provider_id: str,
-        **kwargs
-    ) -> Optional[Union["models.ProviderDataListDataResult", "models.ErrorResult"]]:
-        """Gets all ProviderData for a Provider.
-
-        Gets all ProviderData for a Provider.
-
-        :param provider_id:
-        :type provider_id: str
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ProviderDataListDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ProviderDataListDataResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProviderDataListDataResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        accept = "application/json"
-
-        # Construct URL
-        url = self.get_provider_data.metadata['url']  # type: ignore
-        path_format_arguments = {
-            'providerId': self._serialize.url("provider_id", provider_id, 'str'),
-        }
-        url = self._client.format_url(url, **path_format_arguments)
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        request = self._client.get(url, query_parameters, header_parameters)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [200, 400, 401, 403, 404]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 200:
-            deserialized = self._deserialize('ProviderDataListDataResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    get_provider_data.metadata = {'url': '/api/providers/{providerId}/data'}  # type: ignore
-
-    async def create_provider_data(
-        self,
-        provider_id: str,
-        body: Optional["models.ProviderData"] = None,
-        **kwargs
-    ) -> Optional[Union["models.ProviderDataReturnResult", "models.ErrorResult"]]:
-        """Creates a new ProviderData item.
-
-        Creates a new ProviderData item.
-
-        :param provider_id:
-        :type provider_id: str
-        :param body:
-        :type body: ~teamcloud.models.ProviderData
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ProviderDataReturnResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ProviderDataReturnResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProviderDataReturnResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        content_type = kwargs.pop("content_type", "application/json")
-        accept = "application/json"
-
-        # Construct URL
-        url = self.create_provider_data.metadata['url']  # type: ignore
-        path_format_arguments = {
-            'providerId': self._serialize.url("provider_id", provider_id, 'str'),
-        }
-        url = self._client.format_url(url, **path_format_arguments)
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        body_content_kwargs = {}  # type: Dict[str, Any]
-        if body is not None:
-            body_content = self._serialize.body(body, 'ProviderData')
-        else:
-            body_content = None
-        body_content_kwargs['content'] = body_content
-        request = self._client.post(url, query_parameters, header_parameters, **body_content_kwargs)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [201, 400, 401, 403, 404, 409]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 201:
-            deserialized = self._deserialize('ProviderDataReturnResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 409:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    create_provider_data.metadata = {'url': '/api/providers/{providerId}/data'}  # type: ignore
-
-    async def get_provider_data_by_id(
-        self,
-        provider_data_id: str,
-        provider_id: str,
-        **kwargs
-    ) -> Optional[Union["models.ProviderDataReturnResult", "models.ErrorResult"]]:
-        """Gets the ProviderData by ID.
-
-        Gets the ProviderData by ID.
-
-        :param provider_data_id:
-        :type provider_data_id: str
-        :param provider_id:
-        :type provider_id: str
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ProviderDataReturnResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ProviderDataReturnResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProviderDataReturnResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        accept = "application/json"
-
-        # Construct URL
-        url = self.get_provider_data_by_id.metadata['url']  # type: ignore
-        path_format_arguments = {
-            'providerDataId': self._serialize.url("provider_data_id", provider_data_id, 'str'),
-            'providerId': self._serialize.url("provider_id", provider_id, 'str'),
-        }
-        url = self._client.format_url(url, **path_format_arguments)
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        request = self._client.get(url, query_parameters, header_parameters)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [200, 400, 401, 403, 404]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 200:
-            deserialized = self._deserialize('ProviderDataReturnResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    get_provider_data_by_id.metadata = {'url': '/api/providers/{providerId}/data/{providerDataId}'}  # type: ignore
-
-    async def update_provider_data(
-        self,
-        provider_data_id: str,
-        provider_id: str,
-        body: Optional["models.ProviderData"] = None,
-        **kwargs
-    ) -> Optional[Union["models.ProviderDataReturnResult", "models.ErrorResult"]]:
-        """Updates an existing ProviderData.
-
-        Updates an existing ProviderData.
-
-        :param provider_data_id:
-        :type provider_data_id: str
-        :param provider_id:
-        :type provider_id: str
-        :param body:
-        :type body: ~teamcloud.models.ProviderData
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ProviderDataReturnResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ProviderDataReturnResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProviderDataReturnResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        content_type = kwargs.pop("content_type", "application/json")
-        accept = "application/json"
-
-        # Construct URL
-        url = self.update_provider_data.metadata['url']  # type: ignore
-        path_format_arguments = {
-            'providerDataId': self._serialize.url("provider_data_id", provider_data_id, 'str'),
-            'providerId': self._serialize.url("provider_id", provider_id, 'str'),
-        }
-        url = self._client.format_url(url, **path_format_arguments)
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        body_content_kwargs = {}  # type: Dict[str, Any]
-        if body is not None:
-            body_content = self._serialize.body(body, 'ProviderData')
-        else:
-            body_content = None
-        body_content_kwargs['content'] = body_content
-        request = self._client.put(url, query_parameters, header_parameters, **body_content_kwargs)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [200, 400, 401, 403, 404]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 200:
-            deserialized = self._deserialize('ProviderDataReturnResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    update_provider_data.metadata = {'url': '/api/providers/{providerId}/data/{providerDataId}'}  # type: ignore
-
-    async def delete_provider_data(
-        self,
-        provider_data_id: str,
-        provider_id: str,
-        **kwargs
-    ) -> Optional[Union["models.ProviderDataReturnResult", "models.ErrorResult"]]:
-        """Deletes a ProviderData.
-
-        Deletes a ProviderData.
-
-        :param provider_data_id:
-        :type provider_data_id: str
-        :param provider_id:
-        :type provider_id: str
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ProviderDataReturnResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ProviderDataReturnResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProviderDataReturnResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        accept = "application/json"
-
-        # Construct URL
-        url = self.delete_provider_data.metadata['url']  # type: ignore
-        path_format_arguments = {
-            'providerDataId': self._serialize.url("provider_data_id", provider_data_id, 'str'),
-            'providerId': self._serialize.url("provider_id", provider_id, 'str'),
-        }
-        url = self._client.format_url(url, **path_format_arguments)
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        request = self._client.delete(url, query_parameters, header_parameters)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [204, 400, 401, 403, 404]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 204:
-            deserialized = self._deserialize('ProviderDataReturnResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    delete_provider_data.metadata = {'url': '/api/providers/{providerId}/data/{providerDataId}'}  # type: ignore
-
-    async def get_provider_offers(
-        self,
-        provider_id: str,
-        **kwargs
-    ) -> Optional[Union["models.ComponentOfferListDataResult", "models.ErrorResult"]]:
-        """Gets all Provider Offers.
-
-        Gets all Provider Offers.
-
-        :param provider_id:
-        :type provider_id: str
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ComponentOfferListDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ComponentOfferListDataResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ComponentOfferListDataResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        accept = "application/json"
-
-        # Construct URL
-        url = self.get_provider_offers.metadata['url']  # type: ignore
-        path_format_arguments = {
-            'providerId': self._serialize.url("provider_id", provider_id, 'str'),
-        }
-        url = self._client.format_url(url, **path_format_arguments)
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        request = self._client.get(url, query_parameters, header_parameters)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [200, 400, 401, 403, 404]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 200:
-            deserialized = self._deserialize('ComponentOfferListDataResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    get_provider_offers.metadata = {'url': '/api/providers/{providerId}/offers'}  # type: ignore
-
-    async def create_provider_offer(
-        self,
-        provider_id: str,
-        body: Optional["models.ComponentOffer"] = None,
-        **kwargs
-    ) -> Optional[Union["models.ComponentOfferDataResult", "models.ErrorResult"]]:
-        """Creates a new ComponentOffer item.
-
-        Creates a new ComponentOffer item.
-
-        :param provider_id:
-        :type provider_id: str
-        :param body:
-        :type body: ~teamcloud.models.ComponentOffer
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ComponentOfferDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ComponentOfferDataResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ComponentOfferDataResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        content_type = kwargs.pop("content_type", "application/json")
-        accept = "application/json"
-
-        # Construct URL
-        url = self.create_provider_offer.metadata['url']  # type: ignore
-        path_format_arguments = {
-            'providerId': self._serialize.url("provider_id", provider_id, 'str'),
-        }
-        url = self._client.format_url(url, **path_format_arguments)
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        body_content_kwargs = {}  # type: Dict[str, Any]
-        if body is not None:
-            body_content = self._serialize.body(body, 'ComponentOffer')
-        else:
-            body_content = None
-        body_content_kwargs['content'] = body_content
-        request = self._client.post(url, query_parameters, header_parameters, **body_content_kwargs)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [201, 400, 401, 403, 404, 409]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 201:
-            deserialized = self._deserialize('ComponentOfferDataResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 409:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    create_provider_offer.metadata = {'url': '/api/providers/{providerId}/offers'}  # type: ignore
-
-    async def get_provider_offer_by_id(
-        self,
-        offer_id: str,
-        provider_id: str,
-        **kwargs
-    ) -> Optional[Union["models.ComponentOfferDataResult", "models.ErrorResult"]]:
-        """Gets the Offer by id.
-
-        Gets the Offer by id.
-
-        :param offer_id:
-        :type offer_id: str
-        :param provider_id:
-        :type provider_id: str
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ComponentOfferDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ComponentOfferDataResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ComponentOfferDataResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        accept = "application/json"
-
-        # Construct URL
-        url = self.get_provider_offer_by_id.metadata['url']  # type: ignore
-        path_format_arguments = {
-            'offerId': self._serialize.url("offer_id", offer_id, 'str'),
-            'providerId': self._serialize.url("provider_id", provider_id, 'str'),
-        }
-        url = self._client.format_url(url, **path_format_arguments)
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        request = self._client.get(url, query_parameters, header_parameters)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [200, 400, 401, 403, 404]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 200:
-            deserialized = self._deserialize('ComponentOfferDataResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    get_provider_offer_by_id.metadata = {'url': '/api/providers/{providerId}/offers/{offerId}'}  # type: ignore
-
-    async def update_provider_offer(
-        self,
-        offer_id: str,
-        provider_id: str,
-        body: Optional["models.ComponentOffer"] = None,
-        **kwargs
-    ) -> Optional[Union["models.ComponentOfferDataResult", "models.ErrorResult"]]:
-        """Updates an existing ComponentOffer.
-
-        Updates an existing ComponentOffer.
-
-        :param offer_id:
-        :type offer_id: str
-        :param provider_id:
-        :type provider_id: str
-        :param body:
-        :type body: ~teamcloud.models.ComponentOffer
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ComponentOfferDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ComponentOfferDataResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ComponentOfferDataResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        content_type = kwargs.pop("content_type", "application/json")
-        accept = "application/json"
-
-        # Construct URL
-        url = self.update_provider_offer.metadata['url']  # type: ignore
-        path_format_arguments = {
-            'offerId': self._serialize.url("offer_id", offer_id, 'str'),
-            'providerId': self._serialize.url("provider_id", provider_id, 'str'),
-        }
-        url = self._client.format_url(url, **path_format_arguments)
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        body_content_kwargs = {}  # type: Dict[str, Any]
-        if body is not None:
-            body_content = self._serialize.body(body, 'ComponentOffer')
-        else:
-            body_content = None
-        body_content_kwargs['content'] = body_content
-        request = self._client.put(url, query_parameters, header_parameters, **body_content_kwargs)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [200, 400, 401, 403, 404]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 200:
-            deserialized = self._deserialize('ComponentOfferDataResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    update_provider_offer.metadata = {'url': '/api/providers/{providerId}/offers/{offerId}'}  # type: ignore
-
-    async def delete_provider_offer(
-        self,
-        offer_id: str,
-        provider_id: str,
-        **kwargs
-    ) -> Optional[Union["models.ComponentOfferDataResult", "models.ErrorResult"]]:
-        """Deletes a ComponentOffer.
-
-        Deletes a ComponentOffer.
-
-        :param offer_id:
-        :type offer_id: str
-        :param provider_id:
-        :type provider_id: str
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ComponentOfferDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ComponentOfferDataResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ComponentOfferDataResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        accept = "application/json"
-
-        # Construct URL
-        url = self.delete_provider_offer.metadata['url']  # type: ignore
-        path_format_arguments = {
-            'offerId': self._serialize.url("offer_id", offer_id, 'str'),
-            'providerId': self._serialize.url("provider_id", provider_id, 'str'),
-        }
-        url = self._client.format_url(url, **path_format_arguments)
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        request = self._client.delete(url, query_parameters, header_parameters)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [204, 400, 401, 403, 404]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 204:
-            deserialized = self._deserialize('ComponentOfferDataResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    delete_provider_offer.metadata = {'url': '/api/providers/{providerId}/offers/{offerId}'}  # type: ignore
-
-    async def get_provider_project_components(
-        self,
-        project_id: str,
-        provider_id: str,
-        **kwargs
-    ) -> Optional[Union["models.ComponentListDataResult", "models.ErrorResult"]]:
-        """Gets all Components for a Project.
-
-        Gets all Components for a Project.
-
-        :param project_id:
-        :type project_id: str
-        :param provider_id:
-        :type provider_id: str
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ComponentListDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ComponentListDataResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ComponentListDataResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        accept = "application/json"
-
-        # Construct URL
-        url = self.get_provider_project_components.metadata['url']  # type: ignore
-        path_format_arguments = {
-            'projectId': self._serialize.url("project_id", project_id, 'str'),
-            'providerId': self._serialize.url("provider_id", provider_id, 'str'),
-        }
-        url = self._client.format_url(url, **path_format_arguments)
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        request = self._client.get(url, query_parameters, header_parameters)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [200, 400, 401, 403, 404]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 200:
-            deserialized = self._deserialize('ComponentListDataResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    get_provider_project_components.metadata = {'url': '/api/projects/{projectId}/providers/{providerId}/components'}  # type: ignore
-
-    async def create_provider_project_component(
-        self,
-        project_id: str,
-        provider_id: str,
-        body: Optional["models.Component"] = None,
-        **kwargs
-    ) -> Optional[Union["models.ComponentDataResult", "models.ErrorResult"]]:
-        """Creates a new Project Component.
-
-        Creates a new Project Component.
-
-        :param project_id:
-        :type project_id: str
-        :param provider_id:
-        :type provider_id: str
-        :param body:
-        :type body: ~teamcloud.models.Component
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ComponentDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ComponentDataResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ComponentDataResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        content_type = kwargs.pop("content_type", "application/json")
-        accept = "application/json"
-
-        # Construct URL
-        url = self.create_provider_project_component.metadata['url']  # type: ignore
-        path_format_arguments = {
-            'projectId': self._serialize.url("project_id", project_id, 'str'),
-            'providerId': self._serialize.url("provider_id", provider_id, 'str'),
-        }
-        url = self._client.format_url(url, **path_format_arguments)
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        body_content_kwargs = {}  # type: Dict[str, Any]
-        if body is not None:
-            body_content = self._serialize.body(body, 'Component')
-        else:
-            body_content = None
-        body_content_kwargs['content'] = body_content
-        request = self._client.post(url, query_parameters, header_parameters, **body_content_kwargs)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [201, 400, 401, 403, 404, 409]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 201:
-            deserialized = self._deserialize('ComponentDataResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 409:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    create_provider_project_component.metadata = {'url': '/api/projects/{projectId}/providers/{providerId}/components'}  # type: ignore
-
-    async def get_provider_project_component_by_id(
-        self,
-        component_id: str,
-        project_id: str,
-        provider_id: str,
-        **kwargs
-    ) -> Optional[Union["models.ComponentDataResult", "models.ErrorResult"]]:
-        """Gets a Project Component by id.
-
-        Gets a Project Component by id.
-
-        :param component_id:
-        :type component_id: str
-        :param project_id:
-        :type project_id: str
-        :param provider_id:
-        :type provider_id: str
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ComponentDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ComponentDataResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ComponentDataResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        accept = "application/json"
-
-        # Construct URL
-        url = self.get_provider_project_component_by_id.metadata['url']  # type: ignore
-        path_format_arguments = {
-            'componentId': self._serialize.url("component_id", component_id, 'str'),
-            'projectId': self._serialize.url("project_id", project_id, 'str'),
-            'providerId': self._serialize.url("provider_id", provider_id, 'str'),
-        }
-        url = self._client.format_url(url, **path_format_arguments)
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        request = self._client.get(url, query_parameters, header_parameters)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [200, 400, 401, 403, 404]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 200:
-            deserialized = self._deserialize('ComponentDataResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    get_provider_project_component_by_id.metadata = {'url': '/api/projects/{projectId}/providers/{providerId}/components/{componentId}'}  # type: ignore
-
-    async def update_provider_project_component(
-        self,
-        component_id: str,
-        project_id: str,
-        provider_id: str,
-        body: Optional["models.Component"] = None,
-        **kwargs
-    ) -> Optional[Union["models.ComponentDataResult", "models.StatusResult", "models.ErrorResult"]]:
-        """Updates an existing Project Component.
-
-        Updates an existing Project Component.
-
-        :param component_id:
-        :type component_id: str
-        :param project_id:
-        :type project_id: str
-        :param provider_id:
-        :type provider_id: str
-        :param body:
-        :type body: ~teamcloud.models.Component
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ComponentDataResult or StatusResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ComponentDataResult or ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ComponentDataResult", "models.StatusResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        content_type = kwargs.pop("content_type", "application/json")
-        accept = "application/json"
-
-        # Construct URL
-        url = self.update_provider_project_component.metadata['url']  # type: ignore
-        path_format_arguments = {
-            'componentId': self._serialize.url("component_id", component_id, 'str'),
-            'projectId': self._serialize.url("project_id", project_id, 'str'),
-            'providerId': self._serialize.url("provider_id", provider_id, 'str'),
-        }
-        url = self._client.format_url(url, **path_format_arguments)
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        body_content_kwargs = {}  # type: Dict[str, Any]
-        if body is not None:
-            body_content = self._serialize.body(body, 'Component')
         else:
             body_content = None
         body_content_kwargs['content'] = body_content
@@ -3520,7 +3322,7 @@ class TeamCloudClientOperationsMixin:
 
         deserialized = None
         if response.status_code == 200:
-            deserialized = self._deserialize('ComponentDataResult', pipeline_response)
+            deserialized = self._deserialize('UserDataResult', pipeline_response)
 
         if response.status_code == 202:
             deserialized = self._deserialize('StatusResult', pipeline_response)
@@ -3535,31 +3337,31 @@ class TeamCloudClientOperationsMixin:
             return cls(pipeline_response, deserialized, {})
 
         return deserialized
-    update_provider_project_component.metadata = {'url': '/api/projects/{projectId}/providers/{providerId}/components/{componentId}'}  # type: ignore
+    update_project_user.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/users/{userId}'}  # type: ignore
 
-    async def delete_provider_project_component(
+    async def delete_project_user(
         self,
-        component_id: str,
+        user_id: str,
+        organization_id: str,
         project_id: str,
-        provider_id: str,
         **kwargs
-    ) -> Optional[Union["models.StatusResult", "models.ComponentDataResult", "models.ErrorResult"]]:
-        """Deletes an existing Project Component.
+    ) -> Optional[Union["_models.StatusResult", "_models.ErrorResult"]]:
+        """Deletes an existing Project User.
 
-        Deletes an existing Project Component.
+        Deletes an existing Project User.
 
-        :param component_id:
-        :type component_id: str
+        :param user_id:
+        :type user_id: str
+        :param organization_id:
+        :type organization_id: str
         :param project_id:
         :type project_id: str
-        :param provider_id:
-        :type provider_id: str
         :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: StatusResult or ComponentDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ComponentDataResult or ~teamcloud.models.ErrorResult or None
+        :return: StatusResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ComponentDataResult", "models.ErrorResult"]]]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
@@ -3567,11 +3369,11 @@ class TeamCloudClientOperationsMixin:
         accept = "application/json"
 
         # Construct URL
-        url = self.delete_provider_project_component.metadata['url']  # type: ignore
+        url = self.delete_project_user.metadata['url']  # type: ignore
         path_format_arguments = {
-            'componentId': self._serialize.url("component_id", component_id, 'str'),
+            'userId': self._serialize.url("user_id", user_id, 'str'),
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
             'projectId': self._serialize.url("project_id", project_id, 'str'),
-            'providerId': self._serialize.url("provider_id", provider_id, 'str'),
         }
         url = self._client.format_url(url, **path_format_arguments)
 
@@ -3586,16 +3388,13 @@ class TeamCloudClientOperationsMixin:
         pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
         response = pipeline_response.http_response
 
-        if response.status_code not in [202, 204, 400, 401, 403, 404]:
+        if response.status_code not in [202, 400, 401, 403, 404]:
             map_error(status_code=response.status_code, response=response, error_map=error_map)
             raise HttpResponseError(response=response)
 
         deserialized = None
         if response.status_code == 202:
             deserialized = self._deserialize('StatusResult', pipeline_response)
-
-        if response.status_code == 204:
-            deserialized = self._deserialize('ComponentDataResult', pipeline_response)
 
         if response.status_code == 400:
             deserialized = self._deserialize('ErrorResult', pipeline_response)
@@ -3607,22 +3406,28 @@ class TeamCloudClientOperationsMixin:
             return cls(pipeline_response, deserialized, {})
 
         return deserialized
-    delete_provider_project_component.metadata = {'url': '/api/projects/{projectId}/providers/{providerId}/components/{componentId}'}  # type: ignore
+    delete_project_user.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/users/{userId}'}  # type: ignore
 
-    async def get_providers(
+    async def get_project_user_me(
         self,
+        organization_id: str,
+        project_id: str,
         **kwargs
-    ) -> Optional[Union["models.ProviderListDataResult", "models.ErrorResult"]]:
-        """Gets all Providers.
+    ) -> Optional[Union["_models.UserDataResult", "_models.ErrorResult"]]:
+        """Gets a Project User for the calling user.
 
-        Gets all Providers.
+        Gets a Project User for the calling user.
 
+        :param organization_id:
+        :type organization_id: str
+        :param project_id:
+        :type project_id: str
         :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ProviderListDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ProviderListDataResult or ~teamcloud.models.ErrorResult or None
+        :return: UserDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.UserDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProviderListDataResult", "models.ErrorResult"]]]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.UserDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
@@ -3630,128 +3435,10 @@ class TeamCloudClientOperationsMixin:
         accept = "application/json"
 
         # Construct URL
-        url = self.get_providers.metadata['url']  # type: ignore
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        request = self._client.get(url, query_parameters, header_parameters)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [200, 400, 401, 403]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 200:
-            deserialized = self._deserialize('ProviderListDataResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    get_providers.metadata = {'url': '/api/providers'}  # type: ignore
-
-    async def create_provider(
-        self,
-        body: Optional["models.Provider"] = None,
-        **kwargs
-    ) -> Optional[Union["models.StatusResult", "models.ErrorResult"]]:
-        """Creates a new Provider.
-
-        Creates a new Provider.
-
-        :param body:
-        :type body: ~teamcloud.models.Provider
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: StatusResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        content_type = kwargs.pop("content_type", "application/json")
-        accept = "application/json"
-
-        # Construct URL
-        url = self.create_provider.metadata['url']  # type: ignore
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        body_content_kwargs = {}  # type: Dict[str, Any]
-        if body is not None:
-            body_content = self._serialize.body(body, 'Provider')
-        else:
-            body_content = None
-        body_content_kwargs['content'] = body_content
-        request = self._client.post(url, query_parameters, header_parameters, **body_content_kwargs)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [202, 400, 401, 403, 409]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 202:
-            deserialized = self._deserialize('StatusResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 409:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    create_provider.metadata = {'url': '/api/providers'}  # type: ignore
-
-    async def get_provider_by_id(
-        self,
-        provider_id: str,
-        **kwargs
-    ) -> Optional[Union["models.ProviderDataResult", "models.ErrorResult"]]:
-        """Gets a Provider by ID.
-
-        Gets a Provider by ID.
-
-        :param provider_id:
-        :type provider_id: str
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ProviderDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ProviderDataResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProviderDataResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        accept = "application/json"
-
-        # Construct URL
-        url = self.get_provider_by_id.metadata['url']  # type: ignore
+        url = self.get_project_user_me.metadata['url']  # type: ignore
         path_format_arguments = {
-            'providerId': self._serialize.url("provider_id", provider_id, 'str'),
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
+            'projectId': self._serialize.url("project_id", project_id, 'str'),
         }
         url = self._client.format_url(url, **path_format_arguments)
 
@@ -3772,7 +3459,7 @@ class TeamCloudClientOperationsMixin:
 
         deserialized = None
         if response.status_code == 200:
-            deserialized = self._deserialize('ProviderDataResult', pipeline_response)
+            deserialized = self._deserialize('UserDataResult', pipeline_response)
 
         if response.status_code == 400:
             deserialized = self._deserialize('ErrorResult', pipeline_response)
@@ -3784,28 +3471,31 @@ class TeamCloudClientOperationsMixin:
             return cls(pipeline_response, deserialized, {})
 
         return deserialized
-    get_provider_by_id.metadata = {'url': '/api/providers/{providerId}'}  # type: ignore
+    get_project_user_me.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/users/me'}  # type: ignore
 
-    async def update_provider(
+    async def update_project_user_me(
         self,
-        provider_id: str,
-        body: Optional["models.Provider"] = None,
+        organization_id: str,
+        project_id: str,
+        body: Optional["_models.User"] = None,
         **kwargs
-    ) -> Optional[Union["models.StatusResult", "models.ErrorResult"]]:
-        """Updates an existing Provider.
+    ) -> Optional[Union["_models.UserDataResult", "_models.StatusResult", "_models.ErrorResult"]]:
+        """Updates an existing Project User.
 
-        Updates an existing Provider.
+        Updates an existing Project User.
 
-        :param provider_id:
-        :type provider_id: str
+        :param organization_id:
+        :type organization_id: str
+        :param project_id:
+        :type project_id: str
         :param body:
-        :type body: ~teamcloud.models.Provider
+        :type body: ~teamcloud.models.User
         :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: StatusResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
+        :return: UserDataResult or StatusResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.UserDataResult or ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ErrorResult"]]]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.UserDataResult", "_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
@@ -3814,9 +3504,10 @@ class TeamCloudClientOperationsMixin:
         accept = "application/json"
 
         # Construct URL
-        url = self.update_provider.metadata['url']  # type: ignore
+        url = self.update_project_user_me.metadata['url']  # type: ignore
         path_format_arguments = {
-            'providerId': self._serialize.url("provider_id", provider_id, 'str'),
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
+            'projectId': self._serialize.url("project_id", project_id, 'str'),
         }
         url = self._client.format_url(url, **path_format_arguments)
 
@@ -3830,7 +3521,7 @@ class TeamCloudClientOperationsMixin:
 
         body_content_kwargs = {}  # type: Dict[str, Any]
         if body is not None:
-            body_content = self._serialize.body(body, 'Provider')
+            body_content = self._serialize.body(body, 'User')
         else:
             body_content = None
         body_content_kwargs['content'] = body_content
@@ -3838,11 +3529,14 @@ class TeamCloudClientOperationsMixin:
         pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
         response = pipeline_response.http_response
 
-        if response.status_code not in [202, 400, 401, 403, 404]:
+        if response.status_code not in [200, 202, 400, 401, 403, 404]:
             map_error(status_code=response.status_code, response=response, error_map=error_map)
             raise HttpResponseError(response=response)
 
         deserialized = None
+        if response.status_code == 200:
+            deserialized = self._deserialize('UserDataResult', pipeline_response)
+
         if response.status_code == 202:
             deserialized = self._deserialize('StatusResult', pipeline_response)
 
@@ -3856,86 +3550,28 @@ class TeamCloudClientOperationsMixin:
             return cls(pipeline_response, deserialized, {})
 
         return deserialized
-    update_provider.metadata = {'url': '/api/providers/{providerId}'}  # type: ignore
-
-    async def delete_provider(
-        self,
-        provider_id: str,
-        **kwargs
-    ) -> Optional[Union["models.StatusResult", "models.ErrorResult"]]:
-        """Deletes an existing Provider.
-
-        Deletes an existing Provider.
-
-        :param provider_id:
-        :type provider_id: str
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: StatusResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        accept = "application/json"
-
-        # Construct URL
-        url = self.delete_provider.metadata['url']  # type: ignore
-        path_format_arguments = {
-            'providerId': self._serialize.url("provider_id", provider_id, 'str'),
-        }
-        url = self._client.format_url(url, **path_format_arguments)
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        request = self._client.delete(url, query_parameters, header_parameters)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [202, 400, 401, 403, 404]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 202:
-            deserialized = self._deserialize('StatusResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    delete_provider.metadata = {'url': '/api/providers/{providerId}'}  # type: ignore
+    update_project_user_me.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/users/me'}  # type: ignore
 
     async def get_status(
         self,
         tracking_id: str,
+        organization_id: str,
         **kwargs
-    ) -> Optional[Union["models.StatusResult", "models.ErrorResult"]]:
+    ) -> Optional[Union["_models.StatusResult", "_models.ErrorResult"]]:
         """Gets the status of a long-running operation.
 
         Gets the status of a long-running operation.
 
         :param tracking_id:
         :type tracking_id: str
+        :param organization_id:
+        :type organization_id: str
         :keyword callable cls: A custom type or function that will be passed the direct response
         :return: StatusResult or ErrorResult, or the result of cls(response)
         :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ErrorResult"]]]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
@@ -3946,6 +3582,7 @@ class TeamCloudClientOperationsMixin:
         url = self.get_status.metadata['url']  # type: ignore
         path_format_arguments = {
             'trackingId': self._serialize.url("tracking_id", tracking_id, 'str'),
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
         }
         url = self._client.format_url(url, **path_format_arguments)
 
@@ -3984,14 +3621,15 @@ class TeamCloudClientOperationsMixin:
             return cls(pipeline_response, deserialized, {})
 
         return deserialized
-    get_status.metadata = {'url': '/api/status/{trackingId}'}  # type: ignore
+    get_status.metadata = {'url': '/orgs/{organizationId}/status/{trackingId}'}  # type: ignore
 
     async def get_project_status(
         self,
         project_id: str,
         tracking_id: str,
+        organization_id: str,
         **kwargs
-    ) -> Optional[Union["models.StatusResult", "models.ErrorResult"]]:
+    ) -> Optional[Union["_models.StatusResult", "_models.ErrorResult"]]:
         """Gets the status of a long-running operation.
 
         Gets the status of a long-running operation.
@@ -4000,12 +3638,14 @@ class TeamCloudClientOperationsMixin:
         :type project_id: str
         :param tracking_id:
         :type tracking_id: str
+        :param organization_id:
+        :type organization_id: str
         :keyword callable cls: A custom type or function that will be passed the direct response
         :return: StatusResult or ErrorResult, or the result of cls(response)
         :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ErrorResult"]]]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
@@ -4017,6 +3657,7 @@ class TeamCloudClientOperationsMixin:
         path_format_arguments = {
             'projectId': self._serialize.url("project_id", project_id, 'str'),
             'trackingId': self._serialize.url("tracking_id", tracking_id, 'str'),
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
         }
         url = self._client.format_url(url, **path_format_arguments)
 
@@ -4055,1007 +3696,20 @@ class TeamCloudClientOperationsMixin:
             return cls(pipeline_response, deserialized, {})
 
         return deserialized
-    get_project_status.metadata = {'url': '/api/projects/{projectId}/status/{trackingId}'}  # type: ignore
-
-    async def create_team_cloud_admin_user(
-        self,
-        body: Optional["models.UserDefinition"] = None,
-        **kwargs
-    ) -> Optional[Union["models.StatusResult", "models.ErrorResult"]]:
-        """Creates a new TeamCloud User as an Admin.
-
-        Creates a new TeamCloud User as an Admin.
-
-        :param body:
-        :type body: ~teamcloud.models.UserDefinition
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: StatusResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        content_type = kwargs.pop("content_type", "application/json")
-        accept = "application/json, text/json"
-
-        # Construct URL
-        url = self.create_team_cloud_admin_user.metadata['url']  # type: ignore
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        body_content_kwargs = {}  # type: Dict[str, Any]
-        if body is not None:
-            body_content = self._serialize.body(body, 'UserDefinition')
-        else:
-            body_content = None
-        body_content_kwargs['content'] = body_content
-        request = self._client.post(url, query_parameters, header_parameters, **body_content_kwargs)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [202, 400, 401, 403, 404, 409]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 202:
-            deserialized = self._deserialize('StatusResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 409:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    create_team_cloud_admin_user.metadata = {'url': '/api/admin/users'}  # type: ignore
-
-    async def get_team_cloud_instance(
-        self,
-        **kwargs
-    ) -> Optional[Union["models.TeamCloudInstanceDataResult", "models.ErrorResult"]]:
-        """Gets the TeamCloud instance.
-
-        Gets the TeamCloud instance.
-
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: TeamCloudInstanceDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.TeamCloudInstanceDataResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.TeamCloudInstanceDataResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        accept = "application/json, text/json"
-
-        # Construct URL
-        url = self.get_team_cloud_instance.metadata['url']  # type: ignore
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        request = self._client.get(url, query_parameters, header_parameters)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [200, 401, 403, 404]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 200:
-            deserialized = self._deserialize('TeamCloudInstanceDataResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    get_team_cloud_instance.metadata = {'url': '/api/admin/teamCloudInstance'}  # type: ignore
-
-    async def create_team_cloud_instance(
-        self,
-        body: Optional["models.TeamCloudInstance"] = None,
-        **kwargs
-    ) -> Optional[Union["models.TeamCloudInstanceDataResult", "models.ErrorResult"]]:
-        """Updates the TeamCloud instance.
-
-        Updates the TeamCloud instance.
-
-        :param body:
-        :type body: ~teamcloud.models.TeamCloudInstance
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: TeamCloudInstanceDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.TeamCloudInstanceDataResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.TeamCloudInstanceDataResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        content_type = kwargs.pop("content_type", "application/json")
-        accept = "application/json, text/json"
-
-        # Construct URL
-        url = self.create_team_cloud_instance.metadata['url']  # type: ignore
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        body_content_kwargs = {}  # type: Dict[str, Any]
-        if body is not None:
-            body_content = self._serialize.body(body, 'TeamCloudInstance')
-        else:
-            body_content = None
-        body_content_kwargs['content'] = body_content
-        request = self._client.post(url, query_parameters, header_parameters, **body_content_kwargs)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [201, 400, 401, 403, 404]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 201:
-            deserialized = self._deserialize('TeamCloudInstanceDataResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    create_team_cloud_instance.metadata = {'url': '/api/admin/teamCloudInstance'}  # type: ignore
-
-    async def update_team_cloud_instance(
-        self,
-        body: Optional["models.TeamCloudInstance"] = None,
-        **kwargs
-    ) -> Optional[Union["models.TeamCloudInstanceDataResult", "models.ErrorResult"]]:
-        """Updates the TeamCloud instance.
-
-        Updates the TeamCloud instance.
-
-        :param body:
-        :type body: ~teamcloud.models.TeamCloudInstance
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: TeamCloudInstanceDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.TeamCloudInstanceDataResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.TeamCloudInstanceDataResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        content_type = kwargs.pop("content_type", "application/json")
-        accept = "application/json, text/json"
-
-        # Construct URL
-        url = self.update_team_cloud_instance.metadata['url']  # type: ignore
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        body_content_kwargs = {}  # type: Dict[str, Any]
-        if body is not None:
-            body_content = self._serialize.body(body, 'TeamCloudInstance')
-        else:
-            body_content = None
-        body_content_kwargs['content'] = body_content
-        request = self._client.put(url, query_parameters, header_parameters, **body_content_kwargs)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [200, 400, 401, 403, 404]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 200:
-            deserialized = self._deserialize('TeamCloudInstanceDataResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    update_team_cloud_instance.metadata = {'url': '/api/admin/teamCloudInstance'}  # type: ignore
-
-    async def get_team_cloud_tags(
-        self,
-        **kwargs
-    ) -> Optional[Union["models.StringDictionaryDataResult", "models.ErrorResult"]]:
-        """Gets all Tags for a TeamCloud Instance.
-
-        Gets all Tags for a TeamCloud Instance.
-
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: StringDictionaryDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.StringDictionaryDataResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StringDictionaryDataResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        accept = "application/json"
-
-        # Construct URL
-        url = self.get_team_cloud_tags.metadata['url']  # type: ignore
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        request = self._client.get(url, query_parameters, header_parameters)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [200, 400, 401, 403, 404]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 200:
-            deserialized = self._deserialize('StringDictionaryDataResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    get_team_cloud_tags.metadata = {'url': '/api/tags'}  # type: ignore
-
-    async def create_team_cloud_tag(
-        self,
-        body: Optional[Dict[str, str]] = None,
-        **kwargs
-    ) -> Optional[Union["models.StatusResult", "models.ErrorResult"]]:
-        """Creates a new TeamCloud Tag.
-
-        Creates a new TeamCloud Tag.
-
-        :param body:
-        :type body: dict[str, str]
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: StatusResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        content_type = kwargs.pop("content_type", "application/json")
-        accept = "application/json"
-
-        # Construct URL
-        url = self.create_team_cloud_tag.metadata['url']  # type: ignore
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        body_content_kwargs = {}  # type: Dict[str, Any]
-        if body is not None:
-            body_content = self._serialize.body(body, '{str}')
-        else:
-            body_content = None
-        body_content_kwargs['content'] = body_content
-        request = self._client.post(url, query_parameters, header_parameters, **body_content_kwargs)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [202, 400, 401, 403, 404, 409]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 202:
-            deserialized = self._deserialize('StatusResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 409:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    create_team_cloud_tag.metadata = {'url': '/api/tags'}  # type: ignore
-
-    async def update_team_cloud_tag(
-        self,
-        body: Optional[Dict[str, str]] = None,
-        **kwargs
-    ) -> Optional[Union["models.StatusResult", "models.ErrorResult"]]:
-        """Updates an existing TeamCloud Tag.
-
-        Updates an existing TeamCloud Tag.
-
-        :param body:
-        :type body: dict[str, str]
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: StatusResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        content_type = kwargs.pop("content_type", "application/json")
-        accept = "application/json"
-
-        # Construct URL
-        url = self.update_team_cloud_tag.metadata['url']  # type: ignore
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        body_content_kwargs = {}  # type: Dict[str, Any]
-        if body is not None:
-            body_content = self._serialize.body(body, '{str}')
-        else:
-            body_content = None
-        body_content_kwargs['content'] = body_content
-        request = self._client.put(url, query_parameters, header_parameters, **body_content_kwargs)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [202, 400, 401, 403, 404]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 202:
-            deserialized = self._deserialize('StatusResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    update_team_cloud_tag.metadata = {'url': '/api/tags'}  # type: ignore
-
-    async def get_team_cloud_tag_by_key(
-        self,
-        tag_key: str,
-        **kwargs
-    ) -> Optional[Union["models.StringDictionaryDataResult", "models.ErrorResult"]]:
-        """Gets a TeamCloud Tag by Key.
-
-        Gets a TeamCloud Tag by Key.
-
-        :param tag_key:
-        :type tag_key: str
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: StringDictionaryDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.StringDictionaryDataResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StringDictionaryDataResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        accept = "application/json"
-
-        # Construct URL
-        url = self.get_team_cloud_tag_by_key.metadata['url']  # type: ignore
-        path_format_arguments = {
-            'tagKey': self._serialize.url("tag_key", tag_key, 'str'),
-        }
-        url = self._client.format_url(url, **path_format_arguments)
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        request = self._client.get(url, query_parameters, header_parameters)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [200, 400, 401, 403, 404]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 200:
-            deserialized = self._deserialize('StringDictionaryDataResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    get_team_cloud_tag_by_key.metadata = {'url': '/api/tags/{tagKey}'}  # type: ignore
-
-    async def delete_team_cloud_tag(
-        self,
-        tag_key: str,
-        **kwargs
-    ) -> Optional[Union["models.StatusResult", "models.ErrorResult"]]:
-        """Deletes an existing TeamCloud Tag.
-
-        Deletes an existing TeamCloud Tag.
-
-        :param tag_key:
-        :type tag_key: str
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: StatusResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        accept = "application/json"
-
-        # Construct URL
-        url = self.delete_team_cloud_tag.metadata['url']  # type: ignore
-        path_format_arguments = {
-            'tagKey': self._serialize.url("tag_key", tag_key, 'str'),
-        }
-        url = self._client.format_url(url, **path_format_arguments)
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        request = self._client.delete(url, query_parameters, header_parameters)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [202, 400, 401, 403, 404]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 202:
-            deserialized = self._deserialize('StatusResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    delete_team_cloud_tag.metadata = {'url': '/api/tags/{tagKey}'}  # type: ignore
-
-    async def get_team_cloud_users(
-        self,
-        **kwargs
-    ) -> Optional[Union["models.UserListDataResult", "models.ErrorResult"]]:
-        """Gets all TeamCloud Users.
-
-        Gets all TeamCloud Users.
-
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: UserListDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.UserListDataResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.UserListDataResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        accept = "application/json"
-
-        # Construct URL
-        url = self.get_team_cloud_users.metadata['url']  # type: ignore
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        request = self._client.get(url, query_parameters, header_parameters)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [200, 400, 401, 403, 404]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 200:
-            deserialized = self._deserialize('UserListDataResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    get_team_cloud_users.metadata = {'url': '/api/users'}  # type: ignore
-
-    async def create_team_cloud_user(
-        self,
-        body: Optional["models.UserDefinition"] = None,
-        **kwargs
-    ) -> Optional[Union["models.StatusResult", "models.ErrorResult"]]:
-        """Creates a new TeamCloud User.
-
-        Creates a new TeamCloud User.
-
-        :param body:
-        :type body: ~teamcloud.models.UserDefinition
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: StatusResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        content_type = kwargs.pop("content_type", "application/json")
-        accept = "application/json"
-
-        # Construct URL
-        url = self.create_team_cloud_user.metadata['url']  # type: ignore
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        body_content_kwargs = {}  # type: Dict[str, Any]
-        if body is not None:
-            body_content = self._serialize.body(body, 'UserDefinition')
-        else:
-            body_content = None
-        body_content_kwargs['content'] = body_content
-        request = self._client.post(url, query_parameters, header_parameters, **body_content_kwargs)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [202, 400, 401, 403, 404, 409]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 202:
-            deserialized = self._deserialize('StatusResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 409:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    create_team_cloud_user.metadata = {'url': '/api/users'}  # type: ignore
-
-    async def get_team_cloud_user_by_name_or_id(
-        self,
-        user_name_or_id: str,
-        **kwargs
-    ) -> Optional[Union["models.UserDataResult", "models.ErrorResult"]]:
-        """Gets a TeamCloud User by ID or email address.
-
-        Gets a TeamCloud User by ID or email address.
-
-        :param user_name_or_id:
-        :type user_name_or_id: str
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: UserDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.UserDataResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.UserDataResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        accept = "application/json"
-
-        # Construct URL
-        url = self.get_team_cloud_user_by_name_or_id.metadata['url']  # type: ignore
-        path_format_arguments = {
-            'userNameOrId': self._serialize.url("user_name_or_id", user_name_or_id, 'str'),
-        }
-        url = self._client.format_url(url, **path_format_arguments)
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        request = self._client.get(url, query_parameters, header_parameters)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [200, 400, 401, 403, 404]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 200:
-            deserialized = self._deserialize('UserDataResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    get_team_cloud_user_by_name_or_id.metadata = {'url': '/api/users/{userNameOrId}'}  # type: ignore
-
-    async def update_team_cloud_user(
-        self,
-        user_name_or_id: str,
-        body: Optional["models.User"] = None,
-        **kwargs
-    ) -> Optional[Union["models.StatusResult", "models.ErrorResult"]]:
-        """Updates an existing TeamCloud User.
-
-        Updates an existing TeamCloud User.
-
-        :param user_name_or_id:
-        :type user_name_or_id: str
-        :param body:
-        :type body: ~teamcloud.models.User
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: StatusResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        content_type = kwargs.pop("content_type", "application/json")
-        accept = "application/json"
-
-        # Construct URL
-        url = self.update_team_cloud_user.metadata['url']  # type: ignore
-        path_format_arguments = {
-            'userNameOrId': self._serialize.url("user_name_or_id", user_name_or_id, 'str'),
-        }
-        url = self._client.format_url(url, **path_format_arguments)
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        body_content_kwargs = {}  # type: Dict[str, Any]
-        if body is not None:
-            body_content = self._serialize.body(body, 'User')
-        else:
-            body_content = None
-        body_content_kwargs['content'] = body_content
-        request = self._client.put(url, query_parameters, header_parameters, **body_content_kwargs)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [202, 400, 401, 403, 404]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 202:
-            deserialized = self._deserialize('StatusResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    update_team_cloud_user.metadata = {'url': '/api/users/{userNameOrId}'}  # type: ignore
-
-    async def delete_team_cloud_user(
-        self,
-        user_name_or_id: str,
-        **kwargs
-    ) -> Optional[Union["models.StatusResult", "models.ErrorResult"]]:
-        """Deletes an existing TeamCloud User.
-
-        Deletes an existing TeamCloud User.
-
-        :param user_name_or_id:
-        :type user_name_or_id: str
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: StatusResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        accept = "application/json"
-
-        # Construct URL
-        url = self.delete_team_cloud_user.metadata['url']  # type: ignore
-        path_format_arguments = {
-            'userNameOrId': self._serialize.url("user_name_or_id", user_name_or_id, 'str'),
-        }
-        url = self._client.format_url(url, **path_format_arguments)
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        request = self._client.delete(url, query_parameters, header_parameters)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [202, 401, 403, 404]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 202:
-            deserialized = self._deserialize('StatusResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    delete_team_cloud_user.metadata = {'url': '/api/users/{userNameOrId}'}  # type: ignore
-
-    async def get_team_cloud_user_me(
-        self,
-        **kwargs
-    ) -> Optional[Union["models.UserDataResult", "models.ErrorResult"]]:
-        """Gets a TeamCloud User A User matching the current authenticated user.
-
-        Gets a TeamCloud User A User matching the current authenticated user.
-
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: UserDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.UserDataResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.UserDataResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        accept = "application/json"
-
-        # Construct URL
-        url = self.get_team_cloud_user_me.metadata['url']  # type: ignore
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        request = self._client.get(url, query_parameters, header_parameters)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [200, 400, 401, 403, 404]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 200:
-            deserialized = self._deserialize('UserDataResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    get_team_cloud_user_me.metadata = {'url': '/api/me'}  # type: ignore
-
-    async def update_team_cloud_user_me(
-        self,
-        body: Optional["models.User"] = None,
-        **kwargs
-    ) -> Optional[Union["models.StatusResult", "models.ErrorResult"]]:
-        """Updates an existing TeamCloud User.
-
-        Updates an existing TeamCloud User.
-
-        :param body:
-        :type body: ~teamcloud.models.User
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: StatusResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.StatusResult", "models.ErrorResult"]]]
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}))
-        content_type = kwargs.pop("content_type", "application/json")
-        accept = "application/json"
-
-        # Construct URL
-        url = self.update_team_cloud_user_me.metadata['url']  # type: ignore
-
-        # Construct parameters
-        query_parameters = {}  # type: Dict[str, Any]
-
-        # Construct headers
-        header_parameters = {}  # type: Dict[str, Any]
-        header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
-        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
-
-        body_content_kwargs = {}  # type: Dict[str, Any]
-        if body is not None:
-            body_content = self._serialize.body(body, 'User')
-        else:
-            body_content = None
-        body_content_kwargs['content'] = body_content
-        request = self._client.put(url, query_parameters, header_parameters, **body_content_kwargs)
-        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
-        response = pipeline_response.http_response
-
-        if response.status_code not in [202, 400, 401, 403, 404]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 202:
-            deserialized = self._deserialize('StatusResult', pipeline_response)
-
-        if response.status_code == 400:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-    update_team_cloud_user_me.metadata = {'url': '/api/me'}  # type: ignore
+    get_project_status.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/status/{trackingId}'}  # type: ignore
 
     async def get_user_projects(
         self,
+        organization_id: str,
         user_id: str,
         **kwargs
-    ) -> Optional[Union["models.ProjectListDataResult", "models.ErrorResult"]]:
+    ) -> Optional[Union["_models.ProjectListDataResult", "_models.ErrorResult"]]:
         """Gets all Projects for a User.
 
         Gets all Projects for a User.
 
+        :param organization_id:
+        :type organization_id: str
         :param user_id:
         :type user_id: str
         :keyword callable cls: A custom type or function that will be passed the direct response
@@ -5063,7 +3717,7 @@ class TeamCloudClientOperationsMixin:
         :rtype: ~teamcloud.models.ProjectListDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProjectListDataResult", "models.ErrorResult"]]]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ProjectListDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
@@ -5073,6 +3727,7 @@ class TeamCloudClientOperationsMixin:
         # Construct URL
         url = self.get_user_projects.metadata['url']  # type: ignore
         path_format_arguments = {
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
             'userId': self._serialize.url("user_id", user_id, 'str'),
         }
         url = self._client.format_url(url, **path_format_arguments)
@@ -5106,22 +3761,25 @@ class TeamCloudClientOperationsMixin:
             return cls(pipeline_response, deserialized, {})
 
         return deserialized
-    get_user_projects.metadata = {'url': '/api/users/{userId}/projects'}  # type: ignore
+    get_user_projects.metadata = {'url': '/orgs/{organizationId}/users/{userId}/projects'}  # type: ignore
 
     async def get_user_projects_me(
         self,
+        organization_id: str,
         **kwargs
-    ) -> Optional[Union["models.ProjectListDataResult", "models.ErrorResult"]]:
+    ) -> Optional[Union["_models.ProjectListDataResult", "_models.ErrorResult"]]:
         """Gets all Projects for a User.
 
         Gets all Projects for a User.
 
+        :param organization_id:
+        :type organization_id: str
         :keyword callable cls: A custom type or function that will be passed the direct response
         :return: ProjectListDataResult or ErrorResult, or the result of cls(response)
         :rtype: ~teamcloud.models.ProjectListDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["models.ProjectListDataResult", "models.ErrorResult"]]]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ProjectListDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
@@ -5130,6 +3788,10 @@ class TeamCloudClientOperationsMixin:
 
         # Construct URL
         url = self.get_user_projects_me.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
 
         # Construct parameters
         query_parameters = {}  # type: Dict[str, Any]
@@ -5160,4 +3822,4 @@ class TeamCloudClientOperationsMixin:
             return cls(pipeline_response, deserialized, {})
 
         return deserialized
-    get_user_projects_me.metadata = {'url': '/api/me/projects'}  # type: ignore
+    get_user_projects_me.metadata = {'url': '/orgs/{organizationId}/me/projects'}  # type: ignore

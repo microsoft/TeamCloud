@@ -163,6 +163,13 @@ export var Component = {
                     name: "String"
                 }
             },
+            vaultId: {
+                serializedName: "vaultId",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
             deleted: {
                 serializedName: "deleted",
                 nullable: true,
@@ -489,6 +496,13 @@ export var ComponentTask = {
             },
             storageId: {
                 serializedName: "storageId",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
+            vaultId: {
+                serializedName: "vaultId",
                 nullable: true,
                 type: {
                     name: "String"
@@ -1707,6 +1721,185 @@ export var ProjectDataResult = {
                 type: {
                     name: "Composite",
                     className: "Project"
+                }
+            },
+            location: {
+                serializedName: "location",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            }
+        }
+    }
+};
+export var ProjectIdentityListDataResult = {
+    type: {
+        name: "Composite",
+        className: "ProjectIdentityListDataResult",
+        modelProperties: {
+            code: {
+                serializedName: "code",
+                type: {
+                    name: "Number"
+                }
+            },
+            status: {
+                serializedName: "status",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
+            data: {
+                serializedName: "data",
+                readOnly: true,
+                nullable: true,
+                type: {
+                    name: "Sequence",
+                    element: {
+                        type: {
+                            name: "Composite",
+                            className: "ProjectIdentity"
+                        }
+                    }
+                }
+            },
+            location: {
+                serializedName: "location",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            }
+        }
+    }
+};
+export var ProjectIdentity = {
+    type: {
+        name: "Composite",
+        className: "ProjectIdentity",
+        modelProperties: {
+            projectId: {
+                serializedName: "projectId",
+                required: true,
+                type: {
+                    name: "String"
+                }
+            },
+            organization: {
+                serializedName: "organization",
+                required: true,
+                type: {
+                    name: "String"
+                }
+            },
+            displayName: {
+                serializedName: "displayName",
+                required: true,
+                type: {
+                    name: "String"
+                }
+            },
+            deploymentScopeId: {
+                serializedName: "deploymentScopeId",
+                required: true,
+                type: {
+                    name: "String"
+                }
+            },
+            tenantId: {
+                serializedName: "tenantId",
+                type: {
+                    name: "Uuid"
+                }
+            },
+            clientId: {
+                serializedName: "clientId",
+                type: {
+                    name: "Uuid"
+                }
+            },
+            clientSecret: {
+                serializedName: "clientSecret",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
+            redirectUrls: {
+                serializedName: "redirectUrls",
+                nullable: true,
+                type: {
+                    name: "Sequence",
+                    element: {
+                        type: {
+                            name: "String"
+                        }
+                    }
+                }
+            },
+            objectId: {
+                serializedName: "objectId",
+                type: {
+                    name: "Uuid"
+                }
+            },
+            id: {
+                serializedName: "id",
+                required: true,
+                type: {
+                    name: "String"
+                }
+            }
+        }
+    }
+};
+export var ProjectIdentityDefinition = {
+    type: {
+        name: "Composite",
+        className: "ProjectIdentityDefinition",
+        modelProperties: {
+            displayName: {
+                serializedName: "displayName",
+                required: true,
+                type: {
+                    name: "String"
+                }
+            },
+            deploymentScopeId: {
+                serializedName: "deploymentScopeId",
+                required: true,
+                type: {
+                    name: "String"
+                }
+            }
+        }
+    }
+};
+export var ProjectIdentityDataResult = {
+    type: {
+        name: "Composite",
+        className: "ProjectIdentityDataResult",
+        modelProperties: {
+            code: {
+                serializedName: "code",
+                type: {
+                    name: "Number"
+                }
+            },
+            status: {
+                serializedName: "status",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
+            data: {
+                serializedName: "data",
+                type: {
+                    name: "Composite",
+                    className: "ProjectIdentity"
                 }
             },
             location: {

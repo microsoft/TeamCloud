@@ -18,9 +18,12 @@ export declare const userId: OperationURLParameter;
 export declare const body6: OperationParameter;
 export declare const body7: OperationParameter;
 export declare const body8: OperationParameter;
-export declare const tagKey: OperationURLParameter;
+export declare const projectIdentityId: OperationURLParameter;
 export declare const body9: OperationParameter;
-export declare const projectTemplateId: OperationURLParameter;
 export declare const body10: OperationParameter;
+export declare const tagKey: OperationURLParameter;
+export declare const body11: OperationParameter;
+export declare const projectTemplateId: OperationURLParameter;
+export declare const body12: OperationParameter;
 export declare const trackingId: OperationURLParameter;
 //# sourceMappingURL=parameters.d.ts.map

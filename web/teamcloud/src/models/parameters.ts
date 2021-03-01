@@ -20,6 +20,8 @@ import {
   UserDefinition as UserDefinitionMapper,
   User as UserMapper,
   ProjectDefinition as ProjectDefinitionMapper,
+  ProjectIdentityDefinition as ProjectIdentityDefinitionMapper,
+  ProjectIdentity as ProjectIdentityMapper,
   ProjectTemplateDefinition as ProjectTemplateDefinitionMapper,
   ProjectTemplate as ProjectTemplateMapper
 } from "../models/mappers";
@@ -178,6 +180,27 @@ export const body7: OperationParameter = {
 
 export const body8: OperationParameter = {
   parameterPath: ["options", "body"],
+  mapper: ProjectIdentityDefinitionMapper
+};
+
+export const projectIdentityId: OperationURLParameter = {
+  parameterPath: "projectIdentityId",
+  mapper: {
+    serializedName: "projectIdentityId",
+    required: true,
+    type: {
+      name: "String"
+    }
+  }
+};
+
+export const body9: OperationParameter = {
+  parameterPath: ["options", "body"],
+  mapper: ProjectIdentityMapper
+};
+
+export const body10: OperationParameter = {
+  parameterPath: ["options", "body"],
   mapper: {
     serializedName: "body",
     type: {
@@ -198,7 +221,7 @@ export const tagKey: OperationURLParameter = {
   }
 };
 
-export const body9: OperationParameter = {
+export const body11: OperationParameter = {
   parameterPath: ["options", "body"],
   mapper: ProjectTemplateDefinitionMapper
 };
@@ -214,7 +237,7 @@ export const projectTemplateId: OperationURLParameter = {
   }
 };
 
-export const body10: OperationParameter = {
+export const body12: OperationParameter = {
   parameterPath: ["options", "body"],
   mapper: ProjectTemplateMapper
 };

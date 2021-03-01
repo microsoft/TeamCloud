@@ -10,20 +10,17 @@ import rollup from "rollup";
 import nodeResolve from "rollup-plugin-node-resolve";
 import sourcemaps from "rollup-plugin-sourcemaps";
 
-/**
- * @type {rollup.RollupFileOptions}
- */
+/** @type {rollup.RollupFileOptions} */
 const config = {
   input: "./esm/teamCloud.js",
-  external: ["@azure/core-http", "@azure/core-arm"],
+  external: ["@azure/core-http"],
   output: {
     file: "./dist/teamcloud.js",
     format: "umd",
     name: "Teamcloud",
     sourcemap: true,
     globals: {
-      "@azure/core-http": "coreHttp",
-      "@azure/core-arm": "coreArm"
+      "@azure/core-http": "coreHttp"
     },
     banner: `/*
  * Copyright (c) Microsoft Corporation. All rights reserved.

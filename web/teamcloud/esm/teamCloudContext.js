@@ -33,6 +33,9 @@ var TeamCloudContext = /** @class */ (function (_super) {
             var defaultUserAgent = coreHttp.getDefaultUserAgentValue();
             options.userAgent = packageName + "/" + packageVersion + " " + defaultUserAgent;
         }
+        if (!options.credentialScopes) {
+            options.credentialScopes = ["openid"];
+        }
         _this = _super.call(this, credentials, options) || this;
         _this.requestContentType = "application/json; charset=utf-8";
         _this.baseUri = options.endpoint || "{$host}";

@@ -43,6 +43,10 @@ export class TeamCloudContext extends coreHttp.ServiceClient {
       options.userAgent = `${packageName}/${packageVersion} ${defaultUserAgent}`;
     }
 
+    if (!options.credentialScopes) {
+      options.credentialScopes = ["openid"];
+    }
+
     super(credentials, options);
 
     this.requestContentType = "application/json; charset=utf-8";

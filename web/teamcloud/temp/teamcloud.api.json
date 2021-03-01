@@ -534,6 +534,31 @@
                 "startIndex": 1,
                 "endIndex": 2
               }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!Component#vaultId:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "vaultId?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "vaultId",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
             }
           ],
           "extendsTokenRanges": []
@@ -895,7 +920,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!ComponentResourceState:type",
-          "docComment": "/**\n * Defines values for ComponentResourceState.\n */\n",
+          "docComment": "/**\n * Defines values for ComponentResourceState. \\ {@link KnownComponentResourceState} can be used interchangeably with ComponentResourceState, this enum contains the known values that the service supports. ### Know values supported by the service **Pending** \\ **Initializing** \\ **Provisioning** \\ **Succeeded** \\ **Failed**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -903,7 +928,7 @@
             },
             {
               "kind": "Content",
-              "text": "\"Pending\" | \"Initializing\" | \"Provisioning\" | \"Succeeded\" | \"Failed\" | string"
+              "text": "string"
             },
             {
               "kind": "Content",
@@ -1342,6 +1367,31 @@
                 "startIndex": 1,
                 "endIndex": 2
               }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!ComponentTask#vaultId:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "vaultId?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "vaultId",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
             }
           ],
           "extendsTokenRanges": []
@@ -1653,7 +1703,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!ComponentTaskResourceState:type",
-          "docComment": "/**\n * Defines values for ComponentTaskResourceState.\n */\n",
+          "docComment": "/**\n * Defines values for ComponentTaskResourceState. \\ {@link KnownComponentTaskResourceState} can be used interchangeably with ComponentTaskResourceState, this enum contains the known values that the service supports. ### Know values supported by the service **Pending** \\ **Initializing** \\ **Provisioning** \\ **Succeeded** \\ **Failed**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -1661,7 +1711,7 @@
             },
             {
               "kind": "Content",
-              "text": "\"Pending\" | \"Initializing\" | \"Provisioning\" | \"Succeeded\" | \"Failed\" | string"
+              "text": "string"
             },
             {
               "kind": "Content",
@@ -2381,7 +2431,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!ComponentTemplateType:type",
-          "docComment": "/**\n * Defines values for ComponentTemplateType.\n */\n",
+          "docComment": "/**\n * Defines values for ComponentTemplateType. \\ {@link KnownComponentTemplateType} can be used interchangeably with ComponentTemplateType, this enum contains the known values that the service supports. ### Know values supported by the service **Custom** \\ **AzureResource** \\ **Environment** \\ **GitRepository**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -2389,7 +2439,7 @@
             },
             {
               "kind": "Content",
-              "text": "\"Custom\" | \"AzureResource\" | \"Environment\" | \"GitRepository\" | string"
+              "text": "string"
             },
             {
               "kind": "Content",
@@ -2406,7 +2456,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!ComponentType:type",
-          "docComment": "/**\n * Defines values for ComponentType.\n */\n",
+          "docComment": "/**\n * Defines values for ComponentType. \\ {@link KnownComponentType} can be used interchangeably with ComponentType, this enum contains the known values that the service supports. ### Know values supported by the service **Custom** \\ **AzureResource** \\ **Environment** \\ **GitRepository**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -2414,7 +2464,7 @@
             },
             {
               "kind": "Content",
-              "text": "\"Custom\" | \"AzureResource\" | \"Environment\" | \"GitRepository\" | string"
+              "text": "string"
             },
             {
               "kind": "Content",
@@ -3001,7 +3051,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!Enum3:type",
-          "docComment": "/**\n * Defines values for Enum3.\n */\n",
+          "docComment": "/**\n * Defines values for Enum3. \\ {@link KnownEnum3} can be used interchangeably with Enum3, this enum contains the known values that the service supports. ### Know values supported by the service **0** \\ **1** \\ **2**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -3009,7 +3059,7 @@
             },
             {
               "kind": "Content",
-              "text": "0 | 1 | 2 | number"
+              "text": "number"
             },
             {
               "kind": "Content",
@@ -3118,6 +3168,1419 @@
             }
           ],
           "extendsTokenRanges": []
+        },
+        {
+          "kind": "Enum",
+          "canonicalReference": "teamcloud!KnownComponentResourceState:enum",
+          "docComment": "/**\n * Known values of {@link ComponentResourceState} that the service accepts.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare const enum KnownComponentResourceState "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "KnownComponentResourceState",
+          "members": [
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownComponentResourceState.Failed:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Failed = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Failed\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Failed",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownComponentResourceState.Initializing:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Initializing = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Initializing\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Initializing",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownComponentResourceState.Pending:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Pending = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Pending\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Pending",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownComponentResourceState.Provisioning:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Provisioning = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Provisioning\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Provisioning",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownComponentResourceState.Succeeded:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Succeeded = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Succeeded\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Succeeded",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ]
+        },
+        {
+          "kind": "Enum",
+          "canonicalReference": "teamcloud!KnownComponentTaskResourceState:enum",
+          "docComment": "/**\n * Known values of {@link ComponentTaskResourceState} that the service accepts.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare const enum KnownComponentTaskResourceState "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "KnownComponentTaskResourceState",
+          "members": [
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownComponentTaskResourceState.Failed:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Failed = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Failed\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Failed",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownComponentTaskResourceState.Initializing:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Initializing = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Initializing\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Initializing",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownComponentTaskResourceState.Pending:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Pending = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Pending\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Pending",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownComponentTaskResourceState.Provisioning:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Provisioning = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Provisioning\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Provisioning",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownComponentTaskResourceState.Succeeded:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Succeeded = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Succeeded\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Succeeded",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ]
+        },
+        {
+          "kind": "Enum",
+          "canonicalReference": "teamcloud!KnownComponentTemplateType:enum",
+          "docComment": "/**\n * Known values of {@link ComponentTemplateType} that the service accepts.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare const enum KnownComponentTemplateType "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "KnownComponentTemplateType",
+          "members": [
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownComponentTemplateType.AzureResource:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "AzureResource = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"AzureResource\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "AzureResource",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownComponentTemplateType.Custom:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Custom = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Custom\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Custom",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownComponentTemplateType.Environment:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Environment = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Environment\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Environment",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownComponentTemplateType.GitRepository:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "GitRepository = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"GitRepository\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "GitRepository",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ]
+        },
+        {
+          "kind": "Enum",
+          "canonicalReference": "teamcloud!KnownComponentType:enum",
+          "docComment": "/**\n * Known values of {@link ComponentType} that the service accepts.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare const enum KnownComponentType "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "KnownComponentType",
+          "members": [
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownComponentType.AzureResource:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "AzureResource = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"AzureResource\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "AzureResource",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownComponentType.Custom:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Custom = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Custom\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Custom",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownComponentType.Environment:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Environment = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Environment\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Environment",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownComponentType.GitRepository:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "GitRepository = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"GitRepository\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "GitRepository",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ]
+        },
+        {
+          "kind": "Enum",
+          "canonicalReference": "teamcloud!KnownEnum3:enum",
+          "docComment": "/**\n * Known values of {@link Enum3} that the service accepts.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare const enum KnownEnum3 "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "KnownEnum3",
+          "members": [
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownEnum3.One:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "One = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "1"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "One",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownEnum3.Two:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Two = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "2"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Two",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownEnum3.Zero:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Zero = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "0"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Zero",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ]
+        },
+        {
+          "kind": "Enum",
+          "canonicalReference": "teamcloud!KnownOrganizationResourceState:enum",
+          "docComment": "/**\n * Known values of {@link OrganizationResourceState} that the service accepts.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare const enum KnownOrganizationResourceState "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "KnownOrganizationResourceState",
+          "members": [
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownOrganizationResourceState.Failed:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Failed = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Failed\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Failed",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownOrganizationResourceState.Initializing:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Initializing = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Initializing\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Initializing",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownOrganizationResourceState.Pending:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Pending = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Pending\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Pending",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownOrganizationResourceState.Provisioning:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Provisioning = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Provisioning\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Provisioning",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownOrganizationResourceState.Succeeded:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Succeeded = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Succeeded\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Succeeded",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ]
+        },
+        {
+          "kind": "Enum",
+          "canonicalReference": "teamcloud!KnownProjectMembershipRole:enum",
+          "docComment": "/**\n * Known values of {@link ProjectMembershipRole} that the service accepts.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare const enum KnownProjectMembershipRole "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "KnownProjectMembershipRole",
+          "members": [
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownProjectMembershipRole.Admin:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Admin = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Admin\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Admin",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownProjectMembershipRole.Member:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Member = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Member\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Member",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownProjectMembershipRole.None:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "None = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"None\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "None",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownProjectMembershipRole.Owner:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Owner = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Owner\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Owner",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ]
+        },
+        {
+          "kind": "Enum",
+          "canonicalReference": "teamcloud!KnownProjectResourceState:enum",
+          "docComment": "/**\n * Known values of {@link ProjectResourceState} that the service accepts.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare const enum KnownProjectResourceState "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "KnownProjectResourceState",
+          "members": [
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownProjectResourceState.Failed:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Failed = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Failed\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Failed",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownProjectResourceState.Initializing:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Initializing = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Initializing\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Initializing",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownProjectResourceState.Pending:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Pending = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Pending\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Pending",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownProjectResourceState.Provisioning:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Provisioning = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Provisioning\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Provisioning",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownProjectResourceState.Succeeded:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Succeeded = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Succeeded\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Succeeded",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ]
+        },
+        {
+          "kind": "Enum",
+          "canonicalReference": "teamcloud!KnownRepositoryReferenceProvider:enum",
+          "docComment": "/**\n * Known values of {@link RepositoryReferenceProvider} that the service accepts.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare const enum KnownRepositoryReferenceProvider "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "KnownRepositoryReferenceProvider",
+          "members": [
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownRepositoryReferenceProvider.DevOps:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "DevOps = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"DevOps\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "DevOps",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownRepositoryReferenceProvider.GitHub:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "GitHub = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"GitHub\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "GitHub",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownRepositoryReferenceProvider.Unknown:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Unknown = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Unknown\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Unknown",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ]
+        },
+        {
+          "kind": "Enum",
+          "canonicalReference": "teamcloud!KnownRepositoryReferenceType:enum",
+          "docComment": "/**\n * Known values of {@link RepositoryReferenceType} that the service accepts.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare const enum KnownRepositoryReferenceType "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "KnownRepositoryReferenceType",
+          "members": [
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownRepositoryReferenceType.Branch:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Branch = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Branch\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Branch",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownRepositoryReferenceType.Hash:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Hash = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Hash\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Hash",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownRepositoryReferenceType.Tag:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Tag = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Tag\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Tag",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownRepositoryReferenceType.Unknown:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Unknown = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Unknown\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Unknown",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ]
+        },
+        {
+          "kind": "Enum",
+          "canonicalReference": "teamcloud!KnownResultErrorCode:enum",
+          "docComment": "/**\n * Known values of {@link ResultErrorCode} that the service accepts.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare const enum KnownResultErrorCode "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "KnownResultErrorCode",
+          "members": [
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownResultErrorCode.Conflict:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Conflict = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Conflict\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Conflict",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownResultErrorCode.Failed:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Failed = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Failed\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Failed",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownResultErrorCode.Forbidden:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Forbidden = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Forbidden\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Forbidden",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownResultErrorCode.NotFound:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "NotFound = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"NotFound\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "NotFound",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownResultErrorCode.ServerError:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "ServerError = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"ServerError\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "ServerError",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownResultErrorCode.Unauthorized:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Unauthorized = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Unauthorized\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Unauthorized",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownResultErrorCode.Unknown:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Unknown = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Unknown\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Unknown",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownResultErrorCode.ValidationError:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "ValidationError = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"ValidationError\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "ValidationError",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ]
+        },
+        {
+          "kind": "Enum",
+          "canonicalReference": "teamcloud!KnownUserRole:enum",
+          "docComment": "/**\n * Known values of {@link UserRole} that the service accepts.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare const enum KnownUserRole "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "KnownUserRole",
+          "members": [
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownUserRole.Admin:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Admin = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Admin\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Admin",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownUserRole.Member:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Member = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Member\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Member",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownUserRole.None:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "None = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"None\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "None",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownUserRole.Owner:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Owner = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Owner\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Owner",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ]
+        },
+        {
+          "kind": "Enum",
+          "canonicalReference": "teamcloud!KnownUserType:enum",
+          "docComment": "/**\n * Known values of {@link UserType} that the service accepts.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare const enum KnownUserType "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "KnownUserType",
+          "members": [
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownUserType.Application:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Application = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Application\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Application",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownUserType.Provider:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Provider = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Provider\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Provider",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownUserType.System:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "System = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"System\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "System",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownUserType.User:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "User = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"User\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "User",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ]
         },
         {
           "kind": "Interface",
@@ -3718,7 +5181,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!OrganizationResourceState:type",
-          "docComment": "/**\n * Defines values for OrganizationResourceState.\n */\n",
+          "docComment": "/**\n * Defines values for OrganizationResourceState. \\ {@link KnownOrganizationResourceState} can be used interchangeably with OrganizationResourceState, this enum contains the known values that the service supports. ### Know values supported by the service **Pending** \\ **Initializing** \\ **Provisioning** \\ **Succeeded** \\ **Failed**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -3726,7 +5189,7 @@
             },
             {
               "kind": "Content",
-              "text": "\"Pending\" | \"Initializing\" | \"Provisioning\" | \"Succeeded\" | \"Failed\" | string"
+              "text": "string"
             },
             {
               "kind": "Content",
@@ -4277,6 +5740,576 @@
         },
         {
           "kind": "Interface",
+          "canonicalReference": "teamcloud!ProjectIdentity:interface",
+          "docComment": "",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export interface ProjectIdentity "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "ProjectIdentity",
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!ProjectIdentity#clientId:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "clientId?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "clientId",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!ProjectIdentity#clientSecret:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "clientSecret?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "clientSecret",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!ProjectIdentity#deploymentScopeId:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "deploymentScopeId: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "deploymentScopeId",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!ProjectIdentity#displayName:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "displayName: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "displayName",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!ProjectIdentity#id:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "id: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "id",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!ProjectIdentity#objectId:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "objectId?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "objectId",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!ProjectIdentity#organization:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "organization: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "organization",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!ProjectIdentity#projectId:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "projectId: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "projectId",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!ProjectIdentity#redirectUrls:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "redirectUrls?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string[] | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "redirectUrls",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!ProjectIdentity#tenantId:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "tenantId?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "tenantId",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ],
+          "extendsTokenRanges": []
+        },
+        {
+          "kind": "Interface",
+          "canonicalReference": "teamcloud!ProjectIdentityDataResult:interface",
+          "docComment": "",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export interface ProjectIdentityDataResult "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "ProjectIdentityDataResult",
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!ProjectIdentityDataResult#code:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "code?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "code",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!ProjectIdentityDataResult#data:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "data?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ProjectIdentity",
+                  "canonicalReference": "teamcloud!ProjectIdentity:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "data",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!ProjectIdentityDataResult#location:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "location?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "location",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!ProjectIdentityDataResult#status:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "status?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "status",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ],
+          "extendsTokenRanges": []
+        },
+        {
+          "kind": "Interface",
+          "canonicalReference": "teamcloud!ProjectIdentityDefinition:interface",
+          "docComment": "",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export interface ProjectIdentityDefinition "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "ProjectIdentityDefinition",
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!ProjectIdentityDefinition#deploymentScopeId:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "deploymentScopeId: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "deploymentScopeId",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!ProjectIdentityDefinition#displayName:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "displayName: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "displayName",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ],
+          "extendsTokenRanges": []
+        },
+        {
+          "kind": "Interface",
+          "canonicalReference": "teamcloud!ProjectIdentityListDataResult:interface",
+          "docComment": "",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export interface ProjectIdentityListDataResult "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "ProjectIdentityListDataResult",
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!ProjectIdentityListDataResult#code:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "code?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "code",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!ProjectIdentityListDataResult#data:member",
+              "docComment": "/**\n * NOTE: This property will not be serialized. It can only be populated by the server.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly data?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ProjectIdentity",
+                  "canonicalReference": "teamcloud!ProjectIdentity:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "[] | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "data",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!ProjectIdentityListDataResult#location:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "location?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "location",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!ProjectIdentityListDataResult#status:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "status?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "status",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ],
+          "extendsTokenRanges": []
+        },
+        {
+          "kind": "Interface",
           "canonicalReference": "teamcloud!ProjectListDataResult:interface",
           "docComment": "",
           "excerptTokens": [
@@ -4491,7 +6524,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!ProjectMembershipRole:type",
-          "docComment": "/**\n * Defines values for ProjectMembershipRole.\n */\n",
+          "docComment": "/**\n * Defines values for ProjectMembershipRole. \\ {@link KnownProjectMembershipRole} can be used interchangeably with ProjectMembershipRole, this enum contains the known values that the service supports. ### Know values supported by the service **None** \\ **Member** \\ **Admin** \\ **Owner**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -4499,7 +6532,7 @@
             },
             {
               "kind": "Content",
-              "text": "\"None\" | \"Member\" | \"Admin\" | \"Owner\" | string"
+              "text": "string"
             },
             {
               "kind": "Content",
@@ -4516,7 +6549,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!ProjectResourceState:type",
-          "docComment": "/**\n * Defines values for ProjectResourceState.\n */\n",
+          "docComment": "/**\n * Defines values for ProjectResourceState. \\ {@link KnownProjectResourceState} can be used interchangeably with ProjectResourceState, this enum contains the known values that the service supports. ### Know values supported by the service **Pending** \\ **Initializing** \\ **Provisioning** \\ **Succeeded** \\ **Failed**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -4524,7 +6557,7 @@
             },
             {
               "kind": "Content",
-              "text": "\"Pending\" | \"Initializing\" | \"Provisioning\" | \"Succeeded\" | \"Failed\" | string"
+              "text": "string"
             },
             {
               "kind": "Content",
@@ -5497,7 +7530,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!RepositoryReferenceProvider:type",
-          "docComment": "/**\n * Defines values for RepositoryReferenceProvider.\n */\n",
+          "docComment": "/**\n * Defines values for RepositoryReferenceProvider. \\ {@link KnownRepositoryReferenceProvider} can be used interchangeably with RepositoryReferenceProvider, this enum contains the known values that the service supports. ### Know values supported by the service **Unknown** \\ **GitHub** \\ **DevOps**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -5505,7 +7538,7 @@
             },
             {
               "kind": "Content",
-              "text": "\"Unknown\" | \"GitHub\" | \"DevOps\" | string"
+              "text": "string"
             },
             {
               "kind": "Content",
@@ -5522,7 +7555,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!RepositoryReferenceType:type",
-          "docComment": "/**\n * Defines values for RepositoryReferenceType.\n */\n",
+          "docComment": "/**\n * Defines values for RepositoryReferenceType. \\ {@link KnownRepositoryReferenceType} can be used interchangeably with RepositoryReferenceType, this enum contains the known values that the service supports. ### Know values supported by the service **Unknown** \\ **Tag** \\ **Branch** \\ **Hash**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -5530,7 +7563,7 @@
             },
             {
               "kind": "Content",
-              "text": "\"Unknown\" | \"Tag\" | \"Branch\" | \"Hash\" | string"
+              "text": "string"
             },
             {
               "kind": "Content",
@@ -5644,7 +7677,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!ResultErrorCode:type",
-          "docComment": "/**\n * Defines values for ResultErrorCode.\n */\n",
+          "docComment": "/**\n * Defines values for ResultErrorCode. \\ {@link KnownResultErrorCode} can be used interchangeably with ResultErrorCode, this enum contains the known values that the service supports. ### Know values supported by the service **Unknown** \\ **Failed** \\ **Conflict** \\ **NotFound** \\ **ServerError** \\ **ValidationError** \\ **Unauthorized** \\ **Forbidden**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -5652,7 +7685,7 @@
             },
             {
               "kind": "Content",
-              "text": "\"Unknown\" | \"Failed\" | \"Conflict\" | \"NotFound\" | \"ServerError\" | \"ValidationError\" | \"Unauthorized\" | \"Forbidden\" | string"
+              "text": "string"
             },
             {
               "kind": "Content",
@@ -6551,6 +8584,95 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "teamcloud!TeamCloud#createProjectIdentity:member(1)",
+              "docComment": "/**\n * Creates a new Project Identity.\n *\n * @param organizationId - \n *\n * @param projectId - \n *\n * @param options - The options parameters.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "createProjectIdentity(organizationId: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", projectId: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", options?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "TeamCloudCreateProjectIdentityOptionalParams",
+                  "canonicalReference": "teamcloud!TeamCloudCreateProjectIdentityOptionalParams:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "TeamCloudCreateProjectIdentityResponse",
+                  "canonicalReference": "teamcloud!TeamCloudCreateProjectIdentityResponse:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ">"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 7,
+                "endIndex": 11
+              },
+              "releaseTag": "Public",
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "organizationId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  }
+                },
+                {
+                  "parameterName": "projectId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  }
+                },
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 5,
+                    "endIndex": 6
+                  }
+                }
+              ],
+              "name": "createProjectIdentity"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "teamcloud!TeamCloud#createProjectTag:member(1)",
               "docComment": "/**\n * Creates a new Project Tag.\n *\n * @param organizationId - \n *\n * @param projectId - \n *\n * @param options - The options parameters.\n */\n",
               "excerptTokens": [
@@ -7265,6 +9387,114 @@
                 }
               ],
               "name": "deleteProject"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "teamcloud!TeamCloud#deleteProjectIdentity:member(1)",
+              "docComment": "/**\n * Deletes a Project Identity.\n *\n * @param projectIdentityId - \n *\n * @param organizationId - \n *\n * @param projectId - \n *\n * @param options - The options parameters.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "deleteProjectIdentity(projectIdentityId: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", organizationId: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", projectId: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", options?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "coreHttp."
+                },
+                {
+                  "kind": "Reference",
+                  "text": "OperationOptions",
+                  "canonicalReference": "@azure/core-http!OperationOptions:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "TeamCloudDeleteProjectIdentityResponse",
+                  "canonicalReference": "teamcloud!TeamCloudDeleteProjectIdentityResponse:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ">"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 10,
+                "endIndex": 14
+              },
+              "releaseTag": "Public",
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "projectIdentityId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  }
+                },
+                {
+                  "parameterName": "organizationId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  }
+                },
+                {
+                  "parameterName": "projectId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 5,
+                    "endIndex": 6
+                  }
+                },
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 7,
+                    "endIndex": 9
+                  }
+                }
+              ],
+              "name": "deleteProjectIdentity"
             },
             {
               "kind": "Method",
@@ -8875,6 +11105,207 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "teamcloud!TeamCloud#getProjectIdentities:member(1)",
+              "docComment": "/**\n * Gets all Project Identities.\n *\n * @param organizationId - \n *\n * @param projectId - \n *\n * @param options - The options parameters.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "getProjectIdentities(organizationId: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", projectId: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", options?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "coreHttp."
+                },
+                {
+                  "kind": "Reference",
+                  "text": "OperationOptions",
+                  "canonicalReference": "@azure/core-http!OperationOptions:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "TeamCloudGetProjectIdentitiesResponse",
+                  "canonicalReference": "teamcloud!TeamCloudGetProjectIdentitiesResponse:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ">"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 8,
+                "endIndex": 12
+              },
+              "releaseTag": "Public",
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "organizationId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  }
+                },
+                {
+                  "parameterName": "projectId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  }
+                },
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 5,
+                    "endIndex": 7
+                  }
+                }
+              ],
+              "name": "getProjectIdentities"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "teamcloud!TeamCloud#getProjectIdentity:member(1)",
+              "docComment": "/**\n * Gets a Project Identity.\n *\n * @param projectIdentityId - \n *\n * @param organizationId - \n *\n * @param projectId - \n *\n * @param options - The options parameters.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "getProjectIdentity(projectIdentityId: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", organizationId: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", projectId: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", options?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "coreHttp."
+                },
+                {
+                  "kind": "Reference",
+                  "text": "OperationOptions",
+                  "canonicalReference": "@azure/core-http!OperationOptions:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "TeamCloudGetProjectIdentityResponse",
+                  "canonicalReference": "teamcloud!TeamCloudGetProjectIdentityResponse:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ">"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 10,
+                "endIndex": 14
+              },
+              "releaseTag": "Public",
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "projectIdentityId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  }
+                },
+                {
+                  "parameterName": "organizationId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  }
+                },
+                {
+                  "parameterName": "projectId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 5,
+                    "endIndex": 6
+                  }
+                },
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 7,
+                    "endIndex": 9
+                  }
+                }
+              ],
+              "name": "getProjectIdentity"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "teamcloud!TeamCloud#getProjects:member(1)",
               "docComment": "/**\n * Gets all Projects.\n *\n * @param organizationId - \n *\n * @param options - The options parameters.\n */\n",
               "excerptTokens": [
@@ -10243,6 +12674,110 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "teamcloud!TeamCloud#updateProjectIdentity:member(1)",
+              "docComment": "/**\n * Updates an existing Project Identity.\n *\n * @param projectIdentityId - \n *\n * @param organizationId - \n *\n * @param projectId - \n *\n * @param options - The options parameters.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "updateProjectIdentity(projectIdentityId: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", organizationId: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", projectId: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", options?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "TeamCloudUpdateProjectIdentityOptionalParams",
+                  "canonicalReference": "teamcloud!TeamCloudUpdateProjectIdentityOptionalParams:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "TeamCloudUpdateProjectIdentityResponse",
+                  "canonicalReference": "teamcloud!TeamCloudUpdateProjectIdentityResponse:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ">"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 9,
+                "endIndex": 13
+              },
+              "releaseTag": "Public",
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "projectIdentityId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  }
+                },
+                {
+                  "parameterName": "organizationId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  }
+                },
+                {
+                  "parameterName": "projectId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 5,
+                    "endIndex": 6
+                  }
+                },
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 7,
+                    "endIndex": 8
+                  }
+                }
+              ],
+              "name": "updateProjectIdentity"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "teamcloud!TeamCloud#updateProjectTag:member(1)",
               "docComment": "/**\n * Updates an existing Project Tag.\n *\n * @param organizationId - \n *\n * @param projectId - \n *\n * @param options - The options parameters.\n */\n",
               "excerptTokens": [
@@ -11295,6 +13830,114 @@
         },
         {
           "kind": "Interface",
+          "canonicalReference": "teamcloud!TeamCloudCreateProjectIdentityOptionalParams:interface",
+          "docComment": "/**\n * Optional parameters.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export interface TeamCloudCreateProjectIdentityOptionalParams extends "
+            },
+            {
+              "kind": "Content",
+              "text": "coreHttp."
+            },
+            {
+              "kind": "Reference",
+              "text": "OperationOptions",
+              "canonicalReference": "@azure/core-http!OperationOptions:interface"
+            },
+            {
+              "kind": "Content",
+              "text": " "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "TeamCloudCreateProjectIdentityOptionalParams",
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!TeamCloudCreateProjectIdentityOptionalParams#body:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "body?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ProjectIdentityDefinition",
+                  "canonicalReference": "teamcloud!ProjectIdentityDefinition:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "body",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ],
+          "extendsTokenRanges": [
+            {
+              "startIndex": 1,
+              "endIndex": 4
+            }
+          ]
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "teamcloud!TeamCloudCreateProjectIdentityResponse:type",
+          "docComment": "/**\n * Contains response data for the createProjectIdentity operation.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare type TeamCloudCreateProjectIdentityResponse = "
+            },
+            {
+              "kind": "Reference",
+              "text": "ProjectIdentityDataResult",
+              "canonicalReference": "teamcloud!ProjectIdentityDataResult:interface"
+            },
+            {
+              "kind": "Content",
+              "text": " & {\n    _response: coreHttp."
+            },
+            {
+              "kind": "Reference",
+              "text": "HttpResponse",
+              "canonicalReference": "@azure/core-http!HttpResponse:interface"
+            },
+            {
+              "kind": "Content",
+              "text": " & {\n        bodyAsText: string;\n        parsedBody: "
+            },
+            {
+              "kind": "Reference",
+              "text": "ProjectIdentityDataResult",
+              "canonicalReference": "teamcloud!ProjectIdentityDataResult:interface"
+            },
+            {
+              "kind": "Content",
+              "text": ";\n    };\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "TeamCloudCreateProjectIdentityResponse",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 7
+          }
+        },
+        {
+          "kind": "Interface",
           "canonicalReference": "teamcloud!TeamCloudCreateProjectOptionalParams:interface",
           "docComment": "/**\n * Optional parameters.\n */\n",
           "excerptTokens": [
@@ -11911,6 +14554,54 @@
           ],
           "releaseTag": "Public",
           "name": "TeamCloudDeleteOrganizationUserResponse",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 7
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "teamcloud!TeamCloudDeleteProjectIdentityResponse:type",
+          "docComment": "/**\n * Contains response data for the deleteProjectIdentity operation.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare type TeamCloudDeleteProjectIdentityResponse = "
+            },
+            {
+              "kind": "Reference",
+              "text": "ProjectIdentityDataResult",
+              "canonicalReference": "teamcloud!ProjectIdentityDataResult:interface"
+            },
+            {
+              "kind": "Content",
+              "text": " & {\n    _response: coreHttp."
+            },
+            {
+              "kind": "Reference",
+              "text": "HttpResponse",
+              "canonicalReference": "@azure/core-http!HttpResponse:interface"
+            },
+            {
+              "kind": "Content",
+              "text": " & {\n        bodyAsText: string;\n        parsedBody: "
+            },
+            {
+              "kind": "Reference",
+              "text": "ProjectIdentityDataResult",
+              "canonicalReference": "teamcloud!ProjectIdentityDataResult:interface"
+            },
+            {
+              "kind": "Content",
+              "text": ";\n    };\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "TeamCloudDeleteProjectIdentityResponse",
           "typeTokenRange": {
             "startIndex": 1,
             "endIndex": 7
@@ -12786,6 +15477,102 @@
           ],
           "releaseTag": "Public",
           "name": "TeamCloudGetOrganizationUsersResponse",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 7
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "teamcloud!TeamCloudGetProjectIdentitiesResponse:type",
+          "docComment": "/**\n * Contains response data for the getProjectIdentities operation.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare type TeamCloudGetProjectIdentitiesResponse = "
+            },
+            {
+              "kind": "Reference",
+              "text": "ProjectIdentityListDataResult",
+              "canonicalReference": "teamcloud!ProjectIdentityListDataResult:interface"
+            },
+            {
+              "kind": "Content",
+              "text": " & {\n    _response: coreHttp."
+            },
+            {
+              "kind": "Reference",
+              "text": "HttpResponse",
+              "canonicalReference": "@azure/core-http!HttpResponse:interface"
+            },
+            {
+              "kind": "Content",
+              "text": " & {\n        bodyAsText: string;\n        parsedBody: "
+            },
+            {
+              "kind": "Reference",
+              "text": "ProjectIdentityListDataResult",
+              "canonicalReference": "teamcloud!ProjectIdentityListDataResult:interface"
+            },
+            {
+              "kind": "Content",
+              "text": ";\n    };\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "TeamCloudGetProjectIdentitiesResponse",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 7
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "teamcloud!TeamCloudGetProjectIdentityResponse:type",
+          "docComment": "/**\n * Contains response data for the getProjectIdentity operation.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare type TeamCloudGetProjectIdentityResponse = "
+            },
+            {
+              "kind": "Reference",
+              "text": "ProjectIdentityDataResult",
+              "canonicalReference": "teamcloud!ProjectIdentityDataResult:interface"
+            },
+            {
+              "kind": "Content",
+              "text": " & {\n    _response: coreHttp."
+            },
+            {
+              "kind": "Reference",
+              "text": "HttpResponse",
+              "canonicalReference": "@azure/core-http!HttpResponse:interface"
+            },
+            {
+              "kind": "Content",
+              "text": " & {\n        bodyAsText: string;\n        parsedBody: "
+            },
+            {
+              "kind": "Reference",
+              "text": "ProjectIdentityDataResult",
+              "canonicalReference": "teamcloud!ProjectIdentityDataResult:interface"
+            },
+            {
+              "kind": "Content",
+              "text": ";\n    };\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "TeamCloudGetProjectIdentityResponse",
           "typeTokenRange": {
             "startIndex": 1,
             "endIndex": 7
@@ -13800,6 +16587,114 @@
         },
         {
           "kind": "Interface",
+          "canonicalReference": "teamcloud!TeamCloudUpdateProjectIdentityOptionalParams:interface",
+          "docComment": "/**\n * Optional parameters.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export interface TeamCloudUpdateProjectIdentityOptionalParams extends "
+            },
+            {
+              "kind": "Content",
+              "text": "coreHttp."
+            },
+            {
+              "kind": "Reference",
+              "text": "OperationOptions",
+              "canonicalReference": "@azure/core-http!OperationOptions:interface"
+            },
+            {
+              "kind": "Content",
+              "text": " "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "TeamCloudUpdateProjectIdentityOptionalParams",
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!TeamCloudUpdateProjectIdentityOptionalParams#body:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "body?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ProjectIdentity",
+                  "canonicalReference": "teamcloud!ProjectIdentity:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "body",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ],
+          "extendsTokenRanges": [
+            {
+              "startIndex": 1,
+              "endIndex": 4
+            }
+          ]
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "teamcloud!TeamCloudUpdateProjectIdentityResponse:type",
+          "docComment": "/**\n * Contains response data for the updateProjectIdentity operation.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare type TeamCloudUpdateProjectIdentityResponse = "
+            },
+            {
+              "kind": "Reference",
+              "text": "StatusResult",
+              "canonicalReference": "teamcloud!StatusResult:interface"
+            },
+            {
+              "kind": "Content",
+              "text": " & {\n    _response: coreHttp."
+            },
+            {
+              "kind": "Reference",
+              "text": "HttpResponse",
+              "canonicalReference": "@azure/core-http!HttpResponse:interface"
+            },
+            {
+              "kind": "Content",
+              "text": " & {\n        bodyAsText: string;\n        parsedBody: "
+            },
+            {
+              "kind": "Reference",
+              "text": "StatusResult",
+              "canonicalReference": "teamcloud!StatusResult:interface"
+            },
+            {
+              "kind": "Content",
+              "text": ";\n    };\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "TeamCloudUpdateProjectIdentityResponse",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 7
+          }
+        },
+        {
+          "kind": "Interface",
           "canonicalReference": "teamcloud!TeamCloudUpdateProjectTagOptionalParams:interface",
           "docComment": "/**\n * Optional parameters.\n */\n",
           "excerptTokens": [
@@ -14734,7 +17629,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!UserRole:type",
-          "docComment": "/**\n * Defines values for UserRole.\n */\n",
+          "docComment": "/**\n * Defines values for UserRole. \\ {@link KnownUserRole} can be used interchangeably with UserRole, this enum contains the known values that the service supports. ### Know values supported by the service **None** \\ **Member** \\ **Admin** \\ **Owner**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -14742,7 +17637,7 @@
             },
             {
               "kind": "Content",
-              "text": "\"None\" | \"Member\" | \"Admin\" | \"Owner\" | string"
+              "text": "string"
             },
             {
               "kind": "Content",
@@ -14759,7 +17654,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!UserType:type",
-          "docComment": "/**\n * Defines values for UserType.\n */\n",
+          "docComment": "/**\n * Defines values for UserType. \\ {@link KnownUserType} can be used interchangeably with UserType, this enum contains the known values that the service supports. ### Know values supported by the service **User** \\ **System** \\ **Provider** \\ **Application**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -14767,7 +17662,7 @@
             },
             {
               "kind": "Content",
-              "text": "\"User\" | \"System\" | \"Provider\" | \"Application\" | string"
+              "text": "string"
             },
             {
               "kind": "Content",

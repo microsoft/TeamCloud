@@ -7,88 +7,90 @@
 # --------------------------------------------------------------------------
 
 try:
-    from ._models_py3 import AzureResourceGroup
     from ._models_py3 import Component
     from ._models_py3 import ComponentDataResult
+    from ._models_py3 import ComponentDefinition
     from ._models_py3 import ComponentListDataResult
-    from ._models_py3 import ComponentOffer
-    from ._models_py3 import ComponentOfferDataResult
-    from ._models_py3 import ComponentOfferListDataResult
-    from ._models_py3 import ComponentRequest
+    from ._models_py3 import ComponentTask
+    from ._models_py3 import ComponentTaskDataResult
+    from ._models_py3 import ComponentTaskDefinition
+    from ._models_py3 import ComponentTaskListDataResult
+    from ._models_py3 import ComponentTaskTemplate
+    from ._models_py3 import ComponentTemplate
+    from ._models_py3 import ComponentTemplateDataResult
+    from ._models_py3 import ComponentTemplateListDataResult
+    from ._models_py3 import DeploymentScope
+    from ._models_py3 import DeploymentScopeDataResult
+    from ._models_py3 import DeploymentScopeDefinition
+    from ._models_py3 import DeploymentScopeListDataResult
     from ._models_py3 import ErrorResult
+    from ._models_py3 import Organization
+    from ._models_py3 import OrganizationDataResult
+    from ._models_py3 import OrganizationDefinition
+    from ._models_py3 import OrganizationListDataResult
     from ._models_py3 import Project
     from ._models_py3 import ProjectDataResult
     from ._models_py3 import ProjectDefinition
     from ._models_py3 import ProjectIdentity
     from ._models_py3 import ProjectIdentityDataResult
-    from ._models_py3 import ProjectLink
-    from ._models_py3 import ProjectLinkDataResult
-    from ._models_py3 import ProjectLinkListDataResult
+    from ._models_py3 import ProjectIdentityDefinition
+    from ._models_py3 import ProjectIdentityListDataResult
     from ._models_py3 import ProjectListDataResult
     from ._models_py3 import ProjectMembership
-    from ._models_py3 import ProjectReferenceLinks
-    from ._models_py3 import ProjectType
-    from ._models_py3 import ProjectTypeDataResult
-    from ._models_py3 import ProjectTypeListDataResult
-    from ._models_py3 import Provider
-    from ._models_py3 import ProviderData
-    from ._models_py3 import ProviderDataListDataResult
-    from ._models_py3 import ProviderDataResult
-    from ._models_py3 import ProviderDataReturnResult
-    from ._models_py3 import ProviderEventSubscription
-    from ._models_py3 import ProviderListDataResult
-    from ._models_py3 import ProviderReference
-    from ._models_py3 import ReferenceLink
+    from ._models_py3 import ProjectTemplate
+    from ._models_py3 import ProjectTemplateDataResult
+    from ._models_py3 import ProjectTemplateDefinition
+    from ._models_py3 import ProjectTemplateListDataResult
+    from ._models_py3 import RepositoryDefinition
+    from ._models_py3 import RepositoryReference
     from ._models_py3 import ResultError
     from ._models_py3 import StatusResult
     from ._models_py3 import StringDictionaryDataResult
-    from ._models_py3 import TeamCloudApplication
-    from ._models_py3 import TeamCloudInstance
-    from ._models_py3 import TeamCloudInstanceDataResult
     from ._models_py3 import User
     from ._models_py3 import UserDataResult
     from ._models_py3 import UserDefinition
     from ._models_py3 import UserListDataResult
     from ._models_py3 import ValidationError
 except (SyntaxError, ImportError):
-    from ._models import AzureResourceGroup  # type: ignore
     from ._models import Component  # type: ignore
     from ._models import ComponentDataResult  # type: ignore
+    from ._models import ComponentDefinition  # type: ignore
     from ._models import ComponentListDataResult  # type: ignore
-    from ._models import ComponentOffer  # type: ignore
-    from ._models import ComponentOfferDataResult  # type: ignore
-    from ._models import ComponentOfferListDataResult  # type: ignore
-    from ._models import ComponentRequest  # type: ignore
+    from ._models import ComponentTask  # type: ignore
+    from ._models import ComponentTaskDataResult  # type: ignore
+    from ._models import ComponentTaskDefinition  # type: ignore
+    from ._models import ComponentTaskListDataResult  # type: ignore
+    from ._models import ComponentTaskTemplate  # type: ignore
+    from ._models import ComponentTemplate  # type: ignore
+    from ._models import ComponentTemplateDataResult  # type: ignore
+    from ._models import ComponentTemplateListDataResult  # type: ignore
+    from ._models import DeploymentScope  # type: ignore
+    from ._models import DeploymentScopeDataResult  # type: ignore
+    from ._models import DeploymentScopeDefinition  # type: ignore
+    from ._models import DeploymentScopeListDataResult  # type: ignore
     from ._models import ErrorResult  # type: ignore
+    from ._models import Organization  # type: ignore
+    from ._models import OrganizationDataResult  # type: ignore
+    from ._models import OrganizationDefinition  # type: ignore
+    from ._models import OrganizationListDataResult  # type: ignore
     from ._models import Project  # type: ignore
     from ._models import ProjectDataResult  # type: ignore
     from ._models import ProjectDefinition  # type: ignore
     from ._models import ProjectIdentity  # type: ignore
     from ._models import ProjectIdentityDataResult  # type: ignore
-    from ._models import ProjectLink  # type: ignore
-    from ._models import ProjectLinkDataResult  # type: ignore
-    from ._models import ProjectLinkListDataResult  # type: ignore
+    from ._models import ProjectIdentityDefinition  # type: ignore
+    from ._models import ProjectIdentityListDataResult  # type: ignore
     from ._models import ProjectListDataResult  # type: ignore
     from ._models import ProjectMembership  # type: ignore
-    from ._models import ProjectReferenceLinks  # type: ignore
-    from ._models import ProjectType  # type: ignore
-    from ._models import ProjectTypeDataResult  # type: ignore
-    from ._models import ProjectTypeListDataResult  # type: ignore
-    from ._models import Provider  # type: ignore
-    from ._models import ProviderData  # type: ignore
-    from ._models import ProviderDataListDataResult  # type: ignore
-    from ._models import ProviderDataResult  # type: ignore
-    from ._models import ProviderDataReturnResult  # type: ignore
-    from ._models import ProviderEventSubscription  # type: ignore
-    from ._models import ProviderListDataResult  # type: ignore
-    from ._models import ProviderReference  # type: ignore
-    from ._models import ReferenceLink  # type: ignore
+    from ._models import ProjectTemplate  # type: ignore
+    from ._models import ProjectTemplateDataResult  # type: ignore
+    from ._models import ProjectTemplateDefinition  # type: ignore
+    from ._models import ProjectTemplateListDataResult  # type: ignore
+    from ._models import RepositoryDefinition  # type: ignore
+    from ._models import RepositoryReference  # type: ignore
     from ._models import ResultError  # type: ignore
     from ._models import StatusResult  # type: ignore
     from ._models import StringDictionaryDataResult  # type: ignore
-    from ._models import TeamCloudApplication  # type: ignore
-    from ._models import TeamCloudInstance  # type: ignore
-    from ._models import TeamCloudInstanceDataResult  # type: ignore
     from ._models import User  # type: ignore
     from ._models import UserDataResult  # type: ignore
     from ._models import UserDefinition  # type: ignore
@@ -96,75 +98,76 @@ except (SyntaxError, ImportError):
     from ._models import ValidationError  # type: ignore
 
 from ._team_cloud_client_enums import (
-    ComponentOfferScope,
-    ComponentOfferType,
-    ComponentScope,
+    ComponentResourceState,
+    ComponentTaskResourceState,
+    ComponentTemplateType,
     ComponentType,
-    ProjectLinkType,
+    Enum3,
+    OrganizationResourceState,
     ProjectMembershipRole,
-    ProviderCommandMode,
-    ProviderDataScope,
-    ProviderDataType,
-    ProviderType,
+    ProjectResourceState,
+    RepositoryReferenceProvider,
+    RepositoryReferenceType,
     ResultErrorCode,
     UserRole,
     UserType,
 )
 
 __all__ = [
-    'AzureResourceGroup',
     'Component',
     'ComponentDataResult',
+    'ComponentDefinition',
     'ComponentListDataResult',
-    'ComponentOffer',
-    'ComponentOfferDataResult',
-    'ComponentOfferListDataResult',
-    'ComponentRequest',
+    'ComponentTask',
+    'ComponentTaskDataResult',
+    'ComponentTaskDefinition',
+    'ComponentTaskListDataResult',
+    'ComponentTaskTemplate',
+    'ComponentTemplate',
+    'ComponentTemplateDataResult',
+    'ComponentTemplateListDataResult',
+    'DeploymentScope',
+    'DeploymentScopeDataResult',
+    'DeploymentScopeDefinition',
+    'DeploymentScopeListDataResult',
     'ErrorResult',
+    'Organization',
+    'OrganizationDataResult',
+    'OrganizationDefinition',
+    'OrganizationListDataResult',
     'Project',
     'ProjectDataResult',
     'ProjectDefinition',
     'ProjectIdentity',
     'ProjectIdentityDataResult',
-    'ProjectLink',
-    'ProjectLinkDataResult',
-    'ProjectLinkListDataResult',
+    'ProjectIdentityDefinition',
+    'ProjectIdentityListDataResult',
     'ProjectListDataResult',
     'ProjectMembership',
-    'ProjectReferenceLinks',
-    'ProjectType',
-    'ProjectTypeDataResult',
-    'ProjectTypeListDataResult',
-    'Provider',
-    'ProviderData',
-    'ProviderDataListDataResult',
-    'ProviderDataResult',
-    'ProviderDataReturnResult',
-    'ProviderEventSubscription',
-    'ProviderListDataResult',
-    'ProviderReference',
-    'ReferenceLink',
+    'ProjectTemplate',
+    'ProjectTemplateDataResult',
+    'ProjectTemplateDefinition',
+    'ProjectTemplateListDataResult',
+    'RepositoryDefinition',
+    'RepositoryReference',
     'ResultError',
     'StatusResult',
     'StringDictionaryDataResult',
-    'TeamCloudApplication',
-    'TeamCloudInstance',
-    'TeamCloudInstanceDataResult',
     'User',
     'UserDataResult',
     'UserDefinition',
     'UserListDataResult',
     'ValidationError',
-    'ComponentOfferScope',
-    'ComponentOfferType',
-    'ComponentScope',
+    'ComponentResourceState',
+    'ComponentTaskResourceState',
+    'ComponentTemplateType',
     'ComponentType',
-    'ProjectLinkType',
+    'Enum3',
+    'OrganizationResourceState',
     'ProjectMembershipRole',
-    'ProviderCommandMode',
-    'ProviderDataScope',
-    'ProviderDataType',
-    'ProviderType',
+    'ProjectResourceState',
+    'RepositoryReferenceProvider',
+    'RepositoryReferenceType',
     'ResultErrorCode',
     'UserRole',
     'UserType',

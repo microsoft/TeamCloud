@@ -67,9 +67,9 @@ pushd $cdir/../openapi > /dev/null
     autorest --reset
     echo ""
 
-    # echo "Generating python client"
-    # autorest --v3 python.md
-    # echo ""
+    echo "Generating python client"
+    autorest --v3 python.md
+    echo ""
 
     echo "[TypeScript] Generating client"
     autorest --v3 typescript.md
