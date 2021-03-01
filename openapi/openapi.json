@@ -1963,6 +1963,360 @@
         }
       }
     },
+    "/orgs/{organizationId}/projects/{projectId}/identities": {
+      "get": {
+        "tags": [
+          "ProjectIdentities"
+        ],
+        "summary": "Gets all Project Identities.",
+        "operationId": "GetProjectIdentities",
+        "parameters": [
+          {
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns all Project Identities.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectIdentityListDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "ProjectIdentities"
+        ],
+        "summary": "Creates a new Project Identity.",
+        "operationId": "CreateProjectIdentity",
+        "parameters": [
+          {
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectIdentityDefinition"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The new Project Identity was created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectIdentityDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A Project Identity already exists with the ID provided in the request body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/orgs/{organizationId}/projects/{projectId}/identities/{projectIdentityId}": {
+      "get": {
+        "tags": [
+          "ProjectIdentities"
+        ],
+        "summary": "Gets a Project Identity.",
+        "operationId": "GetProjectIdentity",
+        "parameters": [
+          {
+            "name": "projectIdentityId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns a ProjectIdentity.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectIdentityDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A ProjectIdentity with the projectIdentityId provided was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "ProjectIdentities"
+        ],
+        "summary": "Updates an existing Project Identity.",
+        "operationId": "UpdateProjectIdentity",
+        "parameters": [
+          {
+            "name": "projectIdentityId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectIdentity"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Starts updating the Project Identity. Returns a StatusResult object that can be used to track progress of the long-running operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Project with the provided projectId was not found, or a Identity with the key provided in the request body was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "ProjectIdentities"
+        ],
+        "summary": "Deletes a Project Identity.",
+        "operationId": "DeleteProjectIdentity",
+        "parameters": [
+          {
+            "name": "projectIdentityId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The ProjectIdentity was deleted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectIdentityDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A ProjectIdentity with the projectIdentityId provided was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
     "/orgs/{organizationId}/projects/{projectId}/tags": {
       "get": {
         "tags": [
@@ -3580,6 +3934,10 @@
             "type": "string",
             "nullable": true
           },
+          "vaultId": {
+            "type": "string",
+            "nullable": true
+          },
           "deleted": {
             "type": "string",
             "format": "date-time",
@@ -3793,6 +4151,10 @@
             "type": "string"
           },
           "storageId": {
+            "type": "string",
+            "nullable": true
+          },
+          "vaultId": {
             "type": "string",
             "nullable": true
           },
@@ -4660,6 +5022,120 @@
           },
           "data": {
             "$ref": "#/components/schemas/Project"
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProjectIdentity": {
+        "required": [
+          "deploymentScopeId",
+          "displayName",
+          "id",
+          "organization",
+          "projectId"
+        ],
+        "type": "object",
+        "properties": {
+          "projectId": {
+            "type": "string"
+          },
+          "organization": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "deploymentScopeId": {
+            "type": "string"
+          },
+          "tenantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "clientId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "clientSecret": {
+            "type": "string",
+            "nullable": true
+          },
+          "redirectUrls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "objectId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProjectIdentityListDataResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProjectIdentity"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProjectIdentityDefinition": {
+        "required": [
+          "deploymentScopeId",
+          "displayName"
+        ],
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "type": "string"
+          },
+          "deploymentScopeId": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProjectIdentityDataResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/ProjectIdentity"
           },
           "location": {
             "type": "string",
