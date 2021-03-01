@@ -71,7 +71,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "An Organization with the provided identifier was not found.", typeof(ErrorResult))]
         [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
-        public Task<IActionResult> Get([FromRoute] string org) => ExecuteAsync((user, organization) =>
+        public Task<IActionResult> Get([FromRoute] string organizationId) => ExecuteAsync((user, organization) =>
         {
             return DataResult<Organization>
                 .Ok(organization)
@@ -140,7 +140,7 @@ namespace TeamCloud.API.Controllers
         // [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         // [SwaggerResponse(StatusCodes.Status404NotFound, "An Organization with the ID provided in the request body was not found.", typeof(ErrorResult))]
         // [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
-        // public Task<IActionResult> Put([FromRoute] string org, [FromBody] User user) => EnsureUserAsync(async userDocument =>
+        // public Task<IActionResult> Put([FromRoute] string organizationId, [FromBody] User user) => EnsureUserAsync(async userDocument =>
         // {
         //     if (user is null)
         //         throw new ArgumentNullException(nameof(user));
