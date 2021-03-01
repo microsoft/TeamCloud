@@ -12,4 +12,4 @@ Usage
 License
 =======
 
-`MIT <https://github.com/microsoft/TeamCloud/blob/master/LICENSE>`__
+`MIT <https://github.com/microsoft/TeamCloud/blob/main/LICENSE>`__

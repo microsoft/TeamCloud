@@ -20,5 +20,6 @@
         "client/tc/build": true,
         "client/env/include": true,
         "client/env/pyvenv.cfg": true,
-    }
+    },
+    "restructuredtext.confPath": ""
 }

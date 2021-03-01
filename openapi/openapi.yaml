@@ -8,7 +8,7 @@ info:
     email: Markus.Heiliger@microsoft.com
   license:
     name: TeamCloud is licensed under the MIT License
-    url: https://github.com/microsoft/TeamCloud/blob/master/LICENSE
+    url: https://github.com/microsoft/TeamCloud/blob/main/LICENSE
   version: v1
 paths:
   '/orgs/{organizationId}/projects/{projectId}/components':
@@ -315,8 +315,8 @@ paths:
           description: Unauthorized
         '403':
           description: Forbidden
-  '/orgs/{organizationId}/projects/{projectId}/components/{componentId}/tasks/{id}':
-    get:
+  ? '/orgs/{organizationId}/projects/{projectId}/components/{componentId}/tasks/{id}'
+  : get:
       tags:
         - ComponentTasks
       summary: Gets the Component Task.

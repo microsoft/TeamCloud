@@ -17,7 +17,7 @@ export const ComponentTaskMenu: React.FunctionComponent<IComponentTaskMenuProps>
     const theme = getTheme();
 
     const { org } = useContext(OrgContext);
-    const { component, templates, onComponentSelected } = useContext(ProjectContext);
+    const { component, templates, onComponentTaskSelected } = useContext(ProjectContext);
 
     const [taskTemplates, setTaskTemplates] = useState<ComponentTaskTemplate[]>();
 
@@ -42,7 +42,7 @@ export const ComponentTaskMenu: React.FunctionComponent<IComponentTaskMenuProps>
                 } as ComponentTaskDefinition
             })
             if (result.data) {
-                onComponentSelected(component);
+                onComponentTaskSelected(result.data);
             } else {
                 console.error(result);
             }

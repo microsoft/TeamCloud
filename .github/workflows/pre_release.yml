@@ -2,7 +2,7 @@ name: Create Pre-release
 
 on:
   push:
-    branches: [master]
+    branches: [main]
 
 env:
   BUILD_CONFIGURATION: Release
@@ -225,4 +225,4 @@ jobs:
           git config user.email colbylwilliams@gmail.com
           git add docs
           git diff --quiet && git diff --staged --quiet || git commit -m "[gh-action] Update Docs +norelease"
-          git push origin master
+          git push origin main

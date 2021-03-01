@@ -241,7 +241,7 @@ namespace TeamCloud.API
                         License = new OpenApiLicense
                         {
                             Name = "TeamCloud is licensed under the MIT License",
-                            Url = new Uri("https://github.com/microsoft/TeamCloud/blob/master/LICENSE")
+                            Url = new Uri("https://github.com/microsoft/TeamCloud/blob/main/LICENSE")
                         }
                     });
 

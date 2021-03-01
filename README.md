@@ -58,7 +58,7 @@ Providers are registered with a TeamCloud instance and invoked by the Orchestrat
 
 **This project is in active development and will change.**  As the tool becomes ready for use, it will be [versioned](https://semver.org/) and released.
 
-We will do our best to conduct all development openly by [documenting](https://github.com/microsoft/TeamCloud/tree/master/docs) features and requirements, and managing the project using [issues](https://github.com/microsoft/TeamCloud/issues), [milestones](https://github.com/microsoft/TeamCloud/milestones), and [projects](https://github.com/microsoft/TeamCloud/projects).
+We will do our best to conduct all development openly by [documenting](https://github.com/microsoft/TeamCloud/tree/main/docs) features and requirements, and managing the project using [issues](https://github.com/microsoft/TeamCloud/issues), [milestones](https://github.com/microsoft/TeamCloud/milestones), and [projects](https://github.com/microsoft/TeamCloud/projects).
 
 ## Contributing
 
