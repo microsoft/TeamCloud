@@ -31,9 +31,14 @@ SCRIPT_DIR="${SCRIPT_DIR%/*}"
 ARTIFACTS=$SCRIPT_DIR/../artifacts
 KUDU_SYNC_CMD=${KUDU_SYNC_CMD//\"}
 
+echo "SCRIPT_DIR $SCRIPT_DIR"
+echo "ARTIFACTS $ARTIFACTS"
+
 if [[ ! -n "$DEPLOYMENT_SOURCE" ]]; then
   DEPLOYMENT_SOURCE=$SCRIPT_DIR
 fi
+
+echo "DEPLOYMENT_SOURCE $DEPLOYMENT_SOURCE"
 
 if [[ ! -n "$NEXT_MANIFEST_PATH" ]]; then
   NEXT_MANIFEST_PATH=$ARTIFACTS/manifest
@@ -43,11 +48,17 @@ if [[ ! -n "$NEXT_MANIFEST_PATH" ]]; then
   fi
 fi
 
+echo "NEXT_MANIFEST_PATH $NEXT_MANIFEST_PATH"
+echo "PREVIOUS_MANIFEST_PATH $PREVIOUS_MANIFEST_PATH"
+
 if [[ ! -n "$DEPLOYMENT_TARGET" ]]; then
   DEPLOYMENT_TARGET=$ARTIFACTS/wwwroot
 else
   KUDU_SERVICE=true
 fi
+
+echo "DEPLOYMENT_TARGET $DEPLOYMENT_TARGET"
+echo "KUDU_SERVICE $KUDU_SERVICE"
 
 if [[ ! -n "$KUDU_SYNC_CMD" ]]; then
   # Install kudu sync
@@ -64,11 +75,14 @@ if [[ ! -n "$KUDU_SYNC_CMD" ]]; then
   fi
 fi
 
+echo "KUDU_SYNC_CMD $KUDU_SYNC_CMD"
+
 # Node Helpers
 # ------------
 # KUDU_SELECT_NODE_VERSION_CMD=
 selectNodeVersion () {
   if [[ -n "$KUDU_SELECT_NODE_VERSION_CMD" ]]; then
+    echo "KUDU_SELECT_NODE_VERSION_CMD $KUDU_SELECT_NODE_VERSION_CMD"
     SELECT_NODE_VERSION="$KUDU_SELECT_NODE_VERSION_CMD \"$DEPLOYMENT_SOURCE\" \"$DEPLOYMENT_TARGET\" \"$DEPLOYMENT_TEMP\""
     eval $SELECT_NODE_VERSION
     exitWithMessageOnError "select node version failed"
@@ -102,6 +116,9 @@ echo Handling node.js deployment.
 
 # 1. Select node version
 selectNodeVersion
+
+
+
 
 # 2. Install npm packages and build app
 if [ -e "$DEPLOYMENT_SOURCE/package.json" ]; then
