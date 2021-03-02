@@ -13,4 +13,4 @@ const _getApiUrl = () => {
 const apiUrl = _getApiUrl();
 
 export const auth = new Auth();
-export const api = new TeamCloud(auth, apiUrl);
+export const api = new TeamCloud(auth, apiUrl, { credentialScopes: [] });

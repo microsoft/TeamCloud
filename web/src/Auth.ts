@@ -74,7 +74,7 @@ export class Auth implements TokenCredential, AuthenticationProvider {
 
         var authResult = await this.clientApplication.acquireTokenSilent({ account: account, scopes: scopes as string[] });
 
-        return { token: authResult.accessToken, expiresOnTimestamp: authResult.expiresOn.getTime() };
+        return { token: authResult.accessToken, expiresOnTimestamp: authResult.expiresOn!.getTime() };
     }
 
     getToken = async (scopes: string | string[] = 'openid'): Promise<AccessToken | null> => {
@@ -94,7 +94,7 @@ export class Auth implements TokenCredential, AuthenticationProvider {
 
             var authResult = await this.clientApplication.acquireTokenSilent({ account: account, scopes: scopes as string[] });
 
-            return { token: authResult.accessToken, expiresOnTimestamp: authResult.expiresOn.getTime() };
+            return { token: authResult.accessToken, expiresOnTimestamp: authResult.expiresOn!.getTime() };
 
         } catch (error) {
 
@@ -105,7 +105,6 @@ export class Auth implements TokenCredential, AuthenticationProvider {
                 console.error(`message : ${error.message}`);
                 console.error(`name : ${error.name}`);
                 console.error(`subError : ${error.subError}`);
-                console.error(`suberror : ${error.suberror}`);
 
                 try {
 
@@ -119,8 +118,6 @@ export class Auth implements TokenCredential, AuthenticationProvider {
                         console.error(`err.message : ${err.message}`);
                         console.error(`err.name : ${err.name}`);
                         console.error(`err.subError : ${err.subError}`);
-                        console.error(`err.suberror : ${err.suberror}`);
-
                     }
                 }
             }
