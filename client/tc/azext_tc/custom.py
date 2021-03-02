@@ -64,14 +64,177 @@ def teamcloud_update(cmd, version=None, prerelease=False):  # pylint: disable=to
     CommandIndex().invalidate()
 
 
-def teamcloud_info(cmd, client, base_url):
-    _ensure_base_url(client, base_url)
-    return client.get_team_cloud_instance()
+def teamcloud_deploy(cmd, client, name, location=None, resource_group_name='TeamCloud',  # pylint: disable=too-many-statements, too-many-locals
+                     principal_name=None, principal_password=None, tags=None, version=None,
+                     skip_app_deployment=False, skip_name_validation=False, prerelease=False,
+                     index_url=None):
+    from azure.cli.core._profile import Profile
+    from ._deploy_utils import (
+        get_index_teamcloud, deploy_arm_template_at_resource_group, get_resource_group_by_name,
+        create_resource_group_name, create_resource_manager_sp, set_appconfig_keys, zip_deploy_app,
+        get_arm_output)
+
+    cli_ctx = cmd.cli_ctx
+
+    hook = cli_ctx.get_progress_controller()
+    hook.begin()
+
+    hook.add(message='Fetching index.json from GitHub')
+    version, deploy_url, api_zip_url, orchestrator_zip_url = get_index_teamcloud(
+        cli_ctx, version, prerelease, index_url)
+
+    hook.add(message='Getting resource group {}'.format(resource_group_name))
+    rg, _ = get_resource_group_by_name(cli_ctx, resource_group_name)
+    if rg is None:
+        if location is None:
+            raise CLIError(
+                "--location/-l is required if resource group '{}' does not exist".format(resource_group_name))
+        hook.add(message="Resource group '{}' not found".format(resource_group_name))
+        hook.add(message="Creating resource group '{}'".format(resource_group_name))
+        rg, _ = create_resource_group_name(cli_ctx, resource_group_name, location)
+
+    profile = Profile(cli_ctx=cli_ctx)
+
+    if principal_name is None and principal_password is None:
+        hook.add(message='Creating AAD app registration')
+        resource_manager_sp = create_resource_manager_sp(cmd, name)
+    else:
+        _, _, tenant_id = profile.get_login_credentials(
+            resource=cli_ctx.cloud.endpoints.active_directory_graph_resource_id)
+        resource_manager_sp = {
+            'appId': principal_name,
+            'password': principal_password,
+            'tenant': tenant_id
+        }
+
+    parameters = []
+    parameters.append('webAppName={}'.format(name))
+    parameters.append('resourceManagerIdentityClientId={}'.format(resource_manager_sp['appId']))
+    parameters.append('resourceManagerIdentityClientSecret={}'.format(
+        resource_manager_sp['password']))
+
+    hook.add(message='Deploying ARM template')
+    outputs = deploy_arm_template_at_resource_group(
+        cmd, resource_group_name, template_uri=deploy_url, parameters=[parameters])
+
+    api_url = get_arm_output(outputs, 'apiUrl')
+    orchestrator_url = get_arm_output(outputs, 'orchestratorUrl')
+    api_app_name = get_arm_output(outputs, 'apiAppName')
+    orchestrator_app_name = get_arm_output(outputs, 'orchestratorAppName')
+    config_service_conn_string = get_arm_output(outputs, 'configServiceConnectionString')
+    config_service_imports = get_arm_output(outputs, 'configServiceImport')
+
+    config_kvs = []
+    for k, v in config_service_imports.items():
+        config_kvs.append({'key': k, 'value': v})
+
+    hook.add(message='Adding ARM template outputs to App Configuration service')
+    set_appconfig_keys(cmd, config_service_conn_string, config_kvs)
+
+    if skip_app_deployment:
+        logger.warning(
+            'IMPORTANT: --skip-app-deployment prevented source code for the TeamCloud instance deployment. '
+            'To deploy the applications use `az tc upgrade`.')
+    else:
+        hook.add(message='Deploying Orchestrator source code')
+        zip_deploy_app(cli_ctx, resource_group_name, orchestrator_app_name, orchestrator_zip_url)
+
+        hook.add(message='Deploying API source code')
+        zip_deploy_app(cli_ctx, resource_group_name, api_app_name, api_zip_url)
+
+        version_string = version or 'the latest version'
+        hook.add(message='Successfully created TeamCloud instance ({})'.format(version_string))
+
+    hook.end(message=' ')
+    logger.warning(' ')
+    logger.warning('TeamCloud instance successfully created at: %s', api_url)
+    logger.warning('Use `az configure --defaults tc-base-url=%s` to configure '
+                   'this as your default TeamCloud instance', api_url)
+
+    result = {
+        'deployed': not skip_app_deployment,
+        'version': version or 'latest',
+        'name': name,
+        'base_url': api_url,
+        'location': rg.location,
+        'api': {
+            'name': api_app_name,
+            'url': api_url
+        },
+        'orchestrator': {
+            'name': orchestrator_app_name,
+            'url': orchestrator_url
+        },
+        'service_principal': {
+            'appId': resource_manager_sp['appId'],
+            # 'password': resource_manager_sp['password'],
+            'tenant': resource_manager_sp['tenant']
+        }
+    }
+
+    return result
 
 
-def status_get(cmd, client, base_url, tracking_id, project=None):
+def teamcloud_app_deploy(cmd, client, base_url, client_id, app_type='Web', version=None,  # pylint: disable=too-many-locals
+                         prerelease=False, index_url=None, location=None, resource_group_name='TeamCloud-Web'):
+    from ._deploy_utils import (
+        get_index_webapp, get_app_name, get_resource_group_by_name, create_resource_group_name,
+        deploy_arm_template_at_resource_group, zip_deploy_app)
+
     _ensure_base_url(client, base_url)
-    return client.get_project_status(project, tracking_id) if project else client.get_status(tracking_id)
+    cli_ctx = cmd.cli_ctx
+
+    app_type = app_type.lower()
+
+    if app_type != 'web':
+        raise CLIError("--type/-t currently only supports 'Web'")
+
+    hook = cli_ctx.get_progress_controller()
+    hook.begin()
+
+    hook.add(message='Fetching index.json from GitHub')
+    version, deploy_url, zip_url = get_index_webapp(cli_ctx, version, prerelease, index_url)
+
+    name = get_app_name(base_url) + '-' + app_type
+    url = 'https://{}.azurewebsites.net'.format(name)
+
+    rg, _ = get_resource_group_by_name(cli_ctx, resource_group_name)
+    if rg is None:
+        if location is None:
+            raise CLIError(
+                "--location/-l is required if resource group '{}' does not exist".format(resource_group_name))
+        hook.add(message="Resource group '{}' not found".format(resource_group_name))
+        hook.add(message="Creating resource group '{}'".format(resource_group_name))
+        rg, _ = create_resource_group_name(cli_ctx, resource_group_name, location)
+
+    parameters = []
+    parameters.append('webAppName={}'.format(name))
+    # if client_id:
+    parameters.append('reactAppMsalClientId={}'.format(client_id))
+    parameters.append('reactAppTcApiUrl={}'.format(base_url))
+
+    hook.add(message='Deploying ARM template')
+    _ = deploy_arm_template_at_resource_group(
+        cmd, resource_group_name, template_uri=deploy_url, parameters=[parameters])
+
+    hook.add(message='Deploying {} app source code'.format(app_type))
+    zip_deploy_app(cli_ctx, resource_group_name, name, zip_url)
+
+    # resource_group = AzureResourceGroup(
+    #     id=rg.id, name=rg.name, region=rg.location, subscription_id=sub_id)
+    # tc_application = TeamCloudApplication(
+    #     url=url, version=version, type=app_type, resource_group=resource_group)
+
+    # tc_instance.applications.append(tc_application)
+    # _ = client.update_team_cloud_instance(tc_instance)
+
+    result = {
+        'version': version or 'latest',
+        'name': name,
+        'url': '{}'.format(url),
+    }
+
+    return result
 
 
 # Orgs

@@ -122,6 +122,12 @@ def subscriptions_list_validator(cmd, ns):
                 '--subscriptions should be a space-separated list of valid uuids')
 
 
+def client_id_validator(cmd, ns):
+    if ns.client_id:
+        if not _is_valid_uuid(ns.client_id):
+            raise CLIError('--client-id/-c should be a valid uuid')
+
+
 def url_validator(cmd, ns):
     if ns.url:
         if not _is_valid_url(ns.url):
@@ -132,6 +138,21 @@ def base_url_validator(cmd, ns):
     if ns.base_url:
         if not _is_valid_url(ns.base_url):
             raise CLIError('--base-url/-u should be a valid url')
+
+
+def index_url_validator(cmd, ns):
+    if ns.index_url:
+        if ns.prerelease or ns.version:
+            raise CLIError(
+                'usage error: can only use one of --index-url | --version/-v | --pre')
+        if not _is_valid_url(ns.index_url):
+            raise CLIError('--index-url should be a valid url')
+
+
+def repo_url_validator(cmd, ns):
+    if ns.repo_url:
+        if not _is_valid_url(ns.repo_url):
+            raise CLIError('--repo-url/-r should be a valid url')
 
 
 def auth_code_validator(cmd, ns):

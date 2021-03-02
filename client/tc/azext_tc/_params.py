@@ -5,12 +5,12 @@
 
 # pylint: disable=too-many-statements
 from knack.arguments import CLIArgumentType
+from azure.cli.core.commands.parameters import (tags_type, get_enum_type)
 
 from ._validators import (
-    org_name_or_id_validator, org_name_validator, subscriptions_list_validator, url_validator,
-    base_url_validator, teamcloud_cli_source_version_validator
-    # , teamcloud_source_version_validator, index_url_validator
-)
+    org_name_or_id_validator, org_name_validator, subscriptions_list_validator,
+    base_url_validator, teamcloud_cli_source_version_validator, repo_url_validator,
+    teamcloud_source_version_validator, index_url_validator, client_id_validator)
 
 from ._completers import (get_org_completion_list)
 
@@ -33,11 +33,11 @@ def load_arguments(self, _):
     # Global
 
     # ignore global az arg --subscription and requre base_url for everything except `tc deploy`
-    for scope in ['tc info', 'tc update', 'tc org', 'tc template', 'tc scope']:
+    for scope in ['tc update', 'tc app', 'tc org', 'tc template', 'tc scope']:
         with self.argument_context(scope, arg_group='TeamCloud') as c:
             c.argument('base_url', tc_url_type)
 
-    for scope in ['tc info', 'tc update', 'tc org delete', 'tc org list', 'tc org show', 'tc template', 'tc scope']:
+    for scope in ['tc update', 'tc org delete', 'tc org list', 'tc org show', 'tc template', 'tc scope']:
         with self.argument_context(scope, arg_group='TeamCloud') as c:
             c.ignore('_subscription')
 
@@ -52,6 +52,39 @@ def load_arguments(self, _):
                    validator=teamcloud_cli_source_version_validator)
         c.argument('prerelease', options_list=['--pre'], action='store_true',
                    help='Deploy latest prerelease version.')
+
+    # tc deploy uses a command level validator, param validators will be ignored
+    with self.argument_context('tc deploy') as c:
+        c.argument('name', options_list=['--name', '-n'],
+                   help='Name of app. Must be globally unique and will be the subdomain '
+                        'for the TeamCloud instance service endpoint.')
+        c.argument('principal_name', help='Service principal app (client) id.')
+        c.argument('principal_password', help="Service principal password, aka 'client secret'.")
+        c.argument('tags', tags_type)
+        c.argument('version', options_list=['--version', '-v'],
+                   help='TeamCloud version. Default: latest stable.')
+        c.argument('prerelease', options_list=['--pre'], action='store_true',
+                   help='Deploy latest prerelease version.')
+        c.argument('skip_app_deployment', action='store_true',
+                   help="Only create Azure resources, skip deploying the TeamCloud API and Orchestrator apps.")
+        c.argument('skip_name_validation', action='store_true',
+                   help="Skip name validaiton. Useful when attempting to redeploy a partial or failed deployment.")
+        c.argument('index_url', help='URL to custom index.json file.')
+
+    with self.argument_context('tc app deploy') as c:
+        c.argument('client_id', options_list=['--client-id', '-c'],
+                   type=str, validator=client_id_validator,
+                   help='Client ID for the Managed Application used for user authentication. '
+                   'See https://aka.ms/tcwebclientid for instructions.')
+        c.argument('app_type', get_enum_type(['Web'], default='Web'),
+                   options_list=['--type', '-t'], help='App type. Currently only supports Web')
+        c.argument('version', options_list=['--version', '-v'],
+                   type=str, help='App version. Default: latest stable.',
+                   validator=teamcloud_source_version_validator)
+        c.argument('prerelease', options_list=['--pre'], action='store_true',
+                   help='Deploy latest prerelease version.')
+        c.argument('index_url', help='URL to custom index.json file.',
+                   validator=index_url_validator)
 
     # Orgs
 
@@ -90,7 +123,7 @@ def load_arguments(self, _):
                    type=str, help='Project template name.')
         c.argument('repo_url', options_list=['--repo-url', '-r'],
                    help='URL to the project template repo.',
-                   validator=url_validator)
+                   validator=repo_url_validator)
         c.argument('repo_version', options_list=['--repo-version', '-v'],
                    help='Version (tag, branch, or ref). Default: latest stable.')
         c.argument('repo_token', options_list=['--repo-token', '-t'],

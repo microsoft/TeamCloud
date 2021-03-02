@@ -25,16 +25,37 @@ examples:
     text: az tc update --pre
 """
 
-helps['tc info'] = """
+helps['tc deploy'] = """
 type: command
-short-summary: Get TeamCloud instance information.
+short-summary: Deploy a new TeamCloud instance.
 examples:
-  - name: Get TeamCloud instance information.
-    text: az tc info --base-url url
+  - name: Deploy a new TeamCloud instance.
+    text: az tc deploy --name myawesomeapp --location eastus
+  - name: Deploy a TeamCloud instance to a specific pre-release.
+    text: az tc deploy --name myawesomeapp --location eastus --version v0.1.1
 """
 
 # ----------------
-# TeamCloud Users
+# TeamCloud Apps
+# ----------------
+
+helps['tc app'] = """
+type: group
+short-summary: Manage client applications.
+"""
+
+helps['tc app deploy'] = """
+type: command
+short-summary: Deploy a new client applications.
+examples:
+  - name: Deploy a new web app for a instance.
+    text: az tc app deploy --base-url url --client-id clientId --type Web
+  - name: Deploy new pre-release web app for a instance.
+    text: az tc app deploy --base-url url --client-id clientId --type Web --pre
+"""
+
+# ----------------
+# TeamCloud Orgs
 # ----------------
 
 helps['tc org'] = """

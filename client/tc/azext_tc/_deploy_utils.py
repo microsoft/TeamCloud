@@ -169,7 +169,7 @@ def deploy_arm_template_at_resource_group(cmd, resource_group_name=None, templat
     from azure.cli.command_modules.resource.custom import _prepare_deployment_properties_unmodified
     from ._client_factory import resource_client_factory
 
-    properties = _prepare_deployment_properties_unmodified(cmd.cli_ctx, template_file=template_file,
+    properties = _prepare_deployment_properties_unmodified(cmd, template_file=template_file,
                                                            template_uri=template_uri, parameters=parameters,
                                                            mode='Incremental')
 
