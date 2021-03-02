@@ -170,12 +170,11 @@
             "apiVersion": "2018-02-01",
             "location": "[resourceGroup().location]",
             "properties": {
-                "name": "[variables('functionAppNameLower')]",
-                "computeMode": "Dynamic"
+                "name": "[variables('functionAppNameLower')]"
             },
             "sku": {
-                "name": "Y1",
-                "tier": "Dynamic"
+                "tier": "ElasticPremium",
+                "name": "EP1"
             }
         },
         {
