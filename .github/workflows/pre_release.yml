@@ -18,11 +18,8 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v2
         with:
-          # token: ${{ secrets.TEAMCLOUD_PAT }}
+          token: ${{ secrets.TEAMCLOUD_PAT }}
           fetch-depth: 0
-
-      # - name: Checkout Tags
-      #   run: git fetch --prune --tags
 
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
@@ -205,21 +202,23 @@ jobs:
           asset_path: dist/tc-${{ steps.cli_version.outputs.version }}-py2.py3-none-any.whl
           asset_name: tc-${{ steps.cli_version.outputs.version }}-py2.py3-none-any.whl
           asset_content_type: application/zip
-      # - name: Update CLI.md Version
-      #   shell: python
-      #   run: |
-      #     from pathlib import Path
-      #     with open(Path(Path.cwd() / 'docs/tpl') / 'CLI.md.tpl', 'r') as f:
-      #         content = f.read()
-      #     content = content.replace('%{{latest_cli}}%', 'https://github.com/microsoft/TeamCloud/releases/download/v${{ steps.gitversion.outputs.majorMinorPatch }}/tc-${{ steps.cli_version.outputs.version }}-py2.py3-none-any.whl')
-      #     with open(Path(Path.cwd() / 'docs') / 'CLI.md', 'w') as f:
-      #         f.write(content)
-      # # Commit the docs only when any have changed
-      # # (git diff --quiet && git diff --staged --quiet )
-      # - name: Commit Updated Docs
-      #   run: |
-      #     git config user.name colbylwilliams
-      #     git config user.email colbylwilliams@gmail.com
-      #     git add docs
-      #     git diff --quiet && git diff --staged --quiet || git commit -m "[gh-action] Update Docs +norelease"
-      #     git push origin main
+
+      - name: Update CLI.md Version
+        shell: python
+        run: |
+          from pathlib import Path
+          with open(Path(Path.cwd() / 'docs/tpl') / 'CLI.md.tpl', 'r') as f:
+              content = f.read()
+          content = content.replace('%{{latest_cli}}%', 'https://github.com/microsoft/TeamCloud/releases/download/v${{ steps.gitversion.outputs.majorMinorPatch }}/tc-${{ steps.cli_version.outputs.version }}-py2.py3-none-any.whl')
+          with open(Path(Path.cwd() / 'docs') / 'CLI.md', 'w') as f:
+              f.write(content)
+
+      # Commit the docs only when any have changed
+      # (git diff --quiet && git diff --staged --quiet )
+      - name: Commit Updated Docs
+        run: |
+          git config user.name colbylwilliams
+          git config user.email colbylwilliams@gmail.com
+          git add docs
+          git diff --quiet && git diff --staged --quiet || git commit -m "[gh-action] Update Docs +norelease"
+          git push origin main
