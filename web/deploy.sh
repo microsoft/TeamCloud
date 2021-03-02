@@ -69,7 +69,7 @@ fi
 # KUDU_SELECT_NODE_VERSION_CMD=
 selectNodeVersion () {
   if [[ -n "$KUDU_SELECT_NODE_VERSION_CMD" ]]; then
-    SELECT_NODE_VERSION="$KUDU_SELECT_NODE_VERSION_CMD \"$DEPLOYMENT_SOURCE/teamcloud\" \"$DEPLOYMENT_TARGET\" \"$DEPLOYMENT_TEMP\""
+    SELECT_NODE_VERSION="$KUDU_SELECT_NODE_VERSION_CMD \"$DEPLOYMENT_SOURCE/web\" \"$DEPLOYMENT_TARGET\" \"$DEPLOYMENT_TEMP\""
     eval $SELECT_NODE_VERSION
     exitWithMessageOnError "select node version failed"
 
@@ -104,8 +104,8 @@ echo Handling node.js deployment.
 selectNodeVersion
 
 # 2. Install npm packages and build app
-if [ -e "$DEPLOYMENT_SOURCE/teamcloud/package.json" ]; then
-  cd "$DEPLOYMENT_SOURCE/teamcloud"
+if [ -e "$DEPLOYMENT_SOURCE/web/package.json" ]; then
+  cd "$DEPLOYMENT_SOURCE/web"
   # echo "Running $NPM_CMD install --production"
   # eval $NPM_CMD install --production
   echo "Running $NPM_CMD install"
@@ -117,7 +117,7 @@ fi
 
 # 3. KuduSync
 if [[ "$IN_PLACE_DEPLOYMENT" -ne "1" ]]; then
-  "$KUDU_SYNC_CMD" -v 50 -f "$DEPLOYMENT_SOURCE/teamcloud/build" -t "$DEPLOYMENT_TARGET" -n "$NEXT_MANIFEST_PATH" -p "$PREVIOUS_MANIFEST_PATH" -i ".git;.hg;.deployment;deploy.sh"
+  "$KUDU_SYNC_CMD" -v 50 -f "$DEPLOYMENT_SOURCE/web/build" -t "$DEPLOYMENT_TARGET" -n "$NEXT_MANIFEST_PATH" -p "$PREVIOUS_MANIFEST_PATH" -i ".git;.hg;.deployment;deploy.sh"
   exitWithMessageOnError "Kudu Sync failed"
 fi
 
