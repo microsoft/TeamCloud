@@ -89,6 +89,9 @@ namespace TeamCloud.Data.CosmosDb
 
         public override async Task<Project> GetAsync(string organization, string identifier, bool expand = false)
         {
+            if (identifier is null)
+                throw new ArgumentNullException(nameof(identifier));
+
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
@@ -104,7 +107,9 @@ namespace TeamCloud.Data.CosmosDb
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
             {
-                var query = new QueryDefinition($"SELECT * FROM c WHERE c.displayName = '{identifier}' OR c.slug = '{identifier}'");
+                var identifierLower = identifier.ToLowerInvariant();
+
+                var query = new QueryDefinition($"SELECT * FROM c WHERE  c.slug = '{identifierLower}' OR LOWER(c.displayName) = '{identifierLower}'");
 
                 var queryIterator = container
                     .GetItemQueryIterator<Project>(query, requestOptions: GetQueryRequestOptions(organization));
@@ -193,7 +198,8 @@ namespace TeamCloud.Data.CosmosDb
                 .ConfigureAwait(false);
 
             var search = "'" + string.Join("', '", identifiers) + "'";
-            var query = new QueryDefinition($"SELECT * FROM p WHERE p.id IN ({search}) OR p.slug IN ({search}) OR p.displayName in ({search})");
+            var searchLower = "'" + string.Join("', '", identifiers.Select(i => i.ToLowerInvariant())) + "'";
+            var query = new QueryDefinition($"SELECT * FROM p WHERE p.id IN ({search}) OR p.slug IN ({searchLower}) OR LOWER(p.displayName) in ({searchLower})");
 
             var queryIterator = container
                 .GetItemQueryIterator<Project>(query, requestOptions: GetQueryRequestOptions(organization));

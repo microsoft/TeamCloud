@@ -88,7 +88,9 @@ namespace TeamCloud.Data.CosmosDb
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
             {
-                var query = new QueryDefinition($"SELECT * FROM o WHERE o.slug = '{identifier}'");
+                var identifierLower = identifier.ToLowerInvariant();
+
+                var query = new QueryDefinition($"SELECT * FROM o WHERE o.slug = '{identifierLower}' OR LOWER(o.displayName) = '{identifierLower}'");
 
                 var queryIterator = container
                     .GetItemQueryIterator<Organization>(query, requestOptions: GetQueryRequestOptions(tenant));
@@ -139,7 +141,8 @@ namespace TeamCloud.Data.CosmosDb
                 .ConfigureAwait(false);
 
             var search = "'" + string.Join("', '", identifiers) + "'";
-            var query = new QueryDefinition($"SELECT * FROM o WHERE o.id IN ({search}) OR o.slug IN ({search}) OR o.displayName in ({search})");
+            var searchLower = "'" + string.Join("', '", identifiers.Select(i => i.ToLowerInvariant())) + "'";
+            var query = new QueryDefinition($"SELECT * FROM o WHERE o.id IN ({search}) OR o.slug IN ({searchLower}) OR LOWER(o.displayName) in ({searchLower})");
 
             var queryIterator = container
                 .GetItemQueryIterator<Organization>(query, requestOptions: GetQueryRequestOptions(tenant));
