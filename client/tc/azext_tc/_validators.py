@@ -3,7 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for license information.
 # --------------------------------------------------------------------------------------------
 
-from re import match, sub
+from re import match
 from uuid import UUID
 from azure.cli.core.util import CLIError
 from knack.log import get_logger
@@ -74,6 +74,38 @@ def tc_deploy_validator(cmd, ns):
                     '--name/-n {}'.format(availability.message))
 
 
+def org_name_validator(cmd, ns):
+    if ns.name is not None:
+        if _is_valid_uuid(ns.name):
+            return
+        if not _is_valid_org_name(ns.name):
+            raise CLIError(
+                '--name/-n should be a valid uuid or a org name string with length [2,31]')
+
+
+def org_name_or_id_validator(cmd, ns):
+    if ns.org:
+        if _is_valid_uuid(ns.org):
+            return
+        if not _is_valid_org_name(ns.org):
+            raise CLIError(
+                '--org should be a valid uuid or a org name string with length [2,31]')
+
+        from ._client_factory import teamcloud_client_factory
+
+        client = teamcloud_client_factory(cmd.cli_ctx)
+        _ensure_base_url(client, ns.base_url)
+        result = client.get_organization(ns.org)
+
+        if isinstance(result, ErrorResult):
+            raise CLIError(
+                '--org no org found matching provided org name')
+        try:
+            ns.org = result.data.id
+        except AttributeError:
+            pass
+
+
 def project_name_validator(cmd, ns):
     if ns.name is not None:
         if _is_valid_uuid(ns.name):
@@ -83,122 +115,11 @@ def project_name_validator(cmd, ns):
                 '--name/-n should be a valid uuid or a project name string with length [4,31]')
 
 
-def project_name_or_id_validator(cmd, ns):
-    if ns.project:
-        if _is_valid_uuid(ns.project):
-            return
-        if not _is_valid_project_name(ns.project):
-            raise CLIError(
-                '--project/-p should be a valid uuid or a project name string with length [4,31]')
-
-        from ._client_factory import teamcloud_client_factory
-
-        client = teamcloud_client_factory(cmd.cli_ctx)
-        _ensure_base_url(client, ns.base_url)
-        result = client.get_project_by_name_or_id(ns.project)
-
-        if isinstance(result, ErrorResult):
-            raise CLIError(
-                '--project/-p no project found matching provided project name')
-        try:
-            ns.project = result.data.id
-        except AttributeError:
-            pass
-
-
-def project_name_or_id_validator_name(cmd, ns):
-    if ns.project:
-        if _is_valid_uuid(ns.project):
-            return
-        if not _is_valid_project_name(ns.project):
-            raise CLIError(
-                '--name/-n should be a valid uuid or a project name string with length [4,31]')
-
-        from ._client_factory import teamcloud_client_factory
-
-        client = teamcloud_client_factory(cmd.cli_ctx)
-        _ensure_base_url(client, ns.base_url)
-        result = client.get_project_by_name_or_id(ns.project)
-
-        if isinstance(result, ErrorResult):
-            raise CLIError(
-                '--name/-n no project found matching provided project name')
-        try:
-            ns.project = result.data.id
-        except AttributeError:
-            pass
-
-
-def user_name_or_id_validator(cmd, ns):
-    if ns.user:
-        if _is_valid_uuid(ns.user) or _has_basic_email_format(ns.user):
-            return
-        ns.user = sub('http[s]?://', '', ns.user)
-
-
-def offer_name_validator(cmd, ns):
-    if ns.offer:
-        if not _is_valid_provider_id(ns.offer):
-            raise CLIError(
-                '--name/-n should start with a lowercase and contain only lowercase, numbers, '
-                'and periods [.] with length [5,254]')
-
-
-def offer_id_validator(cmd, ns):
-    if ns.offer:
-        if not _is_valid_provider_id(ns.offer):
-            raise CLIError(
-                '--offer should start with a lowercase and contain only lowercase, numbers, '
-                'and periods [.] with length [5,254]')
-
-
-def component_name_validator(cmd, ns):
-    if ns.component:
-        if not _is_valid_uuid(ns.component):
-            raise CLIError('--name/-n should be a valid uuid')
-
-
-def project_type_id_validator(cmd, ns):
-    if ns.project_type:
-        if not _is_valid_project_type_id(ns.project_type):
-            raise CLIError(
-                '--project-type/-t should start with a lowercase and contain only lowercase, numbers, '
-                'and periods [.] with length [5,254]')
-
-
-def project_type_id_validator_name(cmd, ns):
-    if ns.project_type:
-        if not _is_valid_project_type_id(ns.project_type):
-            raise CLIError(
-                '--name/-n should start with a lowercase and contain only lowercase, numbers, '
-                'and periods [.] with length [5,254]')
-
-
-def provider_id_validator(cmd, ns):
-    if ns.provider:
-        if not _is_valid_provider_id(ns.provider):
-            raise CLIError(
-                '--name/-n should start with a lowercase and contain only lowercase, numbers, '
-                'and periods [.] with length [5,254]')
-
-
 def subscriptions_list_validator(cmd, ns):
     if ns.subscriptions:
         if not all(_is_valid_uuid(x) for x in ns.subscriptions):
             raise CLIError(
                 '--subscriptions should be a space-separated list of valid uuids')
-
-
-def tracking_id_validator(cmd, ns):
-    if ns.tracking_id:
-        if not _is_valid_uuid(ns.tracking_id):
-            raise CLIError('--tracking-id/-t should be a valid uuid')
-
-
-def client_id_validator(cmd, ns):
-    if ns.client_id:
-        if not _is_valid_uuid(ns.client_id):
-            raise CLIError('--client-id/-c should be a valid uuid')
 
 
 def url_validator(cmd, ns):
@@ -211,15 +132,6 @@ def base_url_validator(cmd, ns):
     if ns.base_url:
         if not _is_valid_url(ns.base_url):
             raise CLIError('--base-url/-u should be a valid url')
-
-
-def index_url_validator(cmd, ns):
-    if ns.index_url:
-        if ns.prerelease or ns.version:
-            raise CLIError(
-                'usage error: can only use one of --index-url | --version/-v | --pre')
-        if not _is_valid_url(ns.index_url):
-            raise CLIError('--index-url should be a valid url')
 
 
 def auth_code_validator(cmd, ns):
@@ -317,6 +229,10 @@ def property_validator(string):
         comps = string.split('=', 1)
         result = {comps[0]: comps[1]} if len(comps) > 1 else {string: ''}
     return result
+
+
+def _is_valid_org_name(name):
+    return name is not None and 1 < len(name) < 31
 
 
 def _is_valid_project_name(name):

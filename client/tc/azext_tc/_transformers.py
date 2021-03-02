@@ -3,6 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for license information.
 # --------------------------------------------------------------------------------------------
 
+from urllib.parse import urlparse
 from collections import OrderedDict
 from knack.log import get_logger
 from .vendored_sdks.teamcloud.models import (ErrorResult, StatusResult)
@@ -45,49 +46,31 @@ def transform_status(result):
 # ----------------
 
 
-def transform_user_table_output(result):
+def transform_org_table_output(result):
     if not isinstance(result, list):
         result = [result]
 
     resultList = []
 
     for item in result:
-        pm = item['projectMemberships']
+        resourceId = item['resourceId']
+        paths = None if resourceId is None else urlparse(resourceId).path.split('/')
+        rg = None if resourceId is None else paths[paths.index('resourceGroups') + 1]
         resultList.append(OrderedDict([
-            ('User ID', item['id']),
-            ('Type', item['userType']),
-            ('Role', item['role']),
-            ('Project Memberships', '' if pm is None else '\n'.join(
-                ["{} : {}".format(p['role'], p['projectId']) for p in pm])),
-            ('Properties', str(item['properties']))
-        ]))
-
-    return resultList
-
-
-def transform_project_table_output(result):
-    if not isinstance(result, list):
-        result = [result]
-
-    resultList = []
-
-    for item in result:
-        rg = item['resourceGroup']
-        resultList.append(OrderedDict([
-            ('Project ID', item['id']),
-            ('Name', item['name']),
-            ('Type', item['type']['id']),
-            ('Resource Group', '' if rg is None else rg['name']),
-            ('Subscription', '' if rg is None else rg['subscriptionId']),
-            ('Region', '' if rg is None else rg['region']),
+            ('Name', item['displayName']),
+            ('Slug', item['slug']),
+            ('ID', item['id']),
+            ('Location', item['location']),
+            ('State', item['resourceState']),
+            ('Subscription', item['subscriptionId']),
+            ('Resource Group', '' if rg is None else rg),
             ('Tags', str(item['tags'])),
-            ('Properties', str(item['properties']))
         ]))
 
     return resultList
 
 
-def transform_component_table_output(result):
+def transform_scope_table_output(result):
     if not isinstance(result, list):
         result = [result]
 
@@ -95,76 +78,33 @@ def transform_component_table_output(result):
 
     for item in result:
         resultList.append(OrderedDict([
-            ('Component ID', item['id']),
             ('Name', item['displayName']),
-            ('Offer', item['offerId']),
-            ('Requested By', item['requestedBy']),
-            ('Description', item['description'])
-        ]))
-
-    return resultList
-
-
-def transform_offer_table_output(result):
-    if not isinstance(result, list):
-        result = [result]
-
-    resultList = []
-
-    for item in result:
-        resultList.append(OrderedDict([
-            ('Offer ID', item['id']),
-            ('Provider', item['providerId']),
-            ('Name', item['displayName']),
-            ('Description', item['description']),
-            ('Input Schema', item['inputJsonSchema'])
-        ]))
-
-    return resultList
-
-
-def transform_project_type_table_output(result):
-    if not isinstance(result, list):
-        result = [result]
-
-    resultList = []
-
-    for item in result:
-        resultList.append(OrderedDict([
-            ('Project Type ID', item['id']),
+            ('Slug', item['slug']),
+            ('ID', item['id']),
             ('Default', item['isDefault']),
-            ('Region', item['region']),
-            ('Subscriptions', '\n'.join(item['subscriptions'])),
-            ('Subscription Capacity', item['subscriptionCapacity']),
-            ('Resource Group Prefix', item['resourceGroupNamePrefix']),
-            ('Providers', '\n'.join([p['id'] for p in item['providers']])),
-            ('Tags', str(item['tags'])),
-            ('Properties', str(item['properties']))
+            ('Subscriptions', str(item['subscriptionIds'])),
         ]))
 
     return resultList
 
 
-def transform_provider_table_output(result):
+def transform_template_table_output(result):
     if not isinstance(result, list):
         result = [result]
 
     resultList = []
 
     for item in result:
-        rg = item['resourceGroup']
+        repo = item['repository']
+        # components = item['components']
         resultList.append(OrderedDict([
-            ('Provider ID', item['id']),
-            ('Type', item['type']),
-            ('Url', item['url']),
-            ('Code', '************'),
-            ('Command Mode', item['commandMode']),
-            ('Version', item['version']),
-            ('Resource Group', '' if rg is None else rg['name']),
-            ('Subscription', '' if rg is None else rg['subscriptionId']),
-            ('Region', '' if rg is None else rg['region']),
-            ('Events', '\n'.join(item['events'])),
-            ('Properties', str(item['properties']))
+            ('Name', item['displayName']),
+            ('Slug', item['slug']),
+            ('ID', item['id']),
+            ('Default', item['isDefault']),
+            ('Repository', '' if repo is None or repo['url'] is None else repo['url']),
+            ('Version', '' if repo is None or repo['version'] is None else repo['version'])
+            # ('Components', '' if components is None else '\n'.join(components))
         ]))
 
     return resultList
