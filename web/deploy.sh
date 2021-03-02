@@ -115,7 +115,7 @@ selectNodeVersion () {
 echo Handling node.js deployment.
 
 # 1. Select node version
-selectNodeVersion
+# selectNodeVersion
 
 
 
