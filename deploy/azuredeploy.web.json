@@ -80,8 +80,12 @@
                             "value": "[parameters('reactAppTcApiUrl')]"
                         },
                         {
+                            "name": "WEBSITE_NODE_DEFAULT_VERSION",
+                            "value": "12"
+                        },
+                        {
                             "name": "WEBSITE_NPM_DEFAULT_VERSION",
-                            "value": "12.16.3"
+                            "value": "6"
                         }
                     ]
                 }

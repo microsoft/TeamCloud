@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": "12.19.0"
+    "node": "12"
   },
   "dependencies": {
     "@azure/core-auth": "^1.1.3",
