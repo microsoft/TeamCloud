@@ -721,17 +721,12 @@ paths:
       summary: Gets an Organization.
       operationId: GetOrganization
       parameters:
-        - name: org
-          in: path
-          required: true
-          schema:
-            type: string
-            nullable: true
         - name: organizationId
           in: path
           required: true
           schema:
             type: string
+            nullable: true
       responses:
         '200':
           description: Returns an Organization.

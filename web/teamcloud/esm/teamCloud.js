@@ -249,13 +249,11 @@ var TeamCloud = /** @class */ (function (_super) {
     };
     /**
      * Gets an Organization.
-     * @param org
      * @param organizationId
      * @param options The options parameters.
      */
-    TeamCloud.prototype.getOrganization = function (org, organizationId, options) {
+    TeamCloud.prototype.getOrganization = function (organizationId, options) {
         var operationArguments = {
-            org: org,
             organizationId: organizationId,
             options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
         };
@@ -1201,7 +1199,7 @@ var getOrganizationOperationSpec = {
             bodyMapper: Mappers.ErrorResult
         }
     },
-    urlParameters: [Parameters.$host, Parameters.organizationId, Parameters.org],
+    urlParameters: [Parameters.$host, Parameters.organizationId],
     headerParameters: [Parameters.accept],
     serializer: serializer
 };

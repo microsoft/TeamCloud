@@ -1154,7 +1154,6 @@ class TeamCloudClientOperationsMixin(object):
 
     def get_organization(
         self,
-        org,  # type: str
         organization_id,  # type: str
         **kwargs  # type: Any
     ):
@@ -1163,8 +1162,6 @@ class TeamCloudClientOperationsMixin(object):
 
         Gets an Organization.
 
-        :param org:
-        :type org: str
         :param organization_id:
         :type organization_id: str
         :keyword callable cls: A custom type or function that will be passed the direct response
@@ -1182,7 +1179,6 @@ class TeamCloudClientOperationsMixin(object):
         # Construct URL
         url = self.get_organization.metadata['url']  # type: ignore
         path_format_arguments = {
-            'org': self._serialize.url("org", org, 'str'),
             'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
         }
         url = self._client.format_url(url, **path_format_arguments)

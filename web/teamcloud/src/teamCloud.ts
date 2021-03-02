@@ -460,17 +460,14 @@ export class TeamCloud extends TeamCloudContext {
 
   /**
    * Gets an Organization.
-   * @param org
    * @param organizationId
    * @param options The options parameters.
    */
   getOrganization(
-    org: string | null,
     organizationId: string,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudGetOrganizationResponse> {
     const operationArguments: coreHttp.OperationArguments = {
-      org,
       organizationId,
       options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
     };
@@ -1724,7 +1721,7 @@ const getOrganizationOperationSpec: coreHttp.OperationSpec = {
       bodyMapper: Mappers.ErrorResult
     }
   },
-  urlParameters: [Parameters.$host, Parameters.organizationId, Parameters.org],
+  urlParameters: [Parameters.$host, Parameters.organizationId],
   headerParameters: [Parameters.accept],
   serializer
 };

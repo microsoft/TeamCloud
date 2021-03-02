@@ -141,17 +141,6 @@ export const body4: OperationParameter = {
   mapper: OrganizationDefinitionMapper
 };
 
-export const org: OperationURLParameter = {
-  parameterPath: "org",
-  mapper: {
-    serializedName: "org",
-    required: true,
-    type: {
-      name: "String"
-    }
-  }
-};
-
 export const body5: OperationParameter = {
   parameterPath: ["options", "body"],
   mapper: UserDefinitionMapper

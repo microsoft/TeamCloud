@@ -1164,20 +1164,12 @@
         "operationId": "GetOrganization",
         "parameters": [
           {
-            "name": "org",
+            "name": "organizationId",
             "in": "path",
             "required": true,
             "schema": {
               "type": "string",
               "nullable": true
-            }
-          },
-          {
-            "name": "organizationId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
             }
           }
         ],

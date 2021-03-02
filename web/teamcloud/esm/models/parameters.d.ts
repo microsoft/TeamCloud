@@ -12,7 +12,6 @@ export declare const body1: OperationParameter;
 export declare const body2: OperationParameter;
 export declare const body3: OperationParameter;
 export declare const body4: OperationParameter;
-export declare const org: OperationURLParameter;
 export declare const body5: OperationParameter;
 export declare const userId: OperationURLParameter;
 export declare const body6: OperationParameter;

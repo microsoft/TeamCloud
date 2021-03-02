@@ -744,11 +744,10 @@ export declare class TeamCloud extends TeamCloudContext {
     createOrganization(options?: TeamCloudCreateOrganizationOptionalParams): Promise<TeamCloudCreateOrganizationResponse>;
     /**
      * Gets an Organization.
-     * @param org
      * @param organizationId
      * @param options The options parameters.
      */
-    getOrganization(org: string | null, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetOrganizationResponse>;
+    getOrganization(organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetOrganizationResponse>;
     /**
      * Deletes an existing Organization.
      * @param organizationId

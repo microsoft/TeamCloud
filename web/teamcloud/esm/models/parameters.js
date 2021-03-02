@@ -108,16 +108,6 @@ export var body4 = {
     parameterPath: ["options", "body"],
     mapper: OrganizationDefinitionMapper
 };
-export var org = {
-    parameterPath: "org",
-    mapper: {
-        serializedName: "org",
-        required: true,
-        type: {
-            name: "String"
-        }
-    }
-};
 export var body5 = {
     parameterPath: ["options", "body"],
     mapper: UserDefinitionMapper

@@ -1134,7 +1134,6 @@ class TeamCloudClientOperationsMixin:
 
     async def get_organization(
         self,
-        org: str,
         organization_id: str,
         **kwargs
     ) -> Optional[Union["_models.OrganizationDataResult", "_models.ErrorResult"]]:
@@ -1142,8 +1141,6 @@ class TeamCloudClientOperationsMixin:
 
         Gets an Organization.
 
-        :param org:
-        :type org: str
         :param organization_id:
         :type organization_id: str
         :keyword callable cls: A custom type or function that will be passed the direct response
@@ -1161,7 +1158,6 @@ class TeamCloudClientOperationsMixin:
         # Construct URL
         url = self.get_organization.metadata['url']  # type: ignore
         path_format_arguments = {
-            'org': self._serialize.url("org", org, 'str'),
             'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
         }
         url = self._client.format_url(url, **path_format_arguments)
