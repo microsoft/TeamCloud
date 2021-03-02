@@ -18,11 +18,11 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v2
         with:
-          token: ${{ secrets.TEAMCLOUD_PAT }}
+          # token: ${{ secrets.TEAMCLOUD_PAT }}
           fetch-depth: 0
 
-      - name: Checkout Tags
-        run: git fetch --prune --tags
+      # - name: Checkout Tags
+      #   run: git fetch --prune --tags
 
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
