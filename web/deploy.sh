@@ -63,7 +63,7 @@ echo "KUDU_SERVICE $KUDU_SERVICE"
 if [[ ! -n "$KUDU_SYNC_CMD" ]]; then
   # Install kudu sync
   echo Installing Kudu Sync
-  npm install kudusync -g --silent
+  npm install kudusync -g
   exitWithMessageOnError "npm failed"
 
   if [[ ! -n "$KUDU_SERVICE" ]]; then
@@ -76,10 +76,11 @@ if [[ ! -n "$KUDU_SYNC_CMD" ]]; then
 fi
 
 echo "KUDU_SYNC_CMD $KUDU_SYNC_CMD"
+echo "DEPLOYMENT_TEMP $DEPLOYMENT_TEMP"
 
 # Node Helpers
 # ------------
-# KUDU_SELECT_NODE_VERSION_CMD=
+KUDU_SELECT_NODE_VERSION_CMD=
 selectNodeVersion () {
   if [[ -n "$KUDU_SELECT_NODE_VERSION_CMD" ]]; then
     echo "KUDU_SELECT_NODE_VERSION_CMD $KUDU_SELECT_NODE_VERSION_CMD"
@@ -115,9 +116,7 @@ selectNodeVersion () {
 echo Handling node.js deployment.
 
 # 1. Select node version
-# selectNodeVersion
-
-
+selectNodeVersion
 
 
 # 2. Install npm packages and build app
