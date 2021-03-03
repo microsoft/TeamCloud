@@ -61,7 +61,6 @@
                 "clientAffinityEnabled": false,
                 "siteConfig": {
                     "alwaysOn": true,
-                    "reservedInstanceCount": 0,
                     "linuxFxVersion": "NODE|12-lts",
                     "appCommandLine": "pm2 serve /home/site/wwwroot --no-daemon --spa",
                     "phpVersion": "off",
