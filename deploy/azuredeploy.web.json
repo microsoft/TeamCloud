@@ -29,14 +29,13 @@
             "type": "Microsoft.Web/serverfarms",
             "kind": "linux",
             "name": "[variables('webAppNameLower')]",
-            "apiVersion": "2018-02-01",
+            "apiVersion": "2020-09-01",
             "location": "[resourceGroup().location]",
             "properties": {
                 "perSiteScaling": false,
                 "maximumElasticWorkerCount": 1,
                 "isSpot": false,
                 "reserved": true,
-                "isXenon": false,
                 "hyperV": false,
                 "targetWorkerCount": 0,
                 "targetWorkerSizeId": 0
@@ -53,7 +52,7 @@
             "type": "Microsoft.Web/sites",
             "kind": "app,linux",
             "name": "[variables('webAppNameLower')]",
-            "apiVersion": "2018-11-01",
+            "apiVersion": "2020-09-01",
             "location": "[resourceGroup().location]",
             "properties": {
                 "reserved": true,

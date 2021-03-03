@@ -1,13 +1,5 @@
 #!/bin/bash
 
-# ----------------------
-# KUDU Deployment Script
-# Version: 1.0.17
-# ----------------------
-
-# Helpers
-# -------
-
 exitWithMessageOnError () {
   if [ ! $? -eq 0 ]; then
     echo "An error has occurred during web site deployment."
@@ -16,126 +8,47 @@ exitWithMessageOnError () {
   fi
 }
 
-# Prerequisites
-# -------------
 
 # Verify node.js installed
 hash node 2>/dev/null
 exitWithMessageOnError "Missing node.js executable, please install node.js, if already installed make sure it can be reached from current environment."
 
-# Setup
-# -----
-
-SCRIPT_DIR="${BASH_SOURCE[0]%\\*}"
-SCRIPT_DIR="${SCRIPT_DIR%/*}"
-ARTIFACTS=$SCRIPT_DIR/../artifacts
 KUDU_SYNC_CMD=${KUDU_SYNC_CMD//\"}
 
-echo "SCRIPT_DIR $SCRIPT_DIR"
-echo "ARTIFACTS $ARTIFACTS"
 
 if [[ ! -n "$DEPLOYMENT_SOURCE" ]]; then
-  DEPLOYMENT_SOURCE=$SCRIPT_DIR
+  echo "No DEPLOYMENT_SOURCE set."
+  exit 1
 fi
-
-echo "DEPLOYMENT_SOURCE $DEPLOYMENT_SOURCE"
-
-if [[ ! -n "$NEXT_MANIFEST_PATH" ]]; then
-  NEXT_MANIFEST_PATH=$ARTIFACTS/manifest
-
-  if [[ ! -n "$PREVIOUS_MANIFEST_PATH" ]]; then
-    PREVIOUS_MANIFEST_PATH=$NEXT_MANIFEST_PATH
-  fi
-fi
-
-echo "NEXT_MANIFEST_PATH $NEXT_MANIFEST_PATH"
-echo "PREVIOUS_MANIFEST_PATH $PREVIOUS_MANIFEST_PATH"
 
 if [[ ! -n "$DEPLOYMENT_TARGET" ]]; then
-  DEPLOYMENT_TARGET=$ARTIFACTS/wwwroot
-else
-  KUDU_SERVICE=true
+  echo "No DEPLOYMENT_TARGET set."
+  exit 1
 fi
 
-echo "DEPLOYMENT_TARGET $DEPLOYMENT_TARGET"
-echo "KUDU_SERVICE $KUDU_SERVICE"
 
-if [[ ! -n "$KUDU_SYNC_CMD" ]]; then
-  # Install kudu sync
-  echo Installing Kudu Sync
-  npm install kudusync -g
-  exitWithMessageOnError "npm failed"
+echo "Handling node.js deployment.\n"
 
-  if [[ ! -n "$KUDU_SERVICE" ]]; then
-    # In case we are running locally this is the correct location of kuduSync
-    KUDU_SYNC_CMD=kuduSync
-  else
-    # In case we are running on kudu service this is the correct location of kuduSync
-    KUDU_SYNC_CMD=$APPDATA/npm/node_modules/kuduSync/bin/kuduSync
-  fi
-fi
-
-echo "KUDU_SYNC_CMD $KUDU_SYNC_CMD"
-echo "DEPLOYMENT_TEMP $DEPLOYMENT_TEMP"
-
-# Node Helpers
-# ------------
-KUDU_SELECT_NODE_VERSION_CMD=
-selectNodeVersion () {
-  if [[ -n "$KUDU_SELECT_NODE_VERSION_CMD" ]]; then
-    echo "KUDU_SELECT_NODE_VERSION_CMD $KUDU_SELECT_NODE_VERSION_CMD"
-    SELECT_NODE_VERSION="$KUDU_SELECT_NODE_VERSION_CMD \"$DEPLOYMENT_SOURCE\" \"$DEPLOYMENT_TARGET\" \"$DEPLOYMENT_TEMP\""
-    eval $SELECT_NODE_VERSION
-    exitWithMessageOnError "select node version failed"
-
-    if [[ -e "$DEPLOYMENT_TEMP/__nodeVersion.tmp" ]]; then
-      NODE_EXE=`cat "$DEPLOYMENT_TEMP/__nodeVersion.tmp"`
-      exitWithMessageOnError "getting node version failed"
-    fi
-
-    if [[ -e "$DEPLOYMENT_TEMP/__npmVersion.tmp" ]]; then
-      NPM_JS_PATH=`cat "$DEPLOYMENT_TEMP/__npmVersion.tmp"`
-      exitWithMessageOnError "getting npm version failed"
-    fi
-
-    if [[ ! -n "$NODE_EXE" ]]; then
-      NODE_EXE=node
-    fi
-
-    NPM_CMD="\"$NODE_EXE\" \"$NPM_JS_PATH\""
-  else
-    NPM_CMD=npm
-    NODE_EXE=node
-  fi
-}
-
-##################################################################################################################################
-# Deployment
-# ----------
-
-echo Handling node.js deployment.
-
-# 1. Select node version
-selectNodeVersion
-
-
-# 2. Install npm packages and build app
 if [ -e "$DEPLOYMENT_SOURCE/package.json" ]; then
+
   cd "$DEPLOYMENT_SOURCE"
-  # echo "Running $NPM_CMD install --production"
-  # eval $NPM_CMD install --production
-  echo "Running $NPM_CMD install"
-  eval $NPM_CMD install
-  eval $NPM_CMD run build
-  exitWithMessageOnError "npm failed"
+
+  echo "Running npm install.\n"
+  eval npm install
+  exitWithMessageOnError "npm install failed."
+
+  echo "Running npm run build\n"
+  eval npm run build
+  exitWithMessageOnError "npm run build failed."
+
   cd - > /dev/null
 fi
 
-# 3. KuduSync
+echo "Running kudoSync.\n"
+
 if [[ "$IN_PLACE_DEPLOYMENT" -ne "1" ]]; then
   "$KUDU_SYNC_CMD" -v 50 -f "$DEPLOYMENT_SOURCE/build" -t "$DEPLOYMENT_TARGET" -n "$NEXT_MANIFEST_PATH" -p "$PREVIOUS_MANIFEST_PATH" -i ".git;.hg;.deployment;deploy.sh"
-  exitWithMessageOnError "Kudu Sync failed"
+  exitWithMessageOnError "Kudu Sync failed."
 fi
 
-##################################################################################################################################
-echo "Finished successfully."
+echo "Finished successfully.\n"
