@@ -19,6 +19,13 @@
             "metadata": {
                 "description": "Base url of the TeamCloud instance."
             }
+        },
+        "reactAppMsalScope": {
+            "type": "string",
+            "defaultValue": "http://TeamCloud.Web/user_impersonation",
+            "metadata": {
+                "description": "Scope."
+            }
         }
     },
     "variables": {
@@ -72,6 +79,10 @@
                         {
                             "name": "REACT_APP_MSAL_TENANT_ID",
                             "value": "[subscription().tenantId]"
+                        },
+                        {
+                            "name": "REACT_APP_MSAL_SCOPE",
+                            "value": "[parameters('reactAppMsalScope')]"
                         },
                         {
                             "name": "REACT_APP_TC_API_URL",

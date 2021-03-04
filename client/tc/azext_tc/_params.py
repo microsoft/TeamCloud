@@ -30,6 +30,9 @@ def load_arguments(self, _):
         configured_default='tc-org',
         validator=org_name_or_id_validator)
 
+    # with self.argument_context('tc test', arg_group='TeamCloud') as c:
+    #     c.argument('base_url', tc_url_type)
+
     # Global
 
     # ignore global az arg --subscription and requre base_url for everything except `tc deploy`
@@ -85,6 +88,7 @@ def load_arguments(self, _):
                    help='Deploy latest prerelease version.')
         c.argument('index_url', help='URL to custom index.json file.',
                    validator=index_url_validator)
+        c.argument('scope', help='Scope to use for user authentication.')
 
     # Orgs
 

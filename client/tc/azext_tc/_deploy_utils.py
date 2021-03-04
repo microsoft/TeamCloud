@@ -324,9 +324,24 @@ def get_app_name(url):
         pass
 
     if name is None or '':
-        raise CLIError('Unable to get function app name from url.')
+        raise CLIError('Unable to get app name from url.')
 
     return name
+
+
+def get_app_info(cmd, url):
+    name = get_app_name(url)
+
+    from azure.cli.command_modules.resource.custom import list_resources
+
+    resources = list_resources(cmd, name=name, resource_type='microsoft.web/sites')
+
+    if not resources:
+        raise CLIError('Unable to find site from url.')
+    if len(resources) > 1:
+        raise CLIError('Found multiple sites from url.')
+
+    return resources[0]
 
 
 def get_arm_output(outputs, key, raise_on_error=True):

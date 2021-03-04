@@ -16,6 +16,10 @@ def _ensure_base_url(client, base_url):
 # TeamCloud
 
 
+# def teamcloud_test(cmd, base_url):
+#     pass
+
+
 def teamcloud_update(cmd, version=None, prerelease=False):  # pylint: disable=too-many-statements, too-many-locals
     import os
     import tempfile
@@ -176,17 +180,16 @@ def teamcloud_deploy(cmd, client, name, location=None, resource_group_name='Team
 
 
 def teamcloud_app_deploy(cmd, client, base_url, client_id, app_type='Web', version=None,  # pylint: disable=too-many-locals
-                         prerelease=False, index_url=None, location=None, resource_group_name='TeamCloud-Web'):
+                         scope=None, prerelease=False, index_url=None):
     from ._deploy_utils import (
-        get_index_webapp, get_app_name, get_resource_group_by_name, create_resource_group_name,
-        deploy_arm_template_at_resource_group, zip_deploy_app)
+        get_index_webapp, get_resource_group_by_name, create_resource_group_name,
+        deploy_arm_template_at_resource_group, zip_deploy_app, get_app_info)
+    from msrestazure.tools import parse_resource_id
+    from azure.cli.core.commands.client_factory import get_subscription_id
 
-    _ensure_base_url(client, base_url)
     cli_ctx = cmd.cli_ctx
 
-    app_type = app_type.lower()
-
-    if app_type != 'web':
+    if app_type.lower() != 'web':
         raise CLIError("--type/-t currently only supports 'Web'")
 
     hook = cli_ctx.get_progress_controller()
@@ -195,23 +198,31 @@ def teamcloud_app_deploy(cmd, client, base_url, client_id, app_type='Web', versi
     hook.add(message='Fetching index.json from GitHub')
     version, deploy_url, zip_url = get_index_webapp(cli_ctx, version, prerelease, index_url)
 
-    name = get_app_name(base_url) + '-' + app_type
+    app = get_app_info(cmd, base_url)
+    rid = parse_resource_id(app.id)
+
+    subscription_id = get_subscription_id(cmd.cli_ctx)
+
+    if subscription_id != rid['subscription']:
+        raise CLIError('TeamCloud instance is deployed in a different subscription than the current')
+
+    name = rid['resource_name'] + '-' + app_type.lower()
     url = 'https://{}.azurewebsites.net'.format(name)
+
+    resource_group_name = rid['resource_group'] + '-' + app_type
 
     rg, _ = get_resource_group_by_name(cli_ctx, resource_group_name)
     if rg is None:
-        if location is None:
-            raise CLIError(
-                "--location/-l is required if resource group '{}' does not exist".format(resource_group_name))
-        hook.add(message="Resource group '{}' not found".format(resource_group_name))
         hook.add(message="Creating resource group '{}'".format(resource_group_name))
-        rg, _ = create_resource_group_name(cli_ctx, resource_group_name, location)
+        rg, _ = create_resource_group_name(cli_ctx, resource_group_name, app.location)
 
     parameters = []
     parameters.append('webAppName={}'.format(name))
-    # if client_id:
     parameters.append('reactAppMsalClientId={}'.format(client_id))
     parameters.append('reactAppTcApiUrl={}'.format(base_url))
+
+    if scope:
+        parameters.append('reactAppMsalScope={}'.format(scope))
 
     hook.add(message='Deploying ARM template')
     _ = deploy_arm_template_at_resource_group(
@@ -219,14 +230,6 @@ def teamcloud_app_deploy(cmd, client, base_url, client_id, app_type='Web', versi
 
     hook.add(message='Deploying {} app source code'.format(app_type))
     zip_deploy_app(cli_ctx, resource_group_name, name, zip_url)
-
-    # resource_group = AzureResourceGroup(
-    #     id=rg.id, name=rg.name, region=rg.location, subscription_id=sub_id)
-    # tc_application = TeamCloudApplication(
-    #     url=url, version=version, type=app_type, resource_group=resource_group)
-
-    # tc_instance.applications.append(tc_application)
-    # _ = client.update_team_cloud_instance(tc_instance)
 
     result = {
         'version': version or 'latest',

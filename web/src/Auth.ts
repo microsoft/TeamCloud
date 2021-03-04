@@ -17,6 +17,11 @@ export class Auth implements TokenCredential, AuthenticationProvider {
         return 'https://login.microsoftonline.com/' + process.env.REACT_APP_MSAL_TENANT_ID;
     };
 
+    _getScope = () => {
+        if (!process.env.REACT_APP_MSAL_SCOPE) throw new Error('Must set env variable REACT_APP_MSAL_SCOPE');
+        return process.env.REACT_APP_MSAL_SCOPE;
+    };
+
     configuration: Configuration = {
         auth: {
             clientId: this._getClientId(),
@@ -37,7 +42,7 @@ export class Auth implements TokenCredential, AuthenticationProvider {
 
         const oidScope = 'openid'
         const hostScope = '{$host}/.default';
-        const tcwebScope = 'http://TeamCloud.Web/user_impersonation';
+        const tcwebScope = this._getScope();// 'http://TeamCloud.Web/user_impersonation';
 
         if (!Array.isArray(scopes))
             scopes = [scopes];
