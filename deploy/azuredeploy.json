@@ -29,11 +29,25 @@
         "taskhubStorageAccountName": "[concat('thstorage', uniqueString(resourceGroup().id))]",
         "deploymentStorageAccountName": "[concat('depstorage', uniqueString(resourceGroup().id))]",
         "keyVaultName": "[concat('keyvault', uniqueString(resourceGroup().id))]",
+        "redisCacheName": "[concat('redis', uniqueString(resourceGroup().id))]",
         "appConfigurationName": "[concat(toLower(parameters('webAppName')), '-config')]",
         "functionAppRoleAssignmentId": "[guid(concat(resourceGroup().id, variables('functionAppNameLower'), 'contributor'))]",
         "contributorRoleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]"
     },
     "resources": [
+        {
+            "name": "[variables('redisCacheName')]",
+            "type": "Microsoft.Cache/Redis",
+            "apiVersion": "2019-07-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "sku": {
+                    "name": "Basic",
+                    "family": "C",
+                    "capacity": 0
+                }
+            }
+        },
         {
             "type": "Microsoft.Authorization/roleAssignments",
             "apiVersion": "2018-09-01-preview",
@@ -468,6 +482,7 @@
                 "Azure:CosmosDb:ConnectionString": "[concat('AccountEndpoint=', reference(concat('Microsoft.DocumentDb/databaseAccounts/', variables('cosmosDbName'))).documentEndpoint, ';AccountKey=', listKeys(resourceId('Microsoft.DocumentDb/databaseAccounts', variables('cosmosDbName')), '2015-04-08').primaryMasterKey)]",
                 "Azure:DeploymentStorage:ConnectionString": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('deploymentStorageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('deploymentStorageAccountName')), '2017-06-01').keys[0].value)]",
                 "Api:Url": "[concat('https://', variables('webAppNameLower'), '.azurewebsites.net')]",
+                "Cache:Configuration": "[concat(variables('redisCacheName'),'.redis.cache.windows.net,abortConnect=false,ssl=true,password=', listKeys(resourceId('Microsoft.Cache/Redis', variables('redisCacheName')), '2015-08-01').primaryKey)]",
                 "Orchestrator:Url": "[concat('https://', variables('functionAppNameLower'), '.azurewebsites.net')]",
                 "Orchestrator:AuthCode": "[listkeys(concat(resourceId('Microsoft.Web/sites', variables('functionAppNameLower')), '/host/default/'),'2016-08-01').functionKeys.default]"
             }
