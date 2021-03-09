@@ -69,13 +69,21 @@ jobs:
 
       - name: Install TeamCloud CLI
         run: |
-          echo '${{steps.get-cli.outputs.result}}'
 
+          echo "logging in to azure cli"
           az login --service-principal -u ${{ secrets.TEAMCLOUD_CI_USERNAME }} -p ${{ secrets.TEAMCLOUD_CI_PASSWORD }} --tenant ${{ secrets.TEAMCLOUD_CI_TENANT }}
 
+          echo "installing teamcloud cli extension"
           az extension add -s ${{steps.get-cli.outputs.result}} -y
 
+          echo "deploying demo teamcloud instance"
           az tc deploy --subscription ${{ secrets.TEAMCLOUD_SUBSCRIPTION }} -l eastus --principal-name ${{ secrets.TEAMCLOUD_RM_USERNAME }} --principal-password ${{ secrets.TEAMCLOUD_RM_PASSWORD }} -v ${{steps.resolve-tag.outputs.result}} --skip-name-validation -n teamclouddemo
+
+          echo "setting default teamcloud instance in configuration"
+          az configure -d tc-base-url=https://teamclouddemo.azurewebsites.net
+
+          echo "deploying demo teamcloud web instance"
+          az tc app deploy --subscription ${{ secrets.TEAMCLOUD_SUBSCRIPTION }} -c ${{ secrets.TEAMCLOUD_WEB_USERNAME }} --scope ${{ secrets.TEAMCLOUD_WEB_SCOPE }} -v ${{steps.resolve-tag.outputs.result}}
       # - name: Check Release
       #   uses: actions/github-script@v3
       #   with:
