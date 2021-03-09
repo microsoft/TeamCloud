@@ -43,32 +43,35 @@ jobs:
             console.log(release.data);
             return release.data;
 
-      # - name: Get CLI Release Asset
-      #   id: get-cli
-      #   uses: actions/github-script@v3
-      #   with:
-      #     result-encoding: string
-      #     script: |
-      #       const release = JSON.parse(${{steps.get-release.outputs.result}});
-      #       const cli_asset = release.assets.find(a => a.browser_download_url.includes('py3-none-any.whl'));
-      #       if (!cli_asset)
-      #         throw new Error('Could not find cli wheel file in release assets');
-      #       const cli_url = cli_asset.browser_download_url;
-      #       console.log(cli_url);
-      #       return cli_url;
-
-      # - name: Install TeamCloud CLI
-      #   run: |
-      #     az login
-
-      - name: Check Release
+      - name: Get CLI Release Asset
+        id: get-cli
         uses: actions/github-script@v3
         with:
+          result-encoding: string
           script: |
-            const release = JSON.parse('${{steps.get-release.outputs.result}}')
-            console.log(release)
-            console.log('...')
-            console.log(release.id)
+            const release = JSON.parse('${{steps.get-release.outputs.result}}');
+            const cli_asset = release.assets.find(a => a.browser_download_url.includes('py3-none-any.whl'));
+            if (!cli_asset)
+              throw new Error('Could not find cli wheel file in release assets');
+            const cli_url = cli_asset.browser_download_url;
+            console.log(cli_url);
+            return cli_url;
+
+      - name: Install TeamCloud CLI
+        run: |
+          echo '${{steps.get-cli.outputs.result}}'
+
+          read -sp "Azure password: " AZ_PASS && echo && az login --service-principal -u ${{ secrets.TEAMCLOUD_CI_USERNAME }} -p ${{ secrets.TEAMCLOUD_CI_PASSWORD }} --tenant ${{ secrets.TEAMCLOUD_CI_TENANT }}
+
+          az extension add -s ${{steps.get-cli.outputs.result}} -y
+      # - name: Check Release
+      #   uses: actions/github-script@v3
+      #   with:
+      #     script: |
+      #       const release = JSON.parse('${{steps.get-release.outputs.result}}')
+      #       console.log(release)
+      #       console.log('...')
+      #       console.log(release.id)
       # - name: Promote Release
       #   uses: actions/github-script@v3
       #   with:
