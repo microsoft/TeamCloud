@@ -231,6 +231,6 @@ jobs:
             github.actions.createWorkflowDispatch({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              workflow_id: publish_release.yml,
+              workflow_id: 'release.yml',
               ref: 'v${{ steps.gitversion.outputs.majorMinorPatch }}',
             });

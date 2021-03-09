@@ -1,4 +1,4 @@
-name: Promote Pre-release to Release
+name: Create Release
 
 on:
   workflow_dispatch:
@@ -11,7 +11,7 @@ on:
 jobs:
   build:
     # if: 'github.event.release.prerelease'
-    name: Promote Pre-release to Release
+    name: Create Release
     runs-on: ubuntu-latest
 
     steps:
