@@ -7,13 +7,11 @@ on:
         required: false
         description: 'Tag to release.'
       reset_demo:
-        default: 'false'
-        required: true
+        required: false
         description: 'Reset the demo environment.'
 
 jobs:
   build:
-    # if: 'github.event.release.prerelease'
     name: Create Release
     runs-on: ubuntu-latest
 
@@ -67,23 +65,30 @@ jobs:
             console.log(cli_url);
             return cli_url;
 
-      - name: Install TeamCloud CLI
+      - name: Reset Demo
+        if: github.event.inputs.reset_demo == 'true' || github.event.inputs.reset_demo == '1'
         run: |
+          echo "Reset this demo!"
 
-          echo "logging in to azure cli"
-          az login --service-principal -u ${{ secrets.TEAMCLOUD_CI_USERNAME }} -p ${{ secrets.TEAMCLOUD_CI_PASSWORD }} --tenant ${{ secrets.TEAMCLOUD_CI_TENANT }}
+      # - name: Install TeamCloud CLI and Deploy Demo
+      #   run: |
 
-          echo "installing teamcloud cli extension"
-          az extension add -s ${{steps.get-cli.outputs.result}} -y
+      #     echo "logging in to azure cli"
+      #     az login --service-principal -u ${{ secrets.TEAMCLOUD_CI_USERNAME }} -p ${{ secrets.TEAMCLOUD_CI_PASSWORD }} --tenant ${{ secrets.TEAMCLOUD_CI_TENANT }}
 
-          echo "deploying demo teamcloud instance"
-          az tc deploy --subscription ${{ secrets.TEAMCLOUD_SUBSCRIPTION }} -l eastus --principal-name ${{ secrets.TEAMCLOUD_RM_USERNAME }} --principal-password ${{ secrets.TEAMCLOUD_RM_PASSWORD }} -v ${{steps.resolve-tag.outputs.result}} --skip-name-validation -n teamclouddemo
+      #     echo "installing teamcloud cli extension"
+      #     az extension add -s ${{steps.get-cli.outputs.result}} -y
 
-          echo "setting default teamcloud instance in configuration"
-          az configure -d tc-base-url=https://teamclouddemo.azurewebsites.net
+      #     echo "deploying demo teamcloud instance"
+      #     az tc deploy --subscription ${{ secrets.TEAMCLOUD_SUBSCRIPTION }} -l eastus --principal-name ${{ secrets.TEAMCLOUD_RM_USERNAME }} --principal-password ${{ secrets.TEAMCLOUD_RM_PASSWORD }} -v ${{steps.resolve-tag.outputs.result}} --skip-name-validation -n teamclouddemo
 
-          echo "deploying demo teamcloud web instance"
-          az tc app deploy --subscription ${{ secrets.TEAMCLOUD_SUBSCRIPTION }} -c ${{ secrets.TEAMCLOUD_WEB_USERNAME }} --scope ${{ secrets.TEAMCLOUD_WEB_SCOPE }} -v ${{steps.resolve-tag.outputs.result}}
+      #     echo "setting default teamcloud instance in configuration"
+      #     az configure -d tc-base-url=https://teamclouddemo.azurewebsites.net
+
+      #     echo "deploying demo teamcloud web instance"
+      #     az tc app deploy --subscription ${{ secrets.TEAMCLOUD_SUBSCRIPTION }} -c ${{ secrets.TEAMCLOUD_WEB_USERNAME }} --scope ${{ secrets.TEAMCLOUD_WEB_SCOPE }} -v ${{steps.resolve-tag.outputs.result}}
+
+
       # - name: Check Release
       #   uses: actions/github-script@v3
       #   with:
