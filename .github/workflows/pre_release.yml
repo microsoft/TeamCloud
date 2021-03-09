@@ -37,60 +37,60 @@ jobs:
         with:
           useConfigFile: true
 
-      # - name: Build & Package for Pre-release
-      #   run: dotnet build ${{ env.SOURCE_DIRECTORY }}/TeamCloud.sln -o Prerelease -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true --version-suffix "pre"
+      - name: Build & Package for Pre-release
+        run: dotnet build ${{ env.SOURCE_DIRECTORY }}/TeamCloud.sln -o Prerelease -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true --version-suffix "pre"
 
-      # - name: Publish Pre-release NuGet Packages
-      #   run: dotnet nuget push 'Prerelease/*.nupkg' --api-key '${{ secrets.MYGET_DEV_TOKEN }}' --source 'https://www.myget.org/F/teamcloud-dev/api/v2/package' --symbol-api-key '${{ secrets.MYGET_DEV_TOKEN }}' --symbol-source 'https://www.myget.org/F/teamcloud-dev/symbols/api/v2/package' --skip-duplicate
+      - name: Publish Pre-release NuGet Packages
+        run: dotnet nuget push 'Prerelease/*.nupkg' --api-key '${{ secrets.MYGET_DEV_TOKEN }}' --source 'https://www.myget.org/F/teamcloud-dev/api/v2/package' --symbol-api-key '${{ secrets.MYGET_DEV_TOKEN }}' --symbol-source 'https://www.myget.org/F/teamcloud-dev/symbols/api/v2/package' --skip-duplicate
 
-      # - name: Build & Package for Release
-      #   run: dotnet build ${{ env.SOURCE_DIRECTORY }}/TeamCloud.sln -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true
+      - name: Build & Package for Release
+        run: dotnet build ${{ env.SOURCE_DIRECTORY }}/TeamCloud.sln -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true
 
-      # - name: Create Release Asset - NuGet
-      #   run: zip -r -j NuGet.zip src -i '*.nupkg'
+      - name: Create Release Asset - NuGet
+        run: zip -r -j NuGet.zip src -i '*.nupkg'
 
-      # - name: Create Release Asset - TeamCloud.API
-      #   run: |
-      #     dotnet publish ${{ env.SOURCE_DIRECTORY }}/TeamCloud.API/TeamCloud.API.csproj -o TeamCloud.API -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true --no-build
+      - name: Create Release Asset - TeamCloud.API
+        run: |
+          dotnet publish ${{ env.SOURCE_DIRECTORY }}/TeamCloud.API/TeamCloud.API.csproj -o TeamCloud.API -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true --no-build
 
-      #     pushd TeamCloud.API
-      #       zip -r ../TeamCloud.API.zip *
-      #     popd
+          pushd TeamCloud.API
+            zip -r ../TeamCloud.API.zip *
+          popd
 
-      # - name: Create Release Asset - TeamCloud.Orchestrator
-      #   run: |
-      #     dotnet publish ${{ env.SOURCE_DIRECTORY }}/TeamCloud.Orchestrator/TeamCloud.Orchestrator.csproj -o TeamCloud.Orchestrator -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true --no-build
+      - name: Create Release Asset - TeamCloud.Orchestrator
+        run: |
+          dotnet publish ${{ env.SOURCE_DIRECTORY }}/TeamCloud.Orchestrator/TeamCloud.Orchestrator.csproj -o TeamCloud.Orchestrator -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true --no-build
 
-      #     pushd TeamCloud.Orchestrator
-      #       zip -r ../TeamCloud.Orchestrator.zip *
-      #     popd
+          pushd TeamCloud.Orchestrator
+            zip -r ../TeamCloud.Orchestrator.zip *
+          popd
 
-      # - name: Create Release Asset - TeamCloud.Web
-      #   run: |
-      #     pushd web
-      #       zip -r ../TeamCloud.Web.zip * .deployment -x .vscode -x \*.md -x .DS_Store -x .env.development -x build/\* -x lib/\* -x node_modules/\* -x .gitignore
-      #     popd
+      - name: Create Release Asset - TeamCloud.Web
+        run: |
+          pushd web
+            zip -r ../TeamCloud.Web.zip * .deployment -x .vscode -x \*.md -x .DS_Store -x .env.development -x build/\* -x lib/\* -x node_modules/\* -x .gitignore
+          popd
 
-      # - uses: actions/setup-python@v2
-      #   with:
-      #     python-version: '3.9'
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
 
-      # - uses: actions/setup-node@v2
-      #   with:
-      #     node-version: '12'
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '12'
 
-      # - name: Create index.json
-      #   run: python ./scripts/create-index.py ${{ steps.gitversion.outputs.majorMinorPatch }}
+      - name: Create index.json
+        run: python ./scripts/create-index.py ${{ steps.gitversion.outputs.majorMinorPatch }}
 
-      # - name: Get TeamCloud CLI Version
-      #   id: cli_version
-      #   run: python ./scripts/cli-version.py
+      - name: Get TeamCloud CLI Version
+        id: cli_version
+        run: python ./scripts/cli-version.py
 
-      # - name: Create OpenAPI & Python Client
-      #   run: bash ./scripts/create-clients.sh ../../TeamCloud.API/TeamCloud.API.dll
+      - name: Create OpenAPI & Python Client
+        run: bash ./scripts/create-clients.sh ../../TeamCloud.API/TeamCloud.API.dll
 
-      # - name: Build TeamCloud CLI
-      #   run: bash ./scripts/build-cli.sh
+      - name: Build TeamCloud CLI
+        run: bash ./scripts/build-cli.sh
 
       - name: Create Release
         id: create_release
@@ -103,105 +103,105 @@ jobs:
           body: 'Pre-release build.'
           prerelease: true
 
-      # - name: Upload Release Asset - NuGet.zip
-      #   uses: actions/upload-release-asset@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   with:
-      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
-      #     asset_path: NuGet.zip
-      #     asset_name: NuGet.zip
-      #     asset_content_type: application/zip
+      - name: Upload Release Asset - NuGet.zip
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: NuGet.zip
+          asset_name: NuGet.zip
+          asset_content_type: application/zip
 
-      # - name: Upload Release Asset - TeamCloud.API.zip
-      #   uses: actions/upload-release-asset@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   with:
-      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
-      #     asset_path: TeamCloud.API.zip
-      #     asset_name: TeamCloud.API.zip
-      #     asset_content_type: application/zip
+      - name: Upload Release Asset - TeamCloud.API.zip
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: TeamCloud.API.zip
+          asset_name: TeamCloud.API.zip
+          asset_content_type: application/zip
 
-      # - name: Upload Release Asset - TeamCloud.Orchestrator.zip
-      #   uses: actions/upload-release-asset@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   with:
-      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
-      #     asset_path: TeamCloud.Orchestrator.zip
-      #     asset_name: TeamCloud.Orchestrator.zip
-      #     asset_content_type: application/zip
+      - name: Upload Release Asset - TeamCloud.Orchestrator.zip
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: TeamCloud.Orchestrator.zip
+          asset_name: TeamCloud.Orchestrator.zip
+          asset_content_type: application/zip
 
-      # - name: Upload Release Asset - TeamCloud.Web.zip
-      #   uses: actions/upload-release-asset@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   with:
-      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
-      #     asset_path: TeamCloud.Web.zip
-      #     asset_name: TeamCloud.Web.zip
-      #     asset_content_type: application/zip
+      - name: Upload Release Asset - TeamCloud.Web.zip
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: TeamCloud.Web.zip
+          asset_name: TeamCloud.Web.zip
+          asset_content_type: application/zip
 
-      # - name: Upload Release Asset - azuredeploy.json
-      #   uses: actions/upload-release-asset@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   with:
-      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
-      #     asset_path: deploy/azuredeploy.json
-      #     asset_name: azuredeploy.json
-      #     asset_content_type: application/json
+      - name: Upload Release Asset - azuredeploy.json
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: deploy/azuredeploy.json
+          asset_name: azuredeploy.json
+          asset_content_type: application/json
 
-      # - name: Upload Release Asset - azuredeploy.web.json
-      #   uses: actions/upload-release-asset@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   with:
-      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
-      #     asset_path: deploy/azuredeploy.web.json
-      #     asset_name: azuredeploy.web.json
-      #     asset_content_type: application/json
+      - name: Upload Release Asset - azuredeploy.web.json
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: deploy/azuredeploy.web.json
+          asset_name: azuredeploy.web.json
+          asset_content_type: application/json
 
-      # - name: Upload Release Asset - index.json
-      #   uses: actions/upload-release-asset@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   with:
-      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
-      #     asset_path: index.json
-      #     asset_name: index.json
-      #     asset_content_type: application/json
+      - name: Upload Release Asset - index.json
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: index.json
+          asset_name: index.json
+          asset_content_type: application/json
 
-      # - name: Upload Release Asset - openapi.json
-      #   uses: actions/upload-release-asset@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   with:
-      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
-      #     asset_path: openapi/openapi.json
-      #     asset_name: openapi.json
-      #     asset_content_type: application/json
+      - name: Upload Release Asset - openapi.json
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: openapi/openapi.json
+          asset_name: openapi.json
+          asset_content_type: application/json
 
-      # - name: Upload Release Asset - openapi.yaml
-      #   uses: actions/upload-release-asset@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   with:
-      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
-      #     asset_path: openapi/openapi.yaml
-      #     asset_name: openapi.yaml
-      #     asset_content_type: application/x-yaml
+      - name: Upload Release Asset - openapi.yaml
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: openapi/openapi.yaml
+          asset_name: openapi.yaml
+          asset_content_type: application/x-yaml
 
-      # - name: Upload Release Asset - TeamCloud CLI WHL
-      #   uses: actions/upload-release-asset@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   with:
-      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
-      #     asset_path: dist/tc-${{ steps.cli_version.outputs.version }}-py2.py3-none-any.whl
-      #     asset_name: tc-${{ steps.cli_version.outputs.version }}-py2.py3-none-any.whl
-      #     asset_content_type: application/zip
+      - name: Upload Release Asset - TeamCloud CLI WHL
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: dist/tc-${{ steps.cli_version.outputs.version }}-py2.py3-none-any.whl
+          asset_name: tc-${{ steps.cli_version.outputs.version }}-py2.py3-none-any.whl
+          asset_content_type: application/zip
 
       # - name: Update CLI.md Version
       #   shell: python

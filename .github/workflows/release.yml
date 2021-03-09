@@ -37,6 +37,21 @@ jobs:
             console.log(release.data);
             return release.data;
 
+      # - name: Get Release Assets
+      #   uses: actions/github-script@v3
+      #   with:
+      #     script: |
+      #       const release = '${{steps.get-release.outputs.result}}'
+      #       const assets = await github.repos.listReleaseAssets({
+      #         owner: context.repo.owner,
+      #         repo: context.repo.repo,
+      #         release_id: release_id
+      #       });
+      #       console.log(assets)
+      #       console.log('...')
+      #       const tc =
+      #       console.log(release.id)
+
       - name: Check Release
         uses: actions/github-script@v3
         with:
