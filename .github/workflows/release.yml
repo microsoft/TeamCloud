@@ -3,6 +3,9 @@ name: Create Release
 on:
   workflow_dispatch:
     inputs:
+      tag:
+        required: false
+        description: 'Tag to release.'
       reset_demo:
         default: 'false'
         required: true
@@ -25,10 +28,13 @@ jobs:
         uses: actions/github-script@v3
         with:
           script: |
-            const parts = context.ref.split('/');
-            if (!parts.includes('tags'))
-              throw new Error(`ref ${context.ref} is not a tag.`);
-            const tag = parts[parts.length - 1];
+            let tag = ${{ github.event.inputs.tag }}
+            if (!tag) {
+              const parts = context.ref.split('/');
+              if (!parts.includes('tags'))
+                throw new Error(`ref ${context.ref} is not a tag.`);
+              tag = parts[parts.length - 1];
+            }
             const release = await github.repos.getReleaseByTag({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -37,26 +43,29 @@ jobs:
             console.log(release.data);
             return release.data;
 
-      # - name: Get Release Assets
+      # - name: Get CLI Release Asset
+      #   id: get-cli
       #   uses: actions/github-script@v3
       #   with:
+      #     result-encoding: string
       #     script: |
-      #       const release = '${{steps.get-release.outputs.result}}'
-      #       const assets = await github.repos.listReleaseAssets({
-      #         owner: context.repo.owner,
-      #         repo: context.repo.repo,
-      #         release_id: release_id
-      #       });
-      #       console.log(assets)
-      #       console.log('...')
-      #       const tc =
-      #       console.log(release.id)
+      #       const release = JSON.parse(${{steps.get-release.outputs.result}});
+      #       const cli_asset = release.assets.find(a => a.browser_download_url.includes('py3-none-any.whl'));
+      #       if (!cli_asset)
+      #         throw new Error('Could not find cli wheel file in release assets');
+      #       const cli_url = cli_asset.browser_download_url;
+      #       console.log(cli_url);
+      #       return cli_url;
+
+      # - name: Install TeamCloud CLI
+      #   run: |
+      #     az login
 
       - name: Check Release
         uses: actions/github-script@v3
         with:
           script: |
-            const release = '${{steps.get-release.outputs.result}}'
+            const release = JSON.parse('${{steps.get-release.outputs.result}}')
             console.log(release)
             console.log('...')
             console.log(release.id)
