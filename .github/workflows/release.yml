@@ -22,10 +22,14 @@ jobs:
         uses: actions/github-script@v3
         with:
           script: |
+            const parts = context.ref.split('/');
+            if (!parts.includes('tags'))
+              throw new Error(`ref ${context.ref} is not a tag.`);
+            const tag = parts[parts.length - 1];
             const release = await github.repos.getReleaseByTag({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              tag: context.ref
+              tag: tag
             });
             console.log(release);
       # - name: Deploy
