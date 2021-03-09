@@ -28,7 +28,7 @@ jobs:
         uses: actions/github-script@v3
         with:
           script: |
-            let tag = ${{ github.event.inputs.tag }}
+            let tag = '${{ github.event.inputs.tag }}'
             if (!tag) {
               const parts = context.ref.split('/');
               if (!parts.includes('tags'))
