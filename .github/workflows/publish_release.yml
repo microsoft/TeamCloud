@@ -1,12 +1,16 @@
 name: Promote Pre-release to Release
 
 on:
-  release:
-    types: [created]
+  workflow_dispatch:
+    inputs:
+      reset_demo:
+        default: 'false'
+        required: true
+        description: 'Reset the demo environment.'
 
 jobs:
   build:
-    if: 'github.event.release.prerelease'
+    # if: 'github.event.release.prerelease'
     name: Promote Pre-release to Release
     runs-on: ubuntu-latest
 
@@ -14,11 +18,20 @@ jobs:
       - name: Echo test
         run: echo ${{ github.event }}
 
-      - name: Deploy
-        run: |
+      - name: Trigger Publish Test
+        uses: actions/github-script@v3
+        with:
+          # github-token: ${{ secrets.TEAMCLOUD_PAT }}
+          script: console.log(context)
+        # github.actions.createWorkflowDispatch({
+        #   owner: context.repo.owner,
+        #   repo: context.repo.repo,
+        #   workflow_id: publish_release.yml,
+        #   ref,
+        # });
 
-          read -sp "Azure password: " AZ_PASS && echo && az login --service-principal -u ${{ secrets.TEAMCLOUD_CI_USERNAME }} -p ${{ secrets.TEAMCLOUD_CI_PASSWORD }} --tenant ${{ secrets.TEAMCLOUD_CI_TENANT }}
-
-          az install extension --source
-
-          az tc deploy ...
+      # - name: Deploy
+      #   run: |
+      #     read -sp "Azure password: " AZ_PASS && echo && az login --service-principal -u ${{ secrets.TEAMCLOUD_CI_USERNAME }} -p ${{ secrets.TEAMCLOUD_CI_PASSWORD }} --tenant ${{ secrets.TEAMCLOUD_CI_TENANT }}
+      #     az extension add --source ... -y
+      #     az tc deploy --subscription ${{ secrets.TEAMCLOUD_CI_SUBSCRIPTION }} -g ... --pre
