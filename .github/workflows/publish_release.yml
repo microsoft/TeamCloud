@@ -1,0 +1,15 @@
+name: Promote Pre-release to Release
+
+on:
+  release:
+    types: [prereleased]
+
+jobs:
+  build:
+    if: 'github.event.release.prerelease'
+    name: Promote Pre-release to Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Echo test
+        run: echo ${{ github.event }}
