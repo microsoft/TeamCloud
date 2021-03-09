@@ -23,18 +23,28 @@ jobs:
         with:
           script: console.log(${{ github.event }})
 
-      - name: Get Release
-        id: get-release
+      - name: Resolve Tag
+        id: resolve-tag
         uses: actions/github-script@v3
         with:
+          result-encoding: string
           script: |
-            let tag = '${{ github.event.inputs.tag }}'
+            let tag = '${{ github.event.inputs.tag }}';
             if (!tag) {
               const parts = context.ref.split('/');
               if (!parts.includes('tags'))
                 throw new Error(`ref ${context.ref} is not a tag.`);
               tag = parts[parts.length - 1];
             }
+            console.log(`Resolved tag: ${tag}`);
+            return tag;
+
+      - name: Get Release
+        id: get-release
+        uses: actions/github-script@v3
+        with:
+          script: |
+            let tag = '${{steps.resolve-tag.outputs.result}}';
             const release = await github.repos.getReleaseByTag({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -63,7 +73,11 @@ jobs:
 
           read -sp "Azure password: " AZ_PASS && echo && az login --service-principal -u ${{ secrets.TEAMCLOUD_CI_USERNAME }} -p ${{ secrets.TEAMCLOUD_CI_PASSWORD }} --tenant ${{ secrets.TEAMCLOUD_CI_TENANT }}
 
+          az account show
+
           az extension add -s ${{steps.get-cli.outputs.result}} -y
+
+          az tc deploy -l eastus --principal-name ${{ secrets.TEAMCLOUD_RM_USERNAME }} --principal-password ${{ secrets.TEAMCLOUD_RM_PASSWORD }} -v ${{steps.resolve-tag.outputs.result}} --skip-name-validation -n teamclouddemo
       # - name: Check Release
       #   uses: actions/github-script@v3
       #   with:
