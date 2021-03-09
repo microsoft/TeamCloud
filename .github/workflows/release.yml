@@ -75,7 +75,7 @@ jobs:
 
           az extension add -s ${{steps.get-cli.outputs.result}} -y
 
-          az tc deploy -l eastus --principal-name ${{ secrets.TEAMCLOUD_RM_USERNAME }} --principal-password ${{ secrets.TEAMCLOUD_RM_PASSWORD }} -v ${{steps.resolve-tag.outputs.result}} --skip-name-validation -n teamclouddemo
+          az tc deploy --subscription ${{ secrets.TEAMCLOUD_SUBSCRIPTION }} -l eastus --principal-name ${{ secrets.TEAMCLOUD_RM_USERNAME }} --principal-password ${{ secrets.TEAMCLOUD_RM_PASSWORD }} -v ${{steps.resolve-tag.outputs.result}} --skip-name-validation -n teamclouddemo
       # - name: Check Release
       #   uses: actions/github-script@v3
       #   with:
