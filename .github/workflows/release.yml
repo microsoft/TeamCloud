@@ -60,16 +60,37 @@ jobs:
             console.log(cli_url);
             return cli_url;
 
-      - name: Reset Demo
-        if: github.event.inputs.reset_demo == 'true' || github.event.inputs.reset_demo == '1'
-        run: |
-          echo "Reset this demo!"
-
-      - name: Install TeamCloud CLI and Deploy Demo
+      - name: Login to Azure
         run: |
 
           echo "logging in to azure cli"
           az login --service-principal -u ${{ secrets.TEAMCLOUD_CI_USERNAME }} -p ${{ secrets.TEAMCLOUD_CI_PASSWORD }} --tenant ${{ secrets.TEAMCLOUD_CI_TENANT }}
+
+      - name: Reset Demo environment
+        if: github.event.inputs.reset_demo == 'true' || github.event.inputs.reset_demo == '1'
+        run: |
+          while read SUBSCRIPTIONID; do
+
+            echo "Cleaning up subscripton $SUBSCRIPTIONID"
+
+            while read RESOURCEGROUPNAME; do
+              echo "- deleting resource group '$RESOURCEGROUPNAME'"
+              az group delete --subscription $SUBSCRIPTIONID -n $RESOURCEGROUPNAME -y &
+            done < <(az group list --subscription $SUBSCRIPTIONID --query "[].name" -o tsv)
+
+            wait
+
+            while read KEYVAULTNAME; do
+              echo "- purging key vault '$KEYVAULTNAME'"
+              az keyvault purge --subscription $SUBSCRIPTIONID -n $KEYVAULTNAME &
+            done < <(az keyvault list-deleted --subscription $SUBSCRIPTIONID --query "[].name" -o tsv)
+
+            wait && echo "- done"
+
+          done < <( az account list --refresh --only-show-errors --query "[?(starts_with(@.name, 'TeamCloud DEMO'))].id" -o tsv )
+
+      - name: Deploy Demo environment
+        run: |
 
           echo "installing teamcloud cli extension"
           az extension add -s ${{steps.get-cli.outputs.result}} -y
