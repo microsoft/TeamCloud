@@ -71,19 +71,19 @@ jobs:
         run: |
           while read SUBSCRIPTIONID; do
 
-            echo "Cleaning up subscripton $SUBSCRIPTIONID"
+            echo "Cleaning up subscripton '$( az account show --subscription $SUBSCRIPTIONID --query name -o tsv )'"
 
             while read RESOURCEGROUPNAME; do
               echo "- deleting resource group '$RESOURCEGROUPNAME'"
               az group delete --subscription $SUBSCRIPTIONID -n $RESOURCEGROUPNAME -y &
-            done < <(az group list --subscription $SUBSCRIPTIONID --query "[].name" -o tsv)
+            done < <( az group list --subscription $SUBSCRIPTIONID --query "[].name" -o tsv )
 
             wait
 
             while read KEYVAULTNAME; do
               echo "- purging key vault '$KEYVAULTNAME'"
               az keyvault purge --subscription $SUBSCRIPTIONID -n $KEYVAULTNAME &
-            done < <(az keyvault list-deleted --subscription $SUBSCRIPTIONID --query "[].name" -o tsv)
+            done < <( az keyvault list-deleted --subscription $SUBSCRIPTIONID --query "[].name" -o tsv )
 
             wait && echo "- done"
 
