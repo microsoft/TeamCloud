@@ -233,4 +233,8 @@ jobs:
               repo: context.repo.repo,
               workflow_id: 'release.yml',
               ref: 'v${{ steps.gitversion.outputs.majorMinorPatch }}',
+              inputs: {
+                tag: 'v${{ steps.gitversion.outputs.majorMinorPatch }}',
+                reset_demo: '${{ contains(join(github.event.commits.*.message), '+resetdemo') }}'
+              }
             });
