@@ -46,7 +46,7 @@
                 "sku": {
                     "name": "Standard",
                     "family": "C",
-                    "capacity": 4
+                    "capacity": 1
                 }
             }
         },
