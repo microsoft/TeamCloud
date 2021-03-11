@@ -12,9 +12,21 @@ on:
         default: 'false'
 
 jobs:
+  guard:
+    name: Guard Release
+    runs-on: ubuntu-latest
+
+    - name: Block concurrent deployments'
+      uses: softprops/turnstyle@v1
+      with:
+        poll-interval-seconds: 60
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   build:
     name: Create Release
     runs-on: ubuntu-latest
+    needs: guard
 
     steps:
       - name: Resolve Tag
