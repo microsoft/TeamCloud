@@ -9,7 +9,7 @@ on:
       reset_demo:
         required: false
         description: 'Reset the demo environment.'
-        default: 'false'
+        
 
 jobs:
   guard:
