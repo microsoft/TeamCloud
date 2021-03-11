@@ -16,7 +16,7 @@ jobs:
     name: Guard Release
     runs-on: ubuntu-latest
 
-    - name: Block concurrent deployments'
+    - name: Block concurrent deployments
       uses: softprops/turnstyle@v1
       with:
         poll-interval-seconds: 60
