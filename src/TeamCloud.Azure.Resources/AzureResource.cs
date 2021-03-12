@@ -3,12 +3,6 @@
  *  Licensed under the MIT License.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
 using Flurl;
 using Flurl.Http;
 using Microsoft.Azure.Management.Graph.RBAC.Fluent;
@@ -19,6 +13,12 @@ using Microsoft.Azure.Management.ResourceManager.Fluent.Models;
 using Microsoft.Rest.Azure;
 using Microsoft.Rest.Azure.OData;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 using TeamCloud.Azure.Resources.Typed;
 using TeamCloud.Http;
 
@@ -340,6 +340,9 @@ namespace TeamCloud.Azure.Resources
 
         public virtual async Task AddRoleAssignmentAsync(string userObjectId, Guid roleDefinitionId)
         {
+            if (string.IsNullOrEmpty(userObjectId))
+                throw new ArgumentException($"'{nameof(userObjectId)}' cannot be null or empty.", nameof(userObjectId));
+
             using var authClient = await AzureResourceService.AzureSessionService
                 .CreateClientAsync<AuthorizationManagementClient>()
                 .ConfigureAwait(false);
@@ -365,7 +368,10 @@ namespace TeamCloud.Azure.Resources
 
         public virtual async Task DeleteRoleAssignmentAsync(string userObjectId, Guid? roleDefinitionId = null)
         {
-            var assignments = await GetRoleAssignmentsInternalAsync(userObjectId)
+            if (string.IsNullOrEmpty(userObjectId))
+                throw new ArgumentException($"'{nameof(userObjectId)}' cannot be null or empty.", nameof(userObjectId));
+
+            var assignments = await GetRoleAssignmentsInternalAsync(userObjectId, false)
                 .ConfigureAwait(false);
 
             if (assignments.TryGetValue(userObjectId, out var roleAssignments))
@@ -384,17 +390,25 @@ namespace TeamCloud.Azure.Resources
             }
         }
 
-        public virtual async Task<bool> HasRoleAssignmentAsync(string userObjectId, Guid roleDefinitionId)
+        public virtual async Task<bool> HasRoleAssignmentAsync(string userObjectId, Guid roleDefinitionId, bool includeInherited = false)
         {
-            var assignments = await GetRoleAssignmentsAsync(userObjectId)
+            if (string.IsNullOrEmpty(userObjectId))
+                throw new ArgumentException($"'{nameof(userObjectId)}' cannot be null or empty.", nameof(userObjectId));
+
+            var assignments = await GetRoleAssignmentsInternalAsync(userObjectId, includeInherited)
                 .ConfigureAwait(false);
 
-            return assignments.Contains(roleDefinitionId);
+            return assignments
+                .SelectMany(kvp => kvp.Value)
+                .Any(assignment => assignment.GetRoleDefinitionId() == roleDefinitionId);
         }
 
         public virtual async Task<IEnumerable<Guid>> GetRoleAssignmentsAsync(string userObjectId)
         {
-            var assignments = await GetRoleAssignmentsInternalAsync(userObjectId)
+            if (string.IsNullOrEmpty(userObjectId))
+                throw new ArgumentException($"'{nameof(userObjectId)}' cannot be null or empty.", nameof(userObjectId));
+
+            var assignments = await GetRoleAssignmentsInternalAsync(userObjectId, false)
                 .ConfigureAwait(false);
 
             if (assignments.TryGetValue(userObjectId, out var roleAssignments))
@@ -450,15 +464,15 @@ namespace TeamCloud.Azure.Resources
             Task.WaitAll(tasks.ToArray());
         }
 
-        public virtual async Task<IDictionary<string, IEnumerable<Guid>>> GetRoleAssignmentsAsync()
+        public virtual async Task<IDictionary<string, IEnumerable<Guid>>> GetRoleAssignmentsAsync(bool includeInherited = false)
         {
-            var assignments = await GetRoleAssignmentsInternalAsync(null)
+            var assignments = await GetRoleAssignmentsInternalAsync(null, includeInherited)
                 .ConfigureAwait(false);
 
             return assignments.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Select(assignment => assignment.GetRoleDefinitionId()));
         }
 
-        private async Task<IDictionary<string, IEnumerable<RoleAssignmentInner>>> GetRoleAssignmentsInternalAsync(string userObjectId)
+        private async Task<IDictionary<string, IEnumerable<RoleAssignmentInner>>> GetRoleAssignmentsInternalAsync(string userObjectId, bool includeInherited)
         {
             using var authClient = await AzureResourceService.AzureSessionService
                 .CreateClientAsync<AuthorizationManagementClient>()
@@ -468,10 +482,10 @@ namespace TeamCloud.Azure.Resources
             var query = new ODataQuery<RoleAssignmentFilter>();
 
             if (!string.IsNullOrEmpty(userObjectId))
-                query.SetFilter(filter => filter.PrincipalId.Equals(userObjectId, StringComparison.OrdinalIgnoreCase));
+                query.SetFilter(filter => filter.PrincipalId == userObjectId);
 
             var page = await authClient.RoleAssignments
-                .ListForScopeAsync(ResourceId.ToString().TrimStart('/'))
+                .ListForScopeAsync(ResourceId.ToString().TrimStart('/'), query)
                 .ConfigureAwait(false);
 
             roles.AddRange(page);
@@ -485,12 +499,8 @@ namespace TeamCloud.Azure.Resources
                 roles.AddRange(page);
             }
 
-            // ListForScopeAsync includes scopes which encompass the resource, e.g. it returns
-            // assignments inherited from the subscription. We filter those out here because we can't
-            // modify them.
-
             return roles
-                .Where(role => role.Scope.Equals(ResourceId.ToString(), StringComparison.OrdinalIgnoreCase))
+                .Where(role => includeInherited || role.Scope.Equals(ResourceId.ToString(), StringComparison.OrdinalIgnoreCase))
                 .GroupBy(role => role.PrincipalId)
                 .ToDictionary(grp => grp.Key, grp => grp.AsEnumerable());
         }
