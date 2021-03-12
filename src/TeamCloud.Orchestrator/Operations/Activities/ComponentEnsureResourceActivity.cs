@@ -3,14 +3,14 @@
  *  Licensed under the MIT License.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.Azure.Management.ManagementGroups;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using TeamCloud.Azure.Resources;
 using TeamCloud.Data;
 using TeamCloud.Model.Data;
@@ -207,7 +207,7 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                     .ConfigureAwait(false);
 
                 var hasOwnership = await subscription
-                    .HasRoleAssignmentAsync(userObjectId.ToString(), AzureRoleDefinition.Owner)
+                    .HasRoleAssignmentAsync(userObjectId.ToString(), AzureRoleDefinition.Owner, true)
                     .ConfigureAwait(false);
 
                 return hasOwnership ? subscriptionId : Guid.Empty;
