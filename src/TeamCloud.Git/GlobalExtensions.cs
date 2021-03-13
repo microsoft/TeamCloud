@@ -220,7 +220,11 @@ namespace TeamCloud.Git
                 Type = yaml.Type,
                 Folder = folder,
                 InputJsonSchema = yaml.Parameters?.ToSchema().ToString(Formatting.None),
-                Tasks = yaml.Tasks?.Select(t => t.ToTemplate()).ToList()
+                Tasks = yaml.Tasks?.Select(t => t.ToTemplate()).ToList(),
+                Permissions = yaml.Permissions?
+                    .Where(p => Enum.TryParse(typeof(ProjectUserRole), p.Role, true, out _))
+                    .GroupBy(p => (ProjectUserRole) Enum.Parse(typeof(ProjectUserRole), p.Role, true))
+                    .ToDictionary(g => g.Key, g => g.Select(p => p.Permission))
             };
         }
 
