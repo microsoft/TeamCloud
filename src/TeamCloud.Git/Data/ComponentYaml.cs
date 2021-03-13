@@ -18,6 +18,8 @@ namespace TeamCloud.Git.Data
 
         public List<ComponentTaskYaml> Tasks { get; set; } //= new List<ComponentTaskYaml>();
 
+        public List<ComponentPermissionYaml> Permissions { get; set; }
+
         public List<YamlParameter<dynamic>> Parameters { get; set; }
 
         public string Provider { get; set; }

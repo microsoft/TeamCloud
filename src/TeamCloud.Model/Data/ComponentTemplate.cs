@@ -3,9 +3,9 @@
  *  Licensed under the MIT License.
  */
 
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
 using TeamCloud.Model.Common;
 using TeamCloud.Model.Data.Core;
 using TeamCloud.Serialization;
@@ -45,6 +45,11 @@ namespace TeamCloud.Model.Data
         /// </summary>
         [JsonProperty(Required = Required.Always)]
         public RepositoryReference Repository { get; set; }
+
+        /// <summary>
+        /// Gets or sets the permissions dictionary to be applied to instances of this component.
+        /// </summary>
+        public Dictionary<ProjectUserRole, IEnumerable<string>> Permissions { get; set; }
 
         /// <summary>
         /// Gets or sets the component template's input json schema.

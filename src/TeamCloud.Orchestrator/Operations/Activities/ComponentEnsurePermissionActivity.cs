@@ -3,12 +3,13 @@
  *  Licensed under the MIT License.
  */
 
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using TeamCloud.Azure.Resources;
 using TeamCloud.Data;
 using TeamCloud.Model.Data;
@@ -22,15 +23,17 @@ namespace TeamCloud.Orchestrator.Operations.Activities
         private readonly IOrganizationRepository organizationRepository;
         private readonly IProjectRepository projectRepository;
         private readonly IDeploymentScopeRepository deploymentScopeRepository;
+        private readonly IComponentTemplateRepository componentTemplateRepository;
         private readonly IUserRepository userRepository;
         private readonly IAzureResourceService azureResourceService;
 
-        public ComponentEnsurePermissionActivity(IOrganizationRepository organizationRepository, IProjectRepository projectRepository, IUserRepository userRepository, IDeploymentScopeRepository deploymentScopeRepository, IAzureResourceService azureResourceService)
+        public ComponentEnsurePermissionActivity(IOrganizationRepository organizationRepository, IProjectRepository projectRepository, IUserRepository userRepository, IDeploymentScopeRepository deploymentScopeRepository, IComponentTemplateRepository componentTemplateRepository, IAzureResourceService azureResourceService)
         {
             this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
             this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
             this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             this.deploymentScopeRepository = deploymentScopeRepository ?? throw new ArgumentNullException(nameof(deploymentScopeRepository));
+            this.componentTemplateRepository = componentTemplateRepository ?? throw new ArgumentNullException(nameof(componentTemplateRepository));
             this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
         }
 
@@ -52,7 +55,7 @@ namespace TeamCloud.Orchestrator.Operations.Activities
             {
                 var task = component.Type switch
                 {
-                    ComponentType.Environment => HandleEnvironmentAsync(component),
+                    ComponentType.Environment => HandleEnvironmentAsync(component, log),
                     _ => Task.CompletedTask
                 };
 
@@ -66,15 +69,90 @@ namespace TeamCloud.Orchestrator.Operations.Activities
             return component;
         }
 
-        private async Task HandleEnvironmentAsync(Component component)
+        private async Task<Dictionary<string, IEnumerable<Guid>>> GetRoleAssignmentsAsync(Component component, ILogger log)
+        {
+            var session = await azureResourceService.AzureSessionService
+                .CreateSessionAsync()
+                .ConfigureAwait(false);
+
+            var template = await componentTemplateRepository
+                .GetAsync(component.Organization, component.ProjectId, component.TemplateId)
+                .ConfigureAwait(false);
+
+            return await userRepository
+                .ListAsync(component.Organization, component.ProjectId)
+                .SelectAwait(async user => new KeyValuePair<string, IEnumerable<Guid>>(user.Id, await GetUserRoleDefinitionIdsAsync(user).ConfigureAwait(false)))
+                .ToDictionaryAsync(kvp => kvp.Key, kvp => kvp.Value)
+                .ConfigureAwait(false);
+
+            async Task<IEnumerable<Guid>> GetUserRoleDefinitionIdsAsync(User user)
+            {
+                var roleDefinitionIds = new HashSet<Guid>();
+
+                if (template.Permissions?.Any() ?? false)
+                {
+                    if (user.IsOwner(component.ProjectId) && template.Permissions.TryGetValue(ProjectUserRole.Owner, out var ownerPermissions))
+                    {
+                        var tasks = ownerPermissions.Select(permission => ResolveRoleDefinitionIdAsync(permission));
+
+                        roleDefinitionIds.UnionWith(await Task.WhenAll(tasks).ConfigureAwait(false));
+                    }
+                    else if (user.IsAdmin(component.ProjectId) && template.Permissions.TryGetValue(ProjectUserRole.Admin, out var adminPermissions))
+                    {
+                        var tasks = adminPermissions.Select(permission => ResolveRoleDefinitionIdAsync(permission));
+
+                        roleDefinitionIds.UnionWith(await Task.WhenAll(tasks).ConfigureAwait(false));
+                    }
+                    else if (user.IsMember(component.ProjectId) && template.Permissions.TryGetValue(ProjectUserRole.Member, out var memberPermissions))
+                    {
+                        var tasks = memberPermissions.Select(permission => ResolveRoleDefinitionIdAsync(permission));
+
+                        roleDefinitionIds.UnionWith(await Task.WhenAll(tasks).ConfigureAwait(false));
+                    }
+                }
+
+                // strip out unresolved role defintion ids
+                roleDefinitionIds.RemoveWhere(id => id == Guid.Empty);
+
+                if (!roleDefinitionIds.Any())
+                {
+                    // if no role definition id was resolved use default
+                    roleDefinitionIds.Add(AzureRoleDefinition.Reader);
+                }
+
+                return roleDefinitionIds;
+            }
+
+            async Task<Guid> ResolveRoleDefinitionIdAsync(string permission)
+            {
+                if (Guid.TryParse(permission, out var roleDefinitionId))
+                    return roleDefinitionId;
+
+                try
+                {
+                    var roleDefinition = await session.RoleDefinitions
+                        .GetByScopeAndRoleNameAsync(component.ResourceId, permission)
+                        .ConfigureAwait(false);
+
+                    if (roleDefinition is null)
+                        return Guid.Empty;
+
+                    return Guid.Parse(roleDefinition.Id.Split('/').LastOrDefault());
+                }
+                catch (Exception exc)
+                {
+                    log.LogWarning(exc, $"Failed to resolve role definition by name '{permission}'");
+
+                    return Guid.Empty;
+                }
+            }
+        }
+
+        private async Task HandleEnvironmentAsync(Component component, ILogger log)
         {
             if (AzureResourceIdentifier.TryParse(component.ResourceId, out var componentResourceId))
             {
-                var roleDefinitionId = AzureRoleDefinition.Contributor;
-
-                var roleAssignmentMap = await userRepository
-                    .ListAsync(component.Organization, component.ProjectId)
-                    .ToDictionaryAsync(user => user.Id, user => Enumerable.Repeat(roleDefinitionId, 1))
+                var roleAssignmentMap = await GetRoleAssignmentsAsync(component, log)
                     .ConfigureAwait(false);
 
                 if (AzureResourceIdentifier.TryParse(component.IdentityId, out var identityResourceId))
