@@ -3,15 +3,15 @@
  *  Licensed under the MIT License.
  */
 
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.Annotations;
 using TeamCloud.API.Auth;
 using TeamCloud.API.Data;
 using TeamCloud.API.Data.Results;
@@ -124,6 +124,15 @@ namespace TeamCloud.API.Controllers
                 return ErrorResult
                     .Conflict($"The user '{userDefinition.Identifier}' already exists on this Project. Please try your request again with a unique user or call PUT to update the existing User.")
                     .ToActionResult();
+
+            if (user.Role == OrganizationUserRole.None)
+            {
+                // a user added to a project that doesn't exist
+                // on the org level must become a member of the org
+                // and not must not assigned to the none role
+
+                user.Role = OrganizationUserRole.Member;
+            }
 
             user.EnsureProjectMembership(project.Id, Enum.Parse<ProjectUserRole>(userDefinition.Role, true), userDefinition.Properties);
 
