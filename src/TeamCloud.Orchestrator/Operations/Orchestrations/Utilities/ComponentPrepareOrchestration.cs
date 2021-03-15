@@ -83,11 +83,11 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Utilities
                         .ConfigureAwait(true);
 
                     component = await context
-                        .CallActivityWithRetryAsync<Component>(nameof(ComponentEnsureStorageActivity), new ComponentEnsureStorageActivity.Input() { Component = component })
+                        .CallActivityWithRetryAsync<Component>(nameof(ComponentResolveStorageActivity), new ComponentResolveStorageActivity.Input() { Component = component })
                         .ConfigureAwait(true);
 
                     component = await context
-                        .CallActivityWithRetryAsync<Component>(nameof(ComponentEnsureVaultActivity), new ComponentEnsureVaultActivity.Input() { Component = component })
+                        .CallActivityWithRetryAsync<Component>(nameof(ComponentResolveVaultActivity), new ComponentResolveVaultActivity.Input() { Component = component })
                         .ConfigureAwait(true);
 
                     component = await context

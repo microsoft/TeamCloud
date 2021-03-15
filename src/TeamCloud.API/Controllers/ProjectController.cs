@@ -150,9 +150,7 @@ namespace TeamCloud.API.Controllers
                 Id = projectId,
                 Organization = organization.Id,
                 Users = users,
-                DisplayName = projectDefinition.DisplayName,
-                // Tags = projectDefinition.Tags,
-                // Properties = projectDefinition.Properties
+                DisplayName = projectDefinition.DisplayName
             };
 
             ProjectTemplate template = null;
@@ -191,6 +189,10 @@ namespace TeamCloud.API.Controllers
             project.Template = template.Id;
             project.TemplateInput = projectDefinition.TemplateInput;
 
+            project.Tags = input
+                .ToObject<Dictionary<string, object>>()
+                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value?.ToString());
+            
             var currentUser = users.FirstOrDefault(u => u.Id == UserService.CurrentUserId);
 
             var command = new ProjectCreateCommand(currentUser, project);
