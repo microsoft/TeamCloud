@@ -3,12 +3,12 @@
  *  Licensed under the MIT License.
  */
 
-using System;
-using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using System;
+using System.Threading.Tasks;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Handlers;
@@ -56,7 +56,7 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Utilities
                     orchestrationContext.SetCustomStatus("Augmenting command result", log);
 
                     commandResult = await orchestrationContext
-                        .CallActivityWithRetryAsync<ICommandResult>(nameof(CommandResultActivity), commandResult)
+                        .CallActivityWithRetryAsync<ICommandResult>(nameof(CommandResultActivity), new CommandResultActivity.Input() { CommandResult = commandResult })
                         .ConfigureAwait(true);
                 }
                 catch (Exception exc)
