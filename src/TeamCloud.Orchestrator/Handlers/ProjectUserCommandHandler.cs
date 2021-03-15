@@ -3,13 +3,14 @@
  *  Licensed under the MIT License.
  */
 
-using System;
-using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using System;
+using System.Threading.Tasks;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
+using TeamCloud.Model.Data;
 
 namespace TeamCloud.Orchestrator.Handlers
 {
@@ -19,10 +20,12 @@ namespace TeamCloud.Orchestrator.Handlers
           ICommandHandler<ProjectUserDeleteCommand>
     {
         private readonly IUserRepository userRepository;
+        private readonly IComponentRepository componentRepository;
 
-        public ProjectUserCommandHandler(IUserRepository userRepository)
+        public ProjectUserCommandHandler(IUserRepository userRepository, IComponentRepository componentRepository)
         {
             this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+            this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
         }
 
         public async Task<ICommandResult> HandleAsync(ProjectUserCreateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient durableClient = null)
@@ -46,6 +49,11 @@ namespace TeamCloud.Orchestrator.Handlers
             catch (Exception exc)
             {
                 commandResult.Errors.Add(exc);
+            }
+            finally
+            {
+                await UpdateComponentsAsync(command.User, command.ProjectId, commandQueue)
+                    .ConfigureAwait(false);
             }
 
             return commandResult;
@@ -73,6 +81,11 @@ namespace TeamCloud.Orchestrator.Handlers
             {
                 commandResult.Errors.Add(exc);
             }
+            finally
+            {
+                await UpdateComponentsAsync(command.User, command.ProjectId, commandQueue)
+                    .ConfigureAwait(false);
+            }
 
             return commandResult;
         }
@@ -99,8 +112,25 @@ namespace TeamCloud.Orchestrator.Handlers
             {
                 commandResult.Errors.Add(exc);
             }
+            finally
+            {
+                await UpdateComponentsAsync(command.User, command.ProjectId, commandQueue)
+                    .ConfigureAwait(false);
+            }
 
             return commandResult;
+        }
+
+        private async Task UpdateComponentsAsync(User user, string projectId, IAsyncCollector<ICommand> commandQueue)
+        {
+            await foreach (var component in componentRepository.ListAsync(projectId))
+            {
+                var command = new ComponentUpdateCommand(user, component);
+
+                await commandQueue
+                    .AddAsync(command)
+                    .ConfigureAwait(false);
+            }
         }
     }
 }

@@ -27,34 +27,30 @@ namespace TeamCloud.Orchestrator.Operations.Activities
             if (durableClient is null)
                 throw new ArgumentNullException(nameof(durableClient));
 
-            ICommandResult commandResult;
-
             try
             {
-                commandResult = context.GetInput<ICommandResult>();
-            }
-            catch (Exception exc)
-            {
-                log?.LogError(exc, $"Failed deserialize command result from json: {exc.Message}");
+                var input = context.GetInput<Input>();
 
-                throw exc.AsSerializable();
-            }
-
-            try
-            {
                 var commandStatus = await durableClient
-                    .GetStatusAsync(commandResult.CommandId.ToString())
+                    .GetStatusAsync(input.CommandResult.CommandId.ToString())
                     .ConfigureAwait(false);
 
                 if (commandStatus != null)
-                    commandResult.ApplyStatus(commandStatus);
+                    input.CommandResult.ApplyStatus(commandStatus);
+
+                return input.CommandResult;
             }
             catch (Exception exc)
             {
-                log?.LogWarning(exc, $"Failed to augment command result with orchestration status {commandResult.CommandId}: {exc.Message}");
-            }
+                log?.LogWarning(exc, $"Failed to augment command result with orchestration status: {exc.Message}");
 
-            return commandResult;
+                throw exc.AsSerializable();
+            }
+        }
+
+        internal struct Input
+        {
+            public ICommandResult CommandResult { get; set; }
         }
     }
 }

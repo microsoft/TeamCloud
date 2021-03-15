@@ -3,11 +3,11 @@
  *  Licensed under the MIT License.
  */
 
-using System;
-using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Threading.Tasks;
 using TeamCloud.Azure.Resources;
 using TeamCloud.Data;
 using TeamCloud.Model.Common;
@@ -83,15 +83,19 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Utilities
                         .ConfigureAwait(true);
 
                     component = await context
-                        .CallActivityWithRetryAsync<Component>(nameof(ComponentEnsureStorageActivity), new ComponentEnsureStorageActivity.Input() { Component = component })
+                        .CallActivityWithRetryAsync<Component>(nameof(ComponentResolveStorageActivity), new ComponentResolveStorageActivity.Input() { Component = component })
                         .ConfigureAwait(true);
 
                     component = await context
-                        .CallActivityWithRetryAsync<Component>(nameof(ComponentEnsureVaultActivity), new ComponentEnsureVaultActivity.Input() { Component = component })
+                        .CallActivityWithRetryAsync<Component>(nameof(ComponentResolveVaultActivity), new ComponentResolveVaultActivity.Input() { Component = component })
                         .ConfigureAwait(true);
 
                     component = await context
                         .CallActivityWithRetryAsync<Component>(nameof(ComponentEnsurePermissionActivity), new ComponentEnsurePermissionActivity.Input() { Component = component })
+                        .ConfigureAwait(true);
+
+                    component = await context
+                        .CallActivityWithRetryAsync<Component>(nameof(ComponentEnsureTaggingActivity), new ComponentEnsureTaggingActivity.Input() { Component = component })
                         .ConfigureAwait(true);
 
                     component = await UpdateComponentAsync(component, ResourceState.Succeeded)

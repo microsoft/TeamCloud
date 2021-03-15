@@ -3,7 +3,6 @@
  *  Licensed under the MIT License.
  */
 
-
 namespace TeamCloud.Git.Data
 {
     public class ComponentPermissionYaml
