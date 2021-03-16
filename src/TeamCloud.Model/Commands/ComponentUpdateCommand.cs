@@ -11,6 +11,7 @@ namespace TeamCloud.Model.Commands
     public sealed class ComponentUpdateCommand : UpdateCommand<Component, ComponentUpdateCommandResult>
     {
         public ComponentUpdateCommand(User user, Component payload) : base(user, payload)
-            => ProjectId = payload?.ProjectId ?? throw new System.ArgumentNullException(nameof(payload));
+        { }
+
     }
 }

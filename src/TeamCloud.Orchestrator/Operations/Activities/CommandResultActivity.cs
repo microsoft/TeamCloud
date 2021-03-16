@@ -6,7 +6,9 @@
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Serialization;
@@ -29,20 +31,24 @@ namespace TeamCloud.Orchestrator.Operations.Activities
 
             try
             {
-                var input = context.GetInput<Input>();
+                var commandResult = context.GetInput<Input>().CommandResult;
 
                 var commandStatus = await durableClient
-                    .GetStatusAsync(input.CommandResult.CommandId.ToString())
+                    .GetStatusAsync(commandResult.CommandId.ToString())
                     .ConfigureAwait(false);
 
                 if (commandStatus != null)
-                    input.CommandResult.ApplyStatus(commandStatus);
+                {
+                    commandResult.ApplyStatus(commandStatus);
 
-                return input.CommandResult;
+                    Debug.WriteLine($"Augmented command result: {JsonConvert.SerializeObject(commandResult, TeamCloudSerializerSettings.Default)}");
+                }
+
+                return commandResult;
             }
             catch (Exception exc)
             {
-                log?.LogWarning(exc, $"Failed to augment command result with orchestration status: {exc.Message}");
+                log?.LogError(exc, $"Failed to augment command result with orchestration status: {exc.Message}");
 
                 throw exc.AsSerializable();
             }

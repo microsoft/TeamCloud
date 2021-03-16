@@ -3,6 +3,11 @@
  *  Licensed under the MIT License.
  */
 
+using Flurl;
+using Flurl.Http;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
@@ -10,11 +15,6 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Flurl;
-using Flurl.Http;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Microsoft.Extensions.Logging;
 using TeamCloud.Azure;
 using TeamCloud.Azure.Resources;
 using TeamCloud.Azure.Resources.Typed;
@@ -80,13 +80,17 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                     .GetAsync(component.Organization, component.ProjectId, component.TemplateId)
                     .ConfigureAwait(false);
 
-                var componentLocation = await GetLocationAsync(component)
-                    .ConfigureAwait(false);
-
                 var (componentShareAccount, componentShareName, componentShareKey) = await GetComponentShareInfoAsync(component)
                     .ConfigureAwait(false);
 
-                var componentRunnerHost = $"{componentTask.Id}.{componentLocation}.azurecontainer.io";
+                var componentLocation = await GetComponentRunnerLocationAsync(component)
+                    .ConfigureAwait(false);
+
+                // we must not use the component task's id as runner label as this will
+                // violate the maximum length of a SSL certificats CN name.
+                var componentRunnerRoot = $".{componentLocation}.azurecontainer.io";
+                var componentRunnerLabelName = GetComponentRunnerLabel(componentTask, 64 - componentRunnerRoot.Length);
+                var componentRunnerHostName = string.Concat(componentRunnerLabelName, componentRunnerRoot);
 
                 var componentRunnerDefinition = new
                 {
@@ -130,7 +134,7 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                                     },
                                     new {
                                         name = "TaskHost",
-                                        value = componentRunnerHost
+                                        value = componentRunnerHostName
                                     },
                                     new {
                                         name = "TaskType",
@@ -143,7 +147,7 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                                     new
                                     {
                                         name = "ComponentTemplateBaseUrl",
-                                        value = $"http://{componentRunnerHost}/{componentTemplate.Folder.Trim().TrimStart('/')}"
+                                        value = $"http://{componentRunnerHostName}/{componentTemplate.Folder.Trim().TrimStart('/')}"
                                     },
                                     new
                                     {
@@ -192,7 +196,7 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                         ipAddress = new
                         {
                             type = "Public",
-                            dnsNameLabel = componentTask.Id,
+                            dnsNameLabel = componentRunnerLabelName,
                             ports = new[]
                             {
                             new {
@@ -341,7 +345,7 @@ namespace TeamCloud.Orchestrator.Operations.Activities
             return secretsObject;
         }
 
-        private async Task<string> GetLocationAsync(Component component)
+        private async Task<string> GetComponentRunnerLocationAsync(Component component)
         {
             var tenantId = (await azureSessionService.GetIdentityAsync().ConfigureAwait(false)).TenantId;
 
@@ -352,6 +356,14 @@ namespace TeamCloud.Orchestrator.Operations.Activities
             return organization.Location;
         }
 
+        private string GetComponentRunnerLabel(ComponentTask componentTask, int length)
+        {
+            using var algorithm = new System.Security.Cryptography.SHA512Managed();
+
+            var buffer = algorithm.ComputeHash(Encoding.UTF8.GetBytes(componentTask.Id));
+
+            return string.Concat(buffer.Skip(1).Take(length).Select(b => Convert.ToChar((b % 26) + (byte)'a')));
+        }
 
         internal struct Input
         {

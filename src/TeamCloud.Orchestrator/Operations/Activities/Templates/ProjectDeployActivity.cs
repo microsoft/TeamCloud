@@ -3,11 +3,11 @@
  *  Licensed under the MIT License.
  */
 
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Azure;
 using TeamCloud.Azure.Deployment;
 using TeamCloud.Azure.Resources;
@@ -22,13 +22,15 @@ namespace TeamCloud.Orchestrator.Operations.Activities.Templates
     {
         private readonly IOrganizationRepository organizationRepository;
         private readonly IProjectRepository projectRepository;
+        private readonly IDeploymentScopeRepository deploymentScopeRepository;
         private readonly IAzureDeploymentService azureDeploymentService;
         private readonly IAzureSessionService azureSessionService;
 
-        public ProjectDeployActivity(IOrganizationRepository organizationRepository, IProjectRepository projectRepository, IAzureDeploymentService azureDeploymentService, IAzureSessionService azureSessionService)
+        public ProjectDeployActivity(IOrganizationRepository organizationRepository, IProjectRepository projectRepository, IDeploymentScopeRepository deploymentScopeRepository, IAzureDeploymentService azureDeploymentService, IAzureSessionService azureSessionService)
         {
             this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
             this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
+            this.deploymentScopeRepository = deploymentScopeRepository ?? throw new ArgumentNullException(nameof(deploymentScopeRepository));
             this.azureDeploymentService = azureDeploymentService ?? throw new ArgumentNullException(nameof(azureDeploymentService));
             this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
         }
@@ -82,7 +84,15 @@ namespace TeamCloud.Orchestrator.Operations.Activities.Templates
                 projectResourceId = AzureResourceIdentifier.Parse(project.ResourceId);
             }
 
+            var deploymentScopeIds = await deploymentScopeRepository
+                .ListAsync(project.Organization)
+                .Select(scope => scope.Id)
+                .ToArrayAsync()
+                .ConfigureAwait(false);
+
             var template = new ProjectDeployTemplate();
+
+            template.Parameters["deploymentScopeIds"] = deploymentScopeIds;
 
             var deployment = await azureDeploymentService
                 .DeployResourceGroupTemplateAsync(template, Guid.Parse(organization.SubscriptionId), projectResourceId.ResourceGroup)

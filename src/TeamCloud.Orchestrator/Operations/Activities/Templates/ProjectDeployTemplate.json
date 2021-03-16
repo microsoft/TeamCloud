@@ -2,12 +2,20 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-
+    "deploymentScopeIds": {
+      "type": "array",
+      "defaultValue": []
+    }
   },
   "variables": {
+    "deploymentScopeIds" : {
+      "true": "[parameters('deploymentScopeIds')]",
+      "false": [ "00000000-0000-0000-0000-000000000000" ]
+    },
     "ResourcePrefix": "tc",
     "ResourceName_KeyVault": "[concat(variables('ResourcePrefix'), uniqueString(resourceGroup().id))]",
-    "ResourceName_StorageAccount": "[concat(variables('ResourcePrefix'), uniqueString(resourceGroup().id))]"
+    "ResourceName_StorageAccount": "[concat(variables('ResourcePrefix'), uniqueString(resourceGroup().id))]",
+    "ResourceName_Identities" : "[variables('deploymentScopeIds')[string(not(empty(parameters('deploymentScopeIds'))))]]"
   },
   "resources": [
     {
@@ -38,6 +46,17 @@
       },
       "kind": "StorageV2",
       "properties": {}
+    },
+    {
+      "condition": "[not(empty(parameters('deploymentScopeIds')))]",
+      "name": "[variables('ResourceName_Identities')[copyIndex('identitiesCopy')]]",
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "2018-11-30",
+      "location": "[resourceGroup().location]",
+      "copy": {
+        "name": "identitiesCopy",
+        "count": "[length(variables('ResourceName_Identities'))]"
+      }
     }
   ],
   "outputs": {

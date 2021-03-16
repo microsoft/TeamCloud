@@ -3,14 +3,14 @@
  *  Licensed under the MIT License.
  */
 
+using Microsoft.Azure.Cosmos.Table;
+using Microsoft.Azure.Storage.Blob;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using Microsoft.Azure.Storage.Blob;
-using Microsoft.Azure.Cosmos.Table;
-using Newtonsoft.Json;
 using TeamCloud.Audit.Model;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Orchestration;
@@ -69,10 +69,10 @@ namespace TeamCloud.Audit
                 .CreateCloudTableClient().GetTableReference(GetAuditTableName(options)));
         }
 
-        public Task AuditAsync(ICommand command, ICommandResult commandResult = default, string providerId = default) => Task.WhenAll
+        public Task AuditAsync(ICommand command, ICommandResult commandResult = default) => Task.WhenAll
         (
-            WriteContainerAsync(command, commandResult, providerId),
-            WriteTableAsync(command, commandResult, providerId)
+            WriteContainerAsync(command, commandResult),
+            WriteTableAsync(command, commandResult)
         );
 
         private async Task<CloudBlobContainer> GetAuditContainerAsync()
@@ -87,7 +87,7 @@ namespace TeamCloud.Audit
             return auditContainer.Value;
         }
 
-        private Task WriteContainerAsync(ICommand command, ICommandResult commandResult, string providerId)
+        private Task WriteContainerAsync(ICommand command, ICommandResult commandResult)
         {
             return Task.WhenAll
             (
@@ -97,7 +97,7 @@ namespace TeamCloud.Audit
 
             async Task WriteBlobAsync(object data)
             {
-                var auditPath = $"{command.ProjectId}/{command.CommandId}/{providerId}/{data.GetType().Name}.json";
+                var auditPath = $"{command.OrganizationId}/{command.ProjectId}/{command.CommandId}/{data.GetType().Name}.json";
 
                 var auditContainer = await GetAuditContainerAsync().ConfigureAwait(false);
                 var auditBlob = auditContainer.GetBlockBlobReference(auditPath.Replace("//", "/", StringComparison.OrdinalIgnoreCase));
@@ -120,9 +120,9 @@ namespace TeamCloud.Audit
             return auditTable.Value;
         }
 
-        private async Task WriteTableAsync(ICommand command, ICommandResult commandResult, string providerId)
+        private async Task WriteTableAsync(ICommand command, ICommandResult commandResult)
         {
-            var entity = new CommandAuditEntity(command, providerId);
+            var entity = new CommandAuditEntity(command);
 
             var auditTable = await GetAuditTableAsync()
                 .ConfigureAwait(false);
@@ -144,9 +144,6 @@ namespace TeamCloud.Audit
 
                 if (entity.RuntimeStatus.IsFinal())
                     entity.Errors = string.Join(Environment.NewLine, commandResult.Errors.Select(error => $"[{error.Severity}] {error.Message}"));
-
-                if (!string.IsNullOrEmpty(entity.Provider))
-                    entity.Timeout ??= entity.Created?.Add(commandResult.Timeout);
             }
 
             await auditTable
