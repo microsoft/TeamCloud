@@ -3,14 +3,13 @@
  *  Licensed under the MIT License.
  */
 
-using System;
-using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Threading.Tasks;
 using TeamCloud.Audit;
 using TeamCloud.Model.Commands.Core;
-using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
 
 namespace TeamCloud.Orchestrator.Operations.Activities
@@ -40,7 +39,7 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                 var functionInput = activityContext.GetInput<Input>();
 
                 await commandAuditWriter
-                    .AuditAsync(functionInput.Command, functionInput.CommandResult, functionInput.ProviderId)
+                    .AuditAsync(functionInput.Command, functionInput.CommandResult)
                     .ConfigureAwait(false);
             }
             catch (Exception exc)
@@ -54,8 +53,6 @@ namespace TeamCloud.Orchestrator.Operations.Activities
             public ICommand Command { get; set; }
 
             public ICommandResult CommandResult { get; set; }
-
-            public string ProviderId { get; set; }
         }
     }
 

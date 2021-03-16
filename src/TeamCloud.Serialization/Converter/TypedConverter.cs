@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using TeamCloud.Serialization.Resolver;
 
 namespace TeamCloud.Serialization.Converter
@@ -32,7 +33,16 @@ namespace TeamCloud.Serialization.Converter
                 return (T)serializer.WithContractResolver(GetContractResolver()).WithTypeNameHandling(TypeNameHandling.Auto).Deserialize(reader, objectType);
             }
 
-            return (T)serializer.WithContractResolver(GetContractResolver()).WithTypeNameHandling(TypeNameHandling.Auto).Deserialize(reader, typeof(object));
+            try
+            {
+                return (T)serializer.WithContractResolver(GetContractResolver()).WithTypeNameHandling(TypeNameHandling.Auto).Deserialize(reader, typeof(object));
+            }
+            catch (Exception exc)
+            {
+                Debug.WriteLine($"!!! Deserializing type {typeof(T)} failed: {exc.Message}");
+
+                throw;
+            }
         }
 
         public override void WriteJson(JsonWriter writer, T value, JsonSerializer serializer)

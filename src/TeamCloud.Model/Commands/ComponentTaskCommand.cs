@@ -11,6 +11,6 @@ namespace TeamCloud.Model.Commands
     public sealed class ComponentTaskCommand : CustomCommand<ComponentTask, ComponentTaskCommandResult>
     {
         public ComponentTaskCommand(User user, ComponentTask payload) : base(user, payload)
-            => ProjectId = payload?.ProjectId ?? throw new System.ArgumentNullException(nameof(payload));
+        { }
     }
 }

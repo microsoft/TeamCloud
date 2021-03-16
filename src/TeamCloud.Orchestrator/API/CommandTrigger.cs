@@ -3,10 +3,6 @@
  *  Licensed under the MIT License.
  */
 
-using System;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
 using FluentValidation;
 using Flurl;
 using Microsoft.AspNetCore.Http;
@@ -19,12 +15,17 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System;
+using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 using TeamCloud.Audit;
 using TeamCloud.Http;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Validation;
 using TeamCloud.Orchestrator.Handlers;
 using TeamCloud.Orchestrator.Operations.Orchestrations.Utilities;
+using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.API
 {
@@ -114,12 +115,21 @@ namespace TeamCloud.Orchestrator.API
             if (log is null)
                 throw new ArgumentNullException(nameof(log));
 
-            var command = JsonConvert.DeserializeObject<ICommand>(commandMessage.AsString);
+            try
+            {
+                var command = JsonConvert.DeserializeObject<ICommand>(commandMessage.AsString, TeamCloudSerializerSettings.Default);
 
-            command.Validate(throwOnValidationError: true);
+                command.Validate(throwOnValidationError: true);
 
-            _ = await ProcessCommandAsync(durableClient, command, commandProcessor, commandMonitor)
-                .ConfigureAwait(false);
+                _ = await ProcessCommandAsync(durableClient, command, commandProcessor, commandMonitor)
+                    .ConfigureAwait(false);
+            }
+            catch (Exception exc)
+            {
+                log.LogError(exc, $"Failed to process queued command: {exc.Message}");
+
+                throw;
+            }
         }
 
         [FunctionName(nameof(CommandTrigger) + nameof(Monitor))]
@@ -138,41 +148,46 @@ namespace TeamCloud.Orchestrator.API
             if (durableClient is null)
                 throw new ArgumentNullException(nameof(durableClient));
 
-            // there is no error handler on purpose - this way we can leverage
-            // the function runtime capabilities for poisened message queues
-            // and don't need to handle this on our own.
-
             if (Guid.TryParse(commandMessage.AsString, out var commandId))
             {
-                var command = await durableClient
-                    .GetCommandAsync(commandId)
-                    .ConfigureAwait(false);
-
-                if (command is null)
+                try
                 {
-                    // we could find a command based on the enqueued command id - warn and forget
-
-                    log.LogWarning($"Monitoring command failed: Could not find command {commandId}");
-                }
-                else
-                {
-                    var commandResult = await durableClient
-                        .GetCommandResultAsync(commandId)
+                    var command = await durableClient
+                        .GetCommandAsync(commandId)
                         .ConfigureAwait(false);
 
-                    await commandAuditWriter
-                        .AuditAsync(command, commandResult)
-                        .ConfigureAwait(false);
-
-                    if (!(commandResult?.RuntimeStatus.IsFinal() ?? false))
+                    if (command is null)
                     {
-                        // the command result is still not in a final state - as we want to monitor the command until it is done,
-                        // we are going to re-enqueue the command ID with a visibility offset to delay the next result lookup.
+                        // we could find a command based on the enqueued command id - warn and forget
 
-                        await commandMonitor
-                            .AddMessageAsync(new CloudQueueMessage(commandId.ToString()), null, TimeSpan.FromSeconds(10), null, null)
-                            .ConfigureAwait(false);
+                        log.LogWarning($"Monitoring command failed: Could not find command {commandId}");
                     }
+                    else
+                    {
+                        var commandResult = await durableClient
+                            .GetCommandResultAsync(commandId)
+                            .ConfigureAwait(false);
+
+                        await commandAuditWriter
+                            .AuditAsync(command, commandResult)
+                            .ConfigureAwait(false);
+
+                        if (!(commandResult?.RuntimeStatus.IsFinal() ?? false))
+                        {
+                            // the command result is still not in a final state - as we want to monitor the command until it is done,
+                            // we are going to re-enqueue the command ID with a visibility offset to delay the next result lookup.
+
+                            await commandMonitor
+                                .AddMessageAsync(new CloudQueueMessage(commandId.ToString()), null, TimeSpan.FromSeconds(10), null, null)
+                                .ConfigureAwait(false);
+                        }
+                    }
+                }
+                catch (Exception exc)
+                {
+                    log.LogError(exc, $"Monitoring command failed: {exc.Message}");
+
+                    throw;
                 }
             }
             else

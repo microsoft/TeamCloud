@@ -15,28 +15,30 @@ namespace TeamCloud.Model.Commands.Core
     {
         protected Command(CommandAction action, User user, TPayload payload = default, Guid? commandId = default)
         {
+            CommandId = commandId.GetValueOrDefault(Guid.NewGuid());
             CommandAction = action;
             User = user ?? throw new ArgumentNullException(nameof(user));
             Payload = payload;
-            CommandId = commandId.GetValueOrDefault(Guid.NewGuid());
-
-            if (payload is IProjectContext child)
-                OrganizationId = child.Organization;
         }
 
         public Guid CommandId { get; private set; }
 
-
-        public string OrganizationId { get; private set; }
-
         public CommandAction CommandAction { get; private set; }
+
+        private string organizationId;
+
+        public string OrganizationId
+        {
+            get => organizationId ?? (Payload as IOrganizationContext)?.Organization;
+            set => organizationId = value;
+        }
 
         private string projectId;
 
         public virtual string ProjectId
         {
-            get => Payload is Project project && !string.IsNullOrEmpty(project.Id) ? project.Id : projectId;
-            protected set => projectId = value;
+            get => projectId ?? (Payload as IProjectContext)?.ProjectId;
+            set => projectId = value;
         }
 
         public User User { get; set; }
