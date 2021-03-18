@@ -186,6 +186,11 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                                         name = "secrets",
                                         mountPath = "/mnt/secrets",
                                         readOnly = false
+                                    },
+                                    new {
+                                        name = "temporary",
+                                        mountPath = "/mnt/temporary",
+                                        readOnly = false
                                     }
                                 }
                             }
@@ -232,6 +237,10 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                             new {
                                 name = "secrets",
                                 secret = await GetComponentVaultSecretsAsync(component).ConfigureAwait(false)
+                            },
+                            new {
+                                name = "temporary",
+                                emptyDir = new { }
                             }
                         }
                     }
