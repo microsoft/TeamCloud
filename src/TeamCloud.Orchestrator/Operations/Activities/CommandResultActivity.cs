@@ -41,7 +41,7 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                 {
                     commandResult.ApplyStatus(commandStatus);
 
-                    Debug.WriteLine($"Augmented command result: {JsonConvert.SerializeObject(commandResult, TeamCloudSerializerSettings.Default)}");
+                    Debug.WriteLine($"Augmented command result: {TeamCloudSerialize.SerializeObject(commandResult)}");
                 }
 
                 return commandResult;

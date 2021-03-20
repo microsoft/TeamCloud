@@ -3,6 +3,8 @@
  *  Licensed under the MIT License.
  */
 
+using Newtonsoft.Json;
+using Newtonsoft.Json.Schema;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,8 +12,6 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Schema;
 using TeamCloud.Git.Data;
 using TeamCloud.Model.Data;
 
@@ -213,7 +213,6 @@ namespace TeamCloud.Git
                 Id = folder.ToGuid().ToString(),
                 Organization = projectTemplate.Organization,
                 ParentId = projectTemplate.Id,
-                Provider = yaml.Provider,
                 DisplayName = name,
                 Description = yaml.Description,
                 Repository = projectTemplate.Repository,
@@ -221,9 +220,14 @@ namespace TeamCloud.Git
                 Folder = folder,
                 InputJsonSchema = yaml.Parameters?.ToSchema().ToString(Formatting.None),
                 Tasks = yaml.Tasks?.Select(t => t.ToTemplate()).ToList(),
+                TaskRunner = new ComponentTaskRunner()
+                {
+                    Id = yaml.TaskRunner?.Id,
+                    With = yaml.TaskRunner?.With ?? new Dictionary<string, string>()
+                },
                 Permissions = yaml.Permissions?
                     .Where(p => Enum.TryParse(typeof(ProjectUserRole), p.Role, true, out _))
-                    .GroupBy(p => (ProjectUserRole) Enum.Parse(typeof(ProjectUserRole), p.Role, true))
+                    .GroupBy(p => (ProjectUserRole)Enum.Parse(typeof(ProjectUserRole), p.Role, true))
                     .ToDictionary(g => g.Key, g => g.Select(p => p.Permission))
             };
         }

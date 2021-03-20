@@ -3,18 +3,16 @@
  *  Licensed under the MIT License.
  */
 
-using System;
-using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Threading.Tasks;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Operations.Activities;
-using TeamCloud.Orchestrator.Operations.Orchestrations.Utilities;
-using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.Operations.Orchestrations.Commands
 {
@@ -33,25 +31,27 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Commands
 
             try
             {
-                var component = command.Payload = (await context
+                commandResult.Result = (await context
                     .CallActivityWithRetryAsync<Component>(nameof(ComponentGetActivity), new ComponentGetActivity.Input() { ComponentId = command.Payload.Id, ProjectId = command.Payload.ProjectId })
                     .ConfigureAwait(true)) ?? command.Payload;
 
                 // we need to call the component guard activity to check if the current component
                 // is ready for processing - means parent org and project must be in a ready state
+
                 var ready = await context
-                    .CallActivityWithRetryAsync<bool>(nameof(ComponentGuardActivity), new ComponentGuardActivity.Input() { Component = component })
+                    .CallActivityWithRetryAsync<bool>(nameof(ComponentGuardActivity), new ComponentGuardActivity.Input() { Component = commandResult.Result })
                     .ConfigureAwait(true);
 
                 if (ready)
                 {
-                    context
-                        .StartNewOrchestration(nameof(ComponentMonitorOrchestration), new ComponentMonitorOrchestration.Input() { ComponentId = component.Id, ProjectId = component.ProjectId }, component.Id);
+                    context.SetCustomStatus($"Organization and project for component {commandResult.Result} hit 'ready' state");
                 }
                 else
                 {
+                    context.SetCustomStatus($"Organization or project for component {commandResult.Result} are not yet in 'ready' state");
+
                     await context
-                        .ContinueAsNew(command, TimeSpan.FromSeconds(2))
+                        .ContinueAsNew(command, TimeSpan.FromSeconds(5))
                         .ConfigureAwait(true);
                 }
             }
@@ -60,8 +60,6 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Commands
                 log.LogError(exc, $"{nameof(ComponentMonitorCommandOrchestration)} failed: {exc.Message}");
 
                 commandResult.Errors.Add(exc);
-
-                throw exc.AsSerializable();
             }
             finally
             {

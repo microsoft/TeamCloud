@@ -15,6 +15,7 @@ using Microsoft.Azure.Management.KeyVault.Fluent.Models;
 using Microsoft.Rest.Azure;
 using Newtonsoft.Json;
 using TeamCloud.Azure.Resources.Utilities;
+using TeamCloud.Serialization;
 
 namespace TeamCloud.Azure.Resources.Typed
 {
@@ -92,10 +93,10 @@ namespace TeamCloud.Azure.Resources.Typed
             }
             else
             {
-                var secretJson = await SetSecretAsync(secretName, JsonConvert.SerializeObject(secretValue))
+                var secretJson = await SetSecretAsync(secretName, TeamCloudSerialize.SerializeObject(secretValue))
                     .ConfigureAwait(false);
 
-                return JsonConvert.DeserializeObject<T>(secretJson);
+                return TeamCloudSerialize.DeserializeObject<T>(secretJson);
             }
         }
 
@@ -157,7 +158,7 @@ namespace TeamCloud.Azure.Resources.Typed
 
             return string.IsNullOrEmpty(secretJson)
                 ? default
-                : JsonConvert.DeserializeObject<T>(secretJson);
+                : TeamCloudSerialize.DeserializeObject<T>(secretJson);
         }
 
         public async Task<string> GetSecretAsync(string secretName)

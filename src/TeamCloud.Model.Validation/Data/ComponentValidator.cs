@@ -18,9 +18,6 @@ namespace TeamCloud.Model.Validation.Data
             RuleFor(obj => obj.ProjectId)
                 .MustBeGuid();
 
-            RuleFor(obj => obj.Provider)
-                .NotEmpty();
-
             RuleFor(obj => obj.Creator)
                 .MustBeGuid();
         }

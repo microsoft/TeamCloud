@@ -5,7 +5,6 @@
 
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Orchestration;
@@ -57,46 +56,24 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Utilities
             {
                 var serializer = TeamCloudSerializerSettings.Default.CreateSerializer();
 
-                ICommandResult commandResult;
+                var command = commandStatus.Input.HasValues
+                    ? commandStatus.Input.ToObject<ICommand>(serializer)
+                    : throw new NotSupportedException($"Unable to deserialize command: {commandStatus.Input}");
+
+                var commandResult = (ICommandResult)command.CreateResult();
 
                 if (commandStatus.Output.HasValues)
                 {
-                    try
+                    if (commandStatus.Output.SelectToken("$type") != null)
                     {
-                        if (commandStatus.Output.SelectToken("$type") is null)
-                        {
-                            var command = commandStatus.Input
-                                .ToObject<ICommand>(serializer);
-
-                            var commandResultType = command.GetType()
-                                .GetInterfaces()
-                                .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICommand<,>))?
-                                .GetGenericArguments().Last();
-
-                            if (commandResultType is null)
-                                throw new NotSupportedException($"Unable to deserialze command result json without type information: {commandStatus.Output}");
-
-                            commandResult = (ICommandResult)commandStatus.Output
-                                .ToObject(commandResultType, serializer);
-                        }
-                        else
-                        {
-                            commandResult = commandStatus.Output
-                                .ToObject<ICommandResult>(serializer);
-                        }
+                        commandResult = commandStatus.Output
+                            .ToObject<ICommandResult>(serializer);
                     }
-                    catch (Exception exc)
+                    else
                     {
-                        throw;
+                        commandResult = (ICommandResult)commandStatus.Output
+                            .ToObject(commandResult.GetType(), serializer);
                     }
-                }
-                else
-                {
-                    // fallback to the default command result
-
-                    commandResult = commandStatus.Input
-                        .ToObject<ICommand>(serializer)
-                        .CreateResult();
                 }
 
                 return commandResult.ApplyStatus(commandStatus);

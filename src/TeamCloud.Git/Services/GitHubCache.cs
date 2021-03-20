@@ -15,6 +15,7 @@ using Newtonsoft.Json;
 using Octokit;
 using Octokit.Internal;
 using TeamCloud.Git.Caching;
+using TeamCloud.Serialization;
 
 namespace TeamCloud.Git.Services
 {
@@ -118,7 +119,7 @@ namespace TeamCloud.Git.Services
         {
             if (!string.IsNullOrEmpty(response?.ApiInfo?.Etag))
             {
-                var data = JsonConvert.SerializeObject(response, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.None });
+                var data = TeamCloudSerialize.SerializeObject(response);
 
                 await cache
                     .SetAsync(endpoint, data, cancellationToken)
@@ -138,7 +139,7 @@ namespace TeamCloud.Git.Services
             if (string.IsNullOrEmpty(data))
                 return null;
 
-            return JsonConvert.DeserializeObject<CachedResponse>(data);
+            return TeamCloudSerialize.DeserializeObject<CachedResponse>(data);
         }
 
         public void SetRequestTimeout(TimeSpan timeout)

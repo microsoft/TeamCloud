@@ -151,7 +151,6 @@ namespace TeamCloud.API.Controllers
                 DeploymentScopeId = componentDefinition.DeploymentScopeId,
                 Organization = project.Organization,
                 ProjectId = project.Id,
-                Provider = componentTemplate.Provider,
                 Creator = currentUser.Id,
                 DisplayName = componentDefinition.DisplayName,
                 InputJson = componentDefinition.InputJson,

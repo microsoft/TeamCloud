@@ -16,12 +16,13 @@ namespace TeamCloud.Git.Data
 
         public ComponentType Type { get; set; }
 
-        public List<ComponentTaskYaml> Tasks { get; set; } //= new List<ComponentTaskYaml>();
+        public List<ComponentTaskYaml> Tasks { get; set; }
+
+        public ComponentTaskRunnerYaml TaskRunner { get; set; }
 
         public List<ComponentPermissionYaml> Permissions { get; set; }
 
         public List<YamlParameter<dynamic>> Parameters { get; set; }
 
-        public string Provider { get; set; }
     }
 }

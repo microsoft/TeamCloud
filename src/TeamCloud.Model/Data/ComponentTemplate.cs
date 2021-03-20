@@ -22,13 +22,11 @@ namespace TeamCloud.Model.Data
         [JsonProperty(Required = Required.Always)]
         public string Organization { get; set; }
 
+        /// <summary>
+        /// Gets or sets the parent identifier.
+        /// </summary>
         [JsonProperty(Required = Required.Always)]
         public string ParentId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the component template's provider.
-        /// </summary>
-        public string Provider { get; set; }
 
         /// <summary>
         /// Gets or sets the component template's display name.
@@ -61,6 +59,11 @@ namespace TeamCloud.Model.Data
         /// </summary>
         /// <value></value>
         public List<ComponentTaskTemplate> Tasks { get; set; }
+
+        /// <summary>
+        /// Gets or sets the runner to execute a task.
+        /// </summary>
+        public ComponentTaskRunner TaskRunner { get; set; }
 
         /// <summary>
         /// Gets or sets the component template's type.

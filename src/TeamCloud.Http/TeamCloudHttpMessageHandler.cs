@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Flurl.Http;
 using Newtonsoft.Json;
+using TeamCloud.Serialization;
 
 namespace TeamCloud.Http
 {
@@ -100,11 +101,12 @@ namespace TeamCloud.Http
                     .ReadAsStringAsync()
                     .ConfigureAwait(false);
 
+                //TODO: why ist this here needed
                 if (httpContent.Headers.ContentType.MediaType.Equals("application/json", StringComparison.OrdinalIgnoreCase))
                 {
-                    var jsonContent = JsonConvert.DeserializeObject(content);
+                    var jsonContent = TeamCloudSerialize.DeserializeObject(content);
 
-                    return JsonConvert.SerializeObject(jsonContent, Formatting.Indented);
+                    return TeamCloudSerialize.SerializeObject(jsonContent, Formatting.Indented);
                 }
 
                 return content;

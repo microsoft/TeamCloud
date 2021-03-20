@@ -117,7 +117,7 @@ namespace TeamCloud.Orchestrator.API
 
             try
             {
-                var command = JsonConvert.DeserializeObject<ICommand>(commandMessage.AsString, TeamCloudSerializerSettings.Default);
+                var command = TeamCloudSerialize.DeserializeObject<ICommand>(commandMessage.AsString);
 
                 command.Validate(throwOnValidationError: true);
 

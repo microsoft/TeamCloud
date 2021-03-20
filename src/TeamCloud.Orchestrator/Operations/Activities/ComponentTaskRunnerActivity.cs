@@ -112,7 +112,7 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                             name = "runner",
                             properties = new
                             {
-                                image = componentTemplate.Provider,
+                                image = componentTemplate.TaskRunner.Id,
                                 ports = new []
                                 {
                                     new { port = 80 },
@@ -126,50 +126,7 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                                         memoryInGB = 1
                                     }
                                 },
-                                environmentVariables = new []
-                                {
-                                    new {
-                                        name = "TaskId",
-                                        value = componentTask.Id
-                                    },
-                                    new {
-                                        name = "TaskHost",
-                                        value = componentRunnerHostName
-                                    },
-                                    new {
-                                        name = "TaskType",
-                                        value = componentTask.TypeName ?? componentTask.Type.ToString()
-                                    },
-                                    new {
-                                        name = "ComponentLocation",
-                                        value = componentLocation
-                                    },
-                                    new
-                                    {
-                                        name = "ComponentTemplateBaseUrl",
-                                        value = $"http://{componentRunnerHostName}/{componentTemplate.Folder.Trim().TrimStart('/')}"
-                                    },
-                                    new
-                                    {
-                                        name = "ComponentTemplateFolder",
-                                        value = $"file:///mnt/templates/root/{componentTemplate.Folder.Trim().TrimStart('/')}"
-                                    },
-                                    new
-                                    {
-                                        name = "ComponentTemplateParameters",
-                                        value = component.InputJson
-                                    },
-                                    new
-                                    {
-                                        name = "ComponentResourceGroup",
-                                        value = componentResourceId.ResourceGroup
-                                    },
-                                    new
-                                    {
-                                        name = "ComponentSubscription",
-                                        value = componentResourceId.SubscriptionId.ToString()
-                                    }
-                                },
+                                environmentVariables = GetEnvironmentVariables(),
                                 volumeMounts = new []
                                 {
                                     new {
@@ -273,6 +230,23 @@ namespace TeamCloud.Orchestrator.Operations.Activities
                 componentTask = await componentTaskRepository
                     .SetAsync(componentTask)
                     .ConfigureAwait(false);
+
+                object[] GetEnvironmentVariables()
+                {
+                    var envVariables = componentTemplate.TaskRunner?.With ?? new Dictionary<string, string>();
+
+                    envVariables["TaskId"] = componentTask.Id;
+                    envVariables["TaskHost"] = componentRunnerHostName;
+                    envVariables["TaskType"] = componentTask.TypeName ?? componentTask.Type.ToString();
+                    envVariables["ComponentLocation"] = componentLocation;
+                    envVariables["ComponentTemplateBaseUrl"] = $"http://{componentRunnerHostName}/{componentTemplate.Folder.Trim().TrimStart('/')}";
+                    envVariables["ComponentTemplateFolder"] = $"file:///mnt/templates/root/{componentTemplate.Folder.Trim().TrimStart('/')}";
+                    envVariables["ComponentTemplateParameters"] = component.InputJson;
+                    envVariables["ComponentResourceGroup"] = componentResourceId.ResourceGroup;
+                    envVariables["ComponentSubscription"] = componentResourceId.SubscriptionId.ToString();
+
+                    return envVariables.Select(kvp => new { name = kvp.Key, value = kvp.Value }).ToArray();
+                }
             }
             catch (Exception exc)
             {

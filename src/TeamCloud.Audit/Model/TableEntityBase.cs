@@ -11,6 +11,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Azure.Cosmos.Table;
 using Newtonsoft.Json;
+using TeamCloud.Serialization;
 
 namespace TeamCloud.Audit.Model
 {
@@ -73,7 +74,7 @@ namespace TeamCloud.Audit.Model
                 {
                     try
                     {
-                        object value = JsonConvert.DeserializeObject(property.StringValue, complexProperty.PropertyType);
+                        object value = TeamCloudSerialize.DeserializeObject(property.StringValue, complexProperty.PropertyType);
 
                         complexProperty.SetValue(this, value);
                     }
@@ -128,7 +129,7 @@ namespace TeamCloud.Audit.Model
 
                 if (value != null)
                 {
-                    properties[complexProperty.Name] = new EntityProperty(JsonConvert.SerializeObject(value, Formatting.None));
+                    properties[complexProperty.Name] = new EntityProperty(TeamCloudSerialize.SerializeObject(value, Formatting.None));
                 }
             }
 

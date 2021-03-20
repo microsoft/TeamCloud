@@ -3,13 +3,13 @@
  *  Licensed under the MIT License.
  */
 
-using System;
-using System.Threading.Tasks;
 using Flurl.Http;
 using Newtonsoft.Json;
-using Xunit;
-using TeamCloud.Serialization;
+using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
+using TeamCloud.Serialization;
+using Xunit;
 
 namespace TeamCloud.Orchestration.Tests
 {
@@ -128,10 +128,7 @@ namespace TeamCloud.Orchestration.Tests
 
             try
             {
-                serializableExceptionJson = JsonConvert.SerializeObject(serializableException, Formatting.Indented, new JsonSerializerSettings
-                {
-                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-                });
+                serializableExceptionJson = TeamCloudSerialize.SerializeObject(serializableException, Formatting.Indented);
             }
             catch
             {
@@ -149,7 +146,7 @@ namespace TeamCloud.Orchestration.Tests
 
                 try
                 {
-                    deserializedException = (Exception)JsonConvert.DeserializeObject(serializableExceptionJson, serializableException.GetType());
+                    deserializedException = (Exception)TeamCloudSerialize.DeserializeObject(serializableExceptionJson, serializableException.GetType());
                 }
                 catch when (!serializableExpected)
                 {

@@ -7,6 +7,7 @@ using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using TeamCloud.Model.Data.Core;
+using TeamCloud.Serialization;
 using Xunit;
 
 namespace TeamCloud.Model.Data
@@ -62,8 +63,8 @@ namespace TeamCloud.Model.Data
         {
             Assert.NotNull(ReferenceLink.BaseUrl);
 
-            var mockOwnerJson = JsonConvert.SerializeObject(new MockOwner());
-            var mockOwner = JsonConvert.DeserializeObject<MockOwner>(mockOwnerJson);
+            var mockOwnerJson = TeamCloudSerialize.SerializeObject(new MockOwner());
+            var mockOwner = TeamCloudSerialize.DeserializeObject<MockOwner>(mockOwnerJson);
 
             var mockOwnerId = mockOwner.Id;
             mockOwner.Id = Guid.NewGuid(); // this must not affect the self link

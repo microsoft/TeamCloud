@@ -3,8 +3,8 @@
  *  Licensed under the MIT License.
  */
 
-using System;
 using Newtonsoft.Json;
+using System;
 using TeamCloud.Model.Common;
 using TeamCloud.Model.Data.Core;
 using TeamCloud.Serialization;
@@ -39,15 +39,6 @@ namespace TeamCloud.Model.Data
         [PartitionKey]
         [JsonProperty(Required = Required.Always)]
         public string ProjectId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the provider this component should use for communication.
-        /// </summary>
-        /// <value>
-        /// The provider identifier.
-        /// </value>
-        [JsonProperty(Required = Required.Always)]
-        public string Provider { get; set; }
 
         /// <summary>
         /// Gets or sets the identity of the user that created the component.

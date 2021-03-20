@@ -73,7 +73,7 @@ namespace TeamCloud.API.Controllers
                 .Ok(projectIdentity)
                 .ToActionResult();
 
-            var resultJson = JsonConvert.SerializeObject(result, TeamCloudSerializerSettings.Default);
+            var resultJson = TeamCloudSerialize.SerializeObject(result);
 
             return result;
         }));

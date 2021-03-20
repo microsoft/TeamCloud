@@ -3,11 +3,6 @@
  *  Licensed under the MIT License.
  */
 
-using System;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
 using Flurl;
 using Flurl.Http;
 using Microsoft.AspNetCore.Http;
@@ -17,9 +12,15 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using TeamCloud.Model.Commands.Core;
+using System;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
 using TeamCloud.Http;
+using TeamCloud.Model.Commands.Core;
 using TeamCloud.Orchestration;
+using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator
 {
@@ -116,7 +117,7 @@ namespace TeamCloud.Orchestrator
                     .ReadToEndAsync()
                     .ConfigureAwait(false);
 
-                commandResult = JsonConvert.DeserializeObject<ICommandResult>(requestBody);
+                commandResult = TeamCloudSerialize.DeserializeObject<ICommandResult>(requestBody);
             }
             catch (Exception exc)
             {

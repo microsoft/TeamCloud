@@ -15,7 +15,6 @@ using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Operations.Activities;
 using TeamCloud.Orchestrator.Operations.Entities;
 using TeamCloud.Orchestrator.Operations.Orchestrations.Utilities;
-using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.Operations.Orchestrations.Commands
 {
@@ -34,20 +33,18 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Commands
 
             try
             {
-                var component = command.Payload;
-
-                component = await context
-                    .CallSubOrchestratorWithRetryAsync<Component>(nameof(ComponentPrepareOrchestration), new ComponentPrepareOrchestration.Input() { Component = component })
+                commandResult.Result = await context
+                    .CallSubOrchestratorWithRetryAsync<Component>(nameof(ComponentPrepareOrchestration), new ComponentPrepareOrchestration.Input() { Component = command.Payload })
                     .ConfigureAwait(true);
 
-                using (await context.LockContainerDocumentAsync(component, nameof(ComponentUpdateCommandOrchestration)).ConfigureAwait(true))
+                using (await context.LockContainerDocumentAsync(commandResult.Result, nameof(ComponentUpdateCommandOrchestration)).ConfigureAwait(true))
                 {
-                    component = await context
-                    .CallActivityWithRetryAsync<Component>(nameof(ComponentEnsurePermissionActivity), new ComponentEnsurePermissionActivity.Input() { Component = component })
-                    .ConfigureAwait(true);
+                    commandResult.Result = await context
+                        .CallActivityWithRetryAsync<Component>(nameof(ComponentEnsurePermissionActivity), new ComponentEnsurePermissionActivity.Input() { Component = commandResult.Result })
+                        .ConfigureAwait(true);
 
-                    component = await context
-                        .CallActivityWithRetryAsync<Component>(nameof(ComponentEnsureTaggingActivity), new ComponentEnsureTaggingActivity.Input() { Component = component })
+                    commandResult.Result = await context
+                        .CallActivityWithRetryAsync<Component>(nameof(ComponentEnsureTaggingActivity), new ComponentEnsureTaggingActivity.Input() { Component = commandResult.Result })
                         .ConfigureAwait(true);
                 }
             }

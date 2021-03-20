@@ -3,11 +3,11 @@
  *  Licensed under the MIT License.
  */
 
-using System;
-using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Threading.Tasks;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Common;
@@ -17,7 +17,6 @@ using TeamCloud.Orchestration.Deployment;
 using TeamCloud.Orchestrator.Operations.Activities;
 using TeamCloud.Orchestrator.Operations.Activities.Templates;
 using TeamCloud.Orchestrator.Operations.Entities;
-using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.Operations.Orchestrations.Commands
 {
@@ -42,49 +41,45 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Commands
                     // of the organization entity, we re-fetch the entity and
                     // use the passed in one as a potential fallback.
 
-                    var organization = (await context
+                    commandResult.Result = (await context
                         .CallActivityWithRetryAsync<Organization>(nameof(OrganizationGetActivity), new OrganizationGetActivity.Input() { Id = command.Payload.Id })
                         .ConfigureAwait(true)) ?? command.Payload;
 
                     try
                     {
-                        organization = await context
-                            .CallActivityWithRetryAsync<Organization>(nameof(OrganizationSetActivity), new OrganizationSetActivity.Input() { Organization = organization, ResourceState = ResourceState.Initializing })
+                        commandResult.Result = await context
+                            .CallActivityWithRetryAsync<Organization>(nameof(OrganizationSetActivity), new OrganizationSetActivity.Input() { Organization = commandResult.Result, ResourceState = ResourceState.Initializing })
                             .ConfigureAwait(true);
 
-                        organization = await context
-                            .CallActivityWithRetryAsync<Organization>(nameof(OrganizationInitActivity), new OrganizationInitActivity.Input() { Organization = organization })
+                        commandResult.Result = await context
+                            .CallActivityWithRetryAsync<Organization>(nameof(OrganizationInitActivity), new OrganizationInitActivity.Input() { Organization = commandResult.Result })
                             .ConfigureAwait(true);
 
                         var deploymentOutputEventName = context.NewGuid().ToString();
 
                         _ = await context
-                            .StartDeploymentAsync(nameof(OrganizationDeployActivity), new OrganizationDeployActivity.Input() { Organization = organization }, deploymentOutputEventName)
+                            .StartDeploymentAsync(nameof(OrganizationDeployActivity), new OrganizationDeployActivity.Input() { Organization = commandResult.Result }, deploymentOutputEventName)
                             .ConfigureAwait(true);
 
-                        organization = await context
-                            .CallActivityWithRetryAsync<Organization>(nameof(OrganizationSetActivity), new OrganizationSetActivity.Input() { Organization = organization, ResourceState = ResourceState.Provisioning })
+                        commandResult.Result = await context
+                            .CallActivityWithRetryAsync<Organization>(nameof(OrganizationSetActivity), new OrganizationSetActivity.Input() { Organization = commandResult.Result, ResourceState = ResourceState.Provisioning })
                             .ConfigureAwait(true);
 
                         _ = await context
                             .WaitForDeploymentOutput(deploymentOutputEventName, TimeSpan.FromMinutes(5))
                             .ConfigureAwait(true);
 
-                        organization = await context
-                            .CallActivityWithRetryAsync<Organization>(nameof(OrganizationSetActivity), new OrganizationSetActivity.Input() { Organization = organization, ResourceState = ResourceState.Succeeded })
+                        commandResult.Result = await context
+                            .CallActivityWithRetryAsync<Organization>(nameof(OrganizationSetActivity), new OrganizationSetActivity.Input() { Organization = commandResult.Result, ResourceState = ResourceState.Succeeded })
                             .ConfigureAwait(true);
                     }
                     catch (Exception deploymentExc)
                     {
-                        log.LogError(deploymentExc, $"Failed to deploy resources for organization {organization.Id}: {deploymentExc.Message}");
+                        log.LogError(deploymentExc, $"Failed to deploy resources for organization {commandResult.Result.Id}: {deploymentExc.Message}");
 
-                        organization = await context
-                            .CallActivityWithRetryAsync<Organization>(nameof(OrganizationSetActivity), new OrganizationSetActivity.Input() { Organization = organization, ResourceState = ResourceState.Failed })
+                        commandResult.Result = await context
+                            .CallActivityWithRetryAsync<Organization>(nameof(OrganizationSetActivity), new OrganizationSetActivity.Input() { Organization = commandResult.Result, ResourceState = ResourceState.Failed })
                             .ConfigureAwait(true);
-                    }
-                    finally
-                    {
-                        commandResult.Result = organization;
                     }
                 }
             }
@@ -93,8 +88,6 @@ namespace TeamCloud.Orchestrator.Operations.Orchestrations.Commands
                 log.LogError(exc, $"{nameof(OrganizationDeployCommandOrchestration)} failed: {exc.Message}");
 
                 commandResult.Errors.Add(exc);
-
-                throw exc.AsSerializable();
             }
             finally
             {
