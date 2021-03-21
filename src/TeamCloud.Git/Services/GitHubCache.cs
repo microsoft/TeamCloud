@@ -3,6 +3,9 @@
  *  Licensed under the MIT License.
  */
 
+using Newtonsoft.Json;
+using Octokit;
+using Octokit.Internal;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,16 +14,14 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using Octokit;
-using Octokit.Internal;
 using TeamCloud.Git.Caching;
-using TeamCloud.Serialization;
 
 namespace TeamCloud.Git.Services
 {
     internal sealed class GitHubCache : IHttpClient
     {
+        private static readonly JsonSerializerSettings SerializerSettings = new JsonSerializerSettings();
+
         private readonly IHttpClient client;
         private readonly IRepositoryCache cache;
 
@@ -119,7 +120,7 @@ namespace TeamCloud.Git.Services
         {
             if (!string.IsNullOrEmpty(response?.ApiInfo?.Etag))
             {
-                var data = TeamCloudSerialize.SerializeObject(response);
+                var data = JsonConvert.SerializeObject(response, SerializerSettings);
 
                 await cache
                     .SetAsync(endpoint, data, cancellationToken)
@@ -139,7 +140,14 @@ namespace TeamCloud.Git.Services
             if (string.IsNullOrEmpty(data))
                 return null;
 
-            return TeamCloudSerialize.DeserializeObject<CachedResponse>(data);
+            try
+            {
+                return JsonConvert.DeserializeObject<CachedResponse>(data, SerializerSettings);
+            }
+            catch
+            {
+                return null; // deserialization failed - cache response is invalid
+            }
         }
 
         public void SetRequestTimeout(TimeSpan timeout)
