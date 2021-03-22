@@ -3,11 +3,6 @@
  *  Licensed under the MIT License.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Security.Claims;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.AzureAD.UI;
@@ -19,7 +14,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Azure.Management.ResourceManager.Fluent;
-using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Azure.Storage;
 using Microsoft.Azure.Storage.Blob;
 using Microsoft.Extensions.Configuration;
@@ -28,6 +22,11 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.ObjectPool;
 using Microsoft.IO;
 using Microsoft.OpenApi.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Security.Claims;
 using TeamCloud.API.Auth;
 using TeamCloud.API.Middleware;
 using TeamCloud.API.Routing;
@@ -51,8 +50,6 @@ namespace TeamCloud.API
 {
     public class Startup
     {
-        private readonly AzureServiceTokenProvider tokenProvider = new AzureServiceTokenProvider();
-
         public Startup(IConfiguration configuration, IWebHostEnvironment environment)
         {
             Configuration = configuration;
@@ -97,13 +94,8 @@ namespace TeamCloud.API
                 .UseRouting()
                 .UseAuthentication()
                 .UseMiddleware<EnsureTeamCloudModelMiddleware>()
-                .UseMiddleware<RequestResponseTracingMiddleware>()
-               // .UseWhen(context => context.Request.RequiresAdminUserSet(), appBuilder =>
-               // {
-               //     appBuilder.UseMiddleware<EnsureTeamCloudAdminMiddleware>();
-               // })
-               .UseAuthorization()
-               .UseEndpoints(endpoints => endpoints.MapControllers());
+                .UseAuthorization()
+                .UseEndpoints(endpoints => endpoints.MapControllers());
         }
 
         public void ConfigureServices(IServiceCollection services)
@@ -179,8 +171,7 @@ namespace TeamCloud.API
                 .AddSingleton<Orchestrator>()
                 .AddSingleton<UserService>()
                 .AddSingleton<IRepositoryService, RepositoryService>()
-                .AddScoped<EnsureTeamCloudModelMiddleware>()
-                .AddScoped<RequestResponseTracingMiddleware>();
+                .AddScoped<EnsureTeamCloudModelMiddleware>();
 
             services
                 .AddSingleton<RecyclableMemoryStreamManager>()

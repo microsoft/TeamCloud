@@ -14,7 +14,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
+using Microsoft.Extensions.Logging.Abstractions;
 using System;
 using System.Linq;
 using System.Net.Http;
@@ -23,17 +23,13 @@ using TeamCloud.Audit;
 using TeamCloud.Http;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Validation;
-using TeamCloud.Orchestrator.Handlers;
-using TeamCloud.Orchestrator.Operations.Orchestrations.Utilities;
+using TeamCloud.Orchestrator.Command;
 using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.API
 {
     public class CommandTrigger
     {
-        private const string CommandProcessorQueue = "Command-Processor";
-        private const string CommandMonitorQueue = "Command-Monitor";
-
         private readonly ICommandHandler[] commandHandlers;
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly ICommandAuditWriter commandAuditWriter;
@@ -45,11 +41,11 @@ namespace TeamCloud.Orchestrator.API
             this.commandAuditWriter = commandAuditWriter ?? throw new ArgumentNullException(nameof(commandAuditWriter));
         }
 
-        [FunctionName(nameof(CommandTrigger))]
-        public async Task<IActionResult> Process(
+        [FunctionName(nameof(CommandTrigger) + nameof(Receive))]
+        public async Task<IActionResult> Receive(
             [HttpTrigger(AuthorizationLevel.Function, "post", "get", Route = "command/{commandId:guid?}")] HttpRequestMessage requestMessage,
-            [Queue(CommandProcessorQueue)] IAsyncCollector<ICommand> commandProcessor,
-            [Queue(CommandMonitorQueue)] IAsyncCollector<string> commandMonitor,
+            [Queue(ICommandHandler.ProcessorQueue)] IAsyncCollector<ICommand> commandProcessor,
+            [Queue(ICommandHandler.MonitorQueue)] IAsyncCollector<string> commandMonitor,
             [DurableClient] IDurableClient durableClient,
             string commandId,
             ILogger log)
@@ -94,17 +90,17 @@ namespace TeamCloud.Orchestrator.API
 
         [FunctionName(nameof(CommandTrigger) + nameof(Dequeue))]
         public async Task Dequeue(
-            [QueueTrigger(CommandProcessorQueue)] CloudQueueMessage commandMessage,
-            [Queue(CommandProcessorQueue)] IAsyncCollector<ICommand> commandProcessor,
-            [Queue(CommandMonitorQueue)] IAsyncCollector<string> commandMonitor,
+            [QueueTrigger(ICommandHandler.ProcessorQueue)] CloudQueueMessage commandMessage,
+            [Queue(ICommandHandler.ProcessorQueue)] IAsyncCollector<ICommand> commandQueue,
+            [Queue(ICommandHandler.MonitorQueue)] IAsyncCollector<string> commandMonitor,
             [DurableClient] IDurableClient durableClient,
             ILogger log)
         {
             if (commandMessage is null)
                 throw new ArgumentNullException(nameof(commandMessage));
 
-            if (commandProcessor is null)
-                throw new ArgumentNullException(nameof(commandProcessor));
+            if (commandQueue is null)
+                throw new ArgumentNullException(nameof(commandQueue));
 
             if (commandMonitor is null)
                 throw new ArgumentNullException(nameof(commandMonitor));
@@ -117,11 +113,11 @@ namespace TeamCloud.Orchestrator.API
 
             try
             {
-                var command = JsonConvert.DeserializeObject<ICommand>(commandMessage.AsString, TeamCloudSerializerSettings.Default);
+                var command = TeamCloudSerialize.DeserializeObject<ICommand>(commandMessage.AsString);
 
                 command.Validate(throwOnValidationError: true);
 
-                _ = await ProcessCommandAsync(durableClient, command, commandProcessor, commandMonitor)
+                _ = await ProcessCommandAsync(durableClient, command, commandQueue, commandMonitor, log)
                     .ConfigureAwait(false);
             }
             catch (Exception exc)
@@ -134,8 +130,8 @@ namespace TeamCloud.Orchestrator.API
 
         [FunctionName(nameof(CommandTrigger) + nameof(Monitor))]
         public async Task Monitor(
-            [QueueTrigger(CommandMonitorQueue)] CloudQueueMessage commandMessage,
-            [Queue(CommandMonitorQueue)] CloudQueue commandMonitor,
+            [QueueTrigger(ICommandHandler.MonitorQueue)] CloudQueueMessage commandMessage,
+            [Queue(ICommandHandler.MonitorQueue)] CloudQueue commandMonitor,
             [DurableClient] IDurableClient durableClient,
             ILogger log)
         {
@@ -220,13 +216,19 @@ namespace TeamCloud.Orchestrator.API
                 return new BadRequestResult();
             }
 
-            return await ProcessCommandAsync(durableClient, command, commandQueue, commandMonitor)
+            return await ProcessCommandAsync(durableClient, command, commandQueue, commandMonitor, log)
                 .ConfigureAwait(false);
         }
 
-        private async Task<IActionResult> ProcessCommandAsync(IDurableClient durableClient, ICommand command, IAsyncCollector<ICommand> commandQueue, IAsyncCollector<string> commandMonitor)
+        private async Task<IActionResult> ProcessCommandAsync(IDurableClient durableClient, ICommand command, IAsyncCollector<ICommand> commandQueue, IAsyncCollector<string> commandMonitor, ILogger log)
         {
-            if (TryGetCommandHandler(command, out var commandHandler))
+            var commandHandler = commandHandlers.SingleOrDefault(handler => handler.CanHandle(command));
+
+            if (commandHandler is null)
+            {
+                return new BadRequestResult();
+            }
+            else
             {
                 ICommandResult commandResult = null;
 
@@ -236,9 +238,18 @@ namespace TeamCloud.Orchestrator.API
                         .AuditAsync(command)
                         .ConfigureAwait(false);
 
-                    commandResult = await commandHandler
-                        .HandleAsync(command, commandQueue, durableClient)
-                        .ConfigureAwait(false);
+                    if (commandHandler.Orchestration)
+                    {
+                        _ = await durableClient
+                            .StartNewAsync(nameof(CommandOrchestration), command.CommandId.ToString(), command)
+                            .ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        commandResult = await commandHandler
+                            .HandleAsync(command, new CommandCollector(commandQueue, command), durableClient, null, log ?? NullLogger.Instance)
+                            .ConfigureAwait(false);
+                    }
 
                     commandResult ??= await durableClient
                         .GetCommandResultAsync(command)
@@ -259,13 +270,13 @@ namespace TeamCloud.Orchestrator.API
                     {
                         case NotImplementedException notImplementedException:
 
-                            // indicator something in the command's payload can't be processed
+                            // indicates something in the command's payload can't be processed
 
                             return new BadRequestResult();
 
                         case NotSupportedException notSupportedException:
 
-                            // indicator for a duplicate command
+                            // indicates a duplicate command (identified by id)
 
                             return new System.Web.Http.ConflictResult();
                     }
@@ -287,18 +298,6 @@ namespace TeamCloud.Orchestrator.API
                 }
 
                 return CreateCommandResultResponse(commandResult);
-            }
-            else
-            {
-                return new BadRequestResult();
-            }
-
-            bool TryGetCommandHandler(ICommand orchestratorCommand, out ICommandHandler commandHandler)
-            {
-                commandHandler = commandHandlers.SingleOrDefault(handler => handler.CanHandle(orchestratorCommand))
-                    ?? commandHandlers.SingleOrDefault(handler => handler.CanHandle(orchestratorCommand, true));
-
-                return !(commandHandler is null);
             }
         }
 

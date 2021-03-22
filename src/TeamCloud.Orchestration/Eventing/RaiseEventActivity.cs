@@ -10,6 +10,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestration.Eventing
 {
@@ -51,7 +52,7 @@ namespace TeamCloud.Orchestration.Eventing
 
                 return (eventDataType.IsValueType || eventDataType.Equals(typeof(string)))
                     ? functionInput.EventData.ToInvariantString()
-                    : JsonConvert.SerializeObject(functionInput.EventData);
+                    : TeamCloudSerialize.SerializeObject(functionInput.EventData);
             }
         }
 

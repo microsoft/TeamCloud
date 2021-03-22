@@ -23,6 +23,8 @@ namespace TeamCloud.Model.Commands.Core
 
         public Guid CommandId { get; private set; }
 
+        public Guid ParentId { get; set; } = Guid.Empty;
+
         public CommandAction CommandAction { get; private set; }
 
         private string organizationId;

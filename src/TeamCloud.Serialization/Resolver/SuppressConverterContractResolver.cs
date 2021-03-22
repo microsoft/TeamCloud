@@ -3,8 +3,9 @@
  *  Licensed under the MIT License.
  */
 
-using System;
 using Newtonsoft.Json;
+using System;
+using System.Diagnostics;
 
 namespace TeamCloud.Serialization.Resolver
 {
@@ -15,7 +16,12 @@ namespace TeamCloud.Serialization.Resolver
         {
             var jsonConverter = base.ResolveContractConverter(objectType);
 
-            if (jsonConverter is TConverter) return null;
+            if (jsonConverter is TConverter)
+            {
+                Debug.WriteLine($"Suppressing JsonContractResolver of type {jsonConverter.GetType()} for object of type {objectType}");
+
+                return null;
+            }
 
             return jsonConverter;
         }

@@ -3,8 +3,6 @@
  *  Licensed under the MIT License.
  */
 
-using System;
-using System.Reflection;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
@@ -17,6 +15,8 @@ using Microsoft.Extensions.Configuration.AzureKeyVault;
 using Microsoft.Extensions.Configuration.UserSecrets;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System;
+using System.Reflection;
 using TeamCloud.Audit;
 using TeamCloud.Azure;
 using TeamCloud.Azure.Deployment;
@@ -33,7 +33,8 @@ using TeamCloud.Http;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestration.Deployment;
 using TeamCloud.Orchestrator;
-using TeamCloud.Orchestrator.Handlers;
+using TeamCloud.Orchestrator.Command;
+using TeamCloud.Orchestrator.Command.Handlers;
 using TeamCloud.Serialization.Encryption;
 
 [assembly: FunctionsStartup(typeof(TeamCloudOrchestratorStartup))]
@@ -112,7 +113,6 @@ namespace TeamCloud.Orchestrator
                 .AddSingleton<IComponentTaskRepository, CosmosDbComponentTaskRepository>()
                 .AddSingleton<IProjectRepository, CosmosDbProjectRepository>()
                 .AddSingleton<IComponentRepository, CosmosDbComponentRepository>()
-                // .AddSingleton<IProjectLinkRepository, CosmosDbProjectLinkRepository>()
                 .AddSingleton<IRepositoryService, RepositoryService>();
 
             // CAUTION - don't register an orchstrator command handler with the generic
@@ -121,17 +121,18 @@ namespace TeamCloud.Orchestrator
             // handler use the non-generic ICommandHandler interface.
 
             builder.Services
-                .AddScoped<ICommandHandler, CommandOrchestrationHandler>()
                 .AddScoped<ICommandHandler, ComponentCommandHandler>()
                 .AddScoped<ICommandHandler, DeploymentScopeCommandHandler>()
                 .AddScoped<ICommandHandler, OrganizationCommandHandler>()
                 .AddScoped<ICommandHandler, OrganizationUserCommandHandler>()
                 .AddScoped<ICommandHandler, ProjectCommandHandler>()
-                // .AddScoped<ICommandHandler, ProjectLinkCommandHandler>()
                 .AddScoped<ICommandHandler, ProjectTemplateCommandHandler>()
                 .AddScoped<ICommandHandler, ProjectIdentityCommandHandler>()
-                .AddScoped<ICommandHandler, ProjectUserCommandHandler>();
-
+                .AddScoped<ICommandHandler, ProjectUserCommandHandler>()
+                .AddScoped<ICommandHandler, OrganizationDeployCommandHandler>()
+                .AddScoped<ICommandHandler, ProjectDeployCommandHandler>()
+                .AddScoped<ICommandHandler, ComponentTaskRunCommandHandler>()
+                .AddScoped<ICommandHandler, ComponentUpdateCommandHandler>();
         }
 
         private static IConfiguration GetConfiguration(IServiceCollection services)

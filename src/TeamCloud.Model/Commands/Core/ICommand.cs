@@ -3,8 +3,8 @@
  *  Licensed under the MIT License.
  */
 
-using System;
 using Newtonsoft.Json;
+using System;
 using TeamCloud.Model.Commands.Serialization;
 using TeamCloud.Model.Common;
 using TeamCloud.Model.Data;
@@ -15,6 +15,8 @@ namespace TeamCloud.Model.Commands.Core
     public interface ICommand : IValidatable
     {
         Guid CommandId { get; }
+
+        Guid ParentId { get; set; }
 
         string OrganizationId { get; }
 
@@ -27,6 +29,7 @@ namespace TeamCloud.Model.Commands.Core
         ICommandResult CreateResult();
 
         object Payload { get; set; }
+
     }
 
     public interface ICommand<TPayload> : ICommand

@@ -9,6 +9,7 @@ using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections;
+using System.Collections.Specialized;
 using System.Reflection;
 using TeamCloud.Serialization.Converter;
 using TeamCloud.Serialization.Encryption;
@@ -41,6 +42,9 @@ namespace TeamCloud.Serialization
 
             if (typeof(Exception).IsAssignableFrom(objectType))
                 return new ExceptionConverter();
+
+            if (typeof(NameValueCollection).IsAssignableFrom(objectType))
+                return new NameValueCollectionConverter();
 
             if (objectType.IsEnum)
                 return new StringEnumConverter();

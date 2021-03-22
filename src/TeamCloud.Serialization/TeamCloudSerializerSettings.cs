@@ -26,6 +26,7 @@ namespace TeamCloud.Serialization
             TypeNameHandling = TypeNameHandling.Auto;
             NullValueHandling = NullValueHandling.Ignore;
             ContractResolver = contractResolver ?? throw new ArgumentNullException(nameof(contractResolver));
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
         }
     }
 }

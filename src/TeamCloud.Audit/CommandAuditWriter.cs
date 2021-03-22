@@ -5,7 +5,6 @@
 
 using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Azure.Storage.Blob;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +12,7 @@ using System.Net;
 using System.Threading.Tasks;
 using TeamCloud.Audit.Model;
 using TeamCloud.Model.Commands.Core;
-using TeamCloud.Orchestration;
+using TeamCloud.Serialization;
 using BlobCloudStorageAccount = Microsoft.Azure.Storage.CloudStorageAccount;
 using TableCloudStorageAccount = Microsoft.Azure.Cosmos.Table.CloudStorageAccount;
 
@@ -103,7 +102,7 @@ namespace TeamCloud.Audit
                 var auditBlob = auditContainer.GetBlockBlobReference(auditPath.Replace("//", "/", StringComparison.OrdinalIgnoreCase));
 
                 await auditBlob
-                    .UploadTextAsync(JsonConvert.SerializeObject(data, Formatting.Indented))
+                    .UploadTextAsync(TeamCloudSerialize.SerializeObject(data))
                     .ConfigureAwait(false);
             }
         }
@@ -134,16 +133,16 @@ namespace TeamCloud.Audit
             if (entityResult.HttpStatusCode == (int)HttpStatusCode.OK)
                 entity = entityResult.Result as CommandAuditEntity ?? entity;
 
-            if (commandResult != null && !entity.RuntimeStatus.IsFinal())
-            {
-                entity.Created = GetTableStorageMinDate(entity.Created, commandResult.CreatedTime);
-                entity.Updated = GetTableStorageMaxDate(entity.Updated, commandResult.LastUpdatedTime);
+            var timestamp = DateTime.UtcNow;
 
+            entity.Created = GetTableStorageMinDate(entity.Created, commandResult?.CreatedTime, timestamp);
+            entity.Updated = GetTableStorageMaxDate(entity.Updated, commandResult?.LastUpdatedTime, timestamp);
+
+            if (commandResult != null)
+            {
                 entity.RuntimeStatus = commandResult.RuntimeStatus;
                 entity.CustomStatus = commandResult.CustomStatus ?? string.Empty;
-
-                if (entity.RuntimeStatus.IsFinal())
-                    entity.Errors = string.Join(Environment.NewLine, commandResult.Errors.Select(error => $"[{error.Severity}] {error.Message}"));
+                entity.Errors = string.Join(Environment.NewLine, commandResult.Errors.Select(error => $"[{error.Severity}] {error.Message}"));
             }
 
             await auditTable

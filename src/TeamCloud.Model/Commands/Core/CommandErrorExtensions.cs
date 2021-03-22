@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TeamCloud.Serialization;
 
 namespace TeamCloud.Model.Commands.Core
 {
@@ -43,7 +44,7 @@ namespace TeamCloud.Model.Commands.Core
 
             return new Exception(error.Message)
             {
-                Source = JsonConvert.SerializeObject(error)
+                Source = TeamCloudSerialize.SerializeObject(error)
             };
         }
 

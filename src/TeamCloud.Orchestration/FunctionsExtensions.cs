@@ -11,6 +11,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json;
+using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestration
 {
@@ -63,7 +64,7 @@ namespace TeamCloud.Orchestration
 
             var customStatusMessage = customStatusObject is string customStatusString
                 ? customStatusString
-                : JsonConvert.SerializeObject(customStatusObject, Formatting.None);
+                : TeamCloudSerialize.SerializeObject(customStatusObject, Formatting.None);
 
             var message = $"{durableOrchestrationContext.InstanceId}: CUSTOM STATUS -> {customStatusMessage ?? "NULL"}";
             var safeLog = durableOrchestrationContext.CreateReplaySafeLogger(log ?? NullLogger.Instance);

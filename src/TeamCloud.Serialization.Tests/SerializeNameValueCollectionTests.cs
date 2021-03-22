@@ -21,12 +21,12 @@ namespace TeamCloud.Serialization.Tests
             for (int i = 1; i <= 10; i++)
                 nvc.Add("foo", $"bar{i}");
 
-            var json = JsonConvert.SerializeObject(nvc, new NameValueCollectionConverter());
+            var json = TeamCloudSerialize.SerializeObject(nvc);
 
             for (int i = 1; i <= 10; i++)
                 Assert.Contains($"bar{i}", json);
 
-            var nvc2 = JsonConvert.DeserializeObject<NameValueCollection>(json, new NameValueCollectionConverter());
+            var nvc2 = TeamCloudSerialize.DeserializeObject<NameValueCollection>(json);
 
             for (int i = 1; i <= 10; i++)
                 Assert.Contains($"bar{i}", nvc2.GetValues("foo"));
