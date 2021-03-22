@@ -19,8 +19,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Operations\Activities\Templates\OrganizationDeployTemplate.json" />
-    <EmbeddedResource Include="Operations\Activities\Templates\ProjectDeployTemplate.json" />
+    <EmbeddedResource Include="Templates\OrganizationDeployTemplate.json" />
+    <EmbeddedResource Include="Templates\ProjectDeployTemplate.json" />
   </ItemGroup>
 
   <ItemGroup>

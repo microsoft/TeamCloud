@@ -26,6 +26,8 @@ namespace TeamCloud.Audit.Model
             PartitionKey = $"{command.OrganizationId ?? EmptyKey}|{command.ProjectId ?? EmptyKey}";
             RowKey = command.CommandId.ToString();
 
+            UserId = command.User.Id.ToString();
+            ParentId = command.ParentId.ToString();
             CommandId = command.CommandId.ToString();
             Command = command.GetType().Name;
 
@@ -38,9 +40,13 @@ namespace TeamCloud.Audit.Model
         [IgnoreProperty]
         public string AuditId => RowKey;
 
+        [Column(Order = 100)]
+        public string UserId { get; private set; }
         [Column(Order = 101)]
-        public string CommandId { get; private set; }
+        public string ParentId { get; private set; }
         [Column(Order = 102)]
+        public string CommandId { get; private set; }
+        [Column(Order = 103)]
         public string Command { get; private set; }
 
         [Column(Order = 201)]
