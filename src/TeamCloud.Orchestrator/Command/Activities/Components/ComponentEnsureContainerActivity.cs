@@ -18,14 +18,14 @@ using TeamCloud.Orchestration;
 
 namespace TeamCloud.Orchestrator.Command.Activities.Components
 {
-    public sealed class ComponentEnsureResourceActivity
+    public sealed class ComponentEnsureContainerActivity
     {
         private readonly IOrganizationRepository organizationRepository;
         private readonly IProjectRepository projectRepository;
         private readonly IDeploymentScopeRepository deploymentScopeRepository;
         private readonly IAzureResourceService azureResourceService;
 
-        public ComponentEnsureResourceActivity(IOrganizationRepository organizationRepository, IProjectRepository projectRepository, IDeploymentScopeRepository deploymentScopeRepository, IAzureResourceService azureResourceService)
+        public ComponentEnsureContainerActivity(IOrganizationRepository organizationRepository, IProjectRepository projectRepository, IDeploymentScopeRepository deploymentScopeRepository, IAzureResourceService azureResourceService)
         {
             this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
             this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
@@ -33,7 +33,7 @@ namespace TeamCloud.Orchestrator.Command.Activities.Components
             this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
         }
 
-        [FunctionName(nameof(ComponentEnsureResourceActivity))]
+        [FunctionName(nameof(ComponentEnsureContainerActivity))]
         [RetryOptions(3)]
         public async Task<Component> Run(
             [ActivityTrigger] IDurableActivityContext context,
@@ -47,7 +47,7 @@ namespace TeamCloud.Orchestrator.Command.Activities.Components
 
             var component = context.GetInput<Input>().Component;
 
-            if (!AzureResourceIdentifier.TryParse(component.ResourceId, out var _))
+            if (!AzureResourceIdentifier.TryParse(component.ResourceId, out var resourceId))
             {
                 var deploymentScope = await deploymentScopeRepository
                     .GetAsync(component.Organization, component.DeploymentScopeId)
@@ -55,6 +55,45 @@ namespace TeamCloud.Orchestrator.Command.Activities.Components
 
                 component.ResourceId = await CreateResourceIdAsync(component, deploymentScope, log)
                     .ConfigureAwait(false);
+
+                resourceId = AzureResourceIdentifier.Parse(component.ResourceId);
+            }
+
+            if (AzureResourceIdentifier.TryParse(component.IdentityId, out var identityId))
+            {
+                var session = await azureResourceService.AzureSessionService
+                    .CreateSessionAsync(identityId.SubscriptionId)
+                    .ConfigureAwait(false);
+
+                var identity = await session.Identities
+                    .GetByIdAsync(identityId.ToString())
+                    .ConfigureAwait(false);
+
+                var roleAssignments = new Dictionary<string, IEnumerable<Guid>>()
+                {
+                    { identity.PrincipalId, Enumerable.Repeat(AzureRoleDefinition.Contributor, 1) }
+                };
+
+                if (string.IsNullOrEmpty(resourceId.ResourceGroup))
+                {
+                    var subscription = await azureResourceService
+                        .GetSubscriptionAsync(resourceId.SubscriptionId, true)
+                        .ConfigureAwait(false);
+
+                    await subscription
+                        .SetRoleAssignmentsAsync(roleAssignments)
+                        .ConfigureAwait(false);
+                }
+                else
+                {
+                    var resourceGroup = await azureResourceService
+                        .GetResourceGroupAsync(resourceId.SubscriptionId, resourceId.ResourceGroup, true)
+                        .ConfigureAwait(false);
+
+                    await resourceGroup
+                        .SetRoleAssignmentsAsync(roleAssignments)
+                        .ConfigureAwait(false);
+                }
             }
 
             return component;

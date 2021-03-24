@@ -55,7 +55,7 @@ namespace TeamCloud.Orchestrator.Command
                     .ConfigureAwait(true);
 
                 commandResult = await commandHandler
-                    .HandleAsync(command, new CommandCollector(commandQueue, command), orchestratorClient, orchestratorContext, log)
+                    .HandleAsync(command, new CommandCollector(commandQueue, command, orchestratorContext), orchestratorClient, orchestratorContext, log)
                     .ConfigureAwait(true);
 
                 if (commandResult is null)

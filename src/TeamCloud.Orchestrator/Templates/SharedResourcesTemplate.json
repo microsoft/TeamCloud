@@ -1,0 +1,227 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"organizationId": {
+			"type": "string",
+			"defaultValue": "00000000-0000-0000-0000-000000000000",
+			"minLength": 36,
+			"maxLength": 36
+		},
+		"organizationName": {
+			"type": "string",
+			"defaultValue": ""
+		},
+		"projectId": {
+			"type": "string",
+			"defaultValue": "00000000-0000-0000-0000-000000000000",
+			"minLength": 36,
+			"maxLength": 36
+		},
+		"projectName": {
+			"type": "string",
+			"defaultValue": ""
+		},
+		"deploymentScopes": {
+			"type": "array",
+			"defaultValue": []
+		}
+	},
+	"functions": [],
+	"variables": {
+		"organizationEnabled": "[not(equals(parameters('organizationId'), '00000000-0000-0000-0000-000000000000'))]",
+		"organizationResourceGroup": "[format('TCO-{0}-{1}', parameters('organizationName'), uniqueString(parameters('organizationId')))]",
+		"organizationDeployResources": "[take(format('{0}-{1}', deployment().name, uniqueString(parameters('organizationId'), 'resources')), 64)]",
+		"projectEnabled": "[not(equals(parameters('projectId'), '00000000-0000-0000-0000-000000000000'))]",
+		"projectResourceGroup": "[format('TCP-{0}-{1}', parameters('projectName'), uniqueString(parameters('projectId')))]",
+		"projectDeployResources": "[take(format('{0}-{1}', deployment().name, uniqueString(parameters('projectId'), 'resources')), 64)]",
+		"emptyData": {}
+	},
+	"resources": [
+		{
+			"condition": "[variables('organizationEnabled')]",
+			"name": "[variables('organizationResourceGroup')]",
+			"type": "Microsoft.Resources/resourceGroups",
+			"apiVersion": "2019-10-01",
+			"location": "[deployment().location]"
+		},
+		{
+			"condition": "[variables('organizationEnabled')]",
+			"name": "[variables('organizationDeployResources')]",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2020-10-01",
+			"resourceGroup": "[variables('organizationResourceGroup')]",
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/resourceGroups', variables('organizationResourceGroup'))]"
+			],
+			"properties": {
+				"expressionEvaluationOptions": {
+					"scope": "inner"
+				},
+				"mode": "Incremental",
+				"parameters": {},
+				"template": {
+					"$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+					"contentVersion": "1.0.0.0",
+					"variables": {
+						"resourcePrefix": "tc",
+						"organizationSharedImageGallery": "[concat(variables('resourcePrefix'), uniqueString(resourceGroup().id))]",
+						"organizationContainerRegistry": "[concat(variables('resourcePrefix'), uniqueString(resourceGroup().id))]",
+						"organizationStorageAccount": "[concat(variables('resourcePrefix'), uniqueString(resourceGroup().id))]"
+					},
+					"resources": [
+						{
+							"name": "[variables('organizationSharedImageGallery')]",
+							"type": "Microsoft.Compute/galleries",
+							"apiVersion": "2020-09-30",
+							"location": "[resourceGroup().location]"
+						},
+						{
+							"name": "[variables('organizationContainerRegistry')]",
+							"type": "Microsoft.ContainerRegistry/registries",
+							"apiVersion": "2019-12-01-preview",
+							"location": "[resourceGroup().location]",
+							"sku": {
+								"name": "Standard"
+							},
+							"properties": {
+								"adminUserEnabled": false
+							}
+						},
+						{
+							"name": "[variables('organizationStorageAccount')]",
+							"type": "Microsoft.Storage/storageAccounts",
+							"apiVersion": "2019-06-01",
+							"location": "[resourceGroup().location]",
+							"sku": {
+								"name": "Premium_LRS"
+							},
+							"kind": "StorageV2"
+						}
+					],
+					"outputs": {
+						"organizationData": {
+							"type": "object",
+							"value": {
+								"resourceId": "[resourceGroup().id]",
+								"galleryId": "[resourceId('Microsoft.Compute/galleries', variables('organizationSharedImageGallery'))]",
+								"registryId": "[resourceId('Microsoft.ContainerRegistry/registries', variables('organizationContainerRegistry'))]",
+								"storageId": "[resourceId('Microsoft.Storage/storageAccounts', variables('organizationStorageAccount'))]"
+							}
+						}
+					}
+				}
+			}
+		},
+		{
+			"condition": "[variables('projectEnabled')]",
+			"name": "[variables('projectResourceGroup')]",
+			"type": "Microsoft.Resources/resourceGroups",
+			"apiVersion": "2019-10-01",
+			"location": "[deployment().location]"
+		},
+		{
+			"condition": "[variables('projectEnabled')]",
+			"name": "[variables('projectDeployResources')]",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2020-10-01",
+			"resourceGroup": "[variables('projectResourceGroup')]",
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/resourceGroups', variables('projectResourceGroup'))]"
+			],
+			"properties": {
+				"expressionEvaluationOptions": {
+					"scope": "inner"
+				},
+				"mode": "Incremental",
+				"parameters": {
+					"deploymentScopes": {
+						"value": "[parameters('deploymentScopes')]"
+					}
+				},
+				"template": {
+					"$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+					"contentVersion": "1.0.0.0",
+					"parameters": {
+						"deploymentScopes": {
+							"type": "array",
+							"defaultValue": []
+						}
+					},
+					"variables": {
+						"deploymentScopes": {
+							"true": "[parameters('deploymentScopes')]",
+							"false": [ "00000000-0000-0000-0000-000000000000" ]
+						},
+						"resourcePrefix": "tc",
+						"projectKeyVault": "[concat(variables('resourcePrefix'), uniqueString(resourceGroup().id))]",
+						"projectStorageAccount": "[concat(variables('resourcePrefix'), uniqueString(resourceGroup().id))]",
+						"projectIdentities": "[variables('deploymentScopes')[string(not(empty(parameters('deploymentScopes'))))]]"
+					},
+					"resources": [
+						{
+							"name": "[variables('projectKeyVault')]",
+							"type": "Microsoft.KeyVault/vaults",
+							"apiVersion": "2019-09-01",
+							"location": "[resourceGroup().location]",
+							"properties": {
+								"sku": {
+									"name": "Standard",
+									"family": "A"
+								},
+								"enabledForDeployment": true,
+								"enabledForDiskEncryption": true,
+								"enabledForTemplateDeployment": true,
+								"enableSoftDelete": true,
+								"tenantId": "[subscription().tenantId]",
+								"accessPolicies": []
+							}
+						},
+						{
+							"type": "Microsoft.Storage/storageAccounts",
+							"apiVersion": "2019-06-01",
+							"name": "[variables('projectStorageAccount')]",
+							"location": "[resourceGroup().location]",
+							"sku": {
+								"name": "Standard_LRS"
+							},
+							"kind": "StorageV2",
+							"properties": {}
+						},
+						{
+							"condition": "[not(empty(parameters('deploymentScopes')))]",
+							"name": "[variables('projectIdentities')[copyIndex('identitiesCopy')]]",
+							"type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+							"apiVersion": "2018-11-30",
+							"location": "[resourceGroup().location]",
+							"copy": {
+								"name": "identitiesCopy",
+								"count": "[length(variables('projectIdentities'))]"
+							}
+						}
+					],
+					"outputs": {
+						"projectData": {
+							"type": "object",
+							"value": {
+								"resourceId": "[resourceGroup().id]",
+								"vaultId": "[resourceId('Microsoft.KeyVault/vaults',variables('projectKeyVault'))]",
+								"storageId": "[resourceId('Microsoft.Storage/storageAccounts', variables('projectStorageAccount'))]"
+							}
+						}
+					}
+				}
+			}
+		}
+	],
+	"outputs": {
+		"organizationData": {
+			"type": "object",
+			"value": "[if(variables('organizationEnabled'), reference(variables('organizationDeployResources'), '2020-10-01').outputs.organizationData.value, variables('emptyData'))]"
+		},
+		"projectData": {
+			"type": "object",
+			"value": "[if(variables('projectEnabled'), reference(variables('projectDeployResources'), '2020-10-01').outputs.projectData.value, variables('emptyData'))]"
+		}
+	}
+}

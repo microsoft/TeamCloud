@@ -3,16 +3,13 @@
  *  Licensed under the MIT License.
  */
 
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using System;
+using System.Threading.Tasks;
 using TeamCloud.Azure;
 using TeamCloud.Azure.Deployment;
-using TeamCloud.Azure.Resources;
 using TeamCloud.Data;
-using TeamCloud.Model.Common;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Templates;
@@ -42,49 +39,13 @@ namespace TeamCloud.Orchestrator.Command.Activities.Organizations
 
             var organization = context.GetInput<Input>().Organization;
 
-            if (!AzureResourceIdentifier.TryParse(organization.ResourceId, out var organizationResourceId))
-            {
-                var session = await azureSessionService
-                    .CreateSessionAsync(Guid.Parse(organization.SubscriptionId))
-                    .ConfigureAwait(false);
+            var template = new SharedResourcesTemplate();
 
-                var resourceGroups = await session.ResourceGroups
-                    .ListAsync(loadAllPages: true)
-                    .ConfigureAwait(false);
-
-                var resourceGroupName = $"TCO-{organization.Slug}-{Math.Abs(Guid.Parse(organization.Id).GetHashCode())}";
-
-                var resourceGroup = resourceGroups
-                    .SingleOrDefault(rg => rg.Name.Equals(resourceGroupName, StringComparison.OrdinalIgnoreCase));
-
-                if (resourceGroup is null)
-                {
-                    resourceGroup = await session.ResourceGroups
-                        .Define(resourceGroupName)
-                            .WithRegion(organization.Location)
-                        .CreateAsync()
-                        .ConfigureAwait(false);
-                }
-
-                organization.ResourceId = resourceGroup.Id;
-
-                organization = await organizationRepository
-                    .SetAsync(organization)
-                    .ConfigureAwait(false);
-
-                organizationResourceId = AzureResourceIdentifier.Parse(organization.ResourceId);
-            }
-
-            var template = new OrganizationDeployTemplate();
+            template.Parameters["organizationId"] = organization.Id;
+            template.Parameters["organizationName"] = organization.Slug;
 
             var deployment = await azureDeploymentService
-                .DeployResourceGroupTemplateAsync(template, Guid.Parse(organization.SubscriptionId), organizationResourceId.ResourceGroup)
-                .ConfigureAwait(false);
-
-            organization.ResourceState = ResourceState.Provisioning;
-
-            organization = await organizationRepository
-                .SetAsync(organization)
+                .DeploySubscriptionTemplateAsync(template, Guid.Parse(organization.SubscriptionId), organization.Location)
                 .ConfigureAwait(false);
 
             return deployment.ResourceId;

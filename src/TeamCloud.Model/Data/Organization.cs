@@ -3,9 +3,9 @@
  *  Licensed under the MIT License.
  */
 
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
 using TeamCloud.Model.Common;
 using TeamCloud.Model.Data.Core;
 using TeamCloud.Serialization;
@@ -37,6 +37,12 @@ namespace TeamCloud.Model.Data
         public string ResourceId { get; set; }
 
         public ResourceState ResourceState { get; set; } = ResourceState.Pending;
+
+        public string GalleryId { get; set; }
+
+        public string RegistryId { get; set; }
+
+        public string StorageId { get; set; }
 
         public bool Equals(Organization other)
             => Id.Equals(other?.Id, StringComparison.OrdinalIgnoreCase);

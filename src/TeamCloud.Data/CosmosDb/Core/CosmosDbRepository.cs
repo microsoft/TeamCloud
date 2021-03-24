@@ -3,6 +3,8 @@
  *  Licensed under the MIT License.
  */
 
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.Azure.Cosmos;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -10,8 +12,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.DataProtection;
-using Microsoft.Azure.Cosmos;
 using TeamCloud.Data.Utilities;
 using TeamCloud.Model.Common;
 using TeamCloud.Model.Data.Core;
@@ -31,13 +31,13 @@ namespace TeamCloud.Data.CosmosDb.Core
     {
         private readonly Lazy<CosmosClient> cosmosClient;
         private readonly ConcurrentDictionary<Type, AsyncLazy<(Container, ChangeFeedProcessor)>> cosmosContainers = new ConcurrentDictionary<Type, AsyncLazy<(Container, ChangeFeedProcessor)>>();
-        private readonly IEnumerable<IDocumentExpander> expanders;
+        private readonly IDocumentExpanderProvider expanderProvider;
 
-        protected CosmosDbRepository(ICosmosDbOptions options, IEnumerable<IDocumentExpander> expanders, IDataProtectionProvider dataProtectionProvider)
+        protected CosmosDbRepository(ICosmosDbOptions options, IDocumentExpanderProvider expanderProvider, IDataProtectionProvider dataProtectionProvider)
         {
             Options = options ?? throw new ArgumentNullException(nameof(options));
 
-            this.expanders = expanders ?? throw new ArgumentNullException(nameof(expanders));
+            this.expanderProvider = expanderProvider ?? NullExpanderProvider.Instance;
 
             cosmosClient = new Lazy<CosmosClient>(() => new CosmosClient(options.ConnectionString, new CosmosClientOptions()
             {
@@ -185,12 +185,20 @@ namespace TeamCloud.Data.CosmosDb.Core
             if (document is null)
                 throw new ArgumentNullException(nameof(document));
 
-            foreach (var expander in expanders.Where(e => e.CanExpand(document)))
+            foreach (var expander in expanderProvider.GetExpanders(document))
                 document = (T)await expander.ExpandAsync(document).ConfigureAwait(false);
 
             return document;
         }
 
         protected virtual ChangesHandler<T> HandleChangesAsync { get; }
+
+        private class NullExpanderProvider : IDocumentExpanderProvider
+        {
+            public static readonly IDocumentExpanderProvider Instance = new NullExpanderProvider();
+
+            public IEnumerable<IDocumentExpander> GetExpanders(IContainerDocument document)
+                => Enumerable.Empty<IDocumentExpander>();
+        }
     }
 }

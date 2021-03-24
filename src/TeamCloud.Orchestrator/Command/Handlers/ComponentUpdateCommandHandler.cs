@@ -12,11 +12,8 @@ using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
-using TeamCloud.Orchestrator.Command;
-using TeamCloud.Orchestrator.Command.Activities;
 using TeamCloud.Orchestrator.Command.Activities.Components;
 using TeamCloud.Orchestrator.Command.Entities;
-using TeamCloud.Orchestrator.Command.Orchestrations;
 
 namespace TeamCloud.Orchestrator.Command.Handlers
 {
@@ -38,11 +35,15 @@ namespace TeamCloud.Orchestrator.Command.Handlers
             var commandResult = command.CreateResult();
 
             commandResult.Result = await orchestrationContext
-                .CallSubOrchestratorWithRetryAsync<Component>(nameof(ComponentPrepareOrchestration), new ComponentPrepareOrchestration.Input() { Component = command.Payload })
+                .CallActivityWithRetryAsync<Component>(nameof(ComponentGetActivity), new ComponentGetActivity.Input() { ProjectId = command.Payload.ProjectId, ComponentId = command.Payload.Id })
                 .ConfigureAwait(true);
 
-            using (await orchestrationContext.LockContainerDocumentAsync(commandResult.Result, nameof(ComponentUpdateCommandHandler)).ConfigureAwait(true))
+            using (await orchestrationContext.LockContainerDocumentAsync(commandResult.Result).ConfigureAwait(true))
             {
+                commandResult.Result = await orchestrationContext
+                    .CallActivityWithRetryAsync<Component>(nameof(ComponentGetActivity), new ComponentGetActivity.Input() { ProjectId = command.Payload.ProjectId, ComponentId = command.Payload.Id })
+                    .ConfigureAwait(true);
+
                 commandResult.Result = await orchestrationContext
                     .CallActivityWithRetryAsync<Component>(nameof(ComponentEnsurePermissionActivity), new ComponentEnsurePermissionActivity.Input() { Component = commandResult.Result })
                     .ConfigureAwait(true);

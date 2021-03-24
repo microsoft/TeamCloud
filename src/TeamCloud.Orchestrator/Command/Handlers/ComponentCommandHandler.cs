@@ -47,26 +47,19 @@ namespace TeamCloud.Orchestrator.Command.Handlers
                     .AddAsync(command.Payload)
                     .ConfigureAwait(false);
 
-                if (commandResult.Result.Type == ComponentType.Environment)
+                var componentTask = new ComponentTask
                 {
-                    var componentTask = new ComponentTask
-                    {
-                        Organization = commandResult.Result.Organization,
-                        ComponentId = commandResult.Result.Id,
-                        ProjectId = commandResult.Result.ProjectId,
-                        Type = ComponentTaskType.Create,
-                        RequestedBy = commandResult.Result.Creator,
-                        InputJson = commandResult.Result.InputJson
-                    };
+                    Organization = commandResult.Result.Organization,
+                    ComponentId = commandResult.Result.Id,
+                    ProjectId = commandResult.Result.ProjectId,
+                    Type = ComponentTaskType.Create,
+                    RequestedBy = commandResult.Result.Creator,
+                    InputJson = commandResult.Result.InputJson
+                };
 
-                    componentTask = await componentTaskRepository
-                        .AddAsync(componentTask)
-                        .ConfigureAwait(false);
-
-                    await commandQueue
-                        .AddAsync(new ComponentTaskRunCommand(command.User, componentTask))
-                        .ConfigureAwait(false);
-                }
+                await commandQueue
+                    .AddAsync(new ComponentTaskCommand(command.User, componentTask))
+                    .ConfigureAwait(false);
 
                 commandResult.RuntimeStatus = CommandRuntimeStatus.Completed;
             }
@@ -90,16 +83,6 @@ namespace TeamCloud.Orchestrator.Command.Handlers
 
             try
             {
-                // var component = await componentRepository
-                //     .GetAsync(command.Payload.ProjectId, command.Payload.ComponentId)
-                //     .ConfigureAwait(false);
-
-                // if (command.Payload.Type != ComponentType.Environment)
-                // {
-                //     // ensure the component is of type Environment; otherwise this command is not supported
-                //     throw new NotSupportedException($"Command of type {command.GetType().Name} is not supported for components of type {command.Payload.Type}.");
-                // }
-
                 commandResult.Result = await componentTaskRepository
                     .AddAsync(command.Payload)
                     .ConfigureAwait(false);

@@ -1,8 +1,10 @@
 ﻿using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 using TeamCloud.Model.Commands.Core;
+using TeamCloud.Orchestrator.Command.Activities;
 
 namespace TeamCloud.Orchestrator.Command
 {
@@ -10,14 +12,16 @@ namespace TeamCloud.Orchestrator.Command
     {
         private readonly IAsyncCollector<ICommand> collector;
         private readonly ICommand command;
+        private readonly IDurableOrchestrationContext context;
 
-        public CommandCollector(IAsyncCollector<ICommand> collector, ICommand command)
+        public CommandCollector(IAsyncCollector<ICommand> collector, ICommand command, IDurableOrchestrationContext context = null)
         {
             this.collector = collector ?? throw new ArgumentNullException(nameof(collector));
             this.command = command ?? throw new ArgumentNullException(nameof(command));
+            this.context = context;
         }
 
-        public Task AddAsync(ICommand item, CancellationToken cancellationToken = default)
+        public async Task AddAsync(ICommand item, CancellationToken cancellationToken = default)
         {
             if (item is null)
                 throw new ArgumentNullException(nameof(item));
@@ -27,7 +31,18 @@ namespace TeamCloud.Orchestrator.Command
 
             item.ParentId = command.CommandId;
 
-            return collector.AddAsync(item, cancellationToken);
+            if (context is null)
+            {
+                await collector
+                    .AddAsync(item, cancellationToken)
+                    .ConfigureAwait(false);
+            }
+            else
+            {
+                await context
+                    .CallActivityAsync(nameof(CommandCollectActivity), new CommandCollectActivity.Input() { Command = item })
+                    .ConfigureAwait(true);
+            }
         }
 
         public Task FlushAsync(CancellationToken cancellationToken = default)

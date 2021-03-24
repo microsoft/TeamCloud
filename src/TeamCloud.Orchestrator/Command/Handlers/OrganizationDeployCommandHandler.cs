@@ -1,6 +1,7 @@
 ﻿using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Threading.Tasks;
 using TeamCloud.Model.Commands;
@@ -11,6 +12,7 @@ using TeamCloud.Orchestration;
 using TeamCloud.Orchestration.Deployment;
 using TeamCloud.Orchestrator.Command.Activities.Organizations;
 using TeamCloud.Orchestrator.Command.Entities;
+using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.Command.Handlers
 {
@@ -47,10 +49,6 @@ namespace TeamCloud.Orchestrator.Command.Handlers
                         .CallActivityWithRetryAsync<Organization>(nameof(OrganizationSetActivity), new OrganizationSetActivity.Input() { Organization = commandResult.Result, ResourceState = ResourceState.Initializing })
                         .ConfigureAwait(true);
 
-                    commandResult.Result = await orchestrationContext
-                        .CallActivityWithRetryAsync<Organization>(nameof(OrganizationInitActivity), new OrganizationInitActivity.Input() { Organization = commandResult.Result })
-                        .ConfigureAwait(true);
-
                     var deploymentOutputEventName = orchestrationContext.NewGuid().ToString();
 
                     _ = await orchestrationContext
@@ -61,13 +59,23 @@ namespace TeamCloud.Orchestrator.Command.Handlers
                         .CallActivityWithRetryAsync<Organization>(nameof(OrganizationSetActivity), new OrganizationSetActivity.Input() { Organization = commandResult.Result, ResourceState = ResourceState.Provisioning })
                         .ConfigureAwait(true);
 
-                    _ = await orchestrationContext
+                    var deploymentOutput = await orchestrationContext
                         .WaitForDeploymentOutput(deploymentOutputEventName, TimeSpan.FromMinutes(5))
                         .ConfigureAwait(true);
 
-                    commandResult.Result = await orchestrationContext
-                        .CallActivityWithRetryAsync<Organization>(nameof(OrganizationSetActivity), new OrganizationSetActivity.Input() { Organization = commandResult.Result, ResourceState = ResourceState.Succeeded })
-                        .ConfigureAwait(true);
+                    if (deploymentOutput.TryGetValue("organizationData", out var organizationData) && organizationData is JObject organizationDataJson)
+                    {
+                        commandResult.Result = TeamCloudSerialize.MergeObject(organizationDataJson.ToString(), commandResult.Result);
+
+                        commandResult.Result = await orchestrationContext
+                            .CallActivityWithRetryAsync<Organization>(nameof(OrganizationSetActivity), new OrganizationSetActivity.Input() { Organization = commandResult.Result, ResourceState = ResourceState.Succeeded })
+                            .ConfigureAwait(true);
+                    }
+                    else
+                    {
+                        throw new NullReferenceException($"Deployment output doesn't contain 'organizationData' output.");
+                    }
+
                 }
                 catch
                 {

@@ -21,8 +21,8 @@ namespace TeamCloud.Data.CosmosDb
     {
         private readonly IMemoryCache cache;
 
-        public CosmosDbOrganizationRepository(ICosmosDbOptions options, IEnumerable<IDocumentExpander> expanders, IMemoryCache cache, IDataProtectionProvider dataProtectionProvider = null)
-            : base(options, expanders, dataProtectionProvider)
+        public CosmosDbOrganizationRepository(ICosmosDbOptions options, IDocumentExpanderProvider expanderProvider, IMemoryCache cache, IDataProtectionProvider dataProtectionProvider = null)
+            : base(options, expanderProvider, dataProtectionProvider)
         {
             this.cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }

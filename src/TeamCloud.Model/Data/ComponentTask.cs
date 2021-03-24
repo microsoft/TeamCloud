@@ -3,8 +3,8 @@
  *  Licensed under the MIT License.
  */
 
-using System;
 using Newtonsoft.Json;
+using System;
 using TeamCloud.Model.Common;
 using TeamCloud.Model.Data.Core;
 using TeamCloud.Serialization;
@@ -25,10 +25,6 @@ namespace TeamCloud.Model.Data
 
         [JsonProperty(Required = Required.Always)]
         public string ProjectId { get; set; }
-
-        public string StorageId { get; set; }
-
-        public string VaultId { get; set; }
 
         public string RequestedBy { get; set; }
 
