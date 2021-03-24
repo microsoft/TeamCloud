@@ -93,16 +93,6 @@ namespace TeamCloud.Model.Data
         public string IdentityId { get; set; }
 
         /// <summary>
-        /// Gets or sets the storage identifier for this component.
-        /// </summary>
-        public string StorageId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the vault identifier for this component.
-        /// </summary>
-        public string VaultId { get; set; }
-
-        /// <summary>
         /// Gets or sets the timestamp when the component was deleted.
         /// </summary>
         public DateTime? Deleted { get; set; }

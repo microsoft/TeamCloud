@@ -18,8 +18,8 @@ namespace TeamCloud.Data.CosmosDb
 {
     public class CosmosDbDeploymentScopeRepository : CosmosDbRepository<DeploymentScope>, IDeploymentScopeRepository
     {
-        public CosmosDbDeploymentScopeRepository(ICosmosDbOptions options, IEnumerable<IDocumentExpander> expanders, IDataProtectionProvider dataProtectionProvider = null)
-            : base(options, expanders, dataProtectionProvider)
+        public CosmosDbDeploymentScopeRepository(ICosmosDbOptions options, IDocumentExpanderProvider expanderProvider, IDataProtectionProvider dataProtectionProvider = null)
+            : base(options, expanderProvider, dataProtectionProvider)
         { }
 
         public override async Task<DeploymentScope> AddAsync(DeploymentScope deploymentScope)

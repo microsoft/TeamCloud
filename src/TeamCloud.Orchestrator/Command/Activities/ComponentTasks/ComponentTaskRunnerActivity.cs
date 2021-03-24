@@ -69,6 +69,13 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
 
             try
             {
+                var project = await projectRepository
+                    .GetAsync(componentTask.Organization, componentTask.ProjectId)
+                    .ConfigureAwait(false);
+
+                var projectResourceId = AzureResourceIdentifier
+                    .Parse(project.ResourceId);
+
                 var component = await componentRepository
                     .GetAsync(componentTask.ProjectId, componentTask.ComponentId)
                     .ConfigureAwait(false);
@@ -80,7 +87,7 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
                     .GetAsync(component.Organization, component.ProjectId, component.TemplateId)
                     .ConfigureAwait(false);
 
-                var (componentShareAccount, componentShareName, componentShareKey) = await GetComponentShareInfoAsync(component)
+                var (componentShareAccount, componentShareName, componentShareKey) = await GetComponentShareInfoAsync(project, component)
                     .ConfigureAwait(false);
 
                 var componentLocation = await GetComponentRunnerLocationAsync(component)
@@ -193,7 +200,7 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
                             },
                             new {
                                 name = "secrets",
-                                secret = await GetComponentVaultSecretsAsync(component).ConfigureAwait(false)
+                                secret = await GetComponentVaultSecretsAsync(project, component).ConfigureAwait(false)
                             },
                             new {
                                 name = "temporary",
@@ -202,13 +209,6 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
                         }
                     }
                 };
-
-                var project = await projectRepository
-                    .GetAsync(component.Organization, component.ProjectId)
-                    .ConfigureAwait(false);
-
-                var projectResourceId = AzureResourceIdentifier
-                    .Parse(project.ResourceId);
 
                 var token = await azureSessionService
                     .AcquireTokenAsync()
@@ -271,13 +271,13 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
             return componentTask;
         }
 
-        private async Task<(string, string, string)> GetComponentShareInfoAsync(Component component)
+        private async Task<(string, string, string)> GetComponentShareInfoAsync(Project project, Component component)
         {
-            if (!AzureResourceIdentifier.TryParse(component.StorageId, out var _))
-                throw new NullReferenceException($"Missing storage id for component {component.Id}");
+            if (!AzureResourceIdentifier.TryParse(project.StorageId, out var _))
+                throw new NullReferenceException($"Missing storage id for project {project.Id}");
 
             var componentStorage = await azureResourceService
-                .GetResourceAsync<AzureStorageAccountResource>(component.StorageId, true)
+                .GetResourceAsync<AzureStorageAccountResource>(project.StorageId, true)
                 .ConfigureAwait(false);
 
             var componentShare = await componentStorage
@@ -295,13 +295,13 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
             return (componentShare.AccountName, componentShare.Name, componentStorageKeys.First());
         }
 
-        private async Task<dynamic> GetComponentVaultSecretsAsync(Component component)
+        private async Task<dynamic> GetComponentVaultSecretsAsync(Project project, Component component)
         {
-            if (!AzureResourceIdentifier.TryParse(component.VaultId, out var _))
-                throw new NullReferenceException($"Missing vault id for component {component.Id}");
+            if (!AzureResourceIdentifier.TryParse(project.VaultId, out var _))
+                throw new NullReferenceException($"Missing vault id for project {project.Id}");
 
             var componentVault = await azureResourceService
-                .GetResourceAsync<AzureKeyVaultResource>(component.VaultId, true)
+                .GetResourceAsync<AzureKeyVaultResource>(project.VaultId, true)
                 .ConfigureAwait(false);
 
             var identity = await azureResourceService.AzureSessionService

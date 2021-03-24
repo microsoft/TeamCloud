@@ -23,8 +23,8 @@ namespace TeamCloud.Data.CosmosDb
 
         private readonly IUserRepository userRepository;
 
-        public CosmosDbProjectRepository(ICosmosDbOptions options, IEnumerable<IDocumentExpander> expanders, IUserRepository userRepository, IMemoryCache cache, IDataProtectionProvider dataProtectionProvider = null)
-            : base(options, expanders, dataProtectionProvider)
+        public CosmosDbProjectRepository(ICosmosDbOptions options, IUserRepository userRepository, IMemoryCache cache, IDocumentExpanderProvider expanderProvider, IDataProtectionProvider dataProtectionProvider = null)
+            : base(options, expanderProvider, dataProtectionProvider)
         {
             this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             this.cache = cache ?? throw new ArgumentNullException(nameof(cache));

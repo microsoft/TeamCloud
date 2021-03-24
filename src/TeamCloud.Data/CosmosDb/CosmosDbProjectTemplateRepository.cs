@@ -21,8 +21,8 @@ namespace TeamCloud.Data.CosmosDb
     {
         private readonly IRepositoryService repositoryService;
 
-        public CosmosDbProjectTemplateRepository(ICosmosDbOptions options, IEnumerable<IDocumentExpander> expanders, IRepositoryService repositoryService, IDataProtectionProvider dataProtectionProvider = null)
-            : base(options, expanders, dataProtectionProvider)
+        public CosmosDbProjectTemplateRepository(ICosmosDbOptions options, IDocumentExpanderProvider expanderProvider, IRepositoryService repositoryService, IDataProtectionProvider dataProtectionProvider = null)
+            : base(options, expanderProvider, dataProtectionProvider)
         {
             this.repositoryService = repositoryService ?? throw new ArgumentNullException(nameof(repositoryService));
         }

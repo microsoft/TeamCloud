@@ -10,9 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using TeamCloud.Azure;
 using TeamCloud.Azure.Deployment;
-using TeamCloud.Azure.Resources;
 using TeamCloud.Data;
-using TeamCloud.Model.Common;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Templates;
@@ -52,57 +50,22 @@ namespace TeamCloud.Orchestrator.Command.Activities.Projects
                 .GetAsync(tenantId.ToString(), project.Organization)
                 .ConfigureAwait(false);
 
-            if (!AzureResourceIdentifier.TryParse(project.ResourceId, out var projectResourceId))
-            {
-                var session = await azureSessionService
-                    .CreateSessionAsync(Guid.Parse(organization.SubscriptionId))
-                    .ConfigureAwait(false);
-
-                var resourceGroups = await session.ResourceGroups
-                    .ListAsync(loadAllPages: true)
-                    .ConfigureAwait(false);
-
-                var resourceGroupName = $"TCP-{project.Slug}-{Math.Abs(Guid.Parse(project.Id).GetHashCode())}";
-
-                var resourceGroup = resourceGroups
-                    .SingleOrDefault(rg => rg.Name.Equals(resourceGroupName, StringComparison.OrdinalIgnoreCase));
-
-                if (resourceGroup is null)
-                {
-                    resourceGroup = await session.ResourceGroups
-                        .Define(resourceGroupName)
-                            .WithRegion(organization.Location)
-                        .CreateAsync()
-                        .ConfigureAwait(false);
-                }
-
-                project.ResourceId = resourceGroup.Id;
-
-                project = await projectRepository
-                    .SetAsync(project)
-                    .ConfigureAwait(false);
-
-                projectResourceId = AzureResourceIdentifier.Parse(project.ResourceId);
-            }
-
-            var deploymentScopeIds = await deploymentScopeRepository
+            var deploymentScopes = await deploymentScopeRepository
                 .ListAsync(project.Organization)
                 .Select(scope => scope.Id)
                 .ToArrayAsync()
                 .ConfigureAwait(false);
 
-            var template = new ProjectDeployTemplate();
+            var template = new SharedResourcesTemplate();
 
-            template.Parameters["deploymentScopeIds"] = deploymentScopeIds;
+            //template.Parameters["organizationId"] = organization.Id;
+            //template.Parameters["organizationName"] = organization.Slug;
+            template.Parameters["projectId"] = project.Id;
+            template.Parameters["projectName"] = project.Slug;
+            template.Parameters["deploymentScopes"] = deploymentScopes;
 
             var deployment = await azureDeploymentService
-                .DeployResourceGroupTemplateAsync(template, Guid.Parse(organization.SubscriptionId), projectResourceId.ResourceGroup)
-                .ConfigureAwait(false);
-
-            project.ResourceState = ResourceState.Provisioning;
-
-            project = await projectRepository
-                .SetAsync(project)
+                .DeploySubscriptionTemplateAsync(template, Guid.Parse(organization.SubscriptionId), organization.Location)
                 .ConfigureAwait(false);
 
             return deployment.ResourceId;

@@ -18,8 +18,8 @@ namespace TeamCloud.Data.CosmosDb
 {
     public sealed class CosmosDbComponentTaskRepository : CosmosDbRepository<ComponentTask>, IComponentTaskRepository
     {
-        public CosmosDbComponentTaskRepository(ICosmosDbOptions options, IEnumerable<IDocumentExpander> expanders, IDataProtectionProvider dataProtectionProvider = null)
-            : base(options, expanders, dataProtectionProvider)
+        public CosmosDbComponentTaskRepository(ICosmosDbOptions options, IDocumentExpanderProvider expanderProvider, IDataProtectionProvider dataProtectionProvider = null)
+            : base(options, expanderProvider, dataProtectionProvider)
         { }
 
         public override async Task<ComponentTask> AddAsync(ComponentTask task)

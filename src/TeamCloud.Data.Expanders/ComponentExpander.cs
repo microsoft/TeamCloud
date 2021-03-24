@@ -14,10 +14,12 @@ namespace TeamCloud.Data.Expanders
 {
     public sealed class ComponentExpander : IDocumentExpander<Component>
     {
+        private readonly IProjectRepository projectRepository;
         private readonly IAzureResourceService azureResourceService;
 
-        public ComponentExpander(IAzureResourceService azureResourceService)
+        public ComponentExpander(IProjectRepository projectRepository, IAzureResourceService azureResourceService)
         {
+            this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
             this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
         }
 
@@ -34,7 +36,11 @@ namespace TeamCloud.Data.Expanders
             if (document is null)
                 throw new ArgumentNullException(nameof(document));
 
-            if (AzureResourceIdentifier.TryParse(document.StorageId, out var storageId))
+            var project = await projectRepository
+                .GetAsync(document.Organization, document.ProjectId)
+                .ConfigureAwait(false); 
+
+            if (AzureResourceIdentifier.TryParse(project?.StorageId, out var storageId))
             {
                 try
                 {

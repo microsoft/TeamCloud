@@ -3,9 +3,9 @@
  *  Licensed under the MIT License.
  */
 
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
 using TeamCloud.Model.Common;
 using TeamCloud.Model.Data.Core;
 using TeamCloud.Serialization;
@@ -40,6 +40,10 @@ namespace TeamCloud.Model.Data
         public string ResourceId { get; set; }
 
         public ResourceState ResourceState { get; set; } = ResourceState.Pending;
+
+        public string VaultId { get; set; }
+
+        public string StorageId { get; set; }
 
         public bool Equals(Project other)
             => Id.Equals(other?.Id, StringComparison.OrdinalIgnoreCase);

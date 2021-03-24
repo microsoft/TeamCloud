@@ -17,8 +17,8 @@ namespace TeamCloud.Data.CosmosDb
 {
     public sealed class CosmosDbProjectIdentityRepository : CosmosDbRepository<ProjectIdentity>, IProjectIdentityRepository
     {
-        public CosmosDbProjectIdentityRepository(ICosmosDbOptions options, IEnumerable<IDocumentExpander> expanders, IDataProtectionProvider dataProtectionProvider = null)
-            : base(options, expanders, dataProtectionProvider)
+        public CosmosDbProjectIdentityRepository(ICosmosDbOptions options, IDocumentExpanderProvider expanderProvider, IDataProtectionProvider dataProtectionProvider = null)
+            : base(options, expanderProvider, dataProtectionProvider)
         { }
 
         public override async Task<ProjectIdentity> AddAsync(ProjectIdentity document)

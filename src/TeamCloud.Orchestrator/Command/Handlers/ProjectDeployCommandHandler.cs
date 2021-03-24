@@ -1,6 +1,7 @@
 ﻿using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Threading.Tasks;
 using TeamCloud.Model.Commands;
@@ -11,6 +12,7 @@ using TeamCloud.Orchestration;
 using TeamCloud.Orchestration.Deployment;
 using TeamCloud.Orchestrator.Command.Activities.Projects;
 using TeamCloud.Orchestrator.Command.Entities;
+using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.Command.Handlers
 {
@@ -45,10 +47,6 @@ namespace TeamCloud.Orchestrator.Command.Handlers
                     .CallActivityWithRetryAsync<Project>(nameof(ProjectSetActivity), new ProjectSetActivity.Input() { Project = commandResult.Result, ResourceState = ResourceState.Initializing })
                     .ConfigureAwait(true);
 
-                commandResult.Result = await orchestrationContext
-                    .CallActivityWithRetryAsync<Project>(nameof(ProjectInitActivity), new ProjectInitActivity.Input() { Project = commandResult.Result })
-                    .ConfigureAwait(true);
-
                 try
                 {
                     var deploymentOutputEventName = orchestrationContext.NewGuid().ToString();
@@ -61,13 +59,23 @@ namespace TeamCloud.Orchestrator.Command.Handlers
                         .CallActivityWithRetryAsync<Project>(nameof(ProjectSetActivity), new ProjectSetActivity.Input() { Project = commandResult.Result, ResourceState = ResourceState.Provisioning })
                         .ConfigureAwait(true);
 
-                    _ = await orchestrationContext
+                    var deploymentOutput = await orchestrationContext
                         .WaitForDeploymentOutput(deploymentOutputEventName, TimeSpan.FromMinutes(5))
                         .ConfigureAwait(true);
 
-                    commandResult.Result = await orchestrationContext
-                        .CallActivityWithRetryAsync<Project>(nameof(ProjectSetActivity), new ProjectSetActivity.Input() { Project = commandResult.Result, ResourceState = ResourceState.Succeeded })
-                        .ConfigureAwait(true);
+                    if (deploymentOutput.TryGetValue("projectData", out var projectData) && projectData is JObject projectDataJson)
+                    {
+                        commandResult.Result = TeamCloudSerialize.MergeObject(projectDataJson.ToString(), commandResult.Result);
+
+                        commandResult.Result = await orchestrationContext
+                            .CallActivityWithRetryAsync<Project>(nameof(ProjectSetActivity), new ProjectSetActivity.Input() { Project = commandResult.Result, ResourceState = ResourceState.Succeeded })
+                            .ConfigureAwait(true);
+                    }
+                    else
+                    {
+                        throw new NullReferenceException($"Deployment output doesn't contain 'projectData' output.");
+                    }
+
                 }
                 catch
                 {

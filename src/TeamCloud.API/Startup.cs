@@ -151,6 +151,7 @@ namespace TeamCloud.API
             }
 
             services
+                .AddSingleton<IDocumentExpanderProvider>(serviceProvider => new CosmosDbDocumentExpanderProvider(serviceProvider))
                 .AddSingleton<IDocumentExpander, ProjectIdentityExpander>()
                 .AddSingleton<IDocumentExpander, ComponentTaskExpander>()
                 .AddSingleton<IDocumentExpander, ComponentExpander>();
