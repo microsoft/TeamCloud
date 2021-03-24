@@ -115,9 +115,15 @@ namespace TeamCloud.Data.Expanders
                             .CreateShareClientAsync(document.ComponentId)
                             .ConfigureAwait(false);
 
-                        var fileClient = shareClient
-                            .GetRootDirectoryClient()
-                            .GetFileClient($"{document.Id}.log");
+                        var dirClient = shareClient
+                            .GetDirectoryClient(".output");
+
+                        await dirClient
+                            .CreateIfNotExistsAsync()
+                            .ConfigureAwait(false);
+
+                        var fileClient = dirClient
+                            .GetFileClient($"{document.Id}");
 
                         if (await fileClient.ExistsAsync().ConfigureAwait(false))
                         {
