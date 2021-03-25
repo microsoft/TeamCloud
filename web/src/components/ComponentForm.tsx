@@ -14,6 +14,7 @@ import DevOps from '../img/devops.svg';
 import GitHub from '../img/github.svg';
 import Resource from '../img/resource.svg';
 import { api } from '../API';
+import { stringify } from 'node:querystring';
 
 
 export const ComponentForm: React.FC = () => {
@@ -45,7 +46,7 @@ export const ComponentForm: React.FC = () => {
 
 
     const _submitForm = async (e: ISubmitEvent<any>) => {
-        if (org && project && template && displayName && e.formData) {
+        if (org && project && template && displayName && (e.formData || template.inputJsonSchema === null)) {
             setFormEnabled(false);
 
             const componentDef: ComponentDefinition = {
