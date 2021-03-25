@@ -56,8 +56,10 @@ namespace TeamCloud.Orchestrator.Command.Handlers
                     .CallActivityWithRetryAsync<Organization>(nameof(OrganizationGetActivity), new OrganizationGetActivity.Input() { Id = commandResult.Result.Organization })
                     .ConfigureAwait(true);
 
-                if (organization.ResourceState != ResourceState.Succeeded)
-                    throw new NotSupportedException($"Organization {organization} is in not supported resource state: {organization.ResourceState}");
+                if (!organization.ResourceState.IsFinal())
+                    orchestrationContext.ContinueAsNew(command, false);
+                else if (organization.ResourceState == ResourceState.Failed)
+                    throw new NotSupportedException("Can't process task when organization resource state is 'Failed'");
             }
 
             var project = await orchestrationContext
@@ -70,8 +72,10 @@ namespace TeamCloud.Orchestrator.Command.Handlers
                     .CallActivityWithRetryAsync<Project>(nameof(ProjectGetActivity), new ProjectGetActivity.Input() { Organization = commandResult.Result.Organization, Id = commandResult.Result.ProjectId })
                     .ConfigureAwait(true);
 
-                if (project.ResourceState != ResourceState.Succeeded)
-                    throw new NotSupportedException($"Project {project} is in not supported resource state: {project.ResourceState}");
+                if (!project.ResourceState.IsFinal())
+                    orchestrationContext.ContinueAsNew(command, false);
+                else if (project.ResourceState == ResourceState.Failed)
+                    throw new NotSupportedException("Can't process task when project resource state is 'Failed'");
             }
 
             var component = await orchestrationContext
