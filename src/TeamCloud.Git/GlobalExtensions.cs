@@ -158,12 +158,12 @@ namespace TeamCloud.Git
                     var parameterSchema = new JSchema
                     {
                         Type = parameter.Type,
-                        Default = parameter.Value ?? parameter.Default,
+                        Default = TypedValue(parameter.Type, parameter.Value ?? parameter.Default),
                         ReadOnly = parameter.Readonly,
                         Description = parameter.Name
                     };
 
-                    parameter.Allowed?.ForEach(a => parameterSchema.Enum.Add(a));
+                    parameter.Allowed?.ForEach(a => parameterSchema.Enum.Add(TypedValue(parameter.Type, a)));
 
                     schema.Properties.Add(parameter.Id, parameterSchema);
                 }
@@ -178,6 +178,16 @@ namespace TeamCloud.Git
 
             return null;
         }
+
+        private static dynamic TypedValue(JSchemaType schemaType, dynamic value) => schemaType switch
+        {
+            // JSchemaType.None => value,
+            // JSchemaType.String => value,
+            JSchemaType.Number => double.TryParse(value, out double result) ? result : 0,
+            JSchemaType.Integer => int.TryParse(value, out int result) ? result : 0,
+            JSchemaType.Boolean => bool.TryParse(value, out bool result) ? result : false,
+            _ => value
+        };
 
 
         internal static ComponentTaskTemplate ToTemplate(this ComponentTaskYaml yaml)
