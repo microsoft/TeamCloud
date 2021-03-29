@@ -3,14 +3,13 @@
  *  Licensed under the MIT License.
  */
 
+using System;
+using System.Collections.Specialized;
+using System.Reflection;
 using Microsoft.AspNetCore.DataProtection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
-using System;
-using System.Collections;
-using System.Collections.Specialized;
-using System.Reflection;
 using TeamCloud.Serialization.Converter;
 using TeamCloud.Serialization.Encryption;
 
@@ -68,27 +67,10 @@ namespace TeamCloud.Serialization
         {
             var prop = base.CreateProperty(member, memberSerialization);
 
-            if (member is PropertyInfo propertyInfo)
+            if (member is PropertyInfo propertyInfo && !prop.Writable)
             {
-                if (!prop.Writable)
-                {
-                    // enable private property setter deserialization for types with default constructor
-                    prop.Writable = propertyInfo.GetSetMethod(true) != null;
-                }
-
-                // suppress serialization of empty enumerations
-                if (propertyInfo.PropertyType != typeof(string) && typeof(IEnumerable).IsAssignableFrom(propertyInfo.PropertyType))
-                {
-                    bool shouldSerializeEnumerable(object obj)
-                    {
-                        var enumerable = prop.ValueProvider.GetValue(obj) as IEnumerable;
-                        return enumerable?.GetEnumerator().MoveNext() ?? false;
-                    }
-
-                    prop.ShouldSerialize = prop.ShouldSerialize == null
-                        ? (Predicate<object>)shouldSerializeEnumerable
-                        : obj => prop.ShouldSerialize(obj) && shouldSerializeEnumerable(obj);
-                }
+                // enable private property setter deserialization for types with default constructor
+                prop.Writable = propertyInfo.GetSetMethod(true) != null;
             }
 
             return prop;
