@@ -3,5 +3,8 @@
 		{
 			"path": "."
 		}
-	]
+	],
+	"settings": {
+		"restructuredtext.languageServer.disabled": true
+	}
 }

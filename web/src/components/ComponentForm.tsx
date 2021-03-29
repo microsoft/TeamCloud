@@ -14,8 +14,6 @@ import DevOps from '../img/devops.svg';
 import GitHub from '../img/github.svg';
 import Resource from '../img/resource.svg';
 import { api } from '../API';
-import { stringify } from 'node:querystring';
-
 
 export const ComponentForm: React.FC = () => {
 
@@ -278,8 +276,8 @@ export const TCFieldTemplate: React.FC<FieldTemplateProps> = (props) => {
             {props.children}
         </Stack>
     ) : (
-            <Stack.Item grow styles={{ root: { paddingBottom: '16px' } }}>
-                {props.children}
-            </Stack.Item>
-        );
+        <Stack.Item grow styles={{ root: { paddingBottom: '16px' } }}>
+            {props.children}
+        </Stack.Item>
+    );
 }

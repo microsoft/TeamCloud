@@ -3,9 +3,9 @@
  *  Licensed under the MIT License.
  */
 
+using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System;
 
 namespace TeamCloud.Serialization
 {
@@ -31,6 +31,9 @@ namespace TeamCloud.Serialization
 
         public static object MergeObject(string value, object target, TeamCloudSerializerSettings serializerSettings = null, JsonMergeSettings mergeSettings = null)
         {
+            if (target is null)
+                throw new ArgumentNullException(nameof(target));
+
             var targetJson = JObject.FromObject(target, (serializerSettings ?? TeamCloudSerializerSettings.Default).CreateSerializer());
 
             targetJson.Merge(JObject.Parse(value), mergeSettings);
