@@ -3,8 +3,8 @@
  *  Licensed under the MIT License.
  */
 
-using Newtonsoft.Json;
 using System;
+using Newtonsoft.Json;
 using TeamCloud.API.Data.Results;
 using TeamCloud.Serialization;
 

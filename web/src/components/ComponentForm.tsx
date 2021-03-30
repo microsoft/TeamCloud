@@ -15,7 +15,6 @@ import GitHub from '../img/github.svg';
 import Resource from '../img/resource.svg';
 import { api } from '../API';
 
-
 export const ComponentForm: React.FC = () => {
 
     const history = useHistory();
@@ -45,7 +44,7 @@ export const ComponentForm: React.FC = () => {
 
 
     const _submitForm = async (e: ISubmitEvent<any>) => {
-        if (org && project && template && displayName && e.formData) {
+        if (org && project && template && displayName && (e.formData || template.inputJsonSchema === null)) {
             setFormEnabled(false);
 
             const componentDef: ComponentDefinition = {
@@ -277,8 +276,8 @@ export const TCFieldTemplate: React.FC<FieldTemplateProps> = (props) => {
             {props.children}
         </Stack>
     ) : (
-            <Stack.Item grow styles={{ root: { paddingBottom: '16px' } }}>
-                {props.children}
-            </Stack.Item>
-        );
+        <Stack.Item grow styles={{ root: { paddingBottom: '16px' } }}>
+            {props.children}
+        </Stack.Item>
+    );
 }

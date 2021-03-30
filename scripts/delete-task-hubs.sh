@@ -12,30 +12,30 @@ pushd $cdir/../src/TeamCloud.Orchestrator > /dev/null
 
 popd > /dev/null
 
-for azureProvider in AppInsights DevOps DevTestLabs; do
+# for azureProvider in AppInsights DevOps DevTestLabs; do
 
-    echo "Deleting task hub for 'TeamCloud.Providers.Azure.$azureProvider'."
+#     echo "Deleting task hub for 'TeamCloud.Providers.Azure.$azureProvider'."
 
-    pushd $cdir/../../TeamCloud-Providers/Azure/TeamCloud.Providers.Azure.$azureProvider > /dev/null
+#     pushd $cdir/../../TeamCloud-Providers/Azure/TeamCloud.Providers.Azure.$azureProvider > /dev/null
 
-        func durable delete-task-hub --connection-string-setting DurableFunctionsHubStorage
-        echo ""
+#         func durable delete-task-hub --connection-string-setting DurableFunctionsHubStorage
+#         echo ""
 
-    popd > /dev/null
+#     popd > /dev/null
 
-done
+# done
 
-for githubProvider in Repos Actions; do
+# for githubProvider in Repos Actions; do
 
-    echo "Deleting task hub for 'TeamCloud.Providers.GitHub.$githubProvider'."
+#     echo "Deleting task hub for 'TeamCloud.Providers.GitHub.$githubProvider'."
 
-    pushd $cdir/../../TeamCloud-Providers/Azure/TeamCloud.Providers.Azure.$githubProvider > /dev/null
+#     pushd $cdir/../../TeamCloud-Providers/Azure/TeamCloud.Providers.Azure.$githubProvider > /dev/null
 
-        func durable delete-task-hub --connection-string-setting DurableFunctionsHubStorage
-        echo ""
+#         func durable delete-task-hub --connection-string-setting DurableFunctionsHubStorage
+#         echo ""
 
-    popd > /dev/null
+#     popd > /dev/null
 
-done
+# done
 
 echo "Done."

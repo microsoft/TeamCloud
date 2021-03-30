@@ -20,7 +20,6 @@ using Newtonsoft.Json;
 using TeamCloud.API.Data.Results;
 using TeamCloud.API.Initialization;
 using TeamCloud.API.Services;
-using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 
 namespace TeamCloud.API
@@ -141,6 +140,7 @@ namespace TeamCloud.API
             return tenantId;
         }
 
+        // TODO: Update to use teamcloud serializer
         public static Task<T> ReadAsAsync<T>(this HttpContent httpContent, JsonSerializerSettings serializerSettings = null)
             => httpContent.ReadAsAsync<T>(JsonSerializer.CreateDefault(serializerSettings));
 
