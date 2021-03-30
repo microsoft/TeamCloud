@@ -448,6 +448,58 @@
             "properties": {
                 "name": "[variables('appConfigurationName')]"
             }
+        },
+        {
+            "type": "Microsoft.SignalRService/SignalR",
+            "name": "[variables('webAppNameLower')]",
+            "apiVersion": "2020-07-01-preview",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "Standard_S1",
+                "tier": "Standard",
+                "size": "S1",
+                "capacity": 1
+            },
+            "kind": "SignalR",
+            "properties": {
+                "tls": {
+                    "clientCertEnabled": false
+                },
+                "features": [
+                    {
+                        "flag": "ServiceMode",
+                        "value": "Serverless",
+                        "properties": {}
+                    },
+                    {
+                        "flag": "EnableConnectivityLogs",
+                        "value": "True",
+                        "properties": {}
+                    },
+                    {
+                        "flag": "EnableMessagingLogs",
+                        "value": "False",
+                        "properties": {}
+                    }
+                ],
+                "cors": {
+                    "allowedOrigins": [
+                        "*"
+                    ]
+                },
+                "upstream": {},
+                "networkACLs": {
+                    "defaultAction": "Deny",
+                    "publicNetwork": {
+                        "allow": [
+                            "ServerConnection",
+                            "ClientConnection",
+                            "RESTAPI"
+                        ]
+                    },
+                    "privateEndpoints": []
+                }
+            }
         }
     ],
     "outputs": {
@@ -482,6 +534,7 @@
                 "Azure:CosmosDb:TenantName": "TeamCloud",
                 "Azure:CosmosDb:DatabaseName": "TeamCloud",
                 "Azure:CosmosDb:ConnectionString": "[concat('AccountEndpoint=', reference(concat('Microsoft.DocumentDb/databaseAccounts/', variables('cosmosDbName'))).documentEndpoint, ';AccountKey=', listKeys(resourceId('Microsoft.DocumentDb/databaseAccounts', variables('cosmosDbName')), '2015-04-08').primaryMasterKey)]",
+                "Azure:SignalR:ConnectionString": "[listKeys(resourceId('Microsoft.SignalRService/SignalR', variables('webAppNameLower')), '2020-05-01').primaryConnectionString]",
                 "Azure:DeploymentStorage:ConnectionString": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('deploymentStorageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('deploymentStorageAccountName')), '2017-06-01').keys[0].value)]",
                 "Api:Url": "[concat('https://', variables('webAppNameLower'), '.azurewebsites.net')]",
                 "Cache:Configuration": "[concat(variables('redisCacheName'),'.redis.cache.windows.net,abortConnect=false,ssl=true,password=', listKeys(resourceId('Microsoft.Cache/Redis', variables('redisCacheName')), '2015-08-01').primaryKey)]",
