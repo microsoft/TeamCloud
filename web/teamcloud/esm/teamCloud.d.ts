@@ -113,6 +113,13 @@ export declare class TeamCloud extends TeamCloudContext {
      */
     deleteDeploymentScope(id: string | null, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteDeploymentScopeResponse>;
     /**
+     * Negotiates the SignalR connection.
+     * @param organizationId
+     * @param projectId
+     * @param options The options parameters.
+     */
+    negotiateSignalR(organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<coreHttp.RestResponse>;
+    /**
      * Gets all Organizations.
      * @param options The options parameters.
      */

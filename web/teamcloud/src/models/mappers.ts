@@ -84,13 +84,6 @@ export const Component: coreHttp.CompositeMapper = {
           name: "String"
         }
       },
-      provider: {
-        serializedName: "provider",
-        required: true,
-        type: {
-          name: "String"
-        }
-      },
       creator: {
         serializedName: "creator",
         required: true,
@@ -155,20 +148,6 @@ export const Component: coreHttp.CompositeMapper = {
       },
       identityId: {
         serializedName: "identityId",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      storageId: {
-        serializedName: "storageId",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      vaultId: {
-        serializedName: "vaultId",
         nullable: true,
         type: {
           name: "String"
@@ -506,20 +485,6 @@ export const ComponentTask: coreHttp.CompositeMapper = {
           name: "String"
         }
       },
-      storageId: {
-        serializedName: "storageId",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      vaultId: {
-        serializedName: "vaultId",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
       requestedBy: {
         serializedName: "requestedBy",
         nullable: true,
@@ -726,13 +691,6 @@ export const ComponentTemplate: coreHttp.CompositeMapper = {
           name: "String"
         }
       },
-      provider: {
-        serializedName: "provider",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
       displayName: {
         serializedName: "displayName",
         nullable: true,
@@ -754,6 +712,13 @@ export const ComponentTemplate: coreHttp.CompositeMapper = {
           className: "RepositoryReference"
         }
       },
+      permissions: {
+        serializedName: "permissions",
+        type: {
+          name: "Composite",
+          className: "ComponentTemplatePermissions"
+        }
+      },
       inputJsonSchema: {
         serializedName: "inputJsonSchema",
         nullable: true,
@@ -772,6 +737,13 @@ export const ComponentTemplate: coreHttp.CompositeMapper = {
               className: "ComponentTaskTemplate"
             }
           }
+        }
+      },
+      taskRunner: {
+        serializedName: "taskRunner",
+        type: {
+          name: "Composite",
+          className: "ComponentTaskRunner"
         }
       },
       type: {
@@ -885,6 +857,59 @@ export const RepositoryReference: coreHttp.CompositeMapper = {
   }
 };
 
+export const ComponentTemplatePermissions: coreHttp.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "ComponentTemplatePermissions",
+    modelProperties: {
+      none: {
+        serializedName: "None",
+        type: {
+          name: "Sequence",
+          element: {
+            type: {
+              name: "String"
+            }
+          }
+        }
+      },
+      member: {
+        serializedName: "Member",
+        type: {
+          name: "Sequence",
+          element: {
+            type: {
+              name: "String"
+            }
+          }
+        }
+      },
+      admin: {
+        serializedName: "Admin",
+        type: {
+          name: "Sequence",
+          element: {
+            type: {
+              name: "String"
+            }
+          }
+        }
+      },
+      owner: {
+        serializedName: "Owner",
+        type: {
+          name: "Sequence",
+          element: {
+            type: {
+              name: "String"
+            }
+          }
+        }
+      }
+    }
+  }
+};
+
 export const ComponentTaskTemplate: coreHttp.CompositeMapper = {
   type: {
     name: "Composite",
@@ -931,6 +956,30 @@ export const ComponentTaskTemplate: coreHttp.CompositeMapper = {
         nullable: true,
         type: {
           name: "String"
+        }
+      }
+    }
+  }
+};
+
+export const ComponentTaskRunner: coreHttp.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "ComponentTaskRunner",
+    modelProperties: {
+      id: {
+        serializedName: "id",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      with: {
+        serializedName: "with",
+        nullable: true,
+        type: {
+          name: "Dictionary",
+          value: { type: { name: "String" } }
         }
       }
     }
@@ -1266,6 +1315,27 @@ export const Organization: coreHttp.CompositeMapper = {
       },
       resourceState: {
         serializedName: "resourceState",
+        type: {
+          name: "String"
+        }
+      },
+      galleryId: {
+        serializedName: "galleryId",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      registryId: {
+        serializedName: "registryId",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      storageId: {
+        serializedName: "storageId",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -1668,6 +1738,20 @@ export const Project: coreHttp.CompositeMapper = {
       },
       resourceState: {
         serializedName: "resourceState",
+        type: {
+          name: "String"
+        }
+      },
+      vaultId: {
+        serializedName: "vaultId",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      storageId: {
+        serializedName: "storageId",
+        nullable: true,
         type: {
           name: "String"
         }

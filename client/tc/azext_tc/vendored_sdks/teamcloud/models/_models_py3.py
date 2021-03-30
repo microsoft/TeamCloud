@@ -29,8 +29,6 @@ class Component(msrest.serialization.Model):
     :type template_id: str
     :param project_id: Required.
     :type project_id: str
-    :param provider: Required.
-    :type provider: str
     :param creator: Required.
     :type creator: str
     :param display_name:
@@ -53,10 +51,6 @@ class Component(msrest.serialization.Model):
     :type deployment_scope_id: str
     :param identity_id:
     :type identity_id: str
-    :param storage_id:
-    :type storage_id: str
-    :param vault_id:
-    :type vault_id: str
     :param deleted:
     :type deleted: ~datetime.datetime
     :param ttl:
@@ -71,7 +65,6 @@ class Component(msrest.serialization.Model):
         'organization': {'required': True},
         'template_id': {'required': True},
         'project_id': {'required': True},
-        'provider': {'required': True},
         'creator': {'required': True},
         'type': {'required': True},
         'slug': {'required': True, 'readonly': True},
@@ -83,7 +76,6 @@ class Component(msrest.serialization.Model):
         'organization': {'key': 'organization', 'type': 'str'},
         'template_id': {'key': 'templateId', 'type': 'str'},
         'project_id': {'key': 'projectId', 'type': 'str'},
-        'provider': {'key': 'provider', 'type': 'str'},
         'creator': {'key': 'creator', 'type': 'str'},
         'display_name': {'key': 'displayName', 'type': 'str'},
         'description': {'key': 'description', 'type': 'str'},
@@ -94,8 +86,6 @@ class Component(msrest.serialization.Model):
         'resource_state': {'key': 'resourceState', 'type': 'str'},
         'deployment_scope_id': {'key': 'deploymentScopeId', 'type': 'str'},
         'identity_id': {'key': 'identityId', 'type': 'str'},
-        'storage_id': {'key': 'storageId', 'type': 'str'},
-        'vault_id': {'key': 'vaultId', 'type': 'str'},
         'deleted': {'key': 'deleted', 'type': 'iso-8601'},
         'ttl': {'key': 'ttl', 'type': 'int'},
         'slug': {'key': 'slug', 'type': 'str'},
@@ -108,7 +98,6 @@ class Component(msrest.serialization.Model):
         organization: str,
         template_id: str,
         project_id: str,
-        provider: str,
         creator: str,
         type: Union[str, "ComponentType"],
         id: str,
@@ -121,8 +110,6 @@ class Component(msrest.serialization.Model):
         resource_state: Optional[Union[str, "ComponentResourceState"]] = None,
         deployment_scope_id: Optional[str] = None,
         identity_id: Optional[str] = None,
-        storage_id: Optional[str] = None,
-        vault_id: Optional[str] = None,
         deleted: Optional[datetime.datetime] = None,
         ttl: Optional[int] = None,
         **kwargs
@@ -132,7 +119,6 @@ class Component(msrest.serialization.Model):
         self.organization = organization
         self.template_id = template_id
         self.project_id = project_id
-        self.provider = provider
         self.creator = creator
         self.display_name = display_name
         self.description = description
@@ -143,8 +129,6 @@ class Component(msrest.serialization.Model):
         self.resource_state = resource_state
         self.deployment_scope_id = deployment_scope_id
         self.identity_id = identity_id
-        self.storage_id = storage_id
-        self.vault_id = vault_id
         self.deleted = deleted
         self.ttl = ttl
         self.slug = None
@@ -282,10 +266,6 @@ class ComponentTask(msrest.serialization.Model):
     :type component_id: str
     :param project_id: Required.
     :type project_id: str
-    :param storage_id:
-    :type storage_id: str
-    :param vault_id:
-    :type vault_id: str
     :param requested_by:
     :type requested_by: str
     :param type:  Possible values include: 0, 1, 2.
@@ -324,8 +304,6 @@ class ComponentTask(msrest.serialization.Model):
         'organization': {'key': 'organization', 'type': 'str'},
         'component_id': {'key': 'componentId', 'type': 'str'},
         'project_id': {'key': 'projectId', 'type': 'str'},
-        'storage_id': {'key': 'storageId', 'type': 'str'},
-        'vault_id': {'key': 'vaultId', 'type': 'str'},
         'requested_by': {'key': 'requestedBy', 'type': 'str'},
         'type': {'key': 'type', 'type': 'int'},
         'type_name': {'key': 'typeName', 'type': 'str'},
@@ -347,8 +325,6 @@ class ComponentTask(msrest.serialization.Model):
         component_id: str,
         project_id: str,
         id: str,
-        storage_id: Optional[str] = None,
-        vault_id: Optional[str] = None,
         requested_by: Optional[str] = None,
         type: Optional[Union[int, "Enum3"]] = None,
         type_name: Optional[str] = None,
@@ -366,8 +342,6 @@ class ComponentTask(msrest.serialization.Model):
         self.organization = organization
         self.component_id = component_id
         self.project_id = project_id
-        self.storage_id = storage_id
-        self.vault_id = vault_id
         self.requested_by = requested_by
         self.type = type
         self.type_name = type_name
@@ -491,6 +465,32 @@ class ComponentTaskListDataResult(msrest.serialization.Model):
         self.location = location
 
 
+class ComponentTaskRunner(msrest.serialization.Model):
+    """ComponentTaskRunner.
+
+    :param id:
+    :type id: str
+    :param with_property: Dictionary of :code:`<string>`.
+    :type with_property: dict[str, str]
+    """
+
+    _attribute_map = {
+        'id': {'key': 'id', 'type': 'str'},
+        'with_property': {'key': 'with', 'type': '{str}'},
+    }
+
+    def __init__(
+        self,
+        *,
+        id: Optional[str] = None,
+        with_property: Optional[Dict[str, str]] = None,
+        **kwargs
+    ):
+        super(ComponentTaskRunner, self).__init__(**kwargs)
+        self.id = id
+        self.with_property = with_property
+
+
 class ComponentTaskTemplate(msrest.serialization.Model):
     """ComponentTaskTemplate.
 
@@ -554,18 +554,20 @@ class ComponentTemplate(msrest.serialization.Model):
     :type organization: str
     :param parent_id: Required.
     :type parent_id: str
-    :param provider:
-    :type provider: str
     :param display_name:
     :type display_name: str
     :param description:
     :type description: str
     :param repository: Required.
     :type repository: ~teamcloud.models.RepositoryReference
+    :param permissions:
+    :type permissions: ~teamcloud.models.ComponentTemplatePermissions
     :param input_json_schema:
     :type input_json_schema: str
     :param tasks:
     :type tasks: list[~teamcloud.models.ComponentTaskTemplate]
+    :param task_runner:
+    :type task_runner: ~teamcloud.models.ComponentTaskRunner
     :param type: Required.  Possible values include: "Custom", "AzureResource", "Environment",
      "GitRepository".
     :type type: str or ~teamcloud.models.ComponentTemplateType
@@ -586,12 +588,13 @@ class ComponentTemplate(msrest.serialization.Model):
     _attribute_map = {
         'organization': {'key': 'organization', 'type': 'str'},
         'parent_id': {'key': 'parentId', 'type': 'str'},
-        'provider': {'key': 'provider', 'type': 'str'},
         'display_name': {'key': 'displayName', 'type': 'str'},
         'description': {'key': 'description', 'type': 'str'},
         'repository': {'key': 'repository', 'type': 'RepositoryReference'},
+        'permissions': {'key': 'permissions', 'type': 'ComponentTemplatePermissions'},
         'input_json_schema': {'key': 'inputJsonSchema', 'type': 'str'},
         'tasks': {'key': 'tasks', 'type': '[ComponentTaskTemplate]'},
+        'task_runner': {'key': 'taskRunner', 'type': 'ComponentTaskRunner'},
         'type': {'key': 'type', 'type': 'str'},
         'folder': {'key': 'folder', 'type': 'str'},
         'id': {'key': 'id', 'type': 'str'},
@@ -605,23 +608,25 @@ class ComponentTemplate(msrest.serialization.Model):
         repository: "RepositoryReference",
         type: Union[str, "ComponentTemplateType"],
         id: str,
-        provider: Optional[str] = None,
         display_name: Optional[str] = None,
         description: Optional[str] = None,
+        permissions: Optional["ComponentTemplatePermissions"] = None,
         input_json_schema: Optional[str] = None,
         tasks: Optional[List["ComponentTaskTemplate"]] = None,
+        task_runner: Optional["ComponentTaskRunner"] = None,
         folder: Optional[str] = None,
         **kwargs
     ):
         super(ComponentTemplate, self).__init__(**kwargs)
         self.organization = organization
         self.parent_id = parent_id
-        self.provider = provider
         self.display_name = display_name
         self.description = description
         self.repository = repository
+        self.permissions = permissions
         self.input_json_schema = input_json_schema
         self.tasks = tasks
+        self.task_runner = task_runner
         self.type = type
         self.folder = folder
         self.id = id
@@ -702,6 +707,42 @@ class ComponentTemplateListDataResult(msrest.serialization.Model):
         self.status = status
         self.data = None
         self.location = location
+
+
+class ComponentTemplatePermissions(msrest.serialization.Model):
+    """ComponentTemplatePermissions.
+
+    :param none:
+    :type none: list[str]
+    :param member:
+    :type member: list[str]
+    :param admin:
+    :type admin: list[str]
+    :param owner:
+    :type owner: list[str]
+    """
+
+    _attribute_map = {
+        'none': {'key': 'None', 'type': '[str]'},
+        'member': {'key': 'Member', 'type': '[str]'},
+        'admin': {'key': 'Admin', 'type': '[str]'},
+        'owner': {'key': 'Owner', 'type': '[str]'},
+    }
+
+    def __init__(
+        self,
+        *,
+        none: Optional[List[str]] = None,
+        member: Optional[List[str]] = None,
+        admin: Optional[List[str]] = None,
+        owner: Optional[List[str]] = None,
+        **kwargs
+    ):
+        super(ComponentTemplatePermissions, self).__init__(**kwargs)
+        self.none = none
+        self.member = member
+        self.admin = admin
+        self.owner = owner
 
 
 class DeploymentScope(msrest.serialization.Model):
@@ -947,6 +988,12 @@ class Organization(msrest.serialization.Model):
     :param resource_state:  Possible values include: "Pending", "Initializing", "Provisioning",
      "Succeeded", "Failed".
     :type resource_state: str or ~teamcloud.models.OrganizationResourceState
+    :param gallery_id:
+    :type gallery_id: str
+    :param registry_id:
+    :type registry_id: str
+    :param storage_id:
+    :type storage_id: str
     :param id: Required.
     :type id: str
     """
@@ -969,6 +1016,9 @@ class Organization(msrest.serialization.Model):
         'tags': {'key': 'tags', 'type': '{str}'},
         'resource_id': {'key': 'resourceId', 'type': 'str'},
         'resource_state': {'key': 'resourceState', 'type': 'str'},
+        'gallery_id': {'key': 'galleryId', 'type': 'str'},
+        'registry_id': {'key': 'registryId', 'type': 'str'},
+        'storage_id': {'key': 'storageId', 'type': 'str'},
         'id': {'key': 'id', 'type': 'str'},
     }
 
@@ -983,6 +1033,9 @@ class Organization(msrest.serialization.Model):
         tags: Optional[Dict[str, str]] = None,
         resource_id: Optional[str] = None,
         resource_state: Optional[Union[str, "OrganizationResourceState"]] = None,
+        gallery_id: Optional[str] = None,
+        registry_id: Optional[str] = None,
+        storage_id: Optional[str] = None,
         **kwargs
     ):
         super(Organization, self).__init__(**kwargs)
@@ -994,6 +1047,9 @@ class Organization(msrest.serialization.Model):
         self.tags = tags
         self.resource_id = resource_id
         self.resource_state = resource_state
+        self.gallery_id = gallery_id
+        self.registry_id = registry_id
+        self.storage_id = storage_id
         self.id = id
 
 
@@ -1146,6 +1202,10 @@ class Project(msrest.serialization.Model):
     :param resource_state:  Possible values include: "Pending", "Initializing", "Provisioning",
      "Succeeded", "Failed".
     :type resource_state: str or ~teamcloud.models.ProjectResourceState
+    :param vault_id:
+    :type vault_id: str
+    :param storage_id:
+    :type storage_id: str
     :param id: Required.
     :type id: str
     """
@@ -1168,6 +1228,8 @@ class Project(msrest.serialization.Model):
         'tags': {'key': 'tags', 'type': '{str}'},
         'resource_id': {'key': 'resourceId', 'type': 'str'},
         'resource_state': {'key': 'resourceState', 'type': 'str'},
+        'vault_id': {'key': 'vaultId', 'type': 'str'},
+        'storage_id': {'key': 'storageId', 'type': 'str'},
         'id': {'key': 'id', 'type': 'str'},
     }
 
@@ -1183,6 +1245,8 @@ class Project(msrest.serialization.Model):
         tags: Optional[Dict[str, str]] = None,
         resource_id: Optional[str] = None,
         resource_state: Optional[Union[str, "ProjectResourceState"]] = None,
+        vault_id: Optional[str] = None,
+        storage_id: Optional[str] = None,
         **kwargs
     ):
         super(Project, self).__init__(**kwargs)
@@ -1195,6 +1259,8 @@ class Project(msrest.serialization.Model):
         self.tags = tags
         self.resource_id = resource_id
         self.resource_state = resource_state
+        self.vault_id = vault_id
+        self.storage_id = storage_id
         self.id = id
 
 

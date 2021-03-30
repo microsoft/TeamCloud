@@ -11,7 +11,7 @@ import { GraphUser, ManagementGroup, Member, ProjectMember, Subscription } from 
 import { GraphUserContext, OrgContext, ProjectContext } from './Context'
 import { getManagementGroups, getSubscriptions } from './Azure';
 import { getGraphUser, getMe } from './MSGraph';
-import { api, auth } from './API';
+import { api, auth, startSignalR, stopSignalR } from './API';
 
 export interface IStateRouterProps { }
 
@@ -58,6 +58,16 @@ export const StateRouter: React.FC<IStateRouterProps> = (props) => {
     const [projectComponentTask, setProjectComponentTask] = useState<ComponentTask>();
     const [projectComponentTasks, setProjectComponentTasks] = useState<ComponentTask[]>();
 
+    useEffect(() => {
+        const _set = async () => {
+            if (project) {
+                await startSignalR(project)
+            } else {
+                await stopSignalR()
+            }
+        }
+        _set();
+    }, [project])
 
     const onOrgSelected = useCallback((selectedOrg?: Organization) => {
         if (selectedOrg && org && selectedOrg.id === org.id)

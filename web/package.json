@@ -11,6 +11,7 @@
     "@azure/msal-react": "^1.0.0-alpha.6",
     "@fluentui/react": "^7.126.3",
     "@microsoft/microsoft-graph-client": "^2.0.0",
+    "@microsoft/signalr": "^5.0.4",
     "@rjsf/core": "^2.4.2",
     "@rjsf/fluent-ui": "^2.4.2",
     "@testing-library/jest-dom": "^4.2.4",

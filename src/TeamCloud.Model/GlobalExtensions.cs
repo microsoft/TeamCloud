@@ -15,6 +15,16 @@ namespace TeamCloud.Model
 {
     public static class GlobalExtensions
     {
+        public static string HubName(this Project project)
+        {
+            if (project is null)
+                throw new ArgumentNullException(nameof(project));
+
+            var guidString = Guid.TryParse(project.Id, out Guid guid) ? guid.ToString("N") : throw new ArgumentException("Unable to create hub ID from project ID");
+
+            return $"hub_{guidString}";
+        }
+
         public static void MergeTags(this ITags resource, IDictionary<string, string> tags, bool overwriteExistingValues = true)
         {
             if (resource is null)

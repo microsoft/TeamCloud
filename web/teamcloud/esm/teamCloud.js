@@ -228,6 +228,20 @@ var TeamCloud = /** @class */ (function (_super) {
         return this.sendOperationRequest(operationArguments, deleteDeploymentScopeOperationSpec);
     };
     /**
+     * Negotiates the SignalR connection.
+     * @param organizationId
+     * @param projectId
+     * @param options The options parameters.
+     */
+    TeamCloud.prototype.negotiateSignalR = function (organizationId, projectId, options) {
+        var operationArguments = {
+            organizationId: organizationId,
+            projectId: projectId,
+            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
+        };
+        return this.sendOperationRequest(operationArguments, negotiateSignalROperationSpec);
+    };
+    /**
      * Gets all Organizations.
      * @param options The options parameters.
      */
@@ -1136,6 +1150,17 @@ var deleteDeploymentScopeOperationSpec = {
     },
     urlParameters: [Parameters.$host, Parameters.organizationId, Parameters.id],
     headerParameters: [Parameters.accept],
+    serializer: serializer
+};
+var negotiateSignalROperationSpec = {
+    path: "/orgs/{organizationId}/projects/{projectId}/negotiate",
+    httpMethod: "POST",
+    responses: { 200: {}, 401: {}, 403: {} },
+    urlParameters: [
+        Parameters.$host,
+        Parameters.organizationId,
+        Parameters.projectId
+    ],
     serializer: serializer
 };
 var getOrganizationsOperationSpec = {

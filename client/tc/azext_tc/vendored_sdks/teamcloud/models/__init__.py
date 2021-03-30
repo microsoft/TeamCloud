@@ -15,10 +15,12 @@ try:
     from ._models_py3 import ComponentTaskDataResult
     from ._models_py3 import ComponentTaskDefinition
     from ._models_py3 import ComponentTaskListDataResult
+    from ._models_py3 import ComponentTaskRunner
     from ._models_py3 import ComponentTaskTemplate
     from ._models_py3 import ComponentTemplate
     from ._models_py3 import ComponentTemplateDataResult
     from ._models_py3 import ComponentTemplateListDataResult
+    from ._models_py3 import ComponentTemplatePermissions
     from ._models_py3 import DeploymentScope
     from ._models_py3 import DeploymentScopeDataResult
     from ._models_py3 import DeploymentScopeDefinition
@@ -60,10 +62,12 @@ except (SyntaxError, ImportError):
     from ._models import ComponentTaskDataResult  # type: ignore
     from ._models import ComponentTaskDefinition  # type: ignore
     from ._models import ComponentTaskListDataResult  # type: ignore
+    from ._models import ComponentTaskRunner  # type: ignore
     from ._models import ComponentTaskTemplate  # type: ignore
     from ._models import ComponentTemplate  # type: ignore
     from ._models import ComponentTemplateDataResult  # type: ignore
     from ._models import ComponentTemplateListDataResult  # type: ignore
+    from ._models import ComponentTemplatePermissions  # type: ignore
     from ._models import DeploymentScope  # type: ignore
     from ._models import DeploymentScopeDataResult  # type: ignore
     from ._models import DeploymentScopeDefinition  # type: ignore
@@ -122,10 +126,12 @@ __all__ = [
     'ComponentTaskDataResult',
     'ComponentTaskDefinition',
     'ComponentTaskListDataResult',
+    'ComponentTaskRunner',
     'ComponentTaskTemplate',
     'ComponentTemplate',
     'ComponentTemplateDataResult',
     'ComponentTemplateListDataResult',
+    'ComponentTemplatePermissions',
     'DeploymentScope',
     'DeploymentScopeDataResult',
     'DeploymentScopeDefinition',

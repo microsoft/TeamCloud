@@ -31,14 +31,10 @@ export interface Component {
     // (undocumented)
     projectId: string;
     // (undocumented)
-    provider: string;
-    // (undocumented)
     resourceId?: string | null;
     // (undocumented)
     resourceState?: ComponentResourceState;
     readonly slug: string;
-    // (undocumented)
-    storageId?: string | null;
     // (undocumented)
     templateId: string;
     // (undocumented)
@@ -47,8 +43,6 @@ export interface Component {
     type: ComponentType;
     // (undocumented)
     valueJson?: string | null;
-    // (undocumented)
-    vaultId?: string | null;
 }
 
 // @public (undocumented)
@@ -118,13 +112,9 @@ export interface ComponentTask {
     // (undocumented)
     started?: Date | null;
     // (undocumented)
-    storageId?: string | null;
-    // (undocumented)
     type?: Enum3;
     // (undocumented)
     typeName?: string | null;
-    // (undocumented)
-    vaultId?: string | null;
 }
 
 // @public (undocumented)
@@ -162,6 +152,15 @@ export interface ComponentTaskListDataResult {
 export type ComponentTaskResourceState = string;
 
 // @public (undocumented)
+export interface ComponentTaskRunner {
+    // (undocumented)
+    id?: string | null;
+    with?: {
+        [propertyName: string]: string;
+    } | null;
+}
+
+// @public (undocumented)
 export interface ComponentTaskTemplate {
     // (undocumented)
     description?: string | null;
@@ -193,9 +192,11 @@ export interface ComponentTemplate {
     // (undocumented)
     parentId: string;
     // (undocumented)
-    provider?: string | null;
+    permissions?: ComponentTemplatePermissions | null;
     // (undocumented)
     repository: RepositoryReference;
+    // (undocumented)
+    taskRunner?: ComponentTaskRunner;
     // (undocumented)
     tasks?: ComponentTaskTemplate[] | null;
     // (undocumented)
@@ -223,6 +224,18 @@ export interface ComponentTemplateListDataResult {
     location?: string | null;
     // (undocumented)
     status?: string | null;
+}
+
+// @public (undocumented)
+export interface ComponentTemplatePermissions {
+    // (undocumented)
+    admin?: string[];
+    // (undocumented)
+    member?: string[];
+    // (undocumented)
+    none?: string[];
+    // (undocumented)
+    owner?: string[];
 }
 
 // @public
@@ -470,14 +483,20 @@ export interface Organization {
     // (undocumented)
     displayName: string;
     // (undocumented)
+    galleryId?: string | null;
+    // (undocumented)
     id: string;
     // (undocumented)
     location: string;
+    // (undocumented)
+    registryId?: string | null;
     // (undocumented)
     resourceId?: string | null;
     // (undocumented)
     resourceState?: OrganizationResourceState;
     readonly slug: string;
+    // (undocumented)
+    storageId?: string | null;
     // (undocumented)
     subscriptionId: string;
     tags?: {
@@ -537,6 +556,8 @@ export interface Project {
     // (undocumented)
     resourceState?: ProjectResourceState;
     readonly slug: string;
+    // (undocumented)
+    storageId?: string | null;
     tags?: {
         [propertyName: string]: string;
     } | null;
@@ -546,6 +567,8 @@ export interface Project {
     templateInput?: string | null;
     // (undocumented)
     users?: User[] | null;
+    // (undocumented)
+    vaultId?: string | null;
 }
 
 // @public (undocumented)
@@ -845,6 +868,7 @@ export class TeamCloud extends TeamCloudContext {
     getStatus(trackingId: string, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetStatusResponse>;
     getUserProjects(organizationId: string, userId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetUserProjectsResponse>;
     getUserProjectsMe(organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetUserProjectsMeResponse>;
+    negotiateSignalR(organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<coreHttp.RestResponse>;
     updateDeploymentScope(id: string | null, organizationId: string, options?: TeamCloudUpdateDeploymentScopeOptionalParams): Promise<TeamCloudUpdateDeploymentScopeResponse>;
     updateOrganizationUser(userId: string | null, organizationId: string, options?: TeamCloudUpdateOrganizationUserOptionalParams): Promise<TeamCloudUpdateOrganizationUserResponse>;
     updateOrganizationUserMe(organizationId: string, options?: TeamCloudUpdateOrganizationUserMeOptionalParams): Promise<TeamCloudUpdateOrganizationUserMeResponse>;

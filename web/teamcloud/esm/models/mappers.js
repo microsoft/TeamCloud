@@ -80,13 +80,6 @@ export var Component = {
                     name: "String"
                 }
             },
-            provider: {
-                serializedName: "provider",
-                required: true,
-                type: {
-                    name: "String"
-                }
-            },
             creator: {
                 serializedName: "creator",
                 required: true,
@@ -151,20 +144,6 @@ export var Component = {
             },
             identityId: {
                 serializedName: "identityId",
-                nullable: true,
-                type: {
-                    name: "String"
-                }
-            },
-            storageId: {
-                serializedName: "storageId",
-                nullable: true,
-                type: {
-                    name: "String"
-                }
-            },
-            vaultId: {
-                serializedName: "vaultId",
                 nullable: true,
                 type: {
                     name: "String"
@@ -494,20 +473,6 @@ export var ComponentTask = {
                     name: "String"
                 }
             },
-            storageId: {
-                serializedName: "storageId",
-                nullable: true,
-                type: {
-                    name: "String"
-                }
-            },
-            vaultId: {
-                serializedName: "vaultId",
-                nullable: true,
-                type: {
-                    name: "String"
-                }
-            },
             requestedBy: {
                 serializedName: "requestedBy",
                 nullable: true,
@@ -710,13 +675,6 @@ export var ComponentTemplate = {
                     name: "String"
                 }
             },
-            provider: {
-                serializedName: "provider",
-                nullable: true,
-                type: {
-                    name: "String"
-                }
-            },
             displayName: {
                 serializedName: "displayName",
                 nullable: true,
@@ -738,6 +696,13 @@ export var ComponentTemplate = {
                     className: "RepositoryReference"
                 }
             },
+            permissions: {
+                serializedName: "permissions",
+                type: {
+                    name: "Composite",
+                    className: "ComponentTemplatePermissions"
+                }
+            },
             inputJsonSchema: {
                 serializedName: "inputJsonSchema",
                 nullable: true,
@@ -756,6 +721,13 @@ export var ComponentTemplate = {
                             className: "ComponentTaskTemplate"
                         }
                     }
+                }
+            },
+            taskRunner: {
+                serializedName: "taskRunner",
+                type: {
+                    name: "Composite",
+                    className: "ComponentTaskRunner"
                 }
             },
             type: {
@@ -867,6 +839,58 @@ export var RepositoryReference = {
         }
     }
 };
+export var ComponentTemplatePermissions = {
+    type: {
+        name: "Composite",
+        className: "ComponentTemplatePermissions",
+        modelProperties: {
+            none: {
+                serializedName: "None",
+                type: {
+                    name: "Sequence",
+                    element: {
+                        type: {
+                            name: "String"
+                        }
+                    }
+                }
+            },
+            member: {
+                serializedName: "Member",
+                type: {
+                    name: "Sequence",
+                    element: {
+                        type: {
+                            name: "String"
+                        }
+                    }
+                }
+            },
+            admin: {
+                serializedName: "Admin",
+                type: {
+                    name: "Sequence",
+                    element: {
+                        type: {
+                            name: "String"
+                        }
+                    }
+                }
+            },
+            owner: {
+                serializedName: "Owner",
+                type: {
+                    name: "Sequence",
+                    element: {
+                        type: {
+                            name: "String"
+                        }
+                    }
+                }
+            }
+        }
+    }
+};
 export var ComponentTaskTemplate = {
     type: {
         name: "Composite",
@@ -913,6 +937,29 @@ export var ComponentTaskTemplate = {
                 nullable: true,
                 type: {
                     name: "String"
+                }
+            }
+        }
+    }
+};
+export var ComponentTaskRunner = {
+    type: {
+        name: "Composite",
+        className: "ComponentTaskRunner",
+        modelProperties: {
+            id: {
+                serializedName: "id",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
+            with: {
+                serializedName: "with",
+                nullable: true,
+                type: {
+                    name: "Dictionary",
+                    value: { type: { name: "String" } }
                 }
             }
         }
@@ -1241,6 +1288,27 @@ export var Organization = {
             },
             resourceState: {
                 serializedName: "resourceState",
+                type: {
+                    name: "String"
+                }
+            },
+            galleryId: {
+                serializedName: "galleryId",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
+            registryId: {
+                serializedName: "registryId",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
+            storageId: {
+                serializedName: "storageId",
+                nullable: true,
                 type: {
                     name: "String"
                 }
@@ -1634,6 +1702,20 @@ export var Project = {
             },
             resourceState: {
                 serializedName: "resourceState",
+                type: {
+                    name: "String"
+                }
+            },
+            vaultId: {
+                serializedName: "vaultId",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
+            storageId: {
+                serializedName: "storageId",
+                nullable: true,
                 type: {
                     name: "String"
                 }
