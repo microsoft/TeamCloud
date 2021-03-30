@@ -1,9 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Project="..\TeamCloud.sln.targets" />
-
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <AzureFunctionsVersion>v3</AzureFunctionsVersion>
     <FunctionsInDependencies>true</FunctionsInDependencies>
   </PropertyGroup>
@@ -31,18 +30,18 @@
     <PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Blobs" Version="1.2.0" />
     <PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Keys" Version="1.0.2" />
     <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
-    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.CosmosDB" Version="3.0.7" />
-    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.DurableTask" Version="2.3.0" />
-    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.DurableTask.Analyzers" Version="0.3.2" />
+    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.CosmosDB" Version="3.0.10" />
+    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.DurableTask" Version="2.4.2" />
+    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.DurableTask.Analyzers" Version="0.4.0" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.EventGrid" Version="2.1.0" />
-    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Storage" Version="4.0.3" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.9" />
+    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Storage" Version="4.0.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.4" />
     <PackageReference Include="Microsoft.Extensions.Caching.Redis" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.AzureAppConfiguration" Version="4.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.AzureKeyVault" Version="3.1.9" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="3.1.9" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.AzureAppConfiguration" Version="4.2.1" />
+    <PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" Version="1.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="5.0.0" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.11" />
-    <PackageReference Include="System.Linq.Async" Version="4.1.1" />
+    <PackageReference Include="System.Linq.Async" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>

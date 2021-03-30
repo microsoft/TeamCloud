@@ -1,10 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Project="..\TeamCloud.sln.targets" />
-
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
-    <LangVersion>8.0</LangVersion>
+    <TargetFramework>net5.0</TargetFramework>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <LangVersion>9.0</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -32,8 +31,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.DurableTask" Version="2.3.0" />
-    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.DurableTask.Analyzers" Version="0.3.2" />
+    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.DurableTask" Version="2.4.2" />
+    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.DurableTask.Analyzers" Version="0.4.0" />
   </ItemGroup>
 
   <ItemGroup>

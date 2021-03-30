@@ -1,28 +1,26 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Project="..\TeamCloud.sln.targets" />
-
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
-    <LangVersion>8.0</LangVersion>
+    <TargetFramework>net5.0</TargetFramework>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <LangVersion>9.0</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.15.0" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="3.1.9" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="3.1.9" />
-    <PackageReference Include="Octokit" Version="0.48.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.17.0" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="5.0.0" />
+    <PackageReference Include="Octokit" Version="0.50.0" />
     <PackageReference Include="YamlDotNet" Version="8.1.2" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="Newtonsoft.Json.Schema" Version="3.0.13" />
-    <PackageReference Include="Microsoft.TeamFoundationServer.Client" Version="16.176.0-preview" />
-    <PackageReference Include="Microsoft.VisualStudio.Services.Client" Version="16.176.0-preview" />
-    <PackageReference Include="Microsoft.VisualStudio.Services.Search.Client" Version="16.176.0-preview" />
+    <PackageReference Include="Newtonsoft.Json.Schema" Version="3.0.14" />
+    <PackageReference Include="Microsoft.TeamFoundationServer.Client" Version="16.183.0-preview" />
+    <PackageReference Include="Microsoft.VisualStudio.Services.Client" Version="16.183.0-preview" />
+    <PackageReference Include="Microsoft.VisualStudio.Services.Search.Client" Version="16.183.0-preview" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\TeamCloud.Model\TeamCloud.Model.csproj" />
-    <!-- <ProjectReference Include="..\TeamCloud.Model.Validation\TeamCloud.Model.Validation.csproj" /> -->
   </ItemGroup>
 
 </Project>

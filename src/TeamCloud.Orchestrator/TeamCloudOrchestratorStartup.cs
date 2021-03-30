@@ -3,6 +3,11 @@
  *  Licensed under the MIT License.
  */
 
+using System;
+using System.Reflection;
+using Azure.Extensions.AspNetCore.Configuration.Secrets;
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
@@ -11,12 +16,9 @@ using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Azure.Storage;
 using Microsoft.Azure.Storage.Blob;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.AzureKeyVault;
 using Microsoft.Extensions.Configuration.UserSecrets;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
-using System.Reflection;
 using TeamCloud.Audit;
 using TeamCloud.Azure;
 using TeamCloud.Azure.Deployment;
@@ -156,14 +158,16 @@ namespace TeamCloud.Orchestrator
 
             var keyVaultName = configuration["KeyVaultName"];
 
-            if (!string.IsNullOrEmpty(keyVaultName))
+            if (!string.IsNullOrEmpty(keyVaultName) && Uri.TryCreate($"https://{keyVaultName}.vault.azure.net/", UriKind.Absolute, out var keyVaultUri))
             {
                 // we use the managed identity of the service to authenticate at the KeyVault
-                var azureServiceTokenProvider = new AzureServiceTokenProvider();
+                // var azureServiceTokenProvider = new AzureServiceTokenProvider();
 
-                using var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
+                // using var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
+                // configurationBuilder.AddAzureKeyVault($"https://{keyVaultName}.vault.azure.net/", keyVaultClient, new  DefaultKeyVaultSecretManager());
 
-                configurationBuilder.AddAzureKeyVault($"https://{keyVaultName}.vault.azure.net/", keyVaultClient, new DefaultKeyVaultSecretManager());
+                var azureCredentialOptions = new DefaultAzureCredentialOptions();
+                configurationBuilder.AddAzureKeyVault(keyVaultUri, new DefaultAzureCredential(azureCredentialOptions));
             }
             else if (hostingEnvironment.IsDevelopment())
             {

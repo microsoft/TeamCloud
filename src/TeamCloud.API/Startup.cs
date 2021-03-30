@@ -3,6 +3,11 @@
  *  Licensed under the MIT License.
  */
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Security.Claims;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.AzureAD.UI;
@@ -22,11 +27,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.ObjectPool;
 using Microsoft.IO;
 using Microsoft.OpenApi.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Security.Claims;
 using TeamCloud.API.Auth;
 using TeamCloud.API.Middleware;
 using TeamCloud.API.Routing;
@@ -147,7 +147,6 @@ namespace TeamCloud.API
                 }
 
                 EncryptedValueProvider.DefaultDataProtectionProvider = services.BuildServiceProvider().GetDataProtectionProvider();
-
             }
 
             services
@@ -168,7 +167,7 @@ namespace TeamCloud.API
                 .AddSingleton<IComponentRepository, CosmosDbComponentRepository>()
                 .AddSingleton<IComponentTaskRepository, CosmosDbComponentTaskRepository>()
                 // .AddSingleton<IProjectLinkRepository, CosmosDbProjectLinkRepository>()
-                .AddSingleton<IClientErrorFactory, ClientErrorFactory>()
+                // .AddSingleton<IProjectLinkRepository, CosmosDbProjectLinkRepository>()
                 .AddSingleton<Orchestrator>()
                 .AddSingleton<UserService>()
                 .AddSingleton<IRepositoryService, RepositoryService>()
