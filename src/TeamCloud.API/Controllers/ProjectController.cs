@@ -192,7 +192,7 @@ namespace TeamCloud.API.Controllers
             project.Tags = input
                 .ToObject<Dictionary<string, object>>()
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value?.ToString());
-            
+
             var currentUser = users.FirstOrDefault(u => u.Id == UserService.CurrentUserId);
 
             var command = new ProjectCreateCommand(currentUser, project);

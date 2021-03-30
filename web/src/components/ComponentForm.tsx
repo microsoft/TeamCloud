@@ -276,8 +276,8 @@ export const TCFieldTemplate: React.FC<FieldTemplateProps> = (props) => {
             {props.children}
         </Stack>
     ) : (
-            <Stack.Item grow styles={{ root: { paddingBottom: '16px' } }}>
-                {props.children}
-            </Stack.Item>
-        );
+        <Stack.Item grow styles={{ root: { paddingBottom: '16px' } }}>
+            {props.children}
+        </Stack.Item>
+    );
 }
