@@ -3,18 +3,19 @@
  *  Licensed under the MIT License.
  */
 
+using System;
+using System.Collections.Generic;
+using System.Dynamic;
+using System.Linq;
+using System.Net;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Flurl;
 using Flurl.Http;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Dynamic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using TeamCloud.Azure;
 using TeamCloud.Azure.Resources;
 using TeamCloud.Azure.Resources.Typed;
@@ -69,6 +70,18 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
 
             try
             {
+                var identity = await azureSessionService
+                    .GetIdentityAsync()
+                    .ConfigureAwait(false);
+
+                var organization = await organizationRepository
+                    .GetAsync(identity.TenantId.ToString(), componentTask.Organization)
+                    .ConfigureAwait(false);
+
+                var organizationRegistry = AzureResourceIdentifier.TryParse(organization.RegistryId, out var organizationRegistryId)
+                    ? await azureResourceService.GetResourceAsync<AzureContainerRegistryResource>(organizationRegistryId.ToString()).ConfigureAwait(false)
+                    : null;
+
                 var project = await projectRepository
                     .GetAsync(componentTask.Organization, componentTask.ProjectId)
                     .ConfigureAwait(false);
@@ -98,6 +111,7 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
                 var componentRunnerRoot = $".{componentLocation}.azurecontainer.io";
                 var componentRunnerLabelName = GetComponentRunnerLabel(componentTask, 64 - componentRunnerRoot.Length);
                 var componentRunnerHostName = string.Concat(componentRunnerLabelName, componentRunnerRoot);
+                var componentRunnerContainer = await ResolveContainerImage(componentTemplate, organizationRegistry, log).ConfigureAwait(false);
 
                 var componentRunnerDefinition = new
                 {
@@ -106,60 +120,65 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
                     {
                         type = "UserAssigned",
                         userAssignedIdentities = new Dictionary<string, object>()
-                    {
-                        { component.IdentityId, new { } }
-                    }
+                        {
+                            { component.IdentityId, new { } }
+                        }
                     },
                     properties = new
                     {
+                        imageRegistryCredentials = await GetRegistryCredentialsAsync(componentRunnerContainer).ConfigureAwait(false),
                         containers = new[]
                         {
-                        new
-                        {
-                            name = "runner",
-                            properties = new
+                            new
                             {
-                                image = componentTemplate.TaskRunner.Id,
-                                ports = new []
+                                name = "runner",
+                                properties = new
                                 {
-                                    new { port = 80 },
-                                    new { port = 443 }
-                                },
-                                resources = new
-                                {
-                                    requests = new
+                                    image = componentRunnerContainer,
+                                    ports = new []
                                     {
-                                        cpu = 1,
-                                        memoryInGB = 1
-                                    }
-                                },
-                                environmentVariables = GetEnvironmentVariables(),
-                                volumeMounts = new []
-                                {
-                                    new {
-                                        name = "templates",
-                                        mountPath = "/mnt/templates",
-                                        readOnly = false
+                                        new { port = 80 },
+                                        new { port = 443 }
                                     },
-                                    new {
-                                        name = "storage",
-                                        mountPath = "/mnt/storage",
-                                        readOnly = false
+                                    resources = new
+                                    {
+                                        requests = new
+                                        {
+                                            cpu = 1,
+                                            memoryInGB = 1
+                                        }
                                     },
-                                    new {
-                                        name = "secrets",
-                                        mountPath = "/mnt/secrets",
-                                        readOnly = false
-                                    },
-                                    new {
-                                        name = "temporary",
-                                        mountPath = "/mnt/temporary",
-                                        readOnly = false
+                                    environmentVariables = GetEnvironmentVariables(),
+                                    volumeMounts = new []
+                                    {
+                                        new
+                                        {
+                                            name = "templates",
+                                            mountPath = "/mnt/templates",
+                                            readOnly = false
+                                        },
+                                        new
+                                        {
+                                            name = "storage",
+                                            mountPath = "/mnt/storage",
+                                            readOnly = false
+                                        },
+                                        new
+                                        {
+                                            name = "secrets",
+                                            mountPath = "/mnt/secrets",
+                                            readOnly = false
+                                        },
+                                        new
+                                        {
+                                            name = "temporary",
+                                            mountPath = "/mnt/temporary",
+                                            readOnly = false
+                                        }
                                     }
                                 }
                             }
-                        }
-                    },
+                        },
                         osType = "Linux",
                         restartPolicy = "Never",
                         ipAddress = new
@@ -168,19 +187,20 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
                             dnsNameLabel = componentRunnerLabelName,
                             ports = new[]
                             {
-                            new {
-                                protocol = "tcp",
-                                port = 80
-                            },
-                            new {
-                                protocol = "tcp",
-                                port = 443
+                                new {
+                                    protocol = "tcp",
+                                    port = 80
+                                },
+                                new {
+                                    protocol = "tcp",
+                                    port = 443
+                                }
                             }
-                        }
                         },
                         volumes = new object[]
                         {
-                            new {
+                            new
+                            {
                                 name = "templates",
                                 gitRepo = new
                                 {
@@ -189,7 +209,8 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
                                     revision = componentTemplate.Repository.Ref
                                 }
                             },
-                            new {
+                            new
+                            {
                                 name = "storage",
                                 azureFile = new
                                 {
@@ -198,11 +219,13 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
                                       storageAccountKey = componentShareKey
                                 }
                             },
-                            new {
+                            new
+                            {
                                 name = "secrets",
                                 secret = await GetComponentVaultSecretsAsync(project, component).ConfigureAwait(false)
                             },
-                            new {
+                            new
+                            {
                                 name = "temporary",
                                 emptyDir = new { }
                             }
@@ -229,7 +252,7 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
 
                 componentTask = await componentTaskRepository
                     .SetAsync(componentTask)
-                    .ConfigureAwait(false);
+                            .ConfigureAwait(false);
 
                 object[] GetEnvironmentVariables()
                 {
@@ -241,11 +264,35 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
                     envVariables["ComponentLocation"] = componentLocation;
                     envVariables["ComponentTemplateBaseUrl"] = $"http://{componentRunnerHostName}/{componentTemplate.Folder.Trim().TrimStart('/')}";
                     envVariables["ComponentTemplateFolder"] = $"file:///mnt/templates/root/{componentTemplate.Folder.Trim().TrimStart('/')}";
-                    envVariables["ComponentTemplateParameters"] = component.InputJson;
+                    envVariables["ComponentTemplateParameters"] = string.IsNullOrWhiteSpace(component.InputJson) ? "{}" : component.InputJson;
                     envVariables["ComponentResourceGroup"] = componentResourceId.ResourceGroup;
                     envVariables["ComponentSubscription"] = componentResourceId.SubscriptionId.ToString();
 
                     return envVariables.Select(kvp => new { name = kvp.Key, value = kvp.Value }).ToArray();
+                }
+
+                async Task<object[]> GetRegistryCredentialsAsync(string containerImageName)
+                {
+                    var credentials = new List<object>();
+
+                    if (organizationRegistry != null)
+                    {
+                        var registryCredentials = await organizationRegistry
+                            .GetCredentialsAsync(containerImageName)
+                            .ConfigureAwait(false);
+
+                        if (AzureContainerRegistryResource.GetContainerHost(containerImageName).Equals(registryCredentials?.Domain, StringComparison.OrdinalIgnoreCase))
+                        {
+                            credentials.Add(new
+                            {
+                                server = registryCredentials.Domain,
+                                username = registryCredentials.UserName,
+                                password = registryCredentials.Password
+                            });
+                        }
+                    }
+
+                    return credentials.ToArray();
                 }
             }
             catch (Exception exc)
@@ -269,6 +316,157 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
             }
 
             return componentTask;
+        }
+
+        private async Task<string> ResolveContainerImage(ComponentTemplate componentTemplate, AzureContainerRegistryResource organizationRegistry, ILogger log)
+        {
+            if (componentTemplate is null)
+                throw new ArgumentNullException(nameof(componentTemplate));
+
+            if (string.IsNullOrWhiteSpace(componentTemplate.TaskRunner.Id))
+                throw new ArgumentException($"'{nameof(componentTemplate)}' must contain a TaskRunner container image reference.", nameof(componentTemplate));
+
+            if (organizationRegistry is null)
+                throw new ArgumentNullException(nameof(organizationRegistry));
+
+            if (log is null)
+                throw new ArgumentNullException(nameof(log));
+
+            if (AzureContainerRegistryResource.TryResolveFullyQualifiedContainerImageName(componentTemplate.TaskRunner.Id, out var sourceContainerImage)
+                && AzureContainerRegistryResource.IsDockerHubContainerImage(sourceContainerImage)
+                && sourceContainerImage.Contains("/teamcloud/", StringComparison.OrdinalIgnoreCase))
+            {
+                try
+                {
+                    var sourceContainerImport = false;
+                    var targetContainerImage = $"{organizationRegistry.Hostname}{sourceContainerImage.Substring(sourceContainerImage.IndexOf('/', StringComparison.OrdinalIgnoreCase))}";
+
+                    if (AzureContainerRegistryResource.IsContainerImageNameTagBased(sourceContainerImage))
+                    {
+                        var sourceContainerDigest = await GetDockerHubContainerImageDigestAsync(sourceContainerImage).ConfigureAwait(false);
+
+                        if (string.IsNullOrEmpty(sourceContainerDigest))
+                        {
+                            // the container image is part of a private registry
+                            // on docker hub or just doesn't exist. return the 
+                            // fully qualified container image name of the source
+                            // and let the caller handle a potential error
+
+                            return sourceContainerImage;
+                        }
+
+                        var targetContainerDigest = await organizationRegistry.GetContainerImageDigestAsync(targetContainerImage).ConfigureAwait(false);
+
+                        if (sourceContainerDigest?.Equals(targetContainerDigest, StringComparison.Ordinal) ?? false)
+                        {
+                            // our organization registry contains the requested image
+                            // let's use this one to shorten the image pull duration
+
+                            return targetContainerImage;
+                        }
+
+                        // we go with the source container image but mark this
+                        // image for import into the organization registry
+
+                        sourceContainerImport = true;
+                    }
+                    else if (await organizationRegistry.ContainesContainerImageAsync(targetContainerImage).ConfigureAwait(false))
+                    {
+                        // our organization registry contains the requested image
+                        // let's use this one to shorten the image pull duration
+
+                        return targetContainerImage;
+                    }
+                    else
+                    {
+                        // we go with the source container image but mark this
+                        // image for import into the organization registry
+
+                        sourceContainerImport = true;
+                    }
+
+                    if (sourceContainerImport)
+                    {
+                        var sourceContainerTags = await GetDockerHubContainerImageTagsAsync(targetContainerImage)
+                            .ToArrayAsync()
+                            .ConfigureAwait(false);
+
+                        await organizationRegistry
+                            .ImportContainerImageAsync(sourceContainerImage, sourceContainerTags, force: true)
+                            .ConfigureAwait(false);
+                    }
+
+                    return sourceContainerImage;
+                }
+                catch (Exception exc)
+                {
+                    log.LogWarning(exc, $"Failed to resolve local container image for of '{sourceContainerImage}'");
+                }
+            }
+
+            // this is our fallback if something bad happend
+            // during the container image evaluation
+
+            return componentTemplate.TaskRunner.Id;
+
+            async Task<string> GetDockerHubContainerImageDigestAsync(string containerImageName)
+            {
+                if (!AzureContainerRegistryResource.IsContainerImageNameTagBased(containerImageName))
+                    throw new ArgumentException($"'{nameof(containerImageName)}' contain a tag based reference.", nameof(containerImageName));
+
+                containerImageName = AzureContainerRegistryResource.ResolveFullyQualifiedContainerImageName(containerImageName);
+
+                var containerName = AzureContainerRegistryResource.GetContainerName(containerImageName);
+                var containerReference = AzureContainerRegistryResource.GetContainerReference(containerImageName);
+
+                var response = await $"https://hub.docker.com/v2/repositories/{containerName}/tags/{containerReference}"
+                    .AllowHttpStatus(HttpStatusCode.NotFound)
+                    .GetAsync()
+                    .ConfigureAwait(false);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var json = await response.Content
+                        .ReadAsJsonAsync()
+                        .ConfigureAwait(false);
+
+                    return json.SelectToken("images[?(@.status == 'active')].digest")?.ToString();
+                }
+
+                return null;
+            }
+
+            async IAsyncEnumerable<string> GetDockerHubContainerImageTagsAsync(string containerImageName)
+            {
+                if (AzureContainerRegistryResource.IsContainerImageNameTagBased(containerImageName))
+                {
+                    var digest = await GetDockerHubContainerImageDigestAsync(containerImageName).ConfigureAwait(false);
+
+                    if (string.IsNullOrWhiteSpace(digest))
+                        throw new ArgumentException($"Failed to resolve digest for argument '{nameof(containerImageName)}'.", nameof(containerImageName));
+
+                    containerImageName = AzureContainerRegistryResource.ChangeContainerReference(containerImageName, digest);
+                }
+
+                var containerName = AzureContainerRegistryResource.GetContainerName(containerImageName);
+                var containerDigest = AzureContainerRegistryResource.GetContainerReference(containerImageName);
+
+                var registryUrl = $"https://hub.docker.com/v2/repositories/{containerName}/tags/";
+
+                while (!string.IsNullOrEmpty(registryUrl))
+                {
+                    var json = await registryUrl
+                        .GetJObjectAsync()
+                        .ConfigureAwait(false);
+
+                    foreach (var tag in json.SelectTokens($"results[?(@.images[?(@.status == 'active' && @.digest == '{containerDigest}')])].name"))
+                        yield return tag.ToString();
+
+                    registryUrl = json
+                        .SelectToken("next")?
+                        .ToString();
+                }
+            }
         }
 
         private async Task<(string, string, string)> GetComponentShareInfoAsync(Project project, Component component)
@@ -339,7 +537,7 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
             return organization.Location;
         }
 
-        private string GetComponentRunnerLabel(ComponentTask componentTask, int length)
+        private static string GetComponentRunnerLabel(ComponentTask componentTask, int length)
         {
             using var algorithm = new System.Security.Cryptography.SHA512Managed();
 

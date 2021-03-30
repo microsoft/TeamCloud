@@ -202,6 +202,13 @@ namespace TeamCloud.Azure.Resources
             return apiVersions.FirstOrDefault();
         }
 
+        public async Task<string> GetLocationAsync()
+        {
+            var json = await GetJsonAsync().ConfigureAwait(false);
+
+            return json?.SelectToken("location")?.ToString();
+        }
+
         public async Task<JObject> GetJsonAsync(string apiVersion = null)
         {
             apiVersion ??= await GetLatestApiVersionAsync()
