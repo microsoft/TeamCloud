@@ -1,17 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Stack, DefaultButton, Text, ICommandBarItemProps, Dialog, DialogType, DialogFooter, PrimaryButton, FontIcon, IColumn, Persona, PersonaSize, DetailsList, DetailsListLayoutMode, CheckboxVisibility, IDetailsRowProps, IRenderFunction, SelectionMode } from '@fluentui/react';
 import { Component, ComponentTemplate, ErrorResult } from 'teamcloud';
 import { DetailCard } from '.';
 import { api } from '../API';
 import { useHistory, useParams } from 'react-router-dom';
-import { OrgContext, ProjectContext } from '../Context';
 import DevOps from '../img/devops.svg';
 import GitHub from '../img/github.svg';
 import Resource from '../img/resource.svg';
 import { ComponentLink } from './ComponentLink';
+import { useProject, useOrg } from '../Hooks';
 
 
 export const ComponentsCard: React.FC = () => {
@@ -19,8 +19,8 @@ export const ComponentsCard: React.FC = () => {
     const history = useHistory();
 
     const { orgId, projectId } = useParams() as { orgId: string, projectId: string };
-    const { org, scopes } = useContext(OrgContext);
-    const { project, components, templates, onComponentSelected } = useContext(ProjectContext);
+    const { org, scopes } = useOrg();
+    const { project, components, templates, onComponentSelected } = useProject();
 
     const [component, setComponent] = useState<Component>();
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
@@ -33,8 +33,6 @@ export const ComponentsCard: React.FC = () => {
             setItems(components.map(c => ({ component: c, template: templates.find(t => t.id === c.templateId)! })));
         }
     }, [components, templates, items]);
-
-    // const { project, components } = useContext(ProjectContext);
 
 
 

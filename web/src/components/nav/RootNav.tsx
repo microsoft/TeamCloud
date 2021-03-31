@@ -1,17 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useContext } from 'react';
+import React from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { Nav, INavLinkGroup, INavLink, Stack, ActionButton, Persona, PersonaSize, getTheme, Text } from '@fluentui/react';
-import { OrgContext } from '../../Context';
+import { useOrgs } from '../../Hooks';
 
 export const RootNav: React.FC = () => {
 
     const history = useHistory();
     const { orgId } = useParams() as { orgId: string };
 
-    const { orgs, onOrgSelected } = useContext(OrgContext);
+    const { orgs, onOrgSelected } = useOrgs();
 
     const newOrgView = orgId !== undefined && orgId.toLowerCase() === 'new';
 

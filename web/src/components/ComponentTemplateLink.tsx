@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useContext } from 'react';
+import React from 'react';
 import { FontIcon, Link, Stack } from '@fluentui/react';
-import { OrgContext } from '../Context';
-import { ComponentTemplate} from 'teamcloud';
+import { ComponentTemplate } from 'teamcloud';
+import { useOrg } from '../Hooks';
 
 export interface IComponentTemplateLinkProps {
     componentTemplate?: ComponentTemplate;
@@ -12,7 +12,7 @@ export interface IComponentTemplateLinkProps {
 
 export const ComponentTemplateLink: React.FunctionComponent<IComponentTemplateLinkProps> = (props) => {
 
-    const { org } = useContext(OrgContext);
+    const { org } = useOrg();
     const { componentTemplate } = props;
 
     return org && componentTemplate?.repository?.url ? (
@@ -25,6 +25,6 @@ export const ComponentTemplateLink: React.FunctionComponent<IComponentTemplateLi
             </Link>
             <FontIcon iconName='NavigateExternalInline' className='component-link-icon' />
         </Stack>
-        
+
     ) : <></>;
 }

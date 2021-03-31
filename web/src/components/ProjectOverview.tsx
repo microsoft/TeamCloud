@@ -1,14 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useContext } from 'react';
+import React from 'react';
 import { Stack } from '@fluentui/react';
 import { MembersCard, ComponentsCard } from '../components';
-import { ProjectContext } from '../Context';
+import { useProject } from '../Hooks';
 
 export const ProjectOverview: React.FC = () => {
 
-    const { members, onAddUsers, onRemoveUsers } = useContext(ProjectContext);
+    const { members, onAddUsers, onRemoveUsers } = useProject();
 
     return (
         <Stack

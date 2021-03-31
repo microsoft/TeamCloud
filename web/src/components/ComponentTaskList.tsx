@@ -1,11 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CheckboxVisibility, DetailsList, DetailsListLayoutMode, FontIcon, getTheme, IColumn, IDetailsRowProps, IRenderFunction, SelectionMode, Stack, Text } from '@fluentui/react';
-import { ProjectContext } from '../Context';
 import { ComponentTask } from 'teamcloud';
-import { useInterval } from '../Hooks';
+import { useInterval, useProject } from '../Hooks';
 import { api } from '../API';
 import { ComponentTaskConsole } from '.';
 
@@ -17,7 +16,7 @@ export const ComponentTaskList: React.FunctionComponent<IComponentTaskListProps>
 
     const theme = getTheme();
 
-    const { component, componentTask, componentTasks, templates, onComponentTaskSelected } = useContext(ProjectContext);
+    const { component, componentTask, componentTasks, templates, onComponentTaskSelected } = useProject();
 
     const [isPolling, setIsPolling] = useState(true);
 

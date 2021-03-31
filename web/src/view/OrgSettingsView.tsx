@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { Route, useHistory } from 'react-router-dom';
 import { IconButton, Stack } from '@fluentui/react';
 import { DeploymentScopeDefinition, ProjectTemplateDefinition } from 'teamcloud';
 import { OrgSettingsOverview, DeploymentScopeList, ProjectTemplateList, ContentHeader, ContentContainer, ContentProgress, MemberList, DeploymentScopeForm, ProjectTemplateForm, NoData } from '../components';
-import { GraphUserContext, OrgContext } from '../Context';
 import business from '../img/MSC17_business_001_noBG.png'
+import { useAzureManagement, useOrg } from '../Hooks';
 
 export const OrgSettingsView: React.FC = () => {
 
@@ -15,8 +15,9 @@ export const OrgSettingsView: React.FC = () => {
 
     const [progressHidden, setProgressHidden] = useState(true);
 
-    const { subscriptions } = useContext(GraphUserContext);
-    const { org, members, scopes, templates, onCreateDeploymentScope, onCreateProjectTemplate, onAddUsers } = useContext(OrgContext);
+    const { subscriptions } = useAzureManagement();
+
+    const { org, members, scopes, templates, onCreateDeploymentScope, onCreateProjectTemplate, onAddUsers } = useOrg();
 
 
     const _onCreateDeploymentScope = async (scope: DeploymentScopeDefinition) => {

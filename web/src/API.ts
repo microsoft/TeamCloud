@@ -22,6 +22,16 @@ const httpOptions: IHttpConnectionOptions = {
 
 let connection: HubConnection | undefined
 
+export const resolveSignalR = async (project: Project | undefined) => {
+
+    if (!project) {
+        await stopSignalR()
+        return;
+    }
+
+    await startSignalR(project);
+}
+
 export const startSignalR = async (project: Project) => {
 
     const endpoint = `${apiUrl}/orgs/${project.organization}/projects/${project.id}`;

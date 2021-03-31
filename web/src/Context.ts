@@ -7,20 +7,28 @@ import { GraphUser, ManagementGroup, Member, ProjectMember, Subscription } from 
 
 export const GraphUserContext = React.createContext({
     graphUser: undefined as GraphUser | undefined,
-    setGraphUser: (graphUser?: GraphUser) => { },
+});
+
+export const AzureManagementContext = React.createContext({
     subscriptions: undefined as Subscription[] | undefined,
     managementGroups: undefined as ManagementGroup[] | undefined,
 });
 
-export const OrgContext = React.createContext({
+export const OrgsContext = React.createContext({
     org: undefined as Organization | undefined,
     orgs: undefined as Organization[] | undefined,
+    onOrgSelected: (org?: Organization) => { },
+});
+
+
+export const OrgContext = React.createContext({
+    org: undefined as Organization | undefined,
     user: undefined as User | undefined,
     members: undefined as Member[] | undefined,
     scopes: undefined as DeploymentScope[] | undefined,
     templates: undefined as ProjectTemplate[] | undefined,
+    project: undefined as Project | undefined,
     projects: undefined as Project[] | undefined,
-    onOrgSelected: (org?: Organization) => { },
     onProjectSelected: (project?: Project) => { },
     onAddUsers: (users: UserDefinition[]) => Promise.resolve(),
     onRemoveUsers: (users: User[]) => Promise.resolve(),

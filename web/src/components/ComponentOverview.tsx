@@ -1,16 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FontIcon, getTheme, Pivot, PivotItem, Stack, Text, TextField } from '@fluentui/react';
 // import { useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { ComponentTemplate, DeploymentScope } from 'teamcloud';
-import { OrgContext, ProjectContext } from '../Context';
 import { ProjectMember } from '../model';
 import { FuiForm } from '@rjsf/fluent-ui';
 import { ComponentTaskList, UserPersona, ComponentLink, ComponentTemplateLink } from '.';
 import { FieldTemplateProps, WidgetProps } from '@rjsf/core';
+import { useProject, useOrg } from '../Hooks';
 // import { ComponentLink } from './ComponentLink';
 // import { ComponentTemplateLink } from './ComponentTemplateLink';
 // import DevOps from '../img/devops.svg';
@@ -25,8 +25,8 @@ export const ComponentOverview: React.FC = (props) => {
 
     // const { orgId, projectId, itemId } = useParams() as { orgId: string, projectId: string, itemId: string };
 
-    const { scopes } = useContext(OrgContext);
-    const { component, templates, members } = useContext(ProjectContext);
+    const { scopes } = useOrg();
+    const { component, templates, members } = useProject();
 
     const [template, setTemplate] = useState<ComponentTemplate>();
     const [creator, setCreator] = useState<ProjectMember>();
@@ -230,10 +230,10 @@ export const ReadonlyFieldTemplate: React.FC<FieldTemplateProps> = (props) =>
             {props.children}
         </Stack>
     ) : (
-            <Stack.Item grow styles={{ root: { paddingBottom: '16px' } }}>
-                {props.children}
-            </Stack.Item>
-        );
+        <Stack.Item grow styles={{ root: { paddingBottom: '16px' } }}>
+            {props.children}
+        </Stack.Item>
+    );
 
 
 export const ReadonlySelectWidget: React.FC<WidgetProps> = (props) => (

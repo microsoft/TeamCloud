@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { ISubmitEvent } from '@rjsf/core';
 import { FuiForm } from '@rjsf/fluent-ui';
@@ -9,7 +9,7 @@ import { Stack, TextField, Dropdown, IDropdownOption, Text, PrimaryButton, Defau
 import { ProjectTemplate, ProjectDefinition } from 'teamcloud';
 import { ContentContainer, ContentHeader, ContentProgress } from '../components';
 import { api } from '../API';
-import { OrgContext } from '../Context';
+import { useOrg } from '../Hooks';
 
 export const NewProjectView: React.FC = () => {
 
@@ -21,7 +21,7 @@ export const NewProjectView: React.FC = () => {
     const [formEnabled, setFormEnabled] = useState<boolean>(false);
     const [errorText, setErrorText] = useState<string>();
 
-    const { org, templates, onProjectSelected } = useContext(OrgContext);
+    const { org, templates, onProjectSelected } = useOrg();
 
     useEffect(() => {
         if (org && templates) {

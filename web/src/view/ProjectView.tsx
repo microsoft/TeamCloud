@@ -1,18 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { Route, Switch } from 'react-router-dom';
 import { Stack, IconButton } from '@fluentui/react';
 import { ComponentOverview, ProjectOverview, ContentHeader, ContentProgress, ContentContainer, MemberList, ComponentList, ComponentForm, ProjectSettingsOverview } from '../components';
-import { ProjectContext } from '../Context';
 import { ComponentTaskMenu } from '../components/ComponentTaskMenu';
+import { useProject } from '../Hooks';
 
 export const ProjectView: React.FC = () => {
 
     const [favorite, setFavorate] = useState(false);
 
-    const { project, members, components, component, templates, onAddUsers } = useContext(ProjectContext);
+    const { project, members, components, component, templates, onAddUsers } = useProject();
 
     return (
         <Stack>

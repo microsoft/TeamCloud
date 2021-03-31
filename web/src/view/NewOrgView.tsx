@@ -1,21 +1,22 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState, useEffect, useContext, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Stack, TextField, Text, PrimaryButton, DefaultButton, IconButton, Pivot, PivotItem, ComboBox, ChoiceGroup, Label, IComboBoxOption } from '@fluentui/react';
 import { OrganizationDefinition, DeploymentScopeDefinition, ProjectTemplateDefinition } from 'teamcloud'
 import { AzureRegions, Tags } from '../model';
 import { CalloutLabel, ContentContainer, ContentHeader, ContentProgress, DeploymentScopeForm, ProjectTemplateForm } from '../components';
 import { api } from '../API';
-import { GraphUserContext, OrgContext } from '../Context';
+import { useAzureManagement, useOrg, useOrgs } from '../Hooks';
 
 export const NewOrgView: React.FC = () => {
 
     const history = useHistory();
 
-    const { subscriptions } = useContext(GraphUserContext);
-    const { onOrgSelected, onCreateDeploymentScope, onCreateProjectTemplate } = useContext(OrgContext);
+    const { subscriptions } = useAzureManagement();
+    const { onOrgSelected } = useOrgs();
+    const { onCreateDeploymentScope, onCreateProjectTemplate } = useOrg();
 
     // Basic Settings
     const [orgName, setOrgName] = useState<string>();

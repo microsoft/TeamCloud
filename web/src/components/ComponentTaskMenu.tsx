@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { getTheme, PrimaryButton, Stack } from '@fluentui/react';
-import { OrgContext, ProjectContext } from '../Context';
 import { ComponentTaskDefinition, ComponentTaskTemplate } from 'teamcloud';
 import { api } from '../API';
+import { useProject, useOrg } from '../Hooks';
 // import { stringify } from 'querystring';
 
 export interface IComponentTaskMenuProps {
@@ -16,8 +16,8 @@ export const ComponentTaskMenu: React.FunctionComponent<IComponentTaskMenuProps>
 
     const theme = getTheme();
 
-    const { org } = useContext(OrgContext);
-    const { component, templates, onComponentTaskSelected } = useContext(ProjectContext);
+    const { org } = useOrg();
+    const { component, templates, onComponentTaskSelected } = useProject();
 
     const [taskTemplates, setTaskTemplates] = useState<ComponentTaskTemplate[]>();
 
