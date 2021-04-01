@@ -26,7 +26,7 @@ export const ComponentList: React.FC<IComponentListProps> = (props) => {
     const [items, setItems] = useState<{ component: Component, template: ComponentTemplate }[]>()
 
     const { org, scopes } = useOrg();
-    const { components, templates, members, onComponentSelected } = useProject();
+    const { components, templates, members } = useProject();
 
     useEffect(() => {
         if (components && templates && (items === undefined || items.length !== components.length)) {
@@ -150,7 +150,7 @@ export const ComponentList: React.FC<IComponentListProps> = (props) => {
 
     const _onItemInvoked = (item: { component: Component, template: ComponentTemplate }): void => {
         // console.log(item);
-        onComponentSelected(item.component);
+        // onComponentSelected(item.component);
         history.push(`/orgs/${orgId}/projects/${projectId}/components/${item.component.slug}`);
     };
 

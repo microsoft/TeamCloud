@@ -12,7 +12,6 @@ import { ContentContainer, ContentHeader, ContentList, ContentProgress, ContentS
 import DevOps from '../img/devops.svg';
 import GitHub from '../img/github.svg';
 import Resource from '../img/resource.svg';
-import { api } from '../API';
 import { useProject, useOrg } from '../Hooks';
 
 export const ComponentForm: React.FC = () => {
@@ -28,7 +27,7 @@ export const ComponentForm: React.FC = () => {
     const [deploymentScopeId, setDeploymentScopeId] = useState<string>();
 
     const { org, scopes } = useOrg();
-    const { project, templates, onComponentSelected } = useProject();
+    const { project, templates, createComponent } = useProject();
 
     const theme = getTheme();
 
@@ -54,24 +53,9 @@ export const ComponentForm: React.FC = () => {
                 deploymentScopeId: deploymentScopeId
             };
 
-            const componentResult = await api.createComponent(project.organization, project.id, { body: componentDef });
-            const component = componentResult.data;
-
-            if (component) {
-                onComponentSelected(component);
-                history.push(`/orgs/${org.slug}/projects/${project.slug}/components/${component.slug}`);
-            } else {
-                console.error(componentResult);
-            }
+            await createComponent(componentDef);
         }
     };
-
-    // const _resetAndCloseForm = () => {
-    //     setComponentTemplate(undefined);
-    //     setFormEnabled(true);
-    //     // onFormClose();
-    // };
-
 
 
     const _getTypeImage = (template: ComponentTemplate) => {

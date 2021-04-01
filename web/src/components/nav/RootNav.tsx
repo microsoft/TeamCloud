@@ -11,7 +11,7 @@ export const RootNav: React.FC = () => {
     const history = useHistory();
     const { orgId } = useParams() as { orgId: string };
 
-    const { orgs, onOrgSelected } = useOrgs();
+    const { orgs } = useOrgs();
 
     const newOrgView = orgId !== undefined && orgId.toLowerCase() === 'new';
 
@@ -20,10 +20,7 @@ export const RootNav: React.FC = () => {
             key: o.slug,
             name: o.displayName,
             url: '',
-            onClick: () => {
-                onOrgSelected(o);
-                history.push(`/orgs/${o.slug}`)
-            },
+            onClick: () => history.push(`/orgs/${o.slug}`),
         })) ?? [];
 
         if (!newOrgView)
@@ -31,10 +28,7 @@ export const RootNav: React.FC = () => {
                 key: 'new',
                 name: "New organization",
                 url: '',
-                onClick: () => {
-                    onOrgSelected(undefined);
-                    history.push('/orgs/new')
-                }
+                onClick: () => history.push('/orgs/new')
             });
 
         return [{ links: links }];

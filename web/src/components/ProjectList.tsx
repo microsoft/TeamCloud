@@ -14,7 +14,7 @@ export const ProjectList: React.FC = () => {
     const history = useHistory();
     const { orgId } = useParams() as { orgId: string };
 
-    const { projects, onProjectSelected } = useOrg();
+    const { projects } = useOrg();
     // const [projectFilter, setProjectFilter] = useState<string>();
 
     const theme = getTheme();
@@ -52,7 +52,7 @@ export const ProjectList: React.FC = () => {
     // }
 
     const _onLinkClicked = (project: Project): void => {
-        onProjectSelected(project);
+        // onProjectSelected(project);
     }
 
     const _onItemInvoked = (project: Project): void => {

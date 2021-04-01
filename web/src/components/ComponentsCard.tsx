@@ -20,7 +20,7 @@ export const ComponentsCard: React.FC = () => {
 
     const { orgId, projectId } = useParams() as { orgId: string, projectId: string };
     const { org, scopes } = useOrg();
-    const { project, components, templates, onComponentSelected } = useProject();
+    const { project, components, templates } = useProject();
 
     const [component, setComponent] = useState<Component>();
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
@@ -154,7 +154,7 @@ export const ComponentsCard: React.FC = () => {
 
     const _onItemInvoked = (item: { component: Component, template: ComponentTemplate }): void => {
         // console.log(item);
-        onComponentSelected(item.component);
+        // onComponentSelected(item.component);
         history.push(`/orgs/${org?.slug ?? orgId}/projects/${project?.slug ?? projectId}/components/${item.component.slug}`);
     };
 

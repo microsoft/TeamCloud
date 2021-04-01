@@ -1,70 +1,84 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useCallback, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import React from 'react';
+import { useHistory } from 'react-router-dom';
+import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { useIsAuthenticated } from '@azure/msal-react';
-import { Organization } from 'teamcloud';
+import { DeploymentScopeDefinition, OrganizationDefinition, ProjectTemplateDefinition } from 'teamcloud';
 import { OrgsContext } from '../Context';
-import { matchesRouteParam } from '../Utils';
 import { api } from '../API';
 
 export const OrgsProvider = (props: any) => {
 
-    const { orgId } = useParams() as { orgId: string };
+    const history = useHistory();
 
     const isAuthenticated = useIsAuthenticated();
 
-    const [org, setOrg] = useState<Organization>();
-    const [orgs, setOrgs] = useState<Organization[]>();
+    const queryClient = useQueryClient();
 
-    const onOrgSelected = useCallback((selectedOrg?: Organization) => {
-        if (selectedOrg && org && selectedOrg.id === org.id)
-            return;
-        console.log(`+ setOrg (${selectedOrg?.slug})`);
-        setOrg(selectedOrg);
-        // setProjects(undefined);
-    }, [org]);
+    const createOrg = useMutation(async (def: { orgDef: OrganizationDefinition, scopeDef?: DeploymentScopeDefinition, templateDef?: ProjectTemplateDefinition }) => {
 
-    useEffect(() => { // Ensure selected Org matches route
-        if (orgId) {
-            if (org && matchesRouteParam(org, orgId)) {
-                return;
-            } else if (orgs) {
-                const find = orgs.find(o => matchesRouteParam(o, orgId));
-                if (find) {
-                    console.log(`+ getOrgFromRoute (${orgId})`);
-                    onOrgSelected(find);
+        console.log(`- createOrg`);
+        const orgResponse = await api.createOrganization({ body: def.orgDef });
+        const newOrg = orgResponse.data;
+        console.log(`+ createOrg`);
+
+        let scope, template;
+
+        if (newOrg?.id) {
+            if (def.scopeDef) {
+                console.log(`- createDeploymentScope`);
+                const scopeResponse = await api.createDeploymentScope(newOrg.id, { body: def.scopeDef });
+                scope = scopeResponse.data;
+                console.log(`+ createDeploymentScope`);
+            }
+            if (def.templateDef) {
+                console.log(`- createProjectTemplate`);
+                const templateResponse = await api.createProjectTemplate(newOrg.id, { body: def.templateDef });
+                template = templateResponse.data;
+                console.log(`+ createProjectTemplate`);
+            }
+        }
+
+        return { org: newOrg, scope: scope, template: template }
+
+    }, {
+        onSuccess: data => {
+            if (data.org) {
+
+                queryClient.invalidateQueries('orgs');
+
+                if (data.scope) {
+                    console.log(`+ setDeploymentScopes (${data.org.slug})`);
+                    queryClient.setQueryData(['org', data.org.id, 'scopes'], [data.scope])
                 }
-            }
-        } else if (org) {
-            console.log(`+ getOrgFromRoute (undefined)`);
-            onOrgSelected(undefined);
-        }
-    }, [orgId, org, orgs, onOrgSelected]);
 
-    useEffect(() => { // Orgs
-        if (isAuthenticated) {
-            // no orgs OR selected org isn't in the orgs list (new org was created)
-            if (orgs === undefined || (org && !orgs.some(o => o.id === org.id))) {
-                const _setOrgs = async () => {
-                    console.log('- setOrgs');
-                    const result = await api.getOrganizations();
-                    setOrgs(result.data ?? undefined);
-                    console.log('+ setOrgs');
-                };
-                _setOrgs();
+                if (data.template) {
+                    console.log(`+ setProjectTemplates (${data.org.slug})`);
+                    queryClient.setQueryData(['org', data.org.id, 'templates'], [data.template])
+                }
+
+                console.log(`+ setOrg (${data.org.slug})`);
+                queryClient.setQueryData(['org', data.org.slug], data.org)
+
+                history.push(`/orgs/${data.org.slug}`);
             }
-        } else if (orgs) {
-            console.log('+ setOrgs (undefined)');
-            setOrgs(undefined);
         }
-    }, [isAuthenticated, org, orgs]);
+    })
+
+    const { data: orgs } = useQuery('orgs', async () => {
+        console.log('- setOrgs');
+        const response = await api.getOrganizations();
+        console.log('+ setOrgs');
+        return response.data;
+    }, {
+        enabled: isAuthenticated
+    });
+
 
     return <OrgsContext.Provider value={{
-        org: org,
         orgs: orgs,
-        onOrgSelected: onOrgSelected,
+        createOrg: createOrg.mutateAsync,
     }} {...props} />
-
 }

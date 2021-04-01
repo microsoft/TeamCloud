@@ -7,16 +7,14 @@ import { Stack, TextField, Text, PrimaryButton, DefaultButton, IconButton, Pivot
 import { OrganizationDefinition, DeploymentScopeDefinition, ProjectTemplateDefinition } from 'teamcloud'
 import { AzureRegions, Tags } from '../model';
 import { CalloutLabel, ContentContainer, ContentHeader, ContentProgress, DeploymentScopeForm, ProjectTemplateForm } from '../components';
-import { api } from '../API';
-import { useAzureManagement, useOrg, useOrgs } from '../Hooks';
+import { useAzureManagement, useOrgs } from '../Hooks';
 
 export const NewOrgView: React.FC = () => {
 
     const history = useHistory();
 
     const { subscriptions } = useAzureManagement();
-    const { onOrgSelected } = useOrgs();
-    const { onCreateDeploymentScope, onCreateProjectTemplate } = useOrg();
+    const { createOrg } = useOrgs();
 
     // Basic Settings
     const [orgName, setOrgName] = useState<string>();
@@ -33,7 +31,6 @@ export const NewOrgView: React.FC = () => {
     const [pivotKey, setPivotKey] = useState<string>('Basic Settings');
     const [formEnabled, setFormEnabled] = useState<boolean>(true);
     const [percentComplete, setPercentComplete] = useState<number>();
-    const [errorText, setErrorText] = useState<string>();
 
 
     const pivotKeys = ['Basic Settings', 'Configuration', 'Deployment Scope', 'Project Template', 'Tags', 'Review + create'];
@@ -81,31 +78,13 @@ export const NewOrgView: React.FC = () => {
                 location: orgRegion
             } as OrganizationDefinition;
 
-            const orgResult = await api.createOrganization({ body: orgDef });
-
-            const org = orgResult.data;
-
-            setPercentComplete(.2);
-
-            if (org) {
-
-                if (scope && _scopeComplete())
-                    await onCreateDeploymentScope(scope, org);
-
-                setPercentComplete(.4);
-
-                if (template && _templateComplete())
-                    await onCreateProjectTemplate(template, org);
-
-                onOrgSelected(org);
-
-                setPercentComplete(1);
-                history.push(`/orgs/${org.slug}`);
-
-            } else {
-                setPercentComplete(1);
-                setErrorText(orgResult.status ?? 'failed to create new org');
+            const def = {
+                orgDef: orgDef,
+                scopeDef: scope && _scopeComplete() ? scope : undefined,
+                templateDef: template && _templateComplete() ? template : undefined
             }
+
+            await createOrg(def);
         }
     };
 
@@ -286,7 +265,6 @@ export const NewOrgView: React.FC = () => {
                 <PrimaryButton text={_getPrimaryButtonText()} disabled={!formEnabled || (_onReview() && !_orgComplete())} onClick={() => _onReview() ? _submitForm() : setPivotKey(pivotKeys[pivotKeys.indexOf(pivotKey) + 1])} styles={{ root: { marginRight: 8 } }} />
                 <DefaultButton text='Cancel' disabled={!formEnabled} onClick={() => _resetAndCloseForm()} />
             </Stack.Item>
-            <Text>{errorText}</Text>
         </Stack>
     );
 }

@@ -10,7 +10,7 @@ import { useAzureManagement } from '../Hooks';
 export interface IDeploymentScopeFormProps {
     embedded?: boolean,
     onScopeChange?: (scope?: DeploymentScopeDefinition) => void;
-    onCreateDeploymentScope?: (scope: DeploymentScopeDefinition) => Promise<void>;
+    createDeploymentScope?: (scope: DeploymentScopeDefinition) => Promise<void>;
 }
 
 export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) => {
@@ -73,7 +73,7 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
 
 
     const _submitForm = () => {
-        if (orgId && props.onCreateDeploymentScope !== undefined && _scopeComplete()) {
+        if (orgId && props.createDeploymentScope !== undefined && _scopeComplete()) {
 
             setFormEnabled(false);
 
@@ -84,7 +84,7 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
                 // isDefault: true
             } as DeploymentScopeDefinition;
 
-            props.onCreateDeploymentScope(scopeDef);
+            props.createDeploymentScope(scopeDef);
         }
     };
 

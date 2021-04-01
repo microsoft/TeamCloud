@@ -13,8 +13,8 @@ import { useGraphUser, useProject } from '../Hooks';
 export interface IMembersCardProps {
     // onEditMember: (member?: Member) => void;
     members?: Member[];
-    onAddUsers: (user: UserDefinition[]) => Promise<void>;
-    onRemoveUsers: (user: User[]) => Promise<void>;
+    addUsers: (user: UserDefinition[]) => Promise<void>;
+    removeUsers: (user: User[]) => Promise<void>;
 }
 
 export const MembersCard: React.FC<IMembersCardProps> = (props) => {
@@ -23,7 +23,7 @@ export const MembersCard: React.FC<IMembersCardProps> = (props) => {
 
     const { graphUser } = useGraphUser()
 
-    const { members, onAddUsers } = useProject();
+    const { members, addUsers } = useProject();
 
     const _removeMember = async (member: Member) => {
         const projectId = (member as ProjectMember)?.projectMembership?.projectId;
@@ -62,7 +62,7 @@ export const MembersCard: React.FC<IMembersCardProps> = (props) => {
                 members={members}
                 panelIsOpen={addMembersPanelOpen}
                 onFormClose={() => setAddMembersPanelOpen(false)}
-                onAddUsers={onAddUsers} />
+                onAddUsers={addUsers} />
         </>
     );
 }

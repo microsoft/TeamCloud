@@ -22,17 +22,17 @@ const httpOptions: IHttpConnectionOptions = {
 
 let connection: HubConnection | undefined
 
-export const resolveSignalR = async (project: Project | undefined) => {
+export const resolveSignalR = async (project: Project | undefined, callback: (action: string, data: any) => void) => {
 
     if (!project) {
         await stopSignalR()
         return;
     }
 
-    await startSignalR(project);
+    await startSignalR(project, callback);
 }
 
-export const startSignalR = async (project: Project) => {
+export const startSignalR = async (project: Project, callback: (action: string, data: any) => void) => {
 
     const endpoint = `${apiUrl}/orgs/${project.organization}/projects/${project.id}`;
 
@@ -49,19 +49,23 @@ export const startSignalR = async (project: Project) => {
 
     connection.on('create', data => {
         console.log(`$ create: ${data}`);
-    })
+        callback('create', data)
+    });
 
     connection.on('update', data => {
         console.log(`$ update: ${data}`);
-    })
+        callback('update', data)
+    });
 
     connection.on('delete', data => {
         console.log(`$ delete: ${data}`);
-    })
+        callback('delete', data)
+    });
 
     connection.on('custom', data => {
         console.log(`$ custom: ${data}`);
-    })
+        callback('custom', data)
+    });
 
     await connection.start();
 }
