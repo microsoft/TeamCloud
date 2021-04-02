@@ -33,6 +33,7 @@ export const ContentRouter: React.FC = () => (
             '/orgs/:orgId/projects/:projectId/:navId',
             '/orgs/:orgId/projects/:projectId/:navId/new',
             '/orgs/:orgId/projects/:projectId/:navId/:itemId',
+            '/orgs/:orgId/projects/:projectId/:navId/:itemId/tasks/:subitemId',
         ]}>
             <ProjectView />
         </Route>

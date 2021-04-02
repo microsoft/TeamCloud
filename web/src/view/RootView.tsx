@@ -38,6 +38,7 @@ export const RootView: React.FC<IRootViewProps> = (props) => {
             <Redirect exact from='/orgs/:orgId/settings/overview' to='/orgs/:orgId/settings' />
             <Redirect exact from='/orgs/:orgId/projects/:projectId/overview' to='/orgs/:orgId/projects/:projectId' />
             <Redirect exact from='/orgs/:orgId/projects/:projectId/settings/overview' to='/orgs/:orgId/projects/:projectId/settings' />
+            <Redirect exact from='/orgs/:orgId/projects/:projectId/components/:itemId/tasks' to='/orgs/:orgId/projects/:projectId/components/:itemId' />
             <Route exact path={[
                 '/',
                 '/orgs/new',
@@ -52,6 +53,7 @@ export const RootView: React.FC<IRootViewProps> = (props) => {
                 '/orgs/:orgId/projects/:projectId/:navId',
                 '/orgs/:orgId/projects/:projectId/:navId/new',
                 '/orgs/:orgId/projects/:projectId/:navId/:itemId',
+                '/orgs/:orgId/projects/:projectId/:navId/:itemId/tasks/:subitemId',
             ]}>
                 <StateRouter {...{}}>
                     <Stack verticalFill>

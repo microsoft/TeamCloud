@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { Route, useHistory } from 'react-router-dom';
 import { IconButton, Stack } from '@fluentui/react';
 import { DeploymentScopeDefinition, ProjectTemplateDefinition } from 'teamcloud';
 import { OrgSettingsOverview, DeploymentScopeList, ProjectTemplateList, ContentHeader, ContentContainer, ContentProgress, MemberList, DeploymentScopeForm, ProjectTemplateForm, NoData } from '../components';
-import { GraphUserContext, OrgContext } from '../Context';
+import { useAzureManagement, useOrg } from '../Hooks';
 import business from '../img/MSC17_business_001_noBG.png'
 
 export const OrgSettingsView: React.FC = () => {
@@ -15,21 +15,22 @@ export const OrgSettingsView: React.FC = () => {
 
     const [progressHidden, setProgressHidden] = useState(true);
 
-    const { subscriptions } = useContext(GraphUserContext);
-    const { org, members, scopes, templates, onCreateDeploymentScope, onCreateProjectTemplate, onAddUsers } = useContext(OrgContext);
+    const { subscriptions } = useAzureManagement();
+
+    const { org, members, scopes, templates, createDeploymentScope, createProjectTemplate, addUsers: onAddUsers } = useOrg();
 
 
-    const _onCreateDeploymentScope = async (scope: DeploymentScopeDefinition) => {
+    const _createDeploymentScope = async (scope: DeploymentScopeDefinition) => {
         setProgressHidden(false);
-        await onCreateDeploymentScope(scope);
+        await createDeploymentScope(scope);
         setProgressHidden(true);
         history.push(`/orgs/${org?.slug}/settings/scopes`);
     };
 
 
-    const _onCreateProjectTemplate = async (template: ProjectTemplateDefinition) => {
+    const _createProjectTemplate = async (template: ProjectTemplateDefinition) => {
         setProgressHidden(false);
-        await onCreateProjectTemplate(template);
+        await createProjectTemplate(template);
         setProgressHidden(true);
         history.push(`/orgs/${org?.slug}/settings/templates`);
     };
@@ -81,19 +82,19 @@ export const OrgSettingsView: React.FC = () => {
                     <OrgSettingsOverview {...{}} />
                 </Route>
                 <Route exact path='/orgs/:orgId/settings/members'>
-                    <MemberList {...{ members: members, onAddUsers: onAddUsers }} />
+                    <MemberList {...{ members: members, addUsers: onAddUsers }} />
                 </Route>
                 <Route exact path='/orgs/:orgId/settings/scopes'>
                     <DeploymentScopeList {...{}} />
                 </Route>
                 <Route exact path='/orgs/:orgId/settings/scopes/new'>
-                    <DeploymentScopeForm {...{ onCreateDeploymentScope: _onCreateDeploymentScope }} />
+                    <DeploymentScopeForm {...{ createDeploymentScope: _createDeploymentScope }} />
                 </Route>
                 <Route exact path='/orgs/:orgId/settings/templates'>
                     <ProjectTemplateList {...{}} />
                 </Route>
                 <Route exact path='/orgs/:orgId/settings/templates/new'>
-                    <ProjectTemplateForm {...{ onCreateProjectTemplate: _onCreateProjectTemplate }} />
+                    <ProjectTemplateForm {...{ createProjectTemplate: _createProjectTemplate }} />
                 </Route>
                 <Route exact path='/orgs/:orgId/settings/audit'>
                     <NoData image={business} title='Coming soon' description='Come back to see usage policy and compliance infomation.' />

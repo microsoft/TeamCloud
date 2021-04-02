@@ -1,12 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { getTheme, PrimaryButton, Stack } from '@fluentui/react';
-import { OrgContext, ProjectContext } from '../Context';
-import { ComponentTaskDefinition, ComponentTaskTemplate } from 'teamcloud';
-import { api } from '../API';
-// import { stringify } from 'querystring';
+import { ComponentTaskTemplate } from 'teamcloud';
+import { useProject, useOrg } from '../Hooks';
 
 export interface IComponentTaskMenuProps {
 
@@ -16,8 +14,8 @@ export const ComponentTaskMenu: React.FunctionComponent<IComponentTaskMenuProps>
 
     const theme = getTheme();
 
-    const { org } = useContext(OrgContext);
-    const { component, templates, onComponentTaskSelected } = useContext(ProjectContext);
+    const { org } = useOrg();
+    const { component, templates, createComponentTask } = useProject();
 
     const [taskTemplates, setTaskTemplates] = useState<ComponentTaskTemplate[]>();
 
@@ -34,19 +32,10 @@ export const ComponentTaskMenu: React.FunctionComponent<IComponentTaskMenuProps>
     }, [org, component, templates]);
 
     const onClickTaskButton = async (componentTaskTemplate: ComponentTaskTemplate) => {
-        if (org && component) {
-            console.log(`- createTask`);
-            const result = await api.createComponentTask(org.id, component.projectId, component.id, {
-                body: {
-                    taskId: componentTaskTemplate.id
-                } as ComponentTaskDefinition
-            })
-            if (result.data) {
-                onComponentTaskSelected(result.data);
-            } else {
-                console.error(result);
-            }
-            console.log(`+ createTask`);
+        if (org && component && componentTaskTemplate.id) {
+            await createComponentTask({
+                taskId: componentTaskTemplate.id
+            });
         }
     }
 

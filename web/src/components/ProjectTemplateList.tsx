@@ -1,21 +1,21 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import { Checkbox, IColumn, IconButton, Label, Modal, Stack, Text } from '@fluentui/react';
 import { useHistory, useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { ProjectTemplate } from 'teamcloud';
-import { OrgContext } from '../Context';
 import { ContentList, ContentSeparator } from '.';
 
 import collaboration from '../img/MSC17_collaboration_010_noBG.png'
+import { useOrg } from '../Hooks';
 
 export const ProjectTemplateList: React.FC = () => {
 
     const history = useHistory();
     const { orgId } = useParams() as { orgId: string };
-    const { templates } = useContext(OrgContext);
+    const { templates } = useOrg();
 
     const [selectedTemplate, setSelectedTemplate] = useState<ProjectTemplate>();
     const [modalIsOpen, setModalIsOpen] = useState(false);

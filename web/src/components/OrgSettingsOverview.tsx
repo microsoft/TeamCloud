@@ -2,14 +2,14 @@
 // Licensed under the MIT License.
 
 import { DefaultButton, getTheme, Link, Persona, PersonaSize, PrimaryButton, Stack, Text, TextField } from '@fluentui/react';
-import React, { useContext, useEffect, useState } from 'react';
-import { OrgContext } from '../Context';
+import React, { useEffect, useState } from 'react';
 import { Member } from '../model';
 import { ContentSeparator, UserPersona } from '.';
+import { useOrg } from '../Hooks';
 
 export const OrgSettingsOverview: React.FC = () => {
 
-    const { org, user, members } = useContext(OrgContext);
+    const { org, user, members } = useOrg();
 
     const [owner, setOwner] = useState<Member>();
 

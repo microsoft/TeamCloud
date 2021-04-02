@@ -1,14 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useContext } from 'react';
+import React from 'react';
 import { Stack } from '@fluentui/react';
 import { MembersCard, ComponentsCard } from '../components';
-import { ProjectContext } from '../Context';
+import { useProject } from '../Hooks';
 
 export const ProjectOverview: React.FC = () => {
 
-    const { members, onAddUsers, onRemoveUsers } = useContext(ProjectContext);
+    const { members, addUsers, removeUsers } = useProject();
 
     return (
         <Stack
@@ -20,7 +20,7 @@ export const ProjectOverview: React.FC = () => {
                 <ComponentsCard />
             </Stack.Item>
             <Stack.Item grow styles={{ root: { minWidth: '20%', marginRight: '16px' } }}>
-                <MembersCard members={members} onAddUsers={onAddUsers} onRemoveUsers={onRemoveUsers} />
+                <MembersCard members={members} addUsers={addUsers} removeUsers={removeUsers} />
             </Stack.Item>
         </Stack>
     );

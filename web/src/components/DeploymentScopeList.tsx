@@ -1,19 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useContext } from 'react';
+import React from 'react';
 import { Checkbox, IColumn } from '@fluentui/react';
 import { DeploymentScope } from 'teamcloud';
 import { useHistory } from 'react-router-dom';
 import { ContentList } from '.';
-import { OrgContext } from '../Context';
+import { useOrg } from '../Hooks';
 import collaboration from '../img/MSC17_collaboration_010_noBG.png'
 
 export const DeploymentScopeList: React.FC = () => {
 
     const history = useHistory();
 
-    const { org, scopes } = useContext(OrgContext);
+    const { org, scopes } = useOrg();
 
     const columns: IColumn[] = [
         { key: 'displayName', name: 'Name', minWidth: 200, fieldName: 'displayName' },

@@ -1,17 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useContext } from 'react';
+import React from 'react';
 import { useHistory } from 'react-router-dom';
 import { Stack, PrimaryButton, Pivot, PivotItem } from '@fluentui/react';
 import { ContentContainer, ContentHeader, ContentProgress, ProjectList } from '../components';
-import { OrgContext } from '../Context';
+import { useOrg } from '../Hooks';
 
 export const ProjectsView: React.FC = () => {
 
     const history = useHistory();
 
-    const { org, projects } = useContext(OrgContext);
+    const { org, projects } = useOrg();
 
     return (
         <Stack>

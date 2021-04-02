@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DefaultButton, Dropdown, FontIcon, getTheme, IColumn, IconButton, IDropdownOption, Image, Persona, PersonaSize, PrimaryButton, Stack, Text, TextField } from '@fluentui/react';
 import { ComponentDefinition, ComponentTemplate } from 'teamcloud';
 import { useHistory } from 'react-router-dom';
@@ -9,11 +9,10 @@ import ReactMarkdown from 'react-markdown';
 import { FuiForm } from '@rjsf/fluent-ui'
 import { FieldTemplateProps, ISubmitEvent } from '@rjsf/core';
 import { ContentContainer, ContentHeader, ContentList, ContentProgress, ContentSeparator } from '.';
-import { OrgContext, ProjectContext } from '../Context';
 import DevOps from '../img/devops.svg';
 import GitHub from '../img/github.svg';
 import Resource from '../img/resource.svg';
-import { api } from '../API';
+import { useProject, useOrg } from '../Hooks';
 
 export const ComponentForm: React.FC = () => {
 
@@ -27,8 +26,8 @@ export const ComponentForm: React.FC = () => {
     const [displayName, setDisplayName] = useState<string>();
     const [deploymentScopeId, setDeploymentScopeId] = useState<string>();
 
-    const { org, scopes } = useContext(OrgContext);
-    const { project, templates, onComponentSelected } = useContext(ProjectContext);
+    const { org, scopes } = useOrg();
+    const { project, templates, createComponent } = useProject();
 
     const theme = getTheme();
 
@@ -54,24 +53,9 @@ export const ComponentForm: React.FC = () => {
                 deploymentScopeId: deploymentScopeId
             };
 
-            const componentResult = await api.createComponent(project.organization, project.id, { body: componentDef });
-            const component = componentResult.data;
-
-            if (component) {
-                onComponentSelected(component);
-                history.push(`/orgs/${org.slug}/projects/${project.slug}/components/${component.slug}`);
-            } else {
-                console.error(componentResult);
-            }
+            await createComponent(componentDef);
         }
     };
-
-    // const _resetAndCloseForm = () => {
-    //     setComponentTemplate(undefined);
-    //     setFormEnabled(true);
-    //     // onFormClose();
-    // };
-
 
 
     const _getTypeImage = (template: ComponentTemplate) => {

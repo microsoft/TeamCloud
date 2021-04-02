@@ -1,18 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { Route, Switch } from 'react-router-dom';
 import { Stack, IconButton } from '@fluentui/react';
 import { ComponentOverview, ProjectOverview, ContentHeader, ContentProgress, ContentContainer, MemberList, ComponentList, ComponentForm, ProjectSettingsOverview } from '../components';
-import { ProjectContext } from '../Context';
 import { ComponentTaskMenu } from '../components/ComponentTaskMenu';
+import { useProject } from '../Hooks';
 
 export const ProjectView: React.FC = () => {
 
     const [favorite, setFavorate] = useState(false);
 
-    const { project, members, components, component, templates, onAddUsers } = useContext(ProjectContext);
+    const { project, members, components, component, templates, addUsers } = useProject();
 
     return (
         <Stack>
@@ -37,7 +37,7 @@ export const ProjectView: React.FC = () => {
                         <ComponentList />
                     </ContentContainer>
                 </Route>
-                <Route exact path='/orgs/:orgId/projects/:projectId/components/:itemId'>
+                <Route exact path={['/orgs/:orgId/projects/:projectId/components/:itemId', '/orgs/:orgId/projects/:projectId/components/:itemId/tasks/:subitemId']}>
                     <ContentProgress progressHidden={project !== undefined && components !== undefined && templates !== undefined && members !== undefined} />
                     <ContentHeader title={component?.displayName ?? undefined}>
                         <ComponentTaskMenu />
@@ -50,7 +50,7 @@ export const ProjectView: React.FC = () => {
                     <ContentProgress progressHidden={project !== undefined && members !== undefined} />
                     <ContentHeader title='Members' />
                     <ContentContainer>
-                        <MemberList {...{ project: project, members: members, onAddUsers: onAddUsers }} />
+                        <MemberList {...{ project: project, members: members, addUsers: addUsers }} />
                     </ContentContainer>
                 </Route>
                 <Route exact path='/orgs/:orgId/projects/:projectId/settings'>

@@ -1,23 +1,24 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ComboBox, DefaultButton, IComboBox, IComboBoxOption, Label, PrimaryButton, Stack, TextField } from '@fluentui/react';
 import { DeploymentScopeDefinition } from 'teamcloud';
 import { useHistory, useParams } from 'react-router-dom';
-import { GraphUserContext } from '../Context';
+import { useAzureManagement } from '../Hooks';
 
 export interface IDeploymentScopeFormProps {
     embedded?: boolean,
     onScopeChange?: (scope?: DeploymentScopeDefinition) => void;
-    onCreateDeploymentScope?: (scope: DeploymentScopeDefinition) => Promise<void>;
+    createDeploymentScope?: (scope: DeploymentScopeDefinition) => Promise<void>;
 }
 
 export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) => {
 
     const history = useHistory();
     const { orgId } = useParams() as { orgId: string };
-    const { subscriptions, managementGroups } = useContext(GraphUserContext);
+
+    const { subscriptions, managementGroups } = useAzureManagement();
 
     const [scopeName, setScopeName] = useState<string>();
     const [scopeManagementGroup, setScopeManagementGroup] = useState<string>();
@@ -72,7 +73,7 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
 
 
     const _submitForm = () => {
-        if (orgId && props.onCreateDeploymentScope !== undefined && _scopeComplete()) {
+        if (orgId && props.createDeploymentScope !== undefined && _scopeComplete()) {
 
             setFormEnabled(false);
 
@@ -83,7 +84,7 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
                 // isDefault: true
             } as DeploymentScopeDefinition;
 
-            props.onCreateDeploymentScope(scopeDef);
+            props.createDeploymentScope(scopeDef);
         }
     };
 
