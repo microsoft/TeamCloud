@@ -35,6 +35,7 @@ using TeamCloud.Orchestration.Deployment;
 using TeamCloud.Orchestrator;
 using TeamCloud.Orchestrator.Command;
 using TeamCloud.Orchestrator.Command.Handlers;
+using TeamCloud.Orchestrator.Command.Handlers.Messaging;
 using TeamCloud.Serialization.Encryption;
 
 [assembly: FunctionsStartup(typeof(TeamCloudOrchestratorStartup))]

@@ -8,13 +8,13 @@ using TeamCloud.Configuration.Options;
 
 namespace TeamCloud.Orchestrator.Options
 {
-    public interface IAzureSignalROptions
+    public interface ISignalROptions
     {
         string ConnectionString { get; }
     }
 
     [Options]
-    public class TeamCloudSignalROptions : IAzureSignalROptions
+    public class TeamCloudSignalROptions : ISignalROptions
     {
         private readonly AzureSignalROptions azureSignalROptions;
 
@@ -23,6 +23,6 @@ namespace TeamCloud.Orchestrator.Options
             this.azureSignalROptions = azureSignalROptions ?? throw new System.ArgumentNullException(nameof(azureSignalROptions));
         }
 
-        string IAzureSignalROptions.ConnectionString => azureSignalROptions.ConnectionString;
+        string ISignalROptions.ConnectionString => azureSignalROptions.ConnectionString;
     }
 }

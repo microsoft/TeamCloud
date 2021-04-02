@@ -18,7 +18,7 @@ using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Common;
 using TeamCloud.Serialization;
 
-namespace TeamCloud.Orchestrator.Command.Handlers
+namespace TeamCloud.Orchestrator.Command.Handlers.Messaging
 {
     public sealed class BroadcastCommandHandler : CommandHandler
     {
