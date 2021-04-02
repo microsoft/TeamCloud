@@ -1,14 +1,15 @@
-/**
+﻿/**
  *  Copyright (c) Microsoft Corporation.
  *  Licensed under the MIT License.
  */
 
+using TeamCloud.Model.Broadcast;
 using TeamCloud.Model.Commands.Core;
-using TeamCloud.Model.Data;
 
 namespace TeamCloud.Model.Commands
 {
-    public sealed class ComponentTaskCommandResult : CommandResult<ComponentTask>
+    public sealed class BroadcastCommandResultCommandResult : CommandResult<BroadcastMessage>
     {
+
     }
 }

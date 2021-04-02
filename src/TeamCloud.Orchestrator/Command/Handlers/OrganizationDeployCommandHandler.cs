@@ -1,9 +1,14 @@
-﻿using Microsoft.Azure.WebJobs;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
+
+using System;
+using System.Threading.Tasks;
+using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Threading.Tasks;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Common;
@@ -16,9 +21,11 @@ using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.Command.Handlers
 {
-    public sealed class OrganizationDeployCommandHandler : ICommandHandler<OrganizationDeployCommand>
+    public sealed class OrganizationDeployCommandHandler : CommandHandler,
+        ICommandHandler<OrganizationDeployCommand>
     {
-        public bool Orchestration => true;
+        public OrganizationDeployCommandHandler() : base(true)
+        { }
 
         public async Task<ICommandResult> HandleAsync(OrganizationDeployCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
         {

@@ -36,13 +36,15 @@ namespace TeamCloud.Model.Commands.Core
         Dictionary<string, string> Links { get; }
 
         object Result { get; set; }
-
-        TimeSpan Timeout { get; set; }
     }
 
     public interface ICommandResult<TResult> : ICommandResult
         where TResult : class, new()
     {
-        new TResult Result { get; set; }
+        new TResult Result
+        {
+            get => (this as ICommandResult).Result as TResult;
+            set => (this as ICommandResult).Result = value;
+        }
     }
 }

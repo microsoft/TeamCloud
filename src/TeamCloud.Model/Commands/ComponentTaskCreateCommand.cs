@@ -8,9 +8,9 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Model.Commands
 {
-    public sealed class ComponentTaskCommand : CustomCommand<ComponentTask, ComponentTaskCommandResult>
+    public sealed class ComponentTaskCreateCommand : CreateCommand<ComponentTask, ComponentTaskCreateCommandResult>
     {
-        public ComponentTaskCommand(User user, ComponentTask payload) : base(user, payload)
+        public ComponentTaskCreateCommand(User user, ComponentTask payload) : base(user, payload)
         { }
     }
 }

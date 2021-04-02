@@ -38,19 +38,19 @@ export const startSignalR = async (project: Project) => {
     connection = new HubConnectionBuilder().withUrl(endpoint, httpOptions).build();
 
     connection.on('create', data => {
-        console.log(`$ create: ${data}`);
+        console.log(`$ create: ${JSON.stringify(data)}`);
     })
 
     connection.on('update', data => {
-        console.log(`$ update: ${data}`);
+        console.log(`$ update: ${JSON.stringify(data)}`);
     })
 
     connection.on('delete', data => {
-        console.log(`$ delete: ${data}`);
+        console.log(`$ delete: ${JSON.stringify(data)}`);
     })
 
     connection.on('custom', data => {
-        console.log(`$ custom: ${data}`);
+        console.log(`$ custom: ${JSON.stringify(data)}`);
     })
 
     await connection.start();
