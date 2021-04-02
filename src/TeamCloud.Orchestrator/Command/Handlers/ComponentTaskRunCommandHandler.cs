@@ -3,11 +3,11 @@
  *  Licensed under the MIT License.
  */
 
+using System;
+using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Threading.Tasks;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Common;
@@ -21,9 +21,11 @@ using TeamCloud.Orchestrator.Command.Entities;
 
 namespace TeamCloud.Orchestrator.Command.Handlers
 {
-    public sealed class ComponentTaskRunCommandHandler : ICommandHandler<ComponentTaskRunCommand>
+    public sealed class ComponentTaskRunCommandHandler : CommandHandler,
+        ICommandHandler<ComponentTaskRunCommand>
     {
-        public bool Orchestration => true;
+        public ComponentTaskRunCommandHandler() : base(true)
+        { }
 
         public async Task<ICommandResult> HandleAsync(ComponentTaskRunCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
 

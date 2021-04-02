@@ -152,7 +152,7 @@ namespace TeamCloud.API.Controllers
                 InputJson = componentTaskDefinition.InputJson ?? component.InputJson
             };
 
-            var command = new ComponentTaskCommand(currentUser, componentTask);
+            var command = new ComponentTaskCreateCommand(currentUser, componentTask);
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync(command, Request)

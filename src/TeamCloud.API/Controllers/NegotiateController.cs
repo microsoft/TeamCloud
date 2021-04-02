@@ -38,7 +38,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerOperation(OperationId = "NegotiateSignalR", Summary = "Negotiates the SignalR connection.")]
         public Task<IActionResult> Index() => ExecuteAsync((User user, Organization organization, Project project) =>
         {
-            var hub = project.HubName();
+            var hub = project.GetHubName();
             var url = _serviceManager.GetClientEndpoint(hub);
             var token = _serviceManager.GenerateClientAccessToken(hub, user.Id);
 

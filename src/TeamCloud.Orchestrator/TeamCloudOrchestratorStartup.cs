@@ -3,6 +3,8 @@
  *  Licensed under the MIT License.
  */
 
+using System;
+using System.Reflection;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
@@ -15,8 +17,6 @@ using Microsoft.Extensions.Configuration.AzureKeyVault;
 using Microsoft.Extensions.Configuration.UserSecrets;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
-using System.Reflection;
 using TeamCloud.Audit;
 using TeamCloud.Azure;
 using TeamCloud.Azure.Deployment;
@@ -121,6 +121,7 @@ namespace TeamCloud.Orchestrator
             // handler use the non-generic ICommandHandler interface.
 
             builder.Services
+                .AddScoped<ICommandHandler, BroadcastCommandHandler>()
                 .AddScoped<ICommandHandler, ComponentCommandHandler>()
                 .AddScoped<ICommandHandler, DeploymentScopeCommandHandler>()
                 .AddScoped<ICommandHandler, OrganizationCommandHandler>()

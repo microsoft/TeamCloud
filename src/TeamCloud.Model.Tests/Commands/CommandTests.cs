@@ -22,7 +22,6 @@ namespace TeamCloud.Model.Commands
         };
 
         [Fact]
-        [SuppressMessage("Naming", "CA1707:Identifiers should not contain underscores", Justification = "<Pending>")]
         public void Serialize()
         {
             var command = new MockCommand(this.user, MockPayload.Instance);
