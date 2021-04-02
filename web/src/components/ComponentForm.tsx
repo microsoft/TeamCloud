@@ -2,17 +2,18 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect } from 'react';
-import { DefaultButton, Dropdown, FontIcon, getTheme, IColumn, IconButton, IDropdownOption, Image, Persona, PersonaSize, PrimaryButton, Stack, Text, TextField } from '@fluentui/react';
-import { ComponentDefinition, ComponentTemplate } from 'teamcloud';
 import { useHistory } from 'react-router-dom';
+import { DefaultButton, Dropdown, FontIcon, getTheme, IColumn, IconButton, IDropdownOption, Image, Persona, PersonaSize, PrimaryButton, Stack, Text, TextField } from '@fluentui/react';
 import ReactMarkdown from 'react-markdown';
 import { FuiForm } from '@rjsf/fluent-ui'
 import { FieldTemplateProps, ISubmitEvent } from '@rjsf/core';
+import { ComponentDefinition, ComponentTemplate } from 'teamcloud';
 import { ContentContainer, ContentHeader, ContentList, ContentProgress, ContentSeparator } from '.';
+import { useOrg, useProject, useDeploymentScopes, useCreateProjectComponent, useProjectComponentTemplates } from '../hooks';
+
 import DevOps from '../img/devops.svg';
 import GitHub from '../img/github.svg';
 import Resource from '../img/resource.svg';
-import { useProject, useOrg } from '../Hooks';
 
 export const ComponentForm: React.FC = () => {
 
@@ -26,8 +27,12 @@ export const ComponentForm: React.FC = () => {
     const [displayName, setDisplayName] = useState<string>();
     const [deploymentScopeId, setDeploymentScopeId] = useState<string>();
 
-    const { org, scopes } = useOrg();
-    const { project, templates, createComponent } = useProject();
+    const { data: org, isLoading: orgIsLoading } = useOrg();
+    const { data: scopes, isLoading: scopesIsLoading } = useDeploymentScopes();
+    const { data: project, isLoading: projectIsLoading } = useProject();
+    const { data: templates, isLoading: templatesIsLoading } = useProjectComponentTemplates();
+
+    const createComponent = useCreateProjectComponent();
 
     const theme = getTheme();
 
@@ -170,7 +175,7 @@ export const ComponentForm: React.FC = () => {
 
     return (
         <>
-            <ContentProgress progressHidden={formEnabled && project !== undefined && templates !== undefined} />
+            <ContentProgress progressHidden={formEnabled && !orgIsLoading && !scopesIsLoading && !projectIsLoading && !templatesIsLoading} />
             <ContentHeader title='New Component'>
                 <IconButton iconProps={{ iconName: 'ChromeClose' }}
                     onClick={() => history.push(`/orgs/${org?.slug}/projects/${project?.slug}`)} />
@@ -183,7 +188,7 @@ export const ComponentForm: React.FC = () => {
                     <Stack.Item>
                         <ContentList
                             columns={columns}
-                            items={template ? [template] : templates}
+                            items={template ? [template] : templates ?? undefined}
                             onItemInvoked={_onItemInvoked}
                             noCheck
                             noHeader={template !== undefined}

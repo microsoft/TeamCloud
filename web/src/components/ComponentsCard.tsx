@@ -2,25 +2,29 @@
 // Licensed under the MIT License.
 
 import React, { useEffect, useState } from 'react';
+import { useHistory, useParams } from 'react-router-dom';
 import { Stack, DefaultButton, Text, ICommandBarItemProps, Dialog, DialogType, DialogFooter, PrimaryButton, FontIcon, IColumn, Persona, PersonaSize, DetailsList, DetailsListLayoutMode, CheckboxVisibility, IDetailsRowProps, IRenderFunction, SelectionMode } from '@fluentui/react';
 import { Component, ComponentTemplate, ErrorResult } from 'teamcloud';
-import { DetailCard } from '.';
 import { api } from '../API';
-import { useHistory, useParams } from 'react-router-dom';
+import { DetailCard, ComponentLink } from '.';
+import { useOrg, useDeploymentScopes, useProject, useProjectComponents, useProjectComponentTemplates } from '../hooks';
+
 import DevOps from '../img/devops.svg';
 import GitHub from '../img/github.svg';
 import Resource from '../img/resource.svg';
-import { ComponentLink } from './ComponentLink';
-import { useProject, useOrg } from '../Hooks';
-
 
 export const ComponentsCard: React.FC = () => {
 
     const history = useHistory();
 
     const { orgId, projectId } = useParams() as { orgId: string, projectId: string };
-    const { org, scopes } = useOrg();
-    const { project, components, templates } = useProject();
+
+    const { data: org } = useOrg();
+    const { data: scopes } = useDeploymentScopes();
+
+    const { data: project } = useProject();
+    const { data: components } = useProjectComponents();
+    const { data: templates } = useProjectComponentTemplates();
 
     const [component, setComponent] = useState<Component>();
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);

@@ -5,8 +5,8 @@ import React, { useEffect, useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { CheckboxVisibility, DetailsList, DetailsListLayoutMode, FontIcon, getTheme, IColumn, IDetailsRowProps, IRenderFunction, SelectionMode, Stack, Text } from '@fluentui/react';
 import { ComponentTask } from 'teamcloud';
-import { useOrg, useProject } from '../Hooks';
 import { ComponentTaskConsole } from '.';
+import { useOrg, useProject, useProjectComponent, useProjectComponentTask, useProjectComponentTasks, useProjectComponentTemplates } from '../hooks';
 
 export interface IComponentTaskListProps {
 
@@ -19,8 +19,12 @@ export const ComponentTaskList: React.FunctionComponent<IComponentTaskListProps>
 
     const { orgId, projectId, itemId, subitemId } = useParams() as { orgId: string, projectId: string, itemId: string, subitemId: string };
 
-    const { org } = useOrg();
-    const { project, component, componentTask, componentTasks, templates } = useProject();
+    const { data: org } = useOrg();
+    const { data: project } = useProject();
+    const { data: component } = useProjectComponent();
+    const { data: templates } = useProjectComponentTemplates();
+    const { data: componentTask } = useProjectComponentTask();
+    const { data: componentTasks } = useProjectComponentTasks();
 
     // const [isPolling, setIsPolling] = useState(true);
     const [isPolling] = useState(true);
@@ -48,17 +52,6 @@ export const ComponentTaskList: React.FunctionComponent<IComponentTaskListProps>
 
     useEffect(() => {
         if (!subitemId && org && project && component && componentTasks && componentTasks.length > 0) {
-
-            if (!componentTask)
-                console.log('no task');
-            else
-                console.log(`componentTask: ${componentTask.id}`);
-
-            if (!subitemId)
-                console.log('no subitemId');
-            else
-                console.log(`subitemId: ${subitemId}`);
-
             history.push(`/orgs/${org.slug}/projects/${project.slug}/components/${component.slug}/tasks/${componentTasks[0].id}`);
         }
     }, [org, project, component, componentTasks, componentTask, subitemId, history]);

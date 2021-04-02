@@ -7,14 +7,15 @@ import { Stack, TextField, Text, PrimaryButton, DefaultButton, IconButton, Pivot
 import { OrganizationDefinition, DeploymentScopeDefinition, ProjectTemplateDefinition } from 'teamcloud'
 import { AzureRegions, Tags } from '../model';
 import { CalloutLabel, ContentContainer, ContentHeader, ContentProgress, DeploymentScopeForm, ProjectTemplateForm } from '../components';
-import { useAzureManagement, useOrgs } from '../Hooks';
+import { useCreateOrg, useAzureSubscriptions } from '../hooks';
 
 export const NewOrgView: React.FC = () => {
 
     const history = useHistory();
 
-    const { subscriptions } = useAzureManagement();
-    const { createOrg } = useOrgs();
+    const { data: subscriptions } = useAzureSubscriptions();
+
+    const createOrg = useCreateOrg();
 
     // Basic Settings
     const [orgName, setOrgName] = useState<string>();

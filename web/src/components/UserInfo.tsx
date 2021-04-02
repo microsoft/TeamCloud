@@ -5,14 +5,14 @@ import React, { useState } from 'react';
 import { DefaultButton, Stack, Panel, getTheme, Separator, PrimaryButton } from '@fluentui/react';
 import { auth } from '../API';
 import { UserPersona } from '.';
-import { useGraphUser } from '../Hooks';
+import { useGraphUser } from '../hooks';
 
 export const UserInfo: React.FC = () => {
 
     const [panelOpen, setPanelOpen] = useState(false);
     // const [editPanelOpen, setEditPanelOpen] = useState(false);
 
-    const { graphUser } = useGraphUser();
+    const { data: graphUser } = useGraphUser();
 
     const theme = getTheme();
 

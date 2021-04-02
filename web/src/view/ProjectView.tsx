@@ -6,19 +6,27 @@ import { Route, Switch } from 'react-router-dom';
 import { Stack, IconButton } from '@fluentui/react';
 import { ComponentOverview, ProjectOverview, ContentHeader, ContentProgress, ContentContainer, MemberList, ComponentList, ComponentForm, ProjectSettingsOverview } from '../components';
 import { ComponentTaskMenu } from '../components/ComponentTaskMenu';
-import { useProject } from '../Hooks';
+import { useAddProjectMembers, useProject, useProjectComponent, useProjectComponents, useProjectComponentTemplates, useProjectMembers } from '../hooks';
 
 export const ProjectView: React.FC = () => {
 
     const [favorite, setFavorate] = useState(false);
 
-    const { project, members, components, component, templates, addUsers } = useProject();
+    const { data: component } = useProjectComponent();
+
+    const { data: project, isLoading: projectIsLoading } = useProject();
+    const { data: members, isLoading: membersIsLoading } = useProjectMembers();
+
+    const { isLoading: componentsIsLoading } = useProjectComponents();
+    const { isLoading: templatesIsLoading } = useProjectComponentTemplates();
+
+    const addMembers = useAddProjectMembers();
 
     return (
         <Stack>
             <Switch>
                 <Route exact path='/orgs/:orgId/projects/:projectId'>
-                    <ContentProgress progressHidden={project !== undefined && components !== undefined && members !== undefined} />
+                    <ContentProgress progressHidden={!projectIsLoading && !componentsIsLoading && !membersIsLoading} />
                     <ContentHeader title={project?.displayName} coin>
                         <IconButton toggle checked={favorite} onClick={() => setFavorate(!favorite)}
                             iconProps={{ iconName: favorite ? 'FavoriteStarFill' : 'FavoriteStar', color: 'yellow' }} />
@@ -31,14 +39,14 @@ export const ProjectView: React.FC = () => {
                     <ComponentForm />
                 </Route>
                 <Route exact path='/orgs/:orgId/projects/:projectId/components'>
-                    <ContentProgress progressHidden={project !== undefined && components !== undefined && templates !== undefined && members !== undefined} />
+                    <ContentProgress progressHidden={!projectIsLoading && !componentsIsLoading && !templatesIsLoading && !membersIsLoading} />
                     <ContentHeader title='Components' />
                     <ContentContainer>
                         <ComponentList />
                     </ContentContainer>
                 </Route>
                 <Route exact path={['/orgs/:orgId/projects/:projectId/components/:itemId', '/orgs/:orgId/projects/:projectId/components/:itemId/tasks/:subitemId']}>
-                    <ContentProgress progressHidden={project !== undefined && components !== undefined && templates !== undefined && members !== undefined} />
+                    <ContentProgress progressHidden={!projectIsLoading && !componentsIsLoading && !templatesIsLoading && !membersIsLoading} />
                     <ContentHeader title={component?.displayName ?? undefined}>
                         <ComponentTaskMenu />
                     </ContentHeader>
@@ -47,14 +55,14 @@ export const ProjectView: React.FC = () => {
                     </ContentContainer>
                 </Route>
                 <Route exact path='/orgs/:orgId/projects/:projectId/members'>
-                    <ContentProgress progressHidden={project !== undefined && members !== undefined} />
+                    <ContentProgress progressHidden={!projectIsLoading && !membersIsLoading} />
                     <ContentHeader title='Members' />
                     <ContentContainer>
-                        <MemberList {...{ project: project, members: members, addUsers: addUsers }} />
+                        <MemberList {...{ project: project, members: members, addMembers: addMembers }} />
                     </ContentContainer>
                 </Route>
                 <Route exact path='/orgs/:orgId/projects/:projectId/settings'>
-                    <ContentProgress progressHidden={project !== undefined && members !== undefined} />
+                    <ContentProgress progressHidden={!projectIsLoading && !membersIsLoading} />
                     <ContentHeader title={`${(project?.displayName ? (project.displayName + ' - Settings') : 'Settings')}`} coin={project?.displayName !== undefined} />
                     <ContentContainer>
                         <ProjectSettingsOverview />

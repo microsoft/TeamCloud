@@ -2,19 +2,22 @@
 // Licensed under the MIT License.
 
 import React from 'react';
-import { Project } from 'teamcloud';
 import { useHistory, useParams } from 'react-router-dom';
 import { DetailsListLayoutMode, IColumn, IRenderFunction, IDetailsRowProps, CheckboxVisibility, SelectionMode, Persona, PersonaSize, getTheme, DetailsList, Stack } from '@fluentui/react';
+import { Project } from 'teamcloud';
 import { NoData } from '.';
+import { useProjects } from '../hooks';
+
 import collaboration from '../img/MSC17_collaboration_010_noBG.png'
-import { useOrg } from '../Hooks';
 
 export const ProjectList: React.FC = () => {
 
     const history = useHistory();
+
     const { orgId } = useParams() as { orgId: string };
 
-    const { projects } = useOrg();
+    const { data: projects } = useProjects();
+
     // const [projectFilter, setProjectFilter] = useState<string>();
 
     const theme = getTheme();
@@ -72,7 +75,7 @@ export const ProjectList: React.FC = () => {
 
     // const items = props.projects ? props.projects.filter(_applyProjectFilter) : new Array<Project>();
 
-    if (projects === undefined)
+    if (projects === null || projects === undefined)
         return (<></>);
 
     if (projects.length === 0)

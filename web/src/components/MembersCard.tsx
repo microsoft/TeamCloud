@@ -3,27 +3,23 @@
 
 import React, { useState } from 'react';
 import { ICommandBarItemProps } from '@fluentui/react';
-import { ErrorResult, User, UserDefinition } from 'teamcloud';
+import { ErrorResult } from 'teamcloud';
 import { api } from '../API';
 import { Member, ProjectMember } from '../model'
 import { DetailCard, MembersForm, MemberFacepile } from '.';
-import { useGraphUser, useProject } from '../Hooks';
+import { useAddProjectMembers, useGraphUser, useProjectMembers } from '../hooks';
 
-
-export interface IMembersCardProps {
-    // onEditMember: (member?: Member) => void;
-    members?: Member[];
-    addUsers: (user: UserDefinition[]) => Promise<void>;
-    removeUsers: (user: User[]) => Promise<void>;
-}
+export interface IMembersCardProps { }
 
 export const MembersCard: React.FC<IMembersCardProps> = (props) => {
 
     const [addMembersPanelOpen, setAddMembersPanelOpen] = useState(false);
 
-    const { graphUser } = useGraphUser()
+    const { data: graphUser } = useGraphUser();
 
-    const { members, addUsers } = useProject();
+    const { data: members } = useProjectMembers();
+
+    const addMembers = useAddProjectMembers();
 
     const _removeMember = async (member: Member) => {
         const projectId = (member as ProjectMember)?.projectMembership?.projectId;
@@ -62,7 +58,7 @@ export const MembersCard: React.FC<IMembersCardProps> = (props) => {
                 members={members}
                 panelIsOpen={addMembersPanelOpen}
                 onFormClose={() => setAddMembersPanelOpen(false)}
-                onAddUsers={addUsers} />
+                addMembers={addMembers} />
         </>
     );
 }

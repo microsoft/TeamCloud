@@ -5,14 +5,13 @@ import React, { useEffect, useState } from 'react';
 import { FontIcon, IColumn, Persona, PersonaSize, Stack, Text } from '@fluentui/react';
 import { useHistory, useParams } from 'react-router-dom';
 import { Component, ComponentTemplate } from 'teamcloud';
-import { ContentList, UserPersona } from '.';
+import { ContentList, ComponentLink, ComponentTemplateLink, UserPersona } from '.';
+import { useOrg, useDeploymentScopes, useProjectMembers, useProjectComponentTemplates, useProjectComponents } from '../hooks';
+
 import collaboration from '../img/MSC17_collaboration_010_noBG.png'
 import DevOps from '../img/devops.svg';
 import GitHub from '../img/github.svg';
 import Resource from '../img/resource.svg';
-import { ComponentLink } from './ComponentLink';
-import { ComponentTemplateLink } from './ComponentTemplateLink';
-import { useProject, useOrg } from '../Hooks';
 
 export interface IComponentListProps {
     onItemInvoked?: (component: Component) => void;
@@ -25,8 +24,11 @@ export const ComponentList: React.FC<IComponentListProps> = (props) => {
 
     const [items, setItems] = useState<{ component: Component, template: ComponentTemplate }[]>()
 
-    const { org, scopes } = useOrg();
-    const { components, templates, members } = useProject();
+    const { data: org } = useOrg();
+    const { data: scopes } = useDeploymentScopes();
+    const { data: members } = useProjectMembers();
+    const { data: components } = useProjectComponents();
+    const { data: templates } = useProjectComponentTemplates();
 
     useEffect(() => {
         if (components && templates && (items === undefined || items.length !== components.length)) {

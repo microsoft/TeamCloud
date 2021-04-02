@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 
 import React from 'react';
+import { useHistory } from 'react-router-dom';
 import { Stack, getTheme, Link } from '@fluentui/react';
 import { HeaderBreadcrumb, UserInfo } from '.';
-import { useHistory } from 'react-router-dom';
 
 export const HeaderBar: React.FC = () => {
 

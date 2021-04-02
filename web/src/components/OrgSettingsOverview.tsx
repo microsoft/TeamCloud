@@ -5,11 +5,13 @@ import { DefaultButton, getTheme, Link, Persona, PersonaSize, PrimaryButton, Sta
 import React, { useEffect, useState } from 'react';
 import { Member } from '../model';
 import { ContentSeparator, UserPersona } from '.';
-import { useOrg } from '../Hooks';
+import { useOrg, useUser, useMembers } from '../hooks';
 
 export const OrgSettingsOverview: React.FC = () => {
 
-    const { org, user, members } = useOrg();
+    const { data: org } = useOrg();
+    const { data: user } = useUser();
+    const { data: members } = useMembers();
 
     const [owner, setOwner] = useState<Member>();
 

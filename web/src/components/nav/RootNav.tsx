@@ -4,14 +4,15 @@
 import React from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { Nav, INavLinkGroup, INavLink, Stack, ActionButton, Persona, PersonaSize, getTheme, Text } from '@fluentui/react';
-import { useOrgs } from '../../Hooks';
+import { useOrgs } from '../../hooks';
 
 export const RootNav: React.FC = () => {
 
     const history = useHistory();
+
     const { orgId } = useParams() as { orgId: string };
 
-    const { orgs } = useOrgs();
+    const { data: orgs } = useOrgs();
 
     const newOrgView = orgId !== undefined && orgId.toLowerCase() === 'new';
 

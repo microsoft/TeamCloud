@@ -62,10 +62,10 @@ export const startSignalR = async (project: Project, callback: (action: string, 
         callback('delete', data)
     });
 
-    connection.on('custom', data => {
-        console.log(`$ custom: ${data}`);
-        callback('custom', data)
-    });
+    // connection.on('custom', data => {
+    //     console.log(`$ custom: ${data}`);
+    //     callback('custom', data)
+    // });
 
     await connection.start();
 }

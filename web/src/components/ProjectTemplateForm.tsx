@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 
 import React, { useEffect, useState } from 'react';
+import { useHistory, useParams } from 'react-router-dom';
 import { DefaultButton, PrimaryButton, Stack, TextField } from '@fluentui/react';
 import { ProjectTemplateDefinition } from 'teamcloud';
-import { useHistory, useParams } from 'react-router-dom';
 
 export interface IProjectTemplateFormProps {
     embedded?: boolean,

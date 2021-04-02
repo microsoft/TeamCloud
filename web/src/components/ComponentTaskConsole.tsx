@@ -2,10 +2,10 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect, useRef } from 'react';
+import { useHistory, useLocation } from 'react-router-dom';
 import { FocusZone, FocusZoneDirection, getTheme, IList, Link, List, ScrollToMode, SearchBox, Stack, Text } from '@fluentui/react';
 import { ComponentTask } from 'teamcloud';
 import { ContentSeparator } from '.';
-import { useHistory, useLocation } from 'react-router-dom';
 
 export interface IComponentTaskConsoleProps {
     task?: ComponentTask;

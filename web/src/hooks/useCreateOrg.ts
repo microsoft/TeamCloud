@@ -1,23 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React from 'react';
 import { useHistory } from 'react-router-dom';
-import { useMutation, useQuery, useQueryClient } from 'react-query'
-import { useIsAuthenticated } from '@azure/msal-react';
+import { useMutation, useQueryClient } from 'react-query'
 import { DeploymentScopeDefinition, OrganizationDefinition, ProjectTemplateDefinition } from 'teamcloud';
-import { OrgsContext } from '../Context';
 import { api } from '../API';
 
-export const OrgsProvider = (props: any) => {
+export const useCreateOrg = () => {
 
     const history = useHistory();
-
-    const isAuthenticated = useIsAuthenticated();
-
     const queryClient = useQueryClient();
 
-    const createOrg = useMutation(async (def: { orgDef: OrganizationDefinition, scopeDef?: DeploymentScopeDefinition, templateDef?: ProjectTemplateDefinition }) => {
+    return useMutation(async (def: { orgDef: OrganizationDefinition, scopeDef?: DeploymentScopeDefinition, templateDef?: ProjectTemplateDefinition }) => {
 
         console.log(`- createOrg`);
         const orgResponse = await api.createOrganization({ body: def.orgDef });
@@ -65,20 +59,5 @@ export const OrgsProvider = (props: any) => {
                 history.push(`/orgs/${data.org.slug}`);
             }
         }
-    })
-
-    const { data: orgs } = useQuery('orgs', async () => {
-        console.log('- setOrgs');
-        const response = await api.getOrganizations();
-        console.log('+ setOrgs');
-        return response.data;
-    }, {
-        enabled: isAuthenticated
-    });
-
-
-    return <OrgsContext.Provider value={{
-        orgs: orgs,
-        createOrg: createOrg.mutateAsync,
-    }} {...props} />
+    }).mutateAsync
 }

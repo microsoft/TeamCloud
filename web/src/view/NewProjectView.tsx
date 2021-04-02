@@ -8,7 +8,7 @@ import { FuiForm } from '@rjsf/fluent-ui';
 import { Stack, TextField, Dropdown, IDropdownOption, PrimaryButton, DefaultButton, IconButton } from '@fluentui/react';
 import { ProjectTemplate, ProjectDefinition } from 'teamcloud';
 import { ContentContainer, ContentHeader, ContentProgress } from '../components';
-import { useOrg } from '../Hooks';
+import { useCreateProject, useOrg, useProjectTemplates } from '../hooks';
 
 export const NewProjectView: React.FC = () => {
 
@@ -19,7 +19,10 @@ export const NewProjectView: React.FC = () => {
     const [projectTemplateOptions, setProjectTemplateOptions] = useState<IDropdownOption[]>();
     const [formEnabled, setFormEnabled] = useState<boolean>(false);
 
-    const { org, templates, createProject } = useOrg();
+    const { data: org } = useOrg();
+    const { data: templates } = useProjectTemplates();
+
+    const createProject = useCreateProject();
 
     useEffect(() => {
         if (org && templates) {

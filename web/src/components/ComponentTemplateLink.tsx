@@ -4,7 +4,7 @@
 import React from 'react';
 import { FontIcon, Link, Stack } from '@fluentui/react';
 import { ComponentTemplate } from 'teamcloud';
-import { useOrg } from '../Hooks';
+import { useOrg } from '../hooks';
 
 export interface IComponentTemplateLinkProps {
     componentTemplate?: ComponentTemplate;
@@ -12,7 +12,8 @@ export interface IComponentTemplateLinkProps {
 
 export const ComponentTemplateLink: React.FunctionComponent<IComponentTemplateLinkProps> = (props) => {
 
-    const { org } = useOrg();
+    const { data: org } = useOrg();
+
     const { componentTemplate } = props;
 
     return org && componentTemplate?.repository?.url ? (

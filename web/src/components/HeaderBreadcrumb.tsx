@@ -5,7 +5,7 @@ import React from 'react';
 import { useHistory, useLocation, useParams } from 'react-router-dom';
 import { Text, Breadcrumb, IBreadcrumbItem } from '@fluentui/react';
 import { endsWithLowerCase, includesLowerCase, matchesLowerCase, matchesRouteParam } from '../Utils';
-import { useProject, useOrgs } from '../Hooks';
+import { useOrgs, useProject, useProjectComponent } from '../hooks';
 
 export const HeaderBreadcrumb: React.FC = () => {
 
@@ -13,8 +13,9 @@ export const HeaderBreadcrumb: React.FC = () => {
     const history = useHistory();
     const { orgId, projectId, navId, itemId, settingId } = useParams() as { orgId: string, projectId: string, navId: string, itemId: string, settingId: string };
 
-    const { orgs } = useOrgs();
-    const { project, component } = useProject();
+    const { data: orgs } = useOrgs();
+    const { data: project } = useProject();
+    const { data: component } = useProjectComponent();
 
     const _breadcrumbs = (): IBreadcrumbItem[] => {
         const crumbs: IBreadcrumbItem[] = [];

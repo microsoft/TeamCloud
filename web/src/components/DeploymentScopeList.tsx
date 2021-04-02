@@ -2,18 +2,21 @@
 // Licensed under the MIT License.
 
 import React from 'react';
+import { useHistory } from 'react-router-dom';
 import { Checkbox, IColumn } from '@fluentui/react';
 import { DeploymentScope } from 'teamcloud';
-import { useHistory } from 'react-router-dom';
 import { ContentList } from '.';
-import { useOrg } from '../Hooks';
+import { useOrg, useDeploymentScopes } from '../hooks';
+
 import collaboration from '../img/MSC17_collaboration_010_noBG.png'
 
 export const DeploymentScopeList: React.FC = () => {
 
     const history = useHistory();
 
-    const { org, scopes } = useOrg();
+    const { data: org } = useOrg();
+    const { data: scopes } = useDeploymentScopes();
+
 
     const columns: IColumn[] = [
         { key: 'displayName', name: 'Name', minWidth: 200, fieldName: 'displayName' },
@@ -29,7 +32,7 @@ export const DeploymentScopeList: React.FC = () => {
     return org ? (
         <ContentList
             columns={columns}
-            items={scopes}
+            items={scopes ?? undefined}
             onItemInvoked={_onItemInvoked}
             filterPlaceholder='Filter members'
             buttonText='New scope'
