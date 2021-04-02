@@ -9,7 +9,6 @@ import { ContentSeparator } from '.';
 
 export interface IComponentTaskConsoleProps {
     task?: ComponentTask;
-    isPolling?: boolean;
 }
 
 export const ComponentTaskConsole: React.FunctionComponent<IComponentTaskConsoleProps> = (props) => {
@@ -28,7 +27,7 @@ export const ComponentTaskConsole: React.FunctionComponent<IComponentTaskConsole
     const { task } = props;
 
     useEffect(() => {
-        console.log(`+ setOutput`);
+        // console.log(`+ setOutput`);
         setOutput(task?.output?.split('\n').map((t, i) => ({ line: i, text: t, selected: selectedLine === i })));
     }, [task, selectedLine]);
 

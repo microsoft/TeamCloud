@@ -4,13 +4,13 @@
 import { useQuery } from 'react-query'
 import { useParams } from 'react-router-dom';
 import { useIsAuthenticated } from '@azure/msal-react';
-import { matchesLowerCase, matchesRouteParam } from '../Utils';
+import { matchesRouteParam } from '../Utils';
 import { api } from '../API';
 import { useProject, useProjectComponent } from '.';
 
 export const useProjectComponentTask = () => {
 
-    const { navId, itemId, subitemId } = useParams() as { navId: string, itemId: string, subitemId: string };
+    const { itemId, subitemId } = useParams() as { itemId: string, subitemId: string };
 
     const isAuthenticated = useIsAuthenticated();
 
@@ -21,6 +21,6 @@ export const useProjectComponentTask = () => {
         const { data } = await api.getComponentTask(subitemId, project!.organization, project!.id, component!.id);
         return data;;
     }, {
-        enabled: isAuthenticated && !!project?.id && !!navId && matchesLowerCase(navId, 'components') && !!component?.id && !!itemId && matchesRouteParam(component, itemId) && !!subitemId
+        enabled: isAuthenticated && !!project?.id && !!component?.id && !!itemId && matchesRouteParam(component, itemId) && !!subitemId,
     });
 }

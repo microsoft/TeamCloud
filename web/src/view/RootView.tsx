@@ -73,10 +73,10 @@ export const RootView: React.FC<IRootViewProps> = (props) => {
                     <AuthenticatedTemplate>
                         <Stack horizontal disableShrink verticalFill verticalAlign='stretch'>
                             <Stack.Item styles={leftStackStyles}>
-                                <NavRouter />
+                                <NavRouter {...{}} />
                             </Stack.Item>
                             <Stack.Item grow styles={rightStackStyles}>
-                                <ContentRouter />
+                                <ContentRouter {...{}} />
                             </Stack.Item>
                         </Stack>
                     </AuthenticatedTemplate>

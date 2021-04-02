@@ -4,13 +4,12 @@
 import { useQuery } from 'react-query'
 import { useParams } from 'react-router-dom';
 import { useIsAuthenticated } from '@azure/msal-react';
-import { matchesLowerCase } from '../Utils';
 import { api } from '../API';
 import { useProject } from '.';
 
 export const useProjectComponent = () => {
 
-    const { navId, itemId } = useParams() as { navId: string, itemId: string };
+    const { itemId } = useParams() as { itemId: string };
 
     const isAuthenticated = useIsAuthenticated();
 
@@ -20,6 +19,6 @@ export const useProjectComponent = () => {
         const { data } = await api.getComponent(itemId, project!.organization, project!.id)
         return data;;
     }, {
-        enabled: isAuthenticated && !!project?.id && !!navId && matchesLowerCase(navId, 'components') && !!itemId
+        enabled: isAuthenticated && !!project?.id && !!itemId
     });
 }
