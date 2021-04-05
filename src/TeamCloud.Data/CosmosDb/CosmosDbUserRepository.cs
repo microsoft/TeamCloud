@@ -289,8 +289,11 @@ namespace TeamCloud.Data.CosmosDb
                     {
                         user.ProjectMemberships.Remove(membership);
 
-                        return await container.ReplaceItemAsync(user, user.Id, GetPartitionKey(user),
-                                new ItemRequestOptions { IfMatchEtag = ((IContainerDocument)user).ETag })
+                        var response = await container
+                            .ReplaceItemAsync(user, user.Id, GetPartitionKey(user), new ItemRequestOptions { IfMatchEtag = ((IContainerDocument)user).ETag })
+                            .ConfigureAwait(false);
+
+                        return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Update)
                             .ConfigureAwait(false);
                     }
                     catch (CosmosException exc) when (exc.StatusCode == HttpStatusCode.NotFound)
@@ -352,9 +355,12 @@ namespace TeamCloud.Data.CosmosDb
                     {
                         user.EnsureProjectMembership(membership);
 
-                        return await container.ReplaceItemAsync(user, user.Id, GetPartitionKey(user),
-                            new ItemRequestOptions { IfMatchEtag = ((IContainerDocument)user).ETag })
-                        .ConfigureAwait(false);
+                        var response = await container
+                            .ReplaceItemAsync(user, user.Id, GetPartitionKey(user), new ItemRequestOptions { IfMatchEtag = ((IContainerDocument)user).ETag })
+                            .ConfigureAwait(false);
+
+                        return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Update)
+                            .ConfigureAwait(false);
                     }
                     catch (CosmosException exc) when (exc.StatusCode == HttpStatusCode.NotFound)
                     {
@@ -398,9 +404,12 @@ namespace TeamCloud.Data.CosmosDb
                 {
                     try
                     {
-                        return await container.ReplaceItemAsync(user, user.Id, GetPartitionKey(user),
-                            new ItemRequestOptions { IfMatchEtag = ((IContainerDocument)user).ETag })
-                        .ConfigureAwait(false);
+                        var response =  await container
+                            .ReplaceItemAsync(user, user.Id, GetPartitionKey(user), new ItemRequestOptions { IfMatchEtag = ((IContainerDocument)user).ETag })
+                            .ConfigureAwait(false);
+
+                        return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Update)
+                            .ConfigureAwait(false);
                     }
                     catch (CosmosException exc) when (exc.StatusCode == HttpStatusCode.NotFound)
                     {
