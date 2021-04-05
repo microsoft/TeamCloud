@@ -138,6 +138,7 @@ output configServiceImport object = {
   'Azure:CosmosDb:DatabaseName': 'TeamCloud'
   'Azure:CosmosDb:ConnectionString': cosmos.outputs.connectionString
   'Azure:DeploymentStorage:ConnectionString': storage_dep.outputs.connectionString
+  'Azure:SignalR:ConnectionString': signalr.outputs.connectionString
   'Api:Url': api.outputs.url
   'Cache:Configuration': redis.outputs.configuration
   'Orchestrator:Url': orchestrator.outputs.url
