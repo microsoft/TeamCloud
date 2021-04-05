@@ -1,9 +1,5 @@
-﻿/**
- *  Copyright (c) Microsoft Corporation.
- *  Licensed under the MIT License.
- */
-
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Azure.SignalR.Management;
@@ -13,9 +9,11 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using TeamCloud.Configuration.Options;
 using TeamCloud.Model;
+using TeamCloud.Model.Broadcast;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Common;
+using TeamCloud.Model.Data.Core;
 using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.Command.Handlers.Messaging
@@ -35,7 +33,7 @@ namespace TeamCloud.Orchestrator.Command.Handlers.Messaging
                 throw new ArgumentNullException(nameof(command));
 
             return command.GetType().IsGenericType
-                && command.GetType().GetGenericTypeDefinition() == typeof(BroadcastCommandResultCommand<>);
+                && command.GetType().GetGenericTypeDefinition() == typeof(BroadcastDocumentCreateCommand<>);
         }
 
         public override async Task<ICommandResult> HandleAsync(ICommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
@@ -45,27 +43,34 @@ namespace TeamCloud.Orchestrator.Command.Handlers.Messaging
 
             var commandResult = command.CreateResult();
 
-            try
+            if (CanHandle(command) && command.Payload is IContainerDocument containerDocument)
             {
-                var commandPayload = (ICommandResult)command.Payload;
+                try
+                {
+                    using var loggerFactory = new PassthroughLoggerFactory(log);
+                    using var serviceManager = CreateServiceManager();
 
-                using var loggerFactory = new PassthroughLoggerFactory(log);
-                using var serviceManager = CreateServiceManager();
+                    var hubContext = await serviceManager
+                        .CreateHubContextAsync(ResolveHubName(containerDocument))
+                        .ConfigureAwait(false);
 
-                var hubContext = await serviceManager
-                    .CreateHubContextAsync(ResolveHubName(commandPayload.Result))
-                    .ConfigureAwait(false);
+                    var broadcastMessage = new BroadcastMessage()
+                    {
+                        Action = commandResult.CommandAction.ToString().ToLowerInvariant(),
+                        Timestamp = commandResult.LastUpdatedTime.GetValueOrDefault(DateTime.UtcNow),
+                        Items = GetItems(containerDocument)
 
-                var broadcastMessage = commandPayload.ToBroadcastMessage();
-                var broadcastPayload = TeamCloudSerialize.SerializeObject(broadcastMessage);
+                    };
+                    var broadcastPayload = TeamCloudSerialize.SerializeObject(broadcastMessage);
 
-                await hubContext.Clients.All
-                    .SendAsync(commandPayload.CommandAction.ToString(), broadcastMessage)
-                    .ConfigureAwait(false);
-            }
-            catch (Exception exc)
-            {
-                commandResult.Errors.Add(exc);
+                    await hubContext.Clients.All
+                        .SendAsync(command.CommandAction.ToString(), broadcastMessage)
+                        .ConfigureAwait(false);
+                }
+                catch (Exception exc)
+                {
+                    commandResult.Errors.Add(exc);
+                }
             }
 
             return commandResult;
@@ -76,6 +81,25 @@ namespace TeamCloud.Orchestrator.Command.Handlers.Messaging
                 IOrganizationContext organizationContext => organizationContext.GetHubName(),
                 _ => throw new NotSupportedException($"Unable to resolve hub name for command result payload of type '{commandResultPayload?.GetType()}'.")
             };
+
+        }
+
+        public static IEnumerable<BroadcastMessage.Item> GetItems(params IContainerDocument[] containerDocuments)
+        {
+            foreach (var containerDocument in containerDocuments)
+            {
+                yield return new BroadcastMessage.Item()
+                {
+                    Id = containerDocument.Id,
+                    Type = containerDocument.GetType().Name.ToLowerInvariant(),
+                    Organization = (containerDocument as IOrganizationContext)?.Organization,
+                    Project = (containerDocument as IProjectContext)?.ProjectId,
+                    Component = (containerDocument as IComponentContext)?.ComponentId,
+                    Slug = (containerDocument as ISlug)?.Slug,
+                    ETag = containerDocument.ETag,
+                    Timestamp = containerDocument.Timestamp
+                };
+            }
         }
 
         private IServiceManager CreateServiceManager() => new ServiceManagerBuilder().WithOptions(option =>

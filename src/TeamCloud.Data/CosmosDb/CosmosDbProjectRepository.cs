@@ -23,8 +23,8 @@ namespace TeamCloud.Data.CosmosDb
 
         private readonly IUserRepository userRepository;
 
-        public CosmosDbProjectRepository(ICosmosDbOptions options, IUserRepository userRepository, IMemoryCache cache, IDocumentExpanderProvider expanderProvider, IDataProtectionProvider dataProtectionProvider = null)
-            : base(options, expanderProvider, dataProtectionProvider)
+        public CosmosDbProjectRepository(ICosmosDbOptions options, IUserRepository userRepository, IMemoryCache cache, IDocumentExpanderProvider expanderProvider = null, IDocumentSubscriptionProvider subscriptionProvider = null, IDataProtectionProvider dataProtectionProvider = null)
+            : base(options, expanderProvider, subscriptionProvider, dataProtectionProvider)
         {
             this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             this.cache = cache ?? throw new ArgumentNullException(nameof(cache));
@@ -79,7 +79,8 @@ namespace TeamCloud.Data.CosmosDb
                 await PopulateUsersAsync(response.Resource)
                     .ConfigureAwait(false);
 
-                return response.Resource;
+                return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Create)
+                    .ConfigureAwait(false);
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.Conflict)
             {
@@ -163,7 +164,8 @@ namespace TeamCloud.Data.CosmosDb
             await PopulateUsersAsync(response.Resource)
                 .ConfigureAwait(false);
 
-            return response.Resource;
+            return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Update)
+                .ConfigureAwait(false);
         }
 
         public override async IAsyncEnumerable<Project> ListAsync(string organization)
@@ -267,7 +269,8 @@ namespace TeamCloud.Data.CosmosDb
                     .RemoveProjectMembershipsAsync(project.Organization, project.Id)
                     .ConfigureAwait(false);
 
-                return response.Resource;
+                return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Delete)
+                    .ConfigureAwait(false);
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
             {

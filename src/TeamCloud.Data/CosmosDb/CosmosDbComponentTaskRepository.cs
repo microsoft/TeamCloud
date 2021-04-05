@@ -18,8 +18,8 @@ namespace TeamCloud.Data.CosmosDb
 {
     public sealed class CosmosDbComponentTaskRepository : CosmosDbRepository<ComponentTask>, IComponentTaskRepository
     {
-        public CosmosDbComponentTaskRepository(ICosmosDbOptions options, IDocumentExpanderProvider expanderProvider, IDataProtectionProvider dataProtectionProvider = null)
-            : base(options, expanderProvider, dataProtectionProvider)
+        public CosmosDbComponentTaskRepository(ICosmosDbOptions options, IDocumentExpanderProvider expanderProvider = null, IDocumentSubscriptionProvider subscriptionProvider = null, IDataProtectionProvider dataProtectionProvider = null)
+            : base(options, expanderProvider, subscriptionProvider, dataProtectionProvider)
         { }
 
         public override async Task<ComponentTask> AddAsync(ComponentTask task)
@@ -38,7 +38,8 @@ namespace TeamCloud.Data.CosmosDb
                 .CreateItemAsync(task, GetPartitionKey(task))
                 .ConfigureAwait(false);
 
-            return response.Resource;
+            return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Create)
+                .ConfigureAwait(false);
         }
 
         public override async Task<ComponentTask> GetAsync(string componentId, string id, bool expand = false)
@@ -117,9 +118,18 @@ namespace TeamCloud.Data.CosmosDb
                 await foreach (var component in components.ConfigureAwait(false))
                     batch = batch.DeleteItem(component.Id);
 
-                await batch
+                var batchResponse = await batch
                     .ExecuteAsync()
                     .ConfigureAwait(false);
+
+                if (batchResponse.IsSuccessStatusCode)
+                {
+                    _ = await NotifySubscribersAsync(batchResponse.GetOperationResultResources<ComponentTask>(), DocumentSubscriptionEvent.Delete).ConfigureAwait(false);
+                }
+                else
+                {
+                    throw new Exception(batchResponse.ErrorMessage);
+                }
             }
         }
 
@@ -137,7 +147,8 @@ namespace TeamCloud.Data.CosmosDb
                     .DeleteItemAsync<ComponentTask>(task.Id, GetPartitionKey(task))
                     .ConfigureAwait(false);
 
-                return response.Resource;
+                return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Delete)
+                    .ConfigureAwait(false);
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
             {
@@ -173,7 +184,8 @@ namespace TeamCloud.Data.CosmosDb
                 .UpsertItemAsync(task, GetPartitionKey(task))
                 .ConfigureAwait(false);
 
-            return response.Resource;
+            return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Update)
+                .ConfigureAwait(false);
         }
     }
 }

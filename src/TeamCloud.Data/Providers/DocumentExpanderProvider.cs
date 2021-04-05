@@ -3,19 +3,19 @@
  *  Licensed under the MIT License.
  */
 
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
 using TeamCloud.Model.Data.Core;
 
-namespace TeamCloud.Data.CosmosDb
+namespace TeamCloud.Data.Providers
 {
-    public sealed class CosmosDbDocumentExpanderProvider : IDocumentExpanderProvider
+    public sealed class DocumentExpanderProvider : IDocumentExpanderProvider
     {
         private readonly IServiceProvider serviceProvider;
 
-        public CosmosDbDocumentExpanderProvider(IServiceProvider serviceProvider)
+        public DocumentExpanderProvider(IServiceProvider serviceProvider)
         {
             this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         }

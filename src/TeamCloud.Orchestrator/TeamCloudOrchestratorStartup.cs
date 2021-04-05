@@ -27,6 +27,7 @@ using TeamCloud.Configuration;
 using TeamCloud.Configuration.Options;
 using TeamCloud.Data;
 using TeamCloud.Data.CosmosDb;
+using TeamCloud.Data.Providers;
 using TeamCloud.Git.Caching;
 using TeamCloud.Git.Services;
 using TeamCloud.Http;
@@ -105,6 +106,10 @@ namespace TeamCloud.Orchestrator
             }
 
             builder.Services
+                .AddSingleton<IDocumentSubscriptionProvider>(serviceProvider => new DocumentSubscriptionProvider(serviceProvider))
+                .AddSingleton<IDocumentSubscription, BroadcastDocumentSubscription>();
+
+            builder.Services
                 .AddSingleton<IOrganizationRepository, CosmosDbOrganizationRepository>()
                 .AddSingleton<IUserRepository, CosmosDbUserRepository>()
                 .AddSingleton<IDeploymentScopeRepository, CosmosDbDeploymentScopeRepository>()
@@ -115,6 +120,7 @@ namespace TeamCloud.Orchestrator
                 .AddSingleton<IProjectRepository, CosmosDbProjectRepository>()
                 .AddSingleton<IComponentRepository, CosmosDbComponentRepository>()
                 .AddSingleton<IRepositoryService, RepositoryService>();
+
 
             // CAUTION - don't register an orchstrator command handler with the generic
             // ICommandHandler<> interface. purpose of this interface is the

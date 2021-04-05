@@ -3,13 +3,13 @@
  *  Licensed under the MIT License.
  */
 
-using Microsoft.AspNetCore.DataProtection;
-using Microsoft.Azure.Cosmos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.Azure.Cosmos;
 using TeamCloud.Data.CosmosDb.Core;
 using TeamCloud.Model.Data;
 using TeamCloud.Model.Data.Core;
@@ -20,8 +20,8 @@ namespace TeamCloud.Data.CosmosDb
 {
     public class CosmosDbUserRepository : CosmosDbRepository<User>, IUserRepository
     {
-        public CosmosDbUserRepository(ICosmosDbOptions options, IDocumentExpanderProvider expanderProvider, IDataProtectionProvider dataProtectionProvider = null)
-            : base(options, expanderProvider, dataProtectionProvider)
+        public CosmosDbUserRepository(ICosmosDbOptions options, IDocumentExpanderProvider expanderProvider = null, IDocumentSubscriptionProvider subscriptionProvider = null, IDataProtectionProvider dataProtectionProvider = null)
+            : base(options, expanderProvider, subscriptionProvider, dataProtectionProvider)
         { }
 
         public override async Task<User> AddAsync(User user)
@@ -40,7 +40,8 @@ namespace TeamCloud.Data.CosmosDb
                 .CreateItemAsync(user, GetPartitionKey(user))
                 .ConfigureAwait(false);
 
-            return response.Resource;
+            return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Create)
+                .ConfigureAwait(false);
         }
 
         public override async Task<User> GetAsync(string organization, string id, bool expand = false)
@@ -204,7 +205,8 @@ namespace TeamCloud.Data.CosmosDb
                 .UpsertItemAsync(user, GetPartitionKey(user))
                 .ConfigureAwait(false);
 
-            return response.Resource;
+            return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Update)
+                .ConfigureAwait(false);
         }
 
         public override async Task<User> RemoveAsync(User user)
@@ -221,7 +223,8 @@ namespace TeamCloud.Data.CosmosDb
                     .DeleteItemAsync<User>(user.Id, GetPartitionKey(user))
                     .ConfigureAwait(false);
 
-                return response.Resource;
+                return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Delete)
+                    .ConfigureAwait(false);
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
             {

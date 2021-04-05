@@ -18,8 +18,8 @@ namespace TeamCloud.Data.CosmosDb
 {
     public class CosmosDbDeploymentScopeRepository : CosmosDbRepository<DeploymentScope>, IDeploymentScopeRepository
     {
-        public CosmosDbDeploymentScopeRepository(ICosmosDbOptions options, IDocumentExpanderProvider expanderProvider, IDataProtectionProvider dataProtectionProvider = null)
-            : base(options, expanderProvider, dataProtectionProvider)
+        public CosmosDbDeploymentScopeRepository(ICosmosDbOptions options, IDocumentExpanderProvider expanderProvider = null, IDocumentSubscriptionProvider subscriptionProvider = null, IDataProtectionProvider dataProtectionProvider = null)
+            : base(options, expanderProvider, subscriptionProvider, dataProtectionProvider)
         { }
 
         public override async Task<DeploymentScope> AddAsync(DeploymentScope deploymentScope)
@@ -74,8 +74,20 @@ namespace TeamCloud.Data.CosmosDb
                         .ExecuteAsync()
                         .ConfigureAwait(false);
 
-                    return await GetAsync(deploymentScope.Organization, deploymentScope.Id)
-                        .ConfigureAwait(false);
+                    if (batchResponse.IsSuccessStatusCode)
+                    {
+                        var batchResources = batchResponse.GetOperationResultResources<DeploymentScope>().ToArray();
+
+                        _ = await NotifySubscribersAsync(batchResources.Skip(1), DocumentSubscriptionEvent.Update)
+                            .ConfigureAwait(false);
+
+                        return await NotifySubscribersAsync(batchResources.First(), DocumentSubscriptionEvent.Create)
+                            .ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        throw new Exception(batchResponse.ErrorMessage);
+                    }
                 }
                 else
                 {
@@ -83,7 +95,8 @@ namespace TeamCloud.Data.CosmosDb
                         .CreateItemAsync(deploymentScope, GetPartitionKey(deploymentScope))
                         .ConfigureAwait(false);
 
-                    return response.Resource;
+                    return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Create)
+                        .ConfigureAwait(false);
                 }
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.Conflict)
@@ -155,8 +168,22 @@ namespace TeamCloud.Data.CosmosDb
                         });
                 }
 
-                await (nonDefaultBatch?.ExecuteAsync() ?? Task.CompletedTask)
-                    .ConfigureAwait(false);
+                if (nonDefaultBatch != null)
+                {
+                    var nonDefaultBatchResponse = await nonDefaultBatch
+                        .ExecuteAsync()
+                        .ConfigureAwait(false);
+
+                    if (nonDefaultBatchResponse.IsSuccessStatusCode)
+                    {
+                        _ = await NotifySubscribersAsync(nonDefaultBatchResponse.GetOperationResultResources<DeploymentScope>(), DocumentSubscriptionEvent.Update)
+                            .ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        throw new Exception(nonDefaultBatchResponse.ErrorMessage);
+                    }
+                }
 
                 return defaultdeploymentScope;
             }
@@ -214,8 +241,17 @@ namespace TeamCloud.Data.CosmosDb
                     .ExecuteAsync()
                     .ConfigureAwait(false);
 
-                return await GetAsync(deploymentScope.Organization, deploymentScope.Id)
-                    .ConfigureAwait(false);
+                if (batchResponse.IsSuccessStatusCode)
+                {
+                    var updatedDeploymentScopes = await NotifySubscribersAsync(batchResponse.GetOperationResultResources<DeploymentScope>(), DocumentSubscriptionEvent.Update)
+                        .ConfigureAwait(false);
+
+                    return updatedDeploymentScopes.First();
+                }
+                else
+                {
+                    throw new Exception(batchResponse.ErrorMessage);
+                }
             }
             else
             {
@@ -223,7 +259,8 @@ namespace TeamCloud.Data.CosmosDb
                     .UpsertItemAsync(deploymentScope, GetPartitionKey(deploymentScope))
                     .ConfigureAwait(false);
 
-                return response.Resource;
+                return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Update)
+                    .ConfigureAwait(false);
             }
         }
 
@@ -261,7 +298,8 @@ namespace TeamCloud.Data.CosmosDb
                     .DeleteItemAsync<DeploymentScope>(deploymentScope.Id, GetPartitionKey(deploymentScope))
                     .ConfigureAwait(false);
 
-                return response.Resource;
+                return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Delete)
+                    .ConfigureAwait(false);
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
             {

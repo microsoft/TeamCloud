@@ -18,8 +18,8 @@ namespace TeamCloud.Data.CosmosDb
 {
     public sealed class CosmosDbComponentRepository : CosmosDbRepository<Component>, IComponentRepository
     {
-        public CosmosDbComponentRepository(ICosmosDbOptions options, IDocumentExpanderProvider expanderProvider, IDataProtectionProvider dataProtectionProvider = null)
-            : base(options, expanderProvider, dataProtectionProvider)
+        public CosmosDbComponentRepository(ICosmosDbOptions options, IDocumentExpanderProvider expanderProvider = null, IDocumentSubscriptionProvider subscriptionProvider = null, IDataProtectionProvider dataProtectionProvider = null)
+            : base(options, expanderProvider, subscriptionProvider, dataProtectionProvider)
         { }
 
         public override async Task<Component> AddAsync(Component component)
@@ -38,7 +38,8 @@ namespace TeamCloud.Data.CosmosDb
                 .CreateItemAsync(component, GetPartitionKey(component))
                 .ConfigureAwait(false);
 
-            return response.Resource;
+            return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Create)
+                .ConfigureAwait(false);
         }
 
         public override async Task<Component> GetAsync(string projectId, string id, bool expand = false)
@@ -144,7 +145,8 @@ namespace TeamCloud.Data.CosmosDb
                         .UpsertItemAsync(component, GetPartitionKey(component))
                         .ConfigureAwait(false);
 
-                    return response.Resource;
+                    return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Delete)
+                        .ConfigureAwait(false);
                 }
                 else
                 {
@@ -152,7 +154,8 @@ namespace TeamCloud.Data.CosmosDb
                         .DeleteItemAsync<Component>(component.Id, GetPartitionKey(component))
                         .ConfigureAwait(false);
 
-                    return response.Resource;
+                    return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Delete)
+                        .ConfigureAwait(false);
                 }
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
@@ -191,23 +194,20 @@ namespace TeamCloud.Data.CosmosDb
                         batch = batch.DeleteItem(component.Id);
                 }
 
-                await batch
+                using var batchResult = await batch
                     .ExecuteAsync()
                     .ConfigureAwait(false);
+
+                if (batchResult.IsSuccessStatusCode)
+                {
+                    _ = await NotifySubscribersAsync(batchResult.GetOperationResultResources<Component>(), DocumentSubscriptionEvent.Delete).ConfigureAwait(false);
+                }
+                else
+                {
+                    throw new Exception(batchResult.ErrorMessage);
+                }
             }
         }
-
-        // public async Task RemoveAsync(string projectId, string id)
-        // {
-        //     var component = await GetAsync(projectId, id)
-        //         .ConfigureAwait(false);
-
-        //     if (component != null)
-        //     {
-        //         await RemoveAsync(component)
-        //             .ConfigureAwait(false);
-        //     }
-        // }
 
         public override async Task<Component> SetAsync(Component component)
         {
@@ -225,7 +225,8 @@ namespace TeamCloud.Data.CosmosDb
                 .UpsertItemAsync(component, GetPartitionKey(component))
                 .ConfigureAwait(false);
 
-            return response.Resource;
+            return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Update)
+                .ConfigureAwait(false);
         }
     }
 }

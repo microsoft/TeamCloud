@@ -13,8 +13,8 @@ namespace TeamCloud.Orchestrator.Command
 {
     public interface ICommandHandler
     {
-        public const string ProcessorQueue = "Command-Processor";
-        public const string MonitorQueue = "Command-Monitor";
+        public const string ProcessorQueue = "command-processor";
+        public const string MonitorQueue = "command-monitor";
 
         public bool Orchestration { get; }
 

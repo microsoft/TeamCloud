@@ -21,7 +21,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using TeamCloud.Audit;
 using TeamCloud.Http;
-using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Validation;
 using TeamCloud.Orchestrator.Command;
@@ -173,14 +172,7 @@ namespace TeamCloud.Orchestrator.API
                             .AuditAsync(command, commandResult)
                             .ConfigureAwait(false);
 
-                        if (commandResult?.RuntimeStatus.IsFinal() ?? false)
-                        {
-                            var commandCollector = new CommandCollector(commandQueue, command);
-
-                            await BroadcastCommandResultAsync(commandCollector, command, commandResult, log)
-                                .ConfigureAwait(false);
-                        }
-                        else
+                        if (commandResult?.RuntimeStatus.IsActive() ?? false)
                         {
                             // the command result is still not in a final state - as we want to monitor the command until it is done,
                             // we are going to re-enqueue the command ID with a visibility offset to delay the next result lookup.
@@ -311,42 +303,9 @@ namespace TeamCloud.Orchestrator.API
                             .AddAsync(command.CommandId.ToString())
                             .ConfigureAwait(false);
                     }
-
-                    if (!commandHandler.Orchestration)
-                    {
-                        // only broadcast command results if the command handler doesn't
-                        // require an orchestration - in case the command handler is orchstration
-                        // based, its up to the command monitor to broadcast the command result
-                        // when command processing has finished.
-
-                        await BroadcastCommandResultAsync(commandCollector, command, commandResult, log)
-                            .ConfigureAwait(false);
-                    }
                 }
 
                 return CreateCommandResultResponse(commandResult);
-            }
-        }
-
-        private static async Task BroadcastCommandResultAsync(IAsyncCollector<ICommand> commandCollector, ICommand command, ICommandResult commandResult, ILogger log)
-        {
-            if (command.CommandAction != CommandAction.Custom)
-            {
-                // command result broadcasting is only available for command actions of type: create, update, and delete
-
-                try
-                {
-                    var broadcastCommandType = typeof(BroadcastCommandResultCommand<>).MakeGenericType(commandResult.GetType());
-                    var broadcastCommand = (ICommand)Activator.CreateInstance(broadcastCommandType, command.User, commandResult);
-
-                    await commandCollector
-                        .AddAsync(broadcastCommand)
-                        .ConfigureAwait(false);
-                }
-                catch (Exception exc)
-                {
-                    log.LogError(exc, $"Failed to enqueue command result broadcast for '{command.CommandId}': {exc.Message}");
-                }
             }
         }
 

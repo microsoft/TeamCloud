@@ -24,11 +24,14 @@ namespace TeamCloud.Model.Broadcast
         public sealed class Item
         {
             public string Id { get; set; }
+
             public string Organization { get; set; }
 
             public string Project { get; set; }
 
             public string Component { get; set; }
+
+            public string Slug { get; set; }
 
             public string Type { get; set; }
 
