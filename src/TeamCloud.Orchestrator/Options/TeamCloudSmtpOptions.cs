@@ -1,4 +1,9 @@
-﻿using TeamCloud.Configuration;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
+
+using TeamCloud.Configuration;
 
 namespace TeamCloud.Orchestrator.Options
 {
