@@ -1,53 +1,35 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useEffect } from 'react';
+import { useHistory, useParams } from 'react-router-dom';
 import { CheckboxVisibility, DetailsList, DetailsListLayoutMode, FontIcon, getTheme, IColumn, IDetailsRowProps, IRenderFunction, SelectionMode, Stack, Text } from '@fluentui/react';
-import { ProjectContext } from '../Context';
 import { ComponentTask } from 'teamcloud';
-import { useInterval } from '../Hooks';
-import { api } from '../API';
 import { ComponentTaskConsole } from '.';
+import { useOrg, useProject, useProjectComponent, useProjectComponentTasks, useProjectComponentTemplates, useProjectComponentTaskPoll } from '../hooks';
 
-export interface IComponentTaskListProps {
-
-}
+export interface IComponentTaskListProps { }
 
 export const ComponentTaskList: React.FunctionComponent<IComponentTaskListProps> = (props) => {
 
     const theme = getTheme();
+    const history = useHistory();
 
-    const { component, componentTask, componentTasks, templates, onComponentTaskSelected } = useContext(ProjectContext);
+    const { orgId, projectId, itemId, subitemId } = useParams() as { orgId: string, projectId: string, itemId: string, subitemId: string };
 
-    const [isPolling, setIsPolling] = useState(true);
+    const { data: org } = useOrg();
+    const { data: project } = useProject();
+    const { data: component } = useProjectComponent();
+    const { data: templates } = useProjectComponentTemplates();
+    const { data: componentTask } = useProjectComponentTaskPoll();
+    const { data: componentTasks } = useProjectComponentTasks();
+
 
     useEffect(() => {
-        const poll = componentTask?.resourceState !== undefined
-            && componentTask.resourceState.toLowerCase() !== 'succeeded'
-            && componentTask.resourceState.toLowerCase() !== 'failed';
-
-        if (isPolling !== poll) {
-            console.log(`+ setPollTask (${poll})`);
-            setIsPolling(poll);
+        if (!subitemId && org && project && component && componentTasks && componentTasks.length > 0) {
+            history.push(`/orgs/${org.slug}/projects/${project.slug}/components/${component.slug}/tasks/${componentTasks[0].id}`);
         }
-
-    }, [componentTask, isPolling])
-
-    useInterval(async () => {
-        if (componentTask) {
-            console.log(`- getComponentTask (polling) (${componentTask.id})`);
-            const result = await api.getComponentTask(componentTask.id, componentTask.organization, componentTask.projectId, componentTask.componentId);
-            console.log(`+ getComponentTask (polling) (${componentTask.id})`);
-            onComponentTaskSelected(result.data);
-        }
-    }, isPolling ? 3000 : undefined);
-
-    const [dots, setDots] = useState('');
-
-    useInterval(() => {
-        const d = dots.length < 3 ? `${dots}.` : '';
-        setDots(d);
-    }, isPolling ? 1000 : undefined);
+    }, [org, project, component, componentTasks, componentTask, subitemId, history]);
 
     const _getStateIcon = (task?: ComponentTask) => {
         if (task?.resourceState)
@@ -59,6 +41,10 @@ export const ComponentTaskList: React.FunctionComponent<IComponentTaskListProps>
                 case 'Failed': return 'StatusErrorFull'; // BoxMultiplySolid, Error, ErrorBadge StatusErrorFull, IncidentTriangle
                 default: return undefined;
             }
+    };
+
+    const _onActiveItemChanged = (item?: ComponentTask, index?: number | undefined) => {
+        history.push(`/orgs/${org?.slug ?? orgId}/projects/${project?.slug ?? projectId}/components/${component?.slug ?? itemId}/tasks/${item?.id}`);
     };
 
     const columns: IColumn[] = [
@@ -101,7 +87,7 @@ export const ComponentTaskList: React.FunctionComponent<IComponentTaskListProps>
             if (t.resourceState.toLowerCase() === 'succeeded' || t.resourceState.toLowerCase() === 'failed') {
                 return t.finished ? `${t.resourceState} ${t.finished.toLocaleString()}` : t.resourceState;
             } else {
-                return `${t.resourceState} ${dots}`;
+                return t.resourceState;
             }
         } else if (t?.started) {
             return `Started ${t.started.toLocaleString()}`;
@@ -130,12 +116,12 @@ export const ComponentTaskList: React.FunctionComponent<IComponentTaskListProps>
                     layoutMode={DetailsListLayoutMode.fixedColumns}
                     checkboxVisibility={CheckboxVisibility.hidden}
                     selectionMode={SelectionMode.single}
-                    onActiveItemChanged={onComponentTaskSelected}
+                    onActiveItemChanged={_onActiveItemChanged}
                     styles={{ focusZone: { minWidth: '1px' }, root: { minWidth: '460px', boxShadow: theme.effects.elevation8 } }}
                 />
             </Stack.Item>
             <Stack.Item grow={2}>
-                <ComponentTaskConsole task={componentTask} isPolling={isPolling} />
+                <ComponentTaskConsole task={componentTask} />
             </Stack.Item>
         </Stack >
 

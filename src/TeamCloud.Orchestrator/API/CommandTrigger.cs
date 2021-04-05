@@ -3,6 +3,10 @@
  *  Licensed under the MIT License.
  */
 
+using System;
+using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 using FluentValidation;
 using Flurl;
 using Microsoft.AspNetCore.Http;
@@ -15,10 +19,6 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using System;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
 using TeamCloud.Audit;
 using TeamCloud.Http;
 using TeamCloud.Model.Commands.Core;
@@ -131,12 +131,16 @@ namespace TeamCloud.Orchestrator.API
         [FunctionName(nameof(CommandTrigger) + nameof(Monitor))]
         public async Task Monitor(
             [QueueTrigger(ICommandHandler.MonitorQueue)] CloudQueueMessage commandMessage,
+            [Queue(ICommandHandler.ProcessorQueue)] IAsyncCollector<ICommand> commandQueue,
             [Queue(ICommandHandler.MonitorQueue)] CloudQueue commandMonitor,
             [DurableClient] IDurableClient durableClient,
             ILogger log)
         {
             if (commandMessage is null)
                 throw new ArgumentNullException(nameof(commandMessage));
+
+            if (commandQueue is null)
+                throw new ArgumentNullException(nameof(commandQueue));
 
             if (commandMonitor is null)
                 throw new ArgumentNullException(nameof(commandMonitor));
@@ -168,13 +172,13 @@ namespace TeamCloud.Orchestrator.API
                             .AuditAsync(command, commandResult)
                             .ConfigureAwait(false);
 
-                        if (!(commandResult?.RuntimeStatus.IsFinal() ?? false))
+                        if (commandResult?.RuntimeStatus.IsActive() ?? false)
                         {
                             // the command result is still not in a final state - as we want to monitor the command until it is done,
                             // we are going to re-enqueue the command ID with a visibility offset to delay the next result lookup.
 
                             await commandMonitor
-                                .AddMessageAsync(new CloudQueueMessage(commandId.ToString()), null, TimeSpan.FromSeconds(10), null, null)
+                                .AddMessageAsync(new CloudQueueMessage(commandId.ToString()), null, TimeSpan.FromSeconds(3), null, null)
                                 .ConfigureAwait(false);
                         }
                     }
@@ -223,6 +227,7 @@ namespace TeamCloud.Orchestrator.API
         private async Task<IActionResult> ProcessCommandAsync(IDurableClient durableClient, ICommand command, IAsyncCollector<ICommand> commandQueue, IAsyncCollector<string> commandMonitor, ILogger log)
         {
             var commandHandler = commandHandlers.SingleOrDefault(handler => handler.CanHandle(command));
+            var commandCollector = new CommandCollector(commandQueue, command);
 
             if (commandHandler is null)
             {
@@ -243,17 +248,20 @@ namespace TeamCloud.Orchestrator.API
                         _ = await durableClient
                             .StartNewAsync(nameof(CommandOrchestration), command.CommandId.ToString(), command)
                             .ConfigureAwait(false);
+
+                        commandResult = await durableClient
+                            .GetCommandResultAsync(command)
+                            .ConfigureAwait(false);
                     }
                     else
                     {
                         commandResult = await commandHandler
-                            .HandleAsync(command, new CommandCollector(commandQueue, command), durableClient, null, log ?? NullLogger.Instance)
+                            .HandleAsync(command, commandCollector, durableClient, null, log ?? NullLogger.Instance)
                             .ConfigureAwait(false);
-                    }
 
-                    commandResult ??= await durableClient
-                        .GetCommandResultAsync(command)
-                        .ConfigureAwait(false);
+                        if (!commandResult.RuntimeStatus.IsFinal())
+                            commandResult.RuntimeStatus = CommandRuntimeStatus.Completed;
+                    }
 
                     if (commandResult is null)
                         throw new NullReferenceException($"Unable to resolve result information for command {command.CommandId}");

@@ -17,8 +17,8 @@ namespace TeamCloud.Data.CosmosDb
 {
     public sealed class CosmosDbProjectIdentityRepository : CosmosDbRepository<ProjectIdentity>, IProjectIdentityRepository
     {
-        public CosmosDbProjectIdentityRepository(ICosmosDbOptions options, IDocumentExpanderProvider expanderProvider, IDataProtectionProvider dataProtectionProvider = null)
-            : base(options, expanderProvider, dataProtectionProvider)
+        public CosmosDbProjectIdentityRepository(ICosmosDbOptions options, IDocumentExpanderProvider expanderProvider = null, IDocumentSubscriptionProvider subscriptionProvider = null, IDataProtectionProvider dataProtectionProvider = null)
+            : base(options, expanderProvider, subscriptionProvider, dataProtectionProvider)
         { }
 
         public override async Task<ProjectIdentity> AddAsync(ProjectIdentity document)
@@ -39,7 +39,8 @@ namespace TeamCloud.Data.CosmosDb
                     .CreateItemAsync(document)
                     .ConfigureAwait(false);
 
-                return response.Resource;
+                return await NotifySubscribersAsync( response.Resource, DocumentSubscriptionEvent.Create)
+                    .ConfigureAwait(false);
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.Conflict)
             {
@@ -122,7 +123,8 @@ namespace TeamCloud.Data.CosmosDb
                     .DeleteItemAsync<ProjectIdentity>(document.Id, GetPartitionKey(document))
                     .ConfigureAwait(false);
 
-                return response.Resource;
+                return await NotifySubscribersAsync( response.Resource, DocumentSubscriptionEvent.Delete)
+                    .ConfigureAwait(false);
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
             {
@@ -146,7 +148,8 @@ namespace TeamCloud.Data.CosmosDb
                 .UpsertItemAsync(document, GetPartitionKey(document))
                 .ConfigureAwait(false);
 
-            return response.Resource;
+            return await NotifySubscribersAsync( response.Resource, DocumentSubscriptionEvent.Update)
+                .ConfigureAwait(false);
         }
     }
 }

@@ -1,16 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { DefaultButton, getTheme, Link, Persona, PersonaSize, PrimaryButton, Stack, Text, TextField } from '@fluentui/react';
-import { OrgContext, ProjectContext } from '../Context';
 import { ProjectMember } from '../model';
 import { ContentSeparator, UserPersona } from '.';
+import { useOrg, useUser, useProject, useProjectMembers } from '../hooks';
 
 export const ProjectSettingsOverview: React.FC = () => {
 
-    const { org, user } = useContext(OrgContext);
-    const { project, members } = useContext(ProjectContext);
+    const { data: org } = useOrg();
+    const { data: user } = useUser();
+
+    const { data: project } = useProject();
+    const { data: members } = useProjectMembers();
 
     const [owner, setOwner] = useState<ProjectMember>();
 

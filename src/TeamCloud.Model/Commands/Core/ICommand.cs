@@ -3,8 +3,8 @@
  *  Licensed under the MIT License.
  */
 
-using Newtonsoft.Json;
 using System;
+using Newtonsoft.Json;
 using TeamCloud.Model.Commands.Serialization;
 using TeamCloud.Model.Common;
 using TeamCloud.Model.Data;
@@ -35,8 +35,6 @@ namespace TeamCloud.Model.Commands.Core
     public interface ICommand<TPayload> : ICommand
         where TPayload : new()
     {
-        // new TUser User { get; set; }
-
         new TPayload Payload { get; set; }
     }
 

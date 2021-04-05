@@ -1010,6 +1010,58 @@ class TeamCloudClientOperationsMixin:
         return deserialized
     delete_deployment_scope.metadata = {'url': '/orgs/{organizationId}/scopes/{id}'}  # type: ignore
 
+    async def negotiate_signal_r(
+        self,
+        organization_id: str,
+        project_id: str,
+        **kwargs
+    ) -> None:
+        """Negotiates the SignalR connection.
+
+        Negotiates the SignalR connection.
+
+        :param organization_id:
+        :type organization_id: str
+        :param project_id:
+        :type project_id: str
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: None, or the result of cls(response)
+        :rtype: None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[None]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+
+        # Construct URL
+        url = self.negotiate_signal_r.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
+            'projectId': self._serialize.url("project_id", project_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+
+        request = self._client.post(url, query_parameters, header_parameters)
+        pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [200, 401, 403]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        if cls:
+            return cls(pipeline_response, None, {})
+
+    negotiate_signal_r.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/negotiate'}  # type: ignore
+
     async def get_organizations(
         self,
         **kwargs

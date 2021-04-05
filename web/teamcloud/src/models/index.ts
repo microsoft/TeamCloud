@@ -21,7 +21,6 @@ export interface Component {
   organization: string;
   templateId: string;
   projectId: string;
-  provider: string;
   creator: string;
   displayName?: string | null;
   description?: string | null;
@@ -32,8 +31,6 @@ export interface Component {
   resourceState?: ComponentResourceState;
   deploymentScopeId?: string | null;
   identityId?: string | null;
-  storageId?: string | null;
-  vaultId?: string | null;
   deleted?: Date | null;
   ttl?: number | null;
   /** NOTE: This property will not be serialized. It can only be populated by the server. */
@@ -95,8 +92,6 @@ export interface ComponentTask {
   organization: string;
   componentId: string;
   projectId: string;
-  storageId?: string | null;
-  vaultId?: string | null;
   requestedBy?: string | null;
   type?: Enum3;
   typeName?: string | null;
@@ -134,12 +129,13 @@ export interface ComponentTemplateListDataResult {
 export interface ComponentTemplate {
   organization: string;
   parentId: string;
-  provider?: string | null;
   displayName?: string | null;
   description?: string | null;
   repository: RepositoryReference;
+  permissions?: ComponentTemplatePermissions | null;
   inputJsonSchema?: string | null;
   tasks?: ComponentTaskTemplate[] | null;
+  taskRunner?: ComponentTaskRunner;
   type: ComponentTemplateType;
   folder?: string | null;
   id: string;
@@ -159,6 +155,13 @@ export interface RepositoryReference {
   project?: string | null;
 }
 
+export interface ComponentTemplatePermissions {
+  none?: string[];
+  member?: string[];
+  admin?: string[];
+  owner?: string[];
+}
+
 export interface ComponentTaskTemplate {
   id?: string | null;
   displayName?: string | null;
@@ -167,6 +170,12 @@ export interface ComponentTaskTemplate {
   type: Enum3;
   /** NOTE: This property will not be serialized. It can only be populated by the server. */
   readonly typeName?: string | null;
+}
+
+export interface ComponentTaskRunner {
+  id?: string | null;
+  /** Dictionary of <string> */
+  with?: { [propertyName: string]: string } | null;
 }
 
 export interface ComponentTemplateDataResult {
@@ -230,6 +239,9 @@ export interface Organization {
   tags?: { [propertyName: string]: string } | null;
   resourceId?: string | null;
   resourceState?: OrganizationResourceState;
+  galleryId?: string | null;
+  registryId?: string | null;
+  storageId?: string | null;
   id: string;
 }
 
@@ -307,6 +319,8 @@ export interface Project {
   tags?: { [propertyName: string]: string } | null;
   resourceId?: string | null;
   resourceState?: ProjectResourceState;
+  vaultId?: string | null;
+  storageId?: string | null;
   id: string;
 }
 

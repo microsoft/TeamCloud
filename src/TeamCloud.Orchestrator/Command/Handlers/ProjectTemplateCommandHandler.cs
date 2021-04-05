@@ -3,21 +3,20 @@
  *  Licensed under the MIT License.
  */
 
+using System;
+using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Threading.Tasks;
 using TeamCloud.Data;
 using TeamCloud.Git.Services;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
-using TeamCloud.Orchestrator.Command;
 
 namespace TeamCloud.Orchestrator.Command.Handlers
 {
-    public sealed class ProjectTemplateCommandHandler
-        : ICommandHandler<ProjectTemplateCreateCommand>,
+    public sealed class ProjectTemplateCommandHandler : CommandHandler,
+          ICommandHandler<ProjectTemplateCreateCommand>,
           ICommandHandler<ProjectTemplateUpdateCommand>,
           ICommandHandler<ProjectTemplateDeleteCommand>
     {
@@ -31,8 +30,6 @@ namespace TeamCloud.Orchestrator.Command.Handlers
             this.projectTemplateRepository = projectTemplateRepository ?? throw new ArgumentNullException(nameof(projectTemplateRepository));
             this.componentTemplateRepository = componentTemplateRepository ?? throw new ArgumentNullException(nameof(componentTemplateRepository));
         }
-
-        public bool Orchestration => false;
 
         public async Task<ICommandResult> HandleAsync(ProjectTemplateCreateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
         {

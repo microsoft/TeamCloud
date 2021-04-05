@@ -8,7 +8,6 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Model.Commands
 {
-    public sealed class ComponentTaskCommandResult : CommandResult<ComponentTask>
-    {
-    }
+    public sealed class ComponentTaskCreateCommandResult : CommandResult<ComponentTask>
+    { }
 }

@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef } from "react";
 
 export const useInterval = (callback: () => void, delay?: number) => {
 

@@ -2,14 +2,14 @@
 // Licensed under the MIT License.
 
 import React, { useEffect, useState } from 'react';
+import { useHistory, useParams } from 'react-router-dom';
 import { DefaultButton, PrimaryButton, Stack, TextField } from '@fluentui/react';
 import { ProjectTemplateDefinition } from 'teamcloud';
-import { useHistory, useParams } from 'react-router-dom';
 
 export interface IProjectTemplateFormProps {
     embedded?: boolean,
     onTemplateChange?: (template?: ProjectTemplateDefinition) => void;
-    onCreateProjectTemplate?: (template: ProjectTemplateDefinition) => Promise<void>;
+    createProjectTemplate?: (template: ProjectTemplateDefinition) => Promise<void>;
 }
 
 export const ProjectTemplateForm: React.FC<IProjectTemplateFormProps> = (props) => {
@@ -47,7 +47,7 @@ export const ProjectTemplateForm: React.FC<IProjectTemplateFormProps> = (props) 
 
 
     const _submitForm = () => {
-        if (orgId && props.onCreateProjectTemplate !== undefined && _templateComplete()) {
+        if (orgId && props.createProjectTemplate !== undefined && _templateComplete()) {
 
             setFormEnabled(false);
 
@@ -60,7 +60,7 @@ export const ProjectTemplateForm: React.FC<IProjectTemplateFormProps> = (props) 
                 }
             } as ProjectTemplateDefinition;
 
-            props.onCreateProjectTemplate(templateDef);
+            props.createProjectTemplate(templateDef);
         }
     };
 

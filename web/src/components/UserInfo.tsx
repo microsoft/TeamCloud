@@ -1,18 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import { DefaultButton, Stack, Panel, getTheme, Separator, PrimaryButton } from '@fluentui/react';
-import { GraphUserContext } from '../Context';
 import { auth } from '../API';
 import { UserPersona } from '.';
+import { useGraphUser } from '../hooks';
 
 export const UserInfo: React.FC = () => {
 
     const [panelOpen, setPanelOpen] = useState(false);
     // const [editPanelOpen, setEditPanelOpen] = useState(false);
 
-    const { graphUser } = useContext(GraphUserContext);
+    const { data: graphUser } = useGraphUser();
 
     const theme = getTheme();
 

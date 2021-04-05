@@ -11,7 +11,7 @@ export interface IMemberListProps {
     org?: Organization;
     project?: Project;
     members?: Member[];
-    onAddUsers: (users: UserDefinition[]) => Promise<void>;
+    addMembers: (users: UserDefinition[]) => Promise<any>;
 }
 
 export const MemberList: React.FC<IMemberListProps> = (props) => {
@@ -60,7 +60,7 @@ export const MemberList: React.FC<IMemberListProps> = (props) => {
                 members={props.members}
                 panelIsOpen={addMembersPanelOpen}
                 onFormClose={() => setAddMembersPanelOpen(false)}
-                onAddUsers={props.onAddUsers} />
+                addMembers={props.addMembers} />
         </>
     );
 }

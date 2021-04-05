@@ -1,15 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { ISubmitEvent } from '@rjsf/core';
 import { FuiForm } from '@rjsf/fluent-ui';
-import { Stack, TextField, Dropdown, IDropdownOption, Text, PrimaryButton, DefaultButton, IconButton } from '@fluentui/react';
+import { Stack, TextField, Dropdown, IDropdownOption, PrimaryButton, DefaultButton, IconButton } from '@fluentui/react';
 import { ProjectTemplate, ProjectDefinition } from 'teamcloud';
 import { ContentContainer, ContentHeader, ContentProgress } from '../components';
-import { api } from '../API';
-import { OrgContext } from '../Context';
+import { useCreateProject, useOrg, useProjectTemplates } from '../hooks';
 
 export const NewProjectView: React.FC = () => {
 
@@ -19,9 +18,11 @@ export const NewProjectView: React.FC = () => {
     const [projectTemplate, setProjectTemplate] = useState<ProjectTemplate>();
     const [projectTemplateOptions, setProjectTemplateOptions] = useState<IDropdownOption[]>();
     const [formEnabled, setFormEnabled] = useState<boolean>(false);
-    const [errorText, setErrorText] = useState<string>();
 
-    const { org, templates, onProjectSelected } = useContext(OrgContext);
+    const { data: org } = useOrg();
+    const { data: templates } = useProjectTemplates();
+
+    const createProject = useCreateProject();
 
     useEffect(() => {
         if (org && templates) {
@@ -51,16 +52,8 @@ export const NewProjectView: React.FC = () => {
                 template: projectTemplate.id,
                 templateInput: JSON.stringify(e.formData),
             };
-            const projectResult = await api.createProject(org.id, { body: projectDefinition });
-            const project = projectResult.data;
 
-            if (project) {
-                onProjectSelected(project);
-                history.push(`/orgs/${org.slug}/projects/${project.slug}`);
-            } else {
-                console.error(projectResult)
-                setErrorText(projectResult.status ?? 'failed to create project');
-            }
+            await createProject(projectDefinition)
         }
     };
 
@@ -108,7 +101,6 @@ export const NewProjectView: React.FC = () => {
                     </Stack.Item>
                 </Stack>
             </ContentContainer>
-            <Text>{errorText}</Text>
         </Stack>
     );
 }

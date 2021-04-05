@@ -646,6 +646,30 @@ paths:
           description: Unauthorized
         '403':
           description: Forbidden
+  '/orgs/{organizationId}/projects/{projectId}/negotiate':
+    post:
+      tags:
+        - Negotiate
+      summary: Negotiates the SignalR connection.
+      operationId: NegotiateSignalR
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
   /orgs:
     get:
       tags:
@@ -2380,7 +2404,6 @@ components:
         - id
         - organization
         - projectId
-        - provider
         - slug
         - templateId
         - type
@@ -2394,8 +2417,6 @@ components:
         templateId:
           type: string
         projectId:
-          type: string
-        provider:
           type: string
         creator:
           type: string
@@ -2433,12 +2454,6 @@ components:
           type: string
           nullable: true
         identityId:
-          type: string
-          nullable: true
-        storageId:
-          type: string
-          nullable: true
-        vaultId:
           type: string
           nullable: true
         deleted:
@@ -2596,12 +2611,6 @@ components:
           type: string
         projectId:
           type: string
-        storageId:
-          type: string
-          nullable: true
-        vaultId:
-          type: string
-          nullable: true
         requestedBy:
           type: string
           nullable: true
@@ -2771,6 +2780,18 @@ components:
           nullable: true
           readOnly: true
       additionalProperties: false
+    ComponentTaskRunner:
+      type: object
+      properties:
+        id:
+          type: string
+          nullable: true
+        with:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+      additionalProperties: false
     ComponentTemplate:
       required:
         - id
@@ -2784,9 +2805,6 @@ components:
           type: string
         parentId:
           type: string
-        provider:
-          type: string
-          nullable: true
         displayName:
           type: string
           nullable: true
@@ -2795,6 +2813,26 @@ components:
           nullable: true
         repository:
           $ref: '#/components/schemas/RepositoryReference'
+        permissions:
+          type: object
+          properties:
+            None:
+              type: array
+              items:
+                type: string
+            Member:
+              type: array
+              items:
+                type: string
+            Admin:
+              type: array
+              items:
+                type: string
+            Owner:
+              type: array
+              items:
+                type: string
+          nullable: true
         inputJsonSchema:
           type: string
           nullable: true
@@ -2803,6 +2841,8 @@ components:
           items:
             $ref: '#/components/schemas/ComponentTaskTemplate'
           nullable: true
+        taskRunner:
+          $ref: '#/components/schemas/ComponentTaskRunner'
         type:
           enum:
             - Custom
@@ -2974,6 +3014,15 @@ components:
             - Succeeded
             - Failed
           type: string
+        galleryId:
+          type: string
+          nullable: true
+        registryId:
+          type: string
+          nullable: true
+        storageId:
+          type: string
+          nullable: true
         id:
           type: string
       additionalProperties: false
@@ -3179,6 +3228,12 @@ components:
             - Succeeded
             - Failed
           type: string
+        vaultId:
+          type: string
+          nullable: true
+        storageId:
+          type: string
+          nullable: true
         id:
           type: string
       additionalProperties: false

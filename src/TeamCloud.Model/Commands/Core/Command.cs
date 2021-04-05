@@ -72,7 +72,7 @@ namespace TeamCloud.Model.Commands.Core
         where TPayload : class, new()
         where TCommandResult : ICommandResult, new()
     {
-        protected CreateCommand(User user, TPayload payload) : base(CommandAction.Create, user, payload)
+        protected CreateCommand(User user, TPayload payload, Guid? commandId = default) : base(CommandAction.Create, user, payload, commandId)
         { }
     }
 
@@ -80,7 +80,7 @@ namespace TeamCloud.Model.Commands.Core
         where TPayload : class, new()
         where TCommandResult : ICommandResult, new()
     {
-        protected UpdateCommand(User user, TPayload payload) : base(CommandAction.Update, user, payload)
+        protected UpdateCommand(User user, TPayload payload, Guid? commandId = default) : base(CommandAction.Update, user, payload, commandId)
         { }
     }
 
@@ -88,7 +88,7 @@ namespace TeamCloud.Model.Commands.Core
         where TPayload : class, new()
         where TCommandResult : ICommandResult, new()
     {
-        protected DeleteCommand(User user, TPayload payload) : base(CommandAction.Delete, user, payload)
+        protected DeleteCommand(User user, TPayload payload, Guid? commandId = default) : base(CommandAction.Delete, user, payload, commandId)
         { }
     }
 
@@ -96,7 +96,7 @@ namespace TeamCloud.Model.Commands.Core
         where TPayload : class, new()
         where TCommandResult : ICommandResult, new()
     {
-        protected CustomCommand(User user, TPayload payload) : base(CommandAction.Custom, user, payload)
+        protected CustomCommand(User user, TPayload payload, Guid? commandId = default) : base(CommandAction.Custom, user, payload, commandId)
         { }
     }
 }

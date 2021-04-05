@@ -11,20 +11,20 @@ export const ContentRouter: React.FC = () => (
             <></>
         </Route>
         <Route exact path='/orgs/new'>
-            <NewOrgView />
+            <NewOrgView {...{}} />
         </Route>
         <Route exact path='/orgs/:orgId'>
-            <ProjectsView />
+            <ProjectsView {...{}} />
         </Route>
         <Route exact path='/orgs/:orgId/projects/new'>
-            <NewProjectView />
+            <NewProjectView {...{}} />
         </Route>
         <Route exact path={[
             '/orgs/:orgId/settings',
             '/orgs/:orgId/settings/:settingId',
             '/orgs/:orgId/settings/:settingId/new'
         ]}>
-            <OrgSettingsView />
+            <OrgSettingsView {...{}} />
         </Route>
         <Route exact path={[
             '/orgs/:orgId/projects/:projectId',
@@ -33,11 +33,12 @@ export const ContentRouter: React.FC = () => (
             '/orgs/:orgId/projects/:projectId/:navId',
             '/orgs/:orgId/projects/:projectId/:navId/new',
             '/orgs/:orgId/projects/:projectId/:navId/:itemId',
+            '/orgs/:orgId/projects/:projectId/:navId/:itemId/tasks/:subitemId'
         ]}>
-            <ProjectView />
+            <ProjectView {...{}} />
         </Route>
         <Route path='*'>
-            <Error404 />
+            <Error404 {...{}} />
         </Route>
     </Switch>
 );

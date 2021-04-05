@@ -1,20 +1,23 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useContext } from 'react';
-import { Project } from 'teamcloud';
+import React from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { DetailsListLayoutMode, IColumn, IRenderFunction, IDetailsRowProps, CheckboxVisibility, SelectionMode, Persona, PersonaSize, getTheme, DetailsList, Stack } from '@fluentui/react';
+import { Project } from 'teamcloud';
 import { NoData } from '.';
-import { OrgContext } from '../Context';
+import { useProjects } from '../hooks';
+
 import collaboration from '../img/MSC17_collaboration_010_noBG.png'
 
 export const ProjectList: React.FC = () => {
 
     const history = useHistory();
+
     const { orgId } = useParams() as { orgId: string };
 
-    const { projects, onProjectSelected } = useContext(OrgContext);
+    const { data: projects } = useProjects();
+
     // const [projectFilter, setProjectFilter] = useState<string>();
 
     const theme = getTheme();
@@ -52,7 +55,7 @@ export const ProjectList: React.FC = () => {
     // }
 
     const _onLinkClicked = (project: Project): void => {
-        onProjectSelected(project);
+        // onProjectSelected(project);
     }
 
     const _onItemInvoked = (project: Project): void => {
@@ -72,7 +75,7 @@ export const ProjectList: React.FC = () => {
 
     // const items = props.projects ? props.projects.filter(_applyProjectFilter) : new Array<Project>();
 
-    if (projects === undefined)
+    if (projects === null || projects === undefined)
         return (<></>);
 
     if (projects.length === 0)

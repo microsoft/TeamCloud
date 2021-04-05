@@ -1,29 +1,25 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import { ICommandBarItemProps } from '@fluentui/react';
-import { ErrorResult, User, UserDefinition } from 'teamcloud';
+import { ErrorResult } from 'teamcloud';
 import { api } from '../API';
-import { GraphUserContext, ProjectContext } from '../Context';
 import { Member, ProjectMember } from '../model'
 import { DetailCard, MembersForm, MemberFacepile } from '.';
+import { useAddProjectMembers, useGraphUser, useProjectMembers } from '../hooks';
 
-
-export interface IMembersCardProps {
-    // onEditMember: (member?: Member) => void;
-    members?: Member[];
-    onAddUsers: (user: UserDefinition[]) => Promise<void>;
-    onRemoveUsers: (user: User[]) => Promise<void>;
-}
+export interface IMembersCardProps { }
 
 export const MembersCard: React.FC<IMembersCardProps> = (props) => {
 
     const [addMembersPanelOpen, setAddMembersPanelOpen] = useState(false);
 
-    const { graphUser } = useContext(GraphUserContext);
+    const { data: graphUser } = useGraphUser();
 
-    const { members, onAddUsers } = useContext(ProjectContext);
+    const { data: members } = useProjectMembers();
+
+    const addMembers = useAddProjectMembers();
 
     const _removeMember = async (member: Member) => {
         const projectId = (member as ProjectMember)?.projectMembership?.projectId;
@@ -62,7 +58,7 @@ export const MembersCard: React.FC<IMembersCardProps> = (props) => {
                 members={members}
                 panelIsOpen={addMembersPanelOpen}
                 onFormClose={() => setAddMembersPanelOpen(false)}
-                onAddUsers={onAddUsers} />
+                addMembers={addMembers} />
         </>
     );
 }

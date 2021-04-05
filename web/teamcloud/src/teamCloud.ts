@@ -427,6 +427,28 @@ export class TeamCloud extends TeamCloudContext {
   }
 
   /**
+   * Negotiates the SignalR connection.
+   * @param organizationId
+   * @param projectId
+   * @param options The options parameters.
+   */
+  negotiateSignalR(
+    organizationId: string,
+    projectId: string,
+    options?: coreHttp.OperationOptions
+  ): Promise<coreHttp.RestResponse> {
+    const operationArguments: coreHttp.OperationArguments = {
+      organizationId,
+      projectId,
+      options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
+    };
+    return this.sendOperationRequest(
+      operationArguments,
+      negotiateSignalROperationSpec
+    ) as Promise<coreHttp.RestResponse>;
+  }
+
+  /**
    * Gets all Organizations.
    * @param options The options parameters.
    */
@@ -1658,6 +1680,17 @@ const deleteDeploymentScopeOperationSpec: coreHttp.OperationSpec = {
   },
   urlParameters: [Parameters.$host, Parameters.organizationId, Parameters.id],
   headerParameters: [Parameters.accept],
+  serializer
+};
+const negotiateSignalROperationSpec: coreHttp.OperationSpec = {
+  path: "/orgs/{organizationId}/projects/{projectId}/negotiate",
+  httpMethod: "POST",
+  responses: { 200: {}, 401: {}, 403: {} },
+  urlParameters: [
+    Parameters.$host,
+    Parameters.organizationId,
+    Parameters.projectId
+  ],
   serializer
 };
 const getOrganizationsOperationSpec: coreHttp.OperationSpec = {

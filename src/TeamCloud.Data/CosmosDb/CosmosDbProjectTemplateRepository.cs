@@ -21,8 +21,8 @@ namespace TeamCloud.Data.CosmosDb
     {
         private readonly IRepositoryService repositoryService;
 
-        public CosmosDbProjectTemplateRepository(ICosmosDbOptions options, IDocumentExpanderProvider expanderProvider, IRepositoryService repositoryService, IDataProtectionProvider dataProtectionProvider = null)
-            : base(options, expanderProvider, dataProtectionProvider)
+        public CosmosDbProjectTemplateRepository(ICosmosDbOptions options, IRepositoryService repositoryService, IDocumentExpanderProvider expanderProvider = null, IDocumentSubscriptionProvider subscriptionProvider = null, IDataProtectionProvider dataProtectionProvider = null)
+            : base(options, expanderProvider, subscriptionProvider, dataProtectionProvider)
         {
             this.repositoryService = repositoryService ?? throw new ArgumentNullException(nameof(repositoryService));
         }
@@ -84,8 +84,20 @@ namespace TeamCloud.Data.CosmosDb
                         .ExecuteAsync()
                         .ConfigureAwait(false);
 
-                    return await GetAsync(projectTemplate.Organization, projectTemplate.Id)
-                        .ConfigureAwait(false);
+                    if (batchResponse.IsSuccessStatusCode)
+                    {
+                        var batchResources = batchResponse.GetOperationResultResources<ProjectTemplate>().ToArray();
+
+                        _ = await NotifySubscribersAsync(batchResources.Skip(1), DocumentSubscriptionEvent.Update)
+                            .ConfigureAwait(false);
+
+                        projectTemplate = await AugmentAsync(batchResources.First())
+                            .ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        throw new Exception(batchResponse.ErrorMessage);
+                    }
                 }
                 else
                 {
@@ -93,9 +105,12 @@ namespace TeamCloud.Data.CosmosDb
                         .CreateItemAsync(projectTemplate, GetPartitionKey(projectTemplate))
                         .ConfigureAwait(false);
 
-                    return await AugmentAsync(response.Resource)
+                    projectTemplate = await AugmentAsync(response.Resource)
                         .ConfigureAwait(false);
                 }
+
+                return await NotifySubscribersAsync(projectTemplate, DocumentSubscriptionEvent.Create)
+                    .ConfigureAwait(false);
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.Conflict)
             {
@@ -229,8 +244,20 @@ namespace TeamCloud.Data.CosmosDb
                     .ExecuteAsync()
                     .ConfigureAwait(false);
 
-                return await GetAsync(projectTemplate.Organization, projectTemplate.Id)
-                    .ConfigureAwait(false);
+                if (batchResponse.IsSuccessStatusCode)
+                {
+                    var batchResources = batchResponse.GetOperationResultResources<ProjectTemplate>().ToArray();
+
+                    _ = await NotifySubscribersAsync(batchResources.Skip(1), DocumentSubscriptionEvent.Update)
+                        .ConfigureAwait(false);
+
+                    projectTemplate = await AugmentAsync(batchResources.First())
+                        .ConfigureAwait(false);
+                }
+                else
+                {
+                    throw new Exception(batchResponse.ErrorMessage);
+                }
             }
             else
             {
@@ -238,9 +265,12 @@ namespace TeamCloud.Data.CosmosDb
                     .UpsertItemAsync(projectTemplate, GetPartitionKey(projectTemplate))
                     .ConfigureAwait(false);
 
-                return await AugmentAsync(response.Resource)
+                projectTemplate = await AugmentAsync(response.Resource)
                     .ConfigureAwait(false);
             }
+
+            return await NotifySubscribersAsync(projectTemplate, DocumentSubscriptionEvent.Update)
+                .ConfigureAwait(false);
         }
 
         public override async IAsyncEnumerable<ProjectTemplate> ListAsync(string organization)
@@ -289,7 +319,8 @@ namespace TeamCloud.Data.CosmosDb
                     .DeleteItemAsync<ProjectTemplate>(projectTemplate.Id, GetPartitionKey(projectTemplate))
                     .ConfigureAwait(false);
 
-                return response.Resource;
+                return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Delete)
+                    .ConfigureAwait(false);
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
             {

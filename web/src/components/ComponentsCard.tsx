@@ -1,26 +1,30 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useHistory, useParams } from 'react-router-dom';
 import { Stack, DefaultButton, Text, ICommandBarItemProps, Dialog, DialogType, DialogFooter, PrimaryButton, FontIcon, IColumn, Persona, PersonaSize, DetailsList, DetailsListLayoutMode, CheckboxVisibility, IDetailsRowProps, IRenderFunction, SelectionMode } from '@fluentui/react';
 import { Component, ComponentTemplate, ErrorResult } from 'teamcloud';
-import { DetailCard } from '.';
 import { api } from '../API';
-import { useHistory, useParams } from 'react-router-dom';
-import { OrgContext, ProjectContext } from '../Context';
+import { DetailCard, ComponentLink } from '.';
+import { useOrg, useDeploymentScopes, useProject, useProjectComponents, useProjectComponentTemplates } from '../hooks';
+
 import DevOps from '../img/devops.svg';
 import GitHub from '../img/github.svg';
 import Resource from '../img/resource.svg';
-import { ComponentLink } from './ComponentLink';
-
 
 export const ComponentsCard: React.FC = () => {
 
     const history = useHistory();
 
     const { orgId, projectId } = useParams() as { orgId: string, projectId: string };
-    const { org, scopes } = useContext(OrgContext);
-    const { project, components, templates, onComponentSelected } = useContext(ProjectContext);
+
+    const { data: org } = useOrg();
+    const { data: scopes } = useDeploymentScopes();
+
+    const { data: project } = useProject();
+    const { data: components } = useProjectComponents();
+    const { data: templates } = useProjectComponentTemplates();
 
     const [component, setComponent] = useState<Component>();
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
@@ -33,8 +37,6 @@ export const ComponentsCard: React.FC = () => {
             setItems(components.map(c => ({ component: c, template: templates.find(t => t.id === c.templateId)! })));
         }
     }, [components, templates, items]);
-
-    // const { project, components } = useContext(ProjectContext);
 
 
 
@@ -156,7 +158,7 @@ export const ComponentsCard: React.FC = () => {
 
     const _onItemInvoked = (item: { component: Component, template: ComponentTemplate }): void => {
         // console.log(item);
-        onComponentSelected(item.component);
+        // onComponentSelected(item.component);
         history.push(`/orgs/${org?.slug ?? orgId}/projects/${project?.slug ?? projectId}/components/${item.component.slug}`);
     };
 

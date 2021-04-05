@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useContext } from 'react';
+import React from 'react';
 import { useHistory, useLocation, useParams } from 'react-router-dom';
 import { Text, Breadcrumb, IBreadcrumbItem } from '@fluentui/react';
-import { OrgContext, ProjectContext } from '../Context';
 import { endsWithLowerCase, includesLowerCase, matchesLowerCase, matchesRouteParam } from '../Utils';
+import { useOrgs, useProject, useProjectComponent } from '../hooks';
 
 export const HeaderBreadcrumb: React.FC = () => {
 
@@ -13,8 +13,9 @@ export const HeaderBreadcrumb: React.FC = () => {
     const history = useHistory();
     const { orgId, projectId, navId, itemId, settingId } = useParams() as { orgId: string, projectId: string, navId: string, itemId: string, settingId: string };
 
-    const { orgs } = useContext(OrgContext);
-    const { project, component } = useContext(ProjectContext);
+    const { data: orgs } = useOrgs();
+    const { data: project } = useProject();
+    const { data: component } = useProjectComponent();
 
     const _breadcrumbs = (): IBreadcrumbItem[] => {
         const crumbs: IBreadcrumbItem[] = [];

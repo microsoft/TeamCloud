@@ -1,17 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useContext } from 'react';
+import React from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { Nav, INavLinkGroup, INavLink, Stack, ActionButton, Persona, PersonaSize, getTheme, Text } from '@fluentui/react';
-import { OrgContext } from '../../Context';
+import { useOrgs } from '../../hooks';
 
 export const RootNav: React.FC = () => {
 
     const history = useHistory();
+
     const { orgId } = useParams() as { orgId: string };
 
-    const { orgs, onOrgSelected } = useContext(OrgContext);
+    const { data: orgs } = useOrgs();
 
     const newOrgView = orgId !== undefined && orgId.toLowerCase() === 'new';
 
@@ -20,10 +21,7 @@ export const RootNav: React.FC = () => {
             key: o.slug,
             name: o.displayName,
             url: '',
-            onClick: () => {
-                onOrgSelected(o);
-                history.push(`/orgs/${o.slug}`)
-            },
+            onClick: () => history.push(`/orgs/${o.slug}`),
         })) ?? [];
 
         if (!newOrgView)
@@ -31,10 +29,7 @@ export const RootNav: React.FC = () => {
                 key: 'new',
                 name: "New organization",
                 url: '',
-                onClick: () => {
-                    onOrgSelected(undefined);
-                    history.push('/orgs/new')
-                }
+                onClick: () => history.push('/orgs/new')
             });
 
         return [{ links: links }];

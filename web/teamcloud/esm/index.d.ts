@@ -5,7 +5,6 @@ export declare interface Component {
     organization: string;
     templateId: string;
     projectId: string;
-    provider: string;
     creator: string;
     displayName?: string | null;
     description?: string | null;
@@ -16,8 +15,6 @@ export declare interface Component {
     resourceState?: ComponentResourceState;
     deploymentScopeId?: string | null;
     identityId?: string | null;
-    storageId?: string | null;
-    vaultId?: string | null;
     deleted?: Date | null;
     ttl?: number | null;
     /** NOTE: This property will not be serialized. It can only be populated by the server. */
@@ -64,8 +61,6 @@ export declare interface ComponentTask {
     organization: string;
     componentId: string;
     projectId: string;
-    storageId?: string | null;
-    vaultId?: string | null;
     requestedBy?: string | null;
     type?: Enum3;
     typeName?: string | null;
@@ -113,6 +108,14 @@ export declare interface ComponentTaskListDataResult {
  */
 export declare type ComponentTaskResourceState = string;
 
+export declare interface ComponentTaskRunner {
+    id?: string | null;
+    /** Dictionary of <string> */
+    with?: {
+        [propertyName: string]: string;
+    } | null;
+}
+
 export declare interface ComponentTaskTemplate {
     id?: string | null;
     displayName?: string | null;
@@ -126,12 +129,13 @@ export declare interface ComponentTaskTemplate {
 export declare interface ComponentTemplate {
     organization: string;
     parentId: string;
-    provider?: string | null;
     displayName?: string | null;
     description?: string | null;
     repository: RepositoryReference;
+    permissions?: ComponentTemplatePermissions | null;
     inputJsonSchema?: string | null;
     tasks?: ComponentTaskTemplate[] | null;
+    taskRunner?: ComponentTaskRunner;
     type: ComponentTemplateType;
     folder?: string | null;
     id: string;
@@ -150,6 +154,13 @@ export declare interface ComponentTemplateListDataResult {
     /** NOTE: This property will not be serialized. It can only be populated by the server. */
     readonly data?: ComponentTemplate[] | null;
     location?: string | null;
+}
+
+export declare interface ComponentTemplatePermissions {
+    none?: string[];
+    member?: string[];
+    admin?: string[];
+    owner?: string[];
 }
 
 /**
@@ -351,6 +362,9 @@ export declare interface Organization {
     } | null;
     resourceId?: string | null;
     resourceState?: OrganizationResourceState;
+    galleryId?: string | null;
+    registryId?: string | null;
+    storageId?: string | null;
     id: string;
 }
 
@@ -404,6 +418,8 @@ export declare interface Project {
     } | null;
     resourceId?: string | null;
     resourceState?: ProjectResourceState;
+    vaultId?: string | null;
+    storageId?: string | null;
     id: string;
 }
 
@@ -732,6 +748,13 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param options The options parameters.
      */
     deleteDeploymentScope(id: string | null, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteDeploymentScopeResponse>;
+    /**
+     * Negotiates the SignalR connection.
+     * @param organizationId
+     * @param projectId
+     * @param options The options parameters.
+     */
+    negotiateSignalR(organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<coreHttp.RestResponse>;
     /**
      * Gets all Organizations.
      * @param options The options parameters.

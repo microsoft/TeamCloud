@@ -15,9 +15,9 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Orchestrator.Command.Handlers
 {
-    public sealed class ComponentCommandHandler
-        : ICommandHandler<ComponentCreateCommand>,
-          ICommandHandler<ComponentTaskCommand>,
+    public sealed class ComponentCommandHandler : CommandHandler,
+          ICommandHandler<ComponentCreateCommand>,
+          ICommandHandler<ComponentTaskCreateCommand>,
           ICommandHandler<ComponentDeleteCommand>
     {
         private readonly IComponentRepository componentRepository;
@@ -28,8 +28,6 @@ namespace TeamCloud.Orchestrator.Command.Handlers
             this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
             this.componentTaskRepository = componentTaskRepository ?? throw new ArgumentNullException(nameof(componentTaskRepository));
         }
-
-        public bool Orchestration => false;
 
         public async Task<ICommandResult> HandleAsync(ComponentCreateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
         {
@@ -58,7 +56,7 @@ namespace TeamCloud.Orchestrator.Command.Handlers
                 };
 
                 await commandQueue
-                    .AddAsync(new ComponentTaskCommand(command.User, componentTask))
+                    .AddAsync(new ComponentTaskCreateCommand(command.User, componentTask))
                     .ConfigureAwait(false);
 
                 commandResult.RuntimeStatus = CommandRuntimeStatus.Completed;
@@ -71,7 +69,7 @@ namespace TeamCloud.Orchestrator.Command.Handlers
             return commandResult;
         }
 
-        public async Task<ICommandResult> HandleAsync(ComponentTaskCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
+        public async Task<ICommandResult> HandleAsync(ComponentTaskCreateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
         {
             if (command is null)
                 throw new ArgumentNullException(nameof(command));

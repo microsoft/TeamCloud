@@ -39,8 +39,6 @@ namespace TeamCloud.Model.Commands.Core
         public Dictionary<string, string> Links { get; private set; } = new Dictionary<string, string>();
 
         public object Result { get; set; }
-
-        public TimeSpan Timeout { get; set; } = MaximumTimeout;
     }
 
     public abstract class CommandResult<TResult> : CommandResult, ICommandResult<TResult>

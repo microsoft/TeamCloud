@@ -3,19 +3,17 @@
  *  Licensed under the MIT License.
  */
 
-using Microsoft.AspNetCore.DataProtection;
-using Microsoft.Azure.Cosmos;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.Azure.Cosmos;
 using TeamCloud.Data.Utilities;
 using TeamCloud.Model.Common;
 using TeamCloud.Model.Data.Core;
-using static Microsoft.Azure.Cosmos.Container;
 
 namespace TeamCloud.Data.CosmosDb.Core
 {
@@ -32,12 +30,14 @@ namespace TeamCloud.Data.CosmosDb.Core
         private readonly Lazy<CosmosClient> cosmosClient;
         private readonly ConcurrentDictionary<Type, AsyncLazy<(Container, ChangeFeedProcessor)>> cosmosContainers = new ConcurrentDictionary<Type, AsyncLazy<(Container, ChangeFeedProcessor)>>();
         private readonly IDocumentExpanderProvider expanderProvider;
+        private readonly IDocumentSubscriptionProvider subscriptionProvider;
 
-        protected CosmosDbRepository(ICosmosDbOptions options, IDocumentExpanderProvider expanderProvider, IDataProtectionProvider dataProtectionProvider)
+        protected CosmosDbRepository(ICosmosDbOptions options, IDocumentExpanderProvider expanderProvider = null, IDocumentSubscriptionProvider subscriptionProvider = null, IDataProtectionProvider dataProtectionProvider = null)
         {
             Options = options ?? throw new ArgumentNullException(nameof(options));
 
             this.expanderProvider = expanderProvider ?? NullExpanderProvider.Instance;
+            this.subscriptionProvider = subscriptionProvider ?? NullSubscriptionProvider.Instance;
 
             cosmosClient = new Lazy<CosmosClient>(() => new CosmosClient(options.ConnectionString, new CosmosClientOptions()
             {
@@ -103,14 +103,14 @@ namespace TeamCloud.Data.CosmosDb.Core
                 .ConfigureAwait(false);
 
             var containerEntry = cosmosContainers.GetOrAdd(typeof(T), containerType
-                => new AsyncLazy<(Container, ChangeFeedProcessor)>(() => CreateContainerAsync(database, typeof(T), HandleChangesAsync), LazyThreadSafetyMode.PublicationOnly));
+                => new AsyncLazy<(Container, ChangeFeedProcessor)>(() => CreateContainerAsync(database, typeof(T)), LazyThreadSafetyMode.PublicationOnly));
 
             var (container, processor) = await containerEntry.Value.ConfigureAwait(false);
 
             return container;
         }
 
-        private static async Task<(Container, ChangeFeedProcessor)> CreateContainerAsync(Database database, Type containerType, ChangesHandler<T> changesHandler)
+        private static async Task<(Container, ChangeFeedProcessor)> CreateContainerAsync(Database database, Type containerType)
         {
             var containerName = ContainerNameAttribute.GetNameOrDefault(containerType);
             var containerPartitionKey = PartitionKeyAttribute.GetPath(containerType, true);
@@ -138,36 +138,7 @@ namespace TeamCloud.Data.CosmosDb.Core
                 .CreateIfNotExistsAsync()
                 .ConfigureAwait(false);
 
-            if (changesHandler is null)
-            {
-                // no changes handler was provided. so we don't need to
-                // create change feed processor and return just the container
-
-                return (database.GetContainer(containerName), null);
-            }
-            else
-            {
-                _ = await database
-                    .DefineContainer($"{containerName}-leases", "/id")
-                    .CreateIfNotExistsAsync()
-                    .ConfigureAwait(false);
-
-                var processorInstance = Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID")
-                    ?? $"{Environment.MachineName}-{Process.GetCurrentProcess().Id}";
-
-                var processor = database.GetContainer(containerName)
-                    .GetChangeFeedProcessorBuilder(containerName, changesHandler)
-                    .WithInstanceName($"{containerName}-{processorInstance}")
-                    .WithLeaseContainer(database.GetContainer($"{containerName}-leases"))
-                    .WithStartTime(DateTime.UtcNow)
-                    .Build();
-
-                await processor
-                    .StartAsync()
-                    .ConfigureAwait(false);
-
-                return (database.GetContainer(containerName), processor);
-            }
+            return (database.GetContainer(containerName), null);
         }
 
         public abstract Task<T> AddAsync(T document);
@@ -180,6 +151,39 @@ namespace TeamCloud.Data.CosmosDb.Core
 
         public abstract Task<T> RemoveAsync(T document);
 
+        protected async Task<IEnumerable<T>> NotifySubscribersAsync(IEnumerable<T> documents, DocumentSubscriptionEvent subscriptionEvent)
+        {
+            if (documents is null)
+                throw new ArgumentNullException(nameof(documents));
+
+            var tasks = documents
+                .Select(document => NotifySubscribersAsync(document, subscriptionEvent));
+
+            return await Task
+                .WhenAll(tasks)
+                .ConfigureAwait(false);
+        }
+
+        protected Task<T> NotifySubscribersAsync(T document, DocumentSubscriptionEvent subscriptionEvent)
+        {
+            if (document != null)
+            {
+                var tasks = subscriptionProvider
+                    .GetSubscriptions(document)
+                    .Where(subscriber => subscriber.CanHandle(document))
+                    .Select(subscriber => subscriber.HandleAsync(document, subscriptionEvent));
+
+                if (tasks.Any())
+                {
+                    return Task
+                        .WhenAll(tasks)
+                        .ContinueWith(t => document, TaskScheduler.Current);
+                }
+            }
+
+            return Task.FromResult(document);
+        }
+
         public virtual async Task<T> ExpandAsync(T document)
         {
             if (document is null)
@@ -191,14 +195,20 @@ namespace TeamCloud.Data.CosmosDb.Core
             return document;
         }
 
-        protected virtual ChangesHandler<T> HandleChangesAsync { get; }
-
         private class NullExpanderProvider : IDocumentExpanderProvider
         {
             public static readonly IDocumentExpanderProvider Instance = new NullExpanderProvider();
 
-            public IEnumerable<IDocumentExpander> GetExpanders(IContainerDocument document)
+            public IEnumerable<IDocumentExpander> GetExpanders(IContainerDocument containerDocument)
                 => Enumerable.Empty<IDocumentExpander>();
+        }
+
+        private class NullSubscriptionProvider : IDocumentSubscriptionProvider
+        {
+            public static readonly IDocumentSubscriptionProvider Instance = new NullSubscriptionProvider();
+
+            public IEnumerable<IDocumentSubscription> GetSubscriptions(IContainerDocument containerDocument)
+                => Enumerable.Empty<IDocumentSubscription>();
         }
     }
 }

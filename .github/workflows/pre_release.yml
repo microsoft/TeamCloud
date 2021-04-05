@@ -75,6 +75,30 @@ jobs:
         with:
           python-version: '3.9'
 
+      - name: Install bicep
+        run: |
+          # Fetch the latest Bicep CLI binary
+          curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
+          # Mark it as executable
+          chmod +x ./bicep
+          # Add bicep to your PATH (requires admin)
+          sudo mv ./bicep /usr/local/bin/bicep
+          # Verify you can now access the 'bicep' command
+          bicep --help
+          # Done!
+
+      - name: Create Release Asset - azuredeploy.json
+        run: |
+          pushd deploy/bicep
+            bicep build main.bicep --outfile ../azuredeploy.json
+          popd
+
+      - name: Create Release Asset - azuredeploy.web.json
+        run: |
+          pushd deploy/bicep
+            bicep build webUI.bicep --outfile ../azuredeploy.web.json
+          popd
+
       - uses: actions/setup-node@v2
         with:
           node-version: '12'

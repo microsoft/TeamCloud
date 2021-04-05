@@ -3,6 +3,8 @@
  *  Licensed under the MIT License.
  */
 
+using System;
+using System.Reflection;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
@@ -15,8 +17,6 @@ using Microsoft.Extensions.Configuration.AzureKeyVault;
 using Microsoft.Extensions.Configuration.UserSecrets;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
-using System.Reflection;
 using TeamCloud.Audit;
 using TeamCloud.Azure;
 using TeamCloud.Azure.Deployment;
@@ -27,6 +27,7 @@ using TeamCloud.Configuration;
 using TeamCloud.Configuration.Options;
 using TeamCloud.Data;
 using TeamCloud.Data.CosmosDb;
+using TeamCloud.Data.Providers;
 using TeamCloud.Git.Caching;
 using TeamCloud.Git.Services;
 using TeamCloud.Http;
@@ -35,6 +36,7 @@ using TeamCloud.Orchestration.Deployment;
 using TeamCloud.Orchestrator;
 using TeamCloud.Orchestrator.Command;
 using TeamCloud.Orchestrator.Command.Handlers;
+using TeamCloud.Orchestrator.Command.Handlers.Messaging;
 using TeamCloud.Serialization.Encryption;
 
 [assembly: FunctionsStartup(typeof(TeamCloudOrchestratorStartup))]
@@ -104,6 +106,10 @@ namespace TeamCloud.Orchestrator
             }
 
             builder.Services
+                .AddSingleton<IDocumentSubscriptionProvider>(serviceProvider => new DocumentSubscriptionProvider(serviceProvider))
+                .AddSingleton<IDocumentSubscription, DocumentNotificationSubscription>();
+
+            builder.Services
                 .AddSingleton<IOrganizationRepository, CosmosDbOrganizationRepository>()
                 .AddSingleton<IUserRepository, CosmosDbUserRepository>()
                 .AddSingleton<IDeploymentScopeRepository, CosmosDbDeploymentScopeRepository>()
@@ -115,12 +121,14 @@ namespace TeamCloud.Orchestrator
                 .AddSingleton<IComponentRepository, CosmosDbComponentRepository>()
                 .AddSingleton<IRepositoryService, RepositoryService>();
 
+
             // CAUTION - don't register an orchstrator command handler with the generic
             // ICommandHandler<> interface. purpose of this interface is the
             // command specific implementation logic. to register and identifiy a command
             // handler use the non-generic ICommandHandler interface.
 
             builder.Services
+                .AddScoped<ICommandHandler, BroadcastCommandHandler>()
                 .AddScoped<ICommandHandler, ComponentCommandHandler>()
                 .AddScoped<ICommandHandler, DeploymentScopeCommandHandler>()
                 .AddScoped<ICommandHandler, OrganizationCommandHandler>()
