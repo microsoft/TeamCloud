@@ -4,18 +4,18 @@
 import React, { useState, useEffect } from 'react';
 import { getTheme, PrimaryButton, Stack } from '@fluentui/react';
 import { ComponentTaskTemplate } from 'teamcloud';
-import { useProject, useOrg } from '../Hooks';
+import { useCreateProjectComponentTask, useOrg, useProjectComponent, useProjectComponentTemplates } from '../hooks';
 
-export interface IComponentTaskMenuProps {
-
-}
+export interface IComponentTaskMenuProps { }
 
 export const ComponentTaskMenu: React.FunctionComponent<IComponentTaskMenuProps> = (props) => {
 
     const theme = getTheme();
 
-    const { org } = useOrg();
-    const { component, templates, createComponentTask } = useProject();
+    const { data: org } = useOrg();
+    const { data: component } = useProjectComponent();
+    const { data: templates } = useProjectComponentTemplates();
+    const createComponentTask = useCreateProjectComponentTask();
 
     const [taskTemplates, setTaskTemplates] = useState<ComponentTaskTemplate[]>();
 

@@ -11,7 +11,7 @@ export interface IMembersFormProps {
     members?: Member[];
     panelIsOpen: boolean;
     onFormClose: () => void;
-    onAddUsers: (users: UserDefinition[]) => Promise<void>;
+    addMembers: (users: UserDefinition[]) => Promise<any>;
 }
 
 export const MembersForm: React.FC<IMembersFormProps> = (props) => {
@@ -29,7 +29,7 @@ export const MembersForm: React.FC<IMembersFormProps> = (props) => {
                 role: userRole
             }));
 
-            await props.onAddUsers(userDefinitions);
+            await props.addMembers(userDefinitions);
 
             _resetAndCloseForm();
         }

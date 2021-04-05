@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { ComboBox, DefaultButton, IComboBox, IComboBoxOption, Label, PrimaryButton, Stack, TextField } from '@fluentui/react';
 import { DeploymentScopeDefinition } from 'teamcloud';
 import { useHistory, useParams } from 'react-router-dom';
-import { useAzureManagement } from '../Hooks';
+import { useAzureManagementGroups, useAzureSubscriptions } from '../hooks';
 
 export interface IDeploymentScopeFormProps {
     embedded?: boolean,
@@ -18,7 +18,8 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
     const history = useHistory();
     const { orgId } = useParams() as { orgId: string };
 
-    const { subscriptions, managementGroups } = useAzureManagement();
+    const { data: subscriptions } = useAzureSubscriptions();
+    const { data: managementGroups } = useAzureManagementGroups();
 
     const [scopeName, setScopeName] = useState<string>();
     const [scopeManagementGroup, setScopeManagementGroup] = useState<string>();

@@ -4,7 +4,7 @@
 import { CommandBar, Facepile, HoverCard, HoverCardType, ICommandBarItemProps, IFacepilePersona, IRenderFunction, PersonaSize, Separator, Shimmer, ShimmerElementsGroup, ShimmerElementType, Stack, Text } from '@fluentui/react';
 import React from 'react';
 import { UserPersona } from '.';
-import { useGraphUser } from '../Hooks';
+import { useGraphUser } from '../hooks';
 import { Member, ProjectMember } from '../model';
 
 export interface IMemberFacepileProps {
@@ -14,7 +14,7 @@ export interface IMemberFacepileProps {
 
 export const MemberFacepile: React.FunctionComponent<IMemberFacepileProps> = (props) => {
 
-    const { graphUser } = useGraphUser();
+    const { data: graphUser } = useGraphUser();
 
     const _isOwner = (member: ProjectMember) => {
         const role = (member as ProjectMember)?.projectMembership?.role ?? member.user.role;
