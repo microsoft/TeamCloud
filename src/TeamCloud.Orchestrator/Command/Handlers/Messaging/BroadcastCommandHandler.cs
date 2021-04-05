@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Azure.SignalR.Management;
@@ -20,6 +21,13 @@ namespace TeamCloud.Orchestrator.Command.Handlers.Messaging
 {
     public sealed class BroadcastCommandHandler : CommandHandler
     {
+        private readonly Type[] broadcastCommandTypes = new Type[]
+        {
+            typeof(BroadcastDocumentCreateCommand<>),
+            typeof(BroadcastDocumentUpdateCommand<>),
+            typeof(BroadcastDocumentDeleteCommand<>)
+        };
+
         private readonly AzureSignalROptions azureSignalROptions;
 
         public BroadcastCommandHandler(AzureSignalROptions azureSignalROptions)
@@ -33,7 +41,7 @@ namespace TeamCloud.Orchestrator.Command.Handlers.Messaging
                 throw new ArgumentNullException(nameof(command));
 
             return command.GetType().IsGenericType
-                && command.GetType().GetGenericTypeDefinition() == typeof(BroadcastDocumentCreateCommand<>);
+                && broadcastCommandTypes.Contains(command.GetType().GetGenericTypeDefinition());
         }
 
         public override async Task<ICommandResult> HandleAsync(ICommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
@@ -61,6 +69,7 @@ namespace TeamCloud.Orchestrator.Command.Handlers.Messaging
                         Items = GetItems(containerDocument)
 
                     };
+
                     var broadcastPayload = TeamCloudSerialize.SerializeObject(broadcastMessage);
 
                     await hubContext.Clients.All

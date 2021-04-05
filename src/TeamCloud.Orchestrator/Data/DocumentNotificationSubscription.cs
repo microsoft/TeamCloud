@@ -14,7 +14,7 @@ using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.Command
 {
-    public sealed class BroadcastDocumentSubscription : DocumentSubscription
+    public sealed class DocumentNotificationSubscription : DocumentSubscription
     {
         private static string ConnectionString => Environment.GetEnvironmentVariable("AzureWebJobsStorage");
 
@@ -46,7 +46,7 @@ namespace TeamCloud.Orchestrator.Command
         private readonly AsyncLazy<CloudQueue> commandQueueInstance;
         private readonly IAzureSessionService azureSessionService;
 
-        public BroadcastDocumentSubscription(IAzureSessionService azureSessionService)
+        public DocumentNotificationSubscription(IAzureSessionService azureSessionService)
         {
             this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
 

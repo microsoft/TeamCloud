@@ -107,7 +107,7 @@ namespace TeamCloud.Orchestrator
 
             builder.Services
                 .AddSingleton<IDocumentSubscriptionProvider>(serviceProvider => new DocumentSubscriptionProvider(serviceProvider))
-                .AddSingleton<IDocumentSubscription, BroadcastDocumentSubscription>();
+                .AddSingleton<IDocumentSubscription, DocumentNotificationSubscription>();
 
             builder.Services
                 .AddSingleton<IOrganizationRepository, CosmosDbOrganizationRepository>()
