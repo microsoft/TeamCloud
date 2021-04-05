@@ -136,7 +136,7 @@ export const ComponentTaskConsole: React.FunctionComponent<IComponentTaskConsole
                         }}
                         href={`#${item.line}`}><pre>{item.line}</pre></Link>
                 </Stack.Item>
-                <Stack.Item styles={{ root: { marginLeft: '16px!important' } }}>
+                <Stack.Item styles={{ root: { marginLeft: '16px!important', wordBreak: 'break-all' } }}>
                     <pre>{item.text}</pre>
                 </Stack.Item>
             </Stack>
