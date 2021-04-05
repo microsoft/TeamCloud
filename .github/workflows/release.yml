@@ -9,7 +9,8 @@ on:
       reset_demo:
         required: false
         description: 'Reset the demo environment.'
-
+        default: 'false'
+        
 jobs:
   build:
     name: Create Release
@@ -66,8 +67,13 @@ jobs:
           echo "logging in to azure cli"
           az login --service-principal -u ${{ secrets.TEAMCLOUD_CI_USERNAME }} -p ${{ secrets.TEAMCLOUD_CI_PASSWORD }} --tenant ${{ secrets.TEAMCLOUD_CI_TENANT }}
 
+      - name: Guard Demo environment
+        uses: softprops/turnstyle@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Reset Demo environment
-        if: github.event.inputs.reset_demo == 'true' || github.event.inputs.reset_demo == '1'
+        if: github.event.inputs.reset_demo == 'true'
         run: |
           while read SUBSCRIPTIONID; do
 
