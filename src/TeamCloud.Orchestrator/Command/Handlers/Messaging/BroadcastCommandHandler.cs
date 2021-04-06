@@ -72,7 +72,6 @@ namespace TeamCloud.Orchestrator.Command.Handlers.Messaging
                         Action = commandResult.CommandAction.ToString().ToLowerInvariant(),
                         Timestamp = commandResult.LastUpdatedTime.GetValueOrDefault(DateTime.UtcNow),
                         Items = GetItems(containerDocument)
-
                     };
 
                     var broadcastPayload = TeamCloudSerialize.SerializeObject(broadcastMessage);

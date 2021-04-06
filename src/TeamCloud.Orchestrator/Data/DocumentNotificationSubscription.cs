@@ -87,11 +87,6 @@ namespace TeamCloud.Orchestrator.Command
                     .Value
                     .ConfigureAwait(false);
 
-                var commandUser = Guid.TryParse((containerDocument as IOrganizationContext)?.Organization, out var organizationId)
-                    ? await GetCommandUserAsync(organizationId).ConfigureAwait(false)
-                    : await GetCommandUserAsync(Guid.Empty).ConfigureAwait(false);
-
-
                 if (commandQueue != null)
                 {
                     var broadcastCommandType = (subscriptionEvent switch
@@ -105,6 +100,10 @@ namespace TeamCloud.Orchestrator.Command
 
                     if (broadcastCommandType != null)
                     {
+                        var commandUser = Guid.TryParse((containerDocument as IOrganizationContext)?.Organization, out var organizationId)
+                            ? await GetCommandUserAsync(organizationId).ConfigureAwait(false)
+                            : await GetCommandUserAsync(Guid.Empty).ConfigureAwait(false);
+
                         var broadcastCommand = Activator.CreateInstance(broadcastCommandType, new object[] { commandUser, containerDocument });
                         var broadcastMessage = new CloudQueueMessage(TeamCloudSerialize.SerializeObject(broadcastCommand));
 
