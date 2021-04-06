@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { FontIcon, getTheme, Pivot, PivotItem, Stack, Text, TextField } from '@fluentui/react';
 // import { useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
+import gfm from 'remark-gfm'
 import { FuiForm } from '@rjsf/fluent-ui';
 import { FieldTemplateProps, WidgetProps } from '@rjsf/core';
 import { ComponentTemplate, DeploymentScope } from 'teamcloud';
@@ -187,7 +188,7 @@ export const ComponentOverview: React.FC = (props) => {
                                         backgroundColor: theme.palette.white
                                     }
                                 }}>
-                                    <ReactMarkdown>{template?.description ?? undefined as any}</ReactMarkdown>
+                                    <ReactMarkdown plugins={[gfm]}>{template?.description ?? undefined as any}</ReactMarkdown>
                                 </Stack.Item>
                             )}
                         </Stack>
