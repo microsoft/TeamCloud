@@ -21,7 +21,7 @@ export const MemberPicker: React.FC<IMemberPickerProps> = (props) => {
     const _onResolveSuggestions = async (filter: string, selectedItems?: IGraphUserPersonaProps[], limitResults?: number): Promise<IGraphUserPersonaProps[]> => {
         if (!filter || !filter.length || filter.length === 0) return [];
 
-        console.log(`searchGraphUsers (${filter})`);
+        // console.log(`searchGraphUsers (${filter})`);
         let graphUsers = await searchGraphUsers(filter);
 
         if (props.members)

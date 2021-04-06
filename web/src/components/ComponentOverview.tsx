@@ -47,7 +47,7 @@ export const ComponentOverview: React.FC = (props) => {
 
     useEffect(() => {
         if (component && templates && (template === undefined || component.templateId.toLowerCase() !== template.id.toLowerCase())) {
-            console.log(`+ setComponentTemplate (${component.slug})`);
+            // console.log(`+ setComponentTemplate (${component.slug})`);
             setTemplate(templates.find(t => component.templateId.toLowerCase() === t.id.toLowerCase()) ?? undefined);
         }
     }, [component, template, templates])
@@ -56,7 +56,7 @@ export const ComponentOverview: React.FC = (props) => {
     useEffect(() => {
         if (component && members && (creator === undefined || creator.user.id.toLowerCase() !== component.creator.toLowerCase())) {
             const ctr = members.find(m => component.creator.toLowerCase() === m.user.id.toLowerCase()) ?? undefined
-            console.log(`+ setComponentCreator (${ctr?.graphUser?.displayName})`);
+            // console.log(`+ setComponentCreator (${ctr?.graphUser?.displayName})`);
             setCreator(ctr);
         }
     }, [component, creator, members])
@@ -64,7 +64,7 @@ export const ComponentOverview: React.FC = (props) => {
 
     useEffect(() => {
         if (component && scopes && (scope === undefined || (component.deploymentScopeId && scope.id.toLowerCase() !== component.deploymentScopeId.toLowerCase()))) {
-            console.log(`+ setComponentScope (${component.slug})`);
+            // console.log(`+ setComponentScope (${component.slug})`);
             setScope(scopes.find(s => component.deploymentScopeId?.toLowerCase() === s.id.toLowerCase()) ?? undefined);
         }
     }, [component, scope, scopes])

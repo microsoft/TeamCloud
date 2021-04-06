@@ -37,14 +37,14 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
 
     useEffect(() => {
         if (subscriptions && scopeSubscriptionOptions === undefined) {
-            console.log('+ setScopeSubscriptionOptions')
+            // console.log('+ setScopeSubscriptionOptions')
             setScopeSubscriptionOptions(subscriptions?.map(s => ({ key: s.subscriptionId, text: s.displayName })));
         }
     }, [subscriptions, scopeSubscriptionOptions]);
 
     useEffect(() => {
         if (managementGroups && scopeManagementGroupOptions === undefined) {
-            console.log('+ scopeManagementGroupOptions')
+            // console.log('+ scopeManagementGroupOptions')
             setScopeManagementGroupOptions(managementGroups?.map(s => ({ key: s.id, text: s.properties.displayName })));
         }
     }, [managementGroups, scopeManagementGroupOptions]);

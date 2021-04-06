@@ -60,11 +60,6 @@ export const ComponentsCard: React.FC = () => {
     const _confirmDialogSubtext = (): string => `This will permanently delete '${component?.displayName ? component.displayName : 'this component'}'. This action connot be undone.`;
 
 
-
-
-
-
-
     const _onRenderRow: IRenderFunction<IDetailsRowProps> = (rowProps?: IDetailsRowProps, defaultRender?: (rowProps?: IDetailsRowProps) => JSX.Element | null): JSX.Element | null => {
         if (rowProps) rowProps.styles = {
             // root: { borderBottom: (props.noHeader ?? false) && items.length === 1 ? 0 : undefined },
@@ -76,7 +71,6 @@ export const ComponentsCard: React.FC = () => {
         }
         return defaultRender ? defaultRender(rowProps) : null;
     };
-
 
 
     const _getTypeImage = (template: ComponentTemplate) => {
@@ -139,7 +133,6 @@ export const ComponentsCard: React.FC = () => {
         if (!item || !org) return undefined;
         return <ComponentLink component={item.component} />
     };
-
 
 
     const columns: IColumn[] = [

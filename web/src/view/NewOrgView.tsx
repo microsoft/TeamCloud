@@ -53,14 +53,14 @@ export const NewOrgView: React.FC = () => {
 
     useEffect(() => {
         if (subscriptions && orgSubscriptionOptions === undefined) {
-            console.log('+ setOrgSubscriptionOptions')
+            // console.log('+ setOrgSubscriptionOptions')
             setOrgSubscriptionOptions(subscriptions?.map(s => ({ key: s.subscriptionId, text: s.displayName })));
         }
     }, [subscriptions, orgSubscriptionOptions]);
 
     useEffect(() => {
         if (orgSubscriptionOptions && orgSubscriptionOptions.length === 1 && orgSubscription === undefined) {
-            console.log('+ setOrgSubscription')
+            // console.log('+ setOrgSubscription')
             setOrgSubscription(orgSubscriptionOptions[0].key as string);
         }
     }, [orgSubscription, orgSubscriptionOptions]);
@@ -133,13 +133,13 @@ export const NewOrgView: React.FC = () => {
     };
 
     const onScopeChange = useCallback((scope?: DeploymentScopeDefinition) => {
-        console.log(`+ onScopeChange: ${scope}`)
+        // console.log(`+ onScopeChange: ${scope}`)
         setScope(scope);
     }, []);
 
 
     const onTemplateChange = useCallback((template?: ProjectTemplateDefinition) => {
-        console.log(`+ onTemplateChange: ${template}`)
+        // console.log(`+ onTemplateChange: ${template}`)
         setTemplate(template);
     }, []);
 

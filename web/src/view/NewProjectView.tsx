@@ -26,7 +26,7 @@ export const NewProjectView: React.FC = () => {
 
     useEffect(() => {
         if (org && templates) {
-            console.log(`+ setProjectTemplateOptions (${org.slug})`);
+            // console.log(`+ setProjectTemplateOptions (${org.slug})`);
             const options = templates.map(t => ({ key: t.id, text: t.isDefault ? `${t.displayName} (default)` : t.displayName } as IDropdownOption));
             setProjectTemplateOptions(options);
             if (templates)
@@ -37,7 +37,7 @@ export const NewProjectView: React.FC = () => {
 
     useEffect(() => {
         if (org && templates) {
-            console.log(`+ setFormEnabled (${org.slug})`);
+            // console.log(`+ setFormEnabled (${org.slug})`);
             setFormEnabled(true);
         }
     }, [org, templates]);

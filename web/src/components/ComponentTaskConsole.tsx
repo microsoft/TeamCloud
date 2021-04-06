@@ -37,7 +37,7 @@ export const ComponentTaskConsole: React.FunctionComponent<IComponentTaskConsole
             const index = location.hash.replace('#', '');
             const parsed = parseInt(index, 10);
             if (!isNaN(parsed)) {
-                console.log(`+ setSelectedLine (${parsed})`);
+                // console.log(`+ setSelectedLine (${parsed})`);
                 setSelectedLine(parsed);
             }
         }
