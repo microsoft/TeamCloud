@@ -14,11 +14,13 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using TeamCloud.Configuration.Options;
+using TeamCloud.Data;
 using TeamCloud.Model;
 using TeamCloud.Model.Broadcast;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Common;
+using TeamCloud.Model.Data;
 using TeamCloud.Model.Data.Core;
 using TeamCloud.Serialization;
 
@@ -34,10 +36,12 @@ namespace TeamCloud.Orchestrator.Command.Handlers.Messaging
         };
 
         private readonly AzureSignalROptions azureSignalROptions;
+        private readonly IProjectRepository projectRepository;
 
-        public BroadcastCommandHandler(AzureSignalROptions azureSignalROptions)
+        public BroadcastCommandHandler(AzureSignalROptions azureSignalROptions, IProjectRepository projectRepository)
         {
             this.azureSignalROptions = azureSignalROptions ?? throw new ArgumentNullException(nameof(azureSignalROptions));
+            this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
         }
 
         public override bool CanHandle(ICommand command)
@@ -63,23 +67,25 @@ namespace TeamCloud.Orchestrator.Command.Handlers.Messaging
                     using var loggerFactory = new PassthroughLoggerFactory(log);
                     using var serviceManager = CreateServiceManager();
 
-                    var hubContext = await serviceManager
-                        .CreateHubContextAsync(ResolveHubName(containerDocument))
-                        .ConfigureAwait(false);
-
                     var broadcastMessage = new BroadcastMessage()
                     {
                         Action = commandResult.CommandAction.ToString().ToLowerInvariant(),
                         Timestamp = commandResult.LastUpdatedTime.GetValueOrDefault(DateTime.UtcNow),
                         Items = GetItems(containerDocument)
-
                     };
 
                     var broadcastPayload = TeamCloudSerialize.SerializeObject(broadcastMessage);
 
-                    await hubContext.Clients.All
-                        .SendAsync(command.CommandAction.ToString(), broadcastMessage)
-                        .ConfigureAwait(false);
+                    await foreach (var hubName in ResolveHubNamesAsync(containerDocument))
+                    {
+                        var hubContext = await serviceManager
+                            .CreateHubContextAsync(hubName)
+                            .ConfigureAwait(false);
+
+                        await hubContext.Clients.All
+                            .SendAsync(command.CommandAction.ToString(), broadcastMessage)
+                            .ConfigureAwait(false);
+                    }
                 }
                 catch (Exception exc)
                 {
@@ -89,13 +95,27 @@ namespace TeamCloud.Orchestrator.Command.Handlers.Messaging
 
             return commandResult;
 
-            static string ResolveHubName(object commandResultPayload) => commandResultPayload switch
+            async IAsyncEnumerable<string> ResolveHubNamesAsync(object commandResultPayload)
             {
-                IProjectContext projectContext => projectContext.GetHubName(),
-                IOrganizationContext organizationContext => organizationContext.GetHubName(),
-                _ => throw new NotSupportedException($"Unable to resolve hub name for command result payload of type '{commandResultPayload?.GetType()}'.")
-            };
+                yield return commandResultPayload switch
+                {
+                    IProjectContext projectContext => projectContext.GetHubName(),
+                    IOrganizationContext organizationContext => organizationContext.GetHubName(),
+                    _ => throw new NotSupportedException($"Unable to resolve hub name for command result payload of type '{commandResultPayload?.GetType()}'.")
+                };
 
+                if (commandResultPayload is User user)
+                {
+                    foreach (var membership in user.ProjectMemberships)
+                    {
+                        var project = await projectRepository
+                            .GetAsync(user.Organization, membership.ProjectId)
+                            .ConfigureAwait(false);
+
+                        yield return project.GetHubName();
+                    }
+                }
+            }
         }
 
         public static IEnumerable<BroadcastMessage.Item> GetItems(params IContainerDocument[] containerDocuments)
