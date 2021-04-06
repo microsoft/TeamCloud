@@ -32,8 +32,6 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
     const { onScopeChange } = props;
 
     const _scopeComplete = () => scopeName && (scopeManagementGroup || scopeSubscriptions);
-    // const _scopeComplete = () => scopeName && scopeSubscriptions && scopeSubscriptions.length > 0;
-
 
     useEffect(() => {
         if (subscriptions && scopeSubscriptionOptions === undefined) {
@@ -48,14 +46,6 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
             setScopeManagementGroupOptions(managementGroups?.map(s => ({ key: s.id, text: s.properties.displayName })));
         }
     }, [managementGroups, scopeManagementGroupOptions]);
-
-
-    // useEffect(() => {
-    //     if (scopeSubscriptionOptions && scopeSubscriptionOptions.length === 1 && scopeSubscriptions === undefined) {
-    //         console.log('+ setScopeSubscriptions')
-    //         setScopeSubscriptions([scopeSubscriptionOptions[0].key as string]);
-    //     }
-    // }, [scopeSubscriptions, scopeSubscriptionOptions]);
 
 
     useEffect(() => {
@@ -89,10 +79,12 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
         }
     };
 
+
     const _resetAndCloseForm = () => {
         setFormEnabled(true);
         history.push(`/orgs/${orgId}/settings/scopes`);
     };
+
 
     const _onScopeSubscriptionsChange = (event: React.FormEvent<IComboBox>, option?: IComboBoxOption, index?: number, value?: string) => {
         if (value) {
@@ -117,6 +109,7 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
             }
         }
     };
+
 
     return (
         <Stack tokens={{ childrenGap: '20px' }} styles={{ root: props.embedded ? { padding: '24px 8px' } : undefined }}>
