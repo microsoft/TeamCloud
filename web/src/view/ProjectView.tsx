@@ -9,7 +9,6 @@ import { ComponentTaskMenu, ComponentOverview, ProjectOverview, ContentHeader, C
 import { useAddProjectMembers, useProject, useProjectComponent, useProjectComponents, useProjectComponentTemplates, useProjectMembers } from '../hooks';
 import { startSignalR, stopSignalR } from '../API';
 import { Message } from '../model';
-import { Component } from 'teamcloud';
 
 export const ProjectView: React.FC = () => {
 
@@ -51,61 +50,57 @@ export const ProjectView: React.FC = () => {
             queryId.push(item.type);
 
             if (!typeQueries.includes(queryId))
-                typeQueries.push(queryId);
+                typeQueries.push([...queryId]);
 
-            if (item.type === 'component') {
-                const components: Component[] | undefined = queryClient.getQueryData(['org', item?.organization, 'project', item.project, 'component'])
-                queryId.push(components?.find(c => c.id === item.id)?.slug ?? item.id);
-            } else {
-                queryId.push(item.id);
+            if (item.slug) {
+                const slugQueryId = [...queryId, item.slug];
+                if (!itemQueries.includes(slugQueryId))
+                    itemQueries.push(slugQueryId);
             }
+
+            queryId.push(item.id);
 
             if (!itemQueries.includes(queryId))
                 itemQueries.push(queryId);
-
-            if (item.type === 'componenttask') {
-                queryId.push('poll')
-                if (!itemQueries.includes(queryId))
-                    itemQueries.push(queryId);
-            }
         });
 
         switch (action) {
             case 'create':
-                typeQueries.forEach(q => {
-                    console.log(`create: invalidating query: ${q}`);
-                    queryClient.invalidateQueries(q, { exact: true });
-                });
-                itemQueries.forEach(q => {
-                    console.log(`create: invalidating query: ${q}`);
-                    queryClient.invalidateQueries(q, { exact: true });
-                });
-                // typeQueries.forEach(q => queryClient.invalidateQueries(q, { exact: true }));
+                // typeQueries.forEach(q => {
+                //     console.log(`create: invalidating query: ${q}`);
+                //     queryClient.invalidateQueries(q, { exact: true });
+                // });
+                // itemQueries.forEach(q => {
+                //     console.log(`create: invalidating query: ${q}`);
+                //     queryClient.invalidateQueries(q, { exact: true });
+                // });
+                typeQueries.forEach(q => queryClient.invalidateQueries(q, { exact: true }));
+                itemQueries.forEach(q => queryClient.invalidateQueries(q, { exact: true }));
                 break;
             case 'update':
-                itemQueries.forEach(q => {
-                    console.log(`update: invalidating query: ${q}`);
-                    queryClient.invalidateQueries(q, { exact: true });
-                });
-                typeQueries.forEach(q => {
-                    console.log(`update: invalidating query: ${q}`);
-                    queryClient.invalidateQueries(q, { exact: true })
-                });
-                // itemQueries.forEach(q => queryClient.invalidateQueries(q, { exact: true }));
-                // typeQueries.forEach(q => queryClient.invalidateQueries(q, { exact: true }));
+                // itemQueries.forEach(q => {
+                //     console.log(`update: invalidating query: ${q}`);
+                //     queryClient.invalidateQueries(q, { exact: true });
+                // });
+                // typeQueries.forEach(q => {
+                //     console.log(`update: invalidating query: ${q}`);
+                //     queryClient.invalidateQueries(q, { exact: true })
+                // });
+                itemQueries.forEach(q => queryClient.invalidateQueries(q, { exact: true }));
+                typeQueries.forEach(q => queryClient.invalidateQueries(q, { exact: true }));
                 break;
             case 'delete':
-                itemQueries.forEach(q => {
-                    if (q)
-                        console.log(`delete: removing query: ${q}`);
-                    queryClient.removeQueries(q, { exact: true })
-                });
-                typeQueries.forEach(q => {
-                    console.log(`delete: invalidating query: ${q}`);
-                    queryClient.invalidateQueries(q, { exact: true })
-                });
-                // itemQueries.forEach(q => queryClient.removeQueries(q, { exact: true }));
-                // typeQueries.forEach(q => queryClient.invalidateQueries(q, { exact: true }));
+                // itemQueries.forEach(q => {
+                //     if (q)
+                //         console.log(`delete: removing query: ${q}`);
+                //     queryClient.removeQueries(q, { exact: true })
+                // });
+                // typeQueries.forEach(q => {
+                //     console.log(`delete: invalidating query: ${q}`);
+                //     queryClient.invalidateQueries(q, { exact: true })
+                // });
+                itemQueries.forEach(q => queryClient.removeQueries(q, { exact: true }));
+                typeQueries.forEach(q => queryClient.invalidateQueries(q, { exact: true }));
                 break;
             default:
                 console.log(`$ unhandled ${action}: ${data}`);

@@ -11,8 +11,9 @@ export interface MessageItem {
     id: string;
     ts: number;
     etag: string;
+    slug?: string;
     type: string;
     organization: string;
     project: string;
-    component: string;
+    component?: string;
 }
