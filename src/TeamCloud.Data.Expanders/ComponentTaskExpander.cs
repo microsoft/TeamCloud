@@ -14,7 +14,8 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Data.Expanders
 {
-    public sealed class ComponentTaskExpander : IDocumentExpander<ComponentTask>
+    public sealed class ComponentTaskExpander : DocumentExpander,
+        IDocumentExpander<ComponentTask>
     {
         private readonly IProjectRepository projectRepository;
         private readonly IAzureResourceService azureResourceService;
@@ -25,31 +26,26 @@ namespace TeamCloud.Data.Expanders
             this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
         }
 
-        public bool CanExpand(ComponentTask document)
-        {
-            if (document is null)
-                throw new ArgumentNullException(nameof(document));
-
-            return string.IsNullOrEmpty(document.Output);
-        }
-
         public async Task<ComponentTask> ExpandAsync(ComponentTask document)
         {
             if (document is null)
                 throw new ArgumentNullException(nameof(document));
 
-            var results = await Task.WhenAll(
-
-                GetEventsAsync(document),
-                GetOutputAsync(document)
-
-            ).ConfigureAwait(false);
-
-            if (results.Any(result => !string.IsNullOrEmpty(result)))
+            if (string.IsNullOrEmpty(document.Output))
             {
-                document.Output = string.Join(Environment.NewLine, results); // do some empty line trimming (left & right)
-                document.Output = Regex.Replace(document.Output, @"^([\s])*", string.Empty, RegexOptions.Singleline);
-                document.Output = Regex.Replace(document.Output, @"([\s])*$", string.Empty, RegexOptions.Singleline);
+                var results = await Task.WhenAll(
+
+                    GetEventsAsync(document),
+                    GetOutputAsync(document)
+
+                ).ConfigureAwait(false);
+
+                if (results.Any(result => !string.IsNullOrEmpty(result)))
+                {
+                    document.Output = string.Join(Environment.NewLine, results); // do some empty line trimming (left & right)
+                    document.Output = Regex.Replace(document.Output, @"^([\s])*", string.Empty, RegexOptions.Singleline);
+                    document.Output = Regex.Replace(document.Output, @"([\s])*$", string.Empty, RegexOptions.Singleline);
+                }
             }
 
             return document;

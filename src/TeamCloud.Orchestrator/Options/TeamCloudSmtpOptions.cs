@@ -4,26 +4,12 @@
  */
 
 using TeamCloud.Configuration;
+using TeamCloud.Notification.Smtp;
 
 namespace TeamCloud.Orchestrator.Options
 {
-    public interface ISmtpOptions
-    {
-        string Host { get; }
-
-        int Port { get; }
-
-        bool SSL { get; }
-
-        string Username { get; }
-
-        string Password { get; }
-
-        string Sender { get; }
-    }
-
     [Options("Notification:Smtp")]
-    public sealed class TeamCloudSmtpOptions : ISmtpOptions
+    public sealed class TeamCloudSmtpOptions : INotificationSmtpOptions
     {
         public string Host { get; set; }
 
@@ -35,6 +21,8 @@ namespace TeamCloud.Orchestrator.Options
 
         public string Password { get; set; }
 
-        public string Sender { get; set; }
+        public string SenderAddress { get; set; }
+
+        public string SenderName { get; set; }
     }
 }

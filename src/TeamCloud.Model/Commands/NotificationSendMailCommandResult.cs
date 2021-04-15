@@ -8,7 +8,8 @@ using TeamCloud.Model.Messaging;
 
 namespace TeamCloud.Model.Commands
 {
-    public sealed class NotificationSendMailCommandResult : CommandResult<NotificationMessage>
+    public sealed class NotificationSendMailCommandResult<TMessage> : CommandResult<TMessage>
+        where TMessage : NotificationMessage, new()
     {
     }
 }

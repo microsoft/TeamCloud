@@ -20,21 +20,7 @@ export const ProjectSettingsNav: React.FC<IProjectSettingsNavProps> = (props) =>
                 url: '',
                 onClick: () => history.push(`/orgs/${orgId}/projects/${projectId}/settings`),
                 iconProps: { iconName: 'Settings' }
-            },
-            // {
-            //     key: 'components',
-            //     name: 'Components',
-            //     url: '',
-            //     onClick: () => history.push(`/orgs/${orgId}/projects/${projectId}/settings/components`),
-            //     iconProps: { iconName: 'Rocket' } // WebComponent SplitObject ModelingView WebAppBuilderFragment
-            // },
-            // {
-            //     key: 'members',
-            //     name: 'Members',
-            //     url: '',
-            //     onClick: () => history.push(`/orgs/${orgId}/projects/${projectId}/settings/members`),
-            //     iconProps: { iconName: 'Group' }
-            // }
+            }
         ] : []
     }];
 

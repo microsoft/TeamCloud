@@ -4,58 +4,25 @@
  */
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Azure.Storage;
-using Microsoft.Azure.Storage.Queue;
 using TeamCloud.Azure;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands;
+using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Common;
 using TeamCloud.Model.Data;
 using TeamCloud.Model.Data.Core;
-using TeamCloud.Orchestrator.Utilities;
-using TeamCloud.Serialization;
+using TeamCloud.Orchestrator.Data;
 
-namespace TeamCloud.Orchestrator.Command
+namespace TeamCloud.Orchestrator.Command.Data
 {
-    public sealed class DocumentNotificationSubscription : DocumentSubscription
+    public sealed class DocumentNotificationSubscription : CommandFactorySubscription
     {
-        private static string ConnectionString => Environment.GetEnvironmentVariable("AzureWebJobsStorage");
-
-        private static async Task<CloudQueue> GetCommandQueueAsync()
-        {
-            if (CloudStorageAccount.TryParse(ConnectionString, out var storageAccount))
-            {
-                try
-                {
-                    var queue = storageAccount
-                        .CreateCloudQueueClient()
-                        .GetQueueReference(ICommandHandler.ProcessorQueue);
-
-                    _ = await queue
-                        .CreateIfNotExistsAsync()
-                        .ConfigureAwait(false);
-
-                    return queue;
-                }
-                catch
-                {
-                    throw;
-                }
-            }
-
-            return null;
-        }
-
-        private readonly AsyncLazy<CloudQueue> commandQueueInstance;
         private readonly IAzureSessionService azureSessionService;
 
         public DocumentNotificationSubscription(IAzureSessionService azureSessionService)
         {
             this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
-
-            commandQueueInstance = new AsyncLazy<CloudQueue>(() => GetCommandQueueAsync(), LazyThreadSafetyMode.PublicationOnly);
         }
 
         private async Task<User> GetCommandUserAsync(Guid organizationId)
@@ -81,41 +48,26 @@ namespace TeamCloud.Orchestrator.Command
             if (containerDocument is null)
                 throw new ArgumentNullException(nameof(containerDocument));
 
-            try
+            var broadcastCommandType = (subscriptionEvent switch
             {
-                var commandQueue = await commandQueueInstance
-                    .Value
+                DocumentSubscriptionEvent.Create => typeof(BroadcastDocumentCreateCommand<>),
+                DocumentSubscriptionEvent.Update => typeof(BroadcastDocumentUpdateCommand<>),
+                DocumentSubscriptionEvent.Delete => typeof(BroadcastDocumentDeleteCommand<>),
+                _ => null
+
+            })?.MakeGenericType(containerDocument.GetType());
+
+            if (broadcastCommandType != null)
+            {
+                var commandUser = Guid.TryParse((containerDocument as IOrganizationContext)?.Organization, out var organizationId)
+                    ? await GetCommandUserAsync(organizationId).ConfigureAwait(false)
+                    : await GetCommandUserAsync(Guid.Empty).ConfigureAwait(false);
+
+                var command = (ICommand)Activator
+                    .CreateInstance(broadcastCommandType, new object[] { commandUser, containerDocument });
+
+                await EnqueueCommandAsync(command)
                     .ConfigureAwait(false);
-
-                if (commandQueue != null)
-                {
-                    var broadcastCommandType = (subscriptionEvent switch
-                    {
-                        DocumentSubscriptionEvent.Create => typeof(BroadcastDocumentCreateCommand<>),
-                        DocumentSubscriptionEvent.Update => typeof(BroadcastDocumentUpdateCommand<>),
-                        DocumentSubscriptionEvent.Delete => typeof(BroadcastDocumentDeleteCommand<>),
-                        _ => null
-
-                    })?.MakeGenericType(containerDocument.GetType());
-
-                    if (broadcastCommandType != null)
-                    {
-                        var commandUser = Guid.TryParse((containerDocument as IOrganizationContext)?.Organization, out var organizationId)
-                            ? await GetCommandUserAsync(organizationId).ConfigureAwait(false)
-                            : await GetCommandUserAsync(Guid.Empty).ConfigureAwait(false);
-
-                        var broadcastCommand = Activator.CreateInstance(broadcastCommandType, new object[] { commandUser, containerDocument });
-                        var broadcastMessage = new CloudQueueMessage(TeamCloudSerialize.SerializeObject(broadcastCommand));
-
-                        await commandQueue
-                            .AddMessageAsync(broadcastMessage)
-                            .ConfigureAwait(false);
-                    }
-                }
-            }
-            catch
-            {
-                commandQueueInstance.Reset();
             }
         }
     }

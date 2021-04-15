@@ -8,17 +8,27 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using TeamCloud.Model.Common;
 using TeamCloud.Model.Data.Core;
+using TeamCloud.Notification;
 using TeamCloud.Serialization;
 
 namespace TeamCloud.Model.Data
 {
 
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public sealed class User : ContainerDocument, IOrganizationContext, IEquatable<User>, IProperties
+    public sealed class User : ContainerDocument, IOrganizationContext, IEquatable<User>, IProperties, INotificationRecipient
     {
         [PartitionKey]
         [JsonProperty(Required = Required.Always)]
         public string Organization { get; set; }
+
+        [DatabaseIgnore]
+        public string DisplayName { get; set; }
+
+        [DatabaseIgnore]
+        public string LoginName { get; set; }
+
+        [DatabaseIgnore]
+        public string MailAddress { get; set; }
 
         [JsonProperty(Required = Required.Always)]
         public UserType UserType { get; set; }
@@ -31,6 +41,7 @@ namespace TeamCloud.Model.Data
 
         public IDictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
 
+        string INotificationRecipient.Address { get => MailAddress ?? Id; }
 
         public bool Equals(User other)
             => Id.Equals(other?.Id, StringComparison.OrdinalIgnoreCase);

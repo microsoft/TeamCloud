@@ -3,50 +3,34 @@
 
 import React, { useEffect, useState } from 'react';
 import { FontIcon, getTheme, Pivot, PivotItem, Stack, Text, TextField } from '@fluentui/react';
-// import { useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
+import gfm from 'remark-gfm'
 import { FuiForm } from '@rjsf/fluent-ui';
 import { FieldTemplateProps, WidgetProps } from '@rjsf/core';
 import { ComponentTemplate, DeploymentScope } from 'teamcloud';
 import { ProjectMember } from '../model';
 import { ComponentTaskList, UserPersona, ComponentLink, ComponentTemplateLink } from '.';
 import { useDeploymentScopes, useProjectComponent, useProjectComponentTemplates, useProjectMembers } from '../hooks';
-// import { ComponentLink } from './ComponentLink';
-// import { ComponentTemplateLink } from './ComponentTemplateLink';
-// import DevOps from '../img/devops.svg';
-// import GitHub from '../img/github.svg';
-// import Resource from '../img/resource.svg';
-// import collaboration from '../img/MSC17_collaboration_010_noBG.png'
 
-// export const ComponentOverview: React.FC<{component: Component}> = (props) => {
 export const ComponentOverview: React.FC = (props) => {
 
     const theme = getTheme();
 
-    // const { orgId, projectId, itemId } = useParams() as { orgId: string, projectId: string, itemId: string };
-
-    // const { scopes } = useOrg();
-    // const { data: org } = useOrg();
     const { data: scopes } = useDeploymentScopes();
 
     const { data: members } = useProjectMembers();
     const { data: component } = useProjectComponent();
     const { data: templates } = useProjectComponentTemplates();
 
-
     const [template, setTemplate] = useState<ComponentTemplate>();
     const [creator, setCreator] = useState<ProjectMember>();
     const [scope, setScope] = useState<DeploymentScope>();
     const [pivotKey, setPivotKey] = useState<string>('Runs');
 
-    // const pivotKeys = ['Overview', 'Runs', 'Tasks'];
-
-    // const [component, setComponent] = useState<Component>();
-    // const [template, setTemplate] = useState<ComponentTemplate>();
 
     useEffect(() => {
         if (component && templates && (template === undefined || component.templateId.toLowerCase() !== template.id.toLowerCase())) {
-            console.log(`+ setComponentTemplate (${component.slug})`);
+            // console.log(`+ setComponentTemplate (${component.slug})`);
             setTemplate(templates.find(t => component.templateId.toLowerCase() === t.id.toLowerCase()) ?? undefined);
         }
     }, [component, template, templates])
@@ -55,7 +39,7 @@ export const ComponentOverview: React.FC = (props) => {
     useEffect(() => {
         if (component && members && (creator === undefined || creator.user.id.toLowerCase() !== component.creator.toLowerCase())) {
             const ctr = members.find(m => component.creator.toLowerCase() === m.user.id.toLowerCase()) ?? undefined
-            console.log(`+ setComponentCreator (${ctr?.graphUser?.displayName})`);
+            // console.log(`+ setComponentCreator (${ctr?.graphUser?.displayName})`);
             setCreator(ctr);
         }
     }, [component, creator, members])
@@ -63,34 +47,11 @@ export const ComponentOverview: React.FC = (props) => {
 
     useEffect(() => {
         if (component && scopes && (scope === undefined || (component.deploymentScopeId && scope.id.toLowerCase() !== component.deploymentScopeId.toLowerCase()))) {
-            console.log(`+ setComponentScope (${component.slug})`);
+            // console.log(`+ setComponentScope (${component.slug})`);
             setScope(scopes.find(s => component.deploymentScopeId?.toLowerCase() === s.id.toLowerCase()) ?? undefined);
         }
     }, [component, scope, scopes])
 
-
-    // const _getTypeImage = (template: ComponentTemplate) => {
-    //     const provider = template.repository.provider.toLowerCase();
-    //     switch (template.type) {
-    //         // case 'Custom': return 'Link';
-    //         // case 'Readme': return 'PageList';
-    //         case 'Environment': return Resource;
-    //         case 'AzureResource': return Resource;
-    //         case 'GitRepository': return provider === 'github' ? GitHub : provider === 'devops' ? DevOps : undefined;
-    //     }
-    //     return undefined;
-    // };
-
-    // const _getRepoImage = (template?: ComponentTemplate) => {
-    //     if (template?.repository.provider) {
-    //         switch (template.repository.provider) {
-    //             // case 'Unknown': return;
-    //             case 'DevOps': return DevOps;
-    //             case 'GitHub': return GitHub;
-    //         }
-    //     }
-    //     return undefined;
-    // };
 
     const _getTypeIcon = (template?: ComponentTemplate) => {
         if (template?.type)
@@ -103,18 +64,6 @@ export const ComponentOverview: React.FC = (props) => {
                 default: return undefined;
             }
     };
-
-    // const _getOverviewHeaderSection = (text: string) => (
-    //     <Stack.Item>
-    //         <Text variant='medium' styles={{ root: { color: theme.palette.neutralSecondaryAlt, fontWeight: '600' } }}>{text}</Text>
-    //     </Stack.Item>
-    // );
-
-
-    // const getFieldTemplate: React.StatelessComponent<FieldTemplateProps> = (fieldProps: FieldTemplateProps) => {
-    //     console.log(fieldProps);
-    //     return (<TextField readOnly label={prps.label} />);
-    //     }
 
     return (
         <Stack styles={{ root: { height: '100%', } }} tokens={{ childrenGap: '40px' }}>
@@ -187,7 +136,7 @@ export const ComponentOverview: React.FC = (props) => {
                                         backgroundColor: theme.palette.white
                                     }
                                 }}>
-                                    <ReactMarkdown>{template?.description ?? undefined as any}</ReactMarkdown>
+                                    <ReactMarkdown plugins={[gfm]}>{template?.description ?? undefined as any}</ReactMarkdown>
                                 </Stack.Item>
                             )}
                         </Stack>

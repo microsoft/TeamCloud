@@ -21,8 +21,6 @@ export const getManagementGroups = async (): Promise<ManagementGroup[]> => {
     const url = 'https://management.azure.com/providers/Microsoft.Management/managementGroups?api-version=2020-02-01';
 
     try {
-
-
         const token = await auth.getManagementToken();
 
         console.log('==> GET ' + url);

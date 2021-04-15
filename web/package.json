@@ -27,6 +27,7 @@
     "react-query": "^3.13.3",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.3",
+    "remark-gfm": "^1.0.0",
     "teamcloud": "file:teamcloud",
     "typescript": "^3.9.7"
   },

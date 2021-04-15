@@ -12,7 +12,8 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Data.Expanders
 {
-    public sealed class ComponentExpander : IDocumentExpander<Component>
+    public sealed class ComponentExpander : DocumentExpander,
+        IDocumentExpander<Component>
     {
         private readonly IProjectRepository projectRepository;
         private readonly IAzureResourceService azureResourceService;
@@ -23,52 +24,47 @@ namespace TeamCloud.Data.Expanders
             this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
         }
 
-        public bool CanExpand(Component document)
-        {
-            if (document is null)
-                throw new ArgumentNullException(nameof(document));
-
-            return string.IsNullOrEmpty(document.ValueJson);
-        }
-
         public async Task<Component> ExpandAsync(Component document)
         {
             if (document is null)
                 throw new ArgumentNullException(nameof(document));
 
-            var project = await projectRepository
-                .GetAsync(document.Organization, document.ProjectId)
-                .ConfigureAwait(false); 
-
-            if (AzureResourceIdentifier.TryParse(project?.StorageId, out var storageId))
+            if (string.IsNullOrEmpty(document.ValueJson))
             {
-                try
-                {
-                    var storageAccount = await azureResourceService
-                        .GetResourceAsync<AzureStorageAccountResource>(storageId.ToString(), false)
-                        .ConfigureAwait(false);
+                var project = await projectRepository
+                    .GetAsync(document.Organization, document.ProjectId)
+                    .ConfigureAwait(false);
 
-                    if (storageAccount != null)
+                if (AzureResourceIdentifier.TryParse(project?.StorageId, out var storageId))
+                {
+                    try
                     {
-                        var shareClient = await storageAccount
-                            .CreateShareClientAsync(document.Id)
+                        var storageAccount = await azureResourceService
+                            .GetResourceAsync<AzureStorageAccountResource>(storageId.ToString(), false)
                             .ConfigureAwait(false);
 
-                        var fileClient = shareClient
-                            .GetRootDirectoryClient()
-                            .GetFileClient($"value.json");
-
-                        if (await fileClient.ExistsAsync().ConfigureAwait(false))
+                        if (storageAccount != null)
                         {
-                            using var reader = new StreamReader(await fileClient.OpenReadAsync().ConfigureAwait(false));
+                            var shareClient = await storageAccount
+                                .CreateShareClientAsync(document.Id)
+                                .ConfigureAwait(false);
 
-                            document.ValueJson = await reader.ReadToEndAsync().ConfigureAwait(false);
+                            var fileClient = shareClient
+                                .GetRootDirectoryClient()
+                                .GetFileClient($"value.json");
+
+                            if (await fileClient.ExistsAsync().ConfigureAwait(false))
+                            {
+                                using var reader = new StreamReader(await fileClient.OpenReadAsync().ConfigureAwait(false));
+
+                                document.ValueJson = await reader.ReadToEndAsync().ConfigureAwait(false);
+                            }
                         }
                     }
-                }
-                catch
-                {
-                    // swallow
+                    catch
+                    {
+                        // swallow
+                    }
                 }
             }
 

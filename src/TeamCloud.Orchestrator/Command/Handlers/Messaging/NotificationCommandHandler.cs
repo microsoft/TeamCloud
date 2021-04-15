@@ -4,29 +4,37 @@
  */
 
 using System;
-using System.Net;
-using System.Net.Mail;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
-using TeamCloud.Orchestrator.Options;
+using TeamCloud.Notification;
+using TeamCloud.Notification.Smtp;
 
 namespace TeamCloud.Orchestrator.Command.Handlers.Messaging
 {
-    public sealed class NotificationCommandHandler : CommandHandler,
-        ICommandHandler<NotificationSendMailCommand>
+    public sealed class NotificationCommandHandler : CommandHandler
     {
-        private readonly ISmtpOptions smtpOptions;
+        private readonly INotificationSmtpSender notificationSmtpSender;
 
-        public NotificationCommandHandler(ISmtpOptions smtpOptions)
+        public NotificationCommandHandler(INotificationSmtpSender notificationSmtpSender = null)
         {
-            this.smtpOptions = smtpOptions;
+            this.notificationSmtpSender = notificationSmtpSender;
         }
 
-        public Task<ICommandResult> HandleAsync(NotificationSendMailCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
+        public override bool CanHandle(ICommand command)
+        {
+            if (command is null)
+                throw new ArgumentNullException(nameof(command));
+
+            return command.Payload is INotificationMessage
+                && command.GetType().IsGenericType
+                && command.GetType().GetGenericTypeDefinition() == typeof(NotificationSendMailCommand<>);
+        }
+
+        public override async Task<ICommandResult> HandleAsync(ICommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
         {
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
@@ -35,22 +43,61 @@ namespace TeamCloud.Orchestrator.Command.Handlers.Messaging
 
             try
             {
-                using var smtpClient = new SmtpClient(smtpOptions.Host, smtpOptions.Port)
+                if (CanHandle(command))
                 {
-                    EnableSsl = smtpOptions.SSL,
-                    UseDefaultCredentials = false,
-                    Credentials = new NetworkCredential(smtpOptions.Username, smtpOptions.Password)
-                };
+                    var commandType = command.GetType().GetGenericTypeDefinition();
 
-                var mailMessage = new MailMessage();
-                
+                    switch (true)
+                    {
+                        case var _ when commandType == typeof(NotificationSendMailCommand<>):
+                            commandResult = await SendMailAsync(command, commandQueue, orchestrationClient, orchestrationContext, log).ConfigureAwait(false);
+                            break;
+
+                        default:
+                            commandResult.RuntimeStatus = CommandRuntimeStatus.Completed;
+                            break;
+                    }
+                }
+                else
+                {
+                    throw new NotImplementedException($"Missing orchestrator command handler implementation ICommandHandler<{command.GetTypeName(prettyPrint: true)}> at {GetType()}");
+                }
             }
             catch (Exception exc)
             {
                 commandResult.Errors.Add(exc);
             }
 
-            return Task.FromResult<ICommandResult>(commandResult);
+            return commandResult;
+        }
+
+        private async Task<ICommandResult> SendMailAsync(ICommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
+        {
+            var commandResult = command.CreateResult();
+
+            try
+            {
+                if (notificationSmtpSender is null)
+                {
+                    commandResult.Errors.Add(new CommandError()
+                    {
+                        Message = "SMTP notification sender not configured",
+                        Severity = CommandErrorSeverity.Warning
+                    });
+                }
+                else
+                {
+                    await notificationSmtpSender
+                        .SendMessageAsync((INotificationMessage)command.Payload)
+                        .ConfigureAwait(false);
+                }
+            }
+            catch (Exception exc)
+            {
+                commandResult.Errors.Add(exc);
+            }
+
+            return commandResult;
         }
     }
 }

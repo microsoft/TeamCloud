@@ -49,7 +49,8 @@ namespace TeamCloud.Orchestrator.Command.Handlers.Messaging
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
 
-            return command.GetType().IsGenericType
+            return command.Payload is IContainerDocument
+                && command.GetType().IsGenericType
                 && broadcastCommandTypes.Contains(command.GetType().GetGenericTypeDefinition());
         }
 
@@ -60,10 +61,12 @@ namespace TeamCloud.Orchestrator.Command.Handlers.Messaging
 
             var commandResult = command.CreateResult();
 
-            if (CanHandle(command) && command.Payload is IContainerDocument containerDocument)
+            try
             {
-                try
+                if (CanHandle(command))
                 {
+                    var containerDocument = (IContainerDocument)command.Payload;
+
                     using var loggerFactory = new PassthroughLoggerFactory(log);
                     using var serviceManager = CreateServiceManager();
 
@@ -87,10 +90,14 @@ namespace TeamCloud.Orchestrator.Command.Handlers.Messaging
                             .ConfigureAwait(false);
                     }
                 }
-                catch (Exception exc)
+                else
                 {
-                    commandResult.Errors.Add(exc);
+                    throw new NotImplementedException($"Missing orchestrator command handler implementation ICommandHandler<{command.GetTypeName(prettyPrint: true)}> at {GetType()}");
                 }
+            }
+            catch (Exception exc)
+            {
+                commandResult.Errors.Add(exc);
             }
 
             return commandResult;

@@ -4,14 +4,18 @@
  */
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
+using TeamCloud.Azure;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
+using TeamCloud.Model.Messaging;
+using TeamCloud.Notification;
 
 namespace TeamCloud.Orchestrator.Command.Handlers
 {
@@ -20,13 +24,19 @@ namespace TeamCloud.Orchestrator.Command.Handlers
           ICommandHandler<ProjectUserUpdateCommand>,
           ICommandHandler<ProjectUserDeleteCommand>
     {
+        private readonly IOrganizationRepository organizationRepository;
+        private readonly IProjectRepository projectRepository;
         private readonly IUserRepository userRepository;
         private readonly IComponentRepository componentRepository;
+        private readonly IAzureSessionService azureSessionService;
 
-        public ProjectUserCommandHandler(IUserRepository userRepository, IComponentRepository componentRepository)
+        public ProjectUserCommandHandler(IOrganizationRepository organizationRepository, IProjectRepository projectRepository, IUserRepository userRepository, IComponentRepository componentRepository, IAzureSessionService azureSessionService)
         {
+            this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
+            this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
             this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
+            this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
         }
 
         public async Task<ICommandResult> HandleAsync(ProjectUserCreateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
@@ -41,8 +51,15 @@ namespace TeamCloud.Orchestrator.Command.Handlers
 
             try
             {
+                var currentUser = await userRepository
+                    .GetAsync(command.Payload.Organization, command.Payload.Id)
+                    .ConfigureAwait(false);
+
                 commandResult.Result = await userRepository
                     .SetAsync(command.Payload)
+                    .ConfigureAwait(false);
+
+                await SendWelcomeMessageAsync(command, commandQueue, currentUser)
                     .ConfigureAwait(false);
 
                 commandResult.RuntimeStatus = CommandRuntimeStatus.Completed;
@@ -130,6 +147,52 @@ namespace TeamCloud.Orchestrator.Command.Handlers
 
                 await commandQueue
                     .AddAsync(command)
+                    .ConfigureAwait(false);
+            }
+        }
+
+        private async Task SendWelcomeMessageAsync(ICommand command, IAsyncCollector<ICommand> commandQueue, User userOld)
+        {
+            if (command.Payload is User userNew)
+            {
+                var projects = await Task.WhenAll(userNew.ProjectMemberships
+                    .Select(pm => pm.ProjectId)
+                    .Except(userOld?.ProjectMemberships.Select(pm => pm.ProjectId) ?? Enumerable.Empty<string>(), StringComparer.OrdinalIgnoreCase)
+                    .Select(pid => projectRepository.GetAsync(userNew.Organization, pid, true))).ConfigureAwait(false);
+
+                if (projects.Any())
+                {
+                    var tenantId = await azureSessionService
+                        .GetTenantIdAsync()
+                        .ConfigureAwait(false);
+
+                    var organization = await organizationRepository
+                        .GetAsync(tenantId.ToString(), userNew.Organization, expand: true)
+                        .ConfigureAwait(false);
+
+                    userNew = await userRepository
+                        .ExpandAsync(userNew)
+                        .ConfigureAwait(false);
+
+                    await Task
+                        .WhenAll(projects.Select(project => SendWelcomeMessageAsync(command.User, organization, project, userNew)))
+                        .ConfigureAwait(false);
+                }
+            }
+
+            async Task SendWelcomeMessageAsync(User sender, Organization organization, Project project, User user)
+            {
+                var message = NotificationMessage.Create<WelcomeMessage>(user);
+
+                message.Merge(new WelcomeMessageData()
+                {
+                    Organization = organization,
+                    Project = project,
+                    User = user
+                });
+
+                await commandQueue
+                    .AddAsync(new NotificationSendMailCommand<WelcomeMessage>(sender, message))
                     .ConfigureAwait(false);
             }
         }

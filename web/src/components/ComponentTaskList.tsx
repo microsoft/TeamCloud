@@ -6,7 +6,7 @@ import { useHistory, useParams } from 'react-router-dom';
 import { CheckboxVisibility, DetailsList, DetailsListLayoutMode, FontIcon, getTheme, IColumn, IDetailsRowProps, IRenderFunction, SelectionMode, Stack, Text } from '@fluentui/react';
 import { ComponentTask } from 'teamcloud';
 import { ComponentTaskConsole } from '.';
-import { useOrg, useProject, useProjectComponent, useProjectComponentTasks, useProjectComponentTemplates, useProjectComponentTaskPoll } from '../hooks';
+import { useOrg, useProject, useProjectComponent, useProjectComponentTasks, useProjectComponentTemplates, useProjectComponentTask } from '../hooks';
 
 export interface IComponentTaskListProps { }
 
@@ -21,7 +21,7 @@ export const ComponentTaskList: React.FunctionComponent<IComponentTaskListProps>
     const { data: project } = useProject();
     const { data: component } = useProjectComponent();
     const { data: templates } = useProjectComponentTemplates();
-    const { data: componentTask } = useProjectComponentTaskPoll();
+    const { data: componentTask } = useProjectComponentTask();
     const { data: componentTasks } = useProjectComponentTasks();
 
 

@@ -46,7 +46,7 @@ namespace TeamCloud.Orchestrator.Command
                     .Invoke(this, new object[] { command, commandQueue, orchestrationClient, orchestrationContext, log });
             }
 
-            throw new NotImplementedException($"Missing orchestrator command handler implementation ICommandHandler<{command.GetType().Name}> at {GetType()}");
+            throw new NotImplementedException($"Missing orchestrator command handler implementation ICommandHandler<{command.GetTypeName(prettyPrint: true)}> at {GetType()}");
         }
     }
 }

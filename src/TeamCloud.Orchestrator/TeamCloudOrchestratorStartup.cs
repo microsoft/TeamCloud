@@ -27,14 +27,17 @@ using TeamCloud.Configuration;
 using TeamCloud.Configuration.Options;
 using TeamCloud.Data;
 using TeamCloud.Data.CosmosDb;
+using TeamCloud.Data.Expanders;
 using TeamCloud.Data.Providers;
 using TeamCloud.Git.Caching;
 using TeamCloud.Git.Services;
 using TeamCloud.Http;
+using TeamCloud.Notification.Smtp;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestration.Deployment;
 using TeamCloud.Orchestrator;
 using TeamCloud.Orchestrator.Command;
+using TeamCloud.Orchestrator.Command.Data;
 using TeamCloud.Orchestrator.Command.Handlers;
 using TeamCloud.Orchestrator.Command.Handlers.Messaging;
 using TeamCloud.Serialization.Encryption;
@@ -71,6 +74,14 @@ namespace TeamCloud.Orchestrator
                 .AddMvcCore()
                 .AddNewtonsoftJson();
 
+            var notificationSmtpOptions = builder.Services
+                .BuildServiceProvider()
+                .GetService<INotificationSmtpOptions>();
+
+            if (!string.IsNullOrWhiteSpace(notificationSmtpOptions?.Host) &&
+                !string.IsNullOrWhiteSpace(notificationSmtpOptions?.SenderAddress))
+                builder.Services.AddTeamCloudNotificationSmtpSender(notificationSmtpOptions);
+
             if (string.IsNullOrEmpty(configuration.GetValue<string>("Cache:Configuration")))
             {
                 builder.Services
@@ -106,6 +117,13 @@ namespace TeamCloud.Orchestrator
             }
 
             builder.Services
+                .AddSingleton<IDocumentExpanderProvider>(serviceProvider => new DocumentExpanderProvider(serviceProvider))
+                .AddSingleton<IDocumentExpander, ProjectIdentityExpander>()
+                .AddSingleton<IDocumentExpander, ComponentTaskExpander>()
+                .AddSingleton<IDocumentExpander, ComponentExpander>()
+                .AddSingleton<IDocumentExpander, UserExpander>();
+
+            builder.Services
                 .AddSingleton<IDocumentSubscriptionProvider>(serviceProvider => new DocumentSubscriptionProvider(serviceProvider))
                 .AddSingleton<IDocumentSubscription, DocumentNotificationSubscription>();
 
@@ -129,6 +147,7 @@ namespace TeamCloud.Orchestrator
 
             builder.Services
                 .AddScoped<ICommandHandler, BroadcastCommandHandler>()
+                .AddScoped<ICommandHandler, NotificationCommandHandler>()
                 .AddScoped<ICommandHandler, ComponentCommandHandler>()
                 .AddScoped<ICommandHandler, DeploymentScopeCommandHandler>()
                 .AddScoped<ICommandHandler, OrganizationCommandHandler>()

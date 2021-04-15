@@ -3,11 +3,11 @@
  *  Licensed under the MIT License.
  */
 
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Orchestrator.Command.Activities;
 
@@ -16,14 +16,14 @@ namespace TeamCloud.Orchestrator.Command
     public sealed class CommandCollector : IAsyncCollector<ICommand>
     {
         private readonly IAsyncCollector<ICommand> collector;
-        private readonly ICommand command;
-        private readonly IDurableOrchestrationContext context;
+        private readonly ICommand commandContext;
+        private readonly IDurableOrchestrationContext orchestrationContext;
 
-        public CommandCollector(IAsyncCollector<ICommand> collector, ICommand command, IDurableOrchestrationContext context = null)
+        public CommandCollector(IAsyncCollector<ICommand> collector, ICommand commandContext = null, IDurableOrchestrationContext orchestrationContext = null)
         {
             this.collector = collector ?? throw new ArgumentNullException(nameof(collector));
-            this.command = command ?? throw new ArgumentNullException(nameof(command));
-            this.context = context;
+            this.commandContext = commandContext;
+            this.orchestrationContext = orchestrationContext;
         }
 
         public async Task AddAsync(ICommand item, CancellationToken cancellationToken = default)
@@ -31,12 +31,12 @@ namespace TeamCloud.Orchestrator.Command
             if (item is null)
                 throw new ArgumentNullException(nameof(item));
 
-            if (!command.User.Id.Equals(item.User?.Id, StringComparison.OrdinalIgnoreCase))
-                throw new ArgumentException($"Command user must not different to base command ({command.User.Id})");
+            if (!commandContext.User.Id.Equals(item.User?.Id, StringComparison.OrdinalIgnoreCase))
+                throw new ArgumentException($"Command user must not different to base command ({commandContext.User.Id})");
 
-            item.ParentId = command.CommandId;
+            item.ParentId = commandContext?.CommandId ?? item.ParentId;
 
-            if (context is null)
+            if (orchestrationContext is null)
             {
                 await collector
                     .AddAsync(item, cancellationToken)
@@ -44,7 +44,7 @@ namespace TeamCloud.Orchestrator.Command
             }
             else
             {
-                await context
+                await orchestrationContext
                     .CallActivityAsync(nameof(CommandCollectActivity), new CommandCollectActivity.Input() { Command = item })
                     .ConfigureAwait(true);
             }

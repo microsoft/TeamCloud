@@ -3,8 +3,7 @@
 
 import React, { PropsWithChildren, useState } from 'react';
 import { CheckboxVisibility, DetailsList, DetailsListLayoutMode, getTheme, IColumn, IDetailsHeaderProps, IDetailsRowProps, IRenderFunction, PrimaryButton, SearchBox, Stack } from '@fluentui/react';
-import { NoData } from '.';
-import { CalloutLabel } from './CalloutLabel';
+import { NoData, CalloutLabel } from '.';
 
 export interface IContentCardListProps<T> {
     title?: string;

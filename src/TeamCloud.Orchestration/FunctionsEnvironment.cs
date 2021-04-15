@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Reflection;
@@ -230,60 +229,6 @@ namespace TeamCloud.Orchestration
             return json
                 .SelectToken($"$.functionKeys['{keyName ?? "default"}']")?
                 .ToString();
-        }
-
-        public static async Task<IDictionary<string, string>> GetAppSettingsAsync()
-        {
-            if (IsLocalEnvironment)
-                return new Dictionary<string, string>();
-
-            var token = await AzureSessionService
-                .AcquireTokenAsync()
-                .ConfigureAwait(false);
-
-            var response = await "https://management.azure.com"
-                .AppendPathSegment(GetResourceId(token))
-                .AppendPathSegment("config/appsettings/list")
-                .SetQueryParam("api-version", "2019-08-01")
-                .WithOAuthBearerToken(token)
-                .PostAsync(null)
-                .ConfigureAwait(false);
-
-            var json = await response
-                .ReadAsJsonAsync()
-                .ConfigureAwait(false);
-
-            return json
-                .SelectToken("properties")?
-                .ToObject<IDictionary<string, string>>()
-                ?? new Dictionary<string, string>();
-        }
-
-        public static async Task<IDictionary<string, string>> SetAppSettingsAsync(IDictionary<string, string> appConfig)
-        {
-            if (IsLocalEnvironment)
-                return appConfig;
-
-            var token = await AzureSessionService
-                .AcquireTokenAsync()
-                .ConfigureAwait(false);
-
-            var response = await "https://management.azure.com"
-                .AppendPathSegment(GetResourceId(token))
-                .AppendPathSegment("config/appsettings")
-                .SetQueryParam("api-version", "2019-08-01")
-                .WithOAuthBearerToken(token)
-                .PutJsonAsync(new { properties = appConfig })
-                .ConfigureAwait(false);
-
-            var json = await response
-                .ReadAsJsonAsync()
-                .ConfigureAwait(false);
-
-            return json
-                .SelectToken("properties")?
-                .ToObject<IDictionary<string, string>>()
-                ?? new Dictionary<string, string>();
         }
     }
 }
