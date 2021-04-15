@@ -26,7 +26,8 @@ pushd $tcdir > /dev/null
     echo ""
 
     echo "Running Linter on TeamCloud CLI source"
-    azdev linter tc
+    echo "!!! temporarily disabled !!!"
+    # azdev linter tc
     echo ""
 
     echo "Running Style Checks on TeamCloud CLI source"
