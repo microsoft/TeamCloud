@@ -39,8 +39,6 @@ export const ComponentsCard: React.FC = () => {
     }, [components, templates, items]);
 
 
-
-
     const _getCommandBarItems = (): ICommandBarItemProps[] => [
         { key: 'newComponent', text: 'New', iconProps: { iconName: 'WebAppBuilderFragmentCreate' }, onClick: () => history.push(`/orgs/${orgId}/projects/${projectId}/components/new`) },
     ];
@@ -60,11 +58,6 @@ export const ComponentsCard: React.FC = () => {
     const _confirmDialogSubtext = (): string => `This will permanently delete '${component?.displayName ? component.displayName : 'this component'}'. This action connot be undone.`;
 
 
-
-
-
-
-
     const _onRenderRow: IRenderFunction<IDetailsRowProps> = (rowProps?: IDetailsRowProps, defaultRender?: (rowProps?: IDetailsRowProps) => JSX.Element | null): JSX.Element | null => {
         if (rowProps) rowProps.styles = {
             // root: { borderBottom: (props.noHeader ?? false) && items.length === 1 ? 0 : undefined },
@@ -78,12 +71,9 @@ export const ComponentsCard: React.FC = () => {
     };
 
 
-
     const _getTypeImage = (template: ComponentTemplate) => {
         const provider = template.repository.provider.toLowerCase();
         switch (template.type) {
-            // case 'Custom': return 'Link';
-            // case 'Readme': return 'PageList';
             case 'Environment': return Resource;
             case 'AzureResource': return Resource;
             case 'GitRepository': return provider === 'github' ? GitHub : provider === 'devops' ? DevOps : undefined;
@@ -141,24 +131,15 @@ export const ComponentsCard: React.FC = () => {
     };
 
 
-
     const columns: IColumn[] = [
         { key: 'displayName', name: 'Name', minWidth: 200, maxWidth: 200, onRender: onRenderNameColumn },
         { key: 'type', name: 'Type', minWidth: 160, maxWidth: 160, onRender: onRenderTypeColumn },
         { key: 'scope', name: 'Scope', minWidth: 140, maxWidth: 140, onRender: (i: { component: Component, template: ComponentTemplate }) => scopes?.find(s => s.id === i.component.deploymentScopeId)?.displayName },
-        // { key: 'state', name: 'State', minWidth: 140, onRender: (i: { component: Component, template: ComponentTemplate }) => i.component.resourceState },
         { key: 'link', name: 'Link', minWidth: 140, maxWidth: 140, onRender: onRenderLinkColumn },
-        // { key: 'description', name: 'Description', minWidth: 460, fieldName: 'description' },
-        // { key: 'blank', name: '', minWidth: 40, maxWidth: 40, onRender: (_: ComponentTemplate) => undefined },
-        // { key: 'repository', name: 'Repository', minWidth: 240, maxWidth: 240, onRender: onRenderRepoColumn },
-        // { key: 'version', name: 'Version', minWidth: 90, maxWidth: 90, onRender: (i: { component: Component, template: ComponentTemplate }) => i.template.repository.version },
-        // { key: 'requestedBy', name: 'Creator', minWidth: 50, onRender: onRenderCreatorColumn },
     ];
 
 
     const _onItemInvoked = (item: { component: Component, template: ComponentTemplate }): void => {
-        // console.log(item);
-        // onComponentSelected(item.component);
         history.push(`/orgs/${org?.slug ?? orgId}/projects/${project?.slug ?? projectId}/components/${item.component.slug}`);
     };
 

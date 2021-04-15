@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { DefaultButton, Dropdown, FontIcon, getTheme, IColumn, IconButton, IDropdownOption, Image, Persona, PersonaSize, PrimaryButton, Stack, Text, TextField } from '@fluentui/react';
 import ReactMarkdown from 'react-markdown';
+import gfm from 'remark-gfm'
 import { FuiForm } from '@rjsf/fluent-ui'
 import { FieldTemplateProps, ISubmitEvent } from '@rjsf/core';
 import { ComponentDefinition, ComponentTemplate } from 'teamcloud';
@@ -16,6 +17,10 @@ import GitHub from '../img/github.svg';
 import Resource from '../img/resource.svg';
 
 export const ComponentForm: React.FC = () => {
+
+    const titleRe = /^(?:#+.*)$/gm
+    const deviderRe = /^(?:-{3,})$/gm
+    const imageOrLinkRe = /^(?:!?\[[^\]]*\]\([^[\]()]*\))$/gm
 
     const history = useHistory();
 
@@ -38,7 +43,7 @@ export const ComponentForm: React.FC = () => {
 
     useEffect(() => {
         if (project && scopes) {
-            console.log(`+ setDeploymentScopeOptions (${project.slug})`);
+            // console.log(`+ setDeploymentScopeOptions (${project.slug})`);
             const options = scopes.map(s => ({ key: s.id, text: s.displayName ?? s.id } as IDropdownOption))
             setDeploymentScopeOptions(options);
             if (scopes.length === 1)
@@ -124,10 +129,6 @@ export const ComponentForm: React.FC = () => {
         )
     };
 
-    // const onRenderDescriptionColumn = (template?: ComponentTemplate, index?: number, column?: IColumn) => {
-
-    // };
-
     const onRenderRepoColumn = (template?: ComponentTemplate, index?: number, column?: IColumn) => {
         if (!template) return undefined;
         const name = template.repository.repository?.replaceAll('-', ' ') ?? template.repository.url;
@@ -142,7 +143,7 @@ export const ComponentForm: React.FC = () => {
     const columns: IColumn[] = [
         { key: 'displayName', name: 'Name', minWidth: 220, maxWidth: 220, isResizable: false, onRender: onRenderNameColumn, styles: { cellName: { paddingLeft: '5px' } } },
         { key: 'type', name: 'Type', minWidth: 160, maxWidth: 160, isResizable: false, onRender: onRenderTypeColumn },
-        { key: 'description', name: 'Description', minWidth: 460, fieldName: 'description' },
+        { key: 'description', name: 'Description', minWidth: 460, onRender: (t: ComponentTemplate) => t.description?.replace(imageOrLinkRe, '').replace(titleRe, '').replace(deviderRe, '') },
         { key: 'blank', name: '', minWidth: 40, maxWidth: 40, onRender: (_: ComponentTemplate) => undefined },
         { key: 'repository', name: 'Repository', minWidth: 240, maxWidth: 240, onRender: onRenderRepoColumn },
         { key: 'version', name: 'Version', minWidth: 80, maxWidth: 80, onRender: (t: ComponentTemplate) => t.repository.version },
@@ -247,7 +248,7 @@ export const ComponentForm: React.FC = () => {
                                         backgroundColor: theme.palette.white
                                     }
                                 }}>
-                                    <ReactMarkdown>{template?.description ?? undefined as any}</ReactMarkdown>
+                                    <ReactMarkdown plugins={[gfm]}>{template?.description ?? undefined as any}</ReactMarkdown>
                                 </Stack.Item>
                             </Stack>
                         </Stack.Item>

@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { getTheme, Persona, PersonaSize, Stack, Text } from '@fluentui/react';
 import React from 'react';
+import { getTheme, Persona, PersonaSize, Stack, Text } from '@fluentui/react';
 
 export interface IContentHeaderProps {
     wide?: boolean;
