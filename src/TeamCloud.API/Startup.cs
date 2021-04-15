@@ -155,7 +155,8 @@ namespace TeamCloud.API
                 .AddSingleton<IDocumentExpanderProvider>(serviceProvider => new DocumentExpanderProvider(serviceProvider))
                 .AddSingleton<IDocumentExpander, ProjectIdentityExpander>()
                 .AddSingleton<IDocumentExpander, ComponentTaskExpander>()
-                .AddSingleton<IDocumentExpander, ComponentExpander>();
+                .AddSingleton<IDocumentExpander, ComponentExpander>()
+                .AddSingleton<IDocumentExpander, UserExpander>();
 
             services
                 .AddSingleton<IHttpContextAccessor, HttpContextAccessor>()

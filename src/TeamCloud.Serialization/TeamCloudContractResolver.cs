@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
+using TeamCloud.Serialization.Compress;
 using TeamCloud.Serialization.Converter;
 using TeamCloud.Serialization.Encryption;
 
@@ -58,9 +59,12 @@ namespace TeamCloud.Serialization
 
             var valueProvider = base.CreateMemberValueProvider(member);
 
-            return member.GetCustomAttribute<EncryptedAttribute>() is null
-                ? valueProvider // not marked as encrypted - no need to wrap the value provider
-                : new EncryptedValueProvider(member, valueProvider, dataProtectionProvider);
+            if (member.GetCustomAttribute<EncryptedAttribute>() != null)
+                return new EncryptedValueProvider(member, valueProvider, dataProtectionProvider);
+            else if (member.GetCustomAttribute<CompressAttribute>() != null)
+                return new CompressValueProvider(member, valueProvider);
+
+            return valueProvider; // we stick with the default value provider
         }
 
         protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)

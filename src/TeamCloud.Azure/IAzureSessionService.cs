@@ -25,6 +25,8 @@ namespace TeamCloud.Azure
 
         Task<IAzureSessionIdentity> GetIdentityAsync(AzureEndpoint azureEndpoint = AzureEndpoint.ResourceManagerEndpoint);
 
+        Task<Guid> GetTenantIdAsync();
+
         Task<T> CreateClientAsync<T>(AzureEndpoint azureEndpoint = AzureEndpoint.ResourceManagerEndpoint, Guid? subscriptionId = null) where T : ServiceClient<T>;
     }
 }

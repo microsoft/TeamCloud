@@ -5,7 +5,6 @@
 
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
 using Microsoft.Azure.Cosmos.Table;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
@@ -16,18 +15,7 @@ namespace TeamCloud.Audit.Model
     {
         private static readonly string EmptyKey = Guid.Empty.ToString();
 
-        private static string PrettyPrintTypeName(Type type)
-        {
-            if (type.IsGenericType)
-            {
-                var typename = type.Name.Substring(0, type.Name.IndexOf("`", StringComparison.OrdinalIgnoreCase));
-                return $"{typename}<{string.Join(", ", type.GetGenericArguments().Select(PrettyPrintTypeName))}>";
-            }
-            else
-            {
-                return type.Name;
-            }
-        }
+
 
         public CommandAuditEntity()
         { }
@@ -43,7 +31,7 @@ namespace TeamCloud.Audit.Model
             UserId = command.User.Id.ToString();
             ParentId = command.ParentId.ToString();
             CommandId = command.CommandId.ToString();
-            Command = PrettyPrintTypeName(command.GetType());
+            Command = command.GetTypeName(prettyPrint: true);
 
             ComponentTask = (command as ComponentTaskRunCommand)?.Payload?.TypeName ?? (command as ComponentTaskRunCommand)?.Payload?.Type.ToString() ?? string.Empty;
         }

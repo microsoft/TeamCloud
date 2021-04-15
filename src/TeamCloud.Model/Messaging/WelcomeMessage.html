@@ -1,0 +1,627 @@
+﻿<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=us-ascii">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="ProgId" content="Word.Document">
+    <title>Welcome to TeamCloud</title>
+    <style>
+        /* Prevent WebKit and Windows mobile changing default text sizes */
+        body, table, td, a {
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+
+        /* Remove spacing between tables in Outlook 2007 and up */
+        table, td {
+            mso-table-lspace: 0pt;
+            mso-table-rspace: 0pt;
+        }
+
+        /* RESET STYLES */
+        img {
+            border: 0;
+            height: auto;
+            line-height: 100%;
+            outline: none;
+            text-decoration: none;
+            -ms-interpolation-mode: bicubic;
+        }
+
+        table {
+            border-collapse: collapse !important;
+        }
+
+        /* iOS BLUE LINKS */
+        a[x-apple-data-detectors] {
+            color: inherit !important;
+            text-decoration: none !important;
+            font-size: inherit !important;
+            font-family: inherit !important;
+            font-weight: inherit !important;
+            line-height: inherit !important;
+        }
+
+        /* BASE STYLES */
+        body {
+            height: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+            background: white;
+        }
+
+        h1, h2, h3, h4, table, td, th, a, p, span, div, i, em, li, ul, .img-block, img, .comment {
+            font-family: 'Segoe UI', '-apple-system', 'BlinkMacSystemFont', 'Roboto', 'Arial', sans-serif;
+        }
+
+        td {
+            font-size: 14px;
+            line-height: 20px;
+            color: #212121;
+        }
+
+        a {
+            text-decoration: none;
+            color: #0078D4;
+        }
+
+        em {
+            font-style: normal;
+            color: #666;
+        }
+
+        p {
+            margin: 0;
+        }
+
+        /* Buttons */
+        .btn-primary:hover {
+            border-color: #007acc !important;
+        }
+
+        .btn-default:hover {
+            border-color: #eaeaea !important;
+        }
+
+        .btn-primary:active {
+            border-color: #005faa !important;
+            background: #005faa !important;
+        }
+
+        .btn-default:active {
+            border-color: #F0F0F0 !important;
+            background: #F0F0F0 !important;
+        }
+
+        /* Images */
+        .img-block {
+            display: block;
+            color: #ccc;
+            font-size: 10px;
+            max-width: 100%;
+        }
+
+        .img-padding {
+            padding: 0 20px 0 0;
+        }
+
+        .comment {
+            color: #333333;
+            font-size: 14px;
+            border-radius: 5px;
+        }
+
+        .comment-gfx {
+            padding-top: 20px;
+        }
+
+        .note {
+            font-size: 13px;
+        }
+
+        /* INFO TABLE */
+        .activity-table {
+            display: table;
+        }
+
+        .active {
+            background: #CEF1DE;
+            font-family: 'Segoe UI', '-apple-system', 'BlinkMacSystemFont', 'Roboto', 'Arial', sans-serif;
+            font-size: 14px;
+            color: #333333;
+            padding: 2px 4px;
+            display: inline-block;
+        }
+
+        .inactive {
+            background: #eeeeee;
+            font-family: 'Segoe UI', '-apple-system', 'BlinkMacSystemFont', 'Roboto', 'Arial', sans-serif;
+            font-size: 14px;
+            text-decoration: line-through;
+            color: #666666;
+            padding: 2px 4px;
+            display: inline-block;
+        }
+
+        .row-label {
+            font-family: 'Segoe UI', '-apple-system', 'BlinkMacSystemFont', 'Roboto', 'Arial', sans-serif;
+            font-size: 14px;
+            color: #333;
+            padding: 2px 4px;
+            line-height: 16px;
+            text-align: left;
+        }
+
+        /* List */
+        .num {
+            background: #f2f2f2;
+            height: 20px;
+            padding: 0 7px;
+            font-size: 14px;
+        }
+
+        .code li {
+            font-family: Menlo,Monaco,Consolas,"Courier New",monospace !important;
+            font-size: 14px;
+            text-align: left;
+        }
+
+        span.monospaced {
+            font-family: Menlo,Monaco,Consolas,"Courier New",monospace !important;
+        }
+
+        .list li {
+            padding: 5px;
+        }
+
+        .data {
+            word-break: break-all;
+            font-family: monospace;
+        }
+
+        .red {
+            color: red;
+        }
+
+        ul, ol {
+            padding: 0 20px;
+        }
+
+        ul {
+            list-style-type: circle;
+        }
+
+        .anchors {
+            list-style-type: square;
+        }
+
+        ul ul, ol ul {
+            padding: 0 30px;
+        }
+
+        /* Other */
+        .author {
+            font-size: 13px;
+            color: #666;
+            font-style: italic;
+            padding: 5px 0 0;
+        }
+
+        .code {
+            padding: 0;
+            list-style: none;
+            color: #666666;
+        }
+
+            .code li {
+                font-family: Menlo,Monaco,Consolas,"Courier New",monospace !important;
+            }
+
+        .container {
+            padding: 0px;
+        }
+
+        .content {
+            padding: 20px 0px 20px 0px;
+        }
+
+        .title a {
+            color: #212121 !important;
+            text-decoration: none;
+        }
+
+            .title a:hover {
+                text-decoration: underline;
+            }
+
+        /* MOBILE STYLES */
+        @media screen and (max-width: 525px) {
+
+            .content {
+                padding: 0px !important;
+            }
+
+            .header {
+                padding: 10px 30px !important;
+            }
+
+            .mobile-sm-txt {
+                font-size: 14px !important;
+            }
+
+                .mobile-sm-txt span {
+                    display: block;
+                }
+
+            /* ALLOWS FOR FLUID TABLES */
+            .wrapper {
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+
+            /* ADJUSTS LAYOUT OF LOGO IMAGE */
+            .logo img {
+                margin: 0 auto !important;
+            }
+
+            /* HIDE CONTENT ON MOBILE */
+            .mobile-hide {
+                display: none !important;
+            }
+
+            /* GIVE IMAGES MAX WIDTH SO THEY SQUISH NICE */
+            .img-max {
+                max-width: 100% !important;
+                width: 100% !important;
+                height: auto !important;
+            }
+
+            /* FULL-WIDTH TABLES */
+            .responsive-table {
+                width: 100% !important;
+            }
+
+            /* UTILITY CLASSES FOR ADJUSTING PADDING ON MOBILE */
+            .padding {
+                padding: 10px 5% 15px 5% !important;
+            }
+
+            .img-padding {
+                padding: 0;
+            }
+
+            .padding-meta {
+                padding: 20px !important;
+            }
+
+            .no-padding {
+                padding: 0 !important;
+            }
+
+            /* CONTENT */
+            .comment {
+                padding: 16px 22px !important;
+            }
+
+            .logo {
+                margin: 0 auto;
+                padding: 10px 0 10px 5% !important;
+            }
+
+            .gfx-promo {
+                padding-bottom: 20px;
+                width: 40% !important;
+            }
+
+                .gfx-promo img {
+                    width: 100%;
+                }
+
+            /* ADJUST BUTTONS ON MOBILE */
+            .mobile-button-container {
+                margin: 0 auto;
+                width: 100% !important;
+                margin-bottom: 10px !important;
+            }
+
+            .mobile-button {
+                padding: 4px !important;
+                display: block !important;
+            }
+
+            .mobile-promos {
+                text-align: center !important;
+                padding: 30px !important;
+            }
+
+            .foot-logo {
+                padding: 5px 0 25px !important;
+            }
+        }
+
+        /* Extra small device */
+        @media screen and (max-width: 413px) {
+            body[class="body-padding"] {
+                padding: 0 !important;
+            }
+            /* HIDE CONTENT ON MOBILE */
+            td[class="mobile-hide-xs"], td[class="mobile-hide-xs comment-gfx"] {
+                display: none;
+            }
+            /* ADJUST BUTTONS ON MOBILE */
+            table[class="mobile-button-container"] {
+                margin: 0 auto;
+                width: 100% !important;
+            }
+        }
+
+        /* Android fix */
+        div[style*="margin: 16px 0;"] {
+            margin: 0 !important;
+        }
+
+
+        /* MARKDOWN RENDERING STYLES */
+        .markdown-code {
+            background-color: #EAEAEA;
+        }
+
+        .markdown-table {
+            border-style: solid;
+            border-width: thin;
+            border-color: #A6A6A6;
+            padding: 8px 10px 10px 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" style="font-family: 'Segoe UI', '-apple-system', 'BlinkMacSystemFont', 'Roboto', 'Arial', sans-serif; color: #212121; font-size: 14px; background: #f8f8f8">
+        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+            <tr>
+                <td class="mobile-hide" style="background-color: white; border-bottom: solid #eaeaea 1px"></td>
+                <td class="content" width="640" style="padding: 0px; max-width: 640px; background-color: white; border-bottom: solid #eaeaea 1px">
+                    <!--[if (gte mso 9)|(IE)]><table border="0" cellpadding="0" cellspacing="0" style="width: 640px; height:0;"><tr><td></td></tr></table><![endif]-->
+                    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+
+                        <tr>
+                            <td class="hero" style="padding: 0px 24px">
+                                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 592px" class="responsive-table">
+                                    <tr>
+                                        <td>
+                                            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                                <tr>
+                                                    <td>
+                                                        <table>
+
+
+                                                            <tr>
+                                                                <td class="title" style="padding: 0 0 24px 0; color: #212121; font-size: 28px; font-weight: bold; letter-spacing: -0.04em; line-height: 40px; word-break: break-word;">
+                                                                    You've been invited to TeamCloud
+                                                                </td>
+                                                            </tr>
+
+
+
+                                                            <tr>
+                                                                <td class="message" style="padding: 0 0 24px 0">
+                                                                    <pre style="white-space: pre-wrap; display: inline; font-family: 'Segoe UI', '-apple-system', 'BlinkMacSystemFont', 'Roboto', 'Arial', sans-serif; padding: 0px; margin: 0px; font-size: 14px; line-height: 20px; color: #444444; word-break: break-word;">Join your <a href="">{{ Project.DisplayName }}</a> project team</pre>
+                                                                </td>
+                                                            </tr>
+
+
+                                                            <tr>
+                                                                <td style="padding: 0 0 24px 0">
+                                                                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                                                        <tr>
+                                                                            <td>
+                                                                                <table border="0" cellspacing="0" cellpadding="0">
+                                                                                    <tr>
+
+                                                                                        <td align="center" bgcolor="#007acc" style="padding: 8px 12px; border-radius: 2px;">
+                                                                                            <a href="" style="font-weight: 500; font-size: 14px; text-decoration: none; padding: 0px; display: inline-block; color: #ffffff" class="mobile-button btn-primary">
+                                                                                                Join now
+                                                                                            </a>
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                </table>
+                                                                            </td>
+                                                                        </tr>
+                                                                    </table>
+
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </table>
+
+                            </td>
+                        </tr>
+
+                    </table>
+                </td>
+                <td class="mobile-hide" style="background-color: white; border-bottom: solid #eaeaea 1px"></td>
+            </tr>
+            <tr>
+                <td class="mobile-hide" style="background: #f8f8f8"></td>
+                <td class="content" width="640" style="padding: 0px; max-width: 640px; background: #f8f8f8">
+                    <!--[if (gte mso 9)|(IE)]><table border="0" cellpadding="0" cellspacing="0" style="width: 640px; height:0;"><tr><td></td></tr></table><![endif]-->
+                    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+
+                        <tr>
+                            <td style="padding: 24px 24px 8px 24px; max-width: 592px">
+                                <table border="0" width="100%" cellpadding="0" cellspacing="0" style="vertical-align: middle; background-color: white; box-shadow: 0px 4px 8px #eaeaea" class="responsive-table">
+
+                                    <tr>
+                                        <td style="padding: 16px 24px 24px 24px">
+                                            <!--[if (gte mso 9)|(IE)]><table width="100%" border="0" cellpadding="0" cellspacing="0"><tr><td style="padding-left: 0px; width: 100%"><![endif]-->
+                                            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+
+                                                <tr>
+                                                    <td style="font-size: 21px; line-height: 25px; font-weight: 600; letter-spacing: -0.04em; padding: 0px; width: 100%">
+                                                        New to TeamCloud?
+                                                    </td>
+                                                </tr>
+
+                                                <tr>
+                                                    <td style="padding: 12px 0px 0px 0px; line-height: 20px; max-width: 544px">
+                                                        <table>
+                                                            <tr>
+                                                                <td style="padding: 10px">
+                                                                    <table>
+                                                                        <tr>
+                                                                            <td width="30" style="vertical-align: top">
+                                                                                <img src="https://cdn.vsassets.io/content/notifications/v3/work-item.png" width="20">
+                                                                            </td>
+                                                                            <td>
+                                                                                Control project related resources from a single place
+                                                                            </td>
+                                                                        </tr>
+                                                                    </table>
+                                                                </td>
+                                                                <td style="padding: 10px">
+                                                                    <table>
+                                                                        <tr>
+                                                                            <td width="30" style="vertical-align: top">
+                                                                                <img src="https://cdn.vsassets.io/content/notifications/v3/group.png" width="20">
+                                                                            </td>
+                                                                            <td>
+                                                                                Empower a project team to work with self-managed resources
+                                                                            </td>
+                                                                        </tr>
+                                                                    </table>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td style="padding: 10px">
+                                                                    <table>
+                                                                        <tr>
+                                                                            <td width="30" style="vertical-align: top">
+                                                                                <img src="https://cdn.vsassets.io/content/notifications/v3/code-edit.png" width="20">
+                                                                            </td>
+                                                                            <td>
+                                                                                Independant to OS and development language
+                                                                            </td>
+                                                                        </tr>
+                                                                    </table>
+                                                                </td>
+                                                                <td style="padding: 10px">
+                                                                    <table>
+                                                                        <tr>
+                                                                            <td width="30" style="vertical-align: top">
+                                                                                <img src="https://cdn.vsassets.io/content/notifications/v3/build.png" width="20">
+                                                                            </td>
+                                                                            <td>
+                                                                                Integrated in your companies tool landscape
+                                                                            </td>
+                                                                        </tr>
+                                                                    </table>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                            </table>
+
+                                            <!--[if (gte mso 9)|(IE)]></td></tr></table><![endif]-->
+                                        </td>
+                                    </tr>
+                                </table>
+
+                            </td>
+                        </tr>
+
+
+                        <tr>
+                            <td style="padding: 24px 24px 24px 24px; max-width: 592px">
+                                <table border="0" width="100%" cellpadding="0" cellspacing="0" style="vertical-align: middle; background-color: white; box-shadow: 0px 4px 8px #eaeaea" class="responsive-table">
+                                    <tr>
+                                        <td style="padding: 16px 24px 24px 24px">
+                                            <!--[if (gte mso 9)|(IE)]><table width="100%" border="0" cellpadding="0" cellspacing="0"><tr><td style="padding-left: 0px; width: 100%"><![endif]-->
+                                            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+
+                                                <tr>
+                                                    <td style="font-size: 21px; line-height: 25px; font-weight: 600; letter-spacing: -0.04em; padding: 0px; width: 100%">
+                                                        Organization details
+                                                    </td>
+                                                </tr>
+                                                
+                                                <tr>
+                                                    <td style="padding: 12px 0px 0px 0px; line-height: 20px; max-width: 544px">
+                                                        <table border="0" cellpadding="0" cellspacing="0" class="" style="width: 100%; border-collapse: collapse !important;">
+
+                                                            <tr>
+                                                                <td class="" style="vertical-align: top; padding: 10px 4px; border-bottom: solid #eaeaea 1px; text-align: left; white-space: nowrap; min-width: 0;">
+                                                                    <img src="https://cdn.vsassets.io/content/notifications/v3/globe.png" width="20">
+                                                                </td>
+                                                                <td class="" style="vertical-align: top; padding: 10px 4px; border-bottom: solid #eaeaea 1px; text-align: left; white-space: nowrap; font-weight: 600; min-width: 130px;">
+                                                                    Your organization URL:
+                                                                </td>
+                                                                <td class="" style="vertical-align: top; padding: 10px 4px; border-bottom: solid #eaeaea 1px; text-align: left; white-space: nowrap;">
+                                                                    <a href="https://unknown/orgs/{{ Organization.Slug }}">https://unknown/orgs/{{ Organization.Slug }}</a>
+                                                                </td>
+                                                            </tr>
+
+                                                            <tr>
+                                                                <td class="" style="vertical-align: top; padding: 10px 4px; border-bottom: solid #eaeaea 1px; text-align: left; white-space: nowrap; min-width: 0;">
+                                                                    <img src="https://cdn.vsassets.io/content/notifications/v3/user.png" width="20">
+                                                                </td>
+                                                                <td class="" style="vertical-align: top; padding: 10px 4px; border-bottom: solid #eaeaea 1px; text-align: left; white-space: nowrap; font-weight: 600; min-width: 130px;">
+                                                                    Your sign-in address:
+                                                                </td>
+                                                                <td class="" style="vertical-align: top; padding: 10px 4px; border-bottom: solid #eaeaea 1px; text-align: left; white-space: nowrap;">
+                                                                    <a href="mailto:{{ User.MailAddress }}">{{ User.LoginName }}</a>
+                                                                </td>
+                                                            </tr>
+
+                                                            <tr>
+                                                                <td class="" style="vertical-align: top; padding: 10px 4px; border-bottom: solid #eaeaea 1px; text-align: left; white-space: nowrap; min-width: 0;">
+                                                                    <img src="https://cdn.vsassets.io/content/notifications/v3/info.png" width="20">
+                                                                </td>
+                                                                <td class="" style="vertical-align: top; padding: 10px 4px; border-bottom: solid #eaeaea 1px; text-align: left; white-space: nowrap; font-weight: 600; min-width: 130px;">
+                                                                    Found an issue?
+                                                                </td>
+                                                                <td class="" style="vertical-align: top; padding: 10px 4px; border-bottom: solid #eaeaea 1px; text-align: left; white-space: nowrap;">
+                                                                    Please report it <a href="https://github.com/microsoft/TeamCloud/issues" target="_blank">here</a>
+                                                                </td>
+                                                            </tr>
+
+                                                            <tr>
+                                                                <td class="" style="vertical-align: top; padding: 10px 4px; border-bottom: none; text-align: left; white-space: nowrap; min-width: 0;">
+                                                                    <img src="https://cdn.vsassets.io/content/notifications/v3/lifesaver.png" width="20">
+                                                                </td>
+                                                                <td class="" style="vertical-align: top; padding: 10px 4px; border-bottom: none; text-align: left; white-space: nowrap; font-weight: 600; min-width: 130px;">
+                                                                    Need help?
+                                                                </td>
+                                                                <td class="" style="vertical-align: top; padding: 10px 4px; border-bottom: none; text-align: left; white-space: nowrap;">
+                                                                    Check out our <a href="https://github.com/microsoft/TeamCloud/tree/main/docs" target="_blank">documentation</a>
+                                                                </td>
+                                                            </tr>
+
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                            <!--[if (gte mso 9)|(IE)]></td></tr></table><![endif]-->
+                                        </td>
+                                    </tr>
+                                </table>
+
+                            </td>
+                        </tr>
+
+                    </table>
+
+                </td>
+                <td class="mobile-hide" style="background: #f8f8f8"></td>
+            </tr>
+        </table>
+    </div>
+
+</body>
+</html>

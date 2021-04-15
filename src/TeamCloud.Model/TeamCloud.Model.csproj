@@ -25,6 +25,14 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="Messaging\WelcomeMessage.html" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Include="Messaging\WelcomeMessage.html" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<None Include="..\..\LICENSE">
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
@@ -39,6 +47,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\TeamCloud.Notification\TeamCloud.Notification.csproj" />
 		<ProjectReference Include="..\TeamCloud.Serialization\TeamCloud.Serialization.csproj" />
 	</ItemGroup>
 

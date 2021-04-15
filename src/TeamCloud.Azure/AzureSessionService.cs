@@ -94,7 +94,7 @@ namespace TeamCloud.Azure
 
         public IAzureSessionOptions Options { get => azureSessionOptions; }
 
-        public async Task<IAzureSessionIdentity> GetIdentityAsync(AzureEndpoint azureEndpoint)
+        public async Task<IAzureSessionIdentity> GetIdentityAsync(AzureEndpoint azureEndpoint = AzureEndpoint.ResourceManagerEndpoint)
         {
             var token = await AcquireTokenAsync(azureEndpoint)
                 .ConfigureAwait(false);
@@ -120,6 +120,14 @@ namespace TeamCloud.Azure
             }
 
             return identity;
+        }
+
+        public async Task<Guid> GetTenantIdAsync()
+        {
+            var identity = await GetIdentityAsync()
+                .ConfigureAwait(false);
+
+            return identity.TenantId;
         }
 
         public async Task<string> AcquireTokenAsync(AzureEndpoint azureEndpoint = AzureEndpoint.ResourceManagerEndpoint)

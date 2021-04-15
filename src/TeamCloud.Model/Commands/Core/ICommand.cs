@@ -4,6 +4,7 @@
  */
 
 using System;
+using System.Linq;
 using Newtonsoft.Json;
 using TeamCloud.Model.Commands.Serialization;
 using TeamCloud.Model.Common;
@@ -29,6 +30,21 @@ namespace TeamCloud.Model.Commands.Core
         ICommandResult CreateResult();
 
         object Payload { get; set; }
+
+        public string GetTypeName(bool prettyPrint = false)
+        {
+            return prettyPrint && GetType().IsGenericType
+                ? PrettyPrintTypeName(GetType())
+                : GetType().Name;
+
+            static string PrettyPrintTypeName(Type type)
+            {
+                if (!type.IsGenericType) return type.Name;
+
+                var typename = type.Name.Substring(0, type.Name.IndexOf("`", StringComparison.OrdinalIgnoreCase));
+                return $"{typename}<{string.Join(", ", type.GetGenericArguments().Select(PrettyPrintTypeName))}>";
+            }
+        }
 
     }
 

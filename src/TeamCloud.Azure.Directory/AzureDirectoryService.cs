@@ -11,6 +11,7 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Microsoft.Azure.Management.Graph.RBAC.Fluent;
 using Microsoft.Azure.Management.Graph.RBAC.Fluent.Models;
+using Microsoft.Rest.Azure;
 using Microsoft.Rest.Azure.OData;
 
 namespace TeamCloud.Azure.Directory
@@ -20,6 +21,14 @@ namespace TeamCloud.Azure.Directory
         Task<Guid?> GetUserIdAsync(string identifier);
 
         Task<Guid?> GetGroupIdAsync(string identifier);
+
+        IAsyncEnumerable<Guid> GetGroupMembersAsync(string identifier, bool resolveAllGroups = false);
+
+        Task<string> GetDisplayNameAsync(string identifier);
+
+        Task<string> GetLoginNameAsync(string identifier);
+
+        Task<string> GetMailAddressAsync(string identifier);
 
         Task<AzureServicePrincipal> CreateServicePrincipalAsync(string name, string password = null);
 
@@ -41,6 +50,10 @@ namespace TeamCloud.Azure.Directory
             this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
         }
 
+        private static string SanitizeIdentifier(string identifier) => identifier?
+            .Replace("%3A", ":", StringComparison.OrdinalIgnoreCase)?
+            .Replace("%2F", "/", StringComparison.OrdinalIgnoreCase);
+
         public async Task<Guid?> GetUserIdAsync(string identifier)
         {
             if (identifier is null)
@@ -50,9 +63,7 @@ namespace TeamCloud.Azure.Directory
                 .CreateClientAsync<GraphRbacManagementClient>(AzureEndpoint.GraphEndpoint)
                 .ConfigureAwait(false);
 
-            identifier = identifier
-                .Replace("%3A", ":", StringComparison.OrdinalIgnoreCase)
-                .Replace("%2F", "/", StringComparison.OrdinalIgnoreCase);
+            identifier = SanitizeIdentifier(identifier);
 
             // assume user first
             var userInner = await GetUserInnerAsync(client, identifier)
@@ -72,9 +83,159 @@ namespace TeamCloud.Azure.Directory
             return null;
         }
 
-        public Task<Guid?> GetGroupIdAsync(string identifier)
+        public async Task<Guid?> GetGroupIdAsync(string identifier)
         {
-            throw new NotImplementedException();
+            if (identifier is null)
+                throw new ArgumentNullException(nameof(identifier));
+
+            using var client = await azureSessionService
+                .CreateClientAsync<GraphRbacManagementClient>(AzureEndpoint.GraphEndpoint)
+                .ConfigureAwait(false);
+
+            var groupInner = await GetGroupInnerAsync(client, identifier)
+                .ConfigureAwait(false);
+
+            if (!string.IsNullOrEmpty(groupInner?.ObjectId))
+                return Guid.Parse(groupInner?.ObjectId);
+
+            return null;
+        }
+
+        public async IAsyncEnumerable<Guid> GetGroupMembersAsync(string identifier, bool resolveAllGroups = false)
+        {
+            if (identifier is null)
+                throw new ArgumentNullException(nameof(identifier));
+
+            var groupId = await GetGroupIdAsync(identifier)
+                .ConfigureAwait(false);
+
+            if (groupId != null)
+            {
+                var uniqueMembers = new HashSet<Guid>();
+
+                var memberIds = FetchMemberIds(groupId.Value)
+                    .ConfigureAwait(false);
+
+                await foreach (var memberId in memberIds)
+                {
+                    if (resolveAllGroups)
+                    {
+                        var subGroupId = await GetGroupIdAsync(memberId.ToString())
+                            .ConfigureAwait(false);
+
+                        if (subGroupId.HasValue)
+                        {
+                            var subMemberIds = GetGroupMembersAsync(subGroupId.ToString(), resolveAllGroups)
+                                .ConfigureAwait(false);
+
+                            await foreach (var subMemberId in subMemberIds)
+                                if (uniqueMembers.Add(subMemberId))
+                                    yield return subMemberId;
+                        }
+                    }
+
+                    if (uniqueMembers.Add(memberId))
+                        yield return memberId;
+                }
+            }
+
+            async IAsyncEnumerable<Guid> FetchMemberIds(Guid groupId)
+            {
+                using var client = await azureSessionService
+                    .CreateClientAsync<GraphRbacManagementClient>(AzureEndpoint.GraphEndpoint)
+                    .ConfigureAwait(false);
+
+                IPage<DirectoryObject> page = null;
+
+                while (true)
+                {
+                    if (page is null)
+                    {
+                        page = await client.Groups
+                            .GetGroupMembersAsync(groupId.ToString())
+                            .ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        page = await client.Groups
+                            .GetGroupMembersNextAsync(page.NextPageLink)
+                            .ConfigureAwait(false);
+                    }
+
+                    foreach (var memberId in page.Where(m => !m.DeletionTimestamp.HasValue).Select(m => Guid.Parse(m.ObjectId)))
+                        yield return memberId;
+
+                    if (string.IsNullOrEmpty(page.NextPageLink))
+                        break;
+                }
+            }
+        }
+
+        public async Task<string> GetDisplayNameAsync(string identifier)
+        {
+            if (identifier is null)
+                throw new ArgumentNullException(nameof(identifier));
+
+            using var client = await azureSessionService
+                .CreateClientAsync<GraphRbacManagementClient>(AzureEndpoint.GraphEndpoint)
+                .ConfigureAwait(false);
+
+            identifier = SanitizeIdentifier(identifier);
+
+            // assume user first
+            var userInner = await GetUserInnerAsync(client, identifier)
+                .ConfigureAwait(false);
+
+            if (!string.IsNullOrEmpty(userInner?.DisplayName))
+                return userInner.DisplayName;
+
+            // otherwise try to find a service principal
+            var principalInner = await GetServicePrincipalInnerAsync(client, identifier)
+                .ConfigureAwait(false);
+
+            if (!string.IsNullOrEmpty(principalInner?.DisplayName))
+                return principalInner.DisplayName;
+
+            return null;
+        }
+
+        public async Task<string> GetLoginNameAsync(string identifier)
+        {
+            if (identifier is null)
+                throw new ArgumentNullException(nameof(identifier));
+
+            using var client = await azureSessionService
+                .CreateClientAsync<GraphRbacManagementClient>(AzureEndpoint.GraphEndpoint)
+                .ConfigureAwait(false);
+
+            identifier = SanitizeIdentifier(identifier);
+
+            var userInner = await GetUserInnerAsync(client, identifier)
+                .ConfigureAwait(false);
+
+            return userInner?.SignInNames?.FirstOrDefault()?.Value
+                ?? userInner.Mail;
+        }
+
+        public async Task<string> GetMailAddressAsync(string identifier)
+        {
+            if (identifier is null)
+                throw new ArgumentNullException(nameof(identifier));
+
+            using var client = await azureSessionService
+                .CreateClientAsync<GraphRbacManagementClient>(AzureEndpoint.GraphEndpoint)
+                .ConfigureAwait(false);
+
+            identifier = SanitizeIdentifier(identifier);
+
+            // assume user first
+            var userInner = await GetUserInnerAsync(client, identifier)
+                .ConfigureAwait(false);
+
+            if (!string.IsNullOrEmpty(userInner?.Mail))
+                return userInner.Mail;
+
+            return null;
         }
 
         private static async Task<UserInner> GetUserInnerAsync(GraphRbacManagementClient client, string identifier)
@@ -107,6 +268,23 @@ namespace TeamCloud.Azure.Directory
             try
             {
                 return await client.Users
+                    .GetAsync(identifier)
+                    .ConfigureAwait(false);
+            }
+            catch (GraphErrorException)
+            {
+                return null;
+            }
+        }
+
+        private static async Task<ADGroupInner> GetGroupInnerAsync(GraphRbacManagementClient client, string identifier)
+        {
+            if (!identifier.IsGuid())
+                return null;
+
+            try
+            {
+                return await client.Groups
                     .GetAsync(identifier)
                     .ConfigureAwait(false);
             }
