@@ -32,14 +32,21 @@ namespace TeamCloud.Model.Data.Core
 
         string IContainerDocument.ETag { get; set; }
 
-        public override string ToString()
+        public override string ToString() => this switch
         {
-            if (this is IProjectContext projectContext)
-                return $"/orgs/{projectContext.Organization}/projects/{projectContext.ProjectId}/{this.GetType().Name.ToLowerInvariant()}s/{this.Id}";
-            else if (this is IOrganizationContext organizationContext)
-                return $"/orgs/{organizationContext.Organization}/{this.GetType().Name.ToLowerInvariant()}s/{this.Id}";
-            else
-                return base.ToString();
-        }
+            IProjectContext projectContext
+                => $"/orgs/{projectContext.Organization}/projects/{projectContext.ProjectId}/{this.GetType().Name.ToLowerInvariant()}s/{this.Id}",
+
+            IOrganizationContext organizationContext
+                => $"/orgs/{organizationContext.Organization}/{this.GetType().Name.ToLowerInvariant()}s/{this.Id}",
+
+            Organization organization
+                => $"/orgs/{organization.Id}",
+
+            IIdentifiable identifiable
+                => $"{GetType().Name}[{identifiable.Id}]",
+
+            _ => base.ToString()
+        };
     }
 }

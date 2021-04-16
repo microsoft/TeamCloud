@@ -16,6 +16,7 @@ using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 using TeamCloud.Model.Messaging;
 using TeamCloud.Notification;
+using TeamCloud.Orchestrator.Options;
 
 namespace TeamCloud.Orchestrator.Command.Handlers
 {
@@ -25,16 +26,18 @@ namespace TeamCloud.Orchestrator.Command.Handlers
           ICommandHandler<ProjectDeleteCommand>
     {
         private readonly IUserRepository userRepository;
+        private readonly TeamCloudEndpointOptions endpointOptions;
         private readonly IAzureSessionService azureSessionService;
         private readonly IOrganizationRepository organizationRepository;
         private readonly IProjectRepository projectRepository;
 
-        public ProjectCommandHandler(IAzureSessionService azureSessionService, IOrganizationRepository organizationRepository, IProjectRepository projectRepository, IUserRepository userRepository)
+        public ProjectCommandHandler(IAzureSessionService azureSessionService, IOrganizationRepository organizationRepository, IProjectRepository projectRepository, IUserRepository userRepository, TeamCloudEndpointOptions endpointOptions)
         {
             this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
             this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
             this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
             this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+            this.endpointOptions = endpointOptions ?? throw new ArgumentNullException(nameof(endpointOptions));
         }
 
         public async Task<ICommandResult> HandleAsync(ProjectCreateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
@@ -71,7 +74,8 @@ namespace TeamCloud.Orchestrator.Command.Handlers
                 {
                     Organization = await organizationRepository.GetAsync(tenantId.ToString(), commandResult.Result.Organization, expand: true).ConfigureAwait(false),
                     Project = commandResult.Result,
-                    User = await userRepository.ExpandAsync(command.User).ConfigureAwait(false)
+                    User = await userRepository.ExpandAsync(command.User).ConfigureAwait(false),
+                    PortalUrl = endpointOptions.Portal
                 });
 
                 await commandQueue

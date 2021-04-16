@@ -6,7 +6,7 @@
 namespace TeamCloud.Configuration.Options
 {
     [Options("Azure:CosmosDb")]
-    public class CosmosDbOptions
+    public class AzureCosmosDbOptions
     {
         public string DatabaseName { get; set; } = "TeamCloud";
 

@@ -139,8 +139,9 @@ output configServiceImport object = {
   'Azure:CosmosDb:ConnectionString': cosmos.outputs.connectionString
   'Azure:DeploymentStorage:ConnectionString': storage_dep.outputs.connectionString
   'Azure:SignalR:ConnectionString': signalr.outputs.connectionString
-  'Api:Url': api.outputs.url
+  'Endpoint:Api:Url': api.outputs.url
+  'Endpoint:Orchestrator:Url': orchestrator.outputs.url
+  'Endpoint:Orchestrator:AuthCode': orchestrator.outputs.key
   'Cache:Configuration': redis.outputs.configuration
-  'Orchestrator:Url': orchestrator.outputs.url
-  'Orchestrator:AuthCode': orchestrator.outputs.key
+  'Encryption:KeyStorage': storage_wj.outputs.connectionString  
 }

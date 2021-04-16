@@ -16,6 +16,7 @@ using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 using TeamCloud.Model.Messaging;
 using TeamCloud.Notification;
+using TeamCloud.Orchestrator.Options;
 
 namespace TeamCloud.Orchestrator.Command.Handlers
 {
@@ -29,14 +30,16 @@ namespace TeamCloud.Orchestrator.Command.Handlers
         private readonly IUserRepository userRepository;
         private readonly IComponentRepository componentRepository;
         private readonly IAzureSessionService azureSessionService;
+        private readonly TeamCloudEndpointOptions endpointOptions;
 
-        public ProjectUserCommandHandler(IOrganizationRepository organizationRepository, IProjectRepository projectRepository, IUserRepository userRepository, IComponentRepository componentRepository, IAzureSessionService azureSessionService)
+        public ProjectUserCommandHandler(IOrganizationRepository organizationRepository, IProjectRepository projectRepository, IUserRepository userRepository, IComponentRepository componentRepository, IAzureSessionService azureSessionService, TeamCloudEndpointOptions endpointOptions)
         {
             this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
             this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
             this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
             this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
+            this.endpointOptions = endpointOptions ?? throw new ArgumentNullException(nameof(endpointOptions));
         }
 
         public async Task<ICommandResult> HandleAsync(ProjectUserCreateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
@@ -188,7 +191,8 @@ namespace TeamCloud.Orchestrator.Command.Handlers
                 {
                     Organization = organization,
                     Project = project,
-                    User = user
+                    User = user,
+                    PortalUrl = endpointOptions.Portal
                 });
 
                 await commandQueue

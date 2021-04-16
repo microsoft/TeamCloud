@@ -15,9 +15,6 @@ namespace TeamCloud.Model.Messaging
 
         public User User { get; set; }
 
-        public object ToLiquid()
-        {
-            return this;
-        }
+        public string PortalUrl { get; set; }
     }
 }

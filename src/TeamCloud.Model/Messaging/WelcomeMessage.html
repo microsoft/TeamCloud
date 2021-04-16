@@ -406,7 +406,7 @@
 
                                                             <tr>
                                                                 <td class="message" style="padding: 0 0 24px 0">
-                                                                    <pre style="white-space: pre-wrap; display: inline; font-family: 'Segoe UI', '-apple-system', 'BlinkMacSystemFont', 'Roboto', 'Arial', sans-serif; padding: 0px; margin: 0px; font-size: 14px; line-height: 20px; color: #444444; word-break: break-word;">Join your <a href="">{{ Project.DisplayName }}</a> project team</pre>
+                                                                    <pre style="white-space: pre-wrap; display: inline; font-family: 'Segoe UI', '-apple-system', 'BlinkMacSystemFont', 'Roboto', 'Arial', sans-serif; padding: 0px; margin: 0px; font-size: 14px; line-height: 20px; color: #444444; word-break: break-word;">Join your <a href="{{ portalUrl }}/orgs/{{ organization.slug }}/projects/{{ project.slug }}">{{ project.displayName }}</a> project team</pre>
                                                                 </td>
                                                             </tr>
 
@@ -420,7 +420,7 @@
                                                                                     <tr>
 
                                                                                         <td align="center" bgcolor="#007acc" style="padding: 8px 12px; border-radius: 2px;">
-                                                                                            <a href="" style="font-weight: 500; font-size: 14px; text-decoration: none; padding: 0px; display: inline-block; color: #ffffff" class="mobile-button btn-primary">
+                                                                                            <a href="{{ portalUrl }}/orgs/{{ organization.slug }}/projects/{{ project.slug }}" style="font-weight: 500; font-size: 14px; text-decoration: none; padding: 0px; display: inline-block; color: #ffffff" class="mobile-button btn-primary">
                                                                                                 Join now
                                                                                             </a>
                                                                                         </td>
@@ -563,7 +563,7 @@
                                                                     Your organization URL:
                                                                 </td>
                                                                 <td class="" style="vertical-align: top; padding: 10px 4px; border-bottom: solid #eaeaea 1px; text-align: left; white-space: nowrap;">
-                                                                    <a href="https://unknown/orgs/{{ Organization.Slug }}">https://unknown/orgs/{{ Organization.Slug }}</a>
+                                                                    <a href="{{ portalUrl }}/orgs/{{ organization.slug }}">{{ portalUrl }}/orgs/{{ organization.slug }}</a>
                                                                 </td>
                                                             </tr>
 
@@ -575,7 +575,7 @@
                                                                     Your sign-in address:
                                                                 </td>
                                                                 <td class="" style="vertical-align: top; padding: 10px 4px; border-bottom: solid #eaeaea 1px; text-align: left; white-space: nowrap;">
-                                                                    <a href="mailto:{{ User.MailAddress }}">{{ User.LoginName }}</a>
+                                                                    <a href="mailto:{{ user.mailAddress }}">{{ user.loginName }}</a>
                                                                 </td>
                                                             </tr>
 
