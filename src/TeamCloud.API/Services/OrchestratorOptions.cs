@@ -7,8 +7,8 @@ namespace TeamCloud.API.Services
 {
     public interface IOrchestratorOptions
     {
-        public string Url { get; set; }
+        public string Url { get; }
 
-        public string AuthCode { get; set; }
+        public string AuthCode { get; }
     }
 }

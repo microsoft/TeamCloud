@@ -12,9 +12,9 @@ namespace TeamCloud.API.Options
     [Options]
     public sealed class TeamCloudDatabaseOptions : ICosmosDbOptions
     {
-        private readonly CosmosDbOptions cosmosDbOptions;
+        private readonly AzureCosmosDbOptions cosmosDbOptions;
 
-        public TeamCloudDatabaseOptions(CosmosDbOptions cosmosDbOptions)
+        public TeamCloudDatabaseOptions(AzureCosmosDbOptions cosmosDbOptions)
         {
             this.cosmosDbOptions = cosmosDbOptions ?? throw new System.ArgumentNullException(nameof(cosmosDbOptions));
         }

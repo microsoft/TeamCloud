@@ -148,7 +148,6 @@ namespace TeamCloud.API
                 }
 
                 EncryptedValueProvider.DefaultDataProtectionProvider = services.BuildServiceProvider().GetDataProtectionProvider();
-
             }
 
             services
