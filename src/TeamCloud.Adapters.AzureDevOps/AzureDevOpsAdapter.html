@@ -1,0 +1,88 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <style>
+        html, body {
+            height: 100%
+        }
+
+        h2 {
+            margin-top: 2rem;
+        }
+
+        #content {
+            height: 100%;
+            padding: 50px 20px;
+            background-color: #F0F0F0;
+            border-left: 1px solid lightgray;
+            border-right: 1px solid lightgray;
+        }
+
+        .table-borderless td,
+        .table-borderless th {
+            border: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container-fluid h-100">
+        <div class="row justify-content-center h-100">
+            <div class="col-3"></div>
+            <div class="col-6 jumbotron" id="content">
+                <h1 class="display-4">TeamCloud Azure DevOps Provider</h1>
+                <p class="lead">...</p>
+                <hr class="my-4">
+                <h2>Register provider</h2>
+                <p>Click <a target="_blank" href="https://app.vsaex.visualstudio.com/app/register">here</a> to register a new Azure DevOps application. Please fill out the form with the following 2 <b>required</b> values set and <b>all</b> scopes selected:</p>
+                <table class="table table-borderless">
+                    <tbody>
+                        <tr>
+                            <td>Application website</td>
+                            <td>{{ applicationWebsite }}</td>
+                        </tr>
+                        <tr>
+                            <td>Authorization callback URL</td>
+                            <td>{{ applicationCallback }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <h2>Authorize provider</h2>
+                <form method="post" enctype="application/x-www-form-urlencoded">
+
+                    {% if error != "" %}
+                        <div id="error" class="alert alert-danger">
+                            <strong>Error:</strong> {{ error }}.
+                        </div>
+                    {% elseif succeeded == true %}
+                        <div id="success" class="alert alert-success">
+                            Successfully authorized TeamCloud Azure DevOps provider.
+                        </div>
+                    {% endif %}
+
+                    <div id="registrationForm">
+                        <div class="form-group">
+                            <label for="client_id">Organization</label>
+                            <input type="text" class="form-control" name="organization" id="organization" placeholder="Enter your Azure DevOps organization name" value="{{ session.organization }}" />
+                        </div>
+                        <div class="form-group">
+                            <label for="client_id">Application/Client Id</label>
+                            <input type="text" class="form-control" name="client_id" id="client_id" placeholder="Enter your id" value="{{ session.clientId }}" />
+                        </div>
+                        <div class="form-group">
+                            <label for="client_secret">Appliation/Client Secret</label>
+                            <input type="password" class="form-control" name="client_secret" id="client_secret" placeholder="Enter your secret" />
+                        </div>
+                        <button id="authorize" type="submit" class="btn btn-primary">Authorize</button>
+                    </div>
+                </form>
+            </div>
+            <div class="col-3"></div>
+        </div>
+    </div>
+</body>
+</html>

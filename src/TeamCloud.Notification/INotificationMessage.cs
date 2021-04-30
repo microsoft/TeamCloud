@@ -17,4 +17,10 @@ namespace TeamCloud.Notification
 
         bool Html { get; set; }
     }
+
+    public interface INotificationMessage<TData> : INotificationMessage
+        where TData : class
+    {
+        void Merge(TData data);
+    }
 }

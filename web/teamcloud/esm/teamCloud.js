@@ -228,6 +228,20 @@ var TeamCloud = /** @class */ (function (_super) {
         return this.sendOperationRequest(operationArguments, deleteDeploymentScopeOperationSpec);
     };
     /**
+     * Authorize an existing Deployment Scope.
+     * @param id
+     * @param organizationId
+     * @param options The options parameters.
+     */
+    TeamCloud.prototype.authorizeDeploymentScope = function (id, organizationId, options) {
+        var operationArguments = {
+            id: id,
+            organizationId: organizationId,
+            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
+        };
+        return this.sendOperationRequest(operationArguments, authorizeDeploymentScopeOperationSpec);
+    };
+    /**
      * Negotiates the SignalR connection.
      * @param organizationId
      * @param projectId
@@ -1150,6 +1164,28 @@ var deleteDeploymentScopeOperationSpec = {
     },
     urlParameters: [Parameters.$host, Parameters.organizationId, Parameters.id],
     headerParameters: [Parameters.accept],
+    serializer: serializer
+};
+var authorizeDeploymentScopeOperationSpec = {
+    path: "/orgs/{organizationId}/scopes/{id}/authorize",
+    httpMethod: "PUT",
+    responses: {
+        200: {
+            bodyMapper: Mappers.DeploymentScopeDataResult
+        },
+        400: {
+            bodyMapper: Mappers.ErrorResult
+        },
+        401: {},
+        403: {},
+        404: {
+            bodyMapper: Mappers.ErrorResult
+        }
+    },
+    requestBody: Parameters.body3,
+    urlParameters: [Parameters.$host, Parameters.organizationId, Parameters.id],
+    headerParameters: [Parameters.accept, Parameters.contentType1],
+    mediaType: "json",
     serializer: serializer
 };
 var negotiateSignalROperationSpec = {

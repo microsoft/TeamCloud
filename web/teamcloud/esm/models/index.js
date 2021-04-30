@@ -73,6 +73,13 @@ export var KnownComponentTemplateType;
     KnownComponentTemplateType["Environment"] = "Environment";
     KnownComponentTemplateType["GitRepository"] = "GitRepository";
 })(KnownComponentTemplateType || (KnownComponentTemplateType = {}));
+/** Known values of {@link DeploymentScopeAdapter} that the service accepts. */
+export var KnownDeploymentScopeAdapter;
+(function (KnownDeploymentScopeAdapter) {
+    KnownDeploymentScopeAdapter["AzureResourceManager"] = "AzureResourceManager";
+    KnownDeploymentScopeAdapter["AzureDevOps"] = "AzureDevOps";
+    KnownDeploymentScopeAdapter["GitHub"] = "GitHub";
+})(KnownDeploymentScopeAdapter || (KnownDeploymentScopeAdapter = {}));
 /** Known values of {@link OrganizationResourceState} that the service accepts. */
 export var KnownOrganizationResourceState;
 (function (KnownOrganizationResourceState) {

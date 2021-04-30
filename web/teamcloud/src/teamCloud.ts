@@ -31,6 +31,8 @@ import {
   TeamCloudUpdateDeploymentScopeOptionalParams,
   TeamCloudUpdateDeploymentScopeResponse,
   TeamCloudDeleteDeploymentScopeResponse,
+  TeamCloudAuthorizeDeploymentScopeOptionalParams,
+  TeamCloudAuthorizeDeploymentScopeResponse,
   TeamCloudGetOrganizationsResponse,
   TeamCloudCreateOrganizationOptionalParams,
   TeamCloudCreateOrganizationResponse,
@@ -424,6 +426,28 @@ export class TeamCloud extends TeamCloudContext {
       operationArguments,
       deleteDeploymentScopeOperationSpec
     ) as Promise<TeamCloudDeleteDeploymentScopeResponse>;
+  }
+
+  /**
+   * Authorize an existing Deployment Scope.
+   * @param id
+   * @param organizationId
+   * @param options The options parameters.
+   */
+  authorizeDeploymentScope(
+    id: string | null,
+    organizationId: string,
+    options?: TeamCloudAuthorizeDeploymentScopeOptionalParams
+  ): Promise<TeamCloudAuthorizeDeploymentScopeResponse> {
+    const operationArguments: coreHttp.OperationArguments = {
+      id,
+      organizationId,
+      options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
+    };
+    return this.sendOperationRequest(
+      operationArguments,
+      authorizeDeploymentScopeOperationSpec
+    ) as Promise<TeamCloudAuthorizeDeploymentScopeResponse>;
   }
 
   /**
@@ -1680,6 +1704,28 @@ const deleteDeploymentScopeOperationSpec: coreHttp.OperationSpec = {
   },
   urlParameters: [Parameters.$host, Parameters.organizationId, Parameters.id],
   headerParameters: [Parameters.accept],
+  serializer
+};
+const authorizeDeploymentScopeOperationSpec: coreHttp.OperationSpec = {
+  path: "/orgs/{organizationId}/scopes/{id}/authorize",
+  httpMethod: "PUT",
+  responses: {
+    200: {
+      bodyMapper: Mappers.DeploymentScopeDataResult
+    },
+    400: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    401: {},
+    403: {},
+    404: {
+      bodyMapper: Mappers.ErrorResult
+    }
+  },
+  requestBody: Parameters.body3,
+  urlParameters: [Parameters.$host, Parameters.organizationId, Parameters.id],
+  headerParameters: [Parameters.accept, Parameters.contentType1],
+  mediaType: "json",
   serializer
 };
 const negotiateSignalROperationSpec: coreHttp.OperationSpec = {

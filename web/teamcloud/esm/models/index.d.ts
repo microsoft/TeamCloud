@@ -23,8 +23,7 @@ export interface Component {
     identityId?: string | null;
     deleted?: Date | null;
     ttl?: number | null;
-    /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly slug: string;
+    slug: string;
     id: string;
 }
 export interface ErrorResult {
@@ -168,18 +167,19 @@ export interface DeploymentScopeListDataResult {
 }
 export interface DeploymentScope {
     organization: string;
-    /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly slug: string;
     displayName: string;
+    slug: string;
     isDefault: boolean;
+    adapter?: DeploymentScopeAdapter;
     managementGroupId?: string | null;
     subscriptionIds?: string[] | null;
+    authorizeUrl?: string | null;
     id: string;
 }
 export interface DeploymentScopeDefinition {
+    displayName: string;
     /** NOTE: This property will not be serialized. It can only be populated by the server. */
     readonly slug?: string | null;
-    displayName: string;
     isDefault?: boolean;
     managementGroupId?: string | null;
     subscriptionIds?: string[] | null;
@@ -199,8 +199,7 @@ export interface OrganizationListDataResult {
 }
 export interface Organization {
     tenant: string;
-    /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly slug: string;
+    slug: string;
     displayName: string;
     subscriptionId: string;
     location: string;
@@ -237,6 +236,9 @@ export interface UserListDataResult {
 }
 export interface User {
     organization: string;
+    displayName?: string | null;
+    loginName?: string | null;
+    mailAddress?: string | null;
     userType: UserType;
     role: UserRole;
     projectMemberships?: ProjectMembership[] | null;
@@ -277,8 +279,7 @@ export interface ProjectListDataResult {
 }
 export interface Project {
     organization: string;
-    /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly slug: string;
+    slug: string;
     displayName: string;
     template: string;
     templateInput?: string | null;
@@ -357,8 +358,7 @@ export interface ProjectTemplateListDataResult {
 }
 export interface ProjectTemplate {
     organization: string;
-    /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly slug: string;
+    slug: string;
     name?: string | null;
     displayName: string;
     components?: string[] | null;
@@ -535,6 +535,22 @@ export declare const enum KnownComponentTemplateType {
  * **GitRepository**
  */
 export declare type ComponentTemplateType = string;
+/** Known values of {@link DeploymentScopeAdapter} that the service accepts. */
+export declare const enum KnownDeploymentScopeAdapter {
+    AzureResourceManager = "AzureResourceManager",
+    AzureDevOps = "AzureDevOps",
+    GitHub = "GitHub"
+}
+/**
+ * Defines values for DeploymentScopeAdapter. \
+ * {@link KnownDeploymentScopeAdapter} can be used interchangeably with DeploymentScopeAdapter,
+ *  this enum contains the known values that the service supports.
+ * ### Know values supported by the service
+ * **AzureResourceManager** \
+ * **AzureDevOps** \
+ * **GitHub**
+ */
+export declare type DeploymentScopeAdapter = string;
 /** Known values of {@link OrganizationResourceState} that the service accepts. */
 export declare const enum KnownOrganizationResourceState {
     Pending = "Pending",
@@ -781,6 +797,20 @@ export declare type TeamCloudUpdateDeploymentScopeResponse = DeploymentScopeData
 };
 /** Contains response data for the deleteDeploymentScope operation. */
 export declare type TeamCloudDeleteDeploymentScopeResponse = DeploymentScopeDataResult & {
+    /** The underlying HTTP response. */
+    _response: coreHttp.HttpResponse & {
+        /** The response body as text (string format) */
+        bodyAsText: string;
+        /** The response body as parsed JSON or XML */
+        parsedBody: DeploymentScopeDataResult;
+    };
+};
+/** Optional parameters. */
+export interface TeamCloudAuthorizeDeploymentScopeOptionalParams extends coreHttp.OperationOptions {
+    body?: DeploymentScope;
+}
+/** Contains response data for the authorizeDeploymentScope operation. */
+export declare type TeamCloudAuthorizeDeploymentScopeResponse = DeploymentScopeDataResult & {
     /** The underlying HTTP response. */
     _response: coreHttp.HttpResponse & {
         /** The response body as text (string format) */

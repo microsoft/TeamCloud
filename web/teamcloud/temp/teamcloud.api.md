@@ -34,7 +34,8 @@ export interface Component {
     resourceId?: string | null;
     // (undocumented)
     resourceState?: ComponentResourceState;
-    readonly slug: string;
+    // (undocumented)
+    slug: string;
     // (undocumented)
     templateId: string;
     // (undocumented)
@@ -247,6 +248,10 @@ export type ComponentType = string;
 // @public (undocumented)
 export interface DeploymentScope {
     // (undocumented)
+    adapter?: DeploymentScopeAdapter;
+    // (undocumented)
+    authorizeUrl?: string | null;
+    // (undocumented)
     displayName: string;
     // (undocumented)
     id: string;
@@ -256,10 +261,14 @@ export interface DeploymentScope {
     managementGroupId?: string | null;
     // (undocumented)
     organization: string;
-    readonly slug: string;
+    // (undocumented)
+    slug: string;
     // (undocumented)
     subscriptionIds?: string[] | null;
 }
+
+// @public
+export type DeploymentScopeAdapter = string;
 
 // @public (undocumented)
 export interface DeploymentScopeDataResult {
@@ -360,6 +369,16 @@ export const enum KnownComponentType {
     Environment = "Environment",
     // (undocumented)
     GitRepository = "GitRepository"
+}
+
+// @public
+export const enum KnownDeploymentScopeAdapter {
+    // (undocumented)
+    AzureDevOps = "AzureDevOps",
+    // (undocumented)
+    AzureResourceManager = "AzureResourceManager",
+    // (undocumented)
+    GitHub = "GitHub"
 }
 
 // @public
@@ -494,7 +513,8 @@ export interface Organization {
     resourceId?: string | null;
     // (undocumented)
     resourceState?: OrganizationResourceState;
-    readonly slug: string;
+    // (undocumented)
+    slug: string;
     // (undocumented)
     storageId?: string | null;
     // (undocumented)
@@ -555,7 +575,8 @@ export interface Project {
     resourceId?: string | null;
     // (undocumented)
     resourceState?: ProjectResourceState;
-    readonly slug: string;
+    // (undocumented)
+    slug: string;
     // (undocumented)
     storageId?: string | null;
     tags?: {
@@ -699,7 +720,8 @@ export interface ProjectTemplate {
     organization: string;
     // (undocumented)
     repository: RepositoryReference;
-    readonly slug: string;
+    // (undocumented)
+    slug: string;
 }
 
 // @public (undocumented)
@@ -821,6 +843,7 @@ export interface StringDictionaryDataResult {
 // @public (undocumented)
 export class TeamCloud extends TeamCloudContext {
     constructor(credentials: coreHttp.TokenCredential | coreHttp.ServiceClientCredentials, $host: string, options?: TeamCloudOptionalParams);
+    authorizeDeploymentScope(id: string | null, organizationId: string, options?: TeamCloudAuthorizeDeploymentScopeOptionalParams): Promise<TeamCloudAuthorizeDeploymentScopeResponse>;
     createComponent(organizationId: string, projectId: string, options?: TeamCloudCreateComponentOptionalParams): Promise<TeamCloudCreateComponentResponse>;
     createComponentTask(organizationId: string, projectId: string, componentId: string, options?: TeamCloudCreateComponentTaskOptionalParams): Promise<TeamCloudCreateComponentTaskResponse>;
     createDeploymentScope(organizationId: string, options?: TeamCloudCreateDeploymentScopeOptionalParams): Promise<TeamCloudCreateDeploymentScopeResponse>;
@@ -878,6 +901,20 @@ export class TeamCloud extends TeamCloudContext {
     updateProjectUser(userId: string | null, organizationId: string, projectId: string, options?: TeamCloudUpdateProjectUserOptionalParams): Promise<TeamCloudUpdateProjectUserResponse>;
     updateProjectUserMe(organizationId: string, projectId: string, options?: TeamCloudUpdateProjectUserMeOptionalParams): Promise<TeamCloudUpdateProjectUserMeResponse>;
 }
+
+// @public
+export interface TeamCloudAuthorizeDeploymentScopeOptionalParams extends coreHttp.OperationOptions {
+    // (undocumented)
+    body?: DeploymentScope;
+}
+
+// @public
+export type TeamCloudAuthorizeDeploymentScopeResponse = DeploymentScopeDataResult & {
+    _response: coreHttp.HttpResponse & {
+        bodyAsText: string;
+        parsedBody: DeploymentScopeDataResult;
+    };
+};
 
 // @public (undocumented)
 export class TeamCloudContext extends coreHttp.ServiceClient {
@@ -1450,7 +1487,13 @@ export type TeamCloudUpdateProjectUserResponse = UserDataResult & {
 // @public (undocumented)
 export interface User {
     // (undocumented)
+    displayName?: string | null;
+    // (undocumented)
     id: string;
+    // (undocumented)
+    loginName?: string | null;
+    // (undocumented)
+    mailAddress?: string | null;
     // (undocumented)
     organization: string;
     // (undocumented)

@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using DotLiquid;
@@ -13,58 +14,68 @@ using DotLiquid.NamingConventions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace TeamCloud.Notification
+namespace TeamCloud.Templates
 {
-    public static class NotificationExtensions
+    public static class TemplateExtensions
     {
-        static NotificationExtensions()
+        static TemplateExtensions()
         {
             Template.NamingConvention = new CamelCaseNamingConvention();
+            Template.RegisterFilter(typeof(TemplateFilters));
         }
 
-        public static void Merge<TData>(this INotificationMessageMerge<TData> instance, TData data)
-            where TData : class, new()
+        private static readonly HashSet<Type> RegisteredSafeTypes = new HashSet<Type>();
+
+        public static string Merge(this string instance, object data)
         {
             if (instance is null)
                 throw new ArgumentNullException(nameof(instance));
 
-            if (data is null)
-                throw new ArgumentNullException(nameof(data));
+            var templateHash = new Hash();
 
-            Hash hash = null;
-
-            if (!string.IsNullOrEmpty(instance.Subject))
+            if (data?.GetType() == typeof(string) || (data?.GetType().IsValueType ?? false))
             {
-                hash ??= GenerateHash();
-
-                instance.Subject = Template
-                    .Parse(instance.Subject)
-                    .Render(hash);
+                templateHash = Hash.FromAnonymousObject(new { value = data });
             }
-
-            if (!string.IsNullOrEmpty(instance.Body))
-            {
-                hash ??= GenerateHash();
-
-                instance.Body = Template
-                     .Parse(instance.Body)
-                     .Render(hash);
-            }
-
-            Hash GenerateHash()
+            else if (data?.GetType().IsClass ?? false)
             {
                 RegisterSafeType(data.GetType());
 
-                var hash = new Hash();
-
-                foreach (var member in GetMembers(data.GetType()).Where(m => (((MemberTypes.Property | MemberTypes.Field) & m.MemberType) == m.MemberType)))
-                    hash[GetMemberName(member)] = (member as PropertyInfo)?.GetValue(data) ?? (member as FieldInfo)?.GetValue(data);
-
-                return hash;
+                foreach (var member in GetMembers(data.GetType()))
+                    templateHash[GetMemberName(member)] = (member as PropertyInfo)?.GetValue(data) ?? (member as FieldInfo)?.GetValue(data);
             }
+
+            return Template
+                .Parse(instance)
+                .Render(templateHash);
         }
 
-        private static readonly HashSet<Type> RegisteredSafeTypes = new HashSet<Type>();
+        public static string GetManifestResourceTemplate(this Assembly instance, string resourceName, object data = null)
+        {
+            if (instance is null)
+                throw new ArgumentNullException(nameof(instance));
+
+            var templateName = instance
+                .GetManifestResourceNames()
+                .FirstOrDefault(n => n.Equals(resourceName, StringComparison.Ordinal));
+
+            if (string.IsNullOrEmpty(templateName))
+            {
+                templateName = instance
+                    .GetManifestResourceNames()
+                    .FirstOrDefault(n => n.Equals(resourceName, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (!string.IsNullOrEmpty(templateName))
+            {
+                using var templateStream = instance.GetManifestResourceStream(templateName);
+                using var templateReader = new StreamReader(templateStream);
+
+                return templateReader.ReadToEnd().Merge(data);
+            }
+
+            return null;
+        }
 
         private static void RegisterSafeType(Type type)
         {
@@ -74,10 +85,7 @@ namespace TeamCloud.Notification
             }
             else if (IsSupportedType(type))
             {
-                var enumerableTypes = type.GetInterfaces()
-                    .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-                    .SelectMany(i => i.GetGenericArguments())
-                    .Distinct();
+                var enumerableTypes = GetEnumerableTypes(type);
 
                 if (enumerableTypes.Any())
                 {
@@ -98,6 +106,12 @@ namespace TeamCloud.Notification
 
             static bool IsSupportedType(Type type)
                 => !type.IsValueType && type != typeof(object) && type != typeof(string);
+
+            static IEnumerable<Type> GetEnumerableTypes(Type type)
+                => type.GetInterfaces().ToArray().Prepend(type)
+                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                .SelectMany(i => i.GetGenericArguments())
+                .Distinct();
         }
 
 

@@ -3,13 +3,13 @@
  *  Licensed under the MIT License.
  */
 
-using Microsoft.Azure.Cosmos.Table;
-using Microsoft.Azure.Storage.Blob;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Microsoft.Azure.Cosmos.Table;
+using Microsoft.Azure.Storage.Blob;
 using TeamCloud.Audit.Model;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Serialization;
@@ -36,7 +36,7 @@ namespace TeamCloud.Audit
 
             if (char.IsNumber(validStorageNameCharacters.First()))
             {
-                // Azure Table storage requires that the task hub does not start
+                // Azure Table storage requires that the table does not start
                 // with a number. If it does, prepend "a" to the beginning.
 
                 validStorageNameCharacters = validStorageNameCharacters.ToList();

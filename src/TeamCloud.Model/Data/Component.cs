@@ -102,12 +102,18 @@ namespace TeamCloud.Model.Data
         /// </summary>
         public int? TTL { get; set; }
 
+        private string slug;
+
         /// <summary>
         /// Gets the slug of the current component base on its display name.
         /// </summary>
         [UniqueKey]
         [JsonProperty(Required = Required.Always)]
-        public string Slug => (this as ISlug).GetSlug();
+        public string Slug
+        {
+            get => slug ?? ISlug.CreateSlug(this);
+            set => slug = value;
+        }
 
         /// <summary>
         /// Indicates whether the current object is equal to another object of the same type.

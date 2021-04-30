@@ -1044,6 +1044,96 @@
         }
       }
     },
+    "/orgs/{organizationId}/scopes/{id}/authorize": {
+      "put": {
+        "tags": [
+          "DeploymentScopes"
+        ],
+        "summary": "Authorize an existing Deployment Scope.",
+        "operationId": "AuthorizeDeploymentScope",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json-patch+json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeploymentScope"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeploymentScope"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeploymentScope"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeploymentScope"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The DeploymentScope was updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeploymentScopeDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A DeploymentScope with the id provided was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
     "/orgs/{organizationId}/projects/{projectId}/negotiate": {
       "post": {
         "tags": [
@@ -3967,8 +4057,7 @@
             "nullable": true
           },
           "slug": {
-            "type": "string",
-            "readOnly": true
+            "type": "string"
           },
           "id": {
             "type": "string"
@@ -4564,15 +4653,22 @@
           "organization": {
             "type": "string"
           },
-          "slug": {
-            "type": "string",
-            "readOnly": true
-          },
           "displayName": {
+            "type": "string"
+          },
+          "slug": {
             "type": "string"
           },
           "isDefault": {
             "type": "boolean"
+          },
+          "adapter": {
+            "enum": [
+              "AzureResourceManager",
+              "AzureDevOps",
+              "GitHub"
+            ],
+            "type": "string"
           },
           "managementGroupId": {
             "type": "string",
@@ -4584,6 +4680,10 @@
               "type": "string",
               "format": "uuid"
             },
+            "nullable": true
+          },
+          "authorizeUrl": {
+            "type": "string",
             "nullable": true
           },
           "id": {
@@ -4624,13 +4724,13 @@
         ],
         "type": "object",
         "properties": {
+          "displayName": {
+            "type": "string"
+          },
           "slug": {
             "type": "string",
             "nullable": true,
             "readOnly": true
-          },
-          "displayName": {
-            "type": "string"
           },
           "isDefault": {
             "type": "boolean"
@@ -4686,8 +4786,7 @@
             "type": "string"
           },
           "slug": {
-            "type": "string",
-            "readOnly": true
+            "type": "string"
           },
           "displayName": {
             "type": "string"
@@ -4850,6 +4949,18 @@
           "organization": {
             "type": "string"
           },
+          "displayName": {
+            "type": "string",
+            "nullable": true
+          },
+          "loginName": {
+            "type": "string",
+            "nullable": true
+          },
+          "mailAddress": {
+            "type": "string",
+            "nullable": true
+          },
           "userType": {
             "enum": [
               "User",
@@ -4972,8 +5083,7 @@
             "type": "string"
           },
           "slug": {
-            "type": "string",
-            "readOnly": true
+            "type": "string"
           },
           "displayName": {
             "type": "string"
@@ -5261,8 +5371,7 @@
             "type": "string"
           },
           "slug": {
-            "type": "string",
-            "readOnly": true
+            "type": "string"
           },
           "name": {
             "type": "string",

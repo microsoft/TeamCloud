@@ -27,6 +27,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.ObjectPool;
 using Microsoft.IO;
 using Microsoft.OpenApi.Models;
+using TeamCloud.Adapters;
+using TeamCloud.Adapters.AzureDevOps;
+using TeamCloud.Adapters.GitHub;
 using TeamCloud.API.Auth;
 using TeamCloud.API.Middleware;
 using TeamCloud.API.Routing;
@@ -151,6 +154,11 @@ namespace TeamCloud.API
             }
 
             services
+                .AddTeamCloudAdapterFramework()
+                .AddTeamCloudAdapter<AzureDevOpsAdapter>()
+                .AddTeamCloudAdapter<GitHubAdapter>();
+
+            services
                 .AddSingleton<IDocumentExpanderProvider>(serviceProvider => new DocumentExpanderProvider(serviceProvider))
                 .AddSingleton<IDocumentExpander, ProjectIdentityExpander>()
                 .AddSingleton<IDocumentExpander, ComponentTaskExpander>()
@@ -193,6 +201,7 @@ namespace TeamCloud.API
                     options.ConstraintMap.Add("organizationId", typeof(OrganizationIdentifierRouteConstraint));
                     options.ConstraintMap.Add("projectId", typeof(ProjectIdentifierRouteConstraint));
                     options.ConstraintMap.Add("componentId", typeof(ComponentIdentifierRouteConstraint));
+                    options.ConstraintMap.Add("deploymentScopeId", typeof(DeploymentScopeIdentifierConstraint));
                 })
                 .AddControllers()
                 .AddNewtonsoftJson()

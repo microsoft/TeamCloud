@@ -166,7 +166,6 @@ export var Component = {
             slug: {
                 serializedName: "slug",
                 required: true,
-                readOnly: true,
                 type: {
                     name: "String"
                 }
@@ -1054,16 +1053,15 @@ export var DeploymentScope = {
                     name: "String"
                 }
             },
-            slug: {
-                serializedName: "slug",
+            displayName: {
+                serializedName: "displayName",
                 required: true,
-                readOnly: true,
                 type: {
                     name: "String"
                 }
             },
-            displayName: {
-                serializedName: "displayName",
+            slug: {
+                serializedName: "slug",
                 required: true,
                 type: {
                     name: "String"
@@ -1074,6 +1072,12 @@ export var DeploymentScope = {
                 required: true,
                 type: {
                     name: "Boolean"
+                }
+            },
+            adapter: {
+                serializedName: "adapter",
+                type: {
+                    name: "String"
                 }
             },
             managementGroupId: {
@@ -1095,6 +1099,13 @@ export var DeploymentScope = {
                     }
                 }
             },
+            authorizeUrl: {
+                serializedName: "authorizeUrl",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
             id: {
                 serializedName: "id",
                 required: true,
@@ -1110,17 +1121,17 @@ export var DeploymentScopeDefinition = {
         name: "Composite",
         className: "DeploymentScopeDefinition",
         modelProperties: {
-            slug: {
-                serializedName: "slug",
-                readOnly: true,
-                nullable: true,
+            displayName: {
+                serializedName: "displayName",
+                required: true,
                 type: {
                     name: "String"
                 }
             },
-            displayName: {
-                serializedName: "displayName",
-                required: true,
+            slug: {
+                serializedName: "slug",
+                readOnly: true,
+                nullable: true,
                 type: {
                     name: "String"
                 }
@@ -1245,7 +1256,6 @@ export var Organization = {
             slug: {
                 serializedName: "slug",
                 required: true,
-                readOnly: true,
                 type: {
                     name: "String"
                 }
@@ -1449,6 +1459,27 @@ export var User = {
                     name: "String"
                 }
             },
+            displayName: {
+                serializedName: "displayName",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
+            loginName: {
+                serializedName: "loginName",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
+            mailAddress: {
+                serializedName: "mailAddress",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
             userType: {
                 serializedName: "userType",
                 required: true,
@@ -1646,7 +1677,6 @@ export var Project = {
             slug: {
                 serializedName: "slug",
                 required: true,
-                readOnly: true,
                 type: {
                     name: "String"
                 }
@@ -2088,7 +2118,6 @@ export var ProjectTemplate = {
             slug: {
                 serializedName: "slug",
                 required: true,
-                readOnly: true,
                 type: {
                     name: "String"
                 }

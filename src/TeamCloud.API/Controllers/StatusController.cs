@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TeamCloud.API.Auth;
+using TeamCloud.API.Controllers.Core;
 using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
 using TeamCloud.Model.Commands.Core;
@@ -20,7 +21,7 @@ namespace TeamCloud.API.Controllers
     [ApiController]
     [Consumes("application/json")]
     [Produces("application/json")]
-    public class StatusController : ApiController
+    public class StatusController : TeamCloudController
     {
         public StatusController() : base()
         { }

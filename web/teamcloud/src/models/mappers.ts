@@ -170,7 +170,6 @@ export const Component: coreHttp.CompositeMapper = {
       slug: {
         serializedName: "slug",
         required: true,
-        readOnly: true,
         type: {
           name: "String"
         }
@@ -1077,16 +1076,15 @@ export const DeploymentScope: coreHttp.CompositeMapper = {
           name: "String"
         }
       },
-      slug: {
-        serializedName: "slug",
+      displayName: {
+        serializedName: "displayName",
         required: true,
-        readOnly: true,
         type: {
           name: "String"
         }
       },
-      displayName: {
-        serializedName: "displayName",
+      slug: {
+        serializedName: "slug",
         required: true,
         type: {
           name: "String"
@@ -1097,6 +1095,12 @@ export const DeploymentScope: coreHttp.CompositeMapper = {
         required: true,
         type: {
           name: "Boolean"
+        }
+      },
+      adapter: {
+        serializedName: "adapter",
+        type: {
+          name: "String"
         }
       },
       managementGroupId: {
@@ -1118,6 +1122,13 @@ export const DeploymentScope: coreHttp.CompositeMapper = {
           }
         }
       },
+      authorizeUrl: {
+        serializedName: "authorizeUrl",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
       id: {
         serializedName: "id",
         required: true,
@@ -1134,17 +1145,17 @@ export const DeploymentScopeDefinition: coreHttp.CompositeMapper = {
     name: "Composite",
     className: "DeploymentScopeDefinition",
     modelProperties: {
-      slug: {
-        serializedName: "slug",
-        readOnly: true,
-        nullable: true,
+      displayName: {
+        serializedName: "displayName",
+        required: true,
         type: {
           name: "String"
         }
       },
-      displayName: {
-        serializedName: "displayName",
-        required: true,
+      slug: {
+        serializedName: "slug",
+        readOnly: true,
+        nullable: true,
         type: {
           name: "String"
         }
@@ -1272,7 +1283,6 @@ export const Organization: coreHttp.CompositeMapper = {
       slug: {
         serializedName: "slug",
         required: true,
-        readOnly: true,
         type: {
           name: "String"
         }
@@ -1480,6 +1490,27 @@ export const User: coreHttp.CompositeMapper = {
           name: "String"
         }
       },
+      displayName: {
+        serializedName: "displayName",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      loginName: {
+        serializedName: "loginName",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      mailAddress: {
+        serializedName: "mailAddress",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
       userType: {
         serializedName: "userType",
         required: true,
@@ -1682,7 +1713,6 @@ export const Project: coreHttp.CompositeMapper = {
       slug: {
         serializedName: "slug",
         required: true,
-        readOnly: true,
         type: {
           name: "String"
         }
@@ -2133,7 +2163,6 @@ export const ProjectTemplate: coreHttp.CompositeMapper = {
       slug: {
         serializedName: "slug",
         required: true,
-        readOnly: true,
         type: {
           name: "String"
         }

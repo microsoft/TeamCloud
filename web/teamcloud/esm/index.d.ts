@@ -17,8 +17,7 @@ export declare interface Component {
     identityId?: string | null;
     deleted?: Date | null;
     ttl?: number | null;
-    /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly slug: string;
+    slug: string;
     id: string;
 }
 
@@ -189,14 +188,26 @@ export declare type ComponentType = string;
 
 export declare interface DeploymentScope {
     organization: string;
-    /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly slug: string;
     displayName: string;
+    slug: string;
     isDefault: boolean;
+    adapter?: DeploymentScopeAdapter;
     managementGroupId?: string | null;
     subscriptionIds?: string[] | null;
+    authorizeUrl?: string | null;
     id: string;
 }
+
+/**
+ * Defines values for DeploymentScopeAdapter. \
+ * {@link KnownDeploymentScopeAdapter} can be used interchangeably with DeploymentScopeAdapter,
+ *  this enum contains the known values that the service supports.
+ * ### Know values supported by the service
+ * **AzureResourceManager** \
+ * **AzureDevOps** \
+ * **GitHub**
+ */
+export declare type DeploymentScopeAdapter = string;
 
 export declare interface DeploymentScopeDataResult {
     code?: number;
@@ -206,9 +217,9 @@ export declare interface DeploymentScopeDataResult {
 }
 
 export declare interface DeploymentScopeDefinition {
+    displayName: string;
     /** NOTE: This property will not be serialized. It can only be populated by the server. */
     readonly slug?: string | null;
-    displayName: string;
     isDefault?: boolean;
     managementGroupId?: string | null;
     subscriptionIds?: string[] | null;
@@ -271,6 +282,13 @@ export declare const enum KnownComponentType {
     AzureResource = "AzureResource",
     Environment = "Environment",
     GitRepository = "GitRepository"
+}
+
+/** Known values of {@link DeploymentScopeAdapter} that the service accepts. */
+export declare const enum KnownDeploymentScopeAdapter {
+    AzureResourceManager = "AzureResourceManager",
+    AzureDevOps = "AzureDevOps",
+    GitHub = "GitHub"
 }
 
 /** Known values of {@link Enum3} that the service accepts. */
@@ -351,8 +369,7 @@ export declare const enum KnownUserType {
 
 export declare interface Organization {
     tenant: string;
-    /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly slug: string;
+    slug: string;
     displayName: string;
     subscriptionId: string;
     location: string;
@@ -406,8 +423,7 @@ export declare type OrganizationResourceState = string;
 
 export declare interface Project {
     organization: string;
-    /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly slug: string;
+    slug: string;
     displayName: string;
     template: string;
     templateInput?: string | null;
@@ -516,8 +532,7 @@ export declare type ProjectResourceState = string;
 
 export declare interface ProjectTemplate {
     organization: string;
-    /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly slug: string;
+    slug: string;
     name?: string | null;
     displayName: string;
     components?: string[] | null;
@@ -748,6 +763,13 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param options The options parameters.
      */
     deleteDeploymentScope(id: string | null, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteDeploymentScopeResponse>;
+    /**
+     * Authorize an existing Deployment Scope.
+     * @param id
+     * @param organizationId
+     * @param options The options parameters.
+     */
+    authorizeDeploymentScope(id: string | null, organizationId: string, options?: TeamCloudAuthorizeDeploymentScopeOptionalParams): Promise<TeamCloudAuthorizeDeploymentScopeResponse>;
     /**
      * Negotiates the SignalR connection.
      * @param organizationId
@@ -1037,6 +1059,22 @@ export declare class TeamCloud extends TeamCloudContext {
      */
     getUserProjectsMe(organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetUserProjectsMeResponse>;
 }
+
+/** Optional parameters. */
+export declare interface TeamCloudAuthorizeDeploymentScopeOptionalParams extends coreHttp.OperationOptions {
+    body?: DeploymentScope;
+}
+
+/** Contains response data for the authorizeDeploymentScope operation. */
+export declare type TeamCloudAuthorizeDeploymentScopeResponse = DeploymentScopeDataResult & {
+    /** The underlying HTTP response. */
+    _response: coreHttp.HttpResponse & {
+        /** The response body as text (string format) */
+        bodyAsText: string;
+        /** The response body as parsed JSON or XML */
+        parsedBody: DeploymentScopeDataResult;
+    };
+};
 
 export declare class TeamCloudContext extends coreHttp.ServiceClient {
     $host: string;
@@ -1763,6 +1801,9 @@ export declare type TeamCloudUpdateProjectUserResponse = UserDataResult & {
 
 export declare interface User {
     organization: string;
+    displayName?: string | null;
+    loginName?: string | null;
+    mailAddress?: string | null;
     userType: UserType;
     role: UserRole;
     projectMemberships?: ProjectMembership[] | null;

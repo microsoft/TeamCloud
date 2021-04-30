@@ -47,7 +47,10 @@
     <PackageReference Include="Microsoft.Azure.SignalR.Management" Version="1.8.0" />
   </ItemGroup>
 
+  
   <ItemGroup>
+    <ProjectReference Include="..\TeamCloud.Adapters.AzureDevOps\TeamCloud.Adapters.AzureDevOps.csproj" />
+    <ProjectReference Include="..\TeamCloud.Adapters.GitHub\TeamCloud.Adapters.GitHub.csproj" />
     <ProjectReference Include="..\TeamCloud.Audit\TeamCloud.Audit.csproj" />
     <ProjectReference Include="..\TeamCloud.Azure.Deployment\TeamCloud.Azure.Deployment.csproj" />
     <ProjectReference Include="..\TeamCloud.Azure.Directory\TeamCloud.Azure.Directory.csproj" />

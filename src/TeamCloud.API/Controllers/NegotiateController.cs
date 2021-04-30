@@ -11,15 +11,15 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.SignalR.Management;
 using Swashbuckle.AspNetCore.Annotations;
 using TeamCloud.API.Auth;
+using TeamCloud.API.Controllers.Core;
 using TeamCloud.API.Options;
 using TeamCloud.Model;
-using TeamCloud.Model.Data;
 
 namespace TeamCloud.API.Controllers
 {
     [ApiController]
     [Route("orgs/{organizationId:organizationId}/projects/{projectId:projectId}/negotiate")]
-    public class NegotiateController : ApiController
+    public class NegotiateController : TeamCloudController
     {
         private readonly IServiceManager _serviceManager;
 
@@ -36,11 +36,11 @@ namespace TeamCloud.API.Controllers
         [HttpPost]
         [Authorize(Policy = AuthPolicies.ProjectMember)]
         [SwaggerOperation(OperationId = "NegotiateSignalR", Summary = "Negotiates the SignalR connection.")]
-        public Task<IActionResult> Index() => ExecuteAsync((User user, Organization organization, Project project) =>
+        public Task<IActionResult> Index() => ExecuteAsync<TeamCloudProjectContext>(context =>
         {
-            var hub = project.GetHubName();
+            var hub = context.Project.GetHubName();
             var url = _serviceManager.GetClientEndpoint(hub);
-            var token = _serviceManager.GenerateClientAccessToken(hub, user.Id);
+            var token = _serviceManager.GenerateClientAccessToken(hub, context.ContextUser.Id);
 
             return Task.FromResult<IActionResult>(new JsonResult(new Dictionary<string, string>()
             {

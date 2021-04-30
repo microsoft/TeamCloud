@@ -19,9 +19,15 @@ namespace TeamCloud.Model.Data
         [JsonProperty(Required = Required.Always)]
         public string Tenant { get; set; }
 
+        private string slug;
+
         [UniqueKey]
         [JsonProperty(Required = Required.Always)]
-        public string Slug => (this as ISlug).GetSlug();
+        public string Slug
+        {
+            get => slug ?? ISlug.CreateSlug(this);
+            set => slug = value;
+        }
 
         [JsonProperty(Required = Required.Always)]
         public string DisplayName { get; set; }

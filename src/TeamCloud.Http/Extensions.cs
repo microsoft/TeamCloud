@@ -71,6 +71,9 @@ namespace TeamCloud.Http
             }
         }
 
+        public static string GetValueOrDefault(this QueryParamCollection queryParameters, string name, StringComparison comparisonType = StringComparison.Ordinal)
+            => queryParameters.FirstOrDefault(qp => qp.Name.Equals(name, comparisonType))?.Value as string;
+
         [SuppressMessage("Design", "CA1068:CancellationToken parameters must come last", Justification = "Following the method syntax of Flurl")]
         public static Task<JObject> GetJObjectAsync(this IFlurlRequest request, CancellationToken cancellationToken = default, HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead)
             => request.GetJsonAsync<JObject>(cancellationToken, completionOption);

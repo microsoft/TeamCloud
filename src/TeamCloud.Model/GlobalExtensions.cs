@@ -17,6 +17,16 @@ namespace TeamCloud.Model
 {
     public static class GlobalExtensions
     {
+        public static T MapTo<T>(this Enum instance, T defaultValue, bool ignoreCase = false)
+            where T : struct
+        {
+            if (instance is null)
+                throw new ArgumentNullException(nameof(instance));
+
+            return Enum.TryParse<T>(Enum.GetName(instance.GetType(), instance), ignoreCase, out T value)
+                ? value : defaultValue;
+        }
+
         public static BroadcastMessage ToBroadcastMessage(this ICommandResult commandResult)
         {
             if (commandResult is null)

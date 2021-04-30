@@ -1,0 +1,10 @@
+﻿ValueType:		{{ value }}
+
+ClassType: 
+- Id:			{{ id }}
+- Timestamp:	{{ timestamp }}
+- User:			{{ user.name }} ({{ user.id }})
+- Items:
+{% for item in items %}
+				{{ item.id }} -> ${{ item.price | format: "c" }}
+{% endfor %}

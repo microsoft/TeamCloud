@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TeamCloud.API.Auth;
+using TeamCloud.API.Controllers.Core;
 using TeamCloud.API.Data;
 using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
@@ -27,7 +28,7 @@ namespace TeamCloud.API.Controllers
     [ApiController]
     [Route("orgs/{organizationId:organizationId}/templates")]
     [Produces("application/json")]
-    public class ProjectTemplatesController : ApiController
+    public class ProjectTemplatesController : TeamCloudController
     {
         private readonly IProjectTemplateRepository projectTemplateRepository;
         private readonly IRepositoryService repositoryService;
@@ -44,10 +45,10 @@ namespace TeamCloud.API.Controllers
         [SwaggerOperation(OperationId = "GetProjectTemplates", Summary = "Gets all Project Templates.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all Project Templates.", typeof(DataResult<List<ProjectTemplate>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
-        public Task<IActionResult> Get() => ExecuteAsync(async (user, organization) =>
+        public Task<IActionResult> Get() => ExecuteAsync<TeamCloudOrganizationContext>(async context =>
         {
             var projectTemplates = await projectTemplateRepository
-                .ListAsync(organization.Id)
+                .ListAsync(context.Organization.Id)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
@@ -68,16 +69,16 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A ProjectTemplate with the projectTemplateId provided was not found.", typeof(ErrorResult))]
         [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
-        public Task<IActionResult> Get(string projectTemplateId) => ExecuteAsync(new Func<User, Organization, ProjectTemplate, Task<IActionResult>>(async (user, organization, projectTemplate) =>
-       {
-           projectTemplate = await repositoryService
-               .UpdateProjectTemplateAsync(projectTemplate)
-               .ConfigureAwait(false);
+        public Task<IActionResult> Get(string projectTemplateId) => ExecuteAsync<TeamCloudProjectTemplateContext>(async context =>
+        {
+            var projectTemplate = await repositoryService
+                .UpdateProjectTemplateAsync(context.ProjectTemplate)
+                .ConfigureAwait(false);
 
-           return DataResult<ProjectTemplate>
-               .Ok(projectTemplate)
-               .ToActionResult();
-       }));
+            return DataResult<ProjectTemplate>
+                .Ok(projectTemplate)
+                .ToActionResult();
+        });
 
 
         [HttpPost]
@@ -87,7 +88,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status201Created, "The new Project Template was created.", typeof(DataResult<ProjectTemplate>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status409Conflict, "A Project Template already exists with the ID provided in the request body.", typeof(ErrorResult))]
-        public Task<IActionResult> Post([FromBody] ProjectTemplateDefinition projectTemplateDefinition) => ExecuteAsync(async (user, organization) =>
+        public Task<IActionResult> Post([FromBody] ProjectTemplateDefinition projectTemplateDefinition) => ExecuteAsync<TeamCloudOrganizationContext>(async context =>
         {
             if (projectTemplateDefinition is null)
                 return ErrorResult
@@ -95,13 +96,13 @@ namespace TeamCloud.API.Controllers
                     .ToActionResult();
 
             var currentUser = await UserService
-                .CurrentUserAsync(organization.Id)
+                .CurrentUserAsync(context.Organization.Id)
                 .ConfigureAwait(false);
 
             var projectTemplate = new ProjectTemplate
             {
                 Id = Guid.NewGuid().ToString(),
-                Organization = organization.Id,
+                Organization = context.Organization.Id,
                 DisplayName = projectTemplateDefinition.DisplayName,
                 Repository = new RepositoryReference
                 {
@@ -127,7 +128,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project Template with the ID provided in the request body could not be found.", typeof(ErrorResult))]
         [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
-        public Task<IActionResult> Put([FromRoute] string projectTemplateId, [FromBody] ProjectTemplate updatedProjectTemplate) => ExecuteAsync(new Func<User, Organization, ProjectTemplate, Task<IActionResult>>(async (user, organization, projectTemplate) =>
+        public Task<IActionResult> Put([FromRoute] string projectTemplateId, [FromBody] ProjectTemplate updatedProjectTemplate) => ExecuteAsync<TeamCloudProjectTemplateContext>(async context =>
         {
             if (updatedProjectTemplate is null)
                 return ErrorResult
@@ -139,17 +140,17 @@ namespace TeamCloud.API.Controllers
                     .BadRequest(validationResult)
                     .ToActionResult();
 
-            if (!projectTemplate.Id.Equals(updatedProjectTemplate.Id, StringComparison.Ordinal))
+            if (!context.ProjectTemplate.Id.Equals(updatedProjectTemplate.Id, StringComparison.Ordinal))
                 return ErrorResult
                     .BadRequest(new ValidationError { Field = "id", Message = $"ProjectTemplate's id does match the identifier provided in the path." })
                     .ToActionResult();
 
-            var command = new ProjectTemplateUpdateCommand(user, updatedProjectTemplate);
+            var command = new ProjectTemplateUpdateCommand(context.ContextUser, updatedProjectTemplate);
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync(command, Request)
                 .ConfigureAwait(false);
-        }));
+        });
 
 
         [HttpDelete("{projectTemplateId}")]
@@ -159,13 +160,13 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A ProjectTemplate with the projectTemplateId provided was not found.", typeof(ErrorResult))]
         [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
-        public Task<IActionResult> Delete([FromRoute] string projectTemplateId) => ExecuteAsync(new Func<User, Organization, ProjectTemplate, Task<IActionResult>>(async (user, organization, projectTemplate) =>
+        public Task<IActionResult> Delete([FromRoute] string projectTemplateId) => ExecuteAsync<TeamCloudProjectTemplateContext>(async context =>
         {
-            var command = new ProjectTemplateDeleteCommand(user, projectTemplate);
+            var command = new ProjectTemplateDeleteCommand(context.ContextUser, context.ProjectTemplate);
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync(command, Request)
                 .ConfigureAwait(false);
-        }));
+        });
     }
 }
