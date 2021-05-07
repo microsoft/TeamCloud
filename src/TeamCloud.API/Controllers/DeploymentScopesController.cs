@@ -84,7 +84,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status201Created, "The new Deployment Scope was created.", typeof(DataResult<DeploymentScope>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status409Conflict, "A Deployment Scope already exists with the ID provided in the request body.", typeof(ErrorResult))]
-        public Task<IActionResult> Post([FromBody] DeploymentScopeDefinition deploymentScopeDefinition) => ExecuteAsync(async (contextUser, organization) =>
+        public Task<IActionResult> Post([FromBody] DeploymentScopeDefinition deploymentScopeDefinition) => ExecuteAsync(async (user, organization) =>
         {
             if (deploymentScopeDefinition is null)
                 return ErrorResult
@@ -106,7 +106,7 @@ namespace TeamCloud.API.Controllers
                 IsDefault = deploymentScopeDefinition.IsDefault
             };
 
-            var command = new DeploymentScopeCreateCommand(contextUser, deploymentScope);
+            var command = new DeploymentScopeCreateCommand(user, deploymentScope);
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync(command, Request)
@@ -122,7 +122,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Deployment Scope with the ID provided in the request body could not be found.", typeof(ErrorResult))]
         [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
-        public Task<IActionResult> Put([FromRoute] string id, [FromBody] DeploymentScope deploymentScope) => ExecuteAsync(async (contextUser, organization) =>
+        public Task<IActionResult> Put([FromRoute] string id, [FromBody] DeploymentScope deploymentScope) => ExecuteAsync(async (user, organization) =>
         {
             if (deploymentScope is null)
                 return ErrorResult
@@ -143,7 +143,7 @@ namespace TeamCloud.API.Controllers
                     .BadRequest(new ValidationError { Field = "id", Message = $"DeploymentScopes's id does match the identifier provided in the path." })
                     .ToActionResult();
 
-            var command = new DeploymentScopeUpdateCommand(contextUser, deploymentScope);
+            var command = new DeploymentScopeUpdateCommand(user, deploymentScope);
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync(command, Request)
@@ -158,13 +158,13 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A DeploymentScope with the id provided was not found.", typeof(ErrorResult))]
         [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
-        public Task<IActionResult> Delete([FromRoute] string id) => ExecuteAsync(async (contextUser, organization) =>
+        public Task<IActionResult> Delete([FromRoute] string id) => ExecuteAsync(async (user, organization) =>
         {
             var deploymentScope = await deploymentScopeRepository
                 .GetAsync(organization.Id, id)
                 .ConfigureAwait(false);
 
-            var command = new DeploymentScopeDeleteCommand(contextUser, deploymentScope);
+            var command = new DeploymentScopeDeleteCommand(user, deploymentScope);
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync(command, Request)
