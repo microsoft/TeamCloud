@@ -90,15 +90,16 @@ export const ScheduleList: React.FC<IScheduleListProps> = (props) => {
     // };
 
 
-    // const onRenderTypeColumn = (item?: { schedule: Schedule, tasks?: { component?: Component, template?: ComponentTemplate, taskTemplate?: ComponentTaskTemplate }[] }, index?: number, column?: IColumn) => {
-    //     if (!item) return undefined;
-    //     return (
-    //         <Stack horizontal >
-    //             <FontIcon iconName={_getTypeIcon(item.template)} className='component-type-icon' />
-    //             <Text styles={{ root: { paddingLeft: '4px' } }}>{item.template.type}</Text>
-    //         </Stack>
-    //     )
-    // };
+    const onRenderTasksColumn = (item?: { schedule: Schedule, tasks?: { component?: Component, template?: ComponentTemplate, taskTemplate?: ComponentTaskTemplate }[] }, index?: number, column?: IColumn) => {
+        if (!item?.tasks) return undefined;
+        return (<Text>{item.tasks.map(ct => `[${ct.component?.displayName}] ${ct.taskTemplate?.typeName}`).join(', ')}</Text>)
+        // return (
+        //     <Stack horizontal >
+        //         <FontIcon iconName={_getTypeIcon(item.template)} className='component-type-icon' />
+        //         <Text styles={{ root: { paddingLeft: '4px' } }}>{item.template.type}</Text>
+        //     </Stack>
+        // )
+    };
 
     // const onRenderTemplateColumn = (item?: { schedule: Schedule, tasks?: { component?: Component, template?: ComponentTemplate, taskTemplate?: ComponentTaskTemplate }[] }, index?: number, column?: IColumn) => {
     //     if (!item) return undefined;
@@ -124,12 +125,12 @@ export const ScheduleList: React.FC<IScheduleListProps> = (props) => {
     const columns: IColumn[] = [
         // { key: 'id', name: 'ID', minWidth: 220, isResizable: false, onRender: onRenderNameColumn, styles: { cellName: { paddingLeft: '5px' } } },
         { key: 'time', name: 'Time', minWidth: 120, maxWidth: 120, onRender: onRenderTimeColumn },
-        { key: 'days', name: 'Days', minWidth: 300, maxWidth: 300, isResizable: false, onRender: (i: { schedule: Schedule, tasks?: { component?: Component, template?: ComponentTemplate, taskTemplate?: ComponentTaskTemplate }[] }) => i.schedule.daysOfWeek?.join(', ') },
+        { key: 'days', name: 'Days', minWidth: 300, isResizable: false, onRender: (i: { schedule: Schedule, tasks?: { component?: Component, template?: ComponentTemplate, taskTemplate?: ComponentTaskTemplate }[] }) => i.schedule.daysOfWeek?.join(', ') },
         // { key: 'id', name: 'ID', minWidth: 220, isResizable: false, onRender: (i: { schedule: Schedule, tasks?: { component?: Component, template?: ComponentTemplate, taskTemplate?: ComponentTaskTemplate }[] }) => i.schedule.id, styles: { cellName: { paddingLeft: '5px' } } },
         // { key: 'type', name: 'Type', minWidth: 150, maxWidth: 150, isResizable: false, onRender: onRenderTypeColumn },
         // { key: 'link', name: 'Link', minWidth: 200, maxWidth: 200, onRender: onRenderLinkColumn },
         // { key: 'repository', name: 'Template', minWidth: 280, maxWidth: 280, onRender: onRenderTemplateColumn },
-        { key: 'components', name: 'Components', minWidth: 110, maxWidth: 110, isResizable: false, onRender: (i: { schedule: Schedule, tasks?: { component?: Component, template?: ComponentTemplate, taskTemplate?: ComponentTaskTemplate }[] }) => i.tasks?.map(t => t.component?.displayName).join(', ') },
+        { key: 'tasks', name: 'Component Tasks', minWidth: 300, maxWidth: 300, isResizable: false, onRender: onRenderTasksColumn },
         { key: 'creator', name: 'Creator', minWidth: 180, maxWidth: 180, onRender: onRenderCreatorColumn },
     ];
 
