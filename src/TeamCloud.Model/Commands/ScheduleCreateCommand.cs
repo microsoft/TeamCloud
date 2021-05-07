@@ -8,9 +8,9 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Model.Commands
 {
-    public sealed class ScheduledTaskCreateCommand : CreateCommand<ScheduledTask, ScheduledTaskCreateCommandResult>
+    public sealed class ScheduleCreateCommand : CreateCommand<Schedule, ScheduleCreateCommandResult>
     {
-        public ScheduledTaskCreateCommand(User user, ScheduledTask payload) : base(user, payload)
+        public ScheduleCreateCommand(User user, Schedule payload) : base(user, payload)
         { }
     }
 }

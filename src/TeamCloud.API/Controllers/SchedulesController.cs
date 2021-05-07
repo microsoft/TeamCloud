@@ -25,16 +25,16 @@ namespace TeamCloud.API.Controllers
     [ApiController]
     [Route("orgs/{organizationId:organizationId}/projects/{projectId:projectId}/schedules")]
     [Produces("application/json")]
-    public class ScheduledTasksController : ApiController
+    public class ScheduleController : ApiController
     {
-        private readonly IScheduledTaskRepository scheduledTaskRepository;
+        private readonly IScheduleRepository scheduleRepository;
         private readonly IComponentRepository componentRepository;
 
         private readonly IComponentTemplateRepository componentTemplateRepository;
 
-        public ScheduledTasksController(IScheduledTaskRepository scheduledTaskRepository, IComponentRepository componentRepository, IComponentTemplateRepository componentTemplateRepository) : base()
+        public ScheduleController(IScheduleRepository scheduleRepository, IComponentRepository componentRepository, IComponentTemplateRepository componentTemplateRepository) : base()
         {
-            this.scheduledTaskRepository = scheduledTaskRepository ?? throw new ArgumentNullException(nameof(scheduledTaskRepository));
+            this.scheduleRepository = scheduleRepository ?? throw new ArgumentNullException(nameof(scheduleRepository));
             this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
             this.componentTemplateRepository = componentTemplateRepository ?? throw new ArgumentNullException(nameof(componentTemplateRepository));
         }
@@ -42,46 +42,46 @@ namespace TeamCloud.API.Controllers
 
         [HttpGet]
         [Authorize(Policy = AuthPolicies.ProjectMember)]
-        [SwaggerOperation(OperationId = "GetScheduledTasks", Summary = "Gets all Scheduled Tasks.")]
-        [SwaggerResponse(StatusCodes.Status200OK, "Returns all Scheduled Tasks", typeof(DataResult<List<ScheduledTask>>))]
+        [SwaggerOperation(OperationId = "GetSchedules", Summary = "Gets all Schedule.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Returns all Schedule", typeof(DataResult<List<Schedule>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         public Task<IActionResult> Get() => ExecuteAsync(new Func<User, Organization, Project, Task<IActionResult>>(async (user, organization, project) =>
         {
-            var componenetTasks = await scheduledTaskRepository
+            var componenetTasks = await scheduleRepository
                 .ListAsync(project.Id)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
-            return DataResult<List<ScheduledTask>>
+            return DataResult<List<Schedule>>
                 .Ok(componenetTasks)
                 .ToActionResult();
         }));
 
 
-        [HttpGet("{scheduledTaskId}")]
+        [HttpGet("{scheduleId}")]
         [Authorize(Policy = AuthPolicies.ProjectMember)]
-        [SwaggerOperation(OperationId = "GetScheduledTask", Summary = "Gets the Scheduled Task.")]
-        [SwaggerResponse(StatusCodes.Status200OK, "Returns a Scheduled Task", typeof(DataResult<ScheduledTask>))]
+        [SwaggerOperation(OperationId = "GetSchedule", Summary = "Gets the Schedule.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Returns a Schedule", typeof(DataResult<Schedule>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
-        [SwaggerResponse(StatusCodes.Status404NotFound, "A Scheduled Task with the provided id was not found.", typeof(ErrorResult))]
-        public Task<IActionResult> Get([FromRoute] string scheduledTaskId) => ExecuteAsync(new Func<User, Organization, Project, Task<IActionResult>>(async (user, organization, project) =>
+        [SwaggerResponse(StatusCodes.Status404NotFound, "A Schedule with the provided id was not found.", typeof(ErrorResult))]
+        public Task<IActionResult> Get([FromRoute] string scheduleId) => ExecuteAsync(new Func<User, Organization, Project, Task<IActionResult>>(async (user, organization, project) =>
         {
-            if (string.IsNullOrWhiteSpace(scheduledTaskId))
+            if (string.IsNullOrWhiteSpace(scheduleId))
                 return ErrorResult
                     .BadRequest($"The id provided in the url path is invalid. Must be a non-empty string.", ResultErrorCode.ValidationError)
                     .ToActionResult();
 
-            var scheduledTask = await scheduledTaskRepository
-                .GetAsync(project.Id, scheduledTaskId, true)
+            var schedule = await scheduleRepository
+                .GetAsync(project.Id, scheduleId, true)
                 .ConfigureAwait(false);
 
-            if (scheduledTask is null)
+            if (schedule is null)
                 return ErrorResult
-                    .NotFound($"A Scheduled Task with the id '{scheduledTaskId}' could not be found for Project {project.Id}.")
+                    .NotFound($"A Schedule with the id '{scheduleId}' could not be found for Project {project.Id}.")
                     .ToActionResult();
 
-            return DataResult<ScheduledTask>
-                .Ok(scheduledTask)
+            return DataResult<Schedule>
+                .Ok(schedule)
                 .ToActionResult();
         }));
 
@@ -89,24 +89,24 @@ namespace TeamCloud.API.Controllers
         [HttpPost]
         [Authorize(Policy = AuthPolicies.ProjectMember)]
         [Consumes("application/json")]
-        [SwaggerOperation(OperationId = "CreateScheduledTask", Summary = "Creates a new Project Scheduled Task.")]
-        [SwaggerResponse(StatusCodes.Status201Created, "The created Project Scheduled Task.", typeof(DataResult<ScheduledTask>))]
+        [SwaggerOperation(OperationId = "CreateSchedule", Summary = "Creates a new Project Schedule.")]
+        [SwaggerResponse(StatusCodes.Status201Created, "The created Project Schedule.", typeof(DataResult<Schedule>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found.", typeof(ErrorResult))]
-        [SwaggerResponse(StatusCodes.Status409Conflict, "A Project Scheduled Task already exists with the id provided in the request body.", typeof(ErrorResult))]
-        public Task<IActionResult> Post([FromBody] ScheduledTaskDefinition scheduledTaskDefinition) => ExecuteAsync(new Func<User, Organization, Project, Task<IActionResult>>(async (user, organization, project) =>
+        [SwaggerResponse(StatusCodes.Status409Conflict, "A Project Schedule already exists with the id provided in the request body.", typeof(ErrorResult))]
+        public Task<IActionResult> Post([FromBody] ScheduleDefinition scheduleDefinition) => ExecuteAsync(new Func<User, Organization, Project, Task<IActionResult>>(async (user, organization, project) =>
         {
-            if (scheduledTaskDefinition is null)
+            if (scheduleDefinition is null)
                 return ErrorResult
                     .BadRequest($"The request body must not be EMPTY.", ResultErrorCode.ValidationError)
                     .ToActionResult();
 
-            if (!scheduledTaskDefinition.TryValidate(out var validationResult, serviceProvider: HttpContext.RequestServices))
+            if (!scheduleDefinition.TryValidate(out var validationResult, serviceProvider: HttpContext.RequestServices))
                 return ErrorResult
                     .BadRequest(validationResult)
                     .ToActionResult();
 
-            var componentIds = scheduledTaskDefinition.ComponentTasks
+            var componentIds = scheduleDefinition.ComponentTasks
                 .Select(ct => ct.ComponentId)
                 .Distinct();
 
@@ -155,7 +155,7 @@ namespace TeamCloud.API.Controllers
                     .ToActionResult();
 
 
-            var notFoundComponentTaskTemplateIds = scheduledTaskDefinition.ComponentTasks
+            var notFoundComponentTaskTemplateIds = scheduleDefinition.ComponentTasks
                 .Where(ctr => !componentTemplates.First(ct => ct.Id == components.First(c => c.Id == ctr.ComponentId).TemplateId).Tasks.Any(t => t.Id == ctr.ComponentTaskTemplateId));
 
             if (notFoundComponentTaskTemplateIds.Any())
@@ -164,20 +164,20 @@ namespace TeamCloud.API.Controllers
                     .ToActionResult();
 
 
-            var scheduledTask = new ScheduledTask
+            var schedule = new Schedule
             {
                 Organization = organization.Id,
                 ProjectId = project.Id,
-                Enabled = scheduledTaskDefinition.Enabled,
-                Recurring = scheduledTaskDefinition.Recurring,
-                DaysOfWeek = scheduledTaskDefinition.DaysOfWeek,
-                UtcHour = scheduledTaskDefinition.UtcHour,
-                UtcMinute = scheduledTaskDefinition.UtcMinute,
+                Enabled = scheduleDefinition.Enabled,
+                Recurring = scheduleDefinition.Recurring,
+                DaysOfWeek = scheduleDefinition.DaysOfWeek,
+                UtcHour = scheduleDefinition.UtcHour,
+                UtcMinute = scheduleDefinition.UtcMinute,
                 Creator = user.Id,
-                ComponentTasks = scheduledTaskDefinition.ComponentTasks
+                ComponentTasks = scheduleDefinition.ComponentTasks
             };
 
-            var command = new ScheduledTaskCreateCommand(user, scheduledTask);
+            var command = new ScheduleCreateCommand(user, schedule);
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync(command, Request)
@@ -186,17 +186,17 @@ namespace TeamCloud.API.Controllers
 
 
 
-        [HttpPost("{scheduledTaskId}/run")]
-        [Authorize(Policy = AuthPolicies.ProjectScheduledTaskOwner)]
+        [HttpPost("{scheduleId}/run")]
+        [Authorize(Policy = AuthPolicies.ProjectScheduleOwner)]
         [Consumes("application/json")]
-        [SwaggerOperation(OperationId = "RunScheduledTask", Summary = "Runs a Project Scheduled Task.")]
-        [SwaggerResponse(StatusCodes.Status201Created, "The created Project Scheduled Task.", typeof(DataResult<ScheduledTask>))]
+        [SwaggerOperation(OperationId = "RunSchedule", Summary = "Runs a Project Schedule.")]
+        [SwaggerResponse(StatusCodes.Status201Created, "The created Project Schedule.", typeof(DataResult<Schedule>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found.", typeof(ErrorResult))]
         [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
-        public Task<IActionResult> Run([FromRoute] string scheduledTaskId) => ExecuteAsync(new Func<User, Organization, Project, ScheduledTask, Task<IActionResult>>(async (user, organization, project, scheduledTask) =>
+        public Task<IActionResult> Run([FromRoute] string scheduleId) => ExecuteAsync(new Func<User, Organization, Project, Schedule, Task<IActionResult>>(async (user, organization, project, schedule) =>
         {
-            var componentIds = scheduledTask.ComponentTasks
+            var componentIds = schedule.ComponentTasks
                 .Select(ct => ct.ComponentId)
                 .Distinct();
 
@@ -245,7 +245,7 @@ namespace TeamCloud.API.Controllers
                     .ToActionResult();
 
 
-            var notFoundComponentTaskTemplateIds = scheduledTask.ComponentTasks
+            var notFoundComponentTaskTemplateIds = schedule.ComponentTasks
                 .Where(ctr => !componentTemplates.First(ct => ct.Id == components.First(c => c.Id == ctr.ComponentId).TemplateId).Tasks.Any(t => t.Id == ctr.ComponentTaskTemplateId));
 
             if (notFoundComponentTaskTemplateIds.Any())
@@ -253,7 +253,7 @@ namespace TeamCloud.API.Controllers
                     .BadRequest($"The following tasks could not be found on the specified components: {string.Join(", ", notFoundComponentTaskTemplateIds.Select(ctr => ctr.ComponentTaskTemplateId))}.", ResultErrorCode.ValidationError)
                     .ToActionResult();
 
-            var command = new ScheduledTaskRunCommand(user, scheduledTask);
+            var command = new ScheduleRunCommand(user, schedule);
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync(command, Request)

@@ -12,7 +12,7 @@ using TeamCloud.Serialization;
 namespace TeamCloud.API.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public sealed class ScheduledTaskDefinition : IValidatable
+    public sealed class ScheduleDefinition : IValidatable
     {
         public bool Enabled { get; set; }
 

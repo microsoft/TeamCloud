@@ -90,10 +90,10 @@ namespace TeamCloud.API.Services
                     => !string.IsNullOrEmpty(projectId ?? result.Result.ProjectId)
                      ? $"orgs/{org}/projects/{projectId ?? result.Result.ProjectId}/components/{result.Result.ComponentId}/tasks/{result.Result.Id}"
                      : throw new InvalidOperationException("Component task must have a value for ProjectId to create location url."),
-                ICommandResult<ScheduledTask> result
+                ICommandResult<Schedule> result
                     => !string.IsNullOrEmpty(projectId ?? result.Result.ProjectId)
                     ? $"orgs/{org}/projects/{projectId ?? result.Result.ProjectId}/schedules/{result.Result.Id}"
-                    : throw new InvalidOperationException("ScheduledTask must have a value for ProjectId to create location url."),
+                    : throw new InvalidOperationException("Schedule must have a value for ProjectId to create location url."),
                 _ => null
             };
     }

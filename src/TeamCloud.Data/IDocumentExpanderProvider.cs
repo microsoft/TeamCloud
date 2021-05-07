@@ -12,5 +12,4 @@ namespace TeamCloud.Data
     {
         IEnumerable<IDocumentExpander> GetExpanders(IContainerDocument document);
     }
-
 }

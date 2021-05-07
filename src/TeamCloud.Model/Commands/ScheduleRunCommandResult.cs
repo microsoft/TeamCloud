@@ -8,6 +8,7 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Model.Commands
 {
-    public sealed class ScheduledTaskCreateCommandResult : CommandResult<ScheduledTask>
-    { }
+    public sealed class ScheduleRunCommandResult : CommandResult<Schedule>
+    {
+    }
 }

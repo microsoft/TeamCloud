@@ -8,9 +8,9 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Model.Commands
 {
-    public sealed class ScheduledTaskRunCommand : CustomCommand<ScheduledTask, ScheduledTaskRunCommandResult>
+    public sealed class ScheduleUpdateCommand : UpdateCommand<Schedule, ScheduleUpdateCommandResult>
     {
-        public ScheduledTaskRunCommand(User user, ScheduledTask payload) : base(user, payload)
+        public ScheduleUpdateCommand(User user, Schedule payload) : base(user, payload)
         { }
 
     }

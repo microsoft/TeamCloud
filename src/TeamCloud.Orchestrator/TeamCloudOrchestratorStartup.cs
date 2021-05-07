@@ -137,7 +137,7 @@ namespace TeamCloud.Orchestrator
                 .AddSingleton<IComponentTaskRepository, CosmosDbComponentTaskRepository>()
                 .AddSingleton<IProjectRepository, CosmosDbProjectRepository>()
                 .AddSingleton<IComponentRepository, CosmosDbComponentRepository>()
-                .AddSingleton<IScheduledTaskRepository, CosmosDbScheduledTaskRepository>()
+                .AddSingleton<IScheduleRepository, CosmosDbScheduleRepository>()
                 .AddSingleton<IRepositoryService, RepositoryService>();
 
 
@@ -161,7 +161,7 @@ namespace TeamCloud.Orchestrator
                 .AddScoped<ICommandHandler, ProjectDeployCommandHandler>()
                 .AddScoped<ICommandHandler, ComponentTaskRunCommandHandler>()
                 .AddScoped<ICommandHandler, ComponentUpdateCommandHandler>()
-                .AddScoped<ICommandHandler, ScheduledTaskCommandHandler>();
+                .AddScoped<ICommandHandler, ScheduleCommandHandler>();
         }
 
         private static IConfiguration GetConfiguration(IServiceCollection services)

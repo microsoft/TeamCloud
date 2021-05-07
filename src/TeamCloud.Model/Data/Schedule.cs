@@ -14,7 +14,7 @@ using TeamCloud.Serialization;
 namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public sealed class ScheduledTask : ContainerDocument, IProjectContext, IEquatable<ScheduledTask>, IValidatable
+    public sealed class Schedule : ContainerDocument, IProjectContext, IEquatable<Schedule>, IValidatable
     {
         [JsonProperty(Required = Required.Always)]
         public string Organization { get; set; }
@@ -42,11 +42,11 @@ namespace TeamCloud.Model.Data
         public List<ComponentTaskReference> ComponentTasks { get; set; }
 
 
-        public bool Equals(ScheduledTask other)
+        public bool Equals(Schedule other)
             => Id.Equals(other?.Id, StringComparison.Ordinal);
 
         public override bool Equals(object obj)
-            => base.Equals(obj) || Equals(obj as ScheduledTask);
+            => base.Equals(obj) || Equals(obj as Schedule);
 
         public override int GetHashCode()
             => Id?.GetHashCode(StringComparison.Ordinal) ?? base.GetHashCode();

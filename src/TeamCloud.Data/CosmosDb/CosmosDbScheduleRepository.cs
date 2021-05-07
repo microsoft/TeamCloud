@@ -18,18 +18,18 @@ using DayOfWeek = TeamCloud.Model.Data.DayOfWeek;
 
 namespace TeamCloud.Data.CosmosDb
 {
-    public sealed class CosmosDbScheduledTaskRepository : CosmosDbRepository<ScheduledTask>, IScheduledTaskRepository
+    public sealed class CosmosDbScheduleRepository : CosmosDbRepository<Schedule>, IScheduleRepository
     {
-        public CosmosDbScheduledTaskRepository(ICosmosDbOptions options, IDocumentExpanderProvider expanderProvider = null, IDocumentSubscriptionProvider subscriptionProvider = null, IDataProtectionProvider dataProtectionProvider = null)
+        public CosmosDbScheduleRepository(ICosmosDbOptions options, IDocumentExpanderProvider expanderProvider = null, IDocumentSubscriptionProvider subscriptionProvider = null, IDataProtectionProvider dataProtectionProvider = null)
             : base(options, expanderProvider, subscriptionProvider, dataProtectionProvider)
         { }
 
-        public override async Task<ScheduledTask> AddAsync(ScheduledTask task)
+        public override async Task<Schedule> AddAsync(Schedule schedule)
         {
-            if (task is null)
-                throw new ArgumentNullException(nameof(task));
+            if (schedule is null)
+                throw new ArgumentNullException(nameof(schedule));
 
-            await task
+            await schedule
                 .ValidateAsync(throwOnValidationError: true)
                 .ConfigureAwait(false);
 
@@ -37,14 +37,14 @@ namespace TeamCloud.Data.CosmosDb
                 .ConfigureAwait(false);
 
             var response = await container
-                .CreateItemAsync(task, GetPartitionKey(task))
+                .CreateItemAsync(schedule, GetPartitionKey(schedule))
                 .ConfigureAwait(false);
 
             return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Create)
                 .ConfigureAwait(false);
         }
 
-        public override async Task<ScheduledTask> GetAsync(string projectId, string id, bool expand = false)
+        public override async Task<Schedule> GetAsync(string projectId, string id, bool expand = false)
         {
             if (projectId is null)
                 throw new ArgumentNullException(nameof(projectId));
@@ -61,7 +61,7 @@ namespace TeamCloud.Data.CosmosDb
             try
             {
                 var response = await container
-                    .ReadItemAsync<ScheduledTask>(idParsed.ToString(), GetPartitionKey(projectId))
+                    .ReadItemAsync<Schedule>(idParsed.ToString(), GetPartitionKey(projectId))
                     .ConfigureAwait(false);
 
                 var expandTask = expand
@@ -76,7 +76,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public override async IAsyncEnumerable<ScheduledTask> ListAsync(string projectId)
+        public override async IAsyncEnumerable<Schedule> ListAsync(string projectId)
         {
             if (projectId is null)
                 throw new ArgumentNullException(nameof(projectId));
@@ -92,7 +92,7 @@ namespace TeamCloud.Data.CosmosDb
             var query = new QueryDefinition(queryString);
 
             var queryIterator = container
-                .GetItemQueryIterator<ScheduledTask>(query, requestOptions: GetQueryRequestOptions(projectId));
+                .GetItemQueryIterator<Schedule>(query, requestOptions: GetQueryRequestOptions(projectId));
 
             while (queryIterator.HasMoreResults)
             {
@@ -105,7 +105,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async IAsyncEnumerable<ScheduledTask> ListAsync(string projectId, DayOfWeek day, int hour, int minute, int interval = 0)
+        public async IAsyncEnumerable<Schedule> ListAsync(string projectId, DayOfWeek day, int hour, int minute, int interval = 0)
         {
             if (projectId is null)
                 throw new ArgumentNullException(nameof(projectId));
@@ -116,14 +116,14 @@ namespace TeamCloud.Data.CosmosDb
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
-            var dayNames = Enum.GetNames(typeof(DayOfWeek)).Select(n => n.ToLowerInvariant()).ToArray();
+            var dayNames = Enum.GetNames(typeof(DayOfWeek));
             var dayIndex = (int)day;
             var dayName = dayNames[dayIndex];
 
             var wrap = interval > 0 && minute + interval > 59;
             var wrapDay = wrap && hour == 23 ? dayIndex == 6 ? dayNames[0] : dayNames[dayIndex + 1] : null;
 
-            var dayQuery = string.IsNullOrEmpty(wrapDay) ? $"ARRAY_CONTAINS(c.dayOfWeek, '{dayName}')" : $"(ARRAY_CONTAINS(c.dayOfWeek, '{dayName}') OR ARRAY_CONTAINS(c.dayOfWeek, '{wrapDay}'))";
+            var dayQuery = string.IsNullOrEmpty(wrapDay) ? $"ARRAY_CONTAINS(c.daysOfWeek, '{dayName}')" : $"(ARRAY_CONTAINS(c.daysOfWeek, '{dayName}') OR ARRAY_CONTAINS(c.daysOfWeek, '{wrapDay}'))";
             var hourQuery = wrap ? hour == 23 ? $"(c.utcHour = {hour} OR c.utcHour = 0)" : $"(c.utcHour = {hour} OR c.utcHour = {hour + 1})" : $"c.utcHour = {hour}";
             var minuteQuery = interval <= 0 ? $"c.utcMinute = {minute}" : !wrap ? $"(c.utcMinute >= {minute} AND c.utcMinute < {minute + interval})" : $"(c.utcMinute >= {minute} OR c.utcMinute < {(minute + interval) % 59})";
 
@@ -132,7 +132,7 @@ namespace TeamCloud.Data.CosmosDb
             var query = new QueryDefinition(queryString);
 
             var queryIterator = container
-                .GetItemQueryIterator<ScheduledTask>(query, requestOptions: GetQueryRequestOptions(projectId));
+                .GetItemQueryIterator<Schedule>(query, requestOptions: GetQueryRequestOptions(projectId));
 
             while (queryIterator.HasMoreResults)
             {
@@ -166,7 +166,7 @@ namespace TeamCloud.Data.CosmosDb
 
                 if (batchResponse.IsSuccessStatusCode)
                 {
-                    _ = await NotifySubscribersAsync(batchResponse.GetOperationResultResources<ScheduledTask>(), DocumentSubscriptionEvent.Delete).ConfigureAwait(false);
+                    _ = await NotifySubscribersAsync(batchResponse.GetOperationResultResources<Schedule>(), DocumentSubscriptionEvent.Delete).ConfigureAwait(false);
                 }
                 else
                 {
@@ -175,10 +175,10 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public override async Task<ScheduledTask> RemoveAsync(ScheduledTask task)
+        public override async Task<Schedule> RemoveAsync(Schedule schedule)
         {
-            if (task is null)
-                throw new ArgumentNullException(nameof(task));
+            if (schedule is null)
+                throw new ArgumentNullException(nameof(schedule));
 
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
@@ -186,7 +186,7 @@ namespace TeamCloud.Data.CosmosDb
             try
             {
                 var response = await container
-                    .DeleteItemAsync<ScheduledTask>(task.Id, GetPartitionKey(task))
+                    .DeleteItemAsync<Schedule>(schedule.Id, GetPartitionKey(schedule))
                     .ConfigureAwait(false);
 
                 return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Delete)
@@ -210,12 +210,12 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public override async Task<ScheduledTask> SetAsync(ScheduledTask task)
+        public override async Task<Schedule> SetAsync(Schedule schedule)
         {
-            if (task is null)
-                throw new ArgumentNullException(nameof(task));
+            if (schedule is null)
+                throw new ArgumentNullException(nameof(schedule));
 
-            await task
+            await schedule
                 .ValidateAsync(throwOnValidationError: true)
                 .ConfigureAwait(false);
 
@@ -223,7 +223,7 @@ namespace TeamCloud.Data.CosmosDb
                 .ConfigureAwait(false);
 
             var response = await container
-                .UpsertItemAsync(task, GetPartitionKey(task))
+                .UpsertItemAsync(schedule, GetPartitionKey(schedule))
                 .ConfigureAwait(false);
 
             return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Update)

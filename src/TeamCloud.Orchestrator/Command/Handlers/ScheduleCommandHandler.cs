@@ -16,25 +16,25 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Orchestrator.Command.Handlers
 {
-    public sealed class ScheduledTaskCommandHandler : CommandHandler,
-          ICommandHandler<ScheduledTaskCreateCommand>,
-          ICommandHandler<ScheduledTaskUpdateCommand>,
-          ICommandHandler<ScheduledTaskDeleteCommand>,
-          ICommandHandler<ScheduledTaskRunCommand>
+    public sealed class ScheduleCommandHandler : CommandHandler,
+          ICommandHandler<ScheduleCreateCommand>,
+          ICommandHandler<ScheduleUpdateCommand>,
+          ICommandHandler<ScheduleDeleteCommand>,
+          ICommandHandler<ScheduleRunCommand>
     {
 
-        private readonly IScheduledTaskRepository scheduledTaskRepository;
+        private readonly IScheduleRepository scheduleRepository;
         private readonly IComponentRepository componentRepository;
         private readonly IComponentTaskRepository componentTaskRepository;
 
-        public ScheduledTaskCommandHandler(IScheduledTaskRepository scheduledTaskRepository, IComponentRepository componentRepository, IComponentTaskRepository componentTaskRepository)
+        public ScheduleCommandHandler(IScheduleRepository scheduleRepository, IComponentRepository componentRepository, IComponentTaskRepository componentTaskRepository)
         {
-            this.scheduledTaskRepository = scheduledTaskRepository ?? throw new ArgumentNullException(nameof(scheduledTaskRepository));
+            this.scheduleRepository = scheduleRepository ?? throw new ArgumentNullException(nameof(scheduleRepository));
             this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
             this.componentTaskRepository = componentTaskRepository ?? throw new ArgumentNullException(nameof(componentTaskRepository));
         }
 
-        public async Task<ICommandResult> HandleAsync(ScheduledTaskCreateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
+        public async Task<ICommandResult> HandleAsync(ScheduleCreateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
         {
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
@@ -46,7 +46,7 @@ namespace TeamCloud.Orchestrator.Command.Handlers
 
             try
             {
-                commandResult.Result = await scheduledTaskRepository
+                commandResult.Result = await scheduleRepository
                     .AddAsync(command.Payload)
                     .ConfigureAwait(false);
 
@@ -60,7 +60,7 @@ namespace TeamCloud.Orchestrator.Command.Handlers
             return commandResult;
         }
 
-        public async Task<ICommandResult> HandleAsync(ScheduledTaskUpdateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
+        public async Task<ICommandResult> HandleAsync(ScheduleUpdateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
         {
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
@@ -72,7 +72,7 @@ namespace TeamCloud.Orchestrator.Command.Handlers
 
             try
             {
-                commandResult.Result = await scheduledTaskRepository
+                commandResult.Result = await scheduleRepository
                     .SetAsync(command.Payload)
                     .ConfigureAwait(false);
 
@@ -86,7 +86,7 @@ namespace TeamCloud.Orchestrator.Command.Handlers
             return commandResult;
         }
 
-        public async Task<ICommandResult> HandleAsync(ScheduledTaskDeleteCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
+        public async Task<ICommandResult> HandleAsync(ScheduleDeleteCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
         {
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
@@ -98,7 +98,7 @@ namespace TeamCloud.Orchestrator.Command.Handlers
 
             try
             {
-                commandResult.Result = await scheduledTaskRepository
+                commandResult.Result = await scheduleRepository
                     .RemoveAsync(command.Payload)
                     .ConfigureAwait(false);
 
@@ -112,7 +112,7 @@ namespace TeamCloud.Orchestrator.Command.Handlers
             return commandResult;
         }
 
-        public async Task<ICommandResult> HandleAsync(ScheduledTaskRunCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
+        public async Task<ICommandResult> HandleAsync(ScheduleRunCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
         {
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
@@ -130,7 +130,7 @@ namespace TeamCloud.Orchestrator.Command.Handlers
                     ProjectId = command.Payload.ProjectId,
                     ComponentId = t.ComponentId,
                     RequestedBy = command.User.Id,
-                    ScheduledTaskId = command.Payload.Id,
+                    ScheduleId = command.Payload.Id,
                     Type = ComponentTaskType.Custom,
                     TypeName = t.ComponentTaskTemplateId,
 
@@ -145,7 +145,7 @@ namespace TeamCloud.Orchestrator.Command.Handlers
 
                 command.Payload.LastRun = DateTime.UtcNow;
 
-                commandResult.Result = await scheduledTaskRepository
+                commandResult.Result = await scheduleRepository
                     .SetAsync(command.Payload)
                     .ConfigureAwait(false);
 

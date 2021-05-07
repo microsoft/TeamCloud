@@ -19,24 +19,24 @@ using DayOfWeek = TeamCloud.Model.Data.DayOfWeek;
 
 namespace TeamCloud.Orchestrator.Services
 {
-    public sealed class ScheduledTaskPoller
+    public sealed class SchedulePoller
     {
         private readonly IOrganizationRepository organizationRepository;
         private readonly IProjectRepository projectRepository;
-        private readonly IScheduledTaskRepository scheduledTaskRepository;
+        private readonly IScheduleRepository scheduleRepository;
         private readonly IAzureSessionService azureSessionService;
         private readonly IUserRepository userRepository;
 
-        public ScheduledTaskPoller(IOrganizationRepository organizationRepository, IProjectRepository projectRepository, IScheduledTaskRepository scheduledTaskRepository, IAzureSessionService azureSessionService, IUserRepository userRepository)
+        public SchedulePoller(IOrganizationRepository organizationRepository, IProjectRepository projectRepository, IScheduleRepository scheduleRepository, IAzureSessionService azureSessionService, IUserRepository userRepository)
         {
             this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
             this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
-            this.scheduledTaskRepository = scheduledTaskRepository ?? throw new ArgumentNullException(nameof(scheduledTaskRepository));
+            this.scheduleRepository = scheduleRepository ?? throw new ArgumentNullException(nameof(scheduleRepository));
             this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
             this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         }
 
-        [FunctionName(nameof(ScheduledTaskPoller))]
+        [FunctionName(nameof(SchedulePoller))]
         public async Task Run([
             TimerTrigger("0 */5 * * * *")] TimerInfo timer,
             [Queue(ICommandHandler.ProcessorQueue)] IAsyncCollector<ICommand> commandQueue,
@@ -52,7 +52,7 @@ namespace TeamCloud.Orchestrator.Services
                 log.LogInformation("Timer is running late!");
             }
 
-            log.LogInformation($"Scheduled Task Poller Timer trigger function executed at: {DateTime.Now}");
+            log.LogInformation($"Schedule Poller Timer trigger function executed at: {DateTime.Now}");
 
 
             var tenantId = await azureSessionService
@@ -71,15 +71,15 @@ namespace TeamCloud.Orchestrator.Services
                 .ConfigureAwait(false);
 
 
-            var scheduledTasksTasks = projects.SelectMany(p =>
-                p.Select(pp => GetScheduledTasks(pp.Id, (DayOfWeek)utcNow.DayOfWeek, utcNow.Hour, utcNow.Minute, 5))
+            var scheduleTasks = projects.SelectMany(p =>
+                p.Select(pp => GetSchedules(pp.Id, (DayOfWeek)utcNow.DayOfWeek, utcNow.Hour, utcNow.Minute, 5))
             );
 
-            var scheduledTasks = await Task.WhenAll(scheduledTasksTasks)
+            var schedules = await Task.WhenAll(scheduleTasks)
                 .ConfigureAwait(false);
 
 
-            var userIds = scheduledTasks.SelectMany(st =>
+            var userIds = schedules.SelectMany(st =>
                 st.Select(sst => (org: sst.Organization, user: sst.Creator))
             ).Distinct();
 
@@ -88,8 +88,8 @@ namespace TeamCloud.Orchestrator.Services
             var users = await Task.WhenAll(usersTasks)
                 .ConfigureAwait(false);
 
-            var commandQueueTasks = scheduledTasks.SelectMany(st =>
-                st.Select(sst => commandQueue.AddAsync(new ScheduledTaskRunCommand(users.FirstOrDefault(u => u.Id == sst.Creator), sst)))
+            var commandQueueTasks = schedules.SelectMany(st =>
+                st.Select(sst => commandQueue.AddAsync(new ScheduleRunCommand(users.FirstOrDefault(u => u.Id == sst.Creator), sst)))
             );
 
             await Task.WhenAll(commandQueueTasks)
@@ -106,9 +106,9 @@ namespace TeamCloud.Orchestrator.Services
             return projects;
         }
 
-        private async Task<List<ScheduledTask>> GetScheduledTasks(string project, DayOfWeek day, int hour, int minute, int interval)
+        private async Task<List<Schedule>> GetSchedules(string project, DayOfWeek day, int hour, int minute, int interval)
         {
-            var tasks = await scheduledTaskRepository
+            var tasks = await scheduleRepository
                 .ListAsync(project, day, hour, minute, interval)
                 .ToListAsync()
                 .ConfigureAwait(false);

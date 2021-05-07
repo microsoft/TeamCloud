@@ -8,9 +8,9 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Model.Commands
 {
-    public sealed class ScheduledTaskDeleteCommand : DeleteCommand<ScheduledTask, ScheduledTaskDeleteCommandResult>
+    public sealed class ScheduleDeleteCommand : DeleteCommand<Schedule, ScheduleDeleteCommandResult>
     {
-        public ScheduledTaskDeleteCommand(User user, ScheduledTask payload) : base(user, payload)
+        public ScheduleDeleteCommand(User user, Schedule payload) : base(user, payload)
         { }
     }
 }

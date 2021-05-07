@@ -28,9 +28,7 @@ namespace TeamCloud.API.Controllers
 
         public string ComponentId => RouteData.ValueOrDefault(nameof(ComponentId));
 
-        public string TaskId => RouteData.ValueOrDefault(nameof(TaskId));
-
-        public string ScheduledTaskId => RouteData.ValueOrDefault(nameof(ScheduledTaskId));
+        public string ScheduleId => RouteData.ValueOrDefault(nameof(ScheduleId));
 
         protected T GetService<T>()
             => (T)HttpContext.RequestServices.GetService(typeof(T));
@@ -347,7 +345,7 @@ namespace TeamCloud.API.Controllers
         }
 
         [NonAction]
-        internal Task<IActionResult> ExecuteAsync(Func<User, Organization, Project, ScheduledTask, Task<IActionResult>> callback)
+        internal Task<IActionResult> ExecuteAsync(Func<User, Organization, Project, Schedule, Task<IActionResult>> callback)
         {
             if (callback is null)
                 throw new ArgumentNullException(nameof(callback));
@@ -356,21 +354,21 @@ namespace TeamCloud.API.Controllers
             {
                 try
                 {
-                    if (string.IsNullOrEmpty(ScheduledTaskId))
+                    if (string.IsNullOrEmpty(ScheduleId))
                         return ErrorResult
-                            .BadRequest($"ScheduledTask id provided in the url path is invalid.", ResultErrorCode.ValidationError)
+                            .BadRequest($"Schedule id provided in the url path is invalid.", ResultErrorCode.ValidationError)
                             .ToActionResult();
 
-                    var scheduledTask = await GetService<IScheduledTaskRepository>()
-                        .GetAsync(project.Id, ScheduledTaskId)
+                    var schedule = await GetService<IScheduleRepository>()
+                        .GetAsync(project.Id, ScheduleId)
                         .ConfigureAwait(false);
 
-                    if (scheduledTask is null)
+                    if (schedule is null)
                         return ErrorResult
-                            .NotFound($"A ScheduledTask with id '{ScheduledTaskId}' was not found.")
+                            .NotFound($"A Schedule with id '{ScheduleId}' was not found.")
                             .ToActionResult();
 
-                    return await callback(contextUser, organization, project, scheduledTask)
+                    return await callback(contextUser, organization, project, schedule)
                         .ConfigureAwait(false);
                 }
                 catch (Exception exc)
