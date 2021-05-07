@@ -10,5 +10,5 @@ export interface IContentSeparatorProps {
 
 export const ContentSeparator: React.FunctionComponent<IContentSeparatorProps> = (props) => {
     const theme = getTheme();
-    return (<Separator styles={{ root: { selectors: { '::before': { backgroundColor: props.color ?? theme.palette.neutralQuaternary } } } }} />);;
+    return (<Separator styles={{ root: { selectors: { '::before': { backgroundColor: props.color ?? theme.palette.neutralQuaternary } } } }} />);
 }

@@ -14,7 +14,7 @@ export const useProjectComponents = () => {
 
     return useQuery(['org', project?.organization, 'project', project?.id, 'component'], async () => {
         const { data } = await api.getComponents(project!.organization, project!.id);
-        return data;;
+        return data;
     }, {
         enabled: isAuthenticated && !!project?.id
     });

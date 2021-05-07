@@ -6,14 +6,14 @@ import { useIsAuthenticated } from '@azure/msal-react';
 import { api } from '../API';
 import { useProject } from '.';
 
-export const useProjectComponentTemplates = () => {
+export const useProjectSchedules = () => {
 
     const isAuthenticated = useIsAuthenticated();
 
     const { data: project } = useProject();
 
-    return useQuery(['org', project?.organization, 'project', project?.id, 'componenttemplate'], async () => {
-        const { data } = await api.getComponentTemplates(project!.organization, project!.id);
+    return useQuery(['org', project?.organization, 'project', project?.id, 'schedule'], async () => {
+        const { data } = await api.getSchedules(project!.organization, project!.id);
         return data;
     }, {
         enabled: isAuthenticated && !!project?.id

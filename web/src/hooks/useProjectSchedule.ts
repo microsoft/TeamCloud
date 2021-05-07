@@ -7,7 +7,7 @@ import { useIsAuthenticated } from '@azure/msal-react';
 import { api } from '../API';
 import { useProject } from '.';
 
-export const useProjectComponent = () => {
+export const useProjectSchedule = () => {
 
     const { itemId } = useParams() as { itemId: string };
 
@@ -15,8 +15,8 @@ export const useProjectComponent = () => {
 
     const { data: project } = useProject();
 
-    return useQuery(['org', project?.organization, 'project', project?.id, 'component', itemId], async () => {
-        const { data } = await api.getComponent(itemId, project!.organization, project!.id)
+    return useQuery(['org', project?.organization, 'project', project?.id, 'schedule', itemId], async () => {
+        const { data } = await api.getSchedule(itemId, project!.organization, project!.id)
         return data;
     }, {
         enabled: isAuthenticated && !!project?.id && !!itemId

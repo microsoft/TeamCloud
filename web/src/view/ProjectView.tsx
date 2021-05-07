@@ -2,15 +2,18 @@
 // Licensed under the MIT License.
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { Route, Switch } from 'react-router-dom';
+import { Route, Switch, useHistory, useParams } from 'react-router-dom';
 import { Stack, IconButton } from '@fluentui/react';
 import { useQueryClient } from 'react-query';
-import { ComponentTaskMenu, ComponentOverview, ProjectOverview, ContentHeader, ContentProgress, ContentContainer, MemberList, ComponentList, ComponentForm, ProjectSettingsOverview } from '../components';
-import { useAddProjectMembers, useProject, useProjectComponent, useProjectComponents, useProjectComponentTemplates, useProjectMembers } from '../hooks';
+import { ComponentTaskMenu, ComponentOverview, ProjectOverview, ContentHeader, ContentProgress, ContentContainer, MemberList, ComponentList, ComponentForm, ProjectSettingsOverview, ScheduleForm, ScheduleList } from '../components';
+import { useAddProjectMembers, useProject, useProjectComponent, useProjectComponents, useProjectComponentTemplates, useProjectMembers, useProjectSchedules } from '../hooks';
 import { startSignalR, stopSignalR } from '../API';
 import { Message } from '../model';
 
 export const ProjectView: React.FC = () => {
+
+    const history = useHistory();
+    const { orgId, projectId } = useParams() as { orgId: string, projectId: string };
 
     const [favorite, setFavorate] = useState(false);
 
@@ -22,6 +25,7 @@ export const ProjectView: React.FC = () => {
 
     const { isLoading: componentsIsLoading } = useProjectComponents();
     const { isLoading: templatesIsLoading } = useProjectComponentTemplates();
+    const { isLoading: schedulesIsLoading } = useProjectSchedules();
 
     const queryClient = useQueryClient();
 
@@ -176,6 +180,23 @@ export const ProjectView: React.FC = () => {
                     <ContentHeader title={`${(project?.displayName ? (project.displayName + ' - Settings') : 'Settings')}`} coin={project?.displayName !== undefined} />
                     <ContentContainer>
                         <ProjectSettingsOverview />
+                    </ContentContainer>
+                </Route>
+                <Route exact path='/orgs/:orgId/projects/:projectId/settings/schedules'>
+                    <ContentProgress progressHidden={!projectIsLoading && !schedulesIsLoading} />
+                    <ContentHeader title={`${(project?.displayName ? (project.displayName + ' - Schedules') : 'Schedules')}`} coin={project?.displayName !== undefined} />
+                    <ContentContainer>
+                        <ScheduleList />
+                    </ContentContainer>
+                </Route>
+                <Route exact path='/orgs/:orgId/projects/:projectId/settings/schedules/new'>
+                    <ContentProgress progressHidden={!projectIsLoading && !membersIsLoading && !componentsIsLoading && !templatesIsLoading} />
+                    <ContentHeader title={`${(project?.displayName ? (project.displayName + ' - New Schedule') : 'New Schedule')}`} coin={project?.displayName !== undefined} >
+                        <IconButton iconProps={{ iconName: 'ChromeClose' }}
+                            onClick={() => history.push(`/orgs/${orgId}/projects/${projectId}/settings/schedules`)} />
+                    </ContentHeader>
+                    <ContentContainer>
+                        <ScheduleForm />
                     </ContentContainer>
                 </Route>
             </Switch>

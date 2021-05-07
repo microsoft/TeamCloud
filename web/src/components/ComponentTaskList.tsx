@@ -5,7 +5,7 @@ import React, { useEffect } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { CheckboxVisibility, DetailsList, DetailsListLayoutMode, FontIcon, getTheme, IColumn, IDetailsRowProps, IRenderFunction, SelectionMode, Stack, Text } from '@fluentui/react';
 import { ComponentTask } from 'teamcloud';
-import { ComponentTaskConsole } from '.';
+import { CalloutLabel, ComponentTaskConsole } from '.';
 import { useOrg, useProject, useProjectComponent, useProjectComponentTasks, useProjectComponentTemplates, useProjectComponentTask } from '../hooks';
 
 export interface IComponentTaskListProps { }
@@ -49,7 +49,7 @@ export const ComponentTaskList: React.FunctionComponent<IComponentTaskListProps>
 
     const columns: IColumn[] = [
         {
-            key: 'componentId', name: 'ComponentId', minWidth: 440, maxWidth: 440, onRender: (t: ComponentTask) => (
+            key: 'componentId', name: 'ComponentId', minWidth: 450, maxWidth: 450, onRender: (t: ComponentTask) => (
                 <Stack
                     horizontal
                     verticalAlign='center'
@@ -57,7 +57,12 @@ export const ComponentTaskList: React.FunctionComponent<IComponentTaskListProps>
                     tokens={{ childrenGap: '20px' }}
                     styles={{ root: { padding: '5px' } }}>
                     <Stack tokens={{ childrenGap: '6px' }}>
-                        <Text styles={{ root: { color: theme.palette.neutralPrimary } }} variant='medium'>{_getTaskName(t)}</Text>
+                        <Stack horizontal verticalAlign='center' tokens={{ childrenGap: '10px' }}>
+                            <Stack.Item>
+                                <Text styles={{ root: { color: theme.palette.neutralPrimary } }} variant='medium'>{_getTaskName(t)}</Text>
+                            </Stack.Item>
+                            {(t.scheduleId ?? false) && (<Stack.Item align='end'><CalloutLabel title='' callout='scheduled' calloutBackground='#deecf9' /></Stack.Item>)}
+                        </Stack>
                         <Text styles={{ root: { color: theme.palette.neutralSecondary } }} variant='small'>{_getTaskStatus(t)}</Text>
                     </Stack>
                     <FontIcon iconName={_getStateIcon(t)} className={`deployment-state-icon-${t.resourceState?.toLowerCase() ?? 'pending'}`} />
@@ -117,7 +122,7 @@ export const ComponentTaskList: React.FunctionComponent<IComponentTaskListProps>
                     checkboxVisibility={CheckboxVisibility.hidden}
                     selectionMode={SelectionMode.single}
                     onActiveItemChanged={_onActiveItemChanged}
-                    styles={{ focusZone: { minWidth: '1px' }, root: { minWidth: '460px', boxShadow: theme.effects.elevation8 } }}
+                    styles={{ focusZone: { minWidth: '1px' }, root: { minWidth: '470px', boxShadow: theme.effects.elevation8 } }}
                 />
             </Stack.Item>
             <Stack.Item grow={2}>
