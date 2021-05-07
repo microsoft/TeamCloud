@@ -28,6 +28,10 @@ namespace TeamCloud.API.Controllers
 
         public string ComponentId => RouteData.ValueOrDefault(nameof(ComponentId));
 
+        public string TaskId => RouteData.ValueOrDefault(nameof(TaskId));
+
+        public string ScheduledTaskId => RouteData.ValueOrDefault(nameof(ScheduledTaskId));
+
         protected T GetService<T>()
             => (T)HttpContext.RequestServices.GetService(typeof(T));
 
@@ -331,6 +335,42 @@ namespace TeamCloud.API.Controllers
                             .ToActionResult();
 
                     return await callback(contextUser, organization, project, component)
+                        .ConfigureAwait(false);
+                }
+                catch (Exception exc)
+                {
+                    return ErrorResult
+                        .ServerError(exc)
+                        .ToActionResult();
+                }
+            });
+        }
+
+        [NonAction]
+        internal Task<IActionResult> ExecuteAsync(Func<User, Organization, Project, ScheduledTask, Task<IActionResult>> callback)
+        {
+            if (callback is null)
+                throw new ArgumentNullException(nameof(callback));
+
+            return ExecuteAsync(async (contextUser, organization, project) =>
+            {
+                try
+                {
+                    if (string.IsNullOrEmpty(ScheduledTaskId))
+                        return ErrorResult
+                            .BadRequest($"ScheduledTask id provided in the url path is invalid.", ResultErrorCode.ValidationError)
+                            .ToActionResult();
+
+                    var scheduledTask = await GetService<IScheduledTaskRepository>()
+                        .GetAsync(project.Id, ScheduledTaskId)
+                        .ConfigureAwait(false);
+
+                    if (scheduledTask is null)
+                        return ErrorResult
+                            .NotFound($"A ScheduledTask with id '{ScheduledTaskId}' was not found.")
+                            .ToActionResult();
+
+                    return await callback(contextUser, organization, project, scheduledTask)
                         .ConfigureAwait(false);
                 }
                 catch (Exception exc)
