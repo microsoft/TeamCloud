@@ -160,7 +160,8 @@ namespace TeamCloud.Orchestrator
                 .AddScoped<ICommandHandler, OrganizationDeployCommandHandler>()
                 .AddScoped<ICommandHandler, ProjectDeployCommandHandler>()
                 .AddScoped<ICommandHandler, ComponentTaskRunCommandHandler>()
-                .AddScoped<ICommandHandler, ComponentUpdateCommandHandler>();
+                .AddScoped<ICommandHandler, ComponentUpdateCommandHandler>()
+                .AddScoped<ICommandHandler, ScheduledTaskCommandHandler>();
         }
 
         private static IConfiguration GetConfiguration(IServiceCollection services)
