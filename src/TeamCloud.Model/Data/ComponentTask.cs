@@ -28,6 +28,8 @@ namespace TeamCloud.Model.Data
 
         public string RequestedBy { get; set; }
 
+        public string ScheduledTaskId { get; set; }
+
         public ComponentTaskType Type { get; set; } = ComponentTaskType.Create;
 
         public string TypeName
