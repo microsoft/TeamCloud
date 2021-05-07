@@ -105,6 +105,16 @@ namespace TeamCloud.API.Auth
                                            ProjectUserRole.Admin.AuthPolicy(),
                                            UserRolePolicies.ComponentWritePolicy);
                     });
+
+
+                    options.AddPolicy(AuthPolicies.ProjectScheduledTaskOwner, policy =>
+                    {
+                        policy.RequireRole(OrganizationUserRole.Owner.AuthPolicy(),
+                                           OrganizationUserRole.Admin.AuthPolicy(),
+                                           ProjectUserRole.Owner.AuthPolicy(),
+                                           ProjectUserRole.Admin.AuthPolicy(),
+                                           UserRolePolicies.ScheduledTaskWritePolicy);
+                    });
                 });
 
             return services;
@@ -180,6 +190,9 @@ namespace TeamCloud.API.Auth
 
                 if (httpContext.RequestPathStartsWithSegments($"{orgPath}/projects/{project}/components"))
                     claims.AddRange(await httpContext.ResolveComponentClaimsAsync(projectId, user).ConfigureAwait(false));
+
+                if (httpContext.RequestPathStartsWithSegments($"{orgPath}/projects/{project}/schedules"))
+                    claims.AddRange(await httpContext.ResolveScheduledTaskClaimsAsync(projectId, user).ConfigureAwait(false));
             }
 
             return claims;
@@ -229,6 +242,31 @@ namespace TeamCloud.API.Auth
 
                 if (!string.IsNullOrEmpty(component?.Creator) && component.Creator.Equals(user.Id, StringComparison.OrdinalIgnoreCase))
                     claims.Add(new Claim(ClaimTypes.Role, UserRolePolicies.ComponentWritePolicy));
+            }
+
+            return claims;
+        }
+
+        private static async Task<IEnumerable<Claim>> ResolveScheduledTaskClaimsAsync(this HttpContext httpContext, string projectId, User user)
+        {
+            var claims = new List<Claim>();
+
+            if (httpContext.Request.Method == HttpMethods.Get)
+                return claims;
+
+            var scheduledTaskId = httpContext.RouteValueOrDefault("ScheduledTaskId");
+
+            if (!string.IsNullOrEmpty(scheduledTaskId))
+            {
+                var scheduledTaskRepository = httpContext.RequestServices
+                    .GetRequiredService<IScheduledTaskRepository>();
+
+                var scheduledTask = await scheduledTaskRepository
+                    .GetAsync(projectId, scheduledTaskId)
+                    .ConfigureAwait(false);
+
+                if (!string.IsNullOrEmpty(scheduledTask?.Creator) && scheduledTask.Creator.Equals(user.Id, StringComparison.OrdinalIgnoreCase))
+                    claims.Add(new Claim(ClaimTypes.Role, UserRolePolicies.ScheduledTaskWritePolicy));
             }
 
             return claims;
