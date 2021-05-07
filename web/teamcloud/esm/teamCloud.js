@@ -51,14 +51,14 @@ var TeamCloud = /** @class */ (function (_super) {
     };
     /**
      * Gets a Project Component.
-     * @param id
+     * @param componentId
      * @param organizationId
      * @param projectId
      * @param options The options parameters.
      */
-    TeamCloud.prototype.getComponent = function (id, organizationId, projectId, options) {
+    TeamCloud.prototype.getComponent = function (componentId, organizationId, projectId, options) {
         var operationArguments = {
-            id: id,
+            componentId: componentId,
             organizationId: organizationId,
             projectId: projectId,
             options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
@@ -67,14 +67,14 @@ var TeamCloud = /** @class */ (function (_super) {
     };
     /**
      * Deletes an existing Project Component.
-     * @param id
+     * @param componentId
      * @param organizationId
      * @param projectId
      * @param options The options parameters.
      */
-    TeamCloud.prototype.deleteComponent = function (id, organizationId, projectId, options) {
+    TeamCloud.prototype.deleteComponent = function (componentId, organizationId, projectId, options) {
         var operationArguments = {
-            id: id,
+            componentId: componentId,
             organizationId: organizationId,
             projectId: projectId,
             options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
@@ -748,6 +748,66 @@ var TeamCloud = /** @class */ (function (_super) {
         return this.sendOperationRequest(operationArguments, updateProjectUserMeOperationSpec);
     };
     /**
+     * Gets all Scheduled Tasks.
+     * @param organizationId
+     * @param projectId
+     * @param options The options parameters.
+     */
+    TeamCloud.prototype.getScheduledTasks = function (organizationId, projectId, options) {
+        var operationArguments = {
+            organizationId: organizationId,
+            projectId: projectId,
+            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
+        };
+        return this.sendOperationRequest(operationArguments, getScheduledTasksOperationSpec);
+    };
+    /**
+     * Creates a new Project Scheduled Task.
+     * @param organizationId
+     * @param projectId
+     * @param options The options parameters.
+     */
+    TeamCloud.prototype.createScheduledTask = function (organizationId, projectId, options) {
+        var operationArguments = {
+            organizationId: organizationId,
+            projectId: projectId,
+            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
+        };
+        return this.sendOperationRequest(operationArguments, createScheduledTaskOperationSpec);
+    };
+    /**
+     * Gets the Scheduled Task.
+     * @param scheduledTaskId
+     * @param organizationId
+     * @param projectId
+     * @param options The options parameters.
+     */
+    TeamCloud.prototype.getScheduledTask = function (scheduledTaskId, organizationId, projectId, options) {
+        var operationArguments = {
+            scheduledTaskId: scheduledTaskId,
+            organizationId: organizationId,
+            projectId: projectId,
+            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
+        };
+        return this.sendOperationRequest(operationArguments, getScheduledTaskOperationSpec);
+    };
+    /**
+     * Runs a Project Scheduled Task.
+     * @param scheduledTaskId
+     * @param organizationId
+     * @param projectId
+     * @param options The options parameters.
+     */
+    TeamCloud.prototype.runScheduledTask = function (scheduledTaskId, organizationId, projectId, options) {
+        var operationArguments = {
+            scheduledTaskId: scheduledTaskId,
+            organizationId: organizationId,
+            projectId: projectId,
+            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
+        };
+        return this.sendOperationRequest(operationArguments, runScheduledTaskOperationSpec);
+    };
+    /**
      * Gets the status of a long-running operation.
      * @param trackingId
      * @param organizationId
@@ -866,7 +926,7 @@ var createComponentOperationSpec = {
     serializer: serializer
 };
 var getComponentOperationSpec = {
-    path: "/orgs/{organizationId}/projects/{projectId}/components/{id}",
+    path: "/orgs/{organizationId}/projects/{projectId}/components/{componentId}",
     httpMethod: "GET",
     responses: {
         200: {
@@ -885,13 +945,13 @@ var getComponentOperationSpec = {
         Parameters.$host,
         Parameters.organizationId,
         Parameters.projectId,
-        Parameters.id
+        Parameters.componentId
     ],
     headerParameters: [Parameters.accept],
     serializer: serializer
 };
 var deleteComponentOperationSpec = {
-    path: "/orgs/{organizationId}/projects/{projectId}/components/{id}",
+    path: "/orgs/{organizationId}/projects/{projectId}/components/{componentId}",
     httpMethod: "DELETE",
     responses: {
         202: {
@@ -913,7 +973,7 @@ var deleteComponentOperationSpec = {
         Parameters.$host,
         Parameters.organizationId,
         Parameters.projectId,
-        Parameters.id
+        Parameters.componentId
     ],
     headerParameters: [Parameters.accept],
     serializer: serializer
@@ -996,8 +1056,8 @@ var getComponentTaskOperationSpec = {
         Parameters.$host,
         Parameters.organizationId,
         Parameters.projectId,
-        Parameters.id,
-        Parameters.componentId
+        Parameters.componentId,
+        Parameters.id
     ],
     headerParameters: [Parameters.accept],
     serializer: serializer
@@ -2046,6 +2106,106 @@ var updateProjectUserMeOperationSpec = {
     ],
     headerParameters: [Parameters.accept, Parameters.contentType],
     mediaType: "json",
+    serializer: serializer
+};
+var getScheduledTasksOperationSpec = {
+    path: "/orgs/{organizationId}/projects/{projectId}/schedules",
+    httpMethod: "GET",
+    responses: {
+        200: {
+            bodyMapper: Mappers.ScheduledTaskListDataResult
+        },
+        400: {
+            bodyMapper: Mappers.ErrorResult
+        },
+        401: {},
+        403: {}
+    },
+    urlParameters: [
+        Parameters.$host,
+        Parameters.organizationId,
+        Parameters.projectId
+    ],
+    headerParameters: [Parameters.accept],
+    serializer: serializer
+};
+var createScheduledTaskOperationSpec = {
+    path: "/orgs/{organizationId}/projects/{projectId}/schedules",
+    httpMethod: "POST",
+    responses: {
+        201: {
+            bodyMapper: Mappers.ScheduledTaskDataResult
+        },
+        400: {
+            bodyMapper: Mappers.ErrorResult
+        },
+        401: {},
+        403: {},
+        404: {
+            bodyMapper: Mappers.ErrorResult
+        },
+        409: {
+            bodyMapper: Mappers.ErrorResult
+        }
+    },
+    requestBody: Parameters.body13,
+    urlParameters: [
+        Parameters.$host,
+        Parameters.organizationId,
+        Parameters.projectId
+    ],
+    headerParameters: [Parameters.accept, Parameters.contentType],
+    mediaType: "json",
+    serializer: serializer
+};
+var getScheduledTaskOperationSpec = {
+    path: "/orgs/{organizationId}/projects/{projectId}/schedules/{scheduledTaskId}",
+    httpMethod: "GET",
+    responses: {
+        200: {
+            bodyMapper: Mappers.ScheduledTaskDataResult
+        },
+        400: {
+            bodyMapper: Mappers.ErrorResult
+        },
+        401: {},
+        403: {},
+        404: {
+            bodyMapper: Mappers.ErrorResult
+        }
+    },
+    urlParameters: [
+        Parameters.$host,
+        Parameters.organizationId,
+        Parameters.projectId,
+        Parameters.scheduledTaskId
+    ],
+    headerParameters: [Parameters.accept],
+    serializer: serializer
+};
+var runScheduledTaskOperationSpec = {
+    path: "/orgs/{organizationId}/projects/{projectId}/schedules/{scheduledTaskId}/run",
+    httpMethod: "POST",
+    responses: {
+        201: {
+            bodyMapper: Mappers.ScheduledTaskDataResult
+        },
+        400: {
+            bodyMapper: Mappers.ErrorResult
+        },
+        401: {},
+        403: {},
+        404: {
+            bodyMapper: Mappers.ErrorResult
+        }
+    },
+    urlParameters: [
+        Parameters.$host,
+        Parameters.organizationId,
+        Parameters.projectId,
+        Parameters.scheduledTaskId
+    ],
+    headerParameters: [Parameters.accept],
     serializer: serializer
 };
 var getStatusOperationSpec = {

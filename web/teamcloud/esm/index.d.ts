@@ -62,6 +62,7 @@ export declare interface ComponentTask {
     componentId: string;
     projectId: string;
     requestedBy?: string | null;
+    scheduledTaskId?: string | null;
     type?: Enum3;
     typeName?: string | null;
     created?: Date;
@@ -93,6 +94,12 @@ export declare interface ComponentTaskListDataResult {
     /** NOTE: This property will not be serialized. It can only be populated by the server. */
     readonly data?: ComponentTask[] | null;
     location?: string | null;
+}
+
+export declare interface ComponentTaskReference {
+    componentId?: string | null;
+    componentTaskTemplateId?: string | null;
+    inputJson?: string | null;
 }
 
 /**
@@ -331,6 +338,28 @@ export declare const enum KnownResultErrorCode {
     ValidationError = "ValidationError",
     Unauthorized = "Unauthorized",
     Forbidden = "Forbidden"
+}
+
+/** Known values of {@link ScheduledTaskDaysOfWeekItem} that the service accepts. */
+export declare const enum KnownScheduledTaskDaysOfWeekItem {
+    Sunday = "Sunday",
+    Monday = "Monday",
+    Tuesday = "Tuesday",
+    Wednesday = "Wednesday",
+    Thursday = "Thursday",
+    Friday = "Friday",
+    Saturday = "Saturday"
+}
+
+/** Known values of {@link ScheduledTaskDefinitionDaysOfWeekItem} that the service accepts. */
+export declare const enum KnownScheduledTaskDefinitionDaysOfWeekItem {
+    Sunday = "Sunday",
+    Monday = "Monday",
+    Tuesday = "Tuesday",
+    Wednesday = "Wednesday",
+    Thursday = "Thursday",
+    Friday = "Friday",
+    Saturday = "Saturday"
 }
 
 /** Known values of {@link UserRole} that the service accepts. */
@@ -613,6 +642,75 @@ export declare interface ResultError {
  */
 export declare type ResultErrorCode = string;
 
+export declare interface ScheduledTask {
+    organization: string;
+    projectId: string;
+    enabled?: boolean;
+    recurring?: boolean;
+    daysOfWeek?: ScheduledTaskDaysOfWeekItem[] | null;
+    utcHour?: number;
+    utcMinute?: number;
+    creator?: string | null;
+    created?: Date;
+    lastRun?: Date | null;
+    componentTasks?: ComponentTaskReference[] | null;
+    id: string;
+}
+
+export declare interface ScheduledTaskDataResult {
+    code?: number;
+    status?: string | null;
+    data?: ScheduledTask;
+    location?: string | null;
+}
+
+/**
+ * Defines values for ScheduledTaskDaysOfWeekItem. \
+ * {@link KnownScheduledTaskDaysOfWeekItem} can be used interchangeably with ScheduledTaskDaysOfWeekItem,
+ *  this enum contains the known values that the service supports.
+ * ### Know values supported by the service
+ * **Sunday** \
+ * **Monday** \
+ * **Tuesday** \
+ * **Wednesday** \
+ * **Thursday** \
+ * **Friday** \
+ * **Saturday**
+ */
+export declare type ScheduledTaskDaysOfWeekItem = string;
+
+export declare interface ScheduledTaskDefinition {
+    enabled?: boolean;
+    recurring?: boolean;
+    daysOfWeek?: ScheduledTaskDefinitionDaysOfWeekItem[] | null;
+    utcHour?: number;
+    utcMinute?: number;
+    componentTasks?: ComponentTaskReference[] | null;
+}
+
+/**
+ * Defines values for ScheduledTaskDefinitionDaysOfWeekItem. \
+ * {@link KnownScheduledTaskDefinitionDaysOfWeekItem} can be used interchangeably with ScheduledTaskDefinitionDaysOfWeekItem,
+ *  this enum contains the known values that the service supports.
+ * ### Know values supported by the service
+ * **Sunday** \
+ * **Monday** \
+ * **Tuesday** \
+ * **Wednesday** \
+ * **Thursday** \
+ * **Friday** \
+ * **Saturday**
+ */
+export declare type ScheduledTaskDefinitionDaysOfWeekItem = string;
+
+export declare interface ScheduledTaskListDataResult {
+    code?: number;
+    status?: string | null;
+    /** NOTE: This property will not be serialized. It can only be populated by the server. */
+    readonly data?: ScheduledTask[] | null;
+    location?: string | null;
+}
+
 export declare interface StatusResult {
     code?: number;
     status?: string | null;
@@ -661,20 +759,20 @@ export declare class TeamCloud extends TeamCloudContext {
     createComponent(organizationId: string, projectId: string, options?: TeamCloudCreateComponentOptionalParams): Promise<TeamCloudCreateComponentResponse>;
     /**
      * Gets a Project Component.
-     * @param id
+     * @param componentId
      * @param organizationId
      * @param projectId
      * @param options The options parameters.
      */
-    getComponent(id: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentResponse>;
+    getComponent(componentId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentResponse>;
     /**
      * Deletes an existing Project Component.
-     * @param id
+     * @param componentId
      * @param organizationId
      * @param projectId
      * @param options The options parameters.
      */
-    deleteComponent(id: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteComponentResponse>;
+    deleteComponent(componentId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteComponentResponse>;
     /**
      * Gets all Component Tasks.
      * @param organizationId
@@ -682,7 +780,7 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param componentId
      * @param options The options parameters.
      */
-    getComponentTasks(organizationId: string, projectId: string, componentId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentTasksResponse>;
+    getComponentTasks(organizationId: string, projectId: string, componentId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentTasksResponse>;
     /**
      * Creates a new Project Component Task.
      * @param organizationId
@@ -690,7 +788,7 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param componentId
      * @param options The options parameters.
      */
-    createComponentTask(organizationId: string, projectId: string, componentId: string, options?: TeamCloudCreateComponentTaskOptionalParams): Promise<TeamCloudCreateComponentTaskResponse>;
+    createComponentTask(organizationId: string, projectId: string, componentId: string | null, options?: TeamCloudCreateComponentTaskOptionalParams): Promise<TeamCloudCreateComponentTaskResponse>;
     /**
      * Gets the Component Task.
      * @param id
@@ -699,7 +797,7 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param componentId
      * @param options The options parameters.
      */
-    getComponentTask(id: string | null, organizationId: string, projectId: string, componentId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentTaskResponse>;
+    getComponentTask(id: string | null, organizationId: string, projectId: string, componentId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentTaskResponse>;
     /**
      * Gets all Component Templates for a Project.
      * @param organizationId
@@ -1009,6 +1107,36 @@ export declare class TeamCloud extends TeamCloudContext {
      */
     updateProjectUserMe(organizationId: string, projectId: string, options?: TeamCloudUpdateProjectUserMeOptionalParams): Promise<TeamCloudUpdateProjectUserMeResponse>;
     /**
+     * Gets all Scheduled Tasks.
+     * @param organizationId
+     * @param projectId
+     * @param options The options parameters.
+     */
+    getScheduledTasks(organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetScheduledTasksResponse>;
+    /**
+     * Creates a new Project Scheduled Task.
+     * @param organizationId
+     * @param projectId
+     * @param options The options parameters.
+     */
+    createScheduledTask(organizationId: string, projectId: string, options?: TeamCloudCreateScheduledTaskOptionalParams): Promise<TeamCloudCreateScheduledTaskResponse>;
+    /**
+     * Gets the Scheduled Task.
+     * @param scheduledTaskId
+     * @param organizationId
+     * @param projectId
+     * @param options The options parameters.
+     */
+    getScheduledTask(scheduledTaskId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetScheduledTaskResponse>;
+    /**
+     * Runs a Project Scheduled Task.
+     * @param scheduledTaskId
+     * @param organizationId
+     * @param projectId
+     * @param options The options parameters.
+     */
+    runScheduledTask(scheduledTaskId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudRunScheduledTaskResponse>;
+    /**
      * Gets the status of a long-running operation.
      * @param trackingId
      * @param organizationId
@@ -1209,6 +1337,22 @@ export declare type TeamCloudCreateProjectUserResponse = UserDataResult & {
         bodyAsText: string;
         /** The response body as parsed JSON or XML */
         parsedBody: UserDataResult;
+    };
+};
+
+/** Optional parameters. */
+export declare interface TeamCloudCreateScheduledTaskOptionalParams extends coreHttp.OperationOptions {
+    body?: ScheduledTaskDefinition;
+}
+
+/** Contains response data for the createScheduledTask operation. */
+export declare type TeamCloudCreateScheduledTaskResponse = ScheduledTaskDataResult & {
+    /** The underlying HTTP response. */
+    _response: coreHttp.HttpResponse & {
+        /** The response body as text (string format) */
+        bodyAsText: string;
+        /** The response body as parsed JSON or XML */
+        parsedBody: ScheduledTaskDataResult;
     };
 };
 
@@ -1591,6 +1735,28 @@ export declare type TeamCloudGetProjectUsersResponse = UserListDataResult & {
     };
 };
 
+/** Contains response data for the getScheduledTask operation. */
+export declare type TeamCloudGetScheduledTaskResponse = ScheduledTaskDataResult & {
+    /** The underlying HTTP response. */
+    _response: coreHttp.HttpResponse & {
+        /** The response body as text (string format) */
+        bodyAsText: string;
+        /** The response body as parsed JSON or XML */
+        parsedBody: ScheduledTaskDataResult;
+    };
+};
+
+/** Contains response data for the getScheduledTasks operation. */
+export declare type TeamCloudGetScheduledTasksResponse = ScheduledTaskListDataResult & {
+    /** The underlying HTTP response. */
+    _response: coreHttp.HttpResponse & {
+        /** The response body as text (string format) */
+        bodyAsText: string;
+        /** The response body as parsed JSON or XML */
+        parsedBody: ScheduledTaskListDataResult;
+    };
+};
+
 /** Contains response data for the getStatus operation. */
 export declare type TeamCloudGetStatusResponse = StatusResult & {
     /** The underlying HTTP response. */
@@ -1629,6 +1795,17 @@ export declare interface TeamCloudOptionalParams extends coreHttp.ServiceClientO
     /** Overrides client endpoint. */
     endpoint?: string;
 }
+
+/** Contains response data for the runScheduledTask operation. */
+export declare type TeamCloudRunScheduledTaskResponse = ScheduledTaskDataResult & {
+    /** The underlying HTTP response. */
+    _response: coreHttp.HttpResponse & {
+        /** The response body as text (string format) */
+        bodyAsText: string;
+        /** The response body as parsed JSON or XML */
+        parsedBody: ScheduledTaskDataResult;
+    };
+};
 
 /** Optional parameters. */
 export declare interface TeamCloudUpdateDeploymentScopeOptionalParams extends coreHttp.OperationOptions {
@@ -1763,6 +1940,9 @@ export declare type TeamCloudUpdateProjectUserResponse = UserDataResult & {
 
 export declare interface User {
     organization: string;
+    displayName?: string | null;
+    loginName?: string | null;
+    mailAddress?: string | null;
     userType: UserType;
     role: UserRole;
     projectMemberships?: ProjectMembership[] | null;

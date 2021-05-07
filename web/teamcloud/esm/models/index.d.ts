@@ -75,6 +75,7 @@ export interface ComponentTask {
     componentId: string;
     projectId: string;
     requestedBy?: string | null;
+    scheduledTaskId?: string | null;
     type?: Enum3;
     typeName?: string | null;
     created?: Date;
@@ -237,6 +238,9 @@ export interface UserListDataResult {
 }
 export interface User {
     organization: string;
+    displayName?: string | null;
+    loginName?: string | null;
+    mailAddress?: string | null;
     userType: UserType;
     role: UserRole;
     projectMemberships?: ProjectMembership[] | null;
@@ -381,6 +385,46 @@ export interface ProjectTemplateDataResult {
     code?: number;
     status?: string | null;
     data?: ProjectTemplate;
+    location?: string | null;
+}
+export interface ScheduledTaskListDataResult {
+    code?: number;
+    status?: string | null;
+    /** NOTE: This property will not be serialized. It can only be populated by the server. */
+    readonly data?: ScheduledTask[] | null;
+    location?: string | null;
+}
+export interface ScheduledTask {
+    organization: string;
+    projectId: string;
+    enabled?: boolean;
+    recurring?: boolean;
+    daysOfWeek?: ScheduledTaskDaysOfWeekItem[] | null;
+    utcHour?: number;
+    utcMinute?: number;
+    creator?: string | null;
+    created?: Date;
+    lastRun?: Date | null;
+    componentTasks?: ComponentTaskReference[] | null;
+    id: string;
+}
+export interface ComponentTaskReference {
+    componentId?: string | null;
+    componentTaskTemplateId?: string | null;
+    inputJson?: string | null;
+}
+export interface ScheduledTaskDefinition {
+    enabled?: boolean;
+    recurring?: boolean;
+    daysOfWeek?: ScheduledTaskDefinitionDaysOfWeekItem[] | null;
+    utcHour?: number;
+    utcMinute?: number;
+    componentTasks?: ComponentTaskReference[] | null;
+}
+export interface ScheduledTaskDataResult {
+    code?: number;
+    status?: string | null;
+    data?: ScheduledTask;
     location?: string | null;
 }
 /** Known values of {@link ComponentType} that the service accepts. */
@@ -629,6 +673,54 @@ export declare const enum KnownProjectResourceState {
  * **Failed**
  */
 export declare type ProjectResourceState = string;
+/** Known values of {@link ScheduledTaskDaysOfWeekItem} that the service accepts. */
+export declare const enum KnownScheduledTaskDaysOfWeekItem {
+    Sunday = "Sunday",
+    Monday = "Monday",
+    Tuesday = "Tuesday",
+    Wednesday = "Wednesday",
+    Thursday = "Thursday",
+    Friday = "Friday",
+    Saturday = "Saturday"
+}
+/**
+ * Defines values for ScheduledTaskDaysOfWeekItem. \
+ * {@link KnownScheduledTaskDaysOfWeekItem} can be used interchangeably with ScheduledTaskDaysOfWeekItem,
+ *  this enum contains the known values that the service supports.
+ * ### Know values supported by the service
+ * **Sunday** \
+ * **Monday** \
+ * **Tuesday** \
+ * **Wednesday** \
+ * **Thursday** \
+ * **Friday** \
+ * **Saturday**
+ */
+export declare type ScheduledTaskDaysOfWeekItem = string;
+/** Known values of {@link ScheduledTaskDefinitionDaysOfWeekItem} that the service accepts. */
+export declare const enum KnownScheduledTaskDefinitionDaysOfWeekItem {
+    Sunday = "Sunday",
+    Monday = "Monday",
+    Tuesday = "Tuesday",
+    Wednesday = "Wednesday",
+    Thursday = "Thursday",
+    Friday = "Friday",
+    Saturday = "Saturday"
+}
+/**
+ * Defines values for ScheduledTaskDefinitionDaysOfWeekItem. \
+ * {@link KnownScheduledTaskDefinitionDaysOfWeekItem} can be used interchangeably with ScheduledTaskDefinitionDaysOfWeekItem,
+ *  this enum contains the known values that the service supports.
+ * ### Know values supported by the service
+ * **Sunday** \
+ * **Monday** \
+ * **Tuesday** \
+ * **Wednesday** \
+ * **Thursday** \
+ * **Friday** \
+ * **Saturday**
+ */
+export declare type ScheduledTaskDefinitionDaysOfWeekItem = string;
 /** Optional parameters. */
 export interface TeamCloudGetComponentsOptionalParams extends coreHttp.OperationOptions {
     deleted?: boolean;
@@ -1219,6 +1311,50 @@ export declare type TeamCloudUpdateProjectUserMeResponse = UserDataResult & {
         bodyAsText: string;
         /** The response body as parsed JSON or XML */
         parsedBody: UserDataResult;
+    };
+};
+/** Contains response data for the getScheduledTasks operation. */
+export declare type TeamCloudGetScheduledTasksResponse = ScheduledTaskListDataResult & {
+    /** The underlying HTTP response. */
+    _response: coreHttp.HttpResponse & {
+        /** The response body as text (string format) */
+        bodyAsText: string;
+        /** The response body as parsed JSON or XML */
+        parsedBody: ScheduledTaskListDataResult;
+    };
+};
+/** Optional parameters. */
+export interface TeamCloudCreateScheduledTaskOptionalParams extends coreHttp.OperationOptions {
+    body?: ScheduledTaskDefinition;
+}
+/** Contains response data for the createScheduledTask operation. */
+export declare type TeamCloudCreateScheduledTaskResponse = ScheduledTaskDataResult & {
+    /** The underlying HTTP response. */
+    _response: coreHttp.HttpResponse & {
+        /** The response body as text (string format) */
+        bodyAsText: string;
+        /** The response body as parsed JSON or XML */
+        parsedBody: ScheduledTaskDataResult;
+    };
+};
+/** Contains response data for the getScheduledTask operation. */
+export declare type TeamCloudGetScheduledTaskResponse = ScheduledTaskDataResult & {
+    /** The underlying HTTP response. */
+    _response: coreHttp.HttpResponse & {
+        /** The response body as text (string format) */
+        bodyAsText: string;
+        /** The response body as parsed JSON or XML */
+        parsedBody: ScheduledTaskDataResult;
+    };
+};
+/** Contains response data for the runScheduledTask operation. */
+export declare type TeamCloudRunScheduledTaskResponse = ScheduledTaskDataResult & {
+    /** The underlying HTTP response. */
+    _response: coreHttp.HttpResponse & {
+        /** The response body as text (string format) */
+        bodyAsText: string;
+        /** The response body as parsed JSON or XML */
+        parsedBody: ScheduledTaskDataResult;
     };
 };
 /** Contains response data for the getStatus operation. */

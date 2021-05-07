@@ -115,4 +115,26 @@ export var KnownProjectResourceState;
     KnownProjectResourceState["Succeeded"] = "Succeeded";
     KnownProjectResourceState["Failed"] = "Failed";
 })(KnownProjectResourceState || (KnownProjectResourceState = {}));
+/** Known values of {@link ScheduledTaskDaysOfWeekItem} that the service accepts. */
+export var KnownScheduledTaskDaysOfWeekItem;
+(function (KnownScheduledTaskDaysOfWeekItem) {
+    KnownScheduledTaskDaysOfWeekItem["Sunday"] = "Sunday";
+    KnownScheduledTaskDaysOfWeekItem["Monday"] = "Monday";
+    KnownScheduledTaskDaysOfWeekItem["Tuesday"] = "Tuesday";
+    KnownScheduledTaskDaysOfWeekItem["Wednesday"] = "Wednesday";
+    KnownScheduledTaskDaysOfWeekItem["Thursday"] = "Thursday";
+    KnownScheduledTaskDaysOfWeekItem["Friday"] = "Friday";
+    KnownScheduledTaskDaysOfWeekItem["Saturday"] = "Saturday";
+})(KnownScheduledTaskDaysOfWeekItem || (KnownScheduledTaskDaysOfWeekItem = {}));
+/** Known values of {@link ScheduledTaskDefinitionDaysOfWeekItem} that the service accepts. */
+export var KnownScheduledTaskDefinitionDaysOfWeekItem;
+(function (KnownScheduledTaskDefinitionDaysOfWeekItem) {
+    KnownScheduledTaskDefinitionDaysOfWeekItem["Sunday"] = "Sunday";
+    KnownScheduledTaskDefinitionDaysOfWeekItem["Monday"] = "Monday";
+    KnownScheduledTaskDefinitionDaysOfWeekItem["Tuesday"] = "Tuesday";
+    KnownScheduledTaskDefinitionDaysOfWeekItem["Wednesday"] = "Wednesday";
+    KnownScheduledTaskDefinitionDaysOfWeekItem["Thursday"] = "Thursday";
+    KnownScheduledTaskDefinitionDaysOfWeekItem["Friday"] = "Friday";
+    KnownScheduledTaskDefinitionDaysOfWeekItem["Saturday"] = "Saturday";
+})(KnownScheduledTaskDefinitionDaysOfWeekItem || (KnownScheduledTaskDefinitionDaysOfWeekItem = {}));
 //# sourceMappingURL=index.js.map

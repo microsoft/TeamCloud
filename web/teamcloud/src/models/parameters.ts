@@ -23,7 +23,8 @@ import {
   ProjectIdentityDefinition as ProjectIdentityDefinitionMapper,
   ProjectIdentity as ProjectIdentityMapper,
   ProjectTemplateDefinition as ProjectTemplateDefinitionMapper,
-  ProjectTemplate as ProjectTemplateMapper
+  ProjectTemplate as ProjectTemplateMapper,
+  ScheduledTaskDefinition as ScheduledTaskDefinitionMapper
 } from "../models/mappers";
 
 export const accept: OperationParameter = {
@@ -99,17 +100,6 @@ export const body: OperationParameter = {
   mapper: ComponentDefinitionMapper
 };
 
-export const id: OperationURLParameter = {
-  parameterPath: "id",
-  mapper: {
-    serializedName: "id",
-    required: true,
-    type: {
-      name: "String"
-    }
-  }
-};
-
 export const componentId: OperationURLParameter = {
   parameterPath: "componentId",
   mapper: {
@@ -124,6 +114,17 @@ export const componentId: OperationURLParameter = {
 export const body1: OperationParameter = {
   parameterPath: ["options", "body"],
   mapper: ComponentTaskDefinitionMapper
+};
+
+export const id: OperationURLParameter = {
+  parameterPath: "id",
+  mapper: {
+    serializedName: "id",
+    required: true,
+    type: {
+      name: "String"
+    }
+  }
 };
 
 export const body2: OperationParameter = {
@@ -229,6 +230,22 @@ export const projectTemplateId: OperationURLParameter = {
 export const body12: OperationParameter = {
   parameterPath: ["options", "body"],
   mapper: ProjectTemplateMapper
+};
+
+export const body13: OperationParameter = {
+  parameterPath: ["options", "body"],
+  mapper: ScheduledTaskDefinitionMapper
+};
+
+export const scheduledTaskId: OperationURLParameter = {
+  parameterPath: "scheduledTaskId",
+  mapper: {
+    serializedName: "scheduledTaskId",
+    required: true,
+    type: {
+      name: "String"
+    }
+  }
 };
 
 export const trackingId: OperationURLParameter = {

@@ -179,7 +179,7 @@ class TeamCloudClientOperationsMixin(object):
 
     def get_component(
         self,
-        id,  # type: str
+        component_id,  # type: str
         organization_id,  # type: str
         project_id,  # type: str
         **kwargs  # type: Any
@@ -189,8 +189,8 @@ class TeamCloudClientOperationsMixin(object):
 
         Gets a Project Component.
 
-        :param id:
-        :type id: str
+        :param component_id:
+        :type component_id: str
         :param organization_id:
         :type organization_id: str
         :param project_id:
@@ -210,7 +210,7 @@ class TeamCloudClientOperationsMixin(object):
         # Construct URL
         url = self.get_component.metadata['url']  # type: ignore
         path_format_arguments = {
-            'id': self._serialize.url("id", id, 'str'),
+            'componentId': self._serialize.url("component_id", component_id, 'str'),
             'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
             'projectId': self._serialize.url("project_id", project_id, 'str'),
         }
@@ -245,11 +245,11 @@ class TeamCloudClientOperationsMixin(object):
             return cls(pipeline_response, deserialized, {})
 
         return deserialized
-    get_component.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/components/{id}'}  # type: ignore
+    get_component.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/components/{componentId}'}  # type: ignore
 
     def delete_component(
         self,
-        id,  # type: str
+        component_id,  # type: str
         organization_id,  # type: str
         project_id,  # type: str
         **kwargs  # type: Any
@@ -259,8 +259,8 @@ class TeamCloudClientOperationsMixin(object):
 
         Deletes an existing Project Component.
 
-        :param id:
-        :type id: str
+        :param component_id:
+        :type component_id: str
         :param organization_id:
         :type organization_id: str
         :param project_id:
@@ -280,7 +280,7 @@ class TeamCloudClientOperationsMixin(object):
         # Construct URL
         url = self.delete_component.metadata['url']  # type: ignore
         path_format_arguments = {
-            'id': self._serialize.url("id", id, 'str'),
+            'componentId': self._serialize.url("component_id", component_id, 'str'),
             'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
             'projectId': self._serialize.url("project_id", project_id, 'str'),
         }
@@ -318,7 +318,7 @@ class TeamCloudClientOperationsMixin(object):
             return cls(pipeline_response, deserialized, {})
 
         return deserialized
-    delete_component.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/components/{id}'}  # type: ignore
+    delete_component.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/components/{componentId}'}  # type: ignore
 
     def get_component_tasks(
         self,
@@ -3655,6 +3655,289 @@ class TeamCloudClientOperationsMixin(object):
 
         return deserialized
     update_project_user_me.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/users/me'}  # type: ignore
+
+    def get_scheduled_tasks(
+        self,
+        organization_id,  # type: str
+        project_id,  # type: str
+        **kwargs  # type: Any
+    ):
+        # type: (...) -> Optional[Union["_models.ScheduledTaskListDataResult", "_models.ErrorResult"]]
+        """Gets all Scheduled Tasks.
+
+        Gets all Scheduled Tasks.
+
+        :param organization_id:
+        :type organization_id: str
+        :param project_id:
+        :type project_id: str
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: ScheduledTaskListDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ScheduledTaskListDataResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ScheduledTaskListDataResult", "_models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
+
+        # Construct URL
+        url = self.get_scheduled_tasks.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
+            'projectId': self._serialize.url("project_id", project_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        request = self._client.get(url, query_parameters, header_parameters)
+        pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [200, 400, 401, 403]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 200:
+            deserialized = self._deserialize('ScheduledTaskListDataResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    get_scheduled_tasks.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/schedules'}  # type: ignore
+
+    def create_scheduled_task(
+        self,
+        organization_id,  # type: str
+        project_id,  # type: str
+        body=None,  # type: Optional["_models.ScheduledTaskDefinition"]
+        **kwargs  # type: Any
+    ):
+        # type: (...) -> Optional[Union["_models.ScheduledTaskDataResult", "_models.ErrorResult"]]
+        """Creates a new Project Scheduled Task.
+
+        Creates a new Project Scheduled Task.
+
+        :param organization_id:
+        :type organization_id: str
+        :param project_id:
+        :type project_id: str
+        :param body:
+        :type body: ~teamcloud.models.ScheduledTaskDefinition
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: ScheduledTaskDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ScheduledTaskDataResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ScheduledTaskDataResult", "_models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        content_type = kwargs.pop("content_type", "application/json")
+        accept = "application/json"
+
+        # Construct URL
+        url = self.create_scheduled_task.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
+            'projectId': self._serialize.url("project_id", project_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        body_content_kwargs = {}  # type: Dict[str, Any]
+        if body is not None:
+            body_content = self._serialize.body(body, 'ScheduledTaskDefinition')
+        else:
+            body_content = None
+        body_content_kwargs['content'] = body_content
+        request = self._client.post(url, query_parameters, header_parameters, **body_content_kwargs)
+        pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [201, 400, 401, 403, 404, 409]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 201:
+            deserialized = self._deserialize('ScheduledTaskDataResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 409:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    create_scheduled_task.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/schedules'}  # type: ignore
+
+    def get_scheduled_task(
+        self,
+        scheduled_task_id,  # type: str
+        organization_id,  # type: str
+        project_id,  # type: str
+        **kwargs  # type: Any
+    ):
+        # type: (...) -> Optional[Union["_models.ScheduledTaskDataResult", "_models.ErrorResult"]]
+        """Gets the Scheduled Task.
+
+        Gets the Scheduled Task.
+
+        :param scheduled_task_id:
+        :type scheduled_task_id: str
+        :param organization_id:
+        :type organization_id: str
+        :param project_id:
+        :type project_id: str
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: ScheduledTaskDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ScheduledTaskDataResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ScheduledTaskDataResult", "_models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
+
+        # Construct URL
+        url = self.get_scheduled_task.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'scheduledTaskId': self._serialize.url("scheduled_task_id", scheduled_task_id, 'str'),
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
+            'projectId': self._serialize.url("project_id", project_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        request = self._client.get(url, query_parameters, header_parameters)
+        pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [200, 400, 401, 403, 404]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 200:
+            deserialized = self._deserialize('ScheduledTaskDataResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    get_scheduled_task.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/schedules/{scheduledTaskId}'}  # type: ignore
+
+    def run_scheduled_task(
+        self,
+        scheduled_task_id,  # type: str
+        organization_id,  # type: str
+        project_id,  # type: str
+        **kwargs  # type: Any
+    ):
+        # type: (...) -> Optional[Union["_models.ScheduledTaskDataResult", "_models.ErrorResult"]]
+        """Runs a Project Scheduled Task.
+
+        Runs a Project Scheduled Task.
+
+        :param scheduled_task_id:
+        :type scheduled_task_id: str
+        :param organization_id:
+        :type organization_id: str
+        :param project_id:
+        :type project_id: str
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: ScheduledTaskDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ScheduledTaskDataResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ScheduledTaskDataResult", "_models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
+
+        # Construct URL
+        url = self.run_scheduled_task.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'scheduledTaskId': self._serialize.url("scheduled_task_id", scheduled_task_id, 'str'),
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
+            'projectId': self._serialize.url("project_id", project_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        request = self._client.post(url, query_parameters, header_parameters)
+        pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [201, 400, 401, 403, 404]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 201:
+            deserialized = self._deserialize('ScheduledTaskDataResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    run_scheduled_task.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/schedules/{scheduledTaskId}/run'}  # type: ignore
 
     def get_status(
         self,

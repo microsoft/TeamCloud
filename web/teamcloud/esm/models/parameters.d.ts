@@ -6,9 +6,9 @@ export declare const organizationId: OperationURLParameter;
 export declare const projectId: OperationURLParameter;
 export declare const contentType: OperationParameter;
 export declare const body: OperationParameter;
-export declare const id: OperationURLParameter;
 export declare const componentId: OperationURLParameter;
 export declare const body1: OperationParameter;
+export declare const id: OperationURLParameter;
 export declare const body2: OperationParameter;
 export declare const body3: OperationParameter;
 export declare const body4: OperationParameter;
@@ -24,5 +24,7 @@ export declare const tagKey: OperationURLParameter;
 export declare const body11: OperationParameter;
 export declare const projectTemplateId: OperationURLParameter;
 export declare const body12: OperationParameter;
+export declare const body13: OperationParameter;
+export declare const scheduledTaskId: OperationURLParameter;
 export declare const trackingId: OperationURLParameter;
 //# sourceMappingURL=parameters.d.ts.map

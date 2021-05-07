@@ -268,6 +268,8 @@ class ComponentTask(msrest.serialization.Model):
     :type project_id: str
     :param requested_by:
     :type requested_by: str
+    :param scheduled_task_id:
+    :type scheduled_task_id: str
     :param type:  Possible values include: 0, 1, 2.
     :type type: str or ~teamcloud.models.Enum3
     :param type_name:
@@ -305,6 +307,7 @@ class ComponentTask(msrest.serialization.Model):
         'component_id': {'key': 'componentId', 'type': 'str'},
         'project_id': {'key': 'projectId', 'type': 'str'},
         'requested_by': {'key': 'requestedBy', 'type': 'str'},
+        'scheduled_task_id': {'key': 'scheduledTaskId', 'type': 'str'},
         'type': {'key': 'type', 'type': 'int'},
         'type_name': {'key': 'typeName', 'type': 'str'},
         'created': {'key': 'created', 'type': 'iso-8601'},
@@ -326,6 +329,7 @@ class ComponentTask(msrest.serialization.Model):
         project_id: str,
         id: str,
         requested_by: Optional[str] = None,
+        scheduled_task_id: Optional[str] = None,
         type: Optional[Union[int, "Enum3"]] = None,
         type_name: Optional[str] = None,
         created: Optional[datetime.datetime] = None,
@@ -343,6 +347,7 @@ class ComponentTask(msrest.serialization.Model):
         self.component_id = component_id
         self.project_id = project_id
         self.requested_by = requested_by
+        self.scheduled_task_id = scheduled_task_id
         self.type = type
         self.type_name = type_name
         self.created = created
@@ -463,6 +468,37 @@ class ComponentTaskListDataResult(msrest.serialization.Model):
         self.status = status
         self.data = None
         self.location = location
+
+
+class ComponentTaskReference(msrest.serialization.Model):
+    """ComponentTaskReference.
+
+    :param component_id:
+    :type component_id: str
+    :param component_task_template_id:
+    :type component_task_template_id: str
+    :param input_json:
+    :type input_json: str
+    """
+
+    _attribute_map = {
+        'component_id': {'key': 'componentId', 'type': 'str'},
+        'component_task_template_id': {'key': 'componentTaskTemplateId', 'type': 'str'},
+        'input_json': {'key': 'inputJson', 'type': 'str'},
+    }
+
+    def __init__(
+        self,
+        *,
+        component_id: Optional[str] = None,
+        component_task_template_id: Optional[str] = None,
+        input_json: Optional[str] = None,
+        **kwargs
+    ):
+        super(ComponentTaskReference, self).__init__(**kwargs)
+        self.component_id = component_id
+        self.component_task_template_id = component_task_template_id
+        self.input_json = input_json
 
 
 class ComponentTaskRunner(msrest.serialization.Model):
@@ -1952,6 +1988,213 @@ class ResultError(msrest.serialization.Model):
         self.errors = errors
 
 
+class ScheduledTask(msrest.serialization.Model):
+    """ScheduledTask.
+
+    All required parameters must be populated in order to send to Azure.
+
+    :param organization: Required.
+    :type organization: str
+    :param project_id: Required.
+    :type project_id: str
+    :param enabled:
+    :type enabled: bool
+    :param recurring:
+    :type recurring: bool
+    :param days_of_week:
+    :type days_of_week: list[str or ~teamcloud.models.ScheduledTaskDaysOfWeekItem]
+    :param utc_hour:
+    :type utc_hour: int
+    :param utc_minute:
+    :type utc_minute: int
+    :param creator:
+    :type creator: str
+    :param created:
+    :type created: ~datetime.datetime
+    :param last_run:
+    :type last_run: ~datetime.datetime
+    :param component_tasks:
+    :type component_tasks: list[~teamcloud.models.ComponentTaskReference]
+    :param id: Required.
+    :type id: str
+    """
+
+    _validation = {
+        'organization': {'required': True},
+        'project_id': {'required': True},
+        'id': {'required': True},
+    }
+
+    _attribute_map = {
+        'organization': {'key': 'organization', 'type': 'str'},
+        'project_id': {'key': 'projectId', 'type': 'str'},
+        'enabled': {'key': 'enabled', 'type': 'bool'},
+        'recurring': {'key': 'recurring', 'type': 'bool'},
+        'days_of_week': {'key': 'daysOfWeek', 'type': '[str]'},
+        'utc_hour': {'key': 'utcHour', 'type': 'int'},
+        'utc_minute': {'key': 'utcMinute', 'type': 'int'},
+        'creator': {'key': 'creator', 'type': 'str'},
+        'created': {'key': 'created', 'type': 'iso-8601'},
+        'last_run': {'key': 'lastRun', 'type': 'iso-8601'},
+        'component_tasks': {'key': 'componentTasks', 'type': '[ComponentTaskReference]'},
+        'id': {'key': 'id', 'type': 'str'},
+    }
+
+    def __init__(
+        self,
+        *,
+        organization: str,
+        project_id: str,
+        id: str,
+        enabled: Optional[bool] = None,
+        recurring: Optional[bool] = None,
+        days_of_week: Optional[List[Union[str, "ScheduledTaskDaysOfWeekItem"]]] = None,
+        utc_hour: Optional[int] = None,
+        utc_minute: Optional[int] = None,
+        creator: Optional[str] = None,
+        created: Optional[datetime.datetime] = None,
+        last_run: Optional[datetime.datetime] = None,
+        component_tasks: Optional[List["ComponentTaskReference"]] = None,
+        **kwargs
+    ):
+        super(ScheduledTask, self).__init__(**kwargs)
+        self.organization = organization
+        self.project_id = project_id
+        self.enabled = enabled
+        self.recurring = recurring
+        self.days_of_week = days_of_week
+        self.utc_hour = utc_hour
+        self.utc_minute = utc_minute
+        self.creator = creator
+        self.created = created
+        self.last_run = last_run
+        self.component_tasks = component_tasks
+        self.id = id
+
+
+class ScheduledTaskDataResult(msrest.serialization.Model):
+    """ScheduledTaskDataResult.
+
+    :param code:
+    :type code: int
+    :param status:
+    :type status: str
+    :param data:
+    :type data: ~teamcloud.models.ScheduledTask
+    :param location:
+    :type location: str
+    """
+
+    _attribute_map = {
+        'code': {'key': 'code', 'type': 'int'},
+        'status': {'key': 'status', 'type': 'str'},
+        'data': {'key': 'data', 'type': 'ScheduledTask'},
+        'location': {'key': 'location', 'type': 'str'},
+    }
+
+    def __init__(
+        self,
+        *,
+        code: Optional[int] = None,
+        status: Optional[str] = None,
+        data: Optional["ScheduledTask"] = None,
+        location: Optional[str] = None,
+        **kwargs
+    ):
+        super(ScheduledTaskDataResult, self).__init__(**kwargs)
+        self.code = code
+        self.status = status
+        self.data = data
+        self.location = location
+
+
+class ScheduledTaskDefinition(msrest.serialization.Model):
+    """ScheduledTaskDefinition.
+
+    :param enabled:
+    :type enabled: bool
+    :param recurring:
+    :type recurring: bool
+    :param days_of_week:
+    :type days_of_week: list[str or ~teamcloud.models.ScheduledTaskDefinitionDaysOfWeekItem]
+    :param utc_hour:
+    :type utc_hour: int
+    :param utc_minute:
+    :type utc_minute: int
+    :param component_tasks:
+    :type component_tasks: list[~teamcloud.models.ComponentTaskReference]
+    """
+
+    _attribute_map = {
+        'enabled': {'key': 'enabled', 'type': 'bool'},
+        'recurring': {'key': 'recurring', 'type': 'bool'},
+        'days_of_week': {'key': 'daysOfWeek', 'type': '[str]'},
+        'utc_hour': {'key': 'utcHour', 'type': 'int'},
+        'utc_minute': {'key': 'utcMinute', 'type': 'int'},
+        'component_tasks': {'key': 'componentTasks', 'type': '[ComponentTaskReference]'},
+    }
+
+    def __init__(
+        self,
+        *,
+        enabled: Optional[bool] = None,
+        recurring: Optional[bool] = None,
+        days_of_week: Optional[List[Union[str, "ScheduledTaskDefinitionDaysOfWeekItem"]]] = None,
+        utc_hour: Optional[int] = None,
+        utc_minute: Optional[int] = None,
+        component_tasks: Optional[List["ComponentTaskReference"]] = None,
+        **kwargs
+    ):
+        super(ScheduledTaskDefinition, self).__init__(**kwargs)
+        self.enabled = enabled
+        self.recurring = recurring
+        self.days_of_week = days_of_week
+        self.utc_hour = utc_hour
+        self.utc_minute = utc_minute
+        self.component_tasks = component_tasks
+
+
+class ScheduledTaskListDataResult(msrest.serialization.Model):
+    """ScheduledTaskListDataResult.
+
+    Variables are only populated by the server, and will be ignored when sending a request.
+
+    :param code:
+    :type code: int
+    :param status:
+    :type status: str
+    :ivar data:
+    :vartype data: list[~teamcloud.models.ScheduledTask]
+    :param location:
+    :type location: str
+    """
+
+    _validation = {
+        'data': {'readonly': True},
+    }
+
+    _attribute_map = {
+        'code': {'key': 'code', 'type': 'int'},
+        'status': {'key': 'status', 'type': 'str'},
+        'data': {'key': 'data', 'type': '[ScheduledTask]'},
+        'location': {'key': 'location', 'type': 'str'},
+    }
+
+    def __init__(
+        self,
+        *,
+        code: Optional[int] = None,
+        status: Optional[str] = None,
+        location: Optional[str] = None,
+        **kwargs
+    ):
+        super(ScheduledTaskListDataResult, self).__init__(**kwargs)
+        self.code = code
+        self.status = status
+        self.data = None
+        self.location = location
+
+
 class StatusResult(msrest.serialization.Model):
     """StatusResult.
 
@@ -2056,6 +2299,12 @@ class User(msrest.serialization.Model):
 
     :param organization: Required.
     :type organization: str
+    :param display_name:
+    :type display_name: str
+    :param login_name:
+    :type login_name: str
+    :param mail_address:
+    :type mail_address: str
     :param user_type: Required.  Possible values include: "User", "System", "Provider",
      "Application".
     :type user_type: str or ~teamcloud.models.UserType
@@ -2078,6 +2327,9 @@ class User(msrest.serialization.Model):
 
     _attribute_map = {
         'organization': {'key': 'organization', 'type': 'str'},
+        'display_name': {'key': 'displayName', 'type': 'str'},
+        'login_name': {'key': 'loginName', 'type': 'str'},
+        'mail_address': {'key': 'mailAddress', 'type': 'str'},
         'user_type': {'key': 'userType', 'type': 'str'},
         'role': {'key': 'role', 'type': 'str'},
         'project_memberships': {'key': 'projectMemberships', 'type': '[ProjectMembership]'},
@@ -2092,12 +2344,18 @@ class User(msrest.serialization.Model):
         user_type: Union[str, "UserType"],
         role: Union[str, "UserRole"],
         id: str,
+        display_name: Optional[str] = None,
+        login_name: Optional[str] = None,
+        mail_address: Optional[str] = None,
         project_memberships: Optional[List["ProjectMembership"]] = None,
         properties: Optional[Dict[str, str]] = None,
         **kwargs
     ):
         super(User, self).__init__(**kwargs)
         self.organization = organization
+        self.display_name = display_name
+        self.login_name = login_name
+        self.mail_address = mail_address
         self.user_type = user_type
         self.role = role
         self.project_memberships = project_memberships

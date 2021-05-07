@@ -112,14 +112,14 @@ paths:
           description: Unauthorized
         '403':
           description: Forbidden
-  '/orgs/{organizationId}/projects/{projectId}/components/{id}':
+  '/orgs/{organizationId}/projects/{projectId}/components/{componentId}':
     get:
       tags:
         - Components
       summary: Gets a Project Component.
       operationId: GetComponent
       parameters:
-        - name: id
+        - name: componentId
           in: path
           required: true
           schema:
@@ -164,7 +164,7 @@ paths:
       summary: Deletes an existing Project Component.
       operationId: DeleteComponent
       parameters:
-        - name: id
+        - name: componentId
           in: path
           required: true
           schema:
@@ -2209,6 +2209,182 @@ paths:
           description: Unauthorized
         '403':
           description: Forbidden
+  '/orgs/{organizationId}/projects/{projectId}/schedules':
+    get:
+      tags:
+        - ScheduledTasks
+      summary: Gets all Scheduled Tasks.
+      operationId: GetScheduledTasks
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns all Scheduled Tasks
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduledTaskListDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    post:
+      tags:
+        - ScheduledTasks
+      summary: Creates a new Project Scheduled Task.
+      operationId: CreateScheduledTask
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScheduledTaskDefinition'
+      responses:
+        '201':
+          description: The created Project Scheduled Task.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduledTaskDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A Project with the provided projectId was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '409':
+          description: A Project Scheduled Task already exists with the id provided in the request body.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  '/orgs/{organizationId}/projects/{projectId}/schedules/{scheduledTaskId}':
+    get:
+      tags:
+        - ScheduledTasks
+      summary: Gets the Scheduled Task.
+      operationId: GetScheduledTask
+      parameters:
+        - name: scheduledTaskId
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns a Scheduled Task
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduledTaskDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A Scheduled Task with the provided id was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  '/orgs/{organizationId}/projects/{projectId}/schedules/{scheduledTaskId}/run':
+    post:
+      tags:
+        - ScheduledTasks
+      summary: Runs a Project Scheduled Task.
+      operationId: RunScheduledTask
+      parameters:
+        - name: scheduledTaskId
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '201':
+          description: The created Project Scheduled Task.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduledTaskDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A Project with the provided projectId was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
   '/orgs/{organizationId}/status/{trackingId}':
     get:
       tags:
@@ -2612,6 +2788,9 @@ components:
         projectId:
           type: string
         requestedBy:
+          type: string
+          nullable: true
+        scheduledTaskId:
           type: string
           nullable: true
         type:
@@ -3109,6 +3288,15 @@ components:
       properties:
         organization:
           type: string
+        displayName:
+          type: string
+          nullable: true
+        loginName:
+          type: string
+          nullable: true
+        mailAddress:
+          type: string
+          nullable: true
         userType:
           enum:
             - User
@@ -3488,6 +3676,137 @@ components:
           nullable: true
         data:
           $ref: '#/components/schemas/ProjectTemplate'
+        location:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ComponentTaskReference:
+      type: object
+      properties:
+        componentId:
+          type: string
+          nullable: true
+        componentTaskTemplateId:
+          type: string
+          nullable: true
+        inputJson:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ScheduledTask:
+      required:
+        - id
+        - organization
+        - projectId
+      type: object
+      properties:
+        organization:
+          type: string
+        projectId:
+          type: string
+        enabled:
+          type: boolean
+        recurring:
+          type: boolean
+        daysOfWeek:
+          type: array
+          items:
+            enum:
+              - Sunday
+              - Monday
+              - Tuesday
+              - Wednesday
+              - Thursday
+              - Friday
+              - Saturday
+            type: string
+          nullable: true
+        utcHour:
+          type: integer
+          format: int32
+        utcMinute:
+          type: integer
+          format: int32
+        creator:
+          type: string
+          nullable: true
+        created:
+          type: string
+          format: date-time
+        lastRun:
+          type: string
+          format: date-time
+          nullable: true
+        componentTasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/ComponentTaskReference'
+          nullable: true
+        id:
+          type: string
+      additionalProperties: false
+    ScheduledTaskListDataResult:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        status:
+          type: string
+          nullable: true
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScheduledTask'
+          nullable: true
+          readOnly: true
+        location:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ScheduledTaskDefinition:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        recurring:
+          type: boolean
+        daysOfWeek:
+          type: array
+          items:
+            enum:
+              - Sunday
+              - Monday
+              - Tuesday
+              - Wednesday
+              - Thursday
+              - Friday
+              - Saturday
+            type: string
+          nullable: true
+        utcHour:
+          type: integer
+          format: int32
+        utcMinute:
+          type: integer
+          format: int32
+        componentTasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/ComponentTaskReference'
+          nullable: true
+      additionalProperties: false
+    ScheduledTaskDataResult:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        status:
+          type: string
+          nullable: true
+        data:
+          $ref: '#/components/schemas/ScheduledTask'
         location:
           type: string
           nullable: true

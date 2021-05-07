@@ -109,6 +109,26 @@ class ResultErrorCode(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
     UNAUTHORIZED = "Unauthorized"
     FORBIDDEN = "Forbidden"
 
+class ScheduledTaskDaysOfWeekItem(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
+
+    SUNDAY = "Sunday"
+    MONDAY = "Monday"
+    TUESDAY = "Tuesday"
+    WEDNESDAY = "Wednesday"
+    THURSDAY = "Thursday"
+    FRIDAY = "Friday"
+    SATURDAY = "Saturday"
+
+class ScheduledTaskDefinitionDaysOfWeekItem(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
+
+    SUNDAY = "Sunday"
+    MONDAY = "Monday"
+    TUESDAY = "Tuesday"
+    WEDNESDAY = "Wednesday"
+    THURSDAY = "Thursday"
+    FRIDAY = "Friday"
+    SATURDAY = "Saturday"
+
 class UserRole(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
 
     NONE = "None"

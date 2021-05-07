@@ -45,4 +45,9 @@ export declare const ProjectTemplate: coreHttp.CompositeMapper;
 export declare const ProjectTemplateDefinition: coreHttp.CompositeMapper;
 export declare const RepositoryDefinition: coreHttp.CompositeMapper;
 export declare const ProjectTemplateDataResult: coreHttp.CompositeMapper;
+export declare const ScheduledTaskListDataResult: coreHttp.CompositeMapper;
+export declare const ScheduledTask: coreHttp.CompositeMapper;
+export declare const ComponentTaskReference: coreHttp.CompositeMapper;
+export declare const ScheduledTaskDefinition: coreHttp.CompositeMapper;
+export declare const ScheduledTaskDataResult: coreHttp.CompositeMapper;
 //# sourceMappingURL=mappers.d.ts.map
