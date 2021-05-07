@@ -748,64 +748,64 @@ var TeamCloud = /** @class */ (function (_super) {
         return this.sendOperationRequest(operationArguments, updateProjectUserMeOperationSpec);
     };
     /**
-     * Gets all Scheduled Tasks.
+     * Gets all Schedule.
      * @param organizationId
      * @param projectId
      * @param options The options parameters.
      */
-    TeamCloud.prototype.getScheduledTasks = function (organizationId, projectId, options) {
+    TeamCloud.prototype.getSchedules = function (organizationId, projectId, options) {
         var operationArguments = {
             organizationId: organizationId,
             projectId: projectId,
             options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
         };
-        return this.sendOperationRequest(operationArguments, getScheduledTasksOperationSpec);
+        return this.sendOperationRequest(operationArguments, getSchedulesOperationSpec);
     };
     /**
-     * Creates a new Project Scheduled Task.
+     * Creates a new Project Schedule.
      * @param organizationId
      * @param projectId
      * @param options The options parameters.
      */
-    TeamCloud.prototype.createScheduledTask = function (organizationId, projectId, options) {
+    TeamCloud.prototype.createSchedule = function (organizationId, projectId, options) {
         var operationArguments = {
             organizationId: organizationId,
             projectId: projectId,
             options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
         };
-        return this.sendOperationRequest(operationArguments, createScheduledTaskOperationSpec);
+        return this.sendOperationRequest(operationArguments, createScheduleOperationSpec);
     };
     /**
-     * Gets the Scheduled Task.
-     * @param scheduledTaskId
+     * Gets the Schedule.
+     * @param scheduleId
      * @param organizationId
      * @param projectId
      * @param options The options parameters.
      */
-    TeamCloud.prototype.getScheduledTask = function (scheduledTaskId, organizationId, projectId, options) {
+    TeamCloud.prototype.getSchedule = function (scheduleId, organizationId, projectId, options) {
         var operationArguments = {
-            scheduledTaskId: scheduledTaskId,
+            scheduleId: scheduleId,
             organizationId: organizationId,
             projectId: projectId,
             options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
         };
-        return this.sendOperationRequest(operationArguments, getScheduledTaskOperationSpec);
+        return this.sendOperationRequest(operationArguments, getScheduleOperationSpec);
     };
     /**
-     * Runs a Project Scheduled Task.
-     * @param scheduledTaskId
+     * Runs a Project Schedule.
+     * @param scheduleId
      * @param organizationId
      * @param projectId
      * @param options The options parameters.
      */
-    TeamCloud.prototype.runScheduledTask = function (scheduledTaskId, organizationId, projectId, options) {
+    TeamCloud.prototype.runSchedule = function (scheduleId, organizationId, projectId, options) {
         var operationArguments = {
-            scheduledTaskId: scheduledTaskId,
+            scheduleId: scheduleId,
             organizationId: organizationId,
             projectId: projectId,
             options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
         };
-        return this.sendOperationRequest(operationArguments, runScheduledTaskOperationSpec);
+        return this.sendOperationRequest(operationArguments, runScheduleOperationSpec);
     };
     /**
      * Gets the status of a long-running operation.
@@ -2108,12 +2108,12 @@ var updateProjectUserMeOperationSpec = {
     mediaType: "json",
     serializer: serializer
 };
-var getScheduledTasksOperationSpec = {
+var getSchedulesOperationSpec = {
     path: "/orgs/{organizationId}/projects/{projectId}/schedules",
     httpMethod: "GET",
     responses: {
         200: {
-            bodyMapper: Mappers.ScheduledTaskListDataResult
+            bodyMapper: Mappers.ScheduleListDataResult
         },
         400: {
             bodyMapper: Mappers.ErrorResult
@@ -2129,12 +2129,12 @@ var getScheduledTasksOperationSpec = {
     headerParameters: [Parameters.accept],
     serializer: serializer
 };
-var createScheduledTaskOperationSpec = {
+var createScheduleOperationSpec = {
     path: "/orgs/{organizationId}/projects/{projectId}/schedules",
     httpMethod: "POST",
     responses: {
         201: {
-            bodyMapper: Mappers.ScheduledTaskDataResult
+            bodyMapper: Mappers.ScheduleDataResult
         },
         400: {
             bodyMapper: Mappers.ErrorResult
@@ -2158,12 +2158,12 @@ var createScheduledTaskOperationSpec = {
     mediaType: "json",
     serializer: serializer
 };
-var getScheduledTaskOperationSpec = {
-    path: "/orgs/{organizationId}/projects/{projectId}/schedules/{scheduledTaskId}",
+var getScheduleOperationSpec = {
+    path: "/orgs/{organizationId}/projects/{projectId}/schedules/{scheduleId}",
     httpMethod: "GET",
     responses: {
         200: {
-            bodyMapper: Mappers.ScheduledTaskDataResult
+            bodyMapper: Mappers.ScheduleDataResult
         },
         400: {
             bodyMapper: Mappers.ErrorResult
@@ -2178,17 +2178,17 @@ var getScheduledTaskOperationSpec = {
         Parameters.$host,
         Parameters.organizationId,
         Parameters.projectId,
-        Parameters.scheduledTaskId
+        Parameters.scheduleId
     ],
     headerParameters: [Parameters.accept],
     serializer: serializer
 };
-var runScheduledTaskOperationSpec = {
-    path: "/orgs/{organizationId}/projects/{projectId}/schedules/{scheduledTaskId}/run",
+var runScheduleOperationSpec = {
+    path: "/orgs/{organizationId}/projects/{projectId}/schedules/{scheduleId}/run",
     httpMethod: "POST",
     responses: {
         201: {
-            bodyMapper: Mappers.ScheduledTaskDataResult
+            bodyMapper: Mappers.ScheduleDataResult
         },
         400: {
             bodyMapper: Mappers.ErrorResult
@@ -2203,7 +2203,7 @@ var runScheduledTaskOperationSpec = {
         Parameters.$host,
         Parameters.organizationId,
         Parameters.projectId,
-        Parameters.scheduledTaskId
+        Parameters.scheduleId
     ],
     headerParameters: [Parameters.accept],
     serializer: serializer

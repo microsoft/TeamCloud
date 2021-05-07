@@ -42,6 +42,18 @@ class ComponentTaskResourceState(with_metaclass(_CaseInsensitiveEnumMeta, str, E
     SUCCEEDED = "Succeeded"
     FAILED = "Failed"
 
+class ComponentTaskTemplateType(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
+
+    CREATE = "Create"
+    DELETE = "Delete"
+    CUSTOM = "Custom"
+
+class ComponentTaskType(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
+
+    CREATE = "Create"
+    DELETE = "Delete"
+    CUSTOM = "Custom"
+
 class ComponentTemplateType(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
 
     CUSTOM = "Custom"
@@ -55,12 +67,6 @@ class ComponentType(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
     AZURE_RESOURCE = "AzureResource"
     ENVIRONMENT = "Environment"
     GIT_REPOSITORY = "GitRepository"
-
-class Enum3(with_metaclass(_CaseInsensitiveEnumMeta, int, Enum)):
-
-    ZERO = 0
-    ONE = 1
-    TWO = 2
 
 class OrganizationResourceState(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
 
@@ -109,7 +115,7 @@ class ResultErrorCode(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
     UNAUTHORIZED = "Unauthorized"
     FORBIDDEN = "Forbidden"
 
-class ScheduledTaskDaysOfWeekItem(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
+class ScheduleDaysOfWeekItem(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
 
     SUNDAY = "Sunday"
     MONDAY = "Monday"
@@ -119,7 +125,7 @@ class ScheduledTaskDaysOfWeekItem(with_metaclass(_CaseInsensitiveEnumMeta, str, 
     FRIDAY = "Friday"
     SATURDAY = "Saturday"
 
-class ScheduledTaskDefinitionDaysOfWeekItem(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
+class ScheduleDefinitionDaysOfWeekItem(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
 
     SUNDAY = "Sunday"
     MONDAY = "Monday"

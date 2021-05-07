@@ -2212,9 +2212,9 @@ paths:
   '/orgs/{organizationId}/projects/{projectId}/schedules':
     get:
       tags:
-        - ScheduledTasks
-      summary: Gets all Scheduled Tasks.
-      operationId: GetScheduledTasks
+        - Schedule
+      summary: Gets all Schedule.
+      operationId: GetSchedules
       parameters:
         - name: organizationId
           in: path
@@ -2228,11 +2228,11 @@ paths:
             type: string
       responses:
         '200':
-          description: Returns all Scheduled Tasks
+          description: Returns all Schedule
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ScheduledTaskListDataResult'
+                $ref: '#/components/schemas/ScheduleListDataResult'
         '400':
           description: A validation error occured.
           content:
@@ -2245,9 +2245,9 @@ paths:
           description: Forbidden
     post:
       tags:
-        - ScheduledTasks
-      summary: Creates a new Project Scheduled Task.
-      operationId: CreateScheduledTask
+        - Schedule
+      summary: Creates a new Project Schedule.
+      operationId: CreateSchedule
       parameters:
         - name: organizationId
           in: path
@@ -2263,14 +2263,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ScheduledTaskDefinition'
+              $ref: '#/components/schemas/ScheduleDefinition'
       responses:
         '201':
-          description: The created Project Scheduled Task.
+          description: The created Project Schedule.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ScheduledTaskDataResult'
+                $ref: '#/components/schemas/ScheduleDataResult'
         '400':
           description: A validation error occured.
           content:
@@ -2284,7 +2284,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResult'
         '409':
-          description: A Project Scheduled Task already exists with the id provided in the request body.
+          description: A Project Schedule already exists with the id provided in the request body.
           content:
             application/json:
               schema:
@@ -2293,14 +2293,14 @@ paths:
           description: Unauthorized
         '403':
           description: Forbidden
-  '/orgs/{organizationId}/projects/{projectId}/schedules/{scheduledTaskId}':
+  '/orgs/{organizationId}/projects/{projectId}/schedules/{scheduleId}':
     get:
       tags:
-        - ScheduledTasks
-      summary: Gets the Scheduled Task.
-      operationId: GetScheduledTask
+        - Schedule
+      summary: Gets the Schedule.
+      operationId: GetSchedule
       parameters:
-        - name: scheduledTaskId
+        - name: scheduleId
           in: path
           required: true
           schema:
@@ -2318,11 +2318,11 @@ paths:
             type: string
       responses:
         '200':
-          description: Returns a Scheduled Task
+          description: Returns a Schedule
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ScheduledTaskDataResult'
+                $ref: '#/components/schemas/ScheduleDataResult'
         '400':
           description: A validation error occured.
           content:
@@ -2330,7 +2330,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResult'
         '404':
-          description: A Scheduled Task with the provided id was not found.
+          description: A Schedule with the provided id was not found.
           content:
             application/json:
               schema:
@@ -2339,14 +2339,14 @@ paths:
           description: Unauthorized
         '403':
           description: Forbidden
-  '/orgs/{organizationId}/projects/{projectId}/schedules/{scheduledTaskId}/run':
+  '/orgs/{organizationId}/projects/{projectId}/schedules/{scheduleId}/run':
     post:
       tags:
-        - ScheduledTasks
-      summary: Runs a Project Scheduled Task.
-      operationId: RunScheduledTask
+        - Schedule
+      summary: Runs a Project Schedule.
+      operationId: RunSchedule
       parameters:
-        - name: scheduledTaskId
+        - name: scheduleId
           in: path
           required: true
           schema:
@@ -2364,11 +2364,11 @@ paths:
             type: string
       responses:
         '201':
-          description: The created Project Scheduled Task.
+          description: The created Project Schedule.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ScheduledTaskDataResult'
+                $ref: '#/components/schemas/ScheduleDataResult'
         '400':
           description: A validation error occured.
           content:
@@ -2790,16 +2790,15 @@ components:
         requestedBy:
           type: string
           nullable: true
-        scheduledTaskId:
+        scheduleId:
           type: string
           nullable: true
         type:
           enum:
-            - 0
-            - 1
-            - 2
-          type: integer
-          format: int32
+            - Create
+            - Delete
+            - Custom
+          type: string
         typeName:
           type: string
           nullable: true
@@ -2949,11 +2948,10 @@ components:
           nullable: true
         type:
           enum:
-            - 0
-            - 1
-            - 2
-          type: integer
-          format: int32
+            - Create
+            - Delete
+            - Custom
+          type: string
         typeName:
           type: string
           nullable: true
@@ -3693,7 +3691,7 @@ components:
           type: string
           nullable: true
       additionalProperties: false
-    ScheduledTask:
+    Schedule:
       required:
         - id
         - organization
@@ -3745,7 +3743,7 @@ components:
         id:
           type: string
       additionalProperties: false
-    ScheduledTaskListDataResult:
+    ScheduleListDataResult:
       type: object
       properties:
         code:
@@ -3757,14 +3755,14 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/ScheduledTask'
+            $ref: '#/components/schemas/Schedule'
           nullable: true
           readOnly: true
         location:
           type: string
           nullable: true
       additionalProperties: false
-    ScheduledTaskDefinition:
+    ScheduleDefinition:
       type: object
       properties:
         enabled:
@@ -3796,7 +3794,7 @@ components:
             $ref: '#/components/schemas/ComponentTaskReference'
           nullable: true
       additionalProperties: false
-    ScheduledTaskDataResult:
+    ScheduleDataResult:
       type: object
       properties:
         code:
@@ -3806,7 +3804,7 @@ components:
           type: string
           nullable: true
         data:
-          $ref: '#/components/schemas/ScheduledTask'
+          $ref: '#/components/schemas/Schedule'
         location:
           type: string
           nullable: true

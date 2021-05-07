@@ -25,6 +25,6 @@ export declare const body11: OperationParameter;
 export declare const projectTemplateId: OperationURLParameter;
 export declare const body12: OperationParameter;
 export declare const body13: OperationParameter;
-export declare const scheduledTaskId: OperationURLParameter;
+export declare const scheduleId: OperationURLParameter;
 export declare const trackingId: OperationURLParameter;
 //# sourceMappingURL=parameters.d.ts.map

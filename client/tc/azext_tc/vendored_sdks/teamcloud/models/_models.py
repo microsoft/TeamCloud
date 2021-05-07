@@ -231,10 +231,10 @@ class ComponentTask(msrest.serialization.Model):
     :type project_id: str
     :param requested_by:
     :type requested_by: str
-    :param scheduled_task_id:
-    :type scheduled_task_id: str
-    :param type:  Possible values include: 0, 1, 2.
-    :type type: str or ~teamcloud.models.Enum3
+    :param schedule_id:
+    :type schedule_id: str
+    :param type:  Possible values include: "Create", "Delete", "Custom".
+    :type type: str or ~teamcloud.models.ComponentTaskType
     :param type_name:
     :type type_name: str
     :param created:
@@ -270,8 +270,8 @@ class ComponentTask(msrest.serialization.Model):
         'component_id': {'key': 'componentId', 'type': 'str'},
         'project_id': {'key': 'projectId', 'type': 'str'},
         'requested_by': {'key': 'requestedBy', 'type': 'str'},
-        'scheduled_task_id': {'key': 'scheduledTaskId', 'type': 'str'},
-        'type': {'key': 'type', 'type': 'int'},
+        'schedule_id': {'key': 'scheduleId', 'type': 'str'},
+        'type': {'key': 'type', 'type': 'str'},
         'type_name': {'key': 'typeName', 'type': 'str'},
         'created': {'key': 'created', 'type': 'iso-8601'},
         'started': {'key': 'started', 'type': 'iso-8601'},
@@ -293,7 +293,7 @@ class ComponentTask(msrest.serialization.Model):
         self.component_id = kwargs['component_id']
         self.project_id = kwargs['project_id']
         self.requested_by = kwargs.get('requested_by', None)
-        self.scheduled_task_id = kwargs.get('scheduled_task_id', None)
+        self.schedule_id = kwargs.get('schedule_id', None)
         self.type = kwargs.get('type', None)
         self.type_name = kwargs.get('type_name', None)
         self.created = kwargs.get('created', None)
@@ -469,8 +469,8 @@ class ComponentTaskTemplate(msrest.serialization.Model):
     :type description: str
     :param input_json_schema:
     :type input_json_schema: str
-    :param type: Required.  Possible values include: 0, 1, 2.
-    :type type: str or ~teamcloud.models.Enum3
+    :param type: Required.  Possible values include: "Create", "Delete", "Custom".
+    :type type: str or ~teamcloud.models.ComponentTaskTemplateType
     :ivar type_name:
     :vartype type_name: str
     """
@@ -485,7 +485,7 @@ class ComponentTaskTemplate(msrest.serialization.Model):
         'display_name': {'key': 'displayName', 'type': 'str'},
         'description': {'key': 'description', 'type': 'str'},
         'input_json_schema': {'key': 'inputJsonSchema', 'type': 'str'},
-        'type': {'key': 'type', 'type': 'int'},
+        'type': {'key': 'type', 'type': 'str'},
         'type_name': {'key': 'typeName', 'type': 'str'},
     }
 
@@ -1737,8 +1737,8 @@ class ResultError(msrest.serialization.Model):
         self.errors = kwargs.get('errors', None)
 
 
-class ScheduledTask(msrest.serialization.Model):
-    """ScheduledTask.
+class Schedule(msrest.serialization.Model):
+    """Schedule.
 
     All required parameters must be populated in order to send to Azure.
 
@@ -1751,7 +1751,7 @@ class ScheduledTask(msrest.serialization.Model):
     :param recurring:
     :type recurring: bool
     :param days_of_week:
-    :type days_of_week: list[str or ~teamcloud.models.ScheduledTaskDaysOfWeekItem]
+    :type days_of_week: list[str or ~teamcloud.models.ScheduleDaysOfWeekItem]
     :param utc_hour:
     :type utc_hour: int
     :param utc_minute:
@@ -1793,7 +1793,7 @@ class ScheduledTask(msrest.serialization.Model):
         self,
         **kwargs
     ):
-        super(ScheduledTask, self).__init__(**kwargs)
+        super(Schedule, self).__init__(**kwargs)
         self.organization = kwargs['organization']
         self.project_id = kwargs['project_id']
         self.enabled = kwargs.get('enabled', None)
@@ -1808,15 +1808,15 @@ class ScheduledTask(msrest.serialization.Model):
         self.id = kwargs['id']
 
 
-class ScheduledTaskDataResult(msrest.serialization.Model):
-    """ScheduledTaskDataResult.
+class ScheduleDataResult(msrest.serialization.Model):
+    """ScheduleDataResult.
 
     :param code:
     :type code: int
     :param status:
     :type status: str
     :param data:
-    :type data: ~teamcloud.models.ScheduledTask
+    :type data: ~teamcloud.models.Schedule
     :param location:
     :type location: str
     """
@@ -1824,7 +1824,7 @@ class ScheduledTaskDataResult(msrest.serialization.Model):
     _attribute_map = {
         'code': {'key': 'code', 'type': 'int'},
         'status': {'key': 'status', 'type': 'str'},
-        'data': {'key': 'data', 'type': 'ScheduledTask'},
+        'data': {'key': 'data', 'type': 'Schedule'},
         'location': {'key': 'location', 'type': 'str'},
     }
 
@@ -1832,22 +1832,22 @@ class ScheduledTaskDataResult(msrest.serialization.Model):
         self,
         **kwargs
     ):
-        super(ScheduledTaskDataResult, self).__init__(**kwargs)
+        super(ScheduleDataResult, self).__init__(**kwargs)
         self.code = kwargs.get('code', None)
         self.status = kwargs.get('status', None)
         self.data = kwargs.get('data', None)
         self.location = kwargs.get('location', None)
 
 
-class ScheduledTaskDefinition(msrest.serialization.Model):
-    """ScheduledTaskDefinition.
+class ScheduleDefinition(msrest.serialization.Model):
+    """ScheduleDefinition.
 
     :param enabled:
     :type enabled: bool
     :param recurring:
     :type recurring: bool
     :param days_of_week:
-    :type days_of_week: list[str or ~teamcloud.models.ScheduledTaskDefinitionDaysOfWeekItem]
+    :type days_of_week: list[str or ~teamcloud.models.ScheduleDefinitionDaysOfWeekItem]
     :param utc_hour:
     :type utc_hour: int
     :param utc_minute:
@@ -1869,7 +1869,7 @@ class ScheduledTaskDefinition(msrest.serialization.Model):
         self,
         **kwargs
     ):
-        super(ScheduledTaskDefinition, self).__init__(**kwargs)
+        super(ScheduleDefinition, self).__init__(**kwargs)
         self.enabled = kwargs.get('enabled', None)
         self.recurring = kwargs.get('recurring', None)
         self.days_of_week = kwargs.get('days_of_week', None)
@@ -1878,8 +1878,8 @@ class ScheduledTaskDefinition(msrest.serialization.Model):
         self.component_tasks = kwargs.get('component_tasks', None)
 
 
-class ScheduledTaskListDataResult(msrest.serialization.Model):
-    """ScheduledTaskListDataResult.
+class ScheduleListDataResult(msrest.serialization.Model):
+    """ScheduleListDataResult.
 
     Variables are only populated by the server, and will be ignored when sending a request.
 
@@ -1888,7 +1888,7 @@ class ScheduledTaskListDataResult(msrest.serialization.Model):
     :param status:
     :type status: str
     :ivar data:
-    :vartype data: list[~teamcloud.models.ScheduledTask]
+    :vartype data: list[~teamcloud.models.Schedule]
     :param location:
     :type location: str
     """
@@ -1900,7 +1900,7 @@ class ScheduledTaskListDataResult(msrest.serialization.Model):
     _attribute_map = {
         'code': {'key': 'code', 'type': 'int'},
         'status': {'key': 'status', 'type': 'str'},
-        'data': {'key': 'data', 'type': '[ScheduledTask]'},
+        'data': {'key': 'data', 'type': '[Schedule]'},
         'location': {'key': 'location', 'type': 'str'},
     }
 
@@ -1908,7 +1908,7 @@ class ScheduledTaskListDataResult(msrest.serialization.Model):
         self,
         **kwargs
     ):
-        super(ScheduledTaskListDataResult, self).__init__(**kwargs)
+        super(ScheduleListDataResult, self).__init__(**kwargs)
         self.code = kwargs.get('code', None)
         self.status = kwargs.get('status', None)
         self.data = None

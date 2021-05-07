@@ -3578,10 +3578,10 @@
     "/orgs/{organizationId}/projects/{projectId}/schedules": {
       "get": {
         "tags": [
-          "ScheduledTasks"
+          "Schedule"
         ],
-        "summary": "Gets all Scheduled Tasks.",
-        "operationId": "GetScheduledTasks",
+        "summary": "Gets all Schedule.",
+        "operationId": "GetSchedules",
         "parameters": [
           {
             "name": "organizationId",
@@ -3602,11 +3602,11 @@
         ],
         "responses": {
           "200": {
-            "description": "Returns all Scheduled Tasks",
+            "description": "Returns all Schedule",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ScheduledTaskListDataResult"
+                  "$ref": "#/components/schemas/ScheduleListDataResult"
                 }
               }
             }
@@ -3631,10 +3631,10 @@
       },
       "post": {
         "tags": [
-          "ScheduledTasks"
+          "Schedule"
         ],
-        "summary": "Creates a new Project Scheduled Task.",
-        "operationId": "CreateScheduledTask",
+        "summary": "Creates a new Project Schedule.",
+        "operationId": "CreateSchedule",
         "parameters": [
           {
             "name": "organizationId",
@@ -3657,18 +3657,18 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScheduledTaskDefinition"
+                "$ref": "#/components/schemas/ScheduleDefinition"
               }
             }
           }
         },
         "responses": {
           "201": {
-            "description": "The created Project Scheduled Task.",
+            "description": "The created Project Schedule.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ScheduledTaskDataResult"
+                  "$ref": "#/components/schemas/ScheduleDataResult"
                 }
               }
             }
@@ -3694,7 +3694,7 @@
             }
           },
           "409": {
-            "description": "A Project Scheduled Task already exists with the id provided in the request body.",
+            "description": "A Project Schedule already exists with the id provided in the request body.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3712,16 +3712,16 @@
         }
       }
     },
-    "/orgs/{organizationId}/projects/{projectId}/schedules/{scheduledTaskId}": {
+    "/orgs/{organizationId}/projects/{projectId}/schedules/{scheduleId}": {
       "get": {
         "tags": [
-          "ScheduledTasks"
+          "Schedule"
         ],
-        "summary": "Gets the Scheduled Task.",
-        "operationId": "GetScheduledTask",
+        "summary": "Gets the Schedule.",
+        "operationId": "GetSchedule",
         "parameters": [
           {
-            "name": "scheduledTaskId",
+            "name": "scheduleId",
             "in": "path",
             "required": true,
             "schema": {
@@ -3748,11 +3748,11 @@
         ],
         "responses": {
           "200": {
-            "description": "Returns a Scheduled Task",
+            "description": "Returns a Schedule",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ScheduledTaskDataResult"
+                  "$ref": "#/components/schemas/ScheduleDataResult"
                 }
               }
             }
@@ -3768,7 +3768,7 @@
             }
           },
           "404": {
-            "description": "A Scheduled Task with the provided id was not found.",
+            "description": "A Schedule with the provided id was not found.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3786,16 +3786,16 @@
         }
       }
     },
-    "/orgs/{organizationId}/projects/{projectId}/schedules/{scheduledTaskId}/run": {
+    "/orgs/{organizationId}/projects/{projectId}/schedules/{scheduleId}/run": {
       "post": {
         "tags": [
-          "ScheduledTasks"
+          "Schedule"
         ],
-        "summary": "Runs a Project Scheduled Task.",
-        "operationId": "RunScheduledTask",
+        "summary": "Runs a Project Schedule.",
+        "operationId": "RunSchedule",
         "parameters": [
           {
-            "name": "scheduledTaskId",
+            "name": "scheduleId",
             "in": "path",
             "required": true,
             "schema": {
@@ -3822,11 +3822,11 @@
         ],
         "responses": {
           "201": {
-            "description": "The created Project Scheduled Task.",
+            "description": "The created Project Schedule.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ScheduledTaskDataResult"
+                  "$ref": "#/components/schemas/ScheduleDataResult"
                 }
               }
             }
@@ -4457,18 +4457,17 @@
             "type": "string",
             "nullable": true
           },
-          "scheduledTaskId": {
+          "scheduleId": {
             "type": "string",
             "nullable": true
           },
           "type": {
             "enum": [
-              0,
-              1,
-              2
+              "Create",
+              "Delete",
+              "Custom"
             ],
-            "type": "integer",
-            "format": "int32"
+            "type": "string"
           },
           "typeName": {
             "type": "string",
@@ -4671,12 +4670,11 @@
           },
           "type": {
             "enum": [
-              0,
-              1,
-              2
+              "Create",
+              "Delete",
+              "Custom"
             ],
-            "type": "integer",
-            "format": "int32"
+            "type": "string"
           },
           "typeName": {
             "type": "string",
@@ -5700,7 +5698,7 @@
         },
         "additionalProperties": false
       },
-      "ScheduledTask": {
+      "Schedule": {
         "required": [
           "id",
           "organization",
@@ -5770,7 +5768,7 @@
         },
         "additionalProperties": false
       },
-      "ScheduledTaskListDataResult": {
+      "ScheduleListDataResult": {
         "type": "object",
         "properties": {
           "code": {
@@ -5784,7 +5782,7 @@
           "data": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ScheduledTask"
+              "$ref": "#/components/schemas/Schedule"
             },
             "nullable": true,
             "readOnly": true
@@ -5796,7 +5794,7 @@
         },
         "additionalProperties": false
       },
-      "ScheduledTaskDefinition": {
+      "ScheduleDefinition": {
         "type": "object",
         "properties": {
           "enabled": {
@@ -5839,7 +5837,7 @@
         },
         "additionalProperties": false
       },
-      "ScheduledTaskDataResult": {
+      "ScheduleDataResult": {
         "type": "object",
         "properties": {
           "code": {
@@ -5851,7 +5849,7 @@
             "nullable": true
           },
           "data": {
-            "$ref": "#/components/schemas/ScheduledTask"
+            "$ref": "#/components/schemas/Schedule"
           },
           "location": {
             "type": "string",

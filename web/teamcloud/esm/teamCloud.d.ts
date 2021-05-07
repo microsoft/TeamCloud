@@ -1,6 +1,6 @@
 import * as coreHttp from "@azure/core-http";
 import { TeamCloudContext } from "./teamCloudContext";
-import { TeamCloudOptionalParams, TeamCloudGetComponentsOptionalParams, TeamCloudGetComponentsResponse, TeamCloudCreateComponentOptionalParams, TeamCloudCreateComponentResponse, TeamCloudGetComponentResponse, TeamCloudDeleteComponentResponse, TeamCloudGetComponentTasksResponse, TeamCloudCreateComponentTaskOptionalParams, TeamCloudCreateComponentTaskResponse, TeamCloudGetComponentTaskResponse, TeamCloudGetComponentTemplatesResponse, TeamCloudGetComponentTemplateResponse, TeamCloudGetDeploymentScopesResponse, TeamCloudCreateDeploymentScopeOptionalParams, TeamCloudCreateDeploymentScopeResponse, TeamCloudGetDeploymentScopeResponse, TeamCloudUpdateDeploymentScopeOptionalParams, TeamCloudUpdateDeploymentScopeResponse, TeamCloudDeleteDeploymentScopeResponse, TeamCloudGetOrganizationsResponse, TeamCloudCreateOrganizationOptionalParams, TeamCloudCreateOrganizationResponse, TeamCloudGetOrganizationResponse, TeamCloudDeleteOrganizationResponse, TeamCloudGetOrganizationUsersResponse, TeamCloudCreateOrganizationUserOptionalParams, TeamCloudCreateOrganizationUserResponse, TeamCloudGetOrganizationUserResponse, TeamCloudUpdateOrganizationUserOptionalParams, TeamCloudUpdateOrganizationUserResponse, TeamCloudDeleteOrganizationUserResponse, TeamCloudGetOrganizationUserMeResponse, TeamCloudUpdateOrganizationUserMeOptionalParams, TeamCloudUpdateOrganizationUserMeResponse, TeamCloudGetProjectsResponse, TeamCloudCreateProjectOptionalParams, TeamCloudCreateProjectResponse, TeamCloudGetProjectResponse, TeamCloudDeleteProjectResponse, TeamCloudGetProjectIdentitiesResponse, TeamCloudCreateProjectIdentityOptionalParams, TeamCloudCreateProjectIdentityResponse, TeamCloudGetProjectIdentityResponse, TeamCloudUpdateProjectIdentityOptionalParams, TeamCloudUpdateProjectIdentityResponse, TeamCloudDeleteProjectIdentityResponse, TeamCloudGetProjectTagsResponse, TeamCloudCreateProjectTagOptionalParams, TeamCloudCreateProjectTagResponse, TeamCloudUpdateProjectTagOptionalParams, TeamCloudUpdateProjectTagResponse, TeamCloudGetProjectTagByKeyResponse, TeamCloudDeleteProjectTagResponse, TeamCloudGetProjectTemplatesResponse, TeamCloudCreateProjectTemplateOptionalParams, TeamCloudCreateProjectTemplateResponse, TeamCloudGetProjectTemplateResponse, TeamCloudUpdateProjectTemplateOptionalParams, TeamCloudUpdateProjectTemplateResponse, TeamCloudDeleteProjectTemplateResponse, TeamCloudGetProjectUsersResponse, TeamCloudCreateProjectUserOptionalParams, TeamCloudCreateProjectUserResponse, TeamCloudGetProjectUserResponse, TeamCloudUpdateProjectUserOptionalParams, TeamCloudUpdateProjectUserResponse, TeamCloudDeleteProjectUserResponse, TeamCloudGetProjectUserMeResponse, TeamCloudUpdateProjectUserMeOptionalParams, TeamCloudUpdateProjectUserMeResponse, TeamCloudGetScheduledTasksResponse, TeamCloudCreateScheduledTaskOptionalParams, TeamCloudCreateScheduledTaskResponse, TeamCloudGetScheduledTaskResponse, TeamCloudRunScheduledTaskResponse, TeamCloudGetStatusResponse, TeamCloudGetProjectStatusResponse, TeamCloudGetUserProjectsResponse, TeamCloudGetUserProjectsMeResponse } from "./models";
+import { TeamCloudOptionalParams, TeamCloudGetComponentsOptionalParams, TeamCloudGetComponentsResponse, TeamCloudCreateComponentOptionalParams, TeamCloudCreateComponentResponse, TeamCloudGetComponentResponse, TeamCloudDeleteComponentResponse, TeamCloudGetComponentTasksResponse, TeamCloudCreateComponentTaskOptionalParams, TeamCloudCreateComponentTaskResponse, TeamCloudGetComponentTaskResponse, TeamCloudGetComponentTemplatesResponse, TeamCloudGetComponentTemplateResponse, TeamCloudGetDeploymentScopesResponse, TeamCloudCreateDeploymentScopeOptionalParams, TeamCloudCreateDeploymentScopeResponse, TeamCloudGetDeploymentScopeResponse, TeamCloudUpdateDeploymentScopeOptionalParams, TeamCloudUpdateDeploymentScopeResponse, TeamCloudDeleteDeploymentScopeResponse, TeamCloudGetOrganizationsResponse, TeamCloudCreateOrganizationOptionalParams, TeamCloudCreateOrganizationResponse, TeamCloudGetOrganizationResponse, TeamCloudDeleteOrganizationResponse, TeamCloudGetOrganizationUsersResponse, TeamCloudCreateOrganizationUserOptionalParams, TeamCloudCreateOrganizationUserResponse, TeamCloudGetOrganizationUserResponse, TeamCloudUpdateOrganizationUserOptionalParams, TeamCloudUpdateOrganizationUserResponse, TeamCloudDeleteOrganizationUserResponse, TeamCloudGetOrganizationUserMeResponse, TeamCloudUpdateOrganizationUserMeOptionalParams, TeamCloudUpdateOrganizationUserMeResponse, TeamCloudGetProjectsResponse, TeamCloudCreateProjectOptionalParams, TeamCloudCreateProjectResponse, TeamCloudGetProjectResponse, TeamCloudDeleteProjectResponse, TeamCloudGetProjectIdentitiesResponse, TeamCloudCreateProjectIdentityOptionalParams, TeamCloudCreateProjectIdentityResponse, TeamCloudGetProjectIdentityResponse, TeamCloudUpdateProjectIdentityOptionalParams, TeamCloudUpdateProjectIdentityResponse, TeamCloudDeleteProjectIdentityResponse, TeamCloudGetProjectTagsResponse, TeamCloudCreateProjectTagOptionalParams, TeamCloudCreateProjectTagResponse, TeamCloudUpdateProjectTagOptionalParams, TeamCloudUpdateProjectTagResponse, TeamCloudGetProjectTagByKeyResponse, TeamCloudDeleteProjectTagResponse, TeamCloudGetProjectTemplatesResponse, TeamCloudCreateProjectTemplateOptionalParams, TeamCloudCreateProjectTemplateResponse, TeamCloudGetProjectTemplateResponse, TeamCloudUpdateProjectTemplateOptionalParams, TeamCloudUpdateProjectTemplateResponse, TeamCloudDeleteProjectTemplateResponse, TeamCloudGetProjectUsersResponse, TeamCloudCreateProjectUserOptionalParams, TeamCloudCreateProjectUserResponse, TeamCloudGetProjectUserResponse, TeamCloudUpdateProjectUserOptionalParams, TeamCloudUpdateProjectUserResponse, TeamCloudDeleteProjectUserResponse, TeamCloudGetProjectUserMeResponse, TeamCloudUpdateProjectUserMeOptionalParams, TeamCloudUpdateProjectUserMeResponse, TeamCloudGetSchedulesResponse, TeamCloudCreateScheduleOptionalParams, TeamCloudCreateScheduleResponse, TeamCloudGetScheduleResponse, TeamCloudRunScheduleResponse, TeamCloudGetStatusResponse, TeamCloudGetProjectStatusResponse, TeamCloudGetUserProjectsResponse, TeamCloudGetUserProjectsMeResponse } from "./models";
 export declare class TeamCloud extends TeamCloudContext {
     /**
      * Initializes a new instance of the TeamCloud class.
@@ -373,35 +373,35 @@ export declare class TeamCloud extends TeamCloudContext {
      */
     updateProjectUserMe(organizationId: string, projectId: string, options?: TeamCloudUpdateProjectUserMeOptionalParams): Promise<TeamCloudUpdateProjectUserMeResponse>;
     /**
-     * Gets all Scheduled Tasks.
+     * Gets all Schedule.
      * @param organizationId
      * @param projectId
      * @param options The options parameters.
      */
-    getScheduledTasks(organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetScheduledTasksResponse>;
+    getSchedules(organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetSchedulesResponse>;
     /**
-     * Creates a new Project Scheduled Task.
+     * Creates a new Project Schedule.
      * @param organizationId
      * @param projectId
      * @param options The options parameters.
      */
-    createScheduledTask(organizationId: string, projectId: string, options?: TeamCloudCreateScheduledTaskOptionalParams): Promise<TeamCloudCreateScheduledTaskResponse>;
+    createSchedule(organizationId: string, projectId: string, options?: TeamCloudCreateScheduleOptionalParams): Promise<TeamCloudCreateScheduleResponse>;
     /**
-     * Gets the Scheduled Task.
-     * @param scheduledTaskId
+     * Gets the Schedule.
+     * @param scheduleId
      * @param organizationId
      * @param projectId
      * @param options The options parameters.
      */
-    getScheduledTask(scheduledTaskId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetScheduledTaskResponse>;
+    getSchedule(scheduleId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetScheduleResponse>;
     /**
-     * Runs a Project Scheduled Task.
-     * @param scheduledTaskId
+     * Runs a Project Schedule.
+     * @param scheduleId
      * @param organizationId
      * @param projectId
      * @param options The options parameters.
      */
-    runScheduledTask(scheduledTaskId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudRunScheduledTaskResponse>;
+    runSchedule(scheduleId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudRunScheduleResponse>;
     /**
      * Gets the status of a long-running operation.
      * @param trackingId

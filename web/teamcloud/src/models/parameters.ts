@@ -24,7 +24,7 @@ import {
   ProjectIdentity as ProjectIdentityMapper,
   ProjectTemplateDefinition as ProjectTemplateDefinitionMapper,
   ProjectTemplate as ProjectTemplateMapper,
-  ScheduledTaskDefinition as ScheduledTaskDefinitionMapper
+  ScheduleDefinition as ScheduleDefinitionMapper
 } from "../models/mappers";
 
 export const accept: OperationParameter = {
@@ -234,13 +234,13 @@ export const body12: OperationParameter = {
 
 export const body13: OperationParameter = {
   parameterPath: ["options", "body"],
-  mapper: ScheduledTaskDefinitionMapper
+  mapper: ScheduleDefinitionMapper
 };
 
-export const scheduledTaskId: OperationURLParameter = {
-  parameterPath: "scheduledTaskId",
+export const scheduleId: OperationURLParameter = {
+  parameterPath: "scheduleId",
   mapper: {
-    serializedName: "scheduledTaskId",
+    serializedName: "scheduleId",
     required: true,
     type: {
       name: "String"

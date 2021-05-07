@@ -47,10 +47,10 @@ try:
     from ._models_py3 import RepositoryDefinition
     from ._models_py3 import RepositoryReference
     from ._models_py3 import ResultError
-    from ._models_py3 import ScheduledTask
-    from ._models_py3 import ScheduledTaskDataResult
-    from ._models_py3 import ScheduledTaskDefinition
-    from ._models_py3 import ScheduledTaskListDataResult
+    from ._models_py3 import Schedule
+    from ._models_py3 import ScheduleDataResult
+    from ._models_py3 import ScheduleDefinition
+    from ._models_py3 import ScheduleListDataResult
     from ._models_py3 import StatusResult
     from ._models_py3 import StringDictionaryDataResult
     from ._models_py3 import User
@@ -99,10 +99,10 @@ except (SyntaxError, ImportError):
     from ._models import RepositoryDefinition  # type: ignore
     from ._models import RepositoryReference  # type: ignore
     from ._models import ResultError  # type: ignore
-    from ._models import ScheduledTask  # type: ignore
-    from ._models import ScheduledTaskDataResult  # type: ignore
-    from ._models import ScheduledTaskDefinition  # type: ignore
-    from ._models import ScheduledTaskListDataResult  # type: ignore
+    from ._models import Schedule  # type: ignore
+    from ._models import ScheduleDataResult  # type: ignore
+    from ._models import ScheduleDefinition  # type: ignore
+    from ._models import ScheduleListDataResult  # type: ignore
     from ._models import StatusResult  # type: ignore
     from ._models import StringDictionaryDataResult  # type: ignore
     from ._models import User  # type: ignore
@@ -114,17 +114,18 @@ except (SyntaxError, ImportError):
 from ._team_cloud_client_enums import (
     ComponentResourceState,
     ComponentTaskResourceState,
+    ComponentTaskTemplateType,
+    ComponentTaskType,
     ComponentTemplateType,
     ComponentType,
-    Enum3,
     OrganizationResourceState,
     ProjectMembershipRole,
     ProjectResourceState,
     RepositoryReferenceProvider,
     RepositoryReferenceType,
     ResultErrorCode,
-    ScheduledTaskDaysOfWeekItem,
-    ScheduledTaskDefinitionDaysOfWeekItem,
+    ScheduleDaysOfWeekItem,
+    ScheduleDefinitionDaysOfWeekItem,
     UserRole,
     UserType,
 )
@@ -170,10 +171,10 @@ __all__ = [
     'RepositoryDefinition',
     'RepositoryReference',
     'ResultError',
-    'ScheduledTask',
-    'ScheduledTaskDataResult',
-    'ScheduledTaskDefinition',
-    'ScheduledTaskListDataResult',
+    'Schedule',
+    'ScheduleDataResult',
+    'ScheduleDefinition',
+    'ScheduleListDataResult',
     'StatusResult',
     'StringDictionaryDataResult',
     'User',
@@ -183,17 +184,18 @@ __all__ = [
     'ValidationError',
     'ComponentResourceState',
     'ComponentTaskResourceState',
+    'ComponentTaskTemplateType',
+    'ComponentTaskType',
     'ComponentTemplateType',
     'ComponentType',
-    'Enum3',
     'OrganizationResourceState',
     'ProjectMembershipRole',
     'ProjectResourceState',
     'RepositoryReferenceProvider',
     'RepositoryReferenceType',
     'ResultErrorCode',
-    'ScheduledTaskDaysOfWeekItem',
-    'ScheduledTaskDefinitionDaysOfWeekItem',
+    'ScheduleDaysOfWeekItem',
+    'ScheduleDefinitionDaysOfWeekItem',
     'UserRole',
     'UserType',
 ]

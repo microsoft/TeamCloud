@@ -34,13 +34,13 @@ export var KnownResultErrorCode;
     KnownResultErrorCode["Unauthorized"] = "Unauthorized";
     KnownResultErrorCode["Forbidden"] = "Forbidden";
 })(KnownResultErrorCode || (KnownResultErrorCode = {}));
-/** Known values of {@link Enum3} that the service accepts. */
-export var KnownEnum3;
-(function (KnownEnum3) {
-    KnownEnum3[KnownEnum3["Zero"] = 0] = "Zero";
-    KnownEnum3[KnownEnum3["One"] = 1] = "One";
-    KnownEnum3[KnownEnum3["Two"] = 2] = "Two";
-})(KnownEnum3 || (KnownEnum3 = {}));
+/** Known values of {@link ComponentTaskType} that the service accepts. */
+export var KnownComponentTaskType;
+(function (KnownComponentTaskType) {
+    KnownComponentTaskType["Create"] = "Create";
+    KnownComponentTaskType["Delete"] = "Delete";
+    KnownComponentTaskType["Custom"] = "Custom";
+})(KnownComponentTaskType || (KnownComponentTaskType = {}));
 /** Known values of {@link ComponentTaskResourceState} that the service accepts. */
 export var KnownComponentTaskResourceState;
 (function (KnownComponentTaskResourceState) {
@@ -65,6 +65,13 @@ export var KnownRepositoryReferenceType;
     KnownRepositoryReferenceType["Branch"] = "Branch";
     KnownRepositoryReferenceType["Hash"] = "Hash";
 })(KnownRepositoryReferenceType || (KnownRepositoryReferenceType = {}));
+/** Known values of {@link ComponentTaskTemplateType} that the service accepts. */
+export var KnownComponentTaskTemplateType;
+(function (KnownComponentTaskTemplateType) {
+    KnownComponentTaskTemplateType["Create"] = "Create";
+    KnownComponentTaskTemplateType["Delete"] = "Delete";
+    KnownComponentTaskTemplateType["Custom"] = "Custom";
+})(KnownComponentTaskTemplateType || (KnownComponentTaskTemplateType = {}));
 /** Known values of {@link ComponentTemplateType} that the service accepts. */
 export var KnownComponentTemplateType;
 (function (KnownComponentTemplateType) {
@@ -115,26 +122,26 @@ export var KnownProjectResourceState;
     KnownProjectResourceState["Succeeded"] = "Succeeded";
     KnownProjectResourceState["Failed"] = "Failed";
 })(KnownProjectResourceState || (KnownProjectResourceState = {}));
-/** Known values of {@link ScheduledTaskDaysOfWeekItem} that the service accepts. */
-export var KnownScheduledTaskDaysOfWeekItem;
-(function (KnownScheduledTaskDaysOfWeekItem) {
-    KnownScheduledTaskDaysOfWeekItem["Sunday"] = "Sunday";
-    KnownScheduledTaskDaysOfWeekItem["Monday"] = "Monday";
-    KnownScheduledTaskDaysOfWeekItem["Tuesday"] = "Tuesday";
-    KnownScheduledTaskDaysOfWeekItem["Wednesday"] = "Wednesday";
-    KnownScheduledTaskDaysOfWeekItem["Thursday"] = "Thursday";
-    KnownScheduledTaskDaysOfWeekItem["Friday"] = "Friday";
-    KnownScheduledTaskDaysOfWeekItem["Saturday"] = "Saturday";
-})(KnownScheduledTaskDaysOfWeekItem || (KnownScheduledTaskDaysOfWeekItem = {}));
-/** Known values of {@link ScheduledTaskDefinitionDaysOfWeekItem} that the service accepts. */
-export var KnownScheduledTaskDefinitionDaysOfWeekItem;
-(function (KnownScheduledTaskDefinitionDaysOfWeekItem) {
-    KnownScheduledTaskDefinitionDaysOfWeekItem["Sunday"] = "Sunday";
-    KnownScheduledTaskDefinitionDaysOfWeekItem["Monday"] = "Monday";
-    KnownScheduledTaskDefinitionDaysOfWeekItem["Tuesday"] = "Tuesday";
-    KnownScheduledTaskDefinitionDaysOfWeekItem["Wednesday"] = "Wednesday";
-    KnownScheduledTaskDefinitionDaysOfWeekItem["Thursday"] = "Thursday";
-    KnownScheduledTaskDefinitionDaysOfWeekItem["Friday"] = "Friday";
-    KnownScheduledTaskDefinitionDaysOfWeekItem["Saturday"] = "Saturday";
-})(KnownScheduledTaskDefinitionDaysOfWeekItem || (KnownScheduledTaskDefinitionDaysOfWeekItem = {}));
+/** Known values of {@link ScheduleDaysOfWeekItem} that the service accepts. */
+export var KnownScheduleDaysOfWeekItem;
+(function (KnownScheduleDaysOfWeekItem) {
+    KnownScheduleDaysOfWeekItem["Sunday"] = "Sunday";
+    KnownScheduleDaysOfWeekItem["Monday"] = "Monday";
+    KnownScheduleDaysOfWeekItem["Tuesday"] = "Tuesday";
+    KnownScheduleDaysOfWeekItem["Wednesday"] = "Wednesday";
+    KnownScheduleDaysOfWeekItem["Thursday"] = "Thursday";
+    KnownScheduleDaysOfWeekItem["Friday"] = "Friday";
+    KnownScheduleDaysOfWeekItem["Saturday"] = "Saturday";
+})(KnownScheduleDaysOfWeekItem || (KnownScheduleDaysOfWeekItem = {}));
+/** Known values of {@link ScheduleDefinitionDaysOfWeekItem} that the service accepts. */
+export var KnownScheduleDefinitionDaysOfWeekItem;
+(function (KnownScheduleDefinitionDaysOfWeekItem) {
+    KnownScheduleDefinitionDaysOfWeekItem["Sunday"] = "Sunday";
+    KnownScheduleDefinitionDaysOfWeekItem["Monday"] = "Monday";
+    KnownScheduleDefinitionDaysOfWeekItem["Tuesday"] = "Tuesday";
+    KnownScheduleDefinitionDaysOfWeekItem["Wednesday"] = "Wednesday";
+    KnownScheduleDefinitionDaysOfWeekItem["Thursday"] = "Thursday";
+    KnownScheduleDefinitionDaysOfWeekItem["Friday"] = "Friday";
+    KnownScheduleDefinitionDaysOfWeekItem["Saturday"] = "Saturday";
+})(KnownScheduleDefinitionDaysOfWeekItem || (KnownScheduleDefinitionDaysOfWeekItem = {}));
 //# sourceMappingURL=index.js.map

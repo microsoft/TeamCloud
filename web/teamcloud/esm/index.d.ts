@@ -62,8 +62,8 @@ export declare interface ComponentTask {
     componentId: string;
     projectId: string;
     requestedBy?: string | null;
-    scheduledTaskId?: string | null;
-    type?: Enum3;
+    scheduleId?: string | null;
+    type?: ComponentTaskType;
     typeName?: string | null;
     created?: Date;
     started?: Date | null;
@@ -128,10 +128,32 @@ export declare interface ComponentTaskTemplate {
     displayName?: string | null;
     description?: string | null;
     inputJsonSchema?: string | null;
-    type: Enum3;
+    type: ComponentTaskTemplateType;
     /** NOTE: This property will not be serialized. It can only be populated by the server. */
     readonly typeName?: string | null;
 }
+
+/**
+ * Defines values for ComponentTaskTemplateType. \
+ * {@link KnownComponentTaskTemplateType} can be used interchangeably with ComponentTaskTemplateType,
+ *  this enum contains the known values that the service supports.
+ * ### Know values supported by the service
+ * **Create** \
+ * **Delete** \
+ * **Custom**
+ */
+export declare type ComponentTaskTemplateType = string;
+
+/**
+ * Defines values for ComponentTaskType. \
+ * {@link KnownComponentTaskType} can be used interchangeably with ComponentTaskType,
+ *  this enum contains the known values that the service supports.
+ * ### Know values supported by the service
+ * **Create** \
+ * **Delete** \
+ * **Custom**
+ */
+export declare type ComponentTaskType = string;
 
 export declare interface ComponentTemplate {
     organization: string;
@@ -229,17 +251,6 @@ export declare interface DeploymentScopeListDataResult {
     location?: string | null;
 }
 
-/**
- * Defines values for Enum3. \
- * {@link KnownEnum3} can be used interchangeably with Enum3,
- *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
- * **0** \
- * **1** \
- * **2**
- */
-export declare type Enum3 = number;
-
 export declare interface ErrorResult {
     code?: number;
     status?: string | null;
@@ -264,6 +275,20 @@ export declare const enum KnownComponentTaskResourceState {
     Failed = "Failed"
 }
 
+/** Known values of {@link ComponentTaskTemplateType} that the service accepts. */
+export declare const enum KnownComponentTaskTemplateType {
+    Create = "Create",
+    Delete = "Delete",
+    Custom = "Custom"
+}
+
+/** Known values of {@link ComponentTaskType} that the service accepts. */
+export declare const enum KnownComponentTaskType {
+    Create = "Create",
+    Delete = "Delete",
+    Custom = "Custom"
+}
+
 /** Known values of {@link ComponentTemplateType} that the service accepts. */
 export declare const enum KnownComponentTemplateType {
     Custom = "Custom",
@@ -278,13 +303,6 @@ export declare const enum KnownComponentType {
     AzureResource = "AzureResource",
     Environment = "Environment",
     GitRepository = "GitRepository"
-}
-
-/** Known values of {@link Enum3} that the service accepts. */
-export declare const enum KnownEnum3 {
-    Zero = 0,
-    One = 1,
-    Two = 2
 }
 
 /** Known values of {@link OrganizationResourceState} that the service accepts. */
@@ -340,8 +358,8 @@ export declare const enum KnownResultErrorCode {
     Forbidden = "Forbidden"
 }
 
-/** Known values of {@link ScheduledTaskDaysOfWeekItem} that the service accepts. */
-export declare const enum KnownScheduledTaskDaysOfWeekItem {
+/** Known values of {@link ScheduleDaysOfWeekItem} that the service accepts. */
+export declare const enum KnownScheduleDaysOfWeekItem {
     Sunday = "Sunday",
     Monday = "Monday",
     Tuesday = "Tuesday",
@@ -351,8 +369,8 @@ export declare const enum KnownScheduledTaskDaysOfWeekItem {
     Saturday = "Saturday"
 }
 
-/** Known values of {@link ScheduledTaskDefinitionDaysOfWeekItem} that the service accepts. */
-export declare const enum KnownScheduledTaskDefinitionDaysOfWeekItem {
+/** Known values of {@link ScheduleDefinitionDaysOfWeekItem} that the service accepts. */
+export declare const enum KnownScheduleDefinitionDaysOfWeekItem {
     Sunday = "Sunday",
     Monday = "Monday",
     Tuesday = "Tuesday",
@@ -642,12 +660,12 @@ export declare interface ResultError {
  */
 export declare type ResultErrorCode = string;
 
-export declare interface ScheduledTask {
+export declare interface Schedule {
     organization: string;
     projectId: string;
     enabled?: boolean;
     recurring?: boolean;
-    daysOfWeek?: ScheduledTaskDaysOfWeekItem[] | null;
+    daysOfWeek?: ScheduleDaysOfWeekItem[] | null;
     utcHour?: number;
     utcMinute?: number;
     creator?: string | null;
@@ -657,16 +675,16 @@ export declare interface ScheduledTask {
     id: string;
 }
 
-export declare interface ScheduledTaskDataResult {
+export declare interface ScheduleDataResult {
     code?: number;
     status?: string | null;
-    data?: ScheduledTask;
+    data?: Schedule;
     location?: string | null;
 }
 
 /**
- * Defines values for ScheduledTaskDaysOfWeekItem. \
- * {@link KnownScheduledTaskDaysOfWeekItem} can be used interchangeably with ScheduledTaskDaysOfWeekItem,
+ * Defines values for ScheduleDaysOfWeekItem. \
+ * {@link KnownScheduleDaysOfWeekItem} can be used interchangeably with ScheduleDaysOfWeekItem,
  *  this enum contains the known values that the service supports.
  * ### Know values supported by the service
  * **Sunday** \
@@ -677,20 +695,20 @@ export declare interface ScheduledTaskDataResult {
  * **Friday** \
  * **Saturday**
  */
-export declare type ScheduledTaskDaysOfWeekItem = string;
+export declare type ScheduleDaysOfWeekItem = string;
 
-export declare interface ScheduledTaskDefinition {
+export declare interface ScheduleDefinition {
     enabled?: boolean;
     recurring?: boolean;
-    daysOfWeek?: ScheduledTaskDefinitionDaysOfWeekItem[] | null;
+    daysOfWeek?: ScheduleDefinitionDaysOfWeekItem[] | null;
     utcHour?: number;
     utcMinute?: number;
     componentTasks?: ComponentTaskReference[] | null;
 }
 
 /**
- * Defines values for ScheduledTaskDefinitionDaysOfWeekItem. \
- * {@link KnownScheduledTaskDefinitionDaysOfWeekItem} can be used interchangeably with ScheduledTaskDefinitionDaysOfWeekItem,
+ * Defines values for ScheduleDefinitionDaysOfWeekItem. \
+ * {@link KnownScheduleDefinitionDaysOfWeekItem} can be used interchangeably with ScheduleDefinitionDaysOfWeekItem,
  *  this enum contains the known values that the service supports.
  * ### Know values supported by the service
  * **Sunday** \
@@ -701,13 +719,13 @@ export declare interface ScheduledTaskDefinition {
  * **Friday** \
  * **Saturday**
  */
-export declare type ScheduledTaskDefinitionDaysOfWeekItem = string;
+export declare type ScheduleDefinitionDaysOfWeekItem = string;
 
-export declare interface ScheduledTaskListDataResult {
+export declare interface ScheduleListDataResult {
     code?: number;
     status?: string | null;
     /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly data?: ScheduledTask[] | null;
+    readonly data?: Schedule[] | null;
     location?: string | null;
 }
 
@@ -1107,35 +1125,35 @@ export declare class TeamCloud extends TeamCloudContext {
      */
     updateProjectUserMe(organizationId: string, projectId: string, options?: TeamCloudUpdateProjectUserMeOptionalParams): Promise<TeamCloudUpdateProjectUserMeResponse>;
     /**
-     * Gets all Scheduled Tasks.
+     * Gets all Schedule.
      * @param organizationId
      * @param projectId
      * @param options The options parameters.
      */
-    getScheduledTasks(organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetScheduledTasksResponse>;
+    getSchedules(organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetSchedulesResponse>;
     /**
-     * Creates a new Project Scheduled Task.
+     * Creates a new Project Schedule.
      * @param organizationId
      * @param projectId
      * @param options The options parameters.
      */
-    createScheduledTask(organizationId: string, projectId: string, options?: TeamCloudCreateScheduledTaskOptionalParams): Promise<TeamCloudCreateScheduledTaskResponse>;
+    createSchedule(organizationId: string, projectId: string, options?: TeamCloudCreateScheduleOptionalParams): Promise<TeamCloudCreateScheduleResponse>;
     /**
-     * Gets the Scheduled Task.
-     * @param scheduledTaskId
+     * Gets the Schedule.
+     * @param scheduleId
      * @param organizationId
      * @param projectId
      * @param options The options parameters.
      */
-    getScheduledTask(scheduledTaskId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetScheduledTaskResponse>;
+    getSchedule(scheduleId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetScheduleResponse>;
     /**
-     * Runs a Project Scheduled Task.
-     * @param scheduledTaskId
+     * Runs a Project Schedule.
+     * @param scheduleId
      * @param organizationId
      * @param projectId
      * @param options The options parameters.
      */
-    runScheduledTask(scheduledTaskId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudRunScheduledTaskResponse>;
+    runSchedule(scheduleId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudRunScheduleResponse>;
     /**
      * Gets the status of a long-running operation.
      * @param trackingId
@@ -1341,18 +1359,18 @@ export declare type TeamCloudCreateProjectUserResponse = UserDataResult & {
 };
 
 /** Optional parameters. */
-export declare interface TeamCloudCreateScheduledTaskOptionalParams extends coreHttp.OperationOptions {
-    body?: ScheduledTaskDefinition;
+export declare interface TeamCloudCreateScheduleOptionalParams extends coreHttp.OperationOptions {
+    body?: ScheduleDefinition;
 }
 
-/** Contains response data for the createScheduledTask operation. */
-export declare type TeamCloudCreateScheduledTaskResponse = ScheduledTaskDataResult & {
+/** Contains response data for the createSchedule operation. */
+export declare type TeamCloudCreateScheduleResponse = ScheduleDataResult & {
     /** The underlying HTTP response. */
     _response: coreHttp.HttpResponse & {
         /** The response body as text (string format) */
         bodyAsText: string;
         /** The response body as parsed JSON or XML */
-        parsedBody: ScheduledTaskDataResult;
+        parsedBody: ScheduleDataResult;
     };
 };
 
@@ -1735,25 +1753,25 @@ export declare type TeamCloudGetProjectUsersResponse = UserListDataResult & {
     };
 };
 
-/** Contains response data for the getScheduledTask operation. */
-export declare type TeamCloudGetScheduledTaskResponse = ScheduledTaskDataResult & {
+/** Contains response data for the getSchedule operation. */
+export declare type TeamCloudGetScheduleResponse = ScheduleDataResult & {
     /** The underlying HTTP response. */
     _response: coreHttp.HttpResponse & {
         /** The response body as text (string format) */
         bodyAsText: string;
         /** The response body as parsed JSON or XML */
-        parsedBody: ScheduledTaskDataResult;
+        parsedBody: ScheduleDataResult;
     };
 };
 
-/** Contains response data for the getScheduledTasks operation. */
-export declare type TeamCloudGetScheduledTasksResponse = ScheduledTaskListDataResult & {
+/** Contains response data for the getSchedules operation. */
+export declare type TeamCloudGetSchedulesResponse = ScheduleListDataResult & {
     /** The underlying HTTP response. */
     _response: coreHttp.HttpResponse & {
         /** The response body as text (string format) */
         bodyAsText: string;
         /** The response body as parsed JSON or XML */
-        parsedBody: ScheduledTaskListDataResult;
+        parsedBody: ScheduleListDataResult;
     };
 };
 
@@ -1796,14 +1814,14 @@ export declare interface TeamCloudOptionalParams extends coreHttp.ServiceClientO
     endpoint?: string;
 }
 
-/** Contains response data for the runScheduledTask operation. */
-export declare type TeamCloudRunScheduledTaskResponse = ScheduledTaskDataResult & {
+/** Contains response data for the runSchedule operation. */
+export declare type TeamCloudRunScheduleResponse = ScheduleDataResult & {
     /** The underlying HTTP response. */
     _response: coreHttp.HttpResponse & {
         /** The response body as text (string format) */
         bodyAsText: string;
         /** The response body as parsed JSON or XML */
-        parsedBody: ScheduledTaskDataResult;
+        parsedBody: ScheduleDataResult;
     };
 };
 

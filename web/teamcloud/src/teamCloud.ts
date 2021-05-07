@@ -82,11 +82,11 @@ import {
   TeamCloudGetProjectUserMeResponse,
   TeamCloudUpdateProjectUserMeOptionalParams,
   TeamCloudUpdateProjectUserMeResponse,
-  TeamCloudGetScheduledTasksResponse,
-  TeamCloudCreateScheduledTaskOptionalParams,
-  TeamCloudCreateScheduledTaskResponse,
-  TeamCloudGetScheduledTaskResponse,
-  TeamCloudRunScheduledTaskResponse,
+  TeamCloudGetSchedulesResponse,
+  TeamCloudCreateScheduleOptionalParams,
+  TeamCloudCreateScheduleResponse,
+  TeamCloudGetScheduleResponse,
+  TeamCloudRunScheduleResponse,
   TeamCloudGetStatusResponse,
   TeamCloudGetProjectStatusResponse,
   TeamCloudGetUserProjectsResponse,
@@ -1250,16 +1250,16 @@ export class TeamCloud extends TeamCloudContext {
   }
 
   /**
-   * Gets all Scheduled Tasks.
+   * Gets all Schedule.
    * @param organizationId
    * @param projectId
    * @param options The options parameters.
    */
-  getScheduledTasks(
+  getSchedules(
     organizationId: string,
     projectId: string,
     options?: coreHttp.OperationOptions
-  ): Promise<TeamCloudGetScheduledTasksResponse> {
+  ): Promise<TeamCloudGetSchedulesResponse> {
     const operationArguments: coreHttp.OperationArguments = {
       organizationId,
       projectId,
@@ -1267,21 +1267,21 @@ export class TeamCloud extends TeamCloudContext {
     };
     return this.sendOperationRequest(
       operationArguments,
-      getScheduledTasksOperationSpec
-    ) as Promise<TeamCloudGetScheduledTasksResponse>;
+      getSchedulesOperationSpec
+    ) as Promise<TeamCloudGetSchedulesResponse>;
   }
 
   /**
-   * Creates a new Project Scheduled Task.
+   * Creates a new Project Schedule.
    * @param organizationId
    * @param projectId
    * @param options The options parameters.
    */
-  createScheduledTask(
+  createSchedule(
     organizationId: string,
     projectId: string,
-    options?: TeamCloudCreateScheduledTaskOptionalParams
-  ): Promise<TeamCloudCreateScheduledTaskResponse> {
+    options?: TeamCloudCreateScheduleOptionalParams
+  ): Promise<TeamCloudCreateScheduleResponse> {
     const operationArguments: coreHttp.OperationArguments = {
       organizationId,
       projectId,
@@ -1289,58 +1289,58 @@ export class TeamCloud extends TeamCloudContext {
     };
     return this.sendOperationRequest(
       operationArguments,
-      createScheduledTaskOperationSpec
-    ) as Promise<TeamCloudCreateScheduledTaskResponse>;
+      createScheduleOperationSpec
+    ) as Promise<TeamCloudCreateScheduleResponse>;
   }
 
   /**
-   * Gets the Scheduled Task.
-   * @param scheduledTaskId
+   * Gets the Schedule.
+   * @param scheduleId
    * @param organizationId
    * @param projectId
    * @param options The options parameters.
    */
-  getScheduledTask(
-    scheduledTaskId: string | null,
-    organizationId: string,
-    projectId: string,
-    options?: coreHttp.OperationOptions
-  ): Promise<TeamCloudGetScheduledTaskResponse> {
-    const operationArguments: coreHttp.OperationArguments = {
-      scheduledTaskId,
-      organizationId,
-      projectId,
-      options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-    };
-    return this.sendOperationRequest(
-      operationArguments,
-      getScheduledTaskOperationSpec
-    ) as Promise<TeamCloudGetScheduledTaskResponse>;
-  }
-
-  /**
-   * Runs a Project Scheduled Task.
-   * @param scheduledTaskId
-   * @param organizationId
-   * @param projectId
-   * @param options The options parameters.
-   */
-  runScheduledTask(
-    scheduledTaskId: string | null,
+  getSchedule(
+    scheduleId: string | null,
     organizationId: string,
     projectId: string,
     options?: coreHttp.OperationOptions
-  ): Promise<TeamCloudRunScheduledTaskResponse> {
+  ): Promise<TeamCloudGetScheduleResponse> {
     const operationArguments: coreHttp.OperationArguments = {
-      scheduledTaskId,
+      scheduleId,
       organizationId,
       projectId,
       options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
     };
     return this.sendOperationRequest(
       operationArguments,
-      runScheduledTaskOperationSpec
-    ) as Promise<TeamCloudRunScheduledTaskResponse>;
+      getScheduleOperationSpec
+    ) as Promise<TeamCloudGetScheduleResponse>;
+  }
+
+  /**
+   * Runs a Project Schedule.
+   * @param scheduleId
+   * @param organizationId
+   * @param projectId
+   * @param options The options parameters.
+   */
+  runSchedule(
+    scheduleId: string | null,
+    organizationId: string,
+    projectId: string,
+    options?: coreHttp.OperationOptions
+  ): Promise<TeamCloudRunScheduleResponse> {
+    const operationArguments: coreHttp.OperationArguments = {
+      scheduleId,
+      organizationId,
+      projectId,
+      options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
+    };
+    return this.sendOperationRequest(
+      operationArguments,
+      runScheduleOperationSpec
+    ) as Promise<TeamCloudRunScheduleResponse>;
   }
 
   /**
@@ -2680,12 +2680,12 @@ const updateProjectUserMeOperationSpec: coreHttp.OperationSpec = {
   mediaType: "json",
   serializer
 };
-const getScheduledTasksOperationSpec: coreHttp.OperationSpec = {
+const getSchedulesOperationSpec: coreHttp.OperationSpec = {
   path: "/orgs/{organizationId}/projects/{projectId}/schedules",
   httpMethod: "GET",
   responses: {
     200: {
-      bodyMapper: Mappers.ScheduledTaskListDataResult
+      bodyMapper: Mappers.ScheduleListDataResult
     },
     400: {
       bodyMapper: Mappers.ErrorResult
@@ -2701,12 +2701,12 @@ const getScheduledTasksOperationSpec: coreHttp.OperationSpec = {
   headerParameters: [Parameters.accept],
   serializer
 };
-const createScheduledTaskOperationSpec: coreHttp.OperationSpec = {
+const createScheduleOperationSpec: coreHttp.OperationSpec = {
   path: "/orgs/{organizationId}/projects/{projectId}/schedules",
   httpMethod: "POST",
   responses: {
     201: {
-      bodyMapper: Mappers.ScheduledTaskDataResult
+      bodyMapper: Mappers.ScheduleDataResult
     },
     400: {
       bodyMapper: Mappers.ErrorResult
@@ -2730,13 +2730,12 @@ const createScheduledTaskOperationSpec: coreHttp.OperationSpec = {
   mediaType: "json",
   serializer
 };
-const getScheduledTaskOperationSpec: coreHttp.OperationSpec = {
-  path:
-    "/orgs/{organizationId}/projects/{projectId}/schedules/{scheduledTaskId}",
+const getScheduleOperationSpec: coreHttp.OperationSpec = {
+  path: "/orgs/{organizationId}/projects/{projectId}/schedules/{scheduleId}",
   httpMethod: "GET",
   responses: {
     200: {
-      bodyMapper: Mappers.ScheduledTaskDataResult
+      bodyMapper: Mappers.ScheduleDataResult
     },
     400: {
       bodyMapper: Mappers.ErrorResult
@@ -2751,18 +2750,18 @@ const getScheduledTaskOperationSpec: coreHttp.OperationSpec = {
     Parameters.$host,
     Parameters.organizationId,
     Parameters.projectId,
-    Parameters.scheduledTaskId
+    Parameters.scheduleId
   ],
   headerParameters: [Parameters.accept],
   serializer
 };
-const runScheduledTaskOperationSpec: coreHttp.OperationSpec = {
+const runScheduleOperationSpec: coreHttp.OperationSpec = {
   path:
-    "/orgs/{organizationId}/projects/{projectId}/schedules/{scheduledTaskId}/run",
+    "/orgs/{organizationId}/projects/{projectId}/schedules/{scheduleId}/run",
   httpMethod: "POST",
   responses: {
     201: {
-      bodyMapper: Mappers.ScheduledTaskDataResult
+      bodyMapper: Mappers.ScheduleDataResult
     },
     400: {
       bodyMapper: Mappers.ErrorResult
@@ -2777,7 +2776,7 @@ const runScheduledTaskOperationSpec: coreHttp.OperationSpec = {
     Parameters.$host,
     Parameters.organizationId,
     Parameters.projectId,
-    Parameters.scheduledTaskId
+    Parameters.scheduleId
   ],
   headerParameters: [Parameters.accept],
   serializer

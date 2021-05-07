@@ -110,11 +110,11 @@ export interface ComponentTask {
     // (undocumented)
     resourceState?: ComponentTaskResourceState;
     // (undocumented)
-    scheduledTaskId?: string | null;
+    scheduleId?: string | null;
     // (undocumented)
     started?: Date | null;
     // (undocumented)
-    type?: Enum3;
+    type?: ComponentTaskType;
     // (undocumented)
     typeName?: string | null;
 }
@@ -183,9 +183,15 @@ export interface ComponentTaskTemplate {
     // (undocumented)
     inputJsonSchema?: string | null;
     // (undocumented)
-    type: Enum3;
+    type: ComponentTaskTemplateType;
     readonly typeName?: string | null;
 }
+
+// @public
+export type ComponentTaskTemplateType = string;
+
+// @public
+export type ComponentTaskType = string;
 
 // @public (undocumented)
 export interface ComponentTemplate {
@@ -309,9 +315,6 @@ export interface DeploymentScopeListDataResult {
     status?: string | null;
 }
 
-// @public
-export type Enum3 = number;
-
 // @public (undocumented)
 export interface ErrorResult {
     // (undocumented)
@@ -351,6 +354,26 @@ export const enum KnownComponentTaskResourceState {
 }
 
 // @public
+export const enum KnownComponentTaskTemplateType {
+    // (undocumented)
+    Create = "Create",
+    // (undocumented)
+    Custom = "Custom",
+    // (undocumented)
+    Delete = "Delete"
+}
+
+// @public
+export const enum KnownComponentTaskType {
+    // (undocumented)
+    Create = "Create",
+    // (undocumented)
+    Custom = "Custom",
+    // (undocumented)
+    Delete = "Delete"
+}
+
+// @public
 export const enum KnownComponentTemplateType {
     // (undocumented)
     AzureResource = "AzureResource",
@@ -372,16 +395,6 @@ export const enum KnownComponentType {
     Environment = "Environment",
     // (undocumented)
     GitRepository = "GitRepository"
-}
-
-// @public
-export const enum KnownEnum3 {
-    // (undocumented)
-    One = 1,
-    // (undocumented)
-    Two = 2,
-    // (undocumented)
-    Zero = 0
 }
 
 // @public
@@ -467,7 +480,7 @@ export const enum KnownResultErrorCode {
 }
 
 // @public
-export const enum KnownScheduledTaskDaysOfWeekItem {
+export const enum KnownScheduleDaysOfWeekItem {
     // (undocumented)
     Friday = "Friday",
     // (undocumented)
@@ -485,7 +498,7 @@ export const enum KnownScheduledTaskDaysOfWeekItem {
 }
 
 // @public
-export const enum KnownScheduledTaskDefinitionDaysOfWeekItem {
+export const enum KnownScheduleDefinitionDaysOfWeekItem {
     // (undocumented)
     Friday = "Friday",
     // (undocumented)
@@ -837,7 +850,7 @@ export interface ResultError {
 export type ResultErrorCode = string;
 
 // @public (undocumented)
-export interface ScheduledTask {
+export interface Schedule {
     // (undocumented)
     componentTasks?: ComponentTaskReference[] | null;
     // (undocumented)
@@ -845,7 +858,7 @@ export interface ScheduledTask {
     // (undocumented)
     creator?: string | null;
     // (undocumented)
-    daysOfWeek?: ScheduledTaskDaysOfWeekItem[] | null;
+    daysOfWeek?: ScheduleDaysOfWeekItem[] | null;
     // (undocumented)
     enabled?: boolean;
     // (undocumented)
@@ -865,11 +878,11 @@ export interface ScheduledTask {
 }
 
 // @public (undocumented)
-export interface ScheduledTaskDataResult {
+export interface ScheduleDataResult {
     // (undocumented)
     code?: number;
     // (undocumented)
-    data?: ScheduledTask;
+    data?: Schedule;
     // (undocumented)
     location?: string | null;
     // (undocumented)
@@ -877,14 +890,14 @@ export interface ScheduledTaskDataResult {
 }
 
 // @public
-export type ScheduledTaskDaysOfWeekItem = string;
+export type ScheduleDaysOfWeekItem = string;
 
 // @public (undocumented)
-export interface ScheduledTaskDefinition {
+export interface ScheduleDefinition {
     // (undocumented)
     componentTasks?: ComponentTaskReference[] | null;
     // (undocumented)
-    daysOfWeek?: ScheduledTaskDefinitionDaysOfWeekItem[] | null;
+    daysOfWeek?: ScheduleDefinitionDaysOfWeekItem[] | null;
     // (undocumented)
     enabled?: boolean;
     // (undocumented)
@@ -896,13 +909,13 @@ export interface ScheduledTaskDefinition {
 }
 
 // @public
-export type ScheduledTaskDefinitionDaysOfWeekItem = string;
+export type ScheduleDefinitionDaysOfWeekItem = string;
 
 // @public (undocumented)
-export interface ScheduledTaskListDataResult {
+export interface ScheduleListDataResult {
     // (undocumented)
     code?: number;
-    readonly data?: ScheduledTask[] | null;
+    readonly data?: Schedule[] | null;
     // (undocumented)
     location?: string | null;
     // (undocumented)
@@ -952,7 +965,7 @@ export class TeamCloud extends TeamCloudContext {
     createProjectTag(organizationId: string, projectId: string, options?: TeamCloudCreateProjectTagOptionalParams): Promise<TeamCloudCreateProjectTagResponse>;
     createProjectTemplate(organizationId: string, options?: TeamCloudCreateProjectTemplateOptionalParams): Promise<TeamCloudCreateProjectTemplateResponse>;
     createProjectUser(organizationId: string, projectId: string, options?: TeamCloudCreateProjectUserOptionalParams): Promise<TeamCloudCreateProjectUserResponse>;
-    createScheduledTask(organizationId: string, projectId: string, options?: TeamCloudCreateScheduledTaskOptionalParams): Promise<TeamCloudCreateScheduledTaskResponse>;
+    createSchedule(organizationId: string, projectId: string, options?: TeamCloudCreateScheduleOptionalParams): Promise<TeamCloudCreateScheduleResponse>;
     deleteComponent(componentId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteComponentResponse>;
     deleteDeploymentScope(id: string | null, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteDeploymentScopeResponse>;
     deleteOrganization(organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteOrganizationResponse>;
@@ -987,13 +1000,13 @@ export class TeamCloud extends TeamCloudContext {
     getProjectUser(userId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectUserResponse>;
     getProjectUserMe(organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectUserMeResponse>;
     getProjectUsers(organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectUsersResponse>;
-    getScheduledTask(scheduledTaskId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetScheduledTaskResponse>;
-    getScheduledTasks(organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetScheduledTasksResponse>;
+    getSchedule(scheduleId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetScheduleResponse>;
+    getSchedules(organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetSchedulesResponse>;
     getStatus(trackingId: string, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetStatusResponse>;
     getUserProjects(organizationId: string, userId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetUserProjectsResponse>;
     getUserProjectsMe(organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetUserProjectsMeResponse>;
     negotiateSignalR(organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<coreHttp.RestResponse>;
-    runScheduledTask(scheduledTaskId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudRunScheduledTaskResponse>;
+    runSchedule(scheduleId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudRunScheduleResponse>;
     updateDeploymentScope(id: string | null, organizationId: string, options?: TeamCloudUpdateDeploymentScopeOptionalParams): Promise<TeamCloudUpdateDeploymentScopeResponse>;
     updateOrganizationUser(userId: string | null, organizationId: string, options?: TeamCloudUpdateOrganizationUserOptionalParams): Promise<TeamCloudUpdateOrganizationUserResponse>;
     updateOrganizationUserMe(organizationId: string, options?: TeamCloudUpdateOrganizationUserMeOptionalParams): Promise<TeamCloudUpdateOrganizationUserMeResponse>;
@@ -1153,16 +1166,16 @@ export type TeamCloudCreateProjectUserResponse = UserDataResult & {
 };
 
 // @public
-export interface TeamCloudCreateScheduledTaskOptionalParams extends coreHttp.OperationOptions {
+export interface TeamCloudCreateScheduleOptionalParams extends coreHttp.OperationOptions {
     // (undocumented)
-    body?: ScheduledTaskDefinition;
+    body?: ScheduleDefinition;
 }
 
 // @public
-export type TeamCloudCreateScheduledTaskResponse = ScheduledTaskDataResult & {
+export type TeamCloudCreateScheduleResponse = ScheduleDataResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
-        parsedBody: ScheduledTaskDataResult;
+        parsedBody: ScheduleDataResult;
     };
 };
 
@@ -1445,18 +1458,18 @@ export type TeamCloudGetProjectUsersResponse = UserListDataResult & {
 };
 
 // @public
-export type TeamCloudGetScheduledTaskResponse = ScheduledTaskDataResult & {
+export type TeamCloudGetScheduleResponse = ScheduleDataResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
-        parsedBody: ScheduledTaskDataResult;
+        parsedBody: ScheduleDataResult;
     };
 };
 
 // @public
-export type TeamCloudGetScheduledTasksResponse = ScheduledTaskListDataResult & {
+export type TeamCloudGetSchedulesResponse = ScheduleListDataResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
-        parsedBody: ScheduledTaskListDataResult;
+        parsedBody: ScheduleListDataResult;
     };
 };
 
@@ -1490,10 +1503,10 @@ export interface TeamCloudOptionalParams extends coreHttp.ServiceClientOptions {
 }
 
 // @public
-export type TeamCloudRunScheduledTaskResponse = ScheduledTaskDataResult & {
+export type TeamCloudRunScheduleResponse = ScheduleDataResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
-        parsedBody: ScheduledTaskDataResult;
+        parsedBody: ScheduleDataResult;
     };
 };
 

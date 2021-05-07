@@ -480,8 +480,8 @@ export var ComponentTask = {
                     name: "String"
                 }
             },
-            scheduledTaskId: {
-                serializedName: "scheduledTaskId",
+            scheduleId: {
+                serializedName: "scheduleId",
                 nullable: true,
                 type: {
                     name: "String"
@@ -490,7 +490,7 @@ export var ComponentTask = {
             type: {
                 serializedName: "type",
                 type: {
-                    name: "Number"
+                    name: "String"
                 }
             },
             typeName: {
@@ -935,7 +935,7 @@ export var ComponentTaskTemplate = {
                 serializedName: "type",
                 required: true,
                 type: {
-                    name: "Number"
+                    name: "String"
                 }
             },
             typeName: {
@@ -2271,10 +2271,10 @@ export var ProjectTemplateDataResult = {
         }
     }
 };
-export var ScheduledTaskListDataResult = {
+export var ScheduleListDataResult = {
     type: {
         name: "Composite",
-        className: "ScheduledTaskListDataResult",
+        className: "ScheduleListDataResult",
         modelProperties: {
             code: {
                 serializedName: "code",
@@ -2298,7 +2298,7 @@ export var ScheduledTaskListDataResult = {
                     element: {
                         type: {
                             name: "Composite",
-                            className: "ScheduledTask"
+                            className: "Schedule"
                         }
                     }
                 }
@@ -2313,10 +2313,10 @@ export var ScheduledTaskListDataResult = {
         }
     }
 };
-export var ScheduledTask = {
+export var Schedule = {
     type: {
         name: "Composite",
-        className: "ScheduledTask",
+        className: "Schedule",
         modelProperties: {
             organization: {
                 serializedName: "organization",
@@ -2440,10 +2440,10 @@ export var ComponentTaskReference = {
         }
     }
 };
-export var ScheduledTaskDefinition = {
+export var ScheduleDefinition = {
     type: {
         name: "Composite",
-        className: "ScheduledTaskDefinition",
+        className: "ScheduleDefinition",
         modelProperties: {
             enabled: {
                 serializedName: "enabled",
@@ -2497,10 +2497,10 @@ export var ScheduledTaskDefinition = {
         }
     }
 };
-export var ScheduledTaskDataResult = {
+export var ScheduleDataResult = {
     type: {
         name: "Composite",
-        className: "ScheduledTaskDataResult",
+        className: "ScheduleDataResult",
         modelProperties: {
             code: {
                 serializedName: "code",
@@ -2519,7 +2519,7 @@ export var ScheduledTaskDataResult = {
                 serializedName: "data",
                 type: {
                     name: "Composite",
-                    className: "ScheduledTask"
+                    className: "Schedule"
                 }
             },
             location: {

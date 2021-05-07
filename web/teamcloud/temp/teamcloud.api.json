@@ -1189,12 +1189,12 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "teamcloud!ComponentTask#scheduledTaskId:member",
+              "canonicalReference": "teamcloud!ComponentTask#scheduleId:member",
               "docComment": "",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "scheduledTaskId?: "
+                  "text": "scheduleId?: "
                 },
                 {
                   "kind": "Content",
@@ -1206,7 +1206,7 @@
                 }
               ],
               "releaseTag": "Public",
-              "name": "scheduledTaskId",
+              "name": "scheduleId",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
@@ -1253,8 +1253,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "Enum3",
-                  "canonicalReference": "teamcloud!Enum3:type"
+                  "text": "ComponentTaskType",
+                  "canonicalReference": "teamcloud!ComponentTaskType:type"
                 },
                 {
                   "kind": "Content",
@@ -1906,8 +1906,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "Enum3",
-                  "canonicalReference": "teamcloud!Enum3:type"
+                  "text": "ComponentTaskTemplateType",
+                  "canonicalReference": "teamcloud!ComponentTaskTemplateType:type"
                 },
                 {
                   "kind": "Content",
@@ -1948,6 +1948,56 @@
             }
           ],
           "extendsTokenRanges": []
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "teamcloud!ComponentTaskTemplateType:type",
+          "docComment": "/**\n * Defines values for ComponentTaskTemplateType. \\ {@link KnownComponentTaskTemplateType} can be used interchangeably with ComponentTaskTemplateType, this enum contains the known values that the service supports. ### Know values supported by the service **Create** \\ **Delete** \\ **Custom**\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare type ComponentTaskTemplateType = "
+            },
+            {
+              "kind": "Content",
+              "text": "string"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "ComponentTaskTemplateType",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "teamcloud!ComponentTaskType:type",
+          "docComment": "/**\n * Defines values for ComponentTaskType. \\ {@link KnownComponentTaskType} can be used interchangeably with ComponentTaskType, this enum contains the known values that the service supports. ### Know values supported by the service **Create** \\ **Delete** \\ **Custom**\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare type ComponentTaskType = "
+            },
+            {
+              "kind": "Content",
+              "text": "string"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "ComponentTaskType",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          }
         },
         {
           "kind": "Interface",
@@ -3253,31 +3303,6 @@
           "extendsTokenRanges": []
         },
         {
-          "kind": "TypeAlias",
-          "canonicalReference": "teamcloud!Enum3:type",
-          "docComment": "/**\n * Defines values for Enum3. \\ {@link KnownEnum3} can be used interchangeably with Enum3, this enum contains the known values that the service supports. ### Know values supported by the service **0** \\ **1** \\ **2**\n */\n",
-          "excerptTokens": [
-            {
-              "kind": "Content",
-              "text": "export declare type Enum3 = "
-            },
-            {
-              "kind": "Content",
-              "text": "number"
-            },
-            {
-              "kind": "Content",
-              "text": ";"
-            }
-          ],
-          "releaseTag": "Public",
-          "name": "Enum3",
-          "typeTokenRange": {
-            "startIndex": 1,
-            "endIndex": 2
-          }
-        },
-        {
           "kind": "Interface",
           "canonicalReference": "teamcloud!ErrorResult:interface",
           "docComment": "",
@@ -3615,6 +3640,162 @@
         },
         {
           "kind": "Enum",
+          "canonicalReference": "teamcloud!KnownComponentTaskTemplateType:enum",
+          "docComment": "/**\n * Known values of {@link ComponentTaskTemplateType} that the service accepts.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare const enum KnownComponentTaskTemplateType "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "KnownComponentTaskTemplateType",
+          "members": [
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownComponentTaskTemplateType.Create:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Create = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Create\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Create",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownComponentTaskTemplateType.Custom:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Custom = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Custom\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Custom",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownComponentTaskTemplateType.Delete:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Delete = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Delete\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Delete",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ]
+        },
+        {
+          "kind": "Enum",
+          "canonicalReference": "teamcloud!KnownComponentTaskType:enum",
+          "docComment": "/**\n * Known values of {@link ComponentTaskType} that the service accepts.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare const enum KnownComponentTaskType "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "KnownComponentTaskType",
+          "members": [
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownComponentTaskType.Create:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Create = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Create\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Create",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownComponentTaskType.Custom:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Custom = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Custom\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Custom",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownComponentTaskType.Delete:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Delete = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Delete\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Delete",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ]
+        },
+        {
+          "kind": "Enum",
           "canonicalReference": "teamcloud!KnownComponentTemplateType:enum",
           "docComment": "/**\n * Known values of {@link ComponentTemplateType} that the service accepts.\n */\n",
           "excerptTokens": [
@@ -3804,84 +3985,6 @@
               ],
               "releaseTag": "Public",
               "name": "GitRepository",
-              "initializerTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              }
-            }
-          ]
-        },
-        {
-          "kind": "Enum",
-          "canonicalReference": "teamcloud!KnownEnum3:enum",
-          "docComment": "/**\n * Known values of {@link Enum3} that the service accepts.\n */\n",
-          "excerptTokens": [
-            {
-              "kind": "Content",
-              "text": "export declare const enum KnownEnum3 "
-            }
-          ],
-          "releaseTag": "Public",
-          "name": "KnownEnum3",
-          "members": [
-            {
-              "kind": "EnumMember",
-              "canonicalReference": "teamcloud!KnownEnum3.One:member",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "One = "
-                },
-                {
-                  "kind": "Content",
-                  "text": "1"
-                }
-              ],
-              "releaseTag": "Public",
-              "name": "One",
-              "initializerTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              }
-            },
-            {
-              "kind": "EnumMember",
-              "canonicalReference": "teamcloud!KnownEnum3.Two:member",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "Two = "
-                },
-                {
-                  "kind": "Content",
-                  "text": "2"
-                }
-              ],
-              "releaseTag": "Public",
-              "name": "Two",
-              "initializerTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              }
-            },
-            {
-              "kind": "EnumMember",
-              "canonicalReference": "teamcloud!KnownEnum3.Zero:member",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "Zero = "
-                },
-                {
-                  "kind": "Content",
-                  "text": "0"
-                }
-              ],
-              "releaseTag": "Public",
-              "name": "Zero",
               "initializerTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
@@ -4590,20 +4693,20 @@
         },
         {
           "kind": "Enum",
-          "canonicalReference": "teamcloud!KnownScheduledTaskDaysOfWeekItem:enum",
-          "docComment": "/**\n * Known values of {@link ScheduledTaskDaysOfWeekItem} that the service accepts.\n */\n",
+          "canonicalReference": "teamcloud!KnownScheduleDaysOfWeekItem:enum",
+          "docComment": "/**\n * Known values of {@link ScheduleDaysOfWeekItem} that the service accepts.\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "export declare const enum KnownScheduledTaskDaysOfWeekItem "
+              "text": "export declare const enum KnownScheduleDaysOfWeekItem "
             }
           ],
           "releaseTag": "Public",
-          "name": "KnownScheduledTaskDaysOfWeekItem",
+          "name": "KnownScheduleDaysOfWeekItem",
           "members": [
             {
               "kind": "EnumMember",
-              "canonicalReference": "teamcloud!KnownScheduledTaskDaysOfWeekItem.Friday:member",
+              "canonicalReference": "teamcloud!KnownScheduleDaysOfWeekItem.Friday:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -4624,7 +4727,7 @@
             },
             {
               "kind": "EnumMember",
-              "canonicalReference": "teamcloud!KnownScheduledTaskDaysOfWeekItem.Monday:member",
+              "canonicalReference": "teamcloud!KnownScheduleDaysOfWeekItem.Monday:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -4645,7 +4748,7 @@
             },
             {
               "kind": "EnumMember",
-              "canonicalReference": "teamcloud!KnownScheduledTaskDaysOfWeekItem.Saturday:member",
+              "canonicalReference": "teamcloud!KnownScheduleDaysOfWeekItem.Saturday:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -4666,7 +4769,7 @@
             },
             {
               "kind": "EnumMember",
-              "canonicalReference": "teamcloud!KnownScheduledTaskDaysOfWeekItem.Sunday:member",
+              "canonicalReference": "teamcloud!KnownScheduleDaysOfWeekItem.Sunday:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -4687,7 +4790,7 @@
             },
             {
               "kind": "EnumMember",
-              "canonicalReference": "teamcloud!KnownScheduledTaskDaysOfWeekItem.Thursday:member",
+              "canonicalReference": "teamcloud!KnownScheduleDaysOfWeekItem.Thursday:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -4708,7 +4811,7 @@
             },
             {
               "kind": "EnumMember",
-              "canonicalReference": "teamcloud!KnownScheduledTaskDaysOfWeekItem.Tuesday:member",
+              "canonicalReference": "teamcloud!KnownScheduleDaysOfWeekItem.Tuesday:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -4729,7 +4832,7 @@
             },
             {
               "kind": "EnumMember",
-              "canonicalReference": "teamcloud!KnownScheduledTaskDaysOfWeekItem.Wednesday:member",
+              "canonicalReference": "teamcloud!KnownScheduleDaysOfWeekItem.Wednesday:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -4752,20 +4855,20 @@
         },
         {
           "kind": "Enum",
-          "canonicalReference": "teamcloud!KnownScheduledTaskDefinitionDaysOfWeekItem:enum",
-          "docComment": "/**\n * Known values of {@link ScheduledTaskDefinitionDaysOfWeekItem} that the service accepts.\n */\n",
+          "canonicalReference": "teamcloud!KnownScheduleDefinitionDaysOfWeekItem:enum",
+          "docComment": "/**\n * Known values of {@link ScheduleDefinitionDaysOfWeekItem} that the service accepts.\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "export declare const enum KnownScheduledTaskDefinitionDaysOfWeekItem "
+              "text": "export declare const enum KnownScheduleDefinitionDaysOfWeekItem "
             }
           ],
           "releaseTag": "Public",
-          "name": "KnownScheduledTaskDefinitionDaysOfWeekItem",
+          "name": "KnownScheduleDefinitionDaysOfWeekItem",
           "members": [
             {
               "kind": "EnumMember",
-              "canonicalReference": "teamcloud!KnownScheduledTaskDefinitionDaysOfWeekItem.Friday:member",
+              "canonicalReference": "teamcloud!KnownScheduleDefinitionDaysOfWeekItem.Friday:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -4786,7 +4889,7 @@
             },
             {
               "kind": "EnumMember",
-              "canonicalReference": "teamcloud!KnownScheduledTaskDefinitionDaysOfWeekItem.Monday:member",
+              "canonicalReference": "teamcloud!KnownScheduleDefinitionDaysOfWeekItem.Monday:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -4807,7 +4910,7 @@
             },
             {
               "kind": "EnumMember",
-              "canonicalReference": "teamcloud!KnownScheduledTaskDefinitionDaysOfWeekItem.Saturday:member",
+              "canonicalReference": "teamcloud!KnownScheduleDefinitionDaysOfWeekItem.Saturday:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -4828,7 +4931,7 @@
             },
             {
               "kind": "EnumMember",
-              "canonicalReference": "teamcloud!KnownScheduledTaskDefinitionDaysOfWeekItem.Sunday:member",
+              "canonicalReference": "teamcloud!KnownScheduleDefinitionDaysOfWeekItem.Sunday:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -4849,7 +4952,7 @@
             },
             {
               "kind": "EnumMember",
-              "canonicalReference": "teamcloud!KnownScheduledTaskDefinitionDaysOfWeekItem.Thursday:member",
+              "canonicalReference": "teamcloud!KnownScheduleDefinitionDaysOfWeekItem.Thursday:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -4870,7 +4973,7 @@
             },
             {
               "kind": "EnumMember",
-              "canonicalReference": "teamcloud!KnownScheduledTaskDefinitionDaysOfWeekItem.Tuesday:member",
+              "canonicalReference": "teamcloud!KnownScheduleDefinitionDaysOfWeekItem.Tuesday:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -4891,7 +4994,7 @@
             },
             {
               "kind": "EnumMember",
-              "canonicalReference": "teamcloud!KnownScheduledTaskDefinitionDaysOfWeekItem.Wednesday:member",
+              "canonicalReference": "teamcloud!KnownScheduleDefinitionDaysOfWeekItem.Wednesday:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -8354,20 +8457,20 @@
         },
         {
           "kind": "Interface",
-          "canonicalReference": "teamcloud!ScheduledTask:interface",
+          "canonicalReference": "teamcloud!Schedule:interface",
           "docComment": "",
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "export interface ScheduledTask "
+              "text": "export interface Schedule "
             }
           ],
           "releaseTag": "Public",
-          "name": "ScheduledTask",
+          "name": "Schedule",
           "members": [
             {
               "kind": "PropertySignature",
-              "canonicalReference": "teamcloud!ScheduledTask#componentTasks:member",
+              "canonicalReference": "teamcloud!Schedule#componentTasks:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -8397,7 +8500,7 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "teamcloud!ScheduledTask#created:member",
+              "canonicalReference": "teamcloud!Schedule#created:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -8423,7 +8526,7 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "teamcloud!ScheduledTask#creator:member",
+              "canonicalReference": "teamcloud!Schedule#creator:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -8448,7 +8551,7 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "teamcloud!ScheduledTask#daysOfWeek:member",
+              "canonicalReference": "teamcloud!Schedule#daysOfWeek:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -8457,8 +8560,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "ScheduledTaskDaysOfWeekItem",
-                  "canonicalReference": "teamcloud!ScheduledTaskDaysOfWeekItem:type"
+                  "text": "ScheduleDaysOfWeekItem",
+                  "canonicalReference": "teamcloud!ScheduleDaysOfWeekItem:type"
                 },
                 {
                   "kind": "Content",
@@ -8478,7 +8581,7 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "teamcloud!ScheduledTask#enabled:member",
+              "canonicalReference": "teamcloud!Schedule#enabled:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -8503,7 +8606,7 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "teamcloud!ScheduledTask#id:member",
+              "canonicalReference": "teamcloud!Schedule#id:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -8528,7 +8631,7 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "teamcloud!ScheduledTask#lastRun:member",
+              "canonicalReference": "teamcloud!Schedule#lastRun:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -8558,7 +8661,7 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "teamcloud!ScheduledTask#organization:member",
+              "canonicalReference": "teamcloud!Schedule#organization:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -8583,7 +8686,7 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "teamcloud!ScheduledTask#projectId:member",
+              "canonicalReference": "teamcloud!Schedule#projectId:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -8608,7 +8711,7 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "teamcloud!ScheduledTask#recurring:member",
+              "canonicalReference": "teamcloud!Schedule#recurring:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -8633,7 +8736,7 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "teamcloud!ScheduledTask#utcHour:member",
+              "canonicalReference": "teamcloud!Schedule#utcHour:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -8658,7 +8761,7 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "teamcloud!ScheduledTask#utcMinute:member",
+              "canonicalReference": "teamcloud!Schedule#utcMinute:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -8686,20 +8789,20 @@
         },
         {
           "kind": "Interface",
-          "canonicalReference": "teamcloud!ScheduledTaskDataResult:interface",
+          "canonicalReference": "teamcloud!ScheduleDataResult:interface",
           "docComment": "",
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "export interface ScheduledTaskDataResult "
+              "text": "export interface ScheduleDataResult "
             }
           ],
           "releaseTag": "Public",
-          "name": "ScheduledTaskDataResult",
+          "name": "ScheduleDataResult",
           "members": [
             {
               "kind": "PropertySignature",
-              "canonicalReference": "teamcloud!ScheduledTaskDataResult#code:member",
+              "canonicalReference": "teamcloud!ScheduleDataResult#code:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -8724,7 +8827,7 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "teamcloud!ScheduledTaskDataResult#data:member",
+              "canonicalReference": "teamcloud!ScheduleDataResult#data:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -8733,8 +8836,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "ScheduledTask",
-                  "canonicalReference": "teamcloud!ScheduledTask:interface"
+                  "text": "Schedule",
+                  "canonicalReference": "teamcloud!Schedule:interface"
                 },
                 {
                   "kind": "Content",
@@ -8750,7 +8853,7 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "teamcloud!ScheduledTaskDataResult#location:member",
+              "canonicalReference": "teamcloud!ScheduleDataResult#location:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -8775,7 +8878,7 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "teamcloud!ScheduledTaskDataResult#status:member",
+              "canonicalReference": "teamcloud!ScheduleDataResult#status:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -8803,12 +8906,12 @@
         },
         {
           "kind": "TypeAlias",
-          "canonicalReference": "teamcloud!ScheduledTaskDaysOfWeekItem:type",
-          "docComment": "/**\n * Defines values for ScheduledTaskDaysOfWeekItem. \\ {@link KnownScheduledTaskDaysOfWeekItem} can be used interchangeably with ScheduledTaskDaysOfWeekItem, this enum contains the known values that the service supports. ### Know values supported by the service **Sunday** \\ **Monday** \\ **Tuesday** \\ **Wednesday** \\ **Thursday** \\ **Friday** \\ **Saturday**\n */\n",
+          "canonicalReference": "teamcloud!ScheduleDaysOfWeekItem:type",
+          "docComment": "/**\n * Defines values for ScheduleDaysOfWeekItem. \\ {@link KnownScheduleDaysOfWeekItem} can be used interchangeably with ScheduleDaysOfWeekItem, this enum contains the known values that the service supports. ### Know values supported by the service **Sunday** \\ **Monday** \\ **Tuesday** \\ **Wednesday** \\ **Thursday** \\ **Friday** \\ **Saturday**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "export declare type ScheduledTaskDaysOfWeekItem = "
+              "text": "export declare type ScheduleDaysOfWeekItem = "
             },
             {
               "kind": "Content",
@@ -8820,7 +8923,7 @@
             }
           ],
           "releaseTag": "Public",
-          "name": "ScheduledTaskDaysOfWeekItem",
+          "name": "ScheduleDaysOfWeekItem",
           "typeTokenRange": {
             "startIndex": 1,
             "endIndex": 2
@@ -8828,20 +8931,20 @@
         },
         {
           "kind": "Interface",
-          "canonicalReference": "teamcloud!ScheduledTaskDefinition:interface",
+          "canonicalReference": "teamcloud!ScheduleDefinition:interface",
           "docComment": "",
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "export interface ScheduledTaskDefinition "
+              "text": "export interface ScheduleDefinition "
             }
           ],
           "releaseTag": "Public",
-          "name": "ScheduledTaskDefinition",
+          "name": "ScheduleDefinition",
           "members": [
             {
               "kind": "PropertySignature",
-              "canonicalReference": "teamcloud!ScheduledTaskDefinition#componentTasks:member",
+              "canonicalReference": "teamcloud!ScheduleDefinition#componentTasks:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -8871,7 +8974,7 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "teamcloud!ScheduledTaskDefinition#daysOfWeek:member",
+              "canonicalReference": "teamcloud!ScheduleDefinition#daysOfWeek:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -8880,8 +8983,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "ScheduledTaskDefinitionDaysOfWeekItem",
-                  "canonicalReference": "teamcloud!ScheduledTaskDefinitionDaysOfWeekItem:type"
+                  "text": "ScheduleDefinitionDaysOfWeekItem",
+                  "canonicalReference": "teamcloud!ScheduleDefinitionDaysOfWeekItem:type"
                 },
                 {
                   "kind": "Content",
@@ -8901,7 +9004,7 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "teamcloud!ScheduledTaskDefinition#enabled:member",
+              "canonicalReference": "teamcloud!ScheduleDefinition#enabled:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -8926,7 +9029,7 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "teamcloud!ScheduledTaskDefinition#recurring:member",
+              "canonicalReference": "teamcloud!ScheduleDefinition#recurring:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -8951,7 +9054,7 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "teamcloud!ScheduledTaskDefinition#utcHour:member",
+              "canonicalReference": "teamcloud!ScheduleDefinition#utcHour:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -8976,7 +9079,7 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "teamcloud!ScheduledTaskDefinition#utcMinute:member",
+              "canonicalReference": "teamcloud!ScheduleDefinition#utcMinute:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -9004,12 +9107,12 @@
         },
         {
           "kind": "TypeAlias",
-          "canonicalReference": "teamcloud!ScheduledTaskDefinitionDaysOfWeekItem:type",
-          "docComment": "/**\n * Defines values for ScheduledTaskDefinitionDaysOfWeekItem. \\ {@link KnownScheduledTaskDefinitionDaysOfWeekItem} can be used interchangeably with ScheduledTaskDefinitionDaysOfWeekItem, this enum contains the known values that the service supports. ### Know values supported by the service **Sunday** \\ **Monday** \\ **Tuesday** \\ **Wednesday** \\ **Thursday** \\ **Friday** \\ **Saturday**\n */\n",
+          "canonicalReference": "teamcloud!ScheduleDefinitionDaysOfWeekItem:type",
+          "docComment": "/**\n * Defines values for ScheduleDefinitionDaysOfWeekItem. \\ {@link KnownScheduleDefinitionDaysOfWeekItem} can be used interchangeably with ScheduleDefinitionDaysOfWeekItem, this enum contains the known values that the service supports. ### Know values supported by the service **Sunday** \\ **Monday** \\ **Tuesday** \\ **Wednesday** \\ **Thursday** \\ **Friday** \\ **Saturday**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "export declare type ScheduledTaskDefinitionDaysOfWeekItem = "
+              "text": "export declare type ScheduleDefinitionDaysOfWeekItem = "
             },
             {
               "kind": "Content",
@@ -9021,7 +9124,7 @@
             }
           ],
           "releaseTag": "Public",
-          "name": "ScheduledTaskDefinitionDaysOfWeekItem",
+          "name": "ScheduleDefinitionDaysOfWeekItem",
           "typeTokenRange": {
             "startIndex": 1,
             "endIndex": 2
@@ -9029,20 +9132,20 @@
         },
         {
           "kind": "Interface",
-          "canonicalReference": "teamcloud!ScheduledTaskListDataResult:interface",
+          "canonicalReference": "teamcloud!ScheduleListDataResult:interface",
           "docComment": "",
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "export interface ScheduledTaskListDataResult "
+              "text": "export interface ScheduleListDataResult "
             }
           ],
           "releaseTag": "Public",
-          "name": "ScheduledTaskListDataResult",
+          "name": "ScheduleListDataResult",
           "members": [
             {
               "kind": "PropertySignature",
-              "canonicalReference": "teamcloud!ScheduledTaskListDataResult#code:member",
+              "canonicalReference": "teamcloud!ScheduleListDataResult#code:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -9067,7 +9170,7 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "teamcloud!ScheduledTaskListDataResult#data:member",
+              "canonicalReference": "teamcloud!ScheduleListDataResult#data:member",
               "docComment": "/**\n * NOTE: This property will not be serialized. It can only be populated by the server.\n */\n",
               "excerptTokens": [
                 {
@@ -9076,8 +9179,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "ScheduledTask",
-                  "canonicalReference": "teamcloud!ScheduledTask:interface"
+                  "text": "Schedule",
+                  "canonicalReference": "teamcloud!Schedule:interface"
                 },
                 {
                   "kind": "Content",
@@ -9097,7 +9200,7 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "teamcloud!ScheduledTaskListDataResult#location:member",
+              "canonicalReference": "teamcloud!ScheduleListDataResult#location:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -9122,7 +9225,7 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "teamcloud!ScheduledTaskListDataResult#status:member",
+              "canonicalReference": "teamcloud!ScheduleListDataResult#status:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -10374,12 +10477,12 @@
             },
             {
               "kind": "Method",
-              "canonicalReference": "teamcloud!TeamCloud#createScheduledTask:member(1)",
-              "docComment": "/**\n * Creates a new Project Scheduled Task.\n *\n * @param organizationId - \n *\n * @param projectId - \n *\n * @param options - The options parameters.\n */\n",
+              "canonicalReference": "teamcloud!TeamCloud#createSchedule:member(1)",
+              "docComment": "/**\n * Creates a new Project Schedule.\n *\n * @param organizationId - \n *\n * @param projectId - \n *\n * @param options - The options parameters.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "createScheduledTask(organizationId: "
+                  "text": "createSchedule(organizationId: "
                 },
                 {
                   "kind": "Content",
@@ -10399,8 +10502,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "TeamCloudCreateScheduledTaskOptionalParams",
-                  "canonicalReference": "teamcloud!TeamCloudCreateScheduledTaskOptionalParams:interface"
+                  "text": "TeamCloudCreateScheduleOptionalParams",
+                  "canonicalReference": "teamcloud!TeamCloudCreateScheduleOptionalParams:interface"
                 },
                 {
                   "kind": "Content",
@@ -10417,8 +10520,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "TeamCloudCreateScheduledTaskResponse",
-                  "canonicalReference": "teamcloud!TeamCloudCreateScheduledTaskResponse:type"
+                  "text": "TeamCloudCreateScheduleResponse",
+                  "canonicalReference": "teamcloud!TeamCloudCreateScheduleResponse:type"
                 },
                 {
                   "kind": "Content",
@@ -10459,7 +10562,7 @@
                   }
                 }
               ],
-              "name": "createScheduledTask"
+              "name": "createSchedule"
             },
             {
               "kind": "Method",
@@ -13681,12 +13784,12 @@
             },
             {
               "kind": "Method",
-              "canonicalReference": "teamcloud!TeamCloud#getScheduledTask:member(1)",
-              "docComment": "/**\n * Gets the Scheduled Task.\n *\n * @param scheduledTaskId - \n *\n * @param organizationId - \n *\n * @param projectId - \n *\n * @param options - The options parameters.\n */\n",
+              "canonicalReference": "teamcloud!TeamCloud#getSchedule:member(1)",
+              "docComment": "/**\n * Gets the Schedule.\n *\n * @param scheduleId - \n *\n * @param organizationId - \n *\n * @param projectId - \n *\n * @param options - The options parameters.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "getScheduledTask(scheduledTaskId: "
+                  "text": "getSchedule(scheduleId: "
                 },
                 {
                   "kind": "Content",
@@ -13736,8 +13839,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "TeamCloudGetScheduledTaskResponse",
-                  "canonicalReference": "teamcloud!TeamCloudGetScheduledTaskResponse:type"
+                  "text": "TeamCloudGetScheduleResponse",
+                  "canonicalReference": "teamcloud!TeamCloudGetScheduleResponse:type"
                 },
                 {
                   "kind": "Content",
@@ -13757,7 +13860,7 @@
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "scheduledTaskId",
+                  "parameterName": "scheduleId",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
@@ -13785,16 +13888,16 @@
                   }
                 }
               ],
-              "name": "getScheduledTask"
+              "name": "getSchedule"
             },
             {
               "kind": "Method",
-              "canonicalReference": "teamcloud!TeamCloud#getScheduledTasks:member(1)",
-              "docComment": "/**\n * Gets all Scheduled Tasks.\n *\n * @param organizationId - \n *\n * @param projectId - \n *\n * @param options - The options parameters.\n */\n",
+              "canonicalReference": "teamcloud!TeamCloud#getSchedules:member(1)",
+              "docComment": "/**\n * Gets all Schedule.\n *\n * @param organizationId - \n *\n * @param projectId - \n *\n * @param options - The options parameters.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "getScheduledTasks(organizationId: "
+                  "text": "getSchedules(organizationId: "
                 },
                 {
                   "kind": "Content",
@@ -13836,8 +13939,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "TeamCloudGetScheduledTasksResponse",
-                  "canonicalReference": "teamcloud!TeamCloudGetScheduledTasksResponse:type"
+                  "text": "TeamCloudGetSchedulesResponse",
+                  "canonicalReference": "teamcloud!TeamCloudGetSchedulesResponse:type"
                 },
                 {
                   "kind": "Content",
@@ -13878,7 +13981,7 @@
                   }
                 }
               ],
-              "name": "getScheduledTasks"
+              "name": "getSchedules"
             },
             {
               "kind": "Method",
@@ -14239,12 +14342,12 @@
             },
             {
               "kind": "Method",
-              "canonicalReference": "teamcloud!TeamCloud#runScheduledTask:member(1)",
-              "docComment": "/**\n * Runs a Project Scheduled Task.\n *\n * @param scheduledTaskId - \n *\n * @param organizationId - \n *\n * @param projectId - \n *\n * @param options - The options parameters.\n */\n",
+              "canonicalReference": "teamcloud!TeamCloud#runSchedule:member(1)",
+              "docComment": "/**\n * Runs a Project Schedule.\n *\n * @param scheduleId - \n *\n * @param organizationId - \n *\n * @param projectId - \n *\n * @param options - The options parameters.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "runScheduledTask(scheduledTaskId: "
+                  "text": "runSchedule(scheduleId: "
                 },
                 {
                   "kind": "Content",
@@ -14294,8 +14397,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "TeamCloudRunScheduledTaskResponse",
-                  "canonicalReference": "teamcloud!TeamCloudRunScheduledTaskResponse:type"
+                  "text": "TeamCloudRunScheduleResponse",
+                  "canonicalReference": "teamcloud!TeamCloudRunScheduleResponse:type"
                 },
                 {
                   "kind": "Content",
@@ -14315,7 +14418,7 @@
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "scheduledTaskId",
+                  "parameterName": "scheduleId",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
@@ -14343,7 +14446,7 @@
                   }
                 }
               ],
-              "name": "runScheduledTask"
+              "name": "runSchedule"
             },
             {
               "kind": "Method",
@@ -16294,12 +16397,12 @@
         },
         {
           "kind": "Interface",
-          "canonicalReference": "teamcloud!TeamCloudCreateScheduledTaskOptionalParams:interface",
+          "canonicalReference": "teamcloud!TeamCloudCreateScheduleOptionalParams:interface",
           "docComment": "/**\n * Optional parameters.\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "export interface TeamCloudCreateScheduledTaskOptionalParams extends "
+              "text": "export interface TeamCloudCreateScheduleOptionalParams extends "
             },
             {
               "kind": "Content",
@@ -16316,11 +16419,11 @@
             }
           ],
           "releaseTag": "Public",
-          "name": "TeamCloudCreateScheduledTaskOptionalParams",
+          "name": "TeamCloudCreateScheduleOptionalParams",
           "members": [
             {
               "kind": "PropertySignature",
-              "canonicalReference": "teamcloud!TeamCloudCreateScheduledTaskOptionalParams#body:member",
+              "canonicalReference": "teamcloud!TeamCloudCreateScheduleOptionalParams#body:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -16329,8 +16432,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "ScheduledTaskDefinition",
-                  "canonicalReference": "teamcloud!ScheduledTaskDefinition:interface"
+                  "text": "ScheduleDefinition",
+                  "canonicalReference": "teamcloud!ScheduleDefinition:interface"
                 },
                 {
                   "kind": "Content",
@@ -16354,17 +16457,17 @@
         },
         {
           "kind": "TypeAlias",
-          "canonicalReference": "teamcloud!TeamCloudCreateScheduledTaskResponse:type",
-          "docComment": "/**\n * Contains response data for the createScheduledTask operation.\n */\n",
+          "canonicalReference": "teamcloud!TeamCloudCreateScheduleResponse:type",
+          "docComment": "/**\n * Contains response data for the createSchedule operation.\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "export declare type TeamCloudCreateScheduledTaskResponse = "
+              "text": "export declare type TeamCloudCreateScheduleResponse = "
             },
             {
               "kind": "Reference",
-              "text": "ScheduledTaskDataResult",
-              "canonicalReference": "teamcloud!ScheduledTaskDataResult:interface"
+              "text": "ScheduleDataResult",
+              "canonicalReference": "teamcloud!ScheduleDataResult:interface"
             },
             {
               "kind": "Content",
@@ -16381,8 +16484,8 @@
             },
             {
               "kind": "Reference",
-              "text": "ScheduledTaskDataResult",
-              "canonicalReference": "teamcloud!ScheduledTaskDataResult:interface"
+              "text": "ScheduleDataResult",
+              "canonicalReference": "teamcloud!ScheduleDataResult:interface"
             },
             {
               "kind": "Content",
@@ -16394,7 +16497,7 @@
             }
           ],
           "releaseTag": "Public",
-          "name": "TeamCloudCreateScheduledTaskResponse",
+          "name": "TeamCloudCreateScheduleResponse",
           "typeTokenRange": {
             "startIndex": 1,
             "endIndex": 7
@@ -18093,17 +18196,17 @@
         },
         {
           "kind": "TypeAlias",
-          "canonicalReference": "teamcloud!TeamCloudGetScheduledTaskResponse:type",
-          "docComment": "/**\n * Contains response data for the getScheduledTask operation.\n */\n",
+          "canonicalReference": "teamcloud!TeamCloudGetScheduleResponse:type",
+          "docComment": "/**\n * Contains response data for the getSchedule operation.\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "export declare type TeamCloudGetScheduledTaskResponse = "
+              "text": "export declare type TeamCloudGetScheduleResponse = "
             },
             {
               "kind": "Reference",
-              "text": "ScheduledTaskDataResult",
-              "canonicalReference": "teamcloud!ScheduledTaskDataResult:interface"
+              "text": "ScheduleDataResult",
+              "canonicalReference": "teamcloud!ScheduleDataResult:interface"
             },
             {
               "kind": "Content",
@@ -18120,8 +18223,8 @@
             },
             {
               "kind": "Reference",
-              "text": "ScheduledTaskDataResult",
-              "canonicalReference": "teamcloud!ScheduledTaskDataResult:interface"
+              "text": "ScheduleDataResult",
+              "canonicalReference": "teamcloud!ScheduleDataResult:interface"
             },
             {
               "kind": "Content",
@@ -18133,7 +18236,7 @@
             }
           ],
           "releaseTag": "Public",
-          "name": "TeamCloudGetScheduledTaskResponse",
+          "name": "TeamCloudGetScheduleResponse",
           "typeTokenRange": {
             "startIndex": 1,
             "endIndex": 7
@@ -18141,17 +18244,17 @@
         },
         {
           "kind": "TypeAlias",
-          "canonicalReference": "teamcloud!TeamCloudGetScheduledTasksResponse:type",
-          "docComment": "/**\n * Contains response data for the getScheduledTasks operation.\n */\n",
+          "canonicalReference": "teamcloud!TeamCloudGetSchedulesResponse:type",
+          "docComment": "/**\n * Contains response data for the getSchedules operation.\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "export declare type TeamCloudGetScheduledTasksResponse = "
+              "text": "export declare type TeamCloudGetSchedulesResponse = "
             },
             {
               "kind": "Reference",
-              "text": "ScheduledTaskListDataResult",
-              "canonicalReference": "teamcloud!ScheduledTaskListDataResult:interface"
+              "text": "ScheduleListDataResult",
+              "canonicalReference": "teamcloud!ScheduleListDataResult:interface"
             },
             {
               "kind": "Content",
@@ -18168,8 +18271,8 @@
             },
             {
               "kind": "Reference",
-              "text": "ScheduledTaskListDataResult",
-              "canonicalReference": "teamcloud!ScheduledTaskListDataResult:interface"
+              "text": "ScheduleListDataResult",
+              "canonicalReference": "teamcloud!ScheduleListDataResult:interface"
             },
             {
               "kind": "Content",
@@ -18181,7 +18284,7 @@
             }
           ],
           "releaseTag": "Public",
-          "name": "TeamCloudGetScheduledTasksResponse",
+          "name": "TeamCloudGetSchedulesResponse",
           "typeTokenRange": {
             "startIndex": 1,
             "endIndex": 7
@@ -18392,17 +18495,17 @@
         },
         {
           "kind": "TypeAlias",
-          "canonicalReference": "teamcloud!TeamCloudRunScheduledTaskResponse:type",
-          "docComment": "/**\n * Contains response data for the runScheduledTask operation.\n */\n",
+          "canonicalReference": "teamcloud!TeamCloudRunScheduleResponse:type",
+          "docComment": "/**\n * Contains response data for the runSchedule operation.\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "export declare type TeamCloudRunScheduledTaskResponse = "
+              "text": "export declare type TeamCloudRunScheduleResponse = "
             },
             {
               "kind": "Reference",
-              "text": "ScheduledTaskDataResult",
-              "canonicalReference": "teamcloud!ScheduledTaskDataResult:interface"
+              "text": "ScheduleDataResult",
+              "canonicalReference": "teamcloud!ScheduleDataResult:interface"
             },
             {
               "kind": "Content",
@@ -18419,8 +18522,8 @@
             },
             {
               "kind": "Reference",
-              "text": "ScheduledTaskDataResult",
-              "canonicalReference": "teamcloud!ScheduledTaskDataResult:interface"
+              "text": "ScheduleDataResult",
+              "canonicalReference": "teamcloud!ScheduleDataResult:interface"
             },
             {
               "kind": "Content",
@@ -18432,7 +18535,7 @@
             }
           ],
           "releaseTag": "Public",
-          "name": "TeamCloudRunScheduledTaskResponse",
+          "name": "TeamCloudRunScheduleResponse",
           "typeTokenRange": {
             "startIndex": 1,
             "endIndex": 7

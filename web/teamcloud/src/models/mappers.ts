@@ -492,8 +492,8 @@ export const ComponentTask: coreHttp.CompositeMapper = {
           name: "String"
         }
       },
-      scheduledTaskId: {
-        serializedName: "scheduledTaskId",
+      scheduleId: {
+        serializedName: "scheduleId",
         nullable: true,
         type: {
           name: "String"
@@ -502,7 +502,7 @@ export const ComponentTask: coreHttp.CompositeMapper = {
       type: {
         serializedName: "type",
         type: {
-          name: "Number"
+          name: "String"
         }
       },
       typeName: {
@@ -954,7 +954,7 @@ export const ComponentTaskTemplate: coreHttp.CompositeMapper = {
         serializedName: "type",
         required: true,
         type: {
-          name: "Number"
+          name: "String"
         }
       },
       typeName: {
@@ -2320,10 +2320,10 @@ export const ProjectTemplateDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const ScheduledTaskListDataResult: coreHttp.CompositeMapper = {
+export const ScheduleListDataResult: coreHttp.CompositeMapper = {
   type: {
     name: "Composite",
-    className: "ScheduledTaskListDataResult",
+    className: "ScheduleListDataResult",
     modelProperties: {
       code: {
         serializedName: "code",
@@ -2347,7 +2347,7 @@ export const ScheduledTaskListDataResult: coreHttp.CompositeMapper = {
           element: {
             type: {
               name: "Composite",
-              className: "ScheduledTask"
+              className: "Schedule"
             }
           }
         }
@@ -2363,10 +2363,10 @@ export const ScheduledTaskListDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const ScheduledTask: coreHttp.CompositeMapper = {
+export const Schedule: coreHttp.CompositeMapper = {
   type: {
     name: "Composite",
-    className: "ScheduledTask",
+    className: "Schedule",
     modelProperties: {
       organization: {
         serializedName: "organization",
@@ -2492,10 +2492,10 @@ export const ComponentTaskReference: coreHttp.CompositeMapper = {
   }
 };
 
-export const ScheduledTaskDefinition: coreHttp.CompositeMapper = {
+export const ScheduleDefinition: coreHttp.CompositeMapper = {
   type: {
     name: "Composite",
-    className: "ScheduledTaskDefinition",
+    className: "ScheduleDefinition",
     modelProperties: {
       enabled: {
         serializedName: "enabled",
@@ -2550,10 +2550,10 @@ export const ScheduledTaskDefinition: coreHttp.CompositeMapper = {
   }
 };
 
-export const ScheduledTaskDataResult: coreHttp.CompositeMapper = {
+export const ScheduleDataResult: coreHttp.CompositeMapper = {
   type: {
     name: "Composite",
-    className: "ScheduledTaskDataResult",
+    className: "ScheduleDataResult",
     modelProperties: {
       code: {
         serializedName: "code",
@@ -2572,7 +2572,7 @@ export const ScheduledTaskDataResult: coreHttp.CompositeMapper = {
         serializedName: "data",
         type: {
           name: "Composite",
-          className: "ScheduledTask"
+          className: "Schedule"
         }
       },
       location: {

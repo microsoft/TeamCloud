@@ -3600,26 +3600,26 @@ class TeamCloudClientOperationsMixin:
         return deserialized
     update_project_user_me.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/users/me'}  # type: ignore
 
-    async def get_scheduled_tasks(
+    async def get_schedules(
         self,
         organization_id: str,
         project_id: str,
         **kwargs
-    ) -> Optional[Union["_models.ScheduledTaskListDataResult", "_models.ErrorResult"]]:
-        """Gets all Scheduled Tasks.
+    ) -> Optional[Union["_models.ScheduleListDataResult", "_models.ErrorResult"]]:
+        """Gets all Schedule.
 
-        Gets all Scheduled Tasks.
+        Gets all Schedule.
 
         :param organization_id:
         :type organization_id: str
         :param project_id:
         :type project_id: str
         :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ScheduledTaskListDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ScheduledTaskListDataResult or ~teamcloud.models.ErrorResult or None
+        :return: ScheduleListDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ScheduleListDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ScheduledTaskListDataResult", "_models.ErrorResult"]]]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ScheduleListDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
@@ -3627,7 +3627,7 @@ class TeamCloudClientOperationsMixin:
         accept = "application/json"
 
         # Construct URL
-        url = self.get_scheduled_tasks.metadata['url']  # type: ignore
+        url = self.get_schedules.metadata['url']  # type: ignore
         path_format_arguments = {
             'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
             'projectId': self._serialize.url("project_id", project_id, 'str'),
@@ -3651,7 +3651,7 @@ class TeamCloudClientOperationsMixin:
 
         deserialized = None
         if response.status_code == 200:
-            deserialized = self._deserialize('ScheduledTaskListDataResult', pipeline_response)
+            deserialized = self._deserialize('ScheduleListDataResult', pipeline_response)
 
         if response.status_code == 400:
             deserialized = self._deserialize('ErrorResult', pipeline_response)
@@ -3660,31 +3660,31 @@ class TeamCloudClientOperationsMixin:
             return cls(pipeline_response, deserialized, {})
 
         return deserialized
-    get_scheduled_tasks.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/schedules'}  # type: ignore
+    get_schedules.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/schedules'}  # type: ignore
 
-    async def create_scheduled_task(
+    async def create_schedule(
         self,
         organization_id: str,
         project_id: str,
-        body: Optional["_models.ScheduledTaskDefinition"] = None,
+        body: Optional["_models.ScheduleDefinition"] = None,
         **kwargs
-    ) -> Optional[Union["_models.ScheduledTaskDataResult", "_models.ErrorResult"]]:
-        """Creates a new Project Scheduled Task.
+    ) -> Optional[Union["_models.ScheduleDataResult", "_models.ErrorResult"]]:
+        """Creates a new Project Schedule.
 
-        Creates a new Project Scheduled Task.
+        Creates a new Project Schedule.
 
         :param organization_id:
         :type organization_id: str
         :param project_id:
         :type project_id: str
         :param body:
-        :type body: ~teamcloud.models.ScheduledTaskDefinition
+        :type body: ~teamcloud.models.ScheduleDefinition
         :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ScheduledTaskDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ScheduledTaskDataResult or ~teamcloud.models.ErrorResult or None
+        :return: ScheduleDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ScheduleDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ScheduledTaskDataResult", "_models.ErrorResult"]]]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ScheduleDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
@@ -3693,7 +3693,7 @@ class TeamCloudClientOperationsMixin:
         accept = "application/json"
 
         # Construct URL
-        url = self.create_scheduled_task.metadata['url']  # type: ignore
+        url = self.create_schedule.metadata['url']  # type: ignore
         path_format_arguments = {
             'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
             'projectId': self._serialize.url("project_id", project_id, 'str'),
@@ -3710,7 +3710,7 @@ class TeamCloudClientOperationsMixin:
 
         body_content_kwargs = {}  # type: Dict[str, Any]
         if body is not None:
-            body_content = self._serialize.body(body, 'ScheduledTaskDefinition')
+            body_content = self._serialize.body(body, 'ScheduleDefinition')
         else:
             body_content = None
         body_content_kwargs['content'] = body_content
@@ -3724,7 +3724,7 @@ class TeamCloudClientOperationsMixin:
 
         deserialized = None
         if response.status_code == 201:
-            deserialized = self._deserialize('ScheduledTaskDataResult', pipeline_response)
+            deserialized = self._deserialize('ScheduleDataResult', pipeline_response)
 
         if response.status_code == 400:
             deserialized = self._deserialize('ErrorResult', pipeline_response)
@@ -3739,31 +3739,31 @@ class TeamCloudClientOperationsMixin:
             return cls(pipeline_response, deserialized, {})
 
         return deserialized
-    create_scheduled_task.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/schedules'}  # type: ignore
+    create_schedule.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/schedules'}  # type: ignore
 
-    async def get_scheduled_task(
+    async def get_schedule(
         self,
-        scheduled_task_id: str,
+        schedule_id: str,
         organization_id: str,
         project_id: str,
         **kwargs
-    ) -> Optional[Union["_models.ScheduledTaskDataResult", "_models.ErrorResult"]]:
-        """Gets the Scheduled Task.
+    ) -> Optional[Union["_models.ScheduleDataResult", "_models.ErrorResult"]]:
+        """Gets the Schedule.
 
-        Gets the Scheduled Task.
+        Gets the Schedule.
 
-        :param scheduled_task_id:
-        :type scheduled_task_id: str
+        :param schedule_id:
+        :type schedule_id: str
         :param organization_id:
         :type organization_id: str
         :param project_id:
         :type project_id: str
         :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ScheduledTaskDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ScheduledTaskDataResult or ~teamcloud.models.ErrorResult or None
+        :return: ScheduleDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ScheduleDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ScheduledTaskDataResult", "_models.ErrorResult"]]]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ScheduleDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
@@ -3771,9 +3771,9 @@ class TeamCloudClientOperationsMixin:
         accept = "application/json"
 
         # Construct URL
-        url = self.get_scheduled_task.metadata['url']  # type: ignore
+        url = self.get_schedule.metadata['url']  # type: ignore
         path_format_arguments = {
-            'scheduledTaskId': self._serialize.url("scheduled_task_id", scheduled_task_id, 'str'),
+            'scheduleId': self._serialize.url("schedule_id", schedule_id, 'str'),
             'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
             'projectId': self._serialize.url("project_id", project_id, 'str'),
         }
@@ -3796,7 +3796,7 @@ class TeamCloudClientOperationsMixin:
 
         deserialized = None
         if response.status_code == 200:
-            deserialized = self._deserialize('ScheduledTaskDataResult', pipeline_response)
+            deserialized = self._deserialize('ScheduleDataResult', pipeline_response)
 
         if response.status_code == 400:
             deserialized = self._deserialize('ErrorResult', pipeline_response)
@@ -3808,31 +3808,31 @@ class TeamCloudClientOperationsMixin:
             return cls(pipeline_response, deserialized, {})
 
         return deserialized
-    get_scheduled_task.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/schedules/{scheduledTaskId}'}  # type: ignore
+    get_schedule.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/schedules/{scheduleId}'}  # type: ignore
 
-    async def run_scheduled_task(
+    async def run_schedule(
         self,
-        scheduled_task_id: str,
+        schedule_id: str,
         organization_id: str,
         project_id: str,
         **kwargs
-    ) -> Optional[Union["_models.ScheduledTaskDataResult", "_models.ErrorResult"]]:
-        """Runs a Project Scheduled Task.
+    ) -> Optional[Union["_models.ScheduleDataResult", "_models.ErrorResult"]]:
+        """Runs a Project Schedule.
 
-        Runs a Project Scheduled Task.
+        Runs a Project Schedule.
 
-        :param scheduled_task_id:
-        :type scheduled_task_id: str
+        :param schedule_id:
+        :type schedule_id: str
         :param organization_id:
         :type organization_id: str
         :param project_id:
         :type project_id: str
         :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: ScheduledTaskDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.ScheduledTaskDataResult or ~teamcloud.models.ErrorResult or None
+        :return: ScheduleDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ScheduleDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ScheduledTaskDataResult", "_models.ErrorResult"]]]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ScheduleDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
@@ -3840,9 +3840,9 @@ class TeamCloudClientOperationsMixin:
         accept = "application/json"
 
         # Construct URL
-        url = self.run_scheduled_task.metadata['url']  # type: ignore
+        url = self.run_schedule.metadata['url']  # type: ignore
         path_format_arguments = {
-            'scheduledTaskId': self._serialize.url("scheduled_task_id", scheduled_task_id, 'str'),
+            'scheduleId': self._serialize.url("schedule_id", schedule_id, 'str'),
             'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
             'projectId': self._serialize.url("project_id", project_id, 'str'),
         }
@@ -3865,7 +3865,7 @@ class TeamCloudClientOperationsMixin:
 
         deserialized = None
         if response.status_code == 201:
-            deserialized = self._deserialize('ScheduledTaskDataResult', pipeline_response)
+            deserialized = self._deserialize('ScheduleDataResult', pipeline_response)
 
         if response.status_code == 400:
             deserialized = self._deserialize('ErrorResult', pipeline_response)
@@ -3877,7 +3877,7 @@ class TeamCloudClientOperationsMixin:
             return cls(pipeline_response, deserialized, {})
 
         return deserialized
-    run_scheduled_task.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/schedules/{scheduledTaskId}/run'}  # type: ignore
+    run_schedule.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/schedules/{scheduleId}/run'}  # type: ignore
 
     async def get_status(
         self,
